@@ -11,7 +11,7 @@ namespace RPGGame.Actions.Execution
         /// <summary>
         /// Publishes action executed event
         /// </summary>
-        public static CombatEvent PublishActionExecuted(Actor source, Actor target, Action action, int rollValue, bool isCombo, bool isCritical)
+        public static CombatEvent PublishActionExecuted(Actor source, Actor? target, Action action, int rollValue, bool isCombo, bool isCritical)
         {
             var actionEvent = new CombatEvent(CombatEventType.ActionExecuted, source)
             {

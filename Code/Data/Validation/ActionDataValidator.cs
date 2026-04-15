@@ -92,6 +92,14 @@ namespace RPGGame.Data.Validation
                 ValidationRules.Actions.MinThresholdAdjustment, ValidationRules.Actions.MaxThresholdAdjustment);
             ValidateRange(result, entityName, "criticalHitThresholdAdjustment", action.CriticalHitThresholdAdjustment,
                 ValidationRules.Actions.MinThresholdAdjustment, ValidationRules.Actions.MaxThresholdAdjustment);
+            ValidateRange(result, entityName, "enemyCriticalMissThresholdAdjustment", action.EnemyCriticalMissThresholdAdjustment,
+                ValidationRules.Actions.MinThresholdAdjustment, ValidationRules.Actions.MaxThresholdAdjustment);
+            ValidateRange(result, entityName, "enemyHitThresholdAdjustment", action.EnemyHitThresholdAdjustment,
+                ValidationRules.Actions.MinThresholdAdjustment, ValidationRules.Actions.MaxThresholdAdjustment);
+            ValidateRange(result, entityName, "enemyComboThresholdAdjustment", action.EnemyComboThresholdAdjustment,
+                ValidationRules.Actions.MinThresholdAdjustment, ValidationRules.Actions.MaxThresholdAdjustment);
+            ValidateRange(result, entityName, "enemyCriticalHitThresholdAdjustment", action.EnemyCriticalHitThresholdAdjustment,
+                ValidationRules.Actions.MinThresholdAdjustment, ValidationRules.Actions.MaxThresholdAdjustment);
 
             // Multiple dice validation
             ValidateRange(result, entityName, "multipleDiceCount", action.MultipleDiceCount, 
@@ -123,6 +131,39 @@ namespace RPGGame.Data.Validation
             {
                 result.AddWarning(FileName, entityName, "statBonusType", 
                     $"Unknown stat bonus type '{action.StatBonusType}'. Valid types: {string.Join(", ", ValidationRules.Actions.ValidStatBonusTypes)}");
+            }
+
+            action.NormalizeChainPositionBonuses();
+            if (action.ChainPositionBonuses != null && ChainPositionBonusApplier.IsModifyChainPositionEnabled(
+                    new ComboRoutingProperties { ModifyBasedOnChainPosition = action.ModifyBasedOnChainPosition, ChainPositionBonuses = action.ChainPositionBonuses }))
+            {
+                for (int i = 0; i < action.ChainPositionBonuses.Count; i++)
+                {
+                    var e = action.ChainPositionBonuses[i];
+                    if (!string.IsNullOrEmpty(e.ModifiesParam) &&
+                        !ValidationRules.Actions.ValidChainPositionModifiesParam.Contains(e.ModifiesParam))
+                    {
+                        result.AddWarning(FileName, entityName, "chainPositionBonuses",
+                            $"Unknown chainPositionBonuses[{i}].modifiesParam '{e.ModifiesParam}'. Valid: Accuracy, EnemyAccuracy, Damage, MultiHit (legacy: RollBonus, EnemyRollBonus).");
+                    }
+                    if (!string.IsNullOrEmpty(e.PositionBasis) &&
+                        !ValidationRules.Actions.ValidChainPositionBasis.Contains(e.PositionBasis))
+                    {
+                        result.AddWarning(FileName, entityName, "chainPositionBonuses",
+                            $"Unknown chainPositionBonuses[{i}].positionBasis '{e.PositionBasis}'. Valid: empty, ComboSlotIndex0, ComboSlotIndex1, AmpTier.");
+                    }
+                    if (!string.IsNullOrEmpty(e.ValueKind) &&
+                        !ValidationRules.Actions.ValidChainPositionValueKind.Contains(e.ValueKind))
+                    {
+                        result.AddWarning(FileName, entityName, "chainPositionBonuses",
+                            $"Unknown chainPositionBonuses[{i}].valueKind '{e.ValueKind}'. Valid: #, %.");
+                    }
+                    if (double.IsNaN(e.Value) || double.IsInfinity(e.Value))
+                    {
+                        result.AddError(FileName, entityName, "chainPositionBonuses",
+                            $"chainPositionBonuses[{i}].value must be finite.");
+                    }
+                }
             }
 
             // Business rules

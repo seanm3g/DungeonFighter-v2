@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Actions
@@ -27,6 +28,7 @@ namespace RPGGame.Tests.Unit.Actions
 
             TestGetComboActions();
             TestGetComboStep();
+            TestGetNextComboSlotForPendingBonuses();
             TestCalculateRollBonus();
             TestCalculateDamageMultiplier();
 
@@ -91,6 +93,48 @@ namespace RPGGame.Tests.Unit.Actions
             var enemyStep = ActionUtilities.GetComboStep(enemy);
             TestBase.AssertEqual(0, enemyStep,
                 "Enemy combo step should be 0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Finisher (last slot): pending ACTION bonuses must target slot 0 even if ComboStep is out of sync with the executed action.
+        /// </summary>
+        private static void TestGetNextComboSlotForPendingBonuses()
+        {
+            Console.WriteLine("\n--- Testing GetNextComboSlotForPendingBonuses ---");
+
+            var character = new Character("SlotWrapTest", 1);
+            var opener = TestDataBuilders.CreateMockAction("Opener", ActionType.Attack);
+            opener.IsComboAction = true;
+            opener.ComboOrder = 1;
+            opener.ComboRouting.IsOpener = true;
+            var mid = TestDataBuilders.CreateMockAction("Mid", ActionType.Attack);
+            mid.IsComboAction = true;
+            mid.ComboOrder = 2;
+            var finisher = TestDataBuilders.CreateMockAction("FinisherSlot", ActionType.Attack);
+            finisher.IsComboAction = true;
+            finisher.ComboOrder = 3;
+            finisher.ComboRouting.IsFinisher = true;
+
+            character.AddAction(opener, 1.0);
+            character.AddAction(mid, 1.0);
+            character.AddAction(finisher, 1.0);
+            character.Actions.AddToCombo(opener);
+            character.Actions.AddToCombo(mid);
+            character.Actions.AddToCombo(finisher);
+
+            var combo = ActionUtilities.GetComboActions(character);
+            TestBase.AssertTrue(combo.Count >= 3, "Test combo should have 3 actions", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            character.ComboStep = 0;
+            int nextAfterFinisher = ActionUtilities.GetNextComboSlotForPendingBonuses(character, finisher, combo);
+            TestBase.AssertEqual(0, nextAfterFinisher,
+                "Finisher wraps for-next-ACTION bonuses to the beginning of the sequence (slot 0)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            int nextAfterOpener = ActionUtilities.GetNextComboSlotForPendingBonuses(character, opener, combo);
+            TestBase.AssertEqual(1, nextAfterOpener,
+                "After opener, next pending slot is 1",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

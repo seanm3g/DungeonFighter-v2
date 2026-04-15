@@ -45,6 +45,14 @@ namespace RPGGame.Editors
         }
 
         /// <summary>
+        /// Reloads in-memory actions from disk via <see cref="ActionLoader"/> (e.g. after Google Sheets resync).
+        /// </summary>
+        public void ReloadFromDisk()
+        {
+            LoadActions();
+        }
+
+        /// <summary>
         /// Get all actions
         /// </summary>
         public List<ActionData> GetActions()

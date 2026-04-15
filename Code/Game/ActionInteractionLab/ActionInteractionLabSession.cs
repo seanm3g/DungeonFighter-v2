@@ -95,8 +95,20 @@ namespace RPGGame.ActionInteractionLab
         /// <summary>Fallback visible catalog rows when layout has not rendered yet (scroll math).</summary>
         public const int LabCatalogVisibleNameRows = 4;
 
-        /// <summary>Set each frame by <see cref="RPGGame.UI.Avalonia.Layout.RightPanelRenderer"/>; rows shown between ▲/▼.</summary>
+        /// <summary>Set each frame by <see cref="RPGGame.UI.Avalonia.ActionInteractionLab.ActionLabControlsRenderer"/>; rows shown between ▲/▼.</summary>
         public int LastCatalogVisibleRowCount { get; set; }
+
+        /// <summary>Inclusive grid X bounds for wheel-scrolling the action catalog in the tools panel; <c>-1</c> when unset.</summary>
+        public int LastCatalogWheelMinGridX { get; set; } = -1;
+
+        /// <summary>Inclusive grid X bounds for wheel-scrolling the action catalog in the tools panel; <c>-1</c> when unset.</summary>
+        public int LastCatalogWheelMaxGridX { get; set; } = -1;
+
+        /// <summary>Inclusive grid Y bounds (▲ more through ▼ more) for wheel-scrolling the catalog; <c>-1</c> when unset.</summary>
+        public int LastCatalogWheelMinGridY { get; set; } = -1;
+
+        /// <summary>Inclusive grid Y bounds for wheel-scrolling the catalog; <c>-1</c> when unset.</summary>
+        public int LastCatalogWheelMaxGridY { get; set; } = -1;
 
         private ActionInteractionLabSession(
             CombatManager combatManager,

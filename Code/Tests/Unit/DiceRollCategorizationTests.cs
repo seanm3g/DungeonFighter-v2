@@ -61,7 +61,8 @@ namespace RPGGame.Tests.Unit
             int hitThreshold = thresholdManager.GetHitThreshold(source);
             
             int attackRoll = baseRoll + rollBonus;
-            int critThresholdRoll = CombatCalculator.GetCritThresholdEvaluationRoll(attackRoll, source);
+            int critThresholdRoll = CombatCalculator.GetCritThresholdEvaluationRoll(
+                attackRoll, rollBonus, source.RollPenalty);
             
             bool isCriticalMiss = critThresholdRoll <= criticalMissThreshold && critThresholdRoll <= hitThreshold;
             if (isCriticalMiss)
@@ -117,10 +118,10 @@ namespace RPGGame.Tests.Unit
                 "Base roll 1 should be critical miss",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Large non-persistent bonus can move crit-eval above crit-miss band (INT 0 in test attacker)
+            // Accuracy does not move crit-eval off natural 1 for crit-miss (bonus affects hit total only)
             var category1Bonus = CategorizeRoll(attacker, target, 1, 10);
-            TestBase.AssertEqualEnum(RollCategory.Hit, category1Bonus,
-                "Base roll 1 with +10 bonus (attack 11) should hit, not crit miss, when no persistent stat bonus",
+            TestBase.AssertEqualEnum(RollCategory.CriticalMiss, category1Bonus,
+                "Base roll 1 with +10: crit-eval stays 1 so still critical miss",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test with custom critical miss threshold
@@ -270,16 +271,15 @@ namespace RPGGame.Tests.Unit
                 "Base roll 20 should be critical hit + combo",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test with bonus that pushes attack roll to 20+
+            // Bonuses improve hit/combo but crit-eval uses base (accuracy does not inflate crit)
             var category15Bonus = CategorizeRoll(attacker, target, 15, 5);
-            TestBase.AssertEqualEnum(RollCategory.CriticalHitCombo, category15Bonus,
-                "Base roll 15 with +5 bonus (attack roll 20) should be critical hit + combo",
+            TestBase.AssertEqualEnum(RollCategory.ComboAction, category15Bonus,
+                "Base roll 15 with +5 (attack 20) is combo; crit-eval stays 15 so not a crit",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test with larger bonus
             var category10Bonus = CategorizeRoll(attacker, target, 10, 10);
-            TestBase.AssertEqualEnum(RollCategory.CriticalHitCombo, category10Bonus,
-                "Base roll 10 with +10 bonus (attack roll 20) should be critical hit + combo",
+            TestBase.AssertEqualEnum(RollCategory.ComboAction, category10Bonus,
+                "Base roll 10 with +10 (attack 20) is combo only; crit-eval is 10",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -342,10 +342,10 @@ namespace RPGGame.Tests.Unit
                 "Base roll 10 with +4 bonus (attack roll 14) should be combo action",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Base roll 10 (hit) with +10 bonus = attack roll 20 (critical + combo)
+            // Attack 20 qualifies for combo; crit-eval 10 does not reach crit threshold
             var category10Plus10 = CategorizeRoll(attacker, target, 10, 10);
-            TestBase.AssertEqualEnum(RollCategory.CriticalHitCombo, category10Plus10,
-                "Base roll 10 with +10 bonus (attack roll 20) should be critical hit + combo",
+            TestBase.AssertEqualEnum(RollCategory.ComboAction, category10Plus10,
+                "Base roll 10 with +10 (attack 20) is combo; bonus does not grant crit",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Base roll 4 (miss) with +2 bonus = attack roll 6 (hit)
@@ -354,10 +354,10 @@ namespace RPGGame.Tests.Unit
                 "Base roll 4 with +2 bonus (attack roll 6) should be hit",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Base roll 1 with large non-persistent bonus: escapes crit miss band (matches crit-eval rules)
+            // Crit-eval stays 1 (bonus stripped); still in crit-miss band even if attack total is high
             var category1Plus20 = CategorizeRoll(attacker, target, 1, 20);
-            TestBase.AssertEqualEnum(RollCategory.CriticalHitCombo, category1Plus20,
-                "Base roll 1 with +20 bonus (attack 21) should crit+combo when persistent stat bonus is 0",
+            TestBase.AssertEqualEnum(RollCategory.CriticalMiss, category1Plus20,
+                "Base roll 1 with +20: crit-eval 1 still counts as critical miss when in that band",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

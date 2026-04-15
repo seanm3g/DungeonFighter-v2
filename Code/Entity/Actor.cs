@@ -21,7 +21,7 @@ namespace RPGGame
         
         // Roll penalty system (for effects like Dust Cloud)
         public int RollPenalty { get; set; } = 0; // Penalty to dice rolls
-        public int RollPenaltyTurns { get; set; } = 0; // Number of turns the penalty lasts
+        public int RollPenaltyTurns { get; set; } = 0; // Attack/spell rolls remaining while penalty applies
         
         // Poison/Burn system (common to all entities)
         public int PoisonDamage { get; set; } = 0;
@@ -140,14 +140,30 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Applies a roll penalty to the actor
+        /// Applies a roll penalty to the actor (subtracted from roll bonus on attack/spell rolls).
         /// </summary>
         /// <param name="penalty">Amount to reduce rolls by</param>
-        /// <param name="turns">Number of turns the penalty lasts</param>
-        public void ApplyRollPenalty(int penalty, int turns)
+        /// <param name="attacksRemaining">How many resolved Attack/Spell rolls keep this penalty; decremented in <see cref="ConsumeRollPenaltyAfterCombatRoll"/>.</param>
+        public void ApplyRollPenalty(int penalty, int attacksRemaining)
         {
             RollPenalty = penalty;
-            RollPenaltyTurns = turns;
+            RollPenaltyTurns = Math.Max(0, attacksRemaining);
+        }
+
+        /// <summary>
+        /// Call after a combat action that used the d20 for hit/miss (one consumption per action, not per multihit damage tick).
+        /// </summary>
+        public void ConsumeRollPenaltyAfterCombatRoll(Action? resolvedAction)
+        {
+            if (resolvedAction == null) return;
+            if (resolvedAction.Type != ActionType.Attack && resolvedAction.Type != ActionType.Spell) return;
+            if (RollPenaltyTurns <= 0 || RollPenalty == 0) return;
+            RollPenaltyTurns--;
+            if (RollPenaltyTurns <= 0)
+            {
+                RollPenaltyTurns = 0;
+                RollPenalty = 0;
+            }
         }
 
         public Action? SelectAction()
@@ -191,14 +207,8 @@ namespace RPGGame
                     IsStunned = false;
             }
             
-            // Update roll penalty effects
-            if (RollPenaltyTurns > 0)
-            {
-                RollPenaltyTurns = Math.Max(0, RollPenaltyTurns - (int)Math.Ceiling(turnsPassed));
-                if (RollPenaltyTurns == 0)
-                    RollPenalty = 0;
-            }
-            
+            // Roll penalty uses attack-based consumption (ConsumeRollPenaltyAfterCombatRoll), not time decay here.
+
             // Update weaken debuff
             if (WeakenTurns > 0)
             {

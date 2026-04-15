@@ -28,6 +28,7 @@ namespace RPGGame.Tests.Unit.Data
             TestMergeOpenerFinisherRoundTrip();
             TestMergeHeroRollZeroClearsBaseRow();
             TestMergeCritMissRoundTrip();
+            TestMergeEnemyRollBonusesRoundTrip();
 
             TestBase.PrintSummary("ActionDataToSpreadsheetJsonConverter Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -115,7 +116,7 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual("UPDATED", row.Action, "Action name overwritten", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("WEAPON", row.Rarity, "Rarity overwritten", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("", row.HeroAccuracy, "HeroAccuracy from ActionData when RollBonus is 0 (not base row)", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("1", row.EnemyCrit, "EnemyCrit preserved from base", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("", row.EnemyCrit, "EnemyCrit cleared when ActionData enemy crit adjustment is 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestConvertListPreservesOrderAndMerges()
@@ -218,6 +219,36 @@ namespace RPGGame.Tests.Unit.Data
             data.CriticalMissThresholdAdjustment = 0;
             row = ActionDataToSpreadsheetJsonConverter.Merge(data, new SpreadsheetActionJson { Action = "TEST", HeroCritMiss = "-2" });
             TestBase.AssertEqual("", row.HeroCritMiss, "Crit miss 0 clears value", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestMergeEnemyRollBonusesRoundTrip()
+        {
+            System.Console.WriteLine("--- Merge enemy roll bonuses round-trip ---");
+            var data = new ActionData
+            {
+                Name = "ENEMY_STRIKE",
+                Type = "Attack",
+                TargetType = "SingleTarget",
+                DamageMultiplier = 1.0,
+                Length = 1.0,
+                MultiHitCount = 1,
+                EnemyRollBonus = -3,
+                EnemyCriticalMissThresholdAdjustment = -1,
+                EnemyHitThresholdAdjustment = 1,
+                EnemyComboThresholdAdjustment = 2,
+                EnemyCriticalHitThresholdAdjustment = -1
+            };
+            var row = ActionDataToSpreadsheetJsonConverter.Merge(data, null);
+            TestBase.AssertEqual("-3", row.EnemyAccuracy, "Enemy accuracy", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("-1", row.EnemyCritMiss, "Enemy crit miss", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("1", row.EnemyHit, "Enemy hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("2", row.EnemyCombo, "Enemy combo", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("-1", row.EnemyCrit, "Enemy crit", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var sheet = row.ToSpreadsheetActionData();
+            var back = SpreadsheetToActionDataConverter.Convert(sheet);
+            TestBase.AssertEqual(-3, back.EnemyRollBonus, "EnemyRollBonus loads back", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(-1, back.EnemyCriticalMissThresholdAdjustment, "Enemy crit miss loads back", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

@@ -14,6 +14,7 @@ namespace RPGGame.Tests.Unit.Data
             int testsRun = 0, testsPassed = 0, testsFailed = 0;
 
             TestHeaderTwoRows_MapsStunAndAction(ref testsRun, ref testsPassed, ref testsFailed);
+            TestDamageColumn_ResolvedWithoutPercentInHeader(ref testsRun, ref testsPassed, ref testsFailed);
             TestSingleHeaderRow_CoreColumns(ref testsRun, ref testsPassed, ref testsFailed);
             TestEmptyOptionalFields(ref testsRun, ref testsPassed, ref testsFailed);
             TestBuildHeaderFromSheetRows_FirstDataRow(ref testsRun, ref testsPassed, ref testsFailed);
@@ -47,6 +48,32 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual("2", row[2], "STUN under ENEMY TARGET", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual("ENEMY", row[3], "TARGET column", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual(3, firstData, "first data row is 3 when two header rows", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        /// <summary>
+        /// Published CSV often labels the column DAMAGE without a % in the header; ingestion must not read # OF HITS (index 6) as damage.
+        /// </summary>
+        private static void TestDamageColumn_ResolvedWithoutPercentInHeader(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestDamageColumn_ResolvedWithoutPercentInHeader));
+            var labelRow = new[]
+            {
+                "ACTION", "DESCRIPTION", "", "RARITY", "CATEGORY", "DPS(%)", "# OF HITS", "DAMAGE", "SPEED(x)"
+            };
+            var (header, _) = SpreadsheetActionParser.BuildHeaderFromSheetRows(new List<string[]> { labelRow });
+            TestBase.AssertTrue(header != null, "header parsed", ref testsRun, ref testsPassed, ref testsFailed);
+            if (header == null) return;
+
+            var dataRow = new[]
+            {
+                "Lucky Charm", "test", "", "C", "General", "0", "1", "10%", "1"
+            };
+            var parsed = SpreadsheetActionData.FromCsvRow(dataRow, header);
+
+            TestBase.AssertEqual("10%", parsed.Damage, "DAMAGE column (not # OF HITS)", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var actionData = SpreadsheetToActionDataConverter.Convert(parsed);
+            TestBase.AssertTrue(Math.Abs(actionData.DamageMultiplier - 0.1) < 0.0001, "10% -> DamageMultiplier 0.1", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
         private static void TestSingleHeaderRow_CoreColumns(ref int testsRun, ref int testsPassed, ref int testsFailed)

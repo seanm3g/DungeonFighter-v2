@@ -7,6 +7,7 @@ using RPGGame.ActionInteractionLab;
 using RPGGame.Handlers.Inventory;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Settings;
@@ -509,7 +510,7 @@ namespace RPGGame.UI.Avalonia.Handlers
             {
                 if (element.Value.StartsWith("lab_", StringComparison.Ordinal))
                 {
-                    await HandleActionLabClickAsync(element.Value).ConfigureAwait(true);
+                    await ActionLabInputCoordinator.HandleLabControlAsync(element.Value, canvasUI, game).ConfigureAwait(true);
                     return;
                 }
 
@@ -583,136 +584,5 @@ namespace RPGGame.UI.Avalonia.Handlers
             }
         }
 
-        private async System.Threading.Tasks.Task HandleActionLabClickAsync(string value)
-        {
-            if (canvasUI == null || game == null) return;
-            var session = ActionInteractionLabSession.Current;
-            if (session == null) return;
-
-            void RefreshLabCombat()
-            {
-                canvasUI.RenderCombat(session.LabPlayer, session.LabEnemy, new List<string>());
-            }
-
-            if (value == "lab_exit")
-            {
-                game.ExitActionInteractionLab();
-                try { canvasUI.GetMainWindow()?.Activate(); } catch { /* ignore */ }
-                return;
-            }
-
-            if (value == "lab_d20_random")
-            {
-                session.UseRandomD20PerStep = true;
-                RefreshLabCombat();
-                return;
-            }
-
-            if (value.StartsWith("lab_d20:", StringComparison.Ordinal))
-            {
-                if (int.TryParse(value.AsSpan("lab_d20:".Length), out int d) && d >= 1 && d <= 20)
-                {
-                    session.UseRandomD20PerStep = false;
-                    session.SelectedD20 = d;
-                }
-                RefreshLabCombat();
-                return;
-            }
-
-            if (value.StartsWith("lab_act:", StringComparison.Ordinal))
-            {
-                if (int.TryParse(value.AsSpan("lab_act:".Length), out int idx))
-                {
-                    var names = ActionLoader.GetAllActionNames();
-                    names.Sort(StringComparer.OrdinalIgnoreCase);
-                    if (idx >= 0 && idx < names.Count)
-                    {
-                        session.SelectedCatalogActionName = names[idx];
-                        // One click: pick catalog row and append to combo strip.
-                        session.AddSelectedCatalogActionToComboStrip();
-                    }
-                }
-                return;
-            }
-
-            if (value == "lab_combo_prev")
-            {
-                session.NudgeLabPlayerComboStep(-1);
-                return;
-            }
-
-            if (value == "lab_combo_next")
-            {
-                session.NudgeLabPlayerComboStep(1);
-                return;
-            }
-
-            if (value == "lab_scrl:up")
-            {
-                session.CatalogScrollOffset = Math.Max(0, session.CatalogScrollOffset - 1);
-                RefreshLabCombat();
-                return;
-            }
-
-            if (value == "lab_scrl:down")
-            {
-                var names = ActionLoader.GetAllActionNames();
-                names.Sort(StringComparer.OrdinalIgnoreCase);
-                int visible = session.LastCatalogVisibleRowCount > 0
-                    ? session.LastCatalogVisibleRowCount
-                    : ActionInteractionLabSession.LabCatalogVisibleNameRows;
-                int maxScroll = Math.Max(0, names.Count - visible);
-                session.CatalogScrollOffset = Math.Min(maxScroll, session.CatalogScrollOffset + 1);
-                RefreshLabCombat();
-                return;
-            }
-
-            if (value == "lab_enemy_up")
-            {
-                session.EnemyCatalogScrollOffset = Math.Max(0, session.EnemyCatalogScrollOffset - 1);
-                RefreshLabCombat();
-                return;
-            }
-
-            if (value == "lab_enemy_down")
-            {
-                var enemyTypes = EnemyLoader.GetAllEnemyTypes();
-                enemyTypes.Sort(StringComparer.OrdinalIgnoreCase);
-                const int enemyVisible = 2;
-                int maxScroll = Math.Max(0, enemyTypes.Count - enemyVisible);
-                session.EnemyCatalogScrollOffset = Math.Min(maxScroll, session.EnemyCatalogScrollOffset + 1);
-                RefreshLabCombat();
-                return;
-            }
-
-            if (value.StartsWith("lab_enemy:", StringComparison.Ordinal))
-            {
-                if (int.TryParse(value.AsSpan("lab_enemy:".Length), out int idx))
-                {
-                    var enemyTypes = EnemyLoader.GetAllEnemyTypes();
-                    enemyTypes.Sort(StringComparer.OrdinalIgnoreCase);
-                    if (idx >= 0 && idx < enemyTypes.Count)
-                        session.SetLabEnemyFromLoader(enemyTypes[idx], 1);
-                }
-                return;
-            }
-
-            if (value == "lab_reset_combo")
-            {
-                session.ResetLabCombo();
-                return;
-            }
-
-            if (value == "lab_step")
-            {
-                await session.StepAsync(session.ResolveD20ForNextStep(), session.SelectedCatalogActionName).ConfigureAwait(true);
-                return;
-            }
-
-            if (value == "lab_undo")
-            {
-                await session.UndoLastStepAsync().ConfigureAwait(true);
-            }
-        }
     }
 }

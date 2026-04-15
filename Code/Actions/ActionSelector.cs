@@ -47,7 +47,7 @@ namespace RPGGame
         /// Selects an action based on dice roll logic:
         /// - Natural 20 always selects a combo-slot action (when available).
         /// - Otherwise compares preview attack total (same components as <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/>:
-        ///   modified d20 + peeked ACCURACY bonuses + roll bonuses) to the effective combo threshold
+        ///   modified d20 + roll bonuses; peeked ACCURACY shifts the effective combo threshold, not the d20) to the effective combo threshold
         ///   (threshold manager + COMBO effect bonuses + combo action roll-mod threshold fields).
         /// For heroes only.
         /// </summary>
@@ -78,8 +78,8 @@ namespace RPGGame
 
             int actionIdx = ActionUtilities.GetComboStep(source) % comboActions.Count;
             Action comboAction = comboActions[actionIdx];
-            int totalCombo = PreviewAttackTotal(source, comboAction, baseRoll, acc);
-            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus);
+            int totalCombo = PreviewAttackTotal(source, comboAction, baseRoll);
+            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus, acc);
 
             if (totalCombo >= comboThreshold)
                 return SelectComboAction(source);
@@ -107,13 +107,35 @@ namespace RPGGame
             PeekRollAccuracyAndComboBonuses(source as Character, out int acc, out int effectComboBonus);
             int actionIdx = ActionUtilities.GetComboStep(source) % comboActions.Count;
             Action comboAction = comboActions[actionIdx];
-            int totalCombo = PreviewAttackTotal(source, comboAction, baseRoll, acc);
-            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus);
+            int totalCombo = PreviewAttackTotal(source, comboAction, baseRoll);
+            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus, acc);
             return totalCombo >= comboThreshold;
         }
 
         /// <summary>
-        /// Peeks ACCURACY (added to modified base) and COMBO (adjusts combo threshold) bonuses
+        /// Sum of peeked ACCURACY from ACTION/ATTACK/ABILITY queues (applied as threshold shifts on the next attack, not added to the d20).
+        /// Heroes: slot + FIFO + ATTACK + ABILITY peek (matches <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/>).
+        /// Enemies: FIFO layer only.
+        /// </summary>
+        public static int PeekQueuedAccuracyBonus(Character? c)
+        {
+            if (c == null) return 0;
+            if (c is Enemy)
+            {
+                int acc = 0;
+                foreach (var bonus in c.Effects.PeekPendingActionBonusesNextHeroRoll())
+                {
+                    if (string.Equals(bonus.Type, "ACCURACY", StringComparison.OrdinalIgnoreCase))
+                        acc += (int)bonus.Value;
+                }
+                return acc;
+            }
+            PeekRollAccuracyAndComboBonuses(c, out int accuracyAccumulator, out _);
+            return accuracyAccumulator;
+        }
+
+        /// <summary>
+        /// Peeks ACCURACY (threshold shift) and COMBO (adjusts combo threshold) bonuses
         /// that <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/> would consume on this roll, without consuming.
         /// </summary>
         private static void PeekRollAccuracyAndComboBonuses(Character? c, out int accuracyAccumulator, out int effectComboBonus)
@@ -137,6 +159,14 @@ namespace RPGGame
                     }
                 }
             }
+            foreach (var bonus in c.Effects.PeekPendingActionBonusesNextHeroRoll())
+            {
+                switch ((bonus.Type ?? "").ToUpper())
+                {
+                    case "ACCURACY": accuracyAccumulator += (int)bonus.Value; break;
+                    case "COMBO": effectComboBonus += (int)bonus.Value; break;
+                }
+            }
             foreach (var bonus in c.Effects.PeekAttackBonuses())
             {
                 switch (bonus.Type.ToUpper())
@@ -156,29 +186,29 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Approximates effective combo threshold for the combo-slot action before ApplyThresholdOverrides mutates the manager in execution.
+        /// Approximates effective combo threshold for selection. Sheet combo <em>adjustments</em> on the action apply to the next roll only (see <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/>).
         /// </summary>
-        private static int GetEffectiveComboThresholdForSelection(Actor source, Action comboAction, int effectComboBonus)
+        private static int GetEffectiveComboThresholdForSelection(Actor source, Action comboAction, int effectComboBonus, int accuracyAcc)
         {
             var tm = RollModificationManager.GetThresholdManager();
             int t = tm.GetComboThreshold(source);
-            if (comboAction.RollMods.ComboThresholdOverride > 0)
+            if (comboAction.RollMods.ComboThresholdOverride > 0
+                && !RollModificationManager.ShouldDeferRollModThresholdPackages(comboAction))
                 t = comboAction.RollMods.ComboThresholdOverride;
             if (effectComboBonus != 0)
                 t -= effectComboBonus;
-            if (comboAction.RollMods.ComboThresholdAdjustment != 0)
-                t -= comboAction.RollMods.ComboThresholdAdjustment;
+            if (accuracyAcc != 0)
+                t -= accuracyAcc;
             return Math.Max(1, t);
         }
 
         /// <summary>
-        /// Preview attack total for an action path: modified base + peeked accuracy + roll bonus (no temp consume).
-        /// Matches the core of <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/> roll resolution before hit.
+        /// Preview attack total for an action path: modified base + roll bonus (no temp consume).
+        /// Peeked ACCURACY is not added here — it is folded into <see cref="GetEffectiveComboThresholdForSelection"/> as a threshold shift.
         /// </summary>
-        private static int PreviewAttackTotal(Actor source, Action action, int baseRoll, int accuracyAccumulator)
+        private static int PreviewAttackTotal(Actor source, Action action, int baseRoll)
         {
             int modified = RollModificationManager.ApplyActionRollModifications(baseRoll, action, source, null);
-            modified += accuracyAccumulator;
             int rollBonus = ActionUtilities.CalculateRollBonus(source, action, consumeTempBonus: false);
             return modified + rollBonus;
         }
@@ -220,8 +250,8 @@ namespace RPGGame
 
             // Use first combo action for threshold preview; actual pick stays random when multiple (same as prior roll usage pattern).
             Action comboPreview = comboActions[0];
-            int totalCombo = PreviewAttackTotal(source, comboPreview, baseRoll, acc);
-            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboPreview, effectComboBonus);
+            int totalCombo = PreviewAttackTotal(source, comboPreview, baseRoll);
+            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboPreview, effectComboBonus, acc);
 
             if (totalCombo >= comboThreshold)
             {

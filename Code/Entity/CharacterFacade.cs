@@ -149,14 +149,8 @@ namespace RPGGame
                     _character.IsStunned = false;
             }
             
-            // Update roll penalty effects
-            if (_character.RollPenaltyTurns > 0)
-            {
-                _character.RollPenaltyTurns = Math.Max(0, _character.RollPenaltyTurns - (int)Math.Ceiling(turnsPassed));
-                if (_character.RollPenaltyTurns == 0)
-                    _character.RollPenalty = 0;
-            }
-            
+            // Roll penalty: attack-based consumption in Actor.ConsumeRollPenaltyAfterCombatRoll (not time decay).
+
             // Update weaken debuff
             if (_character.WeakenTurns > 0)
             {

@@ -56,6 +56,7 @@ namespace RPGGame
             action.Advanced.StatBonus = action.Advanced.StatBonuses.Count > 0 ? action.Advanced.StatBonuses[0].Value : data.StatBonus;
             action.Advanced.StatBonusType = action.Advanced.StatBonuses.Count > 0 ? action.Advanced.StatBonuses[0].Type : data.StatBonusType;
             action.Advanced.RollBonus = data.RollBonus;
+            action.Advanced.EnemyRollBonus = data.EnemyRollBonus;
             action.Advanced.RollBonusDuration = data.RollBonusDuration;
             action.Advanced.StatBonusDuration = data.StatBonusDuration;
             action.Advanced.MultiHitCount = data.MultiHitCount;
@@ -84,6 +85,10 @@ namespace RPGGame
             action.RollMods.CriticalHitThresholdAdjustment = data.CriticalHitThresholdAdjustment;
             action.RollMods.ComboThresholdAdjustment = data.ComboThresholdAdjustment;
             action.RollMods.HitThresholdAdjustment = data.HitThresholdAdjustment;
+            action.RollMods.EnemyCriticalMissThresholdAdjustment = data.EnemyCriticalMissThresholdAdjustment;
+            action.RollMods.EnemyCriticalHitThresholdAdjustment = data.EnemyCriticalHitThresholdAdjustment;
+            action.RollMods.EnemyComboThresholdAdjustment = data.EnemyComboThresholdAdjustment;
+            action.RollMods.EnemyHitThresholdAdjustment = data.EnemyHitThresholdAdjustment;
             action.RollMods.ApplyThresholdAdjustmentsToBoth = data.ApplyThresholdAdjustmentsToBoth;
 
             action.ActionAttackBonuses = data.ActionAttackBonuses;
@@ -104,6 +109,10 @@ namespace RPGGame
             action.ComboRouting.ChainLength = data.ChainLength ?? "";
             action.ComboRouting.Reset = data.Reset ?? "";
             action.ComboRouting.ModifyBasedOnChainPosition = data.ModifyBasedOnChainPosition ?? "";
+            data.NormalizeChainPositionBonuses();
+            action.ComboRouting.ChainPositionBonuses = data.ChainPositionBonuses == null
+                ? new List<ChainPositionBonusEntry>()
+                : new List<ChainPositionBonusEntry>(data.ChainPositionBonuses);
             action.ComboRouting.IsOpener = data.IsOpener;
             action.ComboRouting.IsFinisher = data.IsFinisher;
 

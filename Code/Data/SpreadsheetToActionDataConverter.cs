@@ -196,17 +196,24 @@ namespace RPGGame.Data
             // ACTION/ATTACK bonuses
             actionData.ActionAttackBonuses = ActionAttackKeywordProcessor.ProcessBonuses(spreadsheet);
 
-            // Roll bonus fields (form edits these; round-trip from Hero columns)
+            // Roll bonus fields (form edits these; round-trip from Hero / Enemy columns)
             actionData.RollBonus = SpreadsheetActionData.ParseIntValue(spreadsheet.HeroAccuracy);
             actionData.HitThresholdAdjustment = SpreadsheetActionData.ParseIntValue(spreadsheet.HeroHit);
             actionData.ComboThresholdAdjustment = SpreadsheetActionData.ParseIntValue(spreadsheet.HeroCombo);
             actionData.CriticalHitThresholdAdjustment = SpreadsheetActionData.ParseIntValue(spreadsheet.HeroCrit);
             actionData.CriticalMissThresholdAdjustment = SpreadsheetActionData.ParseIntValue(spreadsheet.HeroCritMiss);
 
+            actionData.EnemyRollBonus = SpreadsheetActionData.ParseIntValue(spreadsheet.EnemyAccuracy);
+            actionData.EnemyHitThresholdAdjustment = SpreadsheetActionData.ParseIntValue(spreadsheet.EnemyHit);
+            actionData.EnemyComboThresholdAdjustment = SpreadsheetActionData.ParseIntValue(spreadsheet.EnemyCombo);
+            actionData.EnemyCriticalHitThresholdAdjustment = SpreadsheetActionData.ParseIntValue(spreadsheet.EnemyCrit);
+            actionData.EnemyCriticalMissThresholdAdjustment = SpreadsheetActionData.ParseIntValue(spreadsheet.EnemyCritMiss);
+
             // StatBonuses, Thresholds, Accumulations (JSON round-trip from spreadsheet)
             actionData.StatBonuses = DeserializeStatBonuses(spreadsheet.StatBonusesJson);
             actionData.Thresholds = DeserializeThresholds(spreadsheet.ThresholdsJson);
             actionData.Accumulations = DeserializeAccumulations(spreadsheet.AccumulationsJson);
+            actionData.ChainPositionBonuses = DeserializeChainPositionBonuses(spreadsheet.ChainPositionBonusesJson);
 
             // Description is taken only from the stored field (spreadsheet.Description). Do not append
             // keyword text here: that caused descriptions to grow on every load (append on load, save,
@@ -288,6 +295,17 @@ namespace RPGGame.Data
                 return list ?? new List<AccumulationEntry>();
             }
             catch { return new List<AccumulationEntry>(); }
+        }
+
+        private static List<ChainPositionBonusEntry> DeserializeChainPositionBonuses(string? json)
+        {
+            if (string.IsNullOrWhiteSpace(json)) return new List<ChainPositionBonusEntry>();
+            try
+            {
+                var list = JsonSerializer.Deserialize<List<ChainPositionBonusEntry>>(json);
+                return list ?? new List<ChainPositionBonusEntry>();
+            }
+            catch { return new List<ChainPositionBonusEntry>(); }
         }
     }
 }

@@ -7,6 +7,7 @@ DungeonFighter is a sophisticated turn-based RPG/dungeon crawler game written in
 
 ### Advanced Combat System
 - **Turn-based Combat:** Strategic combat with cooldown-based action timing
+- **Multi-hit modifiers:** Per-hit sheet modifiers (deferred accuracy, threshold adjustments, enemy roll penalty) scale with effective hit count—the same rules as multi-hit damage ticks—so a 2-hit action with -1 deferred accuracy applies -2 on the next hero roll.
 - **Action Combo System:** Chain actions together for increased damage and effects (1.85x damage multiplier per combo step)
 - **Dice-based Mechanics:** 1d20 roll system with thresholds (1-5 fail, 6-15 normal, 16-20 combo trigger)
 - **Environmental Actions:** Room-specific effects that impact combat
@@ -233,6 +234,7 @@ Each action is defined with comprehensive properties:
 - **Special Effects**: Such as causesWeaken, causesBleed, stat bonuses, etc.
 - **Target Type**: Self, SingleTarget, AreaOfEffect, Environment
 - **Cooldown**: Turn-based cooldown system
+- **Chain position modifiers**: When **Chain Position MOD** is enabled on an action (`modifyBasedOnChainPosition` in data), **chain position bonus** rows in Advanced Mechanics scale combat values by combo slot: targets include **Accuracy**, **EnemyAccuracy**, **Damage** (applied to the combo damage multiplier after normal combo amp), and **MultiHit** (legacy data may still use **RollBonus** / **EnemyRollBonus**; they map to the same behavior). **Position basis** can be 0-based slot index (`ComboSlotIndex0`), 1-based (`ComboSlotIndex1`), or **AmpTier** (opener/middle/finisher exponent when the combo defines opener/finisher roles). Spreadsheet/JSON round-trip uses `chainPositionBonusesJson` alongside `statBonusesJson` / `accumulationsJson`.
 
 ### Loot and Bonuses
 - Players can acquire loot that grants bonuses to their action rolls (e.g., +1 to the roll)

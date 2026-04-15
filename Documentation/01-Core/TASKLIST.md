@@ -49,6 +49,15 @@
 
 ## Recent Updates
 
+### ✅ Multihit deferred sheet modifiers (COMPLETED)
+- **Issue:** Deferred hero accuracy (`RollBonus`) and enemy `EnemyRollBonus` penalty on hit ignored multi-hit count; e.g. Cheap Shot (2 hits, -1 accuracy) only queued -1.
+- **Fix:** `ActionExecutionFlow` scales queued `ACCURACY` and `ApplyRollPenalty` by `RollModificationManager.GetEffectiveMultiHitCountForModifierScaling` (same effective hit count as deferred HIT/COMBO/CRIT queue and damage). Tests in `ActionExecutionFlowTests.TestDeferredSheetAccuracyScalesWithMultihitOnHit`.
+
+### ✅ Chain position bonus mechanics (COMPLETED)
+- **Chain Position MOD** now gates runtime bonuses defined per action in **Advanced Mechanics** (`chainPositionBonuses` / `chainPositionBonusesJson`).
+- **`ChainPositionBonusApplier`**: chain **Accuracy** / **EnemyAccuracy** delta (legacy `RollBonus` / `EnemyRollBonus` still load), combo damage multiplier adjustment, multi-hit delta; wired through `CombatCalculator`, `ActionUtilities.CalculateDamageMultiplier`, and multi-hit execution paths. Combo strip uses slot index so accuracy updates when the sequence is reordered.
+- **Tests**: `ChainPositionBonusTests` in the manager/calculator test runner.
+
 ### ✅ Modern GUI Implementation (COMPLETED - v6.2)
 - **Avalonia-based Interface**: Modern desktop GUI with ASCII canvas rendering
 - **Persistent Layout**: Always-visible character panel with stats, health, and equipment

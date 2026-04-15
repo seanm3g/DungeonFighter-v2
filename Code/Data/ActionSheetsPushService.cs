@@ -132,34 +132,77 @@ namespace RPGGame.Data
                 if (!data.IsValid())
                     continue;
                 var cells = SpreadsheetActionDataSheetRowSerializer.ToRow(data, header);
-                bodyRows.Add(cells.Select(c => (object)c).ToList());
+                bodyRows.Add(cells.Select(c => SheetsPushUtilities.NormalizeCellValueForUpload(c)).ToList());
             }
 
             if (bodyRows.Count == 0)
                 throw new InvalidOperationException("No valid action rows to push (every row failed IsValid).");
 
-            string clearRange = $"{sheet}!A{firstDataRowOneBased}:ZZ5000";
+            // Columns E–F are reserved for on-sheet formulas; do not clear or overwrite them (see SheetsPushUtilities).
+            int lastDataRowOneBased = firstDataRowOneBased + bodyRows.Count - 1;
+            string clearLeft = $"{sheet}!A{firstDataRowOneBased}:D5000";
+            string clearRight = $"{sheet}!G{firstDataRowOneBased}:ZZ5000";
             await service.Spreadsheets.Values
-                .Clear(new ClearValuesRequest(), cfg.SpreadsheetId, clearRange)
+                .BatchClear(
+                    new BatchClearValuesRequest { Ranges = new List<string> { clearLeft, clearRight } },
+                    cfg.SpreadsheetId)
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            string updateRange = $"{sheet}!A{firstDataRowOneBased}";
-            var valueRange = new ValueRange
+            var leftRows = new List<IList<object>>(bodyRows.Count);
+            var rightRows = new List<IList<object>>(bodyRows.Count);
+            int maxWidth = 0;
+            foreach (var row in bodyRows)
             {
-                MajorDimension = "ROWS",
-                Values = bodyRows
+                var (ad, gPlus) = SheetsPushUtilities.SplitActionPushRowPreservingColumnsEF(row);
+                leftRows.Add(ad);
+                rightRows.Add(gPlus);
+                maxWidth = Math.Max(maxWidth, row.Count);
+            }
+
+            string leftEndLetter = SheetsPushUtilities.ColumnIndexToA1Letters(Math.Min(3, Math.Max(0, maxWidth - 1)));
+            string leftRange = $"{sheet}!A{firstDataRowOneBased}:{leftEndLetter}{lastDataRowOneBased}";
+
+            var batchData = new List<ValueRange>
+            {
+                new ValueRange
+                {
+                    Range = leftRange,
+                    MajorDimension = "ROWS",
+                    Values = leftRows
+                }
             };
 
-            var updateRequest = service.Spreadsheets.Values.Update(valueRange, cfg.SpreadsheetId, updateRange);
-            // RAW keeps values as literal strings (matches CSV export / pull), avoiding Sheets re-interpreting numbers or dates.
-            updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
-            var updateResponse = await updateRequest.ExecuteAsync(cancellationToken).ConfigureAwait(false);
-            int? updated = updateResponse?.UpdatedRows;
-            int? updatedCells = updateResponse?.UpdatedCells;
+            if (maxWidth > SheetsPushUtilities.ActionsSheetPreservedFormulaLastZeroBased + 1)
+            {
+                int rightEndIndex = maxWidth - 1;
+                string rightEndLetter = SheetsPushUtilities.ColumnIndexToA1Letters(rightEndIndex);
+                string rightStartLetter = SheetsPushUtilities.ColumnIndexToA1Letters(SheetsPushUtilities.ActionsSheetPushDataResumeColumnZeroBased);
+                string rightRange = $"{sheet}!{rightStartLetter}{firstDataRowOneBased}:{rightEndLetter}{lastDataRowOneBased}";
+                batchData.Add(new ValueRange
+                {
+                    Range = rightRange,
+                    MajorDimension = "ROWS",
+                    Values = rightRows
+                });
+            }
+
+            SheetsPushUtilities.NormalizeValueRangeGridsForUpload(batchData);
+
+            var batchUpdate = new BatchUpdateValuesRequest
+            {
+                ValueInputOption = "RAW",
+                Data = batchData
+            };
+            var batchResponse = await service.Spreadsheets.Values
+                .BatchUpdate(batchUpdate, cfg.SpreadsheetId)
+                .ExecuteAsync(cancellationToken)
+                .ConfigureAwait(false);
+            int? updated = batchResponse?.TotalUpdatedRows;
+            int? updatedCells = batchResponse?.TotalUpdatedCells;
             Console.WriteLine(
                 $"Sheets push: wrote {bodyRows.Count} action row(s) to tab {cfg.ActionsSheetTabName} starting at row {firstDataRowOneBased} " +
-                $"(API reports UpdatedRows={updated}, UpdatedCells={updatedCells}).");
+                $"(columns E–F left unchanged for sheet formulas; API reports TotalUpdatedRows={updated}, TotalUpdatedCells={updatedCells}).");
 
             return new ActionSheetsPushOutcome(bodyRows.Count, firstDataRowOneBased, updated, updatedCells);
         }

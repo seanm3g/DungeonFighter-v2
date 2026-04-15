@@ -58,7 +58,19 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             canvas.AddText(menuStartX, menuStartY, $"  Cooldown: {action.Cooldown}", AsciiArtAssets.Colors.White);
             menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Speed: {action.Length}", AsciiArtAssets.Colors.White);
-            menuStartY += 2;
+            menuStartY++;
+            bool hasSheetMods = !string.IsNullOrWhiteSpace(action.SpeedMod) || !string.IsNullOrWhiteSpace(action.DamageMod)
+                || !string.IsNullOrWhiteSpace(action.MultiHitMod) || !string.IsNullOrWhiteSpace(action.AmpMod);
+            if (hasSheetMods)
+            {
+                canvas.AddText(menuStartX, menuStartY, "Modifiers (next action/ability):", AsciiArtAssets.Colors.Cyan);
+                menuStartY++;
+                if (!string.IsNullOrWhiteSpace(action.SpeedMod)) { canvas.AddText(menuStartX, menuStartY, $"  SpeedMod: {action.SpeedMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                if (!string.IsNullOrWhiteSpace(action.DamageMod)) { canvas.AddText(menuStartX, menuStartY, $"  DamageMod: {action.DamageMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                if (!string.IsNullOrWhiteSpace(action.MultiHitMod)) { canvas.AddText(menuStartX, menuStartY, $"  MultiHitMod: {action.MultiHitMod}", AsciiArtAssets.Colors.White); menuStartY++; }
+                if (!string.IsNullOrWhiteSpace(action.AmpMod)) { canvas.AddText(menuStartX, menuStartY, $"  AmpMod: {action.AmpMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+            }
+            menuStartY += 1;
             
             // Status Effects
             bool hasStatusEffects = action.CausesBleed || action.CausesWeaken || action.CausesSlow || 
@@ -152,6 +164,25 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 {
                     if (entry.Value == 0 && string.IsNullOrEmpty(entry.Type)) continue;
                     canvas.AddText(menuStartX, menuStartY, $"  +{entry.Value} {entry.Type} ({durationText})", AsciiArtAssets.Colors.White);
+                    menuStartY++;
+                }
+                menuStartY += 1;
+            }
+
+            action.NormalizeChainPositionBonuses();
+            if (!string.IsNullOrWhiteSpace(action.ModifyBasedOnChainPosition) && action.ChainPositionBonuses != null && action.ChainPositionBonuses.Count > 0)
+            {
+                canvas.AddText(menuStartX, menuStartY, "Chain position bonuses (MOD on):", AsciiArtAssets.Colors.Cyan);
+                menuStartY += 1;
+                foreach (var c in action.ChainPositionBonuses)
+                {
+                    if (string.IsNullOrWhiteSpace(c.ModifiesParam)) continue;
+                    var basis = string.IsNullOrWhiteSpace(c.PositionBasis) ? "ComboSlotIndex0" : c.PositionBasis;
+                    var kind = string.IsNullOrWhiteSpace(c.ValueKind) ? "#" : c.ValueKind;
+                    string paramLabel = ChainPositionBonusApplier.GetDisplayNameForModifiesParam(c.ModifiesParam);
+                    canvas.AddText(menuStartX, menuStartY,
+                        $"  {paramLabel} value={c.Value} kind={kind} basis={basis}",
+                        AsciiArtAssets.Colors.White);
                     menuStartY++;
                 }
                 menuStartY += 1;

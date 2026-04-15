@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Media;
 using RPGGame;
+using RPGGame.ActionInteractionLab;
 using RPGGame.Editors;
+using RPGGame.UI.Avalonia.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
@@ -552,6 +554,8 @@ namespace RPGGame.UI.Avalonia
         public void RenderCombat(Character player, Enemy enemy, List<string> combatLog)
         {
             renderer.RenderCombat(player, enemy, combatLog, GetContext());
+            if (stateManager?.CurrentState == GameState.ActionInteractionLab && ActionInteractionLabSession.Current != null)
+                ActionLabControlsWindow.RefreshIfOpen();
         }
 
         public void RenderCombatResult(bool playerSurvived, Character player, Enemy enemy, BattleNarrative? battleNarrative, string? dungeonName, string? roomName)

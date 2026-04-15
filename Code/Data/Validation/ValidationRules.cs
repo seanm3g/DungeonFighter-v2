@@ -70,6 +70,22 @@ namespace RPGGame.Data.Validation
             {
                 "Damage", "Max Health", "Heal", "Health Regen", "Strength", "Agility", "Technique", "Intelligence"
             };
+
+            public static readonly HashSet<string> ValidChainPositionModifiesParam = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Accuracy", "EnemyAccuracy", "Damage", "MultiHit",
+                "RollBonus", "EnemyRollBonus"
+            };
+
+            public static readonly HashSet<string> ValidChainPositionBasis = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "", "ComboSlotIndex0", "ComboSlotIndex1", "AmpTier"
+            };
+
+            public static readonly HashSet<string> ValidChainPositionValueKind = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "#", "%"
+            };
         }
 
         // Enemy validation rules

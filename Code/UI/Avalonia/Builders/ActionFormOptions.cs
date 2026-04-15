@@ -28,6 +28,18 @@ namespace RPGGame.UI.Avalonia.Builders
         /// <summary>Stat bonus type options.</summary>
         public static readonly string[] StatBonusTypeDropdownOptions = { "", "Health Regen", "Max Health", "Heal", "Strength", "Agility", "Technique", "Intelligence" };
 
+        /// <summary>Chain-position bonus targets (when Chain Position MOD is on; see Advanced Mechanics).</summary>
+        public static readonly string[] ChainPositionBonusTargetOptions = { "", "Accuracy", "EnemyAccuracy", "Damage", "MultiHit" };
+
+        /// <summary># = flat per position; % = Damage only (percent points × position).</summary>
+        public static readonly string[] ChainPositionValueKindOptions = { "#", "%" };
+
+        /// <summary>
+        /// Chain position coefficient: blank = 1-based slot (opener ×1); ComboSlotIndex0 = 0-based (opener ×0);
+        /// ComboSlotIndex1 = 1-based; AmpTier = opener/middle/finisher exponent.
+        /// </summary>
+        public static readonly string[] ChainPositionBasisOptions = { "", "ComboSlotIndex0", "ComboSlotIndex1", "AmpTier" };
+
         /// <summary>Threshold attribute options.</summary>
         public static readonly string[] ThresholdTypeDropdownOptions = { "Health", "Strength", "Agility", "Technique", "Intelligence" };
 

@@ -28,6 +28,10 @@ namespace RPGGame.GameCore.Editors
             "Description",
             "DamageMultiplier (number, default 1.0)",
             "Speed (number, default 1.0)",
+            "SpeedMod % — next action/ability (e.g. 10 or empty; matches sheet ACTION SPEED)",
+            "DamageMod % — next action/ability (e.g. 10 or empty; sheet ACTION DAMAGE)",
+            "MultiHitMod — extra hits on next (e.g. 2 or empty; sheet MULTIHIT MOD)",
+            "Amp Mod % — combo amp on next (e.g. 10 or empty; sheet AMP_MOD)",
             "CausesBleed (true/false, default false)",
             "CausesWeaken (true/false, default false)",
             "CausesSlow (true/false, default false)",
@@ -151,7 +155,12 @@ namespace RPGGame.GameCore.Editors
                 HitThresholdAdjustment = 0,
                 ComboThresholdAdjustment = 0,
                 CriticalHitThresholdAdjustment = 0,
+                EnemyCriticalMissThresholdAdjustment = 0,
+                EnemyHitThresholdAdjustment = 0,
+                EnemyComboThresholdAdjustment = 0,
+                EnemyCriticalHitThresholdAdjustment = 0,
                 RollBonus = 0,
+                EnemyRollBonus = 0,
                 StatBonuses = new List<StatBonusEntry>(),
                 StatBonus = 0,
                 StatBonusType = "",
@@ -163,7 +172,13 @@ namespace RPGGame.GameCore.Editors
                 EnemyRollPenalty = 0,
                 HealthThreshold = 0.0,
                 Thresholds = new List<ThresholdEntry>(),
-                ConditionalDamageMultiplier = 1.0
+                ConditionalDamageMultiplier = 1.0,
+                SpeedMod = "",
+                DamageMod = "",
+                MultiHitMod = "",
+                AmpMod = "",
+                ChainPositionBonuses = new List<ChainPositionBonusEntry>(),
+                ModifyBasedOnChainPosition = ""
             };
         }
 
@@ -178,6 +193,10 @@ namespace RPGGame.GameCore.Editors
                 Description = action.Description ?? "",
                 DamageMultiplier = action.DamageMultiplier,
                 Length = action.Length,
+                SpeedMod = action.SpeedMod ?? "",
+                DamageMod = action.DamageMod ?? "",
+                MultiHitMod = action.MultiHitMod ?? "",
+                AmpMod = action.AmpMod ?? "",
                 Tags = action.Tags != null ? new List<string>(action.Tags) : new List<string>(),
                 CausesBleed = action.CausesBleed,
                 CausesWeaken = action.CausesWeaken,
@@ -192,11 +211,16 @@ namespace RPGGame.GameCore.Editors
                 HitThresholdAdjustment = action.HitThresholdAdjustment,
                 ComboThresholdAdjustment = action.ComboThresholdAdjustment,
                 CriticalHitThresholdAdjustment = action.CriticalHitThresholdAdjustment,
+                EnemyCriticalMissThresholdAdjustment = action.EnemyCriticalMissThresholdAdjustment,
+                EnemyHitThresholdAdjustment = action.EnemyHitThresholdAdjustment,
+                EnemyComboThresholdAdjustment = action.EnemyComboThresholdAdjustment,
+                EnemyCriticalHitThresholdAdjustment = action.EnemyCriticalHitThresholdAdjustment,
                 StatBonuses = action.StatBonuses != null ? new List<StatBonusEntry>(action.StatBonuses) : new List<StatBonusEntry>(),
                 StatBonus = action.StatBonus,
                 StatBonusType = action.StatBonusType,
                 StatBonusDuration = action.StatBonusDuration,
                 RollBonus = action.RollBonus,
+                EnemyRollBonus = action.EnemyRollBonus,
                 MultiHitCount = action.MultiHitCount,
                 SelfDamagePercent = action.SelfDamagePercent,
                 SkipNextTurn = action.SkipNextTurn,
@@ -204,7 +228,17 @@ namespace RPGGame.GameCore.Editors
                 EnemyRollPenalty = action.EnemyRollPenalty,
                 HealthThreshold = action.HealthThreshold,
                 Thresholds = action.Thresholds != null ? action.Thresholds.Select(t => new ThresholdEntry { Qualifier = t.Qualifier ?? "", Type = t.Type ?? "Health", Operator = t.Operator ?? "", ValueKind = t.ValueKind ?? "#", Value = t.Value }).ToList() : new List<ThresholdEntry>(),
-                ConditionalDamageMultiplier = action.ConditionalDamageMultiplier
+                ConditionalDamageMultiplier = action.ConditionalDamageMultiplier,
+                ModifyBasedOnChainPosition = action.ModifyBasedOnChainPosition ?? "",
+                ChainPositionBonuses = action.ChainPositionBonuses != null
+                    ? action.ChainPositionBonuses.Select(c => new ChainPositionBonusEntry
+                    {
+                        ModifiesParam = c.ModifiesParam ?? "",
+                        Value = c.Value,
+                        ValueKind = c.ValueKind ?? "#",
+                        PositionBasis = c.PositionBasis ?? ""
+                    }).ToList()
+                    : new List<ChainPositionBonusEntry>()
             };
         }
     }

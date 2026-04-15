@@ -40,6 +40,7 @@ namespace RPGGame.Tests.Unit.Data
             TestLoadJson();
             TestSaveJson();
             TestCache();
+            TestClearCacheForFileRefreshesContent();
             TestLoadJsonFromPaths();
             TestValidateJsonSyntax();
             TestGetFileInfo();
@@ -211,6 +212,35 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(stats.Count >= 0,
                 "Cache stats should be valid",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Documents the sheets-sync case: external writes to a JSON file require clearing the cache
+        /// before LoadJson(..., useCache: true) sees new content (same pattern as ActionLoader.ReloadActions).
+        /// </summary>
+        private static void TestClearCacheForFileRefreshesContent()
+        {
+            Console.WriteLine("\n--- Testing ClearCacheForFile refreshes content ---");
+
+            JsonLoader.ClearCache();
+            var testData = new TestData { Name = "RefreshTest", Value = 10 };
+            File.WriteAllText(TestJsonFile, JsonSerializer.Serialize(testData));
+            JsonLoader.LoadJson<TestData>(TestJsonFile, useCache: true);
+
+            testData.Value = 20;
+            File.WriteAllText(TestJsonFile, JsonSerializer.Serialize(testData));
+            JsonLoader.ClearCacheForFile(TestJsonFile);
+
+            var afterClear = JsonLoader.LoadJson<TestData>(TestJsonFile, useCache: true);
+            TestBase.AssertNotNull(afterClear,
+                "Should load after ClearCacheForFile",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (afterClear != null)
+            {
+                TestBase.AssertEqual(20, afterClear.Value,
+                    "After ClearCacheForFile, cached load should see updated file",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
         }
 
         private static void TestClearCache()

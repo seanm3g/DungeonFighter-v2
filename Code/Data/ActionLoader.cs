@@ -21,6 +21,11 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Raised after <see cref="ReloadActions"/> completes so UI that mirrors ActionLoader (e.g. Settings Actions tab) can refresh.
+        /// </summary>
+        public static event System.Action? ActionsReloaded;
+
+        /// <summary>
         /// Reloads actions from disk, clearing caches so updated Actions.json is used.
         /// Call when actions may have been modified (e.g., between dungeon runs).
         /// </summary>
@@ -34,6 +39,7 @@ namespace RPGGame
             }
             _actions = null;
             LoadActions();
+            ActionsReloaded?.Invoke();
         }
 
         /// <summary>
@@ -80,6 +86,7 @@ namespace RPGGame
                     foreach (var action in actionList)
                     {
                         action.NormalizeStatBonuses();
+                        action.NormalizeChainPositionBonuses();
                         action.NormalizeThresholds();
                         action.NormalizeAccumulations();
                         action.NormalizeTags();

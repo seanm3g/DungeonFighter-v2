@@ -122,6 +122,13 @@ namespace RPGGame.GameCore.Editors.Processors
             return false;
         }
 
+        /// <summary>Optional spreadsheet modifier strings (e.g. SpeedMod, DamageMod as %; empty allowed).</summary>
+        public static bool ProcessOptionalStringField(ActionData actionData, string input, Action<ActionData, string> setter)
+        {
+            setter(actionData, input?.Trim() ?? "");
+            return true;
+        }
+
         public static bool ProcessTags(ActionData actionData, string input, Action<string> showMessage)
         {
             string tagsInput = input.Trim();

@@ -33,6 +33,17 @@ namespace RPGGame.UI.Avalonia
         // Grid properties (now calculated dynamically)
         private int _gridWidth = BASE_GRID_WIDTH;
         private int _gridHeight = BASE_GRID_HEIGHT;
+
+        /// <summary>
+        /// When true, this control does not update global <see cref="LayoutConstants"/> (compact auxiliary windows, e.g. Action Lab tools).
+        /// </summary>
+        public bool IsAuxiliaryLayoutCanvas { get; }
+
+        /// <summary>Logical width when <see cref="IsAuxiliaryLayoutCanvas"/> is true.</summary>
+        public int AuxiliaryGridWidth { get; }
+
+        /// <summary>Logical height when <see cref="IsAuxiliaryLayoutCanvas"/> is true.</summary>
+        public int AuxiliaryGridHeight { get; }
         
         public int GridWidth 
         { 
@@ -66,8 +77,18 @@ namespace RPGGame.UI.Avalonia
         // Center point (half of GridWidth)
         public int CenterX => GridWidth / 2;
 
+        /// <summary>Main game canvas (XAML and default construction).</summary>
         public GameCanvasControl()
+            : this(false, 30, 54)
         {
+        }
+
+        /// <param name="isAuxiliaryLayoutCanvas">Compact canvas that must not update global <see cref="LayoutConstants"/>.</param>
+        public GameCanvasControl(bool isAuxiliaryLayoutCanvas, int auxiliaryGridWidth = 30, int auxiliaryGridHeight = 54)
+        {
+            IsAuxiliaryLayoutCanvas = isAuxiliaryLayoutCanvas;
+            AuxiliaryGridWidth = Math.Max(8, auxiliaryGridWidth);
+            AuxiliaryGridHeight = Math.Max(8, auxiliaryGridHeight);
             Focusable = true;
             // Control has no Background in Avalonia; hit-testing is handled by a transparent Border wrapper in MainWindow.axaml.
             this.coordinateConverter = new CanvasCoordinateConverter();
@@ -76,7 +97,8 @@ namespace RPGGame.UI.Avalonia
             this.healthTracker = new HealthTracker();
             this.elementBuilder = new CanvasElementBuilder(elementManager, healthTracker, CenterX);
             InitializeDamageDeltaTimer();
-            UpdateLayoutConstants();
+            if (!IsAuxiliaryLayoutCanvas)
+                UpdateLayoutConstants();
         }
         
         /// <summary>
@@ -113,6 +135,8 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         private void UpdateLayoutConstants()
         {
+            if (IsAuxiliaryLayoutCanvas)
+                return;
             LayoutConstants.UpdateGridDimensions(GridWidth, GridHeight);
             UpdateEffectiveVisibleWidth();
         }
@@ -122,6 +146,8 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         private void UpdateEffectiveVisibleWidth()
         {
+            if (IsAuxiliaryLayoutCanvas)
+                return;
             if (coordinateConverter == null)
                 return;
             coordinateConverter.EnsureCharWidthMeasured();
@@ -144,10 +170,11 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         private void CalculateScaleAndGrid(double availableWidth, double availableHeight)
         {
-            // Keep base grid dimensions fixed
-            GridWidth = BASE_GRID_WIDTH;
-            GridHeight = BASE_GRID_HEIGHT;
-            
+            int targetW = IsAuxiliaryLayoutCanvas ? AuxiliaryGridWidth : BASE_GRID_WIDTH;
+            int targetH = IsAuxiliaryLayoutCanvas ? AuxiliaryGridHeight : BASE_GRID_HEIGHT;
+            GridWidth = targetW;
+            GridHeight = targetH;
+
             // Calculate scale factor and grid dimensions based on available space
             if (availableWidth > 0 && availableHeight > 0 && 
                 availableWidth != double.PositiveInfinity && availableHeight != double.PositiveInfinity)
@@ -159,8 +186,8 @@ namespace RPGGame.UI.Avalonia
                 double baseCharHeight = coordinateConverter.GetCharHeight();
                 
                 // Calculate required size for base grid at scale 1.0
-                double requiredWidth = BASE_GRID_WIDTH * baseCharWidth;
-                double requiredHeight = BASE_GRID_HEIGHT * baseCharHeight;
+                double requiredWidth = targetW * baseCharWidth;
+                double requiredHeight = targetH * baseCharHeight;
                 
                 // Calculate scale factors for width and height
                 double scaleX = availableWidth / requiredWidth;
@@ -237,7 +264,8 @@ namespace RPGGame.UI.Avalonia
         public override void Render(DrawingContext context)
         {
             // Update effective visible width before rendering (bounds are now available)
-            UpdateEffectiveVisibleWidth();
+            if (!IsAuxiliaryLayoutCanvas)
+                UpdateEffectiveVisibleWidth();
             
             // Don't call base.Render() to prevent any default Control rendering
             // Render all elements using renderer

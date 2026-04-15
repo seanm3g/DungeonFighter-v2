@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using RPGGame;
@@ -10,8 +9,6 @@ namespace RPGGame.Data
     /// <summary>Pulls Actions plus optional tabs from published CSV URLs in <see cref="SheetsConfig"/>.</summary>
     public static class GameDataSheetsPullService
     {
-        private static readonly HttpClient Http = new HttpClient();
-
         public static async Task PullAllFromSheetsConfigAsync(
             string? sheetsConfigPath = null,
             CancellationToken cancellationToken = default)
@@ -89,13 +86,13 @@ namespace RPGGame.Data
                 JsonLoader.ClearCacheForFile(path);
         }
 
-        private static async Task<string> DownloadCsvAsync(string url, CancellationToken cancellationToken)
+        private static Task<string> DownloadCsvAsync(string url, CancellationToken cancellationToken)
         {
             if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
                 && !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("Sheet URL must start with http:// or https://", nameof(url));
 
-            return await Http.GetStringAsync(url, cancellationToken).ConfigureAwait(false);
+            return SheetsCsvFetch.ReadCsvTextAsync(url, cancellationToken);
         }
     }
 }

@@ -48,6 +48,7 @@ namespace RPGGame.UI.Avalonia.Managers
 
         public void Initialize(ListBox actionsListBox, Panel actionFormPanel, Button createActionButton, Button deleteActionButton, Action<string, bool> showStatusMessage, ComboBox? rarityFilterComboBox = null, ComboBox? categoryFilterComboBox = null, ComboBox? cadenceFilterComboBox = null, ComboBox? tagFilterComboBox = null)
         {
+            ActionLoader.ActionsReloaded += OnGlobalActionsReloaded;
             this.actionsListBox = actionsListBox;
             this.actionFormPanel = actionFormPanel;
             this.createActionButton = createActionButton;
@@ -79,6 +80,41 @@ namespace RPGGame.UI.Avalonia.Managers
                 cadenceFilterComboBox.SelectionChanged += (s, e) => ApplyFilter();
             if (tagFilterComboBox != null)
                 tagFilterComboBox.SelectionChanged += (s, e) => ApplyFilter();
+        }
+
+        /// <summary>Unsubscribe from <see cref="ActionLoader.ActionsReloaded"/> (e.g. when Settings panel unloads).</summary>
+        public void DetachFromActionLoaderEvents()
+        {
+            ActionLoader.ActionsReloaded -= OnGlobalActionsReloaded;
+        }
+
+        private void OnGlobalActionsReloaded()
+        {
+            Dispatcher.UIThread.Post(ReloadFromDisk, DispatcherPriority.Normal);
+        }
+
+        /// <summary>Syncs the tab's <see cref="ActionEditor"/> and list/form from <see cref="ActionLoader"/> after disk changes.</summary>
+        public void ReloadFromDisk()
+        {
+            if (actionEditor == null || actionsListBox == null) return;
+            string? keepName = actionsListBox.SelectedItem as string;
+            actionEditor.ReloadFromDisk();
+            LoadActionsList();
+            if (string.IsNullOrEmpty(keepName)) return;
+            if (actionsListBox.ItemsSource is System.Collections.IEnumerable enumerable)
+            {
+                foreach (var item in enumerable)
+                {
+                    if (item is string s && string.Equals(s, keepName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        actionsListBox.SelectedItem = item;
+                        return;
+                    }
+                }
+            }
+            actionsListBox.SelectedItem = null;
+            actionFormPanel?.Children.Clear();
+            selectedAction = null;
         }
 
         private void LoadActionsList()
@@ -269,6 +305,11 @@ namespace RPGGame.UI.Avalonia.Managers
             if ((v = GetText("Roll bonus: Combo")) != null && int.TryParse(v, out int i7)) action.ComboThresholdAdjustment = i7;
             if ((v = GetText("Roll bonus: Crit")) != null && int.TryParse(v, out int i8)) action.CriticalHitThresholdAdjustment = i8;
             // Accuracy is not read from form here: it is kept in sync via TextChanged on the Accuracy field, so we don't overwrite with a reverted value when the user saves via the global Save button (focus has already moved and the TextBox may have reverted).
+            if ((v = GetText("Enemy roll bonus: Crit Miss")) != null && int.TryParse(v, out int e5)) action.EnemyCriticalMissThresholdAdjustment = e5;
+            if ((v = GetText("Enemy roll bonus: Hit")) != null && int.TryParse(v, out int e6)) action.EnemyHitThresholdAdjustment = e6;
+            if ((v = GetText("Enemy roll bonus: Combo")) != null && int.TryParse(v, out int e7)) action.EnemyComboThresholdAdjustment = e7;
+            if ((v = GetText("Enemy roll bonus: Crit")) != null && int.TryParse(v, out int e8)) action.EnemyCriticalHitThresholdAdjustment = e8;
+            // Enemy Accuracy: synced via TextChanged on the Enemy Accuracy field (same as Accuracy).
             action.TriggerConditions ??= new List<string>();
             if (GetBool("On Hit") == true && !action.TriggerConditions.Any(c => string.Equals(c, "ONHIT", StringComparison.OrdinalIgnoreCase))) action.TriggerConditions.Add("ONHIT");
             if (GetBool("On Hit") == false) action.TriggerConditions.RemoveAll(c => string.Equals(c, "ONHIT", StringComparison.OrdinalIgnoreCase));

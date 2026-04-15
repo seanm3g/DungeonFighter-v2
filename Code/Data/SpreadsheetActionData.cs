@@ -58,11 +58,13 @@ namespace RPGGame.Data
         /// <summary>Crit miss threshold adjustment; JSON key heroCritMiss.</summary>
         public string HeroCritMiss { get; set; } = "";
         
-        // Columns R-U: Enemy bonuses (appear unused)
+        // Columns R-U: Enemy dice modifications
         public string EnemyAccuracy { get; set; } = "";
         public string EnemyHit { get; set; } = "";
         public string EnemyCombo { get; set; } = "";
         public string EnemyCrit { get; set; } = "";
+        /// <summary>Crit miss threshold adjustment for enemy attacker; JSON key enemyCritMiss.</summary>
+        public string EnemyCritMiss { get; set; } = "";
         
         // Columns V-Y: Hero stats (STR, AGI, TECH, INT)
         public string HeroSTR { get; set; } = "";
@@ -145,6 +147,9 @@ namespace RPGGame.Data
         /// <summary>JSON-serialized list of AccumulationEntry for round-trip with Actions settings form.</summary>
         public string AccumulationsJson { get; set; } = "";
 
+        /// <summary>JSON-serialized list of <see cref="ChainPositionBonusEntry"/> for chain-position scaling.</summary>
+        public string ChainPositionBonusesJson { get; set; } = "";
+
         // Threshold columns
         public string Target { get; set; } = "";
         public string ThresholdCategory { get; set; } = "";
@@ -186,7 +191,7 @@ namespace RPGGame.Data
             "ON HIT", "ON MISS", "ON CRIT", "ON KILL", "ON ROOMS CLEARED", "ON ROLL VALUE",
             "MODIFY BASED ON TAGS", "ADD TAG", "REMOVE TAG", "TARGET", "THRESHOLD CATEGORY",
             "THRESHOLD AMOUNT", "BONUS", "BONUS ATTRIBUTE", "CADENCE", "VALUE", "ATTRIBUTE",
-            "RESET", "MODIFY ROOM", "GRACE"
+            "RESET", "MODIFY ROOM", "GRACE", "CHAIN POSITION BONUSES JSON"
         };
 
         /// <summary>

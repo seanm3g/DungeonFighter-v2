@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,31 +13,13 @@ namespace RPGGame.Data
     /// </summary>
     public static class SpreadsheetActionParser
     {
-        private static readonly HttpClient _httpClient = new HttpClient();
-        
         /// <summary>
         /// Parses CSV from either a file path or a URL (e.g., published Google Sheets CSV).
         /// Returns actions and header (row 1 context + row 2 labels) for mechanics and ingestion.
         /// </summary>
         public static async Task<SpreadsheetParseResult> ParseCsvAsync(string pathOrUrl)
         {
-            string csvContent;
-            if (pathOrUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
-                || pathOrUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-            {
-                string fetchUrl = pathOrUrl;
-                if (GoogleSheetsUrlHelper.TryBuildSpreadsheetCsvExportUrl(pathOrUrl, out string exportUrl))
-                    fetchUrl = exportUrl;
-                csvContent = await _httpClient.GetStringAsync(fetchUrl).ConfigureAwait(false);
-            }
-            else
-            {
-                if (!File.Exists(pathOrUrl))
-                {
-                    throw new FileNotFoundException($"CSV file not found: {pathOrUrl}");
-                }
-                csvContent = File.ReadAllText(pathOrUrl);
-            }
+            string csvContent = await SheetsCsvFetch.ReadCsvTextAsync(pathOrUrl).ConfigureAwait(false);
             return ParseCsvContent(csvContent);
         }
         

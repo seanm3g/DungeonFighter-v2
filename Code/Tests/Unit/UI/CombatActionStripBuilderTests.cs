@@ -121,10 +121,10 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
 
             var charWithBonuses = new Character("Test", 1);
-            charWithBonuses.Effects.AddPendingActionBonuses(1, new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 3 } });
+            charWithBonuses.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 3 } });
             var modLines = CombatActionStripBuilder.BuildActiveModifierLines(charWithBonuses);
-            TestBase.AssertTrue(modLines != null && modLines.Count >= 1 && modLines[0].Contains("Next Action 2") && modLines[0].Contains("COMBO"),
-                "BuildActiveModifierLines shows pending ACTION bonus for slot 2",
+            TestBase.AssertTrue(modLines != null && modLines.Count >= 1 && modLines[0].Contains("Next roll:") && modLines[0].Contains("COMBO"),
+                "BuildActiveModifierLines shows pending ACTION bonus as next roll",
                 ref run, ref passed, ref failed);
 
             // BuildActionTooltipLines + word wrap (hover tooltip content)

@@ -27,7 +27,7 @@ namespace RPGGame.Tests.Unit
             TestCalculateDamage();
             TestCalculateHit();
             TestCalculateRollBonus();
-            TestCalculateRollBonusActionCadenceDeferral();
+            TestCalculateRollBonusActionCadenceIncludesAccuracy();
             TestIsCriticalHit();
             TestApplyDamageReduction();
             TestCalculateStatusEffectChance();
@@ -143,11 +143,11 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestCalculateRollBonusActionCadenceDeferral()
+        private static void TestCalculateRollBonusActionCadenceIncludesAccuracy()
         {
-            Console.WriteLine("\n--- Testing CalculateRollBonus ACTION cadence defers Advanced.RollBonus ---");
+            Console.WriteLine("\n--- Testing CalculateRollBonus: sheet accuracy on current roll only for ATTACK cadence ---");
 
-            var attacker = TestDataBuilders.Character().WithName("ActionCadenceDefer").Build();
+            var attacker = TestDataBuilders.Character().WithName("ActionCadenceAccuracy").Build();
             var comboActions = new List<Action>();
             var comboStep = 0;
 
@@ -178,13 +178,13 @@ namespace RPGGame.Tests.Unit
             int attack = CombatCalculator.CalculateRollBonus(attacker, attackCadence, comboActions, comboStep);
 
             TestBase.AssertTrue(deferAction == b,
-                $"Cadence Action should omit Advanced.RollBonus on this roll (expected {b}, got {deferAction})",
+                $"Cadence Action should defer Advanced.RollBonus (expected {b}, got {deferAction})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(deferActions == b,
-                $"Cadence ACTIONS should omit Advanced.RollBonus (expected {b}, got {deferActions})",
+                $"Cadence ACTIONS should defer Advanced.RollBonus (expected {b}, got {deferActions})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(attack == b + 15,
-                $"Cadence ATTACK should include Advanced.RollBonus (expected {b + 15}, got {attack})",
+                $"Cadence ATTACK should include Advanced.RollBonus on this roll (expected {b + 15}, got {attack})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             TestBase.AssertTrue(Action.IsActionCadenceRollDeferral(actionCadence),
@@ -206,6 +206,18 @@ namespace RPGGame.Tests.Unit
             };
             TestBase.AssertTrue(Action.HasActionCadenceBonusGroup(withActionGroup),
                 "HasActionCadenceBonusGroup true when ACTION group present",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var enemyAttacker = TestDataBuilders.Enemy().WithName("EnemyActionAccuracy").Build();
+            var enemyActionCadence = new Action
+            {
+                Cadence = "Action",
+                Advanced = new AdvancedMechanicsProperties { RollBonus = 0, EnemyRollBonus = -4, RollBonusDuration = 1 }
+            };
+            int enemyWithAcc = CombatCalculator.CalculateRollBonus(enemyAttacker, enemyActionCadence, comboActions, comboStep);
+            int enemyBaseline = CombatCalculator.CalculateRollBonus(enemyAttacker, baseline, comboActions, comboStep);
+            TestBase.AssertTrue(enemyWithAcc == enemyBaseline,
+                $"Enemy attacker non-ATTACK cadence: EnemyRollBonus deferred (expected {enemyBaseline}, got {enemyWithAcc})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -330,6 +342,7 @@ namespace RPGGame.Tests.Unit
 
             var action = new Action
             {
+                Cadence = "ATTACK",
                 Advanced = new AdvancedMechanicsProperties { RollBonus = 10, RollBonusDuration = 0 }
             };
             var comboActions = new List<Action>();
@@ -337,7 +350,7 @@ namespace RPGGame.Tests.Unit
 
             var rollBonus = CombatCalculator.CalculateRollBonus(attacker, action, comboActions, comboStep);
 
-            // Roll bonus should be reduced by penalty
+            // Roll bonus should be reduced by penalty (sheet accuracy applies this roll only for ATTACK cadence)
             TestBase.AssertTrue(rollBonus < 10, 
                 $"Roll penalty should reduce bonus, got: {rollBonus}", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -345,19 +358,27 @@ namespace RPGGame.Tests.Unit
 
         private static void TestCritThresholdEvaluationRoll()
         {
-            Console.WriteLine("\n--- Testing CritThresholdEvaluationRoll / PersistentStatRollBonus ---");
+            Console.WriteLine("\n--- Testing CritThresholdEvaluationRoll (accuracy excluded from crit/crit-miss) ---");
 
             var noPersistent = TestDataBuilders.Character().WithName("CritEval").WithStats(10, 10, 10, 0).Build();
             TestBase.AssertEqual(0, CombatCalculator.GetPersistentStatRollBonus(noPersistent),
                 "INT 0 character has no persistent stat roll bonus", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(18, CombatCalculator.GetCritThresholdEvaluationRoll(18, noPersistent),
-                "crit-eval equals attack total when persistent bonus is 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(18, CombatCalculator.GetCritThresholdEvaluationRoll(18, 0, 0),
+                "crit-eval equals attack total when roll bonus and modifiers are 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var highInt = TestDataBuilders.Character().WithName("CritEval2").WithStats(10, 10, 10, 40).Build();
             int persistent = CombatCalculator.GetPersistentStatRollBonus(highInt);
             TestBase.AssertTrue(persistent > 0, "high INT should add persistent stat roll bonus", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(18 - persistent, CombatCalculator.GetCritThresholdEvaluationRoll(18, highInt),
-                "crit-eval subtracts persistent stat roll bonus from attack total", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // Full roll bonus includes INT; crit path subtracts entire roll bonus so INT does not inflate crit.
+            TestBase.AssertEqual(18 - persistent, CombatCalculator.GetCritThresholdEvaluationRoll(18, persistent, 0),
+                "crit-eval subtracts full roll bonus (here: INT only)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            int attack = 18, rollBonus = persistent + 6;
+            TestBase.AssertEqual(18 - persistent - 6, CombatCalculator.GetCritThresholdEvaluationRoll(attack, rollBonus, 0),
+                "sheet/chain accuracy in roll bonus does not help crit", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertEqual(12, CombatCalculator.GetCritThresholdEvaluationRoll(18, 6, 0),
+                "crit-eval is attack minus roll bonus; ACCURACY uses thresholds not base roll", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

@@ -6,6 +6,7 @@ using RPGGame.ActionInteractionLab;
 using RPGGame.BattleStatistics;
 using RPGGame.Tests;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.Utils;
@@ -52,6 +53,7 @@ namespace RPGGame.Tests.Unit
             ActionLabArmorFactory_FindIndexMatchesSlotAndTier(ref run, ref passed, ref failed);
             ActionLabArmorFactory_FilterMapsBodyToChest(ref run, ref passed, ref failed);
             WouldNaturalRollSelectComboAction_MatchesSelectActionBasedOnRoll(ref run, ref passed, ref failed);
+            ApplyCatalogScrollOffsetDelta_Clamps(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ActionInteractionLabTests", run, passed, failed);
         }
@@ -88,6 +90,45 @@ namespace RPGGame.Tests.Unit
 
             Dice.ClearTestRoll();
             ActionSelector.ClearStoredRolls();
+        }
+
+        private static void ApplyCatalogScrollOffsetDelta_Clamps(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var hero = TestDataBuilders.Character().WithName("LabCatalogScroll").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "ApplyCatalogScrollOffsetDelta_Clamps: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            var names = ActionLoader.GetAllActionNames();
+            names.Sort(StringComparer.OrdinalIgnoreCase);
+            if (names.Count == 0)
+            {
+                ActionInteractionLabSession.EndSession();
+                TestBase.AssertTrue(true, "ApplyCatalogScrollOffsetDelta_Clamps skipped (no actions)", ref run, ref passed, ref failed);
+                return;
+            }
+
+            lab.LastCatalogVisibleRowCount = 4;
+            int maxScroll = Math.Max(0, names.Count - 4);
+            lab.CatalogScrollOffset = 0;
+            ActionLabInputCoordinator.ApplyCatalogScrollOffsetDelta(lab, -5, null);
+            TestBase.AssertEqual(0, lab.CatalogScrollOffset, "negative delta clamps at 0", ref run, ref passed, ref failed);
+
+            lab.CatalogScrollOffset = maxScroll;
+            ActionLabInputCoordinator.ApplyCatalogScrollOffsetDelta(lab, 5, null);
+            TestBase.AssertEqual(maxScroll, lab.CatalogScrollOffset, "positive delta clamps at maxScroll", ref run, ref passed, ref failed);
+
+            lab.CatalogScrollOffset = 1;
+            ActionLabInputCoordinator.ApplyCatalogScrollOffsetDelta(lab, -1, null);
+            TestBase.AssertEqual(0, lab.CatalogScrollOffset, "single step toward earlier names", ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
         }
 
         private static void StoredActionRollMatchesGetActionRoll(ref int run, ref int passed, ref int failed)

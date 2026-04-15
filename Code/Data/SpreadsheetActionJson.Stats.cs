@@ -35,6 +35,10 @@ namespace RPGGame.Data
         [JsonPropertyName("enemyCrit")]
         public string EnemyCrit { get; set; } = "";
 
+        /// <summary>Crit miss threshold adjustment for enemy attacker (ENEMY DICE MODIFICATIONS / CRIT MISS).</summary>
+        [JsonPropertyName("enemyCritMiss")]
+        public string EnemyCritMiss { get; set; } = "";
+
         [JsonPropertyName("heroSTR")]
         public string HeroSTR { get; set; } = "";
 

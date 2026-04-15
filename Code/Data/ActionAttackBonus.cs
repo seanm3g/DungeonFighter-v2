@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -8,9 +9,26 @@ namespace RPGGame.Data
     /// </summary>
     public class ActionAttackBonusItem
     {
+        private string _type = "";
+
+        /// <summary>ACCURACY, HIT, COMBO, CRIT, CRIT_MISS, STR, AGI, TECH, INT. Legacy <c>ROLL</c> is normalized to ACCURACY.</summary>
         [JsonPropertyName("type")]
-        public string Type { get; set; } = ""; // ACCURACY, HIT, COMBO, CRIT, CRIT_MISS, STR, AGI, TECH, INT
-        
+        public string Type
+        {
+            get => _type;
+            set => _type = NormalizeBonusType(value);
+        }
+
+        /// <summary>Maps legacy roll-modifier keyword <c>ROLL</c> to ACCURACY for FIFO/slot/ATTACK bonuses.</summary>
+        public static string NormalizeBonusType(string? type)
+        {
+            if (string.IsNullOrWhiteSpace(type)) return "";
+            var t = type.Trim();
+            if (string.Equals(t, "ROLL", StringComparison.OrdinalIgnoreCase))
+                return "ACCURACY";
+            return t;
+        }
+
         [JsonPropertyName("value")]
         public double Value { get; set; } = 0.0;
     }

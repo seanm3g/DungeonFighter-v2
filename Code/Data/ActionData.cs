@@ -64,6 +64,9 @@ namespace RPGGame
         public bool IsComboAction { get; set; } = true;
         [JsonPropertyName("rollBonus")]
         public int RollBonus { get; set; }
+        /// <summary>Accuracy (roll bonus) when an enemy uses this action; maps to spreadsheet enemy accuracy column.</summary>
+        [JsonPropertyName("enemyRollBonus")]
+        public int EnemyRollBonus { get; set; }
         [JsonPropertyName("rollBonusDuration")]
         public int RollBonusDuration { get; set; }
         [JsonPropertyName("statBonus")]
@@ -118,6 +121,16 @@ namespace RPGGame
         [JsonPropertyName("hitThresholdAdjustment")]
         public int HitThresholdAdjustment { get; set; }
 
+        /// <summary>Enemy attacker: crit miss threshold adjustment (spreadsheet enemy crit miss).</summary>
+        [JsonPropertyName("enemyCriticalMissThresholdAdjustment")]
+        public int EnemyCriticalMissThresholdAdjustment { get; set; }
+        [JsonPropertyName("enemyCriticalHitThresholdAdjustment")]
+        public int EnemyCriticalHitThresholdAdjustment { get; set; }
+        [JsonPropertyName("enemyComboThresholdAdjustment")]
+        public int EnemyComboThresholdAdjustment { get; set; }
+        [JsonPropertyName("enemyHitThresholdAdjustment")]
+        public int EnemyHitThresholdAdjustment { get; set; }
+
         // Whether to apply threshold adjustments to both source and target
         [JsonPropertyName("applyThresholdAdjustmentsToBoth")]
         public bool ApplyThresholdAdjustmentsToBoth { get; set; }
@@ -169,6 +182,8 @@ namespace RPGGame
         public string ChainPosition { get; set; } = "";
         [JsonPropertyName("modifyBasedOnChainPosition")]
         public string ModifyBasedOnChainPosition { get; set; } = "";
+        [JsonPropertyName("chainPositionBonuses")]
+        public List<ChainPositionBonusEntry> ChainPositionBonuses { get; set; } = new List<ChainPositionBonusEntry>();
         [JsonPropertyName("jump")]
         public string Jump { get; set; } = "";
         [JsonPropertyName("chainLength")]
@@ -193,6 +208,13 @@ namespace RPGGame
         /// Ensures StatBonuses is populated from legacy statBonus/statBonusType when list is empty.
         /// Call after loading so UI and execution can use the list.
         /// </summary>
+        /// <summary>Ensures ChainPositionBonuses list is non-null.</summary>
+        public void NormalizeChainPositionBonuses()
+        {
+            if (ChainPositionBonuses == null)
+                ChainPositionBonuses = new List<ChainPositionBonusEntry>();
+        }
+
         public void NormalizeStatBonuses()
         {
             if (StatBonuses == null)

@@ -208,8 +208,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Cadence ACTION/ACTIONS: <see cref="AdvancedMechanicsProperties.RollBonus"/> is deferred to the next action
-        /// (pending slot or temp roll bonus), not applied to the current action roll.
+        /// True when cadence is ACTION/ACTIONS (used for ActionAttackBonuses grouping and legacy checks).
         /// </summary>
         public static bool IsActionCadenceRollDeferral(Action? action)
         {
@@ -218,6 +217,22 @@ namespace RPGGame
             if (c.Length == 0) return false;
             return c.Equals("ACTION", StringComparison.OrdinalIgnoreCase)
                 || c.Equals("ACTIONS", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Sheet accuracy (<see cref="AdvancedMechanicsProperties.RollBonus"/> / <see cref="AdvancedMechanicsProperties.EnemyRollBonus"/>)
+        /// is not added to the <em>current</em> attack total when cadence is blank (treated as deferred) or any value other than ATTACK.
+        /// Cadence ATTACK keeps accuracy on the current roll. When deferred, a successful hit queues hero temp accuracy for the hero's
+        /// next attack and, if <see cref="AdvancedMechanicsProperties.EnemyRollBonus"/> is negative, applies <see cref="Actor.ApplyRollPenalty"/>
+        /// to the target for their next attack roll(s) — see <c>ActionExecutionFlow.ApplyHitOutcome</c>.
+        /// </summary>
+        public static bool DefersSheetCombatPackagesToNextHeroRoll(Action? action)
+        {
+            if (action == null) return false;
+            var c = (action.Cadence ?? "").Trim();
+            if (c.Length == 0) return true;
+            if (string.Equals(c, "ATTACK", StringComparison.OrdinalIgnoreCase)) return false;
+            return true;
         }
 
         /// <summary>

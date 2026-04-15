@@ -82,6 +82,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Speed: {actionData.Length}", AsciiArtAssets.Colors.White);
             menuStartY++;
+            bool hasSheetMods = !string.IsNullOrWhiteSpace(actionData.SpeedMod) || !string.IsNullOrWhiteSpace(actionData.DamageMod)
+                || !string.IsNullOrWhiteSpace(actionData.MultiHitMod) || !string.IsNullOrWhiteSpace(actionData.AmpMod);
+            if (hasSheetMods)
+            {
+                canvas.AddText(menuStartX, menuStartY, "  Modifiers (next action/ability):", AsciiArtAssets.Colors.Cyan);
+                menuStartY++;
+                if (!string.IsNullOrWhiteSpace(actionData.SpeedMod)) { canvas.AddText(menuStartX, menuStartY, $"    - SpeedMod: {actionData.SpeedMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                if (!string.IsNullOrWhiteSpace(actionData.DamageMod)) { canvas.AddText(menuStartX, menuStartY, $"    - DamageMod: {actionData.DamageMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                if (!string.IsNullOrWhiteSpace(actionData.MultiHitMod)) { canvas.AddText(menuStartX, menuStartY, $"    - MultiHitMod: {actionData.MultiHitMod}", AsciiArtAssets.Colors.White); menuStartY++; }
+                if (!string.IsNullOrWhiteSpace(actionData.AmpMod)) { canvas.AddText(menuStartX, menuStartY, $"    - AmpMod: {actionData.AmpMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+            }
             
             // Status Effects (only show if any are true)
             bool hasStatusEffects = actionData.CausesBleed || actionData.CausesWeaken || actionData.CausesSlow || 
@@ -115,8 +126,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 actionData.ComboThresholdAdjustment != 0 || actionData.CriticalHitThresholdAdjustment != 0;
             bool hasThresholds = (actionData.Thresholds != null && actionData.Thresholds.Count > 0) || actionData.HealthThreshold > 0;
             bool hasAccumulations = actionData.Accumulations != null && actionData.Accumulations.Count > 0;
+            actionData.NormalizeChainPositionBonuses();
+            bool hasChainPosBonuses = !string.IsNullOrWhiteSpace(actionData.ModifyBasedOnChainPosition)
+                && actionData.ChainPositionBonuses != null && actionData.ChainPositionBonuses.Count > 0;
             bool hasAdvanced = hasRollBonusAdjustments || actionData.RollBonus != 0 || hasStatBonuses || actionData.MultiHitCount > 1 ||
-                              actionData.SkipNextTurn || actionData.RepeatLastAction || hasThresholds || hasAccumulations;
+                              actionData.SkipNextTurn || actionData.RepeatLastAction || hasThresholds || hasAccumulations || hasChainPosBonuses;
             if (hasAdvanced)
             {
                 menuStartY++;
@@ -177,6 +191,20 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                         menuStartY++;
                     }
                 }
+                if (hasChainPosBonuses && actionData.ChainPositionBonuses != null)
+                {
+                    foreach (var c in actionData.ChainPositionBonuses)
+                    {
+                        if (string.IsNullOrWhiteSpace(c.ModifiesParam)) continue;
+                        var basis = string.IsNullOrWhiteSpace(c.PositionBasis) ? "ComboSlotIndex0" : c.PositionBasis;
+                        var kind = string.IsNullOrWhiteSpace(c.ValueKind) ? "#" : c.ValueKind;
+                        string paramLabel = ChainPositionBonusApplier.GetDisplayNameForModifiesParam(c.ModifiesParam);
+                        canvas.AddText(menuStartX, menuStartY,
+                            $"    - Chain pos: {paramLabel} × pos ({basis}) kind={kind} value={c.Value}",
+                            AsciiArtAssets.Colors.White);
+                        menuStartY++;
+                    }
+                }
             }
             
             // Tags (only show if tags exist)
@@ -210,25 +238,29 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 1 => actionData.Description,
                 2 => actionData.DamageMultiplier.ToString(),
                 3 => actionData.Length.ToString(),
-                4 => actionData.CausesBleed.ToString(),
-                5 => actionData.CausesWeaken.ToString(),
-                6 => actionData.CausesSlow.ToString(),
-                7 => actionData.CausesPoison.ToString(),
-                8 => actionData.CausesBurn.ToString(),
-                9 => "false", // CausesStun - not in ActionData
-                10 => actionData.IsComboAction.ToString(),
-                11 => actionData.ComboOrder.ToString(),
-                12 => actionData.ComboBonusDuration.ToString(),
-                13 => actionData.SkipNextTurn.ToString(),
-                14 => actionData.CriticalMissThresholdAdjustment.ToString(),
-                15 => actionData.HitThresholdAdjustment.ToString(),
-                16 => actionData.ComboThresholdAdjustment.ToString(),
-                17 => actionData.CriticalHitThresholdAdjustment.ToString(),
-                18 => actionData.StatBonus.ToString(),
-                19 => actionData.StatBonusType,
-                20 => actionData.MultiHitCount.ToString(),
-                21 => actionData.RepeatLastAction.ToString(),
-                22 => (actionData.Thresholds != null && actionData.Thresholds.Count > 0)
+                4 => actionData.SpeedMod ?? "",
+                5 => actionData.DamageMod ?? "",
+                6 => actionData.MultiHitMod ?? "",
+                7 => actionData.AmpMod ?? "",
+                8 => actionData.CausesBleed.ToString(),
+                9 => actionData.CausesWeaken.ToString(),
+                10 => actionData.CausesSlow.ToString(),
+                11 => actionData.CausesPoison.ToString(),
+                12 => actionData.CausesBurn.ToString(),
+                13 => "false", // CausesStun - not in ActionData
+                14 => actionData.IsComboAction.ToString(),
+                15 => actionData.ComboOrder.ToString(),
+                16 => actionData.ComboBonusDuration.ToString(),
+                17 => actionData.SkipNextTurn.ToString(),
+                18 => actionData.CriticalMissThresholdAdjustment.ToString(),
+                19 => actionData.HitThresholdAdjustment.ToString(),
+                20 => actionData.ComboThresholdAdjustment.ToString(),
+                21 => actionData.CriticalHitThresholdAdjustment.ToString(),
+                22 => actionData.StatBonus.ToString(),
+                23 => actionData.StatBonusType,
+                24 => actionData.MultiHitCount.ToString(),
+                25 => actionData.RepeatLastAction.ToString(),
+                26 => (actionData.Thresholds != null && actionData.Thresholds.Count > 0)
                     ? string.Join(", ", actionData.Thresholds.Select(t =>
                     {
                         string q = string.IsNullOrEmpty(t.Qualifier) ? "" : t.Qualifier + " ";
@@ -237,7 +269,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                         return $"{q}{t.Type}{op}{val}";
                     }))
                     : actionData.HealthThreshold.ToString("F2"),
-                23 => actionData.Tags != null ? string.Join(", ", actionData.Tags) : "",
+                27 => actionData.Tags != null ? string.Join(", ", actionData.Tags) : "",
                 _ => ""
             };
         }

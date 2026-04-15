@@ -6,6 +6,7 @@ namespace RPGGame
     using RPGGame.ActionInteractionLab;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.ActionInteractionLab;
     using RPGGame.UI.Avalonia.Display;
     using RPGGame.UI.Avalonia.Settings;
     using RPGGame.Utils;
@@ -375,6 +376,7 @@ namespace RPGGame
                 stateManager.TransitionToState(GameState.Settings);
                 ShowSettings();
             }
+            ActionLabControlsWindow.CloseIfOpen();
         }
 
         /// <summary>
@@ -414,6 +416,7 @@ namespace RPGGame
                 });
             // Ensure at least one line is in the combat buffer so the center panel is visibly live (buffer was cleared with settings).
             UIManager.WriteLine("Action Interaction Lab — select d20 and action, then Step.", UIMessageType.System);
+            ActionLabControlsWindow.Open(canvasUI.GetMainWindow(), canvasUI, this);
             try
             {
                 canvasUI.GetMainWindow()?.Activate();

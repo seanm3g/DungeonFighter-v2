@@ -51,6 +51,7 @@ namespace RPGGame.UI.Avalonia.Builders
             sections.BuildModifiersSection(actionFormPanel, action);
             sections.BuildComboAndPositionSection(actionFormPanel, action);
             sections.BuildRollBonusesSection(actionFormPanel, action);
+            sections.BuildEnemyRollBonusesSection(actionFormPanel, action);
             sections.BuildTriggersSection(actionFormPanel, action);
             sections.BuildStatusSection(actionFormPanel, action);
             sections.BuildAdvancedSection(actionFormPanel, action);

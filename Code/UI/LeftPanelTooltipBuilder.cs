@@ -209,9 +209,9 @@ namespace RPGGame
             var cfg = GameConfiguration.Instance;
             int cur = tm.GetCriticalHitThreshold(c);
             int def = cfg.Combat.CriticalHitThreshold > 0 ? cfg.Combat.CriticalHitThreshold : 20;
-            addWrapped("Critical hit threshold (attack total)");
+            addWrapped("Critical hit threshold (crit-eval roll)");
             addWrapped($"Current: {cur} (default {def}).");
-            addWrapped("Compared to your attack total minus INT, gear, and modification roll bonuses; temporary action bonuses still count.");
+            addWrapped("Compared to your underlying d20 total for this attack (accuracy and other roll bonuses do not make crits easier).");
         }
 
         private static void AppendThresholdCombo(Character c, Action<string> addWrapped)
@@ -241,7 +241,7 @@ namespace RPGGame
             var tm = RollModificationManager.GetThresholdManager();
             int cur = tm.GetCriticalMissThreshold(c);
             addWrapped("Critical miss threshold");
-            addWrapped($"Current: {cur}. Uses the same attack total as crit (excluding INT, gear, and mod roll bonuses) when checking this band.");
+            addWrapped($"Current: {cur}. Uses the same crit-eval roll as critical hit (accuracy affects hit/combo only, not this band).");
         }
 
         private static void AppendStatusLine(Character c, string key, Action<string> addWrapped)

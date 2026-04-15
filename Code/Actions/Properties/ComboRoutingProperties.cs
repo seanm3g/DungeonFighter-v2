@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace RPGGame
 {
@@ -47,6 +48,8 @@ namespace RPGGame
         public string Reset { get; set; } = "";
         /// <summary>Modify based on chain position (e.g. "true"). From Actions settings form.</summary>
         public string ModifyBasedOnChainPosition { get; set; } = "";
+        /// <summary>Per–combo-slot bonuses when <see cref="ModifyBasedOnChainPosition"/> is enabled.</summary>
+        public List<ChainPositionBonusEntry> ChainPositionBonuses { get; set; } = new List<ChainPositionBonusEntry>();
         /// <summary>When true, this action is constrained to the first slot of the combo sequence.</summary>
         public bool IsOpener { get; set; }
         /// <summary>When true, this action is constrained to the last slot of the combo sequence.</summary>

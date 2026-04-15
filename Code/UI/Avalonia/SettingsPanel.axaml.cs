@@ -65,6 +65,7 @@ namespace RPGGame.UI.Avalonia
                     colorManager?.ApplyColors();
                 }, DispatcherPriority.Loaded);
             };
+            this.Unloaded += (_, _) => actionsTabManager?.DetachFromActionLoaderEvents();
         }
         
         private void InitializeManagers()
@@ -170,6 +171,8 @@ namespace RPGGame.UI.Avalonia
             settings = GameSettings.Instance;
             // Tuning (class presentation, combat, etc.) must match disk when opening settings — same contract as GameSettings.ReloadFromFile().
             GameConfiguration.Instance.Reload();
+            // Actions tab uses ActionEditor + ActionLoader; mirror disk after external reloads (e.g. spreadsheet resync).
+            actionsTabManager?.ReloadFromDisk();
             // Ensure the selected category's panel is loaded (e.g. first open or SelectedIndex was set before items existed)
             if (CategoryListBox.SelectedItem is ListBoxItem selectedItem && selectedItem.Tag is string categoryTag
                 && !loadedPanels.ContainsKey(categoryTag))

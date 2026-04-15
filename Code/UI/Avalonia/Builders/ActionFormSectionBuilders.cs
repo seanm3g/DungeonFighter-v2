@@ -119,7 +119,11 @@ namespace RPGGame.UI.Avalonia.Builders
             parent.Children.Add(section);
             _ctx.Factory.AddFormField(stack, "Chain Position", action.ChainPosition ?? "", (value) => action.ChainPosition = value ?? "", description: "e.g. First, Last");
             _ctx.Factory.AddFormField(stack, "Chain Position Number", action.ComboOrder.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= -1) action.ComboOrder = v; }, description: "e.g. 0 or 1");
-            _ctx.Factory.AddBooleanField(stack, "Chain Position MOD", !string.IsNullOrWhiteSpace(action.ModifyBasedOnChainPosition), (value) => action.ModifyBasedOnChainPosition = value ? "true" : "");
+            _ctx.Factory.AddBooleanField(stack, "Chain Position MOD", !string.IsNullOrWhiteSpace(action.ModifyBasedOnChainPosition), (value) =>
+            {
+                action.ModifyBasedOnChainPosition = value ? "true" : "";
+                action.NormalizeChainPositionBonuses();
+            });
             _ctx.Factory.AddBooleanField(stack, "Skip Next Turn", action.SkipNextTurn, (value) => action.SkipNextTurn = value);
             _ctx.Factory.AddBooleanField(stack, "Repeat", action.RepeatLastAction, (value) => action.RepeatLastAction = value);
             _ctx.Factory.AddFormField(stack, "Jump", action.Jump ?? "", (value) => action.Jump = value ?? "", description: "e.g. 2 (jump steps in chain)");
@@ -139,7 +143,7 @@ namespace RPGGame.UI.Avalonia.Builders
 
         public void BuildRollBonusesSection(Panel parent, ActionData action)
         {
-            var (section, stack) = _ctx.Factory.CreateFormSection("Roll Bonuses (including Accuracy)");
+            var (section, stack) = _ctx.Factory.CreateFormSection("Roll Bonuses — Hero (including Accuracy)");
             parent.Children.Add(section);
             _ctx.Factory.AddFormField(stack, "Roll bonus: Crit Miss", action.CriticalMissThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.CriticalMissThresholdAdjustment = v; }, description: "e.g. -2 (integer threshold adjustment)");
             _ctx.Factory.AddFormField(stack, "Roll bonus: Hit", action.HitThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.HitThresholdAdjustment = v; }, description: "e.g. 0 (integer)");
@@ -147,6 +151,18 @@ namespace RPGGame.UI.Avalonia.Builders
             _ctx.Factory.AddFormField(stack, "Roll bonus: Crit", action.CriticalHitThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.CriticalHitThresholdAdjustment = v; }, description: "e.g. 2 (integer)");
             void SetRollBonus(string value) { action.RollBonus = string.IsNullOrWhiteSpace(value) ? 0 : (int.TryParse(value, out int v) ? v : action.RollBonus); }
             _ctx.Factory.AddFormField(stack, "Accuracy", action.RollBonus.ToString(), SetRollBonus, description: "e.g. 0 (integer)", onTextChanged: SetRollBonus);
+        }
+
+        public void BuildEnemyRollBonusesSection(Panel parent, ActionData action)
+        {
+            var (section, stack) = _ctx.Factory.CreateFormSection("Roll Bonuses — Enemy (including Accuracy)");
+            parent.Children.Add(section);
+            _ctx.Factory.AddFormField(stack, "Enemy roll bonus: Crit Miss", action.EnemyCriticalMissThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.EnemyCriticalMissThresholdAdjustment = v; }, description: "e.g. -2 (integer threshold adjustment)");
+            _ctx.Factory.AddFormField(stack, "Enemy roll bonus: Hit", action.EnemyHitThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.EnemyHitThresholdAdjustment = v; }, description: "e.g. 0 (integer)");
+            _ctx.Factory.AddFormField(stack, "Enemy roll bonus: Combo", action.EnemyComboThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.EnemyComboThresholdAdjustment = v; }, description: "e.g. 0 (integer)");
+            _ctx.Factory.AddFormField(stack, "Enemy roll bonus: Crit", action.EnemyCriticalHitThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.EnemyCriticalHitThresholdAdjustment = v; }, description: "e.g. 2 (integer)");
+            void SetEnemyRollBonus(string value) { action.EnemyRollBonus = string.IsNullOrWhiteSpace(value) ? 0 : (int.TryParse(value, out int v) ? v : action.EnemyRollBonus); }
+            _ctx.Factory.AddFormField(stack, "Enemy Accuracy", action.EnemyRollBonus.ToString(), SetEnemyRollBonus, description: "e.g. 0 (integer)", onTextChanged: SetEnemyRollBonus);
         }
 
         private static bool HasTrigger(ActionData action, string condition)

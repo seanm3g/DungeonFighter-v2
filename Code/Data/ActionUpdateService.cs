@@ -97,7 +97,11 @@ namespace RPGGame.Data
                 
                 // Parse CSV and generate JSON
                 await SpreadsheetParserRunner.ParseAndGenerateAsync(googleSheetsUrl, outputPath);
-                
+
+                string resolvedOut = outputPath ?? GameConstants.GetGameDataFilePath("Actions.json");
+                JsonLoader.ClearCacheForFile(resolvedOut);
+                try { JsonLoader.ClearCacheForFile(Path.GetFullPath(resolvedOut)); } catch { }
+
                 Console.WriteLine($"Successfully updated {outputPath} from Google Sheets");
             }
             catch (Exception ex)

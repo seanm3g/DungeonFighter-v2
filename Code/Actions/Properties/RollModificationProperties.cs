@@ -24,6 +24,12 @@ namespace RPGGame
         private int _criticalHitThresholdAdjustment = 0;
         private int _comboThresholdAdjustment = 0;
         private int _hitThresholdAdjustment = 0;
+
+        // Enemy attacker threshold adjustments (spreadsheet ENEMY DICE MODIFICATIONS)
+        private int _enemyCriticalMissThresholdAdjustment = 0;
+        private int _enemyCriticalHitThresholdAdjustment = 0;
+        private int _enemyComboThresholdAdjustment = 0;
+        private int _enemyHitThresholdAdjustment = 0;
         
         // Whether to apply threshold adjustments to both source and target
         private bool _applyThresholdAdjustmentsToBoth = false;
@@ -190,6 +196,30 @@ namespace RPGGame
         {
             get => _hitThresholdAdjustment;
             set => _hitThresholdAdjustment = value;
+        }
+
+        public int EnemyCriticalMissThresholdAdjustment
+        {
+            get => _enemyCriticalMissThresholdAdjustment;
+            set => _enemyCriticalMissThresholdAdjustment = value;
+        }
+
+        public int EnemyCriticalHitThresholdAdjustment
+        {
+            get => _enemyCriticalHitThresholdAdjustment;
+            set => _enemyCriticalHitThresholdAdjustment = value;
+        }
+
+        public int EnemyComboThresholdAdjustment
+        {
+            get => _enemyComboThresholdAdjustment;
+            set => _enemyComboThresholdAdjustment = value;
+        }
+
+        public int EnemyHitThresholdAdjustment
+        {
+            get => _enemyHitThresholdAdjustment;
+            set => _enemyHitThresholdAdjustment = value;
         }
 
         /// <summary>

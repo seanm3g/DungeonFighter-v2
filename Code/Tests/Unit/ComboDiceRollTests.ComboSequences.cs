@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using RPGGame;
 using RPGGame.Actions.Execution;
 using RPGGame.Actions.RollModification;
+using RPGGame.Data;
 using RPGGame.Tests; // For TestBase
 using RPGGame.Utils;
 
@@ -358,7 +359,11 @@ namespace RPGGame.Tests.Unit
                 DamageMultiplier = 1.0,
                 Length = 1.0
             };
-            combo1.RollMods.ComboThresholdAdjustment = 3; // easier combo for this action (e.g. +3 from sheet)
+            // +3 COMBO from a prior action's deferred sheet adjustment (same FIFO layer as on-card combo mods).
+            character.Effects.EnqueuePendingActionCadenceLayer(new List<ActionAttackBonusItem>
+            {
+                new ActionAttackBonusItem { Type = "COMBO", Value = 3 }
+            });
             var combo2 = new Action { Name = "NEXT SLOT", IsComboAction = true, Type = ActionType.Attack, DamageMultiplier = 1.0, Length = 1.0 };
             character.AddAction(combo1, 1.0);
             character.AddAction(combo2, 1.0);
@@ -373,8 +378,7 @@ namespace RPGGame.Tests.Unit
                 var result = ActionExecutionFlow.Execute(
                     character, enemy, null, null, combo1, null,
                     lastUsedActions, lastCriticalMissStatus);
-                // Forced roll 13 with ComboThresholdAdjustment +3: effective combo threshold is below config min,
-                // so IsCombo can be true while the old advancement check (raw config min only) would not advance.
+                // Pending +3 COMBO lowers effective combo threshold for this roll so IsCombo can be true at roll 13.
                 TestBase.AssertTrue(result.Hit, "Regression test expects a hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(result.IsCombo, $"Expected IsCombo with lowered effective threshold; AttackRoll={result.AttackRoll}", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(character.ComboStep != 0,

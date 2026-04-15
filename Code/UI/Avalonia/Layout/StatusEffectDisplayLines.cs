@@ -19,7 +19,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (actor.IsStunned && actor.StunTurnsRemaining > 0)
                 lines.Add($"Stunned ({actor.StunTurnsRemaining} turn{(actor.StunTurnsRemaining != 1 ? "s" : "")})");
             if (actor.RollPenalty != 0 && actor.RollPenaltyTurns > 0)
-                lines.Add($"Roll -{actor.RollPenalty} ({actor.RollPenaltyTurns} turn{(actor.RollPenaltyTurns != 1 ? "s" : "")})");
+                lines.Add($"Accuracy -{actor.RollPenalty} ({actor.RollPenaltyTurns} atk{(actor.RollPenaltyTurns != 1 ? "s" : "")})");
             if (actor.PoisonStacks > 0)
                 lines.Add(actor.IsBleeding ? $"Bleed x{actor.PoisonStacks}" : $"Poison x{actor.PoisonStacks}");
             if (actor.BurnStacks > 0)
@@ -54,28 +54,30 @@ namespace RPGGame.UI.Avalonia.Layout
                 lines.Add($"Confused ({actor.ConfusionTurns} turn{(actor.ConfusionTurns != 1 ? "s" : "")})");
             if (actor.IsMarked && actor.MarkTurns > 0)
                 lines.Add($"Marked ({actor.MarkTurns} turn{(actor.MarkTurns != 1 ? "s" : "")})");
-            if (asCharacter != null)
+            Character? charHud = asCharacter ?? actor as Character;
+            if (charHud != null)
             {
-                int rollBonus = asCharacter.Effects.GetTempRollBonus();
-                if (rollBonus != 0 && asCharacter.Effects.TempRollBonusTurns > 0)
-                {
-                    int t = asCharacter.Effects.TempRollBonusTurns;
-                    lines.Add($"Accuracy +{rollBonus} ({t} turn{(t != 1 ? "s" : "")})");
-                }
-                if (asCharacter.Effects.SlowTurns > 0)
-                    lines.Add($"Slow ({asCharacter.Effects.SlowTurns} turn{(asCharacter.Effects.SlowTurns != 1 ? "s" : "")})");
-                if (asCharacter.Effects.HasShield)
+                // Single "Accuracy" line: FIFO ACCURACY bonuses for the next attack(s) plus any legacy temp roll bonus slot.
+                int accFromQueues = ActionSelector.PeekQueuedAccuracyBonus(charHud);
+                int accTemp = charHud.Effects.TempRollBonusTurns > 0 ? charHud.Effects.GetTempRollBonus() : 0;
+                int accTotal = accFromQueues + accTemp;
+                if (accTotal != 0)
+                    lines.Add(accTotal > 0 ? $"Accuracy +{accTotal} (next attack)" : $"Accuracy {accTotal} (next attack)");
+
+                if (charHud.Effects.SlowTurns > 0)
+                    lines.Add($"Slow ({charHud.Effects.SlowTurns} turn{(charHud.Effects.SlowTurns != 1 ? "s" : "")})");
+                if (charHud.Effects.HasShield)
                     lines.Add("Shield");
-                if (asCharacter.Effects.SkipNextTurn)
+                if (charHud.Effects.SkipNextTurn)
                     lines.Add("Skip turn");
-                if (asCharacter.Effects.GuaranteeNextSuccess)
+                if (charHud.Effects.GuaranteeNextSuccess)
                     lines.Add("Guarantee hit");
-                if (asCharacter.Effects.ExtraAttacks > 0)
-                    lines.Add($"Extra atk x{asCharacter.Effects.ExtraAttacks}");
-                if (asCharacter.Effects.ComboModeActive)
+                if (charHud.Effects.ExtraAttacks > 0)
+                    lines.Add($"Extra atk x{charHud.Effects.ExtraAttacks}");
+                if (charHud.Effects.ComboModeActive)
                     lines.Add("Combo mode");
-                if (asCharacter.Effects.RerollCharges > 0)
-                    lines.Add($"Reroll x{asCharacter.Effects.RerollCharges}");
+                if (charHud.Effects.RerollCharges > 0)
+                    lines.Add($"Reroll x{charHud.Effects.RerollCharges}");
             }
             return lines;
         }

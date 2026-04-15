@@ -43,6 +43,7 @@ namespace RPGGame.Data
             action.EnemyHit = GetStringValue(root, "enemyHit");
             action.EnemyCombo = GetStringValue(root, "enemyCombo");
             action.EnemyCrit = GetStringValue(root, "enemyCrit");
+            action.EnemyCritMiss = GetStringValue(root, "enemyCritMiss");
             action.HeroSTR = GetStringValue(root, "heroSTR");
             action.HeroAGI = GetStringValue(root, "heroAGI");
             action.HeroTECH = GetStringValue(root, "heroTECH");
@@ -102,6 +103,7 @@ namespace RPGGame.Data
             action.StatBonusesJson = GetStringValue(root, "statBonusesJson");
             action.ThresholdsJson = GetStringValue(root, "thresholdsJson");
             action.AccumulationsJson = GetStringValue(root, "accumulationsJson");
+            action.ChainPositionBonusesJson = GetStringValue(root, "chainPositionBonusesJson");
             action.ThresholdCategory = GetStringValue(root, "thresholdCategory");
             action.ThresholdAmount = GetStringValue(root, "thresholdAmount");
             action.Bonus = GetStringValue(root, "bonus");
@@ -154,6 +156,7 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "enemyHit", value.EnemyHit);
             WriteIfNotEmpty(writer, "enemyCombo", value.EnemyCombo);
             WriteIfNotEmpty(writer, "enemyCrit", value.EnemyCrit);
+            WriteIfNotEmpty(writer, "enemyCritMiss", value.EnemyCritMiss);
             WriteIfNotEmpty(writer, "heroSTR", value.HeroSTR);
             WriteIfNotEmpty(writer, "heroAGI", value.HeroAGI);
             WriteIfNotEmpty(writer, "heroTECH", value.HeroTECH);
@@ -213,6 +216,7 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "statBonusesJson", value.StatBonusesJson);
             WriteIfNotEmpty(writer, "thresholdsJson", value.ThresholdsJson);
             WriteIfNotEmpty(writer, "accumulationsJson", value.AccumulationsJson);
+            WriteIfNotEmpty(writer, "chainPositionBonusesJson", value.ChainPositionBonusesJson);
             WriteIfNotEmpty(writer, "thresholdCategory", value.ThresholdCategory);
             WriteIfNotEmpty(writer, "thresholdAmount", value.ThresholdAmount);
             WriteIfNotEmpty(writer, "bonus", value.Bonus);

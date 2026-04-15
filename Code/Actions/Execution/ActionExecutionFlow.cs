@@ -20,6 +20,12 @@ namespace RPGGame.Actions.Execution
 
         internal static void NotifyOneShotKillOccurred() => OneShotKillOccurred?.Invoke();
 
+        private static List<ActionAttackBonusItem> CloneActionAttackBonusItems(List<ActionAttackBonusItem>? src)
+        {
+            if (src == null || src.Count == 0) return new List<ActionAttackBonusItem>();
+            return src.Select(b => new ActionAttackBonusItem { Type = b.Type, Value = b.Value }).ToList();
+        }
+
         /// <summary>Returns stat bonus entries from the action (list if non-empty, else legacy single as one entry).</summary>
         private static List<StatBonusEntry> GetStatBonusEntries(Action action)
         {
@@ -83,6 +89,7 @@ namespace RPGGame.Actions.Execution
                 ApplyHitOutcome(source, target, result, battleNarrative);
             else
                 ApplyMissOutcome(source, target, result, battleNarrative);
+            source.ConsumeRollPenaltyAfterCombatRoll(result.SelectedAction);
             return result;
         }
 
@@ -111,7 +118,7 @@ namespace RPGGame.Actions.Execution
 
         private static void SelectActionAndResolveRoll(
             Actor source,
-            Actor target,
+            Actor? target,
             ActionExecutionResult result,
             Dictionary<Actor, Action> lastUsedActions,
             Dictionary<Actor, bool> lastCriticalMissStatus,
@@ -130,19 +137,25 @@ namespace RPGGame.Actions.Execution
             if (target != null)
                 thresholdManager.ResetThresholds(target);
 
-            // Roll and threshold bonuses: ATTACK (consumed per roll), per-slot ACTION (consumed when slot executes), ABILITY (consumed on hit)
-            int actionBonusAccumulator = 0, actionBonusHit = 0, actionBonusCombo = 0, actionBonusCrit = 0;
+            // Roll and threshold bonuses: ATTACK (consumed per roll), ACTION (FIFO per hero/enemy attack roll + legacy per-slot), ABILITY (consumed on hit)
+            int actionBonusAccumulator = 0, actionBonusHit = 0, actionBonusCombo = 0, actionBonusCrit = 0, actionBonusCritMiss = 0;
             if (source is Character actionBonusCharacter && !(actionBonusCharacter is Enemy))
             {
-                // 1. Consume per-slot ACTION bonuses for current slot (slot-based; consumed when this slot executes)
+                // 1. ACTION cadence: legacy slot-based pending + one FIFO layer per hero attack roll (enemy turns do not consume hero layers)
                 var comboActions = ActionUtilities.GetComboActions(actionBonusCharacter);
                 int comboLength = comboActions.Count;
+                var pendingActionRollBonuses = new List<ActionAttackBonusItem>();
                 if (comboLength > 0)
                 {
                     int currentSlot = actionBonusCharacter.ComboStep % comboLength;
-                    var slotBonuses = actionBonusCharacter.Effects.ConsumePendingActionBonusesForSlot(currentSlot);
-                    actionBonusCharacter.Effects.AccumulateConsumedModifierBonuses(slotBonuses);
-                    foreach (var bonus in slotBonuses)
+                    pendingActionRollBonuses.AddRange(actionBonusCharacter.Effects.ConsumePendingActionBonusesForSlot(currentSlot));
+                }
+                pendingActionRollBonuses.AddRange(actionBonusCharacter.Effects.ConsumePendingActionBonusesNextHeroRoll());
+                if (pendingActionRollBonuses.Count > 0)
+                {
+                    RollModificationManager.ApplyDeferredThresholdPackageSetPhase(source, pendingActionRollBonuses);
+                    actionBonusCharacter.Effects.AccumulateConsumedModifierBonuses(pendingActionRollBonuses);
+                    foreach (var bonus in pendingActionRollBonuses)
                     {
                         switch ((bonus.Type ?? "").ToUpper())
                         {
@@ -150,11 +163,13 @@ namespace RPGGame.Actions.Execution
                             case "HIT": actionBonusHit += (int)bonus.Value; break;
                             case "COMBO": actionBonusCombo += (int)bonus.Value; break;
                             case "CRIT": actionBonusCrit += (int)bonus.Value; break;
+                            case "CRIT_MISS": actionBonusCritMiss += (int)bonus.Value; break;
                         }
                     }
                 }
                 // 2. Consume ATTACK bonuses (roll-based; consumed per roll, apply only on hit for stat bonuses)
                 var actionBonuses = actionBonusCharacter.Effects.GetAndConsumeAttackBonuses();
+                RollModificationManager.ApplyDeferredThresholdPackageSetPhase(source, actionBonuses);
                 actionBonusCharacter.Effects.AccumulateConsumedModifierBonuses(actionBonuses);
                 actionBonusCharacter.Effects.SetConsumedAttackBonusesThisRoll(actionBonuses);
                 foreach (var bonus in actionBonuses)
@@ -165,10 +180,12 @@ namespace RPGGame.Actions.Execution
                         case "HIT": actionBonusHit += (int)bonus.Value; break;
                         case "COMBO": actionBonusCombo += (int)bonus.Value; break;
                         case "CRIT": actionBonusCrit += (int)bonus.Value; break;
+                        case "CRIT_MISS": actionBonusCritMiss += (int)bonus.Value; break;
                     }
                 }
                 // Apply ability-queued roll/threshold bonuses to this roll (consumed on hit in ApplyHitOutcome).
                 var abilityBonusesPeek = actionBonusCharacter.Effects.PeekAbilityBonuses();
+                RollModificationManager.ApplyDeferredThresholdPackageSetPhase(source, abilityBonusesPeek);
                 foreach (var bonus in abilityBonusesPeek)
                 {
                     switch (bonus.Type.ToUpper())
@@ -177,28 +194,57 @@ namespace RPGGame.Actions.Execution
                         case "HIT": actionBonusHit += (int)bonus.Value; break;
                         case "COMBO": actionBonusCombo += (int)bonus.Value; break;
                         case "CRIT": actionBonusCrit += (int)bonus.Value; break;
+                        case "CRIT_MISS": actionBonusCritMiss += (int)bonus.Value; break;
+                    }
+                }
+            }
+            else if (source is Enemy enemyAttacker)
+            {
+                // Fumble-routed ACTION cadence: consume one layer per enemy attack roll only (not on hero turns)
+                var layer = enemyAttacker.Effects.ConsumePendingActionBonusesNextHeroRoll();
+                if (layer.Count > 0)
+                {
+                    RollModificationManager.ApplyDeferredThresholdPackageSetPhase(source, layer);
+                    enemyAttacker.Effects.AccumulateConsumedModifierBonuses(layer);
+                    foreach (var bonus in layer)
+                    {
+                        switch ((bonus.Type ?? "").ToUpper())
+                        {
+                            case "ACCURACY": actionBonusAccumulator += (int)bonus.Value; break;
+                            case "HIT": actionBonusHit += (int)bonus.Value; break;
+                            case "COMBO": actionBonusCombo += (int)bonus.Value; break;
+                            case "CRIT": actionBonusCrit += (int)bonus.Value; break;
+                            case "CRIT_MISS": actionBonusCritMiss += (int)bonus.Value; break;
+                        }
                     }
                 }
             }
             result.ModifiedBaseRoll = RollModificationManager.ApplyActionRollModifications(
                 result.BaseRoll, result.SelectedAction, source, target);
-            result.ModifiedBaseRoll += actionBonusAccumulator;
             RollModificationManager.ApplyThresholdOverrides(result.SelectedAction, source, target);
-            // Positive bonus = easier (lower threshold). ThresholdManager subtracts adjustment for Hit/Combo/Crit.
-            if (actionBonusHit != 0 && source is Character hitBonusCharacter && !(hitBonusCharacter is Enemy))
-                RollModificationManager.GetThresholdManager().AdjustHitThreshold(hitBonusCharacter, actionBonusHit);
-            if (actionBonusCombo != 0 && source is Character comboBonusCharacter && !(comboBonusCharacter is Enemy))
-                RollModificationManager.GetThresholdManager().AdjustComboThreshold(comboBonusCharacter, actionBonusCombo);
-            if (actionBonusCrit != 0 && source is Character critBonusCharacter && !(critBonusCharacter is Enemy))
-                RollModificationManager.GetThresholdManager().AdjustCriticalHitThreshold(critBonusCharacter, actionBonusCrit);
+            // FIFO / ATTACK / ABILITY ACCURACY: shift hit and combo thresholds only (not crit or crit miss).
+            if (actionBonusAccumulator != 0)
+            {
+                thresholdManager.AdjustHitThreshold(source, actionBonusAccumulator);
+                thresholdManager.AdjustComboThreshold(source, actionBonusAccumulator);
+            }
+            // Pending queue + ABILITY peek: SET_* deferred overrides first, then deltas (crit miss → crit → combo → hit).
+            if (actionBonusCritMiss != 0 && source is Character cmBonusCharacter)
+                thresholdManager.AdjustCriticalMissThreshold(cmBonusCharacter, actionBonusCritMiss);
+            if (actionBonusCrit != 0 && source is Character critBonusCharacter)
+                thresholdManager.AdjustCriticalHitThreshold(critBonusCharacter, actionBonusCrit);
+            if (actionBonusCombo != 0 && source is Character comboBonusCharacter)
+                thresholdManager.AdjustComboThreshold(comboBonusCharacter, actionBonusCombo);
+            if (actionBonusHit != 0 && source is Character hitBonusCharacter)
+                thresholdManager.AdjustHitThreshold(hitBonusCharacter, actionBonusHit);
 
             result.RollBonus = ActionUtilities.CalculateRollBonus(source, result.SelectedAction);
             result.AttackRoll = result.ModifiedBaseRoll + result.RollBonus;
-            var tm = RollModificationManager.GetThresholdManager();
-            int hitThreshold = tm.GetHitThreshold(source);
-            int criticalMissThreshold = tm.GetCriticalMissThreshold(source);
-            // Crit / crit-miss use attack total minus INT, gear, and mod roll bonuses; temp and action-driven bonuses still count.
-            int critThresholdRoll = CombatCalculator.GetCritThresholdEvaluationRoll(result.AttackRoll, source);
+            int hitThreshold = thresholdManager.GetHitThreshold(source);
+            int criticalMissThreshold = thresholdManager.GetCriticalMissThreshold(source);
+            // Crit / crit-miss: exclude full roll bonus (stats + temp + chain/sheet terms in bonus) from attack total.
+            int critThresholdRoll = CombatCalculator.GetCritThresholdEvaluationRoll(
+                result.AttackRoll, result.RollBonus, source.RollPenalty);
             // Critical miss only when crit-eval roll is both <= crit-miss threshold and in miss band (<= hit threshold).
             result.IsCriticalMiss = critThresholdRoll <= criticalMissThreshold && critThresholdRoll <= hitThreshold;
             if (result.IsCriticalMiss)
@@ -208,10 +254,12 @@ namespace RPGGame.Actions.Execution
             }
             lastCriticalMissStatus[source] = result.IsCriticalMiss;
             // Combo flag: combo-slot action and attack total meets combo threshold (avoids "combo" on unnamed normal hits that hit 14+ total)
-            result.IsCombo = result.SelectedAction.IsComboAction && result.AttackRoll >= tm.GetComboThreshold(source);
-            result.IsCritical = critThresholdRoll >= tm.GetCriticalHitThreshold(source);
+            result.IsCombo = result.SelectedAction.IsComboAction && result.AttackRoll >= thresholdManager.GetComboThreshold(source);
+            result.IsCritical = critThresholdRoll >= thresholdManager.GetCriticalHitThreshold(source);
             ActionEventPublisher.PublishActionExecuted(source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical);
             result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
+            // Sheet accuracy + threshold adjustments (and deferred overrides when not ATTACK cadence) queue for the next application.
+            RollModificationManager.EnqueueDeferredRollModThresholdAdjustmentsForNextRoll(result.SelectedAction, source, target);
         }
 
         private static void ApplyHitOutcome(Actor source, Actor target, ActionExecutionResult result, BattleNarrative? battleNarrative)
@@ -263,11 +311,13 @@ namespace RPGGame.Actions.Execution
                 int multiHitCount = selected.Advanced.MultiHitCount;
                 if (source is Character multiHitCharacter && multiHitCharacter.Effects.ConsumedMultiHitMod != 0)
                     multiHitCount = Math.Max(1, multiHitCount + (int)Math.Max(0, multiHitCharacter.Effects.ConsumedMultiHitMod));
+                multiHitCount = Math.Max(1, multiHitCount + ChainPositionBonusApplier.GetMultiHitDelta(source, selected, ActionUtilities.GetComboActions(source), ActionUtilities.GetComboStep(source)));
                 if (multiHitCount > 1)
                 {
                     result.Damage = MultiHitProcessor.ProcessMultiHit(
                         source, target, selected, damageMultiplier, totalRoll,
-                        result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, battleNarrative);
+                        result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, battleNarrative,
+                        source.RollPenalty);
                 }
                 else
                 {
@@ -304,37 +354,58 @@ namespace RPGGame.Actions.Execution
             if (selected.ActionAttackBonuses != null && source is Character bonusSourceCharacter && !(bonusSourceCharacter is Enemy))
             {
                 bonusSourceCharacter.Effects.AddActionAttackBonuses(selected.ActionAttackBonuses);
-                // Add ACTION cadence bonuses to the next combo slot. Spreadsheet Count = "for next X ACTION(s)";
-                // we apply Count copies onto that single upcoming slot (one roll consumes all lists in that slot).
-                if (result.IsCombo && selected.IsComboAction)
+                // ACTION cadence: FIFO layers — one layer consumed per hero attack roll (enemy turns do not count).
+                // Spreadsheet Count / duration = number of consecutive hero actions that receive one application each.
+                bool grantOnComboSuccess = result.IsCombo && selected.IsComboAction;
+                bool grantOnComboFailSelf = result.Hit && selected.IsComboAction && !result.IsCombo;
+                if (grantOnComboSuccess || grantOnComboFailSelf)
                 {
                     var comboActions = ActionUtilities.GetComboActions(bonusSourceCharacter);
-                    int comboLength = comboActions.Count;
-                    if (comboLength > 0)
+                    if (comboActions.Count > 0)
                     {
-                        int nextSlot = (bonusSourceCharacter.ComboStep + 1) % comboLength;
                         foreach (var group in selected.ActionAttackBonuses.BonusGroups)
                         {
                             var ct = string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType;
-                            if (ct != "ACTION" || group.Bonuses == null) continue;
-                            for (int i = 0; i < group.Count; i++)
-                                bonusSourceCharacter.Effects.AddPendingActionBonuses(nextSlot, group.Bonuses);
+                            if (!string.Equals(ct, "ACTION", StringComparison.OrdinalIgnoreCase) || group.Bonuses == null)
+                                continue;
+                            int layers = grantOnComboSuccess
+                                ? (group.Count > 0 ? group.Count : 1)
+                                : 1;
+                            var payload = CloneActionAttackBonusItems(group.Bonuses);
+                            for (int i = 0; i < layers; i++)
+                                bonusSourceCharacter.Effects.AddPendingActionBonusesNextHeroRoll(payload);
                         }
                     }
                 }
             }
-            // Hand-edited JSON: rollBonus without ACTION bonus group — defer via temp roll bonus for next execution
-            if (source is Character actionCadenceTempCharacter && !(actionCadenceTempCharacter is Enemy)
-                && Action.IsActionCadenceRollDeferral(selected)
-                && selected.Advanced.RollBonus != 0
-                && !Action.HasActionCadenceBonusGroup(selected)
-                && result.IsCombo
-                && selected.IsComboAction)
+            // Sheet accuracy (hero / enemy columns) is omitted from this roll when cadence is not ATTACK
+            // (see Action.DefersSheetCombatPackagesToNextHeroRoll). On a successful hit only: queue hero ACCURACY
+            // FIFO layers (same pipeline as peeked ACCURACY in ActionExecutionFlow / ActionSelector) — not SetTempRollBonus,
+            // so the HUD shows a single "Accuracy" line. Enemy debuff uses RollPenalty on the target for their next N attack/spell rolls (N = duration).
+            if (Action.DefersSheetCombatPackagesToNextHeroRoll(selected))
             {
-                int rollBonusDuration = selected.Advanced.RollBonusDuration > 0
+                int accTurns = selected.Advanced.RollBonusDuration > 0
                     ? selected.Advanced.RollBonusDuration
-                    : 1;
-                actionCadenceTempCharacter.Effects.SetTempRollBonus(selected.Advanced.RollBonus, rollBonusDuration);
+                    : (selected.ComboBonusDuration > 0 ? selected.ComboBonusDuration : 1);
+                if (accTurns < 1) accTurns = 1;
+
+                int hitLayers = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(selected, source);
+                if (hitLayers < 1) hitLayers = 1;
+
+                if (source is Character heroAcc && !(heroAcc is Enemy) && selected.Advanced.RollBonus != 0)
+                {
+                    int scaledRollBonus = selected.Advanced.RollBonus * hitLayers;
+                    for (int t = 0; t < accTurns; t++)
+                    {
+                        heroAcc.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
+                        {
+                            new ActionAttackBonusItem { Type = "ACCURACY", Value = scaledRollBonus }
+                        });
+                    }
+                }
+
+                if (target != null && !ReferenceEquals(source, target) && selected.Advanced.EnemyRollBonus < 0)
+                    target.ApplyRollPenalty(-selected.Advanced.EnemyRollBonus * hitLayers, accTurns);
             }
             if (source is Character modSourceCharacter && !(modSourceCharacter is Enemy))
             {
@@ -344,7 +415,7 @@ namespace RPGGame.Actions.Execution
                 {
                     var comboActions = ActionUtilities.GetComboActions(modSourceCharacter);
                     if (comboActions.Count > 0)
-                        nextSlotForAbilityMod = (modSourceCharacter.ComboStep + 1) % comboActions.Count;
+                        nextSlotForAbilityMod = ActionUtilities.GetNextComboSlotForPendingBonuses(modSourceCharacter, selected, comboActions);
                 }
                 modSourceCharacter.Effects.AddModifierBonusesFromAction(selected, nextSlotForAbilityMod);
             }
@@ -457,6 +528,24 @@ namespace RPGGame.Actions.Execution
                 if (!string.Equals(result.SelectedAction!.Cadence?.Trim(), "Ability", StringComparison.OrdinalIgnoreCase))
                     modMissCharacter.Effects.AddModifierBonusesFromAction(result.SelectedAction);
                 modMissCharacter.Effects.GetAndClearConsumedAttackBonusesThisRoll(); // Discard; ATTACK bonuses consumed on roll but not applied on miss
+            }
+            // Critical miss (fumble): ACTION cadence affects the enemy — duration counts down on the enemy's attack rolls, not the hero's.
+            if (result.IsCriticalMiss
+                && target is Enemy enemyForFumble
+                && source is Character heroFumble
+                && !(heroFumble is Enemy)
+                && result.SelectedAction?.ActionAttackBonuses?.BonusGroups != null)
+            {
+                foreach (var group in result.SelectedAction.ActionAttackBonuses.BonusGroups)
+                {
+                    var ct = string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType;
+                    if (!string.Equals(ct, "ACTION", StringComparison.OrdinalIgnoreCase) || group.Bonuses == null)
+                        continue;
+                    int layers = group.Count > 0 ? group.Count : 1;
+                    var payload = CloneActionAttackBonusItems(group.Bonuses);
+                    for (int i = 0; i < layers; i++)
+                        enemyForFumble.Effects.AddPendingActionBonusesNextHeroRoll(payload);
+                }
             }
             ActionEventPublisher.PublishActionMiss(source, target, result.SelectedAction!, result.AttackRoll);
             if (source is Character characterMiss)

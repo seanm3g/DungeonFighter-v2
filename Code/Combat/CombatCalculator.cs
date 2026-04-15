@@ -31,7 +31,7 @@ namespace RPGGame
         /// Calculates hit/miss based on roll value only
         /// 1-5: Miss, 6-13: Regular attack, 14-19: Combo, 20: Combo + Critical
         /// </summary>
-        public static bool CalculateHit(Actor attacker, Actor target, int rollBonus, int roll)
+        public static bool CalculateHit(Actor attacker, Actor? target, int rollBonus, int roll)
         {
             return HitCalculator.CalculateHit(attacker, target, rollBonus, roll);
         }
@@ -49,12 +49,18 @@ namespace RPGGame
         {
             int totalBonus = 0;
             
-            // Base action roll bonus on this roll (ACTION cadence defers RollBonus to next action — see Action.IsActionCadenceRollDeferral)
+            // Hero / enemy "Accuracy" columns: on the current roll only when cadence is ATTACK; otherwise deferred
+            // (blank cadence = next ACTION / 1 turn; see Action.DefersSheetCombatPackagesToNextHeroRoll).
+            if (action != null && !Action.DefersSheetCombatPackagesToNextHeroRoll(action))
+            {
+                if (attacker is Enemy)
+                    totalBonus += action.Advanced.EnemyRollBonus;
+                else
+                    totalBonus += action.Advanced.RollBonus;
+            }
+
             if (action != null)
             {
-                if (!Action.IsActionCadenceRollDeferral(action))
-                    totalBonus += action.Advanced.RollBonus;
-
                 // Apply combo scaling bonuses
                 if (action.Tags.Contains("comboScaling"))
                 {
@@ -74,6 +80,8 @@ namespace RPGGame
                         totalBonus += (int)(characterAttacker.GetComboAmplifier() * 2);
                     }
                 }
+
+                totalBonus += ChainPositionBonusApplier.GetChainAccuracyDelta(attacker, action, comboActions, comboStep);
             }
             
             // Add intelligence bonus
@@ -105,8 +113,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Roll bonuses from intelligence, modifications, and equipment — not applied when comparing
-        /// crit / crit-miss thresholds (those use the effective roll after temporary action bonuses only).
+        /// Roll bonuses from intelligence, modifications, and equipment (included in <see cref="CalculateRollBonus"/>).
         /// </summary>
         public static int GetPersistentStatRollBonus(Actor attacker)
         {
@@ -118,11 +125,14 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Attack total minus <see cref="GetPersistentStatRollBonus"/>; used for critical hit and critical miss checks.
+        /// Roll compared to critical hit and critical miss thresholds.
+        /// Subtracts the full attack <paramref name="rollBonus"/> (sheet/chain accuracy, stats, temp, penalty term) and
+        /// <paramref name="rollPenalty"/> so those bonuses affect hit/combo only. Queued ACCURACY that shifts hit/combo
+        /// thresholds (not roll total) does not appear in <paramref name="rollBonus"/> and does not affect crit.
         /// </summary>
-        public static int GetCritThresholdEvaluationRoll(int attackRoll, Actor attacker)
+        public static int GetCritThresholdEvaluationRoll(int attackRoll, int rollBonus, int rollPenalty)
         {
-            return attackRoll - GetPersistentStatRollBonus(attacker);
+            return attackRoll - rollBonus - rollPenalty;
         }
 
         /// <summary>

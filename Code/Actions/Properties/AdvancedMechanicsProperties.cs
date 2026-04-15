@@ -12,6 +12,8 @@ namespace RPGGame
         public int MultiHitCount { get; set; } = 1;
         public int SelfDamagePercent { get; set; } = 0;
         public int RollBonus { get; set; } = 0;
+        /// <summary>Action accuracy bonus when the attacker is an enemy (hero uses RollBonus).</summary>
+        public int EnemyRollBonus { get; set; } = 0;
         public int RollBonusDuration { get; set; } = 0;
         /// <summary>Multiple stat bonuses. When non-empty, use this; otherwise legacy single properties apply.</summary>
         public List<StatBonusEntry> StatBonuses { get; set; } = new List<StatBonusEntry>();

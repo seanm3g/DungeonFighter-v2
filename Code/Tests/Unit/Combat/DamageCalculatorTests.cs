@@ -30,6 +30,7 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestCalculateRawDamage();
             TestCalculateDamage();
+            TestDamageReflectsStatChangesWithoutStaleCache();
             TestCacheInvalidation();
             TestCacheClearing();
             TestCacheStats();
@@ -116,6 +117,37 @@ namespace RPGGame.Tests.Unit.Combat
             var rawDamage = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
             TestBase.AssertTrue(damage <= rawDamage,
                 "Final damage should be less than or equal to raw damage",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Regression: damage must not be served from a cache keyed only by actor identity — STR changes must change output.
+        /// </summary>
+        private static void TestDamageReflectsStatChangesWithoutStaleCache()
+        {
+            Console.WriteLine("\n--- Testing damage updates when stats change (no stale cache) ---");
+
+            var attacker = TestDataBuilders.Character()
+                .WithName("StatMorph")
+                .WithStats(1, 1, 1, 1)
+                .Build();
+            var weapon = new WeaponItem("BareFist", 1, 0);
+            attacker.EquipItem(weapon, "weapon");
+
+            var target = TestDataBuilders.Enemy()
+                .WithName("Dummy")
+                .WithHealth(100)
+                .Build();
+
+            var action = TestDataBuilders.CreateMockAction("JAB");
+            action.DamageMultiplier = 1.0;
+
+            int before = DamageCalculator.CalculateDamage(attacker, target, action, 1.0, 1.0, 0, 10);
+            attacker.Stats.Strength = 30;
+            int after = DamageCalculator.CalculateDamage(attacker, target, action, 1.0, 1.0, 0, 10);
+
+            TestBase.AssertTrue(after > before,
+                $"Damage after raising STR should exceed prior ({after} vs {before})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -24,7 +24,7 @@ namespace RPGGame.Tests.Unit.Data
         {
             Console.WriteLine("=== Action Bonus Mechanics Tests ===\n");
             Console.WriteLine("Cadence types:");
-            Console.WriteLine("  - For next ACTION: Buffs attach to the next combo slot. Added when source action SUCCEEDS (hit+combo). Consumed when that slot rolls.");
+            Console.WriteLine("  - For next ACTION: Buffs queue for the hero's next attack roll. Added when source action SUCCEEDS (hit+combo). Consumed on that roll (combo-step drift safe).");
             Console.WriteLine("  - For next ATTACK: Buffs apply to the next roll. Consumed on every roll. Stat bonuses (STR/AGI/etc) apply ONLY on hit.\n");
 
             _testsRun = 0;
@@ -33,7 +33,9 @@ namespace RPGGame.Tests.Unit.Data
 
             TestActionBonusAddLogic_Deterministic();
             TestActionCadenceComboThresholdDoesNotPersistAcrossRolls();
+            TestActionCadenceDurationIsFifoLayersPerHeroRoll();
             TestFullFlow_ActionBuffsNextAction();
+            TestActionBonusNextRollSurvivesComboStepMismatch();
             TestForNextAction_OnSuccess();
             TestForNextAction_OnFailure();
             TestForNextAttack_OnSuccess();
@@ -54,7 +56,7 @@ namespace RPGGame.Tests.Unit.Data
         private static void TestActionBonusAddLogic_Deterministic()
         {
             Console.WriteLine("--- Deterministic: ACTION bonus add logic ---");
-            Console.WriteLine("  Simulates ApplyHitOutcome: when slot 0 succeeds, add +3 COMBO to slot 1.\n");
+            Console.WriteLine("  Simulates ApplyHitOutcome: when slot 0 succeeds, add +3 COMBO to next-hero-roll queue.\n");
 
             var character = CreateComboWithBuffingAction();
             var comboActions = character.GetComboActions();
@@ -65,18 +67,15 @@ namespace RPGGame.Tests.Unit.Data
                 "Combo must have at least 2 actions for this test",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             Console.WriteLine($"  Combo has {comboLength} actions: [{string.Join(", ", comboActions.Select(a => a.Name))}]");
-            Console.WriteLine($"  ComboStep=0 -> nextSlot = (0+1)%{comboLength} = 1");
 
-            // Simulate what ApplyHitOutcome does for ACTION cadence
-            int nextSlot = (character.ComboStep + 1) % comboLength;
             var bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 3 } };
-            character.Effects.AddPendingActionBonuses(nextSlot, bonuses);
+            character.Effects.AddPendingActionBonusesNextHeroRoll(bonuses);
 
-            var pending = character.Effects.GetPendingActionBonusesForSlot(1);
+            var pending = character.Effects.PeekPendingActionBonusesNextHeroRoll();
             TestBase.AssertTrue(pending.Count > 0 && pending.Any(b => b.Type == "COMBO" && b.Value == 3),
-                "Simulated add: slot 1 has +3 COMBO",
+                "Simulated add: next-hero-roll queue has +3 COMBO",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            Console.WriteLine($"  Slot 1 pending: {pending.Count} bonus(es). OK.\n");
+            Console.WriteLine($"  Next-roll pending: {pending.Count} bonus(es). OK.\n");
         }
 
         /// <summary>
@@ -87,8 +86,8 @@ namespace RPGGame.Tests.Unit.Data
         {
             Console.WriteLine("--- Full Flow: Action 1 buffs Action 2 (For next ACTION) ---");
             Console.WriteLine("  Setup: Combo [SetupStrike, Finisher]. SetupStrike grants +3 COMBO to next action.");
-            Console.WriteLine("  Step 1: Execute SetupStrike. On success -> slot 2 gets +3 COMBO.");
-            Console.WriteLine("  Step 2: Execute Finisher (slot 2). Bonuses consumed and applied to roll.\n");
+            Console.WriteLine("  Step 1: Execute SetupStrike. On success -> next hero roll gets +3 COMBO.");
+            Console.WriteLine("  Step 2: Execute Finisher. Bonuses consumed and applied to roll.\n");
 
             var lastUsed = new Dictionary<Actor, Action>();
             var lastCritMiss = new Dictionary<Actor, bool>();
@@ -114,28 +113,19 @@ namespace RPGGame.Tests.Unit.Data
                 successCount++;
                 Console.WriteLine($"  Run {successCount}: SetupStrike succeeded (hit+combo). ComboStep={character.ComboStep}, ComboLength={comboActions.Count}");
 
-                // Check all slots for diagnostics
-                var allSlots = character.Effects.GetPendingActionBonusSlots().OrderBy(s => s).ToList();
-                Console.WriteLine($"  Pending bonus slots: [{string.Join(", ", allSlots)}]");
-                foreach (var slot in allSlots)
-                {
-                    var p = character.Effects.GetPendingActionBonusesForSlot(slot);
-                    Console.WriteLine($"    Slot {slot}: {p.Count} bonus(es) - {string.Join(", ", p.Select(b => $"{b.Type}+{b.Value}"))}");
-                }
-
-                // Verify slot 1 (0-indexed = second action = Finisher) now has +3 COMBO pending
-                var pendingBefore = character.Effects.GetPendingActionBonusesForSlot(1);
+                var pendingBefore = character.Effects.PeekPendingActionBonusesNextHeroRoll();
+                Console.WriteLine($"  Next-roll pending: {pendingBefore.Count} bonus(es) - {string.Join(", ", pendingBefore.Select(b => $"{b.Type}+{b.Value}"))}");
                 TestBase.AssertTrue(pendingBefore.Count > 0 && pendingBefore.Any(b => b.Type == "COMBO" && b.Value == 3),
-                    "After SetupStrike succeeds: slot 2 (index 1) has +3 COMBO pending",
+                    "After SetupStrike succeeds: next-hero-roll queue has +3 COMBO pending",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-                // Step 2: Execute Finisher (slot 1 = second action). Bonuses consumed.
+                // Step 2: Execute Finisher. Bonuses consumed from next-roll queue regardless of ComboStep.
                 character.ComboStep = 1;
                 var result2 = ActionExecutionFlow.Execute(character, enemy, null, null, finisherAction, null, lastUsed, lastCritMiss);
 
-                var pendingAfter = character.Effects.GetPendingActionBonusesForSlot(1);
+                var pendingAfter = character.Effects.PeekPendingActionBonusesNextHeroRoll();
                 TestBase.AssertTrue(pendingAfter.Count == 0,
-                    "After Finisher rolls: slot 2 bonuses consumed (applied to roll)",
+                    "After Finisher rolls: next-roll ACTION bonuses consumed (applied to roll)",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 Console.WriteLine($"  Run {successCount}: Finisher executed. Bonuses consumed. Hit={result2.Hit}, Combo={result2.IsCombo}.\n");
@@ -145,6 +135,62 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(successCount >= 1,
                 $"Full flow verified in {successCount} successful run(s)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// ACTION cadence bonuses must apply on the hero's next roll even if ComboStep no longer matches the slot
+        /// that would have received them under the old per-slot model (simulates an enemy turn or combo drift).
+        /// </summary>
+        private static void TestActionBonusNextRollSurvivesComboStepMismatch()
+        {
+            Console.WriteLine("--- Regression: ACTION roll buff survives ComboStep mismatch before next hero roll ---\n");
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMin <= 0)
+                comboMin = 14;
+            int edgeTotal = comboMin - 1;
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+
+                var character = CreateComboWithBuffingAction();
+                character.Intelligence = 0;
+                var comboActions = character.GetComboActions();
+                var setup = comboActions[0];
+                var finisher = comboActions[1];
+                var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
+
+                Dice.SetTestRoll(Math.Max(comboMin + 1, 15));
+                var r1 = ActionExecutionFlow.Execute(character, enemy, null, null, setup, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(r1.Hit && r1.IsCombo,
+                    "Setup: hit + combo so ACTION bonus is queued for next hero roll",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(character.Effects.PeekPendingActionBonusesNextHeroRoll().Any(b => b.Type == "COMBO" && b.Value == 3),
+                    "Pending +3 COMBO is on next-roll queue",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // Would have targeted slot 1 under old model; force step 0 so slot-based consumption would miss the buff.
+                character.ComboStep = 0;
+                Dice.SetTestRoll(edgeTotal);
+                var r2 = ActionExecutionFlow.Execute(character, enemy, null, null, finisher, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(r2.Hit,
+                    "Finisher with edge attack total still hits",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(r2.IsCombo,
+                    "Finisher: queued +3 COMBO must apply even when ComboStep was 0 (next-roll queue, not slot 1 only)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(character.Effects.PeekPendingActionBonusesNextHeroRoll().Count == 0,
+                    "Next-roll ACTION bonuses consumed after finisher",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
         }
 
         /// <summary>
@@ -205,6 +251,37 @@ namespace RPGGame.Tests.Unit.Data
             }
         }
 
+        /// <summary>
+        /// Duration N queues N FIFO layers; each hero attack roll consumes at most one layer (enemy turns do not).
+        /// </summary>
+        private static void TestActionCadenceDurationIsFifoLayersPerHeroRoll()
+        {
+            Console.WriteLine("--- ACTION cadence duration: FIFO layers (one per hero roll) ---\n");
+
+            var character = TestDataBuilders.Character().WithName("TestHero").Build();
+            var oneLayer = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 2 } };
+            for (int i = 0; i < 3; i++)
+                character.Effects.AddPendingActionBonusesNextHeroRoll(oneLayer);
+
+            TestBase.AssertEqual(3, character.Effects.GetPendingActionCadenceLayerCount(),
+                "Three enqueues -> three layers",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var a = character.Effects.ConsumePendingActionBonusesNextHeroRoll();
+            TestBase.AssertTrue(a.Count > 0 && a[0].Type == "COMBO" && Math.Abs(a[0].Value - 2) < 0.01,
+                "First consume returns first layer",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, character.Effects.GetPendingActionCadenceLayerCount(),
+                "After one consume -> two layers remain",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            _ = character.Effects.ConsumePendingActionBonusesNextHeroRoll();
+            _ = character.Effects.ConsumePendingActionBonusesNextHeroRoll();
+            TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
+                "After three consumes -> empty",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            Console.WriteLine("  OK: duration stacks as separate per-roll layers.\n");
+        }
+
         #endregion
 
         #region For Next ACTION: Success vs Failure
@@ -232,11 +309,10 @@ namespace RPGGame.Tests.Unit.Data
                 if (result.Hit && result.IsCombo)
                 {
                     verified++;
-                    var pending = character.Effects.GetPendingActionBonusesForSlot(1);
-                    var allSlots = character.Effects.GetPendingActionBonusSlots().OrderBy(s => s).ToList();
-                    Console.WriteLine($"  ComboStep={character.ComboStep}, PendingSlots=[{string.Join(",", allSlots)}], Slot1 count={pending.Count}");
+                    var pending = character.Effects.PeekPendingActionBonusesNextHeroRoll();
+                    Console.WriteLine($"  ComboStep={character.ComboStep}, Next-roll pending count={pending.Count}");
                     TestBase.AssertTrue(pending.Count > 0,
-                        "ACTION cadence on SUCCESS: next slot has pending bonuses",
+                        "ACTION cadence on SUCCESS: next-hero-roll queue has pending bonuses",
                         ref _testsRun, ref _testsPassed, ref _testsFailed);
                     Console.WriteLine($"  Verified: Action succeeded -> slot 2 has {pending.Count} bonus(es).\n");
                     break;
@@ -271,11 +347,11 @@ namespace RPGGame.Tests.Unit.Data
                 if (!result.Hit)
                 {
                     verified++;
-                    var pending = character.Effects.GetPendingActionBonusesForSlot(1);
+                    var pending = character.Effects.PeekPendingActionBonusesNextHeroRoll();
                     TestBase.AssertTrue(pending.Count == 0,
-                        "ACTION cadence on FAILURE: next slot has NO pending bonuses",
+                        "ACTION cadence on FAILURE: next-hero-roll queue has NO pending bonuses",
                         ref _testsRun, ref _testsPassed, ref _testsFailed);
-                    Console.WriteLine($"  Verified: Action missed -> slot 2 has 0 bonuses.\n");
+                    Console.WriteLine($"  Verified: Action missed -> next-roll queue empty.\n");
                     break;
                 }
             }
@@ -422,17 +498,18 @@ namespace RPGGame.Tests.Unit.Data
 
             // BuildActiveModifierLines
             character.Effects.ClearAllTempEffects();
-            character.Effects.AddPendingActionBonuses(1, new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 3 } });
+            character.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 3 } });
             var lines = CombatActionStripBuilder.BuildActiveModifierLines(character);
-            TestBase.AssertTrue(lines != null && lines.Count >= 1 && lines[0].Contains("Next Action 2") && lines[0].Contains("COMBO"),
-                "Display: BuildActiveModifierLines shows 'Next Action 2: +3 COMBO'",
+            TestBase.AssertTrue(lines != null && lines.Count >= 1 && lines[0].Contains("Next roll:") && lines[0].Contains("COMBO"),
+                "Display: BuildActiveModifierLines shows 'Next roll: ... COMBO'",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Clear on combo change
             character.Effects.AddPendingActionBonuses(0, new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "HIT", Value = 1 } });
+            character.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "ACCURACY", Value = 2 } });
             character.Effects.ClearPendingActionBonuses();
-            TestBase.AssertTrue(character.Effects.GetPendingActionBonusSlots().Count() == 0,
-                "ClearPendingActionBonuses clears all slots",
+            TestBase.AssertTrue(!character.Effects.GetPendingActionBonusSlots().Any() && character.Effects.PeekPendingActionBonusesNextHeroRoll().Count == 0,
+                "ClearPendingActionBonuses clears slot map and next-hero-roll queue",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             Console.WriteLine();
@@ -540,18 +617,16 @@ namespace RPGGame.Tests.Unit.Data
 
                     if (ct == "ACTION")
                     {
-                        // Simulate: when slot 0 succeeds, add to slot 1
-                        int nextSlot = 1;
                         if (group.Bonuses != null && group.Bonuses.Count > 0)
                         {
                             for (int i = 0; i < group.Count; i++)
-                                character.Effects.AddPendingActionBonuses(nextSlot, group.Bonuses);
-                            var pending = character.Effects.GetPendingActionBonusesForSlot(nextSlot);
+                                character.Effects.AddPendingActionBonusesNextHeroRoll(group.Bonuses);
+                            var pending = character.Effects.PeekPendingActionBonusesNextHeroRoll();
                             bool ok = pending.Count >= group.Bonuses.Count;
                             foreach (var b in group.Bonuses)
                                 ok = ok && pending.Any(p => p.Type == b.Type && Math.Abs(p.Value - b.Value) < 0.01);
                             TestBase.AssertTrue(ok,
-                                $"{action.Name} ACTION: bonuses stored for next slot",
+                                $"{action.Name} ACTION: bonuses stored for next hero roll",
                                 ref _testsRun, ref _testsPassed, ref _testsFailed);
                             if (ok) actionPassed++;
                         }

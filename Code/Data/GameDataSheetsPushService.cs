@@ -214,12 +214,15 @@ namespace RPGGame.Data
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);
 
+            SheetsPushUtilities.NormalizeRowsInPlaceForUpload(rows, firstRowIndexToNormalize: 1);
+
             string updateRange = $"{sheet}!A1";
             var valueRange = new ValueRange
             {
                 MajorDimension = "ROWS",
                 Values = rows
             };
+            SheetsPushUtilities.NormalizeValueRangeGridsForUpload(new[] { valueRange });
 
             var updateRequest = service.Spreadsheets.Values.Update(valueRange, spreadsheetId, updateRange);
             updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;

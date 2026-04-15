@@ -35,9 +35,10 @@ namespace RPGGame.Data
             data.Category = header.GetValue(columns, null, "CATEGORY");
             data.DPS = header.GetValue(columns, null, "DPS(%)");
             data.NumberOfHits = header.GetValue(columns, null, "# OF HITS");
-            data.Damage = header.GetValue(columns, null, "DAMAGE(%)", rawLabelMustContain: "%");
-            if (string.IsNullOrEmpty(data.Damage) && columns.Length > 6)
-                data.Damage = columns[6].Trim();
+            data.Damage = header.GetDamagePercentValue(columns);
+            // Legacy layout: ACTION,DESC,…,RARITY(3),CATEGORY(4),DPS(5),#HITS(6),DAMAGE(7). If header text omits "%", GetDamagePercentValue uses column index; when that also fails, H is index 7 (not 6 — 6 is # OF HITS).
+            if (string.IsNullOrEmpty(data.Damage) && columns.Length > 7)
+                data.Damage = columns[7].Trim();
             data.Speed = header.GetValue(columns, null, "SPEED(x)");
             data.Duration = header.GetValue(columns, null, "DURATION");
             data.Cadence = header.GetValue(columns, null, "CADENCE");
@@ -56,6 +57,7 @@ namespace RPGGame.Data
             data.EnemyHit = header.GetValue(columns, "ENEMY DICE MODIFICATIONS", "HIT");
             data.EnemyCombo = header.GetValue(columns, "ENEMY DICE MODIFICATIONS", "COMBO");
             data.EnemyCrit = header.GetValue(columns, "ENEMY DICE MODIFICATIONS", "CRIT");
+            data.EnemyCritMiss = header.GetValue(columns, "ENEMY DICE MODIFICATIONS", "CRIT MISS");
 
             data.HeroSTR = header.GetValue(columns, "HERO ATTRIBUTE MODIFICATION", "STR");
             data.HeroAGI = header.GetValue(columns, "HERO ATTRIBUTE MODIFICATION", "AGI");

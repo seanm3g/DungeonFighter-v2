@@ -337,7 +337,9 @@ namespace RPGGame.Combat.Formatting
                 targetDefense = targetCharacter.GetTotalArmor();
             }
             
-            int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
+            // Match combat damage: roll bands use total attack (modified base + bonuses), not base alone.
+            int rollForDamageScaling = roll + rollBonus;
+            int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, rollForDamageScaling);
             
             double actualSpeed = 0;
             if (action != null && action.Length > 0)

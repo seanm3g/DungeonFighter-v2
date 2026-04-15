@@ -7,7 +7,6 @@ using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
-using RPGGame.Actions.RollModification;
 
 namespace RPGGame.UI.Avalonia.Layout
 {
@@ -43,7 +42,8 @@ namespace RPGGame.UI.Avalonia.Layout
         }
         
         /// <summary>
-        /// Renders the character information panel (left side)
+        /// Renders the character information panel (left side). The player hero is expected; dice thresholds
+        /// and status lines use this character as the roll source.
         /// </summary>
         public void RenderCharacterPanel(Character character)
         {
@@ -274,42 +274,11 @@ namespace RPGGame.UI.Avalonia.Layout
             bool thresholdsOpen = stateManager == null || !stateManager.ThresholdsCollapsed;
             if (thresholdsOpen)
             {
-                var tm = RollModificationManager.GetThresholdManager();
-                var config = GameConfiguration.Instance;
-                int hit = tm.GetHitThreshold(character);
-                int combo = tm.GetComboThreshold(character);
-                int crit = tm.GetCriticalHitThreshold(character);
-                int critMiss = tm.GetCriticalMissThreshold(character);
-                int defaultHit = config.RollSystem.MissThreshold.Max > 0 ? config.RollSystem.MissThreshold.Max : 5;
-                int defaultCombo = config.RollSystem.ComboThreshold.Min > 0 ? config.RollSystem.ComboThreshold.Min : 14;
-                int defaultCrit = config.Combat.CriticalHitThreshold > 0 ? config.Combat.CriticalHitThreshold : 20;
-                const int defaultCritMiss = 1;
-                const int thresholdLabelWidth = 11;
-                int accuracy = ActionUtilities.CalculateRollBonus(character, null, consumeTempBonus: false);
-                int critThresholdAccuracy = accuracy - CombatCalculator.GetPersistentStatRollBonus(character);
-                void RenderThresholdRow(int rowY, string labelName, int current, int def, string displayedValue)
-                {
-                    string labelPart = $"{labelName}:".PadRight(thresholdLabelWidth);
-                    var valueColor = ThresholdDisplayFormatting.GetValueColor(current, def);
-                    string modStr = ThresholdDisplayFormatting.FormatDeltaSuffix(current, def);
-                    canvas.AddText(x, rowY, labelPart, AsciiArtAssets.Colors.Cyan);
-                    canvas.AddText(x + thresholdLabelWidth, rowY, displayedValue, valueColor);
-                    if (modStr.Length > 0)
-                        canvas.AddText(x + thresholdLabelWidth + displayedValue.Length, rowY, modStr, valueColor);
-                }
-
                 int critY = y;
-                RenderThresholdRow(y, "Crit", crit, defaultCrit, ThresholdDisplayFormatting.FormatThresholdValueWithAccuracy(crit, critThresholdAccuracy));
-                y++;
-                int comboY = y;
-                RenderThresholdRow(y, "Combo", combo, defaultCombo, ThresholdDisplayFormatting.FormatThresholdValueWithAccuracy(combo, accuracy));
-                y++;
-                int hitY = y;
-                RenderThresholdRow(y, "Hit", hit, defaultHit, ThresholdDisplayFormatting.FormatThresholdValueWithAccuracy(hit + 1, accuracy));
-                y++;
-                int critMissY = y;
-                RenderThresholdRow(y, "Crit Miss", critMiss, defaultCritMiss, ThresholdDisplayFormatting.FormatThresholdValueWithAccuracy(critMiss, critThresholdAccuracy));
-                y++;
+                y = DiceRollThresholdRowsRenderer.RenderRows(canvas, x, y, character);
+                int comboY = critY + 1;
+                int hitY = critY + 2;
+                int critMissY = critY + 3;
 
                 if (interactionManager != null && stateManager != null)
                 {

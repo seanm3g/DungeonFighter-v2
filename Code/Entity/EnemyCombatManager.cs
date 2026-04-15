@@ -80,16 +80,21 @@ namespace RPGGame
                     int multiHitCount = action.Advanced?.MultiHitCount ?? 1;
                     var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(_enemy, target, finalEffect, actualDamage, action, 1.0, settings.EnemyDamageMultiplier, rollBonus, baseRoll, multiHitCount);
                     string damageDisplay = ColoredTextRenderer.RenderAsPlainText(damageText) + "\n" + ColoredTextRenderer.RenderAsPlainText(rollInfo);
+                    _enemy.ConsumeRollPenaltyAfterCombatRoll(action);
                     return ($"[{_enemy.Name}] uses [{action.Name}] on [{target.Name}]: deals {damageDisplay}. (Rolled {totalRoll}, need {difficulty})", true);
                 }
                 else if (action.Type == ActionType.Debuff)
                 {
                     return ($"[{_enemy.Name}] uses [{action.Name}] on [{target.Name}]: applies debuff. (Rolled {totalRoll}, need {difficulty})", true);
                 }
+                if (action.Type == ActionType.Spell)
+                    _enemy.ConsumeRollPenaltyAfterCombatRoll(action);
                 return ($"[{_enemy.Name}] uses [{action.Name}] on [{target.Name}]. (Rolled {totalRoll}, need {difficulty})", true);
             }
             else
             {
+                if (action.Type == ActionType.Attack || action.Type == ActionType.Spell)
+                    _enemy.ConsumeRollPenaltyAfterCombatRoll(action);
                 return ($"[{_enemy.Name}] attempts [{action.Name}] but fails. (Rolled {totalRoll}, need {difficulty}) No action performed.", false);
             }
         }

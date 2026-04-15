@@ -21,11 +21,13 @@ namespace RPGGame.Actions.Execution
             int modifiedBaseRoll,
             int rollBonus,
             int naturalRoll,
-            BattleNarrative? battleNarrative)
+            BattleNarrative? battleNarrative,
+            int rollPenalty = 0)
         {
             int multiHitCount = action.Advanced.MultiHitCount;
             if (source is Character character && character.Effects.ConsumedMultiHitMod != 0)
                 multiHitCount = Math.Max(1, multiHitCount + (int)Math.Max(0, character.Effects.ConsumedMultiHitMod));
+            multiHitCount = Math.Max(1, multiHitCount + ChainPositionBonusApplier.GetMultiHitDelta(source, action, ActionUtilities.GetComboActions(source), ActionUtilities.GetComboStep(source)));
             int totalDamage = 0;
 
             // Process each hit
@@ -85,7 +87,8 @@ namespace RPGGame.Actions.Execution
             }
 
             // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
-            int critEval = CombatCalculator.GetCritThresholdEvaluationRoll(totalRoll, source);
+            int critEval = CombatCalculator.GetCritThresholdEvaluationRoll(
+                totalRoll, rollBonus, rollPenalty);
             bool isCriticalHit = critEval >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
             bool isComboEvent = action.IsComboAction && totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetComboThreshold(source);
             ActionUtilities.CreateAndAddBattleEvent(source, target, action, totalDamage, totalRoll, rollBonus, true, isComboEvent, 0, 0, isCriticalHit, naturalRoll, battleNarrative);

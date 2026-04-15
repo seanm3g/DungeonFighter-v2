@@ -87,13 +87,55 @@ namespace RPGGame.Data
         }
 
         /// <summary>
+        /// Column index for action damage as a percent of attack (DAMAGE %), not DPS.
+        /// Published CSV often uses headers like "DAMAGE" without "%"; <see cref="GetColumnIndex"/> with
+        /// <c>rawLabelMustContain: "%"</c> then fails. This prefers a % in the raw label when present,
+        /// else the first column whose normalized label is DAMAGE but whose raw label is not DPS-based.
+        /// </summary>
+        public int GetDamagePercentColumnIndex()
+        {
+            int idx = GetColumnIndex(null, "DAMAGE(%)", rawLabelMustContain: "%");
+            if (idx >= 0)
+                return idx;
+
+            for (int i = 0; i < LabelByIndex.Count; i++)
+            {
+                string raw = LabelByIndex[i] ?? "";
+                if (NormalizeLabel(raw) != NormalizeLabel("DAMAGE(%)"))
+                    continue;
+                if (raw.IndexOf("DPS", StringComparison.OrdinalIgnoreCase) >= 0)
+                    continue;
+                return i;
+            }
+
+            return -1;
+        }
+
+        /// <summary>Reads the DAMAGE(%) cell using <see cref="GetDamagePercentColumnIndex"/>.</summary>
+        public string GetDamagePercentValue(string[] row)
+        {
+            int idx = GetDamagePercentColumnIndex();
+            if (idx < 0 || idx >= row.Length)
+                return "";
+            return row[idx].Trim();
+        }
+
+        /// <summary>Writes the DAMAGE(%) cell; same column resolution as <see cref="GetDamagePercentValue"/>.</summary>
+        public void SetDamagePercentCell(string[] row, string value)
+        {
+            int idx = GetDamagePercentColumnIndex();
+            if (idx >= 0 && idx < row.Length)
+                row[idx] = SheetsPushUtilities.NormalizeSheetString(value);
+        }
+
+        /// <summary>
         /// Writes a cell if a matching column exists (inverse of <see cref="GetValue"/>). Used when pushing rows to Google Sheets.
         /// </summary>
         public void SetCell(string[] row, string? contextHint, string label, string value, string? rawLabelMustContain = null)
         {
             int idx = GetColumnIndex(contextHint, label, rawLabelMustContain);
             if (idx >= 0 && idx < row.Length)
-                row[idx] = value ?? "";
+                row[idx] = SheetsPushUtilities.NormalizeSheetString(value);
         }
 
         /// <summary>Normalizes a header cell for matching: trim, uppercase, collapse whitespace, remove common punctuation in parentheses.</summary>

@@ -1,6 +1,7 @@
 using System;
 using RPGGame;
 using RPGGame.Tests.Unit;
+using RPGGame.Tests.Unit.Actions;
 using RPGGame.Tests.Unit.Entity;
 
 namespace RPGGame.Tests.Runners
@@ -50,6 +51,9 @@ namespace RPGGame.Tests.Runners
                 Console.WriteLine($"{GameConstants.StandardSeparator}\n");
                 
                 CombatCalculatorTests.RunAllTests();
+                Console.WriteLine();
+
+                ChainPositionBonusTests.RunAllTests();
                 Console.WriteLine();
 
                 // Run UI builder tests

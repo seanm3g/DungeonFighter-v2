@@ -1,6 +1,7 @@
 using System;
 using RPGGame.Tests;
 using RPGGame;
+using RPGGame.GameCore.Editors;
 
 namespace RPGGame.Tests.Unit.Game
 {
@@ -27,6 +28,7 @@ namespace RPGGame.Tests.Unit.Game
 
             TestConstructor();
             TestConstructorWithNullStateManager();
+            TestFormProcessorSpreadsheetModifierSteps();
 
             TestBase.PrintSummary("ActionEditorHandler Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -80,5 +82,29 @@ namespace RPGGame.Tests.Unit.Game
         }
 
         #endregion
+
+        /// <summary>Canvas create/edit wizard steps 4–7 map to SpeedMod, DamageMod, MultiHitMod, AmpMod.</summary>
+        private static void TestFormProcessorSpreadsheetModifierSteps()
+        {
+            Console.WriteLine("\n--- Testing ActionFormProcessor spreadsheet modifier steps ---");
+            var processor = new ActionFormProcessor(_ => { });
+            var action = new ActionData();
+            TestBase.AssertTrue(
+                processor.ProcessFormStep(action, 4, " 10 ") && action.SpeedMod == "10",
+                "Step 4 should trim and set SpeedMod",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                processor.ProcessFormStep(action, 5, "") && action.DamageMod == "",
+                "Step 5 should allow empty DamageMod",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                processor.ProcessFormStep(action, 6, "2") && action.MultiHitMod == "2",
+                "Step 6 should set MultiHitMod",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                processor.ProcessFormStep(action, 7, "15") && action.AmpMod == "15",
+                "Step 7 should set AmpMod",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
     }
 }

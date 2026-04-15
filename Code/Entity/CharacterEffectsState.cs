@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.Data;
 
 namespace RPGGame
@@ -107,6 +108,11 @@ namespace RPGGame
         public List<ActionAttackBonusGroup> AttackBonuses { get; set; } = new List<ActionAttackBonusGroup>();
         /// <summary>ACTION cadence: slot-based. Key = combo slot index; value = bonuses to apply when that slot executes.</summary>
         public Dictionary<int, List<ActionAttackBonusItem>> PendingActionBonusesBySlot { get; set; } = new Dictionary<int, List<ActionAttackBonusItem>>();
+        /// <summary>
+        /// ACTION cadence: FIFO layers. Each hero (or enemy, when fumble-routed) attack roll consumes exactly one layer.
+        /// Duration N is stored as N consecutive identical layers (spreadsheet Count / combo bonus duration).
+        /// </summary>
+        public List<List<ActionAttackBonusItem>> PendingActionCadenceBonusLayers { get; set; } = new List<List<ActionAttackBonusItem>>();
         public double ConsumedDamageModPercent { get; set; }
         public double ConsumedSpeedModPercent { get; set; }
         public double ConsumedMultiHitMod { get; set; }
@@ -122,7 +128,7 @@ namespace RPGGame
                 var ct = string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType;
                 if (ct == "ABILITY") AbilityBonuses.Add(group);
                 else if (ct == "ATTACK") AttackBonuses.Add(group);
-                // ACTION cadence: added to PendingActionBonusesBySlot in ActionExecutionFlow when action succeeds
+                // ACTION cadence: queued in ActionExecutionFlow (PendingActionCadenceBonusLayers)
             }
         }
         public void ClearConsumedModifierBonuses() { ConsumedDamageModPercent = 0; ConsumedSpeedModPercent = 0; ConsumedMultiHitMod = 0; ConsumedAmpModPercent = 0; }
@@ -198,7 +204,7 @@ namespace RPGGame
         public List<ActionAttackBonusItem> PeekAbilityBonuses() { var r = new List<ActionAttackBonusItem>(); foreach (var g in AbilityBonuses) { if (g.Bonuses != null) r.AddRange(g.Bonuses); } return r; }
         public List<ActionAttackBonusItem> PeekActionBonuses() => PeekAttackBonuses();
         public List<ActionAttackBonusItem> PeekAttackBonuses() { var r = new List<ActionAttackBonusItem>(); foreach (var g in AttackBonuses) { if (g.Bonuses != null) r.AddRange(g.Bonuses); } return r; }
-        public void ClearActionBonus() { AbilityBonuses.Clear(); AttackBonuses.Clear(); PendingActionBonusesBySlot.Clear(); ConsumedDamageModPercent = 0; ConsumedSpeedModPercent = 0; ConsumedMultiHitMod = 0; ConsumedAmpModPercent = 0; }
+        public void ClearActionBonus() { AbilityBonuses.Clear(); AttackBonuses.Clear(); PendingActionBonusesBySlot.Clear(); PendingActionCadenceBonusLayers.Clear(); ConsumedDamageModPercent = 0; ConsumedSpeedModPercent = 0; ConsumedMultiHitMod = 0; ConsumedAmpModPercent = 0; }
         public void AddPendingActionBonuses(int slot, List<ActionAttackBonusItem> bonuses)
         {
             if (bonuses == null || bonuses.Count == 0) return;
@@ -217,7 +223,39 @@ namespace RPGGame
             return PendingActionBonusesBySlot.TryGetValue(slot, out var list) ? new List<ActionAttackBonusItem>(list) : new List<ActionAttackBonusItem>();
         }
         public IEnumerable<int> GetPendingActionBonusSlots() => PendingActionBonusesBySlot.Keys;
-        public void ClearPendingActionBonuses() => PendingActionBonusesBySlot.Clear();
+        public void ClearPendingActionBonuses()
+        {
+            PendingActionBonusesBySlot.Clear();
+            PendingActionCadenceBonusLayers.Clear();
+        }
+
+        /// <summary>Enqueues one application (one hero or enemy attack roll) of ACTION cadence bonuses.</summary>
+        public void AddPendingActionBonusesNextHeroRoll(List<ActionAttackBonusItem>? bonuses) => EnqueuePendingActionCadenceLayer(bonuses);
+
+        public void EnqueuePendingActionCadenceLayer(List<ActionAttackBonusItem>? bonuses)
+        {
+            if (bonuses == null || bonuses.Count == 0) return;
+            PendingActionCadenceBonusLayers.Add(bonuses.Select(b => new ActionAttackBonusItem { Type = b.Type, Value = b.Value }).ToList());
+        }
+
+        /// <summary>Peek the next roll's bonuses only (first FIFO layer).</summary>
+        public List<ActionAttackBonusItem> PeekPendingActionBonusesNextHeroRoll()
+        {
+            if (PendingActionCadenceBonusLayers.Count == 0)
+                return new List<ActionAttackBonusItem>();
+            return new List<ActionAttackBonusItem>(PendingActionCadenceBonusLayers[0]);
+        }
+
+        public int GetPendingActionCadenceLayerCount() => PendingActionCadenceBonusLayers.Count;
+
+        public List<ActionAttackBonusItem> ConsumePendingActionBonusesNextHeroRoll()
+        {
+            if (PendingActionCadenceBonusLayers.Count == 0)
+                return new List<ActionAttackBonusItem>();
+            var r = PendingActionCadenceBonusLayers[0];
+            PendingActionCadenceBonusLayers.RemoveAt(0);
+            return r;
+        }
         public void SetConsumedAttackBonusesThisRoll(List<ActionAttackBonusItem> bonuses) { ConsumedAttackBonusesThisRoll = bonuses ?? new List<ActionAttackBonusItem>(); }
         public List<ActionAttackBonusItem> GetAndClearConsumedAttackBonusesThisRoll() { var r = ConsumedAttackBonusesThisRoll; ConsumedAttackBonusesThisRoll = new List<ActionAttackBonusItem>(); return r; }
         #endregion

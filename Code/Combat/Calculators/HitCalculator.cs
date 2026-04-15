@@ -16,7 +16,7 @@ namespace RPGGame.Combat.Calculators
         /// <param name="rollBonus">Roll bonus for the attack</param>
         /// <param name="roll">The attack roll result</param>
         /// <returns>True if the attack hits, false if it misses</returns>
-        public static bool CalculateHit(Actor attacker, Actor target, int rollBonus, int roll)
+        public static bool CalculateHit(Actor attacker, Actor? target, int rollBonus, int roll)
         {
             // Get dynamic hit threshold from ThresholdManager
             // Default is 5 (meaning you need 6+ to hit)

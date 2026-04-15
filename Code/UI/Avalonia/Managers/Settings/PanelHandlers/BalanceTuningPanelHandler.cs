@@ -207,7 +207,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 sheetsRunner.AppendOutput("✓ Pull steps completed.\n");
                 if (!string.IsNullOrWhiteSpace(cfg.ActionsSheetUrl))
                 {
-                    ActionLoader.LoadActions();
+                    // Must clear JsonLoader cache for Actions.json; LoadActions() alone would keep stale data after a pull.
+                    ActionLoader.ReloadActions();
                     int actionCount = ActionLoader.GetAllActions().Count;
                     sheetsRunner.AppendOutput($"✓ Actions reloaded ({actionCount} loaded).\n");
                 }

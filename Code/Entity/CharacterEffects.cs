@@ -113,6 +113,11 @@ namespace RPGGame
         public List<ActionAttackBonusItem> GetPendingActionBonusesForSlot(int slot) => _state.GetPendingActionBonusesForSlot(slot);
         public IEnumerable<int> GetPendingActionBonusSlots() => _state.GetPendingActionBonusSlots();
         public void ClearPendingActionBonuses() => _state.ClearPendingActionBonuses();
+        public void AddPendingActionBonusesNextHeroRoll(List<ActionAttackBonusItem>? bonuses) => _state.AddPendingActionBonusesNextHeroRoll(bonuses);
+        public void EnqueuePendingActionCadenceLayer(List<ActionAttackBonusItem>? bonuses) => _state.EnqueuePendingActionCadenceLayer(bonuses);
+        public int GetPendingActionCadenceLayerCount() => _state.GetPendingActionCadenceLayerCount();
+        public List<ActionAttackBonusItem> PeekPendingActionBonusesNextHeroRoll() => _state.PeekPendingActionBonusesNextHeroRoll();
+        public List<ActionAttackBonusItem> ConsumePendingActionBonusesNextHeroRoll() => _state.ConsumePendingActionBonusesNextHeroRoll();
         public void SetConsumedAttackBonusesThisRoll(List<ActionAttackBonusItem> bonuses) => _state.SetConsumedAttackBonusesThisRoll(bonuses);
         public List<ActionAttackBonusItem> GetAndClearConsumedAttackBonusesThisRoll() => _state.GetAndClearConsumedAttackBonusesThisRoll();
         public bool UseReroll() => _state.UseReroll();

@@ -66,6 +66,11 @@ namespace RPGGame.Actions
                 string rollText = data.RollBonus > 0 ? $"+{data.RollBonus}" : data.RollBonus.ToString();
                 modifiers.Add($"Roll: {rollText}");
             }
+            if (data.EnemyRollBonus != 0)
+            {
+                string rollText = data.EnemyRollBonus > 0 ? $"+{data.EnemyRollBonus}" : data.EnemyRollBonus.ToString();
+                modifiers.Add($"Enemy roll: {rollText}");
+            }
         }
         
         /// <summary>

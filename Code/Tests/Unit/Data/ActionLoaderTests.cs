@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit.Data
             _testsFailed = 0;
 
             TestActionLoading();
+            TestReloadActionsInvokesActionsReloaded();
             TestGetAction();
             TestGetActions();
             TestHasAction();
@@ -36,6 +37,33 @@ namespace RPGGame.Tests.Unit.Data
             TestOpenerFinisherMapping();
 
             TestBase.PrintSummary("ActionLoader Tests", _testsRun, _testsPassed, _testsFailed);
+        }
+
+        private static void TestReloadActionsInvokesActionsReloaded()
+        {
+            Console.WriteLine("--- Testing ReloadActions raises ActionsReloaded ---");
+            _testsRun++;
+            bool fired = false;
+            void Handler() => fired = true;
+            ActionLoader.ActionsReloaded += Handler;
+            try
+            {
+                ActionLoader.ReloadActions();
+                if (fired)
+                {
+                    _testsPassed++;
+                    Console.WriteLine("  ✓ ActionsReloaded fired after ReloadActions");
+                }
+                else
+                {
+                    _testsFailed++;
+                    Console.WriteLine("  ✗ ActionsReloaded did not fire");
+                }
+            }
+            finally
+            {
+                ActionLoader.ActionsReloaded -= Handler;
+            }
         }
 
         #region Action Loading Tests

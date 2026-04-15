@@ -80,8 +80,8 @@ namespace RPGGame
                 targetDefense = targetCharacter.GetTotalArmor();
             }
             
-            // Calculate actual raw damage before armor reduction
-            int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
+            // Match combat damage: roll bands use total attack (base + bonuses), not base alone.
+            int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, totalRoll);
             rollInfo.Add($"attack {actualRawDamage} - {targetDefense} armor");
             
             // Speed information - calculate actual action speed

@@ -21,7 +21,7 @@ namespace RPGGame.Data
             h.SetCell(row, null, "CATEGORY", data.Category);
             h.SetCell(row, null, "DPS(%)", data.DPS);
             h.SetCell(row, null, "# OF HITS", data.NumberOfHits);
-            h.SetCell(row, null, "DAMAGE(%)", data.Damage, rawLabelMustContain: "%");
+            h.SetDamagePercentCell(row, data.Damage);
             h.SetCell(row, null, "SPEED(x)", data.Speed);
             h.SetCell(row, null, "DURATION", data.Duration);
             h.SetCell(row, null, "CADENCE", data.Cadence);
@@ -38,6 +38,7 @@ namespace RPGGame.Data
             h.SetCell(row, "ENEMY DICE MODIFICATIONS", "HIT", data.EnemyHit);
             h.SetCell(row, "ENEMY DICE MODIFICATIONS", "COMBO", data.EnemyCombo);
             h.SetCell(row, "ENEMY DICE MODIFICATIONS", "CRIT", data.EnemyCrit);
+            h.SetCell(row, "ENEMY DICE MODIFICATIONS", "CRIT MISS", data.EnemyCritMiss);
 
             h.SetCell(row, "HERO ATTRIBUTE MODIFICATION", "STR", data.HeroSTR);
             h.SetCell(row, "HERO ATTRIBUTE MODIFICATION", "AGI", data.HeroAGI);
@@ -82,8 +83,12 @@ namespace RPGGame.Data
 
             WriteOptionalMechanics(h, row, data);
 
-            if (w > 2 && !string.IsNullOrEmpty(data.ColumnC))
-                row[2] = data.ColumnC;
+            if (w > 2)
+            {
+                string c = SheetsPushUtilities.NormalizeSheetString(data.ColumnC);
+                if (c.Length > 0)
+                    row[2] = c;
+            }
 
             return row;
         }
@@ -94,9 +99,9 @@ namespace RPGGame.Data
             int iTypo = h.GetColumnIndex(ctx, "ACCUARCY");
             int iOk = h.GetColumnIndex(ctx, "ACCURACY");
             if (iTypo >= 0 && iTypo < row.Length)
-                row[iTypo] = value ?? "";
+                row[iTypo] = SheetsPushUtilities.NormalizeSheetString(value);
             else if (iOk >= 0 && iOk < row.Length)
-                row[iOk] = value ?? "";
+                row[iOk] = SheetsPushUtilities.NormalizeSheetString(value);
         }
 
         private static string rowValueAtLabel(SpreadsheetHeader h, string[] row, string? ctx, string label)
@@ -116,7 +121,7 @@ namespace RPGGame.Data
             {
                 int idx = h.GetColumnIndex(null, lbl, raw);
                 if (idx >= 0 && idx < row.Length && string.IsNullOrEmpty(row[idx]))
-                    row[idx] = v ?? "";
+                    row[idx] = SheetsPushUtilities.NormalizeSheetString(v);
             }
 
             SetIf("SPEED MOD", data.SpeedMod);
@@ -182,6 +187,7 @@ namespace RPGGame.Data
             L("STAT BONUSES JSON", data.StatBonusesJson);
             L("THRESHOLDS JSON", data.ThresholdsJson);
             L("ACCUMULATIONS JSON", data.AccumulationsJson);
+            L("CHAIN POSITION BONUSES JSON", data.ChainPositionBonusesJson);
 
             L("TARGET", data.Target);
             L("THRESHOLD CATEGORY", data.ThresholdCategory);

@@ -64,8 +64,10 @@ namespace RPGGame
                 // Damage line: multiplier as % of character base (matches Spd line style), not raw HP output.
                 double baseDamagePct = action.DamageMultiplier * 100.0;
 
-                // Pending bonuses for this slot (peek, do not consume)
-                var slotBonuses = character.Effects.GetPendingActionBonusesForSlot(i);
+                // Pending bonuses for this slot (peek, do not consume). Next-hero-roll ACTION queue applies to the current strip slot.
+                var slotBonuses = new List<ActionAttackBonusItem>(character.Effects.GetPendingActionBonusesForSlot(i));
+                if (actions.Count > 0 && i == character.ComboStep % actions.Count)
+                    slotBonuses.AddRange(character.Effects.PeekPendingActionBonusesNextHeroRoll());
                 double damageModPercent = 0;
                 double speedModPercent = 0;
                 foreach (var b in slotBonuses)
@@ -136,10 +138,12 @@ namespace RPGGame
             lines.Add($"H:{hit} C:{combo} Cr:{crit}");
             int remainingLines = Math.Max(0, maxLines - 1);
 
-            foreach (var action in actions)
+            for (int slotIndex = 0; slotIndex < actions.Count; slotIndex++)
             {
                 if (remainingLines <= 0) break;
-                int acc = ActionUtilities.CalculateRollBonus(character, action, consumeTempBonus: false);
+                var action = actions[slotIndex];
+                // Per-slot combo step so chain-position accuracy updates when the sequence is reordered.
+                int acc = CombatCalculator.CalculateRollBonus(character, action, actions, slotIndex, consumeTempBonus: false);
                 string causes = GetCausesShort(action);
                 string name = action.Name ?? "";
                 string line = string.IsNullOrEmpty(causes)
@@ -177,7 +181,19 @@ namespace RPGGame
 
             var lines = new List<string>();
 
-            // Pending ACTION bonuses by slot (e.g. "Next Action 2: +3 COMBO, 2x DMG")
+            // Pending ACTION bonuses for the next hero attack roll (combo-step-independent); FIFO layers
+            var nextRollBonuses = character.Effects.PeekPendingActionBonusesNextHeroRoll();
+            int layerCount = character.Effects.GetPendingActionCadenceLayerCount();
+            if (nextRollBonuses.Count > 0)
+            {
+                string nextRollDesc = FormatBonusItemsShort(nextRollBonuses);
+                if (!string.IsNullOrEmpty(nextRollDesc))
+                {
+                    string prefix = layerCount > 1 ? $"Next roll ({layerCount}): " : "Next roll: ";
+                    lines.Add(prefix + nextRollDesc);
+                }
+            }
+            // Legacy slot-only ACTION pending (tests / tooling)
             foreach (var slot in character.Effects.GetPendingActionBonusSlots().OrderBy(s => s))
             {
                 var bonuses = character.Effects.GetPendingActionBonusesForSlot(slot);
@@ -281,8 +297,8 @@ namespace RPGGame
             AddWrapped(action.Description);
             AddWrapped(ActionDisplayFormatter.GetActionStats(action).Trim());
 
-            int acc = ActionUtilities.CalculateRollBonus(character, action, consumeTempBonus: false);
-            AddWrapped($"Accuracy (roll bonus): {acc:+0;-0;0}");
+            int acc = CombatCalculator.CalculateRollBonus(character, action, actions, panelIndex, consumeTempBonus: false);
+            AddWrapped($"Accuracy: {acc:+0;-0;0}");
 
             string causes = GetCausesShort(action);
             if (!string.IsNullOrEmpty(causes))
@@ -335,7 +351,7 @@ namespace RPGGame
             AddWrapped(ActionDisplayFormatter.GetActionStats(action).Trim());
 
             int acc = ActionUtilities.CalculateRollBonus(character, action, consumeTempBonus: false);
-            AddWrapped($"Accuracy (roll bonus): {acc:+0;-0;0}");
+            AddWrapped($"Accuracy: {acc:+0;-0;0}");
 
             string causes = GetCausesShort(action);
             if (!string.IsNullOrEmpty(causes))

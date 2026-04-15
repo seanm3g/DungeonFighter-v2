@@ -62,6 +62,12 @@ namespace RPGGame.Data
             row.HeroCrit = data.CriticalHitThresholdAdjustment != 0 ? data.CriticalHitThresholdAdjustment.ToString() : "";
             row.HeroCritMiss = data.CriticalMissThresholdAdjustment != 0 ? data.CriticalMissThresholdAdjustment.ToString() : "";
 
+            row.EnemyAccuracy = data.EnemyRollBonus != 0 ? data.EnemyRollBonus.ToString() : "";
+            row.EnemyHit = data.EnemyHitThresholdAdjustment != 0 ? data.EnemyHitThresholdAdjustment.ToString() : "";
+            row.EnemyCombo = data.EnemyComboThresholdAdjustment != 0 ? data.EnemyComboThresholdAdjustment.ToString() : "";
+            row.EnemyCrit = data.EnemyCriticalHitThresholdAdjustment != 0 ? data.EnemyCriticalHitThresholdAdjustment.ToString() : "";
+            row.EnemyCritMiss = data.EnemyCriticalMissThresholdAdjustment != 0 ? data.EnemyCriticalMissThresholdAdjustment.ToString() : "";
+
             // Stat bonuses from ActionAttackBonuses (HeroSTR, HeroAGI, HeroTECH, HeroINT round-trip)
             if (data.ActionAttackBonuses?.BonusGroups != null)
             {
@@ -96,6 +102,12 @@ namespace RPGGame.Data
                 row.AccumulationsJson = JsonSerializer.Serialize(data.Accumulations, jsonOptions);
             else if (baseRow != null)
                 row.AccumulationsJson = baseRow.AccumulationsJson ?? "";
+
+            data.NormalizeChainPositionBonuses();
+            if (data.ChainPositionBonuses != null && data.ChainPositionBonuses.Count > 0)
+                row.ChainPositionBonusesJson = JsonSerializer.Serialize(data.ChainPositionBonuses, jsonOptions);
+            else if (baseRow != null)
+                row.ChainPositionBonusesJson = baseRow.ChainPositionBonusesJson ?? "";
 
             // TargetType round-trip (form edits must persist when baseRow exists)
             row.Target = data.TargetType == "Self" ? "SELF" : "ENEMY";

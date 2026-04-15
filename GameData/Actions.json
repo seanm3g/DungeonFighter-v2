@@ -14,8 +14,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "ENEMY",
-    "isDefaultAction": "1"
+    "target": "ENEMY"
   },
   {
     "action": "PUNCH HARDER",
@@ -47,8 +46,7 @@
     "heroAccuracy": "1",
     "enemySTR": "-1",
     "enemyAGI": "1",
-    "target": "ENEMY",
-    "tags": "enemy"
+    "target": "ENEMY"
   },
   {
     "action": "CONCENTRATE",
@@ -110,7 +108,7 @@
   {
     "action": "READ BOOK",
     "description": "Gain 1 INT for the duration of this dungeon",
-    "dps": "0%",
+    "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
@@ -123,11 +121,11 @@
     "action": "CHEAP SHOT",
     "description": "for next 3 ATTACKS: -1 ACCURACY",
     "dps": "520%",
-    "numberOfHits": "1",
+    "numberOfHits": "2",
     "damage": "130%",
     "speed": "0.25",
     "duration": "3",
-    "cadence": "ATTACK",
+    "cadence": "Action",
     "heroAccuracy": "-1",
     "target": "ENEMY"
   },
@@ -149,22 +147,22 @@
     "numberOfHits": "1",
     "damage": "10%",
     "speed": "0.50",
-    "duration": "2",
+    "duration": "1",
     "cadence": "ATTACK",
     "heroAccuracy": "1",
     "heroSTR": "1",
     "target": "ENEMY"
   },
   {
-    "action": "FUMBLE",
+    "action": "DISARM",
     "description": "FOR NEXT 3 ATTACKS: -3 HIT",
-    "dps": "1200%",
+    "dps": "20%",
     "numberOfHits": "1",
-    "damage": "300%",
+    "damage": "5%",
     "speed": "0.25",
     "duration": "3",
     "cadence": "ATTACK",
-    "heroHit": "-3",
+    "enemyHit": "-3",
     "target": "ENEMY"
   },
   {
@@ -189,14 +187,14 @@
     "damage": "100%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "ATTACK",
+    "cadence": "Action",
     "heroAccuracy": "-5",
     "enemyAccuracy": "-5",
     "target": "ENEMY",
     "tags": "uncommon"
   },
   {
-    "action": "ANIME POWERUP",
+    "action": "STIM PACK",
     "description": "\u002B1 HIT, \u002B2 COMBO, \u002B3 CRIT",
     "rarity": "rare",
     "dps": "50%",
@@ -205,23 +203,24 @@
     "speed": "2.00",
     "duration": "1",
     "cadence": "ATTACK",
-    "heroHit": "1",
+    "heroHit": "3",
     "heroCombo": "2",
-    "heroCrit": "3",
+    "heroCrit": "1",
     "target": "ENEMY",
     "tags": "rare"
   },
   {
     "action": "ANIME CHARGE-UP",
-    "description": "FOR FIGHT: \u002B1 ACCURACY PER CHAIN POSITION",
+    "description": "\u002B1 accuracy per chain position",
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "FIGHT",
-    "heroAccuracy": "1",
-    "target": "ENEMY"
+    "cadence": "Action",
+    "modifyBasedOnChainPosition": "true",
+    "target": "ENEMY",
+    "chainPositionBonusesJson": "[{\u0022modifiesParam\u0022:\u0022Accuracy\u0022,\u0022value\u0022:1,\u0022valueKind\u0022:\u0022#\u0022,\u0022positionBasis\u0022:\u0022\u0022}]"
   },
   {
     "action": "OVERKILL",
@@ -249,6 +248,7 @@
   },
   {
     "action": "A CARD THAT GETS WORSE OVER TIME",
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
@@ -256,17 +256,6 @@
   },
   {
     "action": "BULK DAY",
-    "description": "For Next Action: \u002B150% damage, \u002B.2x SPEED",
-    "dps": "100%",
-    "numberOfHits": "1",
-    "damage": "100%",
-    "speed": "1.00",
-    "duration": "1",
-    "cadence": "ACTION",
-    "target": "ENEMY"
-  },
-  {
-    "action": "GYM PUMP",
     "description": "for next ACTION: \u002B50% DAMAGE",
     "dps": "100%",
     "numberOfHits": "1",
@@ -290,7 +279,7 @@
   {
     "action": "TRUE STRIKE",
     "description": "\u002B10 to ACCURACY, 2x damage",
-    "dps": "0%",
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
@@ -364,7 +353,7 @@
   {
     "action": "AVENGE",
     "description": "\u002B20 to next ATTACK",
-    "dps": "0%",
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
@@ -376,7 +365,7 @@
   {
     "action": "FOLLOW THROUGH",
     "description": "\u002B25% damage to next ACTION",
-    "dps": "0%",
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
@@ -438,9 +427,9 @@
     "target": "ENEMY"
   },
   {
-    "action": "LUCKY PUNCH",
+    "action": "HAYMAKER",
     "description": "FOR NEXT ACTION: -14 ACCURACY, \u002B500% Damage",
-    "dps": "0%",
+    "dps": "33%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
@@ -450,16 +439,17 @@
     "target": "ENEMY"
   },
   {
-    "action": "PUNCH RABID",
+    "action": "FRENZY",
     "description": "FOR NEXT 4 ACTIONS: \u002B3 HIT, -2 COMBO",
     "dps": "360%",
     "numberOfHits": "3",
     "damage": "120%",
     "speed": "1.00",
     "duration": "4",
-    "cadence": "ACTION",
+    "cadence": "ATTACK",
+    "finisher": "true",
     "heroHit": "3",
-    "heroCombo": "2",
+    "heroCombo": "-2",
     "target": "ENEMY"
   },
   {
@@ -478,7 +468,7 @@
   {
     "action": "HOLY HEALY",
     "description": "HEAL \u002B25",
-    "dps": "0%",
+    "dps": "200%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.50",
@@ -524,8 +514,8 @@
     "description": "\u002B25% damage, \u002B2 HIT",
     "dps": "100%",
     "numberOfHits": "1",
-    "damage": "100%",
-    "speed": "1.00",
+    "damage": "25%",
+    "speed": "0.25",
     "duration": "1",
     "cadence": "ACTION",
     "opener": "true",
@@ -535,12 +525,15 @@
   {
     "action": "RAZOR MARGIN",
     "description": "\u002B2 HIT, \u002B2 CRIT, -2 HIT",
-    "dps": "114%",
+    "dps": "136%",
     "numberOfHits": "1",
-    "damage": "125%",
+    "damage": "150%",
     "speed": "1.10",
+    "duration": "1",
+    "cadence": "ATTACK",
     "heroHit": "-2",
     "heroCrit": "2",
+    "enemyHit": "2",
     "target": "ENEMY"
   },
   {
@@ -553,6 +546,7 @@
     "duration": "1",
     "cadence": "FIGHT",
     "heroAccuracy": "1",
+    "heroSTR": "0.30",
     "target": "ENEMY"
   },
   {
@@ -566,10 +560,7 @@
     "cadence": "Ability",
     "speedMod": "20",
     "selfDamage": "ON CRIT, ON MISS",
-    "target": "ENEMY",
-    "tags": "weapon",
-    "isDefaultAction": "1",
-    "weaponTypes": "Sword"
+    "target": "ENEMY"
   },
   {
     "action": "TENSION HOLD",
@@ -596,13 +587,14 @@
   {
     "action": "MEASURED PATIENCE",
     "description": "FOR NEXT ACTION: \u002B2 HIT, -1 CRIT",
-    "dps": "0%",
+    "dps": "167%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.60",
-    "duration": "1",
+    "duration": "2",
     "cadence": "ACTION",
     "heroHit": "2",
+    "heroCrit": "-1",
     "target": "ENEMY"
   },
   {
@@ -642,9 +634,9 @@
   {
     "action": "LUCKY CHARM",
     "description": "\u002B14 ACCURACY",
-    "dps": "0%",
+    "dps": "40%",
     "numberOfHits": "1",
-    "damage": "100%",
+    "damage": "10%",
     "speed": "0.25",
     "duration": "1",
     "cadence": "ATTACK",
@@ -654,7 +646,7 @@
   {
     "action": "SWIFT",
     "description": "FOR NEXT CHAIN POSITION: \u002B50% attack speed",
-    "dps": "0%",
+    "dps": "143%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.70",
@@ -732,18 +724,18 @@
   },
   {
     "action": "ALL IN",
-    "description": "-10 HIT, \u002B10 CRIT",
+    "description": "-8 HIT, \u002B5 CRIT",
     "dps": "200%",
     "numberOfHits": "1",
     "damage": "400%",
     "speed": "2.00",
-    "heroHit": "-10",
-    "heroCrit": "10",
+    "heroHit": "-8",
+    "heroCrit": "6",
     "target": "ENEMY"
   },
   {
     "action": "FINAL REP",
-    "description": "for next ACTION: \u002B3 ACCURACY",
+    "description": "FINSHER: for next ACTION: \u002B3 ACCURACY",
     "dps": "133%",
     "numberOfHits": "1",
     "damage": "400%",
@@ -757,7 +749,7 @@
   {
     "action": "HOLLOW ADVANCE",
     "description": "\u002B1 CHAIN POSITION",
-    "dps": "0%",
+    "dps": "143%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.70",
@@ -786,32 +778,33 @@
     "target": "ENEMY"
   },
   {
-    "action": "SOFT MISS",
-    "description": "\u002B5 HIT, -5 COMBO",
-    "dps": "50%",
+    "action": "OL\u0027 FAITHFUL",
+    "description": "\u002B9 HIT, -6 COMBO",
+    "dps": "75%",
     "numberOfHits": "1",
-    "damage": "50%",
+    "damage": "75%",
     "speed": "1.00",
-    "heroHit": "5",
-    "heroCombo": "-5",
+    "heroHit": "9",
+    "heroCombo": "-6",
     "target": "ENEMY"
   },
   {
     "action": "CONTROLLED BURST",
     "description": "cannot CRIT. for next action: \u002B1 HIT",
-    "dps": "109%",
-    "numberOfHits": "2",
+    "dps": "164%",
+    "numberOfHits": "3",
     "damage": "60%",
     "speed": "1.10",
     "duration": "1",
     "cadence": "ACTION",
     "heroHit": "1",
+    "heroCrit": "-1",
     "target": "ENEMY"
   },
   {
     "action": "PHANTOM FOLLOW-UP",
     "description": "CHAIN LENGTH \u002B1",
-    "dps": "0%",
+    "dps": "200%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.50",
@@ -850,8 +843,8 @@
     "target": "ENEMY"
   },
   {
-    "action": "BRUTAL FLOOR",
-    "description": "\u002B5 HIT",
+    "action": "GUARANTEED HIT",
+    "description": "\u002B5 HIT    |  Guaranteed 100% of the time*      *95% of the time",
     "dps": "150%",
     "numberOfHits": "1",
     "damage": "150%",
@@ -863,18 +856,17 @@
   },
   {
     "action": "OVERCOMMIT",
-    "description": "-14 ACCURACY",
+    "description": "50% damage -50% action speed",
     "dps": "167%",
     "numberOfHits": "1",
     "damage": "500%",
     "speed": "3.00",
-    "heroAccuracy": "-14",
     "target": "ENEMY"
   },
   {
     "action": "CALM BEFORE STORM",
     "description": "for next ACTION: \u002B50% DAMAGE, \u002B.2x SPEED",
-    "dps": "0%",
+    "dps": "167%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.60",
@@ -884,6 +876,7 @@
   },
   {
     "action": "CALCULATED RISK",
+    "description": "-2 HIT, \u002B2 CRIT",
     "dps": "154%",
     "numberOfHits": "1",
     "damage": "200%",
@@ -896,7 +889,7 @@
   },
   {
     "action": "AMPLIFY ACCURACY",
-    "dps": "0%",
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
@@ -907,7 +900,7 @@
   },
   {
     "action": "GROUNDHOGS DAY",
-    "dps": "0%",
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
@@ -917,7 +910,7 @@
   },
   {
     "action": "DOMAIN EXPANSION",
-    "dps": "0%",
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
@@ -948,8 +941,7 @@
     "damage": "150%",
     "speed": "1.25",
     "target": "ENEMY",
-    "tags": "weapon",
-    "weaponTypes": "Mace"
+    "tags": "weapon"
   },
   {
     "action": "STRIKE",
@@ -959,8 +951,7 @@
     "damage": "50%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "weapon",
-    "weaponTypes": "Sword"
+    "tags": "weapon"
   },
   {
     "action": "STAB",
@@ -970,13 +961,12 @@
     "damage": "60%",
     "speed": "0.50",
     "target": "ENEMY",
-    "tags": "weapon",
-    "weaponTypes": "Dagger"
+    "tags": "weapon"
   },
   {
     "action": "CAST",
     "category": "WEAPON",
-    "dps": "100%",
+    "dps": "3%",
     "numberOfHits": "1",
     "damage": "10%",
     "speed": "3.00",
@@ -984,12 +974,11 @@
     "cadence": "Action",
     "heroAccuracy": "20",
     "target": "ENEMY",
-    "tags": "weapon",
-    "weaponTypes": "Wand"
+    "tags": "weapon"
   },
   {
     "action": "RAGE",
-    "dps": "0%",
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "10%",
     "speed": "0.10",
@@ -997,10 +986,7 @@
     "cadence": "Action",
     "heroCrit": "4",
     "damageMod": "50",
-    "target": "ENEMY",
-    "tags": "barbarian, weapon",
-    "isDefaultAction": "1",
-    "weaponTypes": "Mace"
+    "target": "ENEMY"
   },
   {
     "action": "MOMENTUM",
@@ -1009,10 +995,7 @@
     "damage": "200%",
     "speed": "2.00",
     "finisher": "true",
-    "target": "ENEMY",
-    "tags": "barbarian",
-    "isDefaultAction": "1",
-    "weaponTypes": "Mace"
+    "target": "ENEMY"
   },
   {
     "action": "SQUAT",
@@ -1028,13 +1011,12 @@
   {
     "action": "SLASH",
     "category": "WARRIOR",
-    "dps": "100%",
+    "dps": "200%",
     "numberOfHits": "3",
     "damage": "100%",
-    "speed": "3.00",
+    "speed": "1.50",
     "duration": "3",
     "cadence": "ATTACK",
-    "heroHit": "2",
     "target": "ENEMY",
     "tags": "warrior"
   },
@@ -1126,5 +1108,21 @@
     "heroINT": "1",
     "target": "ENEMY",
     "tags": "wizard"
+  },
+  {
+    "action": "INTELECTUAL DEBATE",
+    "description": "X int",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "target": "ENEMY"
+  },
+  {
+    "action": "HUNKER DOWN",
+    "description": "double armor for 2 attacks",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "target": "ENEMY"
   }
 ]

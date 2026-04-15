@@ -134,12 +134,17 @@ namespace RPGGame.Data
             return o;
         }
 
+        private static string JsonStringToCell(JsonElement el)
+        {
+            return SheetsPushUtilities.NormalizeSheetString(el.GetString());
+        }
+
         private static string JsonElementToCellString(JsonElement el)
         {
             return el.ValueKind switch
             {
                 JsonValueKind.Null => "",
-                JsonValueKind.String => el.GetString() ?? "",
+                JsonValueKind.String => JsonStringToCell(el),
                 JsonValueKind.True => "true",
                 JsonValueKind.False => "false",
                 JsonValueKind.Number => el.GetRawText(),

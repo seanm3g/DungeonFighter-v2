@@ -70,6 +70,24 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Action used for roll-bonus HUD preview: last executed action, else current combo-slot action, else first attack/spell in pool.
+        /// </summary>
+        public static Action? GetPreviewActionForRollBonus(Character c)
+        {
+            if (c.Effects.LastAction != null)
+                return c.Effects.LastAction;
+            var comboActions = GetComboActions(c);
+            if (comboActions.Count > 0)
+                return comboActions[GetComboStep(c) % comboActions.Count];
+            foreach (var entry in c.ActionPool)
+            {
+                if (entry.action.Type == ActionType.Attack || entry.action.Type == ActionType.Spell)
+                    return entry.action;
+            }
+            return null;
+        }
+
+        /// <summary>
         /// True if the combo uses opener/finisher (or similar) roles so amplification tiers are per-slot, not raw sequence index.
         /// </summary>
         private static bool ComboSequenceDefinesSlotRoles(List<Action> comboActions)
@@ -87,6 +105,44 @@ namespace RPGGame
         /// When the sequence defines opener/finisher roles: opener = 0 (1.0×), middle = 1, finisher = 2.
         /// Otherwise uses legacy positional scaling from <see cref="Actor.ComboStep"/>.
         /// </summary>
+        /// <summary>
+        /// Combo slot that receives pending ACTION / Ability-cadence modifiers (for next action in the strip).
+        /// Uses the executed action's index in the ordered combo so the last slot (finisher) wraps to 0;
+        /// falls back to <see cref="GetComboStep"/> when the action is not found in the list.
+        /// </summary>
+        public static int GetNextComboSlotForPendingBonuses(Character character, Action? executed, List<Action> comboActions)
+        {
+            if (comboActions == null || comboActions.Count == 0)
+                return 0;
+            int n = comboActions.Count;
+            if (executed == null)
+                return (character.ComboStep + 1) % n;
+
+            int idx = -1;
+            for (int i = 0; i < n; i++)
+            {
+                if (ReferenceEquals(comboActions[i], executed))
+                {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx < 0 && !string.IsNullOrEmpty(executed.Name))
+            {
+                for (int i = 0; i < n; i++)
+                {
+                    if (string.Equals(comboActions[i].Name, executed.Name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        idx = i;
+                        break;
+                    }
+                }
+            }
+            if (idx < 0)
+                idx = character.ComboStep % n;
+            return (idx + 1) % n;
+        }
+
         public static int GetComboAmplificationExponent(Actor source, Action action, List<Action> comboActions)
         {
             if (comboActions.Count == 0 || !action.IsComboAction)
@@ -133,7 +189,9 @@ namespace RPGGame
                     {
                         double baseAmp = character.GetComboAmplifier();
                         int exponent = GetComboAmplificationExponent(source, action, comboActions);
-                        return Math.Pow(baseAmp, exponent);
+                        double mult = Math.Pow(baseAmp, exponent);
+                        int comboStep = character.ComboStep;
+                        return ChainPositionBonusApplier.AdjustComboDamageMultiplier(mult, source, action, comboActions, comboStep);
                     }
                 }
             }
@@ -147,7 +205,9 @@ namespace RPGGame
                     {
                         double baseAmp = enemy.GetComboAmplifier();
                         int exponent = GetComboAmplificationExponent(source, action, comboActions);
-                        return Math.Pow(baseAmp, exponent);
+                        double mult = Math.Pow(baseAmp, exponent);
+                        int comboStep = enemy.ComboStep;
+                        return ChainPositionBonusApplier.AdjustComboDamageMultiplier(mult, source, action, comboActions, comboStep);
                     }
                 }
             }

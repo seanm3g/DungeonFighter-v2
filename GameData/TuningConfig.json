@@ -87,7 +87,7 @@
     ],
     "attributeQuadTierNames": [
       "Prophet",
-      "Godkiller",
+      "Messiah",
       "Worldbreaker",
       "Eternal"
     ],
@@ -158,7 +158,7 @@
     "comboAmplifierAtTech5": 0,
     "comboAmplifierMax": 2,
     "comboAmplifierMaxTech": 20,
-    "comboAmplifierCurveExponent": 2.5
+    "comboAmplifierCurveExponent": 0
   },
   "poison": {
     "tickInterval": 0,

@@ -27,11 +27,15 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             SheetsPushConfigTests.RunAllTests();
             Console.WriteLine();
+            SheetsPushUtilitiesTests.RunAllTests();
+            Console.WriteLine();
             JsonArraySheetConverterTests.RunAllTests();
             Console.WriteLine();
             ClassPresentationSheetConverterTests.RunAllTests();
             Console.WriteLine();
             GoogleSheetsUrlHelperTests.RunAllTests();
+            Console.WriteLine();
+            SheetsCsvFetchTests.RunAllTests();
             Console.WriteLine();
             SheetsPushPreflightTests.RunAllTests();
             Console.WriteLine();
