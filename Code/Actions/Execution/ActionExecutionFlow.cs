@@ -95,7 +95,10 @@ namespace RPGGame.Actions.Execution
 
         private static void ApplyPreRollBonuses(Actor source)
         {
-            if (source is Character clearModCharacter && !(clearModCharacter is Enemy))
+            // Heroes and enemies (Enemy : Character) must reset consumed sheet mods each attack.
+            // Otherwise DAMAGE_MOD / AMP_MOD from the previous swing stays in Consumed* and stacks
+            // with the next roll's FIFO layer (enemy damage bank from ModTrade looked "ignored").
+            if (source is Character clearModCharacter)
                 clearModCharacter.Effects.ClearConsumedModifierBonuses();
             if (source is Character nextAttackStatCharacter && !(nextAttackStatCharacter is Enemy))
             {
@@ -404,7 +407,7 @@ namespace RPGGame.Actions.Execution
                     }
                 }
 
-                if (target != null && !ReferenceEquals(source, target) && selected.Advanced.EnemyRollBonus < 0)
+                if (!ReferenceEquals(source, target) && selected.Advanced.EnemyRollBonus < 0)
                     target.ApplyRollPenalty(-selected.Advanced.EnemyRollBonus * hitLayers, accTurns);
             }
             if (source is Character modSourceCharacter && !(modSourceCharacter is Enemy))
@@ -417,7 +420,22 @@ namespace RPGGame.Actions.Execution
                     if (comboActions.Count > 0)
                         nextSlotForAbilityMod = ActionUtilities.GetNextComboSlotForPendingBonuses(modSourceCharacter, selected, comboActions);
                 }
-                modSourceCharacter.Effects.AddModifierBonusesFromAction(selected, nextSlotForAbilityMod);
+                modSourceCharacter.Effects.AddModifierBonusesFromAction(selected, nextSlotForAbilityMod, useEnemySpreadsheetMods: false);
+                var enemyTargetMods = CharacterEffectsState.BuildModifierBonusesFromActionFields(selected, useEnemySpreadsheetMods: true);
+                if (enemyTargetMods.Count > 0 && target is Enemy enemyReceivingMods)
+                    enemyReceivingMods.Effects.AddPendingActionBonusesNextHeroRoll(enemyTargetMods);
+            }
+            else if (source is Enemy enemyModSource)
+            {
+                int? nextSlotForEnemyAbility = null;
+                if (result.IsCombo && selected.IsComboAction
+                    && string.Equals(selected.Cadence?.Trim(), "Ability", StringComparison.OrdinalIgnoreCase))
+                {
+                    var enemyComboActions = ActionUtilities.GetComboActions(enemyModSource);
+                    if (enemyComboActions.Count > 0)
+                        nextSlotForEnemyAbility = ActionUtilities.GetNextComboSlotForPendingBonuses(enemyModSource, selected, enemyComboActions);
+                }
+                enemyModSource.Effects.AddModifierBonusesFromAction(selected, nextSlotForEnemyAbility, useEnemySpreadsheetMods: true);
             }
             CombatEffectsSimplified.ApplyStatusEffects(selected, source, target, result.StatusEffectMessages, hitEvent);
 
@@ -526,8 +544,13 @@ namespace RPGGame.Actions.Execution
             {
                 // Ability cadence: modifier bonuses apply only when the next ability succeeds; skip on miss
                 if (!string.Equals(result.SelectedAction!.Cadence?.Trim(), "Ability", StringComparison.OrdinalIgnoreCase))
-                    modMissCharacter.Effects.AddModifierBonusesFromAction(result.SelectedAction);
+                    modMissCharacter.Effects.AddModifierBonusesFromAction(result.SelectedAction, useEnemySpreadsheetMods: false);
                 modMissCharacter.Effects.GetAndClearConsumedAttackBonusesThisRoll(); // Discard; ATTACK bonuses consumed on roll but not applied on miss
+            }
+            else if (source is Enemy enemyMiss)
+            {
+                if (!string.Equals(result.SelectedAction!.Cadence?.Trim(), "Ability", StringComparison.OrdinalIgnoreCase))
+                    enemyMiss.Effects.AddModifierBonusesFromAction(result.SelectedAction, useEnemySpreadsheetMods: true);
             }
             // Critical miss (fumble): ACTION cadence affects the enemy — duration counts down on the enemy's attack rolls, not the hero's.
             if (result.IsCriticalMiss

@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using RPGGame;
 
 namespace RPGGame.Combat
@@ -14,7 +14,7 @@ namespace RPGGame.Combat
     /// </summary>
     public class ThresholdManager
     {
-        private readonly Dictionary<Actor, ThresholdModifiers> _actorThresholds = new Dictionary<Actor, ThresholdModifiers>();
+        private readonly ConcurrentDictionary<Actor, ThresholdModifiers> _actorThresholds = new ConcurrentDictionary<Actor, ThresholdModifiers>();
 
         /// <summary>
         /// Threshold modifiers for an actor
@@ -47,15 +47,8 @@ namespace RPGGame.Combat
             }
         }
 
-        private ThresholdModifiers GetOrCreateModifiers(Actor actor)
-        {
-            if (!_actorThresholds.TryGetValue(actor, out var mod))
-            {
-                mod = new ThresholdModifiers();
-                _actorThresholds[actor] = mod;
-            }
-            return mod;
-        }
+        private ThresholdModifiers GetOrCreateModifiers(Actor actor) =>
+            _actorThresholds.GetOrAdd(actor, _ => new ThresholdModifiers());
 
         /// <summary>
         /// Gets the critical miss threshold for an actor
@@ -240,10 +233,8 @@ namespace RPGGame.Combat
         /// <summary>
         /// Resets all thresholds for an actor to defaults
         /// </summary>
-        public void ResetThresholds(Actor actor)
-        {
-            _actorThresholds.Remove(actor);
-        }
+        public void ResetThresholds(Actor actor) =>
+            _actorThresholds.TryRemove(actor, out _);
 
         /// <summary>
         /// Clears all threshold modifications (useful for testing)

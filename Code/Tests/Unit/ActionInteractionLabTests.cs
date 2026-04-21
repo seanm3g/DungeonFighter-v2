@@ -4,6 +4,7 @@ using System.Linq;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.BattleStatistics;
+using RPGGame.Combat.Formatting;
 using RPGGame.Tests;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.ActionInteractionLab;
@@ -24,6 +25,8 @@ namespace RPGGame.Tests.Unit
 
             StoredActionRollMatchesGetActionRoll(ref run, ref passed, ref failed);
             LabStepRoundTrip(ref run, ref passed, ref failed);
+            LabSessionBeginsWithDefaultD20Selection16(ref run, ref passed, ref failed);
+            LabSessionBegin_PicksRandomLoaderEnemyWhenCatalogPopulated(ref run, ref passed, ref failed);
             ResolveD20ForNextStepUsesSelectedWhenNotRandom(ref run, ref passed, ref failed);
             LabPlayerIsActiveForDisplayWhenInLabState(ref run, ref passed, ref failed);
             SetLabEnemyFromLoaderSwapsEnemy(ref run, ref passed, ref failed);
@@ -38,7 +41,7 @@ namespace RPGGame.Tests.Unit
             ResetLabComboZerosBothSteps(ref run, ref passed, ref failed);
             LabEnemyTurnUsesEnemyPoolNotForcedCatalog(ref run, ref passed, ref failed);
             LabCatalogSyncShowsSecondSlotWhenComboStepOne(ref run, ref passed, ref failed);
-            LabNudgeComboStepWrapsStrip(ref run, ref passed, ref failed);
+            LabNudgeComboStepClampsStrip(ref run, ref passed, ref failed);
             AddSelectedCatalogToStripHelperAddsAction(ref run, ref passed, ref failed);
             UndoReplayPreservesComboStripEdits(ref run, ref passed, ref failed);
             UndoReplayPreservesLabStatEdits(ref run, ref passed, ref failed);
@@ -52,10 +55,82 @@ namespace RPGGame.Tests.Unit
             ActionLabArmorFactory_BuildsWithPrefixSuffix(ref run, ref passed, ref failed);
             ActionLabArmorFactory_FindIndexMatchesSlotAndTier(ref run, ref passed, ref failed);
             ActionLabArmorFactory_FilterMapsBodyToChest(ref run, ref passed, ref failed);
+            ClearLabGear_UnequipsSlot(ref run, ref passed, ref failed);
             WouldNaturalRollSelectComboAction_MatchesSelectActionBasedOnRoll(ref run, ref passed, ref failed);
             ApplyCatalogScrollOffsetDelta_Clamps(ref run, ref passed, ref failed);
+            EncounterSimulationBatchCount_ClampedTiers(ref run, ref passed, ref failed);
+            UseParallelEncounterSimulation_DefaultsTrueAndMutable(ref run, ref passed, ref failed);
+            RightPanelEnemyLabHover_IdFormat(ref run, ref passed, ref failed);
+            RightPanelEnemyAdjustment_TryApplyWrongId(ref run, ref passed, ref failed);
+            LabSession_ApplyLabEnemyLevelDelta_RebuildsDummy(ref run, ref passed, ref failed);
+            CaptureSimulationSnapshot_IncludesEnemyLevel(ref run, ref passed, ref failed);
+            TestCharacterFactory_DirectEnemy_ScalesByLevel(ref run, ref passed, ref failed);
+            DirectStatEnemy_GetEffectiveStrengthUsesDamage(ref run, ref passed, ref failed);
+            DirectStatEnemy_CombatLogSpeedMatchesPanelSeconds(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ActionInteractionLabTests", run, passed, failed);
+        }
+
+        private static void LabSessionBeginsWithDefaultD20Selection16(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var hero = TestDataBuilders.Character().WithName("LabDefaultD20").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            TestBase.AssertTrue(lab != null, "Lab session exists for default d20", ref run, ref passed, ref failed);
+            if (lab == null)
+            {
+                ActionInteractionLabSession.EndSession();
+                return;
+            }
+
+            TestBase.AssertFalse(lab.UseRandomD20PerStep, "Lab starts with fixed d20 mode (not random)", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(16, lab.SelectedD20, "Lab default SelectedD20 is 16", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(16, lab.ResolveD20ForNextStep(), "ResolveD20ForNextStep uses default SelectedD20", ref run, ref passed, ref failed);
+            ActionInteractionLabSession.EndSession();
+        }
+
+        private static void LabSessionBegin_PicksRandomLoaderEnemyWhenCatalogPopulated(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            EnemyLoader.LoadEnemies();
+            var types = EnemyLoader.GetAllEnemyTypes();
+            if (types.Count == 0)
+            {
+                TestBase.AssertTrue(true, "LabSessionBegin_PicksRandomLoaderEnemy skipped (no Enemies.json)", ref run, ref passed, ref failed);
+                return;
+            }
+
+            var hero = TestDataBuilders.Character().WithName("LabRandFoe").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "LabSessionBegin_PicksRandomLoaderEnemy: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            var snap = lab.CaptureSimulationSnapshot();
+            TestBase.AssertTrue(!string.IsNullOrEmpty(snap.SessionEnemyLoaderType), "Begin sets loader enemy type", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                types.Any(t => string.Equals(t, snap.SessionEnemyLoaderType, StringComparison.OrdinalIgnoreCase)),
+                "Snapshot enemy type is from catalog",
+                ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, snap.EnemyLevel, "Begin uses level 1 loader enemy", ref run, ref passed, ref failed);
+
+            types.Sort(StringComparer.OrdinalIgnoreCase);
+            int idx = types.FindIndex(t => string.Equals(t, snap.SessionEnemyLoaderType, StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertTrue(idx >= 0, "Selected type in sorted list", ref run, ref passed, ref failed);
+            int maxScroll = Math.Max(0, types.Count - ActionInteractionLabSession.EnemyCatalogVisibleRowCount);
+            TestBase.AssertTrue(lab.EnemyCatalogScrollOffset >= 0 && lab.EnemyCatalogScrollOffset <= maxScroll, "Enemy scroll offset clamped", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                lab.EnemyCatalogScrollOffset <= idx && idx < lab.EnemyCatalogScrollOffset + ActionInteractionLabSession.EnemyCatalogVisibleRowCount,
+                "Selected enemy row is in visible scroll window",
+                ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
         }
 
         /// <summary>
@@ -127,6 +202,56 @@ namespace RPGGame.Tests.Unit
             lab.CatalogScrollOffset = 1;
             ActionLabInputCoordinator.ApplyCatalogScrollOffsetDelta(lab, -1, null);
             TestBase.AssertEqual(0, lab.CatalogScrollOffset, "single step toward earlier names", ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
+        }
+
+        private static void EncounterSimulationBatchCount_ClampedTiers(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var hero = TestDataBuilders.Character().WithName("LabSimBatch").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "EncounterSimulationBatchCount_ClampedTiers: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            TestBase.AssertEqual(ActionLabEncounterSimulator.DefaultBatchEncounterCount, lab.EncounterSimulationBatchCount, "lab starts at default batch count", ref run, ref passed, ref failed);
+            lab.CycleEncounterSimulationBatchCount(1);
+            TestBase.AssertEqual(ActionLabEncounterSimulator.DefaultBatchEncounterCount, lab.EncounterSimulationBatchCount, "clamp up at max tier (no wrap to 1)", ref run, ref passed, ref failed);
+            lab.CycleEncounterSimulationBatchCount(-1);
+            TestBase.AssertEqual(100, lab.EncounterSimulationBatchCount, "one step down from 1000", ref run, ref passed, ref failed);
+            lab.EncounterSimulationBatchCount = 1;
+            lab.CycleEncounterSimulationBatchCount(-1);
+            TestBase.AssertEqual(1, lab.EncounterSimulationBatchCount, "clamp down at min tier (no wrap to 1000)", ref run, ref passed, ref failed);
+            lab.EncounterSimulationBatchCount = 7;
+            lab.CycleEncounterSimulationBatchCount(1);
+            TestBase.AssertEqual(ActionLabEncounterSimulator.DefaultBatchEncounterCount, lab.EncounterSimulationBatchCount, "non-tier count falls back to default index then +1 clamps at 1000", ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
+        }
+
+        private static void UseParallelEncounterSimulation_DefaultsTrueAndMutable(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var hero = TestDataBuilders.Character().WithName("LabSimPar").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "UseParallelEncounterSimulation_DefaultsTrueAndMutable: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            TestBase.AssertTrue(lab.UseParallelEncounterSimulation, "lab starts with parallel encounter simulation", ref run, ref passed, ref failed);
+            lab.UseParallelEncounterSimulation = false;
+            TestBase.AssertFalse(lab.UseParallelEncounterSimulation, "parallel flag can be cleared", ref run, ref passed, ref failed);
+            lab.UseParallelEncounterSimulation = true;
+            TestBase.AssertTrue(lab.UseParallelEncounterSimulation, "parallel flag can be restored", ref run, ref passed, ref failed);
 
             ActionInteractionLabSession.EndSession();
         }
@@ -335,6 +460,136 @@ namespace RPGGame.Tests.Unit
             var body = ActionLabArmorFactory.FilterArmorDataForEquipSlot(all, "body");
             TestBase.AssertEqual(1, body.Count, "one chest row for body slot", ref run, ref passed, ref failed);
             TestBase.AssertEqual("chest", body[0].Slot, "body equip maps to chest JSON", ref run, ref passed, ref failed);
+        }
+
+        private static void ClearLabGear_UnequipsSlot(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var data = new ArmorData { Slot = "head", Name = "LabClearHelm", Armor = 2, Tier = 1 };
+            var head = ActionLabArmorFactory.CreateArmor(data, null, null);
+            var hero = TestDataBuilders.Character().WithName("LabClearGear").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                ActionInteractionLabSession.EndSession();
+                TestBase.AssertTrue(false, "ClearLabGear session exists", ref run, ref passed, ref failed);
+                return;
+            }
+
+            lab.ApplyLabGear(head, "head");
+            TestBase.AssertTrue(lab.LabPlayer.Head != null, "ClearLabGear pre: head equipped", ref run, ref passed, ref failed);
+            lab.ClearLabGear("head");
+            TestBase.AssertTrue(lab.LabPlayer.Head == null, "ClearLabGear post: head empty", ref run, ref passed, ref failed);
+            ActionInteractionLabSession.EndSession();
+        }
+
+        private static void RightPanelEnemyLabHover_IdFormat(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.AssertEqual("rphover:", RightPanelEnemyLabHoverState.Prefix, "rphover prefix", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("rphover:enemy:level", ActionLabRightPanelEnemyAdjustment.EnemyLevelHoverId, "enemy level hover id", ref run, ref passed, ref failed);
+        }
+
+        private static void RightPanelEnemyAdjustment_TryApplyWrongId(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var hero = TestDataBuilders.Character().WithName("LabEnAdj").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            TestBase.AssertTrue(lab != null, "session", ref run, ref passed, ref failed);
+            if (lab == null)
+            {
+                ActionInteractionLabSession.EndSession();
+                return;
+            }
+            int lvl0 = lab.LabEnemy.Level;
+            TestBase.AssertTrue(!ActionLabRightPanelEnemyAdjustment.TryApply(lab, "not_rphover", +1), "wrong id rejected", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(lvl0, lab.LabEnemy.Level, "level unchanged", ref run, ref passed, ref failed);
+            ActionInteractionLabSession.EndSession();
+        }
+
+        private static void LabSession_ApplyLabEnemyLevelDelta_RebuildsDummy(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var hero = TestDataBuilders.Character().WithName("LabEnLv").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                ActionInteractionLabSession.EndSession();
+                return;
+            }
+            int hp1 = lab.LabEnemy.MaxHealth;
+            lab.ApplyLabEnemyLevelDelta(1);
+            TestBase.AssertEqual(2, lab.LabEnemy.Level, "enemy level 2", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(lab.LabEnemy.MaxHealth >= hp1, "scaled HP at least L1", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ActionLabRightPanelEnemyAdjustment.TryApply(lab, ActionLabRightPanelEnemyAdjustment.EnemyLevelHoverId, -1), "TryApply -1", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, lab.LabEnemy.Level, "back to 1", ref run, ref passed, ref failed);
+            ActionInteractionLabSession.EndSession();
+        }
+
+        private static void CaptureSimulationSnapshot_IncludesEnemyLevel(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var hero = TestDataBuilders.Character().WithName("LabSnapEn").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                ActionInteractionLabSession.EndSession();
+                return;
+            }
+            lab.ApplyLabEnemyLevelDelta(2);
+            var snap = lab.CaptureSimulationSnapshot();
+            TestBase.AssertEqual(3, snap.EnemyLevel, "snapshot enemy level", ref run, ref passed, ref failed);
+            ActionInteractionLabSession.EndSession();
+        }
+
+        private static void TestCharacterFactory_DirectEnemy_ScalesByLevel(ref int run, ref int passed, ref int failed)
+        {
+            var cfg = LabCombatSnapshot.DefaultTestEnemyBattleConfig;
+            var e1 = TestCharacterFactory.CreateTestEnemy(cfg, 0, 1);
+            var e3 = TestCharacterFactory.CreateTestEnemy(cfg, 0, 3);
+            TestBase.AssertEqual(1, e1.Level, "factory L1", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(3, e3.Level, "factory L3", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(e3.MaxHealth >= e1.MaxHealth, "higher level has >= HP", ref run, ref passed, ref failed);
+        }
+
+        private static void DirectStatEnemy_GetEffectiveStrengthUsesDamage(ref int run, ref int passed, ref int failed)
+        {
+            var cfg = LabCombatSnapshot.DefaultTestEnemyBattleConfig;
+            var e = TestCharacterFactory.CreateTestEnemy(cfg, 0, 1);
+            TestBase.AssertTrue(e.UsesDirectCombatStats(), "dummy is direct-stat", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(e.GetEffectiveStrength() > 0, "effective strength uses damage", ref run, ref passed, ref failed);
+        }
+
+        /// <summary>
+        /// Enemy subclasses Character: combat log speed must use <see cref="Enemy.GetTotalAttackSpeed"/> (right panel Spd),
+        /// not <see cref="Character.GetTotalAttackSpeed"/> / SpeedCalculator, for direct-stat lab dummies.
+        /// </summary>
+        private static void DirectStatEnemy_CombatLogSpeedMatchesPanelSeconds(ref int run, ref int passed, ref int failed)
+        {
+            _ = GameConfiguration.Instance;
+            ActionLoader.LoadActions();
+            EnemyLoader.LoadEnemies();
+            var cfg = LabCombatSnapshot.DefaultTestEnemyBattleConfig;
+            var enemy = TestCharacterFactory.CreateTestEnemy(cfg, 0, 1);
+            TestBase.AssertTrue(enemy.UsesDirectCombatStats(), "dummy is direct-stat for speed test", ref run, ref passed, ref failed);
+            if (!enemy.UsesDirectCombatStats() || enemy.ActionPool.Count == 0)
+                return;
+
+            var strike = enemy.ActionPool[0].action;
+            double panelSpd = enemy.GetTotalAttackSpeed();
+            double expected = panelSpd * strike.Length;
+            double actual = ActionSpeedCalculator.CalculateActualActionSpeed(enemy, strike);
+            TestBase.AssertTrue(
+                Math.Abs(actual - expected) < 0.02,
+                $"log speed ≈ Spd×Len (expect {expected:F3}s, got {actual:F3}s)",
+                ref run, ref passed, ref failed);
         }
 
         private static void ResolveD20ForNextStepUsesSelectedWhenNotRandom(ref int run, ref int passed, ref int failed)
@@ -549,7 +804,10 @@ namespace RPGGame.Tests.Unit
             lab.LabPlayer.AddToCombo(a);
             lab.LabPlayer.AddToCombo(b);
 
-            TestBase.AssertTrue(lab.LabEnemy.GetComboActions().Count == 0, "Lab enemy starts with empty combo strip", ref run, ref passed, ref failed);
+            // Begin() picks a random catalog enemy; strip must be empty for this amplification scenario.
+            foreach (var act in lab.LabEnemy.GetComboActions().ToList())
+                lab.LabEnemy.RemoveFromCombo(act);
+            TestBase.AssertTrue(lab.LabEnemy.GetComboActions().Count == 0, "Lab enemy has empty combo strip for amp test", ref run, ref passed, ref failed);
 
             lab.LabEnemy.ComboStep = 1;
             double mult = ActionUtilities.CalculateDamageMultiplier(lab.LabEnemy, a);
@@ -816,7 +1074,7 @@ namespace RPGGame.Tests.Unit
             ActionInteractionLabSession.EndSession();
         }
 
-        private static void LabNudgeComboStepWrapsStrip(ref int run, ref int passed, ref int failed)
+        private static void LabNudgeComboStepClampsStrip(ref int run, ref int passed, ref int failed)
         {
             ActionLoader.LoadActions();
             var rage = ActionLoader.GetAction("RAGE");
@@ -843,12 +1101,16 @@ namespace RPGGame.Tests.Unit
             if (!slam.IsComboAction) slam.IsComboAction = true;
             lab.LabPlayer.AddToCombo(rage);
             lab.LabPlayer.AddToCombo(slam);
+            int n = lab.LabPlayer.GetComboActions().Count;
             lab.LabPlayer.ComboStep = 0;
             lab.NudgeLabPlayerComboStep(-1);
-            int n = lab.LabPlayer.GetComboActions().Count;
-            TestBase.AssertEqual(1, lab.LabPlayer.ComboStep % n, "Nudge -1 from slot 0 wraps to last slot", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, lab.LabPlayer.ComboStep % n, "Nudge -1 from first slot stays on first slot", ref run, ref passed, ref failed);
             lab.NudgeLabPlayerComboStep(1);
-            TestBase.AssertEqual(0, lab.LabPlayer.ComboStep % n, "Nudge +1 returns to slot 0", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, lab.LabPlayer.ComboStep % n, "Nudge +1 from first slot advances to second", ref run, ref passed, ref failed);
+            lab.NudgeLabPlayerComboStep(1);
+            TestBase.AssertEqual(1, lab.LabPlayer.ComboStep % n, "Nudge +1 from last slot stays on last slot", ref run, ref passed, ref failed);
+            lab.NudgeLabPlayerComboStep(-1);
+            TestBase.AssertEqual(0, lab.LabPlayer.ComboStep % n, "Nudge -1 from last slot returns to first", ref run, ref passed, ref failed);
 
             ActionInteractionLabSession.EndSession();
         }

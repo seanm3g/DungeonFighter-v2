@@ -1,17 +1,17 @@
 {
   "character": {
-    "playerBaseHealth": 0,
-    "healthPerLevel": 0,
+    "playerBaseHealth": 60,
+    "healthPerLevel": 3,
     "enemyHealthPerLevel": 0
   },
   "attributes": {
     "playerBaseAttributes": {
-      "strength": 0,
-      "agility": 0,
-      "technique": 0,
-      "intelligence": 0
+      "strength": 3,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 3
     },
-    "playerAttributesPerLevel": 0,
+    "playerAttributesPerLevel": 2,
     "enemyAttributesPerLevel": 0,
     "enemyPrimaryAttributeBonus": 0,
     "intelligenceRollBonusPer": 10
@@ -19,10 +19,10 @@
   "progression": {
     "baseXPToLevel2": 0,
     "xpScalingFactor": 0,
-    "enemyXPBase": 0,
-    "enemyXPPerLevel": 0,
-    "enemyGoldBase": 0,
-    "enemyGoldPerLevel": 0
+    "enemyXPBase": 25,
+    "enemyXPPerLevel": 5,
+    "enemyGoldBase": 10,
+    "enemyGoldPerLevel": 3
   },
   "xpRewards": {
     "baseXPFormula": "",
@@ -46,24 +46,24 @@
   },
   "classBalance": {
     "barbarian": {
-      "healthMultiplier": 0,
-      "damageMultiplier": 0,
-      "speedMultiplier": 0
+      "healthMultiplier": 1,
+      "damageMultiplier": 1,
+      "speedMultiplier": 1
     },
     "warrior": {
-      "healthMultiplier": 0,
-      "damageMultiplier": 0,
-      "speedMultiplier": 0
+      "healthMultiplier": 1,
+      "damageMultiplier": 1,
+      "speedMultiplier": 1
     },
     "rogue": {
-      "healthMultiplier": 0,
-      "damageMultiplier": 0,
-      "speedMultiplier": 0
+      "healthMultiplier": 1,
+      "damageMultiplier": 1,
+      "speedMultiplier": 1
     },
     "wizard": {
-      "healthMultiplier": 0,
-      "damageMultiplier": 0,
-      "speedMultiplier": 0
+      "healthMultiplier": 1,
+      "damageMultiplier": 1,
+      "speedMultiplier": 1
     },
     "description": ""
   },
@@ -87,7 +87,7 @@
     ],
     "attributeQuadTierNames": [
       "Prophet",
-      "Messiah",
+      "Godkiller",
       "Worldbreaker",
       "Eternal"
     ],
@@ -103,9 +103,9 @@
     "attributeDuoDaggerWand": "Hexblade"
   },
   "combat": {
-    "criticalHitThreshold": 0,
-    "criticalHitMultiplier": 0,
-    "minimumDamage": 0,
+    "criticalHitThreshold": 20,
+    "criticalHitMultiplier": 2,
+    "minimumDamage": 1,
     "baseAttackTime": 8,
     "agilitySpeedReduction": 0,
     "minimumAttackTime": 0.1,
@@ -116,12 +116,12 @@
   },
   "combatBalance": {
     "criticalHitChance": 0,
-    "criticalHitDamageMultiplier": 0,
+    "criticalHitDamageMultiplier": 2,
     "rollDamageMultipliers": {
-      "comboRollDamageMultiplier": 0,
-      "basicRollDamageMultiplier": 0,
-      "comboAmplificationScalingMultiplier": 0,
-      "tierScalingFallbackMultiplier": 0
+      "comboRollDamageMultiplier": 1,
+      "basicRollDamageMultiplier": 1,
+      "comboAmplificationScalingMultiplier": 1,
+      "tierScalingFallbackMultiplier": 1
     },
     "statusEffectScaling": {
       "bleedDuration": 0,
@@ -141,18 +141,18 @@
   },
   "rollSystem": {
     "missThreshold": {
-      "min": 0,
-      "max": 0
+      "min": 1,
+      "max": 5
     },
     "basicAttackThreshold": {
-      "min": 0,
-      "max": 0
+      "min": 6,
+      "max": 13
     },
     "comboThreshold": {
-      "min": 0,
-      "max": 0
+      "min": 14,
+      "max": 19
     },
-    "criticalThreshold": 0
+    "criticalThreshold": 20
   },
   "comboSystem": {
     "comboAmplifierAtTech5": 0,
@@ -332,7 +332,7 @@
     },
     "scalingPerLevel": {
       "health": 0,
-      "attributes": 0,
+      "attributes": 0.2,
       "armor": 0
     },
     "archetypes": {},
@@ -343,11 +343,11 @@
     "startingWeaponDamage": {},
     "startingWeaponSpeed": {},
     "tierDamageRanges": {},
-    "globalDamageMultiplier": 0,
-    "weaponDamagePerTier": 0,
-    "armorValuePerTier": 0,
-    "speedBonusPerTier": 0,
-    "maxTier": 0,
+    "globalDamageMultiplier": 1,
+    "weaponDamagePerTier": 3,
+    "armorValuePerTier": 2,
+    "speedBonusPerTier": 0.05,
+    "maxTier": 10,
     "enchantmentChance": 0
   },
   "weaponScaling": {
@@ -379,7 +379,7 @@
         "max": 0
       }
     },
-    "globalDamageMultiplier": 0,
+    "globalDamageMultiplier": 1,
     "description": ""
   },
   "rarityScaling": {
@@ -451,21 +451,21 @@
     }
   },
   "equipmentScaling": {
-    "weaponDamagePerTier": 0,
-    "armorValuePerTier": 0,
-    "speedBonusPerTier": 0,
-    "maxTier": 0,
+    "weaponDamagePerTier": 3,
+    "armorValuePerTier": 2,
+    "speedBonusPerTier": 0.05,
+    "maxTier": 10,
     "enchantmentChance": 0,
     "description": ""
   },
   "lootSystem": {
-    "baseDropChance": 0,
+    "baseDropChance": 0.15,
     "dropChancePerLevel": 0,
-    "maxDropChance": 0,
-    "guaranteedLootChance": 0,
+    "maxDropChance": 0.95,
+    "guaranteedLootChance": 1,
     "magicFindEffectiveness": 0,
-    "goldDropMultiplier": 0,
-    "itemValueMultiplier": 0,
+    "goldDropMultiplier": 1,
+    "itemValueMultiplier": 1,
     "rarityUpgrade": {
       "enabled": false,
       "baseUpgradeChance": 0.05,

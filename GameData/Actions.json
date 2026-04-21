@@ -5,16 +5,14 @@
     "dps": "66%",
     "numberOfHits": "1",
     "damage": "33%",
-    "speed": "0.50",
-    "target": "ENEMY"
+    "speed": "0.50"
   },
   {
     "action": "PUNCH HARD",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY"
+    "speed": "1.00"
   },
   {
     "action": "PUNCH HARDER",
@@ -23,8 +21,7 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "1.00",
-    "heroCrit": "1",
-    "target": "ENEMY"
+    "heroCrit": "1"
   },
   {
     "action": "PUNCH HARDEST",
@@ -33,8 +30,7 @@
     "numberOfHits": "1",
     "damage": "150%",
     "speed": "1.00",
-    "stun": "1",
-    "target": "ENEMY"
+    "stun": "1"
   },
   {
     "action": "TAUNT",
@@ -45,8 +41,7 @@
     "speed": "0.50",
     "heroAccuracy": "1",
     "enemySTR": "-1",
-    "enemyAGI": "1",
-    "target": "ENEMY"
+    "enemyAGI": "1"
   },
   {
     "action": "CONCENTRATE",
@@ -57,8 +52,7 @@
     "speed": "0.50",
     "duration": "1",
     "cadence": "ATTACK",
-    "heroAccuracy": "1",
-    "target": "ENEMY"
+    "heroAccuracy": "1"
   },
   {
     "action": "STUN",
@@ -67,8 +61,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "stun": "1",
-    "target": "ENEMY"
+    "stun": "1"
   },
   {
     "action": "CRITICAL ATTACK",
@@ -77,8 +70,7 @@
     "numberOfHits": "1",
     "damage": "300%",
     "speed": "2.00",
-    "heroCrit": "10",
-    "target": "ENEMY"
+    "heroCrit": "10"
   },
   {
     "action": "FLURRY",
@@ -89,8 +81,7 @@
     "speed": "2.00",
     "duration": "1",
     "cadence": "ACTION",
-    "heroAGI": "1",
-    "target": "ENEMY"
+    "heroAGI": "1"
   },
   {
     "action": "MOMENTUM BASH",
@@ -102,8 +93,7 @@
     "duration": "1",
     "cadence": "DUNGEON",
     "heroSTR": "1",
-    "heroTECH": "1",
-    "target": "ENEMY"
+    "heroTECH": "1"
   },
   {
     "action": "READ BOOK",
@@ -114,20 +104,18 @@
     "speed": "2.00",
     "duration": "1",
     "cadence": "DUNGEON",
-    "heroINT": "1",
-    "target": "ENEMY"
+    "heroINT": "1"
   },
   {
     "action": "CHEAP SHOT",
     "description": "for next 3 ATTACKS: -1 ACCURACY",
     "dps": "520%",
-    "numberOfHits": "2",
+    "numberOfHits": "1",
     "damage": "130%",
     "speed": "0.25",
     "duration": "3",
-    "cadence": "Action",
-    "heroAccuracy": "-1",
-    "target": "ENEMY"
+    "cadence": "ATTACK",
+    "heroAccuracy": "-1"
   },
   {
     "action": "BERZERK",
@@ -136,9 +124,7 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY",
-    "tags": "barbarian"
+    "speed": "1.00"
   },
   {
     "action": "GRUNT",
@@ -150,8 +136,7 @@
     "duration": "1",
     "cadence": "ATTACK",
     "heroAccuracy": "1",
-    "heroSTR": "1",
-    "target": "ENEMY"
+    "heroSTR": "1"
   },
   {
     "action": "DISARM",
@@ -162,8 +147,7 @@
     "speed": "0.25",
     "duration": "3",
     "cadence": "ATTACK",
-    "enemyHit": "-3",
-    "target": "ENEMY"
+    "enemyHit": "-3"
   },
   {
     "action": "ONE SHOT",
@@ -174,9 +158,7 @@
     "damage": "300%",
     "speed": "0.25",
     "duration": "3",
-    "cadence": "Action",
-    "target": "ENEMY",
-    "tags": "common"
+    "cadence": "Action"
   },
   {
     "action": "DRUNKEN BRAWLER",
@@ -187,11 +169,9 @@
     "damage": "100%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "Action",
+    "cadence": "ATTACK",
     "heroAccuracy": "-5",
-    "enemyAccuracy": "-5",
-    "target": "ENEMY",
-    "tags": "uncommon"
+    "enemyAccuracy": "-5"
   },
   {
     "action": "STIM PACK",
@@ -205,22 +185,18 @@
     "cadence": "ATTACK",
     "heroHit": "3",
     "heroCombo": "2",
-    "heroCrit": "1",
-    "target": "ENEMY",
-    "tags": "rare"
+    "heroCrit": "1"
   },
   {
     "action": "ANIME CHARGE-UP",
-    "description": "\u002B1 accuracy per chain position",
+    "description": "FOR FIGHT: \u002B1 ACCURACY PER CHAIN POSITION",
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "Action",
-    "modifyBasedOnChainPosition": "true",
-    "target": "ENEMY",
-    "chainPositionBonusesJson": "[{\u0022modifiesParam\u0022:\u0022Accuracy\u0022,\u0022value\u0022:1,\u0022valueKind\u0022:\u0022#\u0022,\u0022positionBasis\u0022:\u0022\u0022}]"
+    "cadence": "FIGHT",
+    "heroAccuracy": "1"
   },
   {
     "action": "OVERKILL",
@@ -230,8 +206,7 @@
     "damage": "100%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "ATTACK",
-    "target": "ENEMY"
+    "cadence": "ATTACK"
   },
   {
     "action": "DANCE",
@@ -243,16 +218,14 @@
     "duration": "1",
     "cadence": "DUNGEON",
     "opener": "true",
-    "heroAGI": "1",
-    "target": "ENEMY"
+    "heroAGI": "1"
   },
   {
     "action": "A CARD THAT GETS WORSE OVER TIME",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY"
+    "speed": "1.00"
   },
   {
     "action": "BULK DAY",
@@ -263,7 +236,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "ACTION",
-    "target": "ENEMY"
+    "damageMod": "50"
   },
   {
     "action": "CHUG ENERGY DRINK",
@@ -273,8 +246,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "3",
-    "cadence": "ATTACK",
-    "target": "ENEMY"
+    "cadence": "ATTACK"
   },
   {
     "action": "TRUE STRIKE",
@@ -285,8 +257,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "ATTACK",
-    "heroAccuracy": "10",
-    "target": "ENEMY"
+    "heroAccuracy": "10"
   },
   {
     "action": "SECOND WIND",
@@ -295,8 +266,7 @@
     "numberOfHits": "1",
     "damage": "200%",
     "speed": "2.00",
-    "heroHeal": "5",
-    "target": "SELF"
+    "heroHeal": "5"
   },
   {
     "action": "QUICK REFLEXES",
@@ -307,8 +277,7 @@
     "speed": "0.70",
     "duration": "1",
     "cadence": "ACTION",
-    "enemyAccuracy": "-5",
-    "target": "ENEMY"
+    "enemyAccuracy": "-5"
   },
   {
     "action": "DEJA VU",
@@ -316,8 +285,7 @@
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "2.00",
-    "target": "ENEMY"
+    "speed": "2.00"
   },
   {
     "action": "POWER OVERWHELMING",
@@ -325,8 +293,7 @@
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "2.00",
-    "target": "ENEMY"
+    "speed": "2.00"
   },
   {
     "action": "ANY DAY NOW",
@@ -336,8 +303,7 @@
     "damage": "250%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "CHAIN",
-    "target": "ENEMY"
+    "cadence": "CHAIN"
   },
   {
     "action": "I AM INVINCIBLE",
@@ -347,8 +313,7 @@
     "damage": "250%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "DUNGEON",
-    "target": "ENEMY"
+    "cadence": "DUNGEON"
   },
   {
     "action": "AVENGE",
@@ -359,8 +324,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "Action",
-    "enemyAccuracy": "20",
-    "target": "ENEMY"
+    "enemyAccuracy": "20"
   },
   {
     "action": "FOLLOW THROUGH",
@@ -370,8 +334,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "ACTION",
-    "target": "ENEMY"
+    "cadence": "ACTION"
   },
   {
     "action": "OPENING VOLLEY",
@@ -382,8 +345,7 @@
     "speed": "0.75",
     "duration": "4",
     "cadence": "ATTACK",
-    "opener": "true",
-    "target": "ENEMY"
+    "opener": "true"
   },
   {
     "action": "WEINING LIGHT",
@@ -393,8 +355,7 @@
     "damage": "100%",
     "speed": "0.75",
     "duration": "1",
-    "cadence": "FIGHT",
-    "target": "ENEMY"
+    "cadence": "FIGHT"
   },
   {
     "action": "MIRROR FLEXING",
@@ -402,8 +363,7 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY"
+    "speed": "1.00"
   },
   {
     "action": "ROGUES GAMBIT",
@@ -411,8 +371,7 @@
     "dps": "25%",
     "numberOfHits": "1",
     "damage": "25%",
-    "speed": "1.00",
-    "target": "ENEMY"
+    "speed": "1.00"
   },
   {
     "action": "POISON TIP",
@@ -423,8 +382,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "FIGHT",
-    "poison": "1",
-    "target": "ENEMY"
+    "poison": "1"
   },
   {
     "action": "HAYMAKER",
@@ -435,8 +393,7 @@
     "speed": "3.00",
     "duration": "1",
     "cadence": "ACTION",
-    "heroAccuracy": "-14",
-    "target": "ENEMY"
+    "heroAccuracy": "-14"
   },
   {
     "action": "FRENZY",
@@ -449,8 +406,7 @@
     "cadence": "ATTACK",
     "finisher": "true",
     "heroHit": "3",
-    "heroCombo": "-2",
-    "target": "ENEMY"
+    "heroCombo": "-2"
   },
   {
     "action": "BLOOD KNIFE",
@@ -462,8 +418,7 @@
     "duration": "2",
     "cadence": "ACTION",
     "selfDamage": "1",
-    "heroHeal": "25",
-    "target": "SELF"
+    "heroHeal": "25"
   },
   {
     "action": "HOLY HEALY",
@@ -472,8 +427,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.50",
-    "heroHeal": "25",
-    "target": "SELF"
+    "heroHeal": "25"
   },
   {
     "action": "BLOODY SUNDAY",
@@ -484,8 +438,7 @@
     "speed": "3.00",
     "duration": "1",
     "cadence": "FIGHT",
-    "finisher": "true",
-    "target": "ENEMY"
+    "finisher": "true"
   },
   {
     "action": "24/7/365",
@@ -493,8 +446,7 @@
     "dps": "33%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "3.00",
-    "target": "ENEMY"
+    "speed": "3.00"
   },
   {
     "action": "PRETTY BOY SWAG",
@@ -506,8 +458,7 @@
     "duration": "1",
     "cadence": "DUNGEON",
     "heroCrit": "5",
-    "heroSTR": "3",
-    "target": "ENEMY"
+    "heroSTR": "3"
   },
   {
     "action": "OPENING CUT",
@@ -519,8 +470,7 @@
     "duration": "1",
     "cadence": "ACTION",
     "opener": "true",
-    "heroHit": "2",
-    "target": "ENEMY"
+    "heroHit": "2"
   },
   {
     "action": "RAZOR MARGIN",
@@ -533,8 +483,7 @@
     "cadence": "ATTACK",
     "heroHit": "-2",
     "heroCrit": "2",
-    "enemyHit": "2",
-    "target": "ENEMY"
+    "enemyHit": "2"
   },
   {
     "action": "FOCUSED BREATHING",
@@ -546,8 +495,7 @@
     "duration": "1",
     "cadence": "FIGHT",
     "heroAccuracy": "1",
-    "heroSTR": "0.30",
-    "target": "ENEMY"
+    "heroSTR": "0.30"
   },
   {
     "action": "ADRENAL SURGE",
@@ -559,8 +507,7 @@
     "duration": "1",
     "cadence": "Ability",
     "speedMod": "20",
-    "selfDamage": "ON CRIT, ON MISS",
-    "target": "ENEMY"
+    "selfDamage": "ON CRIT, ON MISS"
   },
   {
     "action": "TENSION HOLD",
@@ -571,8 +518,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "FIGHT",
-    "heroCombo": "1",
-    "target": "ENEMY"
+    "heroCombo": "1"
   },
   {
     "action": "LATE BLOOM",
@@ -581,8 +527,7 @@
     "numberOfHits": "1",
     "damage": "30%",
     "speed": "1.50",
-    "finisher": "true",
-    "target": "ENEMY"
+    "finisher": "true"
   },
   {
     "action": "MEASURED PATIENCE",
@@ -594,8 +539,7 @@
     "duration": "2",
     "cadence": "ACTION",
     "heroHit": "2",
-    "heroCrit": "-1",
-    "target": "ENEMY"
+    "heroCrit": "-1"
   },
   {
     "action": "MEASURED ADVANCE",
@@ -606,8 +550,7 @@
     "speed": "0.80",
     "duration": "1",
     "cadence": "ACTION",
-    "heroCombo": "1",
-    "target": "ENEMY"
+    "heroCombo": "1"
   },
   {
     "action": "GLASS STRIKE",
@@ -617,8 +560,7 @@
     "damage": "300%",
     "speed": "1.60",
     "duration": "1",
-    "cadence": "FIGHT",
-    "target": "ENEMY"
+    "cadence": "FIGHT"
   },
   {
     "action": "STATIC ODDS",
@@ -628,8 +570,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "ACTION",
-    "target": "ENEMY"
+    "cadence": "ACTION"
   },
   {
     "action": "LUCKY CHARM",
@@ -640,8 +581,7 @@
     "speed": "0.25",
     "duration": "1",
     "cadence": "ATTACK",
-    "heroAccuracy": "14",
-    "target": "ENEMY"
+    "heroAccuracy": "14"
   },
   {
     "action": "SWIFT",
@@ -651,8 +591,7 @@
     "damage": "100%",
     "speed": "0.70",
     "duration": "1",
-    "cadence": "COMBO",
-    "target": "ENEMY"
+    "cadence": "COMBO"
   },
   {
     "action": "EXHAUSTING RHYTHM",
@@ -662,8 +601,7 @@
     "damage": "125%",
     "speed": "1.20",
     "duration": "1",
-    "cadence": "FIGHT",
-    "target": "ENEMY"
+    "cadence": "FIGHT"
   },
   {
     "action": "WINDED STATE",
@@ -673,8 +611,7 @@
     "damage": "71%",
     "speed": "1.30",
     "duration": "1",
-    "cadence": "FIGHT",
-    "target": "ENEMY"
+    "cadence": "FIGHT"
   },
   {
     "action": "OVERHAND SMASH",
@@ -685,8 +622,7 @@
     "speed": "1.70",
     "heroHit": "-2",
     "heroCrit": "2",
-    "stun": "1",
-    "target": "ENEMY"
+    "stun": "1"
   },
   {
     "action": "HOLD TEMPO",
@@ -696,8 +632,7 @@
     "damage": "25%",
     "speed": "0.60",
     "duration": "1",
-    "cadence": "CHAIN",
-    "target": "ENEMY"
+    "cadence": "CHAIN"
   },
   {
     "action": "BACKSTEP SLASH",
@@ -708,8 +643,7 @@
     "speed": "0.70",
     "duration": "1",
     "cadence": "ACTION",
-    "heroHit": "2",
-    "target": "ENEMY"
+    "heroHit": "2"
   },
   {
     "action": "CRUSHING FOLLOW-THROUGH",
@@ -719,8 +653,7 @@
     "damage": "175%",
     "speed": "1.30",
     "duration": "1",
-    "cadence": "ACTION",
-    "target": "ENEMY"
+    "cadence": "ACTION"
   },
   {
     "action": "ALL IN",
@@ -730,8 +663,7 @@
     "damage": "400%",
     "speed": "2.00",
     "heroHit": "-8",
-    "heroCrit": "6",
-    "target": "ENEMY"
+    "heroCrit": "6"
   },
   {
     "action": "FINAL REP",
@@ -743,8 +675,7 @@
     "duration": "1",
     "cadence": "ACTION",
     "finisher": "true",
-    "heroAccuracy": "3",
-    "target": "ENEMY"
+    "heroAccuracy": "3"
   },
   {
     "action": "HOLLOW ADVANCE",
@@ -754,7 +685,7 @@
     "damage": "100%",
     "speed": "0.70",
     "heroCombo": "1",
-    "target": "ENEMY"
+    "jumpRelative": "1"
   },
   {
     "action": "SLAPBACK ECHO",
@@ -762,8 +693,7 @@
     "dps": "63%",
     "numberOfHits": "1",
     "damage": "50%",
-    "speed": "0.80",
-    "target": "ENEMY"
+    "speed": "0.80"
   },
   {
     "action": "PERFECT LINE",
@@ -773,9 +703,9 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "ACTION",
+    "cadence": "Action",
     "heroCombo": "4",
-    "target": "ENEMY"
+    "jumpRelative": "4"
   },
   {
     "action": "OL\u0027 FAITHFUL",
@@ -785,8 +715,7 @@
     "damage": "75%",
     "speed": "1.00",
     "heroHit": "9",
-    "heroCombo": "-6",
-    "target": "ENEMY"
+    "heroCombo": "-6"
   },
   {
     "action": "CONTROLLED BURST",
@@ -798,8 +727,7 @@
     "duration": "1",
     "cadence": "ACTION",
     "heroHit": "1",
-    "heroCrit": "-1",
-    "target": "ENEMY"
+    "heroCrit": "-1"
   },
   {
     "action": "PHANTOM FOLLOW-UP",
@@ -808,8 +736,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.50",
-    "heroCombo": "1",
-    "target": "ENEMY"
+    "heroCombo": "1"
   },
   {
     "action": "FINAL PUSH",
@@ -819,8 +746,7 @@
     "damage": "500%",
     "speed": "2.50",
     "finisher": "true",
-    "consume": "1",
-    "target": "ENEMY"
+    "consume": "1"
   },
   {
     "action": "RISING PRESSURE",
@@ -830,8 +756,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "COMBO",
-    "target": "ENEMY"
+    "cadence": "COMBO"
   },
   {
     "action": "TEMPO SHIFT",
@@ -839,8 +764,7 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY"
+    "speed": "1.00"
   },
   {
     "action": "GUARANTEED HIT",
@@ -851,8 +775,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "ATTACK",
-    "heroHit": "5",
-    "target": "ENEMY"
+    "heroHit": "5"
   },
   {
     "action": "OVERCOMMIT",
@@ -860,8 +783,7 @@
     "dps": "167%",
     "numberOfHits": "1",
     "damage": "500%",
-    "speed": "3.00",
-    "target": "ENEMY"
+    "speed": "3.00"
   },
   {
     "action": "CALM BEFORE STORM",
@@ -871,8 +793,7 @@
     "damage": "100%",
     "speed": "0.60",
     "duration": "1",
-    "cadence": "ACTION",
-    "target": "ENEMY"
+    "cadence": "ACTION"
   },
   {
     "action": "CALCULATED RISK",
@@ -884,8 +805,7 @@
     "duration": "1",
     "cadence": "ACTION",
     "heroHit": "-2",
-    "heroCrit": "2",
-    "target": "ENEMY"
+    "heroCrit": "2"
   },
   {
     "action": "AMPLIFY ACCURACY",
@@ -895,8 +815,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "ACTION",
-    "enemyAccuracy": "20",
-    "target": "ENEMY"
+    "enemyAccuracy": "20"
   },
   {
     "action": "GROUNDHOGS DAY",
@@ -905,8 +824,7 @@
     "damage": "100%",
     "speed": "1.00",
     "heroSTR": "3",
-    "heroHeal": "100%",
-    "target": "SELF"
+    "heroHeal": "100%"
   },
   {
     "action": "DOMAIN EXPANSION",
@@ -917,8 +835,7 @@
     "duration": "3",
     "cadence": "ACTION",
     "finisher": "true",
-    "heroCombo": "14",
-    "target": "ENEMY"
+    "heroCombo": "14"
   },
   {
     "action": "EARLY BIRD GETS THE WORM",
@@ -929,8 +846,7 @@
     "speed": "0.70",
     "duration": "1",
     "cadence": "ACTION",
-    "consume": "1",
-    "target": "ENEMY"
+    "consume": "1"
   },
   {
     "action": "SLAM",
@@ -939,9 +855,7 @@
     "dps": "120%",
     "numberOfHits": "1",
     "damage": "150%",
-    "speed": "1.25",
-    "target": "ENEMY",
-    "tags": "weapon"
+    "speed": "1.25"
   },
   {
     "action": "STRIKE",
@@ -949,9 +863,7 @@
     "dps": "100%",
     "numberOfHits": "2",
     "damage": "50%",
-    "speed": "1.00",
-    "target": "ENEMY",
-    "tags": "weapon"
+    "speed": "1.00"
   },
   {
     "action": "STAB",
@@ -959,9 +871,7 @@
     "dps": "120%",
     "numberOfHits": "1",
     "damage": "60%",
-    "speed": "0.50",
-    "target": "ENEMY",
-    "tags": "weapon"
+    "speed": "0.50"
   },
   {
     "action": "CAST",
@@ -972,9 +882,7 @@
     "speed": "3.00",
     "duration": "1",
     "cadence": "Action",
-    "heroAccuracy": "20",
-    "target": "ENEMY",
-    "tags": "weapon"
+    "heroAccuracy": "20"
   },
   {
     "action": "RAGE",
@@ -985,8 +893,7 @@
     "duration": "1",
     "cadence": "Action",
     "heroCrit": "4",
-    "damageMod": "50",
-    "target": "ENEMY"
+    "damageMod": "50"
   },
   {
     "action": "MOMENTUM",
@@ -994,8 +901,7 @@
     "numberOfHits": "1",
     "damage": "200%",
     "speed": "2.00",
-    "finisher": "true",
-    "target": "ENEMY"
+    "finisher": "true"
   },
   {
     "action": "SQUAT",
@@ -1004,9 +910,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "heroSTR": "1",
-    "target": "ENEMY",
-    "tags": "barbarian"
+    "heroSTR": "1"
   },
   {
     "action": "SLASH",
@@ -1016,9 +920,7 @@
     "damage": "100%",
     "speed": "1.50",
     "duration": "3",
-    "cadence": "ATTACK",
-    "target": "ENEMY",
-    "tags": "warrior"
+    "cadence": "ATTACK"
   },
   {
     "action": "HACK",
@@ -1026,9 +928,7 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY",
-    "tags": "warrior"
+    "speed": "1.00"
   },
   {
     "action": "JUKE",
@@ -1037,9 +937,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "heroAGI": "1",
-    "target": "ENEMY",
-    "tags": "warrior"
+    "heroAGI": "1"
   },
   {
     "action": "POUND",
@@ -1049,10 +947,9 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "3",
-    "cadence": "ATTACK",
+    "cadence": "Action",
     "heroCrit": "2",
-    "target": "ENEMY",
-    "tags": "rogue"
+    "damageMod": "50"
   },
   {
     "action": "SLEIGHT OF HAND",
@@ -1060,9 +957,7 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY",
-    "tags": "rogue"
+    "speed": "1.00"
   },
   {
     "action": "HONE",
@@ -1071,12 +966,11 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "heroTECH": "1",
-    "target": "ENEMY",
-    "tags": "rogue"
+    "heroTECH": "1"
   },
   {
-    "action": "INVOKE",
+    "action": "CHANNEL",
+    "description": "FOR NEXT 3 ATTACKS: \u002B2 COMBO",
     "category": "WIZARD",
     "dps": "40%",
     "numberOfHits": "1",
@@ -1084,19 +978,15 @@
     "speed": "0.25",
     "duration": "3",
     "cadence": "ATTACK",
-    "heroCombo": "2",
-    "target": "ENEMY",
-    "tags": "wizard"
+    "heroCombo": "2"
   },
   {
-    "action": "CHANNEL",
+    "action": "INVOKE",
     "category": "WIZARD",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY",
-    "tags": "wizard"
+    "speed": "1.00"
   },
   {
     "action": "READ",
@@ -1105,24 +995,2190 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "heroINT": "1",
-    "target": "ENEMY",
-    "tags": "wizard"
+    "heroINT": "1"
   },
   {
     "action": "INTELECTUAL DEBATE",
     "description": "X int",
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY"
+    "speed": "1.00"
   },
   {
     "action": "HUNKER DOWN",
     "description": "double armor for 2 attacks",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00"
+  },
+  {
+    "action": "WIDE SWING",
+    "description": "\u002B2 multihit, -40% damage",
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "ENEMY"
+    "duration": "1",
+    "cadence": "Action",
+    "speedMod": "-40",
+    "multiHitMod": "2"
+  },
+  {
+    "action": "Commitment Cleaver",
+    "description": "You telegraph; your next swing hits like a finisher.",
+    "category": "ModTrade",
+    "dps": "125%",
+    "numberOfHits": "1",
+    "damage": "147%",
+    "speed": "1.18",
+    "speedMod": "-20",
+    "damageMod": "25"
+  },
+  {
+    "action": "Stance of Crescendo",
+    "description": "You lose rhythm now to stack combo scaling on what follows.",
+    "category": "ModTrade",
+    "dps": "88%",
+    "numberOfHits": "1",
+    "damage": "95%",
+    "speed": "1.08",
+    "speedMod": "-10",
+    "ampMod": "15"
+  },
+  {
+    "action": "Windup Flurry Mark",
+    "description": "Slow wind-up loads extra hits on your next volley.",
+    "category": "ModTrade",
+    "dps": "87%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.15",
+    "speedMod": "-15",
+    "multiHitMod": "1"
+  },
+  {
+    "action": "Quick Razors",
+    "description": "Light taps reclaim initiative for your next card.",
+    "category": "ModTrade",
+    "dps": "80%",
+    "numberOfHits": "1",
+    "damage": "74%",
+    "speed": "0.92",
+    "speedMod": "20",
+    "damageMod": "-10"
+  },
+  {
+    "action": "Feather Chain",
+    "description": "Weak surface hit; your combo amplifier climbs faster next.",
+    "category": "ModTrade",
+    "dps": "91%",
+    "numberOfHits": "1",
+    "damage": "84%",
+    "speed": "0.92",
+    "damageMod": "-10",
+    "ampMod": "10"
+  },
+  {
+    "action": "Rakeload",
+    "description": "Shallow damage now, more cuts registered next time.",
+    "category": "ModTrade",
+    "dps": "79%",
+    "numberOfHits": "1",
+    "damage": "79%",
+    "speed": "1.00",
+    "damageMod": "-10",
+    "multiHitMod": "2"
+  },
+  {
+    "action": "Reset Step",
+    "description": "You cash combo juice to snap your next action forward.",
+    "category": "ModTrade",
+    "dps": "116%",
+    "numberOfHits": "1",
+    "damage": "116%",
+    "speed": "1.00",
+    "speedMod": "20",
+    "ampMod": "-15"
+  },
+  {
+    "action": "Compression Strike",
+    "description": "You compress scaling into one heavier wallop next.",
+    "category": "ModTrade",
+    "dps": "126%",
+    "numberOfHits": "1",
+    "damage": "126%",
+    "speed": "1.00",
+    "damageMod": "25",
+    "ampMod": "-15"
+  },
+  {
+    "action": "Scatter Focus",
+    "description": "You spread amplification across many small impacts next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "2",
+    "ampMod": "-8"
+  },
+  {
+    "action": "Singletap Recovery",
+    "description": "Fewer follow-ups; you recover spacing on the next beat.",
+    "category": "ModTrade",
+    "dps": "200%",
+    "numberOfHits": "2",
+    "damage": "95%",
+    "speed": "0.95",
+    "speedMod": "15",
+    "multiHitMod": "-1"
+  },
+  {
+    "action": "Collapse Cut",
+    "description": "You merge many cuts into one decisive strike next.",
+    "category": "ModTrade",
+    "dps": "252%",
+    "numberOfHits": "3",
+    "damage": "84%",
+    "speed": "1.00",
+    "damageMod": "35",
+    "multiHitMod": "-2"
+  },
+  {
+    "action": "Tight Spiral",
+    "description": "Fewer hits next, each carrying more combo weight.",
+    "category": "ModTrade",
+    "dps": "178%",
+    "numberOfHits": "2",
+    "damage": "89%",
+    "speed": "1.00",
+    "multiHitMod": "-1",
+    "ampMod": "15"
+  },
+  {
+    "action": "Lumbering Smash",
+    "description": "It falls behind, then its next hit is devastating.",
+    "category": "ModTrade",
+    "dps": "116%",
+    "numberOfHits": "1",
+    "damage": "137%",
+    "speed": "1.18",
+    "enemySpeedMod": "-20"
+  },
+  {
+    "action": "Charging Menace",
+    "description": "Slow approach; its combo scaling spikes on the follow-up.",
+    "category": "ModTrade",
+    "dps": "94%",
+    "numberOfHits": "1",
+    "damage": "105%",
+    "speed": "1.12",
+    "enemySpeedMod": "-10"
+  },
+  {
+    "action": "Delayed Shredder",
+    "description": "It commits tempo to set a burst of extra ticks next.",
+    "category": "ModTrade",
+    "dps": "104%",
+    "numberOfHits": "1",
+    "damage": "116%",
+    "speed": "1.12",
+    "enemySpeedMod": "-15"
+  },
+  {
+    "action": "Harrier Poke",
+    "description": "Weak injury that buys it the next initiative.",
+    "category": "ModTrade",
+    "dps": "74%",
+    "numberOfHits": "1",
+    "damage": "74%",
+    "speed": "1.00",
+    "enemySpeedMod": "20"
+  },
+  {
+    "action": "Taunting Feint",
+    "description": "Scratch damage while it builds internal rage scaling.",
+    "category": "ModTrade",
+    "dps": "79%",
+    "numberOfHits": "1",
+    "damage": "79%",
+    "speed": "1.00"
+  },
+  {
+    "action": "Swarm Posture",
+    "description": "Low per-hit pressure that widens into many ticks next.",
+    "category": "ModTrade",
+    "dps": "74%",
+    "numberOfHits": "1",
+    "damage": "74%",
+    "speed": "1.00"
+  },
+  {
+    "action": "Cooldown Rush",
+    "description": "It dumps buildup to cut the gap on its next move.",
+    "category": "ModTrade",
+    "dps": "99%",
+    "numberOfHits": "1",
+    "damage": "111%",
+    "speed": "1.12",
+    "enemySpeedMod": "20"
+  },
+  {
+    "action": "Finishing Protocol",
+    "description": "It spends stacked threat on one spike next.",
+    "category": "ModTrade",
+    "dps": "108%",
+    "numberOfHits": "1",
+    "damage": "121%",
+    "speed": "1.12"
+  },
+  {
+    "action": "Scatter Burst",
+    "description": "It sprays stored power across a flurry next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00"
+  },
+  {
+    "action": "Repositioning Skitter",
+    "description": "It stops chaining hits and becomes slippery next.",
+    "category": "ModTrade",
+    "dps": "178%",
+    "numberOfHits": "2",
+    "damage": "89%",
+    "speed": "1.00",
+    "enemySpeedMod": "15"
+  },
+  {
+    "action": "Coalesce Slam",
+    "description": "Fewer swings; one armor-breaking slam next.",
+    "category": "ModTrade",
+    "dps": "212%",
+    "numberOfHits": "3",
+    "damage": "79%",
+    "speed": "1.12"
+  },
+  {
+    "action": "Focused Predator",
+    "description": "It narrows pressure into fewer, heavier meaningful hits.",
+    "category": "ModTrade",
+    "dps": "190%",
+    "numberOfHits": "2",
+    "damage": "95%",
+    "speed": "1.00"
+  },
+  {
+    "action": "Initiative Theft",
+    "description": "You surge; their next tempo stumbles.",
+    "category": "ModTrade",
+    "dps": "105%",
+    "numberOfHits": "1",
+    "damage": "105%",
+    "speed": "1.00",
+    "speedMod": "20",
+    "enemySpeedMod": "-20"
+  },
+  {
+    "action": "Overextended Strike",
+    "description": "You pay speed; they accelerate next.",
+    "category": "ModTrade",
+    "dps": "126%",
+    "numberOfHits": "1",
+    "damage": "126%",
+    "speed": "1.00",
+    "speedMod": "-20",
+    "enemySpeedMod": "20"
+  },
+  {
+    "action": "Shatter Plate",
+    "description": "Your next hit bites harder; theirs softens.",
+    "category": "ModTrade",
+    "dps": "95%",
+    "numberOfHits": "1",
+    "damage": "95%",
+    "speed": "1.00",
+    "damageMod": "20"
+  },
+  {
+    "action": "Feint Opening",
+    "description": "You lighten damage; their next swing loads.",
+    "category": "ModTrade",
+    "dps": "84%",
+    "numberOfHits": "1",
+    "damage": "84%",
+    "speed": "1.00",
+    "damageMod": "-10"
+  },
+  {
+    "action": "Momentum Hijack",
+    "description": "Your combo scaling improves; theirs decays.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "ampMod": "15"
+  },
+  {
+    "action": "Stalled Rhythm",
+    "description": "You stall scaling; they ignite theirs next.",
+    "category": "ModTrade",
+    "dps": "111%",
+    "numberOfHits": "1",
+    "damage": "111%",
+    "speed": "1.00",
+    "ampMod": "-8"
+  },
+  {
+    "action": "Chainloaded",
+    "description": "You widen follow-ups; theirs shortens next.",
+    "category": "ModTrade",
+    "dps": "89%",
+    "numberOfHits": "1",
+    "damage": "89%",
+    "speed": "1.00",
+    "multiHitMod": "2"
+  },
+  {
+    "action": "Tight Combo",
+    "description": "You simplify hits; they go wide next.",
+    "category": "ModTrade",
+    "dps": "200%",
+    "numberOfHits": "2",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "-1"
+  },
+  {
+    "action": "Sprint Harmony",
+    "description": "You and it both speed up next.",
+    "category": "ModTrade",
+    "dps": "95%",
+    "numberOfHits": "1",
+    "damage": "95%",
+    "speed": "1.00",
+    "speedMod": "10",
+    "enemySpeedMod": "10"
+  },
+  {
+    "action": "Lane Clear",
+    "description": "You surge; they stumble next.",
+    "category": "ModTrade",
+    "dps": "105%",
+    "numberOfHits": "1",
+    "damage": "105%",
+    "speed": "1.00",
+    "speedMod": "20",
+    "enemySpeedMod": "-20"
+  },
+  {
+    "action": "Heavy Commit",
+    "description": "You pay tempo; they dash next.",
+    "category": "ModTrade",
+    "dps": "126%",
+    "numberOfHits": "1",
+    "damage": "126%",
+    "speed": "1.00",
+    "speedMod": "-20",
+    "enemySpeedMod": "20"
+  },
+  {
+    "action": "Anchor Duel",
+    "description": "Mutual slow next.",
+    "category": "ModTrade",
+    "dps": "105%",
+    "numberOfHits": "1",
+    "damage": "105%",
+    "speed": "1.00",
+    "speedMod": "-10",
+    "enemySpeedMod": "-10"
+  },
+  {
+    "action": "Blitzer\u0027s Mark",
+    "description": "You quicken; their next hit hardens.",
+    "category": "ModTrade",
+    "dps": "95%",
+    "numberOfHits": "1",
+    "damage": "95%",
+    "speed": "1.00",
+    "speedMod": "10"
+  },
+  {
+    "action": "Outpace Shell",
+    "description": "You accelerate; their next damage softens.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "speedMod": "20"
+  },
+  {
+    "action": "Winded Rush",
+    "description": "You slog; their next strike grows.",
+    "category": "ModTrade",
+    "dps": "105%",
+    "numberOfHits": "1",
+    "damage": "105%",
+    "speed": "1.00",
+    "speedMod": "-20"
+  },
+  {
+    "action": "Cautious Brake",
+    "description": "Both next hits soften after tempo dip.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "speedMod": "-10"
+  },
+  {
+    "action": "Flow State",
+    "description": "Both ramp combo scaling next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "speedMod": "10"
+  },
+  {
+    "action": "Tempo Lock",
+    "description": "You speed up; their amp decays next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "speedMod": "20"
+  },
+  {
+    "action": "Late Block",
+    "description": "You eat speed; they ignite scaling next.",
+    "category": "ModTrade",
+    "dps": "105%",
+    "numberOfHits": "1",
+    "damage": "105%",
+    "speed": "1.00",
+    "speedMod": "-20"
+  },
+  {
+    "action": "Fatigue Spiral",
+    "description": "Both lose amp pressure next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "speedMod": "-10"
+  },
+  {
+    "action": "Flurry Haste",
+    "description": "Both widen hit volume next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "speedMod": "10"
+  },
+  {
+    "action": "Cut the Chain",
+    "description": "You speed up; their multihit shortens next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "speedMod": "20"
+  },
+  {
+    "action": "Trapped Feet",
+    "description": "You slow; they spray ticks next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "speedMod": "-20"
+  },
+  {
+    "action": "Grounded Guard",
+    "description": "Both lose extra hits next after tempo dip.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "speedMod": "-10"
+  },
+  {
+    "action": "Power Rush",
+    "description": "You hit harder; they move faster next.",
+    "category": "ModTrade",
+    "dps": "95%",
+    "numberOfHits": "1",
+    "damage": "95%",
+    "speed": "1.00",
+    "damageMod": "20",
+    "enemySpeedMod": "20"
+  },
+  {
+    "action": "Crushing Hold",
+    "description": "Your damage buff; they lose speed next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "damageMod": "20",
+    "enemySpeedMod": "-20"
+  },
+  {
+    "action": "Glancing Blow",
+    "description": "You lighten hit; they accelerate next.",
+    "category": "ModTrade",
+    "dps": "89%",
+    "numberOfHits": "1",
+    "damage": "89%",
+    "speed": "1.00",
+    "damageMod": "-10",
+    "enemySpeedMod": "20"
+  },
+  {
+    "action": "Soft Tap",
+    "description": "Both next actions soften on damage and tempo.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "damageMod": "-10",
+    "enemySpeedMod": "-10"
+  },
+  {
+    "action": "Arms Race Cut",
+    "description": "Both next hits spike damage.",
+    "category": "ModTrade",
+    "dps": "89%",
+    "numberOfHits": "1",
+    "damage": "89%",
+    "speed": "1.00",
+    "damageMod": "10"
+  },
+  {
+    "action": "Sundering Edge",
+    "description": "You buff damage; theirs weakens next.",
+    "category": "ModTrade",
+    "dps": "95%",
+    "numberOfHits": "1",
+    "damage": "95%",
+    "speed": "1.00",
+    "damageMod": "20"
+  },
+  {
+    "action": "Opening Gift",
+    "description": "You feint; they load damage next.",
+    "category": "ModTrade",
+    "dps": "84%",
+    "numberOfHits": "1",
+    "damage": "84%",
+    "speed": "1.00",
+    "damageMod": "-10"
+  },
+  {
+    "action": "Pulled Strikes",
+    "description": "Both next hits muted.",
+    "category": "ModTrade",
+    "dps": "95%",
+    "numberOfHits": "1",
+    "damage": "95%",
+    "speed": "1.00",
+    "damageMod": "-10"
+  },
+  {
+    "action": "Heavy Crescendo",
+    "description": "Big hit plus enemy scaling up next.",
+    "category": "ModTrade",
+    "dps": "95%",
+    "numberOfHits": "1",
+    "damage": "95%",
+    "speed": "1.00",
+    "damageMod": "20"
+  },
+  {
+    "action": "Shatter Focus",
+    "description": "You hit hard; their amp falls next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "damageMod": "20"
+  },
+  {
+    "action": "Tickling Jab",
+    "description": "Light hit; they ramp next.",
+    "category": "ModTrade",
+    "dps": "89%",
+    "numberOfHits": "1",
+    "damage": "89%",
+    "speed": "1.00",
+    "damageMod": "-10"
+  },
+  {
+    "action": "Muffled Exchange",
+    "description": "Both damage and their amp dip next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "damageMod": "-10"
+  },
+  {
+    "action": "Cleaving Tempest",
+    "description": "Heavy hit meets wider enemy flurry next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "damageMod": "20"
+  },
+  {
+    "action": "Finisher\u0027s Law",
+    "description": "You spike damage; their ticks shrink next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "damageMod": "20"
+  },
+  {
+    "action": "Chip Scatter",
+    "description": "Weak surface; they widen hits next.",
+    "category": "ModTrade",
+    "dps": "89%",
+    "numberOfHits": "1",
+    "damage": "89%",
+    "speed": "1.00",
+    "damageMod": "-10"
+  },
+  {
+    "action": "Softened Hail",
+    "description": "Both lose damage bite and extra hits next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "damageMod": "-10"
+  },
+  {
+    "action": "Crescendo Sprint",
+    "description": "Your scaling and their speed rise next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "ampMod": "10",
+    "enemySpeedMod": "10"
+  },
+  {
+    "action": "Dominant Line",
+    "description": "You ramp; they slow next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "ampMod": "15",
+    "enemySpeedMod": "-20"
+  },
+  {
+    "action": "Lost Bridge",
+    "description": "You stall amp; they speed up next.",
+    "category": "ModTrade",
+    "dps": "105%",
+    "numberOfHits": "1",
+    "damage": "105%",
+    "speed": "1.00",
+    "ampMod": "-10",
+    "enemySpeedMod": "20"
+  },
+  {
+    "action": "Quiet Measure",
+    "description": "Both amp and speed pressure ease next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "ampMod": "-10",
+    "enemySpeedMod": "-10"
+  },
+  {
+    "action": "Amp to Steel",
+    "description": "Scaling meets enemy damage buff next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "ampMod": "10"
+  },
+  {
+    "action": "Overwhelming Theme",
+    "description": "You ramp; their hit softens next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "ampMod": "15"
+  },
+  {
+    "action": "Burnt Fuse",
+    "description": "You drop amp; they sharpen damage next.",
+    "category": "ModTrade",
+    "dps": "105%",
+    "numberOfHits": "1",
+    "damage": "105%",
+    "speed": "1.00",
+    "ampMod": "-10"
+  },
+  {
+    "action": "Flattened Verse",
+    "description": "Both scaling and enemy damage dip next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "ampMod": "-10"
+  },
+  {
+    "action": "Dueling Anthems",
+    "description": "Both climb amp next.",
+    "category": "ModTrade",
+    "dps": "95%",
+    "numberOfHits": "1",
+    "damage": "95%",
+    "speed": "1.00",
+    "ampMod": "10"
+  },
+  {
+    "action": "Steal the Chorus",
+    "description": "You ramp; they lose amp next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "ampMod": "15"
+  },
+  {
+    "action": "Broken Streak",
+    "description": "You stall; they surge scaling next.",
+    "category": "ModTrade",
+    "dps": "111%",
+    "numberOfHits": "1",
+    "damage": "111%",
+    "speed": "1.00",
+    "ampMod": "-8"
+  },
+  {
+    "action": "Suppressed Duel",
+    "description": "Both amp curves flatten next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "ampMod": "-10"
+  },
+  {
+    "action": "Chorus of Cuts",
+    "description": "You ramp; they widen multihit next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "ampMod": "10"
+  },
+  {
+    "action": "Precision Crescendo",
+    "description": "You ramp; their volume shrinks next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "ampMod": "15"
+  },
+  {
+    "action": "Fumbled Bridge",
+    "description": "You lose amp; they go wide next.",
+    "category": "ModTrade",
+    "dps": "105%",
+    "numberOfHits": "1",
+    "damage": "105%",
+    "speed": "1.00",
+    "ampMod": "-10"
+  },
+  {
+    "action": "Muted Finale",
+    "description": "Both amp and multihit ease next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "ampMod": "-10"
+  },
+  {
+    "action": "Flurry Sprint",
+    "description": "Extra ticks and enemy speed up next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "1",
+    "enemySpeedMod": "10"
+  },
+  {
+    "action": "Tanglefoot Flurry",
+    "description": "You widen hits; they slow next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "2",
+    "enemySpeedMod": "-20"
+  },
+  {
+    "action": "Short Chain",
+    "description": "Fewer your hits; they accelerate next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "-1",
+    "enemySpeedMod": "20"
+  },
+  {
+    "action": "Collapsed Tempo",
+    "description": "Both volume and speed ease next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "-1",
+    "enemySpeedMod": "-10"
+  },
+  {
+    "action": "Many Cuts, Deep Answer",
+    "description": "Volume meets enemy damage spike next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "2"
+  },
+  {
+    "action": "Shred Armor",
+    "description": "You add ticks; their damage softens next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "2"
+  },
+  {
+    "action": "Single Bite",
+    "description": "Fewer hits; enemy damage loads next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "-2"
+  },
+  {
+    "action": "Quiet Rake",
+    "description": "Both volume and enemy damage dip next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "-1"
+  },
+  {
+    "action": "Volume Crescendo",
+    "description": "You widen hits; their combo scaling climbs next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "2"
+  },
+  {
+    "action": "Shred the Song",
+    "description": "You widen hits; their amp decays next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "2"
+  },
+  {
+    "action": "Tight Rope",
+    "description": "Fewer hits; they ramp next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "-2"
+  },
+  {
+    "action": "Sparse Line",
+    "description": "Both multihit and enemy amp ease next.",
+    "category": "ModTrade",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "-1"
+  },
+  {
+    "action": "Twin Storms",
+    "description": "Both widen multihit next.",
+    "category": "ModTrade",
+    "dps": "84%",
+    "numberOfHits": "1",
+    "damage": "84%",
+    "speed": "1.00",
+    "multiHitMod": "1"
+  },
+  {
+    "action": "Overwhelming Tide",
+    "description": "You add ticks; theirs shortens next.",
+    "category": "ModTrade",
+    "dps": "89%",
+    "numberOfHits": "1",
+    "damage": "89%",
+    "speed": "1.00",
+    "multiHitMod": "2"
+  },
+  {
+    "action": "Controlled Pace",
+    "description": "You tighten; they spray next.",
+    "category": "ModTrade",
+    "dps": "200%",
+    "numberOfHits": "2",
+    "damage": "100%",
+    "speed": "1.00",
+    "multiHitMod": "-1"
+  },
+  {
+    "action": "Sparse Exchange",
+    "description": "Both lose extra hits next.",
+    "category": "ModTrade",
+    "dps": "190%",
+    "numberOfHits": "2",
+    "damage": "95%",
+    "speed": "1.00",
+    "multiHitMod": "-1"
+  },
+  {
+    "action": "WEB STRIKE",
+    "description": "Enemy ability: WEB STRIKE",
+    "category": "ENEMY",
+    "dps": "80%",
+    "numberOfHits": "1",
+    "damage": "80%",
+    "speed": "1.00",
+    "slow": "1"
+  },
+  {
+    "action": "POISON BITE",
+    "description": "Enemy ability: POISON BITE",
+    "category": "ENEMY",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "90%",
+    "speed": "0.90",
+    "poison": "1"
+  },
+  {
+    "action": "BITE",
+    "description": "Enemy ability: BITE",
+    "category": "ENEMY",
+    "dps": "125%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "0.80"
+  },
+  {
+    "action": "HOWL",
+    "description": "Enemy ability: HOWL",
+    "category": "ENEMY",
+    "dps": "80%",
+    "numberOfHits": "1",
+    "damage": "40%",
+    "speed": "0.50",
+    "weaken": "1"
+  },
+  {
+    "action": "FIRE BOLT",
+    "description": "Enemy ability: FIRE BOLT",
+    "category": "ENEMY",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "110%",
+    "speed": "1.10",
+    "burn": "1"
+  },
+  {
+    "action": "IGNITE",
+    "description": "Enemy ability: IGNITE",
+    "category": "ENEMY",
+    "dps": "60%",
+    "numberOfHits": "1",
+    "damage": "60%",
+    "speed": "1.00",
+    "burn": "1"
+  },
+  {
+    "action": "MAGMA FIST",
+    "description": "Enemy ability: MAGMA FIST",
+    "category": "ENEMY",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "1.30"
+  },
+  {
+    "action": "ERUPTION",
+    "description": "Enemy ability: ERUPTION",
+    "category": "ENEMY",
+    "dps": "83%",
+    "numberOfHits": "1",
+    "damage": "150%",
+    "speed": "1.80",
+    "burn": "1"
+  },
+  {
+    "action": "BAT SWARM",
+    "description": "Enemy ability: BAT SWARM",
+    "category": "ENEMY",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "70%",
+    "speed": "0.70",
+    "bleed": "1"
+  },
+  {
+    "action": "QUICK STRIKE",
+    "description": "Enemy ability: QUICK STRIKE",
+    "category": "ENEMY",
+    "dps": "142%",
+    "numberOfHits": "1",
+    "damage": "85%",
+    "speed": "0.60"
+  },
+  {
+    "action": "BONE STRIKE",
+    "description": "Enemy ability: BONE STRIKE",
+    "category": "ENEMY",
+    "dps": "95%",
+    "numberOfHits": "1",
+    "damage": "95%",
+    "speed": "1.00",
+    "bleed": "1"
+  },
+  {
+    "action": "RATTLE",
+    "description": "Enemy ability: RATTLE",
+    "category": "ENEMY",
+    "dps": "75%",
+    "numberOfHits": "1",
+    "damage": "30%",
+    "speed": "0.40",
+    "weaken": "1"
+  },
+  {
+    "action": "CLAW",
+    "description": "Enemy ability: CLAW",
+    "category": "ENEMY",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "bleed": "1"
+  },
+  {
+    "action": "GROAN",
+    "description": "Enemy ability: GROAN",
+    "category": "ENEMY",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "25%",
+    "speed": "0.50",
+    "weaken": "1"
+  },
+  {
+    "action": "SOUL DRAIN",
+    "description": "Enemy ability: SOUL DRAIN",
+    "category": "ENEMY",
+    "dps": "86%",
+    "numberOfHits": "1",
+    "damage": "120%",
+    "speed": "1.40",
+    "weaken": "1"
+  },
+  {
+    "action": "PHASE",
+    "description": "Enemy ability: PHASE",
+    "category": "ENEMY",
+    "dps": "125%",
+    "numberOfHits": "1",
+    "damage": "50%",
+    "speed": "0.40"
+  },
+  {
+    "action": "Doubletime Gambit",
+    "description": "Both sides accelerate next; chaotic round.",
+    "category": "ENVIRONMENT",
+    "dps": "95%",
+    "numberOfHits": "1",
+    "damage": "95%",
+    "speed": "1.00",
+    "speedMod": "10",
+    "enemySpeedMod": "10"
+  },
+  {
+    "action": "Gluefoot Exchange",
+    "description": "Both slog next; mud, gravity, fatigue.",
+    "category": "ENVIRONMENT",
+    "dps": "105%",
+    "numberOfHits": "1",
+    "damage": "105%",
+    "speed": "1.00",
+    "speedMod": "-10",
+    "enemySpeedMod": "-10"
+  },
+  {
+    "action": "Blood Moon Strike",
+    "description": "Both next hits hit harder.",
+    "category": "ENVIRONMENT",
+    "dps": "89%",
+    "numberOfHits": "1",
+    "damage": "89%",
+    "speed": "1.00",
+    "damageMod": "10"
+  },
+  {
+    "action": "Pacifying Ward",
+    "description": "Both next hits muted.",
+    "category": "ENVIRONMENT",
+    "dps": "95%",
+    "numberOfHits": "1",
+    "damage": "95%",
+    "speed": "1.00",
+    "damageMod": "-10"
+  },
+  {
+    "action": "Duel of Crescendos",
+    "description": "Both climb scaling next.",
+    "category": "ENVIRONMENT",
+    "dps": "95%",
+    "numberOfHits": "1",
+    "damage": "95%",
+    "speed": "1.00",
+    "ampMod": "10"
+  },
+  {
+    "action": "Suppress Sigil",
+    "description": "Both lose scaling next.",
+    "category": "ENVIRONMENT",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "ampMod": "-10"
+  },
+  {
+    "action": "Storm of Blades",
+    "description": "Both gain extra ticks next.",
+    "category": "ENVIRONMENT",
+    "dps": "84%",
+    "numberOfHits": "1",
+    "damage": "84%",
+    "speed": "1.00",
+    "multiHitMod": "1"
+  },
+  {
+    "action": "Clean Exchange",
+    "description": "Both lose follow-up volume next.",
+    "category": "ENVIRONMENT",
+    "dps": "190%",
+    "numberOfHits": "2",
+    "damage": "95%",
+    "speed": "1.00",
+    "multiHitMod": "-1"
+  },
+  {
+    "action": "FOREST BRANCH",
+    "description": "A heavy branch falls from the forest canopy, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "FOREST VINES",
+    "description": "Thorny vines entangle and slow all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "33%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "3.00",
+    "slow": "1"
+  },
+  {
+    "action": "LAVA SPLASH",
+    "description": "Molten lava splashes from nearby flows, burning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "LAVA STEAM",
+    "description": "Scalding steam erupts from the ground, weakening all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "33%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "3.00",
+    "weaken": "1"
+  },
+  {
+    "action": "CRYPT NECROTIC",
+    "description": "Dark energy from the crypt saps vitality, causing poison and weakness",
+    "category": "ENVIRONMENT",
+    "dps": "48%",
+    "numberOfHits": "1",
+    "damage": "120%",
+    "speed": "2.50",
+    "poison": "1",
+    "weaken": "1"
+  },
+  {
+    "action": "CRYPT BONESHARDS",
+    "description": "Flying bone fragments from the crypt cause bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "CAVERN CAVEIN",
+    "description": "Rocks fall from the cavern ceiling, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "CAVERN STALACTITE",
+    "description": "Sharp stalactites fall from above, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "125%",
+    "speed": "2.50",
+    "bleed": "1"
+  },
+  {
+    "action": "SWAMP MIASMA",
+    "description": "Thick miasma from the swamp poisons and weakens all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "48%",
+    "numberOfHits": "1",
+    "damage": "120%",
+    "speed": "2.50",
+    "poison": "1",
+    "weaken": "1"
+  },
+  {
+    "action": "SWAMP BOGSINK",
+    "description": "The swampy ground causes all combatants to sink and slow down",
+    "category": "ENVIRONMENT",
+    "dps": "33%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "3.00",
+    "slow": "1"
+  },
+  {
+    "action": "DESERT SANDSTORM",
+    "description": "Blinding sandstorm from the desert slows and weakens all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "33%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "3.00",
+    "weaken": "1"
+  },
+  {
+    "action": "DESERT HEATWAVE",
+    "description": "Intense desert heat causes exhaustion and weakness",
+    "category": "ENVIRONMENT",
+    "dps": "48%",
+    "numberOfHits": "1",
+    "damage": "120%",
+    "speed": "2.50",
+    "weaken": "1"
+  },
+  {
+    "action": "ICE SHARDS",
+    "description": "Sharp ice shards explode from the frozen environment, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "ICE BLIZZARD",
+    "description": "Fierce blizzard from the frozen wastes slows and weakens all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "33%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "3.00",
+    "slow": "1"
+  },
+  {
+    "action": "RUINS CURSE",
+    "description": "Ancient magic from the ruins weakens all who disturb them",
+    "category": "ENVIRONMENT",
+    "dps": "33%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "3.00",
+    "weaken": "1"
+  },
+  {
+    "action": "RUINS PILLAR",
+    "description": "Ancient pillars from the ruins collapse, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "CASTLE PORTCULLIS",
+    "description": "Heavy portcullis from the castle falls, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "CASTLE ARROWS",
+    "description": "Hidden arrow slits in the castle fire, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "125%",
+    "speed": "2.50",
+    "bleed": "1"
+  },
+  {
+    "action": "GRAVEYARD MIST",
+    "description": "Thick mist from the graveyard poisons and weakens all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "48%",
+    "numberOfHits": "1",
+    "damage": "120%",
+    "speed": "2.50",
+    "poison": "1",
+    "weaken": "1"
+  },
+  {
+    "action": "GRAVEYARD RISING",
+    "description": "Undead hands from the graveyard grab and slow all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "33%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "3.00",
+    "slow": "1"
+  },
+  {
+    "action": "TREASURE TRAP",
+    "description": "Ancient treasure protection mechanisms activate, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "TREASURE DUST",
+    "description": "Shimmering gold dust blinds and weakens all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "40%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.50",
+    "weaken": "1"
+  },
+  {
+    "action": "TREASURE COLLAPSE",
+    "description": "The treasure vault begins to collapse, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "GUARD ALARM",
+    "description": "The alarm bell rings, disorienting and slowing all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "33%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "3.00",
+    "slow": "1"
+  },
+  {
+    "action": "GUARD POST",
+    "description": "Defensive mechanisms activate, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "125%",
+    "speed": "2.50",
+    "bleed": "1"
+  },
+  {
+    "action": "GUARD BARRICADE",
+    "description": "Heavy barricades fall, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "TRAP SPIKE",
+    "description": "Hidden spike traps activate, causing severe bleeding",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "TRAP POISON",
+    "description": "Poison darts fire from hidden mechanisms, poisoning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "poison": "1"
+  },
+  {
+    "action": "TRAP PIT",
+    "description": "The floor gives way, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "TRAP NET",
+    "description": "Heavy nets drop from above, slowing all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "40%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.50",
+    "slow": "1"
+  },
+  {
+    "action": "BOSS SPIKES",
+    "description": "Deadly spikes emerge from the chamber walls, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "BOSS CURSE",
+    "description": "The final curse of the dungeon weakens all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "33%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "3.00",
+    "weaken": "1"
+  },
+  {
+    "action": "BOSS COLLAPSE",
+    "description": "The boss chamber begins to collapse, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "PUZZLE FAILURE",
+    "description": "The puzzle mechanism malfunctions, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "PUZZLE RUNES",
+    "description": "Ancient runes glow with power, weakening all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "40%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.50",
+    "weaken": "1"
+  },
+  {
+    "action": "PUZZLE MECHANICAL",
+    "description": "Ancient mechanisms break down, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "REST PEACEFUL",
+    "description": "The peaceful atmosphere weakens aggressive combatants",
+    "category": "ENVIRONMENT",
+    "dps": "40%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.50",
+    "weaken": "1"
+  },
+  {
+    "action": "REST HEALING",
+    "description": "Mystical healing mist causes confusion and weakness",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "weaken": "1"
+  },
+  {
+    "action": "STORAGE CRATES",
+    "description": "Heavy storage crates fall, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "STORAGE DUST",
+    "description": "Thick dust from storage causes coughing and reduces accuracy",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "poison": "1"
+  },
+  {
+    "action": "STORAGE SHELF",
+    "description": "Storage shelves collapse, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "125%",
+    "speed": "2.50",
+    "bleed": "1"
+  },
+  {
+    "action": "LIBRARY BOOKS",
+    "description": "Heavy tomes fall from shelves, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "LIBRARY KNOWLEDGE",
+    "description": "Ancient knowledge overwhelms minds, causing weakness",
+    "category": "ENVIRONMENT",
+    "dps": "40%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.50",
+    "weaken": "1"
+  },
+  {
+    "action": "LIBRARY DUST",
+    "description": "Ancient dust from old books causes coughing and weakness",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "weaken": "1"
+  },
+  {
+    "action": "LIBRARY TOME",
+    "description": "A magical tome explodes, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "ARMORY WEAPONS",
+    "description": "Weapons fall from racks, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "ARMORY RACK",
+    "description": "Heavy weapon racks collapse, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "ARMORY DEBRIS",
+    "description": "Sharp metal debris flies everywhere, causing bleeding",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "125%",
+    "speed": "2.50",
+    "bleed": "1"
+  },
+  {
+    "action": "ARMORY CLATTER",
+    "description": "Falling armor creates deafening noise, slowing all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "slow": "1"
+  },
+  {
+    "action": "KITCHEN POT",
+    "description": "Boiling pots spill, causing burns and bleeding",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "KITCHEN FIRE",
+    "description": "Kitchen fires spread, causing burns and weakness",
+    "category": "ENVIRONMENT",
+    "dps": "40%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.50",
+    "weaken": "1"
+  },
+  {
+    "action": "KITCHEN POTS",
+    "description": "Heavy cooking pots fall, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "KITCHEN STEAM",
+    "description": "Thick steam clouds cause confusion and weakness",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "weaken": "1"
+  },
+  {
+    "action": "DINING CHANDELIER",
+    "description": "The chandelier falls, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "DINING TABLE",
+    "description": "Heavy dining tables collapse, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "125%",
+    "speed": "2.50",
+    "bleed": "1"
+  },
+  {
+    "action": "DINING FOOD",
+    "description": "Spoiled food releases toxic fumes, poisoning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "poison": "1"
+  },
+  {
+    "action": "DINING WINE",
+    "description": "Acidic wine spills cause burns and weakness",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "weaken": "1"
+  },
+  {
+    "action": "CHAMBER ECHO",
+    "description": "Deafening echoes in the chamber slow all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "40%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.50",
+    "slow": "1"
+  },
+  {
+    "action": "CHAMBER CURSE",
+    "description": "Ancient chamber curse weakens all who enter",
+    "category": "ENVIRONMENT",
+    "dps": "33%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "3.00",
+    "weaken": "1"
+  },
+  {
+    "action": "CHAMBER COLLAPSE",
+    "description": "The chamber ceiling begins to collapse, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "HALL ECHO",
+    "description": "Echoes in the long hallway disorient all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "slow": "1"
+  },
+  {
+    "action": "HALL TAPESTRY",
+    "description": "Heavy tapestries fall, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "HALL DUST",
+    "description": "Ancient dust from the hallway causes coughing and weakness",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "weaken": "1"
+  },
+  {
+    "action": "VAULT LOCK",
+    "description": "Ancient vault mechanisms activate, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "VAULT COLLAPSE",
+    "description": "The vault begins to collapse, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "VAULT WARD",
+    "description": "Protective wards weaken all intruders",
+    "category": "ENVIRONMENT",
+    "dps": "40%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.50",
+    "weaken": "1"
+  },
+  {
+    "action": "SANCTUM WRATH",
+    "description": "Divine power weakens the unworthy",
+    "category": "ENVIRONMENT",
+    "dps": "33%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "3.00",
+    "weaken": "1"
+  },
+  {
+    "action": "SANCTUM FLAMES",
+    "description": "Sacred flames burn all combatants, causing bleeding",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "SANCTUM LIGHT",
+    "description": "Blinding holy light disorients all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "40%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.50",
+    "weaken": "1"
+  },
+  {
+    "action": "GROTTO CAVEIN",
+    "description": "Rocks fall from the grotto ceiling, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "GROTTO STALACTITE",
+    "description": "Sharp stalactites fall, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "125%",
+    "speed": "2.50",
+    "bleed": "1"
+  },
+  {
+    "action": "GROTTO POOL",
+    "description": "Toxic underground water poisons all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "poison": "1"
+  },
+  {
+    "action": "CATACOMB BONESHARDS",
+    "description": "Flying bone fragments cause bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "CATACOMB NECROTIC",
+    "description": "Dark energy saps vitality, causing poison and weakness",
+    "category": "ENVIRONMENT",
+    "dps": "48%",
+    "numberOfHits": "1",
+    "damage": "120%",
+    "speed": "2.50",
+    "poison": "1",
+    "weaken": "1"
+  },
+  {
+    "action": "CATACOMB TOMB",
+    "description": "Ancient tombs collapse, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "SHRINE GROUND",
+    "description": "Sacred ground weakens those who fight upon it",
+    "category": "ENVIRONMENT",
+    "dps": "40%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.50",
+    "weaken": "1"
+  },
+  {
+    "action": "SHRINE RETRIBUTION",
+    "description": "Divine retribution causes bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "SHRINE WATER",
+    "description": "Blessed water causes burns and weakness",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "weaken": "1"
+  },
+  {
+    "action": "LABORATORY CHEMICAL",
+    "description": "Toxic chemicals spill, poisoning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "poison": "1"
+  },
+  {
+    "action": "LABORATORY EXPLOSION",
+    "description": "Alchemical experiments explode, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "125%",
+    "speed": "2.50",
+    "bleed": "1"
+  },
+  {
+    "action": "LABORATORY EQUIPMENT",
+    "description": "Heavy laboratory equipment falls, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "LABORATORY FUMES",
+    "description": "Toxic laboratory fumes cause weakness",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "weaken": "1"
+  },
+  {
+    "action": "OBSERVATORY TELESCOPE",
+    "description": "Heavy telescopes fall, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "OBSERVATORY STELLAR",
+    "description": "Stellar energy weakens all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "40%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.50",
+    "weaken": "1"
+  },
+  {
+    "action": "OBSERVATORY DUST",
+    "description": "Cosmic dust causes confusion and weakness",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "weaken": "1"
+  },
+  {
+    "action": "THRONE COLLAPSE",
+    "description": "The royal throne collapses, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "THRONE CURSE",
+    "description": "Ancient royal curse weakens all who disturb the throne",
+    "category": "ENVIRONMENT",
+    "dps": "33%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "3.00",
+    "weaken": "1"
+  },
+  {
+    "action": "THRONE JEWELS",
+    "description": "Crown jewels explode with magical energy, causing bleeding",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "bleed": "1"
+  },
+  {
+    "action": "THRONE GUARD",
+    "description": "Ancient royal guard mechanisms activate, causing bleeding wounds",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "125%",
+    "speed": "2.50",
+    "bleed": "1"
+  },
+  {
+    "action": "GENERIC COLLAPSE",
+    "description": "The room structure begins to collapse, stunning all combatants",
+    "category": "ENVIRONMENT",
+    "dps": "65%",
+    "numberOfHits": "1",
+    "damage": "130%",
+    "speed": "2.00",
+    "stun": "1"
+  },
+  {
+    "action": "GENERIC DUST",
+    "description": "Thick dust clouds cause coughing and reduce accuracy",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "2.00",
+    "poison": "1"
+  },
+  {
+    "action": "GENERIC TRAP",
+    "description": "Ancient mechanisms activate, causing bleeding and weakness",
+    "category": "ENVIRONMENT",
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "125%",
+    "speed": "2.50",
+    "bleed": "1",
+    "weaken": "1"
+  },
+  {
+    "action": "ARCANE ECHO",
+    "description": "Wizard echo \u2014 used by combo/gear duplication tests.",
+    "category": "WIZARD",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00"
   }
 ]

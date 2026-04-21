@@ -122,18 +122,23 @@ namespace RPGGame.Data
             actionData.DamageMod = spreadsheet.DamageMod ?? "";
             actionData.MultiHitMod = spreadsheet.MultiHitMod ?? "";
             actionData.AmpMod = spreadsheet.AmpMod ?? "";
+            actionData.EnemySpeedMod = spreadsheet.EnemySpeedMod ?? "";
+            actionData.EnemyDamageMod = spreadsheet.EnemyDamageMod ?? "";
+            actionData.EnemyMultiHitMod = spreadsheet.EnemyMultiHitMod ?? "";
+            actionData.EnemyAmpMod = spreadsheet.EnemyAmpMod ?? "";
 
             // Combo & position (round-trip)
             actionData.ChainPosition = spreadsheet.ChainPosition ?? "";
             actionData.ModifyBasedOnChainPosition = spreadsheet.ModifyBasedOnChainPosition ?? "";
             actionData.Jump = spreadsheet.Jump ?? "";
+            actionData.JumpRelative = spreadsheet.JumpRelative ?? "";
             actionData.ChainLength = spreadsheet.ChainLength ?? "";
             actionData.Reset = spreadsheet.Reset ?? "";
             actionData.ResetBlockerBuffer = spreadsheet.ResetBlockerBuffer ?? "";
             actionData.IsOpener = !string.IsNullOrWhiteSpace(spreadsheet.Opener) && spreadsheet.Opener != "0";
             actionData.IsFinisher = !string.IsNullOrWhiteSpace(spreadsheet.Finisher) && spreadsheet.Finisher != "0";
 
-            // Combo properties: all actions are combo actions (show in action menu). Cadence only indicates bonus to next action; no cadence = no bonus.
+            // Combo properties: hero actions use the combo strip; environment hazards override below.
             actionData.IsComboAction = true;
             actionData.ComboOrder = 0; // Default, can be set based on chain position
 
@@ -177,6 +182,8 @@ namespace RPGGame.Data
             }
             // No duplicate tags: deduplicate (category + rarity + tags string can repeat the same tag)
             actionData.Tags = actionData.Tags.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+            ApplyNonHeroSpreadsheetDefaults(actionData);
             
             // Trigger conditions (ONHIT, ONMISS, ONCOMBO, ONCRITICAL)
             actionData.TriggerConditions = new List<string>();
@@ -248,11 +255,13 @@ namespace RPGGame.Data
         {
             if (!string.IsNullOrWhiteSpace(spreadsheet.Target))
             {
-                string target = spreadsheet.Target.ToUpper();
+                string target = spreadsheet.Target.ToUpperInvariant();
                 if (target == "SELF")
                     return "Self";
                 if (target == "ENEMY")
                     return "SingleTarget";
+                if (target is "AOE" or "AREA" or "ALL" or "EVERYONE" or "ROOM")
+                    return "AreaOfEffect";
             }
             
             // Default based on action type
@@ -262,6 +271,29 @@ namespace RPGGame.Data
             }
             
             return "SingleTarget"; // Default
+        }
+
+        /// <summary>
+        /// Ensures rows tagged for enemies or the environment never inherit weapon assignment from the sheet,
+        /// and applies defaults for environmental hazards (non-combo, AoE debuff) so they are not offered as hero actions.
+        /// </summary>
+        private static void ApplyNonHeroSpreadsheetDefaults(ActionData actionData)
+        {
+            bool hasEnemy = actionData.Tags != null && actionData.Tags.Any(t => string.Equals(t, "enemy", StringComparison.OrdinalIgnoreCase));
+            bool hasEnvironment = actionData.Tags != null && actionData.Tags.Any(t => string.Equals(t, "environment", StringComparison.OrdinalIgnoreCase));
+            if (!hasEnemy && !hasEnvironment)
+                return;
+
+            // Never assign weapon types from the spreadsheet for these pools (prevents hero gear picking them up).
+            actionData.WeaponTypes = new List<string>();
+
+            if (hasEnvironment)
+            {
+                actionData.Type = "Debuff";
+                actionData.TargetType = "AreaOfEffect";
+                actionData.IsComboAction = false;
+                actionData.ComboOrder = -1;
+            }
         }
 
         private static List<StatBonusEntry> DeserializeStatBonuses(string? json)

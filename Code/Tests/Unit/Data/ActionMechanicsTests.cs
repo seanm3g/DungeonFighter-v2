@@ -508,6 +508,7 @@ namespace RPGGame.Tests.Unit.Data
             var allActions = ActionLoader.GetAllActions();
             var actionsWithRouting = allActions.Where(a =>
                 a.ComboRouting.JumpToSlot > 0 ||
+                a.ComboRouting.JumpRelativeSlots > 0 ||
                 a.ComboRouting.SkipNext ||
                 a.ComboRouting.RepeatPrevious ||
                 a.ComboRouting.LoopToStart ||
@@ -523,7 +524,7 @@ namespace RPGGame.Tests.Unit.Data
             foreach (var action in actionsWithRouting)
             {
                 bool isValid = true;
-                if (action.ComboRouting.JumpToSlot < 0)
+                if (action.ComboRouting.JumpToSlot < 0 || action.ComboRouting.JumpRelativeSlots < 0)
                 {
                     isValid = false;
                 }
@@ -539,6 +540,7 @@ namespace RPGGame.Tests.Unit.Data
                     {
                         var routingTypes = new List<string>();
                         if (action.ComboRouting.JumpToSlot > 0) routingTypes.Add($"Jump({action.ComboRouting.JumpToSlot})");
+                        if (action.ComboRouting.JumpRelativeSlots > 0) routingTypes.Add($"JumpRelative(+{action.ComboRouting.JumpRelativeSlots})");
                         if (action.ComboRouting.SkipNext) routingTypes.Add("SkipNext");
                         if (action.ComboRouting.RepeatPrevious) routingTypes.Add("RepeatPrevious");
                         if (action.ComboRouting.LoopToStart) routingTypes.Add("LoopToStart");

@@ -17,6 +17,7 @@ namespace RPGGame.Entity.Actions.ComboRouting
         {
             None,
             JumpToSlot,
+            JumpRelative,
             SkipNext,
             RepeatPrevious,
             LoopToStart,
@@ -37,6 +38,15 @@ namespace RPGGame.Entity.Actions.ComboRouting
             {
                 result.NextSlotIndex = Math.Min(currentAction.ComboRouting.JumpToSlot - 1, comboSequence.Count - 1);
                 result.RoutingAction = RoutingAction.JumpToSlot;
+                return result;
+            }
+
+            // Advance by normal next step plus extra slots (e.g. at 0-based index 1 / "position" 2, +1 → index 3 / "position" 4)
+            if (currentAction.ComboRouting.JumpRelativeSlots > 0)
+            {
+                int next = currentSlotIndex + 1 + currentAction.ComboRouting.JumpRelativeSlots;
+                result.NextSlotIndex = Math.Min(next, comboSequence.Count - 1);
+                result.RoutingAction = RoutingAction.JumpRelative;
                 return result;
             }
 

@@ -59,16 +59,32 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Speed: {action.Length}", AsciiArtAssets.Colors.White);
             menuStartY++;
-            bool hasSheetMods = !string.IsNullOrWhiteSpace(action.SpeedMod) || !string.IsNullOrWhiteSpace(action.DamageMod)
+            bool hasEnemyMods = !string.IsNullOrWhiteSpace(action.EnemySpeedMod) || !string.IsNullOrWhiteSpace(action.EnemyDamageMod)
+                || !string.IsNullOrWhiteSpace(action.EnemyMultiHitMod) || !string.IsNullOrWhiteSpace(action.EnemyAmpMod);
+            bool hasHeroMods = !string.IsNullOrWhiteSpace(action.SpeedMod) || !string.IsNullOrWhiteSpace(action.DamageMod)
                 || !string.IsNullOrWhiteSpace(action.MultiHitMod) || !string.IsNullOrWhiteSpace(action.AmpMod);
-            if (hasSheetMods)
+            if (hasEnemyMods || hasHeroMods)
             {
-                canvas.AddText(menuStartX, menuStartY, "Modifiers (next action/ability):", AsciiArtAssets.Colors.Cyan);
+                canvas.AddText(menuStartX, menuStartY, "Next-action modifiers (spreadsheet):", AsciiArtAssets.Colors.Cyan);
                 menuStartY++;
-                if (!string.IsNullOrWhiteSpace(action.SpeedMod)) { canvas.AddText(menuStartX, menuStartY, $"  SpeedMod: {action.SpeedMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
-                if (!string.IsNullOrWhiteSpace(action.DamageMod)) { canvas.AddText(menuStartX, menuStartY, $"  DamageMod: {action.DamageMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
-                if (!string.IsNullOrWhiteSpace(action.MultiHitMod)) { canvas.AddText(menuStartX, menuStartY, $"  MultiHitMod: {action.MultiHitMod}", AsciiArtAssets.Colors.White); menuStartY++; }
-                if (!string.IsNullOrWhiteSpace(action.AmpMod)) { canvas.AddText(menuStartX, menuStartY, $"  AmpMod: {action.AmpMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                if (hasEnemyMods)
+                {
+                    canvas.AddText(menuStartX, menuStartY, "  Enemy base stats (AD–AG):", AsciiArtAssets.Colors.Cyan);
+                    menuStartY++;
+                    if (!string.IsNullOrWhiteSpace(action.EnemySpeedMod)) { canvas.AddText(menuStartX, menuStartY, $"    ACTION SPEED: {action.EnemySpeedMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (!string.IsNullOrWhiteSpace(action.EnemyDamageMod)) { canvas.AddText(menuStartX, menuStartY, $"    DAMAGE MOD: {action.EnemyDamageMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (!string.IsNullOrWhiteSpace(action.EnemyMultiHitMod)) { canvas.AddText(menuStartX, menuStartY, $"    MULTIHIT MOD: {action.EnemyMultiHitMod}", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (!string.IsNullOrWhiteSpace(action.EnemyAmpMod)) { canvas.AddText(menuStartX, menuStartY, $"    AMP_MOD: {action.EnemyAmpMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                }
+                if (hasHeroMods)
+                {
+                    canvas.AddText(menuStartX, menuStartY, "  Hero base stats (AJ–AM):", AsciiArtAssets.Colors.Cyan);
+                    menuStartY++;
+                    if (!string.IsNullOrWhiteSpace(action.SpeedMod)) { canvas.AddText(menuStartX, menuStartY, $"    ACTION SPEED: {action.SpeedMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (!string.IsNullOrWhiteSpace(action.DamageMod)) { canvas.AddText(menuStartX, menuStartY, $"    ACTION DAMAGE: {action.DamageMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (!string.IsNullOrWhiteSpace(action.MultiHitMod)) { canvas.AddText(menuStartX, menuStartY, $"    MULTIHIT MOD: {action.MultiHitMod}", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (!string.IsNullOrWhiteSpace(action.AmpMod)) { canvas.AddText(menuStartX, menuStartY, $"    AMP_MOD: {action.AmpMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                }
             }
             menuStartY += 1;
             

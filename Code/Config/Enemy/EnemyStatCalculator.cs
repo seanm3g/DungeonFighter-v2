@@ -1,62 +1,62 @@
 using System.Linq;
+using System;
 
 namespace RPGGame
 {
     /// <summary>
-    /// Helper class for enemy stat calculations
+    /// Helper class for enemy stat calculations (same rules as <see cref="EnemyDataFactory"/>).
     /// </summary>
     public static class EnemyStatCalculator
     {
         /// <summary>
-        /// Calculates final enemy stats using the unified system
+        /// Calculates final enemy stats: optional <see cref="EnemyData.BaseAttributes"/> / <see cref="EnemyData.GrowthPerLevel"/>
+        /// for attributes; optional <see cref="EnemyData.BaseHealth"/> / <see cref="EnemyData.HealthGrowthPerLevel"/> for HP
+        /// (same level formula). Otherwise falls back to baseline × archetype × overrides and tuning
+        /// <see cref="ScalingPerLevelConfig"/>.
         /// </summary>
-        /// <param name="enemyData">Enemy data from JSON</param>
-        /// <param name="level">Enemy level</param>
-        /// <param name="enemySystem">Enemy system configuration</param>
-        /// <returns>Calculated enemy stats</returns>
         public static CalculatedEnemyStats CalculateStats(EnemyData enemyData, int level, EnemySystemConfig enemySystem)
         {
-            // 1. Start with baseline stats
             var baseline = enemySystem.BaselineStats;
             var scaling = enemySystem.ScalingPerLevel;
             var global = enemySystem.GlobalMultipliers;
 
-            // 2. Apply archetype multipliers
             var archetype = enemySystem.Archetypes.GetValueOrDefault(enemyData.Archetype);
             if (archetype == null)
             {
-                // Fallback to Berserker if archetype not found
                 archetype = enemySystem.Archetypes.GetValueOrDefault("Berserker") ?? new ArchetypeMultipliersConfig();
             }
 
-            // 3. Apply individual enemy overrides
             var overrides = enemyData.Overrides ?? new StatOverridesConfig();
 
-            // 4. Calculate base stats with archetype multipliers and overrides
-            var baseHealth = (int)(baseline.Health * archetype.Health * (overrides.Health ?? 1.0));
-            var baseStrength = (int)(baseline.Strength * archetype.Strength * (overrides.Strength ?? 1.0));
-            var baseAgility = (int)(baseline.Agility * archetype.Agility * (overrides.Agility ?? 1.0));
-            var baseTechnique = (int)(baseline.Technique * archetype.Technique * (overrides.Technique ?? 1.0));
-            var baseIntelligence = (int)(baseline.Intelligence * archetype.Intelligence * (overrides.Intelligence ?? 1.0));
-            var baseArmor = (int)(baseline.Armor * archetype.Armor * (overrides.Armor ?? 1.0));
+            double baseHealth = enemyData.BaseHealth ?? (baseline.Health * archetype.Health * (overrides.Health ?? 1.0));
+            double baseStrength = enemyData.BaseAttributes?.Strength ?? (baseline.Strength * archetype.Strength * (overrides.Strength ?? 1.0));
+            double baseAgility = enemyData.BaseAttributes?.Agility ?? (baseline.Agility * archetype.Agility * (overrides.Agility ?? 1.0));
+            double baseTechnique = enemyData.BaseAttributes?.Technique ?? (baseline.Technique * archetype.Technique * (overrides.Technique ?? 1.0));
+            double baseIntelligence = enemyData.BaseAttributes?.Intelligence ?? (baseline.Intelligence * archetype.Intelligence * (overrides.Intelligence ?? 1.0));
+            double baseArmor = baseline.Armor * archetype.Armor * (overrides.Armor ?? 1.0);
 
-            // 5. Scale by level
-            var scaledHealth = baseHealth + (level - 1) * scaling.Health;
-            var scaledStrength = baseStrength + (level - 1) * scaling.Attributes;
-            var scaledAgility = baseAgility + (level - 1) * scaling.Attributes;
-            var scaledTechnique = baseTechnique + (level - 1) * scaling.Attributes;
-            var scaledIntelligence = baseIntelligence + (level - 1) * scaling.Attributes;
-            var scaledArmor = (int)(baseArmor + (level - 1) * scaling.Armor);
+            double growthStrength = enemyData.GrowthPerLevel?.Strength ?? (scaling.Attributes * (overrides.Strength ?? 1.0));
+            double growthAgility = enemyData.GrowthPerLevel?.Agility ?? (scaling.Attributes * (overrides.Agility ?? 1.0));
+            double growthTechnique = enemyData.GrowthPerLevel?.Technique ?? (scaling.Attributes * (overrides.Technique ?? 1.0));
+            double growthIntelligence = enemyData.GrowthPerLevel?.Intelligence ?? (scaling.Attributes * (overrides.Intelligence ?? 1.0));
+            double growthHealth = enemyData.HealthGrowthPerLevel ?? (scaling.Health * (overrides.Health ?? 1.0));
 
-            // 6. Apply global multipliers
-            var finalHealth = (int)(scaledHealth * global.HealthMultiplier);
-            var finalStrength = (int)(scaledStrength * global.DamageMultiplier);
-            var finalAgility = (int)(scaledAgility * global.SpeedMultiplier);
-            var finalTechnique = (int)(scaledTechnique * global.DamageMultiplier);
-            var finalIntelligence = (int)(scaledIntelligence * global.DamageMultiplier);
-            var finalArmor = (int)(scaledArmor * global.ArmorMultiplier);
+            int lv = Math.Max(0, level - 1);
 
-            // 7. Determine primary attribute
+            int levelScaledHealth = FloorToInt(baseHealth + lv * growthHealth);
+            int levelScaledStrength = FloorToInt(baseStrength + lv * growthStrength);
+            int levelScaledAgility = FloorToInt(baseAgility + lv * growthAgility);
+            int levelScaledTechnique = FloorToInt(baseTechnique + lv * growthTechnique);
+            int levelScaledIntelligence = FloorToInt(baseIntelligence + lv * growthIntelligence);
+            int levelScaledArmor = FloorToInt(baseArmor + lv * scaling.Armor);
+
+            int finalHealth = Math.Max(1, FloorToInt(levelScaledHealth * global.HealthMultiplier));
+            int finalStrength = Math.Max(0, FloorToInt(levelScaledStrength * global.DamageMultiplier));
+            int finalAgility = Math.Max(0, FloorToInt(levelScaledAgility * global.SpeedMultiplier));
+            int finalTechnique = Math.Max(0, FloorToInt(levelScaledTechnique * global.DamageMultiplier));
+            int finalIntelligence = Math.Max(0, FloorToInt(levelScaledIntelligence * global.DamageMultiplier));
+            int finalArmor = Math.Max(0, FloorToInt(levelScaledArmor * global.ArmorMultiplier));
+
             var primaryAttribute = DeterminePrimaryAttribute(finalStrength, finalAgility, finalTechnique, finalIntelligence);
 
             return new CalculatedEnemyStats
@@ -72,23 +72,25 @@ namespace RPGGame
             };
         }
 
-        /// <summary>
-        /// Determines the primary attribute based on highest stat
-        /// </summary>
+        private static int FloorToInt(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value))
+                return 0;
+            return (int)Math.Floor(value);
+        }
+
         private static PrimaryAttribute DeterminePrimaryAttribute(int strength, int agility, int technique, int intelligence)
         {
-            var stats = new[] { 
-                (strength, PrimaryAttribute.Strength), 
-                (agility, PrimaryAttribute.Agility), 
-                (technique, PrimaryAttribute.Technique), 
-                (intelligence, PrimaryAttribute.Intelligence) 
+            var stats = new[]
+            {
+                (strength, PrimaryAttribute.Strength),
+                (agility, PrimaryAttribute.Agility),
+                (technique, PrimaryAttribute.Technique),
+                (intelligence, PrimaryAttribute.Intelligence)
             };
             return stats.OrderByDescending(s => s.Item1).First().Item2;
         }
 
-        /// <summary>
-        /// Converts archetype string to enum
-        /// </summary>
         private static EnemyArchetype ConvertStringToEnemyArchetype(string archetype)
         {
             return archetype.ToLower() switch
@@ -98,8 +100,8 @@ namespace RPGGame
                 "assassin" => EnemyArchetype.Assassin,
                 "brute" => EnemyArchetype.Brute,
                 "mage" => EnemyArchetype.Mage,
-                "ranger" => EnemyArchetype.Assassin, // Map to existing enum
-                "tank" => EnemyArchetype.Guardian, // Map to existing enum
+                "ranger" => EnemyArchetype.Assassin,
+                "tank" => EnemyArchetype.Guardian,
                 _ => EnemyArchetype.Berserker
             };
         }
@@ -120,4 +122,3 @@ namespace RPGGame
         public EnemyArchetype Archetype { get; set; }
     }
 }
-

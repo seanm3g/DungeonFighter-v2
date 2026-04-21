@@ -15,6 +15,27 @@ namespace RPGGame
         public string Archetype { get; set; } = "Berserker"; // Default archetype
         [JsonPropertyName("overrides")]
         public StatOverridesConfig? Overrides { get; set; }
+        /// <summary>
+        /// Optional per-enemy base attributes. When present, these are treated as the level 1 attribute values
+        /// (prior to any per-level growth).
+        /// </summary>
+        [JsonPropertyName("baseAttributes")]
+        public EnemyAttributeSet? BaseAttributes { get; set; }
+        /// <summary>
+        /// Optional explicit per-level growth. When omitted, growth can be derived from tuning + overrides.
+        /// </summary>
+        [JsonPropertyName("growthPerLevel")]
+        public EnemyAttributeSet? GrowthPerLevel { get; set; }
+        /// <summary>
+        /// Optional level-1 max health (before per-level growth). When null, uses baseline × archetype × overrides.health.
+        /// </summary>
+        [JsonPropertyName("baseHealth")]
+        public double? BaseHealth { get; set; }
+        /// <summary>
+        /// Optional HP gained per level after level 1. When null, uses <see cref="ScalingPerLevelConfig.Health"/> × overrides.health (same weighting idea as attribute growth).
+        /// </summary>
+        [JsonPropertyName("healthGrowthPerLevel")]
+        public double? HealthGrowthPerLevel { get; set; }
         [JsonPropertyName("actions")]
         public List<string> Actions { get; set; } = new List<string>();
         [JsonPropertyName("isLiving")]
@@ -23,6 +44,22 @@ namespace RPGGame
         public string Description { get; set; } = "";
         [JsonPropertyName("colorOverride")]
         public ColorOverride? ColorOverride { get; set; }
+    }
+
+    /// <summary>
+    /// Attribute set used for enemy base stats and growth rates.
+    /// Values are doubles so per-level gains can be fractional.
+    /// </summary>
+    public class EnemyAttributeSet
+    {
+        [JsonPropertyName("strength")]
+        public double Strength { get; set; }
+        [JsonPropertyName("agility")]
+        public double Agility { get; set; }
+        [JsonPropertyName("technique")]
+        public double Technique { get; set; }
+        [JsonPropertyName("intelligence")]
+        public double Intelligence { get; set; }
     }
 
     public class StatOverridesConfig
@@ -43,6 +80,7 @@ namespace RPGGame
 
     public static class EnemyLoader
     {
+        private static readonly object EnemiesLock = new object();
         private static Dictionary<string, EnemyData>? _enemies;
         private static readonly string[] PossibleEnemyPaths = {
             Path.Combine("GameData", "Enemies.json"),
@@ -61,6 +99,13 @@ namespace RPGGame
         /// <param name="validate">If true, validates loaded enemies and logs any issues</param>
         public static void LoadEnemies(bool validate)
         {
+            lock (EnemiesLock)
+                LoadEnemiesCore(validate);
+        }
+
+        /// <summary>Loads or replaces <see cref="_enemies"/>; caller must hold <see cref="EnemiesLock"/>.</summary>
+        private static void LoadEnemiesCore(bool validate)
+        {
             try
             {
                 string? foundPath = null;
@@ -76,9 +121,9 @@ namespace RPGGame
                 if (foundPath != null)
                 {
                     string jsonContent = File.ReadAllText(foundPath);
-                    
+
                     var enemyList = JsonSerializer.Deserialize<List<EnemyData>>(jsonContent);
-                    
+
                     _enemies = new Dictionary<string, EnemyData>();
                     if (enemyList != null)
                     {
@@ -105,11 +150,8 @@ namespace RPGGame
                     _enemies = new Dictionary<string, EnemyData>();
                 }
 
-                // Optional validation
                 if (validate)
-                {
                     ValidateLoadedEnemies();
-                }
             }
             catch (Exception ex)
             {
@@ -146,30 +188,25 @@ namespace RPGGame
 
         public static Enemy? CreateEnemy(string enemyType, int level = 1)
         {
-            if (_enemies == null)
+            lock (EnemiesLock)
             {
-                LoadEnemies();
-            }
+                if (_enemies == null)
+                    LoadEnemiesCore(validate: false);
 
-            if (_enemies != null)
-            {
-                // Try exact match first
-                if (_enemies.TryGetValue(enemyType, out var enemyData))
+                if (_enemies != null)
                 {
-                    return CreateEnemyFromData(enemyData, level);
-                }
-                
-                // Try case-insensitive match
-                var caseInsensitiveMatch = _enemies.FirstOrDefault(kvp => 
-                    string.Equals(kvp.Key, enemyType, StringComparison.OrdinalIgnoreCase));
-                
-                if (caseInsensitiveMatch.Key != null)
-                {
-                    return CreateEnemyFromData(caseInsensitiveMatch.Value, level);
-                }
-            }
+                    if (_enemies.TryGetValue(enemyType, out var enemyData))
+                        return CreateEnemyFromData(enemyData, level);
 
-            return null;
+                    var caseInsensitiveMatch = _enemies.FirstOrDefault(kvp =>
+                        string.Equals(kvp.Key, enemyType, StringComparison.OrdinalIgnoreCase));
+
+                    if (caseInsensitiveMatch.Key != null)
+                        return CreateEnemyFromData(caseInsensitiveMatch.Value, level);
+                }
+
+                return null;
+            }
         }
 
         private static Enemy? CreateEnemyFromData(EnemyData data, int level)
@@ -192,60 +229,54 @@ namespace RPGGame
 
         public static bool HasEnemy(string enemyType)
         {
-            if (_enemies == null)
+            lock (EnemiesLock)
             {
-                LoadEnemies();
-            }
+                if (_enemies == null)
+                    LoadEnemiesCore(validate: false);
 
-            if (_enemies == null) return false;
-            
-            // Try exact match first
-            if (_enemies.ContainsKey(enemyType))
-            {
-                return true;
+                if (_enemies == null)
+                    return false;
+
+                if (_enemies.ContainsKey(enemyType))
+                    return true;
+
+                return _enemies.Keys.Any(key =>
+                    string.Equals(key, enemyType, StringComparison.OrdinalIgnoreCase));
             }
-            
-            // Try case-insensitive match
-            return _enemies.Keys.Any(key => 
-                string.Equals(key, enemyType, StringComparison.OrdinalIgnoreCase));
         }
 
         public static List<string> GetAllEnemyTypes()
         {
-            if (_enemies == null)
+            lock (EnemiesLock)
             {
-                LoadEnemies();
-            }
+                if (_enemies == null)
+                    LoadEnemiesCore(validate: false);
 
-            return _enemies?.Keys.ToList() ?? new List<string>();
+                return _enemies?.Keys.ToList() ?? new List<string>();
+            }
         }
 
         public static EnemyData? GetEnemyData(string enemyType)
         {
-            if (_enemies == null)
+            lock (EnemiesLock)
             {
-                LoadEnemies();
-            }
+                if (_enemies == null)
+                    LoadEnemiesCore(validate: false);
 
-            if (_enemies != null)
-            {
-                // Try exact match first
-                if (_enemies.TryGetValue(enemyType, out var enemyData))
+                if (_enemies != null)
                 {
-                    return enemyData;
-                }
-                
-                // Try case-insensitive match
-                var caseInsensitiveMatch = _enemies.FirstOrDefault(kvp => 
-                    string.Equals(kvp.Key, enemyType, StringComparison.OrdinalIgnoreCase));
-                
-                if (caseInsensitiveMatch.Key != null)
-                {
-                    return caseInsensitiveMatch.Value;
-                }
-            }
+                    if (_enemies.TryGetValue(enemyType, out var enemyData))
+                        return enemyData;
 
-            return null;
+                    var caseInsensitiveMatch = _enemies.FirstOrDefault(kvp =>
+                        string.Equals(kvp.Key, enemyType, StringComparison.OrdinalIgnoreCase));
+
+                    if (caseInsensitiveMatch.Key != null)
+                        return caseInsensitiveMatch.Value;
+                }
+
+                return null;
+            }
         }
 
         /// <summary>
@@ -253,12 +284,13 @@ namespace RPGGame
         /// </summary>
         public static List<EnemyData> GetAllEnemyData()
         {
-            if (_enemies == null)
+            lock (EnemiesLock)
             {
-                LoadEnemies();
-            }
+                if (_enemies == null)
+                    LoadEnemiesCore(validate: false);
 
-            return _enemies?.Values.ToList() ?? new List<EnemyData>();
+                return _enemies?.Values.ToList() ?? new List<EnemyData>();
+            }
         }
 
         /// <summary>

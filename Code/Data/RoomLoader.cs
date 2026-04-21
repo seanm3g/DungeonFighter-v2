@@ -14,6 +14,15 @@ namespace RPGGame
         public double Weight { get; set; }
     }
 
+    /// <summary>Weighted enemy template for a room / environment (<c>Rooms.json</c> <c>enemies</c> array).</summary>
+    public class RoomEnemyData
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = "";
+        [JsonPropertyName("weight")]
+        public double Weight { get; set; }
+    }
+
     public class RoomData
     {
         [JsonPropertyName("name")]
@@ -26,6 +35,9 @@ namespace RPGGame
         public bool IsHostile { get; set; }
         [JsonPropertyName("actions")]
         public List<RoomActionData> Actions { get; set; } = new List<RoomActionData>();
+        /// <summary>Optional spawn pool for this room; when non-empty, overrides dungeon <c>possibleEnemies</c> for generation.</summary>
+        [JsonPropertyName("enemies")]
+        public List<RoomEnemyData> Enemies { get; set; } = new List<RoomEnemyData>();
     }
 
     public static class RoomLoader
@@ -170,12 +182,16 @@ namespace RPGGame
             {
                 // Use override value if provided, otherwise use JSON value
                 bool isHostile = overrideIsHostile ?? roomData.IsHostile;
-                
+
+                IReadOnlyList<RoomEnemyData>? enemyPool = roomData.Enemies is { Count: > 0 } ? roomData.Enemies : null;
+
                 var room = new Environment(
                     name: roomData.Name,
                     description: roomData.Description,
                     isHostile: isHostile,
-                    theme: dungeonTheme
+                    theme: dungeonTheme,
+                    roomType: "",
+                    roomEnemySpawnPool: enemyPool
                 );
 
                 // Add room-specific actions

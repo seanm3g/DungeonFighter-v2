@@ -29,6 +29,9 @@ namespace RPGGame.Tests.Unit.Data
             TestMergeHeroRollZeroClearsBaseRow();
             TestMergeCritMissRoundTrip();
             TestMergeEnemyRollBonusesRoundTrip();
+            TestMergeJumpRelativeRoundTrip();
+            TestSpreadsheetEnvironmentRowClearsWeaponsAndSetsDebuffAoe();
+            TestSpreadsheetEnemyRowClearsWeaponTypes();
 
             TestBase.PrintSummary("ActionDataToSpreadsheetJsonConverter Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -249,6 +252,72 @@ namespace RPGGame.Tests.Unit.Data
             var back = SpreadsheetToActionDataConverter.Convert(sheet);
             TestBase.AssertEqual(-3, back.EnemyRollBonus, "EnemyRollBonus loads back", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(-1, back.EnemyCriticalMissThresholdAdjustment, "Enemy crit miss loads back", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestMergeJumpRelativeRoundTrip()
+        {
+            System.Console.WriteLine("--- Merge jump relative round-trip ---");
+            var data = new ActionData
+            {
+                Name = "TEST",
+                Type = "Attack",
+                TargetType = "SingleTarget",
+                DamageMultiplier = 1.0,
+                Length = 1.0,
+                MultiHitCount = 1,
+                Jump = "",
+                JumpRelative = "1"
+            };
+            var row = ActionDataToSpreadsheetJsonConverter.Merge(data, null);
+            TestBase.AssertEqual("1", row.JumpRelative, "JumpRelative written to row", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var sheet = row.ToSpreadsheetActionData();
+            var back = SpreadsheetToActionDataConverter.Convert(sheet);
+            TestBase.AssertEqual("1", back.JumpRelative, "JumpRelative loads back from sheet", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var action = ActionDataToActionMapper.CreateAction(back);
+            TestBase.AssertTrue(action.ComboRouting.JumpRelativeSlots == 1, "Mapper sets JumpRelativeSlots", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(action.ComboRouting.JumpToSlot == 0, "Absolute jump stays off when Jump empty", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestSpreadsheetEnvironmentRowClearsWeaponsAndSetsDebuffAoe()
+        {
+            System.Console.WriteLine("--- Spreadsheet environment row: strip weapons, Debuff + AoE ---");
+            var sheet = new SpreadsheetActionData
+            {
+                Action = "TEST_ENV_ROW",
+                Description = "Test hazard",
+                Damage = "120%",
+                Speed = "2.5",
+                Target = "AOE",
+                Category = "ENVIRONMENT",
+                Tags = "environment, crypt",
+                WeaponTypes = "Sword, Mace"
+            };
+            var data = SpreadsheetToActionDataConverter.Convert(sheet);
+            TestBase.AssertTrue(data.WeaponTypes == null || data.WeaponTypes.Count == 0, "WeaponTypes cleared for environment row", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Debuff", data.Type, "Type becomes Debuff", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("AreaOfEffect", data.TargetType, "Target is AreaOfEffect", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!data.IsComboAction, "Not a combo action", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(-1, data.ComboOrder, "ComboOrder -1 for hazards", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestSpreadsheetEnemyRowClearsWeaponTypes()
+        {
+            System.Console.WriteLine("--- Spreadsheet enemy row: strip weapon types ---");
+            var sheet = new SpreadsheetActionData
+            {
+                Action = "TEST_ENEMY_ROW",
+                Damage = "90%",
+                Speed = "1.00",
+                Target = "ENEMY",
+                Category = "ENEMY",
+                Tags = "enemy",
+                WeaponTypes = "Dagger"
+            };
+            var data = SpreadsheetToActionDataConverter.Convert(sheet);
+            TestBase.AssertTrue(data.WeaponTypes == null || data.WeaponTypes.Count == 0, "WeaponTypes cleared for enemy row", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Attack", data.Type, "Enemy strike remains Attack by default", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

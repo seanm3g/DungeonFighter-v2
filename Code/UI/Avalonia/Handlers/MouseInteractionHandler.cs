@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Input;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
@@ -11,7 +12,6 @@ using RPGGame.UI.Avalonia.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Settings;
-using Avalonia.Threading;
 
 namespace RPGGame.UI.Avalonia.Handlers
 {
@@ -70,6 +70,11 @@ namespace RPGGame.UI.Avalonia.Handlers
                     return;
                 }
                 if (TryApplyActionLabLeftPanelStatAt(point.Position, -1))
+                {
+                    e.Handled = true;
+                    return;
+                }
+                if (TryApplyActionLabRightPanelEnemyLevelAt(point.Position, -1))
                 {
                     e.Handled = true;
                     return;
@@ -372,6 +377,36 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
+        /// Action Lab: left-click increases enemy level; right-click decreases (right panel <c>rphover:enemy:level</c>).
+        /// </summary>
+        private bool TryApplyActionLabRightPanelEnemyLevelFromElement(ClickableElement element, int delta)
+        {
+            if (canvasUI == null || game?.StateManager?.CurrentState != GameState.ActionInteractionLab)
+                return false;
+            var session = ActionInteractionLabSession.Current;
+            if (session == null)
+                return false;
+            if (!ActionLabRightPanelEnemyAdjustment.TryApply(session, element.Value, delta))
+                return false;
+            canvasUI.RenderCombat(session.LabPlayer, session.LabEnemy, new List<string>());
+            return true;
+        }
+
+        /// <summary>
+        /// Hit-test grid cell for enemy level row (used for right-click decrease).
+        /// </summary>
+        private bool TryApplyActionLabRightPanelEnemyLevelAt(Point position, int delta)
+        {
+            if (canvasUI == null)
+                return false;
+            var grid = ScreenToGrid(position);
+            var el = canvasUI.GetElementAt(grid.X, grid.Y);
+            if (el == null)
+                return false;
+            return TryApplyActionLabRightPanelEnemyLevelFromElement(el, delta);
+        }
+
+        /// <summary>
         /// Hit-test grid cell for a STATS <c>lphover:stat:*</c> row and apply delta (used for right-click).
         /// </summary>
         private bool TryApplyActionLabLeftPanelStatAt(Point position, int delta)
@@ -386,7 +421,7 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
-        /// Action Lab: right-click a GEAR row to open the gear editor (swap base item, prefix, suffix).
+        /// Action Lab: right-click a GEAR row for a menu (change gear in the editor, or None to unequip).
         /// </summary>
         private bool TryScheduleActionLabGearEdit(Point position)
         {
@@ -413,12 +448,25 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             var owner = canvasUI.GetMainWindow();
             var player = lab.LabPlayer;
-            _ = Dispatcher.UIThread.InvokeAsync(async () =>
+
+            var flyout = new MenuFlyout();
+            var changeItem = new MenuItem { Header = "Change gear…" };
+            changeItem.Click += async (_, _) =>
             {
+                flyout.Hide();
                 var item = await ActionLabWeaponEditDialog.ShowGearEditAsync(owner, player, editSlot).ConfigureAwait(true);
                 if (item != null)
                     lab.ApplyLabGear(item, equipSlot);
-            });
+            };
+            var noneItem = new MenuItem { Header = "None" };
+            noneItem.Click += (_, _) =>
+            {
+                flyout.Hide();
+                lab.ClearLabGear(equipSlot);
+            };
+            flyout.Items.Add(changeItem);
+            flyout.Items.Add(noneItem);
+            flyout.ShowAt(gameCanvas, showAtPointer: true);
             return true;
         }
 
@@ -523,6 +571,9 @@ namespace RPGGame.UI.Avalonia.Handlers
                         canvasUI.RenderCombat(labHpSession.LabPlayer, labHpSession.LabEnemy, new List<string>());
                     return;
                 }
+
+                if (TryApplyActionLabRightPanelEnemyLevelFromElement(element, +1))
+                    return;
 
                 if (TryApplyActionLabLeftPanelStatFromElement(element, +1))
                     return;

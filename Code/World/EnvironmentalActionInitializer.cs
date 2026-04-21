@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
@@ -54,114 +53,40 @@ namespace RPGGame
         private List<(Action action, double probability)> LoadEnvironmentalActionsFromJson()
         {
             var loadedActions = new List<(Action, double)>();
-            
+
             try
             {
-                string jsonPath = Path.Combine("GameData", "Actions.json");
-                if (!File.Exists(jsonPath))
-                    return loadedActions;
+                var themeKey = (theme ?? "").Trim();
+                var themeToken = themeKey.Length > 0 ? themeKey.ToLowerInvariant() : "";
 
-                string jsonContent = File.ReadAllText(jsonPath);
-                var allActions = JsonSerializer.Deserialize<List<ActionData>>(jsonContent);
-
-                if (allActions == null)
-                    return loadedActions;
-
-                // Filter actions by environment tag and theme
-                var environmentalActions = allActions.Where(action =>
-                    action.Tags != null &&
-                    action.Tags.Contains("environment") &&
-                    (action.Tags.Contains(theme.ToLower()) || action.Tags.Contains("generic"))
-                ).ToList();
-
-                foreach (var actionData in environmentalActions)
+                foreach (var actionData in ActionLoader.GetAllActionData())
                 {
-                    var action = CreateActionFromData(actionData);
+                    if (actionData.Tags == null || actionData.Tags.Count == 0)
+                        continue;
+                    if (!actionData.Tags.Any(t => string.Equals(t, "environment", StringComparison.OrdinalIgnoreCase)))
+                        continue;
+
+                    bool generic = actionData.Tags.Any(t => string.Equals(t, "generic", StringComparison.OrdinalIgnoreCase));
+                    bool themeMatch = themeToken.Length > 0 &&
+                        actionData.Tags.Any(t => string.Equals(t, themeToken, StringComparison.OrdinalIgnoreCase));
+                    if (!generic && !themeMatch)
+                        continue;
+
+                    var action = ActionDataToActionMapper.CreateAction(actionData);
+                    action.IsComboAction = false;
+                    action.ComboOrder = -1;
+                    if (action.Target != TargetType.AreaOfEffect && action.Target != TargetType.Environment)
+                        action.Target = TargetType.AreaOfEffect;
+
                     loadedActions.Add((action, 0.7));
                 }
             }
             catch (Exception ex)
             {
-                BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"Error loading environmental actions from JSON: {ex.Message}"));
+                BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"Error loading environmental actions from Actions.json: {ex.Message}"));
             }
 
             return loadedActions;
-        }
-
-        private Action CreateActionFromData(ActionData data)
-        {
-            var actionType = Enum.TryParse<ActionType>(data.Type, true, out var parsedType) ? parsedType : ActionType.Attack;
-            var targetType = TargetType.AreaOfEffect; // Environmental actions are always area of effect
-
-            string enhancedDescription = EnhanceActionDescription(data);
-
-            var action = new Action(
-                name: data.Name,
-                type: actionType,
-                targetType: targetType,
-                cooldown: data.Cooldown,
-                description: enhancedDescription,
-                comboOrder: -1,
-                damageMultiplier: data.DamageMultiplier,
-                length: data.Length,
-                causesBleed: data.CausesBleed,
-                causesWeaken: data.CausesWeaken,
-                isComboAction: false,
-                comboBonusAmount: data.ComboBonusAmount,
-                comboBonusDuration: data.ComboBonusDuration
-            );
-
-            action.CausesSlow = data.CausesSlow;
-            action.CausesPoison = data.CausesPoison;
-
-            return action;
-        }
-
-        private string EnhanceActionDescription(ActionData data)
-        {
-            var modifiers = new List<string>();
-
-            if (data.RollBonus != 0)
-            {
-                string rollText = data.RollBonus > 0 ? $"+{data.RollBonus}" : data.RollBonus.ToString();
-                modifiers.Add($"Roll: {rollText}");
-            }
-
-            if (data.DamageMultiplier != 1.0)
-                modifiers.Add($"Damage: {data.DamageMultiplier:F1}x");
-
-            if (data.ComboBonusAmount > 0 && data.ComboBonusDuration > 0)
-                modifiers.Add($"Combo: +{data.ComboBonusAmount} for {data.ComboBonusDuration} turns");
-
-            if (data.CausesBleed)
-                modifiers.Add("Causes Bleed");
-
-            if (data.CausesWeaken)
-                modifiers.Add("Causes Weaken");
-
-            if (data.MultiHitCount > 1)
-                modifiers.Add($"Multi-hit: {data.MultiHitCount} attacks");
-
-            if (data.SelfDamagePercent > 0)
-                modifiers.Add($"Self-damage: {data.SelfDamagePercent}%");
-
-            if (data.StatBonus > 0 && !string.IsNullOrEmpty(data.StatBonusType))
-            {
-                string durationText = data.StatBonusDuration == -1 ? "dungeon" : $"{data.StatBonusDuration} turns";
-                modifiers.Add($"+{data.StatBonus} {data.StatBonusType} ({durationText})");
-            }
-
-            if (data.SkipNextTurn)
-                modifiers.Add("Skips next turn");
-
-            if (data.RepeatLastAction)
-                modifiers.Add("Repeats last action");
-
-            string result = data.Description;
-            if (modifiers.Count > 0)
-                result += $" | {string.Join(", ", modifiers)}";
-
-            return result;
         }
 
         private List<Action> GetRoomSpecificActions()

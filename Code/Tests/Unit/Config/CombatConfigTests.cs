@@ -27,7 +27,10 @@ namespace RPGGame.Tests.Unit.Config
 
             TestCombatConfig();
             TestEnsureValidCombatTimingDefaults();
+            TestEnsureValidCombatCriticalAndDamageDefaults();
             TestEnsureValidComboAmplifierDefaults();
+            TestCombatBalanceRollDamageDefaults();
+            TestRollSystemDefaultThresholdBands();
             TestCombatBalanceConfig();
             TestRollDamageMultipliersConfig();
             TestStatusEffectScalingConfig();
@@ -80,6 +83,71 @@ namespace RPGGame.Tests.Unit.Config
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0.2, valid.MinimumAttackTime,
                 "Positive MinimumAttackTime should be preserved",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEnsureValidCombatCriticalAndDamageDefaults()
+        {
+            Console.WriteLine("\n--- Testing EnsureValidCombatCriticalAndDamageDefaults ---");
+
+            var zeroed = new CombatConfig
+            {
+                CriticalHitThreshold = 0,
+                MinimumDamage = 0,
+                CriticalHitMultiplier = 0,
+                BaseAttackTime = 1.0,
+                MinimumAttackTime = 0.2
+            };
+            zeroed.EnsureValidCombatCriticalAndDamageDefaults();
+            TestBase.AssertEqual(20, zeroed.CriticalHitThreshold,
+                "Non-positive CriticalHitThreshold should default to 20",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, zeroed.MinimumDamage,
+                "Non-positive MinimumDamage should default to 1",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2.0, zeroed.CriticalHitMultiplier,
+                "Non-positive CriticalHitMultiplier should default to 2.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCombatBalanceRollDamageDefaults()
+        {
+            Console.WriteLine("\n--- Testing CombatBalanceConfig.EnsureValidRollDamageAndCritDefaults ---");
+
+            var balance = new CombatBalanceConfig
+            {
+                CriticalHitDamageMultiplier = 0,
+                RollDamageMultipliers = new RollDamageMultipliersConfig()
+            };
+            balance.EnsureValidRollDamageAndCritDefaults();
+            TestBase.AssertEqual(2.0, balance.CriticalHitDamageMultiplier,
+                "Non-positive CriticalHitDamageMultiplier should default to 2.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1.0, balance.RollDamageMultipliers.ComboRollDamageMultiplier,
+                "Non-positive combo roll multiplier should become 1.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1.0, balance.RollDamageMultipliers.BasicRollDamageMultiplier,
+                "Non-positive basic roll multiplier should become 1.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRollSystemDefaultThresholdBands()
+        {
+            Console.WriteLine("\n--- Testing RollSystemConfig.EnsureValidDefaultThresholdBands ---");
+
+            var rs = new RollSystemConfig
+            {
+                MissThreshold = new MinMaxConfig { Min = 0, Max = 0 },
+                BasicAttackThreshold = new MinMaxConfig { Min = 0, Max = 0 },
+                ComboThreshold = new MinMaxConfig { Min = 0, Max = 0 },
+                CriticalThreshold = 0
+            };
+            rs.EnsureValidDefaultThresholdBands();
+            TestBase.AssertEqual(14, rs.ComboThreshold.Min,
+                "Broken combo min should be repaired to standard ladder",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(20, rs.CriticalThreshold,
+                "Non-positive CriticalThreshold should default to 20",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

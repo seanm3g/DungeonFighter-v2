@@ -29,7 +29,7 @@ namespace RPGGame.Tests.Unit.Game
             TestConstructorWithUI();
             TestConstructorWithCharacter();
             TestExitActionInteractionLab_NoActivePlayer_SelectsSettingsState();
-            TestExitActionInteractionLab_WithActivePlayer_SelectsGameLoopState();
+            TestExitActionInteractionLab_WithActivePlayer_SelectsSettingsState();
 
             TestBase.PrintSummary("GameCoordinator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -107,7 +107,7 @@ namespace RPGGame.Tests.Unit.Game
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestExitActionInteractionLab_WithActivePlayer_SelectsGameLoopState()
+        private static void TestExitActionInteractionLab_WithActivePlayer_SelectsSettingsState()
         {
             Console.WriteLine("\n--- Testing ExitActionInteractionLab (with save character) ---");
 
@@ -118,8 +118,8 @@ namespace RPGGame.Tests.Unit.Game
             var game = new GameCoordinator(character);
             game.StateManager.TransitionToState(GameState.ActionInteractionLab);
             game.ExitActionInteractionLab();
-            TestBase.AssertEqualEnum(GameState.GameLoop, game.StateManager.CurrentState,
-                "Exit lab with a loaded hero should return to GameLoop",
+            TestBase.AssertEqualEnum(GameState.Settings, game.StateManager.CurrentState,
+                "Exit lab should always return to Settings (even when a save character is loaded)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

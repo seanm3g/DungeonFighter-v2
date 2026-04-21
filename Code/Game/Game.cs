@@ -366,16 +366,9 @@ namespace RPGGame
         public void ExitActionInteractionLab()
         {
             ActionInteractionLabSession.EndSession();
-            if (stateManager.HasPlayer)
-            {
-                stateManager.TransitionToState(GameState.GameLoop);
-                ShowGameLoop();
-            }
-            else
-            {
-                stateManager.TransitionToState(GameState.Settings);
-                ShowSettings();
-            }
+            stateManager.TransitionToState(GameState.Settings);
+            CloseSettingsWindow();
+            ShowSettings();
             ActionLabControlsWindow.CloseIfOpen();
         }
 

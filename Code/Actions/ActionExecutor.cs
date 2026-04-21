@@ -77,7 +77,7 @@ namespace RPGGame
                 {
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
                     // Get multi-hit count for display formatting
-                    int multiHitCount = result.SelectedAction.Advanced.MultiHitCount;
+                    int multiHitCount = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(result.SelectedAction, source);
                     var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, result.IsCriticalMiss);
                     return (damageText, rollInfo);
                 }
@@ -157,7 +157,7 @@ namespace RPGGame
                 {
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
                     // Get multi-hit count for display formatting
-                    int multiHitCount = result.SelectedAction.Advanced.MultiHitCount;
+                    int multiHitCount = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(result.SelectedAction, source);
                     var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount);
                     string damageString = ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + ColoredTextRenderer.RenderAsMarkup(rollInfo);
                     results.Add(damageString);

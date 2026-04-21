@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
+using RPGGame.Actions;
 using RPGGame.Actions.Execution;
+using RPGGame.Actions.RollModification;
 using RPGGame.Data;
 using RPGGame.Tests;
 using RPGGame.UI;
@@ -30,6 +32,12 @@ namespace RPGGame.Tests.Unit.Data
             _testsRun = 0;
             _testsPassed = 0;
             _testsFailed = 0;
+
+            // Isolate from prior suites (parallel lab sim, roll tests) that touch shared roll/threshold state.
+            RollModificationManager.GetThresholdManager().Clear();
+            Dice.ClearTestRoll();
+            Dice.ClearAsyncLabEncounterTestRoll();
+            ActionSelector.ClearStoredRolls();
 
             TestActionBonusAddLogic_Deterministic();
             TestActionCadenceComboThresholdDoesNotPersistAcrossRolls();
@@ -543,6 +551,10 @@ namespace RPGGame.Tests.Unit.Data
                 var rage = comboActions[1];
                 var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
 
+                ActionSelector.ClearStoredRolls();
+                ActionSelector.SetStoredActionRoll(character, 18);
+                ActionSelector.SetStoredActionRoll(enemy, 10);
+
                 // Step 1: Execute Adrenal Surge (slot 0). On hit+combo -> slot 1 gets SPEED_MOD
                 var result1 = ActionExecutionFlow.Execute(character, enemy, null, null, adrenalSurge, null, lastUsed, lastCritMiss);
                 if (!result1.Hit || !result1.IsCombo) continue;
@@ -568,6 +580,8 @@ namespace RPGGame.Tests.Unit.Data
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 Console.WriteLine($"  Verified: Adrenal Surge hit -> slot 2 got SPEED_MOD; Rage consumed it; ConsumedSpeedModPercent={character.Effects.ConsumedSpeedModPercent}.\n");
+                ActionSelector.RemoveStoredRoll(character);
+                ActionSelector.RemoveStoredRoll(enemy);
                 break;
             }
 
@@ -754,10 +768,12 @@ namespace RPGGame.Tests.Unit.Data
             var character = new Character("TestHero", 1);
             var adrenalSurge = TestDataBuilders.CreateMockAction("AdrenalSurge", ActionType.Attack);
             adrenalSurge.IsComboAction = true;
+            adrenalSurge.ComboOrder = 1;
             adrenalSurge.Cadence = "Ability";
             adrenalSurge.SpeedMod = "20";
             var rage = TestDataBuilders.CreateMockAction("Rage", ActionType.Attack);
             rage.IsComboAction = true;
+            rage.ComboOrder = 2;
             rage.Length = 0.5;
             character.AddAction(adrenalSurge, 1.0);
             character.AddAction(rage, 1.0);

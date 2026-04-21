@@ -37,6 +37,22 @@ namespace RPGGame.Data
                 }
             }
 
+            if (cfg.ApplyDefaultEnemiesAndEnvironmentsTabNamesIfUnset())
+            {
+                try
+                {
+                    cfg.Save(pushConfigPath);
+                    result.AddLine(
+                        "Set default ENEMIES / ENVIRONMENTS tab names in SheetsPushConfig.json (those fields were blank). " +
+                        "Edit if your spreadsheet uses different tab titles.");
+                }
+                catch (Exception ex)
+                {
+                    result.AddLine(
+                        $"Note: could not save SheetsPushConfig after ENEMIES/ENVIRONMENTS defaults ({ex.Message}); push still uses those tab names for this run.");
+                }
+            }
+
             var service = await SheetsPushUtilities.CreateAuthorizedSheetsServiceAsync(cfg, pushConfigPath, cancellationToken)
                 .ConfigureAwait(false);
 
@@ -157,11 +173,19 @@ namespace RPGGame.Data
                 : "[]";
 
             var rows = JsonArraySheetConverter.BuildPushValueRows(jsonText, kind);
-            int dataRows = Math.Max(0, rows.Count - 1);
-            await PushRowsAtA1Async(service, cfg.SpreadsheetId, tab, rows, cancellationToken).ConfigureAwait(false);
+            int headerRows = JsonArraySheetConverter.GetTabularSheetHeaderRowCount(kind);
+            int dataRows = Math.Max(0, rows.Count - headerRows);
+            await PushRowsAtA1Async(
+                    service,
+                    cfg.SpreadsheetId,
+                    tab,
+                    rows,
+                    JsonArraySheetConverter.GetTabularSheetHeaderRowCount(kind),
+                    cancellationToken)
+                .ConfigureAwait(false);
 
             string fileNote = hadFile ? "" : $" {displayFileName} was not found — pushed header row only (empty []).";
-            result.AddLine($"Tab '{tab}': {dataRows} data row(s), {rows[0].Count} column(s).{fileNote}");
+            result.AddLine($"Tab '{tab}': {dataRows} data row(s), {rows[0].Count} column(s), {headerRows} header row(s).{fileNote}");
         }
 
         private static async Task PushOptionalClassPresentationTabAsync(
@@ -194,7 +218,7 @@ namespace RPGGame.Data
                 pres = new ClassPresentationConfig();
 
             var rows = ClassPresentationSheetConverter.BuildPushValueRows(pres);
-            await PushRowsAtA1Async(service, cfg.SpreadsheetId, tab, rows, cancellationToken).ConfigureAwait(false);
+            await PushRowsAtA1Async(service, cfg.SpreadsheetId, tab, rows, headerRowCount: 1, cancellationToken).ConfigureAwait(false);
 
             string note = File.Exists(tuningPath) ? "" : " TuningConfig.json was not found — pushed default empty classPresentation.";
             result.AddLine($"Tab '{tab}' (class presentation): 1 payload row + header.{note}");
@@ -205,6 +229,7 @@ namespace RPGGame.Data
             string spreadsheetId,
             string tabName,
             List<IList<object>> rows,
+            int headerRowCount,
             CancellationToken cancellationToken)
         {
             string sheet = SheetsPushUtilities.EscapeSheetName(tabName);
@@ -214,7 +239,7 @@ namespace RPGGame.Data
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            SheetsPushUtilities.NormalizeRowsInPlaceForUpload(rows, firstRowIndexToNormalize: 1);
+            SheetsPushUtilities.NormalizeRowsInPlaceForUpload(rows, firstRowIndexToNormalize: headerRowCount);
 
             string updateRange = $"{sheet}!A1";
             var valueRange = new ValueRange

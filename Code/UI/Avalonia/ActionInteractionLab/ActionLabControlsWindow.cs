@@ -137,10 +137,22 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
         {
             var session = ActionInteractionLabSession.Current;
             if (session == null || _canvasUi == null) return;
-            if (session.LastCatalogWheelMinGridY < 0 || session.LastCatalogWheelMinGridX < 0) return;
 
             var pt = e.GetCurrentPoint(_canvas);
             var g = ScreenToGrid(pt.Position);
+
+            if (!session.IsEncounterSimulationRunning
+                && session.LastSimBatchWheelGridY >= 0
+                && g.Y == session.LastSimBatchWheelGridY
+                && g.X >= session.LastSimBatchWheelMinGridX
+                && g.X <= session.LastSimBatchWheelMaxGridX)
+            {
+                ActionLabInputCoordinator.ApplyEncounterSimulationBatchWheel(session, e.Delta.Y, _canvasUi);
+                e.Handled = true;
+                return;
+            }
+
+            if (session.LastCatalogWheelMinGridY < 0 || session.LastCatalogWheelMinGridX < 0) return;
             if (g.X < session.LastCatalogWheelMinGridX || g.X > session.LastCatalogWheelMaxGridX) return;
             if (g.Y < session.LastCatalogWheelMinGridY || g.Y > session.LastCatalogWheelMaxGridY) return;
 

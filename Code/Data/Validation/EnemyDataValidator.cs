@@ -73,6 +73,28 @@ namespace RPGGame.Data.Validation
                 ValidateStatOverride(result, entityName, "armor", enemy.Overrides.Armor);
             }
 
+            // Base attributes / growth validation (optional)
+            if (enemy.BaseAttributes != null)
+            {
+                ValidateNonNegative(result, entityName, "baseAttributes.strength", enemy.BaseAttributes.Strength);
+                ValidateNonNegative(result, entityName, "baseAttributes.agility", enemy.BaseAttributes.Agility);
+                ValidateNonNegative(result, entityName, "baseAttributes.technique", enemy.BaseAttributes.Technique);
+                ValidateNonNegative(result, entityName, "baseAttributes.intelligence", enemy.BaseAttributes.Intelligence);
+            }
+
+            if (enemy.GrowthPerLevel != null)
+            {
+                ValidateNonNegative(result, entityName, "growthPerLevel.strength", enemy.GrowthPerLevel.Strength);
+                ValidateNonNegative(result, entityName, "growthPerLevel.agility", enemy.GrowthPerLevel.Agility);
+                ValidateNonNegative(result, entityName, "growthPerLevel.technique", enemy.GrowthPerLevel.Technique);
+                ValidateNonNegative(result, entityName, "growthPerLevel.intelligence", enemy.GrowthPerLevel.Intelligence);
+            }
+
+            if (enemy.BaseHealth.HasValue)
+                ValidateNonNegative(result, entityName, "baseHealth", enemy.BaseHealth.Value);
+            if (enemy.HealthGrowthPerLevel.HasValue)
+                ValidateNonNegative(result, entityName, "healthGrowthPerLevel", enemy.HealthGrowthPerLevel.Value);
+
             // Action reference validation
             if (enemy.Actions != null && enemy.Actions.Count > 0)
             {
@@ -89,6 +111,12 @@ namespace RPGGame.Data.Validation
                     }
                 }
             }
+        }
+
+        private void ValidateNonNegative(ValidationResult result, string entityName, string fieldName, double value)
+        {
+            if (value < 0)
+                result.AddError(FileName, entityName, fieldName, $"{fieldName} must be >= 0 (was {value})");
         }
 
         private void ValidateStatOverride(ValidationResult result, string entityName, string statName, double? value)

@@ -216,7 +216,7 @@ namespace RPGGame
     public class ScalingPerLevelConfig
     {
         public int Health { get; set; }
-        public int Attributes { get; set; }
+        public double Attributes { get; set; }
         public double Armor { get; set; }
     }
 
@@ -254,6 +254,18 @@ namespace RPGGame
         public Dictionary<string, ArchetypeMultipliersConfig> Archetypes { get; set; } = new();
         public int LevelVariance { get; set; } = 1;
         public string Description { get; set; } = "";
+
+        public void EnsureSanitizedDefaults()
+        {
+            GlobalMultipliers ??= new GlobalMultipliersConfig();
+            GlobalMultipliers.EnsurePositiveMultipliers();
+            BaselineStats ??= new BaselineStatsConfig();
+            BaselineStats.EnsureValidNonEmptyBaseline();
+            ScalingPerLevel ??= new ScalingPerLevelConfig();
+            Archetypes ??= new Dictionary<string, ArchetypeMultipliersConfig>();
+            if (LevelVariance <= 0)
+                LevelVariance = 1;
+        }
     }
 
     /// <summary>
@@ -266,6 +278,18 @@ namespace RPGGame
         public double ArmorMultiplier { get; set; } = 1.0;
         public double SpeedMultiplier { get; set; } = 1.0;
         public string Description { get; set; } = "";
+
+        public void EnsurePositiveMultipliers()
+        {
+            if (HealthMultiplier <= 0)
+                HealthMultiplier = 1.0;
+            if (DamageMultiplier <= 0)
+                DamageMultiplier = 1.0;
+            if (ArmorMultiplier <= 0)
+                ArmorMultiplier = 1.0;
+            if (SpeedMultiplier <= 0)
+                SpeedMultiplier = 1.0;
+        }
     }
 
     /// <summary>
@@ -280,6 +304,22 @@ namespace RPGGame
         public int Intelligence { get; set; } = 3;
         public int Armor { get; set; } = 2;
         public string Description { get; set; } = "";
+
+        public void EnsureValidNonEmptyBaseline()
+        {
+            if (Health <= 0)
+                Health = 50;
+            if (Strength <= 0)
+                Strength = 3;
+            if (Agility <= 0)
+                Agility = 3;
+            if (Technique <= 0)
+                Technique = 3;
+            if (Intelligence <= 0)
+                Intelligence = 3;
+            if (Armor < 0)
+                Armor = 0;
+        }
     }
 
     /// <summary>

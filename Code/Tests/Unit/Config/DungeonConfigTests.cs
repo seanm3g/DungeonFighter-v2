@@ -1,4 +1,5 @@
 using System;
+using RPGGame;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Config
@@ -25,6 +26,7 @@ namespace RPGGame.Tests.Unit.Config
             _testsFailed = 0;
 
             TestDungeonScalingConfig();
+            TestDungeonScalingSanitizer();
             TestDungeonGenerationConfig();
 
             TestBase.PrintSummary("DungeonConfig Tests", _testsRun, _testsPassed, _testsFailed);
@@ -54,6 +56,23 @@ namespace RPGGame.Tests.Unit.Config
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(config.BossRoomChance >= 0 && config.BossRoomChance <= 1,
                 "Boss room chance should be between 0 and 1",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestDungeonScalingSanitizer()
+        {
+            Console.WriteLine("\n--- Testing DungeonScalingConfig.EnsureSensibleDefaults ---");
+
+            var config = new DungeonScalingConfig { RoomCountBase = 0, EnemyCountPerRoom = 0, RoomCountPerLevel = 0 };
+            config.EnsureSensibleDefaults();
+            TestBase.AssertTrue(config.RoomCountBase > 0,
+                "RoomCountBase should be repaired",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(config.EnemyCountPerRoom > 0,
+                "EnemyCountPerRoom should be repaired",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(config.RoomCountPerLevel > 0,
+                "RoomCountPerLevel should be repaired",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

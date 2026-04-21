@@ -84,14 +84,22 @@ namespace RPGGame
         // ACTION/ATTACK keyword bonuses
         public Data.ActionAttackBonuses? ActionAttackBonuses { get; set; }
 
-        /// <summary>Speed modifier for next action/ability (%). Positive = faster. Applied only to next based on cadence.</summary>
+        /// <summary>Hero next-action speed modifier (%). Positive = faster.</summary>
         public string SpeedMod { get; set; } = "";
-        /// <summary>Damage modifier for next action/ability (%). Applied only to next based on cadence.</summary>
+        /// <summary>Hero next-action damage modifier (%).</summary>
         public string DamageMod { get; set; } = "";
-        /// <summary>Multi-hit modifier for next action/ability (raw value). Applied only to next based on cadence.</summary>
+        /// <summary>Hero next-action multi-hit modifier (raw).</summary>
         public string MultiHitMod { get; set; } = "";
-        /// <summary>Amp modifier for next action/ability (%). Multiply. Applied only to next based on cadence.</summary>
+        /// <summary>Hero next-action amp modifier (%).</summary>
         public string AmpMod { get; set; } = "";
+        /// <summary>Enemy next-action speed modifier (%).</summary>
+        public string EnemySpeedMod { get; set; } = "";
+        /// <summary>Enemy next-action damage modifier (%).</summary>
+        public string EnemyDamageMod { get; set; } = "";
+        /// <summary>Enemy next-action multi-hit modifier (raw).</summary>
+        public string EnemyMultiHitMod { get; set; } = "";
+        /// <summary>Enemy next-action amp modifier (%).</summary>
+        public string EnemyAmpMod { get; set; } = "";
         
         // Outcome handlers - list of outcome handler type names (e.g., "conditional", "xpGain")
         public List<string> OutcomeHandlers { get; set; } = new List<string>();

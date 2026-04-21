@@ -27,9 +27,13 @@ namespace RPGGame.Tests.Unit.Config
 
             TestCharacterConfig();
             TestAttributesConfig();
+            TestEnsureValidPlayerHealthDefaults();
+            TestEnsureValidPlayerBaseStatDefaults();
             TestEnsureValidIntelligenceRollBonusDefaults();
             TestAttributeSet();
             TestProgressionConfig();
+            TestEnsureValidEnemyXpAndGoldDefaults();
+            TestClassBalanceSanitizer();
             TestExperienceSystemConfig();
             TestXPRewardsConfig();
 
@@ -84,6 +88,60 @@ namespace RPGGame.Tests.Unit.Config
 
             TestBase.AssertEqual(2, config.PlayerAttributesPerLevel,
                 "PlayerAttributesPerLevel should be settable",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEnsureValidPlayerHealthDefaults()
+        {
+            Console.WriteLine("\n--- Testing EnsureValidPlayerHealthDefaults ---");
+
+            var zeroed = new CharacterConfig { PlayerBaseHealth = 0, HealthPerLevel = 0 };
+            zeroed.EnsureValidPlayerHealthDefaults();
+            TestBase.AssertEqual(60, zeroed.PlayerBaseHealth,
+                "Non-positive PlayerBaseHealth should default to 60",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(3, zeroed.HealthPerLevel,
+                "Non-positive HealthPerLevel should default to 3",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var custom = new CharacterConfig { PlayerBaseHealth = 55, HealthPerLevel = 4 };
+            custom.EnsureValidPlayerHealthDefaults();
+            TestBase.AssertEqual(55, custom.PlayerBaseHealth,
+                "Positive PlayerBaseHealth should be preserved",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(4, custom.HealthPerLevel,
+                "Positive HealthPerLevel should be preserved",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEnsureValidPlayerBaseStatDefaults()
+        {
+            Console.WriteLine("\n--- Testing EnsureValidPlayerBaseStatDefaults ---");
+
+            var zeroed = new AttributesConfig
+            {
+                PlayerBaseAttributes = new AttributeSet(),
+                PlayerAttributesPerLevel = 0
+            };
+            zeroed.EnsureValidPlayerBaseStatDefaults();
+            TestBase.AssertEqual(3, zeroed.PlayerBaseAttributes.Strength,
+                "All-zero base stats should default Strength to 3",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, zeroed.PlayerAttributesPerLevel,
+                "Non-positive PlayerAttributesPerLevel should default to 2",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var partial = new AttributesConfig
+            {
+                PlayerBaseAttributes = new AttributeSet { Strength = 5, Agility = 0, Technique = 0, Intelligence = 0 },
+                PlayerAttributesPerLevel = 1
+            };
+            partial.EnsureValidPlayerBaseStatDefaults();
+            TestBase.AssertEqual(5, partial.PlayerBaseAttributes.Strength,
+                "Partial non-zero base stats should not be overwritten",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, partial.PlayerAttributesPerLevel,
+                "Positive PlayerAttributesPerLevel should be preserved",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -155,6 +213,46 @@ namespace RPGGame.Tests.Unit.Config
         }
 
         #endregion
+
+        private static void TestEnsureValidEnemyXpAndGoldDefaults()
+        {
+            Console.WriteLine("\n--- Testing ProgressionConfig.EnsureValidEnemyXpAndGoldDefaults ---");
+
+            var p = new ProgressionConfig
+            {
+                EnemyXPBase = 0,
+                EnemyXPPerLevel = 0,
+                EnemyGoldBase = 0,
+                EnemyGoldPerLevel = 0
+            };
+            p.EnsureValidEnemyXpAndGoldDefaults();
+            TestBase.AssertEqual(25, p.EnemyXPBase,
+                "EnemyXPBase should match runtime fallback",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(5, p.EnemyXPPerLevel,
+                "EnemyXPPerLevel should match runtime fallback",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(10, p.EnemyGoldBase,
+                "EnemyGoldBase should use positive default",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(3, p.EnemyGoldPerLevel,
+                "EnemyGoldPerLevel should use positive default",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestClassBalanceSanitizer()
+        {
+            Console.WriteLine("\n--- Testing ClassBalanceConfig.EnsureNonDegenerateClassMultipliers ---");
+
+            var cb = new ClassBalanceConfig
+            {
+                Barbarian = new ClassMultipliers { HealthMultiplier = 0, DamageMultiplier = 0, SpeedMultiplier = 0 }
+            };
+            cb.EnsureNonDegenerateClassMultipliers();
+            TestBase.AssertEqual(1.0, cb.Barbarian.HealthMultiplier,
+                "Degenerate class multipliers should become 1.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
 
         #region ExperienceSystemConfig Tests
 

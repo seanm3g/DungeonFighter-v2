@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -9,6 +10,28 @@ namespace RPGGame
     /// </summary>
     public static class ActionDataToActionMapper
     {
+        private static ActionAttackBonuses? CloneActionAttackBonuses(ActionAttackBonuses? src)
+        {
+            if (src == null)
+                return null;
+            var dst = new ActionAttackBonuses();
+            foreach (var grp in src.BonusGroups ?? new List<ActionAttackBonusGroup>())
+            {
+                var g = new ActionAttackBonusGroup
+                {
+                    Keyword = grp.Keyword,
+                    CadenceType = grp.CadenceType,
+                    Count = grp.Count,
+                    DurationType = grp.DurationType,
+                };
+                g.Bonuses = grp.Bonuses == null || grp.Bonuses.Count == 0
+                    ? new List<ActionAttackBonusItem>()
+                    : grp.Bonuses.Select(b => new ActionAttackBonusItem { Type = b.Type, Value = b.Value }).ToList();
+                dst.BonusGroups.Add(g);
+            }
+            return dst;
+        }
+
         /// <summary>
         /// Creates an Action instance from ActionData. Caller should ensure data.NormalizeStatBonuses/Thresholds/Accumulations
         /// have been called if required.
@@ -63,7 +86,9 @@ namespace RPGGame
             action.Advanced.SelfDamagePercent = data.SelfDamagePercent;
             action.Advanced.SkipNextTurn = data.SkipNextTurn;
             action.Advanced.RepeatLastAction = data.RepeatLastAction;
-            action.Tags = data.Tags ?? new List<string>();
+            action.Tags = data.Tags == null || data.Tags.Count == 0
+                ? new List<string>()
+                : new List<string>(data.Tags);
             action.Advanced.EnemyRollPenalty = data.EnemyRollPenalty;
 
             data.NormalizeThresholds();
@@ -91,12 +116,16 @@ namespace RPGGame
             action.RollMods.EnemyHitThresholdAdjustment = data.EnemyHitThresholdAdjustment;
             action.RollMods.ApplyThresholdAdjustmentsToBoth = data.ApplyThresholdAdjustmentsToBoth;
 
-            action.ActionAttackBonuses = data.ActionAttackBonuses;
+            action.ActionAttackBonuses = CloneActionAttackBonuses(data.ActionAttackBonuses);
 
             action.SpeedMod = data.SpeedMod ?? "";
             action.DamageMod = data.DamageMod ?? "";
             action.MultiHitMod = data.MultiHitMod ?? "";
             action.AmpMod = data.AmpMod ?? "";
+            action.EnemySpeedMod = data.EnemySpeedMod ?? "";
+            action.EnemyDamageMod = data.EnemyDamageMod ?? "";
+            action.EnemyMultiHitMod = data.EnemyMultiHitMod ?? "";
+            action.EnemyAmpMod = data.EnemyAmpMod ?? "";
             action.Cadence = data.Cadence ?? "";
 
             action.Triggers.TriggerConditions = data.TriggerConditions != null
@@ -105,6 +134,9 @@ namespace RPGGame
 
             if (int.TryParse(data.Jump?.Trim(), out int jumpVal) && jumpVal > 0)
                 action.ComboRouting.JumpToSlot = jumpVal;
+            if (action.ComboRouting.JumpToSlot == 0 &&
+                int.TryParse(data.JumpRelative?.Trim(), out int jumpRel) && jumpRel > 0)
+                action.ComboRouting.JumpRelativeSlots = jumpRel;
             action.ComboRouting.ChainPosition = data.ChainPosition ?? "";
             action.ComboRouting.ChainLength = data.ChainLength ?? "";
             action.ComboRouting.Reset = data.Reset ?? "";

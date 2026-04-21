@@ -17,6 +17,7 @@ namespace RPGGame.Tests.Unit.Data
             TestDeserializeExtendedTabNames(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyDefaultOptionalTabNamesWhenAllUnset(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyDefaultOptionalTabNamesSkipsWhenAnySet(ref testsRun, ref testsPassed, ref testsFailed);
+            TestApplyDefaultEnemiesAndEnvironmentsTabNamesWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
             TestResolvePathsRelativeToConfigFile(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("SheetsPushConfig Tests", testsRun, testsPassed, testsFailed);
@@ -93,6 +94,25 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(!cfg.ApplyDefaultOptionalSheetTabNamesWhenAllUnset(), "returns false", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual("MyWeapons", cfg.WeaponsSheetTabName, "unchanged", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual("", cfg.ModificationsSheetTabName, "mods still empty", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestApplyDefaultEnemiesAndEnvironmentsTabNamesWhenUnset(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestApplyDefaultEnemiesAndEnvironmentsTabNamesWhenUnset));
+            var cfg = new SheetsPushConfig
+            {
+                SpreadsheetId = "x",
+                ActionsSheetTabName = "ACTIONS",
+                OAuthClientSecretsPath = "s.json",
+                WeaponsSheetTabName = "MyWeapons",
+                EnemiesSheetTabName = "",
+                EnvironmentsSheetTabName = "   "
+            };
+            TestBase.AssertTrue(cfg.ApplyDefaultEnemiesAndEnvironmentsTabNamesIfUnset(), "returns true", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("MyWeapons", cfg.WeaponsSheetTabName, "weapons unchanged", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(SheetsPushConfig.DefaultEnemiesSheetTabName, cfg.EnemiesSheetTabName, "enemies defaulted", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(SheetsPushConfig.DefaultEnvironmentsSheetTabName, cfg.EnvironmentsSheetTabName, "environments defaulted", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(!cfg.ApplyDefaultEnemiesAndEnvironmentsTabNamesIfUnset(), "second call no-op", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
         private static void TestResolvePathsRelativeToConfigFile(ref int testsRun, ref int testsPassed, ref int testsFailed)

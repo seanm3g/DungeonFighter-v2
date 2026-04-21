@@ -25,9 +25,16 @@
         // NEW: Combat manager for enemy-specific combat logic
         private readonly EnemyCombatManager _combatManager;
 
+        /// <summary>
+        /// Lab / harness only: when true, <see cref="Damage"/> and <see cref="AttackSpeed"/> drive combat instead of attributes.
+        /// Real enemies from data always use the attribute constructor and leave this false.
+        /// </summary>
+        private readonly bool _usesDirectCombatStats;
+
         public Enemy(string? name = null, int level = 1, int maxHealth = 50, int strength = 8, int agility = 6, int technique = 4, int intelligence = 4, int armor = 0, PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength, bool isLiving = true, EnemyArchetype? archetype = null)
             : base(name ?? "Unknown Enemy")
         {
+            _usesDirectCombatStats = false;
             Level = level;
             PrimaryAttribute = primaryAttribute;
             IsLiving = isLiving;
@@ -78,6 +85,7 @@
         public Enemy(string? name = null, int level = 1, int maxHealth = 50, int damage = 8, int armor = 0, double attackSpeed = 1.0, PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength, bool isLiving = true, EnemyArchetype? archetype = null, bool useDirectStats = true)
             : base(name ?? "Unknown Enemy")
         {
+            _usesDirectCombatStats = useDirectStats;
             Level = level;
             PrimaryAttribute = primaryAttribute;
             IsLiving = isLiving;
@@ -175,17 +183,18 @@
         }
 
         /// <summary>
+        /// True for lab / harness enemies constructed with direct damage and attack speed instead of attributes.
+        /// </summary>
+        public bool UsesDirectCombatStats() => _usesDirectCombatStats;
+
+        /// <summary>
         /// Calculates enemy attack speed using direct stat or archetype modifiers
         /// </summary>
         public new double GetTotalAttackSpeed()
         {
-            // If using direct stat system, return the direct attack speed
-            if (Damage > 0 && Strength == 0 && Agility == 0)
-            {
+            if (_usesDirectCombatStats)
                 return AttackSpeed;
-            }
-            
-            // Otherwise use shared attack speed calculation logic
+
             return CombatCalculator.CalculateAttackSpeed(this);
         }
 
@@ -212,12 +221,18 @@
             return ComboAmplifierFromTechnique.Compute(Technique, tuning.ComboSystem);
         }
 
+        /// <summary>HUD: sheet <c>DAMAGE_MOD</c> (percent points) queued on this enemy for their next attack.</summary>
+        public double PeekQueuedSheetEnemyDamageModPercentForDisplay() =>
+            CharacterEffectsState.PeekSheetDamageModPercentQueuedForNextEnemyAttack(this);
+
         /// <summary>
         /// Gets effective strength for enemies (same as heroes: used for damage)
         /// </summary>
         public new int GetEffectiveStrength()
         {
-            return Strength; // Enemies don't have equipment bonuses, so just return base strength
+            if (_usesDirectCombatStats)
+                return Damage;
+            return Strength;
         }
 
         /// <summary>

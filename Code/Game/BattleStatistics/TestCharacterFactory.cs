@@ -104,17 +104,20 @@ namespace RPGGame.BattleStatistics
         }
 
         /// <summary>
-        /// Creates a test enemy with the given configuration
+        /// Creates a test enemy with the given configuration. <paramref name="level"/> scales direct stats for Action Lab / simulations (1–99).
         /// </summary>
-        public static Enemy CreateTestEnemy(BattleConfiguration config, int battleIndex)
+        public static Enemy CreateTestEnemy(BattleConfiguration config, int battleIndex, int level = 1)
         {
+            level = Math.Clamp(level, 1, 99);
+            var (hp, damage, armor, attackSpeed) = ScaleLabDirectEnemyStats(config, level);
+
             var allEnemyTypes = EnemyLoader.GetAllEnemyTypes();
-            
+
             if (allEnemyTypes.Count > 0)
             {
                 var enemyType = allEnemyTypes[0];
                 var enemyData = EnemyLoader.GetEnemyData(enemyType);
-                
+
                 if (enemyData != null)
                 {
                     EnemyArchetype archetype = EnemyArchetype.Berserker;
@@ -122,43 +125,60 @@ namespace RPGGame.BattleStatistics
                     {
                         archetype = parsedArchetype;
                     }
-                    
+
                     var enemy = new Enemy(
                         name: enemyData.Name,
-                        level: 1,
-                        maxHealth: config.EnemyHealth,
-                        damage: config.EnemyDamage,
-                        armor: config.EnemyArmor,
-                        attackSpeed: config.EnemyAttackSpeed,
+                        level: level,
+                        maxHealth: hp,
+                        damage: damage,
+                        armor: armor,
+                        attackSpeed: attackSpeed,
                         primaryAttribute: PrimaryAttribute.Strength,
                         isLiving: enemyData.IsLiving,
                         archetype: archetype,
-                        useDirectStats: true
-                    );
-                    
-                    var realEnemy = EnemyLoader.CreateEnemy(enemyType, level: 1);
+                        useDirectStats: true);
+
+                    var realEnemy = EnemyLoader.CreateEnemy(enemyType, level);
                     if (realEnemy != null && realEnemy.Weapon != null)
-                    {
                         enemy.Weapon = realEnemy.Weapon;
-                    }
-                    
+
                     return enemy;
                 }
             }
-            
-            // Fallback: create enemy with direct stats
+
             return new Enemy(
                 name: $"TestEnemy_{battleIndex}",
-                level: 1,
-                maxHealth: config.EnemyHealth,
-                damage: config.EnemyDamage,
-                armor: config.EnemyArmor,
-                attackSpeed: config.EnemyAttackSpeed,
+                level: level,
+                maxHealth: hp,
+                damage: damage,
+                armor: armor,
+                attackSpeed: attackSpeed,
                 primaryAttribute: PrimaryAttribute.Strength,
                 isLiving: true,
                 archetype: EnemyArchetype.Berserker,
-                useDirectStats: true
-            );
+                useDirectStats: true);
+        }
+
+        /// <summary>
+        /// Per-level scaling for lab / battle-stat test dummies (direct-stat enemies), aligned loosely with world tuning.
+        /// </summary>
+        private static (int hp, int damage, int armor, double attackSpeed) ScaleLabDirectEnemyStats(BattleConfiguration config, int level)
+        {
+            var tuning = GameConfiguration.Instance;
+            int hpPer = tuning.Character.EnemyHealthPerLevel;
+            if (hpPer <= 0)
+                hpPer = 10;
+            int attrPer = tuning.Attributes.EnemyAttributesPerLevel;
+            if (attrPer <= 0)
+                attrPer = 2;
+            double armorPer = tuning.EnemyScaling?.EnemyArmorPerLevel ?? 1.0;
+
+            int lv = level - 1;
+            int hp = Math.Max(1, config.EnemyHealth + lv * hpPer);
+            int damage = Math.Max(0, config.EnemyDamage + lv * Math.Max(1, attrPer / 2));
+            int armor = Math.Max(0, config.EnemyArmor + (int)(lv * armorPer));
+            double spd = Math.Max(0.1, config.EnemyAttackSpeed * (1.0 - 0.004 * lv));
+            return (hp, damage, armor, spd);
         }
 
         /// <summary>

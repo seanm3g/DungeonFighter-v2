@@ -29,9 +29,14 @@ namespace RPGGame.Data
             row.DamageMod = data.DamageMod ?? baseRow?.DamageMod ?? "";
             row.MultiHitMod = data.MultiHitMod ?? baseRow?.MultiHitMod ?? "";
             row.AmpMod = data.AmpMod ?? baseRow?.AmpMod ?? "";
+            row.EnemySpeedMod = data.EnemySpeedMod ?? baseRow?.EnemySpeedMod ?? "";
+            row.EnemyDamageMod = data.EnemyDamageMod ?? baseRow?.EnemyDamageMod ?? "";
+            row.EnemyMultiHitMod = data.EnemyMultiHitMod ?? baseRow?.EnemyMultiHitMod ?? "";
+            row.EnemyAmpMod = data.EnemyAmpMod ?? baseRow?.EnemyAmpMod ?? "";
             row.ChainPosition = data.ChainPosition ?? baseRow?.ChainPosition ?? "";
             row.ModifyBasedOnChainPosition = data.ModifyBasedOnChainPosition ?? baseRow?.ModifyBasedOnChainPosition ?? "";
             row.Jump = data.Jump ?? baseRow?.Jump ?? "";
+            row.JumpRelative = data.JumpRelative ?? baseRow?.JumpRelative ?? "";
             row.ChainLength = data.ChainLength ?? baseRow?.ChainLength ?? "";
             row.Reset = data.Reset ?? baseRow?.Reset ?? "";
             row.ResetBlockerBuffer = data.ResetBlockerBuffer ?? baseRow?.ResetBlockerBuffer ?? "";

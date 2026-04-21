@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace RPGGame.Data
 {
@@ -37,13 +38,15 @@ namespace RPGGame.Data
 
         /// <summary>
         /// Gets the column index for a label, optionally scoped by context (row 1 section).
-        /// Tries (context, label) first, then label-only, so row 1 context disambiguates when the same label appears in multiple sections.
+        /// When <paramref name="allowUnscopedLabelFallback"/> is true (default): tries (context, label) first, then the first label-only match.
+        /// When false and <paramref name="contextHint"/> is set: only (context, label) matches count — no cross-section fallback (needed when ENEMY and HERO next-action blocks share labels like SPEED MOD).
         /// </summary>
         /// <param name="contextHint">Section name from row 1 (e.g. "STATUS EFFECT", "HERO HEAL"). Can be null to match any context.</param>
         /// <param name="label">Column label from row 2 (e.g. "STUN", "HEAL"). Normalized: trimmed, case-insensitive.</param>
         /// <param name="rawLabelMustContain">If non-null, only consider columns whose raw header contains this substring (case-insensitive). Use to avoid matching e.g. "Damage (DPS)" when looking for "Damage (%)".</param>
+        /// <param name="allowUnscopedLabelFallback">When <paramref name="contextHint"/> is set and no (context,label) match exists: if false, return -1 instead of matching the first duplicate label elsewhere (prevents hero next-action mods writing into the enemy block when that block appears first).</param>
         /// <returns>Column index, or -1 if not found.</returns>
-        public int GetColumnIndex(string? contextHint, string label, string? rawLabelMustContain = null)
+        public int GetColumnIndex(string? contextHint, string label, string? rawLabelMustContain = null, bool allowUnscopedLabelFallback = true)
         {
             if (string.IsNullOrWhiteSpace(label))
                 return -1;
@@ -63,6 +66,8 @@ namespace RPGGame.Data
                         && (!filterRaw || (LabelByIndex[i]?.IndexOf(rawLabelMustContain!, StringComparison.OrdinalIgnoreCase) >= 0)))
                         return i;
                 }
+                if (!allowUnscopedLabelFallback)
+                    return -1;
             }
 
             // Fall back to first label-only match (with optional raw-label filter)
@@ -78,9 +83,10 @@ namespace RPGGame.Data
 
         /// <summary>Gets cell value by (context, label). Returns empty string if column not found or value missing.</summary>
         /// <param name="rawLabelMustContain">If non-null, only consider columns whose raw header contains this substring (e.g. "%" to match "Damage (%)" but not "Damage (DPS)").</param>
-        public string GetValue(string[] row, string? contextHint, string label, string? rawLabelMustContain = null)
+        /// <param name="allowUnscopedLabelFallback">Passed to <see cref="GetColumnIndex"/>.</param>
+        public string GetValue(string[] row, string? contextHint, string label, string? rawLabelMustContain = null, bool allowUnscopedLabelFallback = true)
         {
-            int idx = GetColumnIndex(contextHint, label, rawLabelMustContain);
+            int idx = GetColumnIndex(contextHint, label, rawLabelMustContain, allowUnscopedLabelFallback);
             if (idx < 0 || idx >= row.Length)
                 return "";
             return row[idx].Trim();
@@ -131,14 +137,15 @@ namespace RPGGame.Data
         /// <summary>
         /// Writes a cell if a matching column exists (inverse of <see cref="GetValue"/>). Used when pushing rows to Google Sheets.
         /// </summary>
-        public void SetCell(string[] row, string? contextHint, string label, string value, string? rawLabelMustContain = null)
+        /// <param name="allowUnscopedLabelFallback">Passed to <see cref="GetColumnIndex"/>.</param>
+        public void SetCell(string[] row, string? contextHint, string label, string value, string? rawLabelMustContain = null, bool allowUnscopedLabelFallback = true)
         {
-            int idx = GetColumnIndex(contextHint, label, rawLabelMustContain);
+            int idx = GetColumnIndex(contextHint, label, rawLabelMustContain, allowUnscopedLabelFallback);
             if (idx >= 0 && idx < row.Length)
                 row[idx] = SheetsPushUtilities.NormalizeSheetString(value);
         }
 
-        /// <summary>Normalizes a header cell for matching: trim, uppercase, collapse whitespace, remove common punctuation in parentheses.</summary>
+        /// <summary>Normalizes a header cell for matching: trim, uppercase, strip all whitespace (incl. sheet line breaks), remove common punctuation in parentheses.</summary>
         public static string NormalizeLabel(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -148,7 +155,13 @@ namespace RPGGame.Data
             int paren = value.IndexOf('(');
             if (paren > 0)
                 value = value.Substring(0, paren).Trim();
-            return value.ToUpperInvariant().Replace(" ", "");
+            var sb = new StringBuilder(value.Length);
+            foreach (char c in value)
+            {
+                if (!char.IsWhiteSpace(c))
+                    sb.Append(char.ToUpperInvariant(c));
+            }
+            return sb.ToString();
         }
 
         /// <summary>Fills merged-cell semantics: empty cells in context row carry the last non-empty value.</summary>

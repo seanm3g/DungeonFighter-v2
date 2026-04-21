@@ -32,6 +32,8 @@ namespace RPGGame.Tests.Unit
             TestMultiHitDifferentCounts();
             TestMultiHitDamageCalculation();
             TestMultiHitWithSelfAndTarget();
+            TestMultiHitAppliesRollPenaltyPerDamageTick();
+            TestMultiHitModAppliesToNextAction();
 
             TestBase.PrintSummary("Multi-Hit Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -362,6 +364,161 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(totalDamage > 0,
                 $"Multi-hit SelfAndTarget should deal damage, dealt {totalDamage}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// RollPenalty (Accuracy debuff) lowers the attack total used for roll-based damage on every multihit tick, not only the first.
+        /// </summary>
+        private static void TestMultiHitAppliesRollPenaltyPerDamageTick()
+        {
+            Console.WriteLine("\n--- Testing Multi-Hit RollPenalty Per Damage Tick ---");
+
+            _ = GameConfiguration.Instance;
+
+            var character = TestDataBuilders.Character()
+                .WithName("DebuffedHero")
+                .WithLevel(1)
+                .WithStats(14, 10, 10, 10)
+                .Build();
+            character.RollPenalty = 1;
+            character.RollPenaltyTurns = 2;
+
+            var enemy = TestDataBuilders.Enemy()
+                .WithName("PunchingBag")
+                .WithLevel(1)
+                .WithHealth(500)
+                .WithStats(5, 5, 5, 5)
+                .Build();
+
+            var action = new Action
+            {
+                Name = "TwinTap",
+                Type = ActionType.Attack,
+                DamageMultiplier = 1.0,
+                Advanced = new AdvancedMechanicsProperties { MultiHitCount = 2 }
+            };
+
+            double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(character, action);
+            int rollBonus = 0;
+            int totalRoll = 14;
+
+            int hit0Damage = CombatCalculator.CalculateDamage(character, enemy, action, damageMultiplier, 1.0, rollBonus, totalRoll);
+            int hit1Damage = CombatCalculator.CalculateDamage(character, enemy, action, damageMultiplier, 1.0, rollBonus, totalRoll - 1);
+
+            int totalDamage = MultiHitProcessor.ProcessMultiHit(
+                character, enemy, action, damageMultiplier, totalRoll,
+                totalRoll, rollBonus, 14, null);
+
+            TestBase.AssertEqual(hit0Damage + hit1Damage, totalDamage,
+                "2-hit with RollPenalty 1 should sum damage as first hit at full totalRoll, second at totalRoll-1",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            character.RollPenalty = 0;
+            character.RollPenaltyTurns = 0;
+            var enemy2 = TestDataBuilders.Enemy()
+                .WithName("PunchingBag2")
+                .WithLevel(1)
+                .WithHealth(500)
+                .WithStats(5, 5, 5, 5)
+                .Build();
+            int baseline = MultiHitProcessor.ProcessMultiHit(
+                character, enemy2, action, damageMultiplier, totalRoll,
+                totalRoll, rollBonus, 14, null);
+            TestBase.AssertTrue(baseline > totalDamage,
+                "Per-hit penalty should reduce total multihit damage vs no RollPenalty",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Regression: Spreadsheet-style next-action modifier MULTIHIT_MOD should increase the following action's hit count.
+        /// Example: Action A has MultiHitMod "2" (raw extra hits) → next executed action should have +2 hits.
+        /// </summary>
+        private static void TestMultiHitModAppliesToNextAction()
+        {
+            Console.WriteLine("\n--- Regression: MULTIHIT_MOD applies to next action ---");
+
+            var lastUsed = new System.Collections.Generic.Dictionary<Actor, Action>();
+            var lastCritMiss = new System.Collections.Generic.Dictionary<Actor, bool>();
+
+            var hero = TestDataBuilders.Character()
+                .WithName("MultiHitModHero")
+                .WithLevel(1)
+                .WithStats(12, 10, 10, 10)
+                .Build();
+            hero.Effects.ClearAllTempEffects();
+
+            var enemy = TestDataBuilders.Enemy()
+                .WithName("PunchingBag")
+                .WithLevel(1)
+                .WithHealth(500)
+                .WithStats(5, 5, 5, 5)
+                .Build();
+
+            var setup = new Action
+            {
+                Name = "SetupMultihit",
+                Type = ActionType.Attack,
+                DamageMultiplier = 1.0,
+                MultiHitMod = "2",
+                Advanced = new AdvancedMechanicsProperties { MultiHitCount = 1 }
+            };
+
+            var follow = new Action
+            {
+                Name = "FollowAttack",
+                Type = ActionType.Attack,
+                DamageMultiplier = 1.0,
+                Advanced = new AdvancedMechanicsProperties { MultiHitCount = 1 }
+            };
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+
+                // Step 1: Execute setup (should enqueue MULTIHIT_MOD for the next roll)
+                Dice.SetTestRoll(18); // high enough to hit consistently
+                var r1 = ActionExecutionFlow.Execute(hero, enemy, null, null, setup, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(r1.Hit,
+                    "Setup action should hit so its modifier is applied in the hit pipeline",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var queued = hero.Effects.PeekAttackBonuses();
+                TestBase.AssertTrue(queued.Any(b => string.Equals(b.Type, "MULTIHIT_MOD", StringComparison.OrdinalIgnoreCase) && Math.Abs(b.Value - 2) < 0.01),
+                    "After setup: next-roll bonuses include MULTIHIT_MOD +2",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // Step 2: Execute follow action; MULTIHIT_MOD should be consumed and increase hit count to 3.
+                int enemyHealthBefore = enemy.CurrentHealth;
+                Dice.SetTestRoll(18);
+                var r2 = ActionExecutionFlow.Execute(hero, enemy, null, null, follow, null, lastUsed, lastCritMiss);
+
+                TestBase.AssertTrue(r2.Hit,
+                    "Follow action should hit so multi-hit damage is applied",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // With no RollPenalty and MultiHitCount=1, each tick uses same totalRoll, so damage should be exactly 3x single-hit.
+                double dmgMult = ActionUtilities.CalculateDamageMultiplier(hero, follow);
+                int rollBonus = 0;
+                int totalRoll = 18 + rollBonus; // modified base roll is the test roll in this harness
+                int oneHit = CombatCalculator.CalculateDamage(hero, enemy, follow, dmgMult, 1.0, rollBonus, totalRoll);
+                int expected = oneHit * 3;
+                int actual = enemyHealthBefore - enemy.CurrentHealth;
+
+                TestBase.AssertEqual(expected, actual,
+                    "Follow action should deal 3-hit damage total (base 1 + 2 from MULTIHIT_MOD)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // Step 3: Next action should NOT still have the multihit mod (it is one-shot, consumed on the follow roll).
+                var remaining = hero.Effects.PeekAttackBonuses();
+                TestBase.AssertTrue(!remaining.Any(b => string.Equals(b.Type, "MULTIHIT_MOD", StringComparison.OrdinalIgnoreCase)),
+                    "After follow: MULTIHIT_MOD should be consumed from the queue",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
         }
     }
 }

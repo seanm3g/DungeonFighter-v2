@@ -109,6 +109,13 @@ namespace RPGGame.Tests.Unit.UI
                 "BuildPanelData: action with threshold adjustments yields ThresholdText",
                 ref run, ref passed, ref failed);
 
+            // BuildPanelData: chain-position accuracy -> AccuracyRollBonus matches slot (strip card / tooltip basis)
+            var charChainAcc = CreateCharacterWithChainAccuracyOnSlot0();
+            var chainPanels = CombatActionStripBuilder.BuildPanelData(charChainAcc);
+            TestBase.AssertTrue(chainPanels != null && chainPanels.Count >= 1 && chainPanels[0].AccuracyRollBonus > 0,
+                "BuildPanelData: positive chain accuracy yields AccuracyRollBonus > 0 for action strip card",
+                ref run, ref passed, ref failed);
+
             // BuildActiveModifierLines
             var nullModLines = CombatActionStripBuilder.BuildActiveModifierLines(null);
             TestBase.AssertTrue(nullModLines != null && nullModLines.Count == 0,
@@ -141,6 +148,40 @@ namespace RPGGame.Tests.Unit.UI
             var tipOk = CombatActionStripBuilder.BuildActionTooltipLines(charWithCombo, 0, 40);
             TestBase.AssertTrue(tipOk != null && tipOk.Count >= 1 && tipOk[0].IndexOf("Strike", StringComparison.Ordinal) >= 0,
                 "BuildActionTooltipLines includes action name",
+                ref run, ref passed, ref failed);
+            string tipJoined = tipOk != null ? string.Join("\n", tipOk) : "";
+            TestBase.AssertTrue(!tipJoined.Contains("Accuracy:", StringComparison.Ordinal) && !tipJoined.Contains("Effective:", StringComparison.Ordinal),
+                "BuildActionTooltipLines has no accuracy / effective combat-readout lines",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(tipJoined.Contains("Dmg ", StringComparison.Ordinal) && tipJoined.Contains("Spd ", StringComparison.Ordinal),
+                "BuildActionTooltipLines uses strip-style Dmg/Spd percentages",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!tipJoined.Contains("(Normal)", StringComparison.Ordinal),
+                "BuildActionTooltipLines omits speed flavor labels from action details",
+                ref run, ref passed, ref failed);
+
+            var charSheetMods = CreateCharacterWithComboAction();
+            var comboActs = charSheetMods.GetComboActions();
+            if (comboActs != null && comboActs.Count > 0)
+            {
+                comboActs[0].EnemyDamageMod = "10";
+                comboActs[0].AmpMod = "10";
+            }
+            var tipSheet = CombatActionStripBuilder.BuildActionTooltipLines(charSheetMods, 0, 80);
+            string tipSheetJoined = tipSheet != null ? string.Join("\n", tipSheet) : "";
+            TestBase.AssertTrue(tipSheetJoined.Contains("enemy damage +10%", StringComparison.Ordinal)
+                && tipSheetJoined.Contains("Hero Amp +10%", StringComparison.Ordinal),
+                "BuildActionTooltipLines lists spreadsheet hero/enemy mods on separate friendly lines",
+                ref run, ref passed, ref failed);
+
+            var charFlavor = CreateCharacterWithComboAction();
+            var acts = charFlavor.GetComboActions();
+            if (acts != null && acts.Count > 0)
+                acts[0].Description = "NARRATIVE_FLAVOR_ONLY_XYZ";
+            var tipFlavor = CombatActionStripBuilder.BuildActionTooltipLines(charFlavor, 0, 80);
+            string tipFlavorJoined = tipFlavor != null ? string.Join("\n", tipFlavor) : "";
+            TestBase.AssertTrue(!tipFlavorJoined.Contains("NARRATIVE_FLAVOR_ONLY_XYZ", StringComparison.Ordinal),
+                "BuildActionTooltipLines omits narrative Action.Description",
                 ref run, ref passed, ref failed);
 
             var wrap = CombatActionStripBuilder.WrapTextToLines("hello world wide", 5);
@@ -176,6 +217,29 @@ namespace RPGGame.Tests.Unit.UI
             action.IsComboAction = true;
             action.RollMods.HitThresholdAdjustment = 2;
             action.RollMods.ComboThresholdAdjustment = 1;
+            character.AddAction(action, 1.0);
+            character.Actions.AddToCombo(action);
+            return character;
+        }
+
+        /// <summary>Single combo action with +1 chain accuracy at slot 0 (empty position basis, value 1).</summary>
+        private static Character CreateCharacterWithChainAccuracyOnSlot0()
+        {
+            var character = TestDataBuilders.Character().WithName("ChainAccStrip").WithStats(10, 10, 10, 10).Build();
+            var weapon = TestDataBuilders.Weapon().WithBaseDamage(5).Build();
+            character.EquipItem(weapon, "weapon");
+            var action = TestDataBuilders.CreateMockAction("AnimeCharge", ActionType.Attack);
+            action.DamageMultiplier = 1.0;
+            action.Length = 1.0;
+            action.IsComboAction = true;
+            action.ComboRouting = new ComboRoutingProperties
+            {
+                ModifyBasedOnChainPosition = "true",
+                ChainPositionBonuses = new List<ChainPositionBonusEntry>
+                {
+                    new ChainPositionBonusEntry { ModifiesParam = "Accuracy", Value = 1, ValueKind = "#", PositionBasis = "" }
+                }
+            };
             character.AddAction(action, 1.0);
             character.Actions.AddToCombo(action);
             return character;

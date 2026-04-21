@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Avalonia.Media;
+using RPGGame.Combat.Calculators;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Combat.Formatting
@@ -340,6 +341,7 @@ namespace RPGGame.Combat.Formatting
             // Match combat damage: roll bands use total attack (modified base + bonuses), not base alone.
             int rollForDamageScaling = roll + rollBonus;
             int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, rollForDamageScaling);
+            double rollInfoCombo = DamageCalculator.GetDisplayedComboMultiplier(attacker, comboAmplifier, action);
             
             double actualSpeed = 0;
             if (action != null && action.Length > 0)
@@ -347,7 +349,7 @@ namespace RPGGame.Combat.Formatting
                 actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(attacker, action, isCriticalMiss);
             }
             
-            var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, actualRawDamage, targetDefense, actualSpeed, comboAmplifier, action);
+            var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, actualRawDamage, targetDefense, actualSpeed, rollInfoCombo, action);
             
             return (damageText, rollInfo);
         }

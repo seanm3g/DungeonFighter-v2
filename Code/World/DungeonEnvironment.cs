@@ -41,7 +41,7 @@ namespace RPGGame
         private readonly EnvironmentCombatStateManager combatStateManager;
         private readonly EnvironmentEffectManager effectManager;
 
-        public Environment(string name, string description, bool isHostile, string theme, string roomType = "")
+        public Environment(string name, string description, bool isHostile, string theme, string roomType = "", IReadOnlyList<RoomEnemyData>? roomEnemySpawnPool = null)
             : base(name)
         {
             Description = description;
@@ -51,7 +51,7 @@ namespace RPGGame
 
             // Initialize specialized managers
             actionInitializer = new EnvironmentalActionInitializer(theme, roomType);
-            enemyGenerator = new EnemyGenerationManager(theme, isHostile);
+            enemyGenerator = new EnemyGenerationManager(theme, isHostile, roomEnemySpawnPool);
             combatStateManager = new EnvironmentCombatStateManager();
             effectManager = new EnvironmentEffectManager();
 

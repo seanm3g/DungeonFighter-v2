@@ -55,6 +55,8 @@ namespace RPGGame.Data.Validation
             // Validate room action references
             ValidateRoomActionReferences(result, validActionNames);
 
+            ValidateRoomEnemyReferences(result, validEnemyNames);
+
             // Validate starting gear references (if StartingGear.json exists)
             ValidateStartingGearReferences(result, validWeaponNames, validArmorNames);
 
@@ -116,6 +118,26 @@ namespace RPGGame.Data.Validation
                             result.AddError("Rooms.json", room.Name, "actions", 
                                 $"Room '{room.Name}' references non-existent action '{actionData.Name}'");
                         }
+                    }
+                }
+            }
+        }
+
+        private void ValidateRoomEnemyReferences(ValidationResult result, HashSet<string> validEnemyNames)
+        {
+            var rooms = RoomLoader.GetAllRoomData();
+
+            foreach (var room in rooms)
+            {
+                if (room.Enemies == null || room.Enemies.Count == 0)
+                    continue;
+
+                foreach (var enemyEntry in room.Enemies)
+                {
+                    if (!string.IsNullOrEmpty(enemyEntry.Name) && !validEnemyNames.Contains(enemyEntry.Name))
+                    {
+                        result.AddError("Rooms.json", room.Name, "enemies",
+                            $"Room '{room.Name}' references non-existent enemy '{enemyEntry.Name}'");
                     }
                 }
             }

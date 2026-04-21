@@ -388,6 +388,11 @@ namespace RPGGame
         public string GetClassUpgradeInfo() => Facade.GetClassUpgradeInfo();
         public void AwardClassPoint(WeaponType weaponType) => Facade.AwardClassPoint(weaponType);
         public double GetComboAmplifier() => Facade.GetComboAmplifier();
+
+        /// <summary>HUD: total sheet <c>AMP_MOD</c> (percent points) queued for the next hero damage swing.</summary>
+        public double PeekQueuedSheetAmpModPercentForDisplay() =>
+            CharacterEffectsState.PeekSheetAmpModPercentQueuedForNextHeroDamageRoll(this);
+
         public double GetCurrentComboAmplification() => Facade.GetCurrentComboAmplification();
         public double GetNextComboAmplification() => Facade.GetNextComboAmplification();
         public string GetComboInfo() => Facade.GetComboInfo();

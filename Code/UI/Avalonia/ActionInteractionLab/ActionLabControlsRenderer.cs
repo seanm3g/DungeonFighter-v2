@@ -22,7 +22,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             var names = ActionLoader.GetAllActionNames();
             names.Sort(StringComparer.OrdinalIgnoreCase);
 
-            const int footerRows = 5;
+            const int footerRows = 8;
             int footerTopY = panelBottom - footerRows + 1;
 
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("ACTION LAB"), AsciiArtAssets.Colors.Gold);
@@ -30,7 +30,8 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
 
             var enemyTypes = EnemyLoader.GetAllEnemyTypes();
             enemyTypes.Sort(StringComparer.OrdinalIgnoreCase);
-            const int enemyVisible = 2;
+            // Visible enemy-type rows between ▲/▼ (taller list steals space from the scrollable action catalog below).
+            int enemyVisible = ActionInteractionLabSession.EnemyCatalogVisibleRowCount;
             if (enemyTypes.Count > enemyVisible)
                 lab.EnemyCatalogScrollOffset = Math.Max(0, Math.Min(lab.EnemyCatalogScrollOffset, enemyTypes.Count - enemyVisible));
             else
@@ -210,17 +211,55 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 canvas.AddText(x + 14, y, "[strip ▶]", AsciiArtAssets.Colors.Cyan);
                 y++;
                 y++;
-                var step = InventoryButtonFactory.CreateButton(x, y, 12, "lab_step", "[ Step ]");
-                interactionManager!.AddClickableElement(step);
-                canvas.AddText(x, y, "[ Step ]", AsciiArtAssets.Colors.Green);
-                var back = InventoryButtonFactory.CreateButton(x + 14, y, 12, "lab_undo", "[ Back ]");
+                var back = InventoryButtonFactory.CreateButton(x, y, 12, "lab_undo", "[ Back ]");
                 interactionManager!.AddClickableElement(back);
-                canvas.AddText(x + 14, y, "[ Back ]", AsciiArtAssets.Colors.Orange);
+                canvas.AddText(x, y, "[ Back ]", AsciiArtAssets.Colors.Orange);
+                var step = InventoryButtonFactory.CreateButton(x + 14, y, 12, "lab_step", "[ Step ]");
+                interactionManager!.AddClickableElement(step);
+                canvas.AddText(x + 14, y, "[ Step ]", AsciiArtAssets.Colors.Green);
+                y++;
                 y++;
                 var resetCombo = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_reset_combo", "[ Reset combo ]");
                 interactionManager!.AddClickableElement(resetCombo);
                 canvas.AddText(x, y, "[ Reset combo ]", AsciiArtAssets.Colors.Yellow);
                 y++;
+                y++;
+                bool simBusy = lab.IsEncounterSimulationRunning;
+                var simColor = simBusy ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.Green;
+                string simLabel = $"[ Sim {lab.EncounterSimulationBatchCount} ]";
+                lab.LastSimBatchWheelMinGridX = x;
+                lab.LastSimBatchWheelMaxGridX = x + rowWidth - 1;
+                lab.LastSimBatchWheelGridY = simBusy ? -1 : y;
+                if (simBusy)
+                    canvas.AddText(x, y, simLabel, simColor);
+                else
+                {
+                    var simBtn = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_sim_run", simLabel);
+                    interactionManager!.AddClickableElement(simBtn);
+                    canvas.AddText(x, y, simLabel, simColor);
+                }
+
+                if (simBusy)
+                {
+                    string running = $"Running {lab.EncounterSimulationBatchCount}…";
+                    int runX = x + simLabel.Length + 1;
+                    int maxRunLen = rowWidth - (runX - x);
+                    if (running.Length > maxRunLen && maxRunLen > 0)
+                        running = running.Substring(0, Math.Max(0, maxRunLen - 1)) + "…";
+                    if (maxRunLen > 0 && running.Length > 0)
+                        canvas.AddText(runX, y, running, simColor);
+                }
+
+                y++;
+                if (!simBusy)
+                {
+                    string threadLabel = lab.UseParallelEncounterSimulation ? "[ Par ]" : "[ 1T ]";
+                    var threadColor = lab.UseParallelEncounterSimulation ? AsciiArtAssets.Colors.Cyan : AsciiArtAssets.Colors.Gray;
+                    var threadBtn = InventoryButtonFactory.CreateButton(x, y, threadLabel.Length, "lab_sim_parallel_toggle", threadLabel);
+                    interactionManager!.AddClickableElement(threadBtn);
+                    canvas.AddText(x, y, threadLabel, threadColor);
+                    y++;
+                }
                 var exit = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_exit", "[ Exit lab ]");
                 interactionManager!.AddClickableElement(exit);
                 canvas.AddText(x, y, "[ Exit lab ]", AsciiArtAssets.Colors.Red);
@@ -230,9 +269,16 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 canvas.AddText(x, y, "[◀ strip] [strip ▶]", AsciiArtAssets.Colors.DarkGray);
                 y++;
                 y++;
-                canvas.AddText(x, y, "[ Step ] [ Back ]", AsciiArtAssets.Colors.DarkGray);
+                canvas.AddText(x, y, "[ Back ] [ Step ]", AsciiArtAssets.Colors.DarkGray);
+                y++;
                 y++;
                 canvas.AddText(x, y, "[ Reset combo ]", AsciiArtAssets.Colors.DarkGray);
+                y++;
+                y++;
+                canvas.AddText(x, y, $"[ Sim {lab.EncounterSimulationBatchCount} ]", AsciiArtAssets.Colors.DarkGray);
+                y++;
+                string threadHint = lab.UseParallelEncounterSimulation ? "[ Par ] sim threads" : "[ 1T ] sim threads";
+                canvas.AddText(x, y, threadHint, AsciiArtAssets.Colors.DarkGray);
                 y++;
                 canvas.AddText(x, y, "[ Exit lab ]", AsciiArtAssets.Colors.DarkGray);
             }

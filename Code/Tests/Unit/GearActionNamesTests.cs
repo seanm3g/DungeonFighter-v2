@@ -142,20 +142,22 @@ namespace RPGGame.Tests.Unit
                 return;
             }
 
+            // Fixed GearAction avoids two independent Resolve() random picks (test compared first Resolve
+            // to pool filled from a second Resolve inside AddArmorActions).
             var chest = new ChestItem("RareTestChest")
             {
                 Rarity = "Rare",
+                GearAction = "TAUNT",
                 StatBonuses = { new StatBonus { StatType = "Armor", Value = 2 } }
             };
-
-            var names = GearActionNames.Resolve(chest);
-            TestBase.AssertTrue(names.Count > 0,
-                "Special chest with stats should resolve at least one armor-contributed action name",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var character = TestDataBuilders.Character().WithName("ArmorPool").Build();
             var mgr = new GearActionManager();
             mgr.AddArmorActions(character, chest);
+            var names = mgr.GetGearActions(chest);
+            TestBase.AssertTrue(names.Count > 0,
+                "Special chest with stats should resolve at least one armor-contributed action name",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             foreach (var n in names.Distinct())
             {

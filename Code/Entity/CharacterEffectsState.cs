@@ -146,23 +146,34 @@ namespace RPGGame
                 }
             }
         }
+        /// <summary>Builds SPEED_MOD / DAMAGE_MOD / MULTIHIT_MOD / AMP_MOD items from hero (AJ–AM) or enemy (AD–AG) fields on <paramref name="action"/>.</summary>
+        internal static List<ActionAttackBonusItem> BuildModifierBonusesFromActionFields(Action? action, bool useEnemySpreadsheetMods)
+        {
+            var bonuses = new List<ActionAttackBonusItem>();
+            if (action == null) return bonuses;
+            string speed = useEnemySpreadsheetMods ? action.EnemySpeedMod : action.SpeedMod;
+            string damage = useEnemySpreadsheetMods ? action.EnemyDamageMod : action.DamageMod;
+            string multi = useEnemySpreadsheetMods ? action.EnemyMultiHitMod : action.MultiHitMod;
+            string amp = useEnemySpreadsheetMods ? action.EnemyAmpMod : action.AmpMod;
+            bool hasSpeed = !string.IsNullOrWhiteSpace(speed);
+            bool hasDamage = !string.IsNullOrWhiteSpace(damage);
+            bool hasMultiHit = !string.IsNullOrWhiteSpace(multi);
+            bool hasAmp = !string.IsNullOrWhiteSpace(amp);
+            if (hasSpeed && ModifierParser.ParsePercent(speed) is { } sv) bonuses.Add(new ActionAttackBonusItem { Type = "SPEED_MOD", Value = sv * 100.0 });
+            if (hasDamage && ModifierParser.ParsePercent(damage) is { } dv) bonuses.Add(new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = dv * 100.0 });
+            if (hasMultiHit && ModifierParser.ParseValue(multi) is { } mv) bonuses.Add(new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = mv });
+            if (hasAmp && ModifierParser.ParsePercent(amp) is { } av) bonuses.Add(new ActionAttackBonusItem { Type = "AMP_MOD", Value = av * 100.0 });
+            return bonuses;
+        }
+
         /// <summary>
-        /// Adds modifier bonuses (SpeedMod, DamageMod, etc.) from an action.
+        /// Adds modifier bonuses from an action (hero fields by default; enemy AD–AG when <paramref name="useEnemySpreadsheetMods"/>).
         /// When nextSlotForAbilityCadence is provided (Ability cadence in combo), adds to that slot instead of AbilityBonuses.
         /// </summary>
-        public void AddModifierBonusesFromAction(Action? action, int? nextSlotForAbilityCadence = null)
+        public void AddModifierBonusesFromAction(Action? action, int? nextSlotForAbilityCadence = null, bool useEnemySpreadsheetMods = false)
         {
             if (action == null) return;
-            bool hasSpeed = !string.IsNullOrWhiteSpace(action.SpeedMod);
-            bool hasDamage = !string.IsNullOrWhiteSpace(action.DamageMod);
-            bool hasMultiHit = !string.IsNullOrWhiteSpace(action.MultiHitMod);
-            bool hasAmp = !string.IsNullOrWhiteSpace(action.AmpMod);
-            if (!hasSpeed && !hasDamage && !hasMultiHit && !hasAmp) return;
-            var bonuses = new List<ActionAttackBonusItem>();
-            if (hasSpeed && ModifierParser.ParsePercent(action.SpeedMod) is { } sv) bonuses.Add(new ActionAttackBonusItem { Type = "SPEED_MOD", Value = sv * 100.0 });
-            if (hasDamage && ModifierParser.ParsePercent(action.DamageMod) is { } dv) bonuses.Add(new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = dv * 100.0 });
-            if (hasMultiHit && ModifierParser.ParseValue(action.MultiHitMod) is { } mv) bonuses.Add(new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = mv });
-            if (hasAmp && ModifierParser.ParsePercent(action.AmpMod) is { } av) bonuses.Add(new ActionAttackBonusItem { Type = "AMP_MOD", Value = av * 100.0 });
+            var bonuses = BuildModifierBonusesFromActionFields(action, useEnemySpreadsheetMods);
             if (bonuses.Count == 0) return;
 
             if (nextSlotForAbilityCadence.HasValue)
@@ -258,6 +269,43 @@ namespace RPGGame
         }
         public void SetConsumedAttackBonusesThisRoll(List<ActionAttackBonusItem> bonuses) { ConsumedAttackBonusesThisRoll = bonuses ?? new List<ActionAttackBonusItem>(); }
         public List<ActionAttackBonusItem> GetAndClearConsumedAttackBonusesThisRoll() { var r = ConsumedAttackBonusesThisRoll; ConsumedAttackBonusesThisRoll = new List<ActionAttackBonusItem>(); return r; }
+
+        private static double SumBonusValuesOfType(IEnumerable<ActionAttackBonusItem>? items, string typeUpper)
+        {
+            if (items == null)
+                return 0;
+            double sum = 0;
+            foreach (var b in items)
+            {
+                if (string.Equals(b.Type, typeUpper, StringComparison.OrdinalIgnoreCase))
+                    sum += b.Value;
+            }
+            return sum;
+        }
+
+        /// <summary>
+        /// HUD / tooltips: AMP_MOD (percent points) that will apply on the hero's next damage roll
+        /// (same sources as <see cref="ActionExecutionFlow"/> roll prep: slot pending + FIFO + ATTACK + ABILITY peeks).
+        /// </summary>
+        public static double PeekSheetAmpModPercentQueuedForNextHeroDamageRoll(Character character)
+        {
+            double sum = 0;
+            var comboActions = character.GetComboActions();
+            if (comboActions != null && comboActions.Count > 0)
+            {
+                int slot = character.ComboStep % comboActions.Count;
+                sum += SumBonusValuesOfType(character.Effects.GetPendingActionBonusesForSlot(slot), "AMP_MOD");
+            }
+            sum += SumBonusValuesOfType(character.Effects.PeekPendingActionBonusesNextHeroRoll(), "AMP_MOD");
+            sum += SumBonusValuesOfType(character.Effects.PeekAttackBonuses(), "AMP_MOD");
+            sum += SumBonusValuesOfType(character.Effects.PeekAbilityBonuses(), "AMP_MOD");
+            return sum;
+        }
+
+        /// <summary>HUD: DAMAGE_MOD (percent points) on the enemy's next attack-roll FIFO head.</summary>
+        public static double PeekSheetDamageModPercentQueuedForNextEnemyAttack(Enemy enemy) =>
+            SumBonusValuesOfType(enemy.Effects.PeekPendingActionBonusesNextHeroRoll(), "DAMAGE_MOD");
+
         #endregion
     }
 }

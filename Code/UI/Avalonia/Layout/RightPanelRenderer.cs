@@ -3,6 +3,7 @@ namespace RPGGame.UI.Avalonia.Layout
     using System;
     using System.Collections.Generic;
     using RPGGame;
+    using RPGGame.ActionInteractionLab;
     using RPGGame.Handlers.Inventory;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
@@ -31,7 +32,8 @@ namespace RPGGame.UI.Avalonia.Layout
         /// Shows combo sequence and action pool when on inventory page or combo management, otherwise shows location/enemy info
         /// </summary>
         /// <param name="inventoryComboRightPanel">When true, always show sequence/pool (caller is inventory/combo UI). Avoids relying on title strings alone.</param>
-        public void RenderRightPanel(Enemy? enemy, string? dungeonName, string? roomName, string title, Character? character, bool inventoryComboRightPanel = false)
+        /// <param name="registerActionLabEnemyLevelHover">When true (Action Lab combat), register click target for enemy level line.</param>
+        public void RenderRightPanel(Enemy? enemy, string? dungeonName, string? roomName, string title, Character? character, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false)
         {
             // Clear the right panel content area before rendering to prevent text overlap
             int contentX = LayoutConstants.RIGHT_PANEL_X + 2;
@@ -66,7 +68,7 @@ namespace RPGGame.UI.Avalonia.Layout
             else
             {
                 // Render location and enemy info for other pages
-                RenderLocationEnemyPanel(x, y, enemy, dungeonName, roomName);
+                RenderLocationEnemyPanel(x, y, enemy, dungeonName, roomName, registerActionLabEnemyLevelHover);
             }
         }
 
@@ -243,7 +245,7 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>
         /// Renders location and enemy information panel
         /// </summary>
-        private void RenderLocationEnemyPanel(int x, int y, Enemy? enemy, string? dungeonName, string? roomName)
+        private void RenderLocationEnemyPanel(int x, int y, Enemy? enemy, string? dungeonName, string? roomName, bool registerActionLabEnemyLevelHover)
         {
             // Location section - always shown
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Location), AsciiArtAssets.Colors.Gold);
@@ -286,8 +288,26 @@ namespace RPGGame.UI.Avalonia.Layout
                     enemyName = enemyName.Substring(0, 17) + "...";
                 
                 canvas.AddText(x, y, enemyName, EntityColorHelper.GetEnemyColor(enemy));
-                y += 2;
-                
+                y++;
+
+                int levelRowY = y;
+                canvas.AddText(x, y, $"Lvl {enemy.Level}", AsciiArtAssets.Colors.Gold);
+                if (interactionManager != null && registerActionLabEnemyLevelHover)
+                {
+                    int hoverW = Math.Max(8, LayoutConstants.RIGHT_PANEL_WIDTH - 4);
+                    interactionManager.AddClickableElement(new ClickableElement
+                    {
+                        X = x,
+                        Y = levelRowY,
+                        Width = hoverW,
+                        Height = 1,
+                        Type = ElementType.Text,
+                        Value = ActionLabRightPanelEnemyAdjustment.EnemyLevelHoverId,
+                        DisplayText = "Enemy level (Action Lab)"
+                    });
+                }
+                y++;
+
                 // Health bar
                 // Clear the health bar and HP value area before redrawing to prevent text overlap
                 int healthBarWidth = LayoutConstants.RIGHT_PANEL_WIDTH - 8;
@@ -300,26 +320,49 @@ namespace RPGGame.UI.Avalonia.Layout
                     entityId: $"enemy_{enemy.Name}");
                 canvas.AddText(x, y + 1, $"{enemy.CurrentHealth}/{enemy.MaxHealth}", AsciiArtAssets.Colors.White);
                 y += 3;
-                
-                // Calculate enemy damage (Strength + weapon damage)
+
                 int weaponDamage = (enemy.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
                 int totalDamage = enemy.GetEffectiveStrength() + weaponDamage;
-                
-                // Damage and Armor on same line
-                canvas.AddText(x, y, $"DMG:  {totalDamage}", AsciiArtAssets.Colors.White);
+                double queuedEnemyDmgPct = enemy.PeekQueuedSheetEnemyDamageModPercentForDisplay();
+                string dmgLine = $"DMG:  {totalDamage}";
+                if (queuedEnemyDmgPct > 0.05)
+                    dmgLine += $"  +{queuedEnemyDmgPct:0.#}% nxt";
+
+                canvas.AddText(x, y, dmgLine, AsciiArtAssets.Colors.White);
                 y++;
                 canvas.AddText(x, y, $"ARM:  {enemy.Armor}", AsciiArtAssets.Colors.White);
+                y++;
+                canvas.AddText(x, y, $"Spd:  {enemy.GetTotalAttackSpeed():F2}s", AsciiArtAssets.Colors.White);
                 y += 2;
-                
-                // Attributes
-                canvas.AddCharacterStat(x, y, "STR", enemy.Strength, 0, AsciiArtAssets.Colors.White);
-                y++;
-                canvas.AddCharacterStat(x, y, "AGI", enemy.Agility, 0, AsciiArtAssets.Colors.White);
-                y++;
-                canvas.AddCharacterStat(x, y, "TECH", enemy.Technique, 0, AsciiArtAssets.Colors.White);
-                y++;
-                canvas.AddCharacterStat(x, y, "INT", enemy.Intelligence, 0, AsciiArtAssets.Colors.White);
-                y++;
+
+                // Match hero STATS: effective getters (Enemy.GetEffectiveStrength maps base Damage for direct-stat lab dummies).
+                if (enemy.UsesDirectCombatStats())
+                {
+                    var strColor = enemy.PrimaryAttribute == PrimaryAttribute.Strength ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White;
+                    canvas.AddCharacterStat(x, y, "STR", enemy.GetEffectiveStrength(), 0, strColor, AsciiArtAssets.Colors.White);
+                    y++;
+                    canvas.AddText(x, y, "AGI:   —", AsciiArtAssets.Colors.DarkGray);
+                    y++;
+                    canvas.AddText(x, y, "TECH:  —", AsciiArtAssets.Colors.DarkGray);
+                    y++;
+                    canvas.AddText(x, y, "INT:   —", AsciiArtAssets.Colors.DarkGray);
+                    y++;
+                }
+                else
+                {
+                    var strColor = enemy.PrimaryAttribute == PrimaryAttribute.Strength ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White;
+                    var agiColor = enemy.PrimaryAttribute == PrimaryAttribute.Agility ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White;
+                    var tecColor = enemy.PrimaryAttribute == PrimaryAttribute.Technique ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White;
+                    var intColor = enemy.PrimaryAttribute == PrimaryAttribute.Intelligence ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White;
+                    canvas.AddCharacterStat(x, y, "STR", enemy.GetEffectiveStrength(), 0, strColor, AsciiArtAssets.Colors.White);
+                    y++;
+                    canvas.AddCharacterStat(x, y, "AGI", enemy.GetEffectiveAgility(), 0, agiColor, AsciiArtAssets.Colors.White);
+                    y++;
+                    canvas.AddCharacterStat(x, y, "TECH", enemy.GetEffectiveTechnique(), 0, tecColor, AsciiArtAssets.Colors.White);
+                    y++;
+                    canvas.AddCharacterStat(x, y, "INT", enemy.GetEffectiveIntelligence(), 0, intColor, AsciiArtAssets.Colors.White);
+                    y++;
+                }
 
                 y += 1;
                 canvas.AddText(x, y, $"====  {UIConstants.Headers.Thresholds}  ====", AsciiArtAssets.Colors.Gold);

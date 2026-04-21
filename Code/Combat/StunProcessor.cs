@@ -98,18 +98,18 @@ namespace RPGGame
         /// <returns>Action speed value</returns>
         private static double GetEntityActionSpeed<T>(T entity) where T : Actor
         {
+            // Enemy before Character (Enemy subclasses Character; see ActionSpeedCalculator / ActionSpeedSystem).
+            if (entity is Enemy enemy)
+            {
+                return enemy.GetTotalAttackSpeed();
+            }
+            
             if (entity is Character character)
             {
                 return character.GetTotalAttackSpeed();
             }
-            else if (entity is Enemy enemy)
-            {
-                return enemy.GetTotalAttackSpeed();
-            }
-            else
-            {
-                return 1.0; // Default fallback
-            }
+            
+            return 1.0; // Default fallback
         }
     }
 }

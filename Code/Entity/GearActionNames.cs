@@ -58,6 +58,10 @@ namespace RPGGame
                 if (actionData.WeaponTypes != null &&
                     actionData.WeaponTypes.Any(wt => wt.Equals(weaponTypeName, StringComparison.OrdinalIgnoreCase)))
                 {
+                    if (actionData.Tags != null &&
+                        (actionData.Tags.Any(t => t.Equals("enemy", StringComparison.OrdinalIgnoreCase)) ||
+                         actionData.Tags.Any(t => t.Equals("environment", StringComparison.OrdinalIgnoreCase))))
+                        continue;
                     weaponActions.Add(actionData.Name);
                 }
             }
@@ -70,7 +74,9 @@ namespace RPGGame
                                      action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
                                      action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
                                      !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
-                                     !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
+                                     !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)) &&
+                                     !action.Tags.Any(tag => tag.Equals("enemy", StringComparison.OrdinalIgnoreCase)) &&
+                                     !action.Tags.Any(tag => tag.Equals("environment", StringComparison.OrdinalIgnoreCase)))
                     .Select(action => action.Name)
                     .ToList();
             }
@@ -132,7 +138,8 @@ namespace RPGGame
                                  action.Tags != null &&
                                  !action.Tags.Contains("environment") &&
                                  !action.Tags.Contains("enemy") &&
-                                 !action.Tags.Contains("unique"))
+                                 !action.Tags.Contains("unique") &&
+                                 !action.Tags.Any(t => t.Equals("weapon", StringComparison.OrdinalIgnoreCase)))
                 .Select(action => action.Name)
                 .ToList();
 

@@ -80,6 +80,30 @@ namespace RPGGame.Data
             return true;
         }
 
+        /// <summary>
+        /// Fills <see cref="EnemiesSheetTabName"/> / <see cref="EnvironmentsSheetTabName"/> when they are still blank.
+        /// Older <c>SheetsPushConfig.json</c> files often set weapons/armor/etc. but omitted these keys; without tab names,
+        /// <see cref="GameDataSheetsPushService"/> skips pushing <c>Enemies.json</c> and <c>Rooms.json</c>.
+        /// </summary>
+        /// <returns>True if either field was updated.</returns>
+        public bool ApplyDefaultEnemiesAndEnvironmentsTabNamesIfUnset()
+        {
+            bool changed = false;
+            if (string.IsNullOrWhiteSpace(EnemiesSheetTabName))
+            {
+                EnemiesSheetTabName = DefaultEnemiesSheetTabName;
+                changed = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(EnvironmentsSheetTabName))
+            {
+                EnvironmentsSheetTabName = DefaultEnvironmentsSheetTabName;
+                changed = true;
+            }
+
+            return changed;
+        }
+
         public static SheetsPushConfig Load(string? configPath = null)
         {
             configPath ??= GameConstants.GetGameDataFilePath("SheetsPushConfig.json");

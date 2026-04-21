@@ -13,13 +13,15 @@ namespace RPGGame
     {
         private readonly string theme;
         private readonly bool isHostile;
+        private readonly IReadOnlyList<RoomEnemyData>? roomEnemySpawnPool;
         private readonly Random random;
         private List<Enemy> enemies;
 
-        public EnemyGenerationManager(string theme, bool isHostile)
+        public EnemyGenerationManager(string theme, bool isHostile, IReadOnlyList<RoomEnemyData>? roomEnemySpawnPool = null)
         {
             this.theme = theme;
             this.isHostile = isHostile;
+            this.roomEnemySpawnPool = roomEnemySpawnPool;
             this.random = new Random();
             this.enemies = new List<Enemy>();
         }
@@ -148,6 +150,10 @@ namespace RPGGame
         {
             var tuning = GameConfiguration.Instance;
 
+            if (roomEnemySpawnPool is { Count: > 0 }
+                && TryGenerateFromRoomEnemyPool(roomLevel, enemyCount, enemyData, minLevel, maxLevel))
+                return;
+
             // Filter enemies by possible enemies list first, then by theme
             List<EnemyData> availableEnemies;
             if (possibleEnemies != null && possibleEnemies.Count > 0)
@@ -205,6 +211,82 @@ namespace RPGGame
                     enemies.Add(basicEnemy);
                 }
             }
+        }
+
+        /// <summary>
+        /// Spawns from <see cref="RoomData.Enemies"/> when present and at least one name matches <paramref name="enemyData"/>.
+        /// </summary>
+        private bool TryGenerateFromRoomEnemyPool(int roomLevel, int enemyCount, List<EnemyData> enemyData, int? minLevel, int? maxLevel)
+        {
+            var byName = enemyData
+                .GroupBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+            var weighted = new List<(EnemyData data, double weight)>();
+            foreach (var entry in roomEnemySpawnPool!)
+            {
+                if (string.IsNullOrWhiteSpace(entry.Name))
+                    continue;
+                if (!byName.TryGetValue(entry.Name.Trim(), out var ed))
+                    continue;
+                weighted.Add((ed, entry.Weight));
+            }
+
+            if (weighted.Count == 0)
+                return false;
+
+            var tuning = GameConfiguration.Instance;
+            for (int i = 0; i < enemyCount; i++)
+            {
+                int enemyLevel = CalculateEnemyLevel(roomLevel, tuning.EnemySystem.LevelVariance, minLevel, maxLevel);
+                var enemyTemplate = PickWeightedEnemyTemplate(weighted);
+
+                var enemy = EnemyLoader.CreateEnemy(enemyTemplate.Name, enemyLevel);
+                if (enemy != null)
+                {
+                    enemies.Add(enemy);
+                }
+                else
+                {
+                    BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"Warning: Could not create enemy {enemyTemplate.Name} from EnemyLoader, creating basic enemy"));
+                    var basicEnemy = new Enemy(
+                        enemyTemplate.Name,
+                        enemyLevel,
+                        80 + (enemyLevel * tuning.Character.EnemyHealthPerLevel),
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        PrimaryAttribute.Strength,
+                        true,
+                        EnemyArchetype.Berserker
+                    );
+                    enemies.Add(basicEnemy);
+                }
+            }
+
+            return true;
+        }
+
+        private EnemyData PickWeightedEnemyTemplate(List<(EnemyData data, double weight)> items)
+        {
+            double total = items.Sum(x => x.weight > 0 ? x.weight : 0);
+            if (total <= 0)
+                return items[random.Next(items.Count)].data;
+
+            double r = random.NextDouble() * total;
+            double acc = 0;
+            foreach (var (data, weight) in items)
+            {
+                if (weight <= 0)
+                    continue;
+                acc += weight;
+                if (r < acc)
+                    return data;
+            }
+
+            return items[^1].data;
         }
 
         /// <summary>

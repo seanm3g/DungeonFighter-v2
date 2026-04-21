@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using RPGGame.Actions.RollModification;
 using RPGGame.Data;
@@ -22,8 +23,10 @@ namespace RPGGame
         /// <summary>Effective speed % after pending slot SPEED_MOD (higher = faster).</summary>
         public double SpeedModified { get; }
         public string ThresholdText { get; }
+        /// <summary>Total roll bonus for this combo slot (same basis as hover tooltip / <see cref="CombatCalculator.CalculateRollBonus"/>).</summary>
+        public int AccuracyRollBonus { get; }
 
-        public ActionPanelInfo(string name, double damageBase, double damageModified, double speedBase, double speedModified, string thresholdText)
+        public ActionPanelInfo(string name, double damageBase, double damageModified, double speedBase, double speedModified, string thresholdText, int accuracyRollBonus)
         {
             Name = name ?? "";
             DamageBase = damageBase;
@@ -31,6 +34,7 @@ namespace RPGGame
             SpeedBase = speedBase;
             SpeedModified = speedModified;
             ThresholdText = thresholdText ?? "";
+            AccuracyRollBonus = accuracyRollBonus;
         }
     }
 
@@ -93,7 +97,9 @@ namespace RPGGame
 
                 string thresholdText = GetThresholdText(action);
 
-                list.Add(new ActionPanelInfo(name, baseDamagePct, modifiedDamagePct, baseSpeedPct, modifiedSpeedPct, thresholdText));
+                int accuracyRollBonus = CombatCalculator.CalculateRollBonus(character, action, actions, i, consumeTempBonus: false);
+
+                list.Add(new ActionPanelInfo(name, baseDamagePct, modifiedDamagePct, baseSpeedPct, modifiedSpeedPct, thresholdText, accuracyRollBonus));
             }
             return list;
         }
@@ -263,7 +269,136 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Builds wrapped lines for the action strip hover tooltip (full description, stats, accuracy, panel summary).
+        /// Swing line for tooltips: same effective Dmg/Spd percentages as the action strip cards
+        /// (<see cref="BuildPanelData"/> when <paramref name="panelIndex"/> is a valid combo slot; otherwise intrinsic action only).
+        /// </summary>
+        private static string BuildTooltipSwingModsLine(Character? character, Action action, int panelIndex)
+        {
+            if (character != null && panelIndex >= 0)
+            {
+                var panels = BuildPanelData(character);
+                if (panelIndex < panels.Count)
+                {
+                    var info = panels[panelIndex];
+                    const double damageCmpEps = 0.0001;
+                    double damageDisplay = Math.Abs(info.DamageModified - info.DamageBase) > damageCmpEps ? info.DamageModified : info.DamageBase;
+                    double speedDisplay = info.SpeedModified != info.SpeedBase ? info.SpeedModified : info.SpeedBase;
+                    return $"Dmg {damageDisplay:F0}% | Spd {speedDisplay:F0}%";
+                }
+            }
+
+            double baseDamagePct = action.DamageMultiplier * 100.0;
+            double baseSpeedPct = action.Length > 0
+                ? ActionDisplayFormatter.CalculateActionSpeedPercentage(action)
+                : 0;
+            return $"Dmg {baseDamagePct:F0}% | Spd {baseSpeedPct:F0}%";
+        }
+
+        private static string FormatTooltipActionName(string? name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return "?";
+            return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(name.Trim().ToLowerInvariant());
+        }
+
+        /// <summary>
+        /// Row-1 spreadsheet fields (HERO / ENEMY base stats), one display line each: e.g. <c>enemy damage +10%</c>, <c>Hero Amp +10%</c>.
+        /// </summary>
+        private static List<string> BuildSpreadsheetFriendlyModLines(Action action)
+        {
+            var lines = new List<string>();
+            if (action == null)
+                return lines;
+
+            static string F(double v, bool asPercent)
+            {
+                string n = v.ToString("0.#", CultureInfo.InvariantCulture);
+                if (!asPercent)
+                    return v > 0 ? $"+{n}" : n;
+                return v > 0 ? $"+{n}%" : $"{n}%";
+            }
+
+            void tryPercent(string? raw, string label)
+            {
+                if (string.IsNullOrWhiteSpace(raw))
+                    return;
+                double v = SpreadsheetActionData.ParseNumericValue(raw.Trim());
+                if (Math.Abs(v) < 1e-9)
+                    return;
+                lines.Add($"{label} {F(v, asPercent: true)}");
+            }
+
+            void tryMultihit(string? raw, string label)
+            {
+                if (string.IsNullOrWhiteSpace(raw))
+                    return;
+                double v = SpreadsheetActionData.ParseNumericValue(raw.Trim());
+                if (Math.Abs(v) < 1e-9)
+                    return;
+                lines.Add($"{label} {F(v, asPercent: false)}");
+            }
+
+            tryPercent(action.EnemySpeedMod, "enemy action speed");
+            tryPercent(action.EnemyDamageMod, "enemy damage");
+            tryMultihit(action.EnemyMultiHitMod, "enemy multihit");
+            tryPercent(action.EnemyAmpMod, "enemy amp");
+
+            tryPercent(action.SpeedMod, "Hero action speed");
+            tryPercent(action.DamageMod, "Hero damage");
+            tryMultihit(action.MultiHitMod, "Hero multihit");
+            tryPercent(action.AmpMod, "Hero Amp");
+
+            return lines;
+        }
+
+        /// <summary>
+        /// Ordered mechanical segments after the title line: swing Dmg/Spd, then each spreadsheet / keyword / roll / status block.
+        /// </summary>
+        private static List<string> BuildMechanicalDetailSegments(Character? character, Action action, int panelIndex)
+        {
+            var segments = new List<string> { BuildTooltipSwingModsLine(character, action, panelIndex) };
+            segments.AddRange(BuildSpreadsheetFriendlyModLines(action));
+
+            if (action.ActionAttackBonuses?.BonusGroups != null)
+            {
+                foreach (var group in action.ActionAttackBonuses.BonusGroups)
+                {
+                    if (group?.Bonuses == null || group.Bonuses.Count == 0)
+                        continue;
+                    string items = FormatBonusItemsShort(group.Bonuses);
+                    if (string.IsNullOrEmpty(items))
+                        continue;
+                    string cad = string.IsNullOrWhiteSpace(group.CadenceType)
+                        ? (string.IsNullOrWhiteSpace(group.Keyword) ? "BONUS" : group.Keyword)
+                        : group.CadenceType;
+                    segments.Add($"{cad}: {items}");
+                }
+            }
+
+            string th = GetThresholdText(action);
+            if (!string.IsNullOrEmpty(th))
+                segments.Add($"Roll {th}");
+
+            string causes = GetCausesShort(action);
+            if (!string.IsNullOrEmpty(causes))
+                segments.Add($"Statuses {causes}");
+
+            return segments;
+        }
+
+        /// <summary>
+        /// Single-line summary for inventory rows (pipe-separated). Tooltips use <see cref="BuildMechanicalDetailSegments"/> one segment per line.
+        /// </summary>
+        public static string BuildActionMechanicalModSummary(Character? character, Action? action, int comboSlotIndex)
+        {
+            if (action == null)
+                return "";
+            return string.Join(" | ", BuildMechanicalDetailSegments(character, action, comboSlotIndex));
+        }
+
+        /// <summary>
+        /// Builds wrapped lines for the action strip hover tooltip: title-cased name, then Dmg/Spd on its own line,
+        /// then one line per spreadsheet mod and other mechanical details (no narrative <see cref="Action.Description"/>).
         /// </summary>
         /// <param name="character">Player whose combo is shown.</param>
         /// <param name="panelIndex">0-based combo slot.</param>
@@ -291,26 +426,14 @@ namespace RPGGame
                 }
             }
 
-            result.Add(string.IsNullOrEmpty(action.Name) ? "?" : action.Name);
+            result.Add(FormatTooltipActionName(action.Name));
             if (result.Count >= maxLines) return result;
 
-            AddWrapped(action.Description);
-            AddWrapped(ActionDisplayFormatter.GetActionStats(action).Trim());
-
-            int acc = CombatCalculator.CalculateRollBonus(character, action, actions, panelIndex, consumeTempBonus: false);
-            AddWrapped($"Accuracy: {acc:+0;-0;0}");
-
-            string causes = GetCausesShort(action);
-            if (!string.IsNullOrEmpty(causes))
-                AddWrapped($"Status: {causes}");
-
-            var panelRow = BuildPanelData(character);
-            if (panelIndex < panelRow.Count)
+            foreach (string segment in BuildMechanicalDetailSegments(character, action, panelIndex))
             {
-                var info = panelRow[panelIndex];
-                AddWrapped($"Effective: Dmg {info.DamageModified:F0}% of base | Spd {info.SpeedModified:F0}%");
-                if (!string.IsNullOrEmpty(info.ThresholdText))
-                    AddWrapped($"Roll thresholds: {info.ThresholdText}");
+                if (result.Count >= maxLines)
+                    return result;
+                AddWrapped(segment);
             }
 
             return result;
@@ -318,7 +441,7 @@ namespace RPGGame
 
         /// <summary>
         /// Tooltip lines for an action that may or may not be in the current combo (e.g. pool row on the inventory right panel).
-        /// When the action is already in the sequence, delegates to <see cref="BuildActionTooltipLines"/> for full panel metrics.
+        /// When the action is already in the sequence, delegates to <see cref="BuildActionTooltipLines"/>.
         /// </summary>
         public static List<string> BuildActionTooltipLinesForAction(Character? character, Action? action, int maxWidth, int maxLines = 18)
         {
@@ -344,18 +467,15 @@ namespace RPGGame
                 }
             }
 
-            result.Add(string.IsNullOrEmpty(action.Name) ? "?" : action.Name);
+            result.Add(FormatTooltipActionName(action.Name));
             if (result.Count >= maxLines) return result;
 
-            AddWrapped(action.Description);
-            AddWrapped(ActionDisplayFormatter.GetActionStats(action).Trim());
-
-            int acc = ActionUtilities.CalculateRollBonus(character, action, consumeTempBonus: false);
-            AddWrapped($"Accuracy: {acc:+0;-0;0}");
-
-            string causes = GetCausesShort(action);
-            if (!string.IsNullOrEmpty(causes))
-                AddWrapped($"Status: {causes}");
+            foreach (string segment in BuildMechanicalDetailSegments(character, action, -1))
+            {
+                if (result.Count >= maxLines)
+                    return result;
+                AddWrapped(segment);
+            }
 
             return result;
         }

@@ -17,6 +17,22 @@ namespace RPGGame
         public double SpeedBonusPerTier { get; set; }
         public int MaxTier { get; set; }
         public double EnchantmentChance { get; set; }
+
+        public void EnsureSanitizedWeaponScalingDefaults()
+        {
+            if (GlobalDamageMultiplier <= 0)
+                GlobalDamageMultiplier = 1.0;
+            if (WeaponDamagePerTier <= 0)
+                WeaponDamagePerTier = 3;
+            if (ArmorValuePerTier <= 0)
+                ArmorValuePerTier = 2;
+            if (MaxTier <= 0)
+                MaxTier = 10;
+            if (SpeedBonusPerTier <= 0)
+                SpeedBonusPerTier = 0.05;
+            if (EnchantmentChance < 0)
+                EnchantmentChance = 0;
+        }
     }
 
     /// <summary>
@@ -28,6 +44,12 @@ namespace RPGGame
         public TierDamageRangesConfig TierDamageRanges { get; set; } = new();
         public double GlobalDamageMultiplier { get; set; }
         public string Description { get; set; } = "";
+
+        public void EnsureSanitizedDefaults()
+        {
+            if (GlobalDamageMultiplier <= 0)
+                GlobalDamageMultiplier = 1.0;
+        }
     }
 
     /// <summary>
@@ -41,6 +63,20 @@ namespace RPGGame
         public int MaxTier { get; set; }
         public double EnchantmentChance { get; set; }
         public string Description { get; set; } = "";
+
+        public void EnsureSensibleDefaults()
+        {
+            if (WeaponDamagePerTier <= 0)
+                WeaponDamagePerTier = 3;
+            if (ArmorValuePerTier <= 0)
+                ArmorValuePerTier = 2;
+            if (SpeedBonusPerTier <= 0)
+                SpeedBonusPerTier = 0.05;
+            if (MaxTier <= 0)
+                MaxTier = 10;
+            if (EnchantmentChance < 0)
+                EnchantmentChance = 0;
+        }
     }
 
     /// <summary>
@@ -68,6 +104,24 @@ namespace RPGGame
         public double ItemValueMultiplier { get; set; }
         public RarityUpgradeConfig RarityUpgrade { get; set; } = new();
         public string Description { get; set; } = "";
+
+        public void EnsureSensibleLootDefaults()
+        {
+            if (BaseDropChance <= 0)
+                BaseDropChance = 0.15;
+            if (DropChancePerLevel < 0)
+                DropChancePerLevel = 0;
+            if (MaxDropChance <= 0)
+                MaxDropChance = 0.95;
+            if (GuaranteedLootChance <= 0)
+                GuaranteedLootChance = 1.0;
+            if (MagicFindEffectiveness < 0)
+                MagicFindEffectiveness = 0;
+            if (GoldDropMultiplier <= 0)
+                GoldDropMultiplier = 1.0;
+            if (ItemValueMultiplier <= 0)
+                ItemValueMultiplier = 1.0;
+        }
     }
 
     /// <summary>

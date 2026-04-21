@@ -10,6 +10,20 @@
       "strength": 1.05,
       "armor": 0.6
     },
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.18,
+      "agility": 0.22,
+      "technique": 0.2,
+      "intelligence": 0.12
+    },
+    "baseHealth": 43,
+    "healthGrowthPerLevel": 2.35,
     "actions": [
       "JAB",
       "TAUNT"
@@ -28,6 +42,20 @@
       "intelligence": 0.8,
       "strength": 0.9
     },
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 4,
+      "technique": 4,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.12,
+      "agility": 0.32,
+      "technique": 0.28,
+      "intelligence": 0.14
+    },
+    "baseHealth": 25,
+    "healthGrowthPerLevel": 1.65,
     "actions": [
       "WEB STRIKE",
       "POISON BITE"
@@ -46,6 +74,20 @@
       "technique": 1.0,
       "intelligence": 0.8
     },
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.22,
+      "agility": 0.22,
+      "technique": 0.18,
+      "intelligence": 0.12
+    },
+    "baseHealth": 58,
+    "healthGrowthPerLevel": 3.1,
     "actions": [
       "BITE",
       "HOWL"
@@ -64,6 +106,20 @@
       "agility": 1.1,
       "strength": 0.7
     },
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.1,
+      "agility": 0.15,
+      "technique": 0.22,
+      "intelligence": 0.28
+    },
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 2.25,
     "actions": [
       "FIRE BOLT",
       "IGNITE"
@@ -82,6 +138,20 @@
       "intelligence": 0.9,
       "technique": 0.8
     },
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 1,
+      "technique": 2,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.28,
+      "agility": 0.08,
+      "technique": 0.14,
+      "intelligence": 0.1
+    },
+    "baseHealth": 70,
+    "healthGrowthPerLevel": 4.3,
     "actions": [
       "MAGMA FIST",
       "ERUPTION"
@@ -100,6 +170,20 @@
       "intelligence": 0.9,
       "strength": 0.8
     },
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 5,
+      "technique": 3,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.08,
+      "agility": 0.35,
+      "technique": 0.18,
+      "intelligence": 0.1
+    },
+    "baseHealth": 20,
+    "healthGrowthPerLevel": 1.35,
     "actions": [
       "BAT SWARM",
       "QUICK STRIKE"
@@ -118,6 +202,20 @@
       "technique": 0.8,
       "health": 0.9
     },
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 1,
+      "technique": 2,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.16,
+      "agility": 0.12,
+      "technique": 0.15,
+      "intelligence": 0.1
+    },
+    "baseHealth": 45,
+    "healthGrowthPerLevel": 2.75,
     "actions": [
       "BONE STRIKE",
       "RATTLE"
@@ -136,6 +234,20 @@
       "technique": 0.7,
       "intelligence": 0.5
     },
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 1,
+      "technique": 2,
+      "intelligence": 1
+    },
+    "growthPerLevel": {
+      "strength": 0.22,
+      "agility": 0.08,
+      "technique": 0.12,
+      "intelligence": 0.06
+    },
+    "baseHealth": 55,
+    "healthGrowthPerLevel": 3.15,
     "actions": [
       "CLAW",
       "GROAN"
@@ -154,6 +266,20 @@
       "technique": 1.2,
       "strength": 0.7
     },
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.08,
+      "agility": 0.2,
+      "technique": 0.2,
+      "intelligence": 0.28
+    },
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 2.05,
     "actions": [
       "SOUL DRAIN",
       "PHASE"
@@ -172,6 +298,20 @@
       "technique": 0.9,
       "intelligence": 0.7
     },
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 2,
+      "technique": 2,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.26,
+      "agility": 0.12,
+      "technique": 0.14,
+      "intelligence": 0.1
+    },
+    "baseHealth": 63,
+    "healthGrowthPerLevel": 3.45,
     "actions": [
       "SLAM",
       "GRUNT"
@@ -190,6 +330,20 @@
       "technique": 0.8,
       "intelligence": 0.8
     },
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 1,
+      "technique": 2,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.22,
+      "agility": 0.06,
+      "technique": 0.12,
+      "intelligence": 0.1
+    },
+    "baseHealth": 68,
+    "healthGrowthPerLevel": 4.1,
     "actions": [
       "SLAM",
       "PUNCH HARD"
@@ -208,6 +362,20 @@
       "technique": 0.9,
       "intelligence": 0.6
     },
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 2,
+      "intelligence": 1
+    },
+    "growthPerLevel": {
+      "strength": 0.24,
+      "agility": 0.18,
+      "technique": 0.15,
+      "intelligence": 0.08
+    },
+    "baseHealth": 55,
+    "healthGrowthPerLevel": 3.05,
     "actions": [
       "JAB",
       "PUNCH HARD"
@@ -226,6 +394,20 @@
       "intelligence": 1.1,
       "strength": 0.9
     },
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 4,
+      "technique": 3,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.12,
+      "agility": 0.28,
+      "technique": 0.2,
+      "intelligence": 0.16
+    },
+    "baseHealth": 35,
+    "healthGrowthPerLevel": 2.15,
     "actions": [
       "CHEAP SHOT",
       "JAB"
@@ -244,6 +426,20 @@
       "technique": 1.2,
       "strength": 0.65
     },
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.06,
+      "agility": 0.18,
+      "technique": 0.22,
+      "intelligence": 0.3
+    },
+    "baseHealth": 30,
+    "healthGrowthPerLevel": 1.85,
     "actions": [
       "CRITICAL ATTACK",
       "FLURRY"
@@ -262,6 +458,20 @@
       "technique": 0.85,
       "intelligence": 0.75
     },
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 1,
+      "technique": 2,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.27,
+      "agility": 0.07,
+      "technique": 0.13,
+      "intelligence": 0.09
+    },
+    "baseHealth": 65,
+    "healthGrowthPerLevel": 4.0,
     "actions": [
       "SLAM",
       "PUNCH HARDEST"
@@ -280,6 +490,20 @@
       "intelligence": 0.7,
       "strength": 1.0
     },
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 4,
+      "technique": 3,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.18,
+      "agility": 0.26,
+      "technique": 0.22,
+      "intelligence": 0.12
+    },
+    "baseHealth": 40,
+    "healthGrowthPerLevel": 2.55,
     "actions": [
       "CHEAP SHOT",
       "JAB"
@@ -298,6 +522,20 @@
       "agility": 0.9,
       "strength": 0.75
     },
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 2,
+      "technique": 3,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.12,
+      "agility": 0.14,
+      "technique": 0.24,
+      "intelligence": 0.32
+    },
+    "baseHealth": 45,
+    "healthGrowthPerLevel": 2.85,
     "actions": [
       "CRITICAL ATTACK",
       "STUN"
@@ -316,6 +554,20 @@
       "agility": 0.7,
       "intelligence": 0.9
     },
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 2,
+      "technique": 3,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.18,
+      "agility": 0.15,
+      "technique": 0.2,
+      "intelligence": 0.14
+    },
+    "baseHealth": 50,
+    "healthGrowthPerLevel": 2.9,
     "actions": [
       "SLAM",
       "TAUNT"

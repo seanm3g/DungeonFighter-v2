@@ -198,7 +198,11 @@ namespace RPGGame
                 {
                     // Try to find any available combo action
                     var allActions = ActionLoader.GetAllActions();
-                    var fallbackAction = allActions.FirstOrDefault(a => a.IsComboAction);
+                    var fallbackAction = allActions.FirstOrDefault(a =>
+                        a.IsComboAction &&
+                        (a.Tags == null ||
+                         (!a.Tags.Any(t => t.Equals("enemy", StringComparison.OrdinalIgnoreCase)) &&
+                          !a.Tags.Any(t => t.Equals("environment", StringComparison.OrdinalIgnoreCase)))));
                     if (fallbackAction != null)
                     {
                         player.AddAction(fallbackAction, 1.0);
@@ -232,7 +236,9 @@ namespace RPGGame
                                 action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
                                 action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
                                 !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
-                                !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
+                                !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("enemy", StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("environment", StringComparison.OrdinalIgnoreCase)))
                 .Select(action => action.Name)
                 .ToList();
 

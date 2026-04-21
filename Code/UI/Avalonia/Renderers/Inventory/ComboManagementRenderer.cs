@@ -5,7 +5,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     using System.Linq;
     using RPGGame;
     using RPGGame.Handlers.Inventory;
-    using RPGGame.Items.Helpers;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
 
@@ -135,10 +134,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     y++;
                     currentLineCount++;
 
-                    string stats = ActionDisplayFormatter.GetActionStats(action);
-                    if (stats.Length > width - 8)
-                        stats = stats.Substring(0, Math.Max(0, width - 11)) + "...";
-                    canvas.AddText(x + 4, y, stats, AsciiArtAssets.Colors.Gray);
+                    string mods = CombatActionStripBuilder.BuildActionMechanicalModSummary(character, action, -1);
+                    if (mods.Length > width - 8)
+                        mods = mods.Substring(0, Math.Max(0, width - 11)) + "...";
+                    canvas.AddText(x + 4, y, mods, AsciiArtAssets.Colors.Gray);
                     y++;
                     currentLineCount++;
 
@@ -220,11 +219,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         y++;
                         currentLineCount++;
 
-                        canvas.AddText(x + 4, y, ActionDisplayFormatter.GetActionDescription(action), AsciiArtAssets.Colors.Gray);
-                        y++;
-                        currentLineCount++;
-
-                        canvas.AddText(x + 4, y, ActionDisplayFormatter.GetActionStats(action), AsciiArtAssets.Colors.Gray);
+                        string addMods = CombatActionStripBuilder.BuildActionMechanicalModSummary(character, action, -1);
+                        if (addMods.Length > width - 8)
+                            addMods = addMods.Substring(0, Math.Max(0, width - 11)) + "...";
+                        canvas.AddText(x + 4, y, addMods, AsciiArtAssets.Colors.Gray);
                         y++;
                         currentLineCount++;
                     }
@@ -258,7 +256,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         y++;
                         currentLineCount++;
 
-                        canvas.AddText(x + 4, y, $"  {action.Description}", AsciiArtAssets.Colors.Gray);
+                        string seqMods = CombatActionStripBuilder.BuildActionMechanicalModSummary(character, action, i);
+                        if (seqMods.Length > width - 8)
+                            seqMods = seqMods.Substring(0, Math.Max(0, width - 11)) + "...";
+                        canvas.AddText(x + 4, y, seqMods, AsciiArtAssets.Colors.Gray);
                         y++;
                         currentLineCount++;
                     }

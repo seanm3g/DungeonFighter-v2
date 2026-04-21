@@ -154,6 +154,15 @@ namespace RPGGame.UI.Avalonia.Renderers
                     contentY++;
                 }
 
+                // Positive roll bonus (easier hit): match tooltip "Accuracy: +N" on the compact card
+                if (contentY < py + panelH && info.AccuracyRollBonus > 0)
+                {
+                    string accLine = $"Acc +{info.AccuracyRollBonus}";
+                    if (accLine.Length > contentW) accLine = accLine.Substring(0, contentW - 3) + "...";
+                    canvas.AddText(contentX, contentY, accLine, AsciiArtAssets.Colors.Green);
+                    contentY++;
+                }
+
                 // Thresholds: only when action has non-zero adjustments
                 if (contentY < py + panelH && !string.IsNullOrEmpty(info.ThresholdText))
                 {

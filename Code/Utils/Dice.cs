@@ -1,11 +1,17 @@
 using System.Collections.Generic;
+using System.Threading;
 
 namespace RPGGame
 {
     public class Dice
     {
-        private static readonly Random _random = new Random();
-        
+        private static readonly object TestRollLock = new object();
+        /// <summary>
+        /// Per-async-context forced roll for Action Lab encounter Monte Carlo so parallel batches do not share static test state.
+        /// Takes precedence over <see cref="_testRollValue"/> when set.
+        /// </summary>
+        private static readonly AsyncLocal<int?> AsyncLabEncounterTestRoll = new();
+
         // Test mode support - allows setting specific roll values for testing
         private static int? _testRollValue = null;
         private static bool _testModeEnabled = false;
@@ -17,8 +23,11 @@ namespace RPGGame
         /// <param name="rollValue">The roll value to return (or null to disable test mode)</param>
         public static void SetTestRoll(int? rollValue)
         {
-            _testRollValue = rollValue;
-            _testModeEnabled = rollValue.HasValue;
+            lock (TestRollLock)
+            {
+                _testRollValue = rollValue;
+                _testModeEnabled = rollValue.HasValue;
+            }
         }
 
         /// <summary>
@@ -26,14 +35,31 @@ namespace RPGGame
         /// </summary>
         public static void ClearTestRoll()
         {
-            _testRollValue = null;
-            _testModeEnabled = false;
+            lock (TestRollLock)
+            {
+                _testRollValue = null;
+                _testModeEnabled = false;
+            }
         }
+
+        /// <summary>Forces the next <see cref="Roll"/> outcomes in the current async context (Action Lab encounter sim).</summary>
+        public static void SetAsyncLabEncounterTestRoll(int rollValue) =>
+            AsyncLabEncounterTestRoll.Value = rollValue;
+
+        public static void ClearAsyncLabEncounterTestRoll() =>
+            AsyncLabEncounterTestRoll.Value = null;
 
         /// <summary>
         /// Checks if test mode is currently enabled
         /// </summary>
-        public static bool IsTestModeEnabled => _testModeEnabled;
+        public static bool IsTestModeEnabled
+        {
+            get
+            {
+                lock (TestRollLock)
+                    return _testModeEnabled;
+            }
+        }
 
         /// <summary>
         /// Rolls X dice with Y sides each (XdY)
@@ -48,28 +74,41 @@ namespace RPGGame
             if (sides < 2)
                 throw new ArgumentException("Dice must have at least 2 sides", nameof(sides));
 
+            if (AsyncLabEncounterTestRoll.Value is int asyncForced)
+            {
+                if (numberOfDice == 1)
+                    return asyncForced;
+                return asyncForced * numberOfDice;
+            }
+
+            bool testMode;
+            int? testVal;
+            lock (TestRollLock)
+            {
+                testMode = _testModeEnabled;
+                testVal = _testRollValue;
+            }
+
             // If test mode is enabled, return the test value
-            if (_testModeEnabled && _testRollValue.HasValue)
+            if (testMode && testVal.HasValue)
             {
                 // For multiple dice, return the test value multiplied by number of dice
                 // This allows testing single die rolls (1d20) with specific values
                 if (numberOfDice == 1)
                 {
-                    return _testRollValue.Value;
+                    return testVal.Value;
                 }
-                else
-                {
-                    // For multiple dice, return test value * numberOfDice
-                    // Tests should set test roll for single die scenarios
-                    return _testRollValue.Value * numberOfDice;
-                }
+
+                // For multiple dice, return test value * numberOfDice
+                // Tests should set test roll for single die scenarios
+                return testVal.Value * numberOfDice;
             }
 
-            // Normal random behavior
+            // Normal random behavior (thread-safe shared generator)
             int total = 0;
             for (int i = 0; i < numberOfDice; i++)
             {
-                total += _random.Next(1, sides + 1);
+                total += Random.Shared.Next(1, sides + 1);
             }
             return total;
         }
@@ -150,7 +189,7 @@ namespace RPGGame
             }
             
             // Define weighted ranges for different modification tiers from config
-            double roll = _random.NextDouble() * 100.0;
+            double roll = Random.Shared.NextDouble() * 100.0;
             
             // Apply tier bonus - higher tier items get better chances
             double tierBonus = Math.Max(0, (itemTier - 1) * config.TierBonusPerLevel);
@@ -174,7 +213,7 @@ namespace RPGGame
             if (roll < commonThreshold) // Common modifications (1-4, 29)
             {
                 // 90% chance for regular common mods, 10% for magic find
-                if (_random.NextDouble() < 0.9)
+                if (Random.Shared.NextDouble() < 0.9)
                     return Roll(4); // DiceResult 1-4
                 else
                     return 29; // Magic Fingers
@@ -182,7 +221,7 @@ namespace RPGGame
             else if (roll < uncommonThreshold) // Uncommon modifications (5-8, 30)
             {
                 // 90% chance for regular uncommon mods, 10% for magic find
-                if (_random.NextDouble() < 0.9)
+                if (Random.Shared.NextDouble() < 0.9)
                     return Roll(4) + 4; // DiceResult 5-8
                 else
                     return 30; // Lucky Magic Find
@@ -194,7 +233,7 @@ namespace RPGGame
             else if (roll < epicThreshold) // Epic modifications (13-16, 31)
             {
                 // 90% chance for regular epic mods, 10% for magic find
-                if (_random.NextDouble() < 0.9)
+                if (Random.Shared.NextDouble() < 0.9)
                     return Roll(4) + 12; // DiceResult 13-16
                 else
                     return 31; // Magical Lamp
@@ -219,7 +258,7 @@ namespace RPGGame
         private static int RollModificationFallback(int itemTier = 1, int bonus = 0)
         {
             // Hardcoded fallback values
-            double roll = _random.NextDouble() * 100.0;
+            double roll = Random.Shared.NextDouble() * 100.0;
             double tierBonus = Math.Max(0, (itemTier - 1) * 1.5);
             roll -= tierBonus;
             roll -= bonus * 1.0;
@@ -297,7 +336,7 @@ namespace RPGGame
             
             double finalChance = baseChance + levelBonus;
             
-            return _random.NextDouble() < finalChance;
+            return Random.Shared.NextDouble() < finalChance;
         }
     }
 

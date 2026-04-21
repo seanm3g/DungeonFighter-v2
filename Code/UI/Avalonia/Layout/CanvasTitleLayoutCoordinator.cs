@@ -48,7 +48,8 @@ namespace RPGGame.UI.Avalonia.Layout
             bool inventoryComboRightPanel,
             Character? characterForRightPanel,
             CharacterPanelRenderer characterPanelRenderer,
-            RightPanelRenderer rightPanelRenderer)
+            RightPanelRenderer rightPanelRenderer,
+            bool registerActionLabEnemyLevelHover = false)
         {
             // Check if title changed - used for border rendering when persistent chrome is on
             bool titleChanged = title != lastRenderedTitle;
@@ -122,7 +123,7 @@ namespace RPGGame.UI.Avalonia.Layout
             
             if (usePersistentChrome)
             {
-                rightPanelRenderer.RenderRightPanel(enemy, dungeonName, roomName, title, characterForRightPanel, inventoryComboRightPanel);
+                rightPanelRenderer.RenderRightPanel(enemy, dungeonName, roomName, title, characterForRightPanel, inventoryComboRightPanel, registerActionLabEnemyLevelHover);
             }
             
             // Do not call canvas.Refresh() here: callers draw the action-info strip (and other overlays)

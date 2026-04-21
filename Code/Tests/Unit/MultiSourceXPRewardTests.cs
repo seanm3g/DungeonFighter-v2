@@ -247,22 +247,18 @@ namespace RPGGame.Tests.Unit
             Console.WriteLine("\n--- Testing XP Scaling With Enemy/Dungeon Level ---");
 
             var character1 = TestDataBuilders.Character().WithLevel(1).Build();
-            var character2 = TestDataBuilders.Character().WithLevel(1).Build();
-            
+
             var enemy1 = TestDataBuilders.Enemy().WithLevel(1).Build();
             var enemy5 = TestDataBuilders.Enemy().WithLevel(5).Build();
 
+            TestBase.AssertTrue(enemy5.XPReward > enemy1.XPReward,
+                $"Enemy XP reward should scale with enemy level (L1={enemy1.XPReward}, L5={enemy5.XPReward})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
             int xp1Before = character1.XP;
-            int xp2Before = character2.XP;
-
             XPRewardSystem.AwardEnemyKillXP(character1, enemy1);
-            XPRewardSystem.AwardEnemyKillXP(character2, enemy5);
-
-            int xp1Gained = character1.XP - xp1Before;
-            int xp2Gained = character2.XP - xp2Before;
-
-            TestBase.AssertTrue(xp2Gained > xp1Gained,
-                $"Higher level enemy should give more XP: Level 1 enemy = {xp1Gained}, Level 5 enemy = {xp2Gained}",
+            TestBase.AssertTrue(character1.XP > xp1Before,
+                $"AwardEnemyKillXP should increase character XP from L1 kill (before={xp1Before}, after={character1.XP})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

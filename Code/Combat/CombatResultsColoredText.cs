@@ -86,18 +86,7 @@ namespace RPGGame
                 AddSpeedInfo(builder, actualSpeed);
             }
             
-            // Combo amplifier information
-            if (comboAmplifier.HasValue)
-            {
-                if (comboAmplifier.Value > 1.0)
-                {
-                    AddAmpInfo(builder, comboAmplifier.Value);
-                }
-                else if (action != null && action.IsComboAction)
-                {
-                    AddAmpInfo(builder, 1.0);
-                }
-            }
+            RollInfoFormatter.AppendComboAmpToRollInfo(builder, comboAmplifier, action);
             
             builder.Add(")", Colors.Gray);
             

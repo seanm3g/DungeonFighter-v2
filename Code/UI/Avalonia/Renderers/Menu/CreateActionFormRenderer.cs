@@ -82,16 +82,32 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Speed: {actionData.Length}", AsciiArtAssets.Colors.White);
             menuStartY++;
-            bool hasSheetMods = !string.IsNullOrWhiteSpace(actionData.SpeedMod) || !string.IsNullOrWhiteSpace(actionData.DamageMod)
+            bool hasEnemyMods = !string.IsNullOrWhiteSpace(actionData.EnemySpeedMod) || !string.IsNullOrWhiteSpace(actionData.EnemyDamageMod)
+                || !string.IsNullOrWhiteSpace(actionData.EnemyMultiHitMod) || !string.IsNullOrWhiteSpace(actionData.EnemyAmpMod);
+            bool hasHeroMods = !string.IsNullOrWhiteSpace(actionData.SpeedMod) || !string.IsNullOrWhiteSpace(actionData.DamageMod)
                 || !string.IsNullOrWhiteSpace(actionData.MultiHitMod) || !string.IsNullOrWhiteSpace(actionData.AmpMod);
-            if (hasSheetMods)
+            if (hasEnemyMods || hasHeroMods)
             {
-                canvas.AddText(menuStartX, menuStartY, "  Modifiers (next action/ability):", AsciiArtAssets.Colors.Cyan);
+                canvas.AddText(menuStartX, menuStartY, "  Next-action modifiers (spreadsheet):", AsciiArtAssets.Colors.Cyan);
                 menuStartY++;
-                if (!string.IsNullOrWhiteSpace(actionData.SpeedMod)) { canvas.AddText(menuStartX, menuStartY, $"    - SpeedMod: {actionData.SpeedMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
-                if (!string.IsNullOrWhiteSpace(actionData.DamageMod)) { canvas.AddText(menuStartX, menuStartY, $"    - DamageMod: {actionData.DamageMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
-                if (!string.IsNullOrWhiteSpace(actionData.MultiHitMod)) { canvas.AddText(menuStartX, menuStartY, $"    - MultiHitMod: {actionData.MultiHitMod}", AsciiArtAssets.Colors.White); menuStartY++; }
-                if (!string.IsNullOrWhiteSpace(actionData.AmpMod)) { canvas.AddText(menuStartX, menuStartY, $"    - AmpMod: {actionData.AmpMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                if (hasEnemyMods)
+                {
+                    canvas.AddText(menuStartX, menuStartY, "    Enemy base stats (AD–AG):", AsciiArtAssets.Colors.Cyan);
+                    menuStartY++;
+                    if (!string.IsNullOrWhiteSpace(actionData.EnemySpeedMod)) { canvas.AddText(menuStartX, menuStartY, $"      ACTION SPEED: {actionData.EnemySpeedMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (!string.IsNullOrWhiteSpace(actionData.EnemyDamageMod)) { canvas.AddText(menuStartX, menuStartY, $"      DAMAGE MOD: {actionData.EnemyDamageMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (!string.IsNullOrWhiteSpace(actionData.EnemyMultiHitMod)) { canvas.AddText(menuStartX, menuStartY, $"      MULTIHIT MOD: {actionData.EnemyMultiHitMod}", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (!string.IsNullOrWhiteSpace(actionData.EnemyAmpMod)) { canvas.AddText(menuStartX, menuStartY, $"      AMP_MOD: {actionData.EnemyAmpMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                }
+                if (hasHeroMods)
+                {
+                    canvas.AddText(menuStartX, menuStartY, "    Hero base stats (AJ–AM):", AsciiArtAssets.Colors.Cyan);
+                    menuStartY++;
+                    if (!string.IsNullOrWhiteSpace(actionData.SpeedMod)) { canvas.AddText(menuStartX, menuStartY, $"      ACTION SPEED: {actionData.SpeedMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (!string.IsNullOrWhiteSpace(actionData.DamageMod)) { canvas.AddText(menuStartX, menuStartY, $"      ACTION DAMAGE: {actionData.DamageMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (!string.IsNullOrWhiteSpace(actionData.MultiHitMod)) { canvas.AddText(menuStartX, menuStartY, $"      MULTIHIT MOD: {actionData.MultiHitMod}", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (!string.IsNullOrWhiteSpace(actionData.AmpMod)) { canvas.AddText(menuStartX, menuStartY, $"      AMP_MOD: {actionData.AmpMod}%", AsciiArtAssets.Colors.White); menuStartY++; }
+                }
             }
             
             // Status Effects (only show if any are true)

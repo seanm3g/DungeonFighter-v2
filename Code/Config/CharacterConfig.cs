@@ -11,6 +11,18 @@ namespace RPGGame
         public int PlayerBaseHealth { get; set; }
         public int HealthPerLevel { get; set; }
         public int EnemyHealthPerLevel { get; set; }
+
+        /// <summary>
+        /// When tuning JSON has non-positive values, <see cref="Character"/> uses these same fallbacks at runtime.
+        /// Applying them after load keeps <see cref="GameConfiguration"/>, tools, and the variable editor aligned with gameplay.
+        /// </summary>
+        public void EnsureValidPlayerHealthDefaults()
+        {
+            if (PlayerBaseHealth <= 0)
+                PlayerBaseHealth = 60;
+            if (HealthPerLevel <= 0)
+                HealthPerLevel = 3;
+        }
     }
 
     /// <summary>
@@ -32,6 +44,25 @@ namespace RPGGame
         {
             if (IntelligenceRollBonusPer <= 0)
                 IntelligenceRollBonusPer = 10;
+        }
+
+        /// <summary>
+        /// When all four base stats are zero or points-per-level is invalid, <see cref="CharacterStats"/> uses these fallbacks.
+        /// Keeps loaded tuning consistent with new character creation.
+        /// </summary>
+        public void EnsureValidPlayerBaseStatDefaults()
+        {
+            PlayerBaseAttributes ??= new AttributeSet();
+            var a = PlayerBaseAttributes;
+            if (a.Strength == 0 && a.Agility == 0 && a.Technique == 0 && a.Intelligence == 0)
+            {
+                a.Strength = 3;
+                a.Agility = 3;
+                a.Technique = 3;
+                a.Intelligence = 3;
+            }
+            if (PlayerAttributesPerLevel <= 0)
+                PlayerAttributesPerLevel = 2;
         }
     }
 
@@ -57,6 +88,21 @@ namespace RPGGame
         public int EnemyXPPerLevel { get; set; }
         public int EnemyGoldBase { get; set; }
         public int EnemyGoldPerLevel { get; set; }
+
+        /// <summary>
+        /// Same numeric fallbacks as Enemy reward construction and XPRewardSystem when JSON stores non-positive values.
+        /// </summary>
+        public void EnsureValidEnemyXpAndGoldDefaults()
+        {
+            if (EnemyXPBase <= 0)
+                EnemyXPBase = 25;
+            if (EnemyXPPerLevel <= 0)
+                EnemyXPPerLevel = 5;
+            if (EnemyGoldBase <= 0)
+                EnemyGoldBase = 10;
+            if (EnemyGoldPerLevel <= 0)
+                EnemyGoldPerLevel = 3;
+        }
     }
 
     /// <summary>
@@ -115,6 +161,17 @@ namespace RPGGame
         public ClassMultipliers Rogue { get; set; } = new();
         public ClassMultipliers Wizard { get; set; } = new();
         public string Description { get; set; } = "";
+
+        /// <summary>
+        /// Non-positive multipliers are skipped at level-up health scaling; 1.0 matches the intended neutral multiplier so the variable editor reflects behavior.
+        /// </summary>
+        public void EnsureNonDegenerateClassMultipliers()
+        {
+            Barbarian.EnsurePositiveMultipliersOrOne();
+            Warrior.EnsurePositiveMultipliersOrOne();
+            Rogue.EnsurePositiveMultipliersOrOne();
+            Wizard.EnsurePositiveMultipliersOrOne();
+        }
     }
 
     /// <summary>
@@ -125,5 +182,15 @@ namespace RPGGame
         public double HealthMultiplier { get; set; }
         public double DamageMultiplier { get; set; }
         public double SpeedMultiplier { get; set; }
+
+        public void EnsurePositiveMultipliersOrOne()
+        {
+            if (HealthMultiplier <= 0)
+                HealthMultiplier = 1.0;
+            if (DamageMultiplier <= 0)
+                DamageMultiplier = 1.0;
+            if (SpeedMultiplier <= 0)
+                SpeedMultiplier = 1.0;
+        }
     }
 }

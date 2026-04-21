@@ -69,10 +69,21 @@ namespace RPGGame.Data
             data.EnemyTECH = header.GetValue(columns, "ENEMY ATTRIBUTE MODIFICATIONS", "TECH");
             data.EnemyINT = header.GetValue(columns, "ENEMY ATTRIBUTE MODIFICATIONS", "INT");
 
-            data.SpeedMod = header.GetValue(columns, "ENEMY BASE STATS", "SPEED MOD");
-            data.DamageMod = header.GetValue(columns, "ENEMY BASE STATS", "DAMAGE MOD");
-            data.MultiHitMod = header.GetValue(columns, "ENEMY BASE STATS", "MULTIHIT MOD");
-            data.AmpMod = header.GetValue(columns, "ENEMY BASE STATS", "AMP_MOD");
+            // Next-action modifiers: many ACTION tabs label this block "HERO BASE STATS"; legacy sheets use "ENEMY BASE STATS".
+            ParseNextActionModsFromHeader(data, columns, header);
+            // Row-1 context missing or non-standard: some sheets use globally unique row-2 labels only.
+            if (string.IsNullOrWhiteSpace(data.SpeedMod))
+                data.SpeedMod = FirstNonEmpty(
+                    header.GetValue(columns, null, "HERO ACTION SPEED MOD"),
+                    header.GetValue(columns, null, "HERO SPEED MOD"));
+            if (string.IsNullOrWhiteSpace(data.MultiHitMod))
+                data.MultiHitMod = header.GetValue(columns, null, "HERO MULTIHIT MOD");
+            if (string.IsNullOrWhiteSpace(data.EnemySpeedMod))
+                data.EnemySpeedMod = FirstNonEmpty(
+                    header.GetValue(columns, null, "ENEMY ACTION SPEED MOD"),
+                    header.GetValue(columns, null, "ENEMY SPEED MOD"));
+            if (string.IsNullOrWhiteSpace(data.EnemyMultiHitMod))
+                data.EnemyMultiHitMod = header.GetValue(columns, null, "ENEMY MULTIHIT MOD");
 
             data.HeroHeal = header.GetValue(columns, "HERO HEAL", "HEAL");
             data.HeroHealMaxHealth = header.GetValue(columns, "HERO HEAL", "MAX HEALTH");
@@ -98,10 +109,27 @@ namespace RPGGame.Data
             data.SelfDamage = header.GetValue(columns, "ENEMY TARGET", "SELF DAMAGE");
             if (string.IsNullOrEmpty(data.SelfDamage)) data.SelfDamage = header.GetValue(columns, "SELF TARGET", "SELF DAMAGE");
 
-            if (string.IsNullOrEmpty(data.SpeedMod)) data.SpeedMod = header.GetValue(columns, null, "SPEED MOD");
-            if (string.IsNullOrEmpty(data.DamageMod)) data.DamageMod = header.GetValue(columns, null, "DAMAGE MOD");
-            if (string.IsNullOrEmpty(data.MultiHitMod)) data.MultiHitMod = header.GetValue(columns, null, "MULTIHIT MOD");
-            if (string.IsNullOrEmpty(data.AmpMod)) data.AmpMod = header.GetValue(columns, null, "AMP_MOD");
+            // Unscoped fallbacks only when neither hero nor enemy section provided a value (avoids stealing AD–AG into AJ–AM).
+            if (string.IsNullOrEmpty(data.SpeedMod) && string.IsNullOrEmpty(data.EnemySpeedMod))
+                data.SpeedMod = FirstNonEmpty(
+                    header.GetValue(columns, null, "HERO ACTION SPEED MOD"),
+                    header.GetValue(columns, null, "HERO SPEED MOD"),
+                    header.GetValue(columns, null, "SPEED MOD"),
+                    header.GetValue(columns, null, "ACTION SPEED"));
+            if (string.IsNullOrEmpty(data.DamageMod) && string.IsNullOrEmpty(data.EnemyDamageMod))
+                data.DamageMod = FirstNonEmpty(
+                    header.GetValue(columns, null, "DAMAGE MOD"),
+                    header.GetValue(columns, null, "ACTION DAMAGE"));
+            if (string.IsNullOrEmpty(data.MultiHitMod) && string.IsNullOrEmpty(data.EnemyMultiHitMod))
+                data.MultiHitMod = FirstNonEmpty(
+                    header.GetValue(columns, null, "HERO MULTIHIT MOD"),
+                    header.GetValue(columns, null, "MULTIHIT MOD"));
+            if (string.IsNullOrEmpty(data.AmpMod) && string.IsNullOrEmpty(data.EnemyAmpMod))
+            {
+                data.AmpMod = header.GetValue(columns, null, "AMP_MOD");
+                if (string.IsNullOrEmpty(data.AmpMod))
+                    data.AmpMod = header.GetValue(columns, null, "AMP MOD");
+            }
             if (string.IsNullOrEmpty(data.Stun)) data.Stun = header.GetValue(columns, null, "STUN");
             if (string.IsNullOrEmpty(data.Poison)) data.Poison = header.GetValue(columns, null, "POISON");
             if (string.IsNullOrEmpty(data.Burn)) data.Burn = header.GetValue(columns, null, "BURN");
@@ -123,6 +151,70 @@ namespace RPGGame.Data
             if (string.IsNullOrEmpty(data.SelfDamage)) data.SelfDamage = header.GetValue(columns, null, "SELF DAMAGE");
             if (string.IsNullOrEmpty(data.HeroHeal)) data.HeroHeal = header.GetValue(columns, null, "HEAL");
             if (string.IsNullOrEmpty(data.HeroHealMaxHealth)) data.HeroHealMaxHealth = header.GetValue(columns, null, "MAX HEALTH");
+
+            ParseJumpShiftDisruptMechanics(data, columns, header);
+        }
+
+        private static void ParseNextActionModsFromHeader(SpreadsheetActionData data, string[] columns, SpreadsheetHeader header)
+        {
+            // Require row-1 section + label match; do not use the first duplicate label in another block (enemy before hero on sheet).
+            const bool allowUnscopedLabelFallback = false;
+            data.SpeedMod = FirstNonEmpty(
+                header.GetValue(columns, "HERO BASE STATS", "SPEED MOD", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "HERO BASE STATS", "ACTION SPEED", null, allowUnscopedLabelFallback),
+                // Templates that prefix the stat name in row 2 (e.g. "HERO ACTION SPEED MOD" vs "SPEED MOD").
+                header.GetValue(columns, "HERO BASE STATS", "HERO ACTION SPEED MOD", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "HERO BASE STATS", "HERO SPEED MOD", null, allowUnscopedLabelFallback));
+
+            data.DamageMod = FirstNonEmpty(
+                header.GetValue(columns, "HERO BASE STATS", "DAMAGE MOD", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "HERO BASE STATS", "ACTION DAMAGE", null, allowUnscopedLabelFallback));
+
+            data.MultiHitMod = FirstNonEmpty(
+                header.GetValue(columns, "HERO BASE STATS", "MULTIHIT MOD", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "HERO BASE STATS", "HERO MULTIHIT MOD", null, allowUnscopedLabelFallback));
+
+            data.AmpMod = FirstNonEmpty(
+                header.GetValue(columns, "HERO BASE STATS", "AMP_MOD", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "HERO BASE STATS", "AMP MOD", null, allowUnscopedLabelFallback));
+
+            data.EnemySpeedMod = FirstNonEmpty(
+                header.GetValue(columns, "ENEMY BASE STATS", "SPEED MOD", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "ENEMY BASE STATS", "ACTION SPEED", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "ENEMY BASE STATS", "ENEMY ACTION SPEED MOD", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "ENEMY BASE STATS", "ENEMY SPEED MOD", null, allowUnscopedLabelFallback));
+
+            data.EnemyDamageMod = FirstNonEmpty(
+                header.GetValue(columns, "ENEMY BASE STATS", "DAMAGE MOD", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "ENEMY BASE STATS", "ACTION DAMAGE", null, allowUnscopedLabelFallback));
+
+            data.EnemyMultiHitMod = FirstNonEmpty(
+                header.GetValue(columns, "ENEMY BASE STATS", "MULTIHIT MOD", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "ENEMY BASE STATS", "ENEMY MULTIHIT MOD", null, allowUnscopedLabelFallback));
+
+            data.EnemyAmpMod = FirstNonEmpty(
+                header.GetValue(columns, "ENEMY BASE STATS", "AMP_MOD", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "ENEMY BASE STATS", "AMP MOD", null, allowUnscopedLabelFallback));
+        }
+
+        private static string FirstNonEmpty(params string[] values)
+        {
+            if (values == null) return "";
+            foreach (var v in values)
+            {
+                if (!string.IsNullOrWhiteSpace(v))
+                    return v.Trim();
+            }
+            return "";
+        }
+
+        private static void ParseJumpShiftDisruptMechanics(SpreadsheetActionData data, string[] columns, SpreadsheetHeader header)
+        {
+            data.Jump = header.GetValue(columns, null, "JUMP");
+            data.JumpRelative = header.GetValue(columns, null, "SHIFT");
+            if (string.IsNullOrEmpty(data.JumpRelative))
+                data.JumpRelative = header.GetValue(columns, null, "JUMP RELATIVE");
+            data.Disrupt = header.GetValue(columns, null, "DISRUPT");
         }
 
         private static void ParseWithIndexFallback(SpreadsheetActionData data, string[] columns)
@@ -150,31 +242,36 @@ namespace RPGGame.Data
             if (columns.Length > 22) data.HeroAGI = columns[22].Trim();
             if (columns.Length > 23) data.HeroTECH = columns[23].Trim();
             if (columns.Length > 24) data.HeroINT = columns[24].Trim();
-            if (columns.Length > 29) data.SpeedMod = columns[29].Trim();
-            if (columns.Length > 30) data.DamageMod = columns[30].Trim();
-            if (columns.Length > 31) data.MultiHitMod = columns[31].Trim();
-            if (columns.Length > 32) data.AmpMod = columns[32].Trim();
+            // Fixed layout aligned to sheet columns AD–AG (enemy next-action mods) and AJ–AM (hero); AH–AI = heal; status block follows AM (+4 vs legacy indices).
+            if (columns.Length > 29) data.EnemySpeedMod = columns[29].Trim();
+            if (columns.Length > 30) data.EnemyDamageMod = columns[30].Trim();
+            if (columns.Length > 31) data.EnemyMultiHitMod = columns[31].Trim();
+            if (columns.Length > 32) data.EnemyAmpMod = columns[32].Trim();
             if (columns.Length > 33) data.HeroHeal = columns[33].Trim();
             if (columns.Length > 34) data.HeroHealMaxHealth = columns[34].Trim();
-            if (columns.Length > 35) data.Stun = columns[35].Trim();
-            if (columns.Length > 36) data.Poison = columns[36].Trim();
-            if (columns.Length > 37) data.Burn = columns[37].Trim();
-            if (columns.Length > 38) data.Bleed = columns[38].Trim();
-            if (columns.Length > 39) data.Weaken = columns[39].Trim();
-            if (columns.Length > 40) data.Expose = columns[40].Trim();
-            if (columns.Length > 41) data.Slow = columns[41].Trim();
-            if (columns.Length > 42) data.Vulnerability = columns[42].Trim();
-            if (columns.Length > 43) data.Harden = columns[43].Trim();
-            if (columns.Length > 44) data.Silence = columns[44].Trim();
-            if (columns.Length > 45) data.Pierce = columns[45].Trim();
-            if (columns.Length > 46) data.StatDrain = columns[46].Trim();
-            if (columns.Length > 47) data.Fortify = columns[47].Trim();
-            if (columns.Length > 48) data.Consume = columns[48].Trim();
-            if (columns.Length > 49) data.Focus = columns[49].Trim();
-            if (columns.Length > 50) data.Cleanse = columns[50].Trim();
-            if (columns.Length > 51) data.Lifesteal = columns[51].Trim();
-            if (columns.Length > 52) data.Reflect = columns[52].Trim();
-            if (columns.Length > 53) data.SelfDamage = columns[53].Trim();
+            if (columns.Length > 35) data.SpeedMod = columns[35].Trim();
+            if (columns.Length > 36) data.DamageMod = columns[36].Trim();
+            if (columns.Length > 37) data.MultiHitMod = columns[37].Trim();
+            if (columns.Length > 38) data.AmpMod = columns[38].Trim();
+            if (columns.Length > 39) data.Stun = columns[39].Trim();
+            if (columns.Length > 40) data.Poison = columns[40].Trim();
+            if (columns.Length > 41) data.Burn = columns[41].Trim();
+            if (columns.Length > 42) data.Bleed = columns[42].Trim();
+            if (columns.Length > 43) data.Weaken = columns[43].Trim();
+            if (columns.Length > 44) data.Expose = columns[44].Trim();
+            if (columns.Length > 45) data.Slow = columns[45].Trim();
+            if (columns.Length > 46) data.Vulnerability = columns[46].Trim();
+            if (columns.Length > 47) data.Harden = columns[47].Trim();
+            if (columns.Length > 48) data.Silence = columns[48].Trim();
+            if (columns.Length > 49) data.Pierce = columns[49].Trim();
+            if (columns.Length > 50) data.StatDrain = columns[50].Trim();
+            if (columns.Length > 51) data.Fortify = columns[51].Trim();
+            if (columns.Length > 52) data.Consume = columns[52].Trim();
+            if (columns.Length > 53) data.Focus = columns[53].Trim();
+            if (columns.Length > 54) data.Cleanse = columns[54].Trim();
+            if (columns.Length > 55) data.Lifesteal = columns[55].Trim();
+            if (columns.Length > 56) data.Reflect = columns[56].Trim();
+            if (columns.Length > 57) data.SelfDamage = columns[57].Trim();
         }
     }
 }

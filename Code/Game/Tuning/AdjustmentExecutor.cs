@@ -299,7 +299,7 @@ namespace RPGGame.Tuning
                         scaling.Health = (int)value;
                         break;
                     case "attributes":
-                        scaling.Attributes = (int)value;
+                        scaling.Attributes = value;
                         break;
                     case "armor":
                         scaling.Armor = value;

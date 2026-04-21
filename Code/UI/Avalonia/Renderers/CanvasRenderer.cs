@@ -134,9 +134,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             ctm.SwitchToCharacterDisplayManager(player);
         }
 
-        private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas = true, bool usePersistentChrome = true, bool inventoryComboRightPanel = false)
+        private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas = true, bool usePersistentChrome = true, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false)
         {
-            layoutCoordinator.RenderWithLayout(character, title, renderContent, context, enemy, dungeonName, roomName, clearCanvas, usePersistentChrome, inventoryComboRightPanel);
+            layoutCoordinator.RenderWithLayout(character, title, renderContent, context, enemy, dungeonName, roomName, clearCanvas, usePersistentChrome, inventoryComboRightPanel, registerActionLabEnemyLevelHover);
         }
 
         #endregion

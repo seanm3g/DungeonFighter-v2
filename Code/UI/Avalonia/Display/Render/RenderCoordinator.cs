@@ -190,6 +190,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
                         title = TitleResolver.DetermineTitle(layoutCharacter, enemyToRender);
                     }
 
+                    bool labEnemyLevelHover = paintState == GameState.ActionInteractionLab && ActionInteractionLabSession.Current != null;
                     layoutManager.RenderLayout(
                         layoutCharacter,
                         (x, y, w, h) => { renderer.Render(buffer, x, y, w, h); },
@@ -197,8 +198,10 @@ namespace RPGGame.UI.Avalonia.Display.Render
                         enemyToRender,
                         state.DungeonName,
                         state.RoomName,
-                        clearCanvas: shouldClearCanvas
-                    );
+                        clearCanvas: shouldClearCanvas,
+                        usePersistentChrome: true,
+                        inventoryComboRightPanel: false,
+                        registerActionLabEnemyLevelHover: labEnemyLevelHover);
 
                     // Draw strip after left/center/right chrome so the right panel cannot paint over it when columns overlap.
                     if (layoutCharacter != null)

@@ -5,16 +5,14 @@
     "dps": "66%",
     "numberOfHits": "1",
     "damage": "33%",
-    "speed": "0.50",
-    "target": "ENEMY"
+    "speed": "0.50"
   },
   {
     "action": "PUNCH HARD",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY"
+    "speed": "1.00"
   },
   {
     "action": "PUNCH HARDER",
@@ -23,8 +21,7 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "1.00",
-    "heroCrit": "1",
-    "target": "ENEMY"
+    "heroCrit": "1"
   },
   {
     "action": "PUNCH HARDEST",
@@ -33,8 +30,7 @@
     "numberOfHits": "1",
     "damage": "150%",
     "speed": "1.00",
-    "stun": "1",
-    "target": "ENEMY"
+    "stun": "1"
   },
   {
     "action": "TAUNT",
@@ -45,8 +41,7 @@
     "speed": "0.50",
     "heroAccuracy": "1",
     "enemySTR": "-1",
-    "enemyAGI": "1",
-    "target": "ENEMY"
+    "enemyAGI": "1"
   },
   {
     "action": "CONCENTRATE",
@@ -57,8 +52,7 @@
     "speed": "0.50",
     "duration": "1",
     "cadence": "ATTACK",
-    "heroAccuracy": "1",
-    "target": "ENEMY"
+    "heroAccuracy": "1"
   },
   {
     "action": "STUN",
@@ -67,8 +61,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "stun": "1",
-    "target": "ENEMY"
+    "stun": "1"
   },
   {
     "action": "CRITICAL ATTACK",
@@ -77,8 +70,7 @@
     "numberOfHits": "1",
     "damage": "300%",
     "speed": "2.00",
-    "heroCrit": "10",
-    "target": "ENEMY"
+    "heroCrit": "10"
   },
   {
     "action": "FLURRY",
@@ -89,8 +81,7 @@
     "speed": "2.00",
     "duration": "1",
     "cadence": "ACTION",
-    "heroAGI": "1",
-    "target": "ENEMY"
+    "heroAGI": "1"
   },
   {
     "action": "MOMENTUM BASH",
@@ -102,8 +93,7 @@
     "duration": "1",
     "cadence": "DUNGEON",
     "heroSTR": "1",
-    "heroTECH": "1",
-    "target": "ENEMY"
+    "heroTECH": "1"
   },
   {
     "action": "READ BOOK",
@@ -114,20 +104,18 @@
     "speed": "2.00",
     "duration": "1",
     "cadence": "DUNGEON",
-    "heroINT": "1",
-    "target": "ENEMY"
+    "heroINT": "1"
   },
   {
     "action": "CHEAP SHOT",
     "description": "for next 3 ATTACKS: -1 ACCURACY",
     "dps": "520%",
-    "numberOfHits": "2",
+    "numberOfHits": "1",
     "damage": "130%",
     "speed": "0.25",
     "duration": "3",
-    "cadence": "Action",
-    "heroAccuracy": "-1",
-    "target": "ENEMY"
+    "cadence": "ATTACK",
+    "heroAccuracy": "-1"
   },
   {
     "action": "BERZERK",
@@ -136,9 +124,7 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY",
-    "tags": "barbarian"
+    "speed": "1.00"
   },
   {
     "action": "GRUNT",
@@ -150,8 +136,7 @@
     "duration": "1",
     "cadence": "ATTACK",
     "heroAccuracy": "1",
-    "heroSTR": "1",
-    "target": "ENEMY"
+    "heroSTR": "1"
   },
   {
     "action": "DISARM",
@@ -162,8 +147,7 @@
     "speed": "0.25",
     "duration": "3",
     "cadence": "ATTACK",
-    "enemyHit": "-3",
-    "target": "ENEMY"
+    "enemyHit": "-3"
   },
   {
     "action": "ONE SHOT",
@@ -174,9 +158,7 @@
     "damage": "300%",
     "speed": "0.25",
     "duration": "3",
-    "cadence": "Action",
-    "target": "ENEMY",
-    "tags": "common"
+    "cadence": "Action"
   },
   {
     "action": "DRUNKEN BRAWLER",
@@ -187,11 +169,9 @@
     "damage": "100%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "Action",
+    "cadence": "ATTACK",
     "heroAccuracy": "-5",
-    "enemyAccuracy": "-5",
-    "target": "ENEMY",
-    "tags": "uncommon"
+    "enemyAccuracy": "-5"
   },
   {
     "action": "STIM PACK",
@@ -205,9 +185,7 @@
     "cadence": "ATTACK",
     "heroHit": "3",
     "heroCombo": "2",
-    "heroCrit": "1",
-    "target": "ENEMY",
-    "tags": "rare"
+    "heroCrit": "1"
   },
   {
     "action": "ANIME CHARGE-UP",
@@ -217,10 +195,8 @@
     "damage": "100%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "Action",
-    "modifyBasedOnChainPosition": "true",
-    "target": "ENEMY",
-    "chainPositionBonusesJson": "[{\u0022modifiesParam\u0022:\u0022Accuracy\u0022,\u0022value\u0022:1,\u0022valueKind\u0022:\u0022#\u0022,\u0022positionBasis\u0022:\u0022\u0022}]"
+    "cadence": "FIGHT",
+    "heroAccuracy": "1"
   },
   {
     "action": "OVERKILL",
@@ -230,8 +206,7 @@
     "damage": "100%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "ATTACK",
-    "target": "ENEMY"
+    "cadence": "ATTACK"
   },
   {
     "action": "DANCE",
@@ -243,16 +218,14 @@
     "duration": "1",
     "cadence": "DUNGEON",
     "opener": "true",
-    "heroAGI": "1",
-    "target": "ENEMY"
+    "heroAGI": "1"
   },
   {
     "action": "A CARD THAT GETS WORSE OVER TIME",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY"
+    "speed": "1.00"
   },
   {
     "action": "BULK DAY",
@@ -263,7 +236,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "ACTION",
-    "target": "ENEMY"
+    "damageMod": "50"
   },
   {
     "action": "CHUG ENERGY DRINK",
@@ -273,8 +246,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "3",
-    "cadence": "ATTACK",
-    "target": "ENEMY"
+    "cadence": "ATTACK"
   },
   {
     "action": "TRUE STRIKE",
@@ -285,8 +257,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "ATTACK",
-    "heroAccuracy": "10",
-    "target": "ENEMY"
+    "heroAccuracy": "10"
   },
   {
     "action": "SECOND WIND",
@@ -295,8 +266,7 @@
     "numberOfHits": "1",
     "damage": "200%",
     "speed": "2.00",
-    "heroHeal": "5",
-    "target": "SELF"
+    "heroHeal": "5"
   },
   {
     "action": "QUICK REFLEXES",
@@ -307,8 +277,7 @@
     "speed": "0.70",
     "duration": "1",
     "cadence": "ACTION",
-    "enemyAccuracy": "-5",
-    "target": "ENEMY"
+    "enemyAccuracy": "-5"
   },
   {
     "action": "DEJA VU",
@@ -316,8 +285,7 @@
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "2.00",
-    "target": "ENEMY"
+    "speed": "2.00"
   },
   {
     "action": "POWER OVERWHELMING",
@@ -325,8 +293,7 @@
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "2.00",
-    "target": "ENEMY"
+    "speed": "2.00"
   },
   {
     "action": "ANY DAY NOW",
@@ -336,8 +303,7 @@
     "damage": "250%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "CHAIN",
-    "target": "ENEMY"
+    "cadence": "CHAIN"
   },
   {
     "action": "I AM INVINCIBLE",
@@ -347,8 +313,7 @@
     "damage": "250%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "DUNGEON",
-    "target": "ENEMY"
+    "cadence": "DUNGEON"
   },
   {
     "action": "AVENGE",
@@ -359,8 +324,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "Action",
-    "enemyAccuracy": "20",
-    "target": "ENEMY"
+    "enemyAccuracy": "20"
   },
   {
     "action": "FOLLOW THROUGH",
@@ -370,8 +334,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "ACTION",
-    "target": "ENEMY"
+    "cadence": "ACTION"
   },
   {
     "action": "OPENING VOLLEY",
@@ -382,8 +345,7 @@
     "speed": "0.75",
     "duration": "4",
     "cadence": "ATTACK",
-    "opener": "true",
-    "target": "ENEMY"
+    "opener": "true"
   },
   {
     "action": "WEINING LIGHT",
@@ -393,8 +355,7 @@
     "damage": "100%",
     "speed": "0.75",
     "duration": "1",
-    "cadence": "FIGHT",
-    "target": "ENEMY"
+    "cadence": "FIGHT"
   },
   {
     "action": "MIRROR FLEXING",
@@ -402,8 +363,7 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY"
+    "speed": "1.00"
   },
   {
     "action": "ROGUES GAMBIT",
@@ -411,8 +371,7 @@
     "dps": "25%",
     "numberOfHits": "1",
     "damage": "25%",
-    "speed": "1.00",
-    "target": "ENEMY"
+    "speed": "1.00"
   },
   {
     "action": "POISON TIP",
@@ -423,8 +382,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "FIGHT",
-    "poison": "1",
-    "target": "ENEMY"
+    "poison": "1"
   },
   {
     "action": "HAYMAKER",
@@ -435,8 +393,7 @@
     "speed": "3.00",
     "duration": "1",
     "cadence": "ACTION",
-    "heroAccuracy": "-14",
-    "target": "ENEMY"
+    "heroAccuracy": "-14"
   },
   {
     "action": "FRENZY",
@@ -449,8 +406,7 @@
     "cadence": "ATTACK",
     "finisher": "true",
     "heroHit": "3",
-    "heroCombo": "-2",
-    "target": "ENEMY"
+    "heroCombo": "-2"
   },
   {
     "action": "BLOOD KNIFE",
@@ -462,8 +418,7 @@
     "duration": "2",
     "cadence": "ACTION",
     "selfDamage": "1",
-    "heroHeal": "25",
-    "target": "SELF"
+    "heroHeal": "25"
   },
   {
     "action": "HOLY HEALY",
@@ -472,8 +427,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.50",
-    "heroHeal": "25",
-    "target": "SELF"
+    "heroHeal": "25"
   },
   {
     "action": "BLOODY SUNDAY",
@@ -484,8 +438,7 @@
     "speed": "3.00",
     "duration": "1",
     "cadence": "FIGHT",
-    "finisher": "true",
-    "target": "ENEMY"
+    "finisher": "true"
   },
   {
     "action": "24/7/365",
@@ -493,8 +446,7 @@
     "dps": "33%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "3.00",
-    "target": "ENEMY"
+    "speed": "3.00"
   },
   {
     "action": "PRETTY BOY SWAG",
@@ -506,8 +458,7 @@
     "duration": "1",
     "cadence": "DUNGEON",
     "heroCrit": "5",
-    "heroSTR": "3",
-    "target": "ENEMY"
+    "heroSTR": "3"
   },
   {
     "action": "OPENING CUT",
@@ -519,8 +470,7 @@
     "duration": "1",
     "cadence": "ACTION",
     "opener": "true",
-    "heroHit": "2",
-    "target": "ENEMY"
+    "heroHit": "2"
   },
   {
     "action": "RAZOR MARGIN",
@@ -533,8 +483,7 @@
     "cadence": "ATTACK",
     "heroHit": "-2",
     "heroCrit": "2",
-    "enemyHit": "2",
-    "target": "ENEMY"
+    "enemyHit": "2"
   },
   {
     "action": "FOCUSED BREATHING",
@@ -546,8 +495,7 @@
     "duration": "1",
     "cadence": "FIGHT",
     "heroAccuracy": "1",
-    "heroSTR": "0.30",
-    "target": "ENEMY"
+    "heroSTR": "0.30"
   },
   {
     "action": "ADRENAL SURGE",
@@ -559,8 +507,7 @@
     "duration": "1",
     "cadence": "Ability",
     "speedMod": "20",
-    "selfDamage": "ON CRIT, ON MISS",
-    "target": "ENEMY"
+    "selfDamage": "ON CRIT, ON MISS"
   },
   {
     "action": "TENSION HOLD",
@@ -571,8 +518,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "FIGHT",
-    "heroCombo": "1",
-    "target": "ENEMY"
+    "heroCombo": "1"
   },
   {
     "action": "LATE BLOOM",
@@ -581,8 +527,7 @@
     "numberOfHits": "1",
     "damage": "30%",
     "speed": "1.50",
-    "finisher": "true",
-    "target": "ENEMY"
+    "finisher": "true"
   },
   {
     "action": "MEASURED PATIENCE",
@@ -594,8 +539,7 @@
     "duration": "2",
     "cadence": "ACTION",
     "heroHit": "2",
-    "heroCrit": "-1",
-    "target": "ENEMY"
+    "heroCrit": "-1"
   },
   {
     "action": "MEASURED ADVANCE",
@@ -606,8 +550,7 @@
     "speed": "0.80",
     "duration": "1",
     "cadence": "ACTION",
-    "heroCombo": "1",
-    "target": "ENEMY"
+    "heroCombo": "1"
   },
   {
     "action": "GLASS STRIKE",
@@ -617,8 +560,7 @@
     "damage": "300%",
     "speed": "1.60",
     "duration": "1",
-    "cadence": "FIGHT",
-    "target": "ENEMY"
+    "cadence": "FIGHT"
   },
   {
     "action": "STATIC ODDS",
@@ -628,8 +570,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "ACTION",
-    "target": "ENEMY"
+    "cadence": "ACTION"
   },
   {
     "action": "LUCKY CHARM",
@@ -640,8 +581,7 @@
     "speed": "0.25",
     "duration": "1",
     "cadence": "ATTACK",
-    "heroAccuracy": "14",
-    "target": "ENEMY"
+    "heroAccuracy": "14"
   },
   {
     "action": "SWIFT",
@@ -651,8 +591,7 @@
     "damage": "100%",
     "speed": "0.70",
     "duration": "1",
-    "cadence": "COMBO",
-    "target": "ENEMY"
+    "cadence": "COMBO"
   },
   {
     "action": "EXHAUSTING RHYTHM",
@@ -662,8 +601,7 @@
     "damage": "125%",
     "speed": "1.20",
     "duration": "1",
-    "cadence": "FIGHT",
-    "target": "ENEMY"
+    "cadence": "FIGHT"
   },
   {
     "action": "WINDED STATE",
@@ -673,8 +611,7 @@
     "damage": "71%",
     "speed": "1.30",
     "duration": "1",
-    "cadence": "FIGHT",
-    "target": "ENEMY"
+    "cadence": "FIGHT"
   },
   {
     "action": "OVERHAND SMASH",
@@ -685,8 +622,7 @@
     "speed": "1.70",
     "heroHit": "-2",
     "heroCrit": "2",
-    "stun": "1",
-    "target": "ENEMY"
+    "stun": "1"
   },
   {
     "action": "HOLD TEMPO",
@@ -696,8 +632,7 @@
     "damage": "25%",
     "speed": "0.60",
     "duration": "1",
-    "cadence": "CHAIN",
-    "target": "ENEMY"
+    "cadence": "CHAIN"
   },
   {
     "action": "BACKSTEP SLASH",
@@ -708,8 +643,7 @@
     "speed": "0.70",
     "duration": "1",
     "cadence": "ACTION",
-    "heroHit": "2",
-    "target": "ENEMY"
+    "heroHit": "2"
   },
   {
     "action": "CRUSHING FOLLOW-THROUGH",
@@ -719,8 +653,7 @@
     "damage": "175%",
     "speed": "1.30",
     "duration": "1",
-    "cadence": "ACTION",
-    "target": "ENEMY"
+    "cadence": "ACTION"
   },
   {
     "action": "ALL IN",
@@ -730,8 +663,7 @@
     "damage": "400%",
     "speed": "2.00",
     "heroHit": "-8",
-    "heroCrit": "6",
-    "target": "ENEMY"
+    "heroCrit": "6"
   },
   {
     "action": "FINAL REP",
@@ -743,8 +675,7 @@
     "duration": "1",
     "cadence": "ACTION",
     "finisher": "true",
-    "heroAccuracy": "3",
-    "target": "ENEMY"
+    "heroAccuracy": "3"
   },
   {
     "action": "HOLLOW ADVANCE",
@@ -754,7 +685,7 @@
     "damage": "100%",
     "speed": "0.70",
     "heroCombo": "1",
-    "target": "ENEMY"
+    "jumpRelative": "1"
   },
   {
     "action": "SLAPBACK ECHO",
@@ -762,8 +693,7 @@
     "dps": "63%",
     "numberOfHits": "1",
     "damage": "50%",
-    "speed": "0.80",
-    "target": "ENEMY"
+    "speed": "0.80"
   },
   {
     "action": "PERFECT LINE",
@@ -773,9 +703,9 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "ACTION",
+    "cadence": "Action",
     "heroCombo": "4",
-    "target": "ENEMY"
+    "jumpRelative": "4"
   },
   {
     "action": "OL\u0027 FAITHFUL",
@@ -785,8 +715,7 @@
     "damage": "75%",
     "speed": "1.00",
     "heroHit": "9",
-    "heroCombo": "-6",
-    "target": "ENEMY"
+    "heroCombo": "-6"
   },
   {
     "action": "CONTROLLED BURST",
@@ -798,8 +727,7 @@
     "duration": "1",
     "cadence": "ACTION",
     "heroHit": "1",
-    "heroCrit": "-1",
-    "target": "ENEMY"
+    "heroCrit": "-1"
   },
   {
     "action": "PHANTOM FOLLOW-UP",
@@ -808,8 +736,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.50",
-    "heroCombo": "1",
-    "target": "ENEMY"
+    "heroCombo": "1"
   },
   {
     "action": "FINAL PUSH",
@@ -819,8 +746,7 @@
     "damage": "500%",
     "speed": "2.50",
     "finisher": "true",
-    "consume": "1",
-    "target": "ENEMY"
+    "consume": "1"
   },
   {
     "action": "RISING PRESSURE",
@@ -830,8 +756,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "COMBO",
-    "target": "ENEMY"
+    "cadence": "COMBO"
   },
   {
     "action": "TEMPO SHIFT",
@@ -839,8 +764,7 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY"
+    "speed": "1.00"
   },
   {
     "action": "GUARANTEED HIT",
@@ -851,8 +775,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "ATTACK",
-    "heroHit": "5",
-    "target": "ENEMY"
+    "heroHit": "5"
   },
   {
     "action": "OVERCOMMIT",
@@ -860,8 +783,7 @@
     "dps": "167%",
     "numberOfHits": "1",
     "damage": "500%",
-    "speed": "3.00",
-    "target": "ENEMY"
+    "speed": "3.00"
   },
   {
     "action": "CALM BEFORE STORM",
@@ -871,8 +793,7 @@
     "damage": "100%",
     "speed": "0.60",
     "duration": "1",
-    "cadence": "ACTION",
-    "target": "ENEMY"
+    "cadence": "ACTION"
   },
   {
     "action": "CALCULATED RISK",
@@ -884,8 +805,7 @@
     "duration": "1",
     "cadence": "ACTION",
     "heroHit": "-2",
-    "heroCrit": "2",
-    "target": "ENEMY"
+    "heroCrit": "2"
   },
   {
     "action": "AMPLIFY ACCURACY",
@@ -895,8 +815,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "ACTION",
-    "enemyAccuracy": "20",
-    "target": "ENEMY"
+    "enemyAccuracy": "20"
   },
   {
     "action": "GROUNDHOGS DAY",
@@ -905,8 +824,7 @@
     "damage": "100%",
     "speed": "1.00",
     "heroSTR": "3",
-    "heroHeal": "100%",
-    "target": "SELF"
+    "heroHeal": "100%"
   },
   {
     "action": "DOMAIN EXPANSION",
@@ -917,8 +835,7 @@
     "duration": "3",
     "cadence": "ACTION",
     "finisher": "true",
-    "heroCombo": "14",
-    "target": "ENEMY"
+    "heroCombo": "14"
   },
   {
     "action": "EARLY BIRD GETS THE WORM",
@@ -929,8 +846,7 @@
     "speed": "0.70",
     "duration": "1",
     "cadence": "ACTION",
-    "consume": "1",
-    "target": "ENEMY"
+    "consume": "1"
   },
   {
     "action": "SLAM",
@@ -939,9 +855,7 @@
     "dps": "120%",
     "numberOfHits": "1",
     "damage": "150%",
-    "speed": "1.25",
-    "target": "ENEMY",
-    "tags": "weapon"
+    "speed": "1.25"
   },
   {
     "action": "STRIKE",
@@ -949,9 +863,7 @@
     "dps": "100%",
     "numberOfHits": "2",
     "damage": "50%",
-    "speed": "1.00",
-    "target": "ENEMY",
-    "tags": "weapon"
+    "speed": "1.00"
   },
   {
     "action": "STAB",
@@ -959,9 +871,7 @@
     "dps": "120%",
     "numberOfHits": "1",
     "damage": "60%",
-    "speed": "0.50",
-    "target": "ENEMY",
-    "tags": "weapon"
+    "speed": "0.50"
   },
   {
     "action": "CAST",
@@ -972,9 +882,7 @@
     "speed": "3.00",
     "duration": "1",
     "cadence": "Action",
-    "heroAccuracy": "20",
-    "target": "ENEMY",
-    "tags": "weapon"
+    "heroAccuracy": "20"
   },
   {
     "action": "RAGE",
@@ -985,8 +893,7 @@
     "duration": "1",
     "cadence": "Action",
     "heroCrit": "4",
-    "damageMod": "50",
-    "target": "ENEMY"
+    "damageMod": "50"
   },
   {
     "action": "MOMENTUM",
@@ -994,8 +901,7 @@
     "numberOfHits": "1",
     "damage": "200%",
     "speed": "2.00",
-    "finisher": "true",
-    "target": "ENEMY"
+    "finisher": "true"
   },
   {
     "action": "SQUAT",
@@ -1004,9 +910,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "heroSTR": "1",
-    "target": "ENEMY",
-    "tags": "barbarian"
+    "heroSTR": "1"
   },
   {
     "action": "SLASH",
@@ -1016,9 +920,7 @@
     "damage": "100%",
     "speed": "1.50",
     "duration": "3",
-    "cadence": "ATTACK",
-    "target": "ENEMY",
-    "tags": "warrior"
+    "cadence": "ATTACK"
   },
   {
     "action": "HACK",
@@ -1026,9 +928,7 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY",
-    "tags": "warrior"
+    "speed": "1.00"
   },
   {
     "action": "JUKE",
@@ -1037,9 +937,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "heroAGI": "1",
-    "target": "ENEMY",
-    "tags": "warrior"
+    "heroAGI": "1"
   },
   {
     "action": "POUND",
@@ -1049,10 +947,9 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "3",
-    "cadence": "ATTACK",
+    "cadence": "Action",
     "heroCrit": "2",
-    "target": "ENEMY",
-    "tags": "rogue"
+    "damageMod": "50"
   },
   {
     "action": "SLEIGHT OF HAND",
@@ -1060,9 +957,7 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY",
-    "tags": "rogue"
+    "speed": "1.00"
   },
   {
     "action": "HONE",
@@ -1071,12 +966,11 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "heroTECH": "1",
-    "target": "ENEMY",
-    "tags": "rogue"
+    "heroTECH": "1"
   },
   {
-    "action": "INVOKE",
+    "action": "CHANNEL",
+    "description": "FOR NEXT 3 ATTACKS: \u002B2 COMBO",
     "category": "WIZARD",
     "dps": "40%",
     "numberOfHits": "1",
@@ -1084,19 +978,15 @@
     "speed": "0.25",
     "duration": "3",
     "cadence": "ATTACK",
-    "heroCombo": "2",
-    "target": "ENEMY",
-    "tags": "wizard"
+    "heroCombo": "2"
   },
   {
-    "action": "CHANNEL",
+    "action": "INVOKE",
     "category": "WIZARD",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY",
-    "tags": "wizard"
+    "speed": "1.00"
   },
   {
     "action": "READ",
@@ -1105,24 +995,32 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "heroINT": "1",
-    "target": "ENEMY",
-    "tags": "wizard"
+    "heroINT": "1"
   },
   {
     "action": "INTELECTUAL DEBATE",
     "description": "X int",
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY"
+    "speed": "1.00"
   },
   {
     "action": "HUNKER DOWN",
     "description": "double armor for 2 attacks",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00"
+  },
+  {
+    "action": "WIDE SWING",
+    "description": "\u002B2 multihit, -40% damage",
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "ENEMY"
+    "speedMod": "-40",
+    "multiHitMod": "2"
   }
 ]

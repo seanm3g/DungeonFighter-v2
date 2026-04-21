@@ -74,5 +74,17 @@ namespace RPGGame.Data
 
         [JsonPropertyName("ampMod")]
         public string AmpMod { get; set; } = "";
+
+        [JsonPropertyName("enemySpeedMod")]
+        public string EnemySpeedMod { get; set; } = "";
+
+        [JsonPropertyName("enemyDamageMod")]
+        public string EnemyDamageMod { get; set; } = "";
+
+        [JsonPropertyName("enemyMultiHitMod")]
+        public string EnemyMultiHitMod { get; set; } = "";
+
+        [JsonPropertyName("enemyAmpMod")]
+        public string EnemyAmpMod { get; set; } = "";
     }
 }

@@ -91,7 +91,7 @@ namespace RPGGame.Editors
                 new EditableVariable("EnemySystem.BaselineStats.Intelligence", () => config.EnemySystem.BaselineStats.Intelligence, v => config.EnemySystem.BaselineStats.Intelligence = Convert.ToInt32(v), "Enemy baseline intelligence"),
                 new EditableVariable("EnemySystem.BaselineStats.Armor", () => config.EnemySystem.BaselineStats.Armor, v => config.EnemySystem.BaselineStats.Armor = Convert.ToInt32(v), "Enemy baseline armor"),
                 new EditableVariable("EnemySystem.ScalingPerLevel.Health", () => config.EnemySystem.ScalingPerLevel.Health, v => config.EnemySystem.ScalingPerLevel.Health = Convert.ToInt32(v), "Enemy health per level"),
-                new EditableVariable("EnemySystem.ScalingPerLevel.Attributes", () => config.EnemySystem.ScalingPerLevel.Attributes, v => config.EnemySystem.ScalingPerLevel.Attributes = Convert.ToInt32(v), "Enemy attributes per level"),
+                new EditableVariable("EnemySystem.ScalingPerLevel.Attributes", () => config.EnemySystem.ScalingPerLevel.Attributes, v => config.EnemySystem.ScalingPerLevel.Attributes = Convert.ToDouble(v), "Enemy attributes per level"),
                 new EditableVariable("EnemySystem.ScalingPerLevel.Armor", () => config.EnemySystem.ScalingPerLevel.Armor, v => config.EnemySystem.ScalingPerLevel.Armor = Convert.ToDouble(v), "Enemy armor per level"),
             };
             variablesByCategory["EnemySystem"] = enemyVars;

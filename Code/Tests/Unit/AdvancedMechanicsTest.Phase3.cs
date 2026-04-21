@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit
             TestTagAggregator();
             TestTagModifier();
             TestComboRouter();
+            TestComboRouterRelativeJump();
             
             PrintSummary();
         }
@@ -130,6 +131,33 @@ namespace RPGGame.Tests.Unit
             catch (Exception ex)
             {
                 AssertTrue(false, $"Combo router test failed: {ex.Message}");
+            }
+        }
+
+        private static void TestComboRouterRelativeJump()
+        {
+            Console.WriteLine("Testing ComboRouter relative jump...");
+            try
+            {
+                var character = new Character("Test", 1);
+                var action = new Action { Name = "Test Action" };
+                action.ComboRouting.JumpRelativeSlots = 1;
+                var comboSequence = new System.Collections.Generic.List<Action>
+                {
+                    new Action { Name = "Action1" },
+                    new Action { Name = "Action2" },
+                    new Action { Name = "Action3" },
+                    new Action { Name = "Action4" }
+                };
+
+                // 0-based index 1 = combo "position" 2; +1 extra slot → index 3 = position 4
+                var result = ComboRouter.RouteCombo(character, action, 1, comboSequence);
+                AssertTrue(result.RoutingAction == ComboRouter.RoutingAction.JumpRelative, "Combo routing identified relative jump");
+                AssertTrue(result.NextSlotIndex == 3, $"Next slot index: {result.NextSlotIndex} (expected 3)");
+            }
+            catch (Exception ex)
+            {
+                AssertTrue(false, $"Combo router relative jump test failed: {ex.Message}");
             }
         }
         

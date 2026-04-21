@@ -32,6 +32,19 @@ namespace RPGGame
             if (MinimumAttackTime <= 0)
                 MinimumAttackTime = DefaultMinimumAttackTimeSeconds;
         }
+
+        /// <summary>
+        /// Aligns with threshold and damage safeguards used at combat runtime when tuning JSON zeros these fields.
+        /// </summary>
+        public void EnsureValidCombatCriticalAndDamageDefaults()
+        {
+            if (CriticalHitThreshold <= 0)
+                CriticalHitThreshold = 20;
+            if (MinimumDamage <= 0)
+                MinimumDamage = 1;
+            if (CriticalHitMultiplier <= 0)
+                CriticalHitMultiplier = 2.0;
+        }
         
         // Agility speed mapping parameters
         public int AgilityMin { get; set; } = 1;
@@ -51,6 +64,17 @@ namespace RPGGame
         public StatusEffectScalingConfig StatusEffectScaling { get; set; } = new();
         public EnvironmentalEffectsConfig EnvironmentalEffects { get; set; } = new();
         public string Description { get; set; } = "";
+
+        /// <summary>
+        /// Matches DamageCalculator safeguards that treat non-positive multipliers as 1.0 and crit damage multiplier as unusable when zero.
+        /// </summary>
+        public void EnsureValidRollDamageAndCritDefaults()
+        {
+            RollDamageMultipliers ??= new RollDamageMultipliersConfig();
+            RollDamageMultipliers.EnsurePositiveMultipliers();
+            if (CriticalHitDamageMultiplier <= 0)
+                CriticalHitDamageMultiplier = 2.0;
+        }
     }
 
     /// <summary>
@@ -62,6 +86,18 @@ namespace RPGGame
         public double BasicRollDamageMultiplier { get; set; }
         public double ComboAmplificationScalingMultiplier { get; set; }
         public double TierScalingFallbackMultiplier { get; set; }
+
+        public void EnsurePositiveMultipliers()
+        {
+            if (ComboRollDamageMultiplier <= 0)
+                ComboRollDamageMultiplier = 1.0;
+            if (BasicRollDamageMultiplier <= 0)
+                BasicRollDamageMultiplier = 1.0;
+            if (ComboAmplificationScalingMultiplier <= 0)
+                ComboAmplificationScalingMultiplier = 1.0;
+            if (TierScalingFallbackMultiplier <= 0)
+                TierScalingFallbackMultiplier = 1.0;
+        }
     }
 
     /// <summary>
@@ -97,6 +133,33 @@ namespace RPGGame
         public MinMaxConfig BasicAttackThreshold { get; set; } = new();
         public MinMaxConfig ComboThreshold { get; set; } = new();
         public int CriticalThreshold { get; set; }
+
+        /// <summary>
+        /// When key thresholds are missing or zero, applies the standard d20 miss/basic/combo ladder used as combat defaults.
+        /// </summary>
+        public void EnsureValidDefaultThresholdBands()
+        {
+            MissThreshold ??= new MinMaxConfig();
+            BasicAttackThreshold ??= new MinMaxConfig();
+            ComboThreshold ??= new MinMaxConfig();
+
+            bool needsStandardBands = MissThreshold.Max <= 0
+                || BasicAttackThreshold.Min <= 0
+                || ComboThreshold.Min <= 0;
+
+            if (needsStandardBands)
+            {
+                MissThreshold.Min = 1;
+                MissThreshold.Max = 5;
+                BasicAttackThreshold.Min = 6;
+                BasicAttackThreshold.Max = 13;
+                ComboThreshold.Min = 14;
+                ComboThreshold.Max = 19;
+            }
+
+            if (CriticalThreshold <= 0)
+                CriticalThreshold = 20;
+        }
     }
 
     /// <summary>

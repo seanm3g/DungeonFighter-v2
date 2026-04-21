@@ -153,10 +153,11 @@ namespace RPGGame.Tests.Unit
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
 
-            // Natural 1 with huge bonus: not crit miss; hits and can crit+combo on crit-eval
+            // Natural 1 with huge sheet/chain bonus: crit-eval is attackTotal - rollBonus - penalty (natural face only),
+            // so huge accuracy does not "save" crit-miss on the natural 1 (see CombatCalculator.GetCritThresholdEvaluationRoll).
             var category1 = CategorizeRoll(attacker, target, 1, 100);
-            TestBase.AssertEqualEnum(RollCategory.CriticalHitCombo, category1,
-                "Natural 1 with +100 bonus should hit and count as crit+combo when crit-eval clears thresholds",
+            TestBase.AssertEqualEnum(RollCategory.CriticalMiss, category1,
+                "Natural 1 with +100 roll bonus: crit-eval stays 1 → critical miss (bonuses affect hit total, not crit-eval)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -29,7 +29,15 @@ namespace RPGGame.UI.Avalonia.Layout
             int defaultHit = config.RollSystem.MissThreshold.Max > 0 ? config.RollSystem.MissThreshold.Max : 5;
             int defaultCombo = config.RollSystem.ComboThreshold.Min > 0 ? config.RollSystem.ComboThreshold.Min : 14;
             int defaultCrit = config.Combat.CriticalHitThreshold > 0 ? config.Combat.CriticalHitThreshold : 20;
-            int accuracy = ActionUtilities.CalculateRollBonus(actor, null, consumeTempBonus: false);
+            // Stat/equipment/temp roll bonus (d20 total) plus queued threshold shifts (ACCURACY shared; COMBO/HIT per row)
+            // so deferred sheet HIT/COMBO and FIFO bonuses show before the next roll consumes them (including between enemy turns).
+            int rollBonusHud = ActionUtilities.CalculateRollBonus(actor, null, consumeTempBonus: false);
+            var pendingHud = actor is Character chHud ? ActionSelector.PeekPendingThresholdHudShifts(chHud) : default;
+            int comboRowShift = rollBonusHud + pendingHud.SharedAccuracy + pendingHud.ComboDelta;
+            int hitRowShift = rollBonusHud + pendingHud.SharedAccuracy + pendingHud.HitDelta;
+            int critRowShift = pendingHud.CritDelta;
+            // CRIT_MISS bonuses raise the stored threshold; GetThresholdValueWithAccuracyParts subtracts shift → negate.
+            int critMissRowShift = -pendingHud.CritMissDelta;
 
             void RenderThresholdRow(int rowY, string labelName, int current, int def, int baseThreshold, int rowAccuracy)
             {
@@ -55,14 +63,14 @@ namespace RPGGame.UI.Avalonia.Layout
             }
 
             int cy = y;
-            // Accuracy shifts hit/combo only; crit and crit-miss use the raw configured thresholds.
-            RenderThresholdRow(cy, "Crit", crit, defaultCrit, crit, 0);
+            // Queued HIT/COMBO/CRIT deltas shift their respective rows; ACCURACY shifts both hit and combo (matches combat resolution).
+            RenderThresholdRow(cy, "Crit", crit, defaultCrit, crit, critRowShift);
             cy++;
-            RenderThresholdRow(cy, "Combo", combo, defaultCombo, combo, accuracy);
+            RenderThresholdRow(cy, "Combo", combo, defaultCombo, combo, comboRowShift);
             cy++;
-            RenderThresholdRow(cy, "Hit", hit, defaultHit, hit + 1, accuracy);
+            RenderThresholdRow(cy, "Hit", hit, defaultHit, hit + 1, hitRowShift);
             cy++;
-            RenderThresholdRow(cy, "Crit Miss", critMiss, DefaultCritMiss, critMiss, 0);
+            RenderThresholdRow(cy, "Crit Miss", critMiss, DefaultCritMiss, critMiss, critMissRowShift);
             cy++;
             return cy;
         }

@@ -23,6 +23,55 @@
             <Setter Property="Background" Value="#FF2D2D2D"/>
             <Setter Property="Foreground" Value="White"/>
         </Style>
+        <!-- Google Sheets action buttons: Fluent theme hovers target PART_ContentPresenter; sync template + logical colors so hover never washes out. -->
+        <Style Selector="Button#ResyncSheetsButton">
+            <Setter Property="Background" Value="#FF0078D4"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#ResyncSheetsButton /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#FF0078D4"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#ResyncSheetsButton:pointerover">
+            <Setter Property="Background" Value="#FF2B94E8"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#ResyncSheetsButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#FF2B94E8"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#ResyncSheetsButton:pressed">
+            <Setter Property="Background" Value="#FF0A5590"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#ResyncSheetsButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#FF0A5590"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#PushSheetsButton">
+            <Setter Property="Background" Value="#FFC50E1F"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#PushSheetsButton /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#FFC50E1F"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#PushSheetsButton:pointerover">
+            <Setter Property="Background" Value="#FFE63242"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#PushSheetsButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#FFE63242"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#PushSheetsButton:pressed">
+            <Setter Property="Background" Value="#FFA50C18"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#PushSheetsButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#FFA50C18"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
     </UserControl.Styles>
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                  HorizontalScrollBarVisibility="Disabled">
@@ -118,21 +167,7 @@
                                 Foreground="White"
                                 BorderThickness="0"
                                 CornerRadius="4"
-                                Cursor="Hand">
-                            <Button.Styles>
-                                <Style Selector="Button:pointerover">
-                                    <Setter Property="Background" Value="#FF0E6CB5"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Style>
-                                <Style Selector="Button:pressed">
-                                    <Setter Property="Background" Value="#FF0A5590"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Style>
-                                <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Style>
-                            </Button.Styles>
-                        </Button>
+                                Cursor="Hand"/>
                         <Button x:Name="PushSheetsButton"
                                 Content="Push game data to Google Sheets"
                                 Width="280"
@@ -143,21 +178,7 @@
                                 Foreground="White"
                                 BorderThickness="0"
                                 CornerRadius="4"
-                                Cursor="Hand">
-                            <Button.Styles>
-                                <Style Selector="Button:pointerover">
-                                    <Setter Property="Background" Value="#FFDA1F2F"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Style>
-                                <Style Selector="Button:pressed">
-                                    <Setter Property="Background" Value="#FFA50C18"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Style>
-                                <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Style>
-                            </Button.Styles>
-                        </Button>
+                                Cursor="Hand"/>
                     </StackPanel>
                     <TextBlock x:Name="SheetsSyncProgressTextBlock"
                                Text="Ready"

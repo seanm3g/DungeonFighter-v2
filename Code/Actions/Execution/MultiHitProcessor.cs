@@ -10,6 +10,18 @@ namespace RPGGame.Actions.Execution
     internal static class MultiHitProcessor
     {
         /// <summary>
+        /// Combined attack total (modified d20 + roll bonus) for roll-based damage on multihit tick <paramref name="hitIndex"/> (0-based).
+        /// Each hit after the first applies <see cref="Actor.RollPenalty"/> again so a debuff like "Accuracy -1" affects every strike, not only the first damage tick.
+        /// </summary>
+        internal static int GetMultihitDamageTotalRoll(int combinedTotalRoll, Actor attacker, int hitIndex)
+        {
+            if (hitIndex <= 0 || attacker == null) return combinedTotalRoll;
+            int p = attacker.RollPenalty;
+            if (p == 0) return combinedTotalRoll;
+            return System.Math.Max(1, combinedTotalRoll - p * hitIndex);
+        }
+
+        /// <summary>
         /// Processes a multi-hit attack, applying damage for each hit
         /// </summary>
         public static int ProcessMultiHit(
@@ -39,8 +51,9 @@ namespace RPGGame.Actions.Execution
                 if (target is Enemy hitTargetEnemy && hitTargetEnemy.CurrentHealth <= 0)
                     break;
 
-                // Calculate damage for this hit (action.DamageMultiplier already contains per-hit scaling)
-                int hitDamage = CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, rollBonus, totalRoll);
+                // Roll-based damage: apply RollPenalty per hit (hit 0 uses the same total as the hit roll; later hits stack the debuff again)
+                int perHitTotalRoll = GetMultihitDamageTotalRoll(totalRoll, source, hit);
+                int hitDamage = CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, rollBonus, perHitTotalRoll);
 
                 // Handle SelfAndTarget - apply damage to both self and enemy
                 if (action.Target == TargetType.SelfAndTarget)

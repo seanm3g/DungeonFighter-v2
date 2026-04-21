@@ -164,18 +164,31 @@ namespace RPGGame
         public string Category { get; set; } = "";
         [JsonPropertyName("cadence")]
         public string Cadence { get; set; } = "";
-        /// <summary>Speed modifier as a percentage (e.g. "10" = 10%). Parse as number and use as percent when applying (e.g. value/100).</summary>
+        /// <summary>Hero next-action speed modifier as a percentage (spreadsheet AJ; e.g. "10" = 10%).</summary>
         [JsonPropertyName("speedMod")]
         public string SpeedMod { get; set; } = "";
-        /// <summary>Damage modifier as a percentage (e.g. "10" = 10%). Parse as number and use as percent when applying (e.g. value/100).</summary>
+        /// <summary>Hero next-action damage modifier as a percentage (spreadsheet AK).</summary>
         [JsonPropertyName("damageMod")]
         public string DamageMod { get; set; } = "";
-        /// <summary>Multi-hit modifier as a raw numerical value (e.g. "2" = 2). Parse as number and use directly.</summary>
+        /// <summary>Hero next-action multi-hit modifier as a raw value (spreadsheet AL).</summary>
         [JsonPropertyName("multiHitMod")]
         public string MultiHitMod { get; set; } = "";
-        /// <summary>Amp modifier as a raw numerical value (e.g. "1.5"). Parse as number and use directly.</summary>
+        /// <summary>Hero next-action amp modifier as a percentage (spreadsheet AM).</summary>
         [JsonPropertyName("ampMod")]
         public string AmpMod { get; set; } = "";
+
+        /// <summary>Enemy next-action speed modifier (spreadsheet AD).</summary>
+        [JsonPropertyName("enemySpeedMod")]
+        public string EnemySpeedMod { get; set; } = "";
+        /// <summary>Enemy next-action damage modifier (spreadsheet AE).</summary>
+        [JsonPropertyName("enemyDamageMod")]
+        public string EnemyDamageMod { get; set; } = "";
+        /// <summary>Enemy next-action multi-hit modifier (spreadsheet AF).</summary>
+        [JsonPropertyName("enemyMultiHitMod")]
+        public string EnemyMultiHitMod { get; set; } = "";
+        /// <summary>Enemy next-action amp modifier (spreadsheet AG).</summary>
+        [JsonPropertyName("enemyAmpMod")]
+        public string EnemyAmpMod { get; set; } = "";
 
         // Combo & position (round-trip with spreadsheet / Combo & Position section)
         [JsonPropertyName("chainPosition")]
@@ -186,6 +199,9 @@ namespace RPGGame
         public List<ChainPositionBonusEntry> ChainPositionBonuses { get; set; } = new List<ChainPositionBonusEntry>();
         [JsonPropertyName("jump")]
         public string Jump { get; set; } = "";
+        /// <summary>Extra combo slots after the normal next step (e.g. 1 at "position" 2 → fourth slot). Ignored when absolute <see cref="Jump"/> is set.</summary>
+        [JsonPropertyName("jumpRelative")]
+        public string JumpRelative { get; set; } = "";
         [JsonPropertyName("chainLength")]
         public string ChainLength { get; set; } = "";
         [JsonPropertyName("reset")]

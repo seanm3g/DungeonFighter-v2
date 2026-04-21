@@ -151,7 +151,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Call after a combat action that used the d20 for hit/miss (one consumption per action, not per multihit damage tick).
+        /// Call after a combat action that used the d20 for hit/miss (one consumption per action; multihit damage still applies <see cref="RollPenalty"/> per damage tick in <see cref="RPGGame.Actions.Execution.MultiHitProcessor"/>).
         /// </summary>
         public void ConsumeRollPenaltyAfterCombatRoll(Action? resolvedAction)
         {

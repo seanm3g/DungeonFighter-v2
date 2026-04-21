@@ -50,10 +50,7 @@ namespace RPGGame.Data
             h.SetCell(row, "ENEMY ATTRIBUTE MODIFICATIONS", "TECH", data.EnemyTECH);
             h.SetCell(row, "ENEMY ATTRIBUTE MODIFICATIONS", "INT", data.EnemyINT);
 
-            h.SetCell(row, "ENEMY BASE STATS", "SPEED MOD", data.SpeedMod);
-            h.SetCell(row, "ENEMY BASE STATS", "DAMAGE MOD", data.DamageMod);
-            h.SetCell(row, "ENEMY BASE STATS", "MULTIHIT MOD", data.MultiHitMod);
-            h.SetCell(row, "ENEMY BASE STATS", "AMP_MOD", data.AmpMod);
+            WriteNextActionMods(h, row, data);
 
             h.SetCell(row, "HERO HEAL", "HEAL", data.HeroHeal);
             h.SetCell(row, "HERO HEAL", "MAX HEALTH", data.HeroHealMaxHealth);
@@ -93,6 +90,44 @@ namespace RPGGame.Data
             return row;
         }
 
+        /// <summary>
+        /// Speed/Damage/MultiHit/Amp next-action mods: AD–AG under "ENEMY BASE STATS"; AJ–AM under "HERO BASE STATS".
+        /// </summary>
+        private static void WriteNextActionMods(SpreadsheetHeader h, string[] row, SpreadsheetActionData data)
+        {
+            const string enemyCtx = "ENEMY BASE STATS";
+            const string heroCtx = "HERO BASE STATS";
+            SetNextActionModCell(h, row, enemyCtx, data.EnemySpeedMod, "SPEED MOD", "ACTION SPEED", "ENEMY ACTION SPEED MOD", "ENEMY SPEED MOD");
+            SetNextActionModCell(h, row, enemyCtx, data.EnemyDamageMod, "DAMAGE MOD", "ACTION DAMAGE");
+            SetNextActionModCell(h, row, enemyCtx, data.EnemyMultiHitMod, "MULTIHIT MOD", "ENEMY MULTIHIT MOD");
+            if (h.GetColumnIndex(enemyCtx, "AMP_MOD", null, allowUnscopedLabelFallback: false) >= 0)
+                h.SetCell(row, enemyCtx, "AMP_MOD", data.EnemyAmpMod, null, allowUnscopedLabelFallback: false);
+            else
+                h.SetCell(row, enemyCtx, "AMP MOD", data.EnemyAmpMod, null, allowUnscopedLabelFallback: false);
+
+            SetNextActionModCell(h, row, heroCtx, data.SpeedMod, "SPEED MOD", "ACTION SPEED", "HERO ACTION SPEED MOD", "HERO SPEED MOD");
+            SetNextActionModCell(h, row, heroCtx, data.DamageMod, "DAMAGE MOD", "ACTION DAMAGE");
+            SetNextActionModCell(h, row, heroCtx, data.MultiHitMod, "MULTIHIT MOD", "HERO MULTIHIT MOD");
+            if (h.GetColumnIndex(heroCtx, "AMP_MOD", null, allowUnscopedLabelFallback: false) >= 0)
+                h.SetCell(row, heroCtx, "AMP_MOD", data.AmpMod, null, allowUnscopedLabelFallback: false);
+            else
+                h.SetCell(row, heroCtx, "AMP MOD", data.AmpMod, null, allowUnscopedLabelFallback: false);
+        }
+
+        /// <summary>Writes one next-action column using the first matching header (e.g. ACTION SPEED vs SPEED MOD).</summary>
+        private static void SetNextActionModCell(SpreadsheetHeader h, string[] row, string ctx, string value, params string[] labelsInPriorityOrder)
+        {
+            foreach (string label in labelsInPriorityOrder)
+            {
+                int idx = h.GetColumnIndex(ctx, label, null, allowUnscopedLabelFallback: false);
+                if (idx >= 0 && idx < row.Length)
+                {
+                    row[idx] = SheetsPushUtilities.NormalizeSheetString(value);
+                    return;
+                }
+            }
+        }
+
         private static void WriteHeroEnemyAccuracy(SpreadsheetHeader h, string[] row, string value, bool isHero)
         {
             string ctx = isHero ? "HERO DICE ROLL MODIFICATIONS" : "ENEMY DICE MODIFICATIONS";
@@ -124,10 +159,6 @@ namespace RPGGame.Data
                     row[idx] = SheetsPushUtilities.NormalizeSheetString(v);
             }
 
-            SetIf("SPEED MOD", data.SpeedMod);
-            SetIf("DAMAGE MOD", data.DamageMod);
-            SetIf("MULTIHIT MOD", data.MultiHitMod);
-            SetIf("AMP_MOD", data.AmpMod);
             SetIf("STUN", data.Stun);
             SetIf("POISON", data.Poison);
             SetIf("BURN", data.Burn);
@@ -164,6 +195,7 @@ namespace RPGGame.Data
             L("CURSE", data.Curse);
             L("SKIP", data.Skip);
             L("JUMP", data.Jump);
+            SetJumpRelativeMechanic(h, row, data.JumpRelative);
             L("DISRUPT", data.Disrupt);
             L("GRACE", data.Grace);
             L("LOOP CHAIN", data.LoopChain);
@@ -202,6 +234,18 @@ namespace RPGGame.Data
             L("TAGS", data.Tags);
             L("IS DEFAULT ACTION", data.IsDefaultAction);
             L("WEAPON TYPES", data.WeaponTypes);
+        }
+
+        /// <summary>
+        /// Jump (+slots) round-trips as column <c>SHIFT</c> when the sheet defines it; otherwise legacy <c>JUMP RELATIVE</c>.
+        /// </summary>
+        private static void SetJumpRelativeMechanic(SpreadsheetHeader h, string[] row, string value)
+        {
+            int shiftIdx = h.GetColumnIndex(null, "SHIFT");
+            if (shiftIdx >= 0 && shiftIdx < row.Length)
+                h.SetCell(row, null, "SHIFT", value);
+            else
+                h.SetCell(row, null, "JUMP RELATIVE", value);
         }
     }
 }

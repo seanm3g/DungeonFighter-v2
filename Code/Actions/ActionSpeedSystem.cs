@@ -90,10 +90,25 @@ namespace RPGGame
 
             double actionDuration;
             
-            // New system: (agility + weapon attack speed) * action length
-            if (entity is Character character)
+            // Enemy before Character: Enemy subclasses Character. Use Enemy.GetTotalAttackSpeed() (direct-stat lab
+            // dummies) and agility modifier; the old Character branch called Character.GetTotalAttackSpeed() and
+            // never reached this block, so enemy turns ignored lab Spd and matched the wrong combat-log speed.
+            if (entity is Enemy enemy)
             {
-                // For characters: use the new attack speed system
+                // Same formula as the hero Character branch: GetTotalAttackSpeed() already includes enemy agility
+                // (SpeedCalculator). Do not apply a second agility multiplier (the old unreachable Enemy branch did).
+                double attackSpeed = enemy.GetTotalAttackSpeed();
+                double actionLength = action.Length;
+                if (isCriticalMiss || entity.HasCriticalMissPenalty)
+                {
+                    actionLength *= 2.0;
+                }
+                
+                actionDuration = attackSpeed * actionLength;
+            }
+            else if (entity is Character character)
+            {
+                // For heroes (non-enemy characters): use the new attack speed system
                 double attackSpeed = character.GetTotalAttackSpeed();
                 
                 // Use action length for all actions
@@ -106,21 +121,6 @@ namespace RPGGame
                 }
                 
                 actionDuration = attackSpeed * lengthMultiplier;
-            }
-            else if (entity is Enemy enemy)
-            {
-                // For enemies: use the BaseSpeed that was set in AddEntity, modified by agility
-                double baseSpeed = combatEntity.BaseSpeed;
-                double agilityModifier = Math.Max(0.5, 1.0 - (enemy.GetEffectiveAgility() * 0.05)); // Agility reduces action time
-                
-                // Get action length and apply critical miss penalty (doubles action length/recovery time for THIS action)
-                double actionLength = action.Length;
-                if (isCriticalMiss || entity.HasCriticalMissPenalty)
-                {
-                    actionLength *= 2.0;
-                }
-                
-                actionDuration = baseSpeed * agilityModifier * actionLength;
             }
             else if (entity is Environment environment)
             {

@@ -29,6 +29,7 @@ namespace RPGGame.Tests.Unit.Combat
             DamageCalculator.ClearAllCaches();
 
             TestCalculateRawDamage();
+            TestDirectStatEnemyRawDamageUsesDamageField();
             TestCalculateDamage();
             TestDamageReflectsStatChangesWithoutStaleCache();
             TestCacheInvalidation();
@@ -77,6 +78,33 @@ namespace RPGGame.Tests.Unit.Combat
             var multiplierDamage = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 2.0, 10);
             TestBase.AssertTrue(multiplierDamage >= damage,
                 "Damage multiplier should increase damage",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>Direct-stat enemies must use <see cref="Enemy.GetEffectiveStrength"/> (Damage field), not STR from the Character branch.</summary>
+        private static void TestDirectStatEnemyRawDamageUsesDamageField()
+        {
+            Console.WriteLine("\n--- Testing direct-stat enemy raw damage ---");
+
+            var labDummy = new Enemy(
+                name: "LabDummy",
+                level: 1,
+                maxHealth: 100,
+                damage: 40,
+                armor: 0,
+                attackSpeed: 1.0,
+                primaryAttribute: PrimaryAttribute.Strength,
+                isLiving: true,
+                archetype: EnemyArchetype.Berserker,
+                useDirectStats: true);
+
+            var action = TestDataBuilders.CreateMockAction("JAB");
+            action.DamageMultiplier = 1.0;
+
+            int raw = DamageCalculator.CalculateRawDamage(labDummy, action, 1.0, 1.0, roll: 0);
+            TestBase.AssertTrue(
+                raw >= 40,
+                $"Direct-stat enemy raw damage should use Damage field (>= 40), got {raw}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

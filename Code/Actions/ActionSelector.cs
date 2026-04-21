@@ -1,10 +1,24 @@
 using System;
 using System.Collections.Concurrent;
 using RPGGame.Actions.RollModification;
+using RPGGame.Data;
 using RPGGame.Utils;
 
 namespace RPGGame
 {
+    /// <summary>
+    /// Threshold-related bonuses that will apply on the character's next attack roll resolution
+    /// (slot pending + first FIFO layer + peeked ATTACK + peeked ABILITY), matching
+    /// <see cref="RPGGame.Actions.Execution.ActionExecutionFlow.SelectActionAndResolveRoll"/> consumption order.
+    /// Used by the combat HUD so HIT/COMBO/ACCURACY show <em>before</em> they are consumed, including between enemy turns.
+    /// </summary>
+    public readonly record struct PendingThresholdHudShifts(
+        int SharedAccuracy,
+        int ComboDelta,
+        int HitDelta,
+        int CritDelta,
+        int CritMissDelta);
+
     /// <summary>
     /// Handles action selection logic for different Actor types
     /// Refactored to focus purely on selection using shared utilities
@@ -17,12 +31,14 @@ namespace RPGGame
         /// <summary>
         /// Unnamed normal attack for roll 6-13. 100% damage, 1.0 speed, no modifiers.
         /// Empty name ensures combat message shows "X hits Y for Z damage" (no action name).
+        /// New instance per selection so parallel encounter sims do not share mutable <see cref="Action"/> state.
         /// </summary>
-        private static readonly Action NormalAttackAction = new Action(
-            name: "",
-            damageMultiplier: 1.0,
-            length: 1.0,
-            isComboAction: false);
+        private static Action CreateCharacterNormalAttackAction() =>
+            new Action(
+                name: "",
+                damageMultiplier: 1.0,
+                length: 1.0,
+                isComboAction: false);
 
         /// <summary>
         /// Selects an action based on Actor type - heroes use roll-based logic, enemies use random selection
@@ -117,21 +133,54 @@ namespace RPGGame
         /// Heroes: slot + FIFO + ATTACK + ABILITY peek (matches <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/>).
         /// Enemies: FIFO layer only.
         /// </summary>
-        public static int PeekQueuedAccuracyBonus(Character? c)
+        public static int PeekQueuedAccuracyBonus(Character? c) => PeekPendingThresholdHudShifts(c).SharedAccuracy;
+
+        /// <inheritdoc cref="PendingThresholdHudShifts"/>
+        public static PendingThresholdHudShifts PeekPendingThresholdHudShifts(Character? c)
         {
-            if (c == null) return 0;
-            if (c is Enemy)
+            int acc = 0, combo = 0, hit = 0, crit = 0, critMiss = 0;
+            if (c == null)
+                return new PendingThresholdHudShifts(0, 0, 0, 0, 0);
+            if (c is Enemy enemy)
             {
-                int acc = 0;
-                foreach (var bonus in c.Effects.PeekPendingActionBonusesNextHeroRoll())
-                {
-                    if (string.Equals(bonus.Type, "ACCURACY", StringComparison.OrdinalIgnoreCase))
-                        acc += (int)bonus.Value;
-                }
-                return acc;
+                foreach (var bonus in enemy.Effects.PeekPendingActionBonusesNextHeroRoll())
+                    AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
+                return new PendingThresholdHudShifts(acc, combo, hit, crit, critMiss);
             }
-            PeekRollAccuracyAndComboBonuses(c, out int accuracyAccumulator, out _);
-            return accuracyAccumulator;
+
+            var comboActions = ActionUtilities.GetComboActions(c);
+            int comboLength = comboActions.Count;
+            if (comboLength > 0)
+            {
+                int currentSlot = c.ComboStep % comboLength;
+                foreach (var bonus in c.Effects.GetPendingActionBonusesForSlot(currentSlot))
+                    AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
+            }
+            foreach (var bonus in c.Effects.PeekPendingActionBonusesNextHeroRoll())
+                AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
+            foreach (var bonus in c.Effects.PeekAttackBonuses())
+                AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
+            foreach (var bonus in c.Effects.PeekAbilityBonuses())
+                AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
+            return new PendingThresholdHudShifts(acc, combo, hit, crit, critMiss);
+        }
+
+        private static void AccumulatePendingThresholdHudShift(
+            ActionAttackBonusItem bonus,
+            ref int acc,
+            ref int combo,
+            ref int hit,
+            ref int crit,
+            ref int critMiss)
+        {
+            switch ((bonus.Type ?? "").ToUpperInvariant())
+            {
+                case "ACCURACY": acc += (int)bonus.Value; break;
+                case "COMBO": combo += (int)bonus.Value; break;
+                case "HIT": hit += (int)bonus.Value; break;
+                case "CRIT": crit += (int)bonus.Value; break;
+                case "CRIT_MISS": critMiss += (int)bonus.Value; break;
+            }
         }
 
         /// <summary>
@@ -306,7 +355,7 @@ namespace RPGGame
             // For characters, use unnamed normal attack (displays "X hits Y for Z damage")
             if (source is Character character && !(character is Enemy))
             {
-                return NormalAttackAction;
+                return CreateCharacterNormalAttackAction();
             }
 
             // Enemies: first non-combo action, or first available action
@@ -343,6 +392,16 @@ namespace RPGGame
         public static void ClearStoredRolls()
         {
             _lastActionSelectionRolls.Clear();
+        }
+
+        /// <summary>
+        /// Removes the stored roll for one actor only (parallel-safe cleanup; avoids wiping other encounters' entries).
+        /// </summary>
+        public static void RemoveStoredRoll(Actor? source)
+        {
+            if (source == null)
+                return;
+            _lastActionSelectionRolls.TryRemove(source, out _);
         }
 
         /// <summary>

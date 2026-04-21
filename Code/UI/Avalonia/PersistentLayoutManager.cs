@@ -48,7 +48,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         /// <param name="clearCanvas">Whether to clear the canvas before rendering. Set to false to preserve existing content when transitioning to combat.</param>
         /// <param name="usePersistentChrome">When false, skips left/center/right panels and uses full chromeless content rect (e.g. main menu).</param>
-        public void RenderLayout(Character? character, Action<int, int, int, int> renderCenterContent, string title = "DUNGEON FIGHTERS", Enemy? enemy = null, string? dungeonName = null, string? roomName = null, bool clearCanvas = true, bool usePersistentChrome = true, bool inventoryComboRightPanel = false)
+        public void RenderLayout(Character? character, Action<int, int, int, int> renderCenterContent, string title = "DUNGEON FIGHTERS", Enemy? enemy = null, string? dungeonName = null, string? roomName = null, bool clearCanvas = true, bool usePersistentChrome = true, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false)
         {
             interactionManager?.ClearClickableElements();
             layoutCoordinator.CoordinateLayout(
@@ -63,7 +63,8 @@ namespace RPGGame.UI.Avalonia
                 inventoryComboRightPanel,
                 character,
                 characterPanelRenderer,
-                rightPanelRenderer);
+                rightPanelRenderer,
+                registerActionLabEnemyLevelHover);
         }
         
         /// <summary>

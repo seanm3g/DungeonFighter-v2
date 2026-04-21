@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Config
@@ -26,6 +27,7 @@ namespace RPGGame.Tests.Unit.Config
             _testsFailed = 0;
 
             TestPoolConfig();
+            TestEnemySystemSanitizer();
             TestArchetypeConfig();
             TestArchetypeBonuses();
             TestBaseEnemyConfig();
@@ -57,6 +59,31 @@ namespace RPGGame.Tests.Unit.Config
         }
 
         #endregion
+
+        private static void TestEnemySystemSanitizer()
+        {
+            Console.WriteLine("\n--- Testing EnemySystemConfig.EnsureSanitizedDefaults ---");
+
+            var sys = new EnemySystemConfig
+            {
+                GlobalMultipliers = new GlobalMultipliersConfig { HealthMultiplier = 0, DamageMultiplier = 0 },
+                BaselineStats = new BaselineStatsConfig { Health = 0, Strength = 0 },
+                LevelVariance = 0
+            };
+            sys.EnsureSanitizedDefaults();
+            TestBase.AssertEqual(1.0, sys.GlobalMultipliers.HealthMultiplier,
+                "Health multiplier should become 1.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1.0, sys.GlobalMultipliers.DamageMultiplier,
+                "Damage multiplier should become 1.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(sys.BaselineStats.Health > 0,
+                "Baseline health should be repaired",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, sys.LevelVariance,
+                "LevelVariance should be at least 1",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
 
         #region ArchetypeConfig Tests
 

@@ -38,6 +38,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ActionInteractionLabTests.RunAllTests();
             Console.WriteLine();
+            ActionLabEncounterSimulatorTests.RunAllTests();
+            Console.WriteLine();
             DiceMechanicsTests.RunAllTests();
             Console.WriteLine();
             CombatOutcomeTests.RunAllTests();

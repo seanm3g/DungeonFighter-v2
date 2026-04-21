@@ -56,6 +56,10 @@ namespace RPGGame.Data
             action.DamageMod = GetStringValue(root, "damageMod");
             action.MultiHitMod = GetStringValue(root, "multiHitMod");
             action.AmpMod = GetStringValue(root, "ampMod");
+            action.EnemySpeedMod = GetStringValue(root, "enemySpeedMod");
+            action.EnemyDamageMod = GetStringValue(root, "enemyDamageMod");
+            action.EnemyMultiHitMod = GetStringValue(root, "enemyMultiHitMod");
+            action.EnemyAmpMod = GetStringValue(root, "enemyAmpMod");
             action.Stun = GetStringValue(root, "stun");
             action.Poison = GetStringValue(root, "poison");
             action.Burn = GetStringValue(root, "burn");
@@ -84,6 +88,7 @@ namespace RPGGame.Data
             action.Curse = GetStringValue(root, "curse");
             action.Skip = GetStringValue(root, "skip");
             action.Jump = GetStringValue(root, "jump");
+            action.JumpRelative = GetStringValue(root, "jumpRelative");
             action.Disrupt = GetStringValue(root, "disrupt");
             action.Grace = GetStringValue(root, "grace");
             action.LoopChain = GetStringValue(root, "loopChain");
@@ -169,6 +174,10 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "damageMod", value.DamageMod);
             WriteIfNotEmpty(writer, "multiHitMod", value.MultiHitMod);
             WriteIfNotEmpty(writer, "ampMod", value.AmpMod);
+            WriteIfNotEmpty(writer, "enemySpeedMod", value.EnemySpeedMod);
+            WriteIfNotEmpty(writer, "enemyDamageMod", value.EnemyDamageMod);
+            WriteIfNotEmpty(writer, "enemyMultiHitMod", value.EnemyMultiHitMod);
+            WriteIfNotEmpty(writer, "enemyAmpMod", value.EnemyAmpMod);
             WriteIfNotEmpty(writer, "stun", value.Stun);
             WriteIfNotEmpty(writer, "poison", value.Poison);
             WriteIfNotEmpty(writer, "burn", value.Burn);
@@ -197,6 +206,7 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "curse", value.Curse);
             WriteIfNotEmpty(writer, "skip", value.Skip);
             WriteIfNotEmpty(writer, "jump", value.Jump);
+            WriteIfNotEmpty(writer, "jumpRelative", value.JumpRelative);
             WriteIfNotEmpty(writer, "disrupt", value.Disrupt);
             WriteIfNotEmpty(writer, "grace", value.Grace);
             WriteIfNotEmpty(writer, "loopChain", value.LoopChain);

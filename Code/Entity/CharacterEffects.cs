@@ -101,7 +101,7 @@ namespace RPGGame
         public void AddActionAttackBonuses(ActionAttackBonuses? bonuses) => _state.AddActionAttackBonuses(bonuses);
         public void ClearConsumedModifierBonuses() => _state.ClearConsumedModifierBonuses();
         public void AccumulateConsumedModifierBonuses(List<ActionAttackBonusItem> bonuses) => _state.AccumulateConsumedModifierBonuses(bonuses);
-        public void AddModifierBonusesFromAction(Action? action, int? nextSlotForAbilityCadence = null) => _state.AddModifierBonusesFromAction(action, nextSlotForAbilityCadence);
+        public void AddModifierBonusesFromAction(Action? action, int? nextSlotForAbilityCadence = null, bool useEnemySpreadsheetMods = false) => _state.AddModifierBonusesFromAction(action, nextSlotForAbilityCadence, useEnemySpreadsheetMods);
         public List<ActionAttackBonusItem> GetAndConsumeAbilityBonuses(bool actionSucceeded) => _state.GetAndConsumeAbilityBonuses(actionSucceeded);
         public List<ActionAttackBonusItem> GetAndConsumeActionBonuses() => _state.GetAndConsumeActionBonuses();
         public List<ActionAttackBonusItem> GetAndConsumeAttackBonuses() => _state.GetAndConsumeAttackBonuses();

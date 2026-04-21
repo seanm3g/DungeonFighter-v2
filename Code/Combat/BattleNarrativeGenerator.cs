@@ -93,6 +93,66 @@ namespace RPGGame.Combat
                 EnemyComboCount = enemyEvents.Count(e => e.IsCombo)
             };
         }
+
+        /// <summary>
+        /// Measures consecutive successful player actions with <see cref="BattleEvent.IsCombo"/> in timeline order.
+        /// A chain breaks on any enemy-attributed event, a failed player action, or a successful non-combo player action.
+        /// Other events (environment, etc.) do not break the chain.
+        /// </summary>
+        public static PlayerComboStreakStatistics CalculatePlayerComboStreakStatistics(
+            List<RPGGame.BattleEvent> events,
+            string playerName,
+            string enemyName)
+        {
+            var stats = new PlayerComboStreakStatistics();
+            if (events == null || events.Count == 0)
+                return stats;
+
+            var ordered = events
+                .Select((e, i) => (e, i))
+                .OrderBy(x => x.e.Timestamp)
+                .ThenBy(x => x.e.ComboStep)
+                .ThenBy(x => x.i)
+                .Select(x => x.e)
+                .ToList();
+
+            int streak = 0;
+
+            void FlushStreak()
+            {
+                if (streak >= 2)
+                {
+                    stats.RunCountsByLength.TryGetValue(streak, out int c);
+                    stats.RunCountsByLength[streak] = c + 1;
+                }
+
+                streak = 0;
+            }
+
+            foreach (var e in ordered)
+            {
+                if (string.Equals(e.Actor, enemyName, StringComparison.Ordinal))
+                {
+                    FlushStreak();
+                    continue;
+                }
+
+                if (!string.Equals(e.Actor, playerName, StringComparison.Ordinal))
+                    continue;
+
+                if (e.IsSuccess && e.IsCombo)
+                {
+                    streak++;
+                    if (streak > stats.MaxStreak)
+                        stats.MaxStreak = streak;
+                }
+                else
+                    FlushStreak();
+            }
+
+            FlushStreak();
+            return stats;
+        }
     }
     
     /// <summary>
@@ -115,6 +175,16 @@ namespace RPGGame.Combat
         public int TotalEnemyDamage { get; set; }
         public int PlayerComboCount { get; set; }
         public int EnemyComboCount { get; set; }
+    }
+
+    /// <summary>Result of <see cref="BattleNarrativeGenerator.CalculatePlayerComboStreakStatistics"/>.</summary>
+    public sealed class PlayerComboStreakStatistics
+    {
+        /// <summary>Longest single uninterrupted chain of successful combo-flagged player actions.</summary>
+        public int MaxStreak { get; set; }
+
+        /// <summary>Counts of completed chains by exact length (only lengths ≥ 2).</summary>
+        public Dictionary<int, int> RunCountsByLength { get; } = new();
     }
 }
 

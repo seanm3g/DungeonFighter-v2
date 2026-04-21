@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using RPGGame;
+using RPGGame.Data;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Actions
@@ -38,6 +40,7 @@ namespace RPGGame.Tests.Unit.Actions
             TestBaseRollVsTotalRoll();
             TestRoll13WithIntBonusSelectsCombo();
             TestNatural20();
+            TestPeekPendingThresholdHudShiftsFromFifo();
             TestEdgeCases();
             TestRollBoundaries();
 
@@ -243,6 +246,51 @@ namespace RPGGame.Tests.Unit.Actions
         }
 
         #endregion
+
+        /// <summary>
+        /// FIFO/slot HIT and COMBO bonuses must appear in <see cref="ActionSelector.PeekPendingThresholdHudShifts"/>
+        /// before <see cref="CharacterEffectsState.ConsumePendingActionBonusesNextHeroRoll"/> (HUD preview between turns).
+        /// </summary>
+        private static void TestPeekPendingThresholdHudShiftsFromFifo()
+        {
+            Console.WriteLine("\n--- Testing PeekPendingThresholdHudShifts (FIFO ACC/HIT/COMBO) ---");
+
+            _ = GameConfiguration.Instance;
+            var hero = TestDataBuilders.Character().WithName("PeekHudHero").WithStats(10, 10, 10, 0).Build();
+            var normal = TestDataBuilders.CreateMockAction("N", ActionType.Attack);
+            normal.IsComboAction = false;
+            hero.AddAction(normal, 1.0);
+            var combo = TestDataBuilders.CreateMockAction("C", ActionType.Attack);
+            combo.IsComboAction = true;
+            combo.ComboOrder = 1;
+            hero.AddAction(combo, 1.0);
+            hero.Actions.AddToCombo(combo);
+
+            hero.Effects.ClearPendingActionBonuses();
+            hero.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
+            {
+                new() { Type = "ACCURACY", Value = 3 },
+                new() { Type = "HIT", Value = 1 },
+                new() { Type = "COMBO", Value = 2 }
+            });
+
+            var p = ActionSelector.PeekPendingThresholdHudShifts(hero);
+            TestBase.AssertEqual(3, p.SharedAccuracy,
+                "ACCURACY aggregates to SharedAccuracy",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, p.HitDelta,
+                "HIT delta from FIFO",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, p.ComboDelta,
+                "COMBO delta from FIFO",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            _ = hero.Effects.ConsumePendingActionBonusesNextHeroRoll();
+            p = ActionSelector.PeekPendingThresholdHudShifts(hero);
+            TestBase.AssertEqual(0, p.SharedAccuracy + p.HitDelta + p.ComboDelta + p.CritDelta + p.CritMissDelta,
+                "after consume, peeked threshold shifts are zero",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
 
         #region Roll Boundary Tests
 

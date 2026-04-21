@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Combat.Calculators;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
@@ -91,16 +92,10 @@ namespace RPGGame
                 rollInfo.Add($"speed: {actualSpeed:F1}s");
             }
             
-            // Add combo info to rollInfo if present - show amp prominently
-            if (comboAmplifier > 1.0)
-            {
-                rollInfo.Add($"amp: {comboAmplifier:F2}x");
-            }
-            else if (action != null && action.IsComboAction)
-            {
-                // Show amp for combo action when effective multiplier is 1.0 (matches F2 display)
-                rollInfo.Add("amp: 1.00x");
-            }
+            // Amp line must match damage (includes queued sheet AMP_MOD on the attacker).
+            double displayCombo = DamageCalculator.GetDisplayedComboMultiplier(attacker, comboAmplifier, action);
+            if (displayCombo > 1.0001 || (action != null && action.IsComboAction))
+                rollInfo.Add($"amp: {displayCombo:F2}x");
             
             // Return the roll information as a separate string
             string rollInfoText = "     (" + string.Join(" | ", rollInfo) + ")";

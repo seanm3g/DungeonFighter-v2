@@ -78,11 +78,17 @@ namespace RPGGame.Data
         public string EnemyTECH { get; set; } = "";
         public string EnemyINT { get; set; } = "";
         
-        // Columns AD-AG: Modifiers
+        /// <summary>Hero next-action modifiers (sheet columns AJ–AM; row-1 block "HERO BASE STATS").</summary>
         public string SpeedMod { get; set; } = "";
         public string DamageMod { get; set; } = "";
         public string MultiHitMod { get; set; } = "";
         public string AmpMod { get; set; } = "";
+
+        /// <summary>Enemy next-action modifiers (sheet columns AD–AG; row-1 block "ENEMY BASE STATS").</summary>
+        public string EnemySpeedMod { get; set; } = "";
+        public string EnemyDamageMod { get; set; } = "";
+        public string EnemyMultiHitMod { get; set; } = "";
+        public string EnemyAmpMod { get; set; } = "";
         
         // Status effects columns (AH-AO approximately)
         public string Stun { get; set; } = "";
@@ -117,6 +123,8 @@ namespace RPGGame.Data
         public string Curse { get; set; } = "";
         public string Skip { get; set; } = "";
         public string Jump { get; set; } = "";
+        /// <summary>Jump (+slots); sheet column <c>SHIFT</c> (preferred) or legacy <c>JUMP RELATIVE</c>.</summary>
+        public string JumpRelative { get; set; } = "";
         public string Disrupt { get; set; } = "";
         public string Grace { get; set; } = "";
         public string LoopChain { get; set; } = "";

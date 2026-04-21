@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -11,9 +12,47 @@ namespace RPGGame
     /// </summary>
     public static class JsonLoader
     {
-        
-
+        private static readonly object CacheLock = new object();
         private static readonly Dictionary<string, object> _cache = new Dictionary<string, object>();
+
+        /// <summary>
+        /// True for generic List and Dictionary — callers may mutate structure; parallel sim must not share one instance from cache.
+        /// </summary>
+        private static bool IsMutableGenericCollection(Type t) =>
+            t.IsGenericType && (t.GetGenericTypeDefinition() == typeof(List<>) || t.GetGenericTypeDefinition() == typeof(Dictionary<,>));
+
+        /// <summary>Shallow clone so parallel workers never share the same list/dictionary instance from <see cref="_cache"/>.</summary>
+        private static T IsolateCachedCollection<T>(T value)
+        {
+            if (value is null)
+                return value;
+
+            Type t = typeof(T);
+            if (!IsMutableGenericCollection(t))
+                return value;
+
+            if (t.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                var src = (IList)value;
+                Type elem = t.GetGenericArguments()[0];
+                Type listType = typeof(List<>).MakeGenericType(elem);
+                var dst = (IList)Activator.CreateInstance(listType, src.Count)!;
+                for (int i = 0; i < src.Count; i++)
+                    dst.Add(src[i]!);
+                return (T)dst;
+            }
+
+            // Dictionary<,>
+            var srcDict = (IDictionary)value;
+            Type keyT = t.GetGenericArguments()[0];
+            Type valT = t.GetGenericArguments()[1];
+            Type dictType = typeof(Dictionary<,>).MakeGenericType(keyT, valT);
+            var dstDict = (IDictionary)Activator.CreateInstance(dictType, srcDict.Count)!;
+            foreach (DictionaryEntry de in srcDict)
+                dstDict.Add(de.Key, de.Value!);
+            return (T)dstDict;
+        }
+
         private static readonly JsonSerializerOptions _defaultOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
@@ -31,16 +70,16 @@ namespace RPGGame
         /// <returns>The loaded object or fallback value</returns>
         public static T LoadJson<T>(string filePath, bool useCache = true, T fallbackValue = default(T)!)
         {
-            // Check cache first if caching is enabled
-            if (useCache && _cache.TryGetValue(filePath, out var cachedValue))
+            if (useCache)
             {
-                if (cachedValue is T cachedResult)
+                lock (CacheLock)
                 {
-                    return cachedResult;
+                    if (_cache.TryGetValue(filePath, out var cachedValue) && cachedValue is T cachedResult)
+                        return IsolateCachedCollection(cachedResult);
                 }
             }
 
-            return ErrorHandler.TryLoadJson(() =>
+            T loaded = ErrorHandler.TryLoadJson(() =>
             {
                 // Validate file path
                 if (string.IsNullOrWhiteSpace(filePath))
@@ -67,14 +106,16 @@ namespace RPGGame
                     throw new InvalidDataException($"JSON deserialization returned null for: {filePath}");
                 }
 
-                // Cache the result if caching is enabled
                 if (useCache)
                 {
-                    _cache[filePath] = result;
+                    lock (CacheLock)
+                        _cache[filePath] = result;
                 }
 
                 return result;
             }, filePath, fallbackValue);
+
+            return IsolateCachedCollection(loaded);
         }
 
         /// <summary>
@@ -130,10 +171,10 @@ namespace RPGGame
                 string json = JsonSerializer.Serialize(data, _defaultOptions);
                 File.WriteAllText(filePath, json);
 
-                // Update cache if requested
                 if (updateCache)
                 {
-                    _cache[filePath] = data!;
+                    lock (CacheLock)
+                        _cache[filePath] = data!;
                 }
             }, filePath);
         }
@@ -144,7 +185,8 @@ namespace RPGGame
         /// </summary>
         public static void ClearCache()
         {
-            _cache.Clear();
+            lock (CacheLock)
+                _cache.Clear();
         }
 
         /// <summary>
@@ -153,8 +195,11 @@ namespace RPGGame
         /// <param name="filePath">The file path to remove from cache</param>
         public static void ClearCacheForFile(string filePath)
         {
-            if (_cache.Remove(filePath) && GameConfiguration.IsDebugEnabled)
+            lock (CacheLock)
             {
+                if (_cache.Remove(filePath) && GameConfiguration.IsDebugEnabled)
+                {
+                }
             }
         }
 
@@ -164,17 +209,19 @@ namespace RPGGame
         /// <returns>Cache statistics</returns>
         public static (int Count, long EstimatedSize) GetCacheStats()
         {
-            int count = _cache.Count;
-            long estimatedSize = 0;
-            
-            // Rough estimation of memory usage
-            foreach (var kvp in _cache)
+            lock (CacheLock)
             {
-                estimatedSize += kvp.Key.Length * 2; // Unicode characters
-                estimatedSize += 100; // Rough estimate for object overhead
-            }
+                int count = _cache.Count;
+                long estimatedSize = 0;
 
-            return (count, estimatedSize);
+                foreach (var kvp in _cache)
+                {
+                    estimatedSize += kvp.Key.Length * 2;
+                    estimatedSize += 100;
+                }
+
+                return (count, estimatedSize);
+            }
         }
 
         /// <summary>

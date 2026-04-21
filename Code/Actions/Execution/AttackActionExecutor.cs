@@ -47,8 +47,8 @@ namespace RPGGame.Actions.Execution
                     if (target is Enemy hitTargetEnemy && hitTargetEnemy.CurrentHealth <= 0)
                         break;
                     
-                    // Calculate damage for this hit (action.DamageMultiplier already contains per-hit scaling)
-                    int hitDamage = CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, totalRoll);
+                    int perHitTotalRoll = MultiHitProcessor.GetMultihitDamageTotalRoll(totalRoll, source, hit);
+                    int hitDamage = CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, perHitTotalRoll);
                     
                     // Apply damage
                     ActionUtilities.ApplyDamage(target, hitDamage);

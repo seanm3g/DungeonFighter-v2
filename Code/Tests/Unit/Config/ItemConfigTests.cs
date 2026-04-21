@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Config
@@ -26,10 +27,14 @@ namespace RPGGame.Tests.Unit.Config
             _testsFailed = 0;
 
             TestItemScalingConfig();
+            TestItemScalingSanitizer();
             TestWeaponScalingConfig();
+            TestWeaponScalingSanitizer();
             TestEquipmentScalingConfig();
+            TestEquipmentScalingSanitizer();
             TestRarityScalingConfig();
             TestLootSystemConfig();
+            TestLootSystemSanitizer();
 
             TestBase.PrintSummary("ItemConfig Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -63,6 +68,20 @@ namespace RPGGame.Tests.Unit.Config
 
         #endregion
 
+        private static void TestItemScalingSanitizer()
+        {
+            Console.WriteLine("\n--- Testing ItemScalingConfig.EnsureSanitizedWeaponScalingDefaults ---");
+
+            var config = new ItemScalingConfig { GlobalDamageMultiplier = 0, WeaponDamagePerTier = 0, MaxTier = 0 };
+            config.EnsureSanitizedWeaponScalingDefaults();
+            TestBase.AssertEqual(1.0, config.GlobalDamageMultiplier,
+                "GlobalDamageMultiplier should become 1.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(config.MaxTier > 0,
+                "MaxTier should be positive",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         #region WeaponScalingConfig Tests
 
         private static void TestWeaponScalingConfig()
@@ -80,6 +99,17 @@ namespace RPGGame.Tests.Unit.Config
 
             TestBase.AssertNotNull(config.TierDamageRanges,
                 "TierDamageRanges should be initialized",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestWeaponScalingSanitizer()
+        {
+            Console.WriteLine("\n--- Testing WeaponScalingConfig.EnsureSanitizedDefaults ---");
+
+            var config = new WeaponScalingConfig { GlobalDamageMultiplier = 0 };
+            config.EnsureSanitizedDefaults();
+            TestBase.AssertEqual(1.0, config.GlobalDamageMultiplier,
+                "Weapon global damage multiplier should become 1.0",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -109,6 +139,20 @@ namespace RPGGame.Tests.Unit.Config
 
             TestBase.AssertEqual(0.1, config.SpeedBonusPerTier,
                 "SpeedBonusPerTier should be settable",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEquipmentScalingSanitizer()
+        {
+            Console.WriteLine("\n--- Testing EquipmentScalingConfig.EnsureSensibleDefaults ---");
+
+            var config = new EquipmentScalingConfig { WeaponDamagePerTier = 0, MaxTier = 0 };
+            config.EnsureSensibleDefaults();
+            TestBase.AssertTrue(config.WeaponDamagePerTier > 0,
+                "WeaponDamagePerTier should be repaired",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(config.MaxTier > 0,
+                "MaxTier should be repaired",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -157,6 +201,32 @@ namespace RPGGame.Tests.Unit.Config
 
             TestBase.AssertNotNull(config.RarityUpgrade,
                 "RarityUpgrade should be initialized",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestLootSystemSanitizer()
+        {
+            Console.WriteLine("\n--- Testing LootSystemConfig.EnsureSensibleLootDefaults ---");
+
+            var config = new LootSystemConfig
+            {
+                BaseDropChance = 0,
+                MaxDropChance = 0,
+                GuaranteedLootChance = 0,
+                GoldDropMultiplier = 0
+            };
+            config.EnsureSensibleLootDefaults();
+            TestBase.AssertTrue(config.BaseDropChance > 0,
+                "BaseDropChance should be repaired",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(config.MaxDropChance > 0,
+                "MaxDropChance should be repaired",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1.0, config.GuaranteedLootChance,
+                "GuaranteedLootChance should become 1.0 when zero",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1.0, config.GoldDropMultiplier,
+                "GoldDropMultiplier should become 1.0",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

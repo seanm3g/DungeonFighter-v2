@@ -28,7 +28,7 @@ namespace RPGGame.UI.Avalonia.Builders
             var (section, stack) = _ctx.Factory.CreateFormSection("Basic Properties");
             parent.Children.Add(section);
             _ctx.Factory.AddFormField(stack, "Name", action.Name, (value) => action.Name = value, description: "e.g. Basic Attack or action id", onTextChanged: (value) => action.Name = value);
-            _ctx.Factory.AddFormField(stack, "Description", action.Description, (value) => action.Description = value, isMultiline: true, description: "Flavor text shown in combat.", onTextChanged: (value) => action.Description = value);
+            _ctx.Factory.AddFormField(stack, "Description", action.Description, (value) => action.Description = value, isMultiline: true, description: "Optional flavor / design notes. Combat cards and strip hover list mechanical mods only.", onTextChanged: (value) => action.Description = value);
 
             var rarityOptions = new List<string> { ActionFormOptions.NoneOption };
             rarityOptions.AddRange(ActionFormOptions.RarityDropdownOptions.Skip(1));
@@ -92,25 +92,87 @@ namespace RPGGame.UI.Avalonia.Builders
             if (!string.IsNullOrWhiteSpace(cadenceDisplay) && !cadenceOptions.Any(c => string.Equals(c, cadenceDisplay, StringComparison.OrdinalIgnoreCase)))
                 cadenceOptions.Add(cadenceDisplay);
             _ctx.Factory.AddFormField(stack, "Cadence", cadenceDisplay, (value) => action.Cadence = (value == ActionFormOptions.NoneOption || string.IsNullOrWhiteSpace(value)) ? "" : value, cadenceOptions.ToArray());
-            _ctx.Factory.AddFormField(stack, "Duration", action.ComboBonusDuration.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= 0) action.ComboBonusDuration = v; }, description: "e.g. 3 (combo bonus duration)");
+            _ctx.Factory.AddFormField(stack, "Duration", action.ComboBonusDuration.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= 0) action.ComboBonusDuration = v; }, description: "e.g. 3 (combo bonus duration, modifier queue depth, or deferred accuracy layers — see cadence note below)");
+
+            var cadenceDesignNote = new TextBlock
+            {
+                FontSize = 12,
+                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 2, 0, 0)
+            };
+
+            void SyncCadenceDesignNote()
+            {
+                var normalized = ActionFormOptions.NormalizeCadence(action.Cadence);
+                cadenceDesignNote.Text = GetCadenceDesignNote(normalized);
+                cadenceDesignNote.IsVisible = !string.IsNullOrWhiteSpace(cadenceDesignNote.Text);
+            }
+
+            SyncCadenceDesignNote();
+            if (_ctx.ActionFormControls.TryGetValue("Cadence", out var cadenceControl) && cadenceControl is ComboBox cadenceCombo)
+            {
+                cadenceCombo.SelectionChanged += (_, _) => SyncCadenceDesignNote();
+            }
+
+            stack.Children.Add(cadenceDesignNote);
+        }
+
+        /// <summary>Short in-editor explanation of cadence semantics (matches spreadsheet / combat design).</summary>
+        private static string GetCadenceDesignNote(string normalizedCadence)
+        {
+            if (string.Equals(normalizedCadence, "Fight", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Fight: benefits accumulate while you are engaged with this enemy — each time the action succeeds, its combo-style bonuses can apply again (e.g. Tension Hold adding its combo modifier on every trigger). Intended to last for that enemy and reset when it dies; temporary hero effects are also cleared when entering a new room.";
+            }
+            if (string.Equals(normalizedCadence, "Dungeon", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Dungeon: long-lived bonuses meant to persist across fights in the same run until you leave the dungeon or temp effects are cleared at room boundaries.";
+            }
+            return "";
         }
 
         public void BuildModifiersSection(Panel parent, ActionData action)
         {
-            var (section, stack) = _ctx.Factory.CreateFormSection("Modifiers");
+            // Sheet order: ENEMY BASE STATS (AD–AG) to the left of HERO BASE STATS (AJ–AM); WEAPON SPEED/DAMAGE (AH–AI) are separate weapon columns, not edited here.
+            BuildEnemyModifiersSection(parent, action);
+            BuildHeroModifiersSection(parent, action);
+        }
+
+        private void BuildHeroModifiersSection(Panel parent, ActionData action)
+        {
+            var (section, stack) = _ctx.Factory.CreateFormSection("Hero base stats");
             parent.Children.Add(section);
             stack.Children.Add(new TextBlock
             {
-                Text = "Apply to the next action or ability. Speed/Damage/Amp are %; Multi-hit is a raw value.",
+                Text = "Spreadsheet row 1 block \"HERO BASE STATS\", columns AJ–AM: ACTION SPEED, ACTION DAMAGE, MULTIHIT MOD, AMP_MOD. Applies to the hero's next action or ability. Speed / damage / amp are %; multi-hit is a raw value.",
                 FontSize = 12,
                 Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 8)
             });
-            _ctx.Factory.AddFormField(stack, "SpeedMod (%)", action.SpeedMod ?? "", (value) => action.SpeedMod = value ?? "", description: "e.g. 10 = faster (10% shorter time)");
-            _ctx.Factory.AddFormField(stack, "DamageMod (%)", action.DamageMod ?? "", (value) => action.DamageMod = value ?? "", description: "e.g. 10 for 10% more damage on next");
-            _ctx.Factory.AddFormField(stack, "MultiHitMod (value)", action.MultiHitMod ?? "", (value) => action.MultiHitMod = value ?? "", description: "e.g. 2 extra hits on next");
-            _ctx.Factory.AddFormField(stack, "Amp Mod (%)", action.AmpMod ?? "", (value) => action.AmpMod = value ?? "", description: "e.g. 10 for 10% combo amp on next");
+            _ctx.Factory.AddFormField(stack, "ACTION SPEED [hero] (%)", action.SpeedMod ?? "", (value) => action.SpeedMod = value ?? "", description: "Column AJ. e.g. 10 = 10% faster next hero action");
+            _ctx.Factory.AddFormField(stack, "ACTION DAMAGE [hero] (%)", action.DamageMod ?? "", (value) => action.DamageMod = value ?? "", description: "Column AK. e.g. 10 for 10% more damage on next");
+            _ctx.Factory.AddFormField(stack, "MULTIHIT MOD [hero]", action.MultiHitMod ?? "", (value) => action.MultiHitMod = value ?? "", description: "Column AL. e.g. 2 extra hits on next");
+            _ctx.Factory.AddFormField(stack, "AMP_MOD [hero] (%)", action.AmpMod ?? "", (value) => action.AmpMod = value ?? "", description: "Column AM. e.g. 10 for 10% combo amp on next");
+        }
+
+        private void BuildEnemyModifiersSection(Panel parent, ActionData action)
+        {
+            var (section, stack) = _ctx.Factory.CreateFormSection("Enemy base stats");
+            parent.Children.Add(section);
+            stack.Children.Add(new TextBlock
+            {
+                Text = "Spreadsheet row 1 block \"ENEMY BASE STATS\", columns AD–AG: ACTION SPEED, DAMAGE MOD, MULTIHIT MOD, AMP_MOD. Same units as hero (speed/damage/amp %, multi-hit raw).",
+                FontSize = 12,
+                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 8)
+            });
+            _ctx.Factory.AddFormField(stack, "ACTION SPEED [enemy] (%)", action.EnemySpeedMod ?? "", (value) => action.EnemySpeedMod = value ?? "", description: "Column AD. e.g. 10 = 10% faster next enemy action");
+            _ctx.Factory.AddFormField(stack, "DAMAGE MOD [enemy] (%)", action.EnemyDamageMod ?? "", (value) => action.EnemyDamageMod = value ?? "", description: "Column AE. e.g. 10 for 10% more damage on enemy next");
+            _ctx.Factory.AddFormField(stack, "MULTIHIT MOD [enemy]", action.EnemyMultiHitMod ?? "", (value) => action.EnemyMultiHitMod = value ?? "", description: "Column AF. e.g. 2 extra hits on enemy next");
+            _ctx.Factory.AddFormField(stack, "AMP_MOD [enemy] (%)", action.EnemyAmpMod ?? "", (value) => action.EnemyAmpMod = value ?? "", description: "Column AG. e.g. 10 for 10% combo amp on enemy next");
         }
 
         public void BuildComboAndPositionSection(Panel parent, ActionData action)
@@ -127,6 +189,7 @@ namespace RPGGame.UI.Avalonia.Builders
             _ctx.Factory.AddBooleanField(stack, "Skip Next Turn", action.SkipNextTurn, (value) => action.SkipNextTurn = value);
             _ctx.Factory.AddBooleanField(stack, "Repeat", action.RepeatLastAction, (value) => action.RepeatLastAction = value);
             _ctx.Factory.AddFormField(stack, "Jump", action.Jump ?? "", (value) => action.Jump = value ?? "", description: "e.g. 2 (jump steps in chain)");
+            _ctx.Factory.AddFormField(stack, "Jump (+slots)", action.JumpRelative ?? "", (value) => action.JumpRelative = value ?? "", description: "Extra slots after the usual next step (e.g. combo position 2 → +1 → position 4). Empty or 0 disables. If Jump is set, it wins and this is ignored.");
             _ctx.Factory.AddFormField(stack, "Size (Chain Length)", action.ChainLength ?? "", (value) => action.ChainLength = value ?? "", description: "e.g. 3");
             _ctx.Factory.AddBooleanField(stack, "Reset", !string.IsNullOrWhiteSpace(action.Reset), (value) => action.Reset = value ? "true" : "");
             stack.Children.Add(new TextBlock

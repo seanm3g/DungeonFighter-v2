@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
 using RPGGame.Tests;
@@ -37,6 +38,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestClearThresholds();
             TestDefaultThresholds();
             TestCombatEndResetPattern();
+            TestConcurrentDistinctActors();
 
             TestBase.PrintSummary("ThresholdManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -250,6 +252,29 @@ namespace RPGGame.Tests.Unit.Combat
             tm.ResetThresholds(actor);
             TestBase.AssertEqual(baselineHit, tm.GetHitThreshold(actor),
                 "ResetThresholds after combat should restore hit threshold baseline",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>Parallel writes for distinct actors must not corrupt internal storage (lab sim stress).</summary>
+        private static void TestConcurrentDistinctActors()
+        {
+            Console.WriteLine("\n--- Testing ConcurrentDistinctActors ---");
+
+            var manager = new ThresholdManager();
+            const int n = 200;
+            Parallel.For(0, n, i =>
+            {
+                var actor = TestDataBuilders.Character().WithName($"ConcActor{i}").Build();
+                manager.AdjustHitThreshold(actor, i % 3);
+                int h = manager.GetHitThreshold(actor);
+                manager.ResetThresholds(actor);
+                int after = manager.GetHitThreshold(actor);
+                if (h < 1 || h > 20 || after < 1 || after > 20)
+                    throw new InvalidOperationException($"Unexpected hit threshold range h={h} after={after}");
+            });
+
+            TestBase.AssertTrue(true,
+                "Concurrent distinct-actor threshold updates completed without exception",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

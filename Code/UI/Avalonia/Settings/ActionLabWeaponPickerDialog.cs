@@ -114,14 +114,49 @@ namespace RPGGame.UI.Avalonia.Settings
                 }
             };
 
-            Window? target = owner;
-            if (target == null && Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-                target = desktop.MainWindow;
-
+            Window? target = ResolveUsableOwnerWindow(owner);
             if (target == null)
-                throw new InvalidOperationException("No window available to show the Action Lab weapon dialog.");
+                throw new InvalidOperationException(
+                    "No visible window available to show the Action Lab weapon dialog. Close stale windows or reopen the app.");
 
             return await dialog.ShowDialog<int?>(target);
+        }
+
+        /// <summary>
+        /// <see cref="ShowDialog"/> fails if the owner reference points at a closed window (e.g. stale <see cref="CanvasWindowManager"/> ref).
+        /// Prefer a visible owner, then <see cref="IClassicDesktopStyleApplicationLifetime.MainWindow"/>, then any visible top-level window.
+        /// </summary>
+        private static Window? ResolveUsableOwnerWindow(Window? preferred)
+        {
+            static bool IsDialogOwnerUsable(Window? w)
+            {
+                if (w == null) return false;
+                try
+                {
+                    return w.IsVisible;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            if (IsDialogOwnerUsable(preferred))
+                return preferred;
+
+            if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime life)
+                return null;
+
+            if (IsDialogOwnerUsable(life.MainWindow))
+                return life.MainWindow;
+
+            foreach (var w in life.Windows)
+            {
+                if (w is Window win && IsDialogOwnerUsable(win))
+                    return win;
+            }
+
+            return null;
         }
     }
 }

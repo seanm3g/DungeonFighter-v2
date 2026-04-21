@@ -26,13 +26,16 @@ namespace RPGGame.Combat.Formatting
                 actionLength *= 2.0;
             }
             
+            // Enemy must be checked before Character: Enemy subclasses Character, and Enemy uses `new`
+            // GetTotalAttackSpeed() for direct-stat dummies (Action Lab). A Character-typed match would bypass that.
+            if (actor is Enemy enemy)
+            {
+                return enemy.GetTotalAttackSpeed() * actionLength;
+            }
+            
             if (actor is Character character)
             {
                 return character.GetTotalAttackSpeed() * actionLength;
-            }
-            else if (actor is Enemy enemy)
-            {
-                return enemy.GetTotalAttackSpeed() * actionLength;
             }
             
             return 0;

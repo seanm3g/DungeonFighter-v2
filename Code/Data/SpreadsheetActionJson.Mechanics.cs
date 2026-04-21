@@ -28,6 +28,9 @@ namespace RPGGame.Data
         [JsonPropertyName("jump")]
         public string Jump { get; set; } = "";
 
+        [JsonPropertyName("jumpRelative")]
+        public string JumpRelative { get; set; } = "";
+
         [JsonPropertyName("disrupt")]
         public string Disrupt { get; set; } = "";
 

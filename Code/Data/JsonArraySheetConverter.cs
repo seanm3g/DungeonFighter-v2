@@ -29,11 +29,36 @@ namespace RPGGame.Data
         public static readonly string[] ArmorCanonicalHeaders =
             { "slot", "name", "armor", "tier", "attributeRequirements" };
 
+        /// <summary>
+        /// Column order for ENEMIES tab — nested stats are one column each (<c>overrides.health</c>, <c>baseAttributes.strength</c>, …).
+        /// Push writes two header rows: category band (<c>overrides</c>, <c>base attributes</c>, <c>growth</c>) then short names (<c>health</c>, <c>strength</c>, …).
+        /// Import accepts that layout or a legacy single row of dotted headers; also legacy <c>overrides</c> / <c>baseAttributes</c> / <c>growthPerLevel</c> JSON blobs.
+        /// </summary>
         public static readonly string[] EnemiesCanonicalHeaders =
-            { "name", "archetype", "overrides", "actions", "isLiving", "description" };
+        {
+            "name", "archetype",
+            "overrides.health", "overrides.strength", "overrides.agility", "overrides.technique", "overrides.intelligence", "overrides.armor",
+            "baseAttributes.strength", "baseAttributes.agility", "baseAttributes.technique", "baseAttributes.intelligence",
+            "growthPerLevel.strength", "growthPerLevel.agility", "growthPerLevel.technique", "growthPerLevel.intelligence",
+            "baseHealth", "healthGrowthPerLevel",
+            "actions", "isLiving", "description", "colorOverride"
+        };
+
+        private static readonly string[] EnemyNestedObjectNames = { "overrides", "baseAttributes", "growthPerLevel" };
+
+        /// <summary>ENEMIES tab uses two header rows (category band + short names); other JSON-array tabs use one.</summary>
+        public static int GetTabularSheetHeaderRowCount(GameDataTabularSheetKind kind) =>
+            kind == GameDataTabularSheetKind.Enemies ? 2 : 1;
+
+        /// <summary>Row-1 category labels on the ENEMIES sheet (repeated per column under that group).</summary>
+        public const string EnemySheetCategoryOverrides = "overrides";
+
+        public const string EnemySheetCategoryBaseAttributes = "base attributes";
+
+        public const string EnemySheetCategoryGrowth = "growth";
 
         public static readonly string[] EnvironmentsCanonicalHeaders =
-            { "name", "description", "theme", "isHostile", "actions" };
+            { "name", "description", "theme", "isHostile", "actions", "enemies" };
 
         public static IReadOnlyList<string> GetCanonicalHeaders(GameDataTabularSheetKind kind) =>
             kind switch
@@ -46,9 +71,14 @@ namespace RPGGame.Data
                 _ => Array.Empty<string>()
             };
 
-        /// <summary>Builds sheet rows (row 0 = headers, row 1+ = data) from a JSON array file body.</summary>
+        /// <summary>
+        /// Builds sheet rows from a JSON array file body. Row 0 = headers (or ENEMIES: rows 0–1 = category band + short headers).
+        /// </summary>
         public static List<IList<object>> BuildPushValueRows(string jsonFileText, GameDataTabularSheetKind kind)
         {
+            if (kind == GameDataTabularSheetKind.Enemies)
+                return BuildEnemyPushValueRows(jsonFileText);
+
             using var doc = JsonDocument.Parse(jsonFileText);
             if (doc.RootElement.ValueKind != JsonValueKind.Array)
                 throw new InvalidOperationException("Expected a JSON array at the root.");
@@ -92,6 +122,109 @@ namespace RPGGame.Data
             return rows;
         }
 
+        private static List<IList<object>> BuildEnemyPushValueRows(string jsonFileText)
+        {
+            using var doc = JsonDocument.Parse(jsonFileText);
+            if (doc.RootElement.ValueKind != JsonValueKind.Array)
+                throw new InvalidOperationException("Expected a JSON array at the root.");
+
+            var canonical = EnemiesCanonicalHeaders.ToList();
+            var flatCanon = new HashSet<string>(canonical, StringComparer.OrdinalIgnoreCase);
+            var nestedParents = new HashSet<string>(EnemyNestedObjectNames, StringComparer.OrdinalIgnoreCase);
+            var extraKeys = new SortedSet<string>(StringComparer.Ordinal);
+
+            foreach (var el in doc.RootElement.EnumerateArray())
+            {
+                if (el.ValueKind != JsonValueKind.Object)
+                    continue;
+                foreach (var p in el.EnumerateObject())
+                {
+                    if (flatCanon.Contains(p.Name))
+                        continue;
+                    if (nestedParents.Contains(p.Name))
+                        continue;
+                    extraKeys.Add(p.Name);
+                }
+            }
+
+            var headers = new List<string>(canonical);
+            headers.AddRange(extraKeys);
+
+            var rows = new List<IList<object>>();
+            rows.Add(headers.Select(EnemyCategoryLabelForCanonicalHeader).Select(s => (object)s).ToList());
+            rows.Add(headers.Select(EnemyShortHeaderForCanonicalHeader).Select(s => (object)s).ToList());
+
+            foreach (var el in doc.RootElement.EnumerateArray())
+            {
+                if (el.ValueKind != JsonValueKind.Object)
+                    continue;
+                var row = new List<object>();
+                foreach (var h in headers)
+                    row.Add(GetEnemyPushCell(el, h));
+                rows.Add(row);
+            }
+
+            return rows;
+        }
+
+        private static string EnemyCategoryLabelForCanonicalHeader(string canonicalHeader)
+        {
+            if (canonicalHeader.StartsWith("overrides.", StringComparison.Ordinal))
+                return EnemySheetCategoryOverrides;
+            if (canonicalHeader.StartsWith("baseAttributes.", StringComparison.Ordinal))
+                return EnemySheetCategoryBaseAttributes;
+            if (string.Equals(canonicalHeader, "baseHealth", StringComparison.Ordinal))
+                return EnemySheetCategoryBaseAttributes;
+            if (canonicalHeader.StartsWith("growthPerLevel.", StringComparison.Ordinal))
+                return EnemySheetCategoryGrowth;
+            if (string.Equals(canonicalHeader, "healthGrowthPerLevel", StringComparison.Ordinal))
+                return EnemySheetCategoryGrowth;
+            return "";
+        }
+
+        /// <summary>Second header row: dotted keys with group prefix removed for overrides / baseAttributes / growthPerLevel.</summary>
+        private static string EnemyShortHeaderForCanonicalHeader(string canonicalHeader)
+        {
+            if (canonicalHeader.StartsWith("overrides.", StringComparison.Ordinal))
+                return canonicalHeader["overrides.".Length..];
+            if (canonicalHeader.StartsWith("baseAttributes.", StringComparison.Ordinal))
+                return canonicalHeader["baseAttributes.".Length..];
+            if (canonicalHeader.StartsWith("growthPerLevel.", StringComparison.Ordinal))
+                return canonicalHeader["growthPerLevel.".Length..];
+            return canonicalHeader;
+        }
+
+        private static string GetEnemyPushCell(JsonElement el, string header)
+        {
+            if (header.Contains('.', StringComparison.Ordinal))
+            {
+                if (!TryGetPropertyPath(el, header, out var at))
+                    return "";
+                return JsonElementToCellString(at);
+            }
+
+            if (!el.TryGetProperty(header, out var prop))
+                return "";
+            return JsonElementToCellString(prop);
+        }
+
+        private static bool TryGetPropertyPath(JsonElement el, string dottedPath, out JsonElement found)
+        {
+            found = default;
+            var parts = dottedPath.Split('.');
+            if (parts.Length < 2)
+                return false;
+            JsonElement cur = el;
+            foreach (var part in parts)
+            {
+                if (cur.ValueKind != JsonValueKind.Object || !cur.TryGetProperty(part, out cur))
+                    return false;
+            }
+
+            found = cur;
+            return true;
+        }
+
         /// <summary>Converts CSV (header row + data) into pretty-printed JSON array file text.</summary>
         public static string CsvToJsonArrayText(string csvContent, GameDataTabularSheetKind kind)
         {
@@ -99,10 +232,10 @@ namespace RPGGame.Data
             if (table.Count == 0)
                 throw new InvalidOperationException("CSV has no rows.");
 
-            var headerRow = table[0];
+            TryGetEnemyImportHeaderRowAndFirstDataIndex(table, kind, out var headerRow, out int firstDataRow);
 
             var arr = new JsonArray();
-            for (int r = 1; r < table.Count; r++)
+            for (int r = firstDataRow; r < table.Count; r++)
             {
                 var cells = table[r];
                 if (cells.Length == 0 || cells.All(string.IsNullOrWhiteSpace))
@@ -117,10 +250,126 @@ namespace RPGGame.Data
                     string cell = i < cells.Length ? cells[i] ?? "" : "";
                     obj[header] = CellToJsonNode(cell);
                 }
+
+                if (kind == GameDataTabularSheetKind.Enemies)
+                {
+                    MergeEnemyFlatColumnsToNested(obj);
+                    NormalizeEnemyJsonArrayRow(obj);
+                }
+
                 arr.Add(obj);
             }
 
             return arr.ToJsonString(GetSerializerOptions(kind));
+        }
+
+        /// <summary>
+        /// ENEMIES may use row 0 = category labels and row 1 = short field names; otherwise row 0 = dotted / top-level headers.
+        /// </summary>
+        /// <summary>Sets <paramref name="headerRow"/> and <paramref name="firstDataRow"/> for ENEMIES two-row headers or single-row fallback.</summary>
+        private static void TryGetEnemyImportHeaderRowAndFirstDataIndex(
+            List<string[]> table,
+            GameDataTabularSheetKind kind,
+            out string[] headerRow,
+            out int firstDataRow)
+        {
+            headerRow = table[0];
+            firstDataRow = 1;
+            if (kind != GameDataTabularSheetKind.Enemies || table.Count < 2)
+                return;
+
+            var row0 = table[0];
+            var row1 = table[1];
+            // Avoid treating legacy single-row CSV (column "overrides" JSON blob) as a category band.
+            if (!EnemySheetTwoRowHeaderFormat(row0, row1))
+                return;
+
+            int width = Math.Max(row0.Length, row1.Length);
+            var combined = new string[width];
+            for (int i = 0; i < width; i++)
+            {
+                string cat = i < row0.Length ? row0[i]?.Trim() ?? "" : "";
+                string sub = i < row1.Length ? row1[i]?.Trim() ?? "" : "";
+                combined[i] = CombineEnemyImportHeaderCell(cat, sub);
+            }
+
+            headerRow = combined;
+            firstDataRow = 2;
+        }
+
+        /// <summary>
+        /// True when row 0 is the category band (blank over <c>name</c>, repeated group labels) and row 1 is short column names
+        /// (starts with <c>name</c>), not a data row.
+        /// </summary>
+        private static bool EnemySheetTwoRowHeaderFormat(string[] row0, string[] row1)
+        {
+            if (row1.Length == 0)
+                return false;
+            if (!string.Equals(row1[0]?.Trim(), "name", StringComparison.OrdinalIgnoreCase))
+                return false;
+            if (row0.Length > 0 && !string.IsNullOrWhiteSpace(row0[0]))
+                return false;
+            if (!EnemySheetRowLooksLikeCategoryBand(row0) || EnemySheetRowHasDottedStatKeys(row0))
+                return false;
+            return true;
+        }
+
+        private static bool EnemySheetRowLooksLikeCategoryBand(string[] row)
+        {
+            foreach (var cell in row)
+            {
+                string t = cell?.Trim() ?? "";
+                if (t.Length == 0)
+                    continue;
+                if (string.Equals(t, EnemySheetCategoryOverrides, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(t, EnemySheetCategoryBaseAttributes, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(t, EnemySheetCategoryGrowth, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool EnemySheetRowHasDottedStatKeys(string[] row)
+        {
+            foreach (var cell in row)
+            {
+                string t = cell?.Trim() ?? "";
+                if (t.Contains("overrides.", StringComparison.Ordinal)
+                    || t.Contains("baseAttributes.", StringComparison.Ordinal)
+                    || t.Contains("growthPerLevel.", StringComparison.Ordinal))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static string CombineEnemyImportHeaderCell(string category, string subHeader)
+        {
+            if (subHeader.Length == 0)
+                return "";
+
+            if (category.Length == 0)
+                return subHeader;
+
+            if (string.Equals(category, EnemySheetCategoryOverrides, StringComparison.OrdinalIgnoreCase))
+                return "overrides." + subHeader;
+
+            if (string.Equals(category, EnemySheetCategoryBaseAttributes, StringComparison.OrdinalIgnoreCase))
+            {
+                if (string.Equals(subHeader, "baseHealth", StringComparison.OrdinalIgnoreCase))
+                    return "baseHealth";
+                return "baseAttributes." + subHeader;
+            }
+
+            if (string.Equals(category, EnemySheetCategoryGrowth, StringComparison.OrdinalIgnoreCase))
+            {
+                if (string.Equals(subHeader, "healthGrowthPerLevel", StringComparison.OrdinalIgnoreCase))
+                    return "healthGrowthPerLevel";
+                return "growthPerLevel." + subHeader;
+            }
+
+            return subHeader;
         }
 
         private static JsonSerializerOptions GetSerializerOptions(GameDataTabularSheetKind kind)
@@ -186,6 +435,103 @@ namespace RPGGame.Data
             }
 
             return JsonValue.Create(cell);
+        }
+
+        /// <summary>
+        /// Merges dotted headers (<c>overrides.health</c>, <c>baseAttributes.strength</c>, …) into nested objects and removes those keys.
+        /// Flat values override the same keys on an existing legacy <c>overrides</c> / <c>baseAttributes</c> / <c>growthPerLevel</c> JSON cell.
+        /// </summary>
+        private static void MergeEnemyFlatColumnsToNested(JsonObject obj)
+        {
+            var buckets = new Dictionary<string, Dictionary<string, JsonNode?>>(StringComparer.Ordinal)
+            {
+                ["overrides"] = new Dictionary<string, JsonNode?>(StringComparer.Ordinal),
+                ["baseAttributes"] = new Dictionary<string, JsonNode?>(StringComparer.Ordinal),
+                ["growthPerLevel"] = new Dictionary<string, JsonNode?>(StringComparer.Ordinal)
+            };
+
+            var keysToRemove = new List<string>();
+            foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+            {
+                int dot = key.IndexOf('.', StringComparison.Ordinal);
+                if (dot <= 0)
+                    continue;
+                string prefix = key[..dot];
+                string suffix = key[(dot + 1)..];
+                if (!buckets.TryGetValue(prefix, out var bucket))
+                    continue;
+
+                if (!obj.TryGetPropertyValue(key, out var valNode))
+                    continue;
+
+                keysToRemove.Add(key);
+                if (valNode is null || IsJsonNodeNullOrMissing(valNode))
+                    continue;
+                bucket[suffix] = valNode;
+            }
+
+            foreach (var key in keysToRemove)
+                obj.Remove(key);
+
+            foreach (var (prefix, bucket) in buckets)
+            {
+                if (bucket.Count == 0)
+                    continue;
+
+                var merged = new JsonObject();
+                foreach (var (sk, sv) in bucket)
+                {
+                    if (sv is null || IsJsonNodeNullOrMissing(sv))
+                        continue;
+                    merged[sk] = sv;
+                }
+
+                if (merged.Count == 0)
+                    continue;
+
+                if (obj.TryGetPropertyValue(prefix, out var existing) && existing is JsonObject eo)
+                {
+                    foreach (var (sk, sv) in merged)
+                    {
+                        if (sv is null || IsJsonNodeNullOrMissing(sv))
+                            continue;
+                        eo[sk] = sv;
+                    }
+                }
+                else
+                {
+                    obj[prefix] = merged;
+                }
+            }
+        }
+
+        private static bool IsJsonNodeNullOrMissing(JsonNode n)
+        {
+            if (n is null)
+                return true;
+            return n.GetValueKind() == JsonValueKind.Null;
+        }
+
+        /// <summary>
+        /// When <c>actions</c> is a plain string (not JSON), treat <c>|</c> as delimiter so sheet authors can write
+        /// <c>JAB|TAUNT</c> instead of a JSON array.
+        /// </summary>
+        private static void NormalizeEnemyJsonArrayRow(JsonObject obj)
+        {
+            if (!obj.TryGetPropertyValue("actions", out var node) || node is null)
+                return;
+
+            if (node is JsonArray)
+                return;
+
+            if (node is not JsonValue jv || !jv.TryGetValue<string>(out var s) || string.IsNullOrWhiteSpace(s))
+                return;
+
+            var parts = s.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var arr = new JsonArray();
+            foreach (var p in parts)
+                arr.Add(p);
+            obj["actions"] = arr;
         }
     }
 }

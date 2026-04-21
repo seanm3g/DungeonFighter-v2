@@ -70,7 +70,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         {
             try
             {
-                var allActions = ActionLoader.GetAllActions();
+                var allActions = ActionLoader.GetAllActions()
+                    .Where(a => a.Tags == null ||
+                                (!a.Tags.Any(t => t.Equals("enemy", StringComparison.OrdinalIgnoreCase)) &&
+                                 !a.Tags.Any(t => t.Equals("environment", StringComparison.OrdinalIgnoreCase))))
+                    .ToList();
                 
                 if (allActions == null || allActions.Count == 0)
                     return null;
@@ -99,14 +103,17 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 
                 // Filter actions that have at least one status effect
                 var statusEffectActions = allActions.Where(action =>
-                    action.CausesBleed || action.CausesWeaken || action.CausesSlow ||
+                    (action.Tags == null ||
+                     (!action.Tags.Any(t => t.Equals("enemy", StringComparison.OrdinalIgnoreCase)) &&
+                      !action.Tags.Any(t => t.Equals("environment", StringComparison.OrdinalIgnoreCase)))) &&
+                    (action.CausesBleed || action.CausesWeaken || action.CausesSlow ||
                     action.CausesPoison || action.CausesBurn || action.CausesStun ||
                     action.CausesVulnerability || action.CausesHarden || action.CausesFortify ||
                     action.CausesFocus || action.CausesExpose || action.CausesHPRegen ||
                     action.CausesArmorBreak || action.CausesPierce || action.CausesReflect ||
                     action.CausesSilence || action.CausesStatDrain || action.CausesAbsorb ||
                     action.CausesTemporaryHP || action.CausesConfusion || action.CausesCleanse ||
-                    action.CausesMark || action.CausesDisrupt
+                    action.CausesMark || action.CausesDisrupt)
                 ).ToList();
                 
                 if (statusEffectActions.Count == 0)

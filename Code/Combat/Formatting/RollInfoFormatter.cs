@@ -56,21 +56,21 @@ namespace RPGGame.Combat.Formatting
                 AddSpeedInfo(builder, actualSpeed);
             }
             
-            if (comboAmplifier.HasValue)
-            {
-                if (comboAmplifier.Value > 1.0)
-                {
-                    AddAmpInfo(builder, comboAmplifier.Value);
-                }
-                else if (action != null && action.IsComboAction)
-                {
-                    AddAmpInfo(builder, 1.0);
-                }
-            }
+            AppendComboAmpToRollInfo(builder, comboAmplifier, action);
             
             builder.Add(")", Colors.Gray);
             
             return builder.Build();
+        }
+
+        /// <summary>
+        /// Appends the amp segment for roll footers. Pass the displayed swing multiplier (chain/slot mult × queued AMP_MOD).
+        /// </summary>
+        public static void AppendComboAmpToRollInfo(ColoredTextBuilder builder, double? comboAmplifier, Action? action)
+        {
+            double amp = comboAmplifier ?? 1.0;
+            if (amp > 1.0001 || (action != null && action.IsComboAction))
+                AddAmpInfo(builder, amp);
         }
     }
 }

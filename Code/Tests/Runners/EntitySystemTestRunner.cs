@@ -25,6 +25,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             EnemyTests.RunAllTests();
             Console.WriteLine();
+            EnemyAttributeGrowthTests.RunAllTests();
+            Console.WriteLine();
             EquipmentManagerTests.RunAllTests();
             Console.WriteLine();
             LevelUpManagerTests.RunAllTests();

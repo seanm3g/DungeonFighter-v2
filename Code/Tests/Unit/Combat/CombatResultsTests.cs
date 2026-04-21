@@ -1,5 +1,7 @@
 using System;
+using RPGGame.Combat.Calculators;
 using RPGGame.Tests;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Tests.Unit.Combat
 {
@@ -26,6 +28,8 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestFormatDamageDisplaySeparated();
             TestFormatDamageDisplayColored();
+            TestRollInfoShowsQueuedSheetAmpInAmpLine();
+            TestRollInfoShowsSheetAmpStackedOnTechniqueAmp();
             TestFormatMissMessageColored();
             TestFormatNonAttackActionColored();
             TestFormatHealthMilestoneColored();
@@ -85,6 +89,58 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestBase.AssertNotNull(rollInfo,
                 "Colored roll info should not be null",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>Roll footer amp must reflect ConsumedAmpModPercent (ModTrade / sheet AMP_MOD on next swing).</summary>
+        private static void TestRollInfoShowsQueuedSheetAmpInAmpLine()
+        {
+            Console.WriteLine("\n--- Testing roll info shows queued sheet AMP_MOD ---");
+
+            // Technique low enough that GetComboAmplifier() is 1.0 so sheet +10% alone yields 1.10x (slot mult 1.0).
+            var attacker = TestDataBuilders.Character().WithName("Hero").WithStats(10, 10, 3, 10).Build();
+            attacker.Effects.ConsumedAmpModPercent = 10;
+            var target = TestDataBuilders.Enemy().WithName("Goblin").Build();
+            var action = TestDataBuilders.CreateMockAction("JAB");
+            action.IsComboAction = true;
+
+            var (_, rollInfo) = CombatResults.FormatDamageDisplayColored(
+                attacker, target, 12, 10, action, 1.0, 1.0, 0, 12);
+
+            string rendered = ColoredTextRenderer.RenderAsMarkup(rollInfo);
+            TestBase.AssertTrue(
+                rendered.Contains("1.10x", StringComparison.Ordinal),
+                "Colored roll info should show effective amp (1.10x) when ConsumedAmpModPercent is 10% and technique amp is 1.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var (_, rollInfoPlain) = CombatResults.FormatDamageDisplaySeparated(
+                attacker, target, 12, 10, action, 1.0, 1.0, 0, 12);
+            TestBase.AssertTrue(
+                rollInfoPlain.Contains("1.10x", StringComparison.Ordinal),
+                "Separated roll info should show effective amp (1.10x) when ConsumedAmpModPercent is 10% and technique amp is 1.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>Sheet AMP_MOD stacks on technique baseline when combo slot mult is 1.0 (e.g. opener).</summary>
+        private static void TestRollInfoShowsSheetAmpStackedOnTechniqueAmp()
+        {
+            Console.WriteLine("\n--- Testing roll info stacks sheet AMP on technique amp ---");
+
+            var attacker = TestDataBuilders.Character().WithName("Hero").WithStats(3, 3, 12, 3).Build();
+            attacker.Effects.ConsumedAmpModPercent = 10;
+            var target = TestDataBuilders.Enemy().WithName("Goblin").Build();
+            var action = TestDataBuilders.CreateMockAction("JAB");
+            action.IsComboAction = true;
+
+            double expectedAmp = DamageCalculator.GetDisplayedComboMultiplier(attacker, 1.0, action);
+            string expectedLabel = $"{expectedAmp:F2}x";
+
+            var (_, rollInfo) = CombatResults.FormatDamageDisplayColored(
+                attacker, target, 12, 10, action, 1.0, 1.0, 0, 12);
+            string rendered = ColoredTextRenderer.RenderAsMarkup(rollInfo);
+            TestBase.AssertTrue(
+                rendered.Contains(expectedLabel, StringComparison.Ordinal),
+                $"Colored roll info should show stacked amp {expectedLabel} (technique x sheet), got: {rendered}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

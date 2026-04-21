@@ -41,11 +41,39 @@ namespace RPGGame.Combat.Calculators
         /// <summary>
         /// Calculates raw damage before armor reduction
         /// </summary>
+        /// <summary>
+        /// Swing + combo-slot multiplier as shown in combat roll info: matches the AMP_MOD leg inside
+        /// <see cref="CalculateRawDamage"/> (queued sheet amp on the attacker) without mutating other effect state.
+        /// For combo actions, sheet AMP_MOD compounds against the technique baseline when the slot multiplier is 1.0
+        /// (e.g. opener exponent 0), so the log matches the AMP stat line + queued percent.
+        /// </summary>
+        public static double GetDisplayedComboMultiplier(Actor attacker, double swingComboSlotMultiplier, Action? action = null)
+        {
+            double m = swingComboSlotMultiplier;
+            if (attacker is Character character && character.Effects.ConsumedAmpModPercent != 0)
+            {
+                double baseline = swingComboSlotMultiplier;
+                if (action?.IsComboAction == true)
+                    baseline = Math.Max(baseline, character.GetComboAmplifier());
+                m = baseline * (1.0 + character.Effects.ConsumedAmpModPercent / 100.0);
+            }
+            return m;
+        }
+
         public static int CalculateRawDamage(Actor attacker, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int roll = 0)
         {
             // Get base damage from attacker
             int baseDamage = 0;
-            if (attacker is Character character)
+            // Enemy must be checked before Character (Enemy : Character). Otherwise <see cref="Enemy.GetEffectiveStrength"/> is never used
+            // and direct-stat lab enemies (Strength 0, Damage > 0) contribute 0 base damage from the Character branch.
+            if (attacker is Enemy enemy)
+            {
+                baseDamage = enemy.GetEffectiveStrength();
+
+                if (enemy.Weapon is WeaponItem weapon)
+                    baseDamage += weapon.GetTotalDamage();
+            }
+            else if (attacker is Character character)
             {
                 baseDamage = character.GetEffectiveStrength();
 
@@ -60,17 +88,6 @@ namespace RPGGame.Combat.Calculators
 
                 // Add modification damage bonus
                 baseDamage += character.GetModificationDamageBonus();
-            }
-            else if (attacker is Enemy enemy)
-            {
-                // For enemies, use strength + weapon damage (same as heroes)
-                baseDamage = enemy.GetEffectiveStrength();
-
-                // Add weapon damage if enemy has a weapon
-                if (enemy.Weapon is WeaponItem weapon)
-                {
-                    baseDamage += weapon.GetTotalDamage();
-                }
             }
 
             // Ensure base damage is at least 1 to prevent zero damage issues
@@ -87,9 +104,15 @@ namespace RPGGame.Combat.Calculators
             if (attacker is Character damageModCharacter && damageModCharacter.Effects.ConsumedDamageModPercent != 0)
                 actionMultiplier *= (1.0 + damageModCharacter.Effects.ConsumedDamageModPercent / 100.0);
 
-            // Apply consumed AMP_MOD from ACTION/ABILITY keyword (next action/ability only; % bonus, multiply)
+            // Apply consumed AMP_MOD from ACTION/ABILITY keyword (next action/ability only; % bonus, multiply).
+            // Combo: sheet amp applies on top of technique baseline when slot mult is 1.0 (opener tier), matching HUD + combat log.
             if (attacker is Character ampModCharacter && ampModCharacter.Effects.ConsumedAmpModPercent != 0)
-                comboAmplifier *= (1.0 + ampModCharacter.Effects.ConsumedAmpModPercent / 100.0);
+            {
+                double baseline = comboAmplifier;
+                if (action?.IsComboAction == true)
+                    baseline = Math.Max(baseline, ampModCharacter.GetComboAmplifier());
+                comboAmplifier = baseline * (1.0 + ampModCharacter.Effects.ConsumedAmpModPercent / 100.0);
+            }
 
             // Apply next attack damage multiplier (for Follow Through and similar effects)
             // Consume it so it only applies once

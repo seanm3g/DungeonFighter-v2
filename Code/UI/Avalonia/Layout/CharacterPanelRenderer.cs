@@ -166,9 +166,13 @@ namespace RPGGame.UI.Avalonia.Layout
                 y++;
                 int ampRowY = y;
                 double ampBasePerStep = character.GetComboAmplifier();
+                double queuedSheetAmpPct = character.PeekQueuedSheetAmpModPercentForDisplay();
                 const int statsValueColumnIndex = 9; // first character index of value in AddCharacterStat lines (Damage/Speed/Armor)
                 string ampPrefix = "AMP:";
-                canvas.AddText(x, y, ampPrefix + new string(' ', statsValueColumnIndex - ampPrefix.Length) + $"{ampBasePerStep:F2}x", AsciiArtAssets.Colors.White);
+                string ampCore = ampPrefix + new string(' ', statsValueColumnIndex - ampPrefix.Length) + $"{ampBasePerStep:F2}x";
+                if (queuedSheetAmpPct > 0.05)
+                    ampCore += $"  +{queuedSheetAmpPct:0.#}% nxt";
+                canvas.AddText(x, y, ampCore, AsciiArtAssets.Colors.White);
                 y++;
                 int armorRowY = y;
                 canvas.AddCharacterStat(x, y, "Armor", character.GetTotalArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.White);

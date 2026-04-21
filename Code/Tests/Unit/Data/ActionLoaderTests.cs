@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit.Data
             _testsFailed = 0;
 
             TestActionLoading();
+            TestModTradeActionInActionsJson();
             TestReloadActionsInvokesActionsReloaded();
             TestGetAction();
             TestGetActions();
@@ -35,6 +36,7 @@ namespace RPGGame.Tests.Unit.Data
             TestGetAllActions();
             TestActionProperties();
             TestOpenerFinisherMapping();
+            TestJumpRelativeMapping();
 
             TestBase.PrintSummary("ActionLoader Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -67,6 +69,26 @@ namespace RPGGame.Tests.Unit.Data
         }
 
         #region Action Loading Tests
+
+        private static void TestModTradeActionInActionsJson()
+        {
+            Console.WriteLine("--- Testing mod-trade row in Actions.json (tags modtrade) ---");
+            _testsRun++;
+            ActionLoader.ReloadActions();
+            var mt = ActionLoader.GetAction("Commitment Cleaver");
+            bool ok = mt != null && mt.SpeedMod == "-20" && mt.DamageMod == "25"
+                && mt.Description != null && mt.Description.Contains("telegraph", StringComparison.OrdinalIgnoreCase);
+            if (ok)
+            {
+                _testsPassed++;
+                Console.WriteLine("  ✓ Commitment Cleaver from Actions.json: mods + catalog description");
+            }
+            else
+            {
+                _testsFailed++;
+                Console.WriteLine("  ✗ Commitment Cleaver missing, wrong mods, or description not from catalog");
+            }
+        }
 
         private static void TestActionLoading()
         {
@@ -280,6 +302,43 @@ namespace RPGGame.Tests.Unit.Data
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(action.ComboRouting!.IsFinisher,
                 "IsFinisher should map from ActionData to ComboRouting",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestJumpRelativeMapping()
+        {
+            Console.WriteLine("\n--- Testing JumpRelative mapping (ActionData to ComboRouting) ---");
+
+            var data = new ActionData
+            {
+                Name = "TestJumpRel",
+                Type = "Attack",
+                TargetType = "SingleTarget",
+                Cooldown = 0,
+                Description = "Test",
+                DamageMultiplier = 1.0,
+                Length = 1.0,
+                Jump = "",
+                JumpRelative = "2"
+            };
+
+            var action = ActionDataToActionMapper.CreateAction(data);
+
+            TestBase.AssertTrue(action.ComboRouting!.JumpRelativeSlots == 2,
+                "JumpRelative should map to JumpRelativeSlots",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(action.ComboRouting.JumpToSlot == 0,
+                "JumpToSlot should stay 0 when only JumpRelative is set",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            data.Jump = "3";
+            data.JumpRelative = "2";
+            var action2 = ActionDataToActionMapper.CreateAction(data);
+            TestBase.AssertTrue(action2.ComboRouting.JumpToSlot == 3,
+                "Absolute Jump still maps when set",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(action2.ComboRouting.JumpRelativeSlots == 0,
+                "JumpRelativeSlots ignored when Jump is set",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

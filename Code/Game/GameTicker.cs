@@ -12,13 +12,43 @@ namespace RPGGame
         private static GameTicker? _instance;
         private static readonly object _lock = new object();
 
+        /// <summary>
+        /// When non-null, combat time for this logical async flow is isolated from the global ticker
+        /// (used for Action Lab encounter Monte Carlo so parallel workers do not share <see cref="_gameTime"/>).
+        /// </summary>
+        private static readonly AsyncLocal<double?> AsyncIsolatedEncounterGameTime = new();
+
+        /// <summary>Begin isolated encounter clock for the current async context; dispose to restore global ticker reads.</summary>
+        public static IDisposable BeginIsolatedEncounterGameTime()
+        {
+            AsyncIsolatedEncounterGameTime.Value = 0.0;
+            return new AsyncIsolatedEncounterGameTimeScope();
+        }
+
+        private sealed class AsyncIsolatedEncounterGameTimeScope : IDisposable
+        {
+            public void Dispose() => AsyncIsolatedEncounterGameTime.Value = null;
+        }
+
+        /// <summary>Serializes reads/writes of <see cref="_gameTime"/> and <see cref="_lastRealTime"/> (combat, lab, and background sim share one ticker).</summary>
+        private readonly object _timeLock = new object();
+
         private double _gameTime = 0.0;
         private double _lastRealTime = 0.0;
         private bool _isRunning = false;
         private Task? _tickerTask;
         private CancellationTokenSource? _cancellationTokenSource;
 
-        public double GameTime => _gameTime;
+        public double GameTime
+        {
+            get
+            {
+                if (AsyncIsolatedEncounterGameTime.Value.HasValue)
+                    return AsyncIsolatedEncounterGameTime.Value.Value;
+                lock (_timeLock)
+                    return _gameTime;
+            }
+        }
         public bool IsRunning => _isRunning;
         
         public static GameTicker Instance
@@ -85,8 +115,17 @@ namespace RPGGame
         
         public void Reset()
         {
-            _gameTime = 0.0;
-            _lastRealTime = DateTime.Now.Ticks / (double)TimeSpan.TicksPerSecond;
+            if (AsyncIsolatedEncounterGameTime.Value.HasValue)
+            {
+                AsyncIsolatedEncounterGameTime.Value = 0.0;
+                return;
+            }
+
+            lock (_timeLock)
+            {
+                _gameTime = 0.0;
+                _lastRealTime = DateTime.Now.Ticks / (double)TimeSpan.TicksPerSecond;
+            }
         }
         
         private async Task TickerLoopAsync(CancellationToken cancellationToken)
@@ -105,8 +144,11 @@ namespace RPGGame
 
                     // Convert to game time using speed multiplier
                     double gameTimeElapsed = realTimeElapsed * speedMultiplier;
-                    _gameTime += gameTimeElapsed;
-                    _lastRealTime = currentRealTime;
+                    lock (_timeLock)
+                    {
+                        _gameTime += gameTimeElapsed;
+                        _lastRealTime = currentRealTime;
+                    }
 
                     // Delay for the ticker interval (non-blocking)
                     int delayMs = (int)(tickerInterval * 1000);
@@ -124,17 +166,23 @@ namespace RPGGame
         /// </summary>
         public double GetCurrentGameTime()
         {
-            if (_isRunning)
+            if (AsyncIsolatedEncounterGameTime.Value.HasValue)
+                return AsyncIsolatedEncounterGameTime.Value.Value;
+
+            lock (_timeLock)
             {
-                // Update game time based on real time elapsed
-                double currentRealTime = DateTime.Now.Ticks / (double)TimeSpan.TicksPerSecond;
-                double realTimeElapsed = currentRealTime - _lastRealTime;
-                double gameTimeElapsed = realTimeElapsed * GameConfiguration.Instance.GameSpeed.GameSpeedMultiplier;
-                _gameTime += gameTimeElapsed;
-                _lastRealTime = currentRealTime;
+                if (_isRunning)
+                {
+                    // Update game time based on real time elapsed
+                    double currentRealTime = DateTime.Now.Ticks / (double)TimeSpan.TicksPerSecond;
+                    double realTimeElapsed = currentRealTime - _lastRealTime;
+                    double gameTimeElapsed = realTimeElapsed * GameConfiguration.Instance.GameSpeed.GameSpeedMultiplier;
+                    _gameTime += gameTimeElapsed;
+                    _lastRealTime = currentRealTime;
+                }
+
+                return _gameTime;
             }
-            
-            return _gameTime;
         }
         
         /// <summary>
@@ -142,7 +190,14 @@ namespace RPGGame
         /// </summary>
         public void AdvanceGameTime(double timeAmount)
         {
-            _gameTime += timeAmount;
+            if (AsyncIsolatedEncounterGameTime.Value is double isolated)
+            {
+                AsyncIsolatedEncounterGameTime.Value = isolated + timeAmount;
+                return;
+            }
+
+            lock (_timeLock)
+                _gameTime += timeAmount;
         }
     }
 }

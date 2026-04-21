@@ -9,6 +9,8 @@ namespace RPGGame
 {
     public static class ActionLoader
     {
+        /// <summary>Serializes access to <see cref="_actions"/> and <see cref="CreateAction"/> mapping (shared <see cref="ActionData"/> is mutated during map).</summary>
+        private static readonly object ActionsLock = new object();
         private static Dictionary<string, ActionData>? _actions;
         private static bool _wasSpreadsheetFormat;
         private static List<Data.SpreadsheetActionJson>? _originalSpreadsheetActions;
@@ -31,15 +33,18 @@ namespace RPGGame
         /// </summary>
         public static void ReloadActions()
         {
-            var pathToClear = _loadedActionsFilePath ?? GameConstants.GetGameDataFilePath(GameConstants.ActionsJson);
-            if (!string.IsNullOrEmpty(pathToClear))
+            lock (ActionsLock)
             {
-                JsonLoader.ClearCacheForFile(pathToClear);
-                try { JsonLoader.ClearCacheForFile(Path.GetFullPath(pathToClear)); } catch { }
+                var pathToClear = _loadedActionsFilePath ?? GameConstants.GetGameDataFilePath(GameConstants.ActionsJson);
+                if (!string.IsNullOrEmpty(pathToClear))
+                {
+                    JsonLoader.ClearCacheForFile(pathToClear);
+                    try { JsonLoader.ClearCacheForFile(Path.GetFullPath(pathToClear)); } catch { }
+                }
+                _actions = null;
+                LoadActions();
+                ActionsReloaded?.Invoke();
             }
-            _actions = null;
-            LoadActions();
-            ActionsReloaded?.Invoke();
         }
 
         /// <summary>
@@ -49,6 +54,8 @@ namespace RPGGame
         /// <param name="validate">If true, validates loaded actions and logs any issues</param>
         public static void LoadActions(bool validate)
         {
+            lock (ActionsLock)
+            {
             ErrorHandler.TryExecute(() =>
             {
                 // Prefer the path we already loaded from (so save then reload uses the same file)
@@ -99,7 +106,7 @@ namespace RPGGame
                             ErrorHandler.LogWarning("Found action with null/empty name", "ActionLoader");
                         }
                     }
-                    
+
                     DebugLogger.LogFormat("ActionLoader", "Loaded {0} actions from JSON", _actions.Count);
                 }
                 else
@@ -120,6 +127,7 @@ namespace RPGGame
                 _loadedActionsFilePath = null;
                 ErrorHandler.LogError(new Exception("Failed to load actions"), "ActionLoader.LoadActions", "Action loading failed, using empty dictionary");
             });
+            }
         }
         
         /// <summary>
@@ -243,17 +251,16 @@ namespace RPGGame
 
         public static Action? GetAction(string actionName)
         {
-            if (_actions == null)
+            lock (ActionsLock)
             {
-                LoadActions();
-            }
+                if (_actions == null)
+                    LoadActions();
 
-            if (_actions != null && _actions.TryGetValue(actionName, out var actionData))
-            {
-                return ActionDataToActionMapper.CreateAction(actionData);
-            }
+                if (_actions != null && _actions.TryGetValue(actionName, out var actionData))
+                    return ActionDataToActionMapper.CreateAction(actionData);
 
-            return null;
+                return null;
+            }
         }
 
         public static List<Action> GetActions(params string[] actionNames)
@@ -272,39 +279,42 @@ namespace RPGGame
 
         public static bool HasAction(string actionName)
         {
-            if (_actions == null)
+            lock (ActionsLock)
             {
-                LoadActions();
-            }
+                if (_actions == null)
+                    LoadActions();
 
-            return _actions?.ContainsKey(actionName) ?? false;
+                return _actions?.ContainsKey(actionName) ?? false;
+            }
         }
 
         public static List<string> GetAllActionNames()
         {
-            if (_actions == null)
+            lock (ActionsLock)
             {
-                LoadActions();
-            }
+                if (_actions == null)
+                    LoadActions();
 
-            return _actions?.Keys.ToList() ?? new List<string>();
+                return _actions?.Keys.ToList() ?? new List<string>();
+            }
         }
 
         public static List<Action> GetAllActions()
         {
-            if (_actions == null)
+            lock (ActionsLock)
             {
-                LoadActions();
-            }
-            var actions = new List<Action>();
-            if (_actions != null)
-            {
-                foreach (var actionData in _actions.Values)
+                if (_actions == null)
+                    LoadActions();
+                var actions = new List<Action>();
+                if (_actions != null)
                 {
-                    actions.Add(ActionDataToActionMapper.CreateAction(actionData));
+                    foreach (var actionData in _actions.Values)
+                    {
+                        actions.Add(ActionDataToActionMapper.CreateAction(actionData));
+                    }
                 }
+                return actions;
             }
-            return actions;
         }
 
         /// <summary>
@@ -312,11 +322,12 @@ namespace RPGGame
         /// </summary>
         public static List<ActionData> GetAllActionData()
         {
-            if (_actions == null)
+            lock (ActionsLock)
             {
-                LoadActions();
+                if (_actions == null)
+                    LoadActions();
+                return _actions?.Values.ToList() ?? new List<ActionData>();
             }
-            return _actions?.Values.ToList() ?? new List<ActionData>();
         }
 
         /// <summary>
@@ -325,11 +336,12 @@ namespace RPGGame
         /// </summary>
         public static bool IsSpreadsheetFormat()
         {
-            if (_actions == null)
+            lock (ActionsLock)
             {
-                LoadActions();
+                if (_actions == null)
+                    LoadActions();
+                return _wasSpreadsheetFormat;
             }
-            return _wasSpreadsheetFormat;
         }
 
         /// <summary>
@@ -338,7 +350,8 @@ namespace RPGGame
         /// </summary>
         public static string? GetLoadedActionsFilePath()
         {
-            return _loadedActionsFilePath;
+            lock (ActionsLock)
+                return _loadedActionsFilePath;
         }
 
         /// <summary>
@@ -347,50 +360,49 @@ namespace RPGGame
         /// </summary>
         public static List<Data.SpreadsheetActionJson>? GetOriginalSpreadsheetActions()
         {
-            if (_actions == null)
+            lock (ActionsLock)
             {
-                LoadActions();
+                if (_actions == null)
+                    LoadActions();
+                return _originalSpreadsheetActions;
             }
-            return _originalSpreadsheetActions;
         }
 
         public static string GetRandomActionNameByType(ActionType type)
         {
-            if (_actions == null)
+            lock (ActionsLock)
             {
-                LoadActions();
-            }
+                if (_actions == null)
+                    LoadActions();
 
-            var actionsOfType = new List<string>();
-            if (_actions != null)
-            {
-                foreach (var actionData in _actions.Values)
+                var actionsOfType = new List<string>();
+                if (_actions != null)
                 {
-                    if (actionData.Type.Equals(type.ToString(), StringComparison.OrdinalIgnoreCase))
+                    foreach (var actionData in _actions.Values)
                     {
-                        actionsOfType.Add(actionData.Name);
+                        if (actionData.Type.Equals(type.ToString(), StringComparison.OrdinalIgnoreCase))
+                        {
+                            actionsOfType.Add(actionData.Name);
+                        }
                     }
                 }
-            }
 
-            if (actionsOfType.Count > 0)
-            {
-                return actionsOfType[Random.Shared.Next(actionsOfType.Count)];
-            }
+                if (actionsOfType.Count > 0)
+                    return actionsOfType[Random.Shared.Next(actionsOfType.Count)];
 
-            // Fallback names if no actions found
-            return type switch
-            {
-                ActionType.Attack => "Attack",
-                ActionType.Heal => "Heal",
-                ActionType.Buff => "Buff",
-                ActionType.Debuff => "Debuff",
-                ActionType.Spell => "Spell",
-                ActionType.Interact => "Interact",
-                ActionType.Move => "Move",
-                ActionType.UseItem => "Use Item",
-                _ => "Unknown Action"
-            };
+                return type switch
+                {
+                    ActionType.Attack => "Attack",
+                    ActionType.Heal => "Heal",
+                    ActionType.Buff => "Buff",
+                    ActionType.Debuff => "Debuff",
+                    ActionType.Spell => "Spell",
+                    ActionType.Interact => "Interact",
+                    ActionType.Move => "Move",
+                    ActionType.UseItem => "Use Item",
+                    _ => "Unknown Action"
+                };
+            }
         }
     }
 } 

@@ -4,6 +4,7 @@ using System.Linq;
 using RPGGame;
 using RPGGame.Tests;
 using RPGGame.Utils;
+using RPGGame.Actions;
 using RPGGame.Actions.Execution;
 using RPGGame.Data;
 
@@ -40,6 +41,7 @@ namespace RPGGame.Tests.Unit
             TestDeferredEnemyRollPenaltyConsumesOneApplicationPerAttack();
             TestDeferredSheetAccuracyScalesWithMultihitOnHit();
             TestFifoAccuracyShiftsThresholdsNotRollSubtraction();
+            TestEnemySheetDamageModDoesNotPersistAcrossEnemySwings();
 
             TestBase.PrintSummary("Action Execution Flow Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -464,6 +466,93 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(4, enemy.RollPenalty,
                 "Enemy RollPenalty should scale with multihit: -2 per hit × 2 = 4",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Enemies must clear Consumed* sheet modifiers each swing (same as heroes); otherwise EnemyDamageMod
+        /// from a hero hit sticks and every following enemy attack stays buffed.
+        /// </summary>
+        private static void TestEnemySheetDamageModDoesNotPersistAcrossEnemySwings()
+        {
+            Console.WriteLine("\n--- Enemy sheet DAMAGE_MOD: single application, no sticky Consumed* ---");
+
+            _ = GameConfiguration.Instance;
+
+            var hero = TestDataBuilders.Character().WithName("BankHero").WithStats(3, 3, 3, 3).Build();
+            // High STR so +10% DAMAGE_MOD changes integer damage after armor (lab hero often has 0 armor).
+            var enemy = TestDataBuilders.Enemy().WithName("Bag").WithHealth(9999).WithStats(55, 5, 5, 5).Build();
+            hero.Effects.ClearPendingActionBonuses();
+            hero.Effects.ClearConsumedModifierBonuses();
+            enemy.Effects.ClearPendingActionBonuses();
+            enemy.Effects.ClearConsumedModifierBonuses();
+
+            var bankEnemyDmg = new Action
+            {
+                Name = "BankEnemyDmg",
+                Type = ActionType.Attack,
+                Target = TargetType.SingleTarget,
+                Cadence = "Attack",
+                IsComboAction = true,
+                DamageMultiplier = 0.01,
+                Length = 1.0,
+                EnemyDamageMod = "10"
+            };
+            var jab = new Action
+            {
+                Name = "Jab",
+                Type = ActionType.Attack,
+                Target = TargetType.SingleTarget,
+                Cadence = "Attack",
+                IsComboAction = true,
+                DamageMultiplier = 1.0,
+                Length = 1.0
+            };
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCrit = new Dictionary<Actor, bool>();
+
+            try
+            {
+                Dice.SetTestRoll(16);
+                ActionSelector.SetStoredActionRoll(enemy, 16);
+                int baseline = ActionExecutionFlow.Execute(enemy, hero, null, null, jab, null, lastUsed, lastCrit).Damage;
+
+                enemy.Effects.ClearPendingActionBonuses();
+                enemy.Effects.ClearConsumedModifierBonuses();
+
+                Dice.SetTestRoll(18);
+                ActionSelector.SetStoredActionRoll(hero, 18);
+                var bankHit = ActionExecutionFlow.Execute(hero, enemy, null, null, bankEnemyDmg, null, lastUsed, lastCrit);
+                TestBase.AssertTrue(bankHit.Hit,
+                    "Hero bank action should hit",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                double queued = enemy.PeekQueuedSheetEnemyDamageModPercentForDisplay();
+                TestBase.AssertTrue(queued >= 9.5 && queued <= 10.5,
+                    "Enemy should have ~+10% DAMAGE_MOD queued for next swing",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                Dice.SetTestRoll(16);
+                ActionSelector.SetStoredActionRoll(enemy, 16);
+                int buffed = ActionExecutionFlow.Execute(enemy, hero, null, null, jab, null, lastUsed, lastCrit).Damage;
+                TestBase.AssertTrue(enemy.PeekQueuedSheetEnemyDamageModPercentForDisplay() < 0.5,
+                    "Enemy FIFO sheet DAMAGE_MOD layer should be consumed on that attack roll",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(buffed >= baseline,
+                    "Buffed damage should be at least baseline (strict > may fail on tiny totals + armor rounding)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                Dice.SetTestRoll(16);
+                ActionSelector.SetStoredActionRoll(enemy, 16);
+                int second = ActionExecutionFlow.Execute(enemy, hero, null, null, jab, null, lastUsed, lastCrit).Damage;
+                TestBase.AssertEqual(baseline, second,
+                    "Second enemy jab (no new bank) should match baseline — ConsumedDamageMod must not persist",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.SetTestRoll(null);
+                ActionSelector.ClearStoredRolls();
+            }
         }
     }
 }

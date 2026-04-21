@@ -15,6 +15,22 @@ namespace RPGGame
         public double TrapRoomChance { get; set; } = 0.2;
         public double TreasureRoomChance { get; set; } = 0.15;
         public string Description { get; set; } = "";
+
+        public void EnsureSensibleDefaults()
+        {
+            if (RoomCountBase <= 0)
+                RoomCountBase = 2;
+            if (RoomCountPerLevel <= 0)
+                RoomCountPerLevel = 0.5;
+            if (EnemyCountPerRoom <= 0)
+                EnemyCountPerRoom = 2;
+            if (BossRoomChance < 0)
+                BossRoomChance = 0;
+            if (TrapRoomChance < 0)
+                TrapRoomChance = 0;
+            if (TreasureRoomChance < 0)
+                TreasureRoomChance = 0;
+        }
     }
 
     /// <summary>

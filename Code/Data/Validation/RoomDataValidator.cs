@@ -11,6 +11,7 @@ namespace RPGGame.Data.Validation
     {
         private const string FileName = "Rooms.json";
         private HashSet<string>? _validActionNames;
+        private HashSet<string>? _validEnemyNames;
 
         public ValidationResult Validate()
         {
@@ -19,6 +20,10 @@ namespace RPGGame.Data.Validation
             // Load valid action names for reference validation
             _validActionNames = new HashSet<string>(
                 ActionLoader.GetAllActionNames(), 
+                StringComparer.OrdinalIgnoreCase);
+
+            _validEnemyNames = new HashSet<string>(
+                EnemyLoader.GetAllEnemyTypes(),
                 StringComparer.OrdinalIgnoreCase);
 
             var rooms = RoomLoader.GetAllRoomData();
@@ -77,6 +82,28 @@ namespace RPGGame.Data.Validation
                     {
                         result.AddWarning(FileName, entityName, "actions", 
                             $"Action '{actionData.Name}' has negative weight ({actionData.Weight}). Weights should be positive.");
+                    }
+                }
+            }
+
+            if (room.Enemies != null && room.Enemies.Count > 0)
+            {
+                foreach (var enemyEntry in room.Enemies)
+                {
+                    if (string.IsNullOrEmpty(enemyEntry.Name))
+                    {
+                        result.AddWarning(FileName, entityName, "enemies", "Empty enemy name in enemies array");
+                    }
+                    else if (_validEnemyNames != null && !_validEnemyNames.Contains(enemyEntry.Name))
+                    {
+                        result.AddError(FileName, entityName, "enemies",
+                            $"Enemy '{enemyEntry.Name}' does not exist in Enemies.json");
+                    }
+
+                    if (enemyEntry.Weight <= 0)
+                    {
+                        result.AddWarning(FileName, entityName, "enemies",
+                            $"Enemy '{enemyEntry.Name}' has non-positive weight ({enemyEntry.Weight}). Weights should be positive.");
                     }
                 }
             }

@@ -252,9 +252,34 @@ namespace RPGGame
                 UIManager.WriteSystemLine("Using default values");
             }
 
+            // JSON may omit nested objects; restore so sanitizer methods never null-ref.
+            CombatBalance ??= new CombatBalanceConfig();
+            RollSystem ??= new RollSystemConfig();
+            EnemySystem ??= new EnemySystemConfig();
+            LootSystem ??= new LootSystemConfig();
+            EquipmentScaling ??= new EquipmentScalingConfig();
+            WeaponScaling ??= new WeaponScalingConfig();
+            ItemScaling ??= new ItemScalingConfig();
+            Progression ??= new ProgressionConfig();
+            ClassBalance ??= new ClassBalanceConfig();
+            DungeonScaling ??= new DungeonScalingConfig();
+
             Combat.EnsureValidCombatTimingDefaults();
+            Combat.EnsureValidCombatCriticalAndDamageDefaults();
+            CombatBalance.EnsureValidRollDamageAndCritDefaults();
+            RollSystem.EnsureValidDefaultThresholdBands();
+            Progression.EnsureValidEnemyXpAndGoldDefaults();
             Attributes.EnsureValidIntelligenceRollBonusDefaults();
+            Character.EnsureValidPlayerHealthDefaults();
+            Attributes.EnsureValidPlayerBaseStatDefaults();
             ComboSystem.EnsureValidComboAmplifierDefaults();
+            EnemySystem.EnsureSanitizedDefaults();
+            LootSystem.EnsureSensibleLootDefaults();
+            EquipmentScaling.EnsureSensibleDefaults();
+            WeaponScaling.EnsureSanitizedDefaults();
+            ItemScaling.EnsureSanitizedWeaponScalingDefaults();
+            ClassBalance.EnsureNonDegenerateClassMultipliers();
+            DungeonScaling.EnsureSensibleDefaults();
         }
 
         public void Reload()

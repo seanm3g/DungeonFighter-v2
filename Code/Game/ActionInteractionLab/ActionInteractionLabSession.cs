@@ -62,6 +62,12 @@ namespace RPGGame.ActionInteractionLab
         private int _labPanelLevelDelta;
         private int _labPanelArmorDelta;
 
+        /// <summary>Enemy level from the last loader pick (or 1 for the default lab dummy).</summary>
+        private int _labEnemyBaseLevel = 1;
+
+        /// <summary>Cumulative right-panel enemy level tweaks (effective = clamp(base + delta, 1–99)).</summary>
+        private int _labPanelEnemyLevelDelta;
+
         public Character LabPlayer => _labPlayer;
         public Enemy LabEnemy => _labEnemy;
         public Environment LabRoom => _labRoom;
@@ -71,13 +77,19 @@ namespace RPGGame.ActionInteractionLab
 
         public bool IsReplayingHistory { get; private set; }
 
+        /// <summary>True while the encounter batch simulator is running (UI shows a busy state).</summary>
+        public bool IsEncounterSimulationRunning { get; private set; }
+
+        /// <summary>Sets <see cref="IsEncounterSimulationRunning"/> (used by Action Lab tools UI).</summary>
+        public void SetEncounterSimulationRunning(bool value) => IsEncounterSimulationRunning = value;
+
         public IReadOnlyList<LabStep> History => _history;
 
         /// <summary>Catalog action name for the next Step (full list from <see cref="ActionLoader"/>).</summary>
         public string SelectedCatalogActionName { get; set; } = "";
 
         /// <summary>Chosen natural d20 (1–20) used when <see cref="UseRandomD20PerStep"/> is false.</summary>
-        public int SelectedD20 { get; set; } = 10;
+        public int SelectedD20 { get; set; } = 16;
 
         /// <summary>When true, each Step uses a fresh random 1–20; when false, <see cref="SelectedD20"/> is used.</summary>
         public bool UseRandomD20PerStep { get; set; }
@@ -91,6 +103,12 @@ namespace RPGGame.ActionInteractionLab
 
         /// <summary>First visible index into the sorted enemy type list for the lab panel.</summary>
         public int EnemyCatalogScrollOffset { get; set; }
+
+        /// <summary>
+        /// Visible enemy-type rows between ▲/▼ in the Action Lab tools panel.
+        /// Keep in sync with <see cref="RPGGame.UI.Avalonia.ActionInteractionLab.ActionLabControlsRenderer"/> layout.
+        /// </summary>
+        public const int EnemyCatalogVisibleRowCount = 5;
 
         /// <summary>Fallback visible catalog rows when layout has not rendered yet (scroll math).</summary>
         public const int LabCatalogVisibleNameRows = 4;
@@ -109,6 +127,44 @@ namespace RPGGame.ActionInteractionLab
 
         /// <summary>Inclusive grid Y bounds for wheel-scrolling the catalog; <c>-1</c> when unset.</summary>
         public int LastCatalogWheelMaxGridY { get; set; } = -1;
+
+        /// <summary>Batch size for Action Lab encounter simulation (wheel over the sim row steps 1 / 10 / 100 / 1000, clamped at ends).</summary>
+        public int EncounterSimulationBatchCount { get; set; } = ActionLabEncounterSimulator.DefaultBatchEncounterCount;
+
+        /// <summary>
+        /// When true, batch encounter simulation uses parallel workers (<c>maxDegreeOfParallelism: -1</c> in <see cref="ActionLabEncounterSimulator.RunBatchAsync"/>).
+        /// When false, encounters run sequentially (<c>maxDegreeOfParallelism: 1</c>).
+        /// </summary>
+        public bool UseParallelEncounterSimulation { get; set; } = true;
+
+        private static readonly int[] EncounterSimulationBatchTiers = { 1, 10, 100, 1000 };
+
+        /// <summary>Inclusive grid X bounds for wheel-changing simulation batch count; <c>-1</c> when unset.</summary>
+        public int LastSimBatchWheelMinGridX { get; set; } = -1;
+
+        /// <summary>Inclusive grid X bounds for wheel-changing simulation batch count; <c>-1</c> when unset.</summary>
+        public int LastSimBatchWheelMaxGridX { get; set; } = -1;
+
+        /// <summary>Inclusive grid Y for the sim button row; <c>-1</c> when unset.</summary>
+        public int LastSimBatchWheelGridY { get; set; } = -1;
+
+        /// <summary>
+        /// Moves <see cref="EncounterSimulationBatchCount"/> one tier in the 1 / 10 / 100 / 1000 sequence
+        /// (<paramref name="direction"/> &gt; 0 toward larger counts), clamped at 1 and 1000 (no wrap).
+        /// </summary>
+        public void CycleEncounterSimulationBatchCount(int direction)
+        {
+            if (direction == 0)
+                return;
+            int sign = direction > 0 ? 1 : -1;
+            int idx = Array.IndexOf(EncounterSimulationBatchTiers, EncounterSimulationBatchCount);
+            if (idx < 0)
+                idx = Array.IndexOf(EncounterSimulationBatchTiers, ActionLabEncounterSimulator.DefaultBatchEncounterCount);
+            if (idx < 0)
+                idx = 0;
+            int newIdx = Math.Clamp(idx + sign, 0, EncounterSimulationBatchTiers.Length - 1);
+            EncounterSimulationBatchCount = EncounterSimulationBatchTiers[newIdx];
+        }
 
         private ActionInteractionLabSession(
             CombatManager combatManager,
@@ -146,19 +202,23 @@ namespace RPGGame.ActionInteractionLab
             var data = serializer.Deserialize(json) ?? throw new InvalidOperationException("Lab: failed to deserialize character clone payload.");
             var labPlayer = serializer.CreateCharacterFromSaveData(data);
 
-            var labEnemy = TestCharacterFactory.CreateTestEnemy(LabEnemyConfig, 0);
+            var labEnemy = TestCharacterFactory.CreateTestEnemy(LabEnemyConfig, 0, level: 1);
             var labRoom = TestCharacterFactory.CreateTestEnvironment();
 
             var session = new ActionInteractionLabSession(combatManager, labPlayer, labEnemy, labRoom, json, refreshCombatUi, prepareLabHistoryReplay);
             _current = session;
             session._sessionEnemyLoaderType = null;
+            session._labEnemyBaseLevel = 1;
+            session._labPanelEnemyLevelDelta = 0;
             var names = ActionLoader.GetAllActionNames().OrderBy(n => n, StringComparer.OrdinalIgnoreCase).ToList();
             if (names.Count > 0)
                 session.SelectedCatalogActionName = names[0];
-            session.SelectedD20 = 10;
+            session.SelectedD20 = 16;
             session.UseRandomD20PerStep = false;
             session.CatalogScrollOffset = 0;
             session.EnemyCatalogScrollOffset = 0;
+            TryBeginWithRandomCatalogEnemy(session);
+            session.EncounterSimulationBatchCount = ActionLabEncounterSimulator.DefaultBatchEncounterCount;
             session._restoreTarget = canvasContext;
             if (canvasContext != null)
             {
@@ -169,6 +229,32 @@ namespace RPGGame.ActionInteractionLab
             session.SyncCatalogSelectionToUpcomingActor();
             refreshCombatUi();
             return session;
+        }
+
+        /// <summary>
+        /// When <see cref="EnemyLoader"/> has at least one enemy type, replaces the default lab dummy with a random
+        /// level-1 loader enemy and scrolls the enemy type list so that type is visible.
+        /// </summary>
+        private static void TryBeginWithRandomCatalogEnemy(ActionInteractionLabSession session)
+        {
+            EnemyLoader.LoadEnemies();
+            var enemyTypes = EnemyLoader.GetAllEnemyTypes();
+            if (enemyTypes.Count == 0)
+                return;
+
+            enemyTypes.Sort(StringComparer.OrdinalIgnoreCase);
+            int pickIdx = Random.Shared.Next(enemyTypes.Count);
+            string pick = enemyTypes[pickIdx];
+            var created = EnemyLoader.CreateEnemy(pick, level: 1);
+            if (created == null)
+                return;
+
+            session._labEnemy = created;
+            session._sessionEnemyLoaderType = pick;
+            session._labEnemyBaseLevel = 1;
+            session._labPanelEnemyLevelDelta = 0;
+            int maxScroll = Math.Max(0, enemyTypes.Count - EnemyCatalogVisibleRowCount);
+            session.EnemyCatalogScrollOffset = Math.Clamp(pickIdx, 0, maxScroll);
         }
 
         /// <summary>
@@ -215,6 +301,37 @@ namespace RPGGame.ActionInteractionLab
             }
 
             _labPlayer.EquipItem(item, s);
+            _history.Clear();
+            ResetLabPanelDeltas();
+            BootstrapCombatState();
+            var serializer = new CharacterSerializer();
+            _initialPlayerJson = serializer.Serialize(_labPlayer);
+            SyncCatalogSelectionToUpcomingActor();
+            _refreshCombatUi();
+        }
+
+        /// <summary>
+        /// Unequips the lab hero in <paramref name="slot"/> (<c>weapon</c>, <c>head</c>, <c>body</c>, <c>feet</c>),
+        /// clears step history, and re-bases undo snapshot (same bookkeeping as <see cref="ApplyLabGear"/>).
+        /// </summary>
+        public void ClearLabGear(string slot)
+        {
+            if (string.IsNullOrWhiteSpace(slot))
+                throw new ArgumentException("Slot is required.", nameof(slot));
+
+            string s = slot.Trim().ToLowerInvariant();
+            switch (s)
+            {
+                case "weapon":
+                case "head":
+                case "body":
+                case "feet":
+                    _labPlayer.UnequipItem(s);
+                    break;
+                default:
+                    throw new ArgumentException("Slot must be weapon, head, body, or feet.", nameof(slot));
+            }
+
             _history.Clear();
             ResetLabPanelDeltas();
             BootstrapCombatState();
@@ -295,12 +412,47 @@ namespace RPGGame.ActionInteractionLab
                 ?? throw new InvalidOperationException($"Lab: could not create enemy '{enemyType}'.");
 
             _sessionEnemyLoaderType = enemyType.Trim();
+            _labEnemyBaseLevel = Math.Clamp(level, 1, 99);
+            _labPanelEnemyLevelDelta = 0;
             _labEnemy = created;
             _history.Clear();
             BootstrapCombatState();
             SyncCatalogSelectionToUpcomingActor();
             SyncLabEnemyToCanvasContext();
             _refreshCombatUi();
+        }
+
+        /// <summary>
+        /// Action Lab: change enemy level from the right panel (rebuilds enemy, clears step history, re-bootstraps combat).
+        /// </summary>
+        public void ApplyLabEnemyLevelDelta(int delta)
+        {
+            if (delta == 0)
+                return;
+            int before = Math.Clamp(_labEnemyBaseLevel + _labPanelEnemyLevelDelta, 1, 99);
+            int next = Math.Clamp(before + delta, 1, 99);
+            if (next == before)
+                return;
+            _labPanelEnemyLevelDelta = next - _labEnemyBaseLevel;
+            BuildLabEnemyFromPanelState();
+            _history.Clear();
+            BootstrapCombatState();
+            SyncCatalogSelectionToUpcomingActor();
+            SyncLabEnemyToCanvasContext();
+            _refreshCombatUi();
+        }
+
+        private void BuildLabEnemyFromPanelState()
+        {
+            int effectiveLevel = Math.Clamp(_labEnemyBaseLevel + _labPanelEnemyLevelDelta, 1, 99);
+            if (!string.IsNullOrEmpty(_sessionEnemyLoaderType))
+            {
+                EnemyLoader.LoadEnemies();
+                _labEnemy = EnemyLoader.CreateEnemy(_sessionEnemyLoaderType, effectiveLevel)
+                    ?? TestCharacterFactory.CreateTestEnemy(LabEnemyConfig, 0, effectiveLevel);
+            }
+            else
+                _labEnemy = TestCharacterFactory.CreateTestEnemy(LabEnemyConfig, 0, effectiveLevel);
         }
 
         private void ApplyLabToCanvasContext(ICanvasContextManager ctx)
@@ -364,7 +516,7 @@ namespace RPGGame.ActionInteractionLab
             _refreshCombatUi();
         }
 
-        /// <summary>Moves <see cref="LabPlayer"/> combo strip pointer by <paramref name="delta"/> slots (wraps).</summary>
+        /// <summary>Moves <see cref="LabPlayer"/> combo strip pointer by <paramref name="delta"/> slots; clamps to first/last slot (no wrap).</summary>
         public void NudgeLabPlayerComboStep(int delta)
         {
             if (delta == 0) return;
@@ -373,7 +525,7 @@ namespace RPGGame.ActionInteractionLab
             int n = actions.Count;
             int cycleBase = (_labPlayer.ComboStep / n) * n;
             int slot = _labPlayer.ComboStep - cycleBase;
-            int newSlot = ((slot + delta) % n + n) % n;
+            int newSlot = Math.Clamp(slot + delta, 0, n - 1);
             _labPlayer.ComboStep = cycleBase + newSlot;
             SyncCatalogSelectionToUpcomingActor();
             _refreshCombatUi();
@@ -415,14 +567,7 @@ namespace RPGGame.ActionInteractionLab
         private void RestoreLabEntitiesFromInitialBaseline()
         {
             _labPlayer = ClonePlayerFromInitialJson();
-            if (!string.IsNullOrEmpty(_sessionEnemyLoaderType))
-            {
-                EnemyLoader.LoadEnemies();
-                _labEnemy = EnemyLoader.CreateEnemy(_sessionEnemyLoaderType, 1)
-                    ?? TestCharacterFactory.CreateTestEnemy(LabEnemyConfig, 0);
-            }
-            else
-                _labEnemy = TestCharacterFactory.CreateTestEnemy(LabEnemyConfig, 0);
+            BuildLabEnemyFromPanelState();
             _labRoom = TestCharacterFactory.CreateTestEnvironment();
         }
 
@@ -487,6 +632,27 @@ namespace RPGGame.ActionInteractionLab
                 SyncCatalogSelectionToUpcomingActor();
                 _refreshCombatUi();
             }
+        }
+
+        /// <summary>
+        /// Captures hero baseline JSON, lab stat deltas, enemy loader selection, combo strip, and catalog pick
+        /// for <see cref="ActionLabEncounterSimulator"/> without mutating session entities.
+        /// </summary>
+        public LabCombatSnapshot CaptureSimulationSnapshot()
+        {
+            var strip = _labPlayer.GetComboActions().Select(a => a.Name).ToList();
+            return new LabCombatSnapshot(
+                _initialPlayerJson,
+                _labPanelStrDelta,
+                _labPanelAgiDelta,
+                _labPanelTecDelta,
+                _labPanelIntDelta,
+                _labPanelLevelDelta,
+                _labPanelArmorDelta,
+                _sessionEnemyLoaderType,
+                enemyLevel: Math.Clamp(_labEnemy.Level, 1, 99),
+                strip,
+                SelectedCatalogActionName ?? "");
         }
 
         /// <summary>Who will act next (peek). Null if the speed system must advance time first.</summary>
@@ -593,6 +759,7 @@ namespace RPGGame.ActionInteractionLab
             ActionSelector.ClearStoredRolls();
             var restore = session._restoreTarget;
             var snap = session._contextSnapshot;
+            session.SetEncounterSimulationRunning(false);
             _current = null;
             if (restore != null && snap != null)
             {

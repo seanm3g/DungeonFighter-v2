@@ -99,7 +99,7 @@ namespace RPGGame.Data
             AddBonusIfPresent(bonusItems, "TECH", spreadsheetData.HeroTECH);
             AddBonusIfPresent(bonusItems, "INT", spreadsheetData.HeroINT);
             
-            // Modifier bonuses (SpeedMod, DamageMod, MultiHitMod, AmpMod - from spreadsheet columns AD-AG)
+            // Modifier bonuses: hero columns AJ–AM (HERO BASE STATS → SpeedMod, …) feed the same ACTION/ABILITY keyword group as roll bonuses.
             if (ModifierParser.ParsePercent(spreadsheetData.SpeedMod) is { } sv) bonusItems.Add(new ActionAttackBonusItem { Type = "SPEED_MOD", Value = sv * 100.0 });
             if (ModifierParser.ParsePercent(spreadsheetData.DamageMod) is { } dv) bonusItems.Add(new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = dv * 100.0 });
             if (ModifierParser.ParseValue(spreadsheetData.MultiHitMod) is { } mv) bonusItems.Add(new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = mv });
