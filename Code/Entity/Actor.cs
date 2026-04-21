@@ -23,14 +23,20 @@ namespace RPGGame
         public int RollPenalty { get; set; } = 0; // Penalty to dice rolls
         public int RollPenaltyTurns { get; set; } = 0; // Attack/spell rolls remaining while penalty applies
         
-        // Poison/Burn system (common to all entities)
-        public int PoisonDamage { get; set; } = 0;
-        public int PoisonStacks { get; set; } = 0;
-        public double LastPoisonTick { get; set; } = 0.0;
-        public bool IsBleeding { get; set; } = false;
-        public int BurnDamage { get; set; } = 0;
-        public int BurnStacks { get; set; } = 0;
-        public double LastBurnTick { get; set; } = 0.0;
+        /// <summary>Cumulative max-HP poison (%); only increases when poison is applied; global DoT tick reads it without reducing.</summary>
+        public double PoisonPercentOfMaxHealth { get; set; }
+        public double LastPoisonTickTime { get; set; }
+
+        /// <summary>Burn intensity: global tick deals this much damage, then decays by 1 and merges <see cref="PendingBurnFromHits"/>.</summary>
+        public int BurnIntensity { get; set; }
+        public int PendingBurnFromHits { get; set; }
+        public double LastBurnTickTime { get; set; }
+
+        /// <summary>Bleed intensity: same decay math as burn, resolved when the afflicted actor takes an action.</summary>
+        public int BleedIntensity { get; set; }
+        public int PendingBleedFromHits { get; set; }
+        /// <summary>True when bleed intensity or pending bleed from hits is non-zero.</summary>
+        public bool IsBleeding => BleedIntensity > 0 || PendingBleedFromHits > 0;
         
         // Damage reduction system
         public double DamageReduction { get; set; } = 0.0;
@@ -79,8 +85,6 @@ namespace RPGGame
         public double ConfusionChance { get; set; } = 0.0;
         public bool IsMarked { get; set; } = false;
         public int MarkTurns { get; set; } = 0;
-        public int BleedStacks { get; set; } = 0; // For bleed tracking
-
         protected Actor(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
