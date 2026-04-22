@@ -176,8 +176,10 @@ namespace RPGGame.Data
                     sheetsConfig.WeaponsSheetUrl,
                     sheetsConfig.ModificationsSheetUrl,
                     sheetsConfig.ArmorSheetUrl,
+                    sheetsConfig.StatBonusesSheetUrl,
                     sheetsConfig.EnemiesSheetUrl,
                     sheetsConfig.EnvironmentsSheetUrl,
+                    sheetsConfig.DungeonsSheetUrl,
                     sheetsConfig.ClassPresentationSheetUrl
                 };
 

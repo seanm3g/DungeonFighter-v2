@@ -68,7 +68,8 @@ namespace RPGGame.UI.Avalonia.Layout
             else
             {
                 // Render location and enemy info for other pages
-                RenderLocationEnemyPanel(x, y, enemy, dungeonName, roomName, registerActionLabEnemyLevelHover);
+                int? heroLevelForLabCaption = registerActionLabEnemyLevelHover ? character?.Level : null;
+                RenderLocationEnemyPanel(x, y, enemy, dungeonName, roomName, registerActionLabEnemyLevelHover, heroLevelForLabCaption);
             }
         }
 
@@ -245,7 +246,7 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>
         /// Renders location and enemy information panel
         /// </summary>
-        private void RenderLocationEnemyPanel(int x, int y, Enemy? enemy, string? dungeonName, string? roomName, bool registerActionLabEnemyLevelHover)
+        private void RenderLocationEnemyPanel(int x, int y, Enemy? enemy, string? dungeonName, string? roomName, bool registerActionLabEnemyLevelHover, int? heroLevelForLabEnemyCaption)
         {
             // Location section - always shown
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Location), AsciiArtAssets.Colors.Gold);
@@ -256,9 +257,7 @@ namespace RPGGame.UI.Avalonia.Layout
             y++;
             if (!string.IsNullOrEmpty(dungeonName))
             {
-                string displayDungeon = dungeonName;
-                if (displayDungeon.Length > 20)
-                    displayDungeon = displayDungeon.Substring(0, 17) + "...";
+                string displayDungeon = RightPanelContentText.EllipsizeToPanelWidth(dungeonName);
                 canvas.AddText(x, y, displayDungeon, AsciiArtAssets.Colors.Cyan);
                 y++;
             }
@@ -268,9 +267,7 @@ namespace RPGGame.UI.Avalonia.Layout
             y++;
             if (!string.IsNullOrEmpty(roomName))
             {
-                string displayRoom = roomName;
-                if (displayRoom.Length > 20)
-                    displayRoom = displayRoom.Substring(0, 17) + "...";
+                string displayRoom = RightPanelContentText.EllipsizeToPanelWidth(roomName);
                 canvas.AddText(x, y, displayRoom, AsciiArtAssets.Colors.Yellow);
                 y++;
             }
@@ -283,15 +280,16 @@ namespace RPGGame.UI.Avalonia.Layout
             
             if (enemy != null)
             {
-                string enemyName = enemy.Name;
-                if (enemyName.Length > 20)
-                    enemyName = enemyName.Substring(0, 17) + "...";
+                string enemyName = RightPanelContentText.EllipsizeToPanelWidth(enemy.Name);
                 
                 canvas.AddText(x, y, enemyName, EntityColorHelper.GetEnemyColor(enemy));
                 y++;
 
                 int levelRowY = y;
-                canvas.AddText(x, y, $"Lvl {enemy.Level}", AsciiArtAssets.Colors.Gold);
+                string levelCaption = heroLevelForLabEnemyCaption is int hl
+                    ? ActionLabRightPanelEnemyAdjustment.FormatEnemyLevelCaptionWithHeroDelta(enemy.Level, hl)
+                    : $"Lvl {enemy.Level}";
+                canvas.AddText(x, y, levelCaption, AsciiArtAssets.Colors.Gold);
                 if (interactionManager != null && registerActionLabEnemyLevelHover)
                 {
                     int hoverW = Math.Max(8, LayoutConstants.RIGHT_PANEL_WIDTH - 4);
@@ -384,6 +382,15 @@ namespace RPGGame.UI.Avalonia.Layout
             {
                 canvas.AddText(x, y, "Enemy:", AsciiArtAssets.Colors.Gray);
                 y++;
+                var immunityLine = StatusEffectDisplayLines.GetNonLivingEnemyImmunityLine(enemy);
+                if (immunityLine != null)
+                {
+                    string imm = "  " + immunityLine;
+                    if (imm.Length > maxLineLen)
+                        imm = imm.Substring(0, maxLineLen - 3) + "...";
+                    canvas.AddText(x, y, imm, AsciiArtAssets.Colors.Cyan);
+                    y++;
+                }
                 const int maxEnemyEffectLines = 3;
                 var enemyEffects = StatusEffectDisplayLines.Build(enemy, enemy);
                 if (enemyEffects.Count > 0)

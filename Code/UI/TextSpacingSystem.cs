@@ -61,6 +61,13 @@ namespace RPGGame
         /// Used to determine if we need a blank line between action blocks
         /// </summary>
         private static string? lastActingEntity = null;
+
+        /// <summary>
+        /// Who took the last poison/burn/bleed UI block (<see cref="BlockType.PoisonDamage"/>).
+        /// Without this, <see cref="lastActingEntity"/> still points at the prior attacker, so burn on the hero
+        /// after an enemy swing incorrectly inserts a blank line before the hero's next hit.
+        /// </summary>
+        private static string? lastDoTAfflictedEntity = null;
         
         /// <summary>
         /// Lazy-initialized dictionary to avoid static initialization issues
@@ -165,7 +172,7 @@ namespace RPGGame
         /// This method now writes the blank lines directly to avoid circular dependency issues.
         /// </summary>
         /// <param name="currentBlockType">The type of block being displayed</param>
-        /// <param name="currentEntity">The entity (character, enemy, or environment) performing this action. Used to determine if actor changed.</param>
+        /// <param name="currentEntity">For <see cref="BlockType.CombatAction"/> / environmental / status blocks: the acting entity. For <see cref="BlockType.PoisonDamage"/> (poison/burn/bleed DoT lines): the afflicted entity name.</param>
         public static void ApplySpacingBefore(BlockType currentBlockType, string? currentEntity = null)
         {
             int blankLines = GetSpacingBefore(currentBlockType, currentEntity);
@@ -204,10 +211,21 @@ namespace RPGGame
         /// For CombatAction, EnvironmentalAction, and StatusEffect blocks, also checks if the actor changed.
         /// </summary>
         /// <param name="currentBlockType">The type of block being displayed</param>
-        /// <param name="currentEntity">The entity (character, enemy, or environment) performing this action. Used to determine if actor changed.</param>
+        /// <param name="currentEntity">For combat/environment/status blocks: the acting entity. For <see cref="BlockType.PoisonDamage"/>: afflicted entity (who takes DoT).</param>
         /// <returns>Number of blank lines to add before this block</returns>
         public static int GetSpacingBefore(BlockType currentBlockType, string? currentEntity = null)
         {
+            // DoT lines: no blank after the same actor's combat block when the afflicted entity is that actor
+            // (e.g. Bat's roll lines then Bat burn — lastActingEntity is the attacker who just acted).
+            if (currentBlockType == BlockType.PoisonDamage
+                && lastBlockType == BlockType.CombatAction
+                && currentEntity != null
+                && lastActingEntity != null
+                && lastActingEntity == currentEntity)
+            {
+                return 0;
+            }
+
             // For action blocks (CombatAction, EnvironmentalAction, and StatusEffect), check if actor changed
             bool isActionBlock = currentBlockType == BlockType.CombatAction || 
                                 currentBlockType == BlockType.EnvironmentalAction ||
@@ -237,6 +255,16 @@ namespace RPGGame
                             // Actor changed from previous action - always add blank line
                             return 1;
                         }
+
+                        // After DoT, blank before the next combat action only when someone *else* is acting
+                        // than the fighter who took the tick (afflicted name from RecordBlockDisplayed).
+                        if (lastBlockType == BlockType.PoisonDamage && currentEntity != null)
+                        {
+                            string? dotSubject = lastDoTAfflictedEntity ?? lastActingEntity;
+                            if (dotSubject != null && dotSubject != currentEntity)
+                                return 1;
+                        }
+
                         // Use base spacing rule (handles first action after stats, etc.)
                         return baseSpacing;
                     }
@@ -280,7 +308,10 @@ namespace RPGGame
         /// so the next block knows what came before it.
         /// </summary>
         /// <param name="blockType">The type of block that was just displayed</param>
-        /// <param name="entity">The entity (character, enemy, or environment) that performed this action. Used to track actor changes.</param>
+        /// <param name="entity">
+        /// For combat / environmental / standalone status blocks: who performed the action.
+        /// For <see cref="BlockType.PoisonDamage"/>: who took the DoT (afflicted actor name).
+        /// </param>
         public static void RecordBlockDisplayed(BlockType blockType, string? entity = null)
         {
             // Don't record critical miss narratives as separate blocks
@@ -290,6 +321,9 @@ namespace RPGGame
             if (blockType != BlockType.CriticalMissNarrative)
             {
                 lastBlockType = blockType;
+
+                if (blockType == BlockType.PoisonDamage)
+                    lastDoTAfflictedEntity = entity;
                 
                 // For action blocks (including standalone status effects), also track the entity
                 if (blockType == BlockType.CombatAction || 
@@ -309,6 +343,7 @@ namespace RPGGame
         {
             lastBlockType = null;
             lastActingEntity = null;
+            lastDoTAfflictedEntity = null;
         }
         
         /// <summary>

@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit
             TestProgressionPersistence();
             TestInventoryPersistence();
             TestWeaponTypeRoundTripInCharacterSerializer();
+            TestStarterLeatherArmorSurvivesCharacterSerializerRoundTrip();
 
             CharacterSaveManagerMultiFileTests.RunAllTests();
 
@@ -198,6 +199,34 @@ namespace RPGGame.Tests.Unit
                     $"Equipment persistence should not throw exception: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestStarterLeatherArmorSurvivesCharacterSerializerRoundTrip()
+        {
+            Console.WriteLine("\n--- Testing starter leather armor values survive serializer round-trip (Action Lab clone path) ---");
+
+            _ = GameConfiguration.Instance;
+            var serializer = new CharacterSerializer();
+            var character = TestDataBuilders.Character().WithName("LeatherArmorRoundTrip").WithLevel(1).Build();
+            character.EquipItem(new HeadItem("Leather Helmet", 1, 1), "head");
+            character.EquipItem(new ChestItem("Leather Armor", 1, 1), "body");
+            character.EquipItem(new FeetItem("Leather Boots", 1, 1), "feet");
+
+            string json = serializer.Serialize(character);
+            var data = serializer.Deserialize(json);
+            TestBase.AssertNotNull(data, "deserialize armor round-trip payload", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (data == null)
+                return;
+
+            var loaded = serializer.CreateCharacterFromSaveData(data);
+            TestBase.AssertTrue(loaded.Equipment.Head is HeadItem hh && hh.Armor == 1,
+                "Leather Helmet armor persists as 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(loaded.Equipment.Body is ChestItem ch && ch.Armor == 1,
+                "Leather Armor armor persists as 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(loaded.Equipment.Feet is FeetItem ft && ft.Armor == 1,
+                "Leather Boots armor persists as 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(3, loaded.GetTotalArmor(),
+                "Total armor from three leather pieces is 3", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestWeaponTypeRoundTripInCharacterSerializer()

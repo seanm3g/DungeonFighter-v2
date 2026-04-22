@@ -59,7 +59,7 @@ namespace RPGGame
         {
             if (action.CausesPoison)
             {
-                target.ApplyPoison(3, 1);
+                target.ApplyPoisonPercent(3);
                 EnvironmentalMessageHelper.AddEnvironmentalMessage(results, $"[{target.Name}] is poisoned by the environment!");
                 return true;
             }
@@ -135,7 +135,7 @@ namespace RPGGame
         {
             if (action.CausesBurn)
             {
-                target.ApplyBurn(3, 1);
+                target.QueueBurnFromHit(3);
                 EnvironmentalMessageHelper.AddEnvironmentalMessage(results, $"[{target.Name}] is burning from the environment!");
                 return true;
             }

@@ -170,7 +170,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
 
             if (value == "lab_reset_combo")
             {
-                session.ResetLabCombo();
+                await session.ResetLabEncounterAsync().ConfigureAwait(true);
                 return;
             }
 
@@ -209,6 +209,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                     var report = await Task.Run(() =>
                             ActionLabEncounterSimulator.RunBatchAsync(snapshot, n, Random.Shared, maxDegreeOfParallelism: dop))
                         .ConfigureAwait(true);
+                    session.RecordEncounterSimulationTurns(report);
                     string body = ActionLabEncounterSimulator.FormatReportText(report, snapshot);
                     // End busy state before the modal so the footer does not still show "Running…" behind it.
                     session.SetEncounterSimulationRunning(false);

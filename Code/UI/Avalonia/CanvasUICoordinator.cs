@@ -185,6 +185,7 @@ namespace RPGGame.UI.Avalonia
         public void SetStateManager(GameStateManager stateManager)
         {
             this.stateManager = stateManager;
+            renderer.SetGameStateManager(stateManager);
             
             // Update context coordinator with state manager
             contextCoordinator.SetStateManager(stateManager);

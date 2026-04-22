@@ -489,16 +489,12 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
-        /// Action Interaction Lab: right-click a filled strip panel to remove that action from the combo sequence.
+        /// Right-click a filled action strip panel: in the Action Lab removes that action (sandbox rules);
+        /// in <see cref="GameState.Inventory"/> removes that sequence slot (same behavior as right-panel <c>cpi:rm</c>).
         /// </summary>
         private bool TryHandleActionStripRightClickRemove(Point position)
         {
-            if (game?.StateManager?.CurrentState != GameState.ActionInteractionLab)
-                return false;
-            if (canvasUI == null)
-                return false;
-            var lab = ActionInteractionLabSession.Current;
-            if (lab == null)
+            if (canvasUI == null || game?.StateManager == null)
                 return false;
 
             var player = GetCharacterForActionStrip();
@@ -515,9 +511,21 @@ namespace RPGGame.UI.Avalonia.Handlers
             if (idx < 0 || idx >= combo.Count)
                 return false;
 
-            player.RemoveFromCombo(combo[idx]);
-            canvasUI.RenderCombat(lab.LabPlayer, lab.LabEnemy, new List<string>());
-            return true;
+            var state = game.StateManager.CurrentState;
+            if (state == GameState.ActionInteractionLab)
+            {
+                var lab = ActionInteractionLabSession.Current;
+                if (lab == null)
+                    return false;
+                player.RemoveFromCombo(combo[idx]);
+                canvasUI.RenderCombat(lab.LabPlayer, lab.LabEnemy, new List<string>());
+                return true;
+            }
+
+            if (state == GameState.Inventory)
+                return game.TryHandleInventoryStripRightClickRemove(idx);
+
+            return false;
         }
 
         /// <summary>

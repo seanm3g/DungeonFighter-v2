@@ -35,7 +35,25 @@ namespace RPGGame
             else if (gear is HeadItem || gear is ChestItem || gear is FeetItem)
                 actions.AddRange(GetArmorExtraActionNames(gear));
 
+            if (gear is WeaponItem w)
+                EnsureRequiredWeaponBasicInActionNames(w.WeaponType, actions);
+
             return actions;
+        }
+
+        /// <summary>
+        /// The per-type required basic (<see cref="WeaponRequiredComboAction"/>) must exist in the pool for
+        /// removal guards and <see cref="WeaponRequiredComboAction.EnsureRequiredBasicInCombo"/> to work.
+        /// Starter or loot weapons may list only non-basic actions in <see cref="Item.GearAction"/> / bonuses.
+        /// </summary>
+        private static void EnsureRequiredWeaponBasicInActionNames(WeaponType weaponType, List<string> actions)
+        {
+            var required = WeaponRequiredComboAction.TryGetRequiredBasicActionName(weaponType);
+            if (string.IsNullOrEmpty(required))
+                return;
+            if (actions.Any(a => string.Equals(a, required, StringComparison.OrdinalIgnoreCase)))
+                return;
+            actions.Insert(0, required);
         }
 
         /// <summary>

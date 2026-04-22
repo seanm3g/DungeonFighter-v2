@@ -61,6 +61,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.ModificationsSheetUrl, out string mg) ? mg : "");
             SetText(balancePanel, "ArmorTabGidTextBox",
                 GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.ArmorSheetUrl, out string ag) ? ag : "");
+            SetText(balancePanel, "StatBonusesTabGidTextBox",
+                GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.StatBonusesSheetUrl, out string sg) ? sg : "");
             SetText(balancePanel, "EnemiesTabGidTextBox",
                 GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.EnemiesSheetUrl, out string eg) ? eg : "");
             SetText(balancePanel, "EnvironmentsTabGidTextBox",
@@ -97,6 +99,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             string wGid = TrimBox(balancePanel.FindControl<TextBox>("WeaponsTabGidTextBox"));
             string mGid = TrimBox(balancePanel.FindControl<TextBox>("ModificationsTabGidTextBox"));
             string aGid = TrimBox(balancePanel.FindControl<TextBox>("ArmorTabGidTextBox"));
+            string sGid = TrimBox(balancePanel.FindControl<TextBox>("StatBonusesTabGidTextBox"));
             string eGid = TrimBox(balancePanel.FindControl<TextBox>("EnemiesTabGidTextBox"));
             string vGid = TrimBox(balancePanel.FindControl<TextBox>("EnvironmentsTabGidTextBox"));
             string cGid = TrimBox(balancePanel.FindControl<TextBox>("ClassPresentationTabGidTextBox"));
@@ -113,7 +116,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 }
             }
 
-            foreach (string g in new[] { wGid, mGid, aGid, eGid, vGid, cGid })
+            foreach (string g in new[] { wGid, mGid, aGid, sGid, eGid, vGid, cGid })
             {
                 if (string.IsNullOrEmpty(g))
                     continue;
@@ -125,7 +128,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 }
             }
 
-            bool anyGid = wGid.Length > 0 || mGid.Length > 0 || aGid.Length > 0 || eGid.Length > 0 || vGid.Length > 0 || cGid.Length > 0;
+            bool anyGid = wGid.Length > 0 || mGid.Length > 0 || aGid.Length > 0 || sGid.Length > 0 || eGid.Length > 0 || vGid.Length > 0 || cGid.Length > 0;
             if (anyGid && !IsHttpUrl(actions))
             {
                 if (logErrors)
@@ -140,6 +143,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             MergeTabUrlFromGid(actions, wGid, cfg, (c, v) => { c.WeaponsSheetUrl = v; }, c => c.WeaponsSheetUrl);
             MergeTabUrlFromGid(actions, mGid, cfg, (c, v) => { c.ModificationsSheetUrl = v; }, c => c.ModificationsSheetUrl);
             MergeTabUrlFromGid(actions, aGid, cfg, (c, v) => { c.ArmorSheetUrl = v; }, c => c.ArmorSheetUrl);
+            MergeTabUrlFromGid(actions, sGid, cfg, (c, v) => { c.StatBonusesSheetUrl = v; }, c => c.StatBonusesSheetUrl);
             MergeTabUrlFromGid(actions, eGid, cfg, (c, v) => { c.EnemiesSheetUrl = v; }, c => c.EnemiesSheetUrl);
             MergeTabUrlFromGid(actions, vGid, cfg, (c, v) => { c.EnvironmentsSheetUrl = v; }, c => c.EnvironmentsSheetUrl);
             MergeTabUrlFromGid(actions, cGid, cfg, (c, v) => { c.ClassPresentationSheetUrl = v; }, c => c.ClassPresentationSheetUrl);
@@ -187,8 +191,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     && string.IsNullOrWhiteSpace(cfg.WeaponsSheetUrl)
                     && string.IsNullOrWhiteSpace(cfg.ModificationsSheetUrl)
                     && string.IsNullOrWhiteSpace(cfg.ArmorSheetUrl)
+                    && string.IsNullOrWhiteSpace(cfg.StatBonusesSheetUrl)
                     && string.IsNullOrWhiteSpace(cfg.EnemiesSheetUrl)
                     && string.IsNullOrWhiteSpace(cfg.EnvironmentsSheetUrl)
+                    && string.IsNullOrWhiteSpace(cfg.DungeonsSheetUrl)
                     && string.IsNullOrWhiteSpace(cfg.ClassPresentationSheetUrl))
                 {
                     sheetsRunner.AppendOutput("✗ Set the Actions CSV URL (base for all tabs) and optional tab gids, or full URLs in JSON.\n\n");

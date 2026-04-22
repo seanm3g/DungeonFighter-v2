@@ -70,11 +70,8 @@ namespace RPGGame
                 Archetype = "Berserker",
                 IsLiving = true,
                 Actions = new List<string> { "JAB", "TAUNT" },
-                Overrides = new StatOverridesConfig
-                {
-                    Health = 0.8,
-                    Strength = 1.2
-                }
+                BaseHealth = 32,
+                GrowthPerLevel = new EnemyAttributeSet { Strength = 1.5, Agility = 1.5, Technique = 1.5, Intelligence = 1.5 }
             };
 
             var goblinStats = EnemyStatCalculator.CalculateStats(goblinData, 1, enemySystem);
@@ -148,27 +145,23 @@ namespace RPGGame
             {
                 Name = "Test Assassin",
                 Archetype = "Assassin",
-                Overrides = new StatOverridesConfig
-                {
-                    Health = 0.8,
-                    Agility = 1.1
-                }
+                BaseHealth = 28,
+                HealthGrowthPerLevel = 2.1,
+                GrowthPerLevel = new EnemyAttributeSet { Agility = 2.0, Strength = 4.0 / 3.0, Technique = 4.0 / 3.0, Intelligence = 4.0 / 3.0 }
             };
 
-            UIManager.WriteSystemLine("Step 1 - Baseline Stats:");
+            UIManager.WriteSystemLine("Step 1 - Baseline Stats (tuning fallbacks when enemy omits a field):");
             UIManager.WriteSystemLine($"  Health: {enemySystem.BaselineStats.Health}, STR: {enemySystem.BaselineStats.Strength}, AGI: {enemySystem.BaselineStats.Agility}");
 
-            UIManager.WriteSystemLine("Step 2 - Apply Assassin Archetype:");
-            UIManager.WriteSystemLine($"  Health: {enemySystem.BaselineStats.Health} * 0.7 = {enemySystem.BaselineStats.Health * 0.7}");
-            UIManager.WriteSystemLine($"  Agility: {enemySystem.BaselineStats.Agility} * 1.6 = {enemySystem.BaselineStats.Agility * 1.6}");
+            UIManager.WriteSystemLine("Step 2 - Enemy row: explicit baseHealth + archetype for missing bases:");
+            UIManager.WriteSystemLine($"  Base HP uses enemy.BaseHealth when set (here 28).");
 
-            UIManager.WriteSystemLine("Step 3 - Apply Individual Overrides:");
-            UIManager.WriteSystemLine($"  Health: {enemySystem.BaselineStats.Health * 0.7} * 0.8 = {enemySystem.BaselineStats.Health * 0.7 * 0.8}");
-            UIManager.WriteSystemLine($"  Agility: {enemySystem.BaselineStats.Agility * 1.6} * 1.1 = {enemySystem.BaselineStats.Agility * 1.6 * 1.1}");
+            UIManager.WriteSystemLine("Step 3 - Attribute growth (STR+AGI+TEC+INT) is normalized to 6 points/level:");
+            UIManager.WriteSystemLine("  Partial explicit growth shares the remainder across unset stats.");
 
-            UIManager.WriteSystemLine("Step 4 - Scale by Level (Level 3):");
-            UIManager.WriteSystemLine($"  Health: {enemySystem.BaselineStats.Health * 0.7 * 0.8} + (3-1) * {enemySystem.ScalingPerLevel.Health} = {enemySystem.BaselineStats.Health * 0.7 * 0.8 + 2 * enemySystem.ScalingPerLevel.Health}");
-            UIManager.WriteSystemLine($"  Agility: {enemySystem.BaselineStats.Agility * 1.6 * 1.1} + (3-1) * {enemySystem.ScalingPerLevel.Attributes} = {enemySystem.BaselineStats.Agility * 1.6 * 1.1 + 2 * enemySystem.ScalingPerLevel.Attributes}");
+            UIManager.WriteSystemLine("Step 4 - Scale by Level (Level 3, lv=2):");
+            UIManager.WriteSystemLine($"  Health: baseHealth + lv * healthGrowth = 28 + 2 * 2.1");
+            UIManager.WriteSystemLine($"  Attributes: base (baseline * archetype when omitted) + lv * normalized growthPerLevel");
 
             var finalStats = EnemyStatCalculator.CalculateStats(enemyData, 3, enemySystem);
             UIManager.WriteSystemLine("Final Result:");

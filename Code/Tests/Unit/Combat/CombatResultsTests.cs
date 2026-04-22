@@ -1,4 +1,6 @@
 using System;
+using RPGGame.Actions;
+using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Calculators;
 using RPGGame.Tests;
 using RPGGame.UI.ColorSystem;
@@ -39,6 +41,8 @@ namespace RPGGame.Tests.Unit.Combat
             TestFormatHealingMessageColored();
             TestCheckHealthMilestones();
             TestExecuteActionWithUIAndStatusEffectsColored();
+            TestWeaponPoisonSingleApplicationColoredExecutePath();
+            TestWeaponPoisonNotAppliedOnNonCritColoredExecutePath();
 
             TestBase.PrintSummary("CombatResults Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -302,6 +306,81 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertNotNull(result.statusEffects,
                 "Status effects should not be null",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Regression: <see cref="CombatResults.ExecuteActionWithUIAndStatusEffectsColored"/> must not run
+        /// <see cref="CombatEffectsSimplified.ApplyStatusEffects"/> a second time after <see cref="ActionExecutionFlow"/> already applied on-hit effects (was doubling weapon poison %).
+        /// </summary>
+        private static void TestWeaponPoisonSingleApplicationColoredExecutePath()
+        {
+            Console.WriteLine("\n--- Regression: weapon poison % applied once on colored execute path ---");
+
+            RollModificationManager.GetThresholdManager().Clear();
+            ActionSelector.ClearStoredRolls();
+
+            var hero = TestDataBuilders.Character().WithName("PoisonStriker").WithStats(20, 20, 20, 20).Build();
+            var venomWeapon = TestDataBuilders.Weapon()
+                .WithModification(new Modification
+                {
+                    Effect = "weaponPoison",
+                    RolledValue = 1.0,
+                    MinValue = 1,
+                    MaxValue = 1
+                })
+                .Build();
+            hero.EquipItem(venomWeapon, "weapon");
+
+            var target = TestDataBuilders.Enemy().WithName("Goblin").WithHealth(100).Build();
+            target.PoisonPercentOfMaxHealth = 0;
+
+            var jab = TestDataBuilders.CreateMockAction("JAB");
+            ActionSelector.SetStoredActionRoll(hero, 20);
+
+            _ = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(hero, target, jab, null, null, null);
+
+            TestBase.AssertTrue(Math.Abs(target.PoisonPercentOfMaxHealth - 1.0) < 0.0001,
+                $"Enemy poison % should match single weaponPoison application (1%), got {target.PoisonPercentOfMaxHealth}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            ActionSelector.RemoveStoredRoll(hero);
+        }
+
+        /// <summary>
+        /// Weapon <c>weaponPoison</c> applies only on critical hits; a stored natural 12 is a hit but not a crit at default thresholds.
+        /// </summary>
+        private static void TestWeaponPoisonNotAppliedOnNonCritColoredExecutePath()
+        {
+            Console.WriteLine("\n--- Regression: weapon poison skipped on non-crit colored execute path ---");
+
+            RollModificationManager.GetThresholdManager().Clear();
+            ActionSelector.ClearStoredRolls();
+
+            var hero = TestDataBuilders.Character().WithName("PoisonStriker").WithStats(20, 20, 20, 20).Build();
+            var venomWeapon = TestDataBuilders.Weapon()
+                .WithModification(new Modification
+                {
+                    Effect = "weaponPoison",
+                    RolledValue = 1.0,
+                    MinValue = 1,
+                    MaxValue = 1
+                })
+                .Build();
+            hero.EquipItem(venomWeapon, "weapon");
+
+            var target = TestDataBuilders.Enemy().WithName("Goblin").WithHealth(100).Build();
+            target.PoisonPercentOfMaxHealth = 0;
+
+            var jab = TestDataBuilders.CreateMockAction("JAB");
+            ActionSelector.SetStoredActionRoll(hero, 12);
+
+            _ = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(hero, target, jab, null, null, null);
+
+            TestBase.AssertTrue(Math.Abs(target.PoisonPercentOfMaxHealth) < 0.0001,
+                $"Enemy poison % should stay 0 on non-crit, got {target.PoisonPercentOfMaxHealth}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            ActionSelector.RemoveStoredRoll(hero);
         }
 
         #endregion

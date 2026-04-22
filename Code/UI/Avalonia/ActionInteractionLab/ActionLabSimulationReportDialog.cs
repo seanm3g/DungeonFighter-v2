@@ -2,10 +2,10 @@ using System;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
+using RPGGame.UI.Avalonia.Helpers;
 
 namespace RPGGame.UI.Avalonia.ActionInteractionLab
 {
@@ -80,7 +80,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 }
             };
 
-            Window? target = ResolveUsableOwnerWindow(owner);
+            Window? target = WindowOwnerResolver.ResolveUsableOwnerWindow(owner);
             if (target == null)
             {
                 throw new InvalidOperationException(
@@ -88,39 +88,6 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             }
 
             await dialog.ShowDialog(target).ConfigureAwait(true);
-        }
-
-        private static Window? ResolveUsableOwnerWindow(Window? preferred)
-        {
-            static bool IsDialogOwnerUsable(Window? w)
-            {
-                if (w == null) return false;
-                try
-                {
-                    return w.IsVisible;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-
-            if (IsDialogOwnerUsable(preferred))
-                return preferred;
-
-            if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime life)
-                return null;
-
-            if (IsDialogOwnerUsable(life.MainWindow))
-                return life.MainWindow;
-
-            foreach (var w in life.Windows)
-            {
-                if (w is Window win && IsDialogOwnerUsable(win))
-                    return win;
-            }
-
-            return null;
         }
     }
 }

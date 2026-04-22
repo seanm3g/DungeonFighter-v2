@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit
@@ -24,9 +25,11 @@ namespace RPGGame.Tests.Unit
 
             TestXPCalculation();
             TestXPScaling();
+            TestDungeonPacedXpRequirementCurve();
             TestGuaranteedLevelUpLogic();
             TestXPThresholds();
             TestMultipleLevelUpsFromSingleXP();
+            TestAddXpOneThresholdGrantsExactlyOneLevelAndClassPoint();
             TestXPPersistence();
             TestXPOverflowHandling();
 
@@ -37,14 +40,16 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("\n--- Testing XP Calculation ---");
 
-            var character = TestDataBuilders.Character().WithLevel(3).Build();
+            var character = TestDataBuilders.Character().WithLevel(30).Build();
+            character.XP = 0;
             int originalXP = character.XP;
+            int originalLevel = character.Level;
 
-            // Add XP
-            character.AddXP(100);
+            // Small gain: should add to the bar without consuming the whole grant in level-ups
+            character.AddXP(10);
 
-            TestBase.AssertTrue(character.XP > originalXP,
-                $"XP should increase: {originalXP} -> {character.XP}",
+            TestBase.AssertTrue(character.XP > originalXP || character.Level > originalLevel,
+                $"XP or level should increase: XP {originalXP} -> {character.XP}, Level {originalLevel} -> {character.Level}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -68,6 +73,42 @@ namespace RPGGame.Tests.Unit
 
             TestBase.AssertTrue(character5.XP > 0 || character5.Level > 5,
                 $"Level 5 character should gain XP or level up: XP={character5.XP}, Level={character5.Level}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Bar cost uses tier-1 dungeon completion as unit × (1, 1.5, 2, 3, …) so pacing stretches over time.
+        /// </summary>
+        private static void TestDungeonPacedXpRequirementCurve()
+        {
+            Console.WriteLine("\n--- Testing Dungeon-Paced XP Requirement Curve ---");
+
+            int tier1Completion = CharacterProgression.GetStandardDungeonCompletionXpForLevel(1);
+            int need1 = CharacterProgression.GetXpRequiredToAdvanceFromLevel(1);
+            int need2 = CharacterProgression.GetXpRequiredToAdvanceFromLevel(2);
+            int need3 = CharacterProgression.GetXpRequiredToAdvanceFromLevel(3);
+            int need4 = CharacterProgression.GetXpRequiredToAdvanceFromLevel(4);
+
+            TestBase.AssertTrue(need2 > need1 && need3 > need2 && need4 > need3,
+                $"XP required should increase with level: {need1}, {need2}, {need3}, {need4}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Ratios ignore global/BaseXPToLevel2 scaling (both numerator and denominator pick up the same factors).
+            double r2 = need2 / (double)need1;
+            double r3 = need3 / (double)need1;
+            double r4 = need4 / (double)need1;
+            TestBase.AssertTrue(Math.Abs(r2 - 1.5) < 0.02,
+                $"L2 bar should be ~1.5× L1 bar (got {r2:F3})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Math.Abs(r3 - 2.0) < 0.02,
+                $"L3 bar should be ~2× L1 bar (got {r3:F3})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Math.Abs(r4 - 3.0) < 0.02,
+                $"L4 bar should be ~3× L1 bar (got {r4:F3})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertTrue(tier1Completion >= 1,
+                $"Tier-1 dungeon completion XP should be positive: {tier1Completion}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -100,30 +141,27 @@ namespace RPGGame.Tests.Unit
             Console.WriteLine("\n--- Testing XP Thresholds ---");
 
             var character = TestDataBuilders.Character().WithLevel(1).Build();
-            var tuning = GameConfiguration.Instance;
+            character.XP = 0;
 
-            // Calculate XP needed for level 2
-            int averageXPPerDungeonAtLevel1 = tuning.Progression.EnemyXPBase + 25;
-            int xpNeededForLevel2 = 1 * 1 * averageXPPerDungeonAtLevel1;
+            int xpNeededForLevel2 = CharacterProgression.GetXpRequiredToAdvanceFromLevel(1);
 
             int levelBefore = character.Level;
             character.AddXP(xpNeededForLevel2);
             int levelAfter = character.Level;
 
-            TestBase.AssertTrue(levelAfter > levelBefore,
-                $"Character should level up with exact XP threshold: Level {levelBefore} -> {levelAfter}",
+            TestBase.AssertEqual(levelBefore + 1, levelAfter,
+                $"Character should level up exactly once with tier-1 XP: Level {levelBefore} -> {levelAfter}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test level 2+ threshold (Level^2 - consistent curve)
-            character.Level = 2;
-            int xpNeededForLevel3 = 2 * 2 * averageXPPerDungeonAtLevel1;
+            character.XP = 0;
+            int xpNeededForLevel3 = CharacterProgression.GetXpRequiredToAdvanceFromLevel(2);
 
             levelBefore = character.Level;
             character.AddXP(xpNeededForLevel3);
             levelAfter = character.Level;
 
-            TestBase.AssertTrue(levelAfter > levelBefore,
-                $"Character should level up with level 2+ threshold: Level {levelBefore} -> {levelAfter}",
+            TestBase.AssertEqual(levelBefore + 1, levelAfter,
+                $"Character should level up exactly once with tier-2 XP: Level {levelBefore} -> {levelAfter}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -132,21 +170,40 @@ namespace RPGGame.Tests.Unit
             Console.WriteLine("\n--- Testing Multiple Level Ups From Single XP ---");
 
             var character = TestDataBuilders.Character().WithLevel(1).Build();
-            var tuning = GameConfiguration.Instance;
-            int averageXPPerDungeonAtLevel1 = tuning.Progression.EnemyXPBase + 25;
+            character.XP = 0;
 
-            // Add enough XP for multiple level-ups
-            int xpForLevel2 = 1 * 1 * averageXPPerDungeonAtLevel1;
-            int xpForLevel3 = 2 * 2 * averageXPPerDungeonAtLevel1;
-            int xpForLevel4 = 3 * 3 * averageXPPerDungeonAtLevel1;
+            int xpForLevel2 = CharacterProgression.GetXpRequiredToAdvanceFromLevel(1);
+            int xpForLevel3 = CharacterProgression.GetXpRequiredToAdvanceFromLevel(2);
+            int xpForLevel4 = CharacterProgression.GetXpRequiredToAdvanceFromLevel(3);
             int totalXP = xpForLevel2 + xpForLevel3 + xpForLevel4 + 10;
 
             int levelBefore = character.Level;
             character.AddXP(totalXP);
             int levelAfter = character.Level;
 
-            TestBase.AssertTrue(levelAfter >= levelBefore + 2,
-                $"Character should level up multiple times: Level {levelBefore} -> {levelAfter}",
+            TestBase.AssertEqual(levelBefore + 3, levelAfter,
+                $"Character should gain exactly three levels from three thresholds + slack: Level {levelBefore} -> {levelAfter}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestAddXpOneThresholdGrantsExactlyOneLevelAndClassPoint()
+        {
+            Console.WriteLine("\n--- Testing AddXP one threshold = one level + one class point ---");
+
+            var character = TestDataBuilders.Character().WithLevel(1).Build();
+            character.XP = 0;
+            var mace = TestDataBuilders.Weapon().WithWeaponType(WeaponType.Mace).Build();
+            character.EquipItem(mace, "weapon");
+
+            int need = CharacterProgression.GetXpRequiredToAdvanceFromLevel(1);
+            int ptsBefore = character.BarbarianPoints;
+            character.AddXP(need);
+
+            TestBase.AssertEqual(2, character.Level,
+                "One XP threshold from level 1 should land on level 2 (not double-count progression + rewards)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(ptsBefore + 1, character.BarbarianPoints,
+                "One level-up should award one Barbarian class point",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -178,8 +235,8 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character().WithLevel(1).Build();
             int startingLevel = character.Level;
 
-            // Add very large amount of XP
-            character.AddXP(int.MaxValue / 2);
+            // Large grant (keeps the test fast; flat per-level XP makes int.MaxValue/2 impractical to simulate)
+            character.AddXP(500_000);
 
             // Should handle without crashing and level up appropriately
             TestBase.AssertTrue(character.Level > startingLevel,

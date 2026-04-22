@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace RPGGame
 {
     public enum ItemType
@@ -32,6 +34,10 @@ namespace RPGGame
         public double Value { get; set; } = 0;
         public int Weight { get; set; } = 0;
         public string StatType { get; set; } = ""; // Which stat this affects (STR, AGI, TEC, INT, Health, Armor, etc.)
+
+        /// <summary>Optional loot/lab catalog rarity (same vocabulary as <see cref="Modification.ItemRank"/>). Empty = pool-wide.</summary>
+        [JsonPropertyName("ItemRank")]
+        public string ItemRank { get; set; } = "";
     }
 
     public class ActionBonus
@@ -63,6 +69,15 @@ namespace RPGGame
         public bool IsPassive { get; set; } = true;
     }
 
+    /// <summary>
+    /// Persist head/chest/feet/weapon subtype fields (e.g. <see cref="HeadItem.Armor"/>) on save and lab JSON clones.
+    /// Without this, armor round-trips as a base <see cref="Item"/> and <see cref="ItemTypeConverter"/> used to invent tier-based armor.
+    /// </summary>
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "$itemType")]
+    [JsonDerivedType(typeof(HeadItem), "head")]
+    [JsonDerivedType(typeof(ChestItem), "chest")]
+    [JsonDerivedType(typeof(FeetItem), "feet")]
+    [JsonDerivedType(typeof(WeaponItem), "weapon")]
     public class Item
     {
         public string Name { get; set; } = "";

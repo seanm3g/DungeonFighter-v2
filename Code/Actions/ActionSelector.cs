@@ -29,11 +29,11 @@ namespace RPGGame
         private static readonly ConcurrentDictionary<Actor, int> _lastActionSelectionRolls = new ConcurrentDictionary<Actor, int>();
 
         /// <summary>
-        /// Unnamed normal attack for roll 6-13. 100% damage, 1.0 speed, no modifiers.
-        /// Empty name ensures combat message shows "X hits Y for Z damage" (no action name).
+        /// Unnamed normal attack when preview attack total is below the combo threshold (hero or enemy).
+        /// 100% damage, 1.0 speed, <see cref="Action.IsComboAction"/> false so specials do not display or get combo amp.
         /// New instance per selection so parallel encounter sims do not share mutable <see cref="Action"/> state.
         /// </summary>
-        private static Action CreateCharacterNormalAttackAction() =>
+        private static Action CreateSyntheticNormalAttackAction() =>
             new Action(
                 name: "",
                 damageMultiplier: 1.0,
@@ -62,9 +62,10 @@ namespace RPGGame
         /// <summary>
         /// Selects an action based on dice roll logic:
         /// - Natural 20 always selects a combo-slot action (when available).
-        /// - Otherwise compares preview attack total (same components as <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/>:
-        ///   modified d20 + roll bonuses; peeked ACCURACY shifts the effective combo threshold, not the d20) to the effective combo threshold
-        ///   (threshold manager + COMBO effect bonuses + combo action roll-mod threshold fields).
+        /// - Otherwise compares the <strong>modified d20</strong> (sheet roll modifications to the die only) to the effective combo threshold
+        ///   (threshold manager + COMBO-type threshold adjustments + combo action roll-mod threshold fields).
+        ///   Stat/chain/equipment roll bonuses do not substitute for the die gate; queued ACCURACY does not lower this gate
+        ///   (it still affects hit/combo thresholds during <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/> execution).
         /// For heroes only.
         /// </summary>
         /// <param name="source">The Actor selecting the action</param>
@@ -87,18 +88,19 @@ namespace RPGGame
             if (baseRoll == 20)
                 return SelectComboAction(source);
 
-            PeekRollAccuracyAndComboBonuses(source as Character, out int acc, out int effectComboBonus);
             var comboActions = ActionUtilities.GetComboActions(source);
             if (comboActions.Count == 0)
                 return SelectComboAction(source);
 
-            int actionIdx = ActionUtilities.GetComboStep(source) % comboActions.Count;
-            Action comboAction = comboActions[actionIdx];
-            int totalCombo = PreviewAttackTotal(source, comboAction, baseRoll);
-            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus, acc);
+            var hero = (Character)source;
+            int stripIndex = ActionUtilities.ResolveComboStripIndex(hero, comboActions, deterministicSalt: null);
+            PeekRollAccuracyAndComboBonuses(hero, out _, out int effectComboBonus, stripIndex);
+            Action comboAction = comboActions[stripIndex];
+            int selectionDie = GetComboPathSelectionDie(source, comboAction, baseRoll);
+            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus, accuracyAcc: 0);
 
-            if (totalCombo >= comboThreshold)
-                return SelectComboAction(source);
+            if (selectionDie >= comboThreshold)
+                return comboActions[stripIndex];
             return SelectNormalAction(source);
         }
 
@@ -120,12 +122,15 @@ namespace RPGGame
             if (baseRoll == 20)
                 return true;
 
-            PeekRollAccuracyAndComboBonuses(source as Character, out int acc, out int effectComboBonus);
-            int actionIdx = ActionUtilities.GetComboStep(source) % comboActions.Count;
-            Action comboAction = comboActions[actionIdx];
-            int totalCombo = PreviewAttackTotal(source, comboAction, baseRoll);
-            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus, acc);
-            return totalCombo >= comboThreshold;
+            if (source is not Character character)
+                return false;
+
+            int stripIndex = ActionUtilities.ResolveComboStripIndex(character, comboActions, baseRoll);
+            PeekRollAccuracyAndComboBonuses(character, out _, out int effectComboBonus, stripIndex);
+            Action comboAction = comboActions[stripIndex];
+            int selectionDie = GetComboPathSelectionDie(source, comboAction, baseRoll);
+            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus, accuracyAcc: 0);
+            return selectionDie >= comboThreshold;
         }
 
         /// <summary>
@@ -187,7 +192,8 @@ namespace RPGGame
         /// Peeks ACCURACY (threshold shift) and COMBO (adjusts combo threshold) bonuses
         /// that <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/> would consume on this roll, without consuming.
         /// </summary>
-        private static void PeekRollAccuracyAndComboBonuses(Character? c, out int accuracyAccumulator, out int effectComboBonus)
+        /// <param name="actionSlotForPendingPeek">When set, slot pending ACTION bonuses for this index (matches chaotic combo strip pick). When null, uses <see cref="Character.ComboStep"/>.</param>
+        private static void PeekRollAccuracyAndComboBonuses(Character? c, out int accuracyAccumulator, out int effectComboBonus, int? actionSlotForPendingPeek = null)
         {
             accuracyAccumulator = 0;
             effectComboBonus = 0;
@@ -198,7 +204,9 @@ namespace RPGGame
             int comboLength = comboActions.Count;
             if (comboLength > 0)
             {
-                int currentSlot = c.ComboStep % comboLength;
+                int currentSlot = actionSlotForPendingPeek.HasValue
+                    ? (actionSlotForPendingPeek.Value % comboLength + comboLength) % comboLength
+                    : c.ComboStep % comboLength;
                 foreach (var bonus in c.Effects.GetPendingActionBonusesForSlot(currentSlot))
                 {
                     switch ((bonus.Type ?? "").ToUpper())
@@ -235,8 +243,11 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Approximates effective combo threshold for selection. Sheet combo <em>adjustments</em> on the action apply to the next roll only (see <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/>).
+        /// Approximates effective combo threshold for combo-path <em>selection</em> or related preview math.
+        /// Sheet combo <em>adjustments</em> on the action apply to the next roll only (see <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/>).
         /// </summary>
+        /// <param name="accuracyAcc">When non-zero, lowers the resolved threshold (peeked ACCURACY). Combo-strip vs normal
+        /// selection always passes 0 so queued accuracy cannot turn a low d20 into a named combo swing.</param>
         private static int GetEffectiveComboThresholdForSelection(Actor source, Action comboAction, int effectComboBonus, int accuracyAcc)
         {
             var tm = RollModificationManager.GetThresholdManager();
@@ -252,15 +263,10 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Preview attack total for an action path: modified base + roll bonus (no temp consume).
-        /// Peeked ACCURACY is not added here — it is folded into <see cref="GetEffectiveComboThresholdForSelection"/> as a threshold shift.
+        /// Modified d20 (sheet roll modifications only) used for combo-strip vs normal <em>selection</em>.
         /// </summary>
-        private static int PreviewAttackTotal(Actor source, Action action, int baseRoll)
-        {
-            int modified = RollModificationManager.ApplyActionRollModifications(baseRoll, action, source, null);
-            int rollBonus = ActionUtilities.CalculateRollBonus(source, action, consumeTempBonus: false);
-            return modified + rollBonus;
-        }
+        private static int GetComboPathSelectionDie(Actor source, Action comboAction, int baseRoll) =>
+            RollModificationManager.ApplyActionRollModifications(baseRoll, comboAction, source, null);
 
         /// <summary>
         /// Selects an enemy action based on roll thresholds
@@ -284,29 +290,30 @@ namespace RPGGame
             if (baseRoll == 20)
             {
                 var comboActions20 = ActionUtilities.GetComboActions(source);
-                if (comboActions20.Count > 0)
+                if (comboActions20.Count > 0 && source is Character enemyCh)
                 {
-                    int idx20 = ActionUtilities.GetComboStep(source) % comboActions20.Count;
+                    int idx20 = ActionUtilities.ResolveComboStripIndex(enemyCh, comboActions20, deterministicSalt: null);
                     return comboActions20[idx20];
                 }
                 return source.SelectAction();
             }
 
-            PeekRollAccuracyAndComboBonuses(source as Character, out int acc, out int effectComboBonus);
             var comboActions = ActionUtilities.GetComboActions(source);
             if (comboActions.Count == 0)
                 return source.SelectAction();
 
-            // Use first combo action for threshold preview; actual pick stays random when multiple (same as prior roll usage pattern).
-            Action comboPreview = comboActions[0];
-            int totalCombo = PreviewAttackTotal(source, comboPreview, baseRoll);
-            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboPreview, effectComboBonus, acc);
+            if (source is not Character enemyCharacter)
+                return source.SelectAction();
 
-            if (totalCombo >= comboThreshold)
-            {
-                int idx = ActionUtilities.GetComboStep(source) % comboActions.Count;
-                return comboActions[idx];
-            }
+            // Same strip slot as the combo pick (matches hero logic and per-slot roll-mod / threshold overrides).
+            int stripIdx = ActionUtilities.ResolveComboStripIndex(enemyCharacter, comboActions, deterministicSalt: null);
+            PeekRollAccuracyAndComboBonuses(enemyCharacter, out _, out int effectComboBonus, stripIdx);
+            Action comboAction = comboActions[stripIdx];
+            int selectionDie = GetComboPathSelectionDie(source, comboAction, baseRoll);
+            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus, accuracyAcc: 0);
+
+            if (selectionDie >= comboThreshold)
+                return comboActions[stripIdx];
 
             return SelectNormalAction(source);
         }
@@ -323,7 +330,9 @@ namespace RPGGame
             var comboActions = ActionUtilities.GetComboActions(source);
             if (comboActions.Count > 0)
             {
-                int actionIdx = ActionUtilities.GetComboStep(source) % comboActions.Count;
+                int actionIdx = source is Character ch
+                    ? ActionUtilities.ResolveComboStripIndex(ch, comboActions, deterministicSalt: null)
+                    : ActionUtilities.GetComboStep(source) % comboActions.Count;
                 return comboActions[actionIdx];
             }
             else
@@ -352,19 +361,18 @@ namespace RPGGame
                 return null;
             }
 
-            // For characters, use unnamed normal attack (displays "X hits Y for Z damage")
+            // Heroes: unnamed normal attack (displays "X hits Y for Z damage")
             if (source is Character character && !(character is Enemy))
-            {
-                return CreateCharacterNormalAttackAction();
-            }
+                return CreateSyntheticNormalAttackAction();
 
-            // Enemies: first non-combo action, or first available action
+            // Enemies: prefer an explicit basic attack flagged non-combo; otherwise unnamed normal so
+            // combo-only pools never execute a named special below the combo threshold.
             foreach (var actionEntry in source.ActionPool)
             {
                 if (!actionEntry.action.IsComboAction)
                     return actionEntry.action;
             }
-            return source.ActionPool[0].action;
+            return CreateSyntheticNormalAttackAction();
         }
 
         /// <summary>

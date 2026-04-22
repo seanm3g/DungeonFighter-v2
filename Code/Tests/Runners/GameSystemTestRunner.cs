@@ -3,6 +3,7 @@ using RPGGame;
 using RPGGame.Tests.Unit.Game;
 using RPGGame.Tests.Unit.Game.Handlers;
 using RPGGame.Tests.Unit.Game.Input;
+using RPGGame.Tests.Unit.UI;
 
 namespace RPGGame.Tests.Runners
 {
@@ -82,6 +83,8 @@ namespace RPGGame.Tests.Runners
             MatchupAnalyzerTests.RunAllTests();
             Console.WriteLine();
             GameScreenCoordinatorTests.RunAllTests();
+            Console.WriteLine();
+            CombatRenderingValidatorTests.RunAllTests();
             Console.WriteLine();
             ClaudeAIGamePlayerTests.RunAllTests();
         }

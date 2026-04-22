@@ -266,6 +266,16 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Inventory: remove the combo action at <paramref name="slotIndex"/> from the top action strip (pointer right-click).
+        /// Delegates to <see cref="InventoryMenuHandler.TryHandleStripRightClickRemove"/> (weapon-required rules; blocked during
+        /// equip/compare/trade prompts unless the combo-management sub-screen is active).
+        /// </summary>
+        public bool TryHandleInventoryStripRightClickRemove(int slotIndex)
+        {
+            return inventoryMenuHandler?.TryHandleStripRightClickRemove(slotIndex) ?? false;
+        }
+
+        /// <summary>
         /// Re-draws the active screen after left-panel section toggles. <see cref="RenderCoordinator.PerformRender"/> is suppressed in menu states,
         /// so <c>ForceFullLayoutRender</c> does nothing there; this re-invokes the appropriate <see cref="CanvasUICoordinator"/> renderer.
         /// </summary>
@@ -373,13 +383,36 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Opens the stepped combat sandbox (Settings → Testing). Prompts for a starter weapon and builds a throwaway lab character (no save or existing hero required).
+        /// 1-based starter weapon index for the Barbarian path (starting gear whose name contains "mace").
+        /// When no mace entry exists, returns 1 (same fallback as <see cref="ActionLabWeaponPickerDialog"/>).
         /// </summary>
-        public async Task StartActionInteractionLabAsync(CanvasUICoordinator canvasUI)
+        public static int GetBarbarianStarterWeaponChoice1Based()
+        {
+            var init = new GameInitializer();
+            var weapons = init.LoadStartingGear()?.weapons;
+            if (weapons == null || weapons.Count == 0)
+                return 1;
+
+            for (int i = 0; i < weapons.Count; i++)
+            {
+                if (weapons[i].name.Contains("mace", StringComparison.OrdinalIgnoreCase))
+                    return i + 1;
+            }
+
+            return 1;
+        }
+
+        /// <summary>
+        /// Opens the stepped combat sandbox (Settings → Testing, or main menu F8 shortcut).
+        /// When <paramref name="presetStarterWeaponChoice"/> is null, prompts for a starter weapon; otherwise uses that 1-based index (see <see cref="GameInitializer.InitializeNewGame"/>).
+        /// </summary>
+        public async Task StartActionInteractionLabAsync(CanvasUICoordinator canvasUI, int? presetStarterWeaponChoice = null)
         {
             if (combatManager == null) return;
 
-            int? weaponChoice = await ActionLabWeaponPickerDialog.ShowAsync(canvasUI.GetMainWindow()).ConfigureAwait(true);
+            int? weaponChoice = presetStarterWeaponChoice;
+            if (weaponChoice == null)
+                weaponChoice = await ActionLabWeaponPickerDialog.ShowAsync(canvasUI.GetMainWindow()).ConfigureAwait(true);
             if (weaponChoice == null) return;
 
             var player = new Character("Action Lab", 1);

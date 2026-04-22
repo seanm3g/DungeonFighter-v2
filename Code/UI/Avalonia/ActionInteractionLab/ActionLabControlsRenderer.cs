@@ -85,6 +85,8 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             string who = next == null ? "(time...)" : next == lab.LabPlayer ? "Player" : next == lab.LabEnemy ? "Enemy" : "Env";
             canvas.AddText(x, y, $"Next: {who}", AsciiArtAssets.Colors.Cyan);
             y++;
+            canvas.AddText(x, y, $"Actions taken: {lab.LabTotalActionTicks}", AsciiArtAssets.Colors.White);
+            y++;
             var heroCombo = lab.LabPlayer.GetComboActions();
             if (heroCombo.Count > 0)
             {
@@ -219,9 +221,9 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 canvas.AddText(x + 14, y, "[ Step ]", AsciiArtAssets.Colors.Green);
                 y++;
                 y++;
-                var resetCombo = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_reset_combo", "[ Reset combo ]");
+                var resetCombo = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_reset_combo", "[ Reset ]");
                 interactionManager!.AddClickableElement(resetCombo);
-                canvas.AddText(x, y, "[ Reset combo ]", AsciiArtAssets.Colors.Yellow);
+                canvas.AddText(x, y, "[ Reset ]", AsciiArtAssets.Colors.Yellow);
                 y++;
                 y++;
                 bool simBusy = lab.IsEncounterSimulationRunning;
@@ -272,7 +274,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 canvas.AddText(x, y, "[ Back ] [ Step ]", AsciiArtAssets.Colors.DarkGray);
                 y++;
                 y++;
-                canvas.AddText(x, y, "[ Reset combo ]", AsciiArtAssets.Colors.DarkGray);
+                canvas.AddText(x, y, "[ Reset ]", AsciiArtAssets.Colors.DarkGray);
                 y++;
                 y++;
                 canvas.AddText(x, y, $"[ Sim {lab.EncounterSimulationBatchCount} ]", AsciiArtAssets.Colors.DarkGray);

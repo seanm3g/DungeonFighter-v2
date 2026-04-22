@@ -766,7 +766,7 @@ namespace RPGGame.ActionInteractionLab
         private static void ReapplyComboStrip(Character labPlayer, IReadOnlyList<string> orderedActionNames)
         {
             foreach (var a in labPlayer.GetComboActions().ToList())
-                labPlayer.RemoveFromCombo(a);
+                labPlayer.RemoveFromCombo(a, ignoreWeaponRequirement: true);
 
             int nextSlot = 1;
             foreach (var name in orderedActionNames)

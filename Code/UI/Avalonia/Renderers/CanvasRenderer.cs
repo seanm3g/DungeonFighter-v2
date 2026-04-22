@@ -50,7 +50,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.layoutCoordinator = new PersistentLayoutRenderCoordinator(canvas, interactionManager, textManager);
             
             // Initialize validators and helpers
-            this.combatValidator = new CombatRenderingValidator(contextManager);
+            this.combatValidator = new CombatRenderingValidator(contextManager, null);
             this.menuScreenHelper = new MenuScreenRenderingHelper(canvas, layoutCoordinator);
             
             // Initialize core specialized renderers
@@ -119,6 +119,14 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void Refresh()
         {
             canvas.Refresh();
+        }
+
+        /// <summary>
+        /// Supplies <see cref="GameStateManager"/> for combat render gating (blocks stale repaints in menu states such as Death).
+        /// </summary>
+        public void SetGameStateManager(GameStateManager? stateManager)
+        {
+            combatValidator.SetGameStateManager(stateManager);
         }
 
         #region Private Helper Methods

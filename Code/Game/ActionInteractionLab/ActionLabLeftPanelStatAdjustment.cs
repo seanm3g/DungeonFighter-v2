@@ -7,6 +7,9 @@ namespace RPGGame.ActionInteractionLab
     /// Action Lab: left panel STATS rows use <c>lphover:stat:*</c> hit targets; HERO level line uses <c>lphover:hero:level</c>;
     /// HP bar uses <see cref="HeroHpHoverId"/> (damage/heal clicks, not ±1 stat deltas).
     /// Left-click / right-click deltas are applied by the canvas mouse handler in Action Lab state.
+    /// When an <see cref="ActionInteractionLabSession"/> is active, changing the hero level also applies the same
+    /// level delta to the lab enemy (see <see cref="ActionInteractionLabSession.ApplyLabEnemyLevelDelta"/>); the
+    /// right-panel enemy level row remains independently adjustable.
     /// </summary>
     public static class ActionLabLeftPanelStatAdjustment
     {
@@ -31,7 +34,11 @@ namespace RPGGame.ActionInteractionLab
             {
                 int before = player.Level;
                 player.ApplyActionLabLevelDelta(delta);
-                ActionInteractionLabSession.Current?.RecordLabPanelLevelDelta(player.Level - before);
+                int actualHeroDelta = player.Level - before;
+                var session = ActionInteractionLabSession.Current;
+                session?.RecordLabPanelLevelDelta(actualHeroDelta);
+                if (session != null && actualHeroDelta != 0)
+                    session.ApplyLabEnemyLevelDelta(actualHeroDelta);
                 return true;
             }
 

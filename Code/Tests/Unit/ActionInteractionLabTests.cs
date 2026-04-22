@@ -23,6 +23,10 @@ namespace RPGGame.Tests.Unit
         {
             int run = 0, passed = 0, failed = 0;
 
+            // AsyncLocal lab sim rolls and static test rolls can leak ordering-sensitive tests across earlier suites.
+            Dice.ClearAsyncLabEncounterTestRoll();
+            Dice.ClearTestRoll();
+
             StoredActionRollMatchesGetActionRoll(ref run, ref passed, ref failed);
             LabStepRoundTrip(ref run, ref passed, ref failed);
             LabSessionBeginsWithDefaultD20Selection16(ref run, ref passed, ref failed);
@@ -38,8 +42,10 @@ namespace RPGGame.Tests.Unit
             ActionLabCatalogSync_EnemyNextUsesPlayerStrip(ref run, ref passed, ref failed);
             ActionLabCatalogSync_EnemyNextUsesPlayerStripWhenEnemyHasCombo(ref run, ref passed, ref failed);
             LabSessionSyncCatalogMatchesComputeHelper(ref run, ref passed, ref failed);
-            ResetLabComboZerosBothSteps(ref run, ref passed, ref failed);
+            ResetLabEncounterZerosBothSteps(ref run, ref passed, ref failed);
+            ResetLabEncounterAsync_ClearsHistoryHpEffectsKeepsStripEnemy(ref run, ref passed, ref failed);
             LabEnemyTurnUsesEnemyPoolNotForcedCatalog(ref run, ref passed, ref failed);
+            LabTotalActionTicks_StepUndoSimAndFightReset(ref run, ref passed, ref failed);
             LabCatalogSyncShowsSecondSlotWhenComboStepOne(ref run, ref passed, ref failed);
             LabNudgeComboStepClampsStrip(ref run, ref passed, ref failed);
             AddSelectedCatalogToStripHelperAddsAction(ref run, ref passed, ref failed);
@@ -49,18 +55,23 @@ namespace RPGGame.Tests.Unit
             LeftPanelStatAdjustment_HeroHpDamageAndHeal(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_HeroLevelClamp(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_LevelUpMirrorsGameLevelUpForWeapon(ref run, ref passed, ref failed);
+            LeftPanelHeroLevelSyncsLabEnemy_EnemyRowIndependent(ref run, ref passed, ref failed);
             GetTotalArmorIncludesLabBonus(ref run, ref passed, ref failed);
             ActionLabWeaponFactory_BuildsWithPrefixSuffix(ref run, ref passed, ref failed);
+            ActionLabWeaponFactory_BuildsWithMultiplePrefixesAndSuffixes(ref run, ref passed, ref failed);
             ActionLabWeaponFactory_FindIndexMatchesTypeAndTier(ref run, ref passed, ref failed);
             ActionLabArmorFactory_BuildsWithPrefixSuffix(ref run, ref passed, ref failed);
+            ActionLabArmorFactory_BuildsWithMultiplePrefixesAndSuffixes(ref run, ref passed, ref failed);
             ActionLabArmorFactory_FindIndexMatchesSlotAndTier(ref run, ref passed, ref failed);
             ActionLabArmorFactory_FilterMapsBodyToChest(ref run, ref passed, ref failed);
+            ActionLabGearCatalogFilter_Basics(ref run, ref passed, ref failed);
             ClearLabGear_UnequipsSlot(ref run, ref passed, ref failed);
             WouldNaturalRollSelectComboAction_MatchesSelectActionBasedOnRoll(ref run, ref passed, ref failed);
             ApplyCatalogScrollOffsetDelta_Clamps(ref run, ref passed, ref failed);
             EncounterSimulationBatchCount_ClampedTiers(ref run, ref passed, ref failed);
             UseParallelEncounterSimulation_DefaultsTrueAndMutable(ref run, ref passed, ref failed);
             RightPanelEnemyLabHover_IdFormat(ref run, ref passed, ref failed);
+            EnemyLevelCaption_ShowsHeroDelta(ref run, ref passed, ref failed);
             RightPanelEnemyAdjustment_TryApplyWrongId(ref run, ref passed, ref failed);
             LabSession_ApplyLabEnemyLevelDelta_RebuildsDummy(ref run, ref passed, ref failed);
             CaptureSimulationSnapshot_IncludesEnemyLevel(ref run, ref passed, ref failed);
@@ -360,6 +371,51 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(wp0, c.Progression.WarriorPoints, "warrior point removed after level-down", ref run, ref passed, ref failed);
         }
 
+        /// <summary>
+        /// Hero level clicks mirror the level delta onto the lab enemy; right-panel enemy level does not move the hero.
+        /// </summary>
+        private static void LeftPanelHeroLevelSyncsLabEnemy_EnemyRowIndependent(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var hero = TestDataBuilders.Character().WithName("LabHeroEnSync").WithLevel(5).Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "LeftPanelHeroLevelSyncsLabEnemy: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            int enemyStart = lab.LabEnemy.Level;
+            int heroStart = lab.LabPlayer.Level;
+            TestBase.AssertTrue(
+                ActionLabLeftPanelStatAdjustment.TryApply(lab.LabPlayer, ActionLabLeftPanelStatAdjustment.HeroLevelHoverId, +1),
+                "hero level +1",
+                ref run, ref passed, ref failed);
+            TestBase.AssertEqual(heroStart + 1, lab.LabPlayer.Level, "hero +1", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(enemyStart + 1, lab.LabEnemy.Level, "enemy mirrored +1", ref run, ref passed, ref failed);
+
+            int heroAfterMirror = lab.LabPlayer.Level;
+            TestBase.AssertTrue(
+                ActionLabRightPanelEnemyAdjustment.TryApply(lab, ActionLabRightPanelEnemyAdjustment.EnemyLevelHoverId, +1),
+                "enemy row +1 only",
+                ref run, ref passed, ref failed);
+            TestBase.AssertEqual(heroAfterMirror, lab.LabPlayer.Level, "enemy-only click does not change hero", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(enemyStart + 2, lab.LabEnemy.Level, "enemy +1 from row", ref run, ref passed, ref failed);
+
+            lab.LabPlayer.Level = 99;
+            int enemyBeforeCapClick = lab.LabEnemy.Level;
+            TestBase.AssertTrue(
+                ActionLabLeftPanelStatAdjustment.TryApply(lab.LabPlayer, ActionLabLeftPanelStatAdjustment.HeroLevelHoverId, +1),
+                "hero at cap click still handled",
+                ref run, ref passed, ref failed);
+            TestBase.AssertEqual(99, lab.LabPlayer.Level, "hero stays 99", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(enemyBeforeCapClick, lab.LabEnemy.Level, "enemy unchanged when hero cannot level", ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
+        }
+
         private static void GetTotalArmorIncludesLabBonus(ref int run, ref int passed, ref int failed)
         {
             var c = TestDataBuilders.Character().Build();
@@ -394,6 +450,52 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(w.Name.Contains("of Power", StringComparison.Ordinal), "suffix in generated name", ref run, ref passed, ref failed);
             TestBase.AssertEqual(1, w.Modifications.Count, "one modification", ref run, ref passed, ref failed);
             TestBase.AssertEqual(1, w.StatBonuses.Count, "one stat bonus", ref run, ref passed, ref failed);
+        }
+
+        private static void ActionLabWeaponFactory_BuildsWithMultiplePrefixesAndSuffixes(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var data = new WeaponData
+            {
+                Type = "Sword",
+                Name = "Test Blade",
+                BaseDamage = 10,
+                AttackSpeed = 1.0,
+                Tier = 1,
+            };
+            var prefixes = new[]
+            {
+                new Modification
+                {
+                    Name = "Sharp",
+                    ItemRank = "Uncommon",
+                    Effect = "damage",
+                    MinValue = 1,
+                    MaxValue = 1,
+                    DiceResult = 5,
+                },
+                new Modification
+                {
+                    Name = "Heavy",
+                    ItemRank = "Common",
+                    Effect = "damage",
+                    MinValue = 1,
+                    MaxValue = 1,
+                    DiceResult = 3,
+                },
+            };
+            var suffixes = new[]
+            {
+                new StatBonus { Name = "of Power", StatType = "Damage", Value = 2 },
+                new StatBonus { Name = "of Speed", StatType = "Agility", Value = 1 },
+            };
+            var w = ActionLabWeaponFactory.CreateWeapon(data, prefixes, suffixes);
+            TestBase.AssertTrue(w.Name.Contains("Sharp", StringComparison.Ordinal), "first prefix in name", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(w.Name.Contains("Heavy", StringComparison.Ordinal), "second prefix in name", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(w.Name.Contains("of Power", StringComparison.Ordinal), "first suffix in name", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(w.Name.Contains("of Speed", StringComparison.Ordinal), "second suffix in name", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(2, w.Modifications.Count, "two modifications", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(2, w.StatBonuses.Count, "two stat bonuses", ref run, ref passed, ref failed);
         }
 
         private static void ActionLabWeaponFactory_FindIndexMatchesTypeAndTier(ref int run, ref int passed, ref int failed)
@@ -435,6 +537,50 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(item is HeadItem, "head armor type", ref run, ref passed, ref failed);
         }
 
+        private static void ActionLabArmorFactory_BuildsWithMultiplePrefixesAndSuffixes(ref int run, ref int passed, ref int failed)
+        {
+            var data = new ArmorData
+            {
+                Slot = "head",
+                Name = "Test Helm",
+                Armor = 5,
+                Tier = 2,
+            };
+            var prefixes = new[]
+            {
+                new Modification
+                {
+                    Name = "Sturdy",
+                    ItemRank = "Common",
+                    Effect = "armor",
+                    MinValue = 1,
+                    MaxValue = 1,
+                    DiceResult = 0,
+                },
+                new Modification
+                {
+                    Name = "Reinforced",
+                    ItemRank = "Uncommon",
+                    Effect = "armor",
+                    MinValue = 1,
+                    MaxValue = 1,
+                    DiceResult = 0,
+                },
+            };
+            var suffixes = new[]
+            {
+                new StatBonus { Name = "of Warding", StatType = "Armor", Value = 1 },
+                new StatBonus { Name = "of Health", StatType = "Health", Value = 5 },
+            };
+            var item = ActionLabArmorFactory.CreateArmor(data, prefixes, suffixes);
+            TestBase.AssertTrue(item.Name.Contains("Sturdy", StringComparison.Ordinal), "first prefix in name", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(item.Name.Contains("Reinforced", StringComparison.Ordinal), "second prefix in name", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(item.Name.Contains("of Warding", StringComparison.Ordinal), "first suffix in name", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(item.Name.Contains("of Health", StringComparison.Ordinal), "second suffix in name", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(2, item.Modifications.Count, "two modifications", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(2, item.StatBonuses.Count, "two stat bonuses", ref run, ref passed, ref failed);
+        }
+
         private static void ActionLabArmorFactory_FindIndexMatchesSlotAndTier(ref int run, ref int passed, ref int failed)
         {
             var armors = new[]
@@ -462,11 +608,48 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual("chest", body[0].Slot, "body equip maps to chest JSON", ref run, ref passed, ref failed);
         }
 
+        private static void ActionLabGearCatalogFilter_Basics(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.SetCurrentTestName(nameof(ActionLabGearCatalogFilter_Basics));
+            TestBase.AssertEqual("Common", ActionLabGearCatalogFilter.GetWeaponTierRarityBand(1), "T1 band", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Legendary", ActionLabGearCatalogFilter.GetWeaponTierRarityBand(5), "T5 band", ref run, ref passed, ref failed);
+            var wLow = new WeaponData { Tier = 1, Type = "Sword", Name = "Rusty" };
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.WeaponMatchesRarityFilter(wLow, null), "weapon rarity null", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.WeaponMatchesRarityFilter(wLow, "Common"), "T1 common", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!ActionLabGearCatalogFilter.WeaponMatchesRarityFilter(wLow, "Rare"), "T1 not rare", ref run, ref passed, ref failed);
+            var wHigh = new WeaponData { Tier = 5, Type = "Mace", Name = "Smash" };
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.WeaponMatchesRarityFilter(wHigh, "Legendary"), "T5 legendary", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.WeaponMatchesRarityFilter(wHigh, "Mythic"), "T5 mythic", ref run, ref passed, ref failed);
+            var mod = new Modification { ItemRank = "Rare", Name = "Keen" };
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.ModificationMatchesRarityFilter(mod, "Rare"), "mod rare", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!ActionLabGearCatalogFilter.ModificationMatchesRarityFilter(mod, "Common"), "mod not common", ref run, ref passed, ref failed);
+            var sbOpen = new StatBonus { Name = "of Open", ItemRank = "" };
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.StatBonusMatchesRarityFilter(sbOpen, "Epic"), "blank suffix rank wildcard", ref run, ref passed, ref failed);
+            var sbTagged = new StatBonus { Name = "of Tagged", ItemRank = "Legendary" };
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.StatBonusMatchesRarityFilter(sbTagged, "Legendary"), "suffix legendary", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!ActionLabGearCatalogFilter.StatBonusMatchesRarityFilter(sbTagged, "Rare"), "suffix not rare", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.WeaponMatchesTypeFilter(wHigh, "Mace"), "type mace", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!ActionLabGearCatalogFilter.WeaponMatchesTypeFilter(wHigh, "Sword"), "type not sword", ref run, ref passed, ref failed);
+
+            TestBase.AssertEqual("Cloth", ActionLabGearCatalogFilter.GetArmorCatalogClass("Cloth Cap"), "armor class cloth cap", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Studded Leather", ActionLabGearCatalogFilter.GetArmorCatalogClass("Studded Leather Boots"), "armor class studded leather", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Helm", ActionLabGearCatalogFilter.GetArmorCatalogClass("Helm"), "armor class single word", ref run, ref passed, ref failed);
+            var aLow = new ArmorData { Slot = "head", Name = "Cloth Cap", Armor = 1, Tier = 1 };
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.ArmorMatchesRarityFilter(aLow, null), "armor rarity null", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.ArmorMatchesRarityFilter(aLow, "Common"), "armor T1 common", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!ActionLabGearCatalogFilter.ArmorMatchesRarityFilter(aLow, "Rare"), "armor T1 not rare", ref run, ref passed, ref failed);
+            var aHigh = new ArmorData { Slot = "chest", Name = "Plate Mail", Armor = 5, Tier = 5 };
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.ArmorMatchesRarityFilter(aHigh, "Mythic"), "armor T5 mythic", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.ArmorMatchesClassFilter(aLow, null), "armor class filter null", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.ArmorMatchesClassFilter(aLow, "Cloth"), "armor class cloth", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!ActionLabGearCatalogFilter.ArmorMatchesClassFilter(aLow, "Iron"), "armor class not iron", ref run, ref passed, ref failed);
+        }
+
         private static void ClearLabGear_UnequipsSlot(ref int run, ref int passed, ref int failed)
         {
             ActionLoader.LoadActions();
             var data = new ArmorData { Slot = "head", Name = "LabClearHelm", Armor = 2, Tier = 1 };
-            var head = ActionLabArmorFactory.CreateArmor(data, null, null);
+            var head = ActionLabArmorFactory.CreateArmorWithoutAffixes(data);
             var hero = TestDataBuilders.Character().WithName("LabClearGear").Build();
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
@@ -489,6 +672,15 @@ namespace RPGGame.Tests.Unit
         {
             TestBase.AssertEqual("rphover:", RightPanelEnemyLabHoverState.Prefix, "rphover prefix", ref run, ref passed, ref failed);
             TestBase.AssertEqual("rphover:enemy:level", ActionLabRightPanelEnemyAdjustment.EnemyLevelHoverId, "enemy level hover id", ref run, ref passed, ref failed);
+        }
+
+        private static void EnemyLevelCaption_ShowsHeroDelta(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.SetCurrentTestName(nameof(EnemyLevelCaption_ShowsHeroDelta));
+            var cap = ActionLabRightPanelEnemyAdjustment.FormatEnemyLevelCaptionWithHeroDelta;
+            TestBase.AssertEqual("Lvl 9 (-2)", cap(9, 11), "enemy below hero (delta = enemy − hero)", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Lvl 11 (+2)", cap(11, 9), "enemy above hero", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Lvl 5 (0)", cap(5, 5), "same level", ref run, ref passed, ref failed);
         }
 
         private static void RightPanelEnemyAdjustment_TryApplyWrongId(ref int run, ref int passed, ref int failed)
@@ -761,7 +953,8 @@ namespace RPGGame.Tests.Unit
             var combo = lab.LabPlayer.GetComboActions();
             TestBase.AssertTrue(combo.Count > 0, "LabRemoveFromComboShrinksSequence has entry", ref run, ref passed, ref failed);
             int n = combo.Count;
-            lab.LabPlayer.RemoveFromCombo(combo[0]);
+            // Remove the catalog action we added (not necessarily index 0 — that slot may be a required weapon basic).
+            lab.LabPlayer.RemoveFromCombo(action);
             TestBase.AssertEqual(n - 1, lab.LabPlayer.GetComboActions().Count, "LabRemoveFromComboShrinksSequence removes one", ref run, ref passed, ref failed);
             ActionInteractionLabSession.EndSession();
         }
@@ -1030,6 +1223,73 @@ namespace RPGGame.Tests.Unit
         }
 
         /// <summary>
+        /// <see cref="ActionInteractionLabSession.LabTotalActionTicks"/> tracks interactive steps (history length),
+        /// adds encounter turn totals after batch sim, drops on undo, and resets when the lab clears fight history.
+        /// </summary>
+        private static void LabTotalActionTicks_StepUndoSimAndFightReset(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var jab = ActionLoader.GetAction("JAB");
+            if (jab == null)
+            {
+                TestBase.AssertTrue(true, "LabTotalActionTicks skipped (no JAB)", ref run, ref passed, ref failed);
+                return;
+            }
+
+            var hero = TestDataBuilders.Character().WithName("LabActionTicks").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "LabTotalActionTicks: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            TestBase.AssertEqual(0, lab.LabTotalActionTicks, "LabTotalActionTicks starts at 0", ref run, ref passed, ref failed);
+
+            foreach (var a in lab.LabPlayer.GetComboActions().ToList())
+                lab.LabPlayer.RemoveFromCombo(a);
+            if (!jab.IsComboAction)
+                jab.IsComboAction = true;
+            lab.LabPlayer.AddToCombo(jab);
+            lab.SelectedCatalogActionName = "JAB";
+
+            var stepResult = lab.StepAsync(18, "JAB").GetAwaiter().GetResult();
+            TestBase.AssertTrue(
+                stepResult == CombatSingleTurnResult.Advanced
+                || stepResult == CombatSingleTurnResult.EnemyDefeated
+                || stepResult == CombatSingleTurnResult.PlayerDefeated,
+                "LabTotalActionTicks step returns a recorded outcome",
+                ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, lab.LabTotalActionTicks, "LabTotalActionTicks after one step", ref run, ref passed, ref failed);
+
+            var report = new ActionLabEncounterSimulationReport();
+            report.Encounters.Add(new EncounterMetrics { Turns = 3 });
+            report.Encounters.Add(new EncounterMetrics { Turns = 5 });
+            lab.RecordEncounterSimulationTurns(report);
+            TestBase.AssertEqual(9, lab.LabTotalActionTicks, "LabTotalActionTicks includes simulated encounter turns", ref run, ref passed, ref failed);
+
+            lab.UndoLastStepAsync().GetAwaiter().GetResult();
+            TestBase.AssertEqual(8, lab.LabTotalActionTicks, "LabTotalActionTicks after undo (sim total kept)", ref run, ref passed, ref failed);
+
+            EnemyLoader.LoadEnemies();
+            var types = EnemyLoader.GetAllEnemyTypes();
+            if (types == null || types.Count == 0)
+            {
+                TestBase.AssertTrue(true, "LabTotalActionTicks fight reset skipped (no loader enemies)", ref run, ref passed, ref failed);
+            }
+            else
+            {
+                types.Sort(StringComparer.OrdinalIgnoreCase);
+                lab.SetLabEnemyFromLoader(types[0], 1);
+                TestBase.AssertEqual(0, lab.LabTotalActionTicks, "LabTotalActionTicks cleared when fight history resets", ref run, ref passed, ref failed);
+            }
+
+            ActionInteractionLabSession.EndSession();
+        }
+
+        /// <summary>
         /// Catalog sync follows hero <see cref="Character.ComboStep"/>: at step 1 with a two-action strip, selection is the second action (e.g. SLAM after RAGE).
         /// </summary>
         private static void LabCatalogSyncShowsSecondSlotWhenComboStepOne(ref int run, ref int passed, ref int failed)
@@ -1246,7 +1506,7 @@ namespace RPGGame.Tests.Unit
             ActionInteractionLabSession.EndSession();
         }
 
-        private static void ResetLabComboZerosBothSteps(ref int run, ref int passed, ref int failed)
+        private static void ResetLabEncounterZerosBothSteps(ref int run, ref int passed, ref int failed)
         {
             ActionLoader.LoadActions();
             var hero = TestDataBuilders.Character().WithName("LabResetCombo").Build();
@@ -1255,20 +1515,79 @@ namespace RPGGame.Tests.Unit
             var lab = ActionInteractionLabSession.Current;
             if (lab == null)
             {
-                TestBase.AssertTrue(false, "ResetLabComboZerosBothSteps: session null", ref run, ref passed, ref failed);
+                TestBase.AssertTrue(false, "ResetLabEncounterZerosBothSteps: session null", ref run, ref passed, ref failed);
                 return;
             }
 
             lab.LabPlayer.ComboStep = 4;
             lab.LabEnemy.ComboStep = 2;
-            lab.ResetLabCombo();
-            TestBase.AssertEqual(0, lab.LabPlayer.ComboStep, "ResetLabCombo zeros LabPlayer.ComboStep", ref run, ref passed, ref failed);
-            TestBase.AssertEqual(0, lab.LabEnemy.ComboStep, "ResetLabCombo zeros LabEnemy.ComboStep", ref run, ref passed, ref failed);
+            lab.ResetLabEncounterAsync().GetAwaiter().GetResult();
+            TestBase.AssertEqual(0, lab.LabPlayer.ComboStep, "ResetLabEncounter zeros LabPlayer.ComboStep", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, lab.LabEnemy.ComboStep, "ResetLabEncounter zeros LabEnemy.ComboStep", ref run, ref passed, ref failed);
             ActionInteractionLabSession.EndSession();
         }
 
         /// <summary>
-        /// Enemies must use <see cref="Character.ComboStep"/> for combo picks (not random), matching hero behavior and action lab sequencing.
+        /// <see cref="ActionInteractionLabSession.ResetLabEncounterAsync"/> clears undo history and DoT, refills HP,
+        /// and leaves the combo strip and current enemy unchanged.
+        /// </summary>
+        private static void ResetLabEncounterAsync_ClearsHistoryHpEffectsKeepsStripEnemy(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var jab = ActionLoader.GetAction("JAB");
+            if (jab == null)
+            {
+                TestBase.AssertTrue(true, "ResetLabEncounterAsync_ClearsHistory skipped (no JAB)", ref run, ref passed, ref failed);
+                return;
+            }
+
+            var hero = TestDataBuilders.Character().WithName("LabEncounterReset").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "ResetLabEncounterAsync_ClearsHistory: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            string enemyName = lab.LabEnemy.Name;
+            int enemyLevel = lab.LabEnemy.Level;
+
+            foreach (var a in lab.LabPlayer.GetComboActions().ToList())
+                lab.LabPlayer.RemoveFromCombo(a, ignoreWeaponRequirement: true);
+            if (!jab.IsComboAction)
+                jab.IsComboAction = true;
+            lab.LabPlayer.AddToCombo(jab);
+            int stripCount = lab.LabPlayer.GetComboActions().Count;
+            lab.SelectedCatalogActionName = "JAB";
+
+            lab.LabPlayer.CurrentHealth = 3;
+            lab.LabEnemy.CurrentHealth = 7;
+            lab.LabPlayer.PoisonPercentOfMaxHealth = 4;
+            lab.LabPlayer.ComboStep = 3;
+
+            lab.StepAsync(18, "JAB").GetAwaiter().GetResult();
+            TestBase.AssertTrue(lab.LabTotalActionTicks > 0, "ResetLabEncounter test: history recorded a step", ref run, ref passed, ref failed);
+
+            lab.ResetLabEncounterAsync().GetAwaiter().GetResult();
+
+            TestBase.AssertEqual(0, lab.History.Count, "ResetLabEncounter clears step history", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, lab.LabTotalActionTicks, "ResetLabEncounter zeros LabTotalActionTicks", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(lab.LabPlayer.GetEffectiveMaxHealth(), lab.LabPlayer.CurrentHealth, "ResetLabEncounter refills hero HP", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(lab.LabEnemy.GetEffectiveMaxHealth(), lab.LabEnemy.CurrentHealth, "ResetLabEncounter refills enemy HP", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0.0, lab.LabPlayer.PoisonPercentOfMaxHealth, "ResetLabEncounter clears poison %", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(stripCount, lab.LabPlayer.GetComboActions().Count, "ResetLabEncounter keeps combo strip size", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, lab.LabPlayer.ComboStep, "ResetLabEncounter zeros hero combo step", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(string.Equals(enemyName, lab.LabEnemy.Name, StringComparison.Ordinal),
+                "ResetLabEncounter keeps same enemy name", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(enemyLevel, lab.LabEnemy.Level, "ResetLabEncounter keeps enemy level", ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
+        }
+
+        /// <summary>
+        /// With effective INT ≥ threshold, enemies use <see cref="Character.ComboStep"/> for combo picks (same ordered rule as heroes).
         /// </summary>
         private static void EnemyComboSelectionUsesComboStepIndex(ref int run, ref int passed, ref int failed)
         {
@@ -1286,6 +1605,7 @@ namespace RPGGame.Tests.Unit
                 isLiving: true,
                 archetype: EnemyArchetype.Berserker,
                 useDirectStats: true);
+            enemy.Intelligence = GameConstants.ComboSequenceIntelligenceThreshold;
 
             var a1 = new Action("EC_ONE", comboOrder: 0, damageMultiplier: 1.0, length: 1.0, isComboAction: true);
             var a2 = new Action("EC_TWO", comboOrder: 1, damageMultiplier: 1.0, length: 1.0, isComboAction: true);

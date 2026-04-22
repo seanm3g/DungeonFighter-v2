@@ -327,8 +327,8 @@ namespace RPGGame
             // Reset game time FIRST to ensure clean timing state
             GameTicker.Instance.Reset();
             
-            // Reset combo step to 0 to start at the first action in the sequence
-            player.ComboStep = 0;
+            // Full combo reset at fight start (InitializeCombatEntities also resets; belt-and-suspenders before narrative)
+            player.ResetCombo();
             
             // Start battle narrative and initialize action speed system
             StartBattleNarrative(player.Name, currentEnemy.Name, room.Name, player.CurrentHealth, currentEnemy.CurrentHealth);
@@ -356,8 +356,8 @@ namespace RPGGame
             thresholdManager.ResetThresholds(player);
             thresholdManager.ResetThresholds(currentEnemy);
             
-            // Reset combo step to first action at the end of combat
-            player.ComboStep = 0;
+            // Full combo reset after combat so exploration / next encounter never inherits combo mode or strip index
+            player.ResetCombo();
             
             DebugLogger.WriteCombatDebug("CombatManager", $"Combat ended: {player.Name} {(player.IsAlive ? "survived" : "died")} vs {currentEnemy.Name}");
             

@@ -441,64 +441,82 @@ namespace RPGGame.UI.Avalonia.Layout
         }
         
         /// <summary>
+        /// Pads <c>NAME:</c> so the value starts at character column 9 (same as Damage / Armor in this panel).
+        /// Single-line text avoids <see cref="CanvasElementBuilder.AddCharacterStat"/> with value 0 plus a partial overlay, which left a stray trailing <c>0</c>.
+        /// </summary>
+        private static string FormatSecondaryStatLine(string statName, string valueText)
+        {
+            const int valueColumn = 9;
+            string label = statName + ":";
+            int pad = valueColumn - label.Length;
+            if (pad < 0)
+                pad = 0;
+            return label + new string(' ', pad) + valueText;
+        }
+
+        /// <summary>
         /// Renders secondary stats (magic find, HP regen, etc.). When <paramref name="expandedHoverTargets"/> is non-null,
         /// appends (row Y, hover id) for each row; the caller registers <c>lphover:*</c> clickables for tooltips.
         /// </summary>
         private void RenderExpandedStats(Character character, int x, ref int y, List<(int rowY, string idSuffix)>? expandedHoverTargets)
         {
+            var cyan = AsciiArtAssets.Colors.Cyan;
+
             // Magic Find (only if > 0)
             int magicFind = character.GetMagicFind();
             if (magicFind > 0)
             {
                 int rowY = y;
-                canvas.AddCharacterStat(x, y, "MAG FIND", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
-                canvas.AddText(x + 9, y, $"+{magicFind}", AsciiArtAssets.Colors.Cyan);
+                canvas.AddText(x, y, FormatSecondaryStatLine("MAG FIND", $"+{magicFind}"), cyan);
                 y++;
                 expandedHoverTargets?.Add((rowY, "stat:magfind"));
             }
-            
+
             // Health Regen (only if > 0)
             int healthRegen = character.GetEquipmentHealthRegenBonus();
             if (healthRegen > 0)
             {
                 int rowY = y;
-                canvas.AddCharacterStat(x, y, "HP REGEN", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
-                canvas.AddText(x + 9, y, $"+{healthRegen}/turn", AsciiArtAssets.Colors.Cyan);
+                canvas.AddText(x, y, FormatSecondaryStatLine("HP REGEN", $"+{healthRegen} per turn"), cyan);
                 y++;
                 expandedHoverTargets?.Add((rowY, "stat:hpregen"));
             }
-            
+
             // Lifesteal (only if > 0)
             double lifesteal = character.GetModificationLifesteal();
             if (lifesteal > 0)
             {
                 int rowY = y;
-                canvas.AddCharacterStat(x, y, "LIFESTEAL", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
-                canvas.AddText(x + 9, y, $"{lifesteal:P0}", AsciiArtAssets.Colors.Cyan);
+                canvas.AddText(x, y, FormatSecondaryStatLine("LIFESTEAL", $"{lifesteal:P0}"), cyan);
                 y++;
                 expandedHoverTargets?.Add((rowY, "stat:lifesteal"));
             }
-            
-            // Bleed Chance (only if > 0)
-            double bleedChance = character.GetModificationBleedChance();
-            if (bleedChance > 0)
+
+            int bleedOnHit = character.GetWeaponBleedPerHit();
+            if (bleedOnHit > 0)
             {
                 int rowY = y;
-                canvas.AddCharacterStat(x, y, "BLEED", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
-                canvas.AddText(x + 9, y, $"{bleedChance:P0}", AsciiArtAssets.Colors.Cyan);
+                canvas.AddText(x, y, FormatSecondaryStatLine("BLEED", $"+{bleedOnHit}"), cyan);
                 y++;
                 expandedHoverTargets?.Add((rowY, "stat:bleed"));
             }
-            
-            // Burn Chance (only if > 0)
-            double burnChance = character.GetModificationBurnChance();
-            if (burnChance > 0)
+
+            int burnOnHit = character.GetWeaponBurnPerHit();
+            if (burnOnHit > 0)
             {
                 int rowY = y;
-                canvas.AddCharacterStat(x, y, "BURN", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
-                canvas.AddText(x + 9, y, $"{burnChance:P0}", AsciiArtAssets.Colors.Cyan);
+                canvas.AddText(x, y, FormatSecondaryStatLine("BURN", $"+{burnOnHit}"), cyan);
                 y++;
                 expandedHoverTargets?.Add((rowY, "stat:burn"));
+            }
+
+            double poisonOnHit = character.GetWeaponPoisonPercentPerHit();
+            if (poisonOnHit > 0)
+            {
+                int rowY = y;
+                canvas.AddText(x, y, FormatSecondaryStatLine("POISON", $"+{poisonOnHit:0.#}%"), cyan);
+                y++;
+                expandedHoverTargets?.Add((rowY, "stat:poison"));
             }
         }
     }

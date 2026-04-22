@@ -127,6 +127,9 @@ namespace RPGGame
             // This ensures the combat log from the previous dungeon is not visible
             ClearCombatLog();
 
+            // Fresh dungeon run: opener slot for HUD and any logic that runs before the first room's combat init
+            player.ResetCombo();
+
             // Clear display buffer to prevent duplicate messages from previous runs
             if (canvasUI != null)
             {

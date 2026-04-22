@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Combat.UI;
 
 namespace RPGGame.UI.Avalonia
 {
@@ -11,12 +12,14 @@ namespace RPGGame.UI.Avalonia
         private readonly Dictionary<string, int> previousHealthValues;
         private readonly Dictionary<string, int> healthAtDamageTime; // Health value when damage occurred
         private readonly Dictionary<string, DateTime> damageDeltaStartTimes;
-        
+        private readonly Dictionary<string, List<HealthBarDeltaDamagePart>> damageDeltaDotParts;
+
         public HealthTracker()
         {
             previousHealthValues = new Dictionary<string, int>();
             healthAtDamageTime = new Dictionary<string, int>();
             damageDeltaStartTimes = new Dictionary<string, DateTime>();
+            damageDeltaDotParts = new Dictionary<string, List<HealthBarDeltaDamagePart>>();
         }
         
         /// <summary>
@@ -42,6 +45,14 @@ namespace RPGGame.UI.Avalonia
         {
             return damageDeltaStartTimes.TryGetValue(entityId, out DateTime startTime) ? startTime : null;
         }
+
+        /// <summary>
+        /// Optional poison/burn/bleed breakdown for the active damage delta (inner-to-outer order: poison, burn, bleed).
+        /// </summary>
+        public IReadOnlyList<HealthBarDeltaDamagePart>? GetDamageDeltaDotParts(string entityId)
+        {
+            return damageDeltaDotParts.TryGetValue(entityId, out var list) ? list : null;
+        }
         
         /// <summary>
         /// Updates the health value for an entity and returns the previous value
@@ -56,6 +67,10 @@ namespace RPGGame.UI.Avalonia
             {
                 damageDeltaStartTimes[entityId] = DateTime.Now;
                 healthAtDamageTime[entityId] = previousHealth.Value; // Store health before damage
+                int damage = previousHealth.Value - currentHealth;
+                damageDeltaDotParts.Remove(entityId);
+                if (HealthBarDeltaDamageHint.TryConsume(entityId, damage, out var parts) && parts is { Count: > 0 })
+                    damageDeltaDotParts[entityId] = new List<HealthBarDeltaDamagePart>(parts);
             }
             
             // Update previous health for next comparison
@@ -71,6 +86,7 @@ namespace RPGGame.UI.Avalonia
             previousHealthValues.Remove(entityId);
             healthAtDamageTime.Remove(entityId);
             damageDeltaStartTimes.Remove(entityId);
+            damageDeltaDotParts.Remove(entityId);
         }
         
         /// <summary>
@@ -81,6 +97,8 @@ namespace RPGGame.UI.Avalonia
             previousHealthValues.Clear();
             healthAtDamageTime.Clear();
             damageDeltaStartTimes.Clear();
+            damageDeltaDotParts.Clear();
+            HealthBarDeltaDamageHint.ClearAll();
         }
         
         /// <summary>
@@ -103,14 +121,14 @@ namespace RPGGame.UI.Avalonia
             }
             
             // Clean up expired damage deltas
-            foreach (var entityId in expiredEntities)
+            foreach (string entityId in expiredEntities)
             {
                 healthAtDamageTime.Remove(entityId);
                 damageDeltaStartTimes.Remove(entityId);
+                damageDeltaDotParts.Remove(entityId);
             }
             
             return damageDeltaStartTimes.Count > 0;
         }
     }
 }
-

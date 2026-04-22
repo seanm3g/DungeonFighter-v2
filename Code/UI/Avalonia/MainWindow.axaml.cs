@@ -75,6 +75,16 @@ namespace RPGGame.UI.Avalonia
                     return;
                 }
 
+                if (e.Key == Key.F8 && initializationHandler.Game.CurrentState == GameState.MainMenu
+                    && initializationHandler.CanvasUIManager is CanvasUICoordinator canvasUiForLab)
+                {
+                    e.Handled = true;
+                    await initializationHandler.Game.StartActionInteractionLabAsync(
+                        canvasUiForLab,
+                        GameCoordinator.GetBarbarianStarterWeaponChoice1Based()).ConfigureAwait(true);
+                    return;
+                }
+
                 // Convert Avalonia keys to game input using utility
                 string? input = inputHandler.ConvertKeyToInput(e.Key, e.KeyModifiers);
                 if (input != null)

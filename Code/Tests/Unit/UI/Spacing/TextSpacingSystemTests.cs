@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit.UI.Spacing
             TestApplySpacingBefore_FirstBlock();
             TestApplySpacingBefore_BlockTransitions();
             TestApplySpacingBefore_EntityBasedSpacing();
+            TestDoTSpacingRules();
             TestRecordBlockDisplayed();
             TestReset();
 
@@ -85,6 +86,44 @@ namespace RPGGame.Tests.Unit.UI.Spacing
             
             TestBase.AssertTrue(true,
                 "ApplySpacingBefore should handle entity-based spacing correctly",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// DoT (PoisonDamage block): flush with same actor's combat action; blank before next actor's combat action after DoT.
+        /// </summary>
+        private static void TestDoTSpacingRules()
+        {
+            Console.WriteLine("\n--- Testing DoT spacing (PoisonDamage vs CombatAction) ---");
+
+            TextSpacingSystem.Reset();
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction, "Bat");
+            int sameActorDot = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.PoisonDamage, "Bat");
+            TestBase.AssertEqual(0, sameActorDot,
+                "no blank before DoT when afflicted is same as last combat actor",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TextSpacingSystem.Reset();
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction, "Bat");
+            int crossActorDot = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.PoisonDamage, "Action Lab");
+            TestBase.AssertEqual(1, crossActorDot,
+                "blank before DoT when afflicted differs from last combat actor",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TextSpacingSystem.Reset();
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction, "Bat");
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage, "Bat");
+            int afterDotNewActor = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.CombatAction, "Action Lab");
+            TestBase.AssertEqual(1, afterDotNewActor,
+                "blank before next combat action when actor differs after DoT block",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TextSpacingSystem.Reset();
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction, "Fire Elemental");
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage, "Tristan Riversong");
+            int heroAttackAfterOwnBurn = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.CombatAction, "Tristan Riversong");
+            TestBase.AssertEqual(0, heroAttackAfterOwnBurn,
+                "no blank before afflicted hero combat action after burn/poison tick on that hero",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

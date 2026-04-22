@@ -1,37 +1,29 @@
 using System;
 using System.Collections.Generic;
-using RPGGame.Combat;
 using RPGGame.UI.ColorSystem;
 using Avalonia.Media;
 
 namespace RPGGame.Actions.Execution
 {
     /// <summary>
-    /// Applies status effects from actions and converts them to ColoredText
+    /// Converts status-effect log lines to ColoredText for the combat UI.
     /// </summary>
     public static class ActionStatusEffectApplier
     {
         /// <summary>
-        /// Applies status effects from an action and converts them to ColoredText
+        /// Appends markup lines already collected on the action execution result (<c>StatusEffectMessages</c>) as ColoredText blocks.
+        /// Does not call <see cref="CombatEffectsSimplified.ApplyStatusEffects"/> — <see cref="ActionExecutionFlow"/> already applied effects once on hit.
         /// </summary>
-        public static void ApplyStatusEffectsColored(Action selectedAction, Actor source, Actor target, List<List<ColoredText>> coloredStatusEffects)
+        public static void AppendColoredStatusEffectMessages(IEnumerable<string>? statusEffectMessages, List<List<ColoredText>> coloredStatusEffects)
         {
-            if (selectedAction == null || source == null || target == null || coloredStatusEffects == null) return;
-            
-            var stringResults = new List<string>();
-            CombatEffectsSimplified.ApplyStatusEffects(selectedAction, source, target, stringResults);
-            
-            // Convert status effect strings to ColoredText
-            foreach (var statusString in stringResults)
+            if (statusEffectMessages == null || coloredStatusEffects == null) return;
+
+            foreach (var statusString in statusEffectMessages)
             {
-                if (!string.IsNullOrEmpty(statusString))
-                {
-                    var statusColored = ColoredTextParser.Parse(statusString);
-                    if (statusColored.Count > 0)
-                    {
-                        coloredStatusEffects.Add(statusColored);
-                    }
-                }
+                if (string.IsNullOrEmpty(statusString)) continue;
+                var statusColored = ColoredTextParser.Parse(statusString);
+                if (statusColored.Count > 0)
+                    coloredStatusEffects.Add(statusColored);
             }
         }
         

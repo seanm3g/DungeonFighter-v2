@@ -6,6 +6,8 @@
   "armorSheetTabName": "ARMOR",
   "enemiesSheetTabName": "ENEMIES",
   "environmentsSheetTabName": "ENVIRONMENTS",
+  "dungeonsSheetTabName": "DUNGEONS",
+  "statBonusesSheetTabName": "SUFFIXES",
   "classPresentationSheetTabName": "CLASSES",
   "oauthClientSecretsPath": "secrets/client_secret_desktop.json",
   "oauthTokenStorePath": "SheetsOAuthToken",

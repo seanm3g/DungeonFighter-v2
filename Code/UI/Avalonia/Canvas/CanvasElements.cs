@@ -45,6 +45,15 @@ namespace RPGGame.UI.Avalonia.Canvas
         public bool IsOverlay { get; set; }
     }
 
+    /// <summary>
+    /// One colored strip inside the health bar damage-delta overlay (DoT chunk or fallback single color).
+    /// </summary>
+    public class HealthBarDamageDeltaSegment
+    {
+        public int Amount { get; set; }
+        public Color Color { get; set; }
+    }
+
     public class CanvasProgressBar
     {
         public int X { get; set; }
@@ -59,6 +68,9 @@ namespace RPGGame.UI.Avalonia.Canvas
         public int? PreviousHealth { get; set; }
         public int MaxHealth { get; set; }
         public System.DateTime? DamageDeltaStartTime { get; set; }
+
+        /// <summary>When non-null and valid, drawn inside the delta region instead of a flat yellow overlay.</summary>
+        public System.Collections.Generic.IReadOnlyList<HealthBarDamageDeltaSegment>? DamageDeltaSegments { get; set; }
     }
 }
 

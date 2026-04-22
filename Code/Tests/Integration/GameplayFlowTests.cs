@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using RPGGame;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Integration
@@ -75,10 +76,7 @@ namespace RPGGame.Tests.Integration
             // Simulate multiple level-ups
             for (int i = 0; i < 5; i++)
             {
-                // Add enough XP to level up (consistent curve: Level^2 * base)
-                var tuning = GameConfiguration.Instance;
-                int averageXPPerDungeonAtLevel1 = tuning.Progression.EnemyXPBase + 25;
-                int xpNeeded = character.Level * character.Level * averageXPPerDungeonAtLevel1;
+                int xpNeeded = CharacterProgression.GetXpRequiredToAdvanceFromLevel(character.Level);
                 character.AddXP(xpNeeded + 10);
             }
 
@@ -130,11 +128,9 @@ namespace RPGGame.Tests.Integration
             var character = TestDataBuilders.Character().WithLevel(1).Build();
             int startingLevel = character.Level;
 
-            // Add enough XP for multiple level-ups (consistent curve: Level^2 * base)
-            var tuning = GameConfiguration.Instance;
-            int averageXPPerDungeonAtLevel1 = tuning.Progression.EnemyXPBase + 25;
-            int largeXPAmount = (2 * 2 * averageXPPerDungeonAtLevel1) +
-                               (3 * 3 * averageXPPerDungeonAtLevel1) + 50;
+            character.XP = 0;
+            int largeXPAmount = CharacterProgression.GetXpRequiredToAdvanceFromLevel(1)
+                + CharacterProgression.GetXpRequiredToAdvanceFromLevel(2) + 50;
 
             var levelUpInfos = character.AddXPWithLevelUpInfo(largeXPAmount);
 

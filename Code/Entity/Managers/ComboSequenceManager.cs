@@ -135,6 +135,8 @@ namespace RPGGame
                     // (equipment, class, etc.)
                 }
             }
+
+            WeaponRequiredComboAction.EnsureRequiredBasicInCombo(entity);
         }
 
         /// <summary>
@@ -165,6 +167,8 @@ namespace RPGGame
             {
                 RemoveFromCombo(action);
             }
+
+            WeaponRequiredComboAction.EnsureRequiredBasicInCombo(entity);
         }
 
         /// <summary>
@@ -215,6 +219,8 @@ namespace RPGGame
                     AddToCombo(actionEntry.action);
                 }
             }
+
+            WeaponRequiredComboAction.EnsureRequiredBasicInCombo(entity);
 
             return ComboSequence.Count > 0;
         }

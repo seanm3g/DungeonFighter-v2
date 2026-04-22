@@ -20,7 +20,6 @@ namespace RPGGame
         private readonly DungeonRewardManager rewardManager;
         private readonly DungeonExitChoiceHandler? exitChoiceHandler;
         private readonly System.Action<int, Item?, List<LevelUpInfo>, List<Item>>? onDungeonCompleted;
-        private readonly System.Action<Character>? onPlayerDeath;
         private readonly System.Action? onDungeonExitedEarly;
 
         public DungeonOrchestrator(
@@ -31,7 +30,6 @@ namespace RPGGame
             DungeonRewardManager rewardManager,
             DungeonExitChoiceHandler? exitChoiceHandler,
             System.Action<int, Item?, List<LevelUpInfo>, List<Item>>? onDungeonCompleted = null,
-            System.Action<Character>? onPlayerDeath = null,
             System.Action? onDungeonExitedEarly = null)
         {
             this.stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
@@ -41,7 +39,6 @@ namespace RPGGame
             this.rewardManager = rewardManager ?? throw new ArgumentNullException(nameof(rewardManager));
             this.exitChoiceHandler = exitChoiceHandler;
             this.onDungeonCompleted = onDungeonCompleted;
-            this.onPlayerDeath = onPlayerDeath;
             this.onDungeonExitedEarly = onDungeonExitedEarly;
         }
 
@@ -123,12 +120,7 @@ namespace RPGGame
                     roomNumber++;
                     if (!await roomProcessor.ProcessRoom(room, roomNumber, totalRooms, isFirstRoom))
                     {
-                        // Player died - transition to death screen
-                        if (stateManager.CurrentPlayer != null)
-                        {
-                            stateManager.TransitionToState(GameState.Death);
-                            onPlayerDeath?.Invoke(stateManager.CurrentPlayer);
-                        }
+                        // Player death: EnemyEncounterHandler already transitions to Death and raises onPlayerDeath.
                         return;
                     }
                     isFirstRoom = false;

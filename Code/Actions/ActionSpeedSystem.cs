@@ -81,6 +81,9 @@ namespace RPGGame
             // Add a small buffer to prevent entities with identical speeds from acting simultaneously
             double buffer = 0.01; // 10ms buffer
             combatEntity.NextActionTime = currentTime + turnDuration + buffer;
+
+            if (turnDuration > 0)
+                GameTicker.Instance.AdvanceGameTime(turnDuration);
         }
 
         public double ExecuteAction(Actor entity, Action action, bool isCriticalMiss = false)
@@ -137,6 +140,13 @@ namespace RPGGame
             double currentTime = GameTicker.Instance.GetCurrentGameTime();
             currentTime = Math.Max(currentTime, combatEntity.NextActionTime);
             combatEntity.NextActionTime = currentTime + actionDuration;
+
+            // Advance combat time by this action's duration so poison/burn global ticks can use the same clock
+            // as action speeds. The background ticker is always started from GameCoordinator, so we cannot
+            // gate on IsRunning: stepped combat (Action Lab) often calls GetCurrentGameTime rarely enough that
+            // wall-clock deltas never reach TickInterval between DoT checks.
+            if (actionDuration > 0)
+                GameTicker.Instance.AdvanceGameTime(actionDuration);
             
             // Clear critical miss penalty after action is executed
             if (entity.HasCriticalMissPenalty)

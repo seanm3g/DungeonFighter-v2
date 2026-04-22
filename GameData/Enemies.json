@@ -2,570 +2,398 @@
   {
     "name": "Goblin",
     "archetype": "Assassin",
-    "overrides": {
-      "health": 0.85,
-      "agility": 1.2,
-      "technique": 1.1,
-      "intelligence": 0.9,
-      "strength": 1.05,
-      "armor": 0.6
-    },
-    "baseAttributes": {
-      "strength": 3,
-      "agility": 3,
-      "technique": 3,
-      "intelligence": 2
-    },
-    "growthPerLevel": {
-      "strength": 0.18,
-      "agility": 0.22,
-      "technique": 0.2,
-      "intelligence": 0.12
-    },
-    "baseHealth": 43,
+    "technique": 3,
+    "baseHealth": 36.55,
     "healthGrowthPerLevel": 2.35,
     "actions": [
       "JAB",
       "TAUNT"
     ],
     "isLiving": true,
-    "description": "A quick and cunning creature that strikes from the shadows"
+    "description": "A quick and cunning creature that strikes from the shadows",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 3
+    },
+    "growthPerLevel": {
+      "technique": 0.2,
+      "strength": 0.18,
+      "agility": 0.22,
+      "intelligence": 0.12
+    }
   },
   {
     "name": "Spider",
     "archetype": "Assassin",
-    "overrides": {
-      "health": 0.5,
-      "agility": 1.6,
-      "technique": 1.4,
-      "armor": 0.7,
-      "intelligence": 0.8,
-      "strength": 0.9
-    },
-    "baseAttributes": {
-      "strength": 2,
-      "agility": 4,
-      "technique": 4,
-      "intelligence": 2
-    },
-    "growthPerLevel": {
-      "strength": 0.12,
-      "agility": 0.32,
-      "technique": 0.28,
-      "intelligence": 0.14
-    },
-    "baseHealth": 25,
+    "technique": 3,
+    "baseHealth": 12.5,
     "healthGrowthPerLevel": 1.65,
     "actions": [
       "WEB STRIKE",
       "POISON BITE"
     ],
     "isLiving": true,
-    "description": "A large forest spider with venomous fangs - extremely fast, fragile"
+    "description": "A large forest spider with venomous fangs - extremely fast, fragile",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 2
+    },
+    "growthPerLevel": {
+      "technique": 0.28,
+      "strength": 0.12,
+      "agility": 0.32,
+      "intelligence": 0.14
+    }
   },
   {
     "name": "Wolf",
     "archetype": "Berserker",
-    "overrides": {
-      "health": 1.15,
-      "strength": 1.25,
-      "agility": 1.3,
-      "armor": 0.7,
-      "technique": 1.0,
-      "intelligence": 0.8
-    },
-    "baseAttributes": {
-      "strength": 3,
-      "agility": 3,
-      "technique": 3,
-      "intelligence": 2
-    },
-    "growthPerLevel": {
-      "strength": 0.22,
-      "agility": 0.22,
-      "technique": 0.18,
-      "intelligence": 0.12
-    },
-    "baseHealth": 58,
+    "technique": 2,
+    "baseHealth": 66.7,
     "healthGrowthPerLevel": 3.1,
     "actions": [
       "BITE",
       "HOWL"
     ],
     "isLiving": true,
-    "description": "A swift predator that hunts in packs - balanced attacker"
+    "description": "A swift predator that hunts in packs - balanced attacker",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 3
+    },
+    "growthPerLevel": {
+      "technique": 0.18,
+      "strength": 0.22,
+      "agility": 0.22,
+      "intelligence": 0.12
+    }
   },
   {
     "name": "Fire Elemental",
     "archetype": "Mage",
-    "overrides": {
-      "health": 0.75,
-      "intelligence": 1.5,
-      "armor": 0.4,
-      "technique": 1.3,
-      "agility": 1.1,
-      "strength": 0.7
-    },
-    "baseAttributes": {
-      "strength": 2,
-      "agility": 3,
-      "technique": 3,
-      "intelligence": 4
-    },
-    "growthPerLevel": {
-      "strength": 0.1,
-      "agility": 0.15,
-      "technique": 0.22,
-      "intelligence": 0.28
-    },
-    "baseHealth": 38,
+    "technique": 4,
+    "baseHealth": 28.5,
     "healthGrowthPerLevel": 2.25,
     "actions": [
       "FIRE BOLT",
       "IGNITE"
     ],
     "isLiving": false,
-    "description": "A being of pure flame with magical powers - high damage caster"
+    "description": "A being of pure flame with magical powers - high damage caster",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 2
+    },
+    "growthPerLevel": {
+      "technique": 0.22,
+      "strength": 0.1,
+      "agility": 0.15,
+      "intelligence": 0.28
+    }
   },
   {
     "name": "Lava Golem",
     "archetype": "Brute",
-    "overrides": {
-      "health": 1.4,
-      "strength": 1.2,
-      "armor": 1.3,
-      "agility": 0.5,
-      "intelligence": 0.9,
-      "technique": 0.8
-    },
-    "baseAttributes": {
-      "strength": 3,
-      "agility": 1,
-      "technique": 2,
-      "intelligence": 2
-    },
-    "growthPerLevel": {
-      "strength": 0.28,
-      "agility": 0.08,
-      "technique": 0.14,
-      "intelligence": 0.1
-    },
-    "baseHealth": 70,
+    "technique": 2,
+    "baseHealth": 98,
     "healthGrowthPerLevel": 4.3,
     "actions": [
       "MAGMA FIST",
       "ERUPTION"
     ],
     "isLiving": false,
-    "description": "A massive construct of molten rock and metal - slow tank with high damage"
+    "description": "A massive construct of molten rock and metal - slow tank with high damage",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 3
+    },
+    "growthPerLevel": {
+      "technique": 0.14,
+      "strength": 0.28,
+      "agility": 0.08,
+      "intelligence": 0.1
+    }
   },
   {
     "name": "Bat",
     "archetype": "Assassin",
-    "overrides": {
-      "health": 0.4,
-      "agility": 1.7,
-      "technique": 1.3,
-      "armor": 0.2,
-      "intelligence": 0.9,
-      "strength": 0.8
-    },
-    "baseAttributes": {
-      "strength": 2,
-      "agility": 5,
-      "technique": 3,
-      "intelligence": 2
-    },
-    "growthPerLevel": {
-      "strength": 0.08,
-      "agility": 0.35,
-      "technique": 0.18,
-      "intelligence": 0.1
-    },
-    "baseHealth": 20,
+    "technique": 2,
+    "baseHealth": 8,
     "healthGrowthPerLevel": 1.35,
     "actions": [
       "BAT SWARM",
       "QUICK STRIKE"
     ],
     "isLiving": true,
-    "description": "A flying bat that attacks in swarms - ultra-fast but very fragile"
+    "description": "A flying bat that attacks in swarms - ultra-fast but very fragile",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 2
+    },
+    "growthPerLevel": {
+      "technique": 0.18,
+      "strength": 0.08,
+      "agility": 0.35,
+      "intelligence": 0.1
+    }
   },
   {
     "name": "Skeleton",
     "archetype": "Guardian",
-    "overrides": {
-      "armor": 1.4,
-      "strength": 0.8,
-      "agility": 0.6,
-      "intelligence": 0.7,
-      "technique": 0.8,
-      "health": 0.9
-    },
-    "baseAttributes": {
-      "strength": 2,
-      "agility": 1,
-      "technique": 2,
-      "intelligence": 2
-    },
-    "growthPerLevel": {
-      "strength": 0.16,
-      "agility": 0.12,
-      "technique": 0.15,
-      "intelligence": 0.1
-    },
-    "baseHealth": 45,
+    "technique": 3,
+    "baseHealth": 40.5,
     "healthGrowthPerLevel": 2.75,
     "actions": [
       "BONE STRIKE",
       "RATTLE"
     ],
     "isLiving": false,
-    "description": "An undead warrior with bony armor - protected but fragile bones"
+    "description": "An undead warrior with bony armor - protected but fragile bones",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 2
+    },
+    "growthPerLevel": {
+      "technique": 0.15,
+      "strength": 0.16,
+      "agility": 0.12,
+      "intelligence": 0.1
+    }
   },
   {
     "name": "Zombie",
     "archetype": "Brute",
-    "overrides": {
-      "health": 1.1,
-      "strength": 1.0,
-      "agility": 0.6,
-      "armor": 0.7,
-      "technique": 0.7,
-      "intelligence": 0.5
-    },
-    "baseAttributes": {
-      "strength": 3,
-      "agility": 1,
-      "technique": 2,
-      "intelligence": 1
-    },
-    "growthPerLevel": {
-      "strength": 0.22,
-      "agility": 0.08,
-      "technique": 0.12,
-      "intelligence": 0.06
-    },
-    "baseHealth": 55,
+    "technique": 1,
+    "baseHealth": 60.5,
     "healthGrowthPerLevel": 3.15,
     "actions": [
       "CLAW",
       "GROAN"
     ],
     "isLiving": false,
-    "description": "A shambling undead - durable but slow and decaying"
+    "description": "A shambling undead - durable but slow and decaying",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 3
+    },
+    "growthPerLevel": {
+      "technique": 0.12,
+      "strength": 0.22,
+      "agility": 0.08,
+      "intelligence": 0.06
+    }
   },
   {
     "name": "Wraith",
     "archetype": "Mage",
-    "overrides": {
-      "health": 0.65,
-      "intelligence": 1.6,
-      "agility": 1.3,
-      "armor": 0.3,
-      "technique": 1.2,
-      "strength": 0.7
-    },
-    "baseAttributes": {
-      "strength": 2,
-      "agility": 3,
-      "technique": 3,
-      "intelligence": 4
-    },
-    "growthPerLevel": {
-      "strength": 0.08,
-      "agility": 0.2,
-      "technique": 0.2,
-      "intelligence": 0.28
-    },
-    "baseHealth": 33,
+    "technique": 3,
+    "baseHealth": 21.45,
     "healthGrowthPerLevel": 2.05,
     "actions": [
       "SOUL DRAIN",
       "PHASE"
     ],
     "isLiving": false,
-    "description": "A spectral being with powerful magic - fast magical caster"
+    "description": "A spectral being with powerful magic - fast magical caster",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 2
+    },
+    "growthPerLevel": {
+      "technique": 0.2,
+      "strength": 0.08,
+      "agility": 0.2,
+      "intelligence": 0.28
+    }
   },
   {
     "name": "Bear",
     "archetype": "Berserker",
-    "overrides": {
-      "health": 1.25,
-      "strength": 1.2,
-      "agility": 0.8,
-      "armor": 0.9,
-      "technique": 0.9,
-      "intelligence": 0.7
-    },
-    "baseAttributes": {
-      "strength": 3,
-      "agility": 2,
-      "technique": 2,
-      "intelligence": 2
-    },
-    "growthPerLevel": {
-      "strength": 0.26,
-      "agility": 0.12,
-      "technique": 0.14,
-      "intelligence": 0.1
-    },
-    "baseHealth": 63,
+    "technique": 2,
+    "baseHealth": 78.75,
     "healthGrowthPerLevel": 3.45,
     "actions": [
       "SLAM",
       "GRUNT"
     ],
     "isLiving": true,
-    "description": "A powerful forest predator - heavy hitter with high health"
+    "description": "A powerful forest predator - heavy hitter with high health",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 3
+    },
+    "growthPerLevel": {
+      "technique": 0.14,
+      "strength": 0.26,
+      "agility": 0.12,
+      "intelligence": 0.1
+    }
   },
   {
     "name": "Treant",
     "archetype": "Brute",
-    "overrides": {
-      "health": 1.35,
-      "strength": 1.15,
-      "armor": 1.2,
-      "agility": 0.5,
-      "technique": 0.8,
-      "intelligence": 0.8
-    },
-    "baseAttributes": {
-      "strength": 3,
-      "agility": 1,
-      "technique": 2,
-      "intelligence": 2
-    },
-    "growthPerLevel": {
-      "strength": 0.22,
-      "agility": 0.06,
-      "technique": 0.12,
-      "intelligence": 0.1
-    },
-    "baseHealth": 68,
+    "technique": 2,
+    "baseHealth": 91.8,
     "healthGrowthPerLevel": 4.1,
     "actions": [
       "SLAM",
       "PUNCH HARD"
     ],
     "isLiving": false,
-    "description": "An ancient tree spirit - slow but heavily armored"
+    "description": "An ancient tree spirit - slow but heavily armored",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 3
+    },
+    "growthPerLevel": {
+      "technique": 0.12,
+      "strength": 0.22,
+      "agility": 0.06,
+      "intelligence": 0.1
+    }
   },
   {
     "name": "Boar",
     "archetype": "Berserker",
-    "overrides": {
-      "health": 1.1,
-      "strength": 1.15,
-      "agility": 1.0,
-      "armor": 0.8,
-      "technique": 0.9,
-      "intelligence": 0.6
-    },
-    "baseAttributes": {
-      "strength": 3,
-      "agility": 3,
-      "technique": 2,
-      "intelligence": 1
-    },
-    "growthPerLevel": {
-      "strength": 0.24,
-      "agility": 0.18,
-      "technique": 0.15,
-      "intelligence": 0.08
-    },
-    "baseHealth": 55,
+    "technique": 2,
+    "baseHealth": 60.5,
     "healthGrowthPerLevel": 3.05,
     "actions": [
       "JAB",
       "PUNCH HARD"
     ],
     "isLiving": true,
-    "description": "A fierce woodland beast that charges and gores"
+    "description": "A fierce woodland beast that charges and gores",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 3
+    },
+    "growthPerLevel": {
+      "technique": 0.15,
+      "strength": 0.24,
+      "agility": 0.18,
+      "intelligence": 0.08
+    }
   },
   {
     "name": "Salamander",
     "archetype": "Assassin",
-    "overrides": {
-      "health": 0.7,
-      "agility": 1.4,
-      "technique": 1.2,
-      "armor": 0.5,
-      "intelligence": 1.1,
-      "strength": 0.9
-    },
-    "baseAttributes": {
-      "strength": 2,
-      "agility": 4,
-      "technique": 3,
-      "intelligence": 3
-    },
-    "growthPerLevel": {
-      "strength": 0.12,
-      "agility": 0.28,
-      "technique": 0.2,
-      "intelligence": 0.16
-    },
-    "baseHealth": 35,
+    "technique": 3,
+    "baseHealth": 24.5,
     "healthGrowthPerLevel": 2.15,
     "actions": [
       "CHEAP SHOT",
       "JAB"
     ],
     "isLiving": true,
-    "description": "A fire-dwelling lizard that strikes from the heat haze"
+    "description": "A fire-dwelling lizard that strikes from the heat haze",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 2
+    },
+    "growthPerLevel": {
+      "technique": 0.2,
+      "strength": 0.12,
+      "agility": 0.28,
+      "intelligence": 0.16
+    }
   },
   {
     "name": "Ember Spirit",
     "archetype": "Mage",
-    "overrides": {
-      "health": 0.6,
-      "intelligence": 1.45,
-      "agility": 1.25,
-      "armor": 0.35,
-      "technique": 1.2,
-      "strength": 0.65
-    },
-    "baseAttributes": {
-      "strength": 1,
-      "agility": 3,
-      "technique": 3,
-      "intelligence": 4
-    },
-    "growthPerLevel": {
-      "strength": 0.06,
-      "agility": 0.18,
-      "technique": 0.22,
-      "intelligence": 0.3
-    },
-    "baseHealth": 30,
+    "technique": 4,
+    "baseHealth": 18,
     "healthGrowthPerLevel": 1.85,
     "actions": [
       "CRITICAL ATTACK",
       "FLURRY"
     ],
     "isLiving": false,
-    "description": "A wisp of living flame - bursts of magical damage"
+    "description": "A wisp of living flame - bursts of magical damage",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 1
+    },
+    "growthPerLevel": {
+      "technique": 0.22,
+      "strength": 0.06,
+      "agility": 0.18,
+      "intelligence": 0.3
+    }
   },
   {
     "name": "Magma Beast",
     "archetype": "Brute",
-    "overrides": {
-      "health": 1.3,
-      "strength": 1.25,
-      "armor": 1.15,
-      "agility": 0.55,
-      "technique": 0.85,
-      "intelligence": 0.75
-    },
-    "baseAttributes": {
-      "strength": 3,
-      "agility": 1,
-      "technique": 2,
-      "intelligence": 2
-    },
-    "growthPerLevel": {
-      "strength": 0.27,
-      "agility": 0.07,
-      "technique": 0.13,
-      "intelligence": 0.09
-    },
-    "baseHealth": 65,
-    "healthGrowthPerLevel": 4.0,
+    "technique": 2,
+    "baseHealth": 84.5,
+    "healthGrowthPerLevel": 4,
     "actions": [
       "SLAM",
       "PUNCH HARDEST"
     ],
     "isLiving": false,
-    "description": "A creature of molten rock - devastating heavy attacks"
+    "description": "A creature of molten rock - devastating heavy attacks",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 3
+    },
+    "growthPerLevel": {
+      "technique": 0.13,
+      "strength": 0.27,
+      "agility": 0.07,
+      "intelligence": 0.09
+    }
   },
   {
     "name": "Ghoul",
     "archetype": "Assassin",
-    "overrides": {
-      "health": 0.8,
-      "agility": 1.35,
-      "technique": 1.15,
-      "armor": 0.55,
-      "intelligence": 0.7,
-      "strength": 1.0
-    },
-    "baseAttributes": {
-      "strength": 3,
-      "agility": 4,
-      "technique": 3,
-      "intelligence": 2
-    },
-    "growthPerLevel": {
-      "strength": 0.18,
-      "agility": 0.26,
-      "technique": 0.22,
-      "intelligence": 0.12
-    },
-    "baseHealth": 40,
+    "technique": 2,
+    "baseHealth": 32,
     "healthGrowthPerLevel": 2.55,
     "actions": [
       "CHEAP SHOT",
       "JAB"
     ],
     "isLiving": false,
-    "description": "A ravenous undead that lunges from the shadows"
+    "description": "A ravenous undead that lunges from the shadows",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 3
+    },
+    "growthPerLevel": {
+      "technique": 0.22,
+      "strength": 0.18,
+      "agility": 0.26,
+      "intelligence": 0.12
+    }
   },
   {
     "name": "Lich",
     "archetype": "Mage",
-    "overrides": {
-      "health": 0.9,
-      "intelligence": 1.55,
-      "technique": 1.25,
-      "armor": 0.6,
-      "agility": 0.9,
-      "strength": 0.75
-    },
-    "baseAttributes": {
-      "strength": 2,
-      "agility": 2,
-      "technique": 3,
-      "intelligence": 4
-    },
-    "growthPerLevel": {
-      "strength": 0.12,
-      "agility": 0.14,
-      "technique": 0.24,
-      "intelligence": 0.32
-    },
-    "baseHealth": 45,
+    "technique": 4,
+    "baseHealth": 40.5,
     "healthGrowthPerLevel": 2.85,
     "actions": [
       "CRITICAL ATTACK",
       "STUN"
     ],
     "isLiving": false,
-    "description": "An undead spellcaster with potent magical strikes"
+    "description": "An undead spellcaster with potent magical strikes",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 2
+    },
+    "growthPerLevel": {
+      "technique": 0.24,
+      "strength": 0.12,
+      "agility": 0.14,
+      "intelligence": 0.32
+    }
   },
   {
     "name": "Wight",
     "archetype": "Guardian",
-    "overrides": {
-      "health": 1.0,
-      "armor": 1.25,
-      "strength": 0.95,
-      "technique": 1.0,
-      "agility": 0.7,
-      "intelligence": 0.9
-    },
-    "baseAttributes": {
-      "strength": 2,
-      "agility": 2,
-      "technique": 3,
-      "intelligence": 2
-    },
-    "growthPerLevel": {
-      "strength": 0.18,
-      "agility": 0.15,
-      "technique": 0.2,
-      "intelligence": 0.14
-    },
+    "technique": 3,
     "baseHealth": 50,
     "healthGrowthPerLevel": 2.9,
     "actions": [
@@ -573,6 +401,16 @@
       "TAUNT"
     ],
     "isLiving": false,
-    "description": "A spectral guardian of the crypt - tough and controlling"
+    "description": "A spectral guardian of the crypt - tough and controlling",
+    "colorOverride": null,
+    "baseAttributes": {
+      "strength": 2
+    },
+    "growthPerLevel": {
+      "technique": 0.2,
+      "strength": 0.18,
+      "agility": 0.15,
+      "intelligence": 0.14
+    }
   }
 ]

@@ -11,9 +11,10 @@ namespace RPGGame.Tests.Unit.Actions
     /// These tests use Dice.SetTestRoll() to control roll values and verify
     /// that action selection works correctly based on base roll values.
     /// 
-    /// Action selection rules (preview attack total vs combo threshold):
+    /// Action selection rules (combo path vs combo threshold):
     /// - Natural 20: Combo-slot action when available
-    /// - Otherwise: combo when preview total (modified d20 + accuracy peek + roll bonuses) &gt;= effective combo threshold
+    /// - Otherwise: combo when modified d20 (sheet die mods only; not stat roll bonuses) &gt;= effective threshold
+    ///   (COMBO-type threshold adjustments apply; queued ACCURACY does not lower this gate)
     /// - With no INT/bonus (tests use INT 0): raw d20 1-13 normal, 14+ combo
     /// </summary>
     public static class ActionSelectorRollBasedTests
@@ -37,12 +38,13 @@ namespace RPGGame.Tests.Unit.Actions
             Dice.ClearTestRoll();
 
             TestBaseRollThresholds();
-            TestBaseRollVsTotalRoll();
-            TestRoll13WithIntBonusSelectsCombo();
+            TestIntRollBonusDoesNotBypassComboDieGate();
+            TestRoll13WithIntBonusStaysNormal();
             TestNatural20();
             TestPeekPendingThresholdHudShiftsFromFifo();
             TestEdgeCases();
             TestRollBoundaries();
+            TestEnemyComboOnlyPoolBelowThresholdIsUnnamedNormal();
 
             // Clean up test mode
             Dice.ClearTestRoll();
@@ -108,14 +110,15 @@ namespace RPGGame.Tests.Unit.Actions
 
         #endregion
 
-        #region Base Roll vs Total Roll Tests
+        #region Combo die gate (INT does not bypass)
 
         /// <summary>
-        /// Preview attack total (including INT roll bonus) gates combo vs normal — not raw d20 alone.
+        /// INT still adds roll bonus to attack total, but combo-strip vs normal selection uses the natural d20 gate only
+        /// (stat bonuses do not turn d20 12–13 into a named combo swing).
         /// </summary>
-        private static void TestBaseRollVsTotalRoll()
+        private static void TestIntRollBonusDoesNotBypassComboDieGate()
         {
-            Console.WriteLine("\n--- Testing Preview Total vs Combo Threshold ---");
+            Console.WriteLine("\n--- Testing INT roll bonus does not bypass combo d20 gate ---");
 
             var tuning = GameConfiguration.Instance.Attributes.IntelligenceRollBonusPer;
             if (tuning <= 0)
@@ -124,38 +127,37 @@ namespace RPGGame.Tests.Unit.Actions
                 return;
             }
 
-            // INT == Per => +1 roll bonus. 12+1=13 &lt; 14.
+            // INT == Per => +1 roll bonus on the attack total, but selection uses d20 only vs threshold 14.
             var char12 = CreateTestCharacterWithBothActionTypes(intelligence: tuning);
             Dice.SetTestRoll(12);
             ActionSelector.ClearStoredRolls();
             var a12 = ActionSelector.SelectActionBasedOnRoll(char12);
             TestBase.AssertTrue(a12 != null && !a12.IsComboAction,
-                "d20 12 + INT bonus below 14 should be normal",
+                "d20 12 with INT roll bonus should still be normal (die below 14)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // d20 13 + 1 = 14 => combo action
             var char13 = CreateTestCharacterWithBothActionTypes(intelligence: tuning);
             Dice.SetTestRoll(13);
             ActionSelector.ClearStoredRolls();
             var a13 = ActionSelector.SelectActionBasedOnRoll(char13);
-            TestBase.AssertTrue(a13 != null && a13.IsComboAction,
-                "d20 13 with +1 total bonus should select combo (preview total >= 14)",
+            TestBase.AssertTrue(a13 != null && !a13!.IsComboAction,
+                "d20 13 with INT roll bonus should still be normal (die below 14)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             Dice.SetTestRoll(14);
             ActionSelector.ClearStoredRolls();
             var a14 = ActionSelector.SelectActionBasedOnRoll(char13);
             TestBase.AssertTrue(a14 != null && a14.IsComboAction,
-                "d20 14 with bonuses should select combo",
+                "d20 14 with INT should select combo",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         /// <summary>
-        /// Regression: log line "13 + 1 = 14" should correspond to a combo-slot action, not unnamed normal hit.
+        /// d20 13 with INT-derived roll bonus still uses unnamed normal: combo path requires 14+ on the die.
         /// </summary>
-        private static void TestRoll13WithIntBonusSelectsCombo()
+        private static void TestRoll13WithIntBonusStaysNormal()
         {
-            Console.WriteLine("\n--- Testing Roll 13 + INT Bonus => Combo ---");
+            Console.WriteLine("\n--- Testing Roll 13 + INT Bonus stays normal ---");
 
             var per = GameConfiguration.Instance.Attributes.IntelligenceRollBonusPer;
             if (per <= 0)
@@ -168,8 +170,8 @@ namespace RPGGame.Tests.Unit.Actions
             Dice.SetTestRoll(13);
             ActionSelector.ClearStoredRolls();
             var action = ActionSelector.SelectActionBasedOnRoll(character);
-            TestBase.AssertTrue(action != null && action.IsComboAction,
-                "d20 13 with +1 from INT (per config) should select combo action",
+            TestBase.AssertTrue(action != null && !action.IsComboAction,
+                "d20 13 with INT roll bonus should select normal (unnamed), not combo strip",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -327,6 +329,45 @@ namespace RPGGame.Tests.Unit.Actions
         }
 
         #endregion
+
+        /// <summary>
+        /// Enemies whose pool is only combo-flagged specials must not execute a named move when the preview
+        /// attack total is below the combo threshold (regression: used to return <c>ActionPool[0]</c>).
+        /// </summary>
+        private static void TestEnemyComboOnlyPoolBelowThresholdIsUnnamedNormal()
+        {
+            Console.WriteLine("\n--- Testing enemy combo-only pool vs combo threshold ---");
+
+            var enemy = TestDataBuilders.Enemy().WithName("SlamBeast").WithStats(10, 10, 10, 0).Build();
+            enemy.ActionPool.Clear();
+            var slam = TestDataBuilders.CreateMockAction("SLAM", ActionType.Attack);
+            slam.IsComboAction = true;
+            slam.ComboOrder = 1;
+            enemy.AddAction(slam, 1.0);
+            enemy.AddToCombo(slam);
+
+            ActionSelector.ClearStoredRolls();
+            Dice.SetTestRoll(11);
+            var low = ActionSelector.SelectEnemyActionBasedOnRoll(enemy);
+            TestBase.AssertTrue(low != null && !low.IsComboAction && string.IsNullOrEmpty(low.Name),
+                "Enemy roll 11 (below default combo threshold 14) should use unnamed synthetic normal, not SLAM",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertFalse(ActionSelector.WouldNaturalRollSelectComboAction(enemy, 11),
+                "WouldNaturalRollSelectComboAction should be false for enemy roll 11",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            ActionSelector.ClearStoredRolls();
+            Dice.SetTestRoll(16);
+            var high = ActionSelector.SelectEnemyActionBasedOnRoll(enemy);
+            TestBase.AssertTrue(high != null && high.IsComboAction && string.Equals(high.Name, "SLAM", StringComparison.Ordinal),
+                "Enemy roll 16 should select SLAM from the combo strip",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertTrue(ActionSelector.WouldNaturalRollSelectComboAction(enemy, 16),
+                "WouldNaturalRollSelectComboAction should be true for enemy roll 16",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
 
         #region Helper Methods
 

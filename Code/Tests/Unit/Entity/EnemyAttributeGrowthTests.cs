@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using RPGGame;
 using RPGGame.Tests;
 
@@ -20,8 +21,10 @@ namespace RPGGame.Tests.Unit.Entity
             _testsFailed = 0;
 
             TestBaseAndZeroGrowthIsStable();
-            TestWeightedGrowthUsesOverridesAndFloors();
+            TestPartialGrowthSharesSixPointBudget();
             TestJsonEnemyUsesAttributesNotDirectStats();
+            TestPartialBaseAttributesFallsBackForOmittedStats();
+            TestLegacyRootStatsFoldIntoGrowthOnly();
             TestExplicitGrowthPerLevelFractional();
             TestExplicitHealthGrowthPerLevel();
 
@@ -30,13 +33,12 @@ namespace RPGGame.Tests.Unit.Entity
 
         private static void TestBaseAndZeroGrowthIsStable()
         {
-            Console.WriteLine("--- Base-only (zero growth) ---");
+            Console.WriteLine("--- Explicit zero growth cells normalize to 1.5/level each (6 total) ---");
 
             var config = GameConfiguration.Instance;
             double oldScaling = config.EnemySystem.ScalingPerLevel.Attributes;
             try
             {
-                // Make sure any fallback growth doesn't interfere.
                 config.EnemySystem.ScalingPerLevel.Attributes = 10.0;
                 config.EnemySystem.GlobalMultipliers.DamageMultiplier = 1.0;
                 config.EnemySystem.GlobalMultipliers.SpeedMultiplier = 1.0;
@@ -58,13 +60,6 @@ namespace RPGGame.Tests.Unit.Entity
                         Agility = 0,
                         Technique = 0,
                         Intelligence = 0
-                    },
-                    Overrides = new StatOverridesConfig
-                    {
-                        Strength = 2.0,
-                        Agility = 2.0,
-                        Technique = 2.0,
-                        Intelligence = 2.0
                     }
                 };
 
@@ -80,10 +75,10 @@ namespace RPGGame.Tests.Unit.Entity
                 TestBase.AssertEqual(2, e1.Technique, "Level 1 keeps base TEC", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(1, e1.Intelligence, "Level 1 keeps base INT", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-                TestBase.AssertEqual(e1.Strength, e10.Strength, "Zero growth keeps STR stable across levels", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(e1.Agility, e10.Agility, "Zero growth keeps AGI stable across levels", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(e1.Technique, e10.Technique, "Zero growth keeps TEC stable across levels", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(e1.Intelligence, e10.Intelligence, "Zero growth keeps INT stable across levels", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(19, e10.Strength, "Level 10 STR gains 9 * 1.5 normalized growth", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(16, e10.Agility, "Level 10 AGI gains 9 * 1.5", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(15, e10.Technique, "Level 10 TEC gains 9 * 1.5", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(14, e10.Intelligence, "Level 10 INT gains 9 * 1.5", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {
@@ -91,15 +86,16 @@ namespace RPGGame.Tests.Unit.Entity
             }
         }
 
-        private static void TestWeightedGrowthUsesOverridesAndFloors()
+        /// <summary>Only STR growth specified; remaining budget is split across AGI/TEC/INT so total per level is 6.</summary>
+        private static void TestPartialGrowthSharesSixPointBudget()
         {
-            Console.WriteLine("\n--- Weighted growth from overrides ---");
+            Console.WriteLine("\n--- Partial growth shares 6-point budget ---");
 
             var config = GameConfiguration.Instance;
             double oldScaling = config.EnemySystem.ScalingPerLevel.Attributes;
             try
             {
-                config.EnemySystem.ScalingPerLevel.Attributes = 0.2; // global growth magnitude for this test
+                config.EnemySystem.ScalingPerLevel.Attributes = 0.2;
                 config.EnemySystem.GlobalMultipliers.DamageMultiplier = 1.0;
                 config.EnemySystem.GlobalMultipliers.SpeedMultiplier = 1.0;
 
@@ -108,28 +104,16 @@ namespace RPGGame.Tests.Unit.Entity
                     Name = "Weighted",
                     Archetype = "Berserker",
                     BaseAttributes = new EnemyAttributeSet { Strength = 2, Agility = 2, Technique = 2, Intelligence = 2 },
-                    Overrides = new StatOverridesConfig
-                    {
-                        Strength = 1.0,
-                        Agility = 2.0,
-                        Technique = 0.5,
-                        Intelligence = 1.5
-                    }
+                    GrowthPerLevel = new EnemyAttributeSet { Strength = 0.2 }
                 };
 
-                // Level 6 => lv = 5
-                // STR: floor(2 + 5*(0.2*1.0)) = floor(3.0) = 3
-                // AGI: floor(2 + 5*(0.2*2.0)) = floor(4.0) = 4
-                // TEC: floor(2 + 5*(0.2*0.5)) = floor(2.5) = 2
-                // INT: floor(2 + 5*(0.2*1.5)) = floor(3.5) = 3
+                // lv = 5; growth normalized: STR 0.2 + (6-0.2)/3 each for AGI/TEC/INT
                 var e6 = EnemyDataFactory.CreateEnemyFromData(data, level: 6);
                 TestBase.AssertNotNull(e6, "Enemy at level 6 should be created", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 if (e6 == null) return;
 
-                TestBase.AssertEqual(3, e6.Strength, "Weighted growth STR uses override weight and floor", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(4, e6.Agility, "Weighted growth AGI uses override weight and floor", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(2, e6.Technique, "Weighted growth TEC uses override weight and floor", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(3, e6.Intelligence, "Weighted growth INT uses override weight and floor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(3, e6.Strength, "STR floor(2 + 5*0.2)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(11, e6.Agility, "AGI gains filled growth slots", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {
@@ -152,7 +136,7 @@ namespace RPGGame.Tests.Unit.Entity
                     Name = "AttrOnly",
                     Archetype = "Assassin",
                     BaseAttributes = new EnemyAttributeSet { Strength = 2, Agility = 5, Technique = 3, Intelligence = 2 },
-                    Overrides = new StatOverridesConfig { Strength = 1.0, Agility = 1.7, Technique = 1.3, Intelligence = 0.9 }
+                    GrowthPerLevel = new EnemyAttributeSet { Strength = 1.5, Agility = 1.5, Technique = 1.5, Intelligence = 1.5 }
                 };
 
                 var e = EnemyDataFactory.CreateEnemyFromData(data, level: 10);
@@ -173,6 +157,53 @@ namespace RPGGame.Tests.Unit.Entity
         /// <summary>
         /// Mirrors Bat-style data from Enemies.json: fractional growth, floor after (level-1) * gain.
         /// </summary>
+        /// <summary>
+        /// Matches common <c>Enemies.json</c> rows: only <c>strength</c> under <c>baseAttributes</c> / <c>growthPerLevel</c>.
+        /// Omitted stats must use tuning baseline + per-level scaling, not stay at 0.
+        /// </summary>
+        private static void TestPartialBaseAttributesFallsBackForOmittedStats()
+        {
+            Console.WriteLine("\n--- Partial baseAttributes / growthPerLevel (Wraith-style) ---");
+
+            var wraithLike = new EnemyData
+            {
+                Name = "PartialStatEnemy",
+                Archetype = "Mage",
+                BaseHealth = 33,
+                HealthGrowthPerLevel = 2.05,
+                BaseAttributes = new EnemyAttributeSet { Strength = 2 },
+                GrowthPerLevel = new EnemyAttributeSet { Strength = 0.08 },
+                IsLiving = false,
+                Actions = new List<string>()
+            };
+
+            var e = EnemyDataFactory.CreateEnemyFromData(wraithLike, level: 28);
+            TestBase.AssertNotNull(e, "Partial-template enemy should be created", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (e == null) return;
+
+            TestBase.AssertEqual(4, e.Strength, "STR from explicit base + growth (floor)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(e.Agility > 0, "Omitted base AGI must fall back to baseline scaling, not 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(e.Technique > 0, "Omitted base TECH must fall back to baseline scaling, not 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(e.Intelligence > 0, "Omitted base INT must fall back to baseline scaling, not 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestLegacyRootStatsFoldIntoGrowthOnly()
+        {
+            Console.WriteLine("\n--- Legacy root strength/agility (ExtensionData) fold into growth ---");
+
+            const string json = """
+            {"name":"T","archetype":"Mage","strength":0.7,"agility":0.2,"baseAttributes":{"strength":2},"growthPerLevel":{},"baseHealth":100,"actions":[],"isLiving":false,"description":""}
+            """;
+            var opts = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+            var e = JsonSerializer.Deserialize<EnemyData>(json, opts);
+            TestBase.AssertNotNull(e, "Deserialize enemy", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (e == null) return;
+
+            EnemyDataPostLoad.Apply(e);
+            TestBase.AssertEqual(0.7, e.GrowthPerLevel!.Strength!.Value, "root strength -> growthPerLevel.strength", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0.2, e.GrowthPerLevel.Agility!.Value, "root agility -> growthPerLevel.agility", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         private static void TestExplicitGrowthPerLevelFractional()
         {
             Console.WriteLine("\n--- Explicit growthPerLevel (fractional) ---");
@@ -208,15 +239,6 @@ namespace RPGGame.Tests.Unit.Entity
             {
                 Name = "BatLike",
                 Archetype = "Assassin",
-                Overrides = new StatOverridesConfig
-                {
-                    Health = 0.4,
-                    Agility = 1.7,
-                    Technique = 1.3,
-                    Armor = 0.2,
-                    Intelligence = 0.9,
-                    Strength = 0.8
-                },
                 BaseAttributes = new EnemyAttributeSet
                 {
                     Strength = 2,
@@ -235,11 +257,11 @@ namespace RPGGame.Tests.Unit.Entity
 
             var stats = EnemyStatCalculator.CalculateStats(data, 10, enemySystem);
 
-            // lv = 9; floor(2 + 9*0.08)=2, floor(5+9*0.35)=8, floor(3+9*0.18)=4, floor(2+9*0.1)=2
-            TestBase.AssertEqual(2, stats.Strength, "Calculator STR at L10", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(8, stats.Agility, "Calculator AGI at L10", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(4, stats.Technique, "Calculator TEC at L10", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(2, stats.Intelligence, "Calculator INT at L10", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // lv = 9; explicit growth sums 0.71 -> scaled to 6/0.71 per level total
+            TestBase.AssertEqual(8, stats.Strength, "Calculator STR at L10", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(31, stats.Agility, "Calculator AGI at L10", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(16, stats.Technique, "Calculator TEC at L10", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(9, stats.Intelligence, "Calculator INT at L10", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestExplicitHealthGrowthPerLevel()

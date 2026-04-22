@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Media;
 using RPGGame.UI.Avalonia;
 
@@ -15,6 +16,13 @@ namespace RPGGame.UI.Avalonia.Layout
                 return AsciiArtAssets.Colors.White;
             return (defaultValue - current) > 0 ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red;
         }
+
+        /// <summary>
+        /// Floors displayed d20 ladder numbers (crit / combo / hit / crit-miss) so large queued threshold shifts
+        /// (e.g. deferred <c>ACCURACY</c> from CAST) never show impossible negatives; matches
+        /// <see cref="RPGGame.ActionSelector.GetEffectiveComboThresholdForSelection"/>.
+        /// </summary>
+        public static int ClampDiceLadderDisplayValue(int computedEffective) => Math.Max(1, computedEffective);
 
         /// <summary>Suffix like " (+2)" or " (-1)" when current differs from default; empty when equal.</summary>
         public static string FormatDeltaSuffix(int current, int defaultValue)

@@ -16,19 +16,29 @@ namespace RPGGame.Combat.Effects.AdvancedStatusEffects
             // Apply cleanse - reduces negative effect stacks
             int stacksRemoved = 0;
             
-            if (target.PoisonStacks > 0)
+            if (target.PoisonPercentOfMaxHealth > 0)
             {
-                target.PoisonStacks = Math.Max(0, target.PoisonStacks - 1);
+                target.PoisonPercentOfMaxHealth = Math.Max(0, target.PoisonPercentOfMaxHealth - 1);
                 stacksRemoved++;
             }
-            if (target.BurnStacks > 0)
+            if (target.BurnIntensity > 0)
             {
-                target.BurnStacks = Math.Max(0, target.BurnStacks - 1);
+                target.BurnIntensity = Math.Max(0, target.BurnIntensity - 1);
                 stacksRemoved++;
             }
-            if (target.BleedStacks > 0)
+            else if (target.PendingBurnFromHits > 0)
             {
-                target.BleedStacks = Math.Max(0, target.BleedStacks - 1);
+                target.PendingBurnFromHits = Math.Max(0, target.PendingBurnFromHits - 1);
+                stacksRemoved++;
+            }
+            if (target.BleedIntensity > 0)
+            {
+                target.BleedIntensity = Math.Max(0, target.BleedIntensity - 1);
+                stacksRemoved++;
+            }
+            else if (target.PendingBleedFromHits > 0)
+            {
+                target.PendingBleedFromHits = Math.Max(0, target.PendingBleedFromHits - 1);
                 stacksRemoved++;
             }
 

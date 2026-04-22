@@ -161,7 +161,7 @@
     "comboAmplifierCurveExponent": 0
   },
   "poison": {
-    "tickInterval": 0,
+    "tickInterval": 5,
     "damagePerTick": 0,
     "stacksPerApplication": 0
   },

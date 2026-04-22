@@ -32,6 +32,12 @@ namespace RPGGame
         public bool CausesPoison { get; set; }
         [JsonPropertyName("causesBurn")]
         public bool CausesBurn { get; set; }
+        [JsonPropertyName("poisonPercentToAdd")]
+        public double PoisonPercentToAdd { get; set; }
+        [JsonPropertyName("burnAmountToAdd")]
+        public int BurnAmountToAdd { get; set; }
+        [JsonPropertyName("bleedAmountToAdd")]
+        public int BleedAmountToAdd { get; set; }
         [JsonPropertyName("causesStun")]
         public bool CausesStun { get; set; }
         [JsonPropertyName("causesVulnerability")]

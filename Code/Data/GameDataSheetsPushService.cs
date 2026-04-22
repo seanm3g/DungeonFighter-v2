@@ -10,7 +10,7 @@ using RPGGame;
 
 namespace RPGGame.Data
 {
-    /// <summary>Pushes Actions plus optional WEAPONS / MODIFICATIONS / ARMOR / ENEMIES / ENVIRONMENTS / CLASSES tabs via Sheets API.</summary>
+    /// <summary>Pushes Actions plus optional WEAPONS / MODIFICATIONS / ARMOR / SUFFIXES (StatBonuses) / ENEMIES / ENVIRONMENTS / DUNGEONS / CLASSES tabs via Sheets API.</summary>
     public static class GameDataSheetsPushService
     {
         public static async Task<GameDataSheetsPushResult> PushAllGameDataSheetsAsync(
@@ -28,8 +28,8 @@ namespace RPGGame.Data
                 {
                     cfg.Save(pushConfigPath);
                     result.AddLine(
-                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, MODIFICATIONS, ARMOR, ENEMIES, ENVIRONMENTS, CLASSES " +
-                        "(all six optional tabs were blank). Edit the file if your sheet uses different tab titles.");
+                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, MODIFICATIONS, ARMOR, SUFFIXES, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES " +
+                        "(all optional tabs were blank). Edit the file if your sheet uses different tab titles.");
                 }
                 catch (Exception ex)
                 {
@@ -50,6 +50,38 @@ namespace RPGGame.Data
                 {
                     result.AddLine(
                         $"Note: could not save SheetsPushConfig after ENEMIES/ENVIRONMENTS defaults ({ex.Message}); push still uses those tab names for this run.");
+                }
+            }
+
+            if (cfg.ApplyDefaultDungeonsTabNameIfUnset())
+            {
+                try
+                {
+                    cfg.Save(pushConfigPath);
+                    result.AddLine(
+                        "Set default DUNGEONS tab name in SheetsPushConfig.json (that field was blank). " +
+                        "Edit if your spreadsheet uses a different tab title.");
+                }
+                catch (Exception ex)
+                {
+                    result.AddLine(
+                        $"Note: could not save SheetsPushConfig after DUNGEONS default ({ex.Message}); push still uses that tab name for this run.");
+                }
+            }
+
+            if (cfg.ApplyDefaultStatBonusesTabNameIfUnset())
+            {
+                try
+                {
+                    cfg.Save(pushConfigPath);
+                    result.AddLine(
+                        "Set default SUFFIXES tab name in SheetsPushConfig.json (statBonusesSheetTabName was blank). " +
+                        "Rename your sheet tab to match or edit the config if your tab title differs.");
+                }
+                catch (Exception ex)
+                {
+                    result.AddLine(
+                        $"Note: could not save SheetsPushConfig after SUFFIXES default ({ex.Message}); push still uses that tab name for this run.");
                 }
             }
 
@@ -105,6 +137,17 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    cfg.StatBonusesSheetTabName,
+                    GameConstants.StatBonusesJson,
+                    GameDataTabularSheetKind.StatBonuses,
+                    "StatBonuses.json",
+                    result,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            await PushOptionalJsonArrayTabAsync(
+                    service,
+                    cfg,
                     cfg.EnemiesSheetTabName,
                     GameConstants.EnemiesJson,
                     GameDataTabularSheetKind.Enemies,
@@ -120,6 +163,17 @@ namespace RPGGame.Data
                     GameConstants.RoomsJson,
                     GameDataTabularSheetKind.Environments,
                     "Rooms.json",
+                    result,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            await PushOptionalJsonArrayTabAsync(
+                    service,
+                    cfg,
+                    cfg.DungeonsSheetTabName,
+                    GameConstants.DungeonsJson,
+                    GameDataTabularSheetKind.Dungeons,
+                    "Dungeons.json",
                     result,
                     cancellationToken)
                 .ConfigureAwait(false);
@@ -142,11 +196,17 @@ namespace RPGGame.Data
             if (!string.IsNullOrWhiteSpace(cfg.ArmorSheetTabName))
                 yield return cfg.ArmorSheetTabName.Trim();
 
+            if (!string.IsNullOrWhiteSpace(cfg.StatBonusesSheetTabName))
+                yield return cfg.StatBonusesSheetTabName.Trim();
+
             if (!string.IsNullOrWhiteSpace(cfg.EnemiesSheetTabName))
                 yield return cfg.EnemiesSheetTabName.Trim();
 
             if (!string.IsNullOrWhiteSpace(cfg.EnvironmentsSheetTabName))
                 yield return cfg.EnvironmentsSheetTabName.Trim();
+
+            if (!string.IsNullOrWhiteSpace(cfg.DungeonsSheetTabName))
+                yield return cfg.DungeonsSheetTabName.Trim();
 
             if (!string.IsNullOrWhiteSpace(cfg.ClassPresentationSheetTabName))
                 yield return cfg.ClassPresentationSheetTabName.Trim();

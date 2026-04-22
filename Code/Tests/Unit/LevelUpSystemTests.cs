@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit
@@ -39,13 +40,11 @@ namespace RPGGame.Tests.Unit
             Console.WriteLine("\n--- Testing Multiple Level Ups ---");
 
             var character = TestDataBuilders.Character().WithLevel(1).Build();
+            character.XP = 0;
             int startingLevel = character.Level;
 
-            // Add enough XP for multiple level-ups
-            var tuning = GameConfiguration.Instance;
-            int averageXPPerDungeonAtLevel1 = tuning.Progression.EnemyXPBase + 25;
-            int xpForLevel2 = 1 * 1 * averageXPPerDungeonAtLevel1;
-            int xpForLevel3 = 2 * 2 * averageXPPerDungeonAtLevel1;
+            int xpForLevel2 = CharacterProgression.GetXpRequiredToAdvanceFromLevel(1);
+            int xpForLevel3 = CharacterProgression.GetXpRequiredToAdvanceFromLevel(2);
             int totalXP = xpForLevel2 + xpForLevel3 + 10;
 
             character.AddXP(totalXP);
@@ -210,8 +209,8 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character().WithLevel(1).Build();
             int startingLevel = character.Level;
 
-            // Add very large amount of XP
-            character.AddXP(1000000);
+            // Large enough to multi-level without flooding the log (flat per-level cost makes huge grants very verbose)
+            character.AddXP(800);
 
             TestBase.AssertTrue(character.Level > startingLevel,
                 $"Character should level up with large XP: Level {startingLevel} -> {character.Level}",

@@ -238,106 +238,113 @@ namespace RPGGame
             }
         }
         
+        /// <summary>Max HP used for poison % damage ticks (character/enemy override).</summary>
+        public virtual int GetMaxHealthForPoisonDot() => 1;
+
+        static double GetStatusDotTickIntervalSeconds()
+        {
+            double interval = GameConfiguration.Instance.Poison.TickInterval;
+            return interval > 0 ? interval : 5.0;
+        }
+
         /// <summary>
-        /// Processes poison damage over time
+        /// Poison: on global tick, deal damage from cumulative % of max HP; stored % is unchanged.
         /// </summary>
-        /// <param name="currentTime">Current game time in seconds</param>
-        /// <returns>Damage taken from poison this tick</returns>
         public virtual int ProcessPoison(double currentTime)
         {
-            if (PoisonStacks > 0)
-            {
-                var poisonConfig = GameConfiguration.Instance.Poison;
-                
-                if (currentTime - LastPoisonTick >= poisonConfig.TickInterval)
-                {
-                    int totalDamage = PoisonDamage * PoisonStacks;
-                    LastPoisonTick = currentTime;
-                    
-                    PoisonStacks--;
-                    if (PoisonStacks <= 0)
-                    {
-                        PoisonDamage = 0;
-                        PoisonStacks = 0;
-                        IsBleeding = false;
-                    }
-                    return totalDamage;
-                }
-            }
-            return 0;
+            if (PoisonPercentOfMaxHealth <= 0)
+                return 0;
+            double interval = GetStatusDotTickIntervalSeconds();
+            // GameTicker.Reset() zeros combat time; tick stamps can still hold pre-reset wall-clock values.
+            // Then currentTime - LastPoisonTickTime is negative and no DoT ever runs until real time catches up.
+            if (LastPoisonTickTime > currentTime)
+                LastPoisonTickTime = 0;
+            if (currentTime - LastPoisonTickTime < interval)
+                return 0;
+            LastPoisonTickTime = currentTime;
+            int maxHp = Math.Max(1, GetMaxHealthForPoisonDot());
+            return (int)Math.Floor(maxHp * PoisonPercentOfMaxHealth / 100.0);
         }
-        
+
         /// <summary>
-        /// Processes burn damage over time
+        /// Burn: on global tick, deal current intensity damage, then intensity = max(0, intensity - 1) + pending.
         /// </summary>
-        /// <param name="currentTime">Current game time in seconds</param>
-        /// <returns>Damage taken from burn this tick</returns>
         public virtual int ProcessBurn(double currentTime)
         {
-            if (BurnStacks > 0)
-            {
-                var poisonConfig = GameConfiguration.Instance.Poison;
-                
-                if (currentTime - LastBurnTick >= poisonConfig.TickInterval)
-                {
-                    int totalDamage = BurnDamage * BurnStacks;
-                    LastBurnTick = currentTime;
-                    
-                    BurnStacks--;
-                    if (BurnStacks <= 0)
-                    {
-                        BurnDamage = 0;
-                        BurnStacks = 0;
-                    }
-                    return totalDamage;
-                }
-            }
-            return 0;
+            if (BurnIntensity <= 0 && PendingBurnFromHits <= 0)
+                return 0;
+            double interval = GetStatusDotTickIntervalSeconds();
+            if (LastBurnTickTime > currentTime)
+                LastBurnTickTime = 0;
+            if (currentTime - LastBurnTickTime < interval)
+                return 0;
+            LastBurnTickTime = currentTime;
+            int pending = PendingBurnFromHits;
+            PendingBurnFromHits = 0;
+            int damage = BurnIntensity > 0 ? BurnIntensity : pending;
+            if (BurnIntensity > 0)
+                BurnIntensity = Math.Max(0, BurnIntensity - 1) + pending;
+            else
+                BurnIntensity = Math.Max(0, damage - 1);
+            return damage;
         }
-        
+
         /// <summary>
-        /// Gets the damage type text for poison effects
+        /// Bleed: same intensity math as burn, invoked when the afflicted actor finishes taking an action (not global tick).
         /// </summary>
-        /// <returns>Either "bleed" or "poison"</returns>
-        public virtual string GetDamageTypeText()
+        public virtual int ProcessBleedOnAction()
         {
-            return IsBleeding ? "bleed" : "poison";
+            if (BleedIntensity <= 0 && PendingBleedFromHits <= 0)
+                return 0;
+            int pending = PendingBleedFromHits;
+            PendingBleedFromHits = 0;
+            int damage = BleedIntensity > 0 ? BleedIntensity : pending;
+            if (BleedIntensity > 0)
+                BleedIntensity = Math.Max(0, BleedIntensity - 1) + pending;
+            else
+                BleedIntensity = Math.Max(0, damage - 1);
+            return damage;
         }
-        
-        /// <summary>
-        /// Applies poison damage to the actor
-        /// </summary>
-        /// <param name="damage">Base damage per stack</param>
-        /// <param name="stacks">Number of stacks to apply</param>
-        /// <param name="isBleeding">Whether this is bleeding damage</param>
+
+        /// <summary>Label for poison DoT messaging (bleed uses a separate pipeline).</summary>
+        public virtual string GetDamageTypeText() => "poison";
+
+        /// <summary>Adds poison % of max HP (monotone; only increases).</summary>
+        public virtual void ApplyPoisonPercent(double deltaPercent)
+        {
+            if (deltaPercent <= 0) return;
+            PoisonPercentOfMaxHealth += deltaPercent;
+        }
+
+        public virtual void QueueBurnFromHit(int amount)
+        {
+            if (amount <= 0) return;
+            PendingBurnFromHits += amount;
+        }
+
+        public virtual void QueueBleedFromHit(int amount)
+        {
+            if (amount <= 0) return;
+            PendingBleedFromHits += amount;
+        }
+
+        /// <summary>Legacy entry: bleeding maps to <see cref="QueueBleedFromHit"/>; poison maps to <see cref="ApplyPoisonPercent"/>.</summary>
         public virtual void ApplyPoison(int damage, int stacks = 1, bool isBleeding = false)
         {
-            if (PoisonStacks == 0 || PoisonDamage != damage)
-            {
-                PoisonDamage = damage;
-            }
-            PoisonStacks += stacks;
-            LastPoisonTick = GameTicker.Instance.GetCurrentGameTime();
-            IsBleeding = isBleeding;
+            int d = Math.Max(1, damage);
+            int s = Math.Max(1, stacks);
             if (isBleeding)
-            {
-                BleedStacks = PoisonStacks; // Sync BleedStacks with PoisonStacks for bleed effects
-            }
+                QueueBleedFromHit(d * s);
+            else
+                ApplyPoisonPercent(s);
         }
-        
-        /// <summary>
-        /// Applies burn damage to the actor
-        /// </summary>
-        /// <param name="damage">Base damage per stack</param>
-        /// <param name="stacks">Number of stacks to apply</param>
+
+        /// <summary>Legacy entry: maps to <see cref="QueueBurnFromHit"/>.</summary>
         public virtual void ApplyBurn(int damage, int stacks = 1)
         {
-            if (BurnStacks == 0 || BurnDamage != damage)
-            {
-                BurnDamage = damage;
-            }
-            BurnStacks += stacks;
-            LastBurnTick = GameTicker.Instance.GetCurrentGameTime();
+            int d = Math.Max(1, damage);
+            int s = Math.Max(1, stacks);
+            QueueBurnFromHit(d * s);
         }
         
         /// <summary>
@@ -355,16 +362,13 @@ namespace RPGGame
         /// </summary>
         public virtual void ClearAllTempEffects()
         {
-            // Clear poison/bleed effects
-            PoisonDamage = 0;
-            PoisonStacks = 0;
-            IsBleeding = false;
-            LastPoisonTick = 0.0;
-            
-            // Clear burn effects
-            BurnDamage = 0;
-            BurnStacks = 0;
-            LastBurnTick = 0.0;
+            PoisonPercentOfMaxHealth = 0;
+            LastPoisonTickTime = 0;
+            BurnIntensity = 0;
+            PendingBurnFromHits = 0;
+            LastBurnTickTime = 0;
+            BleedIntensity = 0;
+            PendingBleedFromHits = 0;
             
             // Clear stun effects
             IsStunned = false;

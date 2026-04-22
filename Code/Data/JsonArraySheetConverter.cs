@@ -12,10 +12,14 @@ namespace RPGGame.Data
         Weapons,
         Modifications,
         Armor,
-        /// <summary><c>Enemies.json</c> — enemy archetypes and stat overrides.</summary>
+        /// <summary><c>Enemies.json</c> — enemy archetypes, base attributes, and per-level growth.</summary>
         Enemies,
         /// <summary><c>Rooms.json</c> — room / environment definitions (sheet tab often named ENVIRONMENTS).</summary>
-        Environments
+        Environments,
+        /// <summary><c>Dungeons.json</c> — dungeon definitions: theme, levels, <c>possibleEnemies</c> (sheet tab often named DUNGEONS).</summary>
+        Dungeons,
+        /// <summary><c>StatBonuses.json</c> — rolled item suffix names / stat lines (sheet tab often named SUFFIXES).</summary>
+        StatBonuses
     }
 
     public static class JsonArraySheetConverter
@@ -30,14 +34,13 @@ namespace RPGGame.Data
             { "slot", "name", "armor", "tier", "attributeRequirements" };
 
         /// <summary>
-        /// Column order for ENEMIES tab — nested stats are one column each (<c>overrides.health</c>, <c>baseAttributes.strength</c>, …).
-        /// Push writes two header rows: category band (<c>overrides</c>, <c>base attributes</c>, <c>growth</c>) then short names (<c>health</c>, <c>strength</c>, …).
-        /// Import accepts that layout or a legacy single row of dotted headers; also legacy <c>overrides</c> / <c>baseAttributes</c> / <c>growthPerLevel</c> JSON blobs.
+        /// Column order for ENEMIES tab — nested stats are one column each (<c>baseAttributes.strength</c>, …).
+        /// Push writes two header rows: category band (<c>base attributes</c>, <c>growth</c>) then short names.
+        /// Import accepts that layout or a legacy single row of dotted headers; legacy <c>overrides.*</c> columns are promoted into HP fields and dropped.
         /// </summary>
         public static readonly string[] EnemiesCanonicalHeaders =
         {
             "name", "archetype",
-            "overrides.health", "overrides.strength", "overrides.agility", "overrides.technique", "overrides.intelligence", "overrides.armor",
             "baseAttributes.strength", "baseAttributes.agility", "baseAttributes.technique", "baseAttributes.intelligence",
             "growthPerLevel.strength", "growthPerLevel.agility", "growthPerLevel.technique", "growthPerLevel.intelligence",
             "baseHealth", "healthGrowthPerLevel",
@@ -45,6 +48,12 @@ namespace RPGGame.Data
         };
 
         private static readonly string[] EnemyNestedObjectNames = { "overrides", "baseAttributes", "growthPerLevel" };
+
+        /// <summary>Historical JSON / sheet root keys that belong in nested overrides / growth columns (not trailing extras).</summary>
+        private static readonly HashSet<string> EnemyLegacyRootStatKeys = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "strength", "agility", "technique", "intelligence"
+        };
 
         /// <summary>ENEMIES tab uses two header rows (category band + short names); other JSON-array tabs use one.</summary>
         public static int GetTabularSheetHeaderRowCount(GameDataTabularSheetKind kind) =>
@@ -60,6 +69,13 @@ namespace RPGGame.Data
         public static readonly string[] EnvironmentsCanonicalHeaders =
             { "name", "description", "theme", "isHostile", "actions", "enemies" };
 
+        /// <summary>Column order for DUNGEONS tab — matches <c>Dungeons.json</c> / runtime dungeon records.</summary>
+        public static readonly string[] DungeonsCanonicalHeaders =
+            { "name", "theme", "minLevel", "maxLevel", "possibleEnemies", "colorOverride" };
+
+        public static readonly string[] StatBonusesCanonicalHeaders =
+            { "Name", "Description", "Value", "Weight", "StatType", "ItemRank" };
+
         public static IReadOnlyList<string> GetCanonicalHeaders(GameDataTabularSheetKind kind) =>
             kind switch
             {
@@ -68,6 +84,8 @@ namespace RPGGame.Data
                 GameDataTabularSheetKind.Armor => ArmorCanonicalHeaders,
                 GameDataTabularSheetKind.Enemies => EnemiesCanonicalHeaders,
                 GameDataTabularSheetKind.Environments => EnvironmentsCanonicalHeaders,
+                GameDataTabularSheetKind.Dungeons => DungeonsCanonicalHeaders,
+                GameDataTabularSheetKind.StatBonuses => StatBonusesCanonicalHeaders,
                 _ => Array.Empty<string>()
             };
 
@@ -143,6 +161,8 @@ namespace RPGGame.Data
                         continue;
                     if (nestedParents.Contains(p.Name))
                         continue;
+                    if (EnemyLegacyRootStatKeys.Contains(p.Name))
+                        continue;
                     extraKeys.Add(p.Name);
                 }
             }
@@ -169,8 +189,6 @@ namespace RPGGame.Data
 
         private static string EnemyCategoryLabelForCanonicalHeader(string canonicalHeader)
         {
-            if (canonicalHeader.StartsWith("overrides.", StringComparison.Ordinal))
-                return EnemySheetCategoryOverrides;
             if (canonicalHeader.StartsWith("baseAttributes.", StringComparison.Ordinal))
                 return EnemySheetCategoryBaseAttributes;
             if (string.Equals(canonicalHeader, "baseHealth", StringComparison.Ordinal))
@@ -185,8 +203,6 @@ namespace RPGGame.Data
         /// <summary>Second header row: dotted keys with group prefix removed for overrides / baseAttributes / growthPerLevel.</summary>
         private static string EnemyShortHeaderForCanonicalHeader(string canonicalHeader)
         {
-            if (canonicalHeader.StartsWith("overrides.", StringComparison.Ordinal))
-                return canonicalHeader["overrides.".Length..];
             if (canonicalHeader.StartsWith("baseAttributes.", StringComparison.Ordinal))
                 return canonicalHeader["baseAttributes.".Length..];
             if (canonicalHeader.StartsWith("growthPerLevel.", StringComparison.Ordinal))
@@ -198,14 +214,143 @@ namespace RPGGame.Data
         {
             if (header.Contains('.', StringComparison.Ordinal))
             {
-                if (!TryGetPropertyPath(el, header, out var at))
-                    return "";
-                return JsonElementToCellString(at);
+                if (TryGetPropertyPath(el, header, out var at))
+                    return JsonElementToCellString(at);
+                if (TryGetEnemyLegacyRootForCanonicalColumn(el, header, out var legacy))
+                    return JsonElementToCellString(legacy);
+                return "";
             }
 
             if (!el.TryGetProperty(header, out var prop))
                 return "";
             return JsonElementToCellString(prop);
+        }
+
+        /// <summary>
+        /// When nested <c>growthPerLevel.*</c> is absent but the row still has historical root <c>strength</c>, <c>agility</c>, …,
+        /// surface those values in the canonical growth columns (push only).
+        /// </summary>
+        private static bool TryGetEnemyLegacyRootForCanonicalColumn(JsonElement el, string dottedHeader, out JsonElement found)
+        {
+            found = default;
+            if (el.ValueKind != JsonValueKind.Object)
+                return false;
+
+            if (string.Equals(dottedHeader, "growthPerLevel.strength", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!el.TryGetProperty("strength", out found) || found.ValueKind != JsonValueKind.Number)
+                    return false;
+                return found.GetDouble() < 0.45;
+            }
+            if (string.Equals(dottedHeader, "growthPerLevel.agility", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!el.TryGetProperty("agility", out found) || found.ValueKind != JsonValueKind.Number)
+                    return false;
+                return found.GetDouble() < 0.45;
+            }
+            if (string.Equals(dottedHeader, "growthPerLevel.technique", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!el.TryGetProperty("technique", out found) || found.ValueKind != JsonValueKind.Number)
+                    return false;
+                return found.GetDouble() < 0.45;
+            }
+            if (string.Equals(dottedHeader, "growthPerLevel.intelligence", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!el.TryGetProperty("intelligence", out found) || found.ValueKind != JsonValueKind.Number)
+                    return false;
+                return found.GetDouble() < 0.45;
+            }
+
+            return false;
+        }
+
+        /// <summary>Legacy sheet <c>overrides.health</c> (merged object) is folded into HP fields, then the object is removed.</summary>
+        private static void PromoteLegacyEnemyOverridesAndRemove(JsonObject obj)
+        {
+            if (!obj.TryGetPropertyValue("overrides", out var onode) || onode is not JsonObject ov)
+                return;
+
+            if (ov.TryGetPropertyValue("health", out var hn) && hn is JsonValue hv && hv.TryGetValue<double>(out var healthMul))
+            {
+                if (obj.TryGetPropertyValue("baseHealth", out var bh) && bh is JsonValue bjv && bjv.TryGetValue<double>(out var b0))
+                    obj["baseHealth"] = JsonValue.Create(b0 * healthMul);
+                else if (obj.TryGetPropertyValue("healthGrowthPerLevel", out var gh) && gh is JsonValue gjv && gjv.TryGetValue<double>(out var g0))
+                    obj["healthGrowthPerLevel"] = JsonValue.Create(g0 * healthMul);
+            }
+
+            obj.Remove("overrides");
+        }
+
+        /// <summary>
+        /// Moves historical root stat numbers into <c>growthPerLevel</c> so CSV → JSON matches the runtime model.
+        /// </summary>
+        private static void HoistEnemyLegacyRootNumbersIntoNested(JsonObject obj)
+        {
+            static JsonObject GetOrCreateObject(JsonObject parent, string name)
+            {
+                if (parent.TryGetPropertyValue(name, out var n) && n is JsonObject jo)
+                    return jo;
+                var created = new JsonObject();
+                parent[name] = created;
+                return created;
+            }
+
+            static bool TryTakeRootNumber(JsonObject o, string key, out double v)
+            {
+                v = 0;
+                if (!o.TryGetPropertyValue(key, out var node) || node is not JsonValue jv)
+                    return false;
+                try
+                {
+                    v = jv.GetValue<double>();
+                    o.Remove(key);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            double strength = double.NaN, agility = double.NaN, technique = double.NaN, intelligence = double.NaN;
+            if (TryTakeRootNumber(obj, "strength", out var s)) strength = s;
+            if (TryTakeRootNumber(obj, "agility", out var ag)) agility = ag;
+            if (TryTakeRootNumber(obj, "technique", out var t)) technique = t;
+            if (TryTakeRootNumber(obj, "intelligence", out var i)) intelligence = i;
+
+            var growth = GetOrCreateObject(obj, "growthPerLevel");
+
+            if (!double.IsNaN(strength))
+            {
+                if (!growth.ContainsKey("strength"))
+                    growth["strength"] = JsonValue.Create(strength);
+                else
+                    obj["strength"] = JsonValue.Create(strength);
+            }
+
+            if (!double.IsNaN(agility))
+            {
+                if (!growth.ContainsKey("agility"))
+                    growth["agility"] = JsonValue.Create(agility);
+                else
+                    obj["agility"] = JsonValue.Create(agility);
+            }
+
+            if (!double.IsNaN(technique))
+            {
+                if (!growth.ContainsKey("technique"))
+                    growth["technique"] = JsonValue.Create(technique);
+                else
+                    obj["technique"] = JsonValue.Create(technique);
+            }
+
+            if (!double.IsNaN(intelligence))
+            {
+                if (!growth.ContainsKey("intelligence"))
+                    growth["intelligence"] = JsonValue.Create(intelligence);
+                else
+                    obj["intelligence"] = JsonValue.Create(intelligence);
+            }
         }
 
         private static bool TryGetPropertyPath(JsonElement el, string dottedPath, out JsonElement found)
@@ -254,7 +399,13 @@ namespace RPGGame.Data
                 if (kind == GameDataTabularSheetKind.Enemies)
                 {
                     MergeEnemyFlatColumnsToNested(obj);
+                    PromoteLegacyEnemyOverridesAndRemove(obj);
+                    HoistEnemyLegacyRootNumbersIntoNested(obj);
                     NormalizeEnemyJsonArrayRow(obj);
+                }
+                else if (kind == GameDataTabularSheetKind.Dungeons)
+                {
+                    NormalizeDungeonsJsonArrayRow(obj);
                 }
 
                 arr.Add(obj);
@@ -376,10 +527,11 @@ namespace RPGGame.Data
         {
             var o = new JsonSerializerOptions { WriteIndented = true };
             if (kind == GameDataTabularSheetKind.Weapons || kind == GameDataTabularSheetKind.Armor
-                || kind == GameDataTabularSheetKind.Enemies || kind == GameDataTabularSheetKind.Environments)
+                || kind == GameDataTabularSheetKind.Enemies || kind == GameDataTabularSheetKind.Environments
+                || kind == GameDataTabularSheetKind.Dungeons)
                 o.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             else
-                o.PropertyNamingPolicy = null;
+                o.PropertyNamingPolicy = null; // Modifications, StatBonuses — PascalCase columns match JSON files
             return o;
         }
 
@@ -532,6 +684,28 @@ namespace RPGGame.Data
             foreach (var p in parts)
                 arr.Add(p);
             obj["actions"] = arr;
+        }
+
+        /// <summary>
+        /// When <c>possibleEnemies</c> is a plain string (not JSON), treat <c>|</c> as delimiter so sheet authors can write
+        /// <c>Goblin|Spider|Wolf</c> instead of a JSON array.
+        /// </summary>
+        private static void NormalizeDungeonsJsonArrayRow(JsonObject obj)
+        {
+            if (!obj.TryGetPropertyValue("possibleEnemies", out var node) || node is null)
+                return;
+
+            if (node is JsonArray)
+                return;
+
+            if (node is not JsonValue jv || !jv.TryGetValue<string>(out var s) || string.IsNullOrWhiteSpace(s))
+                return;
+
+            var parts = s.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var arr = new JsonArray();
+            foreach (var p in parts)
+                arr.Add(p);
+            obj["possibleEnemies"] = arr;
         }
     }
 }

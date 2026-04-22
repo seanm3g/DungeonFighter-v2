@@ -41,7 +41,7 @@ namespace RPGGame.Handlers.Inventory
                 // Clear current combo (this sets ComboOrder to 0 on removed actions)
                 foreach (var action in currentComboActions)
                 {
-                    character.RemoveFromCombo(action);
+                    character.RemoveFromCombo(action, ignoreWeaponRequirement: true);
                 }
                 
                 // Set ComboOrder values AFTER removing but BEFORE adding

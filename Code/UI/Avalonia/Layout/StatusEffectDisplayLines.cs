@@ -20,10 +20,12 @@ namespace RPGGame.UI.Avalonia.Layout
                 lines.Add($"Stunned ({actor.StunTurnsRemaining} turn{(actor.StunTurnsRemaining != 1 ? "s" : "")})");
             if (actor.RollPenalty != 0 && actor.RollPenaltyTurns > 0)
                 lines.Add($"Accuracy -{actor.RollPenalty} ({actor.RollPenaltyTurns} atk{(actor.RollPenaltyTurns != 1 ? "s" : "")})");
-            if (actor.PoisonStacks > 0)
-                lines.Add(actor.IsBleeding ? $"Bleed x{actor.PoisonStacks}" : $"Poison x{actor.PoisonStacks}");
-            if (actor.BurnStacks > 0)
-                lines.Add($"Burn x{actor.BurnStacks}");
+            if (actor.PoisonPercentOfMaxHealth > 0)
+                lines.Add($"Poison {actor.PoisonPercentOfMaxHealth:0.##}% max HP");
+            if (actor.BleedIntensity > 0 || actor.PendingBleedFromHits > 0)
+                lines.Add($"Bleed {actor.BleedIntensity + actor.PendingBleedFromHits}");
+            if (actor.BurnIntensity > 0 || actor.PendingBurnFromHits > 0)
+                lines.Add($"Burn {actor.BurnIntensity + actor.PendingBurnFromHits}");
             if (actor.HasCriticalMissPenalty && actor.CriticalMissPenaltyTurns > 0)
                 lines.Add($"Crit miss ({actor.CriticalMissPenaltyTurns} turn{(actor.CriticalMissPenaltyTurns != 1 ? "s" : "")})");
             if (actor.VulnerabilityStacks > 0 && actor.VulnerabilityTurns > 0)
@@ -80,6 +82,18 @@ namespace RPGGame.UI.Avalonia.Layout
                     lines.Add($"Reroll x{charHud.Effects.RerollCharges}");
             }
             return lines;
+        }
+
+        /// <summary>
+        /// Enemies with <see cref="Enemy.IsLiving"/> false (spreadsheet <c>isLiving</c> false: undead, elementals, etc.)
+        /// do not take poison DoT or bleed damage — surface that in the status-effects HUD.
+        /// </summary>
+        /// <returns>A single display line, or null when the enemy has no such template immunities.</returns>
+        public static string? GetNonLivingEnemyImmunityLine(Enemy enemy)
+        {
+            if (enemy == null || enemy.IsLiving)
+                return null;
+            return "Immune: Bleed, Poison";
         }
     }
 }

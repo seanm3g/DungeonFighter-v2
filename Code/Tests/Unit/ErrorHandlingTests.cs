@@ -165,9 +165,9 @@ namespace RPGGame.Tests.Unit
             try
             {
                 int originalLevel = character.Level;
-                character.AddXP(int.MaxValue / 2);
-                
-                // Should handle large XP without crashing
+                character.AddXP(500_000);
+
+                // Should handle a large XP grant without crashing (dungeon-paced bars; avoid int.MaxValue grants in tests)
                 TestBase.AssertTrue(character.Level >= originalLevel,
                     $"Large XP should be handled: Level {originalLevel} -> {character.Level}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);

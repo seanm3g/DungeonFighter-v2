@@ -50,6 +50,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             LayoutConstantsCenterPanelHitTests.RunAllTests();
             Console.WriteLine();
+            RightPanelContentTextTests.RunAllTests();
+            Console.WriteLine();
             LayoutCharacterResolutionTests.RunAllTests();
             Console.WriteLine();
             ThresholdDisplayFormattingTests.RunAllTests();
@@ -67,6 +69,8 @@ namespace RPGGame.Tests.Runners
             ComboReordererMoveTests.RunAllTests();
             Console.WriteLine();
             ComboPointerInputTests.RunAllTests();
+            Console.WriteLine();
+            InventoryMenuStripRightClickTests.RunAllTests();
             Console.WriteLine();
             ActionStripReorderPolicyTests.RunAllTests();
             Console.WriteLine();

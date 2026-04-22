@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace RPGGame.ActionInteractionLab
 {
     /// <summary>
-    /// Builds a <see cref="WeaponItem"/> for the Action Interaction Lab from <see cref="WeaponData"/> plus optional prefix/suffix picks.
+    /// Builds a <see cref="WeaponItem"/> for the Action Interaction Lab from <see cref="WeaponData"/> plus optional modification prefixes and stat-bonus suffixes (one or many).
     /// </summary>
     public static class ActionLabWeaponFactory
     {
@@ -18,17 +18,42 @@ namespace RPGGame.ActionInteractionLab
             Modification? prefixTemplate,
             StatBonus? suffixTemplate)
         {
+            IReadOnlyList<Modification>? prefixes = prefixTemplate != null ? new[] { prefixTemplate } : null;
+            IReadOnlyList<StatBonus>? suffixes = suffixTemplate != null ? new[] { suffixTemplate } : null;
+            return CreateWeapon(weaponData, prefixes, suffixes);
+        }
+
+        /// <summary>
+        /// Creates a weapon with starter actions, zero or more rolled prefix modifications, and zero or more stat-bonus suffixes.
+        /// </summary>
+        public static WeaponItem CreateWeapon(
+            WeaponData weaponData,
+            IReadOnlyList<Modification>? prefixTemplates,
+            IReadOnlyList<StatBonus>? suffixTemplates)
+        {
             var weapon = ItemGenerator.GenerateWeaponItem(weaponData);
             weapon.Modifications.Clear();
             weapon.StatBonuses.Clear();
             weapon.ActionBonuses.Clear();
             weapon.GearAction = null;
 
-            if (prefixTemplate != null)
-                weapon.Modifications.Add(CloneModificationWithRoll(prefixTemplate));
+            if (prefixTemplates != null)
+            {
+                foreach (var prefixTemplate in prefixTemplates)
+                {
+                    if (prefixTemplate != null)
+                        weapon.Modifications.Add(CloneModificationWithRoll(prefixTemplate));
+                }
+            }
 
-            if (suffixTemplate != null)
-                weapon.StatBonuses.Add(CloneStatBonus(suffixTemplate));
+            if (suffixTemplates != null)
+            {
+                foreach (var suffixTemplate in suffixTemplates)
+                {
+                    if (suffixTemplate != null)
+                        weapon.StatBonuses.Add(CloneStatBonus(suffixTemplate));
+                }
+            }
 
             ApplyMinimumRarity(weapon);
             weapon.Name = ItemGenerator.GenerateItemNameWithBonuses(weapon);
@@ -125,6 +150,7 @@ namespace RPGGame.ActionInteractionLab
             Value = s.Value,
             Weight = s.Weight,
             StatType = s.StatType,
+            ItemRank = s.ItemRank,
         };
 
         /// <summary>

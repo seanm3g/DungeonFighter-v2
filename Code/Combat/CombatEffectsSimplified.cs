@@ -14,6 +14,27 @@ namespace RPGGame
     {
         private static readonly EffectHandlerRegistry _effectRegistry = new EffectHandlerRegistry();
 
+        /// <summary>Poison, burn, and bleed from weapon stats or weapon <c>StatusEffects</c> apply only on a critical hit.</summary>
+        private static bool ShouldApplyEquipmentDoTFromHit(CombatEvent? combatEvent) =>
+            combatEvent != null && combatEvent.IsCritical;
+
+        /// <summary>
+        /// When an action has no <see cref="Action.Triggers"/> conditions, poison/burn/bleed from the action itself
+        /// also require a critical hit. If the sheet defines trigger conditions, those gate the whole bundle as before.
+        /// </summary>
+        private static bool ShouldApplyUnconditionalActionDoTFromHit(Action action, CombatEvent? combatEvent)
+        {
+            var conditions = action.Triggers?.TriggerConditions;
+            if (conditions != null && conditions.Count > 0)
+                return true;
+            return combatEvent?.IsCritical ?? false;
+        }
+
+        private static bool IsDoTStatusEffectType(string effectType) =>
+            string.Equals(effectType, "poison", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(effectType, "burn", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(effectType, "bleed", StringComparison.OrdinalIgnoreCase);
+
         /// <summary>
         /// Applies status effects from an action to the target
         /// </summary>
@@ -23,7 +44,7 @@ namespace RPGGame
         /// <param name="results">List to add effect messages to</param>
         /// <param name="combatEvent">Optional combat event for conditional status application</param>
         /// <returns>True if any effects were applied</returns>
-        public static bool ApplyStatusEffects(Action action, Actor attacker, Actor target, List<string> results, Combat.Events.CombatEvent? combatEvent = null)
+        public static bool ApplyStatusEffects(Action action, Actor attacker, Actor target, List<string> results, CombatEvent? combatEvent = null)
         {
             bool effectsApplied = false;
             
@@ -31,8 +52,8 @@ namespace RPGGame
             // Then, check for weapon modification status effect chances (for characters only)
             if (attacker is Character characterAttacker)
             {
-                effectsApplied |= ApplyModificationStatusEffects(characterAttacker, target, action, results);
-                effectsApplied |= ApplyWeaponModificationStatusEffects(characterAttacker, target, action, results);
+                effectsApplied |= ApplyModificationStatusEffects(characterAttacker, target, action, results, combatEvent);
+                effectsApplied |= ApplyWeaponModificationStatusEffects(characterAttacker, target, action, results, combatEvent);
             }
             
             // Then apply status effects from the action itself
@@ -67,6 +88,8 @@ namespace RPGGame
             {
                 foreach (var effectType in effectTypes)
                 {
+                    if (IsDoTStatusEffectType(effectType) && !ShouldApplyUnconditionalActionDoTFromHit(action, combatEvent))
+                        continue;
                     if (_effectRegistry.ApplyEffect(effectType, target, action, results))
                     {
                         effectsApplied = true;
@@ -85,7 +108,7 @@ namespace RPGGame
         /// <param name="action">The action being performed</param>
         /// <param name="results">List to add effect messages to</param>
         /// <returns>True if any effects were applied</returns>
-        private static bool ApplyModificationStatusEffects(Character attacker, Actor target, Action action, List<string> results)
+        private static bool ApplyModificationStatusEffects(Character attacker, Actor target, Action action, List<string> results, CombatEvent? combatEvent)
         {
             if (action.Type != ActionType.Attack) return false;
             
@@ -94,6 +117,8 @@ namespace RPGGame
             
             foreach (var effectName in statusEffects)
             {
+                if (IsDoTStatusEffectType(effectName) && !ShouldApplyEquipmentDoTFromHit(combatEvent))
+                    continue;
                 var tempAction = StatusEffectActionResolver.CreateActionWithStatusEffect(effectName);
                 if (tempAction != null && _effectRegistry.ApplyEffect(effectName.ToLower(), target, tempAction, results))
                 {
@@ -112,65 +137,35 @@ namespace RPGGame
         /// <param name="action">The action being performed (used for effect handlers)</param>
         /// <param name="results">List to add effect messages to</param>
         /// <returns>True if any effects were applied</returns>
-        private static bool ApplyWeaponModificationStatusEffects(Character attacker, Actor target, Action action, List<string> results)
+        private static bool ApplyWeaponModificationStatusEffects(Character attacker, Actor target, Action action, List<string> results, CombatEvent? combatEvent)
         {
             bool effectsApplied = false;
-            
-            // Check poison chance
-            double poisonChance = attacker.GetModificationPoisonChance();
-            if (poisonChance > 0.0)
+            bool applyWeaponDots = ShouldApplyEquipmentDoTFromHit(combatEvent);
+
+            double poisonPct = attacker.GetWeaponPoisonPercentPerHit();
+            if (applyWeaponDots && poisonPct > 0)
             {
-                double roll = Dice.Roll(1, 100) / 100.0;
-                if (roll < poisonChance)
-                {
-                    // Create a temporary action with CausesPoison set to true for the effect handler
-                    var tempAction = new Action
-                    {
-                        CausesPoison = true
-                    };
-                    if (_effectRegistry.ApplyEffect("poison", target, tempAction, results))
-                    {
-                        effectsApplied = true;
-                    }
-                }
+                var tempPoison = new Action { CausesPoison = true, PoisonPercentToAdd = poisonPct };
+                if (_effectRegistry.ApplyEffect("poison", target, tempPoison, results))
+                    effectsApplied = true;
             }
-            
-            // Check burn chance
-            double burnChance = attacker.GetModificationBurnChance();
-            if (burnChance > 0.0)
+
+            int burnAmt = attacker.GetWeaponBurnPerHit();
+            if (applyWeaponDots && burnAmt > 0)
             {
-                double roll = Dice.Roll(1, 100) / 100.0;
-                if (roll < burnChance)
-                {
-                    var tempAction = new Action
-                    {
-                        CausesBurn = true
-                    };
-                    if (_effectRegistry.ApplyEffect("burn", target, tempAction, results))
-                    {
-                        effectsApplied = true;
-                    }
-                }
+                var tempBurn = new Action { CausesBurn = true, BurnAmountToAdd = burnAmt };
+                if (_effectRegistry.ApplyEffect("burn", target, tempBurn, results))
+                    effectsApplied = true;
             }
-            
-            // Check bleed chance
-            double bleedChance = attacker.GetModificationBleedChance();
-            if (bleedChance > 0.0)
+
+            int bleedAmt = attacker.GetWeaponBleedPerHit();
+            if (applyWeaponDots && bleedAmt > 0)
             {
-                double roll = Dice.Roll(1, 100) / 100.0;
-                if (roll < bleedChance)
-                {
-                    var tempAction = new Action
-                    {
-                        CausesBleed = true
-                    };
-                    if (_effectRegistry.ApplyEffect("bleed", target, tempAction, results))
-                    {
-                        effectsApplied = true;
-                    }
-                }
+                var tempBleed = new Action { CausesBleed = true, BleedAmountToAdd = bleedAmt };
+                if (_effectRegistry.ApplyEffect("bleed", target, tempBleed, results))
+                    effectsApplied = true;
             }
-            
+
             // Check freeze chance
             double freezeChance = attacker.GetModificationFreezeChance();
             if (freezeChance > 0.0)
@@ -219,39 +214,78 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Processes all active status effects for an Actor at the start of their turn
+        /// Poison + burn damage from a single status tick (same <see cref="Actor"/> <c>TakeDamage</c> call).
         /// </summary>
-        public static int ProcessStatusEffects(Actor actor, List<string> results)
+        public readonly record struct StatusEffectDamageBreakdown(int PoisonDamage, int BurnDamage)
         {
-            double currentTime = GameTicker.Instance.GetCurrentGameTime();
-            int total = ProcessPoisonOrBleedDamage(actor, currentTime, results);
-            total += ProcessBurnDamage(actor, currentTime, results);
-            return total;
+            public int TotalDamage => PoisonDamage + BurnDamage;
         }
 
-        private static int ProcessPoisonOrBleedDamage(Actor actor, double currentTime, List<string> results)
+        /// <summary>
+        /// Processes poison then burn for an actor (global tick). Use <see cref="ProcessStatusEffectsWithBreakdown"/> when the UI needs per-type HP delta coloring.
+        /// </summary>
+        public static int ProcessStatusEffects(Actor actor, List<string> results) =>
+            ProcessStatusEffectsWithBreakdown(actor, results).TotalDamage;
+
+        /// <summary>
+        /// Processes all active status effects for an Actor at the start of their turn, reporting poison vs burn amounts separately.
+        /// </summary>
+        public static StatusEffectDamageBreakdown ProcessStatusEffectsWithBreakdown(Actor actor, List<string> results)
         {
-            if (actor.PoisonStacks <= 0) return 0;
-            int damage = actor.ProcessPoison(currentTime);
-            string damageType = actor.GetDamageTypeText();
-            ColorPalette effectColor = damageType == "bleed" ? ColorPalette.Error : ColorPalette.Green;
+            double currentTime = GameTicker.Instance.GetCurrentGameTime();
+            int poison = ProcessPoisonPercentDamage(actor, currentTime, results);
+            int burn = ProcessBurnDamage(actor, currentTime, results);
+            return new StatusEffectDamageBreakdown(poison, burn);
+        }
+
+        /// <summary>Bleed pulse when the afflicted actor has completed a turn (including stunned skip).</summary>
+        public static int ProcessBleedAfterActorTurn(Actor actor, List<string> results)
+        {
+            if (actor.BleedIntensity <= 0 && actor.PendingBleedFromHits <= 0)
+                return 0;
+            int damage = actor.ProcessBleedOnAction();
             if (damage > 0)
             {
                 var builder = new ColoredTextBuilder();
-                DamageFormatter.AddActorTakesDamage(builder, actor.Name, EntityColorHelper.GetActorColor(actor), damage, damageType);
+                DamageFormatter.AddActorTakesDamage(builder, actor.Name, EntityColorHelper.GetActorColor(actor), damage, "bleed");
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
-            if (actor.PoisonStacks > 0)
+            if (actor.BleedIntensity > 0 || actor.PendingBleedFromHits > 0)
             {
                 var builder = new ColoredTextBuilder();
-                DamageFormatter.AddEffectStacksRemain(builder, damageType, effectColor, actor.PoisonStacks);
+                DamageFormatter.AddEffectStacksRemain(builder, "bleed", ColorPalette.Error, actor.BleedIntensity + actor.PendingBleedFromHits);
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
             else
             {
-                string effectEndMessage = damageType == "bleed" ? "bleeding" : "poisoned";
                 var builder = new ColoredTextBuilder();
-                DamageFormatter.AddActorNoLongerAffected(builder, actor.Name, EntityColorHelper.GetActorColor(actor), effectEndMessage, effectColor);
+                DamageFormatter.AddActorNoLongerAffected(builder, actor.Name, EntityColorHelper.GetActorColor(actor), "bleeding", ColorPalette.Error);
+                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
+            }
+            return damage > 0 ? damage : 0;
+        }
+
+        private static int ProcessPoisonPercentDamage(Actor actor, double currentTime, List<string> results)
+        {
+            if (actor.PoisonPercentOfMaxHealth <= 0)
+                return 0;
+            int damage = actor.ProcessPoison(currentTime);
+            if (damage > 0)
+            {
+                var builder = new ColoredTextBuilder();
+                DamageFormatter.AddActorTakesDamage(builder, actor.Name, EntityColorHelper.GetActorColor(actor), damage, "poison");
+                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
+            }
+            if (actor.PoisonPercentOfMaxHealth > 0)
+            {
+                var builder = new ColoredTextBuilder();
+                DamageFormatter.AddPoisonPercentRemain(builder, ColorPalette.Green, actor.PoisonPercentOfMaxHealth);
+                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
+            }
+            else
+            {
+                var builder = new ColoredTextBuilder();
+                DamageFormatter.AddActorNoLongerAffected(builder, actor.Name, EntityColorHelper.GetActorColor(actor), "poisoned", ColorPalette.Green);
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
             return damage > 0 ? damage : 0;
@@ -259,7 +293,8 @@ namespace RPGGame
 
         private static int ProcessBurnDamage(Actor actor, double currentTime, List<string> results)
         {
-            if (actor.BurnStacks <= 0) return 0;
+            if (actor.BurnIntensity <= 0 && actor.PendingBurnFromHits <= 0)
+                return 0;
             int damage = actor.ProcessBurn(currentTime);
             if (damage > 0)
             {
@@ -267,10 +302,11 @@ namespace RPGGame
                 DamageFormatter.AddActorTakesDamage(builder, actor.Name, EntityColorHelper.GetActorColor(actor), damage, "burn");
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
-            if (actor.BurnStacks > 0)
+            int displayIntensity = actor.BurnIntensity + actor.PendingBurnFromHits;
+            if (displayIntensity > 0)
             {
                 var builder = new ColoredTextBuilder();
-                DamageFormatter.AddEffectStacksRemain(builder, "burn", ColorPalette.Orange, actor.BurnStacks);
+                DamageFormatter.AddEffectStacksRemain(builder, "burn", ColorPalette.Orange, displayIntensity);
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
             else
@@ -345,7 +381,7 @@ namespace RPGGame
                 double roll = Dice.Roll(1, 100) / 100.0;
                 if (roll < bleedChance)
                 {
-                    target.IsBleeding = true;
+                    target.QueueBleedFromHit(1);
                     results.Add($"[{target.Name}] starts bleeding from the wound!");
                 }
             }
@@ -395,8 +431,9 @@ namespace RPGGame
         /// <param name="results">List to add effect messages to</param>
         public static void ClearAllTemporaryEffects(Actor Actor, List<string> results)
         {
-            bool hadEffects = Actor.PoisonStacks > 0 || Actor.BurnStacks > 0 || Actor.IsBleeding || 
-                             Actor.IsStunned || Actor.IsWeakened;
+            bool hadEffects = Actor.PoisonPercentOfMaxHealth > 0 || Actor.BurnIntensity > 0 || Actor.PendingBurnFromHits > 0
+                             || Actor.BleedIntensity > 0 || Actor.PendingBleedFromHits > 0
+                             || Actor.IsStunned || Actor.IsWeakened;
             
             if (hadEffects)
             {

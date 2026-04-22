@@ -140,8 +140,14 @@ namespace RPGGame.Handlers.Inventory
                     }
 
                     var action = combo[index];
-                    player.RemoveFromCombo(action);
-                    ShowMessageEvent?.Invoke($"Removed {action.Name} from sequence.");
+                    if (!player.RemoveFromCombo(action))
+                    {
+                        ShowMessageEvent?.Invoke($"{action.Name} is required for your equipped weapon and must stay in the sequence.");
+                    }
+                    else
+                    {
+                        ShowMessageEvent?.Invoke($"Removed {action.Name} from sequence.");
+                    }
                     if (stateTracker.InComboManagement)
                         RenderComboManagementScreen();
                     else

@@ -118,16 +118,10 @@ namespace RPGGame
     {
         public bool Apply(Actor target, Action action, List<string> results)
         {
-            // Apply bleed if action causes it (guaranteed application when flag is set)
             if (action.CausesBleed)
             {
-                var bleedConfig = GameConfiguration.Instance.StatusEffects.Bleed;
-                // Use fallback defaults if config values are 0 (e.g., in tests or if config not loaded)
-                int damagePerTick = bleedConfig.DamagePerTick > 0 ? bleedConfig.DamagePerTick : 1;
-                int stacksPerApplication = bleedConfig.StacksPerApplication > 0 ? bleedConfig.StacksPerApplication : 1;
-                target.ApplyPoison(damagePerTick, stacksPerApplication, true);
-                
-                // Format with proper indentation and color markup (5 spaces to match roll info)
+                int amount = action.BleedAmountToAdd > 0 ? action.BleedAmountToAdd : 1;
+                target.QueueBleedFromHit(amount);
                 string actorPattern = target is Enemy ? "enemy" : "player";
                 results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{error|bleeding}}}}!");
                 return true;
@@ -199,15 +193,10 @@ namespace RPGGame
     {
         public bool Apply(Actor target, Action action, List<string> results)
         {
-            // Apply poison if action causes it (guaranteed application when flag is set)
             if (action.CausesPoison)
             {
-                var poisonConfig = GameConfiguration.Instance.StatusEffects.Poison;
-                // Use fallback defaults if config values are 0 (e.g., in tests or if config not loaded)
-                int damagePerTick = poisonConfig.DamagePerTick > 0 ? poisonConfig.DamagePerTick : 3;
-                int stacksPerApplication = poisonConfig.StacksPerApplication > 0 ? poisonConfig.StacksPerApplication : 1;
-                target.ApplyPoison(damagePerTick, stacksPerApplication);
-                // Format with proper indentation and color markup (5 spaces to match roll info)
+                double delta = action.PoisonPercentToAdd > 0 ? action.PoisonPercentToAdd : 1.0;
+                target.ApplyPoisonPercent(delta);
                 string actorPattern = target is Enemy ? "enemy" : "player";
                 results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{poisoned|poisoned}}}}!");
                 return true;
@@ -251,15 +240,10 @@ namespace RPGGame
     {
         public bool Apply(Actor target, Action action, List<string> results)
         {
-            // Apply burn if action causes it (guaranteed application when flag is set)
             if (action.CausesBurn)
             {
-                var burnConfig = GameConfiguration.Instance.StatusEffects.Burn;
-                // Use fallback defaults if config values are 0 (e.g., in tests or if config not loaded)
-                int damagePerTick = burnConfig.DamagePerTick > 0 ? burnConfig.DamagePerTick : 3;
-                int stacksPerApplication = burnConfig.StacksPerApplication > 0 ? burnConfig.StacksPerApplication : 1;
-                target.ApplyBurn(damagePerTick, stacksPerApplication);
-                // Format with proper indentation and color markup (5 spaces to match roll info)
+                int amount = action.BurnAmountToAdd > 0 ? action.BurnAmountToAdd : 1;
+                target.QueueBurnFromHit(amount);
                 string actorPattern = target is Enemy ? "enemy" : "player";
                 results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{burning|burning}}}}!");
                 return true;

@@ -226,10 +226,10 @@ namespace RPGGame.Tests.Unit
             var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
             var initialHealth = enemy.CurrentHealth;
             
-            enemy.ApplyPoison(3, 2, isBleeding: true); // 3 damage per turn for 2 turns, bleeding type
+            enemy.ApplyPoison(3, 2, isBleeding: true);
             
             AssertTrue(enemy.IsBleeding, "Enemy should be bleeding");
-            AssertTrue(enemy.PoisonDamage > 0, "Bleed damage should be set");
+            AssertTrue(enemy.PendingBleedFromHits > 0, "Bleed pending should be set");
         }
         
         private static void TestPoisonEffect()
@@ -238,10 +238,9 @@ namespace RPGGame.Tests.Unit
             
             var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
             
-            enemy.ApplyPoison(5, 3); // 5 damage per turn for 3 turns
+            enemy.ApplyPoison(5, 3);
             
-            AssertTrue(enemy.PoisonStacks > 0, "Enemy should be poisoned");
-            AssertTrue(enemy.PoisonDamage > 0, "Poison damage should be set");
+            AssertTrue(enemy.PoisonPercentOfMaxHealth > 0, "Enemy should have poison %");
         }
         
         private static void TestStunEffect()
@@ -276,11 +275,7 @@ namespace RPGGame.Tests.Unit
             var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
             
             enemy.ApplyPoison(5, 3, isBleeding: true);
-            var initialBleedStacks = enemy.PoisonStacks;
-            
-            // Status effects are processed by the game ticker, not directly
-            // Just verify the effect was applied
-            AssertTrue(initialBleedStacks > 0, "Bleed stacks should be set");
+            AssertTrue(enemy.PendingBleedFromHits > 0, "Bleed pending should be set");
         }
         
         #endregion

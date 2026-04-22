@@ -30,6 +30,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestEndBattleNarrativeWithEntities();
             TestGetBattleNarrative();
             TestInitializeCombatEntities();
+            TestInitializeCombatEntitiesResetsPlayerAndEnemyCombo();
             TestGetNextEntityToAct();
             TestUpdateLastPlayerAction();
             TestGetLastPlayerAction();
@@ -120,11 +121,41 @@ namespace RPGGame.Tests.Unit.Combat
             var player = TestDataBuilders.Character().WithName("Player").Build();
             var enemy = TestDataBuilders.Enemy().WithName("Enemy").Build();
 
+            manager.StartBattleNarrative("Player", "Enemy", "Forest", 100, 50);
             manager.InitializeCombatEntities(player, enemy);
 
             // Should not throw exception
             TestBase.AssertTrue(true,
                 "InitializeCombatEntities should complete without errors",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Every combat initialization must zero combo routing state so a new enemy/encounter always opens from the first strip slot.
+        /// </summary>
+        private static void TestInitializeCombatEntitiesResetsPlayerAndEnemyCombo()
+        {
+            Console.WriteLine("\n--- Testing InitializeCombatEntities resets player and enemy combo state ---");
+
+            var manager = new CombatStateManager();
+            var player = TestDataBuilders.Character().WithName("Player").Build();
+            var enemy = TestDataBuilders.Enemy().WithName("Enemy").Build();
+
+            player.ComboStep = 4;
+            player.ActivateComboMode();
+            enemy.ComboStep = 2;
+
+            manager.StartBattleNarrative("Player", "Enemy", "Forest", 100, 50);
+            manager.InitializeCombatEntities(player, enemy);
+
+            TestBase.AssertEqual(0, player.ComboStep,
+                "InitializeCombatEntities should reset player ComboStep",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(player.ComboModeActive,
+                "InitializeCombatEntities should clear player ComboModeActive",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, enemy.ComboStep,
+                "InitializeCombatEntities should reset enemy ComboStep",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

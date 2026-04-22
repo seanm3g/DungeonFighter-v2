@@ -23,18 +23,7 @@ namespace RPGGame.Progression
             // Fallback: if enemy XPReward is 0, recalculate using same logic as Enemy constructor
             if (xpGained <= 0)
             {
-                var tuning = GameConfiguration.Instance;
-                int baseXP = tuning.Progression.EnemyXPBase;
-                if (baseXP <= 0)
-                {
-                    baseXP = 25; // Fallback minimum if config is 0 or negative
-                }
-                int xpPerLevel = tuning.Progression.EnemyXPPerLevel;
-                if (xpPerLevel <= 0)
-                {
-                    xpPerLevel = 5; // Fallback to ensure higher level enemies give more XP
-                }
-                xpGained = baseXP + (enemy.Level * xpPerLevel);
+                xpGained = CharacterProgression.GetBaseXpForContentLevel(enemy.Level);
             }
 
             if (xpGained > 0)
@@ -51,21 +40,8 @@ namespace RPGGame.Progression
         {
             if (player == null) return;
 
-            var tuning = GameConfiguration.Instance;
-            int baseXP = tuning.Progression.EnemyXPBase;
-            if (baseXP <= 0)
-            {
-                baseXP = 25; // Fallback minimum if config is 0 or negative
-            }
-            int xpPerLevel = tuning.Progression.EnemyXPPerLevel;
-            if (xpPerLevel <= 0)
-            {
-                xpPerLevel = 5; // Fallback to ensure higher level rooms give more XP
-            }
+            int baseLevelXP = CharacterProgression.GetBaseXpForContentLevel(roomLevel);
 
-            // Calculate base XP for this level
-            int baseLevelXP = baseXP + (roomLevel * xpPerLevel);
-            
             // Room entry gives 0.5x of base enemy XP
             int xpGained = (int)(baseLevelXP * 0.5);
 
@@ -83,21 +59,8 @@ namespace RPGGame.Progression
         {
             if (player == null || item == null) return;
 
-            var tuning = GameConfiguration.Instance;
-            int baseXP = tuning.Progression.EnemyXPBase;
-            if (baseXP <= 0)
-            {
-                baseXP = 25; // Fallback minimum if config is 0 or negative
-            }
-            int xpPerLevel = tuning.Progression.EnemyXPPerLevel;
-            if (xpPerLevel <= 0)
-            {
-                xpPerLevel = 5; // Fallback to ensure higher level items give more XP
-            }
+            int baseLevelXP = CharacterProgression.GetBaseXpForContentLevel(item.Level);
 
-            // Calculate base XP for item's level
-            int baseLevelXP = baseXP + (item.Level * xpPerLevel);
-            
             // Item found gives 0.3x of base enemy XP
             int xpGained = (int)(baseLevelXP * 0.3);
 
@@ -115,28 +78,12 @@ namespace RPGGame.Progression
         {
             if (player == null) return;
 
-            var tuning = GameConfiguration.Instance;
-            int baseXP = tuning.Progression.EnemyXPBase;
-            if (baseXP <= 0)
-            {
-                baseXP = 25; // Fallback minimum if config is 0 or negative
-            }
-            int xpPerLevel = tuning.Progression.EnemyXPPerLevel;
-            if (xpPerLevel <= 0)
-            {
-                xpPerLevel = 5; // Fallback to ensure higher level dungeons give more XP
-            }
-
-            // Calculate XP based on dungeon level (not player level)
-            int dungeonLevelXP = baseXP + (dungeonLevel * xpPerLevel);
-            int xpReward = dungeonLevelXP * 10; // 10x multiplier for dungeon completion
+            int xpReward = CharacterProgression.GetStandardDungeonCompletionXpForLevel(dungeonLevel);
 
             // Guarantee level-up after first dungeon (when level 1 and first dungeon completed)
             if (player.Level == 1 && isFirstDungeon)
             {
-                // Calculate XP needed to level from 1->2
-                int averageXPPerDungeonAtLevel1 = baseXP + 25;
-                int xpNeededForLevel2 = 1 * 1 * averageXPPerDungeonAtLevel1; // Level^2 * base
+                int xpNeededForLevel2 = CharacterProgression.GetXpRequiredToAdvanceFromLevel(1);
 
                 // Ensure we award at least enough XP to level up, with a small buffer
                 if (xpReward < xpNeededForLevel2)

@@ -191,8 +191,10 @@ namespace RPGGame
         public int ComboStep { get => Facade.Properties.ComboStep; set => Facade.Properties.ComboStep = value; }
         
         /// <summary>
-        /// Increments ComboStep and wraps it within the combo sequence bounds
-        /// Applies combo routing if the last action had routing properties
+        /// Increments ComboStep and wraps it within the combo sequence bounds.
+        /// When <see cref="ActionUtilities.UsesOrderedComboSequence"/> is true (effective INT at or above
+        /// <see cref="GameConstants.ComboSequenceIntelligenceThreshold"/>), applies combo routing from the last action.
+        /// Below that INT threshold, advances linearly to the next strip slot so authored jumps/skips/repeats do not run.
         /// </summary>
         /// <param name="lastAction">The action that was just executed (for routing)</param>
         public void IncrementComboStep(Action? lastAction = null)
@@ -216,8 +218,15 @@ namespace RPGGame
                     // If action not found in combo, use ComboStep as fallback
                     currentSlotIndex = ComboStep % comboActions.Count;
                 }
-                
-                var routingResult = Entity.Actions.ComboRouting.ComboRouter.RouteCombo(character, lastAction, currentSlotIndex, comboActions);
+
+                Entity.Actions.ComboRouting.RoutingResult routingResult =
+                    ActionUtilities.UsesOrderedComboSequence(character)
+                        ? Entity.Actions.ComboRouting.ComboRouter.RouteCombo(character, lastAction, currentSlotIndex, comboActions)
+                        : new Entity.Actions.ComboRouting.RoutingResult
+                        {
+                            ContinueCombo = true,
+                            NextSlotIndex = (currentSlotIndex + 1) % comboActions.Count
+                        };
                 
                 if (!routingResult.ContinueCombo)
                 {
@@ -305,7 +314,8 @@ namespace RPGGame
         public List<Action> GetComboActions() => Facade.GetComboActions();
         public List<Action> GetActionPool() => Facade.GetActionPool();
         public void AddToCombo(Action action) => Facade.AddToCombo(action);
-        public void RemoveFromCombo(Action action) => Facade.RemoveFromCombo(action);
+        public bool RemoveFromCombo(Action action, bool ignoreWeaponRequirement = false) =>
+            Facade.RemoveFromCombo(action, ignoreWeaponRequirement);
         public void InitializeDefaultCombo() => Facade.InitializeDefaultCombo();
         public bool RestoreComboFromActionNames(IReadOnlyList<string> actionNames) => Facade.RestoreComboFromActionNames(actionNames);
         public int GetEffectiveStrength() => Facade.GetEffectiveStrength();
@@ -336,9 +346,10 @@ namespace RPGGame
         public void ApplyShield() => Facade.ApplyShield();
         public bool ConsumeShield() => Facade.ConsumeShield();
         public override void ApplyWeaken(int turns) => base.ApplyWeaken(turns);
+        public override int GetMaxHealthForPoisonDot() => GetEffectiveMaxHealth();
+
         public override int ProcessPoison(double currentTime) => base.ProcessPoison(currentTime);
         public override int ProcessBurn(double currentTime) => base.ProcessBurn(currentTime);
-        public override string GetDamageTypeText() => base.GetDamageTypeText();
         public override void ClearAllTempEffects() 
         {
             // Clear base class effects (poison, burn, stun, weaken, etc.)
@@ -372,9 +383,9 @@ namespace RPGGame
         public double GetModificationDamageMultiplier() => Facade.GetModificationDamageMultiplier();
         public double GetModificationLifesteal() => Facade.GetModificationLifesteal();
         public int GetModificationGodlikeBonus() => Facade.GetModificationGodlikeBonus();
-        public double GetModificationBleedChance() => Facade.GetModificationBleedChance();
-        public double GetModificationPoisonChance() => Facade.GetModificationPoisonChance();
-        public double GetModificationBurnChance() => Facade.GetModificationBurnChance();
+        public int GetWeaponBleedPerHit() => Facade.GetWeaponBleedPerHit();
+        public double GetWeaponPoisonPercentPerHit() => Facade.GetWeaponPoisonPercentPerHit();
+        public int GetWeaponBurnPerHit() => Facade.GetWeaponBurnPerHit();
         public double GetModificationFreezeChance() => Facade.GetModificationFreezeChance();
         public double GetModificationStunChance() => Facade.GetModificationStunChance();
         public double GetModificationUniqueActionChance() => Facade.GetModificationUniqueActionChance();

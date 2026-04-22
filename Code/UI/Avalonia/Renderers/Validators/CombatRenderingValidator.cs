@@ -1,5 +1,6 @@
 using RPGGame;
 using RPGGame.ActionInteractionLab;
+using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Managers;
 using System;
 
@@ -12,10 +13,20 @@ namespace RPGGame.UI.Avalonia.Renderers.Validators
     public class CombatRenderingValidator
     {
         private readonly ICanvasContextManager contextManager;
+        private GameStateManager? gameStateManager;
 
-        public CombatRenderingValidator(ICanvasContextManager contextManager)
+        public CombatRenderingValidator(ICanvasContextManager contextManager, GameStateManager? gameStateManager = null)
         {
             this.contextManager = contextManager ?? throw new ArgumentNullException(nameof(contextManager));
+            this.gameStateManager = gameStateManager;
+        }
+
+        /// <summary>
+        /// Wires game state so menu-only states (e.g. Death) block stale debounced combat repaints.
+        /// </summary>
+        public void SetGameStateManager(GameStateManager? stateManager)
+        {
+            this.gameStateManager = stateManager;
         }
 
         /// <summary>
@@ -31,6 +42,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Validators
             var lab = ActionInteractionLabSession.Current;
             if (lab != null && ReferenceEquals(character, lab.LabPlayer))
                 return true;
+
+            // Menu / hub states paint their own center content; a queued combat debounce must not repaint over them.
+            if (gameStateManager != null &&
+                DisplayStateCoordinator.ShouldSuppressRendering(gameStateManager.CurrentState, gameStateManager))
+                return false;
 
             Character? activePlayer = contextManager.GetCurrentCharacter();
             return activePlayer == character;

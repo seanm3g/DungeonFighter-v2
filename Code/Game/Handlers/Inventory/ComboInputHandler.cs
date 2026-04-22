@@ -91,8 +91,14 @@ namespace RPGGame.Handlers.Inventory
             if (removeIndex >= 1 && removeIndex <= comboActions.Count)
             {
                 var action = comboActions[removeIndex - 1];
-                character.RemoveFromCombo(action);
-                onSuccess($"Removed {action.Name} from combo sequence.");
+                if (!character.RemoveFromCombo(action))
+                {
+                    showMessage($"{action.Name} is required for your equipped weapon and must stay in the sequence.");
+                }
+                else
+                {
+                    onSuccess($"Removed {action.Name} from combo sequence.");
+                }
             }
             else
             {

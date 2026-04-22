@@ -57,11 +57,7 @@ namespace RPGGame.Tests.Unit
             for (int i = 0; i < levelsGained; i++)
             {
                 int level = levelBefore + i;
-                var tuning = GameConfiguration.Instance;
-                int averageXPPerDungeonAtLevel1 = tuning.Progression.EnemyXPBase + 25;
-                if (averageXPPerDungeonAtLevel1 <= 0) averageXPPerDungeonAtLevel1 = 25;
-                // Consistent curve: Level^2 * base for all levels
-                xpConsumedForLevels += level * level * averageXPPerDungeonAtLevel1;
+                xpConsumedForLevels += CharacterProgression.GetXpRequiredToAdvanceFromLevel(level);
             }
             int totalXPGained = (character.XP - xpBefore) + xpConsumedForLevels;
 
@@ -101,10 +97,7 @@ namespace RPGGame.Tests.Unit
             for (int i = 0; i < levelsGained; i++)
             {
                 int level = levelBefore + i;
-                int averageXPPerDungeonAtLevel1 = baseXP + 25;
-                if (averageXPPerDungeonAtLevel1 <= 0) averageXPPerDungeonAtLevel1 = 25;
-                // Consistent curve: Level^2 * base for all levels
-                xpConsumedForLevels += level * level * averageXPPerDungeonAtLevel1;
+                xpConsumedForLevels += CharacterProgression.GetXpRequiredToAdvanceFromLevel(level);
             }
             int totalXPGained = (character.XP - xpBefore) + xpConsumedForLevels;
 
@@ -172,10 +165,7 @@ namespace RPGGame.Tests.Unit
             for (int i = 0; i < levelsGained; i++)
             {
                 int level = levelBefore + i;
-                int averageXPPerDungeonAtLevel1 = baseXP + 25;
-                if (averageXPPerDungeonAtLevel1 <= 0) averageXPPerDungeonAtLevel1 = 25;
-                // Consistent curve: Level^2 * base for all levels
-                xpConsumedForLevels += level * level * averageXPPerDungeonAtLevel1;
+                xpConsumedForLevels += CharacterProgression.GetXpRequiredToAdvanceFromLevel(level);
             }
             int totalXPGained = (character.XP - xpBefore) + xpConsumedForLevels;
 
@@ -218,11 +208,7 @@ namespace RPGGame.Tests.Unit
             Console.WriteLine("\n--- Testing Mid-Dungeon Level Up ---");
 
             var character = TestDataBuilders.Character().WithLevel(1).Build();
-            var tuning = GameConfiguration.Instance;
-            int averageXPPerDungeonAtLevel1 = tuning.Progression.EnemyXPBase + 25;
-            if (averageXPPerDungeonAtLevel1 <= 0) averageXPPerDungeonAtLevel1 = 25;
-            
-            int xpNeededForLevel2 = 1 * 1 * averageXPPerDungeonAtLevel1;
+            int xpNeededForLevel2 = CharacterProgression.GetXpRequiredToAdvanceFromLevel(1);
 
             // Award enough XP from enemy kill to level up
             int levelBefore = character.Level;
@@ -290,10 +276,7 @@ namespace RPGGame.Tests.Unit
                 for (int i = 0; i < levelsGained; i++)
                 {
                     int level = levelBefore + i;
-                    int averageXPPerDungeonAtLevel1 = baseXP + 25;
-                    if (averageXPPerDungeonAtLevel1 <= 0) averageXPPerDungeonAtLevel1 = 25;
-                    // Consistent curve: Level^2 * base for all levels
-                    xpConsumedForLevels += level * level * averageXPPerDungeonAtLevel1;
+                    xpConsumedForLevels += CharacterProgression.GetXpRequiredToAdvanceFromLevel(level);
                 }
                 return (xpAfter - xpBefore) + xpConsumedForLevels;
             }

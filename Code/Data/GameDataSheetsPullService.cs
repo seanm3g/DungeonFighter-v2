@@ -6,7 +6,7 @@ using RPGGame;
 
 namespace RPGGame.Data
 {
-    /// <summary>Pulls Actions plus optional tabs from published CSV URLs in <see cref="SheetsConfig"/>.</summary>
+    /// <summary>Pulls Actions plus optional tabs from published CSV URLs in <see cref="SheetsConfig"/> (weapons, mods, armor, stat bonuses / suffixes, enemies, environments, dungeons, classes).</summary>
     public static class GameDataSheetsPullService
     {
         public static async Task PullAllFromSheetsConfigAsync(
@@ -50,6 +50,16 @@ namespace RPGGame.Data
                 ClearJsonCacheForGameDataFile(GameConstants.ArmorJson);
             }
 
+            if (!string.IsNullOrWhiteSpace(sc.StatBonusesSheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.StatBonusesSheetUrl, cancellationToken).ConfigureAwait(false);
+                string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.StatBonuses);
+                string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.StatBonusesJson)
+                    ?? GameConstants.GetGameDataFilePath(GameConstants.StatBonusesJson);
+                await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                ClearJsonCacheForGameDataFile(GameConstants.StatBonusesJson);
+            }
+
             if (!string.IsNullOrWhiteSpace(sc.EnemiesSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.EnemiesSheetUrl, cancellationToken).ConfigureAwait(false);
@@ -68,6 +78,16 @@ namespace RPGGame.Data
                     ?? GameConstants.GetGameDataFilePath(GameConstants.RoomsJson);
                 await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
                 ClearJsonCacheForGameDataFile(GameConstants.RoomsJson);
+            }
+
+            if (!string.IsNullOrWhiteSpace(sc.DungeonsSheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.DungeonsSheetUrl, cancellationToken).ConfigureAwait(false);
+                string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Dungeons);
+                string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.DungeonsJson)
+                    ?? GameConstants.GetGameDataFilePath(GameConstants.DungeonsJson);
+                await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                ClearJsonCacheForGameDataFile(GameConstants.DungeonsJson);
             }
 
             if (!string.IsNullOrWhiteSpace(sc.ClassPresentationSheetUrl))

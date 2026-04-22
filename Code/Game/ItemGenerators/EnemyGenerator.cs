@@ -38,6 +38,8 @@ namespace RPGGame
                     var loadedEnemies = System.Text.Json.JsonSerializer.Deserialize<List<EnemyData>>(existingJson);
                     if (loadedEnemies != null)
                     {
+                        foreach (var e in loadedEnemies)
+                            EnemyDataPostLoad.Apply(e);
                         existingEnemies = loadedEnemies;
                     }
                 }
@@ -103,10 +105,14 @@ namespace RPGGame
             {
                 Name = existing.Name,
                 Archetype = existing.Archetype,
+                BaseAttributes = existing.BaseAttributes,
+                GrowthPerLevel = existing.GrowthPerLevel,
+                BaseHealth = existing.BaseHealth,
+                HealthGrowthPerLevel = existing.HealthGrowthPerLevel,
                 Actions = existing.Actions,
                 IsLiving = existing.IsLiving,
                 Description = existing.Description,
-                Overrides = existing.Overrides
+                ColorOverride = existing.ColorOverride,
             };
 
             // Apply archetype-based scaling adjustments if needed

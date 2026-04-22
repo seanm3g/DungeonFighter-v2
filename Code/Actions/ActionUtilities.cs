@@ -4,6 +4,7 @@ using System.Linq;
 using Avalonia.Media;
 using RPGGame.ActionInteractionLab;
 using RPGGame.UI.ColorSystem;
+using RPGGame.Utils;
 
 namespace RPGGame
 {
@@ -55,6 +56,65 @@ namespace RPGGame
             {
                 return 0; // Enemies don't have combo steps
             }
+        }
+
+        /// <summary>
+        /// When true, combo-slot action selection uses <see cref="Character.ComboStep"/> order; when false, strip index is random (or salt-derived).
+        /// </summary>
+        public static bool UsesOrderedComboSequence(Character character) =>
+            character.GetEffectiveIntelligence() >= GameConstants.ComboSequenceIntelligenceThreshold;
+
+        /// <summary>
+        /// Resolves which combo-strip slot to use for this attack's combo action pick.
+        /// Ordered (INT high): <c>ComboStep % count</c>.
+        /// Chaotic (INT low): uniform <see cref="Dice.Roll"/> when <paramref name="deterministicSalt"/> is null;
+        /// otherwise stable index from salt (e.g. lab d20) via <c>(salt % count + count) % count</c>.
+        /// </summary>
+        public static int ResolveComboStripIndex(Character character, IReadOnlyList<Action> comboActions, int? deterministicSalt)
+        {
+            int count = comboActions?.Count ?? 0;
+            if (count <= 0)
+                return 0;
+            // Only one combo slot: index is always 0. Chaotic path used 1d(count); count==1 would call Roll(1,1), which is invalid.
+            if (count == 1)
+                return 0;
+            if (UsesOrderedComboSequence(character))
+                return character.ComboStep % count;
+            if (deterministicSalt.HasValue)
+            {
+                int s = deterministicSalt.Value;
+                return (s % count + count) % count;
+            }
+            // Map 1..sides onto 0..count-1 (test mode may force a d20 while this is 1dN for strip size).
+            int raw = Dice.Roll(1, count);
+            return ((raw - 1) % count + count) % count;
+        }
+
+        /// <summary>
+        /// Slot index for pending ACTION cadence on the hero: matches executed combo action when possible, else ComboStep.
+        /// </summary>
+        public static int GetComboSlotForPendingBonuses(Character character, Action? selectedAction, IReadOnlyList<Action> comboActions)
+        {
+            int n = comboActions?.Count ?? 0;
+            if (n <= 0 || comboActions == null)
+                return 0;
+            if (selectedAction != null && selectedAction.IsComboAction)
+            {
+                for (int i = 0; i < n; i++)
+                {
+                    if (ReferenceEquals(comboActions[i], selectedAction))
+                        return i;
+                }
+                if (!string.IsNullOrEmpty(selectedAction.Name))
+                {
+                    for (int i = 0; i < n; i++)
+                    {
+                        if (string.Equals(comboActions[i].Name, selectedAction.Name, StringComparison.OrdinalIgnoreCase))
+                            return i;
+                    }
+                }
+            }
+            return character.ComboStep % n;
         }
 
         /// <summary>

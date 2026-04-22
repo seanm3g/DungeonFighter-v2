@@ -30,6 +30,7 @@ namespace RPGGame.Tests.Unit.Game
             TestConstructorWithCharacter();
             TestExitActionInteractionLab_NoActivePlayer_SelectsSettingsState();
             TestExitActionInteractionLab_WithActivePlayer_SelectsSettingsState();
+            TestBarbarianStarterWeaponChoice1Based();
 
             TestBase.PrintSummary("GameCoordinator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -121,6 +122,46 @@ namespace RPGGame.Tests.Unit.Game
             TestBase.AssertEqualEnum(GameState.Settings, game.StateManager.CurrentState,
                 "Exit lab should always return to Settings (even when a save character is loaded)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestBarbarianStarterWeaponChoice1Based()
+        {
+            Console.WriteLine("\n--- Testing GetBarbarianStarterWeaponChoice1Based ---");
+
+            int choice = GameCoordinator.GetBarbarianStarterWeaponChoice1Based();
+            var init = new GameInitializer();
+            var weapons = init.LoadStartingGear()?.weapons;
+            TestBase.AssertTrue(choice >= 1, "Barbarian starter choice is at least 1",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            if (weapons == null || weapons.Count == 0)
+                return;
+
+            TestBase.AssertTrue(choice <= weapons.Count, "Barbarian starter choice fits starting weapon list",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            bool listHasMace = false;
+            foreach (var w in weapons)
+            {
+                if (w.name.Contains("mace", StringComparison.OrdinalIgnoreCase))
+                {
+                    listHasMace = true;
+                    break;
+                }
+            }
+
+            if (listHasMace)
+            {
+                string picked = weapons[choice - 1].name;
+                TestBase.AssertTrue(picked.Contains("mace", StringComparison.OrdinalIgnoreCase),
+                    "When starting gear includes a mace, choice should index that barbarian starter",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            else
+            {
+                TestBase.AssertEqual(1, choice, "When no mace in starting gear, fallback is first slot",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
         }
 
         #endregion

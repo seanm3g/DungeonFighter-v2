@@ -18,6 +18,8 @@ namespace RPGGame.Tests.Unit.Data
             TestApplyDefaultOptionalTabNamesWhenAllUnset(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyDefaultOptionalTabNamesSkipsWhenAnySet(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyDefaultEnemiesAndEnvironmentsTabNamesWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
+            TestApplyDefaultDungeonsTabNameWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
+            TestApplyDefaultStatBonusesTabNameWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
             TestResolvePathsRelativeToConfigFile(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("SheetsPushConfig Tests", testsRun, testsPassed, testsFailed);
@@ -85,6 +87,8 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual(SheetsPushConfig.DefaultClassPresentationSheetTabName, cfg.ClassPresentationSheetTabName, "classes", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual(SheetsPushConfig.DefaultEnemiesSheetTabName, cfg.EnemiesSheetTabName, "enemies", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual(SheetsPushConfig.DefaultEnvironmentsSheetTabName, cfg.EnvironmentsSheetTabName, "environments", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(SheetsPushConfig.DefaultDungeonsSheetTabName, cfg.DungeonsSheetTabName, "dungeons", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(SheetsPushConfig.DefaultStatBonusesSheetTabName, cfg.StatBonusesSheetTabName, "stat bonuses / suffixes", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
         private static void TestApplyDefaultOptionalTabNamesSkipsWhenAnySet(ref int testsRun, ref int testsPassed, ref int testsFailed)
@@ -113,6 +117,38 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual(SheetsPushConfig.DefaultEnemiesSheetTabName, cfg.EnemiesSheetTabName, "enemies defaulted", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual(SheetsPushConfig.DefaultEnvironmentsSheetTabName, cfg.EnvironmentsSheetTabName, "environments defaulted", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertTrue(!cfg.ApplyDefaultEnemiesAndEnvironmentsTabNamesIfUnset(), "second call no-op", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestApplyDefaultDungeonsTabNameWhenUnset(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestApplyDefaultDungeonsTabNameWhenUnset));
+            var cfg = new SheetsPushConfig
+            {
+                SpreadsheetId = "x",
+                ActionsSheetTabName = "ACTIONS",
+                OAuthClientSecretsPath = "s.json",
+                WeaponsSheetTabName = "WEAPONS",
+                DungeonsSheetTabName = ""
+            };
+            TestBase.AssertTrue(cfg.ApplyDefaultDungeonsTabNameIfUnset(), "returns true", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(SheetsPushConfig.DefaultDungeonsSheetTabName, cfg.DungeonsSheetTabName, "dungeons defaulted", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(!cfg.ApplyDefaultDungeonsTabNameIfUnset(), "second call no-op", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestApplyDefaultStatBonusesTabNameWhenUnset(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestApplyDefaultStatBonusesTabNameWhenUnset));
+            var cfg = new SheetsPushConfig
+            {
+                SpreadsheetId = "x",
+                ActionsSheetTabName = "ACTIONS",
+                OAuthClientSecretsPath = "s.json",
+                WeaponsSheetTabName = "WEAPONS",
+                StatBonusesSheetTabName = ""
+            };
+            TestBase.AssertTrue(cfg.ApplyDefaultStatBonusesTabNameIfUnset(), "returns true", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(SheetsPushConfig.DefaultStatBonusesSheetTabName, cfg.StatBonusesSheetTabName, "suffixes tab defaulted", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(!cfg.ApplyDefaultStatBonusesTabNameIfUnset(), "second call no-op", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
         private static void TestResolvePathsRelativeToConfigFile(ref int testsRun, ref int testsPassed, ref int testsFailed)

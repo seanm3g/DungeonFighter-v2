@@ -38,6 +38,8 @@ namespace RPGGame.ActionInteractionLab
         private readonly System.Action? _prepareLabHistoryReplay;
         private string _initialPlayerJson;
         private readonly List<LabStep> _history = new();
+        /// <summary>Sum of per-encounter turn counts from completed batch simulations (off-thread fights).</summary>
+        private int _simulatedCombatTurnAccumulator;
         /// <summary>Serializes Step / Undo / replay so two UI actions cannot interleave async combat (shared speed system).</summary>
         private readonly SemaphoreSlim _turnGate = new(1, 1);
 
@@ -84,6 +86,24 @@ namespace RPGGame.ActionInteractionLab
         public void SetEncounterSimulationRunning(bool value) => IsEncounterSimulationRunning = value;
 
         public IReadOnlyList<LabStep> History => _history;
+
+        /// <summary>
+        /// Lab tools panel counter: interactive <see cref="StepAsync"/> advances match <see cref="History"/> length;
+        /// each completed encounter batch adds that encounter's resolved turn count (see <see cref="RecordEncounterSimulationTurns"/>).
+        /// Resets when lab step history is cleared (gear, enemy swap, enemy level rebuild, or <see cref="ResetLabEncounterAsync"/>).
+        /// </summary>
+        public int LabTotalActionTicks => _history.Count + _simulatedCombatTurnAccumulator;
+
+        /// <summary>Adds simulated encounter turn totals after <see cref="ActionLabEncounterSimulator.RunBatchAsync"/> completes.</summary>
+        public void RecordEncounterSimulationTurns(ActionLabEncounterSimulationReport report)
+        {
+            if (report == null)
+                return;
+            foreach (var e in report.Encounters)
+                _simulatedCombatTurnAccumulator += e.Turns;
+        }
+
+        private void ResetSimulatedCombatTurnAccumulator() => _simulatedCombatTurnAccumulator = 0;
 
         /// <summary>Catalog action name for the next Step (full list from <see cref="ActionLoader"/>).</summary>
         public string SelectedCatalogActionName { get; set; } = "";
@@ -219,6 +239,7 @@ namespace RPGGame.ActionInteractionLab
             session.EnemyCatalogScrollOffset = 0;
             TryBeginWithRandomCatalogEnemy(session);
             session.EncounterSimulationBatchCount = ActionLabEncounterSimulator.DefaultBatchEncounterCount;
+            session.ResetSimulatedCombatTurnAccumulator();
             session._restoreTarget = canvasContext;
             if (canvasContext != null)
             {
@@ -302,6 +323,7 @@ namespace RPGGame.ActionInteractionLab
 
             _labPlayer.EquipItem(item, s);
             _history.Clear();
+            ResetSimulatedCombatTurnAccumulator();
             ResetLabPanelDeltas();
             BootstrapCombatState();
             var serializer = new CharacterSerializer();
@@ -333,6 +355,7 @@ namespace RPGGame.ActionInteractionLab
             }
 
             _history.Clear();
+            ResetSimulatedCombatTurnAccumulator();
             ResetLabPanelDeltas();
             BootstrapCombatState();
             var serializer = new CharacterSerializer();
@@ -416,6 +439,7 @@ namespace RPGGame.ActionInteractionLab
             _labPanelEnemyLevelDelta = 0;
             _labEnemy = created;
             _history.Clear();
+            ResetSimulatedCombatTurnAccumulator();
             BootstrapCombatState();
             SyncCatalogSelectionToUpcomingActor();
             SyncLabEnemyToCanvasContext();
@@ -436,6 +460,7 @@ namespace RPGGame.ActionInteractionLab
             _labPanelEnemyLevelDelta = next - _labEnemyBaseLevel;
             BuildLabEnemyFromPanelState();
             _history.Clear();
+            ResetSimulatedCombatTurnAccumulator();
             BootstrapCombatState();
             SyncCatalogSelectionToUpcomingActor();
             SyncLabEnemyToCanvasContext();
@@ -507,13 +532,45 @@ namespace RPGGame.ActionInteractionLab
                 SelectedCatalogActionName = name;
         }
 
-        /// <summary>Resets combo step for both lab participants and refreshes catalog selection. Does not clear action bonuses.</summary>
-        public void ResetLabCombo()
+        /// <summary>
+        /// Action Lab Reset control: clears the center combat log and step/sim tick counters, restores full HP on both
+        /// fighters, clears status/temp combat effects, and returns both combo steps to the start of their strips.
+        /// Preserves equipped items, combo strip contents, and the current lab enemy (identity/level).
+        /// </summary>
+        public async Task ResetLabEncounterAsync()
         {
-            _labPlayer.ComboStep = 0;
-            _labEnemy.ComboStep = 0;
-            SyncCatalogSelectionToUpcomingActor();
-            _refreshCombatUi();
+            await _turnGate.WaitAsync().ConfigureAwait(true);
+            try
+            {
+                _history.Clear();
+                ResetSimulatedCombatTurnAccumulator();
+                _prepareLabHistoryReplay?.Invoke();
+
+                _labPlayer.Facade.ClearAllTempEffects();
+                _labEnemy.Facade.ClearAllTempEffects();
+
+                _labPlayer.CurrentHealth = _labPlayer.GetEffectiveMaxHealth();
+                _labEnemy.CurrentHealth = _labEnemy.GetEffectiveMaxHealth();
+
+                GameTicker.Instance.Reset();
+                _combatManager.StartBattleNarrative(
+                    _labPlayer.Name,
+                    _labEnemy.Name,
+                    _labRoom.Name,
+                    _labPlayer.CurrentHealth,
+                    _labEnemy.CurrentHealth);
+                _combatManager.InitializeCombatEntities(_labPlayer, _labEnemy, _labRoom, playerGetsFirstAttack: true, enemyGetsFirstAttack: false);
+                _labRoom.ResetForNewFight();
+                ActionSelector.ClearStoredRolls();
+                Dice.ClearTestRoll();
+
+                SyncCatalogSelectionToUpcomingActor();
+                _refreshCombatUi();
+            }
+            finally
+            {
+                _turnGate.Release();
+            }
         }
 
         /// <summary>Moves <see cref="LabPlayer"/> combo strip pointer by <paramref name="delta"/> slots; clamps to first/last slot (no wrap).</summary>
@@ -579,7 +636,7 @@ namespace RPGGame.ActionInteractionLab
         private void ReapplyLabHeroComboStrip(IReadOnlyList<string> orderedActionNames)
         {
             foreach (var a in _labPlayer.GetComboActions().ToList())
-                _labPlayer.RemoveFromCombo(a);
+                _labPlayer.RemoveFromCombo(a, ignoreWeaponRequirement: true);
 
             int nextSlot = 1;
             foreach (var name in orderedActionNames)

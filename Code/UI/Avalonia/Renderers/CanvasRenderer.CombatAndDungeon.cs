@@ -194,6 +194,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderDeathScreen(Character player, string defeatSummary, CanvasContext context)
         {
+            EnsureDisplayManagerForPlayer(player);
             CombatActionInfoState.Clear();
             ActionStripHoverState.Clear();
             LeftPanelHoverState.Clear();

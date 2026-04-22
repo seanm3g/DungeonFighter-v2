@@ -37,6 +37,12 @@ namespace RPGGame.Data
         [JsonPropertyName("environmentsSheetTabName")]
         public string EnvironmentsSheetTabName { get; set; } = "";
 
+        [JsonPropertyName("dungeonsSheetTabName")]
+        public string DungeonsSheetTabName { get; set; } = "";
+
+        [JsonPropertyName("statBonusesSheetTabName")]
+        public string StatBonusesSheetTabName { get; set; } = "";
+
         /// <summary>Path to the OAuth 2.0 Desktop client JSON from Google Cloud Console. Relative paths are resolved from the config file directory.</summary>
         [JsonPropertyName("oauthClientSecretsPath")]
         public string OAuthClientSecretsPath { get; set; } = "";
@@ -56,8 +62,12 @@ namespace RPGGame.Data
         public const string DefaultEnemiesSheetTabName = "ENEMIES";
         public const string DefaultEnvironmentsSheetTabName = "ENVIRONMENTS";
 
+        public const string DefaultDungeonsSheetTabName = "DUNGEONS";
+
+        public const string DefaultStatBonusesSheetTabName = "SUFFIXES";
+
         /// <summary>
-        /// When <b>all</b> optional tab names (weapons / modifications / armor / classes / enemies / environments) are blank, assigns the
+        /// When <b>all</b> optional tab names (weapons / modifications / armor / classes / enemies / environments / dungeons / stat bonuses) are blank, assigns the
         /// conventional names from <c>SheetsPushConfig.template.json</c> so a first push can populate those tabs.
         /// </summary>
         /// <returns>True if defaults were applied.</returns>
@@ -68,7 +78,9 @@ namespace RPGGame.Data
                 || !string.IsNullOrWhiteSpace(ArmorSheetTabName)
                 || !string.IsNullOrWhiteSpace(ClassPresentationSheetTabName)
                 || !string.IsNullOrWhiteSpace(EnemiesSheetTabName)
-                || !string.IsNullOrWhiteSpace(EnvironmentsSheetTabName))
+                || !string.IsNullOrWhiteSpace(EnvironmentsSheetTabName)
+                || !string.IsNullOrWhiteSpace(DungeonsSheetTabName)
+                || !string.IsNullOrWhiteSpace(StatBonusesSheetTabName))
                 return false;
 
             WeaponsSheetTabName = DefaultWeaponsSheetTabName;
@@ -77,6 +89,8 @@ namespace RPGGame.Data
             ClassPresentationSheetTabName = DefaultClassPresentationSheetTabName;
             EnemiesSheetTabName = DefaultEnemiesSheetTabName;
             EnvironmentsSheetTabName = DefaultEnvironmentsSheetTabName;
+            DungeonsSheetTabName = DefaultDungeonsSheetTabName;
+            StatBonusesSheetTabName = DefaultStatBonusesSheetTabName;
             return true;
         }
 
@@ -102,6 +116,26 @@ namespace RPGGame.Data
             }
 
             return changed;
+        }
+
+        /// <summary>
+        /// Fills <see cref="DungeonsSheetTabName"/> when still blank (older configs that never listed a DUNGEONS tab).
+        /// </summary>
+        public bool ApplyDefaultDungeonsTabNameIfUnset()
+        {
+            if (!string.IsNullOrWhiteSpace(DungeonsSheetTabName))
+                return false;
+            DungeonsSheetTabName = DefaultDungeonsSheetTabName;
+            return true;
+        }
+
+        /// <summary>Fills <see cref="StatBonusesSheetTabName"/> when still blank (newer field on older push configs).</summary>
+        public bool ApplyDefaultStatBonusesTabNameIfUnset()
+        {
+            if (!string.IsNullOrWhiteSpace(StatBonusesSheetTabName))
+                return false;
+            StatBonusesSheetTabName = DefaultStatBonusesSheetTabName;
+            return true;
         }
 
         public static SheetsPushConfig Load(string? configPath = null)

@@ -446,40 +446,38 @@ namespace RPGGame.Tests.Unit
                 var action = new Action { Name = "Test Action" };
                 var results = new System.Collections.Generic.List<string>();
                 
-                target.PoisonStacks = 3;
-                int initialPoison = target.PoisonStacks;
+                target.PoisonPercentOfMaxHealth = 3;
+                double initialPoison = target.PoisonPercentOfMaxHealth;
                 bool applied = handler.Apply(target, action, results);
                 AssertTrue(applied, "Cleanse effect applied");
-                AssertTrue(target.PoisonStacks < initialPoison, 
-                    $"Poison stacks reduced: {initialPoison} -> {target.PoisonStacks}");
+                AssertTrue(target.PoisonPercentOfMaxHealth < initialPoison,
+                    $"Poison % reduced: {initialPoison} -> {target.PoisonPercentOfMaxHealth}");
                 
-                target.PoisonStacks = 5;
+                target.PoisonPercentOfMaxHealth = 5;
                 target.VulnerabilityStacks = 3;
                 target.ExposeStacks = 2;
-                int poisonBefore = target.PoisonStacks;
-                int vulnBefore = target.VulnerabilityStacks ?? 0;
-                int exposeBefore = target.ExposeStacks ?? 0;
+                double poisonBefore = target.PoisonPercentOfMaxHealth;
                 
                 handler.Apply(target, action, results);
-                AssertTrue(target.PoisonStacks < poisonBefore || (target.VulnerabilityStacks ?? 0) < vulnBefore || (target.ExposeStacks ?? 0) < exposeBefore,
-                    $"At least one debuff reduced: Poison {target.PoisonStacks}, Vuln {target.VulnerabilityStacks ?? 0}, Expose {target.ExposeStacks ?? 0}");
+                AssertTrue(target.PoisonPercentOfMaxHealth < poisonBefore,
+                    $"Poison % reduced: {poisonBefore} -> {target.PoisonPercentOfMaxHealth} (vuln/expose unchanged: {target.VulnerabilityStacks ?? 0}, {target.ExposeStacks ?? 0})");
                 
-                target.PoisonStacks = 0;
+                target.PoisonPercentOfMaxHealth = 0;
                 target.VulnerabilityStacks = 0;
                 target.ExposeStacks = 0;
                 applied = handler.Apply(target, action, results);
-                AssertTrue(target.PoisonStacks == 0, 
-                    $"Poison remains 0 when no debuffs: {target.PoisonStacks}");
+                AssertTrue(target.PoisonPercentOfMaxHealth == 0,
+                    $"Poison remains 0 when no debuffs: {target.PoisonPercentOfMaxHealth}");
                 
-                target.PoisonStacks = 10;
-                int poisonHigh = target.PoisonStacks;
+                target.PoisonPercentOfMaxHealth = 10;
+                double poisonHigh = target.PoisonPercentOfMaxHealth;
                 handler.Apply(target, action, results);
-                AssertTrue(target.PoisonStacks < poisonHigh, 
-                    $"High poison stacks reduced: {poisonHigh} -> {target.PoisonStacks}");
+                AssertTrue(target.PoisonPercentOfMaxHealth < poisonHigh,
+                    $"High poison % reduced: {poisonHigh} -> {target.PoisonPercentOfMaxHealth}");
                 
                 target.FortifyStacks = 3;
                 target.HardenStacks = 2;
-                target.PoisonStacks = 4;
+                target.PoisonPercentOfMaxHealth = 4;
                 int fortifyBefore = target.FortifyStacks ?? 0;
                 int hardenBefore = target.HardenStacks ?? 0;
                 
@@ -488,10 +486,10 @@ namespace RPGGame.Tests.Unit
                     $"Fortify stacks unaffected by cleanse: {target.FortifyStacks ?? 0} (expected {fortifyBefore})");
                 AssertTrue((target.HardenStacks ?? 0) == hardenBefore, 
                     $"Harden stacks unaffected by cleanse: {target.HardenStacks ?? 0} (expected {hardenBefore})");
-                AssertTrue(target.PoisonStacks < 4, 
-                    $"Poison stacks reduced by cleanse: {target.PoisonStacks} (expected < 4)");
+                AssertTrue(target.PoisonPercentOfMaxHealth < 4,
+                    $"Poison % reduced by cleanse: {target.PoisonPercentOfMaxHealth} (expected < 4)");
                 
-                target.PoisonStacks = 1;
+                target.PoisonPercentOfMaxHealth = 1;
                 handler.Apply(target, action, results);
             }
             catch (Exception ex)

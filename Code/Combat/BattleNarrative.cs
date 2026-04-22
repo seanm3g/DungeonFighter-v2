@@ -305,7 +305,7 @@ namespace RPGGame
 
 
 
-        public string GenerateInformationalSummary(bool showDamageWhenEnemyKilled = false)
+        public string GenerateInformationalSummary()
         {
             var stats = BattleNarrativeGenerator.CalculateStatistics(events.ToList(), playerName, enemyName);
             bool playerWon = finalEnemyHealth <= 0;
@@ -314,30 +314,10 @@ namespace RPGGame
             return BattleNarrativeGenerator.GenerateInformationalSummary(
                 stats.TotalPlayerDamage, 
                 stats.TotalEnemyDamage, 
-                stats.PlayerComboCount, 
-                stats.EnemyComboCount, 
                 playerWon,
                 enemyWon,
                 playerName,
-                enemyName,
-                showDamageWhenEnemyKilled);
-        }
-
-        public string GenerateInformationalSummary(int totalPlayerDamage, int totalEnemyDamage, int playerComboCount, int enemyComboCount, bool showDamageWhenEnemyKilled = false)
-        {
-            bool playerWon = finalEnemyHealth <= 0;
-            bool enemyWon = finalPlayerHealth <= 0;
-            
-            return BattleNarrativeGenerator.GenerateInformationalSummary(
-                totalPlayerDamage, 
-                totalEnemyDamage, 
-                playerComboCount, 
-                enemyComboCount, 
-                playerWon,
-                enemyWon,
-                playerName,
-                enemyName,
-                showDamageWhenEnemyKilled);
+                enemyName);
         }
 
         /// <summary>

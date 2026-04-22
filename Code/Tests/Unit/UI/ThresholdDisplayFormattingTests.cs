@@ -19,6 +19,7 @@ namespace RPGGame.Tests.Unit.UI
             AccuracyAppendedPositiveNegativeZero(ref run, ref passed, ref failed);
             AccuracyDeltaParenColorSign(ref run, ref passed, ref failed);
             ThresholdValueWithAccuracyPartsMatchesFormat(ref run, ref passed, ref failed);
+            ClampDiceLadderFloorsAtOne(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ThresholdDisplayFormattingTests", run, passed, failed);
         }
@@ -105,6 +106,20 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(ThresholdDisplayFormatting.FormatThresholdValueWithAccuracy(6, -2), combined2,
                 "parts match format string for penalty accuracy", ref run, ref passed, ref failed);
             TestBase.AssertEqual(2, d2, "penalty accuracy gives positive delta", ref run, ref passed, ref failed);
+        }
+
+        /// <summary>
+        /// Large deferred ACC/COMBO peek shifts can make raw effective = base - shift negative; HUD clamps to 1
+        /// (same floor as <see cref="RPGGame.ActionSelector.GetEffectiveComboThresholdForSelection"/>).
+        /// </summary>
+        private static void ClampDiceLadderFloorsAtOne(ref int run, ref int passed, ref int failed)
+        {
+            ThresholdDisplayFormatting.GetThresholdValueWithAccuracyParts(14, 40, out int raw, out _, out _);
+            TestBase.AssertTrue(raw < 0, "sanity: huge shift yields negative raw effective", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, ThresholdDisplayFormatting.ClampDiceLadderDisplayValue(raw),
+                "ClampDiceLadderDisplayValue floors sub-1", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(3, ThresholdDisplayFormatting.ClampDiceLadderDisplayValue(3),
+                "ClampDiceLadderDisplayValue leaves positives", ref run, ref passed, ref failed);
         }
     }
 }

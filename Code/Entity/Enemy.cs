@@ -316,21 +316,22 @@
             return new List<string>(); // Return empty list since milestone checking moved to CombatManager
         }
 
-        /// <summary>
-        /// Override ProcessPoison to prevent undead enemies from taking bleed/poison damage
-        /// </summary>
-        /// <param name="currentTime">Current game time in seconds</param>
-        /// <returns>Damage taken from poison this tick (0 for undead)</returns>
+        public override int GetMaxHealthForPoisonDot() => MaxHealth;
+
+        /// <summary>Undead are immune to poison % DoT.</summary>
         public override int ProcessPoison(double currentTime)
         {
-            // Undead enemies are immune to poison and bleed damage
             if (!IsLiving)
-            {
                 return 0;
-            }
-            
-            // For living enemies, use the base class implementation
             return base.ProcessPoison(currentTime);
+        }
+
+        /// <summary>Undead are immune to bleed.</summary>
+        public override int ProcessBleedOnAction()
+        {
+            if (!IsLiving)
+                return 0;
+            return base.ProcessBleedOnAction();
         }
 
         // Archetype-related methods moved to ArchetypeManager

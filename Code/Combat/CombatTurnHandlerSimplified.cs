@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Combat.Turn;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
@@ -33,6 +34,8 @@ namespace RPGGame
                 // Use the new ActionSelector system for action selection and execution
                 await ProcessPlayerActionAsync(player, currentEnemy, room, forcedAction);
             }
+
+            StatusEffectProcessor.ProcessBleedAfterActorResolvedTurn(player);
             
             // Process health regeneration for player after they act
             ProcessPlayerHealthRegeneration(player);
@@ -115,6 +118,8 @@ namespace RPGGame
                     }
                 }
             }
+
+            StatusEffectProcessor.ProcessBleedAfterActorResolvedTurn(currentEnemy);
             
             // Return false if player is dead (combat should end)
             if (!player.IsAlive)
@@ -122,7 +127,7 @@ namespace RPGGame
                 return false;
             }
             
-            // Process poison/bleed and burn damage after enemy's turn
+            // Process poison and burn damage after enemy's turn (bleed is per-actor on their own turn)
             stateManager.ProcessDamageOverTimeEffects(player, currentEnemy);
             
             return true;

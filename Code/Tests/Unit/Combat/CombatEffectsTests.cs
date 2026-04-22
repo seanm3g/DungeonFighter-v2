@@ -55,8 +55,7 @@ namespace RPGGame.Tests.Unit.Combat
                 .WithLevel(1)
                 .Build();
 
-            // Test that status effects can be set
-            character.IsBleeding = true;
+            character.QueueBleedFromHit(1);
             TestBase.AssertTrue(character.IsBleeding,
                 "Character should be able to have bleeding status",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);

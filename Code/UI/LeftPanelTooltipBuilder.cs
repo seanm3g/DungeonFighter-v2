@@ -75,10 +75,13 @@ namespace RPGGame
                     AppendSimpleStat(character, "LIFESTEAL", $"{character.GetModificationLifesteal():P0} from modifications.", result, AddWrapped, maxLines);
                     break;
                 case "stat:bleed":
-                    AppendSimpleStat(character, "BLEED", $"{character.GetModificationBleedChance():P0} from modifications.", result, AddWrapped, maxLines);
+                    AppendSimpleStat(character, "BLEED", $"+{character.GetWeaponBleedPerHit()} on critical hit from weapon mods.", result, AddWrapped, maxLines);
                     break;
                 case "stat:burn":
-                    AppendSimpleStat(character, "BURN", $"{character.GetModificationBurnChance():P0} from modifications.", result, AddWrapped, maxLines);
+                    AppendSimpleStat(character, "BURN", $"+{character.GetWeaponBurnPerHit()} on critical hit from weapon mods.", result, AddWrapped, maxLines);
+                    break;
+                case "stat:poison":
+                    AppendSimpleStat(character, "POISON", $"+{character.GetWeaponPoisonPercentPerHit():0.#}% max HP on critical hit from weapon mods.", result, AddWrapped, maxLines);
                     break;
                 case "gear:weapon":
                     AppendGear(character, character.Weapon, "Weapon", result, AddWrapped, maxLines);
@@ -222,7 +225,7 @@ namespace RPGGame
             int def = cfg.RollSystem.ComboThreshold.Min > 0 ? cfg.RollSystem.ComboThreshold.Min : 14;
             addWrapped("Combo threshold (d20 roll)");
             addWrapped($"Current: {cur} (default {def}).");
-            addWrapped("Rolling at or above this value advances or triggers combo-related outcomes (depends on action).");
+            addWrapped("Named combo-strip swings require meeting this on the modified die (panel ACC shifts hit and post-roll combo outcomes, not which strip action is chosen).");
         }
 
         private static void AppendThresholdHit(Character c, Action<string> addWrapped)

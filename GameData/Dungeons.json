@@ -1,5 +1,47 @@
 [
-  { "name": "Ancient Forest", "theme": "Forest", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Goblin", "Spider", "Wolf", "Bear", "Treant", "Boar"] },
-  { "name": "Lava Caves", "theme": "Lava", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Fire Elemental", "Lava Golem", "Bat", "Salamander", "Ember Spirit", "Magma Beast"] },
-  { "name": "Haunted Crypt", "theme": "Crypt", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Skeleton", "Zombie", "Wraith", "Ghoul", "Lich", "Wight"] }
+  {
+    "name": "Ancient Forest",
+    "theme": "Forest",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Goblin",
+      "Spider",
+      "Wolf",
+      "Bear",
+      "Treant",
+      "Boar"
+    ],
+    "colorOverride": null
+  },
+  {
+    "name": "Lava Caves",
+    "theme": "Lava",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Fire Elemental",
+      "Lava Golem",
+      "Bat",
+      "Salamander",
+      "Ember Spirit",
+      "Magma Beast"
+    ],
+    "colorOverride": null
+  },
+  {
+    "name": "Haunted Crypt",
+    "theme": "Crypt",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Skeleton",
+      "Zombie",
+      "Wraith",
+      "Ghoul",
+      "Lich",
+      "Wight"
+    ],
+    "colorOverride": null
+  }
 ]

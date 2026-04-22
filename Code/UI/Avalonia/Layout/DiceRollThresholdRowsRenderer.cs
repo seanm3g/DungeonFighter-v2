@@ -29,12 +29,13 @@ namespace RPGGame.UI.Avalonia.Layout
             int defaultHit = config.RollSystem.MissThreshold.Max > 0 ? config.RollSystem.MissThreshold.Max : 5;
             int defaultCombo = config.RollSystem.ComboThreshold.Min > 0 ? config.RollSystem.ComboThreshold.Min : 14;
             int defaultCrit = config.Combat.CriticalHitThreshold > 0 ? config.Combat.CriticalHitThreshold : 20;
-            // Stat/equipment/temp roll bonus (d20 total) plus queued threshold shifts (ACCURACY shared; COMBO/HIT per row)
-            // so deferred sheet HIT/COMBO and FIFO bonuses show before the next roll consumes them (including between enemy turns).
-            int rollBonusHud = ActionUtilities.CalculateRollBonus(actor, null, consumeTempBonus: false);
+            // Queued threshold shifts only (ACCURACY shared; COMBO/HIT/CRIT per row). Stat/equipment/temp roll bonus
+            // must not be folded here: combat adds those to attack total (see HitCalculator / combo check), while FIFO
+            // ACCURACY and sheet HIT/COMBO deltas shift thresholds (see ActionExecutionFlow). Mixing them caused
+            // wildly negative HUD numbers (e.g. CAST +20 with a two-card strip).
             var pendingHud = actor is Character chHud ? ActionSelector.PeekPendingThresholdHudShifts(chHud) : default;
-            int comboRowShift = rollBonusHud + pendingHud.SharedAccuracy + pendingHud.ComboDelta;
-            int hitRowShift = rollBonusHud + pendingHud.SharedAccuracy + pendingHud.HitDelta;
+            int comboRowShift = pendingHud.SharedAccuracy + pendingHud.ComboDelta;
+            int hitRowShift = pendingHud.SharedAccuracy + pendingHud.HitDelta;
             int critRowShift = pendingHud.CritDelta;
             // CRIT_MISS bonuses raise the stored threshold; GetThresholdValueWithAccuracyParts subtracts shift → negate.
             int critMissRowShift = -pendingHud.CritMissDelta;
@@ -45,6 +46,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 var valueColor = ThresholdDisplayFormatting.GetValueColor(current, def);
                 string modStr = ThresholdDisplayFormatting.FormatDeltaSuffix(current, def);
                 ThresholdDisplayFormatting.GetThresholdValueWithAccuracyParts(baseThreshold, rowAccuracy, out int effective, out string accuracyParen, out int accuracyDelta);
+                effective = ThresholdDisplayFormatting.ClampDiceLadderDisplayValue(effective);
 
                 canvas.AddText(x, rowY, labelPart, AsciiArtAssets.Colors.Cyan);
                 int colX = x + ThresholdLabelWidth;

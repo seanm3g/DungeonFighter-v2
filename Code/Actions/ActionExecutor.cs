@@ -205,7 +205,7 @@ namespace RPGGame
             // Apply status effects as ColoredText
             if (result.SelectedAction != null && result.Hit)
             {
-                ActionStatusEffectApplier.ApplyStatusEffectsColored(result.SelectedAction, source, target, coloredStatusEffects);
+                ActionStatusEffectApplier.AppendColoredStatusEffectMessages(result.StatusEffectMessages, coloredStatusEffects);
                 ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
                 ActionStatusEffectApplier.ApplyStatBonusColored(result.SelectedAction, source, coloredStatusEffects);
             }
@@ -224,7 +224,7 @@ namespace RPGGame
             // Apply status effects as ColoredText
             if (result.SelectedAction != null && result.Hit)
             {
-                ActionStatusEffectApplier.ApplyStatusEffectsColored(result.SelectedAction, source, target, coloredStatusEffects);
+                ActionStatusEffectApplier.AppendColoredStatusEffectMessages(result.StatusEffectMessages, coloredStatusEffects);
                 ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
                 ActionStatusEffectApplier.ApplyStatBonusColored(result.SelectedAction, source, coloredStatusEffects);
             }

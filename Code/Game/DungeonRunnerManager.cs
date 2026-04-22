@@ -84,7 +84,6 @@ namespace RPGGame
                 rewardManager,
                 exitChoiceHandler,
                 (System.Action<int, Item?, List<LevelUpInfo>, List<Item>>)OnDungeonCompleted,
-                (System.Action<Character>)OnPlayerDeath,
                 (System.Action)OnDungeonExitedEarly);
         }
         

@@ -112,76 +112,46 @@ namespace RPGGame
         /// </summary>
         public int GetGodlikeBonus() => GetModificationBonusInt("godlike");
 
-        /// <summary>
-        /// Gets bleed chance from modifications.
-        /// Only weapons can provide status effect chances.
-        /// </summary>
-        public double GetBleedChance()
+        /// <summary>Total bleed intensity added per successful weapon hit (weapon slot only).</summary>
+        public int GetWeaponBleedPerHit()
         {
-            double totalBleedChance = 0.0;
-
-            // Only check the weapon slot for status effect chances
+            int sum = 0;
             var weapon = slots.Weapon;
-            if (weapon != null)
+            if (weapon == null) return 0;
+            foreach (var modification in weapon.Modifications)
             {
-                foreach (var modification in weapon.Modifications)
-                {
-                    if (modification.Effect == "bleedChance")
-                    {
-                        totalBleedChance += modification.RolledValue;
-                    }
-                }
+                if (modification.Effect == "weaponBleed")
+                    sum += (int)Math.Round(modification.RolledValue);
             }
-
-            return totalBleedChance;
+            return sum;
         }
 
-        /// <summary>
-        /// Gets poison chance from modifications.
-        /// Only weapons can provide status effect chances.
-        /// </summary>
-        public double GetPoisonChance()
+        /// <summary>Total poison % of max HP added per successful weapon hit (weapon slot only).</summary>
+        public double GetWeaponPoisonPercentPerHit()
         {
-            double totalPoisonChance = 0.0;
-
-            // Only check the weapon slot for status effect chances
+            double sum = 0;
             var weapon = slots.Weapon;
-            if (weapon != null)
+            if (weapon == null) return 0;
+            foreach (var modification in weapon.Modifications)
             {
-                foreach (var modification in weapon.Modifications)
-                {
-                    if (modification.Effect == "poisonChance")
-                    {
-                        totalPoisonChance += modification.RolledValue;
-                    }
-                }
+                if (modification.Effect == "weaponPoison")
+                    sum += modification.RolledValue;
             }
-
-            return totalPoisonChance;
+            return sum;
         }
 
-        /// <summary>
-        /// Gets burn chance from modifications.
-        /// Only weapons can provide status effect chances.
-        /// </summary>
-        public double GetBurnChance()
+        /// <summary>Total burn intensity added per successful weapon hit (weapon slot only).</summary>
+        public int GetWeaponBurnPerHit()
         {
-            double totalBurnChance = 0.0;
-
-            // Only check the weapon slot for status effect chances
+            int sum = 0;
             var weapon = slots.Weapon;
-            if (weapon != null)
+            if (weapon == null) return 0;
+            foreach (var modification in weapon.Modifications)
             {
-                foreach (var modification in weapon.Modifications)
-                {
-                    if (modification.Effect == "burnChance")
-                    {
-                        totalBurnChance += modification.RolledValue;
-                    }
-                }
+                if (modification.Effect == "weaponBurn")
+                    sum += (int)Math.Round(modification.RolledValue);
             }
-
-            return totalBurnChance;
+            return sum;
         }
 
         /// <summary>

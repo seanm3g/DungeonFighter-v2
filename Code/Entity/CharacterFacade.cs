@@ -47,12 +47,12 @@ namespace RPGGame
         {
             int oldLevel = _character.Progression.Level;
             _character.Progression.AddXP(amount);
-            
-            // Apply character-level changes for each level gained
+
+            // Progression.AddXP already incremented Level per threshold; apply rewards without bumping Level again.
             int levelsGained = _character.Progression.Level - oldLevel;
             for (int i = 0; i < levelsGained; i++)
             {
-                _levelUp.LevelUp();
+                _levelUp.ApplyProgressionLevelRewardsAndDisplay(oldLevel + i + 1);
             }
         }
         
@@ -69,8 +69,8 @@ namespace RPGGame
             var levelUpInfos = new List<LevelUpInfo>();
             for (int i = 0; i < levelsGained; i++)
             {
-                // Level was already incremented by Progression.AddXP(), so pass true
-                var levelUpInfo = _levelUp.LevelUpWithInfo(levelAlreadyIncremented: true);
+                // Level was already incremented by Progression.AddXP(); pass the level this reward step represents
+                var levelUpInfo = _levelUp.LevelUpWithInfo(levelAlreadyIncremented: true, displayedNewLevel: oldLevel + i + 1);
                 levelUpInfos.Add(levelUpInfo);
             }
             
@@ -114,11 +114,16 @@ namespace RPGGame
             // Reset combo step to first action when actions are added to combo
             _character.ComboStep = 0;
         }
-        public void RemoveFromCombo(Action action)
+        /// <param name="ignoreWeaponRequirement">When true, skips the required-weapon-basic guard (used when rebuilding the whole sequence, e.g. reorder).</param>
+        /// <returns>False when the action is the required weapon basic for the equipped weapon and cannot be removed.</returns>
+        public bool RemoveFromCombo(Action action, bool ignoreWeaponRequirement = false)
         {
+            if (!ignoreWeaponRequirement && !WeaponRequiredComboAction.CanRemoveFromCombo(_character, action))
+                return false;
             _character.Actions.RemoveFromCombo(action);
             // Reset combo step to first action when actions are removed from combo
             _character.ComboStep = 0;
+            return true;
         }
         public void InitializeDefaultCombo() => _character.Actions.InitializeDefaultCombo(_character, _character.Equipment.Weapon as WeaponItem);
         public bool RestoreComboFromActionNames(IReadOnlyList<string> actionNames) => _character.Actions.RestoreComboFromActionNames(_character, actionNames);
@@ -161,26 +166,7 @@ namespace RPGGame
                 }
             }
             
-            // Update poison effects
-            if (_character.PoisonStacks > 0)
-            {
-                _character.PoisonStacks = Math.Max(0, _character.PoisonStacks - (int)Math.Ceiling(turnsPassed));
-                if (_character.PoisonStacks == 0)
-                {
-                    _character.PoisonDamage = 0;
-                    _character.IsBleeding = false;
-                }
-            }
-            
-            // Update burn effects
-            if (_character.BurnStacks > 0)
-            {
-                _character.BurnStacks = Math.Max(0, _character.BurnStacks - (int)Math.Ceiling(turnsPassed));
-                if (_character.BurnStacks == 0)
-                {
-                    _character.BurnDamage = 0;
-                }
-            }
+            // Poison %, burn intensity, and bleed intensity do not decay from action length (see global DoT tick / bleed-on-action).
         }
         public void ApplySlow(double slowMultiplier, int duration) => _character.Effects.ApplySlow(slowMultiplier, duration);
         public void ApplyPoison(int damage, int stacks = 1, bool isBleeding = false) => _character.ApplyPoison(damage, stacks, isBleeding);
@@ -190,7 +176,6 @@ namespace RPGGame
         public void ApplyWeaken(int turns) => _character.ApplyWeaken(turns);
         public int ProcessPoison(double currentTime) => _character.ProcessPoison(currentTime);
         public int ProcessBurn(double currentTime) => _character.ProcessBurn(currentTime);
-        public string GetDamageTypeText() => _character.GetDamageTypeText();
         public void ClearAllTempEffects() 
         {
             // Clear base class effects directly (avoid circular call)
@@ -202,13 +187,13 @@ namespace RPGGame
             _character.Stats.TempIntelligenceBonus = 0;
             _character.Stats.TempStatBonusTurns = 0;
             // Clear base Actor effects (poison, burn, stun, weaken, etc.)
-            _character.PoisonDamage = 0;
-            _character.PoisonStacks = 0;
-            _character.IsBleeding = false;
-            _character.LastPoisonTick = 0.0;
-            _character.BurnDamage = 0;
-            _character.BurnStacks = 0;
-            _character.LastBurnTick = 0.0;
+            _character.PoisonPercentOfMaxHealth = 0;
+            _character.LastPoisonTickTime = 0;
+            _character.BurnIntensity = 0;
+            _character.PendingBurnFromHits = 0;
+            _character.LastBurnTickTime = 0;
+            _character.BleedIntensity = 0;
+            _character.PendingBleedFromHits = 0;
             _character.IsStunned = false;
             _character.StunTurnsRemaining = 0;
             _character.IsWeakened = false;
@@ -239,9 +224,9 @@ namespace RPGGame
         public double GetModificationDamageMultiplier() => _character.Equipment.GetModificationDamageMultiplier();
         public double GetModificationLifesteal() => _character.Equipment.GetModificationLifesteal();
         public int GetModificationGodlikeBonus() => _character.Equipment.GetModificationGodlikeBonus();
-        public double GetModificationBleedChance() => _character.Equipment.GetModificationBleedChance();
-        public double GetModificationPoisonChance() => _character.Equipment.GetModificationPoisonChance();
-        public double GetModificationBurnChance() => _character.Equipment.GetModificationBurnChance();
+        public int GetWeaponBleedPerHit() => _character.Equipment.GetWeaponBleedPerHit();
+        public double GetWeaponPoisonPercentPerHit() => _character.Equipment.GetWeaponPoisonPercentPerHit();
+        public int GetWeaponBurnPerHit() => _character.Equipment.GetWeaponBurnPerHit();
         public double GetModificationFreezeChance() => _character.Equipment.GetModificationFreezeChance();
         public double GetModificationStunChance() => _character.Equipment.GetModificationStunChance();
         public double GetModificationUniqueActionChance() => _character.Equipment.GetModificationUniqueActionChance();

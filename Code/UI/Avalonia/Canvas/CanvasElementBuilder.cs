@@ -1,4 +1,5 @@
 using Avalonia.Media;
+using RPGGame.Combat.UI;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia.Canvas
@@ -291,6 +292,27 @@ namespace RPGGame.UI.Avalonia.Canvas
                 MaxHealth = maxHealth,
                 DamageDeltaStartTime = damageDeltaStartTime
             };
+
+            if (!string.IsNullOrEmpty(entityId))
+            {
+                var dotParts = healthTracker.GetDamageDeltaDotParts(entityId);
+                if (dotParts != null && dotParts.Count > 0)
+                {
+                    var segments = new System.Collections.Generic.List<HealthBarDamageDeltaSegment>(dotParts.Count);
+                    foreach (var p in dotParts)
+                    {
+                        Color c = p.Kind switch
+                        {
+                            HealthBarDotDamageKind.Poison => ColorPalette.Green.GetColor(),
+                            HealthBarDotDamageKind.Burn => ColorPalette.Orange.GetColor(),
+                            HealthBarDotDamageKind.Bleed => ColorPalette.Error.GetColor(),
+                            _ => Colors.White
+                        };
+                        segments.Add(new HealthBarDamageDeltaSegment { Amount = p.Amount, Color = c });
+                    }
+                    progressBar.DamageDeltaSegments = segments;
+                }
+            }
             
             elementManager.AddProgressBar(progressBar);
         }

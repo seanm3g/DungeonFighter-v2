@@ -86,23 +86,12 @@ namespace RPGGame
         /// </summary>
         private (int xpGained, List<LevelUpInfo> levelUpInfos) AwardXPWithReturnAndLevelUpInfo(Character player, int dungeonLevel, bool isFirstDungeon = false)
         {
-            var tuning = GameConfiguration.Instance;
-            int baseXP = tuning.Progression.EnemyXPBase;
-            if (baseXP <= 0)
-            {
-                baseXP = 25; // Fallback minimum if config is 0 or negative
-            }
-
-            // Calculate XP based on dungeon level (not player level)
-            int dungeonLevelXP = baseXP + (dungeonLevel * tuning.Progression.EnemyXPPerLevel);
-            int xpReward = dungeonLevelXP * 10; // 10x multiplier for dungeon completion
+            int xpReward = CharacterProgression.GetStandardDungeonCompletionXpForLevel(dungeonLevel);
 
             // Guarantee level-up after first dungeon (when level 1 and first dungeon completed)
             if (player.Level == 1 && isFirstDungeon)
             {
-                // Calculate XP needed to level from 1->2
-                int averageXPPerDungeonAtLevel1 = baseXP + 25;
-                int xpNeededForLevel2 = 1 * 1 * averageXPPerDungeonAtLevel1; // Level^2 * base
+                int xpNeededForLevel2 = CharacterProgression.GetXpRequiredToAdvanceFromLevel(1);
 
                 // Ensure we award at least enough XP to level up, with a small buffer
                 if (xpReward < xpNeededForLevel2)

@@ -25,6 +25,7 @@ namespace RPGGame
         public const string TierDistributionJson = "TierDistribution.json";
         public const string DungeonConfigJson = "DungeonConfig.json";
         public const string RoomsJson = "Rooms.json";
+        public const string DungeonsJson = "Dungeons.json";
         public const string CharacterSaveJson = "character_save.json";
         
         // Common File Paths
@@ -133,6 +134,11 @@ namespace RPGGame
         public const int DefaultAgility = 10;
         public const int DefaultTechnique = 10;
         public const int DefaultIntelligence = 10;
+        /// <summary>
+        /// Effective INT at or above this value follows the combo strip order (ComboStep).
+        /// Below this value, combo-slot actions are chosen at random among the strip.
+        /// </summary>
+        public const int ComboSequenceIntelligenceThreshold = 10;
         
         // Dungeon Constants - Now configurable via TuningConfig.DungeonGeneration
         public static string DefaultDungeonTheme => GameConfiguration.Instance.DungeonGeneration.DefaultTheme;

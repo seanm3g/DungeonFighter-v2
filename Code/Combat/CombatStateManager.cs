@@ -134,6 +134,11 @@ namespace RPGGame
         /// </summary>
         public void InitializeCombatEntities(Character player, Enemy enemy, Environment? environment = null, bool playerGetsFirstAttack = false, bool enemyGetsFirstAttack = false)
         {
+            // New encounter: always start combo routing from the first strip slot and clear combo-mode / amp carryover
+            // (covers dungeon room changes, successive enemies, Action Lab, and simulators — not only RunCombat).
+            player.ResetCombo();
+            enemy.ResetCombo();
+
             var actionSpeedSystem = GetCurrentActionSpeedSystem();
             if (actionSpeedSystem == null) 
             {
@@ -174,6 +179,13 @@ namespace RPGGame
             }
             // Otherwise, use normal speed-based turn order (both start at currentTime)
             
+            // New encounter clock: DoT tick stamps must not carry wall-clock values from prior sessions or
+            // pre-Reset() ticker state, or poison/burn intervals never elapse (currentTime - lastTick stays negative).
+            player.LastPoisonTickTime = 0;
+            player.LastBurnTickTime = 0;
+            enemy.LastPoisonTickTime = 0;
+            enemy.LastBurnTickTime = 0;
+
             // Initialize health tracker for battle participants
             var participants = new List<Actor> { player, enemy };
             if (environment != null && environment.IsHostile)

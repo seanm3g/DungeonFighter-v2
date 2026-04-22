@@ -1,48 +1,370 @@
 [
-  { "Name": "of Protection", "Description": "+1 armor value", "Value": 1, "Weight": 15, "StatType": "Armor" },
-  { "Name": "of Vitality", "Description": "+10 maximum health", "Value": 10, "Weight": 15, "StatType": "Health" },
-  { "Name": "of Swiftness", "Description": "+0.005 attack speed", "Value": 0.005, "Weight": 15, "StatType": "AttackSpeed" },
-  { "Name": "of Power", "Description": "+3 base damage", "Value": 3, "Weight": 15, "StatType": "Damage" },
-  { "Name": "of Recovery", "Description": "+1 health regeneration", "Value": 1, "Weight": 15, "StatType": "HealthRegen" },
-  { "Name": "of Intelligence", "Description": "+2 Intelligence stat", "Value": 2, "Weight": 15, "StatType": "INT" },
-  { "Name": "of Strength", "Description": "+2 Strength stat", "Value": 2, "Weight": 15, "StatType": "STR" },
-  { "Name": "of Agility", "Description": "+2 Agility stat", "Value": 2, "Weight": 15, "StatType": "AGI" },
-  { "Name": "of Technique", "Description": "+2 Technique stat", "Value": 2, "Weight": 15, "StatType": "TEC" },
-  { "Name": "of Accuracy", "Description": "+1 to attack rolls", "Value": 1, "Weight": 20, "StatType": "RollBonus" },
-  { "Name": "of Fortification", "Description": "+1 armor value", "Value": 1, "Weight": 8, "StatType": "Armor" },
-  { "Name": "of Vigor", "Description": "+20 maximum health", "Value": 20, "Weight": 8, "StatType": "Health" },
-  { "Name": "of Alacrity", "Description": "+0.01 attack speed", "Value": 0.01, "Weight": 8, "StatType": "AttackSpeed" },
-  { "Name": "of Might", "Description": "+6 base damage", "Value": 6, "Weight": 8, "StatType": "Damage" },
-  { "Name": "of Resilience", "Description": "+3 health regeneration", "Value": 3, "Weight": 8, "StatType": "HealthRegen" },
-  { "Name": "of the Bear", "Description": "+3 Strength, +1 armor", "Value": 3, "Weight": 5, "StatType": "STR" },
-  { "Name": "of the Cat", "Description": "+3 Agility, +0.005 speed", "Value": 3, "Weight": 5, "StatType": "AGI" },
-  { "Name": "of the Owl", "Description": "+3 Intelligence, +5 health", "Value": 3, "Weight": 5, "StatType": "INT" },
-  { "Name": "of the Hawk", "Description": "+3 Technique, +2 damage", "Value": 3, "Weight": 5, "StatType": "TEC" },
-  { "Name": "of Precision", "Description": "+2 to attack rolls", "Value": 2, "Weight": 12, "StatType": "RollBonus" },
-  { "Name": "of Warding", "Description": "+2 armor value", "Value": 2, "Weight": 4, "StatType": "Armor" },
-  { "Name": "of Endurance", "Description": "+30 maximum health", "Value": 30, "Weight": 4, "StatType": "Health" },
-  { "Name": "of Haste", "Description": "+0.015 attack speed", "Value": 0.015, "Weight": 4, "StatType": "AttackSpeed" },
-  { "Name": "of Destruction", "Description": "+10 base damage", "Value": 10, "Weight": 4, "StatType": "Damage" },
-  { "Name": "of Regeneration", "Description": "+5 health regeneration", "Value": 5, "Weight": 4, "StatType": "HealthRegen" },
-  { "Name": "of the Titan", "Description": "+5 Strength, +15 health", "Value": 5, "Weight": 3, "StatType": "STR" },
-  { "Name": "of the Wind", "Description": "+5 Agility, +0.01 speed", "Value": 5, "Weight": 3, "StatType": "AGI" },
-  { "Name": "of the Sage", "Description": "+5 Intelligence, +3 regen", "Value": 5, "Weight": 3, "StatType": "INT" },
-  { "Name": "of the Master", "Description": "+5 Technique, +5 damage", "Value": 5, "Weight": 3, "StatType": "TEC" },
-  { "Name": "of the Marksman", "Description": "+3 to attack rolls", "Value": 3, "Weight": 6, "StatType": "RollBonus" },
-  { "Name": "of Invulnerability", "Description": "+3 armor value", "Value": 3, "Weight": 2, "StatType": "Armor" },
-  { "Name": "of Immortality", "Description": "+50 maximum health", "Value": 50, "Weight": 2, "StatType": "Health" },
-  { "Name": "of Lightning", "Description": "+0.025 attack speed", "Value": 0.025, "Weight": 2, "StatType": "AttackSpeed" },
-  { "Name": "of Annihilation", "Description": "+15 base damage", "Value": 15, "Weight": 2, "StatType": "Damage" },
-  { "Name": "of the Phoenix", "Description": "+10 health regen", "Value": 10, "Weight": 2, "StatType": "HealthRegen" },
-  { "Name": "of the Colossus", "Description": "+8 Strength, +25 health", "Value": 8, "Weight": 1, "StatType": "STR" },
-  { "Name": "of the Storm", "Description": "+8 Agility, +0.015 speed", "Value": 8, "Weight": 1, "StatType": "AGI" },
-  { "Name": "of the Archmage", "Description": "+8 Intelligence, +8 damage", "Value": 8, "Weight": 1, "StatType": "INT" },
-  { "Name": "of the Grandmaster", "Description": "+8 Technique, +10 damage", "Value": 8, "Weight": 1, "StatType": "TEC" },
-  { "Name": "of the Gods", "Description": "+3 to all stats", "Value": 3, "Weight": 1, "StatType": "ALL" },
-  { "Name": "of Discovery", "Description": "+5 Magic Find", "Value": 5, "Weight": 12, "StatType": "MagicFind" },
-  { "Name": "of Fortune", "Description": "+10 Magic Find", "Value": 10, "Weight": 8, "StatType": "MagicFind" },
-  { "Name": "of the Treasure Hunter", "Description": "+15 Magic Find", "Value": 15, "Weight": 5, "StatType": "MagicFind" },
-  { "Name": "of the Collector", "Description": "+20 Magic Find", "Value": 20, "Weight": 3, "StatType": "MagicFind" },
-  { "Name": "of Legendary Fortune", "Description": "+30 Magic Find", "Value": 30, "Weight": 1, "StatType": "MagicFind" },
-  { "Name": "of the Loot Master", "Description": "+5 Magic Find", "Value": 25, "Weight": 2, "StatType": "MagicFind" }
+  {
+    "Name": "of Protection",
+    "Description": "\u002B1 armor value",
+    "Value": 1,
+    "Weight": 15,
+    "StatType": "Armor",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Vitality",
+    "Description": "\u002B10 maximum health",
+    "Value": 10,
+    "Weight": 15,
+    "StatType": "Health",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Swiftness",
+    "Description": "\u002B0.005 attack speed",
+    "Value": 0.005,
+    "Weight": 15,
+    "StatType": "AttackSpeed",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Power",
+    "Description": "\u002B3 base damage",
+    "Value": 3,
+    "Weight": 15,
+    "StatType": "Damage",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Recovery",
+    "Description": "\u002B1 health regeneration",
+    "Value": 1,
+    "Weight": 15,
+    "StatType": "HealthRegen",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Intelligence",
+    "Description": "\u002B2 Intelligence stat",
+    "Value": 2,
+    "Weight": 15,
+    "StatType": "INT",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Strength",
+    "Description": "\u002B2 Strength stat",
+    "Value": 2,
+    "Weight": 15,
+    "StatType": "STR",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Agility",
+    "Description": "\u002B2 Agility stat",
+    "Value": 2,
+    "Weight": 15,
+    "StatType": "AGI",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Technique",
+    "Description": "\u002B2 Technique stat",
+    "Value": 2,
+    "Weight": 15,
+    "StatType": "TEC",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Accuracy",
+    "Description": "\u002B1 to attack rolls",
+    "Value": 1,
+    "Weight": 20,
+    "StatType": "RollBonus",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Fortification",
+    "Description": "\u002B1 armor value",
+    "Value": 1,
+    "Weight": 8,
+    "StatType": "Armor",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Vigor",
+    "Description": "\u002B20 maximum health",
+    "Value": 20,
+    "Weight": 8,
+    "StatType": "Health",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Alacrity",
+    "Description": "\u002B0.01 attack speed",
+    "Value": 0.01,
+    "Weight": 8,
+    "StatType": "AttackSpeed",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Might",
+    "Description": "\u002B6 base damage",
+    "Value": 6,
+    "Weight": 8,
+    "StatType": "Damage",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Resilience",
+    "Description": "\u002B3 health regeneration",
+    "Value": 3,
+    "Weight": 8,
+    "StatType": "HealthRegen",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Bear",
+    "Description": "\u002B3 Strength, \u002B1 armor",
+    "Value": 3,
+    "Weight": 5,
+    "StatType": "STR",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Cat",
+    "Description": "\u002B3 Agility, \u002B0.005 speed",
+    "Value": 3,
+    "Weight": 5,
+    "StatType": "AGI",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Owl",
+    "Description": "\u002B3 Intelligence, \u002B5 health",
+    "Value": 3,
+    "Weight": 5,
+    "StatType": "INT",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Hawk",
+    "Description": "\u002B3 Technique, \u002B2 damage",
+    "Value": 3,
+    "Weight": 5,
+    "StatType": "TEC",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Precision",
+    "Description": "\u002B2 to attack rolls",
+    "Value": 2,
+    "Weight": 12,
+    "StatType": "RollBonus",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Warding",
+    "Description": "\u002B2 armor value",
+    "Value": 2,
+    "Weight": 4,
+    "StatType": "Armor",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Endurance",
+    "Description": "\u002B30 maximum health",
+    "Value": 30,
+    "Weight": 4,
+    "StatType": "Health",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Haste",
+    "Description": "\u002B0.015 attack speed",
+    "Value": 0.015,
+    "Weight": 4,
+    "StatType": "AttackSpeed",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Destruction",
+    "Description": "\u002B10 base damage",
+    "Value": 10,
+    "Weight": 4,
+    "StatType": "Damage",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Regeneration",
+    "Description": "\u002B5 health regeneration",
+    "Value": 5,
+    "Weight": 4,
+    "StatType": "HealthRegen",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Titan",
+    "Description": "\u002B5 Strength, \u002B15 health",
+    "Value": 5,
+    "Weight": 3,
+    "StatType": "STR",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Wind",
+    "Description": "\u002B5 Agility, \u002B0.01 speed",
+    "Value": 5,
+    "Weight": 3,
+    "StatType": "AGI",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Sage",
+    "Description": "\u002B5 Intelligence, \u002B3 regen",
+    "Value": 5,
+    "Weight": 3,
+    "StatType": "INT",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Master",
+    "Description": "\u002B5 Technique, \u002B5 damage",
+    "Value": 5,
+    "Weight": 3,
+    "StatType": "TEC",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Marksman",
+    "Description": "\u002B3 to attack rolls",
+    "Value": 3,
+    "Weight": 6,
+    "StatType": "RollBonus",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Invulnerability",
+    "Description": "\u002B3 armor value",
+    "Value": 3,
+    "Weight": 2,
+    "StatType": "Armor",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Immortality",
+    "Description": "\u002B50 maximum health",
+    "Value": 50,
+    "Weight": 2,
+    "StatType": "Health",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Lightning",
+    "Description": "\u002B0.025 attack speed",
+    "Value": 0.025,
+    "Weight": 2,
+    "StatType": "AttackSpeed",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Annihilation",
+    "Description": "\u002B15 base damage",
+    "Value": 15,
+    "Weight": 2,
+    "StatType": "Damage",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Phoenix",
+    "Description": "\u002B10 health regen",
+    "Value": 10,
+    "Weight": 2,
+    "StatType": "HealthRegen",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Colossus",
+    "Description": "\u002B8 Strength, \u002B25 health",
+    "Value": 8,
+    "Weight": 1,
+    "StatType": "STR",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Storm",
+    "Description": "\u002B8 Agility, \u002B0.015 speed",
+    "Value": 8,
+    "Weight": 1,
+    "StatType": "AGI",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Archmage",
+    "Description": "\u002B8 Intelligence, \u002B8 damage",
+    "Value": 8,
+    "Weight": 1,
+    "StatType": "INT",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Grandmaster",
+    "Description": "\u002B8 Technique, \u002B10 damage",
+    "Value": 8,
+    "Weight": 1,
+    "StatType": "TEC",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Gods",
+    "Description": "\u002B3 to all stats",
+    "Value": 3,
+    "Weight": 1,
+    "StatType": "ALL",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Discovery",
+    "Description": "\u002B5 Magic Find",
+    "Value": 5,
+    "Weight": 12,
+    "StatType": "MagicFind",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Fortune",
+    "Description": "\u002B10 Magic Find",
+    "Value": 10,
+    "Weight": 8,
+    "StatType": "MagicFind",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Treasure Hunter",
+    "Description": "\u002B15 Magic Find",
+    "Value": 15,
+    "Weight": 5,
+    "StatType": "MagicFind",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Collector",
+    "Description": "\u002B20 Magic Find",
+    "Value": 20,
+    "Weight": 3,
+    "StatType": "MagicFind",
+    "ItemRank": null
+  },
+  {
+    "Name": "of Legendary Fortune",
+    "Description": "\u002B30 Magic Find",
+    "Value": 30,
+    "Weight": 1,
+    "StatType": "MagicFind",
+    "ItemRank": null
+  },
+  {
+    "Name": "of the Loot Master",
+    "Description": "\u002B5 Magic Find",
+    "Value": 25,
+    "Weight": 2,
+    "StatType": "MagicFind",
+    "ItemRank": null
+  }
 ]

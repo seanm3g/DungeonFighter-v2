@@ -23,22 +23,27 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(tempRollLines.Any(l => l.Contains("Accuracy +2") && l.Contains("next attack")), "temp roll bonus merges into Accuracy +N (next attack)", ref run, ref passed, ref failed);
 
             var bleed = TestDataBuilders.Character().WithName("BleedHero").Build();
-            bleed.PoisonStacks = 3;
-            bleed.IsBleeding = true;
+            bleed.BleedIntensity = 3;
             var bleedLines = StatusEffectDisplayLines.Build(bleed, bleed);
-            TestBase.AssertTrue(bleedLines.Any(l => l.Contains("Bleed x3")), "bleed stacks line", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(bleedLines.Any(l => l.Contains("Bleed 3")), "bleed intensity line", ref run, ref passed, ref failed);
 
             var poison = TestDataBuilders.Character().WithName("PoisonHero").Build();
-            poison.PoisonStacks = 2;
-            poison.IsBleeding = false;
+            poison.PoisonPercentOfMaxHealth = 2;
             var poisonLines = StatusEffectDisplayLines.Build(poison, poison);
-            TestBase.AssertTrue(poisonLines.Any(l => l.Contains("Poison x2")), "poison stacks line", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(poisonLines.Any(l => l.Contains("Poison") && l.Contains("2") && l.Contains("max HP")), "poison % line", ref run, ref passed, ref failed);
 
             var enemy = new Enemy(name: "Goblin", level: 1, maxHealth: 20, strength: 8, agility: 6, technique: 4, intelligence: 4, armor: 0);
-            enemy.PoisonStacks = 4;
-            enemy.IsBleeding = true;
+            enemy.BleedIntensity = 4;
             var enemyOnly = StatusEffectDisplayLines.Build(enemy, null);
-            TestBase.AssertTrue(enemyOnly.Any(l => l.Contains("Bleed x4")), "enemy without Character extras", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(enemyOnly.Any(l => l.Contains("Bleed 4")), "enemy without Character extras", ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(StatusEffectDisplayLines.GetNonLivingEnemyImmunityLine(enemy) == null,
+                "living enemy (default isLiving): no template immunity line", ref run, ref passed, ref failed);
+            var skeleton = new Enemy(name: "Skeleton", level: 1, maxHealth: 20, strength: 8, agility: 6, technique: 4, intelligence: 4, armor: 0,
+                primaryAttribute: PrimaryAttribute.Strength, isLiving: false);
+            var skLine = StatusEffectDisplayLines.GetNonLivingEnemyImmunityLine(skeleton);
+            TestBase.AssertTrue(skLine != null && skLine.Contains("Immune") && skLine.Contains("Bleed") && skLine.Contains("Poison"),
+                "non-living enemy: immunity line lists bleed and poison", ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("StatusEffectDisplayLines Tests", run, passed, failed);
         }

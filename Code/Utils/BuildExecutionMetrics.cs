@@ -33,11 +33,11 @@ namespace RPGGame.Utils
         }
         
         /// <summary>
-        /// Gets the compile/build time from the DLL's last write time
-        /// Only returns a value if the DLL was written recently (within last 10 minutes)
-        /// to avoid showing stale build times
+        /// Time elapsed since the executing assembly file was last written.
+        /// This reflects filesystem timestamp age, not MSBuild/compiler duration.
+        /// Returns null if the file is missing or the timestamp is older than 10 minutes.
         /// </summary>
-        public static TimeSpan? GetCompileTime()
+        public static TimeSpan? GetTimeSinceAssemblyFileWrite()
         {
             try
             {
@@ -47,16 +47,14 @@ namespace RPGGame.Utils
                 if (string.IsNullOrEmpty(assemblyPath) || !File.Exists(assemblyPath))
                     return null;
                 
-                var compileTime = File.GetLastWriteTimeUtc(assemblyPath);
+                var lastWriteUtc = File.GetLastWriteTimeUtc(assemblyPath);
                 var now = DateTime.UtcNow;
-                var timeSinceCompile = now - compileTime;
+                var age = now - lastWriteUtc;
                 
-                // Only return compile time if it was within the last 10 minutes
-                // This ensures we only show compile time for fresh builds
-                if (timeSinceCompile.TotalMinutes > 10)
+                if (age.TotalMinutes > 10)
                     return null;
                 
-                return timeSinceCompile;
+                return age;
             }
             catch
             {
@@ -76,20 +74,19 @@ namespace RPGGame.Utils
             var launchTimeMs = _launchStopwatch.ElapsedMilliseconds;
             var launchTimeSeconds = _launchStopwatch.Elapsed.TotalSeconds;
             
-            // Get compile time
-            var compileTime = GetCompileTime();
+            var assemblyAge = GetTimeSinceAssemblyFileWrite();
             
             // Output to console
             Console.WriteLine("\n═══════════════════════════════════════════════════════");
-            if (compileTime.HasValue)
+            if (assemblyAge.HasValue)
             {
-                var compileTimeSeconds = compileTime.Value.TotalSeconds;
-                var compileTimeMs = (long)compileTime.Value.TotalMilliseconds;
-                Console.WriteLine($"  Compile Time: {compileTimeSeconds:F2} seconds ({compileTimeMs} ms) ago");
+                var ageSeconds = assemblyAge.Value.TotalSeconds;
+                var ageMs = (long)assemblyAge.Value.TotalMilliseconds;
+                Console.WriteLine($"  Since main assembly file write: {ageSeconds:F2} s ({ageMs} ms)");
             }
             else
             {
-                Console.WriteLine($"  Compile Time: Unable to determine");
+                Console.WriteLine($"  Since main assembly file write: unknown (missing or older than 10 min)");
             }
             Console.WriteLine($"  Launch Time: {launchTimeSeconds:F2} seconds ({launchTimeMs} ms)");
             Console.WriteLine($"  Mode: {mode}");

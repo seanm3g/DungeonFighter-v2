@@ -101,6 +101,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 return;
 
             var panelData = CombatActionStripBuilder.BuildPanelData(player);
+            var comboForStrip = player.GetComboActions();
             int filled = panelData.Count;
             int displayCount = ActionInfoStripLayout.GetDisplayPanelCount(filled);
             int selectedIndex = filled > 0 ? player.ComboStep % filled : -1;
@@ -123,7 +124,11 @@ namespace RPGGame.UI.Avalonia.Renderers
                 int contentW = Math.Max(0, pw - 2);
                 var info = panelData[i];
                 string name = string.IsNullOrEmpty(info.Name) ? "?" : (info.Name.Length > contentW ? info.Name.Substring(0, contentW - 3) + "..." : info.Name);
-                canvas.AddText(contentX, contentY, name, AsciiArtAssets.Colors.White);
+                var action = comboForStrip[i];
+                var nameColor = WeaponRequiredComboAction.IsRequiredBasicForEquippedWeapon(player, action)
+                    ? AsciiArtAssets.Colors.Red
+                    : AsciiArtAssets.Colors.White;
+                canvas.AddText(contentX, contentY, name, nameColor);
                 contentY++;
 
                 // Damage % of character base (action multiplier); green/red when DAMAGE_MOD changes it

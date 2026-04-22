@@ -44,6 +44,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             CombatEffectsSimplifiedTests.RunAllTests();
             Console.WriteLine();
+            HealthBarDeltaDamageHintTests.RunAllTests();
+            Console.WriteLine();
             BattleEventAnalyzerTests.RunAllTests();
             Console.WriteLine();
             DamageFormatterTests.RunAllTests();

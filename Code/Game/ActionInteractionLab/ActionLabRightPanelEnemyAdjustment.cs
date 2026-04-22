@@ -9,8 +9,23 @@ namespace RPGGame.ActionInteractionLab
     /// </summary>
     public static class ActionLabRightPanelEnemyAdjustment
     {
-        /// <summary>Enemy level line under ENEMY name (<c>Lvl N</c>).</summary>
+        /// <summary>Enemy level line under ENEMY name (<c>Lvl N</c> or <c>Lvl N (±Δ)</c> in lab).</summary>
         public static string EnemyLevelHoverId => RightPanelEnemyLabHoverState.Prefix + "enemy:level";
+
+        /// <summary>
+        /// Action Lab right panel: <c>Lvl 9 (-2)</c> when the hero is level 11 (delta = enemy − hero).
+        /// </summary>
+        public static string FormatEnemyLevelCaptionWithHeroDelta(int enemyLevel, int heroLevel)
+        {
+            int delta = enemyLevel - heroLevel;
+            string inner = delta switch
+            {
+                0 => "0",
+                > 0 => $"+{delta}",
+                _ => delta.ToString()
+            };
+            return $"Lvl {enemyLevel} ({inner})";
+        }
 
         /// <summary>
         /// Returns true if <paramref name="fullHoverValue"/> is the enemy level row and applies the level change via the session.

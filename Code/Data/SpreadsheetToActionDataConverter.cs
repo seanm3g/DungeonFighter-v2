@@ -87,6 +87,13 @@ namespace RPGGame.Data
             actionData.CausesBleed = !string.IsNullOrWhiteSpace(spreadsheet.Bleed) && spreadsheet.Bleed != "0";
             actionData.CausesWeaken = !string.IsNullOrWhiteSpace(spreadsheet.Weaken) && spreadsheet.Weaken != "0";
             actionData.CausesSlow = !string.IsNullOrWhiteSpace(spreadsheet.Slow) && spreadsheet.Slow != "0";
+
+            if (actionData.CausesPoison)
+                actionData.PoisonPercentToAdd = ParsePositiveDoubleStatusMagnitude(spreadsheet.Poison, 1.0);
+            if (actionData.CausesBurn)
+                actionData.BurnAmountToAdd = ParsePositiveIntStatusMagnitude(spreadsheet.Burn, 1);
+            if (actionData.CausesBleed)
+                actionData.BleedAmountToAdd = ParsePositiveIntStatusMagnitude(spreadsheet.Bleed, 1);
             
             // Advanced status effects
             actionData.CausesVulnerability = !string.IsNullOrWhiteSpace(spreadsheet.Vulnerability) && spreadsheet.Vulnerability != "0";
@@ -338,6 +345,22 @@ namespace RPGGame.Data
                 return list ?? new List<ChainPositionBonusEntry>();
             }
             catch { return new List<ChainPositionBonusEntry>(); }
+        }
+
+        private static double ParsePositiveDoubleStatusMagnitude(string? cell, double defaultVal)
+        {
+            if (string.IsNullOrWhiteSpace(cell)) return defaultVal;
+            if (double.TryParse(cell.Trim(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double v) && v > 0)
+                return v;
+            return defaultVal;
+        }
+
+        private static int ParsePositiveIntStatusMagnitude(string? cell, int defaultVal)
+        {
+            if (string.IsNullOrWhiteSpace(cell)) return defaultVal;
+            if (int.TryParse(cell.Trim(), out int v) && v > 0)
+                return v;
+            return defaultVal;
         }
     }
 }

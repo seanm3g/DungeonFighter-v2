@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -85,7 +86,7 @@ namespace RPGGame
             }
             else
             {
-                head.Armor = 5 + item.Tier;
+                head.Armor = ResolveArmorWhenDeserializedAsBaseItem(item);
             }
             
             return head;
@@ -102,7 +103,7 @@ namespace RPGGame
             }
             else
             {
-                chest.Armor = 8 + item.Tier * 2;
+                chest.Armor = ResolveArmorWhenDeserializedAsBaseItem(item);
             }
             
             return chest;
@@ -119,7 +120,7 @@ namespace RPGGame
             }
             else
             {
-                feet.Armor = 3 + item.Tier;
+                feet.Armor = ResolveArmorWhenDeserializedAsBaseItem(item);
             }
             
             return feet;
@@ -143,6 +144,55 @@ namespace RPGGame
             destination.Level = source.Level;
             destination.Tags = source.Tags;
             destination.AttributeRequirements = source.AttributeRequirements;
+        }
+
+        /// <summary>
+        /// Legacy saves and older JSON clones deserialize armor slots as base <see cref="Item"/> (no <c>Armor</c> field).
+        /// Prefer <see cref="GameConstants.ArmorJson"/> by name and slot; keep tier heuristics only for unknown gear.
+        /// </summary>
+        private static int ResolveArmorWhenDeserializedAsBaseItem(Item item)
+        {
+            if (TryGetArmorFromArmorCatalog(item, out int catalogArmor))
+                return catalogArmor;
+
+            return item.Type switch
+            {
+                ItemType.Head => 5 + item.Tier,
+                ItemType.Chest => 8 + item.Tier * 2,
+                ItemType.Feet => 3 + item.Tier,
+                _ => 0
+            };
+        }
+
+        private static bool TryGetArmorFromArmorCatalog(Item item, out int armor)
+        {
+            armor = 0;
+            if (string.IsNullOrWhiteSpace(item.Name))
+                return false;
+
+            string? jsonSlot = item.Type switch
+            {
+                ItemType.Head => "head",
+                ItemType.Chest => "chest",
+                ItemType.Feet => "feet",
+                _ => null
+            };
+            if (jsonSlot == null)
+                return false;
+
+            var rows = JsonLoader.LoadJsonList<ArmorData>(GameConstants.ArmorJson, useCache: true);
+            for (int i = 0; i < rows.Count; i++)
+            {
+                var row = rows[i];
+                if (string.Equals(row.Slot, jsonSlot, System.StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(row.Name, item.Name, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    armor = row.Armor;
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

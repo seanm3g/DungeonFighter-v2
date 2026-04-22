@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Linq;
+using RPGGame.Combat.UI;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Combat.Turn
@@ -9,6 +9,9 @@ namespace RPGGame.Combat.Turn
     /// </summary>
     public static class StatusEffectProcessor
     {
+        private static int GetCharacterCurrentHealth(Actor entity) =>
+            entity is Character ch ? ch.CurrentHealth : 0;
+
         /// <summary>
         /// Processes damage over time effects for an entity
         /// </summary>
@@ -32,20 +35,60 @@ namespace RPGGame.Combat.Turn
             // Process effects for player
             ProcessEntityEffects(player, ref blankLineAdded);
             
-            // Process effects for enemy (only if living)
-            if (enemy.IsLiving)
+            // Use IsAlive (HP > 0), not IsLiving. IsLiving is a template flag (undead/elemental) used for poison/bleed
+            // immunity in Enemy overrides — burn still ticks on those enemies; skipping here left burn stacked with no ticks.
+            if (enemy.IsAlive)
             {
                 ProcessEntityEffects(enemy, ref blankLineAdded);
+            }
+        }
+
+        /// <summary>Bleed resolves when the afflicted actor finishes their combat turn (including stun).</summary>
+        public static void ProcessBleedAfterActorResolvedTurn(Actor entity)
+        {
+            var results = new List<string>();
+            int damage = CombatEffectsSimplified.ProcessBleedAfterActorTurn(entity, results);
+            if (damage > 0)
+            {
+                string? barId = HealthBarEntityId.ForActor(entity);
+                int hpBefore = GetCharacterCurrentHealth(entity);
+
+                if (entity is Character character)
+                    character.TakeDamage(damage);
+                else if (entity is Enemy enemy)
+                    enemy.TakeDamage(damage);
+
+                int actual = hpBefore - GetCharacterCurrentHealth(entity);
+                if (barId != null)
+                    HealthBarDeltaDamageHint.RecordAfterMitigation(barId, 0, 0, damage, damage, actual);
+            }
+            if (results.Count > 0)
+            {
+                if (!RPGGame.TurnManager.DisableCombatUIOutput)
+                    TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.PoisonDamage, entity.Name);
+                var combinedSegments = new List<ColoredText>();
+                for (int i = 0; i < results.Count; i++)
+                {
+                    if (i > 0)
+                        combinedSegments.Add(new ColoredText(System.Environment.NewLine, Avalonia.Media.Colors.White));
+                    combinedSegments.AddRange(ColoredTextParser.Parse(results[i]));
+                }
+                BlockDisplayManager.DisplaySystemBlock(combinedSegments);
+                TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage, entity.Name);
             }
         }
 
         private static void ProcessEntityEffects(Actor entity, ref bool blankLineAdded)
         {
             var results = new List<string>();
-            int damage = ProcessEntityStatusEffects(entity, results);
-            
+            var breakdown = CombatEffectsSimplified.ProcessStatusEffectsWithBreakdown(entity, results);
+            int damage = breakdown.TotalDamage;
+
             if (damage > 0)
             {
+                string? barId = HealthBarEntityId.ForActor(entity);
+                int hpBefore = GetCharacterCurrentHealth(entity);
+
                 // TakeDamage is defined on Character and Enemy, not Actor
                 if (entity is Character character)
                 {
@@ -55,6 +98,16 @@ namespace RPGGame.Combat.Turn
                 {
                     enemy.TakeDamage(damage);
                 }
+
+                int actual = hpBefore - GetCharacterCurrentHealth(entity);
+                if (barId != null)
+                    HealthBarDeltaDamageHint.RecordAfterMitigation(
+                        barId,
+                        breakdown.PoisonDamage,
+                        breakdown.BurnDamage,
+                        bleedRequested: 0,
+                        requestedTotal: damage,
+                        actualHpLost: actual);
             }
             
             if (results.Count > 0)
@@ -64,7 +117,7 @@ namespace RPGGame.Combat.Turn
                 // The spacing system will add blank lines between consecutive poison damage blocks
                 if (!RPGGame.TurnManager.DisableCombatUIOutput)
                 {
-                    TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.PoisonDamage);
+                    TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.PoisonDamage, entity.Name);
                     blankLineAdded = true;
                 }
                 
@@ -87,7 +140,7 @@ namespace RPGGame.Combat.Turn
                 
                 BlockDisplayManager.DisplaySystemBlock(combinedSegments);
                 // Record as poison damage block for spacing system (only once for the entire block)
-                TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
+                TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage, entity.Name);
             }
         }
     }

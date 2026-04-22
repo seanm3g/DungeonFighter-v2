@@ -104,7 +104,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             // Calculate current health from progress
             int currentHealth = (int)(progressBar.Progress * progressBar.MaxHealth);
             
-            // Render damage delta overlay (yellow) if applicable
+            // Render damage delta overlay (default white; DoT chunks use poison/burn/bleed colors from builder)
             if (progressBar.PreviousHealth.HasValue && progressBar.DamageDeltaStartTime.HasValue)
             {
                 int previousHealth = progressBar.PreviousHealth.Value;
@@ -144,15 +144,44 @@ namespace RPGGame.UI.Avalonia.Canvas
                         
                         if (deltaWidth > 0)
                         {
-                            // Create yellow color with alpha fade
-                            var yellowColor = Color.FromArgb(
-                                (byte)(255 * alpha),
-                                Colors.Yellow.R,
-                                Colors.Yellow.G,
-                                Colors.Yellow.B
-                            );
-                            
-                            context.FillRectangle(new SolidColorBrush(yellowColor), new Rect(deltaStartX, y, deltaWidth, height));
+                            var segs = progressBar.DamageDeltaSegments;
+                            int segSum = 0;
+                            if (segs != null)
+                            {
+                                for (int i = 0; i < segs.Count; i++)
+                                    segSum += segs[i].Amount;
+                            }
+
+                            if (segs != null && segs.Count > 0 && segSum == damageDelta)
+                            {
+                                double cursorX = deltaStartX;
+                                double maxW = progressBar.MaxHealth > 0 ? width / progressBar.MaxHealth : 0;
+                                for (int i = 0; i < segs.Count; i++)
+                                {
+                                    var seg = segs[i];
+                                    double segW = maxW * seg.Amount;
+                                    if (segW <= 0)
+                                        continue;
+                                    var brushColor = Color.FromArgb(
+                                        (byte)(255 * alpha),
+                                        seg.Color.R,
+                                        seg.Color.G,
+                                        seg.Color.B);
+                                    context.FillRectangle(new SolidColorBrush(brushColor), new Rect(cursorX, y, segW, height));
+                                    cursorX += segW;
+                                }
+                            }
+                            else
+                            {
+                                // Default: single white delta (normal damage or unknown composition / mismatch)
+                                var defaultDeltaColor = Color.FromArgb(
+                                    (byte)(255 * alpha),
+                                    Colors.White.R,
+                                    Colors.White.G,
+                                    Colors.White.B
+                                );
+                                context.FillRectangle(new SolidColorBrush(defaultDeltaColor), new Rect(deltaStartX, y, deltaWidth, height));
+                            }
                         }
                     }
                 }

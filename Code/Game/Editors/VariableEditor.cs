@@ -118,8 +118,8 @@ namespace RPGGame.Editors
             // Progression/XP
             var progressionVars = new List<EditableVariable>
             {
-                new EditableVariable("Progression.BaseXPToLevel2", () => config.Progression.BaseXPToLevel2, v => config.Progression.BaseXPToLevel2 = Convert.ToInt32(v), "Base XP to reach level 2"),
-                new EditableVariable("Progression.XPScalingFactor", () => config.Progression.XPScalingFactor, v => config.Progression.XPScalingFactor = Convert.ToDouble(v), "XP scaling factor per level"),
+                new EditableVariable("Progression.BaseXPToLevel2", () => config.Progression.BaseXPToLevel2, v => config.Progression.BaseXPToLevel2 = Convert.ToInt32(v), "L1→2 XP bar; 0 = one tier-1 dungeon completion; >0 scales whole curve to that first bar"),
+                new EditableVariable("Progression.XPScalingFactor", () => config.Progression.XPScalingFactor, v => config.Progression.XPScalingFactor = Convert.ToDouble(v), "Multiplies every XP bar; ≤0 = 1.0 (dungeon-paced curve: 1, 1.5, 2, 3… completions/level)"),
                 new EditableVariable("Progression.EnemyXPBase", () => config.Progression.EnemyXPBase, v => config.Progression.EnemyXPBase = Convert.ToInt32(v), "Base XP from enemies"),
                 new EditableVariable("Progression.EnemyXPPerLevel", () => config.Progression.EnemyXPPerLevel, v => config.Progression.EnemyXPPerLevel = Convert.ToInt32(v), "XP per enemy level"),
                 new EditableVariable("Progression.EnemyGoldBase", () => config.Progression.EnemyGoldBase, v => config.Progression.EnemyGoldBase = Convert.ToInt32(v), "Base gold from enemies"),

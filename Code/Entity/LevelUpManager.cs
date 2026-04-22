@@ -27,12 +27,23 @@ namespace RPGGame
             // Display level-up info immediately (for backwards compatibility when not in dungeon completion)
             DisplayLevelUpInfo(levelUpInfo);
         }
+
+        /// <summary>
+        /// Applies one level's stat, health, and class-point rewards when <see cref="CharacterProgression.AddXP"/>
+        /// has already incremented level, and prints the level-up block for the step that reached <paramref name="displayedNewLevel"/>.
+        /// </summary>
+        public void ApplyProgressionLevelRewardsAndDisplay(int displayedNewLevel)
+        {
+            var levelUpInfo = LevelUpWithInfo(levelAlreadyIncremented: true, displayedNewLevel: displayedNewLevel);
+            DisplayLevelUpInfo(levelUpInfo);
+        }
         
         /// <summary>
         /// Handles the complete level up process and returns level-up information
         /// </summary>
         /// <param name="levelAlreadyIncremented">If true, level was already incremented by AddXP. If false (default), increment it now.</param>
-        public LevelUpInfo LevelUpWithInfo(bool levelAlreadyIncremented = false)
+        /// <param name="displayedNewLevel">When <paramref name="levelAlreadyIncremented"/> is true after a multi-level XP batch, pass the level this step represents (e.g. first step = old+1). When null, uses <see cref="Character.Level"/>.</param>
+        public LevelUpInfo LevelUpWithInfo(bool levelAlreadyIncremented = false, int? displayedNewLevel = null)
         {
             // If level hasn't been incremented yet (e.g., called directly from tests),
             // increment it now. Otherwise, it was already incremented by Progression.AddXP()
@@ -41,7 +52,7 @@ namespace RPGGame
             {
                 _character.Progression.LevelUp();
             }
-            newLevel = _character.Level;
+            newLevel = displayedNewLevel ?? _character.Level;
             
             _character.Stats.LevelUp((_character.Equipment.Weapon as WeaponItem)?.WeaponType ?? WeaponType.Mace);
             

@@ -129,19 +129,19 @@
     "DiceResult": 32,
     "ItemRank": "Rare",
     "Name": "Burning",
-    "Description": "30% chance to cause burn",
-    "Effect": "burnChance",
-    "MinValue": 0.3,
-    "MaxValue": 0.3
+    "Description": "\u002B2 to \u002B3 burn on each successful hit",
+    "Effect": "weaponBurn",
+    "MinValue": 5,
+    "MaxValue": 5
   },
   {
     "DiceResult": 33,
     "ItemRank": "Rare",
     "Name": "Bleeding",
-    "Description": "30% chance to cause bleed",
-    "Effect": "bleedChance",
-    "MinValue": 0.3,
-    "MaxValue": 0.3
+    "Description": "\u002B2 to \u002B3 bleed on each successful hit",
+    "Effect": "weaponBleed",
+    "MinValue": 5,
+    "MaxValue": 5
   },
   {
     "DiceResult": 13,
@@ -174,10 +174,10 @@
     "DiceResult": 16,
     "ItemRank": "Epic",
     "Name": "Venomous",
-    "Description": "50% chance to cause poison",
-    "Effect": "poisonChance",
-    "MinValue": 0.5,
-    "MaxValue": 0.5
+    "Description": "\u002B1% to \u002B2% max HP poison on each successful hit",
+    "Effect": "weaponPoison",
+    "MinValue": 5,
+    "MaxValue": 5
   },
   {
     "DiceResult": 31,
@@ -210,10 +210,10 @@
     "DiceResult": 36,
     "ItemRank": "Epic",
     "Name": "Venomous Blade",
-    "Description": "All attacks cause poison",
-    "Effect": "damage",
+    "Description": "\u002B2% to \u002B3% max HP poison on each successful hit",
+    "Effect": "weaponPoison",
     "MinValue": 5,
-    "MaxValue": 8
+    "MaxValue": 5
   },
   {
     "DiceResult": 17,

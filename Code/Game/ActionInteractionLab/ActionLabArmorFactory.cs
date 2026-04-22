@@ -5,7 +5,7 @@ using System.Linq;
 namespace RPGGame.ActionInteractionLab
 {
     /// <summary>
-    /// Builds armor <see cref="Item"/> instances for the Action Interaction Lab from <see cref="ArmorData"/> plus optional prefix/suffix picks.
+    /// Builds armor <see cref="Item"/> instances for the Action Interaction Lab from <see cref="ArmorData"/> plus optional modification prefixes and stat-bonus suffixes (one or many).
     /// </summary>
     public static class ActionLabArmorFactory
     {
@@ -41,22 +41,54 @@ namespace RPGGame.ActionInteractionLab
             Modification? prefixTemplate,
             StatBonus? suffixTemplate)
         {
+            IReadOnlyList<Modification>? prefixes = prefixTemplate != null ? new[] { prefixTemplate } : null;
+            IReadOnlyList<StatBonus>? suffixes = suffixTemplate != null ? new[] { suffixTemplate } : null;
+            return CreateArmor(armorData, prefixes, suffixes);
+        }
+
+        /// <summary>
+        /// Creates armor with zero or more rolled prefix modifications and zero or more stat-bonus suffixes. Does not assign <see cref="Item.GearAction"/>.
+        /// </summary>
+        public static Item CreateArmor(
+            ArmorData armorData,
+            IReadOnlyList<Modification>? prefixTemplates,
+            IReadOnlyList<StatBonus>? suffixTemplates)
+        {
             var item = ItemGenerator.GenerateArmorItem(armorData);
             item.Modifications.Clear();
             item.StatBonuses.Clear();
             item.ActionBonuses.Clear();
             item.GearAction = null;
 
-            if (prefixTemplate != null)
-                item.Modifications.Add(CloneModificationWithRoll(prefixTemplate));
+            if (prefixTemplates != null)
+            {
+                foreach (var prefixTemplate in prefixTemplates)
+                {
+                    if (prefixTemplate != null)
+                        item.Modifications.Add(CloneModificationWithRoll(prefixTemplate));
+                }
+            }
 
-            if (suffixTemplate != null)
-                item.StatBonuses.Add(CloneStatBonus(suffixTemplate));
+            if (suffixTemplates != null)
+            {
+                foreach (var suffixTemplate in suffixTemplates)
+                {
+                    if (suffixTemplate != null)
+                        item.StatBonuses.Add(CloneStatBonus(suffixTemplate));
+                }
+            }
 
             ApplyMinimumRarity(item);
             item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
             return item;
         }
+
+        /// <summary>
+        /// Armor from data only (no rolled prefixes or stat-bonus suffixes).
+        /// Use instead of <c>CreateArmor(data, null, null)</c>, which is ambiguous between overloads.
+        /// </summary>
+        public static Item CreateArmorWithoutAffixes(ArmorData armorData) =>
+            CreateArmor(armorData, (IReadOnlyList<Modification>?)null, (IReadOnlyList<StatBonus>?)null);
 
         private static void ApplyMinimumRarity(Item item)
         {
@@ -124,6 +156,7 @@ namespace RPGGame.ActionInteractionLab
             Value = s.Value,
             Weight = s.Weight,
             StatType = s.StatType,
+            ItemRank = s.ItemRank,
         };
 
         /// <summary>

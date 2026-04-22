@@ -136,8 +136,14 @@ namespace RPGGame
             if (int.TryParse(Console.ReadLine(), out int choice) && choice >= 1 && choice <= comboActions.Count)
             {
                 var selectedAction = comboActions[choice - 1];
-                player.RemoveFromCombo(selectedAction);
-                MenuDisplayHelper.ShowSuccessAndWait($"Removed {selectedAction.Name} from combo sequence.");
+                if (!player.RemoveFromCombo(selectedAction))
+                {
+                    MenuDisplayHelper.ShowErrorAndWait($"{selectedAction.Name} is required for your equipped weapon and must stay in the sequence.");
+                }
+                else
+                {
+                    MenuDisplayHelper.ShowSuccessAndWait($"Removed {selectedAction.Name} from combo sequence.");
+                }
             }
             else
             {

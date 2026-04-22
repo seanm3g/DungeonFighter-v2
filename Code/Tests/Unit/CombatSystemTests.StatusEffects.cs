@@ -54,7 +54,7 @@ namespace RPGGame.Tests.Unit
             enemy.ApplyPoison(3, 2, isBleeding: true);
             
             AssertTrue(enemy.IsBleeding, "Enemy should be bleeding");
-            AssertTrue(enemy.PoisonDamage > 0, "Bleed damage should be set");
+            AssertTrue(enemy.PendingBleedFromHits > 0, "Bleed pending should be set");
         }
         
         private static void TestPoisonEffect()
@@ -65,8 +65,7 @@ namespace RPGGame.Tests.Unit
             
             enemy.ApplyPoison(5, 3);
             
-            AssertTrue(enemy.PoisonStacks > 0, "Enemy should be poisoned");
-            AssertTrue(enemy.PoisonDamage > 0, "Poison damage should be set");
+            AssertTrue(enemy.PoisonPercentOfMaxHealth > 0, "Enemy should have poison %");
         }
         
         private static void TestStunEffect()
@@ -101,9 +100,7 @@ namespace RPGGame.Tests.Unit
             var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
             
             enemy.ApplyPoison(5, 3, isBleeding: true);
-            var initialBleedStacks = enemy.PoisonStacks;
-            
-            AssertTrue(initialBleedStacks > 0, "Bleed stacks should be set");
+            AssertTrue(enemy.PendingBleedFromHits > 0, "Bleed pending should be set");
         }
         
         private static void AssertTrue(bool condition, string message)

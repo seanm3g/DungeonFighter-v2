@@ -259,6 +259,18 @@ namespace RPGGame.Combat.Formatting
             // Add closing parenthesis
             builder.Add(")", Colors.White);
         }
+
+        /// <summary>Poison cumulative % of max HP (does not expire from ticks).</summary>
+        public static void AddPoisonPercentRemain(ColoredTextBuilder builder, ColorPalette effectColor, double poisonPercent)
+        {
+            builder.Add("     (", Colors.White);
+            builder.Add("poison", effectColor);
+            builder.Add(":", Colors.White);
+            builder.AddSpace();
+            builder.Add($"{poisonPercent:0.##}%", Colors.White);
+            builder.AddSpace();
+            builder.Add("of max HP)", Colors.White);
+        }
         
         /// <summary>
         /// Formats damage display with the new ColoredText system

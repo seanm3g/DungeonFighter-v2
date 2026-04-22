@@ -91,9 +91,9 @@ namespace RPGGame
         public double GetModificationDamageMultiplier() => modificationCalculator.GetDamageMultiplier();
         public double GetModificationLifesteal() => modificationCalculator.GetLifesteal();
         public int GetModificationGodlikeBonus() => modificationCalculator.GetGodlikeBonus();
-        public double GetModificationBleedChance() => modificationCalculator.GetBleedChance();
-        public double GetModificationPoisonChance() => modificationCalculator.GetPoisonChance();
-        public double GetModificationBurnChance() => modificationCalculator.GetBurnChance();
+        public int GetWeaponBleedPerHit() => modificationCalculator.GetWeaponBleedPerHit();
+        public double GetWeaponPoisonPercentPerHit() => modificationCalculator.GetWeaponPoisonPercentPerHit();
+        public int GetWeaponBurnPerHit() => modificationCalculator.GetWeaponBurnPerHit();
         public double GetModificationFreezeChance() => modificationCalculator.GetFreezeChance();
         public double GetModificationStunChance() => modificationCalculator.GetStunChance();
         public double GetModificationUniqueActionChance() => modificationCalculator.GetUniqueActionChance();

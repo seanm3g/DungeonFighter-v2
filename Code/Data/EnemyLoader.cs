@@ -13,8 +13,6 @@ namespace RPGGame
         public string Name { get; set; } = "";
         [JsonPropertyName("archetype")]
         public string Archetype { get; set; } = "Berserker"; // Default archetype
-        [JsonPropertyName("overrides")]
-        public StatOverridesConfig? Overrides { get; set; }
         /// <summary>
         /// Optional per-enemy base attributes. When present, these are treated as the level 1 attribute values
         /// (prior to any per-level growth).
@@ -22,17 +20,18 @@ namespace RPGGame
         [JsonPropertyName("baseAttributes")]
         public EnemyAttributeSet? BaseAttributes { get; set; }
         /// <summary>
-        /// Optional explicit per-level growth. When omitted, growth can be derived from tuning + overrides.
+        /// Per-level growth for STR/AGI/TECH/INT (fractional allowed). At runtime, missing slots share the remainder of
+        /// <see cref="EnemyStatCalculator.EnemyAttributeGrowthBudgetPerLevel"/> and the four rates are scaled so their sum is that budget.
         /// </summary>
         [JsonPropertyName("growthPerLevel")]
         public EnemyAttributeSet? GrowthPerLevel { get; set; }
         /// <summary>
-        /// Optional level-1 max health (before per-level growth). When null, uses baseline × archetype × overrides.health.
+        /// Optional level-1 max health (before per-level growth). When null, uses baseline × archetype health multiplier.
         /// </summary>
         [JsonPropertyName("baseHealth")]
         public double? BaseHealth { get; set; }
         /// <summary>
-        /// Optional HP gained per level after level 1. When null, uses <see cref="ScalingPerLevelConfig.Health"/> × overrides.health (same weighting idea as attribute growth).
+        /// Optional HP gained per level after level 1. When null, uses <see cref="ScalingPerLevelConfig.Health"/>.
         /// </summary>
         [JsonPropertyName("healthGrowthPerLevel")]
         public double? HealthGrowthPerLevel { get; set; }
@@ -44,22 +43,30 @@ namespace RPGGame
         public string Description { get; set; } = "";
         [JsonPropertyName("colorOverride")]
         public ColorOverride? ColorOverride { get; set; }
+
+        /// <summary>
+        /// Captures JSON root properties that are not mapped to typed fields (historical <c>strength</c>, <c>agility</c>, … on enemies).
+        /// <see cref="EnemyDataPostLoad.Apply"/> folds legacy keys into <see cref="GrowthPerLevel"/> after load.
+        /// </summary>
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement>? ExtensionData { get; set; }
     }
 
     /// <summary>
     /// Attribute set used for enemy base stats and growth rates.
-    /// Values are doubles so per-level gains can be fractional.
+    /// Use <see cref="double"/>? so JSON may omit keys: omitted stats fall back to archetype baseline / per-level scaling
+    /// in <see cref="EnemyStatCalculator"/> (a partial <c>baseAttributes</c> object must not zero out unspecified stats).
     /// </summary>
     public class EnemyAttributeSet
     {
         [JsonPropertyName("strength")]
-        public double Strength { get; set; }
+        public double? Strength { get; set; }
         [JsonPropertyName("agility")]
-        public double Agility { get; set; }
+        public double? Agility { get; set; }
         [JsonPropertyName("technique")]
-        public double Technique { get; set; }
+        public double? Technique { get; set; }
         [JsonPropertyName("intelligence")]
-        public double Intelligence { get; set; }
+        public double? Intelligence { get; set; }
     }
 
     public class StatOverridesConfig
@@ -129,6 +136,7 @@ namespace RPGGame
                     {
                         foreach (var enemy in enemyList)
                         {
+                            EnemyDataPostLoad.Apply(enemy);
                             if (!string.IsNullOrEmpty(enemy.Name))
                             {
                                 _enemies[enemy.Name] = enemy;

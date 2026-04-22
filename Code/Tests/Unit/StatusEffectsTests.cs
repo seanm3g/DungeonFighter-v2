@@ -45,8 +45,8 @@ namespace RPGGame.Tests.Unit
             bleedAction.CausesBleed = true;
             var bleedResults = new List<string>();
             registry.ApplyEffect("bleed", enemy, bleedAction, bleedResults);
-            TestBase.AssertTrue(enemy.IsBleeding && enemy.BleedStacks > 0,
-                $"Bleed should apply: isBleeding={enemy.IsBleeding}, stacks={enemy.BleedStacks}",
+            TestBase.AssertTrue(enemy.PendingBleedFromHits > 0,
+                $"Bleed should queue pending: pending={enemy.PendingBleedFromHits}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test Weaken
@@ -72,8 +72,8 @@ namespace RPGGame.Tests.Unit
             poisonAction.CausesPoison = true;
             var poisonResults = new List<string>();
             registry.ApplyEffect("poison", enemy, poisonAction, poisonResults);
-            TestBase.AssertTrue(enemy.PoisonDamage > 0 && enemy.PoisonStacks > 0,
-                $"Poison should apply: damage={enemy.PoisonDamage}, stacks={enemy.PoisonStacks}",
+            TestBase.AssertTrue(enemy.PoisonPercentOfMaxHealth > 0,
+                $"Poison should apply: poison%={enemy.PoisonPercentOfMaxHealth}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test Stun
@@ -90,8 +90,8 @@ namespace RPGGame.Tests.Unit
             burnAction.CausesBurn = true;
             var burnResults = new List<string>();
             registry.ApplyEffect("burn", enemy, burnAction, burnResults);
-            TestBase.AssertTrue(enemy.BurnDamage > 0 && enemy.BurnStacks > 0,
-                $"Burn should apply: damage={enemy.BurnDamage}, stacks={enemy.BurnStacks}",
+            TestBase.AssertTrue(enemy.PendingBurnFromHits > 0,
+                $"Burn should queue pending: pending={enemy.PendingBurnFromHits}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -218,9 +218,7 @@ namespace RPGGame.Tests.Unit
             // Test Cleanse
             var cleanseAction = TestDataBuilders.CreateMockAction("CleanseAction");
             var cleanseResults = new List<string>();
-            // Apply a negative effect first
-            enemy.IsBleeding = true;
-            enemy.BleedStacks = 3;
+            enemy.BleedIntensity = 3;
             registry.ApplyEffect("cleanse", enemy, cleanseAction, cleanseResults);
             TestBase.AssertTrue(true, // Cleanse may reduce stacks, handler exists
                 "Cleanse handler should exist and process effects",
@@ -262,14 +260,12 @@ namespace RPGGame.Tests.Unit
 
             var character = TestDataBuilders.Character().WithName("TestHero").Build();
 
-            // Test that effect duration can be tracked (bleed is tracked via IsBleeding and BleedStacks on Actor)
-            character.IsBleeding = true;
-            character.BleedStacks = 3;
-            TestBase.AssertTrue(character.IsBleeding && character.BleedStacks > 0, 
-                "Effect duration should be trackable", 
+            character.BleedIntensity = 3;
+            TestBase.AssertTrue(character.IsBleeding && character.BleedIntensity > 0,
+                "Bleed intensity should be trackable",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            character.IsBleeding = false;
-            character.BleedStacks = 0;
+            character.BleedIntensity = 0;
+            character.PendingBleedFromHits = 0;
         }
 
         private static void TestEffectStacking()
@@ -278,17 +274,16 @@ namespace RPGGame.Tests.Unit
 
             var character = TestDataBuilders.Character().WithName("TestHero").Build();
 
-            // Test that multiple effects can be active
-            character.IsBleeding = true;
+            character.BleedIntensity = 2;
             character.IsWeakened = true;
             character.Effects.SlowMultiplier = 0.5;
             character.Effects.SlowTurns = 3;
 
-            TestBase.AssertTrue(character.IsBleeding && character.IsWeakened && character.Effects.SlowMultiplier < 1.0, 
-                "Multiple effects should be stackable", 
+            TestBase.AssertTrue(character.IsBleeding && character.IsWeakened && character.Effects.SlowMultiplier < 1.0,
+                "Multiple effects should be stackable",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            character.IsBleeding = false;
+            character.BleedIntensity = 0;
             character.IsWeakened = false;
             character.Effects.SlowMultiplier = 1.0;
             character.Effects.SlowTurns = 0;
@@ -300,10 +295,11 @@ namespace RPGGame.Tests.Unit
 
             var character = TestDataBuilders.Character().WithName("TestHero").Build();
 
-            character.IsBleeding = true;
-            character.IsBleeding = false;
-            TestBase.AssertFalse(character.IsBleeding, 
-                "Effect should be removable", 
+            character.BleedIntensity = 1;
+            character.BleedIntensity = 0;
+            character.PendingBleedFromHits = 0;
+            TestBase.AssertFalse(character.IsBleeding,
+                "Effect should be removable",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

@@ -63,6 +63,11 @@ namespace RPGGame.Tests.Unit
             TestFullSequenceFlowWithFailure();
             TestSequenceResetAndRestart();
 
+            TestComboStripIndexRespectsIntelligenceThreshold();
+            TestComboStripIndexSingleSlotLowIntDoesNotThrow();
+            TestLowIntIgnoresComboRoutingOnComboStepAdvance();
+            TestGetComboSlotForPendingBonusesUsesSelectedComboAction();
+
             TestBase.PrintSummary("Action Sequence Tests", _testsRun, _testsPassed, _testsFailed);
         }
 
@@ -804,7 +809,7 @@ namespace RPGGame.Tests.Unit
                 // Clear current combo
                 foreach (var action in currentComboActions)
                 {
-                    character.RemoveFromCombo(action);
+                    character.RemoveFromCombo(action, ignoreWeaponRequirement: true);
                 }
 
                 // Set ComboOrder values
@@ -826,6 +831,106 @@ namespace RPGGame.Tests.Unit
             {
                 // Invalid input, do nothing
             }
+        }
+
+        #endregion
+
+        #region Combo INT threshold (sequence discipline)
+
+        private static void TestComboStripIndexRespectsIntelligenceThreshold()
+        {
+            Console.WriteLine("\n--- Testing combo strip index vs intelligence ---");
+
+            var combo = new List<Action>
+            {
+                CreateComboAction("A", 1),
+                CreateComboAction("B", 2),
+                CreateComboAction("C", 3)
+            };
+
+            var hi = TestDataBuilders.Character().WithName("IntThresholdHi").Build();
+            hi.ComboStep = 7;
+            int orderedIdx = ActionUtilities.ResolveComboStripIndex(hi, combo, null);
+            TestBase.AssertEqual(7 % 3, orderedIdx,
+                "Effective INT >= threshold follows ComboStep",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var lo = TestDataBuilders.Character().WithName("IntThresholdLo").WithStats(10, 10, 10, 9).Build();
+            lo.ComboStep = 7;
+            int saltIdx = ActionUtilities.ResolveComboStripIndex(lo, combo, 20);
+            TestBase.AssertEqual((20 % 3 + 3) % 3, saltIdx,
+                "INT below threshold uses deterministic salt for strip index",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!ActionUtilities.UsesOrderedComboSequence(lo),
+                "INT 9 uses chaotic combo selection",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Chaotic combo pick used Roll(1, stripCount); a single combo action made count==1 and crashed combat start.
+        /// </summary>
+        private static void TestComboStripIndexSingleSlotLowIntDoesNotThrow()
+        {
+            Console.WriteLine("\n--- Testing single combo slot + low INT does not use invalid 1d1 ---");
+
+            var single = new List<Action> { CreateComboAction("Only", 1) };
+            var lo = TestDataBuilders.Character().WithName("OneComboLo").WithStats(10, 10, 10, 9).Build();
+            lo.ComboStep = 3;
+            int idx = ActionUtilities.ResolveComboStripIndex(lo, single, null);
+            TestBase.AssertEqual(0, idx,
+                "Single combo strip resolves to index 0 without rolling 1d1",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Below the INT threshold, combo-step advance must not follow sheet routing (e.g. JumpToSlot);
+        /// only the combo-path <em>pick</em> was chaotic before; step advance still used the router.
+        /// </summary>
+        private static void TestLowIntIgnoresComboRoutingOnComboStepAdvance()
+        {
+            Console.WriteLine("\n--- Testing low INT ignores combo routing on step advance ---");
+
+            var aJump = CreateComboAction("RouteA", 1);
+            aJump.ComboRouting.JumpToSlot = 3;
+            var b = CreateComboAction("RouteB", 2);
+            var c = CreateComboAction("RouteC", 3);
+
+            var hi = TestDataBuilders.Character().WithName("RouteIntHi").Build();
+            hi.AddToCombo(aJump);
+            hi.AddToCombo(b);
+            hi.AddToCombo(c);
+            hi.ComboStep = 0;
+            hi.IncrementComboStep(aJump);
+            TestBase.AssertEqual(2, hi.ComboStep,
+                "INT >= threshold: JumpToSlot 3 from slot 0 sets ComboStep to strip index 2",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var aJumpLo = CreateComboAction("RouteA", 1);
+            aJumpLo.ComboRouting.JumpToSlot = 3;
+            var lo = TestDataBuilders.Character().WithName("RouteIntLo").WithStats(10, 10, 10, 9).Build();
+            lo.AddToCombo(aJumpLo);
+            lo.AddToCombo(CreateComboAction("RouteB", 2));
+            lo.AddToCombo(CreateComboAction("RouteC", 3));
+            lo.ComboStep = 0;
+            lo.IncrementComboStep(aJumpLo);
+            TestBase.AssertEqual(1, lo.ComboStep,
+                "INT below threshold: advance is linear next slot (1), not jump target (2)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestGetComboSlotForPendingBonusesUsesSelectedComboAction()
+        {
+            Console.WriteLine("\n--- Testing pending bonus slot from selected action ---");
+
+            var c = TestDataBuilders.Character().WithName("PendingSlot").Build();
+            var x = CreateComboAction("X", 1);
+            var y = CreateComboAction("Y", 2);
+            var strip = new List<Action> { x, y };
+            c.ComboStep = 0;
+            int slot = ActionUtilities.GetComboSlotForPendingBonuses(c, y, strip);
+            TestBase.AssertEqual(1, slot,
+                "Slot follows selected combo action despite ComboStep 0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

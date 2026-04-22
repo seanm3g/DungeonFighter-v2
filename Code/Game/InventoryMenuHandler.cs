@@ -78,6 +78,29 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Mouse: right-click a filled action strip card in inventory removes that sequence slot.
+        /// Uses the same path as right-panel <see cref="ComboPointerInput.Kind.SequenceRemove"/> (<c>cpi:rm:N</c>):
+        /// weapon-required basics stay protected; when not in combo management, equip/compare/trade flows block this
+        /// (same as other <c>cpi:</c> tokens).
+        /// </summary>
+        /// <returns>True when the remove path ran (including when removal was refused for weapon rules).</returns>
+        public bool TryHandleStripRightClickRemove(int slotIndex)
+        {
+            if (stateManager.CurrentState != GameState.Inventory || stateManager.CurrentPlayer == null)
+                return false;
+
+            var combo = stateManager.CurrentPlayer.GetComboActions();
+            if (combo == null || combo.Count == 0 || slotIndex < 0 || slotIndex >= combo.Count)
+                return false;
+
+            if (!stateTracker.InComboManagement && stateTracker.IsAnySelectionActive())
+                return false;
+
+            comboManager.HandleComboPointerInput($"{Prefix}rm:{slotIndex}");
+            return true;
+        }
+
+        /// <summary>
         /// Re-renders inventory or combo management after left-panel chrome changes (e.g. collapsing STATS).
         /// <see cref="RenderCoordinator.PerformRender"/> suppresses display-buffer rendering in <see cref="GameState.Inventory"/>,
         /// so <c>ForceFullLayoutRender</c> does not redraw CanvasRenderer content or the action-info strip.

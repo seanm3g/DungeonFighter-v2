@@ -36,44 +36,26 @@ namespace RPGGame.Combat
         public static string GenerateInformationalSummary(
             int totalPlayerDamage, 
             int totalEnemyDamage, 
-            int playerComboCount, 
-            int enemyComboCount, 
             bool playerWon,
             bool enemyWon,
             string playerName,
-            string enemyName,
-            bool showDamageWhenEnemyKilled = false)
+            string enemyName)
         {
             if (playerWon)
             {
-                // When enemy is killed during combat, only show combos executed (no total damage line)
-                // But if showDamageWhenEnemyKilled is true (for final summary), show both
-                if (showDamageWhenEnemyKilled)
-                {
-                    var sb = new System.Text.StringBuilder();
-                    sb.Append($"Total damage dealt: {totalPlayerDamage} vs {totalEnemyDamage} received.\n");
-                    sb.Append($"Combos executed: {playerComboCount} vs {enemyComboCount}.");
-                    return sb.ToString();
-                }
-                else
-                {
-                    return $"Combos executed: {playerComboCount} vs {enemyComboCount}.";
-                }
+                // Intentionally no summary line on player victory (previously showed combo counts only).
+                return string.Empty;
             }
             else if (enemyWon)
             {
                 var sb = new System.Text.StringBuilder();
                 sb.Append($"{enemyName} defeats {playerName}!\n");
-                sb.Append($"Total damage dealt: {totalEnemyDamage} vs {totalPlayerDamage} received.\n");
-                sb.Append($"Combos executed: {enemyComboCount} vs {playerComboCount}.");
+                sb.Append($"Total damage dealt: {totalEnemyDamage} vs {totalPlayerDamage} received.");
                 return sb.ToString();
             }
             else
             {
-                var sb = new System.Text.StringBuilder();
-                sb.Append($"Battle ends in a stalemate. {playerName} dealt {totalPlayerDamage} damage, {enemyName} dealt {totalEnemyDamage} damage.\n");
-                sb.Append($"Combos: {playerComboCount} vs {enemyComboCount}.");
-                return sb.ToString();
+                return $"Battle ends in a stalemate. {playerName} dealt {totalPlayerDamage} damage, {enemyName} dealt {totalEnemyDamage} damage.";
             }
         }
         

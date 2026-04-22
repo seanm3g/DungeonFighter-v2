@@ -61,6 +61,11 @@ namespace RPGGame
 
             action.CausesSlow = data.CausesSlow;
             action.CausesPoison = data.CausesPoison;
+            action.CausesBurn = data.CausesBurn;
+            action.CausesBleed = data.CausesBleed;
+            action.PoisonPercentToAdd = data.PoisonPercentToAdd;
+            action.BurnAmountToAdd = data.BurnAmountToAdd;
+            action.BleedAmountToAdd = data.BleedAmountToAdd;
             action.CausesStun = data.CausesStun;
 
             action.CausesVulnerability = data.CausesVulnerability;

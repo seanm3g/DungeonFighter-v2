@@ -6,8 +6,8 @@
     { "name": "Wand", "damage": 5.0, "attackSpeed": 1.1 }
   ],
   "armor": [
-    { "slot": "Head", "name": "Leather Helmet", "armor": 0 },
-    { "slot": "Chest", "name": "Leather Armor", "armor": 0 },
-    { "slot": "Feet", "name": "Leather Boots", "armor": 0 }
+    { "slot": "Head", "name": "Leather Helmet", "armor": 1 },
+    { "slot": "Chest", "name": "Leather Armor", "armor": 1 },
+    { "slot": "Feet", "name": "Leather Boots", "armor": 1 }
   ]
 } 

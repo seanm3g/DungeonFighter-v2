@@ -3,8 +3,10 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Threading;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
+using RPGGame.UI.Avalonia.Helpers;
 using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame.UI.Avalonia.ActionInteractionLab
@@ -59,9 +61,30 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 _game = game,
             };
             _instance = w;
-            if (owner != null)
+            var effectiveOwner = WindowOwnerResolver.ResolveUsableOwnerWindow(owner);
+            if (effectiveOwner != null)
             {
-                w.Show(owner);
+                w.WindowStartupLocation = WindowStartupLocation.Manual;
+                EventHandler? layoutOnce = null;
+                layoutOnce = (_, _) =>
+                {
+                    w.Opened -= layoutOnce!;
+                    Dispatcher.UIThread.Post(
+                        () =>
+                        {
+                            try
+                            {
+                                ActionLabWindowPlacement.ApplyActionLabOpenMultiWindowLayout(effectiveOwner, w);
+                            }
+                            catch
+                            {
+                                /* best-effort layout */
+                            }
+                        },
+                        DispatcherPriority.Loaded);
+                };
+                w.Opened += layoutOnce;
+                w.Show(effectiveOwner);
             }
             else
             {

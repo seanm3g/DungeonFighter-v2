@@ -1,6 +1,7 @@
 using System;
 using RPGGame.Tests;
 using RPGGame;
+using RPGGame.Combat;
 
 namespace RPGGame.Tests.Unit.Combat
 {
@@ -28,6 +29,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestConstructor();
             TestAddEvent();
             TestGetNarratives();
+            TestInformationalSummaryExcludesComboCounts();
 
             TestBase.PrintSummary("BattleNarrative Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -107,6 +109,34 @@ namespace RPGGame.Tests.Unit.Combat
                     $"GetTriggeredNarratives failed: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestInformationalSummaryExcludesComboCounts()
+        {
+            Console.WriteLine("\n--- Testing informational summary (no combo line) ---");
+
+            string playerWin = BattleNarrativeGenerator.GenerateInformationalSummary(
+                40, 5, playerWon: true, enemyWon: false, "Hero", "Goblin");
+            TestBase.AssertTrue(string.IsNullOrEmpty(playerWin),
+                "Player victory summary should be empty (no combo or damage line)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string enemyWin = BattleNarrativeGenerator.GenerateInformationalSummary(
+                10, 50, playerWon: false, enemyWon: true, "Hero", "Goblin");
+            TestBase.AssertTrue(
+                enemyWin.Contains("Total damage dealt", StringComparison.Ordinal)
+                && enemyWin.Contains("Goblin defeats Hero", StringComparison.Ordinal)
+                && !enemyWin.Contains("Combos", StringComparison.OrdinalIgnoreCase),
+                "Enemy victory summary should include damage totals but not combo counts",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string stalemate = BattleNarrativeGenerator.GenerateInformationalSummary(
+                25, 25, playerWon: false, enemyWon: false, "Hero", "Goblin");
+            TestBase.AssertTrue(
+                stalemate.Contains("stalemate", StringComparison.OrdinalIgnoreCase)
+                && !stalemate.Contains("Combos", StringComparison.OrdinalIgnoreCase),
+                "Stalemate summary should not include combo counts",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

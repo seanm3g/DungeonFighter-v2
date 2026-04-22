@@ -1,5 +1,5 @@
-using System.Linq;
 using System;
+using System.Linq;
 
 namespace RPGGame
 {
@@ -8,11 +8,13 @@ namespace RPGGame
     /// </summary>
     public static class EnemyStatCalculator
     {
+        /// <summary>Total STR+AGI+TECH+INT growth budget per level after resolving partial sheet data.</summary>
+        public const double EnemyAttributeGrowthBudgetPerLevel = 6.0;
+
         /// <summary>
-        /// Calculates final enemy stats: optional <see cref="EnemyData.BaseAttributes"/> / <see cref="EnemyData.GrowthPerLevel"/>
-        /// for attributes; optional <see cref="EnemyData.BaseHealth"/> / <see cref="EnemyData.HealthGrowthPerLevel"/> for HP
-        /// (same level formula). Otherwise falls back to baseline × archetype × overrides and tuning
-        /// <see cref="ScalingPerLevelConfig"/>.
+        /// Calculates final enemy stats from <see cref="EnemyData.BaseAttributes"/> / <see cref="EnemyData.GrowthPerLevel"/>,
+        /// <see cref="EnemyData.BaseHealth"/> / <see cref="EnemyData.HealthGrowthPerLevel"/>, and tuning baselines.
+        /// Attribute growth is normalized so STR+AGI+TECH+INT growth sums to <see cref="EnemyAttributeGrowthBudgetPerLevel"/> per level.
         /// </summary>
         public static CalculatedEnemyStats CalculateStats(EnemyData enemyData, int level, EnemySystemConfig enemySystem)
         {
@@ -26,20 +28,17 @@ namespace RPGGame
                 archetype = enemySystem.Archetypes.GetValueOrDefault("Berserker") ?? new ArchetypeMultipliersConfig();
             }
 
-            var overrides = enemyData.Overrides ?? new StatOverridesConfig();
+            double baseHealth = enemyData.BaseHealth ?? (baseline.Health * archetype.Health);
+            double baseStrength = enemyData.BaseAttributes?.Strength ?? (baseline.Strength * archetype.Strength);
+            double baseAgility = enemyData.BaseAttributes?.Agility ?? (baseline.Agility * archetype.Agility);
+            double baseTechnique = enemyData.BaseAttributes?.Technique ?? (baseline.Technique * archetype.Technique);
+            double baseIntelligence = enemyData.BaseAttributes?.Intelligence ?? (baseline.Intelligence * archetype.Intelligence);
+            double baseArmor = baseline.Armor * archetype.Armor;
 
-            double baseHealth = enemyData.BaseHealth ?? (baseline.Health * archetype.Health * (overrides.Health ?? 1.0));
-            double baseStrength = enemyData.BaseAttributes?.Strength ?? (baseline.Strength * archetype.Strength * (overrides.Strength ?? 1.0));
-            double baseAgility = enemyData.BaseAttributes?.Agility ?? (baseline.Agility * archetype.Agility * (overrides.Agility ?? 1.0));
-            double baseTechnique = enemyData.BaseAttributes?.Technique ?? (baseline.Technique * archetype.Technique * (overrides.Technique ?? 1.0));
-            double baseIntelligence = enemyData.BaseAttributes?.Intelligence ?? (baseline.Intelligence * archetype.Intelligence * (overrides.Intelligence ?? 1.0));
-            double baseArmor = baseline.Armor * archetype.Armor * (overrides.Armor ?? 1.0);
+            var (growthStrength, growthAgility, growthTechnique, growthIntelligence) =
+                ComputeNormalizedAttributeGrowthPerLevel(enemyData.GrowthPerLevel);
 
-            double growthStrength = enemyData.GrowthPerLevel?.Strength ?? (scaling.Attributes * (overrides.Strength ?? 1.0));
-            double growthAgility = enemyData.GrowthPerLevel?.Agility ?? (scaling.Attributes * (overrides.Agility ?? 1.0));
-            double growthTechnique = enemyData.GrowthPerLevel?.Technique ?? (scaling.Attributes * (overrides.Technique ?? 1.0));
-            double growthIntelligence = enemyData.GrowthPerLevel?.Intelligence ?? (scaling.Attributes * (overrides.Intelligence ?? 1.0));
-            double growthHealth = enemyData.HealthGrowthPerLevel ?? (scaling.Health * (overrides.Health ?? 1.0));
+            double growthHealth = enemyData.HealthGrowthPerLevel ?? scaling.Health;
 
             int lv = Math.Max(0, level - 1);
 
@@ -70,6 +69,57 @@ namespace RPGGame
                 PrimaryAttribute = primaryAttribute,
                 Archetype = ConvertStringToEnemyArchetype(enemyData.Archetype)
             };
+        }
+
+        /// <summary>
+        /// Resolves partial growth columns: missing stats share the remainder of the 6-point budget; explicit rows scale to sum 6.
+        /// </summary>
+        internal static (double strength, double agility, double technique, double intelligence)
+            ComputeNormalizedAttributeGrowthPerLevel(EnemyAttributeSet? growth)
+        {
+            const double B = EnemyAttributeGrowthBudgetPerLevel;
+            bool hs = growth?.Strength.HasValue == true;
+            bool ha = growth?.Agility.HasValue == true;
+            bool ht = growth?.Technique.HasValue == true;
+            bool hi = growth?.Intelligence.HasValue == true;
+            int set = (hs ? 1 : 0) + (ha ? 1 : 0) + (ht ? 1 : 0) + (hi ? 1 : 0);
+            int nullCount = 4 - set;
+
+            double s = growth?.Strength ?? 0;
+            double a = growth?.Agility ?? 0;
+            double t = growth?.Technique ?? 0;
+            double i = growth?.Intelligence ?? 0;
+
+            if (set == 0)
+            {
+                double v = B / 4.0;
+                return (v, v, v, v);
+            }
+
+            double sumExplicit = (hs ? s : 0) + (ha ? a : 0) + (ht ? t : 0) + (hi ? i : 0);
+            if (sumExplicit < 1e-9)
+            {
+                double v = B / 4.0;
+                return (v, v, v, v);
+            }
+
+            if (nullCount > 0)
+            {
+                if (sumExplicit <= B + 1e-9)
+                {
+                    double fill = (B - sumExplicit) / nullCount;
+                    return (hs ? s : fill, ha ? a : fill, ht ? t : fill, hi ? i : fill);
+                }
+
+                double k = B / sumExplicit;
+                return (hs ? s * k : 0, ha ? a * k : 0, ht ? t * k : 0, hi ? i * k : 0);
+            }
+
+            if (Math.Abs(sumExplicit - B) < 1e-9)
+                return (s, a, t, i);
+
+            double kn = B / sumExplicit;
+            return (s * kn, a * kn, t * kn, i * kn);
         }
 
         private static int FloorToInt(double value)

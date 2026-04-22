@@ -150,7 +150,8 @@ namespace RPGGame.Actions.Execution
                 var pendingActionRollBonuses = new List<ActionAttackBonusItem>();
                 if (comboLength > 0)
                 {
-                    int currentSlot = actionBonusCharacter.ComboStep % comboLength;
+                    int currentSlot = ActionUtilities.GetComboSlotForPendingBonuses(
+                        actionBonusCharacter, result.SelectedAction, comboActions);
                     pendingActionRollBonuses.AddRange(actionBonusCharacter.Effects.ConsumePendingActionBonusesForSlot(currentSlot));
                 }
                 pendingActionRollBonuses.AddRange(actionBonusCharacter.Effects.ConsumePendingActionBonusesNextHeroRoll());

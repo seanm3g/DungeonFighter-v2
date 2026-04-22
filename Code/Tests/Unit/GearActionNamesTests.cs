@@ -22,6 +22,7 @@ namespace RPGGame.Tests.Unit
             _testsFailed = 0;
 
             TestResolve_MatchesGearActionManager();
+            TestWeaponWithGearActionOnly_IncludesRequiredBasicName();
             TestWeaponFallback_EveryResolvedNameLoadsIntoPool();
             TestRebuildCharacterActions_PoolContainsResolvedWeaponNames();
             TestChestItemWithStatBonus_IncludesArmorContribution();
@@ -47,6 +48,41 @@ namespace RPGGame.Tests.Unit
 
             TestBase.AssertTrue(a.SequenceEqual(b),
                 $"GearActionNames and GearActionManager lists should match: [{string.Join(",", a)}] vs [{string.Join(",", b)}]",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestWeaponWithGearActionOnly_IncludesRequiredBasicName()
+        {
+            Console.WriteLine("\n--- TestWeaponWithGearActionOnly_IncludesRequiredBasicName ---");
+
+            try
+            {
+                ActionLoader.LoadActions();
+            }
+            catch
+            {
+                TestBase.AssertTrue(true, "Skip: ActionLoader unavailable", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            if (ActionLoader.GetAction("STRIKE") == null)
+            {
+                TestBase.AssertTrue(true, "Skip: no STRIKE in action data", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            var weapon = new WeaponItem
+            {
+                Name = "SwordNoBasicInGear",
+                WeaponType = WeaponType.Sword,
+                GearAction = "JAB",
+                ActionBonuses = { }
+            };
+
+            var names = GearActionNames.Resolve(weapon);
+            TestBase.AssertTrue(
+                names.Any(n => string.Equals(n, "STRIKE", StringComparison.OrdinalIgnoreCase)),
+                "Sword with only JAB as GearAction should still resolve STRIKE (required weapon basic)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
