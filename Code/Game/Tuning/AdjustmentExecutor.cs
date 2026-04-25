@@ -21,6 +21,7 @@ namespace RPGGame.Tuning
             current.StatusEffects = config.StatusEffects;
             current.ComboSystem = config.ComboSystem;
             current.LootSystem = config.LootSystem;
+            current.ItemAffixByRarity = config.ItemAffixByRarity ?? new ItemAffixByRaritySettings();
             current.DungeonScaling = config.DungeonScaling;
             current.DungeonGeneration = config.DungeonGeneration;
             current.ModificationRarity = config.ModificationRarity;

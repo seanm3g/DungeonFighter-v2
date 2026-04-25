@@ -136,10 +136,11 @@ namespace RPGGame
                 actionDuration = 1.0 * action.Length;
             }
             
-            // Update current time to when this action completes
-            double currentTime = GameTicker.Instance.GetCurrentGameTime();
-            currentTime = Math.Max(currentTime, combatEntity.NextActionTime);
-            combatEntity.NextActionTime = currentTime + actionDuration;
+            // Schedule the next action from this entity's own readiness time, not max(global, self).
+            // Using global game time here snapped fast fighters to the slow actor's timeline after
+            // AdvanceGameTime(longSlow), so a quick foe only got one swing during a long hero recovery.
+            double readyWhen = combatEntity.NextActionTime;
+            combatEntity.NextActionTime = readyWhen + actionDuration;
 
             // Advance combat time by this action's duration so poison/burn global ticks can use the same clock
             // as action speeds. The background ticker is always started from GameCoordinator, so we cannot

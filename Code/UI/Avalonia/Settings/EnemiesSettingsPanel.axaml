@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:settings="clr-namespace:RPGGame.UI.Avalonia.Settings"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+             x:Class="RPGGame.UI.Avalonia.Settings.EnemiesSettingsPanel"
+             Background="Transparent">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="20" Margin="20">
+            <Border Background="White"
+                    BorderBrush="#FF404040"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="18">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Enemies"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Foreground="Black"
+                               Margin="0,0,0,4"/>
+                    <TextBlock Text="Catalog loaded from Enemies.json. Name and archetype are read-only; edit tags as comma-separated values, then use the main Save button to write the file and reload runtime enemy data."
+                               FontSize="14"
+                               Foreground="#FF666666"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Border Background="White"
+                    BorderBrush="#FF404040"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="18">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Enemy catalog"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="Black"/>
+                    <ItemsControl x:Name="EnemiesItemsControl">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="settings:EnemySettingsRowViewModel">
+                                <Border Background="#FFF9F9F9"
+                                        BorderBrush="#FF404040"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="10"
+                                        Margin="0,0,0,10">
+                                    <Grid ColumnDefinitions="180,140,*" RowDefinitions="Auto,Auto">
+                                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                                   Text="{Binding Name}"
+                                                   FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="Black"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,0,12,8"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                                   Text="{Binding Archetype}"
+                                                   FontSize="13"
+                                                   Foreground="#FF666666"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,12,8"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="0"
+                                                   Text="Tags"
+                                                   FontSize="12"
+                                                   Foreground="#FF888888"
+                                                   Margin="0,0,12,0"/>
+                                        <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                                                 Text="{Binding Tags, Mode=TwoWay}"
+                                                 FontSize="13"
+                                                 Background="White"
+                                                 Foreground="Black"
+                                                 BorderBrush="#FFCCCCCC"
+                                                 TextWrapping="Wrap"
+                                                 AcceptsReturn="False"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

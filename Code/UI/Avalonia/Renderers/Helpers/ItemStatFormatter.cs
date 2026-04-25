@@ -21,7 +21,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             if (item is WeaponItem weapon)
             {
                 stats.Add($"Damage: {weapon.GetTotalDamage()}");
-                stats.Add($"Speed: {weapon.GetTotalAttackSpeed():F1}s");
+                stats.Add($"Speed: {weapon.GetTotalAttackSpeed():F2}×");
             }
             else if (item is HeadItem headItem)
             {

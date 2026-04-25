@@ -61,8 +61,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// </summary>
         public int RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory)
         {
-            // Clear previous state before rendering
-            clickableElements.Clear();
+            // Do not Clear() the shared clickables list: PersistentLayoutManager already cleared it this frame,
+            // and CharacterPanelRenderer registered left-panel lphover targets before this callback. Clearing here
+            // removed those targets so gear/stats tooltips never fired while inventory was open.
             int currentLineCount = 0;
             
             // Clear the center panel content area to ensure clean rendering

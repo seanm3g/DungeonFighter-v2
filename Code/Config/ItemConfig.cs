@@ -91,6 +91,235 @@ namespace RPGGame
     }
 
     /// <summary>
+    /// Per-rarity affix tuning for generated loot (dungeon drops, trade-up, item lab).
+    /// When <see cref="ItemAffixByRaritySettings.PerRarity"/> contains a key matching the rolled rarity
+    /// (case-insensitive), these bounds override <c>RarityTable.json</c> stat/action columns and the
+    /// built-in prefix-slot rules for that rarity only. Rarities omitted from the map keep legacy behavior.
+    /// <see cref="PrefixSlots"/>, <see cref="StatSuffixes"/>, and <see cref="ActionBonuses"/> are minimums;
+    /// optional max + extra chance roll additional affixes up to the cap (see <see cref="ItemAffixByRaritySettings.GetResolvedAffixRule"/>).
+    /// </summary>
+    public sealed class ItemAffixPerRarityEntry
+    {
+        /// <summary>Minimum prefix-slot modifications (Quality / Adjective / Material), 0–3.</summary>
+        public int PrefixSlots { get; set; }
+
+        /// <summary>Minimum random stat bonuses (name suffixes).</summary>
+        public int StatSuffixes { get; set; }
+
+        /// <summary>Minimum random action bonuses.</summary>
+        public int ActionBonuses { get; set; }
+
+        /// <summary>Maximum prefix slots (0–3). When null and <see cref="PrefixExtraChance"/> is 0, effective max equals min.</summary>
+        public int? PrefixSlotsMax { get; set; }
+
+        /// <summary>Per-step chance (0–1) to add one more prefix slot while below max.</summary>
+        public double PrefixExtraChance { get; set; }
+
+        public int? StatSuffixesMax { get; set; }
+
+        /// <summary>Per-step chance (0–1) to add one more stat suffix while below max.</summary>
+        public double StatSuffixExtraChance { get; set; }
+
+        public int? ActionBonusesMax { get; set; }
+
+        /// <summary>Per-step chance (0–1) to add one more action bonus while below max.</summary>
+        public double ActionExtraChance { get; set; }
+    }
+
+    /// <summary>
+    /// Resolved min/max and per-step extra chance for one rarity (before random rolls).
+    /// </summary>
+    public readonly struct ItemAffixRollRule
+    {
+        public ItemAffixRollRule(
+            int prefixMin,
+            int prefixMax,
+            double prefixExtraChance,
+            int statMin,
+            int statMax,
+            double statExtraChance,
+            int actionMin,
+            int actionMax,
+            double actionExtraChance)
+        {
+            PrefixMin = prefixMin;
+            PrefixMax = prefixMax;
+            PrefixExtraChance = prefixExtraChance;
+            StatMin = statMin;
+            StatMax = statMax;
+            StatExtraChance = statExtraChance;
+            ActionMin = actionMin;
+            ActionMax = actionMax;
+            ActionExtraChance = actionExtraChance;
+        }
+
+        public int PrefixMin { get; }
+        public int PrefixMax { get; }
+        public double PrefixExtraChance { get; }
+        public int StatMin { get; }
+        public int StatMax { get; }
+        public double StatExtraChance { get; }
+        public int ActionMin { get; }
+        public int ActionMax { get; }
+        public double ActionExtraChance { get; }
+    }
+
+    /// <summary>
+    /// Optional tuning overrides for affix counts by item rarity (<c>TuningConfig.json</c> → <c>GameConfiguration</c>).
+    /// </summary>
+    public sealed class ItemAffixByRaritySettings
+    {
+        /// <summary>Rarities shown in settings UI and written as a full block to tuning when saving.</summary>
+        public static readonly string[] StandardLootRarities =
+        {
+            "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent"
+        };
+
+        public string Description { get; set; } =
+            "Per-rarity affix bounds. PrefixSlots/StatSuffixes/ActionBonuses = minimums; *Max and *ExtraChance = optional random extras up to max. Omit a rarity to use RarityTable + built-in prefix rules for that tier.";
+
+        /// <summary>Keys are rarity names, e.g. Common, Rare (matched case-insensitively).</summary>
+        public Dictionary<string, ItemAffixPerRarityEntry> PerRarity { get; set; } = new();
+
+        /// <summary>Built-in prefix-slot count when tuning does not override this rarity.</summary>
+        public static int DefaultPrefixSlotsForRarity(string rarityName)
+        {
+            if (rarityName.Equals("Common", StringComparison.OrdinalIgnoreCase))
+                return 1;
+            if (rarityName.Equals("Uncommon", StringComparison.OrdinalIgnoreCase))
+                return 2;
+            return 3;
+        }
+
+        /// <summary>
+        /// Resolves affix roll rule (min/max/chance per axis). No tuning entry uses rarity table + default prefix slots; all extra chances are 0 and max equals min.
+        /// </summary>
+        public static ItemAffixRollRule GetResolvedAffixRule(
+            string? rarityName,
+            RarityData? rarityTableRow,
+            ItemAffixByRaritySettings? tuning)
+        {
+            string name = rarityName?.Trim() ?? "Common";
+            if (tuning != null && tuning.TryGetForRarity(name, out var entry))
+                return BuildRuleFromTuningEntry(entry, rarityTableRow);
+
+            int p = DefaultPrefixSlotsForRarity(name);
+            int s = Math.Max(0, rarityTableRow?.StatBonuses ?? 0);
+            int a = Math.Max(0, rarityTableRow?.ActionBonuses ?? 0);
+            return new ItemAffixRollRule(p, p, 0, s, s, 0, a, a, 0);
+        }
+
+        /// <summary>
+        /// Builds a roll rule from a tuning row: mins from <see cref="ItemAffixPerRarityEntry"/>; max defaults to min when extra chance is 0 (legacy fixed counts).
+        /// </summary>
+        public static ItemAffixRollRule BuildRuleFromTuningEntry(
+            ItemAffixPerRarityEntry entry,
+            RarityData? rarityTableRow)
+        {
+            int pMin = Math.Clamp(entry.PrefixSlots, 0, 3);
+            double pCh = Clamp01(entry.PrefixExtraChance);
+            int pMax = entry.PrefixSlotsMax.HasValue
+                ? Math.Clamp(entry.PrefixSlotsMax.Value, pMin, 3)
+                : (pCh <= 0 ? pMin : 3);
+
+            int sMin = Math.Max(0, entry.StatSuffixes);
+            double sCh = Clamp01(entry.StatSuffixExtraChance);
+            int sDefaultCeiling = Math.Max(sMin, rarityTableRow?.StatBonuses ?? sMin);
+            if (sDefaultCeiling == sMin && sCh > 0)
+                sDefaultCeiling = Math.Max(sMin, 8);
+            int sMax = entry.StatSuffixesMax.HasValue
+                ? Math.Max(sMin, entry.StatSuffixesMax.Value)
+                : (sCh <= 0 ? sMin : sDefaultCeiling);
+
+            int aMin = Math.Max(0, entry.ActionBonuses);
+            double aCh = Clamp01(entry.ActionExtraChance);
+            int aDefaultCeiling = Math.Max(aMin, rarityTableRow?.ActionBonuses ?? aMin);
+            if (aDefaultCeiling == aMin && aCh > 0)
+                aDefaultCeiling = Math.Max(aMin, 5);
+            int aMax = entry.ActionBonusesMax.HasValue
+                ? Math.Max(aMin, entry.ActionBonusesMax.Value)
+                : (aCh <= 0 ? aMin : aDefaultCeiling);
+
+            return new ItemAffixRollRule(pMin, pMax, pCh, sMin, sMax, sCh, aMin, aMax, aCh);
+        }
+
+        /// <summary>
+        /// Rolls final affix counts from a rule using <paramref name="random"/>.
+        /// </summary>
+        public static void RollAffixCounts(Random random, in ItemAffixRollRule rule, out int prefixSlots, out int statSuffixes, out int actionBonuses)
+        {
+            prefixSlots = RollAxis(random, rule.PrefixMin, rule.PrefixMax, rule.PrefixExtraChance);
+            statSuffixes = RollAxis(random, rule.StatMin, rule.StatMax, rule.StatExtraChance);
+            actionBonuses = RollAxis(random, rule.ActionMin, rule.ActionMax, rule.ActionExtraChance);
+        }
+
+        /// <summary>
+        /// Starts at <paramref name="min"/> and increments while below <paramref name="max"/> and <paramref name="extraChance"/> succeeds.
+        /// </summary>
+        public static int RollAxis(Random random, int min, int max, double extraChance)
+        {
+            min = Math.Max(0, min);
+            if (max < min)
+                max = min;
+            extraChance = Clamp01(extraChance);
+            int c = min;
+            while (c < max && random.NextDouble() < extraChance)
+                c++;
+            return c;
+        }
+
+        private static double Clamp01(double v)
+        {
+            if (v < 0) return 0;
+            if (v > 1) return 1;
+            return v;
+        }
+
+        /// <summary>
+        /// Returns minimum affix counts from the resolved rule (same as rolling with zero extra chance on all axes).
+        /// </summary>
+        public static void GetResolvedAffixCounts(
+            string? rarityName,
+            RarityData? rarityTableRow,
+            ItemAffixByRaritySettings? tuning,
+            out int prefixSlots,
+            out int statSuffixes,
+            out int actionBonuses)
+        {
+            var rule = GetResolvedAffixRule(rarityName, rarityTableRow, tuning);
+            prefixSlots = rule.PrefixMin;
+            statSuffixes = rule.StatMin;
+            actionBonuses = rule.ActionMin;
+        }
+
+        /// <summary>Returns true when <paramref name="rarityName"/> has an explicit tuning entry.</summary>
+        public bool TryGetForRarity(string? rarityName, out ItemAffixPerRarityEntry entry)
+        {
+            entry = null!;
+            if (PerRarity == null || PerRarity.Count == 0 || string.IsNullOrWhiteSpace(rarityName))
+                return false;
+
+            string trimmed = rarityName.Trim();
+            if (PerRarity.TryGetValue(trimmed, out var direct) && direct != null)
+            {
+                entry = direct;
+                return true;
+            }
+
+            foreach (var kv in PerRarity)
+            {
+                if (kv.Key.Equals(trimmed, StringComparison.OrdinalIgnoreCase) && kv.Value != null)
+                {
+                    entry = kv.Value;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Loot system configuration
     /// </summary>
     public class LootSystemConfig

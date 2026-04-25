@@ -15,6 +15,10 @@ namespace RPGGame
         /// </summary>
         public void AddEnvironmentActions(Actor entity, Environment environment)
         {
+            // Room hazards must never be copied onto hero or enemy action pools (only the Environment actor holds them).
+            if (entity is Character)
+                return;
+
             if (environment != null && environment.ActionPool.Count > 0)
             {
                 foreach (var (action, probability) in environment.ActionPool)

@@ -129,39 +129,27 @@ namespace RPGGame.Tests.Unit.Game
             Console.WriteLine("\n--- Testing GetBarbarianStarterWeaponChoice1Based ---");
 
             int choice = GameCoordinator.GetBarbarianStarterWeaponChoice1Based();
-            var init = new GameInitializer();
-            var weapons = init.LoadStartingGear()?.weapons;
             TestBase.AssertTrue(choice >= 1, "Barbarian starter choice is at least 1",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            if (weapons == null || weapons.Count == 0)
-                return;
-
-            TestBase.AssertTrue(choice <= weapons.Count, "Barbarian starter choice fits starting weapon list",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            bool listHasMace = false;
-            foreach (var w in weapons)
+            int expectedMaceSlot = 1;
+            var menuRows = StarterCatalogItems.ResolveStarterWeaponMenuCatalogRows();
+            bool found = false;
+            for (int i = 0; i < menuRows.Count; i++)
             {
-                if (w.name.Contains("mace", StringComparison.OrdinalIgnoreCase))
+                if (Enum.TryParse(menuRows[i].Type?.Trim(), ignoreCase: true, out WeaponType wt) && wt == WeaponType.Mace)
                 {
-                    listHasMace = true;
+                    expectedMaceSlot = i + 1;
+                    found = true;
                     break;
                 }
             }
 
-            if (listHasMace)
-            {
-                string picked = weapons[choice - 1].name;
-                TestBase.AssertTrue(picked.Contains("mace", StringComparison.OrdinalIgnoreCase),
-                    "When starting gear includes a mace, choice should index that barbarian starter",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-            }
-            else
-            {
-                TestBase.AssertEqual(1, choice, "When no mace in starting gear, fallback is first slot",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-            }
+            TestBase.AssertTrue(found, "Starter weapon menu should include a Mace row for Barbarian default",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(expectedMaceSlot, choice,
+                "Barbarian starter choice should be the 1-based index of the first Mace row in the starter weapon menu",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

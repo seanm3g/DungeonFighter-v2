@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit.UI
 
             TestConstructor();
             TestConstructorWithNullCallback();
+            TestRefreshFromFileIfLoadedWithoutPanelIsNoOp();
 
             TestBase.PrintSummary("ItemsTabManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -69,6 +70,26 @@ namespace RPGGame.Tests.Unit.UI
             {
                 TestBase.AssertTrue(false,
                     $"ItemsTabManager constructor with null callback failed: {ex.Message}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestRefreshFromFileIfLoadedWithoutPanelIsNoOp()
+        {
+            Console.WriteLine("\n--- Testing RefreshFromFileIfLoaded without panel (no-op) ---");
+
+            try
+            {
+                var manager = new ItemsTabManager(null);
+                manager.RefreshFromFileIfLoaded();
+                TestBase.AssertTrue(true,
+                    "RefreshFromFileIfLoaded should not throw when Items tab was never opened",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            catch (Exception ex)
+            {
+                TestBase.AssertTrue(false,
+                    $"RefreshFromFileIfLoaded failed: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }

@@ -331,7 +331,9 @@ namespace RPGGame.Combat.Formatting
             if (multiHitCount > 1)
             {
                 builder.AddSpace();
-                builder.Add($"({multiHitCount} hits)", ColorPalette.Info);
+                builder.Add("(", Colors.White);
+                builder.Add(multiHitCount.ToString(), ColorPalette.Info);
+                builder.Add(" hits)", Colors.White);
             }
             
             // Damage amount (for multi-hit, this is the total damage across all hits)

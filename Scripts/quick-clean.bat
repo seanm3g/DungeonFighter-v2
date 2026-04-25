@@ -1,5 +1,5 @@
 @echo off
-REM Quick Clean - Fast build cache cleanup
-powershell.exe -ExecutionPolicy Bypass -File "%~dp0quick-clean.ps1"
+REM Legacy wrapper kept for convenience.
+call "%~dp0df.bat" clean
 if errorlevel 1 pause
 

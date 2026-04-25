@@ -1,5 +1,6 @@
 using System;
 using RPGGame.Combat.Calculators;
+using RPGGame.Items;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Combat
@@ -29,6 +30,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestCalculateAttackSpeedEnemy();
             TestAgilityReduction();
             TestWeaponSpeedModifier();
+            TestWeaponAttackSpeedMultiplierVsBaseline();
             TestEquipmentSpeedBonus();
             TestSlowDebuff();
             TestMinimumAttackTime();
@@ -128,6 +130,42 @@ namespace RPGGame.Tests.Unit.Combat
             // Note: This may require weapon setup
             TestBase.AssertTrue(speedNoWeapon > 0,
                 "Speed calculation should work with or without weapon",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Weapon <c>attackSpeed</c> is a time multiplier: &lt;1 faster (shorter seconds), &gt;1 slower.
+        /// </summary>
+        private static void TestWeaponAttackSpeedMultiplierVsBaseline()
+        {
+            Console.WriteLine("\n--- Testing WeaponAttackSpeedMultiplierVsBaseline ---");
+
+            var baseline = TestDataBuilders.Character()
+                .WithName("BaseWeapon")
+                .WithStats(10, 10, 10, 10)
+                .Build();
+            baseline.EquipItem(new WeaponItem("Norm", 1, 5, 1.0, WeaponType.Sword), "weapon");
+            double tBase = SpeedCalculator.CalculateAttackSpeed(baseline);
+
+            var fastWeapon = TestDataBuilders.Character()
+                .WithName("FastWeapon")
+                .WithStats(10, 10, 10, 10)
+                .Build();
+            fastWeapon.EquipItem(new WeaponItem("Fast", 1, 5, 0.8, WeaponType.Sword), "weapon");
+            double tFast = SpeedCalculator.CalculateAttackSpeed(fastWeapon);
+
+            var slowWeapon = TestDataBuilders.Character()
+                .WithName("SlowWeapon")
+                .WithStats(10, 10, 10, 10)
+                .Build();
+            slowWeapon.EquipItem(new WeaponItem("Slow", 1, 5, 1.2, WeaponType.Sword), "weapon");
+            double tSlow = SpeedCalculator.CalculateAttackSpeed(slowWeapon);
+
+            TestBase.AssertTrue(tFast < tBase,
+                "attackSpeed below 1 should reduce attack time vs baseline",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(tSlow > tBase,
+                "attackSpeed above 1 should increase attack time vs baseline",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -86,7 +86,8 @@ namespace RPGGame.UI.Avalonia.Layout
             if (heroOpen)
             {
                 int nameY = y;
-                canvas.AddText(x, y, character.Name, AsciiArtAssets.Colors.White);
+                var heroNameSegments = HeroNamePanelColoredText.BuildLeftPanelHeroNameSegments(character);
+                textWriter.RenderSegments(heroNameSegments, x, nameY);
                 y++;
 
                 int healthBarWidth = LayoutConstants.LEFT_PANEL_WIDTH - 4;

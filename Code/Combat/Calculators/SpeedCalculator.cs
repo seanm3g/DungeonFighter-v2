@@ -1,4 +1,5 @@
 using System;
+using RPGGame.Items;
 
 namespace RPGGame.Combat.Calculators
 {
@@ -7,6 +8,19 @@ namespace RPGGame.Combat.Calculators
     /// </summary>
     public static class SpeedCalculator
     {
+        /// <summary>
+        /// Weapon sheet <c>attackSpeed</c> / <see cref="WeaponItem.BaseAttackSpeed"/>: 1 = baseline cadence;
+        /// values above 1 lengthen swing spacing (slower); below 1 shorten it (faster), relative to agility-adjusted time.
+        /// </summary>
+        public static double GetWeaponAttackTimeMultiplier(WeaponItem w)
+        {
+            double m = w.BaseAttackSpeed;
+            if (m <= 0 || double.IsNaN(m) || double.IsInfinity(m))
+                m = 1.0;
+            // Keep catalog extremes (roughly 0.6–1.2) without pinning light weapons to a single floor.
+            return Math.Max(0.5, Math.Min(1.5, m));
+        }
+
         /// <summary>
         /// Calculates attack speed for any Actor (shared logic)
         /// </summary>
@@ -71,24 +85,16 @@ namespace RPGGame.Combat.Calculators
             // Apply Actor-specific modifiers
             if (actor is Character charEntity)
             {
-                // Calculate weapon speed using the equation: (base attack speed / weapon speed) × action speed
-                // Higher weapon speed values = faster attacks (less time), lower values = slower attacks (more time)
-                double weaponSpeed = 1.0;
+                // Weapon attackSpeed multiplier: ×1 baseline; >1 slower (longer time); <1 faster (shorter time).
+                double weaponTimeMul = 1.0;
                 if (charEntity.Weapon is WeaponItem w)
                 {
-                    // Weapon speed values from JSON: higher = faster (e.g., 1.2 = fast dagger, 0.8 = slow mace)
-                    // We divide time by speed to make higher speeds reduce time
-                    weaponSpeed = w.BaseAttackSpeed;
-                    
-                    // Default weapon band is 0.8x–1.2x; clamp keeps data and mods in a sane range
-                    weaponSpeed = Math.Max(0.8, Math.Min(1.2, weaponSpeed));
-                    
-                    // Debug logging for weapon speed calculation
+                    weaponTimeMul = GetWeaponAttackTimeMultiplier(w);
                     if (GameConfiguration.IsDebugEnabled)
                     {
                     }
                 }
-                double weaponAdjustedTime = agilityAdjustedTime / weaponSpeed;
+                double weaponAdjustedTime = agilityAdjustedTime * weaponTimeMul;
                 
                 // Equipment speed bonus reduces time further
                 double equipmentSpeedBonus = charEntity.GetEquipmentAttackSpeedBonus();
@@ -123,18 +129,10 @@ namespace RPGGame.Combat.Calculators
             }
             else if (actor is Enemy enemyEntity)
             {
-                // Apply weapon speed (same as characters)
-                // Higher weapon speed values = faster attacks (less time), lower values = slower attacks (more time)
-                double weaponSpeed = 1.0;
+                double weaponTimeMul = 1.0;
                 if (enemyEntity.Weapon is WeaponItem w)
-                {
-                    // Weapon speed values from JSON: higher = faster (e.g., 1.2 = fast dagger, 0.8 = slow mace)
-                    // We divide time by speed to make higher speeds reduce time
-                    weaponSpeed = w.BaseAttackSpeed;
-                    // Default weapon band is 0.8x–1.2x; clamp keeps data and mods in a sane range
-                    weaponSpeed = Math.Max(0.8, Math.Min(1.2, weaponSpeed));
-                }
-                double weaponAdjustedTime = agilityAdjustedTime / weaponSpeed;
+                    weaponTimeMul = GetWeaponAttackTimeMultiplier(w);
+                double weaponAdjustedTime = agilityAdjustedTime * weaponTimeMul;
                 
                 // Apply archetype speed multiplier
                 double finalAttackTime = weaponAdjustedTime * enemyEntity.AttackProfile.SpeedMultiplier;

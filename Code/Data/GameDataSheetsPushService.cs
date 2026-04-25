@@ -95,15 +95,22 @@ namespace RPGGame.Data
                     cancellationToken)
                 .ConfigureAwait(false);
 
-            var actionOutcome = await ActionSheetsPushService.PushActionsWithServiceAsync(service, cfg, pushConfigPath, null, cancellationToken)
-                .ConfigureAwait(false);
-            result.AddLine(
-                $"Actions tab '{cfg.ActionsSheetTabName.Trim()}': {actionOutcome.DataRowCount} data row(s) written starting at row {actionOutcome.FirstDataRowOneBased} " +
-                $"(API UpdatedRows={actionOutcome.ApiUpdatedRows}, UpdatedCells={actionOutcome.ApiUpdatedCells}).");
+            if (cfg.PushActionsTab)
+            {
+                var actionOutcome = await ActionSheetsPushService.PushActionsWithServiceAsync(service, cfg, pushConfigPath, null, cancellationToken)
+                    .ConfigureAwait(false);
+                result.AddLine(
+                    $"Actions tab '{cfg.ActionsSheetTabName.Trim()}': {actionOutcome.DataRowCount} data row(s) written starting at row {actionOutcome.FirstDataRowOneBased} " +
+                    $"(API UpdatedRows={actionOutcome.ApiUpdatedRows}, UpdatedCells={actionOutcome.ApiUpdatedCells}).");
+            }
+            else
+                result.AddLine($"Skipped Actions tab '{cfg.ActionsSheetTabName.Trim()}' (push disabled in SheetsPushConfig).");
 
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    cfg.PushWeaponsTab,
+                    "WEAPONS",
                     cfg.WeaponsSheetTabName,
                     GameConstants.WeaponsJson,
                     GameDataTabularSheetKind.Weapons,
@@ -115,6 +122,8 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    cfg.PushModificationsTab,
+                    "MODIFICATIONS",
                     cfg.ModificationsSheetTabName,
                     GameConstants.ModificationsJson,
                     GameDataTabularSheetKind.Modifications,
@@ -126,6 +135,8 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    cfg.PushArmorTab,
+                    "ARMOR",
                     cfg.ArmorSheetTabName,
                     GameConstants.ArmorJson,
                     GameDataTabularSheetKind.Armor,
@@ -137,6 +148,8 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    cfg.PushStatBonusesTab,
+                    "SUFFIXES",
                     cfg.StatBonusesSheetTabName,
                     GameConstants.StatBonusesJson,
                     GameDataTabularSheetKind.StatBonuses,
@@ -148,6 +161,8 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    cfg.PushEnemiesTab,
+                    "ENEMIES",
                     cfg.EnemiesSheetTabName,
                     GameConstants.EnemiesJson,
                     GameDataTabularSheetKind.Enemies,
@@ -159,6 +174,8 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    cfg.PushEnvironmentsTab,
+                    "ENVIRONMENTS",
                     cfg.EnvironmentsSheetTabName,
                     GameConstants.RoomsJson,
                     GameDataTabularSheetKind.Environments,
@@ -170,6 +187,8 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    cfg.PushDungeonsTab,
+                    "DUNGEONS",
                     cfg.DungeonsSheetTabName,
                     GameConstants.DungeonsJson,
                     GameDataTabularSheetKind.Dungeons,
@@ -185,36 +204,39 @@ namespace RPGGame.Data
 
         private static IEnumerable<string> CollectRequiredTabNamesForPush(SheetsPushConfig cfg)
         {
-            yield return cfg.ActionsSheetTabName.Trim();
+            if (cfg.PushActionsTab)
+                yield return cfg.ActionsSheetTabName.Trim();
 
-            if (!string.IsNullOrWhiteSpace(cfg.WeaponsSheetTabName))
+            if (cfg.PushWeaponsTab && !string.IsNullOrWhiteSpace(cfg.WeaponsSheetTabName))
                 yield return cfg.WeaponsSheetTabName.Trim();
 
-            if (!string.IsNullOrWhiteSpace(cfg.ModificationsSheetTabName))
+            if (cfg.PushModificationsTab && !string.IsNullOrWhiteSpace(cfg.ModificationsSheetTabName))
                 yield return cfg.ModificationsSheetTabName.Trim();
 
-            if (!string.IsNullOrWhiteSpace(cfg.ArmorSheetTabName))
+            if (cfg.PushArmorTab && !string.IsNullOrWhiteSpace(cfg.ArmorSheetTabName))
                 yield return cfg.ArmorSheetTabName.Trim();
 
-            if (!string.IsNullOrWhiteSpace(cfg.StatBonusesSheetTabName))
+            if (cfg.PushStatBonusesTab && !string.IsNullOrWhiteSpace(cfg.StatBonusesSheetTabName))
                 yield return cfg.StatBonusesSheetTabName.Trim();
 
-            if (!string.IsNullOrWhiteSpace(cfg.EnemiesSheetTabName))
+            if (cfg.PushEnemiesTab && !string.IsNullOrWhiteSpace(cfg.EnemiesSheetTabName))
                 yield return cfg.EnemiesSheetTabName.Trim();
 
-            if (!string.IsNullOrWhiteSpace(cfg.EnvironmentsSheetTabName))
+            if (cfg.PushEnvironmentsTab && !string.IsNullOrWhiteSpace(cfg.EnvironmentsSheetTabName))
                 yield return cfg.EnvironmentsSheetTabName.Trim();
 
-            if (!string.IsNullOrWhiteSpace(cfg.DungeonsSheetTabName))
+            if (cfg.PushDungeonsTab && !string.IsNullOrWhiteSpace(cfg.DungeonsSheetTabName))
                 yield return cfg.DungeonsSheetTabName.Trim();
 
-            if (!string.IsNullOrWhiteSpace(cfg.ClassPresentationSheetTabName))
+            if (cfg.PushClassPresentationTab && !string.IsNullOrWhiteSpace(cfg.ClassPresentationSheetTabName))
                 yield return cfg.ClassPresentationSheetTabName.Trim();
         }
 
         private static async Task PushOptionalJsonArrayTabAsync(
             SheetsService service,
             SheetsPushConfig cfg,
+            bool pushThisTab,
+            string pushKindLabel,
             string? sheetTabName,
             string jsonFileName,
             GameDataTabularSheetKind kind,
@@ -222,6 +244,13 @@ namespace RPGGame.Data
             GameDataSheetsPushResult result,
             CancellationToken cancellationToken)
         {
+            if (!pushThisTab)
+            {
+                if (!string.IsNullOrWhiteSpace(sheetTabName))
+                    result.AddLine($"Skipped tab '{sheetTabName.Trim()}' ({pushKindLabel}) — push disabled in SheetsPushConfig.");
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(sheetTabName))
                 return;
 
@@ -254,6 +283,13 @@ namespace RPGGame.Data
             GameDataSheetsPushResult result,
             CancellationToken cancellationToken)
         {
+            if (!cfg.PushClassPresentationTab)
+            {
+                if (!string.IsNullOrWhiteSpace(cfg.ClassPresentationSheetTabName))
+                    result.AddLine($"Skipped tab '{cfg.ClassPresentationSheetTabName.Trim()}' (CLASSES) — push disabled in SheetsPushConfig.");
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(cfg.ClassPresentationSheetTabName))
                 return;
 

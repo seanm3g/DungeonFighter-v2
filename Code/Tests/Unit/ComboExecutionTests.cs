@@ -55,12 +55,12 @@ namespace RPGGame.Tests.Unit
         }
 
         /// <summary>
-    /// Opener / middle / finisher use amplification tiers 0 then 1 then 2 (per-slot), not raw strip index after reorder.
-    /// Uses synthetic actions so the test does not depend on ActionLoader working directory.
+        /// A 3-slot strip uses exponents 0, 1, 2 by **slot order** (first hit 1.0×, then baseline^1, then baseline^2).
+        /// Uses synthetic actions so the test does not depend on ActionLoader working directory.
         /// </summary>
         private static void TestComboAmplificationSlotRoles()
         {
-            Console.WriteLine("\n--- Testing combo amplification slot roles (opener / middle / finisher) ---");
+            Console.WriteLine("\n--- Testing combo amplification by strip slot order (3 actions) ---");
 
             var dance = new Action { Name = "DANCE", IsComboAction = true };
             dance.ComboRouting.IsOpener = true;

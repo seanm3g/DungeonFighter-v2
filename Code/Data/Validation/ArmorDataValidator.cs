@@ -69,6 +69,18 @@ namespace RPGGame.Data.Validation
                     ValidationRules.FormatRangeError("tier", armor.Tier, 
                         ValidationRules.Armor.MinTier, ValidationRules.Armor.MaxTier));
             }
+
+            if (armor.Tags != null)
+            {
+                foreach (var t in armor.Tags)
+                {
+                    if (string.IsNullOrWhiteSpace(t))
+                    {
+                        result.AddWarning(FileName, entityName, "tags", "tags list contains an empty entry");
+                        break;
+                    }
+                }
+            }
         }
     }
 }

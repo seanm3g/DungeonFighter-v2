@@ -34,6 +34,10 @@ namespace RPGGame.Data
             data.Rarity = header.GetValue(columns, null, "RARITY");
             data.Category = header.GetValue(columns, null, "CATEGORY");
             data.DPS = header.GetValue(columns, null, "DPS(%)");
+            // Explicit TAGS cell (comma/semicolon list). Row-2 label-driven; not fixed to column E (E–F may be sheet formulas on push).
+            data.Tags = FirstNonEmpty(
+                header.GetValue(columns, null, "TAGS"),
+                header.GetValue(columns, null, "TAG"));
             data.NumberOfHits = header.GetValue(columns, null, "# OF HITS");
             data.Damage = header.GetDamagePercentValue(columns);
             // Legacy layout: ACTION,DESC,…,RARITY(3),CATEGORY(4),DPS(5),#HITS(6),DAMAGE(7). If header text omits "%", GetDamagePercentValue uses column index; when that also fails, H is index 7 (not 6 — 6 is # OF HITS).

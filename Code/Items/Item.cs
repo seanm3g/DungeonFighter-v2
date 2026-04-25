@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace RPGGame
@@ -51,6 +53,10 @@ namespace RPGGame
     {
         public int DiceResult { get; set; } = 0;
         public string ItemRank { get; set; } = "";
+        /// <summary>Loot prefix slot: Adjective (default), Material, or Quality. Omitted in JSON = Adjective.</summary>
+        [JsonPropertyName("prefixCategory")]
+        public string PrefixCategory { get; set; } = "";
+
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";
         public string Effect { get; set; } = "";
@@ -105,8 +111,10 @@ namespace RPGGame
         // The specific action this gear provides (assigned when created)
         public string? GearAction { get; set; } = null;
         
-        // Check if this is a starter item (always gets actions)
-        public bool IsStarterItem => Name.Contains("Starter");
+        /// <summary>True when tagged <c>starter</c> in game data or legacy name contained "Starter".</summary>
+        public bool IsStarterItem =>
+            (Tags != null && Tags.Any(t => string.Equals(t, "starter", StringComparison.OrdinalIgnoreCase))) ||
+            (!string.IsNullOrEmpty(Name) && Name.Contains("Starter", StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
         /// Checks if a character meets all attribute requirements for this item
@@ -187,6 +195,9 @@ namespace RPGGame
                 }
             }
             
+            double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
+            totalArmor = (int)Math.Round(totalArmor * q);
+
             // Prevent integer overflow
             return Math.Max(int.MinValue + 1, Math.Min(int.MaxValue - 1, totalArmor));
         }
@@ -222,6 +233,9 @@ namespace RPGGame
                     totalArmor += (int)modification.RolledValue; // Use RolledValue as the bonus amount
                 }
             }
+
+            double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
+            totalArmor = (int)Math.Round(totalArmor * q);
             
             // Prevent integer overflow
             return Math.Max(int.MinValue + 1, Math.Min(int.MaxValue - 1, totalArmor));
@@ -258,6 +272,9 @@ namespace RPGGame
                     totalArmor += (int)modification.RolledValue; // Use RolledValue as the bonus amount
                 }
             }
+
+            double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
+            totalArmor = (int)Math.Round(totalArmor * q);
             
             // Prevent integer overflow
             return Math.Max(int.MinValue + 1, Math.Min(int.MaxValue - 1, totalArmor));
@@ -279,13 +296,14 @@ namespace RPGGame
 
         public int GetTotalDamage()
         {
-            return BaseDamage + BonusDamage;
+            int sum = BaseDamage + BonusDamage;
+            double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
+            return Math.Max(1, (int)Math.Round(sum * q));
         }
 
         public double GetTotalAttackSpeed()
         {
-            // New system: BaseAttackSpeed is in seconds, BonusAttackSpeed is a modifier
-            // BonusAttackSpeed should reduce the attack time (negative modifier = faster)
+            // attackSpeed from data: time multiplier vs 1 (higher = slower cadence). BonusAttackSpeed lowers the multiplier (faster).
             return BaseAttackSpeed - (BonusAttackSpeed * 0.1);
         }
         

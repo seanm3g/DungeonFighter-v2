@@ -44,11 +44,11 @@ namespace RPGGame.Tests.Unit
                 $"Intelligence roll bonus should be non-negative, got {intBonus}", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test that higher intelligence gives higher bonus
-            character.Stats.Intelligence = 20;
+            // INT no longer adds to roll totals; it shifts HIT/COMBO/CRIT thresholds instead.
+            character.Stats.Intelligence = 40;
             int highIntBonus = character.GetIntelligenceRollBonus();
-            TestBase.AssertTrue(highIntBonus >= intBonus, 
-                $"Higher intelligence should give higher or equal roll bonus", 
+            TestBase.AssertEqual(0, highIntBonus,
+                "INT should not contribute to roll bonus (threshold-based INT system)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -148,6 +148,9 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(enemyIntBonus >= 0, 
                 $"Enemy intelligence bonus should be non-negative, got {enemyIntBonus}", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertEqual(0, charIntBonus, "Character INT roll bonus should be 0 (threshold-based INT system)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, enemyIntBonus, "Enemy INT roll bonus should be 0 (threshold-based INT system)", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestCombinedRollBonusCalculations()

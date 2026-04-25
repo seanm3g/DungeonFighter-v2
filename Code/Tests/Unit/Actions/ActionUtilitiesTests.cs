@@ -29,6 +29,7 @@ namespace RPGGame.Tests.Unit.Actions
             TestGetComboActions();
             TestGetComboStep();
             TestGetNextComboSlotForPendingBonuses();
+            TestGetComboAmplificationExponentUsesComboListOrder();
             TestCalculateRollBonus();
             TestCalculateDamageMultiplier();
 
@@ -135,6 +136,29 @@ namespace RPGGame.Tests.Unit.Actions
             int nextAfterOpener = ActionUtilities.GetNextComboSlotForPendingBonuses(character, opener, combo);
             TestBase.AssertEqual(1, nextAfterOpener,
                 "After opener, next pending slot is 1",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// AMP tier follows the ordered combo list passed into damage math (strip slot 0, 1, …), not opener/finisher tags.
+        /// </summary>
+        private static void TestGetComboAmplificationExponentUsesComboListOrder()
+        {
+            Console.WriteLine("\n--- Testing GetComboAmplificationExponent uses combo list slot index ---");
+
+            var hero = TestDataBuilders.Character().WithName("AmpOrder").Build();
+            var slot0 = new Action { Name = "CHANNEL", IsComboAction = true };
+            var slot1 = new Action { Name = "STAB", IsComboAction = true };
+            slot1.ComboRouting.IsOpener = true;
+            var combo = new List<Action> { slot0, slot1 };
+
+            int e0 = ActionUtilities.GetComboAmplificationExponent(hero, slot0, combo);
+            int e1 = ActionUtilities.GetComboAmplificationExponent(hero, slot1, combo);
+            TestBase.AssertEqual(0, e0,
+                $"First list entry should be amp exponent 0 (got {e0})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, e1,
+                $"Second list entry should be amp exponent 1 even when tagged opener (got {e1})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

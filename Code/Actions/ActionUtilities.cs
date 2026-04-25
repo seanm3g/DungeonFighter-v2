@@ -59,7 +59,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// When true, combo-slot action selection uses <see cref="Character.ComboStep"/> order; when false, strip index is random (or salt-derived).
+        /// When true, combo-slot action selection uses <see cref="Character.ComboStep"/> order; when false, strip index
+        /// still follows <c>ComboStep % stripLength</c> in normal combat, with salt-based override for lab/catalog previews.
         /// </summary>
         public static bool UsesOrderedComboSequence(Character character) =>
             character.GetEffectiveIntelligence() >= GameConstants.ComboSequenceIntelligenceThreshold;
@@ -67,15 +68,17 @@ namespace RPGGame
         /// <summary>
         /// Resolves which combo-strip slot to use for this attack's combo action pick.
         /// Ordered (INT high): <c>ComboStep % count</c>.
-        /// Chaotic (INT low): uniform <see cref="Dice.Roll"/> when <paramref name="deterministicSalt"/> is null;
-        /// otherwise stable index from salt (e.g. lab d20) via <c>(salt % count + count) % count</c>.
+        /// Below INT threshold: same index as ordered — <c>ComboStep % count</c> — so the strip, HUD highlight, and
+        /// combo-path pick stay aligned; <see cref="Character.IncrementComboStep"/> still ignores authored
+        /// <c>ComboRouter</c> jumps (linear advance only). When <paramref name="deterministicSalt"/> is set
+        /// (e.g. Action Lab tying the catalog to a test d20), index is <c>(salt % count + count) % count</c>.
         /// </summary>
         public static int ResolveComboStripIndex(Character character, IReadOnlyList<Action> comboActions, int? deterministicSalt)
         {
             int count = comboActions?.Count ?? 0;
             if (count <= 0)
                 return 0;
-            // Only one combo slot: index is always 0. Chaotic path used 1d(count); count==1 would call Roll(1,1), which is invalid.
+            // Only one combo slot: index is always 0 (legacy chaotic path used 1d(count); count==1 would call Roll(1,1), invalid).
             if (count == 1)
                 return 0;
             if (UsesOrderedComboSequence(character))
@@ -85,9 +88,8 @@ namespace RPGGame
                 int s = deterministicSalt.Value;
                 return (s % count + count) % count;
             }
-            // Map 1..sides onto 0..count-1 (test mode may force a d20 while this is 1dN for strip size).
-            int raw = Dice.Roll(1, count);
-            return ((raw - 1) % count + count) % count;
+            // Low INT: deterministic strip index from ComboStep (matches UI highlight); no per-swing random slot.
+            return character.ComboStep % count;
         }
 
         /// <summary>
@@ -100,19 +102,9 @@ namespace RPGGame
                 return 0;
             if (selectedAction != null && selectedAction.IsComboAction)
             {
-                for (int i = 0; i < n; i++)
-                {
-                    if (ReferenceEquals(comboActions[i], selectedAction))
-                        return i;
-                }
-                if (!string.IsNullOrEmpty(selectedAction.Name))
-                {
-                    for (int i = 0; i < n; i++)
-                    {
-                        if (string.Equals(comboActions[i].Name, selectedAction.Name, StringComparison.OrdinalIgnoreCase))
-                            return i;
-                    }
-                }
+                int idx = TryGetComboActionSlotIndex(selectedAction, comboActions);
+                if (idx >= 0)
+                    return idx;
             }
             return character.ComboStep % n;
         }
@@ -148,23 +140,29 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// True if the combo uses opener/finisher (or similar) roles so amplification tiers are per-slot, not raw sequence index.
+        /// 0-based index of <paramref name="action"/> in <paramref name="comboActions"/> (reference match, then name).
+        /// Returns -1 when not found.
         /// </summary>
-        private static bool ComboSequenceDefinesSlotRoles(List<Action> comboActions)
+        public static int TryGetComboActionSlotIndex(Action action, IReadOnlyList<Action> comboActions)
         {
-            foreach (var a in comboActions)
+            if (comboActions == null || comboActions.Count == 0 || action == null)
+                return -1;
+            for (int i = 0; i < comboActions.Count; i++)
             {
-                if (a.ComboRouting.IsOpener || a.ComboRouting.IsFinisher)
-                    return true;
+                if (ReferenceEquals(comboActions[i], action))
+                    return i;
             }
-            return false;
+            if (!string.IsNullOrEmpty(action.Name))
+            {
+                for (int i = 0; i < comboActions.Count; i++)
+                {
+                    if (string.Equals(comboActions[i].Name, action.Name, StringComparison.OrdinalIgnoreCase))
+                        return i;
+                }
+            }
+            return -1;
         }
 
-        /// <summary>
-        /// Exponent for combo amplification: <c>Math.Pow(GetComboAmplifier(), exponent)</c>.
-        /// When the sequence defines opener/finisher roles: opener = 0 (1.0×), middle = 1, finisher = 2.
-        /// Otherwise uses legacy positional scaling from <see cref="Actor.ComboStep"/>.
-        /// </summary>
         /// <summary>
         /// Combo slot that receives pending ACTION / Ability-cadence modifiers (for next action in the strip).
         /// Uses the executed action's index in the ordered combo so the last slot (finisher) wraps to 0;
@@ -178,52 +176,34 @@ namespace RPGGame
             if (executed == null)
                 return (character.ComboStep + 1) % n;
 
-            int idx = -1;
-            for (int i = 0; i < n; i++)
-            {
-                if (ReferenceEquals(comboActions[i], executed))
-                {
-                    idx = i;
-                    break;
-                }
-            }
-            if (idx < 0 && !string.IsNullOrEmpty(executed.Name))
-            {
-                for (int i = 0; i < n; i++)
-                {
-                    if (string.Equals(comboActions[i].Name, executed.Name, StringComparison.OrdinalIgnoreCase))
-                    {
-                        idx = i;
-                        break;
-                    }
-                }
-            }
+            int idx = TryGetComboActionSlotIndex(executed, comboActions);
             if (idx < 0)
                 idx = character.ComboStep % n;
             return (idx + 1) % n;
         }
 
+        /// <summary>
+        /// Exponent for combo amplification: <c>Math.Pow(GetComboAmplifier(), exponent)</c>.
+        /// Uses the action's **position in the combo strip** (first slot = 0 → 1.0×, second = 1 → baseline AMP, then further scaling).
+        /// Opener/finisher flags do not reorder tiers—only strip order matters, matching the HUD sequence.
+        /// When the action is not in the list, falls back to <see cref="Character.ComboStep"/> modulo length.
+        /// </summary>
         public static int GetComboAmplificationExponent(Actor source, Action action, List<Action> comboActions)
         {
             if (comboActions.Count == 0 || !action.IsComboAction)
                 return 0;
 
+            int slot = TryGetComboActionSlotIndex(action, comboActions);
+            if (slot >= 0)
+                return slot;
+
             // Enemy derives from Character; use Character for ComboStep on both heroes and enemies.
-            int stepMod = source is Character ch ? ch.ComboStep % comboActions.Count : 0;
-
-            if (!ComboSequenceDefinesSlotRoles(comboActions))
-                return stepMod;
-
-            if (action.ComboRouting.IsFinisher)
-                return 2;
-            if (action.ComboRouting.IsOpener && !action.ComboRouting.IsFinisher)
-                return 0;
-            return 1;
+            return source is Character ch ? ch.ComboStep % comboActions.Count : 0;
         }
 
         /// <summary>
         /// Calculates damage multiplier based on entity type and action
-        /// Uses amplification based on combo slot roles when opener/finisher are set; otherwise by sequence step.
+        /// Uses amplification from the action's combo-strip slot index (first slot 1.0×, then baseline^1, baseline^2, …).
         /// </summary>
         /// <param name="source">The entity performing the action</param>
         /// <param name="action">The action being performed</param>

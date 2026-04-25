@@ -35,19 +35,28 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <param name="registerActionLabEnemyLevelHover">When true (Action Lab combat), register click target for enemy level line.</param>
         public void RenderRightPanel(Enemy? enemy, string? dungeonName, string? roomName, string title, Character? character, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false)
         {
-            // Clear the right panel content area before rendering to prevent text overlap
+            // Clear the right panel content area before rendering to prevent text overlap.
+            // RIGHT_PANEL_X shifts when EffectiveVisibleWidth changes (resize / scale-up); clearing only
+            // the new inner rect can leave one column of prior-pass text (ghosting). Pad by a few columns
+            // on each side — bounded so we never reach the center column (gap is only 3 cells at full width).
+            const int clearPadColumns = 2;
             int contentX = LayoutConstants.RIGHT_PANEL_X + 2;
             int contentY = LayoutConstants.RIGHT_PANEL_Y + 1;
             int contentWidth = LayoutConstants.RIGHT_PANEL_WIDTH - 4;  // Account for left and right borders
             int contentHeight = LayoutConstants.RIGHT_PANEL_HEIGHT - 2; // Account for top and bottom borders
-            
-            canvas.ClearTextInArea(contentX, contentY, contentWidth, contentHeight);
-            canvas.ClearProgressBarsInArea(contentX, contentY, contentWidth, contentHeight);
+            int minClearX = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH;
+            int naiveLeft = contentX - clearPadColumns;
+            int clearRightExclusive = contentX + contentWidth + clearPadColumns;
+            int clearX = System.Math.Max(minClearX, naiveLeft);
+            int clearW = System.Math.Max(1, clearRightExclusive - clearX);
+
+            canvas.ClearTextInArea(clearX, contentY, clearW, contentHeight);
+            canvas.ClearProgressBarsInArea(clearX, contentY, clearW, contentHeight);
             int rpX = LayoutConstants.RIGHT_PANEL_X;
             int rpY = LayoutConstants.RIGHT_PANEL_Y;
             int rpW = LayoutConstants.RIGHT_PANEL_WIDTH;
             int rpH = LayoutConstants.RIGHT_PANEL_HEIGHT;
-            canvas.ClearBoxesInArea(rpX, rpY, rpW, rpH);
+            canvas.ClearBoxesInArea(System.Math.Max(0, rpX - 1), rpY, rpW + 2, rpH);
             
             // Main border for right panel - extends to right edge with no padding
             canvas.AddBorder(rpX, rpY, rpW, rpH, AsciiArtAssets.Colors.Purple);

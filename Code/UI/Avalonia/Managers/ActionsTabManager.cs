@@ -39,6 +39,7 @@ namespace RPGGame.UI.Avalonia.Managers
         private ComboBox? categoryFilterComboBox;
         private ComboBox? cadenceFilterComboBox;
         private ComboBox? tagFilterComboBox;
+        private TextBlock? selectedActionTagsPreview;
         private Action<string, bool>? showStatusMessage;
 
         public ActionsTabManager()
@@ -46,7 +47,7 @@ namespace RPGGame.UI.Avalonia.Managers
             actionEditor = new ActionEditor();
         }
 
-        public void Initialize(ListBox actionsListBox, Panel actionFormPanel, Button createActionButton, Button deleteActionButton, Action<string, bool> showStatusMessage, ComboBox? rarityFilterComboBox = null, ComboBox? categoryFilterComboBox = null, ComboBox? cadenceFilterComboBox = null, ComboBox? tagFilterComboBox = null)
+        public void Initialize(ListBox actionsListBox, Panel actionFormPanel, Button createActionButton, Button deleteActionButton, Action<string, bool> showStatusMessage, ComboBox? rarityFilterComboBox = null, ComboBox? categoryFilterComboBox = null, ComboBox? cadenceFilterComboBox = null, ComboBox? tagFilterComboBox = null, TextBlock? selectedActionTagsPreview = null)
         {
             ActionLoader.ActionsReloaded += OnGlobalActionsReloaded;
             this.actionsListBox = actionsListBox;
@@ -57,6 +58,7 @@ namespace RPGGame.UI.Avalonia.Managers
             this.categoryFilterComboBox = categoryFilterComboBox;
             this.cadenceFilterComboBox = cadenceFilterComboBox;
             this.tagFilterComboBox = tagFilterComboBox;
+            this.selectedActionTagsPreview = selectedActionTagsPreview;
             this.showStatusMessage = showStatusMessage;
             
             formBuilder = new ActionFormBuilder(actionFormControls, showStatusMessage);
@@ -195,6 +197,37 @@ namespace RPGGame.UI.Avalonia.Managers
                 .OrderBy(n => n)
                 .ToList();
             actionsListBox.ItemsSource = filtered;
+            UpdateTagsPreviewForCurrentSelection();
+        }
+
+        private void UpdateTagsPreviewForCurrentSelection()
+        {
+            if (actionsListBox?.SelectedItem is string actionName &&
+                actionNameToAction.TryGetValue(actionName, out var action))
+            {
+                UpdateTagsPreview(action);
+                return;
+            }
+
+            UpdateTagsPreview(null);
+        }
+
+        private void UpdateTagsPreview(ActionData? action)
+        {
+            if (selectedActionTagsPreview == null)
+                return;
+            if (action == null)
+            {
+                selectedActionTagsPreview.Text = "Select an action to see runtime tags.";
+                return;
+            }
+
+            string tagsLine = action.Tags != null && action.Tags.Count > 0
+                ? string.Join(", ", action.Tags)
+                : "(none)";
+            selectedActionTagsPreview.Text =
+                "Runtime tags: " + tagsLine +
+                "\nIncludes category and rarity when set (same list as the Tags field on the right).";
         }
 
         private void OnActionSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -204,7 +237,12 @@ namespace RPGGame.UI.Avalonia.Managers
             {
                 selectedAction = action;
                 isCreatingNewAction = false;
+                UpdateTagsPreview(action);
                 LoadActionForm(action);
+            }
+            else
+            {
+                UpdateTagsPreview(null);
             }
         }
 
@@ -223,6 +261,7 @@ namespace RPGGame.UI.Avalonia.Managers
             };
             isCreatingNewAction = true;
             if (actionsListBox != null) actionsListBox.SelectedItem = null;
+            UpdateTagsPreview(selectedAction);
             LoadActionForm(selectedAction);
         }
 
@@ -240,6 +279,7 @@ namespace RPGGame.UI.Avalonia.Managers
                 LoadActionsList();
                 actionFormPanel?.Children.Clear();
                 selectedAction = null;
+                UpdateTagsPreview(null);
             }
             else
             {
@@ -258,6 +298,7 @@ namespace RPGGame.UI.Avalonia.Managers
             if (actionFormPanel != null) actionFormPanel.Children.Clear();
             if (actionsListBox != null) actionsListBox.SelectedItem = null;
             selectedAction = null;
+            UpdateTagsPreview(null);
         }
 
         /// <summary>Reads current values from form controls into the action so unsaved edits (e.g. last TextBox without LostFocus) are persisted.</summary>

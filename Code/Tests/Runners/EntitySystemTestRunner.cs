@@ -38,6 +38,10 @@ namespace RPGGame.Tests.Runners
             CharacterCombatCalculatorTests.RunAllTests();
             Console.WriteLine();
             CharacterBuilderTests.RunAllTests();
+            Console.WriteLine();
+            ActorClearTempEffectsTests.RunAllTests();
+            Console.WriteLine();
+            CharacterEnvironmentActionPoolTests.RunAllTests();
         }
     }
 }

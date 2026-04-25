@@ -4,6 +4,7 @@ using RPGGame.Tests;
 using RPGGame;
 using RPGGame.Combat.Events;
 using RPGGame.Combat.Turn;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Tests.Unit.Combat
 {
@@ -37,6 +38,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestCalculateEffectDuration_RespectsMinimumOneTurn();
             TestNonLivingEnemyBurnTicksViaStatusEffectProcessor();
             TestWeaponDoTModsRequireCriticalHitEvent();
+            TestWeakenStatusLogLineUsesEntityColorOnActorName();
 
             TestBase.PrintSummary("CombatEffectsSimplified Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -255,6 +257,46 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(!can, "Stunned actor should not act",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(results.Count > 0, "Stun path should add a message",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestWeakenStatusLogLineUsesEntityColorOnActorName()
+        {
+            Console.WriteLine("--- Status log: weaken line uses EntityColorHelper for name ---");
+
+            var target = TestDataBuilders.Character().WithName("Zion Twilight").Build();
+            var action = new Action { CausesWeaken = true };
+            var results = new List<string>();
+            var handler = new WeakenEffectHandler();
+            bool applied = handler.Apply(target, action, results);
+
+            TestBase.AssertTrue(applied, "Weaken handler should apply",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(results.Count == 1, "Expected one log line",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(results[0].IndexOf("{{player|", StringComparison.OrdinalIgnoreCase) < 0,
+                "Log line should not use legacy {{player|...}} name markup",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var expectedRgb = EntityColorHelper.GetActorColor(target);
+            var parsed = ColoredTextParser.Parse(results[0]);
+            ColoredText? nameSegment = null;
+            foreach (var seg in parsed)
+            {
+                if (seg.Text.IndexOf("Zion", StringComparison.Ordinal) >= 0)
+                {
+                    nameSegment = seg;
+                    break;
+                }
+            }
+
+            TestBase.AssertTrue(nameSegment != null, "Parsed line should include the actor name",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            bool rgbMatch = nameSegment!.Color.R == expectedRgb.R
+                && nameSegment.Color.G == expectedRgb.G
+                && nameSegment.Color.B == expectedRgb.B;
+            TestBase.AssertTrue(rgbMatch,
+                $"Name color should match EntityColorHelper (expected {expectedRgb}, got {nameSegment.Color})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

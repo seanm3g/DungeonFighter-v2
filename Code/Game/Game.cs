@@ -383,23 +383,19 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// 1-based starter weapon index for the Barbarian path (starting gear whose name contains "mace").
-        /// When no mace entry exists, returns 1 (same fallback as <see cref="ActionLabWeaponPickerDialog"/>).
+        /// 1-based starter weapon index for the Barbarian (Mace) path: position of the first Mace row in <see cref="StarterCatalogItems.ResolveStarterWeaponMenuCatalogRows"/> order.
         /// </summary>
         public static int GetBarbarianStarterWeaponChoice1Based()
         {
-            var init = new GameInitializer();
-            var weapons = init.LoadStartingGear()?.weapons;
-            if (weapons == null || weapons.Count == 0)
-                return 1;
-
-            for (int i = 0; i < weapons.Count; i++)
+            var rows = StarterCatalogItems.ResolveStarterWeaponMenuCatalogRows();
+            for (int i = 0; i < rows.Count; i++)
             {
-                if (weapons[i].name.Contains("mace", StringComparison.OrdinalIgnoreCase))
+                if (Enum.TryParse(rows[i].Type?.Trim(), ignoreCase: true, out WeaponType wt) && wt == WeaponType.Mace)
                     return i + 1;
             }
 
-            return 1;
+            int maceSlot = Array.IndexOf(ClassPresentationConfig.ClassWeaponOrder, WeaponType.Mace) + 1;
+            return maceSlot >= 1 ? maceSlot : 1;
         }
 
         /// <summary>
@@ -438,10 +434,10 @@ namespace RPGGame
                     if (s == null) return;
                     canvasUI.SwitchDisplayBufferToCharacter(s.LabPlayer);
                     canvasUI.ClearDisplayBufferWithoutRender();
-                    UIManager.WriteLine("Action Interaction Lab — select d20 and action, then Step.", UIMessageType.System);
+                    UIManager.WriteLine("Action Lab — select d20 and action, then Step.", UIMessageType.System);
                 });
             // Ensure at least one line is in the combat buffer so the center panel is visibly live (buffer was cleared with settings).
-            UIManager.WriteLine("Action Interaction Lab — select d20 and action, then Step.", UIMessageType.System);
+            UIManager.WriteLine("Action Lab — select d20 and action, then Step.", UIMessageType.System);
             ActionLabControlsWindow.Open(canvasUI.GetMainWindow(), canvasUI, this);
             try
             {

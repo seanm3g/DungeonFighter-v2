@@ -81,19 +81,12 @@ namespace RPGGame
         {
             try
             {
-                var startingGear = gameInitializer.LoadStartingGear();
-                return startingGear?.weapons ?? new List<StartingWeapon>();
+                _ = GameConfiguration.Instance;
+                return GameInitializer.BuildStarterWeaponsForMenu();
             }
             catch (Exception)
             {
-                // Return default weapons if loading fails
-                return new List<StartingWeapon>
-                {
-                    new StartingWeapon { name = "Mace", damage = 7.5, attackSpeed = 0.8 },
-                    new StartingWeapon { name = "Sword", damage = 6.0, attackSpeed = 1.0 },
-                    new StartingWeapon { name = "Dagger", damage = 4.3, attackSpeed = 1.2 },
-                    new StartingWeapon { name = "Wand", damage = 5.5, attackSpeed = 1.1 }
-                };
+                return GameInitializer.BuildStarterWeaponsForMenu();
             }
         }
 
@@ -107,8 +100,21 @@ namespace RPGGame
                 ShowMessageEvent?.Invoke("No character selected.");
                 return;
             }
-            // Validate weapon choice (1-4 based on StartingGear.json)
-            if (int.TryParse(input?.Trim() ?? "", out int weaponChoice) && weaponChoice >= 1 && weaponChoice <= 4)
+            int maxChoice = availableWeapons?.Count ?? 0;
+            if (maxChoice == 0)
+            {
+                try
+                {
+                    _ = GameConfiguration.Instance;
+                    maxChoice = GameInitializer.BuildStarterWeaponsForMenu().Count;
+                }
+                catch
+                {
+                    maxChoice = 0;
+                }
+            }
+
+            if (int.TryParse(input?.Trim() ?? "", out int weaponChoice) && weaponChoice >= 1 && weaponChoice <= maxChoice && maxChoice > 0)
             {
                 // Initialize character with weapon choice
                 initializationManager.InitializeNewCharacter(stateManager.CurrentPlayer, weaponChoice);
@@ -126,7 +132,9 @@ namespace RPGGame
             }
             else
             {
-                ShowMessageEvent?.Invoke("Invalid choice. Please select 1-4.");
+                ShowMessageEvent?.Invoke(maxChoice > 0
+                    ? $"Invalid choice. Please select 1-{maxChoice}."
+                    : "Invalid choice. No starting weapons are configured.");
             }
         }
     }

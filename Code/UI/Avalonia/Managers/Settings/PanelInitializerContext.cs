@@ -13,6 +13,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         public Managers.StatusEffectsTabManager? StatusEffectsTabManager { get; set; }
         public ItemModifiersTabManager? ItemModifiersTabManager { get; set; }
         public ItemsTabManager? ItemsTabManager { get; set; }
+        public EnemiesTabManager? EnemiesTabManager { get; set; }
         public PanelHandlerRegistry? PanelHandlerRegistry { get; set; }
         public object? CanvasUI { get; set; }
         public Action<string, bool>? ShowStatusMessage { get; set; }

@@ -27,6 +27,17 @@ namespace RPGGame.Entity.Services
             return GameConstants.GetGameDataFilePath(fileName);
         }
 
+        /// <summary>Non-loadable tombstone path for a per-character save after the hero dies.</summary>
+        public string GetCharacterDeadFilename(string characterId)
+        {
+            if (string.IsNullOrEmpty(characterId))
+                throw new ArgumentException("Character ID cannot be null or empty", nameof(characterId));
+
+            var sanitizedId = characterId.Replace(" ", "_").Replace("/", "_").Replace("\\", "_");
+            var fileName = $"character_{sanitizedId}_dead.json";
+            return GameConstants.GetGameDataFilePath(fileName);
+        }
+
         /// <summary>
         /// Gets the default save filename (for backward compatibility)
         /// </summary>
@@ -34,6 +45,11 @@ namespace RPGGame.Entity.Services
         public string GetDefaultSaveFilename()
         {
             return GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+        }
+
+        public string GetDefaultDeadSaveFilename()
+        {
+            return GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveDeadJson);
         }
 
         /// <summary>

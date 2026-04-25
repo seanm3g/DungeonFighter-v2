@@ -88,7 +88,7 @@
                                FontWeight="Bold" 
                                Foreground="Black" 
                                Margin="0,0,0,8"/>
-                    <TextBlock Text="Resync or push from one spreadsheet: use the same published CSV base link for Actions, then optional numeric tab gids (from File → Share → Publish to web for each tab). OAuth push needs the browser Edit link so spreadsheetId is valid (publish-only e/2PACX links are not enough)." 
+                    <TextBlock Text="Pull or push from one spreadsheet: use the same published CSV base link for Actions, then optional numeric tab gids (from File → Share → Publish to web for each tab). OAuth push needs the browser Edit link so spreadsheetId is valid (publish-only e/2PACX links are not enough)." 
                                FontSize="14" 
                                Foreground="#FF555555" 
                                TextWrapping="Wrap"/>
@@ -158,9 +158,39 @@
                             <TextBox x:Name="ClassPresentationTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
                         </StackPanel>
                     </Expander>
+                    <Border Background="#FFF5F5F5" BorderBrush="#FFCCCCCC" BorderThickness="1" CornerRadius="4" Padding="12">
+                        <!-- Fluent CheckBox template drives label color from theme brushes on hover/press, not Foreground="Black"; default PointerOver brushes are light for dark chrome and vanish on this panel. -->
+                        <Border.Resources>
+                            <SolidColorBrush x:Key="CheckBoxForegroundUncheckedPointerOver" Color="#FF1A1A1A"/>
+                            <SolidColorBrush x:Key="CheckBoxForegroundUncheckedPressed" Color="#FF1A1A1A"/>
+                            <SolidColorBrush x:Key="CheckBoxForegroundCheckedPointerOver" Color="#FF1A1A1A"/>
+                            <SolidColorBrush x:Key="CheckBoxForegroundCheckedPressed" Color="#FF1A1A1A"/>
+                        </Border.Resources>
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="OAuth push — include spreadsheet tab"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="Black"/>
+                            <TextBlock Text="Unchecked tabs are not cleared or written when you use Push (SheetsPushConfig.json). Pull is unchanged."
+                                       FontSize="11"
+                                       Foreground="#FF555555"
+                                       TextWrapping="Wrap"/>
+                            <WrapPanel Orientation="Horizontal">
+                                <CheckBox x:Name="PushActionsTabCheckBox" Content="ACTIONS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
+                                <CheckBox x:Name="PushWeaponsTabCheckBox" Content="WEAPONS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
+                                <CheckBox x:Name="PushModificationsTabCheckBox" Content="MODIFICATIONS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
+                                <CheckBox x:Name="PushArmorTabCheckBox" Content="ARMOR" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
+                                <CheckBox x:Name="PushStatBonusesTabCheckBox" Content="SUFFIXES" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
+                                <CheckBox x:Name="PushEnemiesTabCheckBox" Content="ENEMIES" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
+                                <CheckBox x:Name="PushEnvironmentsTabCheckBox" Content="ENVIRONMENTS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
+                                <CheckBox x:Name="PushDungeonsTabCheckBox" Content="DUNGEONS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
+                                <CheckBox x:Name="PushClassPresentationTabCheckBox" Content="CLASSES" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
+                            </WrapPanel>
+                        </StackPanel>
+                    </Border>
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <Button x:Name="ResyncSheetsButton"
-                                Content="Resync from Google Sheets"
+                                Content="PULL from Google Sheets"
                                 Width="260"
                                 Height="35"
                                 FontSize="14"

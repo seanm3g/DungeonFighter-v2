@@ -56,11 +56,17 @@ namespace RPGGame.Tests.Unit.UI
                 "weapon stats line",
                 ref run, ref passed, ref failed);
 
-            var bag = new WeaponItem("Spare", tier: 1, baseDamage: 3, baseAttackSpeed: 1.0, WeaponType.Sword);
+            var bag = new WeaponItem("Spare", tier: 1, baseDamage: 3, baseAttackSpeed: 1.0, WeaponType.Sword)
+            {
+                GearAction = "JAB"
+            };
             c.Inventory.Add(bag);
             var invTip = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "inv:0", 50, 30);
             TestBase.AssertTrue(invTip.Any(l => l.Contains("Spare", StringComparison.Ordinal)),
                 "bag item tooltip",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(invTip.Any(l => l.StartsWith("Actions:", StringComparison.Ordinal)),
+                "bag item tooltip lists resolved gear actions",
                 ref run, ref passed, ref failed);
 
             var heroHp = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "hero:hp", 40, 8);

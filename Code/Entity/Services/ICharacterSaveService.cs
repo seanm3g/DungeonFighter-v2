@@ -15,7 +15,8 @@ namespace RPGGame.Entity.Services
         /// <param name="character">The character to save</param>
         /// <param name="characterId">Optional character ID for multi-character support. If provided, generates per-character filename.</param>
         /// <param name="filename">The filename to save to. If provided, overrides characterId-based naming.</param>
-        void SaveCharacter(Character character, string? characterId = null, string? filename = null);
+        /// <param name="markDead">When true (and <paramref name="filename"/> is null), writes a tombstone file (<c>character_*_dead.json</c> or legacy dead path), removes the live save, and sets <c>isDead</c> in JSON. Not loadable from the character list.</param>
+        void SaveCharacter(Character character, string? characterId = null, string? filename = null, bool markDead = false);
 
         /// <summary>
         /// Loads a character from a JSON file (async version to prevent UI freezing)

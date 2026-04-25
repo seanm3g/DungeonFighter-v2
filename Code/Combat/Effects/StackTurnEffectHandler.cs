@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame;
+using RPGGame.Combat.Formatting;
 
 namespace RPGGame.Combat.Effects
 {
@@ -27,7 +28,7 @@ namespace RPGGame.Combat.Effects
         {
             if (target == null) return false;
             _apply(target);
-            results.Add($"    {target.Name} {_messageSuffix}");
+            StatusEffectCombatLogMessageBuilder.AppendNameWithPlainSuffix(results, target, _messageSuffix);
             return true;
         }
 

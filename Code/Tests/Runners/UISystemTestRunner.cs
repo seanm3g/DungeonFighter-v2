@@ -38,6 +38,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             LeftPanelTooltipBuilderTests.RunAllTests();
             Console.WriteLine();
+            HeroNamePanelColoredTextTests.RunAllTests();
+            Console.WriteLine();
             CanvasInteractionManagerHitTestTests.RunAllTests();
             Console.WriteLine();
             CombatActionStripBuilderTests.RunAllTests();
@@ -109,6 +111,8 @@ namespace RPGGame.Tests.Runners
             CanvasRendererTests.RunAllTests();
             Console.WriteLine();
             SettingsManagerTests.RunAllTests();
+            Console.WriteLine();
+            SettingsPanelCatalogTests.RunAllTests();
             Console.WriteLine();
             SettingsApplyServiceTests.RunAllTests();
             Console.WriteLine();

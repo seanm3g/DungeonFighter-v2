@@ -97,6 +97,26 @@ namespace RPGGame.Data
                 ClassPresentationSheetConverter.MergeClassPresentationFromCsvIntoTuningFile(csv, tuningPath);
                 GameConfiguration.ResetInstance();
             }
+
+            ReloadRuntimeCachesAfterPull();
+        }
+
+        /// <summary>
+        /// Discards static loot/enemy/room caches so the next game use reads updated JSON from disk.
+        /// Without this, <see cref="LootGenerator"/> keeps the pre-pull <see cref="LootDataCache"/> until restart.
+        /// </summary>
+        public static void ReloadRuntimeCachesAfterPull()
+        {
+            try
+            {
+                LootGenerator.Initialize();
+                EnemyLoader.LoadEnemies(validate: false);
+                RoomLoader.LoadRooms();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Warning: could not refresh in-memory data after sheet pull: " + ex.Message);
+            }
         }
 
         private static void ClearJsonCacheForGameDataFile(string fileName)

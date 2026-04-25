@@ -21,6 +21,9 @@ namespace RPGGame.Tests.Unit.Data
             TestApplyDefaultDungeonsTabNameWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyDefaultStatBonusesTabNameWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
             TestResolvePathsRelativeToConfigFile(ref testsRun, ref testsPassed, ref testsFailed);
+            TestApplyMissingPushTabDefaultsLegacyJsonAllTrue(ref testsRun, ref testsPassed, ref testsFailed);
+            TestApplyMissingPushTabDefaultsPartialKeys(ref testsRun, ref testsPassed, ref testsFailed);
+            TestApplyMissingPushTabDefaultsExplicitFalsePreserved(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("SheetsPushConfig Tests", testsRun, testsPassed, testsFailed);
         }
@@ -164,6 +167,70 @@ namespace RPGGame.Tests.Unit.Data
             string expectedTok = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(fakeConfig)!, "tok"));
             TestBase.AssertEqual(expectedSecrets, cfg.ResolveOAuthClientSecretsPath(fakeConfig), "ResolveOAuthClientSecretsPath", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual(expectedTok, cfg.ResolveOAuthTokenStoreDirectory(fakeConfig), "ResolveOAuthTokenStoreDirectory", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestApplyMissingPushTabDefaultsLegacyJsonAllTrue(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestApplyMissingPushTabDefaultsLegacyJsonAllTrue));
+            const string json = """
+            {
+              "spreadsheetId": "abc",
+              "actionsSheetTabName": "ACTIONS",
+              "oauthClientSecretsPath": "s.json",
+              "oauthTokenStorePath": "tok"
+            }
+            """;
+            var cfg = JsonSerializer.Deserialize<SheetsPushConfig>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            TestBase.AssertTrue(cfg != null, "deserializes", ref testsRun, ref testsPassed, ref testsFailed);
+            if (cfg == null) return;
+            SheetsPushConfig.ApplyMissingPushTabDefaults(cfg, json);
+            TestBase.AssertTrue(cfg.PushActionsTab && cfg.PushWeaponsTab && cfg.PushEnemiesTab && cfg.PushDungeonsTab && cfg.PushClassPresentationTab, "all push flags true", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestApplyMissingPushTabDefaultsPartialKeys(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestApplyMissingPushTabDefaultsPartialKeys));
+            const string json = """
+            {
+              "spreadsheetId": "abc",
+              "actionsSheetTabName": "ACTIONS",
+              "oauthClientSecretsPath": "s.json",
+              "pushEnemiesTab": false
+            }
+            """;
+            var cfg = JsonSerializer.Deserialize<SheetsPushConfig>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            TestBase.AssertTrue(cfg != null, "deserializes", ref testsRun, ref testsPassed, ref testsFailed);
+            if (cfg == null) return;
+            SheetsPushConfig.ApplyMissingPushTabDefaults(cfg, json);
+            TestBase.AssertTrue(cfg.PushActionsTab, "missing pushActionsTab → true", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(cfg.PushWeaponsTab, "missing pushWeaponsTab → true", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(!cfg.PushEnemiesTab, "explicit pushEnemiesTab false preserved", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestApplyMissingPushTabDefaultsExplicitFalsePreserved(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestApplyMissingPushTabDefaultsExplicitFalsePreserved));
+            const string json = """
+            {
+              "spreadsheetId": "abc",
+              "actionsSheetTabName": "ACTIONS",
+              "oauthClientSecretsPath": "s.json",
+              "pushActionsTab": false,
+              "pushWeaponsTab": false,
+              "pushModificationsTab": false,
+              "pushArmorTab": false,
+              "pushStatBonusesTab": false,
+              "pushEnemiesTab": false,
+              "pushEnvironmentsTab": false,
+              "pushDungeonsTab": false,
+              "pushClassPresentationTab": false
+            }
+            """;
+            var cfg = JsonSerializer.Deserialize<SheetsPushConfig>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            TestBase.AssertTrue(cfg != null, "deserializes", ref testsRun, ref testsPassed, ref testsFailed);
+            if (cfg == null) return;
+            SheetsPushConfig.ApplyMissingPushTabDefaults(cfg, json);
+            TestBase.AssertTrue(!cfg.PushEnemiesTab && !cfg.PushActionsTab, "all explicit false preserved", ref testsRun, ref testsPassed, ref testsFailed);
         }
     }
 }

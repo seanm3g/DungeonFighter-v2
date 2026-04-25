@@ -13,11 +13,11 @@ echo.
 set /p choice="Select option (1-4): "
 
 if "%choice%"=="1" (
-    call "%~dp0quick-clean.bat"
+    call "%~dp0df.bat" clean
 ) else if "%choice%"=="2" (
-    call "%~dp0fix-build.bat"
+    call "%~dp0df.bat" clean:fix
 ) else if "%choice%"=="3" (
-    call "%~dp0clean-all.bat"
+    call "%~dp0df.bat" clean:all
 ) else if "%choice%"=="4" (
     exit /b 0
 ) else (

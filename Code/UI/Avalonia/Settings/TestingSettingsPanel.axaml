@@ -55,9 +55,6 @@
                     <Button x:Name="TestGameplayFlowButton" Content="Gameplay flow" Width="140" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="ActionInteractionLabButton" Content="Action interaction lab" Width="200" Height="35"
-                            Background="#FF6B2C" Foreground="White" BorderThickness="0" CornerRadius="4"
-                            FontSize="14" FontWeight="SemiBold"/>
                     <Button x:Name="TestAllMechanicsButton" Content="Run all mechanics" Width="160" Height="35"
                             Background="#FF0078D4" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>

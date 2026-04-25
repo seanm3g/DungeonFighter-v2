@@ -267,8 +267,11 @@ namespace RPGGame.UI.Avalonia.Handlers
                     canvasUI.RefreshActionInfoStripOnly(player);
                 else if (inv && player != null && tooltipStripOrPanel)
                 {
-                    // Right-panel rows use menu-option hover; full chrome redraw updates them. Strip-only is enough for strip tooltips.
-                    if (rpHovering)
+                    // Right-panel rows use menu-option hover; full chrome redraw updates them.
+                    // Center lphover (inventory rows, headers, etc.): strip-only redraw runs the strip tooltip path,
+                    // which uses HoverTooltipDrawing.ClearTextInArea on the main layer and would erase inventory text
+                    // without re-rendering the center content — full chrome refresh keeps list + tooltip consistent.
+                    if (rpHovering || LeftPanelHoverState.IsActive)
                         game.RefreshPersistentChromeAfterStatsToggle();
                     else
                         canvasUI.RefreshActionInfoStripOnly(player);

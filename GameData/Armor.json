@@ -1,317 +1,1208 @@
 [
   {
-    "slot": "head",
-    "name": "Cloth Cap",
+    "slot": "chest",
+    "name": "SHIRT",
     "armor": 1,
     "tier": 1,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": [
+      "starter"
+    ]
   },
   {
     "slot": "chest",
-    "name": "Cloth Robe",
+    "name": "VEST",
     "armor": 1,
     "tier": 1,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "feet",
-    "name": "Cloth Shoes",
-    "armor": 1,
-    "tier": 1,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "feet",
-    "name": "Iron Boots",
-    "armor": 1,
-    "tier": 1,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "chest",
-    "name": "Iron Chestplate",
+    "name": "SMOCK",
     "armor": 1,
     "tier": 1,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "head",
-    "name": "Iron Helmet",
-    "armor": 1,
-    "tier": 1,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "chest",
-    "name": "Leather Armor",
+    "name": "JERKIN",
     "armor": 1,
     "tier": 1,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "feet",
-    "name": "Leather Boots",
-    "armor": 1,
-    "tier": 1,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "head",
-    "name": "Leather Helmet",
-    "armor": 1,
-    "tier": 1,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "feet",
-    "name": "Chainmail Boots",
-    "armor": 1,
-    "tier": 2,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "head",
-    "name": "Chainmail Coif",
-    "armor": 1,
-    "tier": 2,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "chest",
-    "name": "Chainmail Shirt",
+    "name": "PADDED LEATHER",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "COAT",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "DOUBLET",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "SURCOAT",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "CURIASS",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "CORSELET",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "BREASTPLATE",
     "armor": 2,
     "tier": 2,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "feet",
-    "name": "Steel Boots",
-    "armor": 1,
-    "tier": 2,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "chest",
-    "name": "Steel Chestplate",
+    "name": "CHAINMAIL",
     "armor": 2,
     "tier": 2,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "head",
-    "name": "Steel Helmet",
-    "armor": 1,
-    "tier": 2,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "chest",
-    "name": "Studded Leather Armor",
+    "name": "PACKART",
     "armor": 2,
     "tier": 2,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "feet",
-    "name": "Studded Leather Boots",
-    "armor": 1,
-    "tier": 2,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "head",
-    "name": "Studded Leather Cap",
-    "armor": 1,
-    "tier": 2,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "feet",
-    "name": "Mithril Boots",
-    "armor": 2,
-    "tier": 3,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "chest",
-    "name": "Mithril Chestplate",
+    "name": "STUDDED VEST",
+    "armor": 2,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "PELT COAT",
+    "armor": 2,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "DEMI-PLATE",
+    "armor": 2,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "HOPLITE",
+    "armor": 2,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "HALF-PLATE",
+    "armor": 2,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "TABARD",
+    "armor": 2,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "WAR COAT",
+    "armor": 2,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "LORICATE",
     "armor": 3,
     "tier": 3,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "head",
-    "name": "Mithril Helmet",
-    "armor": 2,
-    "tier": 3,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "chest",
-    "name": "Ring Mail",
+    "name": "AKETON",
     "armor": 3,
     "tier": 3,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "feet",
-    "name": "Ring Mail Boots",
-    "armor": 2,
-    "tier": 3,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "head",
-    "name": "Ring Mail Helmet",
-    "armor": 2,
-    "tier": 3,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "chest",
-    "name": "Scale Mail",
+    "name": "PAULDRON",
     "armor": 3,
     "tier": 3,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "feet",
-    "name": "Scale Mail Boots",
-    "armor": 2,
-    "tier": 3,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "head",
-    "name": "Scale Mail Coif",
-    "armor": 2,
-    "tier": 3,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "feet",
-    "name": "Adamantine Boots",
-    "armor": 2,
-    "tier": 4,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "chest",
-    "name": "Adamantine Chestplate",
+    "name": "SPAULDER",
+    "armor": 3,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "BASTION ARMOR",
+    "armor": 3,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "FULL PLATE",
+    "armor": 3,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "AEGIS",
+    "armor": 3,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "BULWARK",
+    "armor": 3,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "PHALAANX",
+    "armor": 3,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "IRONWALL",
+    "armor": 3,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "ADAMANTINE CHESTPLATE",
     "armor": 4,
     "tier": 4,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "head",
-    "name": "Adamantine Helmet",
-    "armor": 2,
-    "tier": 4,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "chest",
-    "name": "Banded Mail",
+    "name": "BANDED MAIL",
     "armor": 4,
     "tier": 4,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "feet",
-    "name": "Banded Mail Boots",
-    "armor": 2,
-    "tier": 4,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "head",
-    "name": "Banded Mail Helmet",
-    "armor": 2,
-    "tier": 4,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "chest",
-    "name": "Splint Mail",
+    "name": "SPLINT MAIL",
     "armor": 4,
     "tier": 4,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "STORMWALL",
+    "armor": 4,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "WARFRONT",
+    "armor": 4,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "MITHRIL CHESTPLATE",
+    "armor": 4,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "RING MAIL",
+    "armor": 4,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "SCALE MAIL",
+    "armor": 4,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "FORTRESS",
+    "armor": 4,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "IRONCLAD",
+    "armor": 4,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "DRAGON SCALE ARMOR",
+    "armor": 5,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "FULL PLATE ARMOR",
+    "armor": 5,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "PLATED MAIL",
+    "armor": 5,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "VANGUARD",
+    "armor": 5,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "WARDEN",
+    "armor": 5,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "COLOSSUS",
+    "armor": 5,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "PROTECTOR",
+    "armor": 5,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "CRUSADER",
+    "armor": 5,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "CHAMPION",
+    "armor": 5,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "chest",
+    "name": "WARLORD",
+    "armor": 5,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "feet",
-    "name": "Splint Mail Boots",
+    "name": "SHOES",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": [
+      "starter"
+    ]
+  },
+  {
+    "slot": "feet",
+    "name": "BOOTS",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "SANDALS",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "MOCCASSINS",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "TREADS",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "BINDINGS",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "SLIPPERS",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "GALOSHS",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "BROGUES",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "HIGH BOOTS",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "SABATON",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "SOLERAT",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "GREAVES",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "SCHYNBALD",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "CHAUSSES",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "POULAINE",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "CUISSE",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "SHIN GUARDS",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "PELT BOOTS",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "OCREA",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "WARBOOTS",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "PLATE BOOTS",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "IRONSHOD GREAVES",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "PLATED GREAVES",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "MAIL BOOTS",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "STOMPERS",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "CRUSHERS",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "TRAMPLERS",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "STRIDERS",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "MARCHERS",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "DOOMTREADS",
     "armor": 2,
     "tier": 4,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
   },
   {
-    "slot": "head",
-    "name": "Splint Mail Coif",
+    "slot": "feet",
+    "name": "SIEGEBOOTS",
     "armor": 2,
     "tier": 4,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "chest",
-    "name": "Dragon Scale Armor",
-    "armor": 5,
-    "tier": 5,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "feet",
-    "name": "Dragon Scale Boots",
-    "armor": 3,
-    "tier": 5,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "head",
-    "name": "Dragon Scale Helmet",
-    "armor": 3,
-    "tier": 5,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "chest",
-    "name": "Full Plate Armor",
-    "armor": 5,
-    "tier": 5,
-    "attributeRequirements": null
+    "name": "WARSTRIDERS",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "feet",
-    "name": "Full Plate Boots",
-    "armor": 3,
-    "tier": 5,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "head",
-    "name": "Full Plate Helmet",
-    "armor": 3,
-    "tier": 5,
-    "attributeRequirements": null
-  },
-  {
-    "slot": "chest",
-    "name": "Plate Mail",
-    "armor": 5,
-    "tier": 5,
-    "attributeRequirements": null
+    "name": "BATTLESTEPS",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "feet",
-    "name": "Plate Mail Boots",
+    "name": "DOOPSTEPS",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "COVENANT",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "GREAVES",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "KNEEGUARDS",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "STEELBOOTS",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "BATTLESTRIDERS",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "DRAGON SCALE BOOTS",
     "armor": 3,
     "tier": 5,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "FULL PLATE BOOTS",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "PLATE MAIL BOOTS",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "IRONSTEPS",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "BATTLECHARGES",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "SIEGETREADS",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "WARSTEPS",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "WORLDSTRIDERS",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "SOULTREADS",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "feet",
+    "name": "JOURNEYMAN",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
   },
   {
     "slot": "head",
-    "name": "Plate Mail Coif",
+    "name": "CAP",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": [
+      "starter"
+    ]
+  },
+  {
+    "slot": "head",
+    "name": "HOOD",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "WRAP",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "BAND",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "COWL",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "VEIL",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "RAG",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "HAT",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "RAG",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "TOQUE",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "COIF",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "HELM",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "CASQUE",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "NASAL HELM",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "VISORED CAP",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "SALLET",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "BASCINET",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "BARBUTE",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "KERFCHEIF",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "CIRCLET",
+    "armor": 1,
+    "tier": 2,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "GREATHELM",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "ARMET",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "HOUNSKULL",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "VISORED HELM",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "FORG-MOUTH HELM",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "PLATED COIF",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "WARHELF",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "FACEPLATE",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "VISOR",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "GORGET",
+    "armor": 2,
+    "tier": 3,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "WARCROWN",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "DOOMHELM",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "SIEGEHELM",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "BATTLEBROWN",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "WORLDCROWN",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "GODHELM",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "HEADDRESS",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "FACE GUARD",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "MASK",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "SPLINT MAIL COIF",
+    "armor": 2,
+    "tier": 4,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "DRAGON SCALE HELMET",
     "armor": 3,
     "tier": 5,
-    "attributeRequirements": null
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "FULL PLATE HELMET",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "PLATE MAIL COIF",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "MANDIBLE",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "CREST",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "CORINTHIAN",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "KABUTO",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "DEATH MASK",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "AVENTAIL",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
+  },
+  {
+    "slot": "head",
+    "name": "SKULL PLATE",
+    "armor": 3,
+    "tier": 5,
+    "attributeRequirements": null,
+    "tags": null
   }
 ]

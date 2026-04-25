@@ -302,6 +302,9 @@ namespace RPGGame
                 canvasUI2.AddRoomClearedMessage();
                 await Task.Delay(2000);
             }
+
+            if (stateManager.CurrentPlayer != null)
+                stateManager.CurrentPlayer.ClearAllTempEffects();
             
             return true; // Player survived the room
         }

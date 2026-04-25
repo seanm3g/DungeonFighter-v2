@@ -4,6 +4,7 @@ namespace RPGGame
     using System.Threading.Tasks;
     using RPGGame.UI;
     using RPGGame.UI.ColorSystem;
+    using RPGGame.Utils;
 
     /// <summary>
     /// Handles death screen display and navigation back to main menu.
@@ -49,6 +50,16 @@ namespace RPGGame
             }
             else
             {
+                try
+                {
+                    var characterId = stateManager.GetCharacterId(player);
+                    CharacterSaveManager.SaveCharacter(player, characterId, filename: null, markDead: true);
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log("DeathScreenHandler", $"Persist dead character save failed: {ex.Message}");
+                }
+
                 // Fallback for console UI
                 // Create colored death screen
                 var deathBuilder = new ColoredTextBuilder();

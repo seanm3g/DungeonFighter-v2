@@ -89,8 +89,10 @@ namespace RPGGame
 
         public void EnsurePositiveMultipliers()
         {
+            // Defaults should preserve the classic "combo hits harder than basic" ladder
+            // even when tuning JSON uses 0 as "unset".
             if (ComboRollDamageMultiplier <= 0)
-                ComboRollDamageMultiplier = 1.0;
+                ComboRollDamageMultiplier = 1.5;
             if (BasicRollDamageMultiplier <= 0)
                 BasicRollDamageMultiplier = 1.0;
             if (ComboAmplificationScalingMultiplier <= 0)

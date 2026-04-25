@@ -6,6 +6,7 @@ namespace RPGGame.ActionInteractionLab
     /// Filtering rules for Action Lab gear pickers: weapon and armor base rows use tier→rarity bands when JSON has no per-item rank;
     /// prefixes use <see cref="Modification.ItemRank"/>; suffixes use optional <see cref="StatBonus.ItemRank"/> (blank = matches any rarity filter).
     /// Armor class (filter label) is derived from display names (all words except the last), e.g. <c>Cloth Cap</c> to <c>Cloth</c>.
+    /// Optional tier filter matches the item row’s numeric <c>Tier</c> exactly.
     /// </summary>
     public static class ActionLabGearCatalogFilter
     {
@@ -105,6 +106,14 @@ namespace RPGGame.ActionInteractionLab
             if (string.IsNullOrWhiteSpace(selectedType))
                 return true;
             return string.Equals(weapon.Type?.Trim(), selectedType.Trim(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>When <paramref name="selectedTier"/> is null, all tiers match; otherwise <paramref name="itemTier"/> must equal that value.</summary>
+        public static bool ItemMatchesTierFilter(int itemTier, int? selectedTier)
+        {
+            if (selectedTier == null)
+                return true;
+            return itemTier == selectedTier.Value;
         }
     }
 }

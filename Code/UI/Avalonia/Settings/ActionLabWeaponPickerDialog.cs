@@ -21,23 +21,14 @@ namespace RPGGame.UI.Avalonia.Settings
         /// </summary>
         public static async Task<int?> ShowAsync(Window? owner)
         {
-            var init = new GameInitializer();
-            var gear = init.LoadStartingGear();
-            var weapons = gear?.weapons ?? new List<StartingWeapon>();
+            _ = GameConfiguration.Instance;
+            var weapons = GameInitializer.BuildStarterWeaponsForMenu();
             if (weapons.Count == 0)
-            {
-                weapons = new List<StartingWeapon>
-                {
-                    new StartingWeapon { name = "Mace", damage = 7.5, attackSpeed = 0.8 },
-                    new StartingWeapon { name = "Sword", damage = 6.0, attackSpeed = 1.0 },
-                    new StartingWeapon { name = "Dagger", damage = 4.3, attackSpeed = 1.2 },
-                    new StartingWeapon { name = "Wand", damage = 5.5, attackSpeed = 1.1 }
-                };
-            }
+                throw new InvalidOperationException("No starter weapons: add the \"starter\" tag to Weapons.json rows or ensure tier-1 weapons exist for every class path.");
 
             var dialog = new Window
             {
-                Title = "Action Interaction Lab",
+                Title = "Action Lab",
                 Width = 440,
                 Height = 340,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
@@ -51,9 +42,13 @@ namespace RPGGame.UI.Avalonia.Settings
                 TextWrapping = TextWrapping.Wrap,
             };
 
-            var labels = weapons
-                .Select(w => $"{w.name}  (dmg ~{w.damage:0.#}, speed {w.attackSpeed:0.##})")
-                .ToList();
+            var labels = new List<string>(weapons.Count);
+            for (int i = 0; i < weapons.Count; i++)
+            {
+                var preview = GameInitializer.CreateStarterWeaponForMenuIndex(i + 1);
+                labels.Add(
+                    $"{preview.Name}  (dmg {preview.GetTotalDamage()}, speed {preview.GetTotalAttackSpeed():0.##}×)");
+            }
 
             var list = new ListBox
             {

@@ -168,6 +168,7 @@ namespace RPGGame.Config
                 config.StatusEffects = profileConfig.StatusEffects;
                 config.ComboSystem = profileConfig.ComboSystem;
                 config.LootSystem = profileConfig.LootSystem;
+                config.ItemAffixByRarity = profileConfig.ItemAffixByRarity ?? new ItemAffixByRaritySettings();
                 config.DungeonScaling = profileConfig.DungeonScaling;
                 config.DungeonGeneration = profileConfig.DungeonGeneration;
                 config.ModificationRarity = profileConfig.ModificationRarity;

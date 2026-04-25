@@ -350,6 +350,11 @@ namespace RPGGame.Tests.Unit.Combat
                     "FormatDamageDisplayColored should return damage text",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
+                var hitsSegment = damageText!.FirstOrDefault(s => s.Text == "hits");
+                TestBase.AssertTrue(hitsSegment != null && ColorValidator.AreColorsEqual(hitsSegment.Color, ColorPalette.White.GetColor()),
+                    "\"hits\" verb in damage line should be white",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
                 TestBase.AssertTrue(rollInfo != null && rollInfo.Count > 0,
                     "FormatDamageDisplayColored should return roll info",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -368,6 +373,11 @@ namespace RPGGame.Tests.Unit.Combat
 
                 TestBase.AssertTrue(damageText3 != null && damageText3.Count > 0,
                     "FormatDamageDisplayColored with multi-hit should return damage text",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var multiHitHitsSuffix = damageText3!.FirstOrDefault(s => s.Text == " hits)");
+                TestBase.AssertTrue(multiHitHitsSuffix != null && ColorValidator.AreColorsEqual(multiHitHitsSuffix.Color, Colors.White),
+                    "multi-hit line \" hits)\" should be white (hits keyword)",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             catch (Exception ex)

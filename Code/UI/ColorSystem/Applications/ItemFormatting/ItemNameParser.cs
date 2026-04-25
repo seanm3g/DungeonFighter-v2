@@ -141,8 +141,8 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 return (remainingName, prefixes);
             }
             
-            var prefixMods = item.Modifications
-                .Where(m => m != null && !string.IsNullOrEmpty(m.Name) && !m.Name.StartsWith("of ", StringComparison.OrdinalIgnoreCase))
+            var prefixMods = ItemPrefixHelper.OrderedPrefixModifications(item.Modifications)
+                .Where(m => m != null && !string.IsNullOrEmpty(m.Name))
                 .ToList();
             
             bool foundPrefix = true;

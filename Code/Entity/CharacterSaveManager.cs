@@ -31,9 +31,9 @@ namespace RPGGame
         /// <param name="character">The character to save</param>
         /// <param name="characterId">Optional character ID for multi-character support. If provided, generates per-character filename.</param>
         /// <param name="filename">The filename to save to. If provided, overrides characterId-based naming.</param>
-        public static void SaveCharacter(Character character, string? characterId = null, string? filename = null)
+        public static void SaveCharacter(Character character, string? characterId = null, string? filename = null, bool markDead = false)
         {
-            Service.SaveCharacter(character, characterId, filename);
+            Service.SaveCharacter(character, characterId, filename, markDead);
         }
 
         /// <summary>

@@ -861,8 +861,12 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual((20 % 3 + 3) % 3, saltIdx,
                 "INT below threshold uses deterministic salt for strip index",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+            int lowIntNullSaltIdx = ActionUtilities.ResolveComboStripIndex(lo, combo, null);
+            TestBase.AssertEqual(7 % 3, lowIntNullSaltIdx,
+                "INT below threshold follows ComboStep when salt is null (aligned with strip highlight)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(!ActionUtilities.UsesOrderedComboSequence(lo),
-                "INT 9 uses chaotic combo selection",
+                "INT 9 uses low-INT combo path (router ignored on advance)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

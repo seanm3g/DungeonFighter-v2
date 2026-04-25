@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Combat.Formatting;
 using RPGGame.Tests;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Tests.Unit.Combat
 {
@@ -165,6 +166,11 @@ namespace RPGGame.Tests.Unit.Combat
 
                 TestBase.AssertTrue(missText != null && missText.Count > 0,
                     "FormatMissMessageColored should return miss text",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var missesSegment = missText!.FirstOrDefault(ct => ct.Text == "misses");
+                TestBase.AssertTrue(missesSegment != null && missesSegment!.Color == ColorPalette.White.GetColor(),
+                    "Miss verb should use white (same prominence as \"hits\")",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 TestBase.AssertTrue(rollInfo != null && rollInfo.Count > 0,

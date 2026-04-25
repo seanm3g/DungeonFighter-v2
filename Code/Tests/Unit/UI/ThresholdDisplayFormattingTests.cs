@@ -16,6 +16,7 @@ namespace RPGGame.Tests.Unit.UI
             ValueColorRedWhenHigherThanDefault(ref run, ref passed, ref failed);
             DeltaSuffixFormatsBenefitAndPenalty(ref run, ref passed, ref failed);
             DeltaSuffixEmptyWhenDefault(ref run, ref passed, ref failed);
+            SignedDeltaSuffixMatchesHitRowConvention(ref run, ref passed, ref failed);
             AccuracyAppendedPositiveNegativeZero(ref run, ref passed, ref failed);
             AccuracyDeltaParenColorSign(ref run, ref passed, ref failed);
             ThresholdValueWithAccuracyPartsMatchesFormat(ref run, ref passed, ref failed);
@@ -63,6 +64,21 @@ namespace RPGGame.Tests.Unit.UI
         {
             TestBase.AssertEqual("", ThresholdDisplayFormatting.FormatDeltaSuffix(14, 14),
                 "no suffix when equal to default", ref run, ref passed, ref failed);
+        }
+
+        /// <summary>
+        /// Threshold HUD uses one parenthetical: <c>effective − defaultBaseline</c> (see DiceRollThresholdRowsRenderer).
+        /// </summary>
+        private static void SignedDeltaSuffixMatchesHitRowConvention(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.AssertEqual("", ThresholdDisplayFormatting.FormatSignedDeltaSuffix(0),
+                "signed suffix empty at zero", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(" (-4)", ThresholdDisplayFormatting.FormatSignedDeltaSuffix(-4),
+                "combined stat + queued shift shows single delta", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(" (-2)", ThresholdDisplayFormatting.FormatSignedDeltaSuffix(-2),
+                "negative delta suffix", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(" (+1)", ThresholdDisplayFormatting.FormatSignedDeltaSuffix(1),
+                "positive delta suffix", ref run, ref passed, ref failed);
         }
 
         private static void AccuracyAppendedPositiveNegativeZero(ref int run, ref int passed, ref int failed)

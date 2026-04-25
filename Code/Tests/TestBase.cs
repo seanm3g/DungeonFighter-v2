@@ -18,6 +18,14 @@ namespace RPGGame.Tests
             _currentTestName = testName;
         }
 
+        /// <summary>
+        /// Clears the current test name so later tests that don't set one aren't mis-attributed.
+        /// </summary>
+        public static void ClearCurrentTestName()
+        {
+            _currentTestName = null;
+        }
+
         public static void AssertTrue(bool condition, string message, ref int testsRun, ref int testsPassed, ref int testsFailed)
         {
             testsRun++;

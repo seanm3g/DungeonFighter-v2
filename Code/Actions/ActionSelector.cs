@@ -64,8 +64,9 @@ namespace RPGGame
         /// - Natural 20 always selects a combo-slot action (when available).
         /// - Otherwise compares the <strong>modified d20</strong> (sheet roll modifications to the die only) to the effective combo threshold
         ///   (threshold manager + COMBO-type threshold adjustments + combo action roll-mod threshold fields).
-        ///   Stat/chain/equipment roll bonuses do not substitute for the die gate; queued ACCURACY does not lower this gate
-        ///   (it still affects hit/combo thresholds during <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/> execution).
+        ///   Stat/chain/equipment roll bonuses do not substitute for the die gate.
+        ///   Queued ACCURACY (ACTION/ATTACK/ABILITY FIFO and slot peek, same as <see cref="ActionExecutionFlow"/>) lowers this gate so a follow-up
+        ///   swing can resolve as the named combo action when the deferred bonus makes the effective combo threshold reachable.
         /// For heroes only.
         /// </summary>
         /// <param name="source">The Actor selecting the action</param>
@@ -94,10 +95,10 @@ namespace RPGGame
 
             var hero = (Character)source;
             int stripIndex = ActionUtilities.ResolveComboStripIndex(hero, comboActions, deterministicSalt: null);
-            PeekRollAccuracyAndComboBonuses(hero, out _, out int effectComboBonus, stripIndex);
+            PeekRollAccuracyAndComboBonuses(hero, out int accuracyAcc, out int effectComboBonus, stripIndex);
             Action comboAction = comboActions[stripIndex];
             int selectionDie = GetComboPathSelectionDie(source, comboAction, baseRoll);
-            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus, accuracyAcc: 0);
+            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus, accuracyAcc);
 
             if (selectionDie >= comboThreshold)
                 return comboActions[stripIndex];
@@ -126,10 +127,10 @@ namespace RPGGame
                 return false;
 
             int stripIndex = ActionUtilities.ResolveComboStripIndex(character, comboActions, baseRoll);
-            PeekRollAccuracyAndComboBonuses(character, out _, out int effectComboBonus, stripIndex);
+            PeekRollAccuracyAndComboBonuses(character, out int accuracyAcc, out int effectComboBonus, stripIndex);
             Action comboAction = comboActions[stripIndex];
             int selectionDie = GetComboPathSelectionDie(source, comboAction, baseRoll);
-            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus, accuracyAcc: 0);
+            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus, accuracyAcc);
             return selectionDie >= comboThreshold;
         }
 
@@ -246,8 +247,7 @@ namespace RPGGame
         /// Approximates effective combo threshold for combo-path <em>selection</em> or related preview math.
         /// Sheet combo <em>adjustments</em> on the action apply to the next roll only (see <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/>).
         /// </summary>
-        /// <param name="accuracyAcc">When non-zero, lowers the resolved threshold (peeked ACCURACY). Combo-strip vs normal
-        /// selection always passes 0 so queued accuracy cannot turn a low d20 into a named combo swing.</param>
+        /// <param name="accuracyAcc">When non-zero, lowers the resolved threshold (peeked ACCURACY), matching execution.</param>
         private static int GetEffectiveComboThresholdForSelection(Actor source, Action comboAction, int effectComboBonus, int accuracyAcc)
         {
             var tm = RollModificationManager.GetThresholdManager();

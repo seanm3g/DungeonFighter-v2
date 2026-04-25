@@ -368,10 +368,9 @@ namespace RPGGame.Tests.Unit
 
             var highInt = TestDataBuilders.Character().WithName("CritEval2").WithStats(10, 10, 10, 40).Build();
             int persistent = CombatCalculator.GetPersistentStatRollBonus(highInt);
-            TestBase.AssertTrue(persistent > 0, "high INT should add persistent stat roll bonus", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            // Full roll bonus includes INT; crit path subtracts entire roll bonus so INT does not inflate crit.
-            TestBase.AssertEqual(18 - persistent, CombatCalculator.GetCritThresholdEvaluationRoll(18, persistent, 0),
-                "crit-eval subtracts full roll bonus (here: INT only)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, persistent, "high INT should not add persistent stat roll bonus (threshold-based INT system)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(18, CombatCalculator.GetCritThresholdEvaluationRoll(18, persistent, 0),
+                "crit-eval unchanged when persistent bonus is 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             int attack = 18, rollBonus = persistent + 6;
             TestBase.AssertEqual(18 - persistent - 6, CombatCalculator.GetCritThresholdEvaluationRoll(attack, rollBonus, 0),

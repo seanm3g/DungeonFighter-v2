@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Data;
 
 namespace RPGGame.Data.Validation
 {
@@ -79,6 +80,18 @@ namespace RPGGame.Data.Validation
                 ValidateNonNegative(result, entityName, "growthPerLevel.intelligence", enemy.GrowthPerLevel.Intelligence);
             }
 
+            if (enemy.Tags != null)
+            {
+                foreach (var t in enemy.Tags)
+                {
+                    if (string.IsNullOrWhiteSpace(t))
+                    {
+                        result.AddWarning(FileName, entityName, "tags", "tags list contains an empty entry");
+                        break;
+                    }
+                }
+            }
+
             if (enemy.BaseHealth.HasValue)
                 ValidateNonNegative(result, entityName, "baseHealth", enemy.BaseHealth.Value);
             if (enemy.HealthGrowthPerLevel.HasValue)
@@ -97,6 +110,15 @@ namespace RPGGame.Data.Validation
                     {
                         result.AddError(FileName, entityName, "actions", 
                             $"Action '{actionName}' does not exist in Actions.json");
+                    }
+                    else
+                    {
+                        var ad = ActionLoader.GetActionData(actionName);
+                        if (ad != null && GameDataTagHelper.HasEnvironmentTag(ad.Tags))
+                        {
+                            result.AddError(FileName, entityName, "actions",
+                                $"Action '{actionName}' is tagged environment and must not be assigned to an enemy");
+                        }
                     }
                 }
             }

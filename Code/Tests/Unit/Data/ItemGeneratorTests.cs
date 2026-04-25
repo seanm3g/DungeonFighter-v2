@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Data
@@ -26,9 +27,12 @@ namespace RPGGame.Tests.Unit.Data
             _testsFailed = 0;
 
             TestGenerateWeaponItem();
+            TestGenerateWeaponItem_CopiesTags();
             TestGenerateArmorItem();
+            TestGenerateArmorItem_CopiesTags();
             TestSelectRandomItemByTier();
             TestGenerateItemNameWithBonuses();
+            TestGenerateItemNameWithBonuses_IdempotentWhenItemNameAlreadyComposed();
 
             TestBase.PrintSummary("ItemGenerator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -72,6 +76,26 @@ namespace RPGGame.Tests.Unit.Data
                     "Weapon should have correct attack speed",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestGenerateWeaponItem_CopiesTags()
+        {
+            Console.WriteLine("\n--- Testing GenerateWeaponItem copies tags ---");
+            var weaponData = new WeaponData
+            {
+                Name = "Tagged Blade",
+                Type = "Sword",
+                Tier = 1,
+                BaseDamage = 5,
+                AttackSpeed = 1.0,
+                Tags = new List<string> { "magical", " Magical ", "rare" }
+            };
+            var weapon = ItemGenerator.GenerateWeaponItem(weaponData);
+            TestBase.AssertNotNull(weapon, "weapon", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (weapon == null) return;
+            TestBase.AssertEqual(2, weapon.Tags.Count, "duplicate tag normalized", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(weapon.Tags.Contains("magical") && weapon.Tags.Contains("rare"),
+                "expected tags", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion
@@ -130,6 +154,24 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertNotNull(feetItem,
                 "Should generate feet item",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestGenerateArmorItem_CopiesTags()
+        {
+            Console.WriteLine("\n--- Testing GenerateArmorItem copies tags ---");
+            var data = new ArmorData
+            {
+                Name = "Tagged Helm",
+                Slot = "head",
+                Tier = 1,
+                Armor = 2,
+                Tags = new List<string> { "heavy", "heavy" }
+            };
+            var item = ItemGenerator.GenerateArmorItem(data);
+            TestBase.AssertNotNull(item, "item", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (item == null) return;
+            TestBase.AssertEqual(1, item.Tags.Count, "deduped", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(item.Tags.Contains("heavy"), "heavy tag", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion
@@ -200,6 +242,50 @@ namespace RPGGame.Tests.Unit.Data
 
             TestBase.AssertTrue(name.Contains("Test Sword"),
                 "Generated name should contain base name",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// LootBonusApplier calls <see cref="ItemGenerator.GenerateItemNameWithBonuses"/> twice; the lab used to call it again.
+        /// Re-entry must not stack prefixes/suffixes already present in <see cref="Item.Name"/>.
+        /// </summary>
+        private static void TestGenerateItemNameWithBonuses_IdempotentWhenItemNameAlreadyComposed()
+        {
+            Console.WriteLine("\n--- Testing GenerateItemNameWithBonuses idempotency ---");
+
+            var weapon = TestDataBuilders.Weapon()
+                .WithName("OBLITERATOR")
+                .WithTier(4)
+                .Build();
+
+            weapon.Modifications.Add(new Modification
+            {
+                Name = "Chipped",
+                PrefixCategory = "Quality"
+            });
+            weapon.Modifications.Add(new Modification
+            {
+                Name = "Sturdy",
+                PrefixCategory = "Adjective"
+            });
+            weapon.Modifications.Add(new Modification
+            {
+                Name = "of Flame",
+                PrefixCategory = "Adjective"
+            });
+            weapon.StatBonuses.Add(new StatBonus { Name = "of Swiftness", StatType = "Agility", Value = 3 });
+
+            string first = ItemGenerator.GenerateItemNameWithBonuses(weapon);
+            weapon.Name = first;
+            string second = ItemGenerator.GenerateItemNameWithBonuses(weapon);
+            weapon.Name = second;
+            string third = ItemGenerator.GenerateItemNameWithBonuses(weapon);
+
+            TestBase.AssertEqual(first, second,
+                "Second pass should match first (no duplicated prefix/suffix tokens)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(second, third,
+                "Third pass should still be stable",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

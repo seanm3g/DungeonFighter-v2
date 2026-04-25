@@ -176,32 +176,7 @@ namespace RPGGame
         public void ApplyWeaken(int turns) => _character.ApplyWeaken(turns);
         public int ProcessPoison(double currentTime) => _character.ProcessPoison(currentTime);
         public int ProcessBurn(double currentTime) => _character.ProcessBurn(currentTime);
-        public void ClearAllTempEffects() 
-        {
-            // Clear base class effects directly (avoid circular call)
-            _character.Effects.ClearAllTempEffects();
-            // Clear temporary stat bonuses
-            _character.Stats.TempStrengthBonus = 0;
-            _character.Stats.TempAgilityBonus = 0;
-            _character.Stats.TempTechniqueBonus = 0;
-            _character.Stats.TempIntelligenceBonus = 0;
-            _character.Stats.TempStatBonusTurns = 0;
-            // Clear base Actor effects (poison, burn, stun, weaken, etc.)
-            _character.PoisonPercentOfMaxHealth = 0;
-            _character.LastPoisonTickTime = 0;
-            _character.BurnIntensity = 0;
-            _character.PendingBurnFromHits = 0;
-            _character.LastBurnTickTime = 0;
-            _character.BleedIntensity = 0;
-            _character.PendingBleedFromHits = 0;
-            _character.IsStunned = false;
-            _character.StunTurnsRemaining = 0;
-            _character.IsWeakened = false;
-            _character.WeakenTurns = 0;
-            _character.RollPenalty = 0;
-            _character.RollPenaltyTurns = 0;
-            _character.DamageReduction = 0.0;
-        }
+        public void ClearAllTempEffects() => _character.ClearAllTempEffects();
         public bool UseReroll() => _character.Effects.UseReroll();
         public void ResetRerollUsage() => _character.Effects.ResetRerollUsage();
         public void ResetRerollCharges() => _character.Effects.ResetRerollCharges();
@@ -270,7 +245,7 @@ namespace RPGGame
         public void DisplayCharacterInfo() => _character.Display.DisplayCharacterInfo();
 
         // === SAVE/LOAD METHODS ===
-        public void SaveCharacter(string? characterId = null, string? filename = null) => CharacterSaveManager.SaveCharacter(_character, characterId, filename);
+        public void SaveCharacter(string? characterId = null, string? filename = null, bool markDead = false) => CharacterSaveManager.SaveCharacter(_character, characterId, filename, markDead);
         public static async Task<Character?> LoadCharacterAsync(string? characterId = null, string? filename = null) => await CharacterSaveManager.LoadCharacterAsync(characterId, filename).ConfigureAwait(false);
         public static void DeleteSaveFile(string? filename = null) => CharacterSaveManager.DeleteSaveFile(filename);
 

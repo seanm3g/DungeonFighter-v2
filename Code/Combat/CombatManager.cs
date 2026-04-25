@@ -358,6 +358,9 @@ namespace RPGGame
             
             // Full combo reset after combat so exploration / next encounter never inherits combo mode or strip index
             player.ResetCombo();
+
+            // Wipe combat status (DoT, debuffs, advanced stacks) so the hero never carries encounter state onward
+            player.ClearAllTempEffects();
             
             DebugLogger.WriteCombatDebug("CombatManager", $"Combat ended: {player.Name} {(player.IsAlive ? "survived" : "died")} vs {currentEnemy.Name}");
             

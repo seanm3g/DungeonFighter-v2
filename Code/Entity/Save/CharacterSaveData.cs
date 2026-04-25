@@ -30,6 +30,8 @@ namespace RPGGame
         public Item? Body { get; set; }
         public Item? Weapon { get; set; }
         public Item? Feet { get; set; }
+        /// <summary>When true, this file is a tombstone only; the game will not load this adventurer.</summary>
+        public bool IsDead { get; set; }
     }
 }
 

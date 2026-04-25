@@ -325,18 +325,33 @@ namespace RPGGame
 
         [JsonPropertyName("attributeRequirements")]
         public Dictionary<string, int>? AttributeRequirements { get; set; }
+
+        /// <summary>Optional multi-value tags from <c>Armor.json</c> / armor sheet (JSON array or omitted).</summary>
+        [JsonPropertyName("tags")]
+        public List<string>? Tags { get; set; }
     }
 
     public class WeaponData
     {
         public string Type { get; set; } = "";
         public string Name { get; set; } = "";
+
+        /// <summary>Weapon sheet / <c>Weapons.json</c> use camelCase <c>baseDamage</c> (whole-number hit points in combat).</summary>
+        [JsonPropertyName("baseDamage")]
         public int BaseDamage { get; set; }
+
+        /// <summary>Weapon sheet / <c>Weapons.json</c> use camelCase <c>attackSpeed</c> (fractional allowed).</summary>
+        [JsonPropertyName("attackSpeed")]
         public double AttackSpeed { get; set; }
+
         public int Tier { get; set; }
         
         [JsonPropertyName("attributeRequirements")]
         public Dictionary<string, int>? AttributeRequirements { get; set; }
+
+        /// <summary>Optional multi-value tags from <c>Weapons.json</c> / weapons sheet (JSON array or omitted).</summary>
+        [JsonPropertyName("tags")]
+        public List<string>? Tags { get; set; }
     }
 
     public class RarityData

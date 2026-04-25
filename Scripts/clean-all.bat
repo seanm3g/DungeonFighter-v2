@@ -1,5 +1,5 @@
 @echo off
-REM Clean All - Most thorough cleanup (includes NuGet cache)
-powershell.exe -ExecutionPolicy Bypass -File "%~dp0fix-build-cache.ps1"
+REM Clean All - alias kept for familiarity (includes NuGet cache)
+call "%~dp0df.bat" clean:all
 if errorlevel 1 pause
 

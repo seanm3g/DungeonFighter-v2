@@ -14,6 +14,8 @@ namespace RPGGame.UI.Avalonia.Managers
     /// </summary>
     public class ItemsDataCoordinator
     {
+        private const char TagsEmptyPlaceholder = '\u2014'; // em dash shown when item has no tags
+
         private readonly ItemsDataService dataService;
         private readonly Action<string, bool>? showStatusMessage;
         
@@ -21,6 +23,34 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             this.dataService = dataService ?? throw new ArgumentNullException(nameof(dataService));
             this.showStatusMessage = showStatusMessage;
+        }
+
+        /// <summary>List row / dialog preview: em dash when empty.</summary>
+        public static string FormatTagsSummaryForItemsSettings(List<string>? tags)
+        {
+            var n = GameDataTagHelper.NormalizeDistinct(tags);
+            return n.Count == 0 ? TagsEmptyPlaceholder.ToString() : string.Join(", ", n);
+        }
+
+        /// <summary>Parse list row summary back to JSON tag list; null means omit / clear.</summary>
+        public static List<string>? TagsListFromItemsSettingsSummary(string? summary)
+        {
+            if (string.IsNullOrWhiteSpace(summary))
+                return null;
+            var t = summary.Trim();
+            if (t == TagsEmptyPlaceholder.ToString())
+                return null;
+            var parsed = GameDataTagHelper.ParseCommaSeparatedTags(t);
+            return parsed.Count == 0 ? null : parsed;
+        }
+
+        /// <summary>Comma-separated text for the edit dialog (empty when no tags).</summary>
+        public static string TagsEditTextFromSummary(string? tagsSummary)
+        {
+            if (string.IsNullOrWhiteSpace(tagsSummary))
+                return "";
+            var t = tagsSummary.Trim();
+            return t == TagsEmptyPlaceholder.ToString() ? "" : t;
         }
         
         /// <summary>
@@ -49,7 +79,8 @@ namespace RPGGame.UI.Avalonia.Managers
                     AttackSpeed = weapon.AttackSpeed,
                     HitCount = 0, // Not available in WeaponData class
                     Effect = "none", // Not available in WeaponData class
-                    IsWeapon = true
+                    IsWeapon = true,
+                    TagsSummary = FormatTagsSummaryForItemsSettings(weapon.Tags)
                 };
 
                 // Add available tiers
@@ -78,7 +109,8 @@ namespace RPGGame.UI.Avalonia.Managers
                     CurrentTier = armorItem.Tier,
                     SelectedTier = armorItem.Tier,
                     Armor = armorItem.Armor,
-                    IsWeapon = false
+                    IsWeapon = false,
+                    TagsSummary = FormatTagsSummaryForItemsSettings(armorItem.Tags)
                 };
 
                 // Add available tiers
@@ -123,6 +155,7 @@ namespace RPGGame.UI.Avalonia.Managers
                         originalWeapon.Tier = weaponVM.SelectedTier;
                         originalWeapon.BaseDamage = weaponVM.BaseDamage;
                         originalWeapon.AttackSpeed = weaponVM.AttackSpeed;
+                        originalWeapon.Tags = TagsListFromItemsSettingsSummary(weaponVM.TagsSummary);
                         // HitCount and Effect not available in WeaponData class
                         allWeapons.Add(originalWeapon);
                     }
@@ -135,7 +168,8 @@ namespace RPGGame.UI.Avalonia.Managers
                             Name = weaponVM.Name,
                             Tier = weaponVM.SelectedTier,
                             BaseDamage = weaponVM.BaseDamage,
-                            AttackSpeed = weaponVM.AttackSpeed
+                            AttackSpeed = weaponVM.AttackSpeed,
+                            Tags = TagsListFromItemsSettingsSummary(weaponVM.TagsSummary)
                             // HitCount and Effect not available in WeaponData class
                         });
                     }
@@ -153,6 +187,7 @@ namespace RPGGame.UI.Avalonia.Managers
                         originalArmorItem.Slot = armorVM.Slot;
                         originalArmorItem.Tier = armorVM.SelectedTier;
                         originalArmorItem.Armor = armorVM.Armor;
+                        originalArmorItem.Tags = TagsListFromItemsSettingsSummary(armorVM.TagsSummary);
                         allArmor.Add(originalArmorItem);
                     }
                     else
@@ -163,7 +198,8 @@ namespace RPGGame.UI.Avalonia.Managers
                             Slot = armorVM.Slot,
                             Name = armorVM.Name,
                             Tier = armorVM.SelectedTier,
-                            Armor = armorVM.Armor
+                            Armor = armorVM.Armor,
+                            Tags = TagsListFromItemsSettingsSummary(armorVM.TagsSummary)
                         });
                     }
                 }

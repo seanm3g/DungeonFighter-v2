@@ -9,27 +9,12 @@ namespace RPGGame.Combat.Formatting
     public static class CombatColorStrategy
     {
         /// <summary>
-        /// Gets the color for the "hits" verb based on the combat outcome
+        /// Gets the color for the "hits" verb in the combat log (always white; outcome is reflected in action name and damage numerals).
         /// </summary>
         public static ColorPalette GetHitsColor(CombatOutcome outcome)
         {
-            if (outcome.IsMiss || outcome.IsBlock || outcome.IsDodge)
-            {
-                // Misses, blocks, and dodges don't use "hits"
-                return ColorPalette.White;
-            }
-            
-            if (outcome.IsCritical)
-            {
-                return ColorPalette.Critical;
-            }
-            
-            if (outcome.IsComboAction)
-            {
-                return ColorPalette.Green; // Action color for combo actions
-            }
-            
-            return ColorPalette.Damage; // Normal hit color
+            _ = outcome;
+            return ColorPalette.White;
         }
         
         /// <summary>
@@ -59,16 +44,12 @@ namespace RPGGame.Combat.Formatting
         }
         
         /// <summary>
-        /// Gets the color for the miss verb based on the combat outcome
+        /// Gets the color for the "misses" / "MISS" verb in the combat log (always white; critical miss is still called out by the leading "CRITICAL" segment).
         /// </summary>
         public static ColorPalette GetMissColor(CombatOutcome outcome)
         {
-            if (outcome.IsCriticalMiss)
-            {
-                return ColorPalette.Critical;
-            }
-            
-            return ColorPalette.Miss;
+            _ = outcome;
+            return ColorPalette.White;
         }
         
         /// <summary>

@@ -123,8 +123,8 @@ namespace RPGGame.Tests.Unit.Config
             TestBase.AssertEqual(2.0, balance.CriticalHitDamageMultiplier,
                 "Non-positive CriticalHitDamageMultiplier should default to 2.0",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1.0, balance.RollDamageMultipliers.ComboRollDamageMultiplier,
-                "Non-positive combo roll multiplier should become 1.0",
+            TestBase.AssertEqual(1.5, balance.RollDamageMultipliers.ComboRollDamageMultiplier,
+                "Non-positive combo roll multiplier should become 1.5",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(1.0, balance.RollDamageMultipliers.BasicRollDamageMultiplier,
                 "Non-positive basic roll multiplier should become 1.0",

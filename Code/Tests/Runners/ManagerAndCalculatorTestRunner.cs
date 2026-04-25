@@ -1,6 +1,7 @@
 using System;
 using RPGGame;
 using RPGGame.Tests.Unit;
+using RPGGame.Tests.Unit.Combat;
 using RPGGame.Tests.Unit.Actions;
 using RPGGame.Tests.Unit.Entity;
 
@@ -54,6 +55,9 @@ namespace RPGGame.Tests.Runners
                 Console.WriteLine();
 
                 ChainPositionBonusTests.RunAllTests();
+                Console.WriteLine();
+
+                IntelligenceMilestoneThresholdBonusesTests.RunAllTests();
                 Console.WriteLine();
 
                 // Run UI builder tests

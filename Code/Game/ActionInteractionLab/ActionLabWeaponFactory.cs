@@ -124,6 +124,7 @@ namespace RPGGame.ActionInteractionLab
             {
                 DiceResult = template.DiceResult,
                 ItemRank = template.ItemRank,
+                PrefixCategory = template.PrefixCategory,
                 Name = template.Name,
                 Description = template.Description,
                 Effect = template.Effect,

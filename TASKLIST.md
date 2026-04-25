@@ -4,9 +4,41 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
-_(none)_
+- [ ] **DevEx / Scripts:** Consolidate `Scripts/` into a small set of core commands (build/run/test/clean/metrics) and move legacy Google Sheets + redundant wrappers into `Scripts/_legacy/`. Update script docs and keep a single entrypoint.
+- [ ] **Combat / INT:** Replace INT “+roll bonus per N” with milestone-based threshold bonuses that grant +1 to HIT/COMBO/CRIT at specific effective-INT breakpoints (as per the tuning table). Ensure combat resolution, action selection, and HUD threshold preview all agree; add unit tests.
+- [x] **UI / Item Generation:** Widen the “Affix bounds by rarity” grid so column labels and values don’t clip/abbreviate in the Settings → Item Generation tab.
 
 ## Completed (reference)
+
+- [x] **Loot / probabilistic affix tuning:** Per-rarity **minimum** prefix slots, stat suffixes, and action bonuses in `TuningConfig.json` (`itemAffixByRarity`) with optional **extra chance** (0–100%) and **max** caps; `LootBonusApplier` rolls final counts each drop. Settings **Item Generation** tab grid for load/save (`ItemGenerationPanelHandler`, `ItemAffixRollRule`, `RollAxis`). Tests: `LootBonusApplierTests.TestProbabilisticAffixTuningHitsMax`, `ItemConfigTests` (extra JSON + `RollAxis`). `OVERVIEW.md`.
+
+- [x] **Item Generation Lab / names:** Triple prefix in the lab (and any double call to `GenerateItemNameWithBonuses`) fixed: `ItemGenerator.GetBaseItemName` strips leading prefix-slot words and trailing suffix-style tokens so name assembly is idempotent; `ItemGenerationLabService` no longer re-runs name generation after `LootBonusApplier.ApplyBonuses`. Test: `ItemGeneratorTests` idempotency case.
+- [x] **Settings / Item Generation Lab:** New Settings tab “Item Generation” with forced generation controls (rarity/tier/weapon type/armor slot/count) and a generated list sorted best→worst (rarity → tier → primary stats). Code: `ItemGenerationSettingsPanel`, `ItemGenerationLabService`. Tests: `ItemGenerationLabServiceTests`. `OVERVIEW.md` updated.
+- [x] **Loot / item prefixes:** Three-slot prefix system (Adjective / Material / Quality) with rarity rules (Common 1 random slot, Uncommon 2 random, Rare+ all three), ordered naming, `gearPrimaryStatMultiplier` for quality, material attribute effects on equipment stats, merged `PrefixMaterialQuality.json`, Divine reroll resolves to a replacement adjective, `RarityTable.json` prefix counts cleared. Code: `ItemPrefixHelper`, `LootBonusApplier`, `Item.cs`, `EquipmentBonusCalculator`, `LootDataCache`, `ItemGenerator`, `ItemNameParser`, lab clone `PrefixCategory`. Tests: `ItemPrefixHelperTests`, `ContextualLootTest` adjective-only thematic count; `OVERVIEW.md`.
+
+- [x] **UI / Settings — tags visibility:** Actions tab — selected-action runtime tags preview (`ActionsSettingsPanel`, `ActionsTabManager`). Items — `TagsSummary` on weapon/armor rows, **Tags** field in `ItemEditDialog`, load/save/rename via `ItemsDataCoordinator` / `ItemsTabManager` + `GameDataTagHelper.ParseCommaSeparatedTags`. Enemies — new **Enemies** category (`EnemiesSettingsPanel`, `EnemiesTabManager`, `EnemiesDataService`), save path in `SettingsSaveOrchestrator` + `EnemyLoader.LoadEnemies()` after write. Tests: `GameDataTagHelperTests`; `OVERVIEW.md`.
+
+- [x] **Data / Sheets — selective push:** Per-tab OAuth push toggles in `SheetsPushConfig.json` (`pushActionsTab`, `pushWeaponsTab`, …); `GameDataSheetsPushService` / preflight respect flags; Balance Tuning panel checkboxes load/save with `SheetsPushConfig.Load` migration for legacy JSON (missing keys → push enabled); tests `SheetsPushConfigTests` (`ApplyMissingPushTabDefaults`); `SheetsPushConfig.template.json`; `OVERVIEW.md`.
+
+- [x] **Data / tags:** ACTIONS sheet **`TAGS`** row-2 column ingests into `SpreadsheetActionData.Tags`; optional **`tags`** on `Weapons.json` / `Armor.json` / `Enemies.json` (sheet columns + JSON arrays); `ItemGenerator` copies catalog tags to `Item.Tags`; `GameDataTagHelper`; validators warn on empty tag entries; tests `SpreadsheetActionDataSheetRowSerializerTests.TestTagsColumn_IngestsAndConverts`, `JsonArraySheetConverterTests` (weapons/armor/enemies tags round-trips), `ItemGeneratorTests` (copy tags); `OVERVIEW.md`, `Documentation/01-Core/OVERVIEW.md`.
+
+- [x] **Saves / death:** On player death, persist tombstone (`isDead`, `character_*_dead.json`), remove live save, exclude from load list and refuse explicit load; clear-all removes dead files; tests `SaveLoadSystemTests.TestDeadCharacterTombstone`; `OVERVIEW.md` (Saves — death tombstones).
+
+- [x] **UI / combat log:** Damage lines render the **hits** keyword in **white** (including multi-hit `(N hits)` wording); `CombatColorStrategy.GetHitsColor`, `DamageFormatter.FormatDamageDisplayColored`; `OVERVIEW.md`.
+
+- [x] **UI / HUD:** Left HERO panel — hero **name** uses per-glyph class color cycles once the HUD title leaves the default **Fighter** (no-points / pre–tier-1 gate) state; palettes for each solo weapon path and each hybrid pair (top two paths by points). `HeroNamePanelColoredText`, `CharacterPanelRenderer`; tests `HeroNamePanelColoredTextTests`; `OVERVIEW.md` (HUD — left panel hero name).
+
+- [x] **Bugfix / combat:** Below INT 10, combo-path strip index no longer rolled a random slot each swing (strip showed slot 0 e.g. **CAST** while combat could resolve **STAB**); `ActionUtilities.ResolveComboStripIndex` now uses `ComboStep % count` when salt is null, matching HUD and encounter reset. `ActionSequenceTests.TestComboStripIndexRespectsIntelligenceThreshold`; `OVERVIEW.md` combo bullet.
+
+- [x] **Bugfix / combat:** Combo AMP tiers follow **strip slot index** (first action 1.00×, second = TECH baseline, then scaling); opener/finisher flags no longer invert tiers vs sequence. `ActionUtilities.GetComboAmplificationExponent`, `TryGetComboActionSlotIndex`; tests `ActionUtilitiesTests`, `ComboExecutionTests`; `OVERVIEW.md`, tooltip copy.
+
+- [x] **Combat / state:** Hero status effects and temp combat state wipe after each combat, after each survived room, and on dungeon completion or early exit (`CombatManager`, `RoomProcessor`, `DungeonOrchestrator`); `Actor.ClearAllTempEffects` extended for advanced stack fields; `CharacterFacade.ClearAllTempEffects` → `Character.ClearAllTempEffects`; tests `ActorClearTempEffectsTests`; `OVERVIEW.md`.
+
+- [x] **Bugfix / UI:** Inventory — hover tooltips for bag rows (and left character panel while inventory is open): `InventoryScreenRenderer` no longer clears shared clickables after the character panel registered `lphover` targets; inventory `lphover` uses a full chrome refresh so tooltip paint does not erase the item list; `LeftPanelTooltipBuilder.AppendGear` adds an **Actions:** line from `GearActionNames.Resolve` via `GetGearActions`; tests `LeftPanelTooltipBuilderTests`; `OVERVIEW.md`.
+
+- [x] **Data / New game:** Starter weapons unified with `Weapons.json` — menu + equipped item use first tier-1 row per class path; `StartingGear.json` armor-only; `StartingGearLoader`, `GameInitializer`, weapon UI/lab dialog, tests, `OVERVIEW.md`.
+
+- [x] **UI:** Action Lab gear editor — **Tier** filter on weapon, head, body, and feet dialogs (`ActionLabWeaponEditDialog`, `ActionLabGearCatalogFilter.ItemMatchesTierFilter`, tests in `ActionInteractionLabTests.ActionLabGearCatalogFilter_Basics`); `OVERVIEW.md`
 
 - [x] **Bugfix / combat:** Combo-strip vs normal selection used preview attack total and ACC-shifted threshold, so a low d20 (e.g. 9) could still execute a **14+** combo special. Selection now compares the modified die only to the threshold with COMBO adjustments but **without** ACC lowering the gate; INT/stat roll bonuses no longer bypass the die. `ActionSelector`, `ActionSelectorRollBasedTests`, `OVERVIEW.md` (combo bullet), `LeftPanelTooltipBuilder` (combo threshold tip).
 

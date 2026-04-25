@@ -38,10 +38,27 @@ namespace RPGGame
                             totalBonus += (int)statBonus.Value;
                         }
                     }
+
+                    foreach (var modification in item.Modifications)
+                    {
+                        totalBonus += MaterialStatBonus(modification, statType);
+                    }
                 }
             }
 
             return totalBonus;
+        }
+
+        private static int MaterialStatBonus(Modification modification, string statType)
+        {
+            return modification.Effect switch
+            {
+                "equipmentStr" when statType == "STR" => (int)Math.Round(modification.RolledValue),
+                "equipmentAgi" when statType == "AGI" => (int)Math.Round(modification.RolledValue),
+                "equipmentTec" when statType == "TEC" => (int)Math.Round(modification.RolledValue),
+                "equipmentInt" when statType == "INT" => (int)Math.Round(modification.RolledValue),
+                _ => 0
+            };
         }
 
         /// <summary>

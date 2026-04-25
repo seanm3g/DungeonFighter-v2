@@ -174,6 +174,16 @@ namespace RPGGame
 
             // End session and calculate final statistics
             player.SessionStats.EndSession();
+
+            try
+            {
+                var characterId = stateManager.GetCharacterId(player);
+                CharacterSaveManager.SaveCharacter(player, characterId, filename: null, markDead: true);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log("GameScreenCoordinator", $"Persist dead character save failed: {ex.Message}");
+            }
             
             // Get defeat summary
             string defeatSummary = player.GetDefeatSummary();

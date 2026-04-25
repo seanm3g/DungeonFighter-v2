@@ -19,7 +19,7 @@ namespace RPGGame.Entity.Services
         /// </summary>
         /// <param name="character">The character to serialize</param>
         /// <returns>The JSON string</returns>
-        public string Serialize(Character character)
+        public string Serialize(Character character, bool markDead = false)
         {
             var saveData = new CharacterSaveData
             {
@@ -45,7 +45,8 @@ namespace RPGGame.Entity.Services
                 Head = character.Equipment.Head,
                 Body = character.Equipment.Body,
                 Weapon = character.Equipment.Weapon,
-                Feet = character.Equipment.Feet
+                Feet = character.Equipment.Feet,
+                IsDead = markDead
             };
 
             var options = new JsonSerializerOptions

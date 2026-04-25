@@ -176,15 +176,23 @@ namespace RPGGame
 
         private void LoadModifications()
         {
+            Modifications = new List<Modification>();
             string? filePath = JsonLoader.FindGameDataFile("Modifications.json");
             if (filePath != null)
             {
-                Modifications = JsonLoader.LoadJsonList<Modification>(filePath) ?? new List<Modification>();
+                var core = JsonLoader.LoadJsonList<Modification>(filePath) ?? new List<Modification>();
+                Modifications.AddRange(core);
             }
             else
             {
                 UIManager.WriteLine("Error loading modifications: Modifications.json not found", UIMessageType.System);
-                Modifications = new List<Modification>();
+            }
+
+            string? prefixExtra = JsonLoader.FindGameDataFile("PrefixMaterialQuality.json");
+            if (prefixExtra != null)
+            {
+                var extra = JsonLoader.LoadJsonList<Modification>(prefixExtra) ?? new List<Modification>();
+                Modifications.AddRange(extra);
             }
         }
 

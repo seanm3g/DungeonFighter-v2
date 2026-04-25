@@ -25,6 +25,7 @@ namespace RPGGame.Tests.Unit.Data
             TestHeroBaseStats_ActionSpeedActionDamageHeaders(ref testsRun, ref testsPassed, ref testsFailed);
             TestHeroBaseStats_PrefixedHeroModColumnLabels(ref testsRun, ref testsPassed, ref testsFailed);
             TestEnemyAndHeroBaseStats_SeparateNextActionMods(ref testsRun, ref testsPassed, ref testsFailed);
+            TestTagsColumn_IngestsAndConverts(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("SpreadsheetActionDataSheetRowSerializer Tests", testsRun, testsPassed, testsFailed);
         }
@@ -273,6 +274,28 @@ namespace RPGGame.Tests.Unit.Data
             var outRow = SpreadsheetActionDataSheetRowSerializer.ToRow(parsed, header);
             TestBase.AssertEqual("1", outRow[1], "push enemy speed", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual("10", outRow[5], "push hero speed", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        /// <summary>Row-2 <c>TAGS</c> must ingest into <see cref="SpreadsheetActionData.Tags"/> and merge into runtime <see cref="ActionData.Tags"/>.</summary>
+        private static void TestTagsColumn_IngestsAndConverts(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestTagsColumn_IngestsAndConverts));
+            var labelRow = new[] { "ACTION", "DESCRIPTION", "RARITY", "CATEGORY", "DPS(%)", "TAGS" };
+            var (header, _) = SpreadsheetActionParser.BuildHeaderFromSheetRows(new List<string[]> { labelRow });
+            TestBase.AssertTrue(header != null, "header parsed", ref testsRun, ref testsPassed, ref testsFailed);
+            if (header == null) return;
+
+            var dataRow = new[] { "ZAP", "hits", "C", "Attack", "10%", "hazard, environment" };
+            var parsed = SpreadsheetActionData.FromCsvRow(dataRow, header);
+            TestBase.AssertEqual("hazard, environment", parsed.Tags, "spreadsheet Tags cell", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var action = SpreadsheetToActionDataConverter.Convert(parsed);
+            var tags = action.Tags;
+            TestBase.AssertTrue(tags != null && tags.Contains("hazard", StringComparer.OrdinalIgnoreCase)
+                && tags.Contains("environment", StringComparer.OrdinalIgnoreCase),
+                "converted action has tag tokens from TAGS column", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(tags != null && tags.Contains("attack", StringComparer.OrdinalIgnoreCase),
+                "category still merged into tags", ref testsRun, ref testsPassed, ref testsFailed);
         }
     }
 }

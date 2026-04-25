@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia;
@@ -13,18 +14,21 @@ using RPGGame.Utils;
 namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 {
     /// <summary>
-    /// Wires Import (Balance Tuning) panel: Google Sheets URLs, Resync, and Push.
+    /// Wires Import (Balance Tuning) panel: Google Sheets URLs, PULL from Sheets, and Push.
     /// </summary>
     public class BalanceTuningPanelHandler : ISettingsPanelHandler
     {
         private readonly CanvasUICoordinator? canvasUI;
+        private readonly global::System.Action? onSheetsPullCompleted;
         private TextBoxTestRunner? sheetsRunner;
 
         public string PanelType => "BalanceTuning";
 
-        public BalanceTuningPanelHandler(CanvasUICoordinator? canvasUI)
+        /// <param name="onSheetsPullCompleted">Invoked on the UI thread after a successful PULL so lazy-loaded tabs (Enemies, Items, etc.) reload from disk.</param>
+        public BalanceTuningPanelHandler(CanvasUICoordinator? canvasUI, global::System.Action? onSheetsPullCompleted = null)
         {
             this.canvasUI = canvasUI;
+            this.onSheetsPullCompleted = onSheetsPullCompleted;
         }
 
         public void WireUp(UserControl panel)
@@ -69,6 +73,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.EnvironmentsSheetUrl, out string vg) ? vg : "");
             SetText(balancePanel, "ClassPresentationTabGidTextBox",
                 GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.ClassPresentationSheetUrl, out string cg) ? cg : "");
+
+            LoadPushTabCheckboxes(balancePanel);
         }
 
         public void SaveSettings(UserControl panel)
@@ -77,6 +83,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 return;
             if (!TrySaveSheetsUrlsFromPanel(balancePanel, logErrors: true))
                 ScrollDebugLogger.Log("BalanceTuningPanel: Sheets URLs were not saved due to validation.");
+            TrySavePushTabSelectionsFromPanel(balancePanel);
         }
 
         private static void SetText(BalanceTuningSettingsPanel panel, string textBoxName, string value)
@@ -179,12 +186,14 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
             try
             {
-                sheetsRunner.AppendOutput("=== Resync from Google Sheets ===\n");
+                sheetsRunner.AppendOutput("=== PULL from Google Sheets ===\n");
                 if (!TrySaveSheetsUrlsFromPanel(panel, logErrors: false))
                 {
                     sheetsRunner.AppendOutput("✗ Invalid URL or tab gid (see tooltips / documentation).\n\n");
                     return;
                 }
+
+                TrySavePushTabSelectionsFromPanel(panel);
 
                 var cfg = SheetsConfig.Load();
                 if (string.IsNullOrWhiteSpace(cfg.ActionsSheetUrl)
@@ -206,11 +215,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 sheetsRunner.AppendOutput("Fetching from configured CSV URLs…\n");
                 var statusTextBlock = panel.FindControl<TextBlock>("SheetsSyncProgressTextBlock");
                 if (statusTextBlock != null)
-                    statusTextBlock.Text = "Resyncing…";
+                    statusTextBlock.Text = "Pulling…";
 
                 await GameDataSheetsPullService.PullAllFromSheetsConfigAsync().ConfigureAwait(true);
 
-                sheetsRunner.AppendOutput("✓ Pull steps completed.\n");
+                sheetsRunner.AppendOutput("✓ Pull steps completed (loot, enemies, rooms reloaded for this session).\n");
                 if (!string.IsNullOrWhiteSpace(cfg.ActionsSheetUrl))
                 {
                     // Must clear JsonLoader cache for Actions.json; LoadActions() alone would keep stale data after a pull.
@@ -219,9 +228,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     sheetsRunner.AppendOutput($"✓ Actions reloaded ({actionCount} loaded).\n");
                 }
 
-                sheetsRunner.AppendOutput("=== Resync complete ===\n\n");
+                if (onSheetsPullCompleted != null)
+                    Dispatcher.UIThread.Post(onSheetsPullCompleted, DispatcherPriority.Normal);
+
+                sheetsRunner.AppendOutput("=== Pull complete ===\n\n");
                 if (statusTextBlock != null)
-                    statusTextBlock.Text = "Resync complete";
+                    statusTextBlock.Text = "Pull complete";
             }
             catch (Exception ex)
             {
@@ -254,6 +266,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             }
 
             TrySaveSheetsUrlsFromPanel(panel, logErrors: false);
+            TrySavePushTabSelectionsFromPanel(panel);
 
             var game = canvasUI?.GetGame();
             var settingsWindow = TopLevel.GetTopLevel(panel) as SettingsWindow;
@@ -299,6 +312,58 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 if (settingsWindow != null)
                     settingsWindow.SuppressEscapeClose = false;
             }
+        }
+
+        private static void LoadPushTabCheckboxes(BalanceTuningSettingsPanel panel)
+        {
+            string? path = GameConstants.TryGetExistingGameDataFilePath("SheetsPushConfig.json");
+            SheetsPushConfig pushCfg;
+            if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                pushCfg = SheetsPushConfig.Load(path);
+            else
+                pushCfg = new SheetsPushConfig();
+
+            SetPushCheckbox(panel, "PushActionsTabCheckBox", pushCfg.PushActionsTab);
+            SetPushCheckbox(panel, "PushWeaponsTabCheckBox", pushCfg.PushWeaponsTab);
+            SetPushCheckbox(panel, "PushModificationsTabCheckBox", pushCfg.PushModificationsTab);
+            SetPushCheckbox(panel, "PushArmorTabCheckBox", pushCfg.PushArmorTab);
+            SetPushCheckbox(panel, "PushStatBonusesTabCheckBox", pushCfg.PushStatBonusesTab);
+            SetPushCheckbox(panel, "PushEnemiesTabCheckBox", pushCfg.PushEnemiesTab);
+            SetPushCheckbox(panel, "PushEnvironmentsTabCheckBox", pushCfg.PushEnvironmentsTab);
+            SetPushCheckbox(panel, "PushDungeonsTabCheckBox", pushCfg.PushDungeonsTab);
+            SetPushCheckbox(panel, "PushClassPresentationTabCheckBox", pushCfg.PushClassPresentationTab);
+        }
+
+        private static void TrySavePushTabSelectionsFromPanel(BalanceTuningSettingsPanel panel)
+        {
+            string? path = GameConstants.TryGetExistingGameDataFilePath("SheetsPushConfig.json");
+            if (string.IsNullOrEmpty(path) || !File.Exists(path))
+                return;
+
+            var pushCfg = SheetsPushConfig.Load(path);
+            pushCfg.PushActionsTab = ReadPushCheckbox(panel, "PushActionsTabCheckBox", defaultIfNull: true);
+            pushCfg.PushWeaponsTab = ReadPushCheckbox(panel, "PushWeaponsTabCheckBox", defaultIfNull: true);
+            pushCfg.PushModificationsTab = ReadPushCheckbox(panel, "PushModificationsTabCheckBox", defaultIfNull: true);
+            pushCfg.PushArmorTab = ReadPushCheckbox(panel, "PushArmorTabCheckBox", defaultIfNull: true);
+            pushCfg.PushStatBonusesTab = ReadPushCheckbox(panel, "PushStatBonusesTabCheckBox", defaultIfNull: true);
+            pushCfg.PushEnemiesTab = ReadPushCheckbox(panel, "PushEnemiesTabCheckBox", defaultIfNull: true);
+            pushCfg.PushEnvironmentsTab = ReadPushCheckbox(panel, "PushEnvironmentsTabCheckBox", defaultIfNull: true);
+            pushCfg.PushDungeonsTab = ReadPushCheckbox(panel, "PushDungeonsTabCheckBox", defaultIfNull: true);
+            pushCfg.PushClassPresentationTab = ReadPushCheckbox(panel, "PushClassPresentationTabCheckBox", defaultIfNull: true);
+            pushCfg.Save(path);
+        }
+
+        private static void SetPushCheckbox(BalanceTuningSettingsPanel panel, string checkBoxName, bool isChecked)
+        {
+            var box = panel.FindControl<CheckBox>(checkBoxName);
+            if (box != null)
+                box.IsChecked = isChecked;
+        }
+
+        private static bool ReadPushCheckbox(BalanceTuningSettingsPanel panel, string checkBoxName, bool defaultIfNull)
+        {
+            var box = panel.FindControl<CheckBox>(checkBoxName);
+            return box?.IsChecked ?? defaultIfNull;
         }
     }
 }

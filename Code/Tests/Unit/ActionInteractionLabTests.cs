@@ -643,6 +643,10 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(ActionLabGearCatalogFilter.ArmorMatchesClassFilter(aLow, null), "armor class filter null", ref run, ref passed, ref failed);
             TestBase.AssertTrue(ActionLabGearCatalogFilter.ArmorMatchesClassFilter(aLow, "Cloth"), "armor class cloth", ref run, ref passed, ref failed);
             TestBase.AssertTrue(!ActionLabGearCatalogFilter.ArmorMatchesClassFilter(aLow, "Iron"), "armor class not iron", ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.ItemMatchesTierFilter(3, null), "tier filter null matches", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ActionLabGearCatalogFilter.ItemMatchesTierFilter(3, 3), "tier filter exact", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!ActionLabGearCatalogFilter.ItemMatchesTierFilter(2, 3), "tier filter mismatch", ref run, ref passed, ref failed);
         }
 
         private static void ClearLabGear_UnequipsSlot(ref int run, ref int passed, ref int failed)

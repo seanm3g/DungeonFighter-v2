@@ -146,6 +146,7 @@ namespace RPGGame
                                     {
                                         stateManager.CurrentPlayer.Heal(healthRestored);
                                     }
+                                    stateManager.CurrentPlayer.ClearAllTempEffects();
                                 }
                                 
                                 if (customUIManager is CanvasUICoordinator canvasUIExit && stateManager.CurrentPlayer != null)
@@ -185,6 +186,9 @@ namespace RPGGame
                 
                 // Dungeon completed successfully
                 var (xpGained, lootReceived, levelUpInfos, itemsFoundDuringRun) = await rewardManager.CompleteDungeon();
+
+                if (stateManager.CurrentPlayer != null)
+                    stateManager.CurrentPlayer.ClearAllTempEffects();
                 
                 // Transition to completion state
                 stateManager.TransitionToState(GameState.DungeonCompletion);

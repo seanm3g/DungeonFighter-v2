@@ -67,6 +67,21 @@ namespace RPGGame.UI.Avalonia.Managers
             }
         }
 
+        /// <summary>After external file reload (e.g. spreadsheet PULL), refresh this tab if it was already opened.</summary>
+        public void RefreshFromFileIfLoaded()
+        {
+            if (panel == null)
+                return;
+            try
+            {
+                LoadItemsData(panel);
+            }
+            catch (Exception ex)
+            {
+                showStatusMessage?.Invoke($"Error refreshing items tab: {ex.Message}", false);
+            }
+        }
+
         private void OnItemSelected(object? sender, ItemViewModel? item)
         {
             selectedItem = item;
@@ -105,7 +120,8 @@ namespace RPGGame.UI.Avalonia.Managers
                 BaseDamage = selectedItem.BaseDamage,
                 AttackSpeed = selectedItem.AttackSpeed,
                 Armor = selectedItem.Armor,
-                IsWeapon = selectedItem.IsWeapon
+                IsWeapon = selectedItem.IsWeapon,
+                Tags = ItemsDataCoordinator.TagsEditTextFromSummary(selectedItem.TagsSummary)
             };
             
             // Populate available weapon types
@@ -152,7 +168,11 @@ namespace RPGGame.UI.Avalonia.Managers
                         selectedItem.BaseDamage = viewModel.BaseDamage;
                         selectedItem.AttackSpeed = viewModel.AttackSpeed;
                         selectedItem.Armor = viewModel.Armor;
-                        
+                        var parsedTags = GameDataTagHelper.ParseCommaSeparatedTags(viewModel.Tags);
+                        selectedItem.TagsSummary = ItemsDataCoordinator.FormatTagsSummaryForItemsSettings(parsedTags);
+
+                        List<string>? tagsForJson = parsedTags.Count == 0 ? null : parsedTags;
+
                         // Update original data if it exists
                         if (selectedItem.IsWeapon && originalWeapons.TryGetValue(oldName, out var originalWeapon))
                         {
@@ -167,7 +187,8 @@ namespace RPGGame.UI.Avalonia.Managers
                                     Name = viewModel.Name,
                                     Tier = viewModel.Tier,
                                     BaseDamage = viewModel.BaseDamage,
-                                    AttackSpeed = viewModel.AttackSpeed
+                                    AttackSpeed = viewModel.AttackSpeed,
+                                    Tags = tagsForJson
                                 };
                             }
                             else
@@ -176,6 +197,7 @@ namespace RPGGame.UI.Avalonia.Managers
                                 originalWeapon.Tier = viewModel.Tier;
                                 originalWeapon.BaseDamage = viewModel.BaseDamage;
                                 originalWeapon.AttackSpeed = viewModel.AttackSpeed;
+                                originalWeapon.Tags = tagsForJson;
                             }
                         }
                         else if (!selectedItem.IsWeapon && originalArmor.TryGetValue(oldName, out var originalArmorItem))
@@ -190,7 +212,8 @@ namespace RPGGame.UI.Avalonia.Managers
                                     Slot = viewModel.Slot,
                                     Name = viewModel.Name,
                                     Tier = viewModel.Tier,
-                                    Armor = viewModel.Armor
+                                    Armor = viewModel.Armor,
+                                    Tags = tagsForJson
                                 };
                             }
                             else
@@ -198,6 +221,7 @@ namespace RPGGame.UI.Avalonia.Managers
                                 originalArmorItem.Slot = viewModel.Slot;
                                 originalArmorItem.Tier = viewModel.Tier;
                                 originalArmorItem.Armor = viewModel.Armor;
+                                originalArmorItem.Tags = tagsForJson;
                             }
                         }
                         

@@ -7,13 +7,16 @@ using RPGGame.Utils;
 namespace RPGGame
 {
     /// <summary>
-    /// Loads starting gear from StartingGear.json (primary) or TuningConfig.json (fallback).
-    /// Extracted from GameInitializer for testability and single responsibility.
+    /// Loads legacy starting armor slots from StartingGear.json (primary) or TuningConfig.json (fallback)
+    /// when <c>Armor.json</c> has no <c>starter</c>-tagged rows (<see cref="StarterCatalogItems.LoadStarterArmorItems"/>).
+    /// Starter weapons are not loaded here — the menu uses all <c>starter</c>-tagged rows in <c>Weapons.json</c> when present
+    /// (<see cref="StarterCatalogItems.ResolveStarterWeaponMenuCatalogRows"/>).
     /// </summary>
     public static class StartingGearLoader
     {
         /// <summary>
-        /// Loads starting gear data from StartingGear.json (primary) or TuningConfig.json (fallback).
+        /// Loads fallback starting armor from StartingGear.json (primary) or TuningConfig.json when the catalog has no <c>starter</c> armor.
+        /// The returned <see cref="StartingGearData.weapons"/> list is always empty.
         /// </summary>
         public static StartingGearData Load()
         {
@@ -32,46 +35,8 @@ namespace RPGGame
                             PropertyNameCaseInsensitive = true
                         });
 
-                        if (gearData != null && gearData.ContainsKey("weapons"))
+                        if (gearData != null)
                         {
-                            var weaponsArray = gearData["weapons"];
-                            int weaponIndex = 0;
-                            foreach (var weaponElement in weaponsArray.EnumerateArray())
-                            {
-                                var weaponName = weaponElement.TryGetProperty("name", out var nameProp) ? nameProp.GetString() ?? "" : "";
-                                var weaponDamage = weaponElement.TryGetProperty("damage", out var damageProp) ? damageProp.GetDouble() : 0.0;
-                                var weaponSpeed = weaponElement.TryGetProperty("attackSpeed", out var speedProp) ? speedProp.GetDouble() : 1.0;
-                                var weaponWeight = weaponElement.TryGetProperty("weight", out var weightProp) ? weightProp.GetDouble() : 0.0;
-
-                                if (string.IsNullOrWhiteSpace(weaponName))
-                                {
-                                    weaponIndex++;
-                                    continue;
-                                }
-
-                                var weaponScaling = GameConfiguration.Instance.WeaponScaling;
-                                double originalDamage = weaponDamage;
-                                if (weaponScaling != null && weaponDamage > 0 && weaponScaling.GlobalDamageMultiplier > 0)
-                                    weaponDamage = weaponDamage * weaponScaling.GlobalDamageMultiplier;
-
-                                double finalDamage = weaponDamage;
-                                if (finalDamage <= 0 && originalDamage > 0)
-                                    finalDamage = originalDamage;
-
-                                if (originalDamage > 0)
-                                {
-                                    var weapon = new StartingWeapon
-                                    {
-                                        name = weaponName,
-                                        damage = finalDamage > 0 ? finalDamage : originalDamage,
-                                        attackSpeed = weaponSpeed,
-                                        weight = weaponWeight
-                                    };
-                                    startingGear.weapons.Add(weapon);
-                                }
-                                weaponIndex++;
-                            }
-
                             if (gearData.ContainsKey("armor"))
                             {
                                 var armorArray = gearData["armor"];
@@ -89,8 +54,7 @@ namespace RPGGame
                                 }
                             }
 
-                            if (startingGear.weapons.Count > 0)
-                                return startingGear;
+                            return startingGear;
                         }
                     }
                     catch (Exception ex)
@@ -100,27 +64,6 @@ namespace RPGGame
                 }
 
                 var config = GameConfiguration.Instance.StartingGear;
-                if (config?.Weapons != null)
-                {
-                    foreach (var weaponConfig in config.Weapons)
-                    {
-                        if (string.IsNullOrWhiteSpace(weaponConfig.Name) || weaponConfig.Damage <= 0)
-                            continue;
-
-                        var weapon = new StartingWeapon
-                        {
-                            name = weaponConfig.Name ?? "",
-                            damage = weaponConfig.Damage,
-                            attackSpeed = weaponConfig.AttackSpeed,
-                            weight = weaponConfig.Weight
-                        };
-                        var weaponScaling = GameConfiguration.Instance.WeaponScaling;
-                        if (weaponScaling != null && weaponScaling.GlobalDamageMultiplier > 0)
-                            weapon.damage = weapon.damage * weaponScaling.GlobalDamageMultiplier;
-                        startingGear.weapons.Add(weapon);
-                    }
-                }
-
                 if (config?.Armor != null)
                 {
                     foreach (var armorConfig in config.Armor)

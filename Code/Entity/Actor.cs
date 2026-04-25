@@ -94,7 +94,7 @@ namespace RPGGame
             ActionPool = new List<(Action, double)>();
         }
 
-        public void AddAction(Action action, double probability)
+        public virtual void AddAction(Action action, double probability)
         {
             if (probability < 0 || probability > 1)
                 throw new ArgumentException("Probability must be between 0 and 1", nameof(probability));
@@ -109,7 +109,7 @@ namespace RPGGame
         /// Used when an item has the same action multiple times (e.g., ARCANE ECHO appearing twice).
         /// Each duplicate will have a unique ComboOrder to distinguish it.
         /// </summary>
-        public void AddActionAllowDuplicates(Action action, double probability)
+        public virtual void AddActionAllowDuplicates(Action action, double probability)
         {
             if (probability < 0 || probability > 1)
                 throw new ArgumentException("Probability must be between 0 and 1", nameof(probability));
@@ -384,6 +384,49 @@ namespace RPGGame
             
             // Clear damage reduction
             DamageReduction = 0.0;
+
+            HasCriticalMissPenalty = false;
+            CriticalMissPenaltyTurns = 0;
+
+            VulnerabilityStacks = null;
+            VulnerabilityTurns = 0;
+            HardenStacks = null;
+            HardenTurns = 0;
+            FortifyStacks = null;
+            FortifyTurns = 0;
+            FortifyArmorBonus = null;
+            FocusStacks = null;
+            FocusTurns = 0;
+            ExposeStacks = null;
+            ExposeTurns = 0;
+            ExposeArmorReduction = null;
+            HPRegenStacks = null;
+            HPRegenTurns = 0;
+            HPRegenAmount = null;
+            ArmorBreakStacks = null;
+            ArmorBreakTurns = 0;
+            ArmorBreakReduction = null;
+            HasPierce = false;
+            PierceTurns = 0;
+            ReflectStacks = null;
+            ReflectTurns = 0;
+            ReflectPercentage = null;
+            IsSilenced = false;
+            SilenceTurns = 0;
+            StatDrainStacks = null;
+            StatDrainTurns = 0;
+            StatDrainAmount = null;
+            HasAbsorb = false;
+            AbsorbTurns = 0;
+            AbsorbThreshold = 0;
+            AbsorbedDamage = 0;
+            TemporaryHP = null;
+            TemporaryHPTurns = 0;
+            IsConfused = false;
+            ConfusionTurns = 0;
+            ConfusionChance = 0.0;
+            IsMarked = false;
+            MarkTurns = 0;
         }
 
         public abstract string GetDescription();

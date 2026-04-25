@@ -57,7 +57,7 @@
         </Grid.ColumnDefinitions>
 
         <!-- Middle: Filter and Actions List with its own scroll -->
-        <Grid Grid.Column="0" VerticalAlignment="Stretch" RowDefinitions="Auto,*">
+        <Grid Grid.Column="0" VerticalAlignment="Stretch" RowDefinitions="Auto,*,Auto">
             <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,8">
                 <TextBlock Text="Filter by type" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,4"/>
                 <ComboBox x:Name="RarityFilterComboBox"
@@ -93,6 +93,17 @@
                      Foreground="White"
                      VerticalAlignment="Stretch"
                      MinHeight="0"/>
+            <StackPanel Grid.Row="2" Margin="0,8,0,0" Spacing="4">
+                <TextBlock Text="Selected action — runtime tags"
+                           FontWeight="SemiBold"
+                           Foreground="White"
+                           FontSize="12"/>
+                <TextBlock x:Name="SelectedActionTagsPreviewTextBlock"
+                           Text="Select an action to see runtime tags."
+                           FontSize="11"
+                           Foreground="#FFCCCCCC"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
         </Grid>
 
         <!-- Right: Action form with its own scroll -->

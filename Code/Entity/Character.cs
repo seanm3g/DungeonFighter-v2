@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -418,7 +419,7 @@ namespace RPGGame
         public override string GetDescription() => Facade.GetDescription();
         public override string ToString() => base.ToString();
         public void DisplayCharacterInfo() => Facade.DisplayCharacterInfo();
-        public void SaveCharacter(string? characterId = null, string? filename = null) => Facade.SaveCharacter(characterId, filename);
+        public void SaveCharacter(string? characterId = null, string? filename = null, bool markDead = false) => Facade.SaveCharacter(characterId, filename, markDead);
         public static async Task<Character?> LoadCharacterAsync(string? characterId = null, string? filename = null) => await CharacterFacade.LoadCharacterAsync(characterId, filename).ConfigureAwait(false);
         public static void DeleteSaveFile(string? filename = null) => CharacterFacade.DeleteSaveFile(filename);
         
@@ -441,6 +442,24 @@ namespace RPGGame
         public void RecordOneShotKill() => SessionStats.RecordOneShotKill();
         public void EndTurn() => SessionStats.EndTurn();
         public string GetDefeatSummary() => SessionStats.GetDefeatSummary();
+
+        /// <summary>
+        /// Heroes and enemies must not carry room/environment hazard actions; those belong on <see cref="Environment"/> only.
+        /// </summary>
+        public override void AddAction(Action action, double probability)
+        {
+            if (action == null || GameDataTagHelper.HasEnvironmentTag(action.Tags))
+                return;
+            base.AddAction(action, probability);
+        }
+
+        /// <inheritdoc cref="AddAction"/>
+        public override void AddActionAllowDuplicates(Action action, double probability)
+        {
+            if (action == null || GameDataTagHelper.HasEnvironmentTag(action.Tags))
+                return;
+            base.AddActionAllowDuplicates(action, probability);
+        }
     }
 }
 

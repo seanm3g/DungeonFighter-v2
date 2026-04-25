@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -27,6 +28,8 @@ namespace RPGGame
             {
                 weapon.AttributeRequirements = new AttributeRequirements(weaponData.AttributeRequirements);
             }
+
+            weapon.Tags = GameDataTagHelper.NormalizeDistinct(weaponData.Tags);
             
             return weapon;
         }
@@ -51,6 +54,8 @@ namespace RPGGame
             {
                 item.AttributeRequirements = new AttributeRequirements(armorData.AttributeRequirements);
             }
+
+            item.Tags = GameDataTagHelper.NormalizeDistinct(armorData.Tags);
             
             return item;
         }
@@ -99,17 +104,25 @@ namespace RPGGame
             // Do NOT add rarity prefix - rarity should only come from item.Rarity property
             // and be displayed separately in brackets, not as part of the name
             
-            // Add modification names as prefixes (like "Balanced", "Sharp", etc.)
-            foreach (var modification in item.Modifications)
+            // Prefix slots: Quality, then Adjective, then Material (see ItemPrefixHelper)
+            foreach (var modification in ItemPrefixHelper.OrderedPrefixModifications(item.Modifications))
             {
                 if (!string.IsNullOrEmpty(modification.Name))
-                {
-                    nameParts.Add(modification.Name);
-                }
+                    nameParts.Add(modification.Name.Trim());
             }
-            
+
             // Add base name
             nameParts.Add(baseName);
+
+            // Modification names used as suffixes ("of …")
+            foreach (var modification in item.Modifications)
+            {
+                if (!string.IsNullOrEmpty(modification.Name) &&
+                    modification.Name.TrimStart().StartsWith("of ", StringComparison.OrdinalIgnoreCase))
+                {
+                    nameParts.Add(modification.Name.Trim());
+                }
+            }
             
             // Add stat bonus names as suffixes (these are typically "of Protection", "of Swiftness", etc.)
             foreach (var statBonus in item.StatBonuses)
@@ -136,20 +149,80 @@ namespace RPGGame
         private static string GetBaseItemName(Item item)
         {
             // Remove any existing prefixes/suffixes to get the base name
-            string name = item.Name;
-            
-            // Remove common prefixes
-            string[] prefixes = { "Legendary", "Epic", "Rare", "Uncommon", "Common" };
-            foreach (string prefix in prefixes)
+            string name = item.Name ?? "";
+
+            // Remove legacy rarity-as-prefix in saved names (rarity is a separate property now)
+            string[] rarityPrefixes = { "Legendary", "Epic", "Rare", "Uncommon", "Common" };
+            foreach (string prefix in rarityPrefixes)
             {
-                if (name.StartsWith(prefix + " "))
+                if (name.StartsWith(prefix + " ", StringComparison.OrdinalIgnoreCase))
                 {
                     name = name.Substring(prefix.Length + 1);
                     break;
                 }
             }
-            
-            return name;
+
+            // Strip leading prefix-slot words (Quality / Adjective / Material) so re-building the name
+            // does not concatenate them twice when item.Name already includes rolled prefixes.
+            if (item.Modifications != null && item.Modifications.Count > 0)
+            {
+                bool changed = true;
+                while (changed && !string.IsNullOrWhiteSpace(name))
+                {
+                    changed = false;
+                    foreach (var m in ItemPrefixHelper.OrderedPrefixModifications(item.Modifications))
+                    {
+                        if (m == null || string.IsNullOrWhiteSpace(m.Name))
+                            continue;
+                        if (m.Name.TrimStart().StartsWith("of ", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        string token = m.Name.Trim();
+                        if (name.StartsWith(token + " ", StringComparison.OrdinalIgnoreCase))
+                        {
+                            name = name.Substring(token.Length).TrimStart();
+                            changed = true;
+                            break;
+                        }
+
+                        if (name.Equals(token, StringComparison.OrdinalIgnoreCase))
+                        {
+                            name = "";
+                            changed = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Strip known suffix tokens from the end (stat bonuses and "of …" modification names)
+            if (item.StatBonuses != null)
+            {
+                foreach (var sb in item.StatBonuses.OrderByDescending(s => (s.Name ?? "").Length))
+                {
+                    if (string.IsNullOrEmpty(sb.Name)) continue;
+                    string suffix = sb.Name.Trim();
+                    if (name.EndsWith(" " + suffix, StringComparison.OrdinalIgnoreCase))
+                        name = name[..^(suffix.Length + 1)].TrimEnd();
+                    else if (name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase) && name.Length == suffix.Length)
+                        name = "";
+                }
+            }
+
+            if (item.Modifications != null)
+            {
+                foreach (var m in item.Modifications
+                             .Where(m => m != null && !string.IsNullOrEmpty(m.Name) &&
+                                         m.Name.TrimStart().StartsWith("of ", StringComparison.OrdinalIgnoreCase))
+                             .OrderByDescending(m => m.Name.Length))
+                {
+                    string suffix = m.Name.Trim();
+                    if (name.EndsWith(" " + suffix, StringComparison.OrdinalIgnoreCase))
+                        name = name[..^(suffix.Length + 1)].TrimEnd();
+                }
+            }
+
+            return name.Trim();
         }
 
         /// <summary>

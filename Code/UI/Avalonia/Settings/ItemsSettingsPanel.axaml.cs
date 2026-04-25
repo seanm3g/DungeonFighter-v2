@@ -82,6 +82,9 @@ namespace RPGGame.UI.Avalonia.Settings
         // Armor properties
         private int _armor = 0;
 
+        /// <summary>Display line for list rows: comma-separated tags or em dash when none.</summary>
+        private string _tagsSummary = "—";
+
         public string Name
         {
             get => _name;
@@ -134,7 +137,14 @@ namespace RPGGame.UI.Avalonia.Settings
         public bool IsWeapon
         {
             get => _isWeapon;
-            set { _isWeapon = value; OnPropertyChanged(); }
+            set
+            {
+                if (_isWeapon == value)
+                    return;
+                _isWeapon = value;
+                OnPropertyChanged();
+                UpdateDetails();
+            }
         }
 
         public int BaseDamage
@@ -167,6 +177,12 @@ namespace RPGGame.UI.Avalonia.Settings
             set { _armor = value; UpdateDetails(); OnPropertyChanged(); }
         }
 
+        public string TagsSummary
+        {
+            get => _tagsSummary;
+            set { _tagsSummary = value; OnPropertyChanged(); }
+        }
+
         public string BackgroundColor => IsSelected ? "#FFE3F2FD" : "White";
 
         public ObservableCollection<int> AvailableTiers { get; set; } = new ObservableCollection<int> { 1, 2, 3, 4, 5 };
@@ -175,15 +191,11 @@ namespace RPGGame.UI.Avalonia.Settings
         {
             if (IsWeapon)
             {
-                Details = $"Damage: {BaseDamage}, Speed: {AttackSpeed:F1}";
+                Details = $"Damage: {BaseDamage}  Speed: {AttackSpeed:F2}×";
                 if (HitCount > 0)
-                {
-                    Details += $", Hits: {HitCount}";
-                }
+                    Details += $"  Hits: {HitCount}";
                 if (!string.IsNullOrEmpty(Effect) && Effect != "none")
-                {
-                    Details += $", Effect: {Effect}";
-                }
+                    Details += $"  Effect: {Effect}";
             }
             else
             {

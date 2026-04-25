@@ -26,11 +26,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         private readonly ActionsTabManager? actionsTabManager;
         private readonly ItemModifiersTabManager? itemModifiersTabManager;
         private readonly ItemsTabManager? itemsTabManager;
+        private readonly EnemiesTabManager? enemiesTabManager;
         private readonly Action<string, bool>? showStatusMessage;
         private readonly GetPanelForCategoryResolver getPanelForCategory;
 
         /// <summary>Category tags that use ISettingsPanelHandler for save. Add new handler-based panels here so the orchestrator saves them without code change.</summary>
-        private static readonly string[] HandlerSaveCategoryTags = { "TextDelays", "Appearance", "BalanceTuning", "Classes" };
+        private static readonly string[] HandlerSaveCategoryTags = { "TextDelays", "Appearance", "BalanceTuning", "Classes", "ItemGeneration" };
 
         public SettingsSaveOrchestrator(
             SettingsManager? settingsManager,
@@ -39,6 +40,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             ActionsTabManager? actionsTabManager,
             ItemModifiersTabManager? itemModifiersTabManager,
             ItemsTabManager? itemsTabManager,
+            EnemiesTabManager? enemiesTabManager,
             Action<string, bool>? showStatusMessage,
             GetPanelForCategoryResolver getPanelForCategory)
         {
@@ -48,6 +50,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             this.actionsTabManager = actionsTabManager;
             this.itemModifiersTabManager = itemModifiersTabManager;
             this.itemsTabManager = itemsTabManager;
+            this.enemiesTabManager = enemiesTabManager;
             this.showStatusMessage = showStatusMessage;
             this.getPanelForCategory = getPanelForCategory ?? ((_, __) => null);
         }
@@ -140,6 +143,19 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     catch (Exception ex)
                     {
                         ScrollDebugLogger.Log($"SettingsPanel: Error saving items: {ex.Message}");
+                    }
+                }
+
+                if (enemiesTabManager != null)
+                {
+                    try
+                    {
+                        if (getPanelForCategory("Enemies", currentlyDisplayedPanel) is EnemiesSettingsPanel)
+                            enemiesTabManager.SaveEnemies();
+                    }
+                    catch (Exception ex)
+                    {
+                        ScrollDebugLogger.Log($"SettingsPanel: Error saving enemies: {ex.Message}");
                     }
                 }
 

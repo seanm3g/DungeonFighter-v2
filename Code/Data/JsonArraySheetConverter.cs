@@ -24,14 +24,22 @@ namespace RPGGame.Data
 
     public static class JsonArraySheetConverter
     {
+        /// <summary>
+        /// Preferred column order for the weapons sheet / <c>Weapons.json</c> round-trip.
+        /// <c>dps</c> and <c>balance</c> are sheet-only balancing helpers and are dropped when importing CSV → JSON.
+        /// Runtime fields use JSON keys <c>baseDamage</c> (whole number) and <c>attackSpeed</c> (fractional allowed;
+        /// 1 = baseline swing spacing, &gt;1 slower, &lt;1 faster in combat).
+        /// </summary>
         public static readonly string[] WeaponsCanonicalHeaders =
-            { "type", "name", "baseDamage", "attackSpeed", "tier", "attributeRequirements" };
+        {
+            "type", "name", "dps", "balance", "baseDamage", "attackSpeed", "tier", "attributeRequirements", "tags", "Compelled Action"
+        };
 
         public static readonly string[] ModificationsCanonicalHeaders =
             { "DiceResult", "ItemRank", "Name", "Description", "Effect", "MinValue", "MaxValue" };
 
         public static readonly string[] ArmorCanonicalHeaders =
-            { "slot", "name", "armor", "tier", "attributeRequirements" };
+            { "slot", "name", "armor", "tier", "attributeRequirements", "tags" };
 
         /// <summary>
         /// Column order for ENEMIES tab — nested stats are one column each (<c>baseAttributes.strength</c>, …).
@@ -44,7 +52,7 @@ namespace RPGGame.Data
             "baseAttributes.strength", "baseAttributes.agility", "baseAttributes.technique", "baseAttributes.intelligence",
             "growthPerLevel.strength", "growthPerLevel.agility", "growthPerLevel.technique", "growthPerLevel.intelligence",
             "baseHealth", "healthGrowthPerLevel",
-            "actions", "isLiving", "description", "colorOverride"
+            "actions", "isLiving", "description", "colorOverride", "tags"
         };
 
         private static readonly string[] EnemyNestedObjectNames = { "overrides", "baseAttributes", "growthPerLevel" };
@@ -267,14 +275,35 @@ namespace RPGGame.Data
         /// <summary>Legacy sheet <c>overrides.health</c> (merged object) is folded into HP fields, then the object is removed.</summary>
         private static void PromoteLegacyEnemyOverridesAndRemove(JsonObject obj)
         {
-            if (!obj.TryGetPropertyValue("overrides", out var onode) || onode is not JsonObject ov)
+            if (!obj.TryGetPropertyValue("overrides", out var onode) || onode is null)
                 return;
 
-            if (ov.TryGetPropertyValue("health", out var hn) && hn is JsonValue hv && hv.TryGetValue<double>(out var healthMul))
+            JsonObject? ov = onode as JsonObject;
+            if (ov is null && onode is JsonValue jvStr && jvStr.TryGetValue<string>(out var raw) && !string.IsNullOrWhiteSpace(raw))
             {
-                if (obj.TryGetPropertyValue("baseHealth", out var bh) && bh is JsonValue bjv && bjv.TryGetValue<double>(out var b0))
+                var t = raw.Trim();
+                if (t.Length >= 2 && t[0] == '{')
+                {
+                    try
+                    {
+                        if (JsonNode.Parse(t) is JsonObject parsed)
+                            ov = parsed;
+                    }
+                    catch
+                    {
+                        // leave ov null
+                    }
+                }
+            }
+
+            if (ov is null)
+                return;
+
+            if (ov.TryGetPropertyValue("health", out var hn) && hn != null && TryGetWeaponNumericFromJsonNode(hn, out var healthMul))
+            {
+                if (obj.TryGetPropertyValue("baseHealth", out var bh) && bh != null && TryGetWeaponNumericFromJsonNode(bh, out var b0))
                     obj["baseHealth"] = JsonValue.Create(b0 * healthMul);
-                else if (obj.TryGetPropertyValue("healthGrowthPerLevel", out var gh) && gh is JsonValue gjv && gjv.TryGetValue<double>(out var g0))
+                else if (obj.TryGetPropertyValue("healthGrowthPerLevel", out var gh) && gh != null && TryGetWeaponNumericFromJsonNode(gh, out var g0))
                     obj["healthGrowthPerLevel"] = JsonValue.Create(g0 * healthMul);
             }
 
@@ -389,7 +418,8 @@ namespace RPGGame.Data
                 var obj = new JsonObject();
                 for (int i = 0; i < headerRow.Length; i++)
                 {
-                    string header = headerRow[i]?.Trim() ?? "";
+                    // Google / Excel CSV exports may prefix the file with U+FEFF, which lands on the first header cell.
+                    string header = (headerRow[i] ?? "").Trim().TrimStart('\uFEFF');
                     if (header.Length == 0)
                         continue;
                     string cell = i < cells.Length ? cells[i] ?? "" : "";
@@ -406,6 +436,10 @@ namespace RPGGame.Data
                 else if (kind == GameDataTabularSheetKind.Dungeons)
                 {
                     NormalizeDungeonsJsonArrayRow(obj);
+                }
+                else if (kind == GameDataTabularSheetKind.Weapons)
+                {
+                    NormalizeWeaponsJsonArrayRow(obj);
                 }
 
                 arr.Add(obj);
@@ -497,6 +531,8 @@ namespace RPGGame.Data
 
         private static string CombineEnemyImportHeaderCell(string category, string subHeader)
         {
+            category = category.Trim().TrimStart('\uFEFF');
+            subHeader = subHeader.Trim().TrimStart('\uFEFF');
             if (subHeader.Length == 0)
                 return "";
 
@@ -670,6 +706,16 @@ namespace RPGGame.Data
         /// </summary>
         private static void NormalizeEnemyJsonArrayRow(JsonObject obj)
         {
+            NormalizeEnemyActionsFromSheet(obj);
+            NormalizeEnemyTagsFromSheet(obj);
+        }
+
+        /// <summary>
+        /// When <c>actions</c> is a plain string (not JSON), treat <c>|</c> as delimiter so sheet authors can write
+        /// <c>JAB|TAUNT</c> instead of a JSON array.
+        /// </summary>
+        private static void NormalizeEnemyActionsFromSheet(JsonObject obj)
+        {
             if (!obj.TryGetPropertyValue("actions", out var node) || node is null)
                 return;
 
@@ -684,6 +730,63 @@ namespace RPGGame.Data
             foreach (var p in parts)
                 arr.Add(p);
             obj["actions"] = arr;
+        }
+
+        /// <summary>
+        /// Sheet <c>tags</c> may be a JSON array, a single token, or comma / semicolon / pipe lists (same as in-game settings).
+        /// Coerce to a canonical lowercase <c>tags</c> JSON array so <see cref="EnemyData.Tags"/> deserializes reliably.
+        /// </summary>
+        private static void NormalizeEnemyTagsFromSheet(JsonObject obj)
+        {
+            string? tagsKey = null;
+            foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+            {
+                if (string.Equals(key, "tags", StringComparison.OrdinalIgnoreCase))
+                {
+                    tagsKey = key;
+                    break;
+                }
+            }
+
+            if (tagsKey is null)
+                return;
+
+            if (!obj.TryGetPropertyValue(tagsKey, out var node) || node is null || IsJsonNodeNullOrMissing(node))
+            {
+                obj.Remove(tagsKey);
+                return;
+            }
+
+            List<string> normalized;
+            if (node is JsonArray arr)
+            {
+                var raw = new List<string>();
+                foreach (var item in arr)
+                {
+                    if (item is JsonValue jv && jv.TryGetValue<string>(out var s) && !string.IsNullOrWhiteSpace(s))
+                        raw.Add(s);
+                }
+
+                normalized = GameDataTagHelper.NormalizeDistinct(raw);
+            }
+            else if (node is JsonValue jv && jv.TryGetValue<string>(out var cell) && !string.IsNullOrWhiteSpace(cell))
+                normalized = GameDataTagHelper.ParseCommaSeparatedTags(cell);
+            else
+            {
+                obj.Remove(tagsKey);
+                return;
+            }
+
+            if (!string.Equals(tagsKey, "tags", StringComparison.Ordinal))
+                obj.Remove(tagsKey);
+
+            if (normalized.Count == 0)
+                return;
+
+            var outArr = new JsonArray();
+            foreach (var t in normalized)
+                outArr.Add(t);
+            obj["tags"] = outArr;
         }
 
         /// <summary>
@@ -706,6 +809,102 @@ namespace RPGGame.Data
             foreach (var p in parts)
                 arr.Add(p);
             obj["possibleEnemies"] = arr;
+        }
+
+        /// <summary>
+        /// Removes sheet-only columns (<c>dps</c>, <c>balance</c>) and normalizes combat stats to canonical JSON keys
+        /// <c>baseDamage</c> (integer, ≥ 1) and <c>attackSpeed</c> (number).
+        /// </summary>
+        private static void NormalizeWeaponsJsonArrayRow(JsonObject obj)
+        {
+            RemoveWeaponJsonKeyIgnoreCase(obj, "dps");
+            RemoveWeaponJsonKeyIgnoreCase(obj, "balance");
+
+            CanonicalizeWeaponField(obj, "baseDamage", preferWholeNumber: true);
+            CanonicalizeWeaponField(obj, "attackSpeed", preferWholeNumber: false);
+        }
+
+        private static void RemoveWeaponJsonKeyIgnoreCase(JsonObject obj, string logicalName)
+        {
+            foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+            {
+                if (string.Equals(key, logicalName, StringComparison.OrdinalIgnoreCase))
+                    obj.Remove(key);
+            }
+        }
+
+        /// <summary>Renames matching keys to <paramref name="canonicalKey"/> (camelCase) and coerces values for runtime.</summary>
+        private static void CanonicalizeWeaponField(JsonObject obj, string canonicalKey, bool preferWholeNumber)
+        {
+            string? foundKey = null;
+            foreach (var key in obj.Select(kvp => kvp.Key))
+            {
+                if (string.Equals(key, canonicalKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    foundKey = key;
+                    break;
+                }
+            }
+
+            if (foundKey is null)
+                return;
+
+            if (!obj.TryGetPropertyValue(foundKey, out var node) || node is null || IsJsonNodeNullOrMissing(node))
+            {
+                if (!string.Equals(foundKey, canonicalKey, StringComparison.Ordinal))
+                    obj.Remove(foundKey);
+                return;
+            }
+
+            JsonNode? coerced = preferWholeNumber ? CoerceWeaponBaseDamageJson(node) : CoerceWeaponAttackSpeedJson(node);
+            if (!string.Equals(foundKey, canonicalKey, StringComparison.Ordinal))
+                obj.Remove(foundKey);
+
+            if (coerced is null || IsJsonNodeNullOrMissing(coerced))
+                obj.Remove(canonicalKey);
+            else
+                obj[canonicalKey] = coerced;
+        }
+
+        private static JsonNode? CoerceWeaponBaseDamageJson(JsonNode node)
+        {
+            if (!TryGetWeaponNumericFromJsonNode(node, out double d))
+                return null;
+            int rounded = (int)Math.Max(1, Math.Round(d, MidpointRounding.AwayFromZero));
+            return JsonValue.Create(rounded);
+        }
+
+        private static JsonNode? CoerceWeaponAttackSpeedJson(JsonNode node)
+        {
+            if (!TryGetWeaponNumericFromJsonNode(node, out double d))
+                return null;
+            if (double.IsNaN(d) || double.IsInfinity(d) || d <= 0)
+                return null;
+            return JsonValue.Create(d);
+        }
+
+        private static bool TryGetWeaponNumericFromJsonNode(JsonNode node, out double value)
+        {
+            value = 0;
+            if (node is not JsonValue jv)
+                return false;
+
+            if (jv.TryGetValue<double>(out value))
+                return true;
+            if (jv.TryGetValue<long>(out var l))
+            {
+                value = l;
+                return true;
+            }
+
+            if (jv.TryGetValue<string>(out var s) && !string.IsNullOrWhiteSpace(s))
+            {
+                s = s.Trim().TrimEnd('%');
+                return double.TryParse(s, System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out value);
+            }
+
+            return false;
         }
     }
 }

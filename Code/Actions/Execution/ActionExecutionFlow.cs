@@ -127,18 +127,24 @@ namespace RPGGame.Actions.Execution
             Dictionary<Actor, bool> lastCriticalMissStatus,
             Action? forcedAction)
         {
+            // Reset before combo vs normal selection so <see cref="ActionSelector"/> does not read stale
+            // <see cref="Combat.ThresholdManager"/> state left by the previous attack's ApplyThresholdOverrides.
+            var thresholdManager = RollModificationManager.GetThresholdManager();
+            thresholdManager.ResetThresholds(source);
+            if (target != null)
+                thresholdManager.ResetThresholds(target);
+
+            if (source is Character intMilestoneCharacter)
+            {
+                IntelligenceMilestoneThresholdBonuses.Apply(thresholdManager, intMilestoneCharacter);
+            }
+
             result.SelectedAction = forcedAction ?? ActionSelector.SelectActionByEntityType(source);
             if (result.SelectedAction == null) return;
             lastUsedActions[source] = result.SelectedAction;
             result.BaseRoll = ActionSelector.GetActionRoll(source);
             if (source is Character character && !(character is Enemy) && forcedAction == null)
                 result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
-
-            // Baseline thresholds for this roll only (prevents one-shot ACTION/ATTACK/ABILITY bonuses and action RollMods from stacking across attacks).
-            var thresholdManager = RollModificationManager.GetThresholdManager();
-            thresholdManager.ResetThresholds(source);
-            if (target != null)
-                thresholdManager.ResetThresholds(target);
 
             // Roll and threshold bonuses: ATTACK (consumed per roll), ACTION (FIFO per hero/enemy attack roll + legacy per-slot), ABILITY (consumed on hit)
             int actionBonusAccumulator = 0, actionBonusHit = 0, actionBonusCombo = 0, actionBonusCrit = 0, actionBonusCritMiss = 0;
@@ -396,15 +402,28 @@ namespace RPGGame.Actions.Execution
                 int hitLayers = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(selected, source);
                 if (hitLayers < 1) hitLayers = 1;
 
-                if (source is Character heroAcc && !(heroAcc is Enemy) && selected.Advanced.RollBonus != 0)
+                if (selected.Advanced.RollBonus != 0)
                 {
                     int scaledRollBonus = selected.Advanced.RollBonus * hitLayers;
-                    for (int t = 0; t < accTurns; t++)
+                    if (source is Character heroAcc && !(heroAcc is Enemy))
                     {
-                        heroAcc.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
+                        for (int t = 0; t < accTurns; t++)
                         {
-                            new ActionAttackBonusItem { Type = "ACCURACY", Value = scaledRollBonus }
-                        });
+                            heroAcc.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
+                            {
+                                new ActionAttackBonusItem { Type = "ACCURACY", Value = scaledRollBonus }
+                            });
+                        }
+                    }
+                    else if (source is Enemy enemyAcc)
+                    {
+                        for (int t = 0; t < accTurns; t++)
+                        {
+                            enemyAcc.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
+                            {
+                                new ActionAttackBonusItem { Type = "ACCURACY", Value = scaledRollBonus }
+                            });
+                        }
                     }
                 }
 

@@ -55,6 +55,18 @@ namespace RPGGame.Data.Validation
                     $"Unknown weapon type '{weapon.Type}'. Valid types: {string.Join(", ", ValidationRules.Weapons.ValidTypes)}");
             }
 
+            if (weapon.Tags != null)
+            {
+                foreach (var t in weapon.Tags)
+                {
+                    if (string.IsNullOrWhiteSpace(t))
+                    {
+                        result.AddWarning(FileName, entityName, "tags", "tags list contains an empty entry");
+                        break;
+                    }
+                }
+            }
+
             // Range checks
             if (!ValidationRules.IsInRange(weapon.BaseDamage, ValidationRules.Weapons.MinBaseDamage, ValidationRules.Weapons.MaxBaseDamage))
             {

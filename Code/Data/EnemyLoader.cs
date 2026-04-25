@@ -4,9 +4,40 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using RPGGame.Data;
 
 namespace RPGGame
 {
+    /// <summary>
+    /// Accepts <c>null</c>, a JSON string (single tag or comma/semicolon/pipe-separated), or a JSON array of strings
+    /// so <c>Enemies.json</c> stays compatible with hand edits and sheet exports that emit a scalar cell.
+    /// </summary>
+    public sealed class EnemyTagsJsonConverter : JsonConverter<List<string>?>
+    {
+        public override List<string>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            switch (reader.TokenType)
+            {
+                case JsonTokenType.Null:
+                    return null;
+                case JsonTokenType.String:
+                    return GameDataTagHelper.ParseCommaSeparatedTags(reader.GetString());
+                case JsonTokenType.StartArray:
+                    return JsonSerializer.Deserialize<List<string>>(ref reader, options);
+                default:
+                    throw new JsonException($"Cannot convert {reader.TokenType} to enemy tags (expected null, string, or array of strings).");
+            }
+        }
+
+        public override void Write(Utf8JsonWriter writer, List<string>? value, JsonSerializerOptions options)
+        {
+            if (value == null)
+                writer.WriteNullValue();
+            else
+                JsonSerializer.Serialize(writer, value, options);
+        }
+    }
+
     public class EnemyData
     {
         [JsonPropertyName("name")]
@@ -43,6 +74,11 @@ namespace RPGGame
         public string Description { get; set; } = "";
         [JsonPropertyName("colorOverride")]
         public ColorOverride? ColorOverride { get; set; }
+
+        /// <summary>Optional multi-value tags from <c>Enemies.json</c> / ENEMIES sheet (JSON array, e.g. <c>["undead","boss"]</c>).</summary>
+        [JsonPropertyName("tags")]
+        [JsonConverter(typeof(EnemyTagsJsonConverter))]
+        public List<string>? Tags { get; set; }
 
         /// <summary>
         /// Captures JSON root properties that are not mapped to typed fields (historical <c>strength</c>, <c>agility</c>, … on enemies).
@@ -129,7 +165,8 @@ namespace RPGGame
                 {
                     string jsonContent = File.ReadAllText(foundPath);
 
-                    var enemyList = JsonSerializer.Deserialize<List<EnemyData>>(jsonContent);
+                    var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var enemyList = JsonSerializer.Deserialize<List<EnemyData>>(jsonContent, jsonOptions);
 
                     _enemies = new Dictionary<string, EnemyData>();
                     if (enemyList != null)

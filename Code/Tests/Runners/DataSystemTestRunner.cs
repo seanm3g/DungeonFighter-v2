@@ -31,6 +31,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             JsonArraySheetConverterTests.RunAllTests();
             Console.WriteLine();
+            GameDataTagHelperTests.RunAllTests();
+            Console.WriteLine();
             ClassPresentationSheetConverterTests.RunAllTests();
             Console.WriteLine();
             GoogleSheetsUrlHelperTests.RunAllTests();
@@ -45,7 +47,15 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ItemGeneratorTests.RunAllTests();
             Console.WriteLine();
+            WeaponTypeFromCatalogTests.RunAllTests();
+            Console.WriteLine();
+            StarterCatalogItemsTests.RunAllTests();
+            Console.WriteLine();
             LootBonusApplierTests.RunAllTests();
+            Console.WriteLine();
+            ItemPrefixHelperTests.RunAllTests();
+            Console.WriteLine();
+            ItemGenerationLabServiceTests.RunAllTests();
             Console.WriteLine();
             LootDataCacheTests.RunAllTests();
             Console.WriteLine();

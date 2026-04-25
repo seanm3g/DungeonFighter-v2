@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Items
@@ -234,6 +235,11 @@ namespace RPGGame.Tests.Unit.Items
             var starterItem = new Item(ItemType.Weapon, "Starter Sword", 1);
             TestBase.AssertTrue(starterItem.IsStarterItem,
                 "Item with 'Starter' in name should be starter item",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var tagged = new Item(ItemType.Weapon, "Rusty Blade", 1) { Tags = new List<string> { "starter" } };
+            TestBase.AssertTrue(tagged.IsStarterItem,
+                "Item with starter tag should be starter item",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

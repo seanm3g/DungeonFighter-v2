@@ -61,6 +61,7 @@ namespace RPGGame.UI.Avalonia.Settings
         private double _attackSpeed = 0.0;
         private int _armor = 0;
         private bool _isWeapon = true;
+        private string _tags = "";
 
         public string DialogTitle => IsWeapon ? "Edit Weapon" : "Edit Armor";
 
@@ -104,6 +105,13 @@ namespace RPGGame.UI.Avalonia.Settings
         {
             get => _armor;
             set { _armor = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>Comma-separated tags (same convention as Actions settings).</summary>
+        public string Tags
+        {
+            get => _tags;
+            set { _tags = value; OnPropertyChanged(); }
         }
 
         public bool IsWeapon

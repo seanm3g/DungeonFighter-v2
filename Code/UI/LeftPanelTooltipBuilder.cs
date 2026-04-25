@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using RPGGame.Actions.RollModification;
+using RPGGame.Combat.Calculators;
 using RPGGame.Items.Helpers;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Layout;
@@ -296,14 +297,11 @@ namespace RPGGame
             addWrapped($"1) Base time × AGI curve: {baseAttackTime:F3}s × {speedMultiplier:F3} (eff. AGI {c.GetEffectiveAgility()}, clamped {agility}) → {agilityAdjustedTime:F3}s.");
             addWrapped("   AGI uses sqrt of normalized progress between tuning min/max agility; multipliers from tuning.");
 
-            double weaponSpeed = 1.0;
+            double weaponTimeMul = 1.0;
             if (c.Weapon is WeaponItem w)
-            {
-                weaponSpeed = w.BaseAttackSpeed;
-                weaponSpeed = Math.Max(0.1, Math.Min(2.0, weaponSpeed));
-            }
-            double weaponAdjustedTime = agilityAdjustedTime / weaponSpeed;
-            addWrapped($"2) ÷ weapon speed ({weaponSpeed:F2}): → {weaponAdjustedTime:F3}s.");
+                weaponTimeMul = SpeedCalculator.GetWeaponAttackTimeMultiplier(w);
+            double weaponAdjustedTime = agilityAdjustedTime * weaponTimeMul;
+            addWrapped($"2) × weapon time multiplier ({weaponTimeMul:F2}; 1=baseline, >1 slower): → {weaponAdjustedTime:F3}s.");
 
             double equipmentSpeedBonus = c.GetEquipmentAttackSpeedBonus();
             double afterEquip = Math.Max(0.001, weaponAdjustedTime - equipmentSpeedBonus);
@@ -326,7 +324,7 @@ namespace RPGGame
             double baseAmp = c.GetComboAmplifier();
             addWrapped("AMP (combo growth)");
             addWrapped($"Base multiplier per combo step: {baseAmp:F2}x (from TECH; matches panel).");
-            addWrapped("Damage on a given hit uses Pow(this base, that slot's combo exponent), so the total varies by position.");
+            addWrapped("Damage on a given hit uses Pow(this base, strip slot index): first slot 0 → 1.0×, second 1 → baseline, etc. (order matches your sequence, not opener/finisher labels alone).");
             if (c.GetComboActions().Count == 0)
                 addWrapped("No combo actions on the strip yet.");
         }
@@ -404,6 +402,10 @@ namespace RPGGame
 
             addWrapped(string.IsNullOrEmpty(item.Name) ? "(unnamed)" : item.Name);
             addWrapped($"Rarity: {item.Rarity}, tier {item.Tier}, level {item.Level}.");
+
+            var resolvedGearActions = c.Equipment.GetGearActions(item);
+            if (resolvedGearActions != null && resolvedGearActions.Count > 0)
+                addWrapped("Actions: " + string.Join(", ", resolvedGearActions));
 
             if (item is WeaponItem wi)
             {

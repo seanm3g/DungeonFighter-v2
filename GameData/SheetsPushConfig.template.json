@@ -11,5 +11,14 @@
   "classPresentationSheetTabName": "CLASSES",
   "oauthClientSecretsPath": "secrets/client_secret_desktop.json",
   "oauthTokenStorePath": "SheetsOAuthToken",
-  "previewRowCount": 5
+  "previewRowCount": 5,
+  "pushActionsTab": true,
+  "pushWeaponsTab": true,
+  "pushModificationsTab": true,
+  "pushArmorTab": true,
+  "pushStatBonusesTab": true,
+  "pushEnemiesTab": true,
+  "pushEnvironmentsTab": true,
+  "pushDungeonsTab": true,
+  "pushClassPresentationTab": true
 }

@@ -33,7 +33,15 @@ namespace RPGGame.UI.Avalonia.Layout
         }
 
         /// <summary>
-        /// Color for the roll-accuracy parenthetical from <see cref="FormatThresholdValueWithAccuracy"/>.
+        /// Signed delta in parentheses, e.g. <c> (-4)</c> or <c> (+1)</c>; empty when <paramref name="delta"/> is 0.
+        /// Used for dice threshold rows: displayed value minus configured baseline (queued shifts and stored
+        /// deltas combined). Negative = easier on the crit/combo/hit ladder.
+        /// </summary>
+        public static string FormatSignedDeltaSuffix(int delta) =>
+            delta == 0 ? "" : $" ({delta:+0;-0;0})";
+
+        /// <summary>
+        /// Color for combined threshold delta parenthetical (same sign sense as former roll-accuracy parens).
         /// Positive delta (e.g. penalty <c>(+2)</c>) is worse for the player → red; negative (<c>(-3)</c> bonus) → green.
         /// </summary>
         public static Color GetAccuracyDeltaParenColor(int delta)

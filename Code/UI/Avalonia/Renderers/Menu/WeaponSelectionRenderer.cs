@@ -102,44 +102,36 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             
             // Add spacing after title (as calculated in box height)
             currentY += titleSpacing;
-            
-            // Find max weapon display text length for centering
-            int maxLength = 0;
-            if (weapons != null)
-            {
-                foreach (var weapon in weapons)
-                {
-                    string weaponName = string.IsNullOrWhiteSpace(weapon.name) ? $"Weapon {weapons.IndexOf(weapon) + 1}" : weapon.name;
-                    string displayText = MenuOptionFormatter.Format(weapons.IndexOf(weapon) + 1, weaponName);
-                    if (displayText.Length > maxLength)
-                        maxLength = displayText.Length;
-                }
-            }
-            
-            // Weapon color scheme - different colors for visual variety
-            var weaponColors = new[]
-            {
-                AsciiArtAssets.Colors.Cyan,    // Mace
-                AsciiArtAssets.Colors.Yellow,  // Sword
-                AsciiArtAssets.Colors.Magenta, // Dagger
-                AsciiArtAssets.Colors.Purple   // Wand
-            };
-            
-            // Verify we have weapons to render
+
             if (weapons == null || weapons.Count == 0)
             {
                 canvas.AddText(contentX, currentY, "No weapons available", AsciiArtAssets.Colors.Red);
                 return currentY - y + 2;
             }
+
+            var previews = new List<WeaponItem>(weapons.Count);
+            for (int pi = 0; pi < weapons.Count; pi++)
+                previews.Add(GameInitializer.CreateStarterWeaponForMenuIndex(pi + 1));
+
+            // Find max weapon display text length for centering (actual item names from the starter pipeline)
+            int maxLength = 0;
+            for (int i = 0; i < weapons.Count; i++)
+            {
+                string weaponName = string.IsNullOrWhiteSpace(previews[i].Name) ? $"Weapon {i + 1}" : previews[i].Name;
+                string displayText = MenuOptionFormatter.Format(i + 1, weaponName);
+                if (displayText.Length > maxLength)
+                    maxLength = displayText.Length;
+            }
             
             // Render all weapons
             for (int i = 0; i < weapons.Count; i++)
             {
-                var weapon = weapons[i];
                 int weaponNum = i + 1; // First weapon (index 0) should be numbered [1]
+                WeaponItem preview = previews[i];
+                Color accent = WeaponMenuAccentColor(preview.WeaponType);
                 
                 // Ensure weapon name is not null or empty - use fallback if needed
-                string weaponName = string.IsNullOrWhiteSpace(weapon.name) ? $"Weapon {weaponNum}" : weapon.name;
+                string weaponName = string.IsNullOrWhiteSpace(preview.Name) ? $"Weapon {weaponNum}" : preview.Name;
                 
                 string displayText = MenuOptionFormatter.Format(weaponNum, weaponName);
                 
@@ -148,7 +140,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 
                 // Weapon icon/indicator
                 string weaponIcon = "◆"; // Decorative bullet
-                canvas.AddText(optionX - 2, currentY, weaponIcon, weaponColors[i % weaponColors.Length]);
+                canvas.AddText(optionX - 2, currentY, weaponIcon, accent);
                 
                 // Add clickable element (expanded to include icon)
                 var option = new ClickableElement
@@ -165,7 +157,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 interactionManager.AddClickableElement(option);
                 
                 // Display weapon option with color
-                Color weaponColor = option.IsHovered ? AsciiArtAssets.Colors.White : weaponColors[i % weaponColors.Length];
+                Color weaponColor = option.IsHovered ? AsciiArtAssets.Colors.White : accent;
                 
                 // Render menu option - render number first, then name
                 string numberText = $"[{weaponNum}]";
@@ -174,9 +166,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 canvas.AddText(nameX, currentY, weaponName ?? "", option.IsHovered ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White);
                 currentY++;
                 
-                // Weapon stats with better formatting
-                string damageText = $"Damage: {weapon.damage:F1}";
-                string speedText = $"Speed: {weapon.attackSpeed:F2}s";
+                // Weapon stats from the same pipeline as InitializeNewGame (starter-tagged menu rows + tuning)
+                string damageText = $"Damage: {preview.GetTotalDamage()}";
+                string speedText = $"Speed: {preview.GetTotalAttackSpeed():F2}×";
                 string separatorChar = "│";
                 string stats = $"  {damageText}  {separatorChar}  {speedText}";
                 int statsX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, stats.Length);
@@ -207,6 +199,15 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             
             return currentY - y + 2;
         }
+
+        private static Color WeaponMenuAccentColor(WeaponType weaponType) => weaponType switch
+        {
+            WeaponType.Mace => AsciiArtAssets.Colors.Cyan,
+            WeaponType.Sword => AsciiArtAssets.Colors.Yellow,
+            WeaponType.Dagger => AsciiArtAssets.Colors.Magenta,
+            WeaponType.Wand => AsciiArtAssets.Colors.Purple,
+            _ => AsciiArtAssets.Colors.Gray
+        };
     }
 }
 

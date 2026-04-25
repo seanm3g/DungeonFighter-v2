@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame.Combat.Effects;
-using RPGGame.UI.ColorSystem.Applications;
+using RPGGame.Combat.Formatting;
 
 namespace RPGGame
 {
@@ -122,8 +122,7 @@ namespace RPGGame
             {
                 int amount = action.BleedAmountToAdd > 0 ? action.BleedAmountToAdd : 1;
                 target.QueueBleedFromHit(amount);
-                string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{error|bleeding}}}}!");
+                StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "bleeding");
                 return true;
             }
             return false;
@@ -143,9 +142,7 @@ namespace RPGGame
             if (action.CausesWeaken)
             {
                 target.ApplyWeaken(2); // 2 turns of weaken
-                // Format with proper indentation and color markup (5 spaces to match roll info)
-                string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{weakened|weakened}}}}!");
+                StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "weakened");
                 return true;
             }
             return false;
@@ -175,9 +172,7 @@ namespace RPGGame
                     character.ApplySlow(speedReduction, duration);
                 }
                 
-                // Format with proper indentation and color markup (5 spaces to match roll info)
-                string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{slowed|slowed}}}}!");
+                StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "slowed");
                 return true;
             }
             return false;
@@ -197,8 +192,7 @@ namespace RPGGame
             {
                 double delta = action.PoisonPercentToAdd > 0 ? action.PoisonPercentToAdd : 1.0;
                 target.ApplyPoisonPercent(delta);
-                string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{poisoned|poisoned}}}}!");
+                StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "poisoned");
                 return true;
             }
             return false;
@@ -222,9 +216,7 @@ namespace RPGGame
                 // Use fallback defaults if config values are 0 (e.g., in tests or if config not loaded)
                 int skipTurns = stunConfig.SkipTurns > 0 ? stunConfig.SkipTurns : 1;
                 target.StunTurnsRemaining = skipTurns;
-                // Format with proper indentation and color markup (5 spaces to match roll info)
-                string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{stunned|stunned}}}}!");
+                StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "stunned");
                 return true;
             }
             return false;
@@ -244,8 +236,7 @@ namespace RPGGame
             {
                 int amount = action.BurnAmountToAdd > 0 ? action.BurnAmountToAdd : 1;
                 target.QueueBurnFromHit(amount);
-                string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{burning|burning}}}}!");
+                StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "burning");
                 return true;
             }
             return false;

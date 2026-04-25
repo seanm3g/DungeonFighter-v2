@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -38,7 +39,28 @@ namespace RPGGame
             if (gear is WeaponItem w)
                 EnsureRequiredWeaponBasicInActionNames(w.WeaponType, actions);
 
-            return actions;
+            return StripEnvironmentTaggedActionNames(actions);
+        }
+
+        /// <summary>
+        /// Drops action names that resolve to <c>environment</c>-tagged definitions so gear never grants room hazards.
+        /// </summary>
+        private static List<string> StripEnvironmentTaggedActionNames(List<string> names)
+        {
+            if (names.Count == 0)
+                return names;
+            ActionLoader.LoadActions();
+            var kept = new List<string>();
+            foreach (var n in names)
+            {
+                if (string.IsNullOrEmpty(n))
+                    continue;
+                var ad = ActionLoader.GetActionData(n);
+                if (ad != null && GameDataTagHelper.HasEnvironmentTag(ad.Tags))
+                    continue;
+                kept.Add(n);
+            }
+            return kept;
         }
 
         /// <summary>

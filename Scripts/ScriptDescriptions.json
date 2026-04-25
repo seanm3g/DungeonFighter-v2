@@ -13,6 +13,8 @@
   "count-documentation-lines.ps1": "Count lines in documentation files.",
   "count-gamedata-lines.ps1": "Count lines in game data files.",
   "count-ui-lines.ps1": "Count lines of UI-related code.",
+  "df.bat": "Single entrypoint wrapper for scripts (Windows).",
+  "df.ps1": "Single entrypoint for core scripts (build/run/test/clean/metrics/dist).",
   "DF.bat": "Run the game (Dungeon Fighter).",
   "diagnose-test-coverage.ps1": "Diagnose and report test coverage.",
   "fix-build-cache.bat": "Fix build cache (batch): clear NuGet cache and rebuild.",

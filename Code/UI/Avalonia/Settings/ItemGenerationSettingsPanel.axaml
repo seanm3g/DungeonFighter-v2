@@ -1,0 +1,335 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="RPGGame.UI.Avalonia.Settings.ItemGenerationSettingsPanel"
+             Background="Transparent">
+    <!-- Fluent theme hover targets PART_ContentPresenter with light brushes on this white panel; sync so buttons stay visible. -->
+    <UserControl.Styles>
+        <Style Selector="Button#GenerateButton">
+            <Setter Property="Background" Value="#FF0078D4"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#GenerateButton /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#FF0078D4"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#GenerateButton:pointerover">
+            <Setter Property="Background" Value="#FF2B94E8"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#GenerateButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#FF2B94E8"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#GenerateButton:pressed">
+            <Setter Property="Background" Value="#FF0A5590"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#GenerateButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#FF0A5590"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style Selector="Button#ClearButton">
+            <Setter Property="Background" Value="#FF555555"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#ClearButton /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#FF555555"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#ClearButton:pointerover">
+            <Setter Property="Background" Value="#FF6E6E6E"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#ClearButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#FF6E6E6E"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#ClearButton:pressed">
+            <Setter Property="Background" Value="#FF3D3D3D"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button#ClearButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#FF3D3D3D"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+    </UserControl.Styles>
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                 HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="20" Margin="20">
+            <Border Background="White"
+                    BorderBrush="#FF404040"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="18">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Item Generation Lab"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Foreground="Black"
+                               Margin="0,0,0,8"/>
+                    <TextBlock Text="Force-generate a batch of items with selected parameters, then rank them best→worst."
+                               FontSize="14"
+                               Foreground="#FF666666"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Border Background="White"
+                    BorderBrush="#FF404040"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="18">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Affix bounds by rarity (real loot + this lab)"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="Black"
+                               Margin="0,0,0,4"/>
+                    <TextBlock Text="Min = guaranteed affixes. Extra % = per-step chance to add one more while below Max (rolled once per step). Prefix = Quality/Adjective/Material slots (0–3). Stat sfx / Actions = bonus lines. Stored in TuningConfig.json (itemAffixByRarity). Use Save at the bottom of Settings to persist."
+                               FontSize="13"
+                               Foreground="#FF666666"
+                               TextWrapping="Wrap"/>
+                    <Grid ColumnDefinitions="120,56,56,56,56,56,56,56,56,56" Margin="0,4,0,0">
+                        <TextBlock Grid.Column="0" Text="Rarity" FontWeight="SemiBold" Foreground="#FF333333" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="Pfx min" FontWeight="SemiBold" Foreground="#FF333333" VerticalAlignment="Center" FontSize="11" ToolTip.Tip="Prefix slots min"/>
+                        <TextBlock Grid.Column="2" Text="Pfx %" FontWeight="SemiBold" Foreground="#FF333333" VerticalAlignment="Center" FontSize="11" ToolTip.Tip="Extra prefix chance 0–100"/>
+                        <TextBlock Grid.Column="3" Text="Pfx max" FontWeight="SemiBold" Foreground="#FF333333" VerticalAlignment="Center" FontSize="11" ToolTip.Tip="Prefix slots max (≤3)"/>
+                        <TextBlock Grid.Column="4" Text="St min" FontWeight="SemiBold" Foreground="#FF333333" VerticalAlignment="Center" FontSize="11"/>
+                        <TextBlock Grid.Column="5" Text="St %" FontWeight="SemiBold" Foreground="#FF333333" VerticalAlignment="Center" FontSize="11"/>
+                        <TextBlock Grid.Column="6" Text="St max" FontWeight="SemiBold" Foreground="#FF333333" VerticalAlignment="Center" FontSize="11"/>
+                        <TextBlock Grid.Column="7" Text="Ac min" FontWeight="SemiBold" Foreground="#FF333333" VerticalAlignment="Center" FontSize="11"/>
+                        <TextBlock Grid.Column="8" Text="Ac %" FontWeight="SemiBold" Foreground="#FF333333" VerticalAlignment="Center" FontSize="11"/>
+                        <TextBlock Grid.Column="9" Text="Ac max" FontWeight="SemiBold" Foreground="#FF333333" VerticalAlignment="Center" FontSize="11"/>
+                    </Grid>
+                    <StackPanel Spacing="6">
+                        <Grid ColumnDefinitions="120,56,56,56,56,56,56,56,56,56">
+                            <TextBlock Grid.Column="0" Text="Common" Foreground="#FF333333" VerticalAlignment="Center" FontSize="12"/>
+                            <TextBox Grid.Column="1" x:Name="AffixPrefixMinCommon" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
+                            <TextBox Grid.Column="2" x:Name="AffixPrefixChanceCommon" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="3" x:Name="AffixPrefixMaxCommon" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
+                            <TextBox Grid.Column="4" x:Name="AffixStatMinCommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="5" x:Name="AffixStatChanceCommon" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="6" x:Name="AffixStatMaxCommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="7" x:Name="AffixActionMinCommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="8" x:Name="AffixActionChanceCommon" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="9" x:Name="AffixActionMaxCommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="120,56,56,56,56,56,56,56,56,56">
+                            <TextBlock Grid.Column="0" Text="Uncommon" Foreground="#FF333333" VerticalAlignment="Center" FontSize="12"/>
+                            <TextBox Grid.Column="1" x:Name="AffixPrefixMinUncommon" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
+                            <TextBox Grid.Column="2" x:Name="AffixPrefixChanceUncommon" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="3" x:Name="AffixPrefixMaxUncommon" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
+                            <TextBox Grid.Column="4" x:Name="AffixStatMinUncommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="5" x:Name="AffixStatChanceUncommon" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="6" x:Name="AffixStatMaxUncommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="7" x:Name="AffixActionMinUncommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="8" x:Name="AffixActionChanceUncommon" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="9" x:Name="AffixActionMaxUncommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="120,56,56,56,56,56,56,56,56,56">
+                            <TextBlock Grid.Column="0" Text="Rare" Foreground="#FF333333" VerticalAlignment="Center" FontSize="12"/>
+                            <TextBox Grid.Column="1" x:Name="AffixPrefixMinRare" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
+                            <TextBox Grid.Column="2" x:Name="AffixPrefixChanceRare" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="3" x:Name="AffixPrefixMaxRare" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
+                            <TextBox Grid.Column="4" x:Name="AffixStatMinRare" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="5" x:Name="AffixStatChanceRare" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="6" x:Name="AffixStatMaxRare" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="7" x:Name="AffixActionMinRare" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="8" x:Name="AffixActionChanceRare" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="9" x:Name="AffixActionMaxRare" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="120,56,56,56,56,56,56,56,56,56">
+                            <TextBlock Grid.Column="0" Text="Epic" Foreground="#FF333333" VerticalAlignment="Center" FontSize="12"/>
+                            <TextBox Grid.Column="1" x:Name="AffixPrefixMinEpic" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
+                            <TextBox Grid.Column="2" x:Name="AffixPrefixChanceEpic" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="3" x:Name="AffixPrefixMaxEpic" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
+                            <TextBox Grid.Column="4" x:Name="AffixStatMinEpic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="5" x:Name="AffixStatChanceEpic" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="6" x:Name="AffixStatMaxEpic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="7" x:Name="AffixActionMinEpic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="8" x:Name="AffixActionChanceEpic" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="9" x:Name="AffixActionMaxEpic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="120,56,56,56,56,56,56,56,56,56">
+                            <TextBlock Grid.Column="0" Text="Legendary" Foreground="#FF333333" VerticalAlignment="Center" FontSize="12"/>
+                            <TextBox Grid.Column="1" x:Name="AffixPrefixMinLegendary" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
+                            <TextBox Grid.Column="2" x:Name="AffixPrefixChanceLegendary" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="3" x:Name="AffixPrefixMaxLegendary" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
+                            <TextBox Grid.Column="4" x:Name="AffixStatMinLegendary" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="5" x:Name="AffixStatChanceLegendary" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="6" x:Name="AffixStatMaxLegendary" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="7" x:Name="AffixActionMinLegendary" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="8" x:Name="AffixActionChanceLegendary" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="9" x:Name="AffixActionMaxLegendary" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="120,56,56,56,56,56,56,56,56,56">
+                            <TextBlock Grid.Column="0" Text="Mythic" Foreground="#FF333333" VerticalAlignment="Center" FontSize="12"/>
+                            <TextBox Grid.Column="1" x:Name="AffixPrefixMinMythic" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
+                            <TextBox Grid.Column="2" x:Name="AffixPrefixChanceMythic" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="3" x:Name="AffixPrefixMaxMythic" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
+                            <TextBox Grid.Column="4" x:Name="AffixStatMinMythic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="5" x:Name="AffixStatChanceMythic" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="6" x:Name="AffixStatMaxMythic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="7" x:Name="AffixActionMinMythic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="8" x:Name="AffixActionChanceMythic" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="9" x:Name="AffixActionMaxMythic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="120,56,56,56,56,56,56,56,56,56">
+                            <TextBlock Grid.Column="0" Text="Transcendent" Foreground="#FF333333" VerticalAlignment="Center" FontSize="12"/>
+                            <TextBox Grid.Column="1" x:Name="AffixPrefixMinTranscendent" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
+                            <TextBox Grid.Column="2" x:Name="AffixPrefixChanceTranscendent" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="3" x:Name="AffixPrefixMaxTranscendent" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
+                            <TextBox Grid.Column="4" x:Name="AffixStatMinTranscendent" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="5" x:Name="AffixStatChanceTranscendent" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="6" x:Name="AffixStatMaxTranscendent" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="7" x:Name="AffixActionMinTranscendent" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                            <TextBox Grid.Column="8" x:Name="AffixActionChanceTranscendent" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
+                            <TextBox Grid.Column="9" x:Name="AffixActionMaxTranscendent" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Background="White"
+                    BorderBrush="#FF404040"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="18">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Generation Parameters"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="Black"
+                               Margin="0,0,0,6"/>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,*,Auto,*"
+                          RowDefinitions="Auto,Auto">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Item type" Foreground="#FF333333" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="ItemTypeCombo" Grid.Row="0" Grid.Column="1" MinWidth="140" Margin="0,0,12,10"/>
+
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Rarity" Foreground="#FF333333" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="RarityCombo" Grid.Row="0" Grid.Column="3" MinWidth="160" Margin="0,0,12,10"/>
+
+                        <TextBlock Grid.Row="0" Grid.Column="4" Text="Tier" Foreground="#FF333333" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="TierCombo" Grid.Row="0" Grid.Column="5" MinWidth="120" Margin="0,0,0,10"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Weapon type" Foreground="#FF333333" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="WeaponTypeCombo" Grid.Row="1" Grid.Column="1" MinWidth="140" Margin="0,0,12,0"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Armor slot" Foreground="#FF333333" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="ArmorSlotCombo" Grid.Row="1" Grid.Column="3" MinWidth="160" Margin="0,0,12,0"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="4" Text="Count" Foreground="#FF333333" VerticalAlignment="Center"/>
+                        <TextBox x:Name="CountTextBox" Grid.Row="1" Grid.Column="5" MinWidth="120" Text="100"/>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Name="GenerateButton"
+                                Content="Generate"
+                                Width="120"
+                                Height="34"
+                                Background="#FF0078D4"
+                                Foreground="White"
+                                BorderThickness="0"
+                                CornerRadius="3"
+                                FontSize="13"
+                                Cursor="Hand"/>
+                        <Button x:Name="ClearButton"
+                                Content="Clear"
+                                Width="120"
+                                Height="34"
+                                Background="#FF555555"
+                                Foreground="White"
+                                BorderThickness="0"
+                                CornerRadius="3"
+                                FontSize="13"
+                                Cursor="Hand"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Grid ColumnDefinitions="2*,10,1*">
+                <Border Grid.Column="0"
+                        Background="White"
+                        BorderBrush="#FF404040"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="12">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Generated Items (best → worst)"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Foreground="Black"
+                                   Margin="0,0,0,4"/>
+
+                        <Border Background="#FF2A2A2A" CornerRadius="4" Padding="8">
+                            <Grid ColumnDefinitions="36,84,44,*,88,76,76">
+                                <TextBlock Grid.Column="0" Text="#" Foreground="White" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Rarity" Foreground="White" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="T" Foreground="White" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="3" Text="Name" Foreground="White" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="4" Text="Dmg/Arm" Foreground="White" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="5" Text="Speed" Foreground="White" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="6" Text="Affixes" Foreground="White" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <ListBox x:Name="ItemsListBox"
+                                 SelectionMode="Single"
+                                 Background="Transparent"
+                                 BorderThickness="0">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#FF2A2A2A"
+                                            CornerRadius="4"
+                                            Padding="8"
+                                            Margin="0,2">
+                                        <Grid ColumnDefinitions="36,84,44,*,88,76,76">
+                                            <TextBlock Grid.Column="0" Text="{Binding Index}" Foreground="White" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Rarity}" Foreground="White" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Tier}" Foreground="White" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding Name}" Foreground="White" TextTrimming="CharacterEllipsis" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding PrimaryStat}" Foreground="White" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="5" Text="{Binding SpeedText}" Foreground="White" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="6" Text="{Binding AffixesText}" Foreground="White" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2"
+                        Background="White"
+                        BorderBrush="#FF404040"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="12">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Selected Item"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Foreground="Black"/>
+                        <TextBlock x:Name="SelectedNameText"
+                                   Text="(none)"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   Foreground="Black"
+                                   TextWrapping="Wrap"/>
+                        <TextBlock x:Name="SelectedStatsText"
+                                   Text=""
+                                   FontSize="13"
+                                   Foreground="#FF333333"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
+

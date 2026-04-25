@@ -119,6 +119,7 @@ namespace RPGGame.Config
                 config.StatusEffects = patchConfig.StatusEffects;
                 config.ComboSystem = patchConfig.ComboSystem;
                 config.LootSystem = patchConfig.LootSystem;
+                config.ItemAffixByRarity = patchConfig.ItemAffixByRarity ?? new ItemAffixByRaritySettings();
                 config.DungeonScaling = patchConfig.DungeonScaling;
                 config.DungeonGeneration = patchConfig.DungeonGeneration;
                 config.ModificationRarity = patchConfig.ModificationRarity;

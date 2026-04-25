@@ -21,5 +21,6 @@
   "head": null,
   "body": null,
   "weapon": null,
-  "feet": null
+  "feet": null,
+  "isDead": false
 }

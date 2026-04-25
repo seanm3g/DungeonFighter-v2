@@ -22,7 +22,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             "Appearance",
             "ItemModifiers",
             "Items",
+            "ItemGeneration",
+            "Enemies",
             "BalanceTuning",
+            "ActionInteractionLab",
             "About"
         };
 
@@ -52,7 +55,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 ["Appearance"] = () => new AppearanceSettingsPanel(),
                 ["ItemModifiers"] = () => new ItemModifiersSettingsPanel(),
                 ["Items"] = () => new ItemsSettingsPanel(),
+                ["ItemGeneration"] = () => new ItemGenerationSettingsPanel(),
+                ["Enemies"] = () => new EnemiesSettingsPanel(),
                 ["BalanceTuning"] = () => new BalanceTuningSettingsPanel(),
+                ["ActionInteractionLab"] = () => new ActionInteractionLabSettingsPanel(),
                 ["About"] = () => new AboutSettingsPanel()
             };
     }

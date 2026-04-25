@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using RPGGame;
 using RPGGame.Tests;
 
@@ -35,6 +36,9 @@ namespace RPGGame.Tests.Unit.Config
             TestRarityScalingConfig();
             TestLootSystemConfig();
             TestLootSystemSanitizer();
+            TestItemAffixByRaritySettingsJson();
+            TestItemAffixExtraFieldsJson();
+            TestItemAffixRollAxis();
 
             TestBase.PrintSummary("ItemConfig Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -177,6 +181,103 @@ namespace RPGGame.Tests.Unit.Config
             TestBase.AssertNotNull(config.MagicFindScaling,
                 "MagicFindScaling should be initialized",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        #endregion
+
+        #region ItemAffixByRaritySettings Tests
+
+        private static void TestItemAffixByRaritySettingsJson()
+        {
+            Console.WriteLine("\n--- Testing ItemAffixByRarity JSON deserialization ---");
+
+            const string json = """
+{
+  "itemAffixByRarity": {
+    "perRarity": {
+      "Epic": { "prefixSlots": 2, "statSuffixes": 1, "actionBonuses": 0 }
+    }
+  }
+}
+""";
+
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var root = JsonSerializer.Deserialize<GameConfiguration>(json, options);
+
+            TestBase.AssertNotNull(root?.ItemAffixByRarity,
+                "ItemAffixByRarity should deserialize",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                root!.ItemAffixByRarity.TryGetForRarity("epic", out var entry),
+                "TryGetForRarity should match case-insensitively",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, entry.PrefixSlots,
+                "Epic prefixSlots",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, entry.StatSuffixes,
+                "Epic statSuffixes",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, entry.ActionBonuses,
+                "Epic actionBonuses",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestItemAffixExtraFieldsJson()
+        {
+            Console.WriteLine("\n--- Testing ItemAffix extra chance / max JSON ---");
+
+            const string json = """
+{
+  "itemAffixByRarity": {
+    "perRarity": {
+      "Rare": {
+        "prefixSlots": 1,
+        "prefixSlotsMax": 3,
+        "prefixExtraChance": 0.25,
+        "statSuffixes": 0,
+        "statSuffixesMax": 4,
+        "statSuffixExtraChance": 0.5,
+        "actionBonuses": 0,
+        "actionBonusesMax": 2,
+        "actionExtraChance": 0.1
+      }
+    }
+  }
+}
+""";
+
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var root = JsonSerializer.Deserialize<GameConfiguration>(json, options);
+
+            TestBase.AssertTrue(
+                root!.ItemAffixByRarity.TryGetForRarity("Rare", out var entry),
+                "TryGetForRarity Rare",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var rule = ItemAffixByRaritySettings.BuildRuleFromTuningEntry(entry!, null);
+            TestBase.AssertEqual(1, rule.PrefixMin, "prefix min", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(3, rule.PrefixMax, "prefix max", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0.25, rule.PrefixExtraChance, "prefix chance", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(4, rule.StatMax, "stat max", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, rule.ActionMax, "action max", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestItemAffixRollAxis()
+        {
+            Console.WriteLine("\n--- Testing ItemAffixByRaritySettings.RollAxis ---");
+
+            var rnd = new Random(123);
+            int a = ItemAffixByRaritySettings.RollAxis(rnd, 2, 2, 1.0);
+            TestBase.AssertEqual(2, a, "max<min clamp path: min 2 max 2 stays 2", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            int b = ItemAffixByRaritySettings.RollAxis(new Random(1), 3, 1, 1.0);
+            TestBase.AssertEqual(3, b, "when max below min, max clamps up to min", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            int c = ItemAffixByRaritySettings.RollAxis(new Random(99), 1, 5, 0);
+            TestBase.AssertEqual(1, c, "zero extra chance stays at min", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            int d = ItemAffixByRaritySettings.RollAxis(new Random(2), 0, 4, 1.0);
+            TestBase.AssertEqual(4, d, "100% chance fills to max", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

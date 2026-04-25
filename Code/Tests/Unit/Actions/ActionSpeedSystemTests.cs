@@ -30,6 +30,7 @@ namespace RPGGame.Tests.Unit.Actions
             TestGetNextEntityToAct();
             TestAdvanceEntityTurn();
             TestExecuteAction();
+            TestFastActorGetsMultipleActionsDuringSlowRecovery();
 
             TestBase.PrintSummary("ActionSpeedSystem Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -164,6 +165,61 @@ namespace RPGGame.Tests.Unit.Actions
             TestBase.AssertTrue(duration >= 0,
                 $"ExecuteAction should return non-negative duration, got {duration}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// After a slow action advances combat time, a faster actor's next swing must be scheduled from their
+        /// own prior readiness (multiple short recoveries fit inside one long recovery), not from global time.
+        /// </summary>
+        private static void TestFastActorGetsMultipleActionsDuringSlowRecovery()
+        {
+            Console.WriteLine("\n--- Testing fast actor multiple actions during slow recovery ---");
+
+            using (GameTicker.BeginIsolatedEncounterGameTime())
+            {
+                GameTicker.Instance.Reset();
+
+                var system = new ActionSpeedSystem();
+                // Names: "AliceSlow" before "BobFast" alphabetically so both start ready and Alice acts first.
+                var slowActor = TestDataBuilders.Character()
+                    .WithName("AliceSlow")
+                    .WithLevel(1)
+                    .Build();
+                var fastActor = TestDataBuilders.Enemy()
+                    .WithName("BobFast")
+                    .WithLevel(1)
+                    .Build();
+
+                system.AddEntity(slowActor, 1.0);
+                system.AddEntity(fastActor, 1.0);
+
+                var slowAction = TestDataBuilders.CreateMockAction("SlowSwing", ActionType.Attack);
+                slowAction.Length = 3.0;
+                var fastAction = TestDataBuilders.CreateMockAction("FastSwing", ActionType.Attack);
+                fastAction.Length = 1.0;
+
+                system.ExecuteAction(slowActor, slowAction, isCriticalMiss: false);
+
+                int fastActionsBeforeSlowSecond = 0;
+                const int maxSteps = 20;
+                for (int i = 0; i < maxSteps; i++)
+                {
+                    var next = system.GetNextEntityToAct();
+                    TestBase.AssertTrue(next != null, "Expected an actor to be ready", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    if (next == slowActor)
+                    {
+                        system.ExecuteAction(slowActor, slowAction, isCriticalMiss: false);
+                        break;
+                    }
+
+                    system.ExecuteAction(fastActor, fastAction, isCriticalMiss: false);
+                    fastActionsBeforeSlowSecond++;
+                }
+
+                TestBase.AssertTrue(fastActionsBeforeSlowSecond >= 2,
+                    $"Fast actor should act at least twice before the slow actor's second swing; got {fastActionsBeforeSlowSecond}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
         }
 
         #endregion

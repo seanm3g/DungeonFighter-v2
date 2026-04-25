@@ -33,10 +33,16 @@ namespace RPGGame.Entity.Services
         /// <summary>
         /// Saves a character to a JSON file
         /// </summary>
-        public void SaveCharacter(Character character, string? characterId = null, string? filename = null)
+        public void SaveCharacter(Character character, string? characterId = null, string? filename = null, bool markDead = false)
         {
             if (character == null)
                 throw new ArgumentNullException(nameof(character));
+
+            if (markDead && string.IsNullOrEmpty(filename))
+            {
+                PersistDeadCharacter(character, characterId);
+                return;
+            }
 
             string? errorMessage = null;
             try
@@ -46,7 +52,7 @@ namespace RPGGame.Entity.Services
                     throw new InvalidOperationException("Failed to resolve filename for character save");
 
                 string resolvedFilename = filename;
-                string json = serializer.Serialize(character);
+                string json = serializer.Serialize(character, markDead: false);
 
                 bool success = ErrorHandler.TryFileOperation(() =>
                 {
@@ -86,6 +92,52 @@ namespace RPGGame.Entity.Services
                 errorMessage = ex.Message;
                 errorReporter.ReportSaveError("Failed to save character", errorMessage, filename);
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Writes tombstone JSON (isDead) to <c>character_*_dead.json</c> or legacy dead filename, then removes the matching live save if present.
+        /// </summary>
+        private void PersistDeadCharacter(Character character, string? characterId)
+        {
+            string json = serializer.Serialize(character, markDead: true);
+            string deadPath;
+            string? livePath;
+            if (!string.IsNullOrEmpty(characterId))
+            {
+                deadPath = fileManager.GetCharacterDeadFilename(characterId);
+                livePath = fileManager.GetCharacterSaveFilename(characterId);
+            }
+            else
+            {
+                deadPath = fileManager.GetDefaultDeadSaveFilename();
+                livePath = fileManager.GetDefaultSaveFilename();
+            }
+
+            string? errorMessage = null;
+            bool success = ErrorHandler.TryFileOperation(() =>
+            {
+                fileManager.WriteAllText(deadPath, json);
+                if (livePath != null && fileManager.FileExists(livePath))
+                {
+                    try
+                    {
+                        string fullDead = Path.GetFullPath(deadPath);
+                        string fullLive = Path.GetFullPath(livePath);
+                        if (!string.Equals(fullDead, fullLive, StringComparison.OrdinalIgnoreCase))
+                            fileManager.DeleteFile(livePath);
+                    }
+                    catch (Exception delEx)
+                    {
+                        ScrollDebugLogger.LogAlways($"PersistDeadCharacter: could not remove live save {livePath}: {delEx.Message}");
+                    }
+                }
+            }, $"PersistDeadCharacter({deadPath})", () => { errorMessage = "Failed to write dead save"; });
+
+            if (!success)
+            {
+                errorReporter.ReportSaveError("Failed to save dead character", errorMessage ?? "unknown", deadPath);
+                throw new IOException(errorMessage ?? "Failed to save dead character");
             }
         }
 
@@ -135,6 +187,13 @@ namespace RPGGame.Entity.Services
                 {
                     DebugLogger.Log("CharacterSaveService", "LoadCharacterAsync: Deserialization returned null");
                     errorReporter.ReportLoadError("Failed to deserialize character data");
+                    return null;
+                }
+
+                if (saveData.IsDead)
+                {
+                    DebugLogger.Log("CharacterSaveService", "LoadCharacterAsync: Save is a dead character tombstone; not loadable");
+                    errorReporter.ReportLoadError("That adventurer has fallen and cannot be loaded.");
                     return null;
                 }
 
@@ -254,7 +313,9 @@ namespace RPGGame.Entity.Services
                         return (null, 0);
                     string fileJson = fileManager.ReadAllText(filename);
                     var fileSaveData = serializer.Deserialize(fileJson);
-                    return fileSaveData != null ? (fileSaveData.Name, fileSaveData.Level) : (null, 0);
+                    if (fileSaveData == null || fileSaveData.IsDead)
+                        return (null, 0);
+                    return (fileSaveData.Name, fileSaveData.Level);
                 }
 
                 var saveFilesWithTimes = GetSaveFilesWithTimestamps();
@@ -264,7 +325,9 @@ namespace RPGGame.Entity.Services
                 var mostRecent = saveFilesWithTimes.OrderByDescending(x => x.lastWriteTime).First().file;
                 string json = fileManager.ReadAllText(mostRecent);
                 var saveData = serializer.Deserialize(json);
-                return saveData != null ? (saveData.Name, saveData.Level) : (null, 0);
+                if (saveData == null || saveData.IsDead)
+                    return (null, 0);
+                return (saveData.Name, saveData.Level);
             }
             catch
             {
@@ -367,6 +430,39 @@ namespace RPGGame.Entity.Services
                         ScrollDebugLogger.LogAlways($"Error deleting save file {file}: {ex.Message}");
                     }
                 }
+                var directory = fileManager.GetGameDataDirectory();
+                if (!string.IsNullOrEmpty(directory) && Directory.Exists(directory))
+                {
+                    foreach (var deadFile in Directory.GetFiles(directory, "character_*_dead.json"))
+                    {
+                        try
+                        {
+                            fileManager.DeleteFile(deadFile);
+                            deletedCount++;
+                            ScrollDebugLogger.LogAlways($"Deleted dead save file: {deadFile}");
+                        }
+                        catch (Exception ex)
+                        {
+                            ScrollDebugLogger.LogAlways($"Error deleting dead save file {deadFile}: {ex.Message}");
+                        }
+                    }
+
+                    var legacyDead = fileManager.GetDefaultDeadSaveFilename();
+                    try
+                    {
+                        if (fileManager.FileExists(legacyDead))
+                        {
+                            fileManager.DeleteFile(legacyDead);
+                            deletedCount++;
+                            ScrollDebugLogger.LogAlways($"Deleted dead save file: {legacyDead}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ScrollDebugLogger.LogAlways($"Error deleting legacy dead save {legacyDead}: {ex.Message}");
+                    }
+                }
+
                 ScrollDebugLogger.LogAlways($"ClearAllSavedCharacters: Successfully deleted {deletedCount} save file(s)");
             }
             catch (Exception ex)

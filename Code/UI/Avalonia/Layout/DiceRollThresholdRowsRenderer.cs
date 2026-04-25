@@ -34,45 +34,53 @@ namespace RPGGame.UI.Avalonia.Layout
             // ACCURACY and sheet HIT/COMBO deltas shift thresholds (see ActionExecutionFlow). Mixing them caused
             // wildly negative HUD numbers (e.g. CAST +20 with a two-card strip).
             var pendingHud = actor is Character chHud ? ActionSelector.PeekPendingThresholdHudShifts(chHud) : default;
+            var intSteps = actor is Character chInt
+                ? IntelligenceMilestoneThresholdBonuses.GetSteps(chInt.GetEffectiveIntelligence())
+                : default;
             int comboRowShift = pendingHud.SharedAccuracy + pendingHud.ComboDelta;
             int hitRowShift = pendingHud.SharedAccuracy + pendingHud.HitDelta;
             int critRowShift = pendingHud.CritDelta;
             // CRIT_MISS bonuses raise the stored threshold; GetThresholdValueWithAccuracyParts subtracts shift → negate.
             int critMissRowShift = -pendingHud.CritMissDelta;
 
-            void RenderThresholdRow(int rowY, string labelName, int current, int def, int baseThreshold, int rowAccuracy)
+            comboRowShift += intSteps.ComboSteps;
+            hitRowShift += intSteps.HitSteps;
+            critRowShift += intSteps.CritSteps;
+
+            // One parenthetical: final displayed value minus configured default in the same units as the main number
+            // (queued shifts + sheet/stored deltas combined). Negative = easier on the d20 ladder for crit/combo/hit.
+            void RenderThresholdRow(int rowY, string labelName, int current, int def, int baseThreshold, int rowAccuracy, int defaultDisplayedBaseline)
             {
                 string labelPart = $"{labelName}:".PadRight(ThresholdLabelWidth);
                 var valueColor = ThresholdDisplayFormatting.GetValueColor(current, def);
-                string modStr = ThresholdDisplayFormatting.FormatDeltaSuffix(current, def);
-                ThresholdDisplayFormatting.GetThresholdValueWithAccuracyParts(baseThreshold, rowAccuracy, out int effective, out string accuracyParen, out int accuracyDelta);
+                ThresholdDisplayFormatting.GetThresholdValueWithAccuracyParts(baseThreshold, rowAccuracy, out int effective, out _, out _);
                 effective = ThresholdDisplayFormatting.ClampDiceLadderDisplayValue(effective);
+                int combinedDelta = effective - defaultDisplayedBaseline;
+                string modStr = ThresholdDisplayFormatting.FormatSignedDeltaSuffix(combinedDelta);
 
                 canvas.AddText(x, rowY, labelPart, AsciiArtAssets.Colors.Cyan);
                 int colX = x + ThresholdLabelWidth;
                 string mainPart = effective.ToString();
                 canvas.AddText(colX, rowY, mainPart, valueColor);
                 colX += mainPart.Length;
-                if (accuracyParen.Length > 0)
-                {
-                    var parenColor = ThresholdDisplayFormatting.GetAccuracyDeltaParenColor(accuracyDelta);
-                    canvas.AddText(colX, rowY, accuracyParen, parenColor);
-                    colX += accuracyParen.Length;
-                }
-
                 if (modStr.Length > 0)
-                    canvas.AddText(colX, rowY, modStr, valueColor);
+                {
+                    var modColor = ThresholdDisplayFormatting.GetAccuracyDeltaParenColor(combinedDelta);
+                    canvas.AddText(colX, rowY, modStr, modColor);
+                }
             }
 
             int cy = y;
             // Queued HIT/COMBO/CRIT deltas shift their respective rows; ACCURACY shifts both hit and combo (matches combat resolution).
-            RenderThresholdRow(cy, "Crit", crit, defaultCrit, crit, critRowShift);
+            RenderThresholdRow(cy, "Crit", crit, defaultCrit, crit, critRowShift, defaultCrit);
             cy++;
-            RenderThresholdRow(cy, "Combo", combo, defaultCombo, combo, comboRowShift);
+            RenderThresholdRow(cy, "Combo", combo, defaultCombo, combo, comboRowShift, defaultCombo);
             cy++;
-            RenderThresholdRow(cy, "Hit", hit, defaultHit, hit + 1, hitRowShift);
+            // Main number is minimum d20 to hit; baseline is default max-miss + 1 so delta matches that scale.
+            int defaultMinRollToHit = defaultHit + 1;
+            RenderThresholdRow(cy, "Hit", hit, defaultHit, hit + 1, hitRowShift, defaultMinRollToHit);
             cy++;
-            RenderThresholdRow(cy, "Crit Miss", critMiss, DefaultCritMiss, critMiss, critMissRowShift);
+            RenderThresholdRow(cy, "Crit Miss", critMiss, DefaultCritMiss, critMiss, critMissRowShift, DefaultCritMiss);
             cy++;
             return cy;
         }

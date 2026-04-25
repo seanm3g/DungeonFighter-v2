@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using RPGGame.Entity.Services;
 using RPGGame.Tests;
@@ -33,6 +35,7 @@ namespace RPGGame.Tests.Unit
             TestInventoryPersistence();
             TestWeaponTypeRoundTripInCharacterSerializer();
             TestStarterLeatherArmorSurvivesCharacterSerializerRoundTrip();
+            TestDeadCharacterTombstone();
 
             CharacterSaveManagerMultiFileTests.RunAllTests();
 
@@ -132,6 +135,54 @@ namespace RPGGame.Tests.Unit
                 TestBase.AssertTrue(false,
                     $"Multi-character save/load should not throw exception: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestDeadCharacterTombstone()
+        {
+            Console.WriteLine("\n--- Testing Dead Character Tombstone ---");
+            const string testId = "__test_dead_tombstone__";
+            string livePath = CharacterSaveManager.GetCharacterSaveFilename(testId);
+            string deadPath = livePath.Replace("_save.json", "_dead.json", StringComparison.OrdinalIgnoreCase);
+
+            try
+            {
+                var character = TestDataBuilders.Character().WithName("TombstoneHero").WithLevel(2).Build();
+                character.CurrentHealth = 0;
+                CharacterSaveManager.SaveCharacter(character, testId);
+                CharacterSaveManager.SaveCharacter(character, testId, filename: null, markDead: true);
+
+                TestBase.AssertTrue(!File.Exists(livePath),
+                    "Live save should be removed after death persist",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(File.Exists(deadPath),
+                    "Dead tombstone file should exist",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var listed = CharacterSaveManager.ListAllSavedCharacters();
+                TestBase.AssertTrue(!listed.Any(e => string.Equals(e.characterId, testId, StringComparison.Ordinal)),
+                    "Dead character should not appear in load list",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var loadDead = CharacterSaveManager.LoadCharacterAsync(null, deadPath).GetAwaiter().GetResult();
+                TestBase.AssertTrue(loadDead == null,
+                    "LoadCharacterAsync must refuse tombstone JSON",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            catch (Exception ex)
+            {
+                TestBase.AssertTrue(false,
+                    $"Dead tombstone test failed: {ex.Message}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                try
+                {
+                    if (File.Exists(livePath)) CharacterSaveManager.DeleteSaveFile(livePath);
+                    if (File.Exists(deadPath)) CharacterSaveManager.DeleteSaveFile(deadPath);
+                }
+                catch { /* best effort */ }
             }
         }
 

@@ -10,6 +10,7 @@ using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using RPGGame.ActionInteractionLab;
+using RPGGame.Data.Validation;
 
 namespace RPGGame.UI.Avalonia.Settings
 {
@@ -96,12 +97,19 @@ namespace RPGGame.UI.Avalonia.Settings
                 return null;
             }
 
-            var hint = "Choose a base weapon from Weapons.json, then optional prefixes (modifications) and suffixes (stat bonuses). Click rows to toggle selection; multiple rows allowed. Rolled mod values use a random value in range. Use type and rarity filters to narrow lists — rarity uses each prefix’s ItemRank; suffixes use optional ItemRank in StatBonuses.json (blank = all rarities); weapons use tier bands (T1 Common … T5 Legendary+, with Mythic/Transcendent showing tier-5 bases).";
+            var hint = "Choose a base weapon from Weapons.json, then optional prefixes (modifications) and suffixes (stat bonuses). Click rows to toggle selection; multiple rows allowed. Rolled mod values use a random value in range. Use type, tier, and rarity filters to narrow lists — tier matches the weapon’s numeric tier; rarity uses each prefix’s ItemRank; suffixes use optional ItemRank in StatBonuses.json (blank = all rarities); weapons also use tier→rarity bands for the rarity filter (T1 Common … T5 Legendary+, with Mythic/Transcendent showing tier-5 bases).";
             var rarityOptions = BuildRarityComboOptions(cache);
+            var tierOptions = BuildTierFilterComboOptions(weapons.Select(w => w.Tier));
             var typeCombo = new ComboBox
             {
                 MinWidth = 120,
                 ItemsSource = new[] { "All types", "Mace", "Sword", "Dagger", "Wand" },
+                SelectedIndex = 0,
+            };
+            var tierCombo = new ComboBox
+            {
+                MinWidth = 72,
+                ItemsSource = tierOptions,
                 SelectedIndex = 0,
             };
             var rarityCombo = new ComboBox
@@ -119,6 +127,8 @@ namespace RPGGame.UI.Avalonia.Settings
                 {
                     new TextBlock { Text = "Weapon type", VerticalAlignment = VerticalAlignment.Center },
                     typeCombo,
+                    new TextBlock { Text = "Tier", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 0, 0) },
+                    tierCombo,
                     new TextBlock { Text = "Rarity", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 0, 0) },
                     rarityCombo,
                 },
@@ -138,12 +148,16 @@ namespace RPGGame.UI.Avalonia.Settings
             string? SelectedTypeOrNull() =>
                 typeCombo.SelectedIndex <= 0 ? null : typeCombo.SelectedItem as string;
 
+            int? SelectedTierOrNull() =>
+                TryParseTierComboSelection(tierCombo);
+
             string? SelectedRarityOrNull() =>
                 rarityCombo.SelectedIndex <= 0 ? null : rarityCombo.SelectedItem as string;
 
             void RebuildFilteredLists(bool preserveWeaponSelection)
             {
                 string? wantType = SelectedTypeOrNull();
+                int? wantTier = SelectedTierOrNull();
                 string? wantRarity = SelectedRarityOrNull();
 
                 int prevWeaponIdx = preserveWeaponSelection ? baseList.SelectedIndex : -1;
@@ -154,11 +168,12 @@ namespace RPGGame.UI.Avalonia.Settings
                 displayedWeapons.Clear();
                 displayedWeapons.AddRange(weapons.Where(w =>
                     ActionLabGearCatalogFilter.WeaponMatchesTypeFilter(w, wantType)
+                    && ActionLabGearCatalogFilter.ItemMatchesTierFilter(w.Tier, wantTier)
                     && ActionLabGearCatalogFilter.WeaponMatchesRarityFilter(w, wantRarity)));
 
                 baseList.Items.Clear();
                 foreach (var w in displayedWeapons)
-                    baseList.Items.Add($"{w.Name}  [{w.Type}]  dmg {w.BaseDamage}  {w.AttackSpeed:0.##}s  T{w.Tier}");
+                    baseList.Items.Add($"{w.Name}  [{w.Type}]  dmg {w.BaseDamage}  {w.AttackSpeed:0.##}×  T{w.Tier}");
 
                 if (displayedWeapons.Count == 0)
                 {
@@ -199,6 +214,7 @@ namespace RPGGame.UI.Avalonia.Settings
             }
 
             typeCombo.SelectionChanged += (_, _) => RebuildFilteredLists(preserveWeaponSelection: true);
+            tierCombo.SelectionChanged += (_, _) => RebuildFilteredLists(preserveWeaponSelection: true);
             rarityCombo.SelectionChanged += (_, _) => RebuildFilteredLists(preserveWeaponSelection: true);
             RebuildFilteredLists(preserveWeaponSelection: false);
 
@@ -289,8 +305,9 @@ namespace RPGGame.UI.Avalonia.Settings
                 _ => "Armor",
             };
 
-            var hint = "Choose a base armor piece from Armor.json, then optional prefixes (modifications) and suffixes (stat bonuses). Click rows to toggle selection; multiple rows allowed. Rolled mod values use a random value in range. Use armor class and rarity filters to narrow lists — class is the name without the last word (e.g. Cloth Cap → Cloth; Studded Leather Boots → Studded Leather); rarity uses each prefix’s ItemRank; suffixes use optional ItemRank in StatBonuses.json (blank = all rarities); armor bases use the same tier→rarity bands as weapons (T1 Common … T5 Legendary+, with Mythic/Transcendent showing tier-5 bases).";
+            var hint = "Choose a base armor piece from Armor.json, then optional prefixes (modifications) and suffixes (stat bonuses). Click rows to toggle selection; multiple rows allowed. Rolled mod values use a random value in range. Use armor class, tier, and rarity filters to narrow lists — class is the name without the last word (e.g. Cloth Cap → Cloth; Studded Leather Boots → Studded Leather); tier matches the armor row’s numeric tier; rarity uses each prefix’s ItemRank; suffixes use optional ItemRank in StatBonuses.json (blank = all rarities); armor bases use the same tier→rarity bands as weapons for the rarity filter (T1 Common … T5 Legendary+, with Mythic/Transcendent showing tier-5 bases).";
             var rarityOptions = BuildRarityComboOptions(cache);
+            var tierOptions = BuildTierFilterComboOptions(armors.Select(a => a.Tier));
             var classOptions = new List<string> { "All classes" };
             foreach (var c in armors
                          .Select(a => ActionLabGearCatalogFilter.GetArmorCatalogClass(a.Name))
@@ -305,6 +322,12 @@ namespace RPGGame.UI.Avalonia.Settings
             {
                 MinWidth = 140,
                 ItemsSource = classOptions,
+                SelectedIndex = 0,
+            };
+            var tierCombo = new ComboBox
+            {
+                MinWidth = 72,
+                ItemsSource = tierOptions,
                 SelectedIndex = 0,
             };
             var rarityCombo = new ComboBox
@@ -322,6 +345,8 @@ namespace RPGGame.UI.Avalonia.Settings
                 {
                     new TextBlock { Text = "Armor class", VerticalAlignment = VerticalAlignment.Center },
                     classCombo,
+                    new TextBlock { Text = "Tier", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 0, 0) },
+                    tierCombo,
                     new TextBlock { Text = "Rarity", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 0, 0) },
                     rarityCombo,
                 },
@@ -349,12 +374,16 @@ namespace RPGGame.UI.Avalonia.Settings
             string? SelectedClassOrNull() =>
                 classCombo.SelectedIndex <= 0 ? null : classCombo.SelectedItem as string;
 
+            int? SelectedArmorTierOrNull() =>
+                TryParseTierComboSelection(tierCombo);
+
             string? SelectedRarityOrNull() =>
                 rarityCombo.SelectedIndex <= 0 ? null : rarityCombo.SelectedItem as string;
 
             void RebuildFilteredLists(bool preserveArmorSelection)
             {
                 string? wantClass = SelectedClassOrNull();
+                int? wantTier = SelectedArmorTierOrNull();
                 string? wantRarity = SelectedRarityOrNull();
 
                 int prevIdx = preserveArmorSelection ? baseList.SelectedIndex : -1;
@@ -365,6 +394,7 @@ namespace RPGGame.UI.Avalonia.Settings
                 displayedArmors.Clear();
                 displayedArmors.AddRange(armors.Where(a =>
                     ActionLabGearCatalogFilter.ArmorMatchesClassFilter(a, wantClass)
+                    && ActionLabGearCatalogFilter.ItemMatchesTierFilter(a.Tier, wantTier)
                     && ActionLabGearCatalogFilter.ArmorMatchesRarityFilter(a, wantRarity)));
 
                 baseList.Items.Clear();
@@ -410,6 +440,7 @@ namespace RPGGame.UI.Avalonia.Settings
             }
 
             classCombo.SelectionChanged += (_, _) => RebuildFilteredLists(preserveArmorSelection: true);
+            tierCombo.SelectionChanged += (_, _) => RebuildFilteredLists(preserveArmorSelection: true);
             rarityCombo.SelectionChanged += (_, _) => RebuildFilteredLists(preserveArmorSelection: true);
             RebuildFilteredLists(preserveArmorSelection: false);
 
@@ -520,7 +551,7 @@ namespace RPGGame.UI.Avalonia.Settings
                 Title = title,
                 Width = width,
                 Height = height,
-                MinWidth = 480,
+                MinWidth = 600,
                 MinHeight = 520,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 CanResize = true,
@@ -552,6 +583,30 @@ namespace RPGGame.UI.Avalonia.Settings
             }
 
             return list;
+        }
+
+        /// <summary>First entry <c>All tiers</c>; remaining entries are numeric tier strings present in data (1–10).</summary>
+        private static List<string> BuildTierFilterComboOptions(IEnumerable<int> tiersPresent)
+        {
+            var list = new List<string> { "All tiers" };
+            foreach (int t in tiersPresent
+                         .Where(v => v >= ValidationRules.Weapons.MinTier && v <= ValidationRules.Weapons.MaxTier)
+                         .Distinct()
+                         .OrderBy(x => x))
+            {
+                list.Add(t.ToString());
+            }
+
+            return list;
+        }
+
+        private static int? TryParseTierComboSelection(ComboBox tierCombo)
+        {
+            if (tierCombo.SelectedIndex <= 0)
+                return null;
+            if (tierCombo.SelectedItem is string s && int.TryParse(s, out int n))
+                return n;
+            return null;
         }
 
         private static StackPanel CreateButtonRow(Button cancel, Button ok) => new()

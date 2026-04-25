@@ -30,6 +30,7 @@ namespace RPGGame.UI.Avalonia
         private ActionsTabManager? actionsTabManager;
         private ItemModifiersTabManager? itemModifiersTabManager;
         private ItemsTabManager? itemsTabManager;
+        private EnemiesTabManager? enemiesTabManager;
         private Managers.StatusEffectsTabManager? statusEffectsTabManager;
         private SettingsManager? settingsManager;
         private Managers.TestRunnerUI? testRunnerUI;
@@ -76,6 +77,7 @@ namespace RPGGame.UI.Avalonia
             actionsTabManager = new ActionsTabManager();
             itemModifiersTabManager = new Managers.ItemModifiersTabManager(ShowStatusMessage);
             itemsTabManager = new Managers.ItemsTabManager(ShowStatusMessage);
+            enemiesTabManager = new EnemiesTabManager(ShowStatusMessage);
             statusEffectsTabManager = new Managers.StatusEffectsTabManager();
             
             // Set game variables tab manager in settings manager (needed for save operations)
@@ -100,6 +102,7 @@ namespace RPGGame.UI.Avalonia
             panelHandlerRegistry.Register(new TextDelaysPanelHandler(settingsManager));
             panelHandlerRegistry.Register(new AppearancePanelHandler(settings, colorManager));
             panelHandlerRegistry.Register(new Managers.Settings.PanelHandlers.ClassesPanelHandler(ShowStatusMessage));
+            panelHandlerRegistry.Register(new ItemGenerationPanelHandler(ShowStatusMessage));
             // Testing handler will be registered when canvasUI is available
             
             // Initialize save orchestrator (single panel resolution via GetPanelForCategory)
@@ -110,6 +113,7 @@ namespace RPGGame.UI.Avalonia
                 actionsTabManager,
                 itemModifiersTabManager,
                 itemsTabManager,
+                enemiesTabManager,
                 ShowStatusMessage,
                 GetPanelForCategory);
             
@@ -120,6 +124,7 @@ namespace RPGGame.UI.Avalonia
                 StatusEffectsTabManager = statusEffectsTabManager,
                 ItemModifiersTabManager = itemModifiersTabManager,
                 ItemsTabManager = itemsTabManager,
+                EnemiesTabManager = enemiesTabManager,
                 PanelHandlerRegistry = panelHandlerRegistry,
                 ShowStatusMessage = ShowStatusMessage
             };
@@ -158,6 +163,11 @@ namespace RPGGame.UI.Avalonia
                     if (panel is ItemsSettingsPanel itemsPanel && ctx.ItemsTabManager != null)
                         Dispatcher.UIThread.Post(() => ctx.ItemsTabManager.Initialize(itemsPanel), DispatcherPriority.Loaded);
                 },
+                ["Enemies"] = (panel, ctx) =>
+                {
+                    if (panel is EnemiesSettingsPanel enemiesPanel && ctx.EnemiesTabManager != null)
+                        Dispatcher.UIThread.Post(() => ctx.EnemiesTabManager.Initialize(enemiesPanel), DispatcherPriority.Loaded);
+                },
                 ["Testing"] = (panel, ctx) =>
                 {
                     ctx.RegisterTestingHandlerAndWireUp?.Invoke(panel);
@@ -165,7 +175,7 @@ namespace RPGGame.UI.Avalonia
             };
         }
 
-        /// <summary>Refreshes panel reference from GameSettings.Instance and pushes file state to all loaded panels. Call after ReloadFromFile() when opening settings.</summary>
+        /// <summary>Refreshes panel reference from GameSettings.Instance and pushes file state to all loaded panels. Call after ReloadFromFile() when opening settings, or after Google Sheets PULL (Balance Tuning).</summary>
         public void RefreshSettingsFromFile()
         {
             settings = GameSettings.Instance;
@@ -173,6 +183,8 @@ namespace RPGGame.UI.Avalonia
             GameConfiguration.Instance.Reload();
             // Actions tab uses ActionEditor + ActionLoader; mirror disk after external reloads (e.g. spreadsheet resync).
             actionsTabManager?.ReloadFromDisk();
+            enemiesTabManager?.RefreshFromFileIfLoaded();
+            itemsTabManager?.RefreshFromFileIfLoaded();
             // Ensure the selected category's panel is loaded (e.g. first open or SelectedIndex was set before items existed)
             if (CategoryListBox.SelectedItem is ListBoxItem selectedItem && selectedItem.Tag is string categoryTag
                 && !loadedPanels.ContainsKey(categoryTag))
@@ -345,7 +357,10 @@ namespace RPGGame.UI.Avalonia
             if (panel is StatusEffectsSettingsPanel) return "StatusEffects";
             if (panel is ItemModifiersSettingsPanel) return "ItemModifiers";
             if (panel is ItemsSettingsPanel) return "Items";
+            if (panel is ItemGenerationSettingsPanel) return "ItemGeneration";
+            if (panel is EnemiesSettingsPanel) return "Enemies";
             if (panel is BalanceTuningSettingsPanel) return "BalanceTuning";
+            if (panel is ActionInteractionLabSettingsPanel) return "ActionInteractionLab";
             if (panel is AboutSettingsPanel) return "About";
             return null;
         }
@@ -394,7 +409,10 @@ namespace RPGGame.UI.Avalonia
             }
 
             if (panelHandlerRegistry != null && !panelHandlerRegistry.HasHandler("BalanceTuning"))
-                panelHandlerRegistry.Register(new BalanceTuningPanelHandler(canvasUI));
+                panelHandlerRegistry.Register(new BalanceTuningPanelHandler(canvasUI, () => RefreshSettingsFromFile()));
+
+            if (panelHandlerRegistry != null && !panelHandlerRegistry.HasHandler("ActionInteractionLab"))
+                panelHandlerRegistry.Register(new ActionInteractionLabPanelHandler(canvasUI));
             
             // Set state manager on GameplayPanelHandler so it can clear in-memory player when clearing saved characters
             if (panelHandlerRegistry != null && stateManager != null)

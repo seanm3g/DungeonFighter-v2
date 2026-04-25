@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -20,10 +21,16 @@ namespace RPGGame
                 var action = ActionLoader.GetAction(actionName);
                 if (action != null)
                 {
+                    if (GameDataTagHelper.HasEnvironmentTag(action.Tags))
+                        continue;
                     enemy.AddAction(action, 1.0); // Default weight of 1.0
                 }
                 else
                 {
+                    var actionData = ActionLoader.GetActionData(actionName);
+                    if (actionData != null && GameDataTagHelper.HasEnvironmentTag(actionData.Tags))
+                        continue;
+
                     // If JSON action fails to load, add a fallback basic attack
                     var fallbackAction = new Action(
                         actionName,

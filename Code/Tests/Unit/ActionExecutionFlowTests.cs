@@ -42,6 +42,8 @@ namespace RPGGame.Tests.Unit
             TestDeferredSheetAccuracyScalesWithMultihitOnHit();
             TestFifoAccuracyShiftsThresholdsNotRollSubtraction();
             TestEnemySheetDamageModDoesNotPersistAcrossEnemySwings();
+            TestDeferredSheetAccuracyOnEnemyHitQueuesEnemyFifo();
+            TestEnemyComboSelectionUsesFreshThresholdAfterPriorSwingOverrides();
 
             TestBase.PrintSummary("Action Execution Flow Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -552,6 +554,109 @@ namespace RPGGame.Tests.Unit
             {
                 Dice.SetTestRoll(null);
                 ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        /// <summary>
+        /// Deferred sheet <see cref="AdvancedMechanicsProperties.RollBonus"/> (e.g. TAUNT heroAccuracy column)
+        /// must enqueue ACCURACY on the enemy's FIFO when an enemy lands the hit, mirroring the hero path.
+        /// </summary>
+        private static void TestDeferredSheetAccuracyOnEnemyHitQueuesEnemyFifo()
+        {
+            Console.WriteLine("\n--- Deferred sheet accuracy: enemy attacker queues ACCURACY FIFO on hit ---");
+
+            _ = GameConfiguration.Instance;
+
+            var hero = TestDataBuilders.Character().WithName("TauntedHero").WithStats(10, 10, 10, 0).Build();
+            var enemy = TestDataBuilders.Enemy().WithName("Taunter").Build();
+            hero.Effects.ClearPendingActionBonuses();
+            enemy.Effects.ClearPendingActionBonuses();
+
+            var enemyTauntLike = new Action
+            {
+                Name = "TAUNT",
+                Type = ActionType.Attack,
+                Target = TargetType.SingleTarget,
+                Cadence = "Action",
+                IsComboAction = false,
+                DamageMultiplier = 0.01,
+                Length = 1.0,
+                ComboBonusDuration = 1,
+                Advanced = new AdvancedMechanicsProperties
+                {
+                    RollBonus = 4,
+                    RollBonusDuration = 0
+                }
+            };
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCrit = new Dictionary<Actor, bool>();
+
+            try
+            {
+                Dice.SetTestRoll(16);
+                ActionSelector.SetStoredActionRoll(enemy, 16);
+                var hit = ActionExecutionFlow.Execute(enemy, hero, null, null, enemyTauntLike, null, lastUsed, lastCrit);
+
+                TestBase.AssertTrue(hit.Hit,
+                    "Enemy taunt-like swing should hit",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(4, ActionSelector.PeekQueuedAccuracyBonus(enemy),
+                    "Enemy deferred RollBonus should queue ACCURACY FIFO for the enemy's next attack rolls",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.SetTestRoll(null);
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        /// <summary>
+        /// Combo vs normal selection must use thresholds reset for this roll; stale <see cref="Combat.ThresholdManager"/>
+        /// values must not make a natural 8 pick a combo-slot special when the default combo gate is 14+.
+        /// </summary>
+        private static void TestEnemyComboSelectionUsesFreshThresholdAfterPriorSwingOverrides()
+        {
+            Console.WriteLine("\n--- Enemy combo pick: stale ThresholdManager must not gate selection ---");
+
+            _ = GameConfiguration.Instance;
+
+            var hero = TestDataBuilders.Character().WithName("HeroGate").WithStats(10, 10, 10, 0).Build();
+            var enemy = TestDataBuilders.Enemy().WithName("GateEnemy").WithStats(10, 10, 10, 0).Build();
+            enemy.ActionPool.Clear();
+            var slam = TestDataBuilders.CreateMockAction("SLAM", ActionType.Attack);
+            slam.IsComboAction = true;
+            slam.ComboOrder = 1;
+            enemy.AddAction(slam, 1.0);
+            enemy.AddToCombo(slam);
+
+            var tm = RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager();
+            tm.SetComboThreshold(enemy, 5);
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCrit = new Dictionary<Actor, bool>();
+
+            try
+            {
+                Dice.SetTestRoll(8);
+                ActionSelector.SetStoredActionRoll(enemy, 8);
+                var outcome = ActionExecutionFlow.Execute(enemy, hero, null, null, null, null, lastUsed, lastCrit);
+
+                TestBase.AssertTrue(outcome.Hit,
+                    "Natural 8 should hit default hit band",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                var sel = outcome.SelectedAction;
+                TestBase.AssertTrue(sel != null && !sel.IsComboAction && string.IsNullOrEmpty(sel.Name),
+                    "Roll 8 after artificial low combo threshold pollution should still pick unnamed normal (reset before selection)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.SetTestRoll(null);
+                ActionSelector.ClearStoredRolls();
+                tm.ResetThresholds(enemy);
+                tm.ResetThresholds(hero);
             }
         }
     }

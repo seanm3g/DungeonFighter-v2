@@ -168,6 +168,31 @@
                              FontSize="14"
                              Margin="10,0,0,0"/>
                 </Grid>
+
+                <!-- Tags (weapons and armor) -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="Tags:"
+                               FontSize="14"
+                               Foreground="White"
+                               VerticalAlignment="Top"
+                               Margin="0,4,0,0"/>
+                    <StackPanel Grid.Column="1" Margin="10,0,0,0" Spacing="4">
+                        <TextBox x:Name="TagsTextBox"
+                                 Text="{Binding Tags, Mode=TwoWay}"
+                                 FontSize="14"
+                                 AcceptsReturn="False"
+                                 TextWrapping="Wrap"/>
+                        <TextBlock Text="Comma-separated; saved as JSON tags array."
+                                   FontSize="11"
+                                   Foreground="#FFAAAAAA"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
             </StackPanel>
         </ScrollViewer>
         

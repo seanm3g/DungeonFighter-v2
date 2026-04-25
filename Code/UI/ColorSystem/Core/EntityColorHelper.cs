@@ -92,7 +92,7 @@ namespace RPGGame.UI.ColorSystem
         
         /// <summary>
         /// Gets the color for an actor (Character or Enemy), using enemy-specific colors for enemies
-        /// For characters: white for Fighters, class color for leveled classes
+        /// For characters: gold for default (Fighter) display, class color for leveled classes
         /// </summary>
         public static Color GetActorColor(Actor actor)
         {
@@ -116,7 +116,7 @@ namespace RPGGame.UI.ColorSystem
         
         /// <summary>
         /// Gets the color for a character based on their class
-        /// White for Fighters, class-specific color for leveled classes
+        /// Gold for default Fighter display, class-specific color for leveled classes
         /// </summary>
         private static Color GetCharacterColor(Character character)
         {
@@ -126,11 +126,11 @@ namespace RPGGame.UI.ColorSystem
             var cfg = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
             string currentClass = character.GetCurrentClass();
             if (string.Equals(currentClass, cfg.DefaultNoPointsClassName, StringComparison.OrdinalIgnoreCase))
-                return ColorPalette.White.GetColor();
+                return ColorPalette.Gold.GetColor();
 
             var wt = character.Progression.GetPrimaryClassWeaponType();
             if (wt == null)
-                return ColorPalette.White.GetColor();
+                return ColorPalette.Gold.GetColor();
             return GetWeaponPathColor(wt.Value);
         }
         
@@ -149,7 +149,8 @@ namespace RPGGame.UI.ColorSystem
 
         
         /// <summary>
-        /// Gets the color for a class name (public method for use in UI rendering)
+        /// Gets the color for a class name (public method for use in UI rendering).
+        /// Default Fighter display uses gold; leveled classes use weapon-path colors.
         /// </summary>
         public static Color GetClassColorForDisplay(Character character)
         {
@@ -159,11 +160,11 @@ namespace RPGGame.UI.ColorSystem
             var cfg = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
             string currentClass = character.GetCurrentClass();
             if (string.Equals(currentClass, cfg.DefaultNoPointsClassName, StringComparison.OrdinalIgnoreCase))
-                return ColorPalette.White.GetColor();
+                return ColorPalette.Gold.GetColor();
 
             var wt = character.Progression.GetPrimaryClassWeaponType();
             if (wt == null)
-                return ColorPalette.White.GetColor();
+                return ColorPalette.Gold.GetColor();
             return GetWeaponPathColor(wt.Value);
         }
         

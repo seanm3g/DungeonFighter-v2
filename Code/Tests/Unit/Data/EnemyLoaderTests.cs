@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Text.Json;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Data
@@ -29,6 +31,7 @@ namespace RPGGame.Tests.Unit.Data
             TestHasEnemy();
             TestGetAllEnemyNames();
             TestGetAllEnemyData();
+            TestDeserializeEnemyTagsFlexibleFormats();
 
             TestBase.PrintSummary("EnemyLoader Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -168,5 +171,38 @@ namespace RPGGame.Tests.Unit.Data
         }
 
         #endregion
+
+        /// <summary>Tags must deserialize whether JSON uses an array or a single string (sheet / hand edits).</summary>
+        private static void TestDeserializeEnemyTagsFlexibleFormats()
+        {
+            Console.WriteLine("\n--- Testing EnemyData tags JSON (array vs string) ---");
+
+            var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+            var arrayJson = """{"name":"X","archetype":"Mage","actions":[],"tags":["a","b"],"isLiving":true,"description":""}""";
+            var fromArray = JsonSerializer.Deserialize<EnemyData>(arrayJson, opts);
+            TestBase.AssertNotNull(fromArray, "Deserialize with tags array", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (fromArray?.Tags != null)
+            {
+                TestBase.AssertTrue(fromArray.Tags.SequenceEqual(new[] { "a", "b" }),
+                    "tags array should round-trip two entries",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+
+            var stringJson = """{"name":"Y","archetype":"Mage","actions":[],"tags":"undead,boss","isLiving":true,"description":""}""";
+            var fromString = JsonSerializer.Deserialize<EnemyData>(stringJson, opts);
+            TestBase.AssertNotNull(fromString, "Deserialize with tags string", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (fromString?.Tags != null)
+            {
+                TestBase.AssertTrue(fromString.Tags.SequenceEqual(new[] { "undead", "boss" }, StringComparer.OrdinalIgnoreCase),
+                    "tags string should split into list",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+
+            var nullTagsJson = """{"name":"Z","archetype":"Mage","actions":[],"tags":null,"isLiving":true,"description":""}""";
+            var fromNull = JsonSerializer.Deserialize<EnemyData>(nullTagsJson, opts);
+            TestBase.AssertNotNull(fromNull, "Deserialize with tags null", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertNull(fromNull!.Tags, "tags null in JSON -> null property", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
     }
 }

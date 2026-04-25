@@ -14,7 +14,7 @@ namespace RPGGame.Tests.Unit.Actions
     /// Action selection rules (combo path vs combo threshold):
     /// - Natural 20: Combo-slot action when available
     /// - Otherwise: combo when modified d20 (sheet die mods only; not stat roll bonuses) &gt;= effective threshold
-    ///   (COMBO-type threshold adjustments apply; queued ACCURACY does not lower this gate)
+    ///   (COMBO-type threshold adjustments and peeked queued ACCURACY apply, matching combat execution)
     /// - With no INT/bonus (tests use INT 0): raw d20 1-13 normal, 14+ combo
     /// </summary>
     public static class ActionSelectorRollBasedTests
@@ -38,6 +38,7 @@ namespace RPGGame.Tests.Unit.Actions
             Dice.ClearTestRoll();
 
             TestBaseRollThresholds();
+            TestQueuedAccuracyLowersComboPathSelectionGate();
             TestIntRollBonusDoesNotBypassComboDieGate();
             TestRoll13WithIntBonusStaysNormal();
             TestNatural20();
@@ -108,47 +109,66 @@ namespace RPGGame.Tests.Unit.Actions
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        /// <summary>
+        /// Deferred ACCURACY (e.g. Ability cadence +20 after CAST hit) must lower the combo-path d20 gate the same way
+        /// as <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/> so roll 12 can select the strip action when effective threshold is 1.
+        /// </summary>
+        private static void TestQueuedAccuracyLowersComboPathSelectionGate()
+        {
+            Console.WriteLine("\n--- Testing queued ACCURACY lowers combo-path selection gate ---");
+
+            var character = CreateTestCharacterWithBothActionTypes(intelligence: 0);
+            character.Effects.ClearPendingActionBonuses();
+            character.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
+            {
+                new() { Type = "ACCURACY", Value = 20 }
+            });
+
+            Dice.SetTestRoll(12);
+            ActionSelector.ClearStoredRolls();
+            var action = ActionSelector.SelectActionBasedOnRoll(character);
+            TestBase.AssertTrue(action != null && action.IsComboAction,
+                "d20 12 with +20 peeked ACCURACY should select combo strip (effective combo threshold floor 1)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(ActionSelector.WouldNaturalRollSelectComboAction(character, 12),
+                "WouldNaturalRollSelectComboAction should match for d20 12 with queued ACC",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         #endregion
 
         #region Combo die gate (INT does not bypass)
 
         /// <summary>
-        /// INT still adds roll bonus to attack total, but combo-strip vs normal selection uses the natural d20 gate only
-        /// (stat bonuses do not turn d20 12–13 into a named combo swing).
+        /// INT milestone bonuses shift thresholds, but combo-strip vs normal selection still uses the modified d20 gate only
+        /// (stat roll bonuses do not turn d20 12–13 into a named combo swing).
         /// </summary>
         private static void TestIntRollBonusDoesNotBypassComboDieGate()
         {
             Console.WriteLine("\n--- Testing INT roll bonus does not bypass combo d20 gate ---");
 
-            var tuning = GameConfiguration.Instance.Attributes.IntelligenceRollBonusPer;
-            if (tuning <= 0)
-            {
-                Console.WriteLine("  (skipped: IntelligenceRollBonusPer not positive)");
-                return;
-            }
-
-            // INT == Per => +1 roll bonus on the attack total, but selection uses d20 only vs threshold 14.
-            var char12 = CreateTestCharacterWithBothActionTypes(intelligence: tuning);
+            // Keep INT below the first milestone so the baseline combo threshold remains unchanged.
+            var char12 = CreateTestCharacterWithBothActionTypes(intelligence: 0);
             Dice.SetTestRoll(12);
             ActionSelector.ClearStoredRolls();
             var a12 = ActionSelector.SelectActionBasedOnRoll(char12);
             TestBase.AssertTrue(a12 != null && !a12.IsComboAction,
-                "d20 12 with INT roll bonus should still be normal (die below 14)",
+                "d20 12 should still be normal (die below 14)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            var char13 = CreateTestCharacterWithBothActionTypes(intelligence: tuning);
+            var char13 = CreateTestCharacterWithBothActionTypes(intelligence: 0);
             Dice.SetTestRoll(13);
             ActionSelector.ClearStoredRolls();
             var a13 = ActionSelector.SelectActionBasedOnRoll(char13);
             TestBase.AssertTrue(a13 != null && !a13!.IsComboAction,
-                "d20 13 with INT roll bonus should still be normal (die below 14)",
+                "d20 13 should still be normal (die below 14)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             Dice.SetTestRoll(14);
             ActionSelector.ClearStoredRolls();
             var a14 = ActionSelector.SelectActionBasedOnRoll(char13);
             TestBase.AssertTrue(a14 != null && a14.IsComboAction,
-                "d20 14 with INT should select combo",
+                "d20 14 should select combo",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -159,19 +179,13 @@ namespace RPGGame.Tests.Unit.Actions
         {
             Console.WriteLine("\n--- Testing Roll 13 + INT Bonus stays normal ---");
 
-            var per = GameConfiguration.Instance.Attributes.IntelligenceRollBonusPer;
-            if (per <= 0)
-            {
-                Console.WriteLine("  (skipped: IntelligenceRollBonusPer not positive)");
-                return;
-            }
-
-            var character = CreateTestCharacterWithBothActionTypes(intelligence: per);
+            // INT below the first milestone: should not influence combo selection.
+            var character = CreateTestCharacterWithBothActionTypes(intelligence: 0);
             Dice.SetTestRoll(13);
             ActionSelector.ClearStoredRolls();
             var action = ActionSelector.SelectActionBasedOnRoll(character);
             TestBase.AssertTrue(action != null && !action.IsComboAction,
-                "d20 13 with INT roll bonus should select normal (unnamed), not combo strip",
+                "d20 13 should select normal (unnamed), not combo strip",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

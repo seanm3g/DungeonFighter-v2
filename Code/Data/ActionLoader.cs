@@ -263,6 +263,24 @@ namespace RPGGame
             }
         }
 
+        /// <summary>
+        /// Raw action definition from the last load (tags, weapon types, etc.) without building a runtime <see cref="Action"/>.
+        /// </summary>
+        public static ActionData? GetActionData(string actionName)
+        {
+            lock (ActionsLock)
+            {
+                if (_actions == null)
+                    LoadActions();
+
+                if (_actions != null && !string.IsNullOrEmpty(actionName) &&
+                    _actions.TryGetValue(actionName, out var data))
+                    return data;
+
+                return null;
+            }
+        }
+
         public static List<Action> GetActions(params string[] actionNames)
         {
             var actions = new List<Action>();

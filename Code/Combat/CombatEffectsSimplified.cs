@@ -178,15 +178,14 @@ namespace RPGGame
                     if (target is Character targetCharacter)
                     {
                         targetCharacter.ApplySlow(freezeConfig.SpeedReduction, (int)freezeConfig.Duration);
-                        string actorPattern = target is Enemy ? "enemy" : "player";
-                        results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{frozen|frozen}}}}!");
+                        StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "frozen");
                         effectsApplied = true;
                     }
-                    else if (target is Enemy targetEnemy)
+                    else if (target is Enemy)
                     {
                         // For enemies, we can't easily apply slow without modifying the base class
                         // Just add a message for now
-                        results.Add($"     {target.Name} is {{frozen|frozen}}!");
+                        StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "frozen");
                         effectsApplied = true;
                     }
                 }
@@ -329,8 +328,7 @@ namespace RPGGame
             // Check for stun effect
             if (Actor.IsStunned)
             {
-                // Use markup syntax with stunned template for proper colorization
-                results.Add($"[{Actor.Name}] is {{stunned|stunned}} and cannot act!");
+                StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, Actor, "stunned", " and cannot act!");
                 return false;
             }
             

@@ -2,7 +2,7 @@
   {
     "DiceResult": 1,
     "ItemRank": "Common",
-    "Name": "Worn",
+    "Name": "Chipped",
     "Description": "-1 to -3 damage",
     "Effect": "damage",
     "MinValue": -3,
@@ -218,7 +218,7 @@
   {
     "DiceResult": 17,
     "ItemRank": "Legendary",
-    "Name": "Masterwork",
+    "Name": "Relentless",
     "Description": "15% more damage",
     "Effect": "damageMultiplier",
     "MinValue": 1.15,
@@ -272,7 +272,7 @@
   {
     "DiceResult": 23,
     "ItemRank": "Mythic",
-    "Name": "Perfect",
+    "Name": "Flawless",
     "Description": "All attacks automatically succeed",
     "Effect": "autoSuccess",
     "MinValue": 1,
@@ -317,7 +317,7 @@
   {
     "DiceResult": 28,
     "ItemRank": "Transcendent",
-    "Name": "Cosmic",
+    "Name": "Astral",
     "Description": "Transcends all limitations",
     "Effect": "cosmic",
     "MinValue": 1,

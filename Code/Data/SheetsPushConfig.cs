@@ -55,6 +55,34 @@ namespace RPGGame.Data
         [JsonPropertyName("previewRowCount")]
         public int PreviewRowCount { get; set; } = 5;
 
+        /// <summary>When false, OAuth push skips the Actions tab (preflight will not require it).</summary>
+        [JsonPropertyName("pushActionsTab")]
+        public bool PushActionsTab { get; set; } = true;
+
+        [JsonPropertyName("pushWeaponsTab")]
+        public bool PushWeaponsTab { get; set; } = true;
+
+        [JsonPropertyName("pushModificationsTab")]
+        public bool PushModificationsTab { get; set; } = true;
+
+        [JsonPropertyName("pushArmorTab")]
+        public bool PushArmorTab { get; set; } = true;
+
+        [JsonPropertyName("pushStatBonusesTab")]
+        public bool PushStatBonusesTab { get; set; } = true;
+
+        [JsonPropertyName("pushEnemiesTab")]
+        public bool PushEnemiesTab { get; set; } = true;
+
+        [JsonPropertyName("pushEnvironmentsTab")]
+        public bool PushEnvironmentsTab { get; set; } = true;
+
+        [JsonPropertyName("pushDungeonsTab")]
+        public bool PushDungeonsTab { get; set; } = true;
+
+        [JsonPropertyName("pushClassPresentationTab")]
+        public bool PushClassPresentationTab { get; set; } = true;
+
         public const string DefaultWeaponsSheetTabName = "WEAPONS";
         public const string DefaultModificationsSheetTabName = "MODIFICATIONS";
         public const string DefaultArmorSheetTabName = "ARMOR";
@@ -151,7 +179,10 @@ namespace RPGGame.Data
                     {
                         PropertyNameCaseInsensitive = true
                     });
-                    return config ?? new SheetsPushConfig();
+                    if (config == null)
+                        return new SheetsPushConfig();
+                    ApplyMissingPushTabDefaults(config, json);
+                    return config;
                 }
             }
             catch (Exception ex)
@@ -160,6 +191,76 @@ namespace RPGGame.Data
             }
 
             return new SheetsPushConfig();
+        }
+
+        /// <summary>
+        /// Legacy <c>SheetsPushConfig.json</c> omits <c>push*Tab</c> keys; <see cref="System.Text.Json"/> leaves <see cref="bool"/> properties <c>false</c>.
+        /// Any <b>missing</b> push-tab property in the raw JSON is set to <c>true</c> (prior behavior: push that tab when configured).
+        /// Explicit <c>false</c> in JSON is preserved.
+        /// </summary>
+        internal static void ApplyMissingPushTabDefaults(SheetsPushConfig cfg, string rawJson)
+        {
+            if (cfg == null)
+                return;
+            if (string.IsNullOrWhiteSpace(rawJson))
+            {
+                EnableAllPushTabs(cfg);
+                return;
+            }
+
+            try
+            {
+                using var doc = JsonDocument.Parse(rawJson);
+                if (doc.RootElement.ValueKind != JsonValueKind.Object)
+                    return;
+
+                static bool JsonHasPropertyIgnoreCase(JsonElement root, string name)
+                {
+                    foreach (var prop in root.EnumerateObject())
+                    {
+                        if (prop.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                            return true;
+                    }
+
+                    return false;
+                }
+
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushActionsTab"))
+                    cfg.PushActionsTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushWeaponsTab"))
+                    cfg.PushWeaponsTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushModificationsTab"))
+                    cfg.PushModificationsTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushArmorTab"))
+                    cfg.PushArmorTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushStatBonusesTab"))
+                    cfg.PushStatBonusesTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushEnemiesTab"))
+                    cfg.PushEnemiesTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushEnvironmentsTab"))
+                    cfg.PushEnvironmentsTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushDungeonsTab"))
+                    cfg.PushDungeonsTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushClassPresentationTab"))
+                    cfg.PushClassPresentationTab = true;
+            }
+            catch
+            {
+                EnableAllPushTabs(cfg);
+            }
+        }
+
+        private static void EnableAllPushTabs(SheetsPushConfig cfg)
+        {
+            cfg.PushActionsTab = true;
+            cfg.PushWeaponsTab = true;
+            cfg.PushModificationsTab = true;
+            cfg.PushArmorTab = true;
+            cfg.PushStatBonusesTab = true;
+            cfg.PushEnemiesTab = true;
+            cfg.PushEnvironmentsTab = true;
+            cfg.PushDungeonsTab = true;
+            cfg.PushClassPresentationTab = true;
         }
 
         /// <summary>Writes this config to JSON (indented). Creates parent directory if needed.</summary>

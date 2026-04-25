@@ -49,6 +49,8 @@ namespace RPGGame
         public RarityScalingConfig? RarityScaling { get; set; } = new();
         public EquipmentScalingConfig EquipmentScaling { get; set; } = new();
         public LootSystemConfig LootSystem { get; set; } = new();
+        /// <summary>Per-rarity affix min/max/chance tuning for item generation (see <see cref="ItemAffixByRaritySettings"/>).</summary>
+        public ItemAffixByRaritySettings ItemAffixByRarity { get; set; } = new();
         public StartingGearConfig StartingGear { get; set; } = new();
 
         // Dungeon-related configurations
@@ -219,6 +221,7 @@ namespace RPGGame
                         RarityScaling = config.RarityScaling;
                         EquipmentScaling = config.EquipmentScaling;
                         LootSystem = config.LootSystem;
+                        ItemAffixByRarity = config.ItemAffixByRarity ?? new ItemAffixByRaritySettings();
                         StartingGear = config.StartingGear;
 
                         // Dungeon-related configurations
@@ -257,6 +260,7 @@ namespace RPGGame
             RollSystem ??= new RollSystemConfig();
             EnemySystem ??= new EnemySystemConfig();
             LootSystem ??= new LootSystemConfig();
+            ItemAffixByRarity ??= new ItemAffixByRaritySettings();
             EquipmentScaling ??= new EquipmentScalingConfig();
             WeaponScaling ??= new WeaponScalingConfig();
             ItemScaling ??= new ItemScalingConfig();
