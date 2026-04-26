@@ -21,7 +21,7 @@ namespace RPGGame
     {
         private static readonly string[] RarityOrder =
         {
-            "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent"
+            "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"
         };
 
         /// <summary>

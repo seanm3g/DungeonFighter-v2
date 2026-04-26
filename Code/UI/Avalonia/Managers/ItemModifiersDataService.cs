@@ -72,7 +72,7 @@ namespace RPGGame.UI.Avalonia.Managers
             }
 
             // Fallback to default rarities
-            return new List<string> { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
+            return new List<string> { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
         }
         
         /// <summary>

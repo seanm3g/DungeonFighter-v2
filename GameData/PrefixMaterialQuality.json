@@ -26,5 +26,5 @@
   { "DiceResult": 108, "ItemRank": "Epic", "prefixCategory": "Quality", "Name": "Perfect", "Description": "Strong bonus to base stats", "Effect": "gearPrimaryStatMultiplier", "MinValue": 1.1, "MaxValue": 1.18 },
   { "DiceResult": 109, "ItemRank": "Legendary", "prefixCategory": "Quality", "Name": "Masterwork", "Description": "Large bonus to base stats", "Effect": "gearPrimaryStatMultiplier", "MinValue": 1.15, "MaxValue": 1.28 },
   { "DiceResult": 110, "ItemRank": "Legendary", "prefixCategory": "Quality", "Name": "Heirloom", "Description": "Very large bonus to base stats", "Effect": "gearPrimaryStatMultiplier", "MinValue": 1.22, "MaxValue": 1.35 },
-  { "DiceResult": 111, "ItemRank": "Transcendent", "prefixCategory": "Quality", "Name": "Cosmic", "Description": "+200% to +250% base stats", "Effect": "gearPrimaryStatMultiplier", "MinValue": 2.0, "MaxValue": 2.5 }
+  { "DiceResult": 111, "ItemRank": "Mythic", "prefixCategory": "Quality", "Name": "Cosmic", "Description": "+200% to +250% base stats", "Effect": "gearPrimaryStatMultiplier", "MinValue": 2.0, "MaxValue": 2.5 }
 ]

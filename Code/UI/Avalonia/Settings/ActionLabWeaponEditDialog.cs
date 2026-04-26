@@ -97,7 +97,7 @@ namespace RPGGame.UI.Avalonia.Settings
                 return null;
             }
 
-            var hint = "Choose a base weapon from Weapons.json, then optional prefixes (modifications) and suffixes (stat bonuses). Click rows to toggle selection; multiple rows allowed. Rolled mod values use a random value in range. Use type, tier, and rarity filters to narrow lists — tier matches the weapon’s numeric tier; rarity uses each prefix’s ItemRank; suffixes use optional ItemRank in StatBonuses.json (blank = all rarities); weapons also use tier→rarity bands for the rarity filter (T1 Common … T5 Legendary+, with Mythic/Transcendent showing tier-5 bases).";
+            var hint = "Choose a base weapon from Weapons.json, then optional prefixes (modifications) and suffixes (stat bonuses). Click rows to toggle selection; multiple rows allowed. Rolled mod values use a random value in range. Use type, tier, and rarity filters to narrow lists — tier matches the weapon’s numeric tier; rarity uses each prefix’s ItemRank; suffixes use optional ItemRank in StatBonuses.json (blank = all rarities); weapons also use tier→rarity bands for the rarity filter (T1 Common … T5 Legendary+, with Mythic showing tier-5 bases).";
             var rarityOptions = BuildRarityComboOptions(cache);
             var tierOptions = BuildTierFilterComboOptions(weapons.Select(w => w.Tier));
             var typeCombo = new ComboBox
@@ -305,7 +305,7 @@ namespace RPGGame.UI.Avalonia.Settings
                 _ => "Armor",
             };
 
-            var hint = "Choose a base armor piece from Armor.json, then optional prefixes (modifications) and suffixes (stat bonuses). Click rows to toggle selection; multiple rows allowed. Rolled mod values use a random value in range. Use armor class, tier, and rarity filters to narrow lists — class is the name without the last word (e.g. Cloth Cap → Cloth; Studded Leather Boots → Studded Leather); tier matches the armor row’s numeric tier; rarity uses each prefix’s ItemRank; suffixes use optional ItemRank in StatBonuses.json (blank = all rarities); armor bases use the same tier→rarity bands as weapons for the rarity filter (T1 Common … T5 Legendary+, with Mythic/Transcendent showing tier-5 bases).";
+            var hint = "Choose a base armor piece from Armor.json, then optional prefixes (modifications) and suffixes (stat bonuses). Click rows to toggle selection; multiple rows allowed. Rolled mod values use a random value in range. Use armor class, tier, and rarity filters to narrow lists — class is the name without the last word (e.g. Cloth Cap → Cloth; Studded Leather Boots → Studded Leather); tier matches the armor row’s numeric tier; rarity uses each prefix’s ItemRank; suffixes use optional ItemRank in StatBonuses.json (blank = all rarities); armor bases use the same tier→rarity bands as weapons for the rarity filter (T1 Common … T5 Legendary+, with Mythic showing tier-5 bases).";
             var rarityOptions = BuildRarityComboOptions(cache);
             var tierOptions = BuildTierFilterComboOptions(armors.Select(a => a.Tier));
             var classOptions = new List<string> { "All classes" };

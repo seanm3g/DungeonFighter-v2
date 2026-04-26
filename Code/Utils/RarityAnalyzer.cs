@@ -155,7 +155,6 @@ namespace RPGGame
             var rare = _rarityData.FirstOrDefault(r => r.Name.Equals("Rare", StringComparison.OrdinalIgnoreCase));
             var legendary = _rarityData.FirstOrDefault(r => r.Name.Equals("Legendary", StringComparison.OrdinalIgnoreCase));
             var mythic = _rarityData.FirstOrDefault(r => r.Name.Equals("Mythic", StringComparison.OrdinalIgnoreCase));
-            var transcendent = _rarityData.FirstOrDefault(r => r.Name.Equals("Transcendent", StringComparison.OrdinalIgnoreCase));
 
             if (epic != null && rare != null)
             {
@@ -168,12 +167,12 @@ namespace RPGGame
                 }
             }
 
-            if (transcendent != null)
+            if (mythic != null)
             {
-                double transcendentRate = (transcendent.Weight / _rarityData.Sum(r => r.Weight)) * 100.0;
-                if (transcendentRate < 0.01)
+                double mythicRate = (mythic.Weight / _rarityData.Sum(r => r.Weight)) * 100.0;
+                if (mythicRate < 0.01)
                 {
-                    Console.WriteLine("⚠️  Transcendent is extremely rare (<0.01%). Consider if this is intentional.");
+                    Console.WriteLine("⚠️  Mythic is extremely rare (<0.01%). Consider if this is intentional.");
                 }
             }
 

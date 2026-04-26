@@ -1,28 +1,28 @@
 {
   "character": {
-    "playerBaseHealth": 0,
-    "healthPerLevel": 0,
+    "playerBaseHealth": 60,
+    "healthPerLevel": 3,
     "enemyHealthPerLevel": 0
   },
   "attributes": {
     "playerBaseAttributes": {
-      "strength": 0,
-      "agility": 0,
-      "technique": 0,
-      "intelligence": 0
+      "strength": 3,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 3
     },
-    "playerAttributesPerLevel": 0,
+    "playerAttributesPerLevel": 2,
     "enemyAttributesPerLevel": 0,
     "enemyPrimaryAttributeBonus": 0,
-    "intelligenceRollBonusPer": 0
+    "intelligenceRollBonusPer": 10
   },
   "progression": {
     "baseXPToLevel2": 0,
     "xpScalingFactor": 0,
-    "enemyXPBase": 0,
-    "enemyXPPerLevel": 0,
-    "enemyGoldBase": 0,
-    "enemyGoldPerLevel": 0
+    "enemyXPBase": 25,
+    "enemyXPPerLevel": 5,
+    "enemyGoldBase": 10,
+    "enemyGoldPerLevel": 3
   },
   "xpRewards": {
     "baseXPFormula": "",
@@ -46,24 +46,24 @@
   },
   "classBalance": {
     "barbarian": {
-      "healthMultiplier": 0,
-      "damageMultiplier": 0,
-      "speedMultiplier": 0
+      "healthMultiplier": 1,
+      "damageMultiplier": 1,
+      "speedMultiplier": 1
     },
     "warrior": {
-      "healthMultiplier": 0,
-      "damageMultiplier": 0,
-      "speedMultiplier": 0
+      "healthMultiplier": 1,
+      "damageMultiplier": 1,
+      "speedMultiplier": 1
     },
     "rogue": {
-      "healthMultiplier": 0,
-      "damageMultiplier": 0,
-      "speedMultiplier": 0
+      "healthMultiplier": 1,
+      "damageMultiplier": 1,
+      "speedMultiplier": 1
     },
     "wizard": {
-      "healthMultiplier": 0,
-      "damageMultiplier": 0,
-      "speedMultiplier": 0
+      "healthMultiplier": 1,
+      "damageMultiplier": 1,
+      "speedMultiplier": 1
     },
     "description": ""
   },
@@ -103,12 +103,12 @@
     "attributeDuoDaggerWand": "Hexblade"
   },
   "combat": {
-    "criticalHitThreshold": 0,
-    "criticalHitMultiplier": 0,
-    "minimumDamage": 0,
-    "baseAttackTime": 0,
+    "criticalHitThreshold": 20,
+    "criticalHitMultiplier": 2,
+    "minimumDamage": 1,
+    "baseAttackTime": 8,
     "agilitySpeedReduction": 0,
-    "minimumAttackTime": 0,
+    "minimumAttackTime": 0.1,
     "agilityMin": 1,
     "agilityMax": 100,
     "agilityMinSpeedMultiplier": 0.99,
@@ -116,12 +116,12 @@
   },
   "combatBalance": {
     "criticalHitChance": 0,
-    "criticalHitDamageMultiplier": 0,
+    "criticalHitDamageMultiplier": 2,
     "rollDamageMultipliers": {
-      "comboRollDamageMultiplier": 0,
-      "basicRollDamageMultiplier": 0,
-      "comboAmplificationScalingMultiplier": 0,
-      "tierScalingFallbackMultiplier": 0
+      "comboRollDamageMultiplier": 1.5,
+      "basicRollDamageMultiplier": 1,
+      "comboAmplificationScalingMultiplier": 1,
+      "tierScalingFallbackMultiplier": 1
     },
     "statusEffectScaling": {
       "bleedDuration": 0,
@@ -141,23 +141,23 @@
   },
   "rollSystem": {
     "missThreshold": {
-      "min": 0,
-      "max": 0
+      "min": 1,
+      "max": 5
     },
     "basicAttackThreshold": {
-      "min": 0,
-      "max": 0
+      "min": 6,
+      "max": 13
     },
     "comboThreshold": {
-      "min": 0,
-      "max": 0
+      "min": 14,
+      "max": 19
     },
-    "criticalThreshold": 0
+    "criticalThreshold": 20
   },
   "comboSystem": {
     "comboAmplifierAtTech5": 0,
-    "comboAmplifierMax": 0,
-    "comboAmplifierMaxTech": 0,
+    "comboAmplifierMax": 2,
+    "comboAmplifierMaxTech": 20,
     "comboAmplifierCurveExponent": 0
   },
   "poison": {
@@ -166,7 +166,53 @@
     "stacksPerApplication": 0
   },
   "statusEffects": {
-    "effects": {},
+    "effects": {
+      "Bleed": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      },
+      "Burn": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      },
+      "Freeze": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      },
+      "Stun": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      },
+      "Poison": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      }
+    },
     "description": ""
   },
   "enemyScaling": {
@@ -297,11 +343,11 @@
     "startingWeaponDamage": {},
     "startingWeaponSpeed": {},
     "tierDamageRanges": {},
-    "globalDamageMultiplier": 0,
-    "weaponDamagePerTier": 0,
-    "armorValuePerTier": 0,
-    "speedBonusPerTier": 0,
-    "maxTier": 0,
+    "globalDamageMultiplier": 1,
+    "weaponDamagePerTier": 3,
+    "armorValuePerTier": 2,
+    "speedBonusPerTier": 0.05,
+    "maxTier": 10,
     "enchantmentChance": 0
   },
   "weaponScaling": {
@@ -333,7 +379,7 @@
         "max": 0
       }
     },
-    "globalDamageMultiplier": 0,
+    "globalDamageMultiplier": 1,
     "description": ""
   },
   "rarityScaling": {
@@ -405,21 +451,21 @@
     }
   },
   "equipmentScaling": {
-    "weaponDamagePerTier": 0,
-    "armorValuePerTier": 0,
-    "speedBonusPerTier": 0,
-    "maxTier": 0,
+    "weaponDamagePerTier": 3,
+    "armorValuePerTier": 2,
+    "speedBonusPerTier": 0.05,
+    "maxTier": 10,
     "enchantmentChance": 0,
     "description": ""
   },
   "lootSystem": {
-    "baseDropChance": 0,
+    "baseDropChance": 0.15,
     "dropChancePerLevel": 0,
-    "maxDropChance": 0,
-    "guaranteedLootChance": 0,
+    "maxDropChance": 0.95,
+    "guaranteedLootChance": 1,
     "magicFindEffectiveness": 0,
-    "goldDropMultiplier": 0,
-    "itemValueMultiplier": 0,
+    "goldDropMultiplier": 1,
+    "itemValueMultiplier": 1,
     "rarityUpgrade": {
       "enabled": false,
       "baseUpgradeChance": 0.05,
@@ -431,42 +477,73 @@
     "description": ""
   },
   "itemAffixByRarity": {
-    "description": "Per-rarity affix bounds: prefixSlots/statSuffixes/actionBonuses = minimums; prefixSlotsMax/statSuffixesMax/actionBonusesMax + prefixExtraChance/statSuffixExtraChance/actionExtraChance = optional rolls up to max (0\u20131 chances). Omit *Max/extra fields for fixed counts (max defaults to min when extra chance is 0).",
+    "description": "Per-rarity affix bounds: prefixSlots/statSuffixes/actionBonuses = minimums; prefixSlotsMax/statSuffixesMax/actionBonusesMax \u002B prefixExtraChance/statSuffixExtraChance/actionExtraChance = optional rolls up to max (0\u20131 chances). Omit *Max/extra fields for fixed counts (max defaults to min when extra chance is 0).",
     "perRarity": {
       "Common": {
         "prefixSlots": 0,
         "statSuffixes": 0,
-        "actionBonuses": 1
+        "actionBonuses": 0,
+        "prefixSlotsMax": 1,
+        "prefixExtraChance": 0.25,
+        "statSuffixesMax": 1,
+        "statSuffixExtraChance": 0.05,
+        "actionBonusesMax": 1,
+        "actionExtraChance": 0.25
       },
       "Uncommon": {
         "prefixSlots": 1,
         "statSuffixes": 0,
-        "actionBonuses": 1
+        "actionBonuses": 0,
+        "prefixSlotsMax": 3,
+        "prefixExtraChance": 0.25,
+        "statSuffixesMax": 1,
+        "statSuffixExtraChance": 0.15,
+        "actionBonusesMax": 1,
+        "actionExtraChance": 0.5
       },
       "Rare": {
         "prefixSlots": 2,
         "statSuffixes": 1,
-        "actionBonuses": 1
+        "actionBonuses": 0,
+        "prefixSlotsMax": 4,
+        "prefixExtraChance": 0.5,
+        "statSuffixesMax": 2,
+        "statSuffixExtraChance": 0.5,
+        "actionBonusesMax": 1,
+        "actionExtraChance": 0.75
       },
       "Epic": {
-        "prefixSlots": 3,
-        "statSuffixes": 2,
-        "actionBonuses": 1
+        "prefixSlots": 2,
+        "statSuffixes": 1,
+        "actionBonuses": 1,
+        "prefixSlotsMax": 4,
+        "prefixExtraChance": 0.75,
+        "statSuffixesMax": 3,
+        "statSuffixExtraChance": 0.75,
+        "actionBonusesMax": 2,
+        "actionExtraChance": 0.25
       },
       "Legendary": {
         "prefixSlots": 3,
-        "statSuffixes": 3,
-        "actionBonuses": 2
+        "statSuffixes": 2,
+        "actionBonuses": 2,
+        "prefixSlotsMax": 3,
+        "prefixExtraChance": 0,
+        "statSuffixesMax": 4,
+        "statSuffixExtraChance": 0.75,
+        "actionBonusesMax": 3,
+        "actionExtraChance": 0.5
       },
       "Mythic": {
         "prefixSlots": 3,
-        "statSuffixes": 4,
-        "actionBonuses": 3
-      },
-      "Transcendent": {
-        "prefixSlots": 3,
-        "statSuffixes": 5,
-        "actionBonuses": 4
+        "statSuffixes": 3,
+        "actionBonuses": 2,
+        "prefixSlotsMax": 3,
+        "prefixExtraChance": 0,
+        "statSuffixesMax": 5,
+        "statSuffixExtraChance": 0.75,
+        "actionBonusesMax": 4,
+        "actionExtraChance": 0.75
       }
     }
   },
@@ -666,7 +743,6 @@
     "epic": 12,
     "legendary": 6,
     "mythic": 1.8,
-    "transcendent": 0.2,
     "tierBonusPerLevel": 1.5,
     "bonusPointEffectiveness": 1,
     "description": "Modification rarity distribution percentages. Total should equal 100.0"

@@ -22,9 +22,9 @@ namespace RPGGame.MCP.Tools
         [McpServerTool(Name = "adjust_rarity_weight", Title = "Adjust Rarity Weight")]
         [Description("Adjusts the weight of a specific rarity tier in RarityTable.json. Higher weight = more common.")]
         public static Task<string> AdjustRarityWeight(
-            [Description("Rarity name: 'Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Mythic', 'Transcendent'")]
+            [Description("Rarity name: 'Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Mythic'")]
             string rarityName,
-            [Description("New weight value (e.g., 500 for Common, 0.01 for Transcendent)")]
+            [Description("New weight value (e.g., 500 for Common, 0.01 for Mythic)")]
             double weight)
         {
             return RarityTuningTools.AdjustRarityWeight(rarityName, weight);

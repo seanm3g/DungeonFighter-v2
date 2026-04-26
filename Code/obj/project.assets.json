@@ -114,12 +114,12 @@
           "Avalonia.Remote.Protocol": "11.2.7"
         },
         "compile": {
-          "lib/net8.0/Avalonia.Controls.ColorPicker.dll": {
+          "lib/net8.0/_._": {
             "related": ".xml"
           }
         },
         "runtime": {
-          "lib/net8.0/Avalonia.Controls.ColorPicker.dll": {
+          "lib/net8.0/_._": {
             "related": ".xml"
           }
         }
@@ -131,12 +131,12 @@
           "Avalonia.Remote.Protocol": "11.2.7"
         },
         "compile": {
-          "lib/net8.0/Avalonia.Controls.DataGrid.dll": {
+          "lib/net8.0/_._": {
             "related": ".xml"
           }
         },
         "runtime": {
-          "lib/net8.0/Avalonia.Controls.DataGrid.dll": {
+          "lib/net8.0/_._": {
             "related": ".xml"
           }
         }
@@ -170,12 +170,12 @@
           "Avalonia.Themes.Simple": "11.2.7"
         },
         "compile": {
-          "lib/net8.0/Avalonia.Diagnostics.dll": {
+          "lib/net8.0/_._": {
             "related": ".xml"
           }
         },
         "runtime": {
-          "lib/net8.0/Avalonia.Diagnostics.dll": {
+          "lib/net8.0/_._": {
             "related": ".xml"
           }
         }
@@ -292,12 +292,12 @@
           "Avalonia": "11.2.7"
         },
         "compile": {
-          "lib/net8.0/Avalonia.Themes.Simple.dll": {
+          "lib/net8.0/_._": {
             "related": ".xml"
           }
         },
         "runtime": {
-          "lib/net8.0/Avalonia.Themes.Simple.dll": {
+          "lib/net8.0/_._": {
             "related": ".xml"
           }
         }
@@ -3622,11 +3622,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj",
+      "projectUniqueName": "d:\\Code Projects\\github projects\\DungeonFighter-v2\\Code\\Code.csproj",
       "projectName": "DF",
-      "projectPath": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj",
+      "projectPath": "d:\\Code Projects\\github projects\\DungeonFighter-v2\\Code\\Code.csproj",
       "packagesPath": "C:\\Users\\Seanye\\.nuget\\packages\\",
-      "outputPath": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\obj\\",
+      "outputPath": "d:\\Code Projects\\github projects\\DungeonFighter-v2\\Code\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Seanye\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -3667,6 +3667,8 @@
             "version": "[11.2.7, )"
           },
           "Avalonia.Diagnostics": {
+            "include": "None",
+            "suppressParent": "All",
             "target": "Package",
             "version": "[11.2.7, )"
           },

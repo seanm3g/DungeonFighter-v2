@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RPGGame
@@ -39,7 +40,7 @@ namespace RPGGame
             }
 
             // Filter rarities based on player level - only include rarities the player can get
-            var availableRarities = _dataCache.RarityData.Where(r => IsRarityAvailableAtLevel(r.Name, playerLevel)).ToList();
+            var availableRarities = _dataCache.RarityData.Where(r => IsRarityUnlockedAtPlayerLevel(r.Name, playerLevel)).ToList();
             
             // If no rarities are available (shouldn't happen, but safety check), fall back to Common
             if (availableRarities.Count == 0)
@@ -115,7 +116,7 @@ namespace RPGGame
                     break; // Already at max rarity
 
                 // Check if the upgraded rarity is available at player level
-                if (!IsRarityAvailableAtLevel(nextRarity.Name, playerLevel))
+                if (!IsRarityUnlockedAtPlayerLevel(nextRarity.Name, playerLevel))
                     break; // Cannot upgrade to a rarity that requires higher level
 
                 currentRarity = nextRarity;
@@ -131,7 +132,7 @@ namespace RPGGame
         private RarityData? GetNextRarityTier(RarityData current)
         {
             // Define rarity order
-            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
+            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
 
             int currentIndex = Array.IndexOf(rarityOrder, current.Name);
             if (currentIndex < 0 || currentIndex >= rarityOrder.Length - 1)
@@ -142,14 +143,12 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Checks if a rarity is available at the given player level
-        /// Uses minLevel from config for Epic, Legendary, Mythic, and Transcendent
-        /// Common, Uncommon, and Rare are always available
+        /// Whether this rarity can appear when rolling with <paramref name="playerLevel"/> (Item lab "Any" + dungeon loot).
         /// </summary>
-        private bool IsRarityAvailableAtLevel(string rarityName, int playerLevel)
+        public static bool IsRarityUnlockedAtPlayerLevel(string rarityName, int playerLevel)
         {
             var config = GameConfiguration.Instance;
-            
+
             // Common, Uncommon, and Rare are always available
             if (rarityName.Equals("Common", StringComparison.OrdinalIgnoreCase) ||
                 rarityName.Equals("Uncommon", StringComparison.OrdinalIgnoreCase) ||
@@ -180,16 +179,28 @@ namespace RPGGame
                 return playerLevel >= 15;
             }
 
-            // Check Transcendent minimum level (hardcoded since not in config structure yet)
-            if (rarityName.Equals("Transcendent", StringComparison.OrdinalIgnoreCase))
-            {
-                // Use a reasonable default: level 20
-                // Could be made configurable in the future
-                return playerLevel >= 20;
-            }
-
             // Unknown rarity - allow it (shouldn't happen, but be permissive)
             return true;
+        }
+
+        /// <summary>
+        /// Base weighted distribution for <see cref="RollRarity"/> before the optional rarity-upgrade chain (magic find 0).
+        /// Used by the Item Generation lab preview when Rarity is Any.
+        /// </summary>
+        public static IReadOnlyList<(string Name, double Weight, double ProbabilityPercent)> GetBaseRollDistribution(
+            LootDataCache cache, int playerLevel)
+        {
+            if (cache.RarityData == null || cache.RarityData.Count == 0)
+                return Array.Empty<(string, double, double)>();
+
+            var available = cache.RarityData.Where(r => IsRarityUnlockedAtPlayerLevel(r.Name, playerLevel)).ToList();
+            double total = available.Sum(r => r.Weight);
+            if (total <= 0)
+                return Array.Empty<(string, double, double)>();
+
+            return available
+                .Select(r => (r.Name, r.Weight, 100.0 * r.Weight / total))
+                .ToList();
         }
 
         /// <summary>

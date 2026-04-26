@@ -195,30 +195,61 @@ namespace RPGGame
                 }
             }
 
-            // Strip known suffix tokens from the end (stat bonuses and "of …" modification names)
-            if (item.StatBonuses != null)
+            // Strip known suffix tokens from the end (stat bonuses and "of …" modification names).
+            // Multiple passes are required when two suffixes share the same length: a single pass ordered
+            // by length may match only the outer token first, leaving the inner suffix on the "base" name
+            // so a subsequent GenerateItemNameWithBonuses would append all suffixes again (duplicate).
+            if (item.StatBonuses != null && item.StatBonuses.Count > 0)
             {
-                foreach (var sb in item.StatBonuses.OrderByDescending(s => (s.Name ?? "").Length))
+                bool removedStatSuffix;
+                do
                 {
-                    if (string.IsNullOrEmpty(sb.Name)) continue;
-                    string suffix = sb.Name.Trim();
-                    if (name.EndsWith(" " + suffix, StringComparison.OrdinalIgnoreCase))
-                        name = name[..^(suffix.Length + 1)].TrimEnd();
-                    else if (name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase) && name.Length == suffix.Length)
-                        name = "";
-                }
+                    removedStatSuffix = false;
+                    foreach (var sb in item.StatBonuses.OrderByDescending(s => (s.Name ?? "").Length))
+                    {
+                        if (string.IsNullOrEmpty(sb.Name)) continue;
+                        string suffix = sb.Name.Trim();
+                        if (name.EndsWith(" " + suffix, StringComparison.OrdinalIgnoreCase))
+                        {
+                            name = name[..^(suffix.Length + 1)].TrimEnd();
+                            removedStatSuffix = true;
+                            break;
+                        }
+
+                        if (name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase) && name.Length == suffix.Length)
+                        {
+                            name = "";
+                            removedStatSuffix = true;
+                            break;
+                        }
+                    }
+                } while (removedStatSuffix && !string.IsNullOrWhiteSpace(name));
             }
 
             if (item.Modifications != null)
             {
-                foreach (var m in item.Modifications
-                             .Where(m => m != null && !string.IsNullOrEmpty(m.Name) &&
-                                         m.Name.TrimStart().StartsWith("of ", StringComparison.OrdinalIgnoreCase))
-                             .OrderByDescending(m => m.Name.Length))
+                var modSuffixes = item.Modifications
+                    .Where(m => m != null && !string.IsNullOrEmpty(m.Name) &&
+                                m.Name.TrimStart().StartsWith("of ", StringComparison.OrdinalIgnoreCase))
+                    .OrderByDescending(m => m.Name!.Length)
+                    .ToList();
+                if (modSuffixes.Count > 0)
                 {
-                    string suffix = m.Name.Trim();
-                    if (name.EndsWith(" " + suffix, StringComparison.OrdinalIgnoreCase))
-                        name = name[..^(suffix.Length + 1)].TrimEnd();
+                    bool removedModSuffix;
+                    do
+                    {
+                        removedModSuffix = false;
+                        foreach (var m in modSuffixes)
+                        {
+                            string suffix = m.Name!.Trim();
+                            if (name.EndsWith(" " + suffix, StringComparison.OrdinalIgnoreCase))
+                            {
+                                name = name[..^(suffix.Length + 1)].TrimEnd();
+                                removedModSuffix = true;
+                                break;
+                            }
+                        }
+                    } while (removedModSuffix && !string.IsNullOrWhiteSpace(name));
                 }
             }
 

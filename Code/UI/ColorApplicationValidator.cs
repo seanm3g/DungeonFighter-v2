@@ -210,8 +210,7 @@ namespace RPGGame.UI
         Rare,
         Epic,
         Legendary,
-        Mythic,
-        Transcendent
+        Mythic
     }
 }
 

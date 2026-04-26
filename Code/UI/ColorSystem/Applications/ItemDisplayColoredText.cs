@@ -26,7 +26,8 @@ namespace RPGGame.UI.ColorSystem.Applications
             ["Epic"] = ColorPalette.Epic,
             ["Legendary"] = ColorPalette.Legendary,
             ["Mythic"] = ColorPalette.Purple,
-            ["Transcendent"] = ColorPalette.Gold
+            // Backward-compat for old saves/data: treat transcendent as mythic (no longer a category)
+            ["Transcendent"] = ColorPalette.Purple
         };
         
         /// <summary>

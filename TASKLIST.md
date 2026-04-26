@@ -6,10 +6,28 @@ This file tracks the work currently in progress. Only items listed here should b
 
 - [ ] **DevEx / Scripts:** Consolidate `Scripts/` into a small set of core commands (build/run/test/clean/metrics) and move legacy Google Sheets + redundant wrappers into `Scripts/_legacy/`. Update script docs and keep a single entrypoint.
 - [ ] **Combat / INT:** Replace INT “+roll bonus per N” with milestone-based threshold bonuses that grant +1 to HIT/COMBO/CRIT at specific effective-INT breakpoints (as per the tuning table). Ensure combat resolution, action selection, and HUD threshold preview all agree; add unit tests.
+- [ ] **Loot / Rarity:** Remove **Transcendent** as a rarity category; **Mythic** is the highest. Update loot rarity rolls, item-gen lab fixed chances, color themes, and unit tests accordingly.
+- [ ] **UI / Item Generation:** Top panels layout — place **Affix bounds by rarity** and **Generation Parameters** side-by-side (wrap to vertical on narrow widths) in Settings → Item Generation.
+- [ ] **UI / Item Generation:** Keep “Selected Item” details visible while scrolling the generated items list (pin details panel; list scrolls independently).
+- [x] **UI / Item Generation:** Fixed rarity chance boxes — improve hover readability (remove hard-coded TextBox colors so hover style applies; ensure text stays high-contrast).
+- [x] **UI / Item Generation:** Remove the top “Item Generation Lab” banner section in Settings → Item Generation (title + subtitle card).
+- [x] **UI / Item Generation:** Change **Dungeon level** input to **Dungeon Δ** (relative to hero). Enter `+5` so hero 10 implies dungeon 15; clamp final dungeon level 1–99; update preview copy + tests.
+- [x] **UI / Item Generation:** Move **Hero / dungeon** inputs into the top parameter rows so the rarity + tier preview tables can use the full panel width.
+- [x] **UI / Item Generation:** Rename affix-bounds group labels to **Prefix / Suffix / Actions** (keep helper copy clarifying **Suffix** = `StatBonuses.json` suffix lines, distinct from prefix-slot modifications that can also change stats).
+- [x] **UI / Item Generation:** Clarify affix table column headers (prefix slots vs stat-bonus suffix lines vs action bonus lines) so abbreviations aren’t misread as “suffix” in general.
+- [x] **UI / Item Generation:** Tighten copy so “Stat bonus suffixes” reads as **StatBonuses lines** (distinct from modification/prefix-driven stat effects).
 - [x] **UI / Item Generation:** Widen the “Affix bounds by rarity” grid so column labels and values don’t clip/abbreviate in the Settings → Item Generation tab.
+- [x] **UI / Item Generation:** Generation Parameters panel — cleaner layout (three equal columns, fixed-width count/hero level, rarity preview callout, actions right-aligned).
+- [x] **UI / Item Generation:** Tier roll preview under rarity summary (loot level from hero vs dungeon 1, `LootTierCalculator.GetTierRollPreview`; tests in `LootTierCalculatorTests`).
+- [x] **Item Generation Lab:** When **Tier** is **Any**, batch generation rolls tier with `LootTierCalculator` (hero + `DungeonLevel` → loot level → `TierDistribution.json`), same as `LootGenerator` — not uniform 1–5. Tests: `ItemGenerationLabServiceTests.TestAnyTierUsesTierDistributionAtLootLevel1` / `AtLootLevel19`.
+- [x] **UI / Item Generation:** Dungeon Δ input added next to hero level; tier preview and generation use hero-vs-(hero+Δ) for loot level and tier rolls.
+- [x] **UI / Item Generation:** Fixed rarity chance inputs (Common→Transcendent) to control lab rarity rolls when Rarity is Any (ignores level gating). Tests: `ItemGenerationLabServiceTests.TestFixedRarityChancesOverridesAnyAndIgnoresLevelGates`.
 
 ## Completed (reference)
 
+- [x] **Loot / rarity weights:** Set `RarityTable.json` weights to pure powers of 10 (Common→Transcendent) for clean “1 in N” mental math; document resulting odds.
+- [x] **Bugfix / items:** First stat suffix duplicated in display names when two `StatBonuses` names had the same length (`GetBaseItemName` only stripped the outer suffix in one pass). Fixed with iterative stripping; test `ItemGeneratorTests` equal-length suffix idempotency case.
+- [x] **UI / Item Generation Lab:** Rarity **Any** rolls per item with `LootRarityProcessor` (fixes 100% Common bug). **Hero level** UI + `ItemGenerationSpec.PlayerLevel` for those rolls and Epic+ gates; `ItemGenerationLabServiceTests.TestAnyRarityRollsNonCommonDistribution`.
 - [x] **Loot / probabilistic affix tuning:** Per-rarity **minimum** prefix slots, stat suffixes, and action bonuses in `TuningConfig.json` (`itemAffixByRarity`) with optional **extra chance** (0–100%) and **max** caps; `LootBonusApplier` rolls final counts each drop. Settings **Item Generation** tab grid for load/save (`ItemGenerationPanelHandler`, `ItemAffixRollRule`, `RollAxis`). Tests: `LootBonusApplierTests.TestProbabilisticAffixTuningHitsMax`, `ItemConfigTests` (extra JSON + `RollAxis`). `OVERVIEW.md`.
 
 - [x] **Item Generation Lab / names:** Triple prefix in the lab (and any double call to `GenerateItemNameWithBonuses`) fixed: `ItemGenerator.GetBaseItemName` strips leading prefix-slot words and trailing suffix-style tokens so name assembly is idempotent; `ItemGenerationLabService` no longer re-runs name generation after `LootBonusApplier.ApplyBonuses`. Test: `ItemGeneratorTests` idempotency case.

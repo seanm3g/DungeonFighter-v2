@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace RPGGame
 {
@@ -88,6 +89,38 @@ namespace RPGGame
         public TierDistribution? GetTierDistribution(int lootLevel)
         {
             return _dataCache.TierDistributions.FirstOrDefault(d => d.Level == lootLevel);
+        }
+
+        /// <summary>
+        /// Loot level from <see cref="CalculateLootLevel"/> and per-tier percentages from
+        /// <c>TierDistribution.json</c> for that row — same inputs as <see cref="RollTier"/> (first roll only).
+        /// </summary>
+        /// <param name="cache">Loaded loot cache (tier table).</param>
+        /// <param name="playerLevel">Hero / player level (clamped 1–99 for preview).</param>
+        /// <param name="dungeonLevel">Dungeon content level (minimum 1).</param>
+        /// <returns>Loot level and five percentages (Tier1..Tier5), or <c>Rows</c> null if no table row.</returns>
+        public static (int LootLevel, IReadOnlyList<(int Tier, double ProbabilityPercent)>? Rows) GetTierRollPreview(
+            LootDataCache cache,
+            int playerLevel,
+            int dungeonLevel)
+        {
+            var calc = new LootTierCalculator(cache, new Random(0));
+            playerLevel = Math.Clamp(playerLevel, 1, 99);
+            dungeonLevel = Math.Max(1, dungeonLevel);
+            int lootLevel = calc.CalculateLootLevel(playerLevel, dungeonLevel);
+            var dist = calc.GetTierDistribution(lootLevel);
+            if (dist == null)
+                return (lootLevel, null);
+
+            IReadOnlyList<(int Tier, double ProbabilityPercent)> rows = new (int, double)[]
+            {
+                (1, dist.Tier1),
+                (2, dist.Tier2),
+                (3, dist.Tier3),
+                (4, dist.Tier4),
+                (5, dist.Tier5),
+            };
+            return (lootLevel, rows);
         }
     }
 }

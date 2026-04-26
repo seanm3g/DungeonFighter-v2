@@ -134,7 +134,8 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 ["Epic"] = ColorPalette.Epic,
                 ["Legendary"] = ColorPalette.Legendary,
                 ["Mythic"] = ColorPalette.Purple,
-                ["Transcendent"] = ColorPalette.Gold
+                // Backward-compat for old saves/data: treat transcendent as mythic (no longer a category)
+                ["Transcendent"] = ColorPalette.Purple
             };
             
             if (rarityColors.TryGetValue(rarity, out var color))

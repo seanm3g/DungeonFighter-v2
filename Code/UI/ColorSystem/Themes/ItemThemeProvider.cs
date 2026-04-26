@@ -188,7 +188,7 @@ namespace RPGGame.UI.ColorSystem.Themes
                 7 => ColorPalette.Gold.GetColor(),
                 8 => ColorPalette.Orange.GetColor(), // Legendary color
                 9 => ColorPalette.Purple.GetColor(), // Mythic color
-                >= 10 => ColorPalette.White.GetColor(), // Transcendent color
+                >= 10 => ColorPalette.Purple.GetColor(), // Mythic (highest) color
                 _ => Colors.White
             };
         }
@@ -206,7 +206,8 @@ namespace RPGGame.UI.ColorSystem.Themes
                 "epic" => ColorPalette.Purple.GetColor(),
                 "legendary" => ColorPalette.Orange.GetColor(),
                 "mythic" => ColorPalette.Purple.GetColor(),
-                "transcendent" => ColorPalette.White.GetColor(),
+                // Backward-compat for old saves/data: treat transcendent as mythic (no longer a category)
+                "transcendent" => ColorPalette.Purple.GetColor(),
                 _ => Colors.White
             };
         }

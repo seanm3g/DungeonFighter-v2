@@ -33,6 +33,7 @@ namespace RPGGame.Tests.Unit.Data
             TestSelectRandomItemByTier();
             TestGenerateItemNameWithBonuses();
             TestGenerateItemNameWithBonuses_IdempotentWhenItemNameAlreadyComposed();
+            TestGenerateItemNameWithBonuses_IdempotentWithEqualLengthStatSuffixes();
 
             TestBase.PrintSummary("ItemGenerator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -287,6 +288,52 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual(second, third,
                 "Third pass should still be stable",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Two stat suffixes with the same string length (e.g. "of the Titan" and "of Alacrity") must strip
+        /// from the composed name in multiple passes; otherwise the first stays on the base and re-assembly duplicates it.
+        /// </summary>
+        private static void TestGenerateItemNameWithBonuses_IdempotentWithEqualLengthStatSuffixes()
+        {
+            Console.WriteLine("\n--- Testing GenerateItemNameWithBonuses idempotency (equal-length stat suffixes) ---");
+
+            var weapon = TestDataBuilders.Weapon()
+                .WithName("VOID TOME")
+                .WithTier(5)
+                .Build();
+
+            weapon.StatBonuses.Add(new StatBonus { Name = "of the Titan", StatType = "Strength", Value = 5 });
+            weapon.StatBonuses.Add(new StatBonus { Name = "of Alacrity", StatType = "Agility", Value = 3 });
+
+            string first = ItemGenerator.GenerateItemNameWithBonuses(weapon);
+            weapon.Name = first;
+            string second = ItemGenerator.GenerateItemNameWithBonuses(weapon);
+
+            TestBase.AssertEqual(first, second,
+                "Re-entry must not duplicate the first suffix when suffix names share the same length",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, CountOccurrencesOrdinalIgnoreCase(first, "of the Titan"),
+                "composed name should contain exactly one 'of the Titan'",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static int CountOccurrencesOrdinalIgnoreCase(string haystack, string needle)
+        {
+            if (string.IsNullOrEmpty(haystack) || string.IsNullOrEmpty(needle))
+                return 0;
+            int count = 0;
+            int idx = 0;
+            while (idx <= haystack.Length - needle.Length)
+            {
+                idx = haystack.IndexOf(needle, idx, StringComparison.OrdinalIgnoreCase);
+                if (idx < 0)
+                    break;
+                count++;
+                idx += needle.Length;
+            }
+
+            return count;
         }
 
         #endregion

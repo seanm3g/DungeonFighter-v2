@@ -15,9 +15,9 @@ namespace RPGGame.MCP.Tools.LootTuning
         [McpServerTool(Name = "adjust_rarity_weight", Title = "Adjust Rarity Weight")]
         [Description("Adjusts the weight of a specific rarity tier in RarityTable.json. Higher weight = more common.")]
         public static Task<string> AdjustRarityWeight(
-            [Description("Rarity name: 'Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Mythic', 'Transcendent'")]
+            [Description("Rarity name: 'Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Mythic'")]
             string rarityName,
-            [Description("New weight value (e.g., 500 for Common, 0.01 for Transcendent)")]
+            [Description("New weight value (e.g., 500 for Common, 0.01 for Mythic)")]
             double weight)
         {
             return McpToolExecutor.ExecuteAsync(() =>
@@ -137,10 +137,10 @@ namespace RPGGame.MCP.Tools.LootTuning
                 config.LootSystem.RarityUpgrade.BaseUpgradeChance = baseChance;
                 config.LootSystem.RarityUpgrade.UpgradeChanceDecayPerTier = decayPerTier;
 
-                // Calculate probabilities for each tier
-                var probabilities = new double[6];
+                // Calculate probabilities for each tier (Common→…→Mythic)
+                var probabilities = new double[5];
                 double fullCascade = 1.0;
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < probabilities.Length; i++)
                 {
                     probabilities[i] = baseChance * Math.Pow(decayPerTier, i);
                     fullCascade *= probabilities[i];
@@ -159,7 +159,6 @@ namespace RPGGame.MCP.Tools.LootTuning
                         tier3_RareToEpic = probabilities[2],
                         tier4_EpicToLegendary = probabilities[3],
                         tier5_LegendaryToMythic = probabilities[4],
-                        tier6_MythicToTranscendent = probabilities[5],
                         fullCascadeProbability = fullCascade
                     }
                 };

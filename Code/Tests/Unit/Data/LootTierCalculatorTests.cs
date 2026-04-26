@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Data
@@ -28,6 +29,8 @@ namespace RPGGame.Tests.Unit.Data
             TestClampLootLevel();
             TestRollTier();
             TestGetTierDistribution();
+            TestGetTierRollPreviewHero1Dungeon1MatchesShippedJson();
+            TestGetTierRollPreviewSumsToOneHundred();
 
             TestBase.PrintSummary("LootTierCalculator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -153,6 +156,41 @@ namespace RPGGame.Tests.Unit.Data
             // Get distribution for level 1
             var dist3 = calculator.GetTierDistribution(1);
             // May be null or valid, both are acceptable
+        }
+
+        /// <summary>
+        /// Shipped <c>TierDistribution.json</c> level 1 row: Tier1 93.10, Tier2 6.90, rest 0.
+        /// </summary>
+        private static void TestGetTierRollPreviewHero1Dungeon1MatchesShippedJson()
+        {
+            Console.WriteLine("\n--- Testing GetTierRollPreview (hero 1 vs dungeon 1) ---");
+
+            var cache = LootDataCache.Load();
+            var (lootLevel, rows) = LootTierCalculator.GetTierRollPreview(cache, 1, 1);
+
+            TestBase.AssertEqual(1, lootLevel, "loot level should be 1 for hero 1 vs dungeon 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertNotNull(rows, "preview rows", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (rows == null) return;
+
+            TestBase.AssertEqual(5, rows.Count, "five tier buckets", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            double t1 = rows.First(r => r.Tier == 1).ProbabilityPercent;
+            double t2 = rows.First(r => r.Tier == 2).ProbabilityPercent;
+            TestBase.AssertTrue(Math.Abs(t1 - 93.10) < 0.05, $"T1 ~93.10%, got {t1}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Math.Abs(t2 - 6.90) < 0.05, $"T2 ~6.90%, got {t2}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestGetTierRollPreviewSumsToOneHundred()
+        {
+            Console.WriteLine("\n--- Testing GetTierRollPreview sums ---");
+
+            var cache = LootDataCache.Load();
+            for (int hero = 1; hero <= 20; hero += 3)
+            {
+                var (_, rows) = LootTierCalculator.GetTierRollPreview(cache, hero, 1);
+                if (rows == null) continue;
+                double sum = rows.Sum(r => r.ProbabilityPercent);
+                TestBase.AssertTrue(Math.Abs(sum - 100.0) < 0.15, $"hero {hero}: percents sum ~100, got {sum}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
         }
 
         #endregion

@@ -144,8 +144,8 @@ namespace RPGGame.Tests.Unit
                 "Item should have rarity", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test rarity-based coloring (7 tiers)
-            var rarities = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
+            // Test rarity-based coloring (6 tiers)
+            var rarities = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
             foreach (var rarity in rarities)
             {
                 var testItem = TestDataBuilders.Item().WithRarity(rarity).Build();

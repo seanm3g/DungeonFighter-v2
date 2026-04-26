@@ -166,7 +166,7 @@ namespace RPGGame
 
         private bool IsRarityHigher(string rarity1, string rarity2)
         {
-            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
+            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
             int index1 = Array.IndexOf(rarityOrder, rarity1);
             int index2 = Array.IndexOf(rarityOrder, rarity2);
             if (index1 < 0) index1 = 0;

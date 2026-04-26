@@ -299,7 +299,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// </summary>
         private string GetNextRarity(string currentRarity)
         {
-            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
+            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
             
             // Use case-insensitive comparison to find the current rarity
             int currentIndex = -1;

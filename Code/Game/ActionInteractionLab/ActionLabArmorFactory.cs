@@ -9,7 +9,7 @@ namespace RPGGame.ActionInteractionLab
     /// </summary>
     public static class ActionLabArmorFactory
     {
-        private static readonly string[] RarityOrder = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
+        private static readonly string[] RarityOrder = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
 
         /// <summary>Maps equip slot names (<c>head</c>, <c>body</c>, <c>feet</c>) to <see cref="ArmorData.Slot"/> JSON values.</summary>
         public static string ArmorJsonSlotFromEquipSlot(string equipSlot)

@@ -8,7 +8,7 @@ namespace RPGGame.ActionInteractionLab
     /// </summary>
     public static class ActionLabWeaponFactory
     {
-        private static readonly string[] RarityOrder = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
+        private static readonly string[] RarityOrder = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
 
         /// <summary>
         /// Creates a weapon with starter actions, optional rolled prefix modification, and optional stat-bonus suffix.

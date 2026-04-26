@@ -172,7 +172,7 @@ namespace RPGGame
         /// <summary>Rarities shown in settings UI and written as a full block to tuning when saving.</summary>
         public static readonly string[] StandardLootRarities =
         {
-            "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent"
+            "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"
         };
 
         public string Description { get; set; } =
@@ -234,8 +234,10 @@ namespace RPGGame
             int aMin = Math.Max(0, entry.ActionBonuses);
             double aCh = Clamp01(entry.ActionExtraChance);
             int aDefaultCeiling = Math.Max(aMin, rarityTableRow?.ActionBonuses ?? aMin);
+            // When max is omitted, allow at least one step above min (e.g. 0→1 optional action);
+            // avoid legacy default of 5 which made "25% one action" JSON without max behave like many rolls.
             if (aDefaultCeiling == aMin && aCh > 0)
-                aDefaultCeiling = Math.Max(aMin, 5);
+                aDefaultCeiling = Math.Max(aMin + 1, rarityTableRow?.ActionBonuses ?? 0);
             int aMax = entry.ActionBonusesMax.HasValue
                 ? Math.Max(aMin, entry.ActionBonusesMax.Value)
                 : (aCh <= 0 ? aMin : aDefaultCeiling);
@@ -377,7 +379,6 @@ namespace RPGGame
         public double Epic { get; set; } = 12.0;
         public double Legendary { get; set; } = 6.0;
         public double Mythic { get; set; } = 1.8;
-        public double Transcendent { get; set; } = 0.2;
         public double TierBonusPerLevel { get; set; } = 1.5;
         public double BonusPointEffectiveness { get; set; } = 1.0;
         public string Description { get; set; } = "Modification rarity distribution percentages. Total should equal 100.0";

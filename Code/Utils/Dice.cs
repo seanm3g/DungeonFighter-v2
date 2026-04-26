@@ -246,7 +246,7 @@ namespace RPGGame
             {
                 return Roll(4) + 20; // DiceResult 21-24
             }
-            else // Transcendent modifications (25-28)
+            else // Mythic (highest) modifications (25-28)
             {
                 return Roll(4) + 24; // DiceResult 25-28
             }

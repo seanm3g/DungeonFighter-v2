@@ -302,7 +302,7 @@ namespace RPGGame.Handlers.Inventory
         /// </summary>
         private string? GetNextRarity(string currentRarity)
         {
-            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
+            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
             
             // Use case-insensitive comparison to find the current rarity
             int currentIndex = -1;
@@ -329,7 +329,7 @@ namespace RPGGame.Handlers.Inventory
         /// </summary>
         private int GetRarityOrder(string rarity)
         {
-            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
+            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
             int index = Array.IndexOf(rarityOrder, rarity);
             return index < 0 ? 0 : index;
         }

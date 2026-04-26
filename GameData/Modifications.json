@@ -289,7 +289,7 @@
   },
   {
     "DiceResult": 25,
-    "ItemRank": "Transcendent",
+    "ItemRank": "Mythic",
     "Name": "Reality Breaker",
     "Description": "50% more damage \u0026 100% faster attack speed",
     "Effect": "realityBreaker",
@@ -298,7 +298,7 @@
   },
   {
     "DiceResult": 26,
-    "ItemRank": "Transcendent",
+    "ItemRank": "Mythic",
     "Name": "Omnipotent",
     "Description": "All attacks succeed \u0026 \u002B10 to all rolls",
     "Effect": "omnipotent",
@@ -307,7 +307,7 @@
   },
   {
     "DiceResult": 27,
-    "ItemRank": "Transcendent",
+    "ItemRank": "Mythic",
     "Name": "Infinite",
     "Description": "Infinite durability \u0026 perfect stats",
     "Effect": "infinite",
@@ -316,9 +316,9 @@
   },
   {
     "DiceResult": 28,
-    "ItemRank": "Transcendent",
+    "ItemRank": "Mythic",
     "Name": "Astral",
-    "Description": "Transcends all limitations",
+    "Description": "Beyond all limitations",
     "Effect": "cosmic",
     "MinValue": 1,
     "MaxValue": 1

@@ -159,7 +159,6 @@ namespace RPGGame.UI.Avalonia
             public static readonly Color Epic = Colors.Purple;
             public static readonly Color Legendary = Colors.Gold;
             public static readonly Color Mythic = Colors.Magenta;
-            public static readonly Color Transcendent = Colors.Cyan;
         }
 
         // Get equipment icon by weapon type - Delegates to IconRegistry
@@ -191,7 +190,8 @@ namespace RPGGame.UI.Avalonia
                 "epic" => RarityColors.Epic,
                 "legendary" => RarityColors.Legendary,
                 "mythic" => RarityColors.Mythic,
-                "transcendent" => RarityColors.Transcendent,
+                // Backward-compat for old saves/data: treat transcendent as mythic (no longer a category)
+                "transcendent" => RarityColors.Mythic,
                 _ => RarityColors.Common
             };
         }

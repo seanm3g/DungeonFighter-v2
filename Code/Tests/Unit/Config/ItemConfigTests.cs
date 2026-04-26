@@ -38,6 +38,7 @@ namespace RPGGame.Tests.Unit.Config
             TestLootSystemSanitizer();
             TestItemAffixByRaritySettingsJson();
             TestItemAffixExtraFieldsJson();
+            TestItemAffixOmittedActionMaxDefaultsToOneWhenMinZero();
             TestItemAffixRollAxis();
 
             TestBase.PrintSummary("ItemConfig Tests", _testsRun, _testsPassed, _testsFailed);
@@ -260,6 +261,25 @@ namespace RPGGame.Tests.Unit.Config
             TestBase.AssertEqual(0.25, rule.PrefixExtraChance, "prefix chance", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(4, rule.StatMax, "stat max", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(2, rule.ActionMax, "action max", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// JSON/UI often omit actionBonusesMax when "0 or 1 action" is intended; legacy code used max 5.
+        /// </summary>
+        private static void TestItemAffixOmittedActionMaxDefaultsToOneWhenMinZero()
+        {
+            Console.WriteLine("\n--- Testing omitted actionBonusesMax (min 0 + extra chance) ---");
+
+            var entry = new ItemAffixPerRarityEntry
+            {
+                ActionBonuses = 0,
+                ActionExtraChance = 0.25,
+                ActionBonusesMax = null
+            };
+            var commonRow = new RarityData { Name = "Common", ActionBonuses = 0 };
+            var rule = ItemAffixByRaritySettings.BuildRuleFromTuningEntry(entry, commonRow);
+            TestBase.AssertEqual(0, rule.ActionMin, "action min", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, rule.ActionMax, "implicit action max should be 1 for optional single action", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestItemAffixRollAxis()

@@ -11,7 +11,7 @@ namespace RPGGame.ActionInteractionLab
     public static class ActionLabGearCatalogFilter
     {
         public static readonly string[] RarityOrder =
-            { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
+            { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
 
         /// <summary>
         /// Maps weapon tier to a catalog rarity band for list filtering (Weapons.json has no ItemRank today).
@@ -77,8 +77,7 @@ namespace RPGGame.ActionInteractionLab
 
         private static bool IsHighTierWeaponRarity(string r) =>
             r.Equals("Legendary", StringComparison.OrdinalIgnoreCase)
-            || r.Equals("Mythic", StringComparison.OrdinalIgnoreCase)
-            || r.Equals("Transcendent", StringComparison.OrdinalIgnoreCase);
+            || r.Equals("Mythic", StringComparison.OrdinalIgnoreCase);
 
         public static bool ModificationMatchesRarityFilter(Modification mod, string? selectedRarity)
         {
