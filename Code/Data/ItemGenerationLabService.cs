@@ -72,7 +72,7 @@ namespace RPGGame
         public static List<ItemGeneratedRow> GenerateBatch(ItemGenerationSpec spec, int count)
         {
             if (spec == null) throw new ArgumentNullException(nameof(spec));
-            count = Math.Clamp(count, 1, 1000);
+            count = Math.Clamp(count, 1, 1_000_000);
 
             var cache = LootDataCache.Load();
             var rnd = new Random(spec.Seed);

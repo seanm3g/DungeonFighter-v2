@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit.Data
             TestAnyTierUsesTierDistributionAtLootLevel1();
             TestAnyTierUsesTierDistributionAtLootLevel19();
             TestFixedRarityChancesOverridesAnyAndIgnoresLevelGates();
+            TestBaseRatioBuildsGeometricRarityPercents();
 
             TestBase.PrintSummary("ItemGenerationLabService Tests", _run, _pass, _fail);
             TestBase.ClearCurrentTestName();
@@ -215,6 +216,28 @@ namespace RPGGame.Tests.Unit.Data
                 "fixed rarity chances should force Mythic even at hero level 1. Got: " +
                 string.Join(", ", rows.Select(r => (r.Item.Rarity ?? "(null)").Trim()).Distinct().OrderBy(x => x)),
                 ref _run, ref _pass, ref _fail);
+        }
+
+        private static void TestBaseRatioBuildsGeometricRarityPercents()
+        {
+            TestBase.SetCurrentTestName(nameof(TestBaseRatioBuildsGeometricRarityPercents));
+
+            var map = RarityChanceMath.BuildGeometricRarityChancesPercent(8.0);
+            double sum = map.Values.Sum();
+            TestBase.AssertTrue(Math.Abs(sum - 100.0) < 0.0001, $"sum to 100, got {sum}", ref _run, ref _pass, ref _fail);
+
+            // Monotone decreasing: Common > Uncommon > ... > Mythic
+            TestBase.AssertTrue(map["Common"] > map["Uncommon"], "Common > Uncommon", ref _run, ref _pass, ref _fail);
+            TestBase.AssertTrue(map["Uncommon"] > map["Rare"], "Uncommon > Rare", ref _run, ref _pass, ref _fail);
+            TestBase.AssertTrue(map["Rare"] > map["Epic"], "Rare > Epic", ref _run, ref _pass, ref _fail);
+            TestBase.AssertTrue(map["Epic"] > map["Legendary"], "Epic > Legendary", ref _run, ref _pass, ref _fail);
+            TestBase.AssertTrue(map["Legendary"] > map["Mythic"], "Legendary > Mythic", ref _run, ref _pass, ref _fail);
+
+            // Ratio property approximately holds (within small numeric tolerance).
+            double ratioCU = map["Common"] / map["Uncommon"];
+            double ratioUR = map["Uncommon"] / map["Rare"];
+            TestBase.AssertTrue(Math.Abs(ratioCU - 8.0) < 0.05, $"C/U approx 8, got {ratioCU:0.###}", ref _run, ref _pass, ref _fail);
+            TestBase.AssertTrue(Math.Abs(ratioUR - 8.0) < 0.05, $"U/R approx 8, got {ratioUR:0.###}", ref _run, ref _pass, ref _fail);
         }
     }
 }

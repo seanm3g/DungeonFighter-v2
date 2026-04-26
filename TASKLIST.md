@@ -9,6 +9,8 @@ This file tracks the work currently in progress. Only items listed here should b
 - [ ] **Loot / Rarity:** Remove **Transcendent** as a rarity category; **Mythic** is the highest. Update loot rarity rolls, item-gen lab fixed chances, color themes, and unit tests accordingly.
 - [ ] **UI / Item Generation:** Top panels layout — place **Affix bounds by rarity** and **Generation Parameters** side-by-side (wrap to vertical on narrow widths) in Settings → Item Generation.
 - [ ] **UI / Item Generation:** Keep “Selected Item” details visible while scrolling the generated items list (pin details panel; list scrolls independently).
+- [ ] **UI / Item Generation:** Add a **Statistics** section near “Selected Item” that shows counts for each **tier × rarity** combination in the current generated batch, plus how many generated items are **duplicates** (repeats of an identical item in the batch).
+- [ ] **UI / Item Generation:** Fixed rarity chances — add **Base ratio** input so each rarity is X× rarer than the previous, and auto-derive normalized percentages (Common→Mythic) for the lab.
 - [x] **UI / Item Generation:** Fixed rarity chance boxes — improve hover readability (remove hard-coded TextBox colors so hover style applies; ensure text stays high-contrast).
 - [x] **UI / Item Generation:** Remove the top “Item Generation Lab” banner section in Settings → Item Generation (title + subtitle card).
 - [x] **UI / Item Generation:** Change **Dungeon level** input to **Dungeon Δ** (relative to hero). Enter `+5` so hero 10 implies dungeon 15; clamp final dungeon level 1–99; update preview copy + tests.

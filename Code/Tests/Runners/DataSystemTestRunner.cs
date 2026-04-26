@@ -57,6 +57,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ItemGenerationLabServiceTests.RunAllTests();
             Console.WriteLine();
+            ItemGenerationBatchStatisticsTests.RunAllTests();
+            Console.WriteLine();
             LootDataCacheTests.RunAllTests();
             Console.WriteLine();
             EnemyLoaderTests.RunAllTests();

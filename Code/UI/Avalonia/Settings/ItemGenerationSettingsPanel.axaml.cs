@@ -80,6 +80,7 @@ namespace RPGGame.UI.Avalonia.Settings
             var heroLevel = this.FindControl<TextBox>("HeroLevelTextBox");
             var dungeonDelta = this.FindControl<TextBox>("DungeonDeltaTextBox");
             var rarityCombo = this.FindControl<ComboBox>("RarityCombo");
+            var baseRatio = this.FindControl<TextBox>("BaseRatioTextBox");
             var fixedC = this.FindControl<TextBox>("FixedChanceCommon");
             var fixedU = this.FindControl<TextBox>("FixedChanceUncommon");
             var fixedR = this.FindControl<TextBox>("FixedChanceRare");
@@ -97,6 +98,12 @@ namespace RPGGame.UI.Avalonia.Settings
                 heroLevel.TextChanged += (_, __) => RefreshHeroLevelLootPreviews();
             if (dungeonDelta != null)
                 dungeonDelta.TextChanged += (_, __) => RefreshHeroLevelLootPreviews();
+            if (baseRatio != null)
+                baseRatio.TextChanged += (_, __) =>
+                {
+                    TryApplyBaseRatioToFixedChanceBoxes();
+                    RefreshHeroLevelLootPreviews();
+                };
             if (fixedC != null) fixedC.TextChanged += (_, __) => RefreshHeroLevelLootPreviews();
             if (fixedU != null) fixedU.TextChanged += (_, __) => RefreshHeroLevelLootPreviews();
             if (fixedR != null) fixedR.TextChanged += (_, __) => RefreshHeroLevelLootPreviews();
@@ -117,6 +124,8 @@ namespace RPGGame.UI.Avalonia.Settings
         /// </summary>
         private void RefreshHeroLevelLootPreviews()
         {
+            TryApplyBaseRatioToFixedChanceBoxes();
+
             var rarityPreview = this.FindControl<TextBlock>("HeroLevelRarityPreviewText");
             var fixedSummary = this.FindControl<TextBlock>("FixedChanceSummaryText");
             if (rarityPreview == null)
@@ -260,12 +269,15 @@ namespace RPGGame.UI.Avalonia.Settings
             var list = this.FindControl<ListBox>("ItemsListBox");
             if (list != null && rows.Count > 0)
                 list.SelectedIndex = 0;
+
+            UpdateBatchStats(batch);
         }
 
         private void Clear()
         {
             rows.Clear();
             UpdateSelectedDetails(null);
+            UpdateBatchStats(null);
         }
 
         private void UpdateSelectedDetails(ItemGeneratedRowViewModel? row)
@@ -284,12 +296,28 @@ namespace RPGGame.UI.Avalonia.Settings
             if (stats != null) stats.Text = row.DetailsText;
         }
 
+        private void UpdateBatchStats(IReadOnlyList<ItemGeneratedRow>? batch)
+        {
+            var tb = this.FindControl<TextBlock>("BatchStatsText");
+            if (tb == null) return;
+
+            var stats = ItemGenerationBatchStatistics.Compute(batch ?? Array.Empty<ItemGeneratedRow>());
+            tb.Text = stats.ToDisplayText();
+        }
+
         private int ReadCount()
         {
             var tb = this.FindControl<TextBox>("CountTextBox");
             if (tb == null) return 100;
-            if (int.TryParse(tb.Text, out int n))
-                return Math.Clamp(n, 1, 1000);
+            string raw = (tb.Text ?? "").Trim();
+            if (raw.Length == 0)
+                return 100;
+
+            // Ergonomics: allow "1,000,000" style input.
+            raw = raw.Replace(",", "");
+
+            if (int.TryParse(raw, out int n))
+                return Math.Clamp(n, 1, 1_000_000);
             return 100;
         }
 
@@ -327,6 +355,10 @@ namespace RPGGame.UI.Avalonia.Settings
 
         private Dictionary<string, double> ReadFixedRarityChancesPercent()
         {
+            var byRatio = TryReadBaseRatio();
+            if (byRatio != null)
+                return byRatio;
+
             double read(string name, double fallback)
             {
                 var tb = this.FindControl<TextBox>(name);
@@ -349,6 +381,49 @@ namespace RPGGame.UI.Avalonia.Settings
                 ["Legendary"] = read("FixedChanceLegendary", 0.18),
                 ["Mythic"] = read("FixedChanceMythic", 0.02),
             };
+        }
+
+        private Dictionary<string, double>? TryReadBaseRatio()
+        {
+            var tb = this.FindControl<TextBox>("BaseRatioTextBox");
+            if (tb == null)
+                return null;
+
+            string text = (tb.Text ?? "").Trim();
+            if (text.Length == 0)
+                return null; // blank means manual % mode
+
+            if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double ratio) ||
+                double.TryParse(text, out ratio))
+            {
+                if (ratio <= 1.0)
+                    return null;
+                return RarityChanceMath.BuildGeometricRarityChancesPercent(ratio);
+            }
+
+            return null;
+        }
+
+        private void TryApplyBaseRatioToFixedChanceBoxes()
+        {
+            var map = TryReadBaseRatio();
+            if (map == null)
+                return;
+
+            void set(string name, string key)
+            {
+                var tb = this.FindControl<TextBox>(name);
+                if (tb == null) return;
+                if (!map.TryGetValue(key, out double v)) return;
+                tb.Text = v.ToString("0.##", CultureInfo.InvariantCulture);
+            }
+
+            set("FixedChanceCommon", "Common");
+            set("FixedChanceUncommon", "Uncommon");
+            set("FixedChanceRare", "Rare");
+            set("FixedChanceEpic", "Epic");
+            set("FixedChanceLegendary", "Legendary");
+            set("FixedChanceMythic", "Mythic");
         }
 
         private ItemGenerationItemType ReadItemType()

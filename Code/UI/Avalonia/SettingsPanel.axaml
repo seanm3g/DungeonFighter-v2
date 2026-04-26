@@ -165,6 +165,15 @@
                        IsVisible="False">
             <!-- Testing panel will be displayed here without parent ScrollViewer -->
         </ContentControl>
+
+        <!-- Content Area without parent ScrollViewer for Item Generation (needs fixed Selected Item panel) -->
+        <ContentControl x:Name="ItemGenerationContentArea"
+                       Grid.Column="2" Grid.Row="1"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch"
+                       IsVisible="False">
+            <!-- Item Generation panel will be displayed here without parent ScrollViewer -->
+        </ContentControl>
         
         <!-- Action Buttons -->
         <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2"

@@ -293,10 +293,40 @@ namespace RPGGame.UI.Avalonia
                 }, DispatcherPriority.Background);
                 return;
             }
+
+            // Item Generation panel - use separate content area so the generated list scrolls
+            // while the "Selected Item" details remain visible (avoid parent ScrollViewer measuring with infinite height).
+            if (categoryTag == "ItemGeneration")
+            {
+                if (loadedPanels.ContainsKey(categoryTag))
+                {
+                    ItemGenerationContentArea.Content = loadedPanels[categoryTag];
+                    ItemGenerationContentArea.IsVisible = true;
+                    ContentScrollViewer.IsVisible = false;
+                    TestingContentArea.IsVisible = false;
+                    ActionsContentArea.IsVisible = false;
+                    return;
+                }
+
+                var itemGenPanel = new ItemGenerationSettingsPanel();
+                loadedPanels[categoryTag] = itemGenPanel;
+                ItemGenerationContentArea.Content = itemGenPanel;
+                ItemGenerationContentArea.IsVisible = true;
+                ContentScrollViewer.IsVisible = false;
+                TestingContentArea.IsVisible = false;
+                ActionsContentArea.IsVisible = false;
+
+                Dispatcher.UIThread.Post(() =>
+                {
+                    InitializePanelHandlers(categoryTag, itemGenPanel);
+                }, DispatcherPriority.Background);
+                return;
+            }
             
             // For all other panels, use the regular content area with ScrollViewer
             TestingContentArea.IsVisible = false;
             ActionsContentArea.IsVisible = false;
+            ItemGenerationContentArea.IsVisible = false;
             ContentScrollViewer.IsVisible = true;
             
             // Check if panel is already loaded (e.g. user switched away and back)

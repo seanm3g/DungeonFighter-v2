@@ -284,9 +284,10 @@
                             <TextBox x:Name="CountTextBox"
                                      Text="100"
                                      MinHeight="32"
-                                     Width="96"
+                                     Width="132"
                                      HorizontalAlignment="Left"
-                                     MaxLength="4"/>
+                                     MaxLength="9"
+                                     ToolTip.Tip="Batch size (1–1,000,000). Large batches can be slow."/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Spacing="4">
@@ -339,6 +340,27 @@
                                                    FontSize="12"
                                                    FontWeight="SemiBold"
                                                    Foreground="#FF444444"/>
+                                        <Grid ColumnDefinitions="Auto,Auto,*" RowDefinitions="Auto"
+                                              Margin="0,0,0,2">
+                                            <TextBlock Grid.Column="0"
+                                                       Text="Base ratio"
+                                                       FontSize="11"
+                                                       Foreground="#FF666666"
+                                                       VerticalAlignment="Center"
+                                                       ToolTip.Tip="Geometric odds: Common is X× more common than Uncommon; Uncommon is X× more common than Rare; ... Legendary is X× more common than Mythic. Leave blank to manually edit the % boxes below."/>
+                                            <TextBox Grid.Column="1"
+                                                     x:Name="BaseRatioTextBox"
+                                                     Classes="FixedChanceBox"
+                                                     Text="8"
+                                                     MinHeight="24"
+                                                     Width="64"
+                                                     Margin="8,0,0,0"
+                                                     HorizontalContentAlignment="Center"
+                                                     TextAlignment="Center"
+                                                     BorderThickness="1"
+                                                     MaxLength="6"/>
+                                            <Panel Grid.Column="2"/>
+                                        </Grid>
                                         <Border Background="#FFF9F9F9"
                                                 BorderBrush="#FFEAEAEA"
                                                 BorderThickness="1"
@@ -495,14 +517,20 @@
                         BorderThickness="1"
                         CornerRadius="6"
                         Padding="12">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="Generated Items (best → worst)"
+                    <!-- Use a Grid so the ListBox gets a bounded height and can scroll -->
+                    <Grid RowDefinitions="Auto,Auto,*">
+                        <TextBlock Grid.Row="0"
+                                   Text="Generated Items (best → worst)"
                                    FontSize="18"
                                    FontWeight="SemiBold"
                                    Foreground="Black"
                                    Margin="0,0,0,4"/>
 
-                        <Border Background="#FF2A2A2A" CornerRadius="4" Padding="8">
+                        <Border Grid.Row="1"
+                                Background="#FF2A2A2A"
+                                CornerRadius="4"
+                                Padding="8"
+                                Margin="0,0,0,8">
                             <Grid ColumnDefinitions="36,84,44,*,88,76,76">
                                 <TextBlock Grid.Column="0" Text="#" Foreground="White" Margin="0,0,8,0" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="1" Text="Rarity" Foreground="White" Margin="0,0,10,0" VerticalAlignment="Center"/>
@@ -514,10 +542,12 @@
                             </Grid>
                         </Border>
 
-                        <ListBox x:Name="ItemsListBox"
+                        <ListBox Grid.Row="2"
+                                 x:Name="ItemsListBox"
                                  SelectionMode="Single"
                                  Background="Transparent"
                                  BorderThickness="0"
+                                 VerticalAlignment="Stretch"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.IsScrollChainingEnabled="False">
@@ -540,7 +570,7 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                    </StackPanel>
+                    </Grid>
                 </Border>
 
                 <Border Grid.Column="2"
@@ -554,6 +584,24 @@
                                    FontSize="18"
                                    FontWeight="SemiBold"
                                    Foreground="Black"/>
+                        <Border Background="#FFF8F8F8"
+                                BorderBrush="#FFE8E8E8"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="10,8">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Statistics"
+                                           FontSize="13"
+                                           FontWeight="SemiBold"
+                                           Foreground="#FF444444"/>
+                                <TextBlock x:Name="BatchStatsText"
+                                           Text="(no generated items)"
+                                           FontSize="12"
+                                           Foreground="#FF333333"
+                                           TextWrapping="Wrap"
+                                           LineHeight="16"/>
+                            </StackPanel>
+                        </Border>
                         <TextBlock x:Name="SelectedNameText"
                                    Text="(none)"
                                    FontSize="16"
