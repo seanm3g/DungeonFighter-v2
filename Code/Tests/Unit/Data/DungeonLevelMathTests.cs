@@ -40,7 +40,7 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual(1, d, "clamps dungeon to 1", ref _run, ref _pass, ref _fail);
 
             d = DungeonLevelMath.ResolveEffectiveDungeonLevel(heroLevel: 99, dungeonDelta: 999);
-            TestBase.AssertEqual(99, d, "clamps dungeon to 99", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL, d, "clamps dungeon to max dungeon level", ref _run, ref _pass, ref _fail);
         }
 
         private static void TestClampDungeonDelta_RespectsHeroBounds()
@@ -48,7 +48,7 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.SetCurrentTestName(nameof(TestClampDungeonDelta_RespectsHeroBounds));
 
             int delta = DungeonLevelMath.ClampDungeonDelta(heroLevel: 10, dungeonDelta: 999);
-            TestBase.AssertEqual(89, delta, "hero 10 max delta is +89 (dungeon 99)", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(90, delta, "hero 10 max delta is +90 (dungeon 100)", ref _run, ref _pass, ref _fail);
 
             delta = DungeonLevelMath.ClampDungeonDelta(heroLevel: 10, dungeonDelta: -999);
             TestBase.AssertEqual(-9, delta, "hero 10 min delta is -9 (dungeon 1)", ref _run, ref _pass, ref _fail);

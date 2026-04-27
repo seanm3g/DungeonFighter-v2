@@ -35,7 +35,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// Renders the dungeon selection screen
         /// Applies animation effects (brightness mask and undulation) during rendering using centralized state
         /// </summary>
-        public int RenderDungeonSelection(int x, int y, int width, int height, List<Dungeon> dungeons)
+        public int RenderDungeonSelection(int x, int y, int width, int height, List<Dungeon> dungeons, string? customDungeonLevelEntryBuffer = null)
         {
             int currentLineCount = 0;
             
@@ -101,7 +101,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                 if (option.IsHovered)
                 {
                     // When hovered, use yellow color
-                    var hoveredText = new ColoredText(displayText, ColorPalette.Yellow.GetColor());
+                    string hoverText = displayText;
+                    if (dungeon.Name == RPGGame.GameConstants.DungeonCustomLevelMenuName && customDungeonLevelEntryBuffer != null)
+                        hoverText += FormatCustomLevelEntrySuffix(customDungeonLevelEntryBuffer);
+                    var hoveredText = new ColoredText(hoverText, ColorPalette.Yellow.GetColor());
                     textWriter.WriteLineColored(hoveredText, x + 4, y);
                 }
                 else
@@ -156,6 +159,15 @@ namespace RPGGame.UI.Avalonia.Renderers
                         ? $" (levels {RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL}-{RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL})"
                         : $" (lvl {dungeon.MinLevel})";
                     segments.Add(new ColoredText(levelSuffix, ColorPalette.Gray.GetColor()));
+
+                    if (dungeon.Name == RPGGame.GameConstants.DungeonCustomLevelMenuName && customDungeonLevelEntryBuffer != null)
+                    {
+                        segments.Add(new ColoredText("  Level: ", ColorPalette.Gray.GetColor()));
+                        string lev = string.IsNullOrEmpty(customDungeonLevelEntryBuffer)
+                            ? "_"
+                            : customDungeonLevelEntryBuffer + "_";
+                        segments.Add(new ColoredText(lev, ColorPalette.Yellow.GetColor()));
+                    }
                     
                     // Render all segments
                     textWriter.RenderSegments(segments, x + 4, y);
@@ -190,6 +202,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             return currentLineCount;
         }
         
+        private static string FormatCustomLevelEntrySuffix(string buffer) =>
+            "  Level: " + (string.IsNullOrEmpty(buffer) ? "_" : buffer + "_");
+
         /// <summary>
         /// Adjusts the brightness of a color by a factor
         /// </summary>

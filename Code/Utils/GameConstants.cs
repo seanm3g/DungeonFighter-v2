@@ -45,14 +45,14 @@ namespace RPGGame.Utils
         public const int MIN_INVENTORY_SLOTS = 10;
         
         // Dungeon System Constants
-        public const int MAX_DUNGEON_LEVEL = 50;
+        public const int MAX_DUNGEON_LEVEL = 100;
         public const int MIN_DUNGEON_LEVEL = 1;
         public const int MAX_ROOMS_PER_DUNGEON = 20;
         public const int MIN_ROOMS_PER_DUNGEON = 3;
         public const double ROOM_COUNT_SCALING = 0.5;
         
         // Enemy System Constants
-        public const int MAX_ENEMY_LEVEL = 50;
+        public const int MAX_ENEMY_LEVEL = 100;
         public const int MIN_ENEMY_LEVEL = 1;
         public const int MAX_ENEMIES_PER_ROOM = 5;
         public const int MIN_ENEMIES_PER_ROOM = 1;

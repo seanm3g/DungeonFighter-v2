@@ -29,11 +29,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.Refresh();
         }
 
-        public void RenderDungeonSelection(Character player, List<Dungeon> dungeons, CanvasContext context)
+        public void RenderDungeonSelection(Character player, List<Dungeon> dungeons, CanvasContext context, string? customDungeonLevelEntryBuffer = null)
         {
             RenderWithLayout(player, "DUNGEON SELECTION", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                dungeonRenderer.RenderDungeonSelection(contentX, contentY, contentWidth, contentHeight, dungeons);
+                dungeonRenderer.RenderDungeonSelection(contentX, contentY, contentWidth, contentHeight, dungeons, customDungeonLevelEntryBuffer);
             }, context, null, null, null, clearCanvas: false);
             dungeonRenderer.RenderActionInfoStrip(player);
             canvas.Refresh();

@@ -33,6 +33,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             TestHandleMenuInput_InvalidChoice();
             TestHandleMenuInput_NoCharacter();
             TestHandleMenuInput_CustomLevelThenStart();
+            TestHandleMenuInput_CustomLevelWaitsForEnter();
 
             TestBase.PrintSummary("DungeonSelectionHandler Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -176,8 +177,13 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             var handler = new DungeonSelectionHandler(stateManager, dungeonManager, null);
             handler.StartDungeonEvent += async () => { await Task.CompletedTask; };
 
-            Task.Run(async () => await handler.HandleMenuInput("4")).Wait();
-            Task.Run(async () => await handler.HandleMenuInput("12")).Wait();
+            Task.Run(async () =>
+            {
+                await handler.HandleMenuInput("4");
+                await handler.HandleMenuInput("1");
+                await handler.HandleMenuInput("2");
+                await handler.HandleMenuInput("enter");
+            }).Wait();
 
             TestBase.AssertNotNull(stateManager.CurrentDungeon,
                 "Custom level entry should set current dungeon",
@@ -189,6 +195,51 @@ namespace RPGGame.Tests.Unit.Game.Handlers
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(stateManager.CurrentDungeon.Name.Contains("12"),
                     "Dungeon name should include the chosen level",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestHandleMenuInput_CustomLevelWaitsForEnter()
+        {
+            Console.WriteLine("\n--- Testing HandleMenuInput - Custom level does not submit on first digit ---");
+
+            var stateManager = new GameStateManager();
+            var dungeonManager = new DungeonManagerWithRegistry();
+            var character = new Character("TestHero", 1);
+            stateManager.SetCurrentPlayer(character);
+
+            stateManager.AvailableDungeons.Clear();
+            stateManager.AvailableDungeons.Add(new Dungeon("A", 1, 1, "Forest"));
+            stateManager.AvailableDungeons.Add(new Dungeon("B", 2, 2, "Forest"));
+            stateManager.AvailableDungeons.Add(new Dungeon("C", 3, 3, "Forest"));
+            stateManager.AvailableDungeons.Add(new Dungeon(RPGGame.GameConstants.DungeonCustomLevelMenuName, 1, 1, "Crypt"));
+
+            var handler = new DungeonSelectionHandler(stateManager, dungeonManager, null);
+            handler.StartDungeonEvent += async () => { await Task.CompletedTask; };
+
+            Task.Run(async () =>
+            {
+                await handler.HandleMenuInput("4");
+                await handler.HandleMenuInput("5");
+            }).Wait();
+
+            TestBase.AssertTrue(stateManager.CurrentDungeon == null,
+                "Pressing only the first digit of a two-digit level must not start the dungeon",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            Task.Run(async () =>
+            {
+                await handler.HandleMenuInput("0");
+                await handler.HandleMenuInput("enter");
+            }).Wait();
+
+            TestBase.AssertNotNull(stateManager.CurrentDungeon,
+                "After typing 50 and Enter, dungeon should start",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (stateManager.CurrentDungeon != null)
+            {
+                TestBase.AssertEqual(50, stateManager.CurrentDungeon.MinLevel,
+                    "Dungeon level should be 50",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }

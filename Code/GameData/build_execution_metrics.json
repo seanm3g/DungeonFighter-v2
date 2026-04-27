@@ -2,12 +2,6 @@
   "BuildMetrics": [],
   "ExecutionMetrics": [
     {
-      "Timestamp": "2026-04-21T19:41:07.6651562Z",
-      "Mode": "TEST",
-      "ExecutionTimeMs": 260282,
-      "ExecutionTimeSeconds": 260.2821623
-    },
-    {
       "Timestamp": "2026-04-21T20:06:45.9744501Z",
       "Mode": "GUI",
       "ExecutionTimeMs": 459872,
@@ -600,6 +594,12 @@
       "Mode": "GUI",
       "ExecutionTimeMs": 36186,
       "ExecutionTimeSeconds": 36.1862056
+    },
+    {
+      "Timestamp": "2026-04-27T06:12:39.6055948Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 92318,
+      "ExecutionTimeSeconds": 92.3186077
     }
   ]
 }

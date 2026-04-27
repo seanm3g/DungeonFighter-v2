@@ -27,6 +27,7 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Completed (reference)
 
+- [x] **UI / Dungeon selection:** Custom difficulty — typed dungeon level shows inline on the **Custom difficulty** row (`Level:` + digits + `_` cursor); removed full-screen `ShowMessage` for this flow; validation uses bottom non-blocking messages (`DungeonSelectionHandler`, `DungeonSelectionRenderer`, `CanvasUICoordinator`).
 - [x] **Data / New game:** Only **four** starting weapons on the pick-one menu — removed duplicate **starter** tag from the second identical Wand **STICK** row in `Weapons.json`; `OVERVIEW.md` documents starter-tag vs tier-1 fallback.
 - [x] **Loot / rarity weights:** Set `RarityTable.json` weights to pure powers of 10 (Common→Transcendent) for clean “1 in N” mental math; document resulting odds.
 - [x] **Bugfix / items:** First stat suffix duplicated in display names when two `StatBonuses` names had the same length (`GetBaseItemName` only stripped the outer suffix in one pass). Fixed with iterative stripping; test `ItemGeneratorTests` equal-length suffix idempotency case.

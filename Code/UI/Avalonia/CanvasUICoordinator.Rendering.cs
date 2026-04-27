@@ -382,7 +382,7 @@ namespace RPGGame.UI.Avalonia
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons)
         {
             animationManager.StartDungeonSelectionAnimation(player, dungeons);
-            renderer.RenderDungeonSelection(player, dungeons, GetContext());
+            renderer.RenderDungeonSelection(player, dungeons, GetContext(), dungeonSelectionCustomLevelEntryBuffer);
         }
 
         public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)

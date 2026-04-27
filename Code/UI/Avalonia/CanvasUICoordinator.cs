@@ -44,9 +44,23 @@ namespace RPGGame.UI.Avalonia
         private readonly CanvasWindowManager windowManager;
         
         private GameStateManager? stateManager = null;
+
+        /// <summary>
+        /// When non-null, dungeon selection draws this buffer inline on the custom-difficulty row (same column as that menu line).
+        /// </summary>
+        private string? dungeonSelectionCustomLevelEntryBuffer;
         
         // Screen state tracking to prevent unnecessary re-renders
         private GameState? lastRenderedScreenState = null;
+
+        /// <summary>
+        /// Sets optional inline custom dungeon level entry display for the dungeon selection screen.
+        /// Pass null when not entering a custom level.
+        /// </summary>
+        public void SetDungeonSelectionCustomLevelPrompt(string? levelEntryBuffer)
+        {
+            dungeonSelectionCustomLevelEntryBuffer = levelEntryBuffer;
+        }
         
         /// <summary>
         /// Gets the last rendered screen state.
