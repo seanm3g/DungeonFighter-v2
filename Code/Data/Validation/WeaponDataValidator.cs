@@ -89,6 +89,25 @@ namespace RPGGame.Data.Validation
                         ValidationRules.Weapons.MinTier, ValidationRules.Weapons.MaxTier));
             }
 
+            const int maxDamageBonusBound = 50;
+            if (weapon.DamageBonusMin < 0 || weapon.DamageBonusMax < 0)
+            {
+                result.AddWarning(FileName, entityName, "damageBonus",
+                    "damageBonusMin and damageBonusMax should be non-negative (values are clamped at generation).");
+            }
+
+            if (weapon.DamageBonusMin > maxDamageBonusBound || weapon.DamageBonusMax > maxDamageBonusBound)
+            {
+                result.AddWarning(FileName, entityName, "damageBonus",
+                    $"damageBonus range unusually high (>{maxDamageBonusBound}); verify sheet values.");
+            }
+
+            if (weapon.DamageBonusMax < weapon.DamageBonusMin)
+            {
+                result.AddWarning(FileName, entityName, "damageBonus",
+                    "damageBonusMax is less than damageBonusMin; they are swapped when rolling loot.");
+            }
+
             // Business rules
             if (weapon.BaseDamage <= 0)
             {

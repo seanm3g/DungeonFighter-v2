@@ -202,9 +202,7 @@ namespace RPGGame
                 var random = new Random();
                 var selectedWeapon = tier1Weapons[random.Next(tier1Weapons.Count)];
 
-                var weaponType = Enum.Parse<WeaponType>(selectedWeapon.Type);
-                var weapon = new WeaponItem(selectedWeapon.Name, selectedWeapon.Tier,
-                    selectedWeapon.BaseDamage, selectedWeapon.AttackSpeed, weaponType);
+                var weapon = ItemGenerator.GenerateWeaponItem(selectedWeapon);
                 weapon.Rarity = "Common";
 
                 return weapon;

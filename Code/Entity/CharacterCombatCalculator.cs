@@ -204,7 +204,7 @@ namespace RPGGame
             
             if (magicFind > 0)
             {
-                stats += $"  Magic Find: +{magicFind} (improves rare item drop chances)";
+                stats += $"  Magic Find: +{magicFind} (tilts first rarity roll toward higher tiers)";
             }
 
             return stats;

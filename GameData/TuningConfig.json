@@ -394,13 +394,14 @@
       "actionBonusChance": "",
       "statBonusChance": ""
     },
+    "magicFindDistributionAlpha": 0.5,
     "magicFindScaling": {
       "common": {
-        "perPointMultiplier": 0,
-        "description": ""
+        "perPointMultiplier": -1,
+        "description": "k_r tilt for MF (exponential); Common stays relatively lower at high MF"
       },
       "uncommon": {
-        "perPointMultiplier": 0,
+        "perPointMultiplier": -0.5,
         "description": ""
       },
       "rare": {
@@ -408,11 +409,15 @@
         "description": ""
       },
       "epic": {
-        "perPointMultiplier": 0,
+        "perPointMultiplier": 0.4,
         "description": ""
       },
       "legendary": {
-        "perPointMultiplier": 0,
+        "perPointMultiplier": 0.7,
+        "description": ""
+      },
+      "mythic": {
+        "perPointMultiplier": 1,
         "description": ""
       }
     },

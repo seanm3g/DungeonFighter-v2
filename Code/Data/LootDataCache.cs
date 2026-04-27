@@ -127,6 +127,11 @@ namespace RPGGame
             if (filePath != null)
             {
                 StatBonuses = JsonLoader.LoadJsonList<StatBonus>(filePath) ?? new List<StatBonus>();
+                foreach (var sb in StatBonuses)
+                {
+                    if (string.IsNullOrWhiteSpace(sb.Rarity))
+                        sb.Rarity = "Common";
+                }
             }
             else
             {

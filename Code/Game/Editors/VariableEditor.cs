@@ -196,6 +196,7 @@ namespace RPGGame.Editors
                 new EditableVariable("LootSystem.MaxDropChance", () => config.LootSystem.MaxDropChance, v => config.LootSystem.MaxDropChance = Convert.ToDouble(v), "Maximum drop chance"),
                 new EditableVariable("LootSystem.GuaranteedLootChance", () => config.LootSystem.GuaranteedLootChance, v => config.LootSystem.GuaranteedLootChance = Convert.ToDouble(v), "Guaranteed loot chance"),
                 new EditableVariable("LootSystem.MagicFindEffectiveness", () => config.LootSystem.MagicFindEffectiveness, v => config.LootSystem.MagicFindEffectiveness = Convert.ToDouble(v), "Magic find effectiveness"),
+                new EditableVariable("RarityScaling.MagicFindDistributionAlpha", () => config.RarityScaling?.MagicFindDistributionAlpha ?? 0.5, v => { config.RarityScaling ??= new RarityScalingConfig(); config.RarityScaling.MagicFindDistributionAlpha = Convert.ToDouble(v); }, "MF tilt on first rarity roll; ≤0 disables"),
                 new EditableVariable("LootSystem.GoldDropMultiplier", () => config.LootSystem.GoldDropMultiplier, v => config.LootSystem.GoldDropMultiplier = Convert.ToDouble(v), "Gold drop multiplier"),
             };
             variablesByCategory["Loot"] = lootVars;

@@ -4,6 +4,8 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Bugfix / UI — inventory Actions:** Duplicate action names on bag rows (e.g. **Tight Combo, Tight Combo**) came from **`GearActionNames.GetArmorExtraActionNames`**: after **`Resolve`** already prepended armor **`GearAction`**, “special armor” handling appended the same name again. Fixed by returning no extra names when **`GearAction`** is already set (random armor action only when it is empty). Test **`TestArmorExplicitGearAction_NotDuplicatedWhenSpecialMods`** in **`GearActionNamesTests`**. **`OVERVIEW.md`** (inventory bullet).
+
 - [ ] **DevEx / Scripts:** Consolidate `Scripts/` into a small set of core commands (build/run/test/clean/metrics) and move legacy Google Sheets + redundant wrappers into `Scripts/_legacy/`. Update script docs and keep a single entrypoint.
 - [ ] **Combat / INT:** Replace INT “+roll bonus per N” with milestone-based threshold bonuses that grant +1 to HIT/COMBO/CRIT at specific effective-INT breakpoints (as per the tuning table). Ensure combat resolution, action selection, and HUD threshold preview all agree; add unit tests.
 - [ ] **Loot / Rarity:** Remove **Transcendent** as a rarity category; **Mythic** is the highest. Update loot rarity rolls, item-gen lab fixed chances, color themes, and unit tests accordingly.
@@ -26,6 +28,8 @@ This file tracks the work currently in progress. Only items listed here should b
 - [x] **UI / Item Generation:** Fixed rarity chance inputs (Common→Transcendent) to control lab rarity rolls when Rarity is Any (ignores level gating). Tests: `ItemGenerationLabServiceTests.TestFixedRarityChancesOverridesAnyAndIgnoresLevelGates`.
 
 ## Completed (reference)
+
+- [x] **Loot / affix-line rarity:** `StatBonuses.json` rows use **`Rarity`** (affix pool tier) instead of legacy **`Weight`**. Each rolled stat suffix and each prefix slot rolls a tier weighted from **`RarityTable.json`**, then picks uniformly among rows in that tier (`StatBonus.Rarity`, `Modification.ItemRank`; blank rank → Common). Sheets CSV import maps legacy **Weight** only to **Rarity Common** when **Rarity** is absent. **`JsonArraySheetConverter`**, **`LootBonusApplier`**, **`LootDataCache`**, lab **`CloneStatBonus`**. Tests: **`JsonArraySheetConverterTests`**, **`LootBonusApplierTests`**. **`OVERVIEW.md`**.
 
 - [x] **UI / Dungeon selection:** Custom difficulty — typed dungeon level shows inline on the **Custom difficulty** row (`Level:` + digits + `_` cursor); removed full-screen `ShowMessage` for this flow; validation uses bottom non-blocking messages (`DungeonSelectionHandler`, `DungeonSelectionRenderer`, `CanvasUICoordinator`).
 - [x] **Data / New game:** Only **four** starting weapons on the pick-one menu — removed duplicate **starter** tag from the second identical Wand **STICK** row in `Weapons.json`; `OVERVIEW.md` documents starter-tag vs tier-1 fallback.

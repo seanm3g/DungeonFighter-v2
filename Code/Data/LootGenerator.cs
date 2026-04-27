@@ -344,6 +344,14 @@ namespace RPGGame
         [JsonPropertyName("attackSpeed")]
         public double AttackSpeed { get; set; }
 
+        /// <summary>Inclusive lower bound for a random damage bonus added to <see cref="BaseDamage"/> when a <see cref="WeaponItem"/> is created (loot, starters, lab).</summary>
+        [JsonPropertyName("damageBonusMin")]
+        public int DamageBonusMin { get; set; }
+
+        /// <summary>Inclusive upper bound for the random damage bonus (Google sheet column often named &quot;Max Bonus&quot;).</summary>
+        [JsonPropertyName("damageBonusMax")]
+        public int DamageBonusMax { get; set; }
+
         public int Tier { get; set; }
         
         [JsonPropertyName("attributeRequirements")]

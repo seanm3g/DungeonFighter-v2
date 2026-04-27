@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Avalonia.Media;
 using RPGGame;
@@ -8,7 +9,7 @@ using RPGGame.UI.ColorSystem;
 namespace RPGGame.Tests.Unit.UI
 {
     /// <summary>
-    /// Tests for <see cref="ItemStatFormatter.FormatStatLine"/> weapon speed coloring.
+    /// Tests for <see cref="ItemStatFormatter.FormatStatLine"/> weapon speed and damage comparison coloring.
     /// </summary>
     public static class ItemStatFormatterTests
     {
@@ -29,6 +30,11 @@ namespace RPGGame.Tests.Unit.UI
             TestSpeedNoBaselineWhite();
             TestSpeedNonWeaponDisplayedStaysWhite();
 
+            TestDamageHigherThanBaselineGreen();
+            TestDamageLowerThanBaselineRed();
+            TestDamageEqualBaselineWhite();
+            TestDamageNoBaselineUsesDamagePalette();
+
             TestBase.PrintSummary("ItemStatFormatter Tests", _testsRun, _testsPassed, _testsFailed);
         }
 
@@ -38,6 +44,16 @@ namespace RPGGame.Tests.Unit.UI
         private static ColoredText? FindSpeedValueSegment(System.Collections.Generic.List<ColoredText> segments)
         {
             return segments.FirstOrDefault(s => s.Text.Contains('×'));
+        }
+
+        private static ColoredText? FindDamageValueSegment(System.Collections.Generic.List<ColoredText> segments)
+        {
+            for (int i = 0; i < segments.Count - 1; i++)
+            {
+                if (segments[i].Text.Contains("Damage:", StringComparison.Ordinal))
+                    return segments[i + 1];
+            }
+            return null;
         }
 
         private static void TestSpeedFasterThanBaselineGreen()
@@ -102,6 +118,57 @@ namespace RPGGame.Tests.Unit.UI
             var valueSeg = FindSpeedValueSegment(segments);
             var ok = valueSeg != null && valueSeg.Color == new ColoredText("x", Colors.White).Color;
             if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: non-weapon line should not apply weapon compare"); }
+        }
+
+        private static void TestDamageHigherThanBaselineGreen()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestDamageHigherThanBaselineGreen ---");
+            var high = new WeaponItem("High", 1, 15, 1.0, WeaponType.Wand);
+            var low = new WeaponItem("Low", 1, 5, 1.0, WeaponType.Sword);
+            string stat = $"Damage: {high.GetTotalDamage()}";
+            var segments = ItemStatFormatter.FormatStatLine(stat, high, low);
+            var valueSeg = FindDamageValueSegment(segments);
+            var ok = valueSeg != null && valueSeg.Color == ExpectedPaletteColor(ColorPalette.Success);
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: expected success color when new damage is higher"); }
+        }
+
+        private static void TestDamageLowerThanBaselineRed()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestDamageLowerThanBaselineRed ---");
+            var high = new WeaponItem("High", 1, 15, 1.0, WeaponType.Sword);
+            var low = new WeaponItem("Low", 1, 5, 1.0, WeaponType.Wand);
+            string stat = $"Damage: {low.GetTotalDamage()}";
+            var segments = ItemStatFormatter.FormatStatLine(stat, low, high);
+            var valueSeg = FindDamageValueSegment(segments);
+            var ok = valueSeg != null && valueSeg.Color == ExpectedPaletteColor(ColorPalette.Error);
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: expected error color when new damage is lower"); }
+        }
+
+        private static void TestDamageEqualBaselineWhite()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestDamageEqualBaselineWhite ---");
+            var a = new WeaponItem("A", 1, 10, 0.5, WeaponType.Sword);
+            var b = new WeaponItem("B", 1, 10, 1.0, WeaponType.Dagger);
+            string stat = $"Damage: {a.GetTotalDamage()}";
+            var segments = ItemStatFormatter.FormatStatLine(stat, a, b);
+            var valueSeg = FindDamageValueSegment(segments);
+            var ok = valueSeg != null && valueSeg.Color == new ColoredText("x", Colors.White).Color;
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: expected white when damage matches"); }
+        }
+
+        private static void TestDamageNoBaselineUsesDamagePalette()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestDamageNoBaselineUsesDamagePalette ---");
+            var w = new WeaponItem("W", 1, 12, 0.6, WeaponType.Sword);
+            string stat = $"Damage: {w.GetTotalDamage()}";
+            var segments = ItemStatFormatter.FormatStatLine(stat, w, weaponSpeedBaseline: null);
+            var valueSeg = FindDamageValueSegment(segments);
+            var ok = valueSeg != null && valueSeg.Color == ExpectedPaletteColor(ColorPalette.Damage);
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: expected default damage palette with no baseline"); }
         }
     }
 }

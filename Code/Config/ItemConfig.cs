@@ -88,6 +88,13 @@ namespace RPGGame
         public RollChanceFormulas RollChanceFormulas { get; set; } = new();
         public MagicFindScalingConfig MagicFindScaling { get; set; } = new();
         public LevelBasedRarityScalingConfig LevelBasedRarityScaling { get; set; } = new();
+
+        /// <summary>
+        /// Global strength for magic find on the <b>initial</b> rarity weight roll:
+        /// adjustedWeight = baseWeight * Exp(alpha * t * k_r) with t = clamp(MF,0,100)/100 and k_r from <see cref="MagicFindScaling"/> (or built-in defaults when all per-point values are zero).
+        /// Values &lt;= 0 disable MF tilt (weights unchanged).
+        /// </summary>
+        public double MagicFindDistributionAlpha { get; set; } = 0.5;
     }
 
     /// <summary>
@@ -246,13 +253,38 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Rolls final affix counts from a rule using <paramref name="random"/>.
+        /// Rolls final affix counts from a rule using <paramref name="random"/> (no magic find on extra chances).
         /// </summary>
         public static void RollAffixCounts(Random random, in ItemAffixRollRule rule, out int prefixSlots, out int statSuffixes, out int actionBonuses)
         {
-            prefixSlots = RollAxis(random, rule.PrefixMin, rule.PrefixMax, rule.PrefixExtraChance);
-            statSuffixes = RollAxis(random, rule.StatMin, rule.StatMax, rule.StatExtraChance);
-            actionBonuses = RollAxis(random, rule.ActionMin, rule.ActionMax, rule.ActionExtraChance);
+            RollAffixCounts(random, rule, 0, null, out prefixSlots, out statSuffixes, out actionBonuses);
+        }
+
+        /// <summary>
+        /// Rolls affix counts; when <paramref name="magicFind0To100"/> &gt; 0, scales only the *extra* step chances (prefix/stat/action) toward up to <see cref="LootSystemConfig.AffixMagicFindMaxExtraChanceBoost"/> at MF 100, each capped at 1.0.
+        /// </summary>
+        public static void RollAffixCounts(
+            Random random,
+            in ItemAffixRollRule rule,
+            int magicFind0To100,
+            LootSystemConfig? loot,
+            out int prefixSlots,
+            out int statSuffixes,
+            out int actionBonuses)
+        {
+            double t = Math.Clamp(magicFind0To100, 0, 100) / 100.0;
+            double maxBoost = loot?.AffixMagicFindMaxExtraChanceBoost ?? 2.0;
+            if (maxBoost < 1.0)
+                maxBoost = 1.0;
+            double chanceMult = 1.0 + t * (maxBoost - 1.0);
+
+            double pCh = Clamp01(rule.PrefixExtraChance * chanceMult);
+            double sCh = Clamp01(rule.StatExtraChance * chanceMult);
+            double aCh = Clamp01(rule.ActionExtraChance * chanceMult);
+
+            prefixSlots = RollAxis(random, rule.PrefixMin, rule.PrefixMax, pCh);
+            statSuffixes = RollAxis(random, rule.StatMin, rule.StatMax, sCh);
+            actionBonuses = RollAxis(random, rule.ActionMin, rule.ActionMax, aCh);
         }
 
         /// <summary>
@@ -333,6 +365,13 @@ namespace RPGGame
         public double MagicFindEffectiveness { get; set; }
         public double GoldDropMultiplier { get; set; }
         public double ItemValueMultiplier { get; set; }
+
+        /// <summary>At MF 100, affix-line tier weights for prefix/suffix pool rolls scale up to this multiplier on the highest tier index present in the pool (Common stays 1×).</summary>
+        public double AffixMagicFindMaxWeightBoost { get; set; } = 2.0;
+
+        /// <summary>At MF 100, optional affix *extra* chances (prefix/stat/action) multiply by this value before capping at 1.0 per step.</summary>
+        public double AffixMagicFindMaxExtraChanceBoost { get; set; } = 2.0;
+
         public RarityUpgradeConfig RarityUpgrade { get; set; } = new();
         public string Description { get; set; } = "";
 
@@ -352,6 +391,10 @@ namespace RPGGame
                 GoldDropMultiplier = 1.0;
             if (ItemValueMultiplier <= 0)
                 ItemValueMultiplier = 1.0;
+            if (AffixMagicFindMaxWeightBoost < 1.0)
+                AffixMagicFindMaxWeightBoost = 1.0;
+            if (AffixMagicFindMaxExtraChanceBoost < 1.0)
+                AffixMagicFindMaxExtraChanceBoost = 1.0;
         }
     }
 
@@ -551,6 +594,7 @@ namespace RPGGame
         public RarityMagicFindConfig Rare { get; set; } = new();
         public RarityMagicFindConfig Epic { get; set; } = new();
         public RarityMagicFindConfig Legendary { get; set; } = new();
+        public RarityMagicFindConfig Mythic { get; set; } = new();
     }
 
     /// <summary>

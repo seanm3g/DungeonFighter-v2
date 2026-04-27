@@ -16,8 +16,10 @@ namespace RPGGame.Tests.Unit.Data
             WeaponsImportStripsInternalColumnsAndCanonicalizesStats(ref run, ref pass, ref fail);
             WeaponsWithNestedRequirements(ref run, ref pass, ref fail);
             WeaponsWithTagsRoundTrip(ref run, ref pass, ref fail);
+            WeaponsImportMapsTypoMinBonusHeaders(ref run, ref pass, ref fail);
             ModificationsRoundTrip(ref run, ref pass, ref fail);
             StatBonusesRoundTrip(ref run, ref pass, ref fail);
+            StatBonusesLegacyWeightCsvImportsAsCommon(ref run, ref pass, ref fail);
             EnemiesRoundTrip(ref run, ref pass, ref fail);
             EnemiesWithTagsRoundTrip(ref run, ref pass, ref fail);
             EnemiesFullStatsRoundTrip(ref run, ref pass, ref fail);
@@ -97,6 +99,22 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual(5, req.GetProperty("strength").GetInt32(), "str", ref run, ref pass, ref fail);
         }
 
+        /// <summary>Sheet typo <c>Min BOnus</c> and <c>Max Bonus</c> map to <c>damageBonusMin</c> / <c>damageBonusMax</c>.</summary>
+        private static void WeaponsImportMapsTypoMinBonusHeaders(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(WeaponsImportMapsTypoMinBonusHeaders));
+            const string csv = """
+            Type,Name,DPS,Base Damage,Min BOnus,Max Bonus,Attack Speed,Tier,tags
+            Dagger,Twig,4.0,3,0,2,0.77,1,["starter"]
+            """;
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Weapons);
+            using var a = JsonDocument.Parse(outJson);
+            var first = a.RootElement[0];
+            TestBase.AssertEqual(3, first.GetProperty("baseDamage").GetInt32(), "baseDamage", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(0, first.GetProperty("damageBonusMin").GetInt32(), "damageBonusMin", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(2, first.GetProperty("damageBonusMax").GetInt32(), "damageBonusMax", ref run, ref pass, ref fail);
+        }
+
         private static void WeaponsWithTagsRoundTrip(ref int run, ref int pass, ref int fail)
         {
             TestBase.SetCurrentTestName(nameof(WeaponsWithTagsRoundTrip));
@@ -131,7 +149,7 @@ namespace RPGGame.Tests.Unit.Data
         {
             TestBase.SetCurrentTestName(nameof(StatBonusesRoundTrip));
             const string json = """
-            [{"Name":"of Swiftness","Description":"+0.005 attack speed","Value":0.005,"Weight":15,"StatType":"AttackSpeed"}]
+            [{"Name":"of Swiftness","Description":"+0.005 attack speed","Value":0.005,"Rarity":"Uncommon","StatType":"AttackSpeed"}]
             """;
             var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.StatBonuses);
             var csv = RowsToCsv(rows);
@@ -140,7 +158,21 @@ namespace RPGGame.Tests.Unit.Data
             var first = a.RootElement[0];
             TestBase.AssertEqual("of Swiftness", first.GetProperty("Name").GetString(), "Name", ref run, ref pass, ref fail);
             TestBase.AssertEqual(0.005, first.GetProperty("Value").GetDouble(), "Value", ref run, ref pass, ref fail);
-            TestBase.AssertEqual(15, first.GetProperty("Weight").GetInt32(), "Weight", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Uncommon", first.GetProperty("Rarity").GetString(), "Rarity", ref run, ref pass, ref fail);
+        }
+
+        private static void StatBonusesLegacyWeightCsvImportsAsCommon(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(StatBonusesLegacyWeightCsvImportsAsCommon));
+            const string csv = """
+Name,Description,Value,Weight,StatType,ItemRank
+of Test,+1,1,15,Armor,
+""";
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.StatBonuses);
+            using var a = JsonDocument.Parse(outJson);
+            var first = a.RootElement[0];
+            TestBase.AssertEqual("Common", first.GetProperty("Rarity").GetString(), "legacy Weight→Common", ref run, ref pass, ref fail);
+            TestBase.AssertFalse(first.TryGetProperty("Weight", out _), "Weight column removed", ref run, ref pass, ref fail);
         }
 
         private static void EnemiesRoundTrip(ref int run, ref int pass, ref int fail)

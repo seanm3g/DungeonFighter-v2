@@ -2,24 +2,6 @@
   "BuildMetrics": [],
   "ExecutionMetrics": [
     {
-      "Timestamp": "2026-04-21T20:06:45.9744501Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 459872,
-      "ExecutionTimeSeconds": 459.8729703
-    },
-    {
-      "Timestamp": "2026-04-21T20:12:23.6939092Z",
-      "Mode": "TEST",
-      "ExecutionTimeMs": 260700,
-      "ExecutionTimeSeconds": 260.700339
-    },
-    {
-      "Timestamp": "2026-04-21T21:45:19.1155086Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 333083,
-      "ExecutionTimeSeconds": 333.083268
-    },
-    {
       "Timestamp": "2026-04-21T21:55:24.1895443Z",
       "Mode": "TEST",
       "ExecutionTimeMs": 260746,
@@ -600,6 +582,24 @@
       "Mode": "GUI",
       "ExecutionTimeMs": 92318,
       "ExecutionTimeSeconds": 92.3186077
+    },
+    {
+      "Timestamp": "2026-04-27T17:36:30.2316151Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 1181904,
+      "ExecutionTimeSeconds": 1181.9044745
+    },
+    {
+      "Timestamp": "2026-04-27T22:12:57.7153164Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 420050,
+      "ExecutionTimeSeconds": 420.0508253
+    },
+    {
+      "Timestamp": "2026-04-27T22:48:13.2368004Z",
+      "Mode": "TEST",
+      "ExecutionTimeMs": 221136,
+      "ExecutionTimeSeconds": 221.1367665
     }
   ]
 }

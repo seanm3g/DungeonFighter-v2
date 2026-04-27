@@ -77,8 +77,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         }
 
         /// <summary>
-        /// Renders item stats with colored text support
+        /// Renders item stats with colored text support.
         /// </summary>
+        /// <param name="weaponSpeedBaseline">When set (e.g. equip comparison), used with <paramref name="displayedItem"/> for relative speed/damage colors.</param>
         public static void RenderItemStats(ColoredTextWriter textWriter, GameCanvasControl canvas,
             int x, int y, List<string> itemStats, ref int currentY, ref int lineCount, bool useColoredText = true,
             Item? displayedItem = null, WeaponItem? weaponSpeedBaseline = null)

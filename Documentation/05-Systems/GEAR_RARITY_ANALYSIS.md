@@ -318,22 +318,15 @@ After tuning:
 - Assess if progression feels right
 - Check if game feels too easy/hard
 
-## Magic Find (Future Enhancement)
+## Magic Find (initial rarity roll)
 
-The `RollRarity()` method accepts a `magicFind` parameter, but it's currently **not implemented**:
+`LootRarityProcessor.RollRarity(magicFind, playerLevel)` applies **magic find only to the first weighted rarity roll** (before the optional `RarityUpgrade` cascade). Base weights come from `GameData/RarityTable.json`, filtered by level (`IsRarityUnlockedAtPlayerLevel`).
 
-```csharp
-public RarityData RollRarity(double magicFind = 0.0, int playerLevel = 1)
-{
-    // magicFind parameter is ignored currently
-    // TODO: Implement magic find scaling
-}
-```
+- **Clamp**: effective MF is `clamp(magicFind, 0, 100)`; `t = effectiveMF / 100`.
+- **Tilt**: `adjustedWeight = baseWeight * Exp(alpha * t * k_r)` where `alpha` is `rarityScaling.magicFindDistributionAlpha` in `TuningConfig.json` (values ≤ 0 disable tilt). Per-rarity `k_r` comes from `rarityScaling.magicFindScaling.*.perPointMultiplier`; when all configured multipliers are ~0, built-in defaults are used (Common −1 … Mythic +1).
+- **Preview**: `LootRarityProcessor.GetBaseRollDistribution(cache, playerLevel, magicFind)` matches this first-roll math (Item Generation settings panel shows MF 0 vs MF 100).
 
-**Future Implementation Ideas**:
-- Increase weights for higher rarities based on magic find
-- Formula: `adjustedWeight = baseWeight * (1 + magicFind / 100)`
-- Or: Shift roll result toward higher rarities
+The separate **rarity upgrade** chain (`lootSystem.rarityUpgrade`) can still step rarity up after the first roll when enabled; it uses its own `MagicFindBonus` tuning.
 
 ## Related Systems
 

@@ -155,7 +155,7 @@ namespace RPGGame.ActionInteractionLab
             Name = s.Name,
             Description = s.Description,
             Value = s.Value,
-            Weight = s.Weight,
+            Rarity = s.Rarity,
             StatType = s.StatType,
             ItemRank = s.ItemRank,
         };

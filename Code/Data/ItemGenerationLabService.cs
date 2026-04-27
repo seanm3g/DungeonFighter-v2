@@ -32,6 +32,9 @@ namespace RPGGame
         public int DungeonLevel { get; set; } = 1;
         public int Seed { get; set; } = 12345;
 
+        /// <summary>Magic find (0–100) for the first rarity roll when <see cref="Rarity"/> is Any and fixed chances are not used; matches dungeon loot behavior.</summary>
+        public double MagicFind { get; set; } = 0;
+
         /// <summary>
         /// Optional fixed rarity percent chances used when <see cref="Rarity"/> is Any.
         /// If set, the lab rolls rarity from these values (normalized) and ignores level gating.
@@ -103,7 +106,7 @@ namespace RPGGame
                 }
                 else
                 {
-                    rarityForItem = rarityProcessor.RollRarity(magicFind: 0.0, playerLevel: heroLevel);
+                    rarityForItem = rarityProcessor.RollRarity(magicFind: spec.MagicFind, playerLevel: heroLevel);
                 }
 
                 var item = GenerateSingleForced(cache, rnd, spec, rarityForItem, availableWeaponTiers, availableArmorTiers, lockRarityAfterBonuses: !rollRarityEachItem);

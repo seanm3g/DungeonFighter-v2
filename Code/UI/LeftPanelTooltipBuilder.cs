@@ -383,6 +383,7 @@ namespace RPGGame
             addWrapped("Magic find");
             addWrapped($"Total: +{v}");
             addWrapped("Sum of MagicFind stat bonuses on equipment plus modification magicFind effects.");
+            addWrapped("Loot: tilts the first weighted rarity roll toward higher tiers (capped at 100 for that math).");
         }
 
         private static void AppendSimpleStat(Character c, string title, string detail, List<string> result, Action<string> addWrapped, int maxLines)

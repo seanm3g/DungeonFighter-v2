@@ -20,12 +20,14 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Rolls for a rarity level based on rarity table weights
-        /// Applies cascading rarity upgrades after initial roll
+        /// Rolls for a rarity level based on rarity table weights (magic find does not alter this roll; MF applies in <see cref="LootBonusApplier"/>).
+        /// Applies cascading rarity upgrades after initial roll when enabled.
         /// Filters out rarities that require a higher player level
         /// </summary>
         public RarityData RollRarity(double magicFind = 0.0, int playerLevel = 1)
         {
+            _ = magicFind; // MF is affix-only; parameter kept for API compatibility
+
             // Ensure rarity data is available
             if (_dataCache.RarityData == null || _dataCache.RarityData.Count == 0)
             {
@@ -41,7 +43,7 @@ namespace RPGGame
 
             // Filter rarities based on player level - only include rarities the player can get
             var availableRarities = _dataCache.RarityData.Where(r => IsRarityUnlockedAtPlayerLevel(r.Name, playerLevel)).ToList();
-            
+
             // If no rarities are available (shouldn't happen, but safety check), fall back to Common
             if (availableRarities.Count == 0)
             {
@@ -59,13 +61,11 @@ namespace RPGGame
                 }
             }
 
-            // Use base weights from RarityTable.json, but only for available rarities
-            // This ensures the rarity distribution matches what's configured, but respects level restrictions
             double totalWeight = availableRarities.Sum(r => r.Weight);
             double roll = _random.NextDouble() * totalWeight;
             double cumulative = 0;
 
-            RarityData initialRarity = availableRarities.First();
+            RarityData initialRarity = availableRarities[0];
             foreach (var rarity in availableRarities)
             {
                 cumulative += rarity.Weight;
@@ -76,8 +76,8 @@ namespace RPGGame
                 }
             }
 
-            // Apply upgrade system (upgrades also respect level restrictions)
-            return ApplyRarityUpgrades(initialRarity, magicFind, playerLevel);
+            // Upgrades: MF does not affect base rarity path (affix-only MF design)
+            return ApplyRarityUpgrades(initialRarity, 0.0, playerLevel);
         }
 
         /// <summary>
@@ -184,8 +184,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Base weighted distribution for <see cref="RollRarity"/> before the optional rarity-upgrade chain (magic find 0).
-        /// Used by the Item Generation lab preview when Rarity is Any.
+        /// Base weighted distribution for <see cref="RollRarity"/> before the optional rarity-upgrade chain.
+        /// Used by the Item Generation lab preview when Rarity is Any. Magic find does not change these weights.
         /// </summary>
         public static IReadOnlyList<(string Name, double Weight, double ProbabilityPercent)> GetBaseRollDistribution(
             LootDataCache cache, int playerLevel)
@@ -211,7 +211,7 @@ namespace RPGGame
         {
             // Simple rarity multiplier
             double rarityMultiplier = 1.0; // No scaling for now
-            
+
             if (item is WeaponItem weaponForRarity)
             {
                 weaponForRarity.BaseDamage = (int)Math.Round(weaponForRarity.BaseDamage * rarityMultiplier);
@@ -221,4 +221,3 @@ namespace RPGGame
         }
     }
 }
-

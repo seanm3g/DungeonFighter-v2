@@ -152,6 +152,13 @@ namespace RPGGame
             {
                 foreach (var statBonus in item.StatBonuses)
                 {
+                    if (!string.IsNullOrWhiteSpace(statBonus.Rarity))
+                    {
+                        string r = statBonus.Rarity.Trim();
+                        if (requiredRarity == null || IsRarityHigher(r, requiredRarity))
+                            requiredRarity = r;
+                    }
+
                     if (statBonus.Name.Equals("of the Sage", StringComparison.OrdinalIgnoreCase))
                     {
                         if (requiredRarity == null || IsRarityHigher("Rare", requiredRarity))
@@ -167,22 +174,50 @@ namespace RPGGame
         private bool IsRarityHigher(string rarity1, string rarity2)
         {
             var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
-            int index1 = Array.IndexOf(rarityOrder, rarity1);
-            int index2 = Array.IndexOf(rarityOrder, rarity2);
+            int index1 = IndexOfRarityName(rarityOrder, rarity1);
+            int index2 = IndexOfRarityName(rarityOrder, rarity2);
             if (index1 < 0) index1 = 0;
             if (index2 < 0) index2 = 0;
             return index1 > index2;
         }
 
+        private static int IndexOfRarityName(string[] order, string? name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return -1;
+            string trimmed = name.Trim();
+            for (int i = 0; i < order.Length; i++)
+            {
+                if (string.Equals(order[i], trimmed, StringComparison.OrdinalIgnoreCase))
+                    return i;
+            }
+
+            return -1;
+        }
+
         public void ApplyStatBonuses(Item item, int count)
         {
-            if (_dataCache.StatBonuses != null && _dataCache.StatBonuses.Count > 0)
+            if (_dataCache.StatBonuses == null || _dataCache.StatBonuses.Count == 0 || count <= 0)
+                return;
+
+            var tierSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var s in _dataCache.StatBonuses)
+                tierSet.Add(string.IsNullOrWhiteSpace(s.Rarity) ? "Common" : s.Rarity.Trim());
+
+            for (int i = 0; i < count; i++)
             {
-                for (int i = 0; i < count; i++)
+                string tier = RollAffixLineRarityForPools(_random, _dataCache.RarityData, tierSet);
+                var pool = FilterStatBonusesByAffixTier(_dataCache.StatBonuses, tier);
+                for (int attempt = 0; attempt < 8 && pool.Count == 0; attempt++)
                 {
-                    var statBonus = _dataCache.StatBonuses[_random.Next(_dataCache.StatBonuses.Count)];
-                    item.StatBonuses.Add(statBonus);
+                    string pick = tierSet.ElementAt(_random.Next(tierSet.Count));
+                    pool = FilterStatBonusesByAffixTier(_dataCache.StatBonuses, pick);
                 }
+
+                if (pool.Count == 0)
+                    continue;
+
+                item.StatBonuses.Add(pool[_random.Next(pool.Count)]);
             }
         }
 
@@ -231,10 +266,24 @@ namespace RPGGame
             if (_dataCache.Modifications == null || _dataCache.Modifications.Count == 0)
                 return null;
 
-            var pool = _dataCache.Modifications
+            var basePool = _dataCache.Modifications
                 .Where(m => m.GetPrefixCategory() == category)
-                .Where(m => ItemPrefixHelper.MeetsMinimumItemRank(item.Rarity, m.ItemRank))
                 .ToList();
+
+            if (basePool.Count == 0)
+                return null;
+
+            var tierSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var m in basePool)
+                tierSet.Add(string.IsNullOrWhiteSpace(m.ItemRank) ? "Common" : m.ItemRank.Trim());
+
+            string tier = RollAffixLineRarityForPools(_random, _dataCache.RarityData, tierSet);
+            var pool = FilterModificationsByAffixTier(basePool, tier);
+            for (int attempt = 0; attempt < 8 && pool.Count == 0; attempt++)
+            {
+                string pick = tierSet.ElementAt(_random.Next(tierSet.Count));
+                pool = FilterModificationsByAffixTier(basePool, pick);
+            }
 
             if (pool.Count == 0)
                 return null;
@@ -260,8 +309,68 @@ namespace RPGGame
                 }
             }
 
+            if (pool.Count == 0)
+                return null;
+
             Modification template = pool[_random.Next(pool.Count)];
             return CloneRolledModification(template, diceBonus);
+        }
+
+        /// <summary>
+        /// Weighted affix-line tier using <see cref="RarityData"/> rows whose <see cref="RarityData.Name"/> appears in <paramref name="tierNames"/>.
+        /// </summary>
+        private static string RollAffixLineRarityForPools(Random random, IReadOnlyList<RarityData> rarityData, HashSet<string> tierNames)
+        {
+            var rows = rarityData
+                .Where(r => !string.IsNullOrWhiteSpace(r.Name) && tierNames.Contains(r.Name.Trim()))
+                .Where(r => r.Weight > 0)
+                .ToList();
+
+            if (rows.Count == 0)
+                return tierNames.ElementAt(random.Next(tierNames.Count));
+
+            double total = rows.Sum(r => r.Weight);
+            if (total <= 0)
+                return tierNames.ElementAt(random.Next(tierNames.Count));
+
+            double roll = random.NextDouble() * total;
+            double acc = 0;
+            foreach (var row in rows)
+            {
+                acc += row.Weight;
+                if (roll < acc)
+                    return row.Name.Trim();
+            }
+
+            return rows[^1].Name.Trim();
+        }
+
+        private static List<StatBonus> FilterStatBonusesByAffixTier(IReadOnlyList<StatBonus> all, string tier)
+        {
+            string t = tier.Trim();
+            var list = new List<StatBonus>();
+            foreach (var s in all)
+            {
+                string rowTier = string.IsNullOrWhiteSpace(s.Rarity) ? "Common" : s.Rarity.Trim();
+                if (string.Equals(rowTier, t, StringComparison.OrdinalIgnoreCase))
+                    list.Add(s);
+            }
+
+            return list;
+        }
+
+        private static List<Modification> FilterModificationsByAffixTier(IReadOnlyList<Modification> all, string tier)
+        {
+            string t = tier.Trim();
+            var list = new List<Modification>();
+            foreach (var m in all)
+            {
+                string rowTier = string.IsNullOrWhiteSpace(m.ItemRank) ? "Common" : m.ItemRank.Trim();
+                if (string.Equals(rowTier, t, StringComparison.OrdinalIgnoreCase))
+                    list.Add(m);
+            }
+
+            return list;
         }
 
         private Modification? CloneRolledModification(Modification template, int _)

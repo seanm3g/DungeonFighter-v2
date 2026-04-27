@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit
             TestWeaponFallback_EveryResolvedNameLoadsIntoPool();
             TestRebuildCharacterActions_PoolContainsResolvedWeaponNames();
             TestChestItemWithStatBonus_IncludesArmorContribution();
+            TestArmorExplicitGearAction_NotDuplicatedWhenSpecialMods();
 
             TestBase.PrintSummary("GearActionNames Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -201,5 +202,26 @@ namespace RPGGame.Tests.Unit
                 TestBase.AssertTrue(ok, $"Pool should contain armor-resolved name '{n}'", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
+
+        /// <summary>
+        /// Armor with explicit GearAction + special mods used to append GearAction again from GetArmorExtraActionNames (inventory showed e.g. "Tight Combo, Tight Combo").
+        /// </summary>
+        private static void TestArmorExplicitGearAction_NotDuplicatedWhenSpecialMods()
+        {
+            Console.WriteLine("\n--- TestArmorExplicitGearAction_NotDuplicatedWhenSpecialMods ---");
+
+            var chest = new ChestItem("BronzeDoubletTest")
+            {
+                GearAction = "Tight Combo",
+                StatBonuses = { new StatBonus { StatType = "Armor", Value = 1 } }
+            };
+
+            var names = GearActionNames.Resolve(chest);
+            int tight = names.Count(n => string.Equals(n, "Tight Combo", StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertTrue(tight == 1,
+                $"Armor GearAction + affixes: one 'Tight Combo' in Resolve (found {tight}; names: [{string.Join(", ", names)}])",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
     }
 }

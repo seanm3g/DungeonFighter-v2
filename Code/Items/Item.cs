@@ -34,7 +34,10 @@ namespace RPGGame
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";
         public double Value { get; set; } = 0;
-        public int Weight { get; set; } = 0;
+
+        /// <summary>Affix-pool tier for loot rolls (Common, Uncommon, …). Matched case-insensitively to rolled tier from <see cref="RarityData"/>.</summary>
+        public string Rarity { get; set; } = "Common";
+
         public string StatType { get; set; } = ""; // Which stat this affects (STR, AGI, TEC, INT, Health, Armor, etc.)
 
         /// <summary>Optional loot/lab catalog rarity (same vocabulary as <see cref="Modification.ItemRank"/>). Empty = pool-wide.</summary>

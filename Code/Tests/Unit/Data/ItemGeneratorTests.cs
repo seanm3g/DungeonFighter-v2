@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit.Data
             _testsFailed = 0;
 
             TestGenerateWeaponItem();
+            TestGenerateWeaponItem_RollsDamageBonusInclusive();
             TestGenerateWeaponItem_CopiesTags();
             TestGenerateArmorItem();
             TestGenerateArmorItem_CopiesTags();
@@ -77,6 +78,52 @@ namespace RPGGame.Tests.Unit.Data
                     "Weapon should have correct attack speed",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestGenerateWeaponItem_RollsDamageBonusInclusive()
+        {
+            Console.WriteLine("\n--- Testing GenerateWeaponItem damage bonus roll ---");
+
+            var weaponData = new WeaponData
+            {
+                Name = "Bonus Blade",
+                Type = "Sword",
+                Tier = 1,
+                BaseDamage = 3,
+                DamageBonusMin = 0,
+                DamageBonusMax = 2,
+                AttackSpeed = 1.0
+            };
+
+            var seen = new HashSet<int>();
+            for (int i = 0; i < 400; i++)
+            {
+                var w = ItemGenerator.GenerateWeaponItem(weaponData);
+                int bonus = w.BaseDamage - weaponData.BaseDamage;
+                TestBase.AssertTrue(bonus >= 0 && bonus <= 2,
+                    "rolled bonus must be within inclusive 0..2",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                seen.Add(bonus);
+            }
+
+            TestBase.AssertEqual(3, seen.Count,
+                "over many rolls, all inclusive outcomes 0,1,2 should appear",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var fixedBonus = new WeaponData
+            {
+                Name = "Fixed",
+                Type = "Sword",
+                Tier = 1,
+                BaseDamage = 10,
+                DamageBonusMin = 4,
+                DamageBonusMax = 4,
+                AttackSpeed = 1.0
+            };
+            var wFixed = ItemGenerator.GenerateWeaponItem(fixedBonus);
+            TestBase.AssertEqual(14, wFixed.BaseDamage,
+                "min equals max implies deterministic bonus",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestGenerateWeaponItem_CopiesTags()

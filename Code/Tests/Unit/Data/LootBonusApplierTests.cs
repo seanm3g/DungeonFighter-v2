@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame;
 using RPGGame.Tests;
 
@@ -30,6 +31,8 @@ namespace RPGGame.Tests.Unit.Data
             // We test that the methods don't crash and handle edge cases
             TestApplyBonuses();
             TestApplyStatBonuses();
+            TestApplyStatBonusesUsesAffixTierPools();
+            TestApplyPrefixSlotsUsesAffixTierPools();
             TestApplyActionBonuses();
             TestApplyModifications();
             TestTuningAffixOverridesRarityTable();
@@ -104,6 +107,75 @@ namespace RPGGame.Tests.Unit.Data
                 TestBase.AssertTrue(false,
                     $"ApplyStatBonuses should not throw: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestApplyStatBonusesUsesAffixTierPools()
+        {
+            Console.WriteLine("\n--- Testing ApplyStatBonuses affix-tier pools ---");
+            TestBase.SetCurrentTestName(nameof(TestApplyStatBonusesUsesAffixTierPools));
+            try
+            {
+                var cache = LootDataCache.CreateEmpty();
+                cache.StatBonuses.Add(new StatBonus { Name = "CommonLine", Rarity = "Common", StatType = "Armor", Value = 1 });
+                cache.StatBonuses.Add(new StatBonus { Name = "RareLine", Rarity = "Rare", StatType = "Armor", Value = 9 });
+                cache.RarityData.Add(new RarityData { Name = "Common", Weight = 0, StatBonuses = 0, ActionBonuses = 0, Modifications = 0 });
+                cache.RarityData.Add(new RarityData { Name = "Rare", Weight = 1, StatBonuses = 0, ActionBonuses = 0, Modifications = 0 });
+
+                var item = TestDataBuilders.Item().WithName("T").Build();
+                var applier = new LootBonusApplier(cache, new Random(1));
+                applier.ApplyStatBonuses(item, 15);
+
+                TestBase.AssertEqual(15, item.StatBonuses.Count, "suffix count", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(item.StatBonuses.All(s => s.Name == "RareLine"),
+                    "only Rare-tier StatBonuses rows should be chosen when RarityTable weights exclude Common",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            catch (Exception ex)
+            {
+                TestBase.AssertTrue(false, $"Affix-tier stat test: {ex.Message}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestApplyPrefixSlotsUsesAffixTierPools()
+        {
+            Console.WriteLine("\n--- Testing ApplyPrefixSlots affix-tier pools ---");
+            TestBase.SetCurrentTestName(nameof(TestApplyPrefixSlotsUsesAffixTierPools));
+            try
+            {
+                var cache = LootDataCache.CreateEmpty();
+                void Add(string rank, string cat, string name, int dice) =>
+                    cache.Modifications.Add(new Modification
+                    {
+                        DiceResult = dice,
+                        ItemRank = rank,
+                        PrefixCategory = cat,
+                        Name = name,
+                        Description = "x",
+                        Effect = "damage",
+                        MinValue = 1,
+                        MaxValue = 2
+                    });
+                Add("Common", "Quality", "Qc", 1);
+                Add("Rare", "Quality", "Qr", 2);
+                Add("Common", "Adjective", "Ac", 3);
+                Add("Rare", "Adjective", "Ar", 4);
+                Add("Common", "Material", "Mc", 5);
+                Add("Rare", "Material", "Mr", 6);
+                cache.RarityData.Add(new RarityData { Name = "Common", Weight = 0, StatBonuses = 0, ActionBonuses = 0, Modifications = 0 });
+                cache.RarityData.Add(new RarityData { Name = "Rare", Weight = 1, StatBonuses = 0, ActionBonuses = 0, Modifications = 0 });
+
+                var item = TestDataBuilders.Item().WithName("T").Build();
+                var applier = new LootBonusApplier(cache, new Random(3));
+                applier.ApplyPrefixSlots(item, 3, null);
+
+                TestBase.AssertEqual(3, item.Modifications.Count, "three prefix slots", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                string names = string.Join(",", item.Modifications.Select(m => m.Name).OrderBy(x => x));
+                TestBase.AssertEqual("Ar,Mr,Qr", names, "rare-only picks per category", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            catch (Exception ex)
+            {
+                TestBase.AssertTrue(false, $"Affix-tier prefix test: {ex.Message}", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
 

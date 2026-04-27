@@ -68,10 +68,22 @@ namespace RPGGame
                 if (!Enum.TryParse(row.Type?.Trim(), ignoreCase: true, out WeaponType weaponType))
                     weaponType = WeaponType.Sword;
 
-                double dmg = row.BaseDamage;
-                if (scaling != null && dmg > 0 && scaling.GlobalDamageMultiplier > 0)
-                    dmg *= scaling.GlobalDamageMultiplier;
-                double displayDamage = Math.Max(1, Math.Round(dmg));
+                double scaledBase = row.BaseDamage;
+                if (scaling != null && scaledBase > 0 && scaling.GlobalDamageMultiplier > 0)
+                    scaledBase *= scaling.GlobalDamageMultiplier;
+
+                int bMin = row.DamageBonusMin;
+                int bMax = row.DamageBonusMax;
+                if (bMax < bMin)
+                    (bMin, bMax) = (bMax, bMin);
+                bMin = Math.Max(0, bMin);
+                bMax = Math.Max(0, bMax);
+
+                double low = scaledBase + bMin;
+                double high = scaledBase + bMax;
+                double displayDamage = (bMin == 0 && bMax == 0)
+                    ? Math.Max(1, Math.Round(scaledBase))
+                    : Math.Max(1, Math.Round((low + high) / 2.0));
 
                 list.Add(new StartingWeapon
                 {

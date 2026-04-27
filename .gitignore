@@ -370,6 +370,34 @@ out/
 # Cursor IDE
 .cursor/
 
+# Ad-hoc dotnet build/publish output paths (agents, Cursor sessions, -o targets)
+.cursor-build-*/
+**/.cursor-build-*/
+_agent_*/
+**/_agent_*/
+_agent_build_out*/
+**/_agent_build_out*/
+_agent_compile_*/
+**/_agent_compile_*/
+_build_verify_out/
+**/_build_verify_out/
+# Extra agent/publish output folder names seen at repo root
+/_verify_build_out/
+/_build_verify*/
+/_compile_check_out/
+/_compile_check_out2/
+/_compile_out_agent/
+/_compile_verify_out/
+/_probe_build*/
+/_probe_build2/
+/_tmp_build_verify/
+/build_verify_out*/
+/build_verify_amp/
+/build-poisonfix-out/
+/build-verify-multi-affix/
+Code/_bc3/
+Code/_buildcheck*/
+
 # Claude AI settings
 .claude/
 

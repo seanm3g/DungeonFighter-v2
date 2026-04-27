@@ -267,6 +267,8 @@ namespace RPGGame
             Progression ??= new ProgressionConfig();
             ClassBalance ??= new ClassBalanceConfig();
             DungeonScaling ??= new DungeonScalingConfig();
+            RarityScaling ??= new RarityScalingConfig();
+            RarityScaling.MagicFindScaling ??= new MagicFindScalingConfig();
 
             Combat.EnsureValidCombatTimingDefaults();
             Combat.EnsureValidCombatCriticalAndDamageDefaults();

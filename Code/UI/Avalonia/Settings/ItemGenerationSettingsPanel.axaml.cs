@@ -143,21 +143,24 @@ namespace RPGGame.UI.Avalonia.Settings
                 try
                 {
                     var cache = LootDataCache.Load();
-                    var rows = LootRarityProcessor.GetBaseRollDistribution(cache, level);
-                    if (rows.Count == 0)
+                    var rows0 = LootRarityProcessor.GetBaseRollDistribution(cache, level, 0);
+                    var rows100 = LootRarityProcessor.GetBaseRollDistribution(cache, level, 100);
+                    if (rows0.Count == 0)
                     {
                         rarityPreview.Text = "No rarity table loaded.";
                     }
                     else
                     {
                         string pct(double p) => p.ToString("0.##", CultureInfo.InvariantCulture) + "%";
-                        string line = "When Rarity is Any, each item’s first rarity roll: " +
-                                       string.Join(" · ", rows.Select(t => $"{t.Name} {pct(t.ProbabilityPercent)}"));
+                        string fmt(IReadOnlyList<(string Name, double Weight, double ProbabilityPercent)> rows) =>
+                            string.Join(" · ", rows.Select(t => $"{t.Name} {pct(t.ProbabilityPercent)}"));
+                        string line0 = "First rarity roll (MF 0): " + fmt(rows0);
+                        string line1 = "First rarity roll (MF 100): " + fmt(rows100);
                         bool upgrades = GameConfiguration.Instance?.LootSystem?.RarityUpgrade?.Enabled ?? false;
                         string tail = upgrades
                             ? " Rarity upgrade (TuningConfig): On — final rarity can step up from this base roll."
                             : " Rarity upgrade (TuningConfig): Off.";
-                        rarityPreview.Text = line + tail;
+                        rarityPreview.Text = line0 + " " + line1 + tail;
                     }
                 }
                 catch

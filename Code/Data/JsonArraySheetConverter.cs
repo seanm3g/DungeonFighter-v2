@@ -27,12 +27,13 @@ namespace RPGGame.Data
         /// <summary>
         /// Preferred column order for the weapons sheet / <c>Weapons.json</c> round-trip.
         /// <c>dps</c> and <c>balance</c> are sheet-only balancing helpers and are dropped when importing CSV → JSON.
-        /// Runtime fields use JSON keys <c>baseDamage</c> (whole number) and <c>attackSpeed</c> (fractional allowed;
+        /// Runtime fields use JSON keys <c>baseDamage</c> (whole number), inclusive <c>damageBonusMin</c> / <c>damageBonusMax</c>
+        /// (rolled onto base when loot is generated), then <c>attackSpeed</c> (fractional allowed;
         /// 1 = baseline swing spacing, &gt;1 slower, &lt;1 faster in combat).
         /// </summary>
         public static readonly string[] WeaponsCanonicalHeaders =
         {
-            "type", "name", "dps", "balance", "baseDamage", "attackSpeed", "tier", "attributeRequirements", "tags", "Compelled Action"
+            "type", "name", "dps", "balance", "baseDamage", "damageBonusMin", "damageBonusMax", "attackSpeed", "tier", "attributeRequirements", "tags", "Compelled Action"
         };
 
         public static readonly string[] ModificationsCanonicalHeaders =
@@ -82,7 +83,7 @@ namespace RPGGame.Data
             { "name", "theme", "minLevel", "maxLevel", "possibleEnemies", "colorOverride" };
 
         public static readonly string[] StatBonusesCanonicalHeaders =
-            { "Name", "Description", "Value", "Weight", "StatType", "ItemRank" };
+            { "Name", "Description", "Value", "Rarity", "StatType", "ItemRank" };
 
         public static IReadOnlyList<string> GetCanonicalHeaders(GameDataTabularSheetKind kind) =>
             kind switch
@@ -440,6 +441,10 @@ namespace RPGGame.Data
                 else if (kind == GameDataTabularSheetKind.Weapons)
                 {
                     NormalizeWeaponsJsonArrayRow(obj);
+                }
+                else if (kind == GameDataTabularSheetKind.StatBonuses)
+                {
+                    NormalizeStatBonusesJsonArrayRow(obj);
                 }
 
                 arr.Add(obj);
@@ -812,16 +817,151 @@ namespace RPGGame.Data
         }
 
         /// <summary>
+        /// Drops legacy <c>Weight</c>, maps lowercase <c>rarity</c> to <c>Rarity</c>, and defaults blank affix tier to Common.
+        /// </summary>
+        private static void NormalizeStatBonusesJsonArrayRow(JsonObject obj)
+        {
+            string? rarityText = null;
+            var hadWeight = false;
+            foreach (var kvp in obj.ToList())
+            {
+                if (string.Equals(kvp.Key, "Weight", StringComparison.OrdinalIgnoreCase))
+                {
+                    hadWeight = true;
+                    obj.Remove(kvp.Key);
+                    continue;
+                }
+
+                if (string.Equals(kvp.Key, "rarity", StringComparison.OrdinalIgnoreCase))
+                {
+                    rarityText ??= StatBonusRarityCellToString(kvp.Value);
+                    if (!string.Equals(kvp.Key, "Rarity", StringComparison.Ordinal))
+                        obj.Remove(kvp.Key);
+                }
+            }
+
+            if (rarityText == null && obj.TryGetPropertyValue("Rarity", out var rn) && rn is not null)
+                rarityText = StatBonusRarityCellToString(rn);
+
+            if (string.IsNullOrWhiteSpace(rarityText) && hadWeight)
+                rarityText = "Common";
+
+            var final = string.IsNullOrWhiteSpace(rarityText) ? "Common" : rarityText.Trim();
+            obj["Rarity"] = JsonValue.Create(final);
+        }
+
+        private static string? StatBonusRarityCellToString(JsonNode? n)
+        {
+            if (n is null || IsJsonNodeNullOrMissing(n))
+                return null;
+            if (n is JsonValue jv)
+            {
+                if (jv.TryGetValue<string>(out var s))
+                    return s;
+                if (jv.TryGetValue<double>(out var d))
+                    return d.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            }
+
+            return n.ToJsonString().Trim('"');
+        }
+
+        /// <summary>
         /// Removes sheet-only columns (<c>dps</c>, <c>balance</c>) and normalizes combat stats to canonical JSON keys
-        /// <c>baseDamage</c> (integer, ≥ 1) and <c>attackSpeed</c> (number).
+        /// <c>baseDamage</c> (integer, ≥ 1), optional inclusive <c>damageBonusMin</c> / <c>damageBonusMax</c> (sheet headers include the typo <c>Min BOnus</c> and <c>Max Bonus</c>), then <c>attackSpeed</c> (number).
         /// </summary>
         private static void NormalizeWeaponsJsonArrayRow(JsonObject obj)
         {
             RemoveWeaponJsonKeyIgnoreCase(obj, "dps");
             RemoveWeaponJsonKeyIgnoreCase(obj, "balance");
 
+            // Google Sheets often use spaced headers (e.g. "Base Damage", "Attack Speed") before canonical camelCase.
+            RenameWeaponJsonKeyIfPresent(obj, "baseDamage", "base damage", "basedamage");
+            RenameWeaponJsonKeyIfPresent(obj, "attackSpeed", "attack speed", "attackspeed");
+
             CanonicalizeWeaponField(obj, "baseDamage", preferWholeNumber: true);
             CanonicalizeWeaponField(obj, "attackSpeed", preferWholeNumber: false);
+            NormalizeWeaponDamageBonusRange(obj);
+        }
+
+        /// <summary>When a row uses a human-readable header instead of JSON camelCase, move its value onto <paramref name="canonicalKey"/>.</summary>
+        private static void RenameWeaponJsonKeyIfPresent(JsonObject obj, string canonicalKey, params string[] alternateHeaders)
+        {
+            if (obj.ContainsKey(canonicalKey))
+                return;
+
+            foreach (var alt in alternateHeaders)
+            {
+                foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+                {
+                    if (!string.Equals(key, alt, StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    if (!obj.TryGetPropertyValue(key, out var node))
+                    {
+                        obj.Remove(key);
+                        return;
+                    }
+
+                    obj.Remove(key);
+                    if (node is not null && !IsJsonNodeNullOrMissing(node))
+                        obj[canonicalKey] = node;
+                    return;
+                }
+            }
+        }
+
+        /// <summary>Google Sheet / CSV headers for min damage bonus (case-insensitive); includes common typo <c>Min BOnus</c>.</summary>
+        private static readonly string[] WeaponDamageBonusMinHeaderAliases =
+        {
+            "damageBonusMin", "minDamageBonus", "minBonus", "min bonus",
+            "Min BOnus", "Min Bonus"
+        };
+
+        private static readonly string[] WeaponDamageBonusMaxHeaderAliases =
+        {
+            "damageBonusMax", "maxDamageBonus", "maxBonus", "max bonus", "Max Bonus"
+        };
+
+        /// <summary>Consumes known sheet/legacy keys and writes canonical <c>damageBonusMin</c> / <c>damageBonusMax</c> (non-negative integers, min ≤ max).</summary>
+        private static void NormalizeWeaponDamageBonusRange(JsonObject obj)
+        {
+            int minV = ConsumeWeaponIntByHeaderAliases(obj, WeaponDamageBonusMinHeaderAliases);
+            int maxV = ConsumeWeaponIntByHeaderAliases(obj, WeaponDamageBonusMaxHeaderAliases);
+            minV = Math.Max(0, minV);
+            maxV = Math.Max(0, maxV);
+            if (maxV < minV)
+                (minV, maxV) = (maxV, minV);
+
+            obj["damageBonusMin"] = JsonValue.Create(minV);
+            obj["damageBonusMax"] = JsonValue.Create(maxV);
+        }
+
+        /// <summary>Finds the first object key matching any alias (ordinal case-insensitive), removes it, and returns its integer value.</summary>
+        private static int ConsumeWeaponIntByHeaderAliases(JsonObject obj, string[] aliases)
+        {
+            foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+            {
+                bool matches = false;
+                foreach (var a in aliases)
+                {
+                    if (string.Equals(key, a, StringComparison.OrdinalIgnoreCase))
+                    {
+                        matches = true;
+                        break;
+                    }
+                }
+
+                if (!matches)
+                    continue;
+
+                int v = 0;
+                if (obj.TryGetPropertyValue(key, out var node) && node is not null && !IsJsonNodeNullOrMissing(node)
+                    && TryGetWeaponNumericFromJsonNode(node, out double d))
+                    v = (int)Math.Round(d, MidpointRounding.AwayFromZero);
+                obj.Remove(key);
+                return v;
+            }
+
+            return 0;
         }
 
         private static void RemoveWeaponJsonKeyIgnoreCase(JsonObject obj, string logicalName)

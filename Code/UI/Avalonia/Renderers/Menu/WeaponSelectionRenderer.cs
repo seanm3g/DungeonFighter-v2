@@ -169,9 +169,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 currentY++;
 
                 string className = classPresentation.GetDisplayName(preview.WeaponType);
-                string classLine = $"Class: {className}";
-                int classLineX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, classLine.Length);
-                canvas.AddText(classLineX, currentY, classLine, AsciiArtAssets.Colors.DarkGray);
+                const string classLabel = "Class: ";
+                int classBlockWidth = classLabel.Length + (className ?? "").Length;
+                int classLineX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, classBlockWidth);
+                Color classLabelColor = option.IsHovered ? AsciiArtAssets.Colors.Gold : AsciiArtAssets.Colors.Silver;
+                Color classNameColor = option.IsHovered ? AsciiArtAssets.Colors.White : accent;
+                canvas.AddText(classLineX, currentY, classLabel, classLabelColor);
+                canvas.AddText(classLineX + classLabel.Length, currentY, className ?? "", classNameColor, accent, 0.35, 2);
                 currentY++;
                 
                 // Weapon stats from the same pipeline as InitializeNewGame (starter-tagged menu rows + tuning)

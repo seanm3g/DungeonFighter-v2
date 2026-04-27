@@ -118,6 +118,8 @@ namespace RPGGame
                 Name = existing.Name,        // Always preserve original name  
                 BaseDamage = existing.BaseDamage,
                 AttackSpeed = existing.AttackSpeed,
+                DamageBonusMin = existing.DamageBonusMin,
+                DamageBonusMax = existing.DamageBonusMax,
                 Tier = existing.Tier         // Always preserve original tier
             };
 

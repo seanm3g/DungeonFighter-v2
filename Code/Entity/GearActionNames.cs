@@ -130,11 +130,11 @@ namespace RPGGame
             if (!HasSpecialArmorActions(armor))
                 return actions;
 
+            // Resolve() already prepends GearAction when set; only add a roll-based name when the piece has no explicit action.
             if (!string.IsNullOrEmpty(armor.GearAction))
-                actions.Add(armor.GearAction);
-            else
-                actions.AddRange(GetRandomArmorActionList(armor));
+                return actions;
 
+            actions.AddRange(GetRandomArmorActionList(armor));
             return actions;
         }
 
