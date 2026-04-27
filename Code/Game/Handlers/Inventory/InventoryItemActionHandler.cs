@@ -95,19 +95,25 @@ namespace RPGGame.Handlers.Inventory
         /// <summary>
         /// Confirm equip choice after comparison
         /// </summary>
-        public void ConfirmEquipItem(int itemIndex, string slot, bool equipNew)
+        /// <param name="refreshInventoryScreen">When false, caller must refresh the inventory UI after any follow-up (e.g. combo add).</param>
+        /// <param name="announce">When false, success messages are skipped (caller composes a single message).</param>
+        public void ConfirmEquipItem(int itemIndex, string slot, bool equipNew, bool refreshInventoryScreen = true, bool announce = true)
         {
             if (stateManager.CurrentPlayer == null)
             {
-                ShowMessageEvent?.Invoke("Error: No player character available.");
-                ShowInventoryEvent?.Invoke();
+                if (announce)
+                    ShowMessageEvent?.Invoke("Error: No player character available.");
+                if (refreshInventoryScreen)
+                    ShowInventoryEvent?.Invoke();
                 return;
             }
             
             if (itemIndex < 0 || itemIndex >= stateManager.CurrentInventory.Count)
             {
-                ShowMessageEvent?.Invoke("Error: Invalid item selection.");
-                ShowInventoryEvent?.Invoke();
+                if (announce)
+                    ShowMessageEvent?.Invoke("Error: Invalid item selection.");
+                if (refreshInventoryScreen)
+                    ShowInventoryEvent?.Invoke();
                 return;
             }
             
@@ -123,23 +129,24 @@ namespace RPGGame.Handlers.Inventory
                 string pruneNote = FormatSequencePruneNote(comboBefore, player.GetComboActions());
 
                 if (previousItem != null)
-                {
-                    // Add the previous item back to inventory instead of discarding it
                     stateManager.CurrentInventory.Add(previousItem);
-                    ShowMessageEvent?.Invoke($"Unequipped {previousItem.Name}. Equipped {newItem.Name}.{pruneNote}");
-                }
-                else
+
+                if (announce)
                 {
-                    ShowMessageEvent?.Invoke($"Equipped {newItem.Name}.{pruneNote}");
+                    if (previousItem != null)
+                        ShowMessageEvent?.Invoke($"Unequipped {previousItem.Name}. Equipped {newItem.Name}.{pruneNote}");
+                    else
+                        ShowMessageEvent?.Invoke($"Equipped {newItem.Name}.{pruneNote}");
                 }
             }
             else
             {
-                // Keep the old item, do nothing
-                ShowMessageEvent?.Invoke("Kept current equipment.");
+                if (announce)
+                    ShowMessageEvent?.Invoke("Kept current equipment.");
             }
             
-            ShowInventoryEvent?.Invoke();
+            if (refreshInventoryScreen)
+                ShowInventoryEvent?.Invoke();
         }
         
         /// <summary>

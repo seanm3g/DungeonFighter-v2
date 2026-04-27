@@ -153,8 +153,29 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(!tipJoined.Contains("Accuracy:", StringComparison.Ordinal) && !tipJoined.Contains("Effective:", StringComparison.Ordinal),
                 "BuildActionTooltipLines has no accuracy / effective combat-readout lines",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(tipJoined.Contains("Dmg ", StringComparison.Ordinal) && tipJoined.Contains("Spd ", StringComparison.Ordinal),
-                "BuildActionTooltipLines uses strip-style Dmg/Spd percentages",
+            TestBase.AssertTrue(
+                (tipJoined.Contains("Dmg ", StringComparison.Ordinal) || tipJoined.Contains("% damage", StringComparison.Ordinal))
+                && tipJoined.Contains("Spd ", StringComparison.Ordinal),
+                "BuildActionTooltipLines uses strip-style damage line and Spd percentage",
+                ref run, ref passed, ref failed);
+
+            // Multihit: strip panel + tooltip use NxPct% damage (matches combat tick count basis)
+            var charMultiHit = CreateCharacterWithComboAction();
+            var comboMulti = charMultiHit.GetComboActions();
+            if (comboMulti != null && comboMulti.Count > 0)
+                comboMulti[0].Advanced.MultiHitCount = 2;
+            var panelMulti = CombatActionStripBuilder.BuildPanelData(charMultiHit);
+            TestBase.AssertTrue(panelMulti != null && panelMulti.Count >= 1 && panelMulti[0].EffectiveMultiHitCount == 2,
+                "BuildPanelData: MultiHitCount 2 yields EffectiveMultiHitCount 2",
+                ref run, ref passed, ref failed);
+            string stripDmgLine = CombatActionStripBuilder.FormatSwingDamageLine(panelMulti![0].EffectiveMultiHitCount, panelMulti[0].DamageBase);
+            TestBase.AssertTrue(stripDmgLine == "2x100% damage",
+                "FormatSwingDamageLine shows multihit as NxPct% damage",
+                ref run, ref passed, ref failed);
+            var tipMulti = CombatActionStripBuilder.BuildActionTooltipLines(charMultiHit, 0, 80);
+            string tipMultiJoined = tipMulti != null ? string.Join("\n", tipMulti) : "";
+            TestBase.AssertTrue(tipMultiJoined.Contains("2x100% damage", StringComparison.Ordinal),
+                "BuildActionTooltipLines includes multihit damage segment",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(!tipJoined.Contains("(Normal)", StringComparison.Ordinal),
                 "BuildActionTooltipLines omits speed flavor labels from action details",

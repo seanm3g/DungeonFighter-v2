@@ -312,7 +312,7 @@ namespace RPGGame.Combat.Formatting
 
             // Use centralized color strategy
             ColorPalette hitsColor = CombatColorStrategy.GetHitsColor(outcome);
-            ColorPalette actionColor = CombatColorStrategy.GetActionColor(outcome);
+            ColorPalette actionColor = CombatColorStrategy.GetActionColor(outcome, attacker is Enemy);
             ColorPalette damageColor = CombatColorStrategy.GetDamageColor(outcome);
 
             // Attacker name with enemy-specific colors

@@ -3,7 +3,6 @@ using RPGGame.Data;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Avalonia.Managers;
-using RPGGame.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,7 +66,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                     throw new InvalidOperationException($"Dungeon at index {i} is null");
                 }
                 
-                string displayText = MenuOptionFormatter.FormatDungeon(i + 1, dungeon.Name, dungeon.MinLevel);
+                string displayText = dungeon.Name == RPGGame.GameConstants.DungeonCustomLevelMenuName
+                    ? MenuOptionFormatter.FormatDisplayText(i + 1, dungeon.Name, $" (levels {RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL}-{RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL})")
+                    : MenuOptionFormatter.FormatDungeon(i + 1, dungeon.Name, dungeon.MinLevel);
                 var option = new ClickableElement
                 {
                     X = x + 4,
@@ -151,7 +152,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                     }
                     
                     // Add level info (no animation)
-                    segments.Add(new ColoredText($" (lvl {dungeon.MinLevel})", ColorPalette.Gray.GetColor()));
+                    string levelSuffix = dungeon.Name == RPGGame.GameConstants.DungeonCustomLevelMenuName
+                        ? $" (levels {RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL}-{RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL})"
+                        : $" (lvl {dungeon.MinLevel})";
+                    segments.Add(new ColoredText(levelSuffix, ColorPalette.Gray.GetColor()));
                     
                     // Render all segments
                     textWriter.RenderSegments(segments, x + 4, y);

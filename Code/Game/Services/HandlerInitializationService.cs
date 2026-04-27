@@ -197,7 +197,8 @@ namespace RPGGame.Game.Services
             var escapeKeyHandlers = new EscapeKeyHandlers
             {
                 ActionEditorHandler = result.ActionEditorHandler,
-                InventoryMenuHandler = result.InventoryMenuHandler
+                InventoryMenuHandler = result.InventoryMenuHandler,
+                DungeonSelectionHandler = result.DungeonSelectionHandler
             };
             
             // Create input router

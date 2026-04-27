@@ -2,6 +2,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 {
     using System;
     using System.Collections.Generic;
+    using RPGGame;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Renderers.Helpers;
@@ -143,8 +144,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         currentLineCount++;
                     }
                     
-                    // Render stats
-                    ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true);
+                    // Render stats (weapon speed vs currently equipped weapon)
+                    var equippedWeapon = character.Weapon as WeaponItem;
+                    ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true,
+                        displayedItem: item, weaponSpeedBaseline: equippedWeapon);
                 }
             }
             

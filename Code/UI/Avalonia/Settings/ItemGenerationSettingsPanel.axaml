@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:settings="clr-namespace:RPGGame.UI.Avalonia.Settings"
-             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="960"
              x:Class="RPGGame.UI.Avalonia.Settings.ItemGenerationSettingsPanel"
              Background="Transparent">
     <!-- Fluent theme hover targets PART_ContentPresenter with light brushes on this white panel; sync so buttons stay visible. -->
@@ -58,7 +58,7 @@
             <Setter Property="Foreground" Value="White"/>
         </Style>
 
-        <!-- Fixed rarity chance inputs: readable by default, invert on hover -->
+        <!-- Fixed rarity chance inputs: light chrome on hover/focus so black text stays readable (Fluent inner presenter can ignore Foreground on dark BG). -->
         <Style Selector="TextBox.FixedChanceBox">
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="Black"/>
@@ -67,36 +67,358 @@
         <Style Selector="TextBox.FixedChanceBox /template/ Border#border">
             <Setter Property="Background" Value="White"/>
         </Style>
-        <Style Selector="TextBox.FixedChanceBox:pointerover">
-            <!-- Match dropdown/ComboBox hover scheme (dark chrome, light text) -->
-            <Setter Property="Background" Value="#FF3A3A3A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="CaretBrush" Value="White"/>
+        <Style Selector="TextBox.FixedChanceBox:pointerover, TextBox.FixedChanceBox:focus">
+            <Setter Property="Background" Value="#FFE8E8E8"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="CaretBrush" Value="Black"/>
         </Style>
-        <Style Selector="TextBox.FixedChanceBox:pointerover /template/ Border#border">
-            <Setter Property="Background" Value="#FF3A3A3A"/>
+        <Style Selector="TextBox.FixedChanceBox:pointerover /template/ Border#border, TextBox.FixedChanceBox:focus /template/ Border#border">
+            <Setter Property="Background" Value="#FFE8E8E8"/>
+        </Style>
+        <!-- Match Balance Tuning expander chrome on light cards -->
+        <Style Selector="Expander /template/ ToggleButton">
+            <Setter Property="Background" Value="#FF2D2D2D"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Expander /template/ ToggleButton:pointerover">
+            <Setter Property="Background" Value="#FF3D3D3D"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Expander /template/ ToggleButton:pressed">
+            <Setter Property="Background" Value="#FF252525"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Expander /template/ ToggleButton:checked">
+            <Setter Property="Background" Value="#FF2D2D2D"/>
+            <Setter Property="Foreground" Value="White"/>
         </Style>
     </UserControl.Styles>
-    <Grid Margin="12" RowDefinitions="Auto,12,*">
-        <!-- Top panels: 50/50 split (match Generated Items / Selected Item layout). No internal scrolling. -->
-        <Grid Grid.Row="0" ColumnDefinitions="*,12,*">
-                <Border Grid.Column="0"
-                        Background="White"
+    <Grid Margin="12" RowDefinitions="Auto,*">
+        <ScrollViewer Grid.Row="0"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Top"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="10">
+                <Border Background="White"
                         BorderBrush="#FF404040"
                         BorderThickness="1"
                         CornerRadius="6"
                         Padding="12">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="Affix bounds by rarity (real loot + this lab)"
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Generation Parameters"
                                    FontSize="16"
                                    FontWeight="SemiBold"
-                                   Foreground="Black"
-                                   Margin="0,0,0,2"/>
-                        <TextBlock Text="Min = guaranteed counts. Extra % = per-step chance to add one more while below Max (rolled once per step). Prefix = Quality/Adjective/Material slots (0–3). Suffix = extra StatBonuses.json suffix lines (often “of …”) — separate from prefix-slot modifications that can also change stats. Actions = extra granted-action lines. Stored in TuningConfig.json (itemAffixByRarity). Use Save at the bottom of Settings to persist."
+                                   Foreground="Black"/>
+
+                    <!-- 2×4: one less vertical band than three rows + full-width hero row -->
+                    <Grid ColumnDefinitions="*,*,*,*"
+                          RowDefinitions="Auto,Auto"
+                          Margin="0,0,0,2">
+                        <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4" Margin="0,0,8,6">
+                            <TextBlock Text="Item type"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#FF555555"/>
+                            <ComboBox x:Name="ItemTypeCombo"
+                                      MinHeight="32"
+                                      HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="1" Spacing="4" Margin="0,0,8,6">
+                            <TextBlock Text="Rarity"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#FF555555"/>
+                            <ComboBox x:Name="RarityCombo"
+                                      MinHeight="32"
+                                      HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="2" Spacing="4" Margin="0,0,8,6">
+                            <TextBlock Text="Tier"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#FF555555"/>
+                            <ComboBox x:Name="TierCombo"
+                                      MinHeight="32"
+                                      HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="3" Spacing="4" Margin="0,0,0,6">
+                            <TextBlock Text="Count"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#FF555555"/>
+                            <TextBox x:Name="CountTextBox"
+                                     Text="100"
+                                     MinHeight="32"
+                                     HorizontalAlignment="Stretch"
+                                     MaxWidth="160"
+                                     MaxLength="9"
+                                     ToolTip.Tip="Batch size (1–1,000,000). Large batches can be slow."/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="0" Spacing="4" Margin="0,0,8,0">
+                            <TextBlock Text="Weapon type"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#FF555555"/>
+                            <ComboBox x:Name="WeaponTypeCombo"
+                                      MinHeight="32"
+                                      HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4" Margin="0,0,8,0">
+                            <TextBlock Text="Armor slot"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#FF555555"/>
+                            <ComboBox x:Name="ArmorSlotCombo"
+                                      MinHeight="32"
+                                      HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="2" Spacing="4" Margin="0,0,8,0">
+                            <TextBlock Text="Hero level"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#FF555555"
+                                       ToolTip.Tip="When Rarity is Any, rarity rolls use this level (Epic+ gates)."/>
+                            <TextBox x:Name="HeroLevelTextBox"
+                                     Text="1"
+                                     MinHeight="32"
+                                     HorizontalAlignment="Stretch"
+                                     MaxLength="3"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="3" Spacing="4">
+                            <TextBlock Text="Dungeon Δ"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#FF555555"
+                                       ToolTip.Tip="Relative to hero: effective dungeon = hero + Δ (clamped 1–99). When Tier is Any, tier rolls use hero vs effective dungeon (LootTierCalculator / TierDistribution.json), same as LootGenerator."/>
+                            <TextBox x:Name="DungeonDeltaTextBox"
+                                     Text="+0"
+                                     MinHeight="32"
+                                     HorizontalAlignment="Stretch"
+                                     MaxLength="4"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Border Background="#FFF8F8F8"
+                            BorderBrush="#FFE8E8E8"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="10,8"
+                            VerticalAlignment="Top">
+                        <TextBlock x:Name="HeroLevelRarityPreviewText"
+                                   FontSize="12"
+                                   Foreground="#FF555555"
+                                   LineHeight="16"
+                                   TextWrapping="Wrap"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+                <Border Background="White"
+                BorderBrush="#FF404040"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="8,6"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Top">
+            <Grid ColumnDefinitions="*,12,*">
+                <Border Grid.Column="0"
+                        VerticalAlignment="Top"
+                        Background="#FFF9F9F9"
+                        BorderBrush="#FFE8E8E8"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="6,4">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Lab rarity chances (fixed, ignores level)"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="#FF444444"/>
+                        <Grid ColumnDefinitions="Auto,Auto,*" RowDefinitions="Auto">
+                            <TextBlock Grid.Column="0"
+                                       Text="Base ratio"
+                                       FontSize="11"
+                                       Foreground="#FF666666"
+                                       VerticalAlignment="Center"
+                                       ToolTip.Tip="Geometric odds: Common is X× more common than Uncommon; Uncommon is X× more common than Rare; ... Legendary is X× more common than Mythic. Leave blank to manually edit the % boxes below."/>
+                            <TextBox Grid.Column="1"
+                                     x:Name="BaseRatioTextBox"
+                                     Classes="FixedChanceBox"
+                                     Text="8"
+                                     MinHeight="24"
+                                     Width="64"
+                                     Margin="8,0,0,0"
+                                     HorizontalContentAlignment="Center"
+                                     TextAlignment="Center"
+                                     BorderThickness="1"
+                                     MaxLength="6"/>
+                            <Panel Grid.Column="2"/>
+                        </Grid>
+                        <Border Background="White"
+                                BorderBrush="#FFEAEAEA"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="4,4">
+                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,6,4" MinWidth="64">
+                                    <TextBlock Text="Common" FontSize="10" Foreground="#FF666666" HorizontalAlignment="Center"/>
+                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="4,2" MinHeight="26" MinWidth="64">
+                                        <TextBox x:Name="FixedChanceCommon" Classes="FixedChanceBox" Text="87.87" MinHeight="20" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="6"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,6,4" MinWidth="64">
+                                    <TextBlock Text="Uncommon" FontSize="10" Foreground="#FF666666" HorizontalAlignment="Center"/>
+                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="4,2" MinHeight="26" MinWidth="64">
+                                        <TextBox x:Name="FixedChanceUncommon" Classes="FixedChanceBox" Text="8.79" MinHeight="20" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="6"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,6,4" MinWidth="64">
+                                    <TextBlock Text="Rare" FontSize="10" Foreground="#FF666666" HorizontalAlignment="Center"/>
+                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="4,2" MinHeight="26" MinWidth="64">
+                                        <TextBox x:Name="FixedChanceRare" Classes="FixedChanceBox" Text="2.64" MinHeight="20" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="6"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,6,4" MinWidth="64">
+                                    <TextBlock Text="Epic" FontSize="10" Foreground="#FF666666" HorizontalAlignment="Center"/>
+                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="4,2" MinHeight="26" MinWidth="64">
+                                        <TextBox x:Name="FixedChanceEpic" Classes="FixedChanceBox" Text="0.53" MinHeight="20" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="6"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,6,4" MinWidth="64">
+                                    <TextBlock Text="Legendary" FontSize="10" Foreground="#FF666666" HorizontalAlignment="Center"/>
+                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="4,2" MinHeight="26" MinWidth="64">
+                                        <TextBox x:Name="FixedChanceLegendary" Classes="FixedChanceBox" Text="0.18" MinHeight="20" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="6"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,0,4" MinWidth="64">
+                                    <TextBlock Text="Mythic" FontSize="10" Foreground="#FF666666" HorizontalAlignment="Center"/>
+                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="4,2" MinHeight="26" MinWidth="64">
+                                        <TextBox x:Name="FixedChanceMythic" Classes="FixedChanceBox" Text="0.02" MinHeight="20" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="6"/>
+                                    </Border>
+                                </StackPanel>
+                            </WrapPanel>
+                        </Border>
+                        <TextBlock x:Name="FixedChanceSummaryText"
+                                   FontSize="10"
+                                   Foreground="#FF666666"
+                                   TextWrapping="Wrap"
+                                   LineHeight="13"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2"
+                        VerticalAlignment="Top"
+                        Background="#FFF9F9F9"
+                        BorderBrush="#FFE8E8E8"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="6,4">
+                    <StackPanel Spacing="4">
+                        <TextBlock x:Name="TierTableTitleText"
+                                   Text="Live loot tier chances"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="#FF444444"/>
+                        <TextBlock x:Name="TierTableSubtitleText"
+                                   FontSize="10"
+                                   Foreground="#FF666666"
+                                   TextWrapping="Wrap"
+                                   LineHeight="13"/>
+                        <Border Background="White"
+                                BorderBrush="#FFEAEAEA"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="4,4">
+                            <WrapPanel Orientation="Horizontal"
+                                       HorizontalAlignment="Stretch">
+                                <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,6,4" MinWidth="72">
+                                    <TextBlock Text="T1" FontSize="10" Foreground="#FF666666" HorizontalAlignment="Center"/>
+                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="6,4" MinHeight="28" MinWidth="72">
+                                        <TextBlock x:Name="TierPct1Text" FontSize="14" FontWeight="Bold" Foreground="#FF222222" HorizontalAlignment="Stretch" TextAlignment="Center"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,6,4" MinWidth="72">
+                                    <TextBlock Text="T2" FontSize="10" Foreground="#FF666666" HorizontalAlignment="Center"/>
+                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="6,4" MinHeight="28" MinWidth="72">
+                                        <TextBlock x:Name="TierPct2Text" FontSize="14" FontWeight="Bold" Foreground="#FF222222" HorizontalAlignment="Stretch" TextAlignment="Center"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,6,4" MinWidth="72">
+                                    <TextBlock Text="T3" FontSize="10" Foreground="#FF666666" HorizontalAlignment="Center"/>
+                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="6,4" MinHeight="28" MinWidth="72">
+                                        <TextBlock x:Name="TierPct3Text" FontSize="14" FontWeight="Bold" Foreground="#FF222222" HorizontalAlignment="Stretch" TextAlignment="Center"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,6,4" MinWidth="72">
+                                    <TextBlock Text="T4" FontSize="10" Foreground="#FF666666" HorizontalAlignment="Center"/>
+                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="6,4" MinHeight="28" MinWidth="72">
+                                        <TextBlock x:Name="TierPct4Text" FontSize="14" FontWeight="Bold" Foreground="#FF222222" HorizontalAlignment="Stretch" TextAlignment="Center"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,0,4" MinWidth="72">
+                                    <TextBlock Text="T5" FontSize="10" Foreground="#FF666666" HorizontalAlignment="Center"/>
+                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="6,4" MinHeight="28" MinWidth="72">
+                                        <TextBlock x:Name="TierPct5Text" FontSize="14" FontWeight="Bold" Foreground="#FF222222" HorizontalAlignment="Stretch" TextAlignment="Center"/>
+                                    </Border>
+                                </StackPanel>
+                            </WrapPanel>
+                        </Border>
+                        <TextBlock x:Name="TierTableNoteText"
+                                   FontSize="10"
+                                   Foreground="#FF666666"
+                                   TextWrapping="Wrap"
+                                   LineHeight="13"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Spacing="10"
+                            Margin="0,4,0,0">
+                    <Button x:Name="ClearButton"
+                            Content="Clear"
+                            Width="100"
+                            Height="32"
+                            Background="#FF555555"
+                            Foreground="White"
+                            BorderThickness="0"
+                            CornerRadius="3"
+                            FontSize="12"
+                            Cursor="Hand"/>
+                    <Button x:Name="GenerateButton"
+                            Content="Generate"
+                            Width="120"
+                            Height="34"
+                            Background="#FF0078D4"
+                            Foreground="White"
+                            BorderThickness="0"
+                            CornerRadius="3"
+                            FontSize="13"
+                            Cursor="Hand"/>
+                </StackPanel>
+                <Expander Header="Affix bounds by rarity (advanced)" IsExpanded="False">
+                    <Border Background="White"
+                        BorderBrush="#FF404040"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="12">
+                    <ScrollViewer MaxHeight="400"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                    <Grid RowDefinitions="Auto,Auto,Auto">
+                        <TextBlock Grid.Row="0"
+                                   Text="Real loot + this lab (TuningConfig itemAffixByRarity)"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="#FF444444"
+                                   Margin="0,0,0,4"/>
+                        <StackPanel Grid.Row="1" Spacing="6">
+                        <TextBlock Text="Prefix = Quality/Adjective/Material slots (0–3). Suffix = StatBonuses.json lines. Actions = granted-action lines. Full rules ↓"
                                    FontSize="11"
                                    Foreground="#FF666666"
                                    TextWrapping="Wrap"/>
-                        <Grid ColumnDefinitions="120,56,56,56,14,56,56,56,14,56,56,56"
+                        <Grid ColumnDefinitions="96,*,*,*,14,*,*,*,14,*,*,*"
                               RowDefinitions="Auto,Auto"
                               Margin="0,2,0,0">
                             <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
@@ -139,392 +461,118 @@
                         <TextBlock Grid.Row="1" Grid.Column="11" Text="Max" FontWeight="SemiBold" Foreground="#FF333333" VerticalAlignment="Center" FontSize="11" HorizontalAlignment="Center" TextAlignment="Center" ToolTip.Tip="Maximum extra granted-action lines"/>
                         </Grid>
                         <StackPanel Spacing="4">
-                            <Grid ColumnDefinitions="120,56,56,56,14,56,56,56,14,56,56,56">
+                            <Grid ColumnDefinitions="96,*,*,*,14,*,*,*,14,*,*,*">
                                 <TextBlock Grid.Column="0" Text="Common" Foreground="#FF333333" VerticalAlignment="Center" FontSize="12"/>
-                                <TextBox Grid.Column="1" x:Name="AffixPrefixMinCommon" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
-                                <TextBox Grid.Column="2" x:Name="AffixPrefixChanceCommon" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                                <TextBox Grid.Column="3" x:Name="AffixPrefixMaxCommon" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
-                                <TextBox Grid.Column="5" x:Name="AffixStatMinCommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                                <TextBox Grid.Column="6" x:Name="AffixStatChanceCommon" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                                <TextBox Grid.Column="7" x:Name="AffixStatMaxCommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                            <TextBox Grid.Column="9" x:Name="AffixActionMinCommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                            <TextBox Grid.Column="10" x:Name="AffixActionChanceCommon" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                            <TextBox Grid.Column="11" x:Name="AffixActionMaxCommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                                <TextBox Grid.Column="1" x:Name="AffixPrefixMinCommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
+                                <TextBox Grid.Column="2" x:Name="AffixPrefixChanceCommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                <TextBox Grid.Column="3" x:Name="AffixPrefixMaxCommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
+                                <TextBox Grid.Column="5" x:Name="AffixStatMinCommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                <TextBox Grid.Column="6" x:Name="AffixStatChanceCommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                <TextBox Grid.Column="7" x:Name="AffixStatMaxCommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                            <TextBox Grid.Column="9" x:Name="AffixActionMinCommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                            <TextBox Grid.Column="10" x:Name="AffixActionChanceCommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                            <TextBox Grid.Column="11" x:Name="AffixActionMaxCommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                             </Grid>
-                            <Grid ColumnDefinitions="120,56,56,56,14,56,56,56,14,56,56,56">
+                            <Grid ColumnDefinitions="96,*,*,*,14,*,*,*,14,*,*,*">
                                 <TextBlock Grid.Column="0" Text="Uncommon" Foreground="#FF333333" VerticalAlignment="Center" FontSize="12"/>
-                                <TextBox Grid.Column="1" x:Name="AffixPrefixMinUncommon" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
-                                <TextBox Grid.Column="2" x:Name="AffixPrefixChanceUncommon" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                                <TextBox Grid.Column="3" x:Name="AffixPrefixMaxUncommon" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
-                                <TextBox Grid.Column="5" x:Name="AffixStatMinUncommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                                <TextBox Grid.Column="6" x:Name="AffixStatChanceUncommon" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                                <TextBox Grid.Column="7" x:Name="AffixStatMaxUncommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                            <TextBox Grid.Column="9" x:Name="AffixActionMinUncommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                            <TextBox Grid.Column="10" x:Name="AffixActionChanceUncommon" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                            <TextBox Grid.Column="11" x:Name="AffixActionMaxUncommon" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                                <TextBox Grid.Column="1" x:Name="AffixPrefixMinUncommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
+                                <TextBox Grid.Column="2" x:Name="AffixPrefixChanceUncommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                <TextBox Grid.Column="3" x:Name="AffixPrefixMaxUncommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
+                                <TextBox Grid.Column="5" x:Name="AffixStatMinUncommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                <TextBox Grid.Column="6" x:Name="AffixStatChanceUncommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                <TextBox Grid.Column="7" x:Name="AffixStatMaxUncommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                            <TextBox Grid.Column="9" x:Name="AffixActionMinUncommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                            <TextBox Grid.Column="10" x:Name="AffixActionChanceUncommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                            <TextBox Grid.Column="11" x:Name="AffixActionMaxUncommon" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                             </Grid>
-                            <Grid ColumnDefinitions="120,56,56,56,14,56,56,56,14,56,56,56">
+                            <Grid ColumnDefinitions="96,*,*,*,14,*,*,*,14,*,*,*">
                                 <TextBlock Grid.Column="0" Text="Rare" Foreground="#FF333333" VerticalAlignment="Center" FontSize="12"/>
-                                <TextBox Grid.Column="1" x:Name="AffixPrefixMinRare" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
-                                <TextBox Grid.Column="2" x:Name="AffixPrefixChanceRare" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                                <TextBox Grid.Column="3" x:Name="AffixPrefixMaxRare" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
-                                <TextBox Grid.Column="5" x:Name="AffixStatMinRare" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                                <TextBox Grid.Column="6" x:Name="AffixStatChanceRare" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                                <TextBox Grid.Column="7" x:Name="AffixStatMaxRare" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                            <TextBox Grid.Column="9" x:Name="AffixActionMinRare" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                            <TextBox Grid.Column="10" x:Name="AffixActionChanceRare" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                            <TextBox Grid.Column="11" x:Name="AffixActionMaxRare" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                                <TextBox Grid.Column="1" x:Name="AffixPrefixMinRare" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
+                                <TextBox Grid.Column="2" x:Name="AffixPrefixChanceRare" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                <TextBox Grid.Column="3" x:Name="AffixPrefixMaxRare" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
+                                <TextBox Grid.Column="5" x:Name="AffixStatMinRare" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                <TextBox Grid.Column="6" x:Name="AffixStatChanceRare" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                <TextBox Grid.Column="7" x:Name="AffixStatMaxRare" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                            <TextBox Grid.Column="9" x:Name="AffixActionMinRare" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                            <TextBox Grid.Column="10" x:Name="AffixActionChanceRare" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                            <TextBox Grid.Column="11" x:Name="AffixActionMaxRare" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                             </Grid>
-                            <Grid ColumnDefinitions="120,56,56,56,14,56,56,56,14,56,56,56">
+                            <Grid ColumnDefinitions="96,*,*,*,14,*,*,*,14,*,*,*">
                                 <TextBlock Grid.Column="0" Text="Epic" Foreground="#FF333333" VerticalAlignment="Center" FontSize="12"/>
-                                <TextBox Grid.Column="1" x:Name="AffixPrefixMinEpic" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
-                                <TextBox Grid.Column="2" x:Name="AffixPrefixChanceEpic" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                                <TextBox Grid.Column="3" x:Name="AffixPrefixMaxEpic" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
-                                <TextBox Grid.Column="5" x:Name="AffixStatMinEpic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                                <TextBox Grid.Column="6" x:Name="AffixStatChanceEpic" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                                <TextBox Grid.Column="7" x:Name="AffixStatMaxEpic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                            <TextBox Grid.Column="9" x:Name="AffixActionMinEpic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                            <TextBox Grid.Column="10" x:Name="AffixActionChanceEpic" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                            <TextBox Grid.Column="11" x:Name="AffixActionMaxEpic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                                <TextBox Grid.Column="1" x:Name="AffixPrefixMinEpic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
+                                <TextBox Grid.Column="2" x:Name="AffixPrefixChanceEpic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                <TextBox Grid.Column="3" x:Name="AffixPrefixMaxEpic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
+                                <TextBox Grid.Column="5" x:Name="AffixStatMinEpic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                <TextBox Grid.Column="6" x:Name="AffixStatChanceEpic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                <TextBox Grid.Column="7" x:Name="AffixStatMaxEpic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                            <TextBox Grid.Column="9" x:Name="AffixActionMinEpic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                            <TextBox Grid.Column="10" x:Name="AffixActionChanceEpic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                            <TextBox Grid.Column="11" x:Name="AffixActionMaxEpic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                             </Grid>
-                            <Grid ColumnDefinitions="120,56,56,56,14,56,56,56,14,56,56,56">
+                            <Grid ColumnDefinitions="96,*,*,*,14,*,*,*,14,*,*,*">
                                 <TextBlock Grid.Column="0" Text="Legendary" Foreground="#FF333333" VerticalAlignment="Center" FontSize="12"/>
-                                <TextBox Grid.Column="1" x:Name="AffixPrefixMinLegendary" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
-                                <TextBox Grid.Column="2" x:Name="AffixPrefixChanceLegendary" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                                <TextBox Grid.Column="3" x:Name="AffixPrefixMaxLegendary" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
-                                <TextBox Grid.Column="5" x:Name="AffixStatMinLegendary" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                                <TextBox Grid.Column="6" x:Name="AffixStatChanceLegendary" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                                <TextBox Grid.Column="7" x:Name="AffixStatMaxLegendary" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                            <TextBox Grid.Column="9" x:Name="AffixActionMinLegendary" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                            <TextBox Grid.Column="10" x:Name="AffixActionChanceLegendary" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                            <TextBox Grid.Column="11" x:Name="AffixActionMaxLegendary" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                                <TextBox Grid.Column="1" x:Name="AffixPrefixMinLegendary" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
+                                <TextBox Grid.Column="2" x:Name="AffixPrefixChanceLegendary" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                <TextBox Grid.Column="3" x:Name="AffixPrefixMaxLegendary" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
+                                <TextBox Grid.Column="5" x:Name="AffixStatMinLegendary" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                <TextBox Grid.Column="6" x:Name="AffixStatChanceLegendary" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                <TextBox Grid.Column="7" x:Name="AffixStatMaxLegendary" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                            <TextBox Grid.Column="9" x:Name="AffixActionMinLegendary" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                            <TextBox Grid.Column="10" x:Name="AffixActionChanceLegendary" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                            <TextBox Grid.Column="11" x:Name="AffixActionMaxLegendary" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                             </Grid>
-                            <Grid ColumnDefinitions="120,56,56,56,14,56,56,56,14,56,56,56">
+                            <Grid ColumnDefinitions="96,*,*,*,14,*,*,*,14,*,*,*">
                                 <TextBlock Grid.Column="0" Text="Mythic" Foreground="#FF333333" VerticalAlignment="Center" FontSize="12"/>
-                                <TextBox Grid.Column="1" x:Name="AffixPrefixMinMythic" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
-                                <TextBox Grid.Column="2" x:Name="AffixPrefixChanceMythic" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                                <TextBox Grid.Column="3" x:Name="AffixPrefixMaxMythic" Width="36" HorizontalAlignment="Left" MaxLength="2"/>
-                                <TextBox Grid.Column="5" x:Name="AffixStatMinMythic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                                <TextBox Grid.Column="6" x:Name="AffixStatChanceMythic" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                                <TextBox Grid.Column="7" x:Name="AffixStatMaxMythic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                            <TextBox Grid.Column="9" x:Name="AffixActionMinMythic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
-                            <TextBox Grid.Column="10" x:Name="AffixActionChanceMythic" Width="36" HorizontalAlignment="Left" MaxLength="5"/>
-                            <TextBox Grid.Column="11" x:Name="AffixActionMaxMythic" Width="36" HorizontalAlignment="Left" MaxLength="3"/>
+                                <TextBox Grid.Column="1" x:Name="AffixPrefixMinMythic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
+                                <TextBox Grid.Column="2" x:Name="AffixPrefixChanceMythic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                <TextBox Grid.Column="3" x:Name="AffixPrefixMaxMythic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
+                                <TextBox Grid.Column="5" x:Name="AffixStatMinMythic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                <TextBox Grid.Column="6" x:Name="AffixStatChanceMythic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                <TextBox Grid.Column="7" x:Name="AffixStatMaxMythic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                            <TextBox Grid.Column="9" x:Name="AffixActionMinMythic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                            <TextBox Grid.Column="10" x:Name="AffixActionChanceMythic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                            <TextBox Grid.Column="11" x:Name="AffixActionMaxMythic" MinWidth="44" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                             </Grid>
                         </StackPanel>
-                    </StackPanel>
+                        </StackPanel>
+                        <Border Grid.Row="2"
+                                    Margin="0,10,0,0"
+                                    Background="#FFF5F5F5"
+                                    BorderBrush="#FFE8E8E8"
+                                    BorderThickness="1"
+                                    CornerRadius="4"
+                                    Padding="10,8">
+                                <TextBlock FontSize="11"
+                                           Foreground="#FF555555"
+                                           TextWrapping="Wrap"
+                                           Text="Min = guaranteed counts. Extra % = per-step chance to add one more while below Max (rolled once per step). Prefix = Quality/Adjective/Material slots (0–3). Suffix = extra StatBonuses.json suffix lines (often “of …”) — separate from prefix-slot modifications that can also change stats. Actions = extra granted-action lines. Stored in TuningConfig.json (itemAffixByRarity). Use Save at the bottom of Settings to persist."/>
+                            </Border>
+                    </Grid>
+                    </ScrollViewer>
                 </Border>
+                </Expander>
+            </StackPanel>
+        </ScrollViewer>
 
-                <Border Grid.Column="2"
-                        Background="White"
-                        BorderBrush="#FF404040"
-                        BorderThickness="1"
-                        CornerRadius="6"
-                        Padding="12">
-                    <StackPanel Spacing="10">
-                        <TextBlock Text="Generation Parameters"
-                                   FontSize="16"
-                                   FontWeight="SemiBold"
-                                   Foreground="Black"/>
-
-                    <!-- Three equal columns: aligned labels + controls, no runaway * widths -->
-                    <Grid ColumnDefinitions="*,*,*"
-                          RowDefinitions="Auto,Auto,Auto">
-                        <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4" Margin="0,0,10,8">
-                            <TextBlock Text="Item type"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Foreground="#FF555555"/>
-                            <ComboBox x:Name="ItemTypeCombo"
-                                      MinHeight="32"
-                                      HorizontalAlignment="Stretch"/>
-                        </StackPanel>
-                        <StackPanel Grid.Row="0" Grid.Column="1" Spacing="4" Margin="0,0,10,8">
-                            <TextBlock Text="Rarity"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Foreground="#FF555555"/>
-                            <ComboBox x:Name="RarityCombo"
-                                      MinHeight="32"
-                                      HorizontalAlignment="Stretch"/>
-                        </StackPanel>
-                        <StackPanel Grid.Row="0" Grid.Column="2" Spacing="4" Margin="0,0,0,8">
-                            <TextBlock Text="Tier"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Foreground="#FF555555"/>
-                            <ComboBox x:Name="TierCombo"
-                                      MinHeight="32"
-                                      HorizontalAlignment="Stretch"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="1" Grid.Column="0" Spacing="4" Margin="0,0,10,0">
-                            <TextBlock Text="Weapon type"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Foreground="#FF555555"/>
-                            <ComboBox x:Name="WeaponTypeCombo"
-                                      MinHeight="32"
-                                      HorizontalAlignment="Stretch"/>
-                        </StackPanel>
-                        <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4" Margin="0,0,10,0">
-                            <TextBlock Text="Armor slot"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Foreground="#FF555555"/>
-                            <ComboBox x:Name="ArmorSlotCombo"
-                                      MinHeight="32"
-                                      HorizontalAlignment="Stretch"/>
-                        </StackPanel>
-                        <StackPanel Grid.Row="1" Grid.Column="2" Spacing="4">
-                            <TextBlock Text="Count"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Foreground="#FF555555"/>
-                            <TextBox x:Name="CountTextBox"
-                                     Text="100"
-                                     MinHeight="32"
-                                     Width="132"
-                                     HorizontalAlignment="Left"
-                                     MaxLength="9"
-                                     ToolTip.Tip="Batch size (1–1,000,000). Large batches can be slow."/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Spacing="4">
-                            <TextBlock Text="Hero / dungeon Δ"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Foreground="#FF555555"
-                                       ToolTip.Tip="Dungeon Δ is relative to hero level: effective dungeon = hero + Δ (clamped 1–99). When Rarity is Any, rarity rolls use Hero level (Epic+ gates). When Tier is Any, tier rolls use Hero vs effective dungeon (LootTierCalculator / TierDistribution.json), same as LootGenerator."/>
-                            <Grid ColumnDefinitions="Auto,Auto">
-                                <TextBox x:Name="HeroLevelTextBox"
-                                         Text="1"
-                                         MinHeight="32"
-                                         Width="88"
-                                         HorizontalAlignment="Left"
-                                         MaxLength="3"/>
-                                <TextBox x:Name="DungeonDeltaTextBox"
-                                         Grid.Column="1"
-                                         Text="+0"
-                                         MinHeight="32"
-                                         Width="88"
-                                         Margin="8,0,0,0"
-                                         HorizontalAlignment="Left"
-                                         MaxLength="4"/>
-                            </Grid>
-                        </StackPanel>
-                    </Grid>
-
-                    <Border Background="#FFF8F8F8"
-                            BorderBrush="#FFE8E8E8"
-                            BorderThickness="1"
-                            CornerRadius="4"
-                            Padding="10,8"
-                            VerticalAlignment="Top">
-                        <StackPanel Spacing="8">
-                            <TextBlock x:Name="HeroLevelRarityPreviewText"
-                                       FontSize="12"
-                                       Foreground="#FF555555"
-                                       LineHeight="16"
-                                       TextWrapping="Wrap"/>
-
-                            <StackPanel Spacing="8">
-                                <Border
-                                        Background="White"
-                                        BorderBrush="#FFE8E8E8"
-                                        BorderThickness="1"
-                                        CornerRadius="4"
-                                        Padding="8,6">
-                                    <StackPanel Spacing="6">
-                                        <TextBlock Text="Lab rarity chances (fixed, ignores level)"
-                                                   FontSize="12"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="#FF444444"/>
-                                        <Grid ColumnDefinitions="Auto,Auto,*" RowDefinitions="Auto"
-                                              Margin="0,0,0,2">
-                                            <TextBlock Grid.Column="0"
-                                                       Text="Base ratio"
-                                                       FontSize="11"
-                                                       Foreground="#FF666666"
-                                                       VerticalAlignment="Center"
-                                                       ToolTip.Tip="Geometric odds: Common is X× more common than Uncommon; Uncommon is X× more common than Rare; ... Legendary is X× more common than Mythic. Leave blank to manually edit the % boxes below."/>
-                                            <TextBox Grid.Column="1"
-                                                     x:Name="BaseRatioTextBox"
-                                                     Classes="FixedChanceBox"
-                                                     Text="8"
-                                                     MinHeight="24"
-                                                     Width="64"
-                                                     Margin="8,0,0,0"
-                                                     HorizontalContentAlignment="Center"
-                                                     TextAlignment="Center"
-                                                     BorderThickness="1"
-                                                     MaxLength="6"/>
-                                            <Panel Grid.Column="2"/>
-                                        </Grid>
-                                        <Border Background="#FFF9F9F9"
-                                                BorderBrush="#FFEAEAEA"
-                                                BorderThickness="1"
-                                                CornerRadius="4"
-                                                Padding="6,6">
-                                            <!-- Keep all rarities on one row at typical Settings width -->
-                                            <UniformGrid Columns="6" Rows="1">
-                                                <StackPanel Spacing="3" HorizontalAlignment="Center" Margin="0,0,8,0" MinWidth="76">
-                                                    <TextBlock Text="Common" FontSize="11" Foreground="#FF666666" HorizontalAlignment="Center"/>
-                                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="6,4" MinHeight="30" MinWidth="76">
-                                                        <TextBox x:Name="FixedChanceCommon" Classes="FixedChanceBox" Text="87.87" MinHeight="20" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="6"/>
-                                                    </Border>
-                                                </StackPanel>
-                                                <StackPanel Spacing="3" HorizontalAlignment="Center" Margin="0,0,8,0" MinWidth="76">
-                                                    <TextBlock Text="Uncommon" FontSize="11" Foreground="#FF666666" HorizontalAlignment="Center"/>
-                                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="6,4" MinHeight="30" MinWidth="76">
-                                                        <TextBox x:Name="FixedChanceUncommon" Classes="FixedChanceBox" Text="8.79" MinHeight="20" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="6"/>
-                                                    </Border>
-                                                </StackPanel>
-                                                <StackPanel Spacing="3" HorizontalAlignment="Center" Margin="0,0,8,0" MinWidth="76">
-                                                    <TextBlock Text="Rare" FontSize="11" Foreground="#FF666666" HorizontalAlignment="Center"/>
-                                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="6,4" MinHeight="30" MinWidth="76">
-                                                        <TextBox x:Name="FixedChanceRare" Classes="FixedChanceBox" Text="2.64" MinHeight="20" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="6"/>
-                                                    </Border>
-                                                </StackPanel>
-                                                <StackPanel Spacing="3" HorizontalAlignment="Center" Margin="0,0,8,0" MinWidth="76">
-                                                    <TextBlock Text="Epic" FontSize="11" Foreground="#FF666666" HorizontalAlignment="Center"/>
-                                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="6,4" MinHeight="30" MinWidth="76">
-                                                        <TextBox x:Name="FixedChanceEpic" Classes="FixedChanceBox" Text="0.53" MinHeight="20" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="6"/>
-                                                    </Border>
-                                                </StackPanel>
-                                                <StackPanel Spacing="3" HorizontalAlignment="Center" Margin="0,0,8,0" MinWidth="76">
-                                                    <TextBlock Text="Legendary" FontSize="11" Foreground="#FF666666" HorizontalAlignment="Center"/>
-                                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="6,4" MinHeight="30" MinWidth="76">
-                                                        <TextBox x:Name="FixedChanceLegendary" Classes="FixedChanceBox" Text="0.18" MinHeight="20" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="6"/>
-                                                    </Border>
-                                                </StackPanel>
-                                                <StackPanel Spacing="3" HorizontalAlignment="Center" Margin="0,0,0,0" MinWidth="76">
-                                                    <TextBlock Text="Mythic" FontSize="11" Foreground="#FF666666" HorizontalAlignment="Center"/>
-                                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="6,4" MinHeight="30" MinWidth="76">
-                                                        <TextBox x:Name="FixedChanceMythic" Classes="FixedChanceBox" Text="0.02" MinHeight="20" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="6"/>
-                                                    </Border>
-                                                </StackPanel>
-                                            </UniformGrid>
-                                        </Border>
-                                        <TextBlock x:Name="FixedChanceSummaryText"
-                                                   FontSize="11"
-                                                   Foreground="#FF666666"
-                                                   TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </Border>
-
-                                <Border
-                                        Background="White"
-                                        BorderBrush="#FFE8E8E8"
-                                        BorderThickness="1"
-                                        CornerRadius="4"
-                                        Padding="8,6">
-                                    <StackPanel Spacing="6">
-                                        <TextBlock x:Name="TierTableTitleText"
-                                                   Text="Live loot tier chances"
-                                                   FontSize="12"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="#FF444444"/>
-                                        <TextBlock x:Name="TierTableSubtitleText"
-                                                   FontSize="11"
-                                                   Foreground="#FF666666"
-                                                   TextWrapping="Wrap"/>
-                                        <Border Background="#FFF9F9F9"
-                                                BorderBrush="#FFEAEAEA"
-                                                BorderThickness="1"
-                                                CornerRadius="4"
-                                                Padding="6,6">
-                                            <!-- Wrap so T5 doesn't clip at narrow widths. -->
-                                            <WrapPanel Orientation="Horizontal"
-                                                       HorizontalAlignment="Stretch">
-                                                <StackPanel Spacing="4" HorizontalAlignment="Center" Margin="0,0,10,10" MinWidth="92">
-                                                    <TextBlock Text="T1" FontSize="11" Foreground="#FF666666" HorizontalAlignment="Center"/>
-                                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="8,6" MinHeight="34" MinWidth="92">
-                                                        <TextBlock x:Name="TierPct1Text" FontSize="16" FontWeight="Bold" Foreground="#FF222222" HorizontalAlignment="Stretch" TextAlignment="Center"/>
-                                                    </Border>
-                                                </StackPanel>
-                                                <StackPanel Spacing="4" HorizontalAlignment="Center" Margin="0,0,10,10" MinWidth="92">
-                                                    <TextBlock Text="T2" FontSize="11" Foreground="#FF666666" HorizontalAlignment="Center"/>
-                                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="8,6" MinHeight="34" MinWidth="92">
-                                                        <TextBlock x:Name="TierPct2Text" FontSize="16" FontWeight="Bold" Foreground="#FF222222" HorizontalAlignment="Stretch" TextAlignment="Center"/>
-                                                    </Border>
-                                                </StackPanel>
-                                                <StackPanel Spacing="4" HorizontalAlignment="Center" Margin="0,0,10,10" MinWidth="92">
-                                                    <TextBlock Text="T3" FontSize="11" Foreground="#FF666666" HorizontalAlignment="Center"/>
-                                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="8,6" MinHeight="34" MinWidth="92">
-                                                        <TextBlock x:Name="TierPct3Text" FontSize="16" FontWeight="Bold" Foreground="#FF222222" HorizontalAlignment="Stretch" TextAlignment="Center"/>
-                                                    </Border>
-                                                </StackPanel>
-                                                <StackPanel Spacing="4" HorizontalAlignment="Center" Margin="0,0,10,10" MinWidth="92">
-                                                    <TextBlock Text="T4" FontSize="11" Foreground="#FF666666" HorizontalAlignment="Center"/>
-                                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="8,6" MinHeight="34" MinWidth="92">
-                                                        <TextBlock x:Name="TierPct4Text" FontSize="16" FontWeight="Bold" Foreground="#FF222222" HorizontalAlignment="Stretch" TextAlignment="Center"/>
-                                                    </Border>
-                                                </StackPanel>
-                                                <StackPanel Spacing="4" HorizontalAlignment="Center" Margin="0,0,0,10" MinWidth="92">
-                                                    <TextBlock Text="T5" FontSize="11" Foreground="#FF666666" HorizontalAlignment="Center"/>
-                                                    <Border Background="White" BorderBrush="#FFE6E6E6" BorderThickness="1" CornerRadius="4" Padding="8,6" MinHeight="34" MinWidth="92">
-                                                        <TextBlock x:Name="TierPct5Text" FontSize="16" FontWeight="Bold" Foreground="#FF222222" HorizontalAlignment="Stretch" TextAlignment="Center"/>
-                                                    </Border>
-                                                </StackPanel>
-                                            </WrapPanel>
-                                        </Border>
-                                        <TextBlock x:Name="TierTableNoteText"
-                                                   FontSize="11"
-                                                   Foreground="#FF666666"
-                                                   TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Panel Grid.Column="0"/>
-                        <StackPanel Grid.Column="1"
-                                    Orientation="Horizontal"
-                                    Spacing="10">
-                            <Button x:Name="GenerateButton"
-                                    Content="Generate"
-                                    Width="120"
-                                    Height="34"
-                                    Background="#FF0078D4"
-                                    Foreground="White"
-                                    BorderThickness="0"
-                                    CornerRadius="3"
-                                    FontSize="13"
-                                    Cursor="Hand"/>
-                            <Button x:Name="ClearButton"
-                                    Content="Clear"
-                                    Width="120"
-                                    Height="34"
-                                    Background="#FF555555"
-                                    Foreground="White"
-                                    BorderThickness="0"
-                                    CornerRadius="3"
-                                    FontSize="13"
-                                    Cursor="Hand"/>
-                        </StackPanel>
-                    </Grid>
-                </StackPanel>
-            </Border>
-            </Grid>
-
-        <Grid Grid.Row="2" ColumnDefinitions="2*,10,1*">
+        <Grid Grid.Row="1"
+              Margin="0,10,0,0"
+              ColumnDefinitions="2*,10,1*"
+              VerticalAlignment="Stretch"
+              MinHeight="120">
                 <Border Grid.Column="0"
                         Background="White"
                         BorderBrush="#FF404040"
                         BorderThickness="1"
                         CornerRadius="6"
                         Padding="12">
-                    <!-- Use a Grid so the ListBox gets a bounded height and can scroll -->
                     <Grid RowDefinitions="Auto,Auto,*">
                         <TextBlock Grid.Row="0"
-                                   Text="Generated Items (best → worst)"
-                                   FontSize="18"
-                                   FontWeight="SemiBold"
-                                   Foreground="Black"
-                                   Margin="0,0,0,4"/>
+                                       Text="Generated Items (best → worst)"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="Black"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,0,4"/>
 
                         <Border Grid.Row="1"
                                 Background="#FF2A2A2A"
@@ -573,12 +621,14 @@
                     </Grid>
                 </Border>
 
-                <Border Grid.Column="2"
-                        Background="White"
-                        BorderBrush="#FF404040"
-                        BorderThickness="1"
-                        CornerRadius="6"
-                        Padding="12">
+        <Border Grid.Column="2"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Background="White"
+                BorderBrush="#FF404040"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="12">
                     <StackPanel Spacing="10">
                         <TextBlock Text="Selected Item"
                                    FontSize="18"
@@ -615,7 +665,7 @@
                                    TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
-            </Grid>
+        </Grid>
+
     </Grid>
 </UserControl>
-

@@ -128,7 +128,8 @@ namespace RPGGame
             { (BlockType.CombatAction, BlockType.PoisonDamage), 1 },
             { (BlockType.EnvironmentalAction, BlockType.PoisonDamage), 1 },
             { (BlockType.PoisonDamage, BlockType.CombatAction), 0 },
-            { (BlockType.PoisonDamage, BlockType.PoisonDamage), 1 },  // Blank line between different entities' poison damage blocks
+            // Default 1 when victim changes; same afflicted entity handled in GetSpacingBefore (0 blank — tight poison/burn lines).
+            { (BlockType.PoisonDamage, BlockType.PoisonDamage), 1 },
             
             // Narrative blocks
             { (BlockType.CombatAction, BlockType.Narrative), 1 },
@@ -287,6 +288,15 @@ namespace RPGGame
             // Note: When entity extraction fails for action blocks, we can't detect actor changes,
             // so we fall back to base spacing rules. The base rule for (CombatAction, CombatAction) is 0,
             // which assumes same actor. This should be rare now that EntityNameExtractor handles CRITICAL MISS.
+            if (currentBlockType == BlockType.PoisonDamage
+                && lastBlockType == BlockType.PoisonDamage
+                && currentEntity != null
+                && lastDoTAfflictedEntity != null
+                && string.Equals(currentEntity, lastDoTAfflictedEntity, StringComparison.Ordinal))
+            {
+                return 0;
+            }
+
             // Check for specific transition rule
             if (SpacingRules.TryGetValue((lastBlockType, currentBlockType), out int spacing))
             {

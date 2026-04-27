@@ -57,9 +57,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         }
 
         /// <summary>
-        /// Formats a stat line string into colored text segments
+        /// Formats a stat line string into colored text segments.
         /// </summary>
-        public static List<ColoredText> FormatStatLine(string stat)
+        /// <param name="stat">Plain stat line (e.g. "Speed: 0.81×").</param>
+        /// <param name="displayedItem">Item this line belongs to; used for weapon speed comparison.</param>
+        /// <param name="weaponSpeedBaseline">Weapon to compare attack-speed against (lower total speed = faster). When null, speed value stays neutral.</param>
+        public static List<ColoredText> FormatStatLine(string stat, Item? displayedItem = null, WeaponItem? weaponSpeedBaseline = null)
         {
             var builder = new ColoredTextBuilder();
             builder.Add("    ", Colors.White);
@@ -96,7 +99,21 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 if (parts.Length == 2)
                 {
                     builder.Add("Speed: ", ColorPalette.Info);
-                    builder.Add(parts[1], Colors.White);
+                    if (displayedItem is WeaponItem w && weaponSpeedBaseline != null)
+                    {
+                        double mine = w.GetTotalAttackSpeed();
+                        double baseline = weaponSpeedBaseline.GetTotalAttackSpeed();
+                        if (mine < baseline)
+                            builder.Add(parts[1], ColorPalette.Success);
+                        else if (mine > baseline)
+                            builder.Add(parts[1], ColorPalette.Error);
+                        else
+                            builder.Add(parts[1], Colors.White);
+                    }
+                    else
+                    {
+                        builder.Add(parts[1], Colors.White);
+                    }
                 }
                 else
                 {

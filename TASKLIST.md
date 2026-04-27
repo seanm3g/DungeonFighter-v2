@@ -7,8 +7,8 @@ This file tracks the work currently in progress. Only items listed here should b
 - [ ] **DevEx / Scripts:** Consolidate `Scripts/` into a small set of core commands (build/run/test/clean/metrics) and move legacy Google Sheets + redundant wrappers into `Scripts/_legacy/`. Update script docs and keep a single entrypoint.
 - [ ] **Combat / INT:** Replace INT “+roll bonus per N” with milestone-based threshold bonuses that grant +1 to HIT/COMBO/CRIT at specific effective-INT breakpoints (as per the tuning table). Ensure combat resolution, action selection, and HUD threshold preview all agree; add unit tests.
 - [ ] **Loot / Rarity:** Remove **Transcendent** as a rarity category; **Mythic** is the highest. Update loot rarity rolls, item-gen lab fixed chances, color themes, and unit tests accordingly.
-- [ ] **UI / Item Generation:** Top panels layout — place **Affix bounds by rarity** and **Generation Parameters** side-by-side (wrap to vertical on narrow widths) in Settings → Item Generation.
-- [ ] **UI / Item Generation:** Keep “Selected Item” details visible while scrolling the generated items list (pin details panel; list scrolls independently).
+- [x] **UI / Item Generation:** Top **Auto** scroll area — **Generation Parameters** (2×4 grid + rarity preview), **lab rarity** + **live tier** strip, **Clear**/**Generate**, and **Affix bounds** in a collapsed **Expander** (inner affix table + notes in a `ScrollViewer` capped at **400** px height). Bottom **`*`** row is only **Generated list** | **Selected** (`ItemGenerationSettingsPanel.axaml`).
+- [x] **UI / Item Generation:** Item Generation tab uses a **2-column** list row (**Generated list** | **Selected Item**); **Generate** and **Clear** live in the **top** control strip (supersedes earlier “Generate in Selected only” layout).
 - [ ] **UI / Item Generation:** Add a **Statistics** section near “Selected Item” that shows counts for each **tier × rarity** combination in the current generated batch, plus how many generated items are **duplicates** (repeats of an identical item in the batch).
 - [ ] **UI / Item Generation:** Fixed rarity chances — add **Base ratio** input so each rarity is X× rarer than the previous, and auto-derive normalized percentages (Common→Mythic) for the lab.
 - [x] **UI / Item Generation:** Fixed rarity chance boxes — improve hover readability (remove hard-coded TextBox colors so hover style applies; ensure text stays high-contrast).
@@ -27,6 +27,7 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Completed (reference)
 
+- [x] **Data / New game:** Only **four** starting weapons on the pick-one menu — removed duplicate **starter** tag from the second identical Wand **STICK** row in `Weapons.json`; `OVERVIEW.md` documents starter-tag vs tier-1 fallback.
 - [x] **Loot / rarity weights:** Set `RarityTable.json` weights to pure powers of 10 (Common→Transcendent) for clean “1 in N” mental math; document resulting odds.
 - [x] **Bugfix / items:** First stat suffix duplicated in display names when two `StatBonuses` names had the same length (`GetBaseItemName` only stripped the outer suffix in one pass). Fixed with iterative stripping; test `ItemGeneratorTests` equal-length suffix idempotency case.
 - [x] **UI / Item Generation Lab:** Rarity **Any** rolls per item with `LootRarityProcessor` (fixes 100% Common bug). **Hero level** UI + `ItemGenerationSpec.PlayerLevel` for those rolls and Epic+ gates; `ItemGenerationLabServiceTests.TestAnyRarityRollsNonCommonDistribution`.
@@ -55,6 +56,8 @@ This file tracks the work currently in progress. Only items listed here should b
 - [x] **Combat / state:** Hero status effects and temp combat state wipe after each combat, after each survived room, and on dungeon completion or early exit (`CombatManager`, `RoomProcessor`, `DungeonOrchestrator`); `Actor.ClearAllTempEffects` extended for advanced stack fields; `CharacterFacade.ClearAllTempEffects` → `Character.ClearAllTempEffects`; tests `ActorClearTempEffectsTests`; `OVERVIEW.md`.
 
 - [x] **Bugfix / UI:** Inventory — hover tooltips for bag rows (and left character panel while inventory is open): `InventoryScreenRenderer` no longer clears shared clickables after the character panel registered `lphover` targets; inventory `lphover` uses a full chrome refresh so tooltip paint does not erase the item list; `LeftPanelTooltipBuilder.AppendGear` adds an **Actions:** line from `GearActionNames.Resolve` via `GetGearActions`; tests `LeftPanelTooltipBuilderTests`; `OVERVIEW.md`.
+
+- [x] **UI / Inventory:** Right panel **INVENTORY** list under **POOL** — actions from bag items (`InventoryActionPoolEntries`); row click equips (slot swap, old piece to bag) via `cpi:invpool:N` + `InventoryComboManager` / `InventoryItemActionHandler`; adds that action to the sequence when a matching combo pool instance exists. Combo management center panel mirrors the block. Tests: `ComboPointerInputTests`, `InventoryActionPoolEntriesTests`; layout reserve synced in `InventoryRightPanelLayout`; `OVERVIEW.md`.
 
 - [x] **Data / New game:** Starter weapons unified with `Weapons.json` — menu + equipped item use first tier-1 row per class path; `StartingGear.json` armor-only; `StartingGearLoader`, `GameInitializer`, weapon UI/lab dialog, tests, `OVERVIEW.md`.
 

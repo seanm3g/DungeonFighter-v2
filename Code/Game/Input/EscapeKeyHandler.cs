@@ -63,6 +63,11 @@ namespace RPGGame.GameCore.Input
                     showMainMenu();
                     break;
                 case GameState.DungeonSelection:
+                    if (handlers.DungeonSelectionHandler != null && handlers.DungeonSelectionHandler.CancelCustomLevelPromptIfActive())
+                    {
+                        return Task.CompletedTask;
+                    }
+
                     stateManager.TransitionToState(GameState.GameLoop);
                     showGameLoop();
                     break;
@@ -116,6 +121,7 @@ namespace RPGGame.GameCore.Input
     {
         public ActionEditorHandler? ActionEditorHandler { get; set; }
         public InventoryMenuHandler? InventoryMenuHandler { get; set; }
+        public DungeonSelectionHandler? DungeonSelectionHandler { get; set; }
     }
 }
 

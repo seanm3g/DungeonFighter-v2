@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-
 namespace RPGGame
 {
     /// <summary>
@@ -59,8 +58,9 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Regenerates available dungeons based on player level using actual dungeons from Dungeons.json
-        /// Randomly selects 3 unique dungeons from all 25 available dungeons
+        /// Regenerates available dungeons based on player level using actual dungeons from Dungeons.json.
+        /// Randomly selects 3 dungeons (scaled to player level ±1), then appends a fixed "custom difficulty" option
+        /// where the player can enter any level on the next prompt.
         /// </summary>
         /// <param name="player">The player character</param>
         /// <param name="availableDungeons">List to populate with available dungeons</param>
@@ -97,10 +97,19 @@ namespace RPGGame
                 ));
             }
             
-            // Sort dungeons by level (lowest to highest)
+            // Sort the three scaled dungeons by level (lowest to highest)
             var sortedDungeons = availableDungeons.OrderBy(d => d.MinLevel).ToList();
             availableDungeons.Clear();
             availableDungeons.AddRange(sortedDungeons);
+
+            var customTemplate = allDungeons.OrderBy(_ => random.Next()).First();
+            availableDungeons.Add(new Dungeon(
+                GameConstants.DungeonCustomLevelMenuName,
+                Math.Max(RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL, playerLevel),
+                Math.Max(RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL, playerLevel),
+                customTemplate.theme,
+                customTemplate.possibleEnemies,
+                customTemplate.colorOverride));
         }
 
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Avalonia.Media;
 using RPGGame.Combat.UI;
 using RPGGame.UI.ColorSystem;
 
@@ -11,6 +12,19 @@ namespace RPGGame.Combat.Turn
     {
         private static int GetCharacterCurrentHealth(Actor entity) =>
             entity is Character ch ? ch.CurrentHealth : 0;
+
+        /// <summary>Avoids an extra blank line when the prior parsed line already ends with a newline.</summary>
+        private static bool ColoredListEndsWithLineBreak(List<ColoredText> segments)
+        {
+            for (int i = segments.Count - 1; i >= 0; i--)
+            {
+                string? t = segments[i]?.Text;
+                if (string.IsNullOrEmpty(t)) continue;
+                char c = t[t.Length - 1];
+                return c == '\n' || c == '\r';
+            }
+            return false;
+        }
 
         /// <summary>
         /// Processes damage over time effects for an entity
@@ -69,8 +83,8 @@ namespace RPGGame.Combat.Turn
                 var combinedSegments = new List<ColoredText>();
                 for (int i = 0; i < results.Count; i++)
                 {
-                    if (i > 0)
-                        combinedSegments.Add(new ColoredText(System.Environment.NewLine, Avalonia.Media.Colors.White));
+                    if (i > 0 && !ColoredListEndsWithLineBreak(combinedSegments))
+                        combinedSegments.Add(new ColoredText(System.Environment.NewLine, Colors.White));
                     combinedSegments.AddRange(ColoredTextParser.Parse(results[i]));
                 }
                 BlockDisplayManager.DisplaySystemBlock(combinedSegments);
@@ -126,11 +140,11 @@ namespace RPGGame.Combat.Turn
                 var combinedSegments = new List<ColoredText>();
                 for (int i = 0; i < results.Count; i++)
                 {
-                    if (i > 0)
+                    if (i > 0 && !ColoredListEndsWithLineBreak(combinedSegments))
                     {
                         // Add explicit newline segment between messages to ensure proper line breaks
                         // This prevents the "no longer affected" message from wrapping onto the previous line
-                        combinedSegments.Add(new ColoredText(System.Environment.NewLine, Avalonia.Media.Colors.White));
+                        combinedSegments.Add(new ColoredText(System.Environment.NewLine, Colors.White));
                     }
                     
                     // Parse each message separately

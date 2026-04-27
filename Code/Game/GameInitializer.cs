@@ -56,7 +56,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// One menu row per <see cref="StarterCatalogItems.ResolveStarterWeaponMenuCatalogRows"/> entry (all <c>starter</c>-tagged weapons in file order,
+        /// One menu row per <see cref="StarterCatalogItems.ResolveStarterWeaponMenuCatalogRows"/> entry (starter-tagged weapons in class-path order,
         /// or legacy fallback: one tier-1 row per class path), with the same display damage scaling as <see cref="ApplyStartingWeaponTuning"/>.
         /// </summary>
         public static List<StartingWeapon> BuildStarterWeaponsForMenu()

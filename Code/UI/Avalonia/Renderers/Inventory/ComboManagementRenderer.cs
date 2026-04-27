@@ -7,6 +7,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     using RPGGame.Handlers.Inventory;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.Layout;
 
     /// <summary>
     /// Renders the actions workspace: sequence slots (remove) + pool from gear (add). Order matches the strip above.
@@ -49,7 +50,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             canvas.AddText(x + 2, y, "Sequence: drag the cards above to reorder (when allowed).", AsciiArtAssets.Colors.Gray);
             y++;
             currentLineCount++;
-            canvas.AddText(x + 2, y, "Pool: from equipped gear & class — click a row to add to the sequence.", AsciiArtAssets.Colors.Gray);
+            canvas.AddText(x + 2, y, "Pool: gear/class rows add to sequence; INVENTORY rows equip the item (swap) then add that action.", AsciiArtAssets.Colors.Gray);
             y++;
             currentLineCount++;
             canvas.AddText(x + 2, y, "Keys: 1=add list  2=remove list  8=reorder  9=add all  0/5=back", AsciiArtAssets.Colors.DarkGray);
@@ -147,6 +148,62 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 if (poolIdx < actionPool.Count)
                 {
                     canvas.AddText(x + 2, y, $"... +{actionPool.Count - poolIdx} more — press 1 for full numbered list", AsciiArtAssets.Colors.Gray);
+                    y++;
+                    currentLineCount++;
+                }
+            }
+
+            y++;
+            if (y > maxY)
+                y = maxY;
+
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader("INVENTORY (from bag)"), AsciiArtAssets.Colors.Gold);
+            y += 2;
+            currentLineCount += 2;
+
+            var invEntries = InventoryActionPoolEntries.Build(character);
+            if (invEntries.Count == 0)
+            {
+                canvas.AddText(x + 2, y, "(no unequipped items with actions)", AsciiArtAssets.Colors.DarkGray);
+                y += 2;
+                currentLineCount += 2;
+            }
+            else
+            {
+                int invIdx = 0;
+                while (invIdx < invEntries.Count && y + LinesPerPoolEntry - 1 <= maxY)
+                {
+                    var invEntry = invEntries[invIdx];
+                    bool invInSeq = comboActions.Any(a =>
+                        string.Equals(a.Name, invEntry.ActionName, StringComparison.OrdinalIgnoreCase));
+                    string suffix = invInSeq ? "  [in sequence]" : "  [equip item → add]";
+                    string nameLine = invEntry.ActionName + suffix;
+                    if (nameLine.Length > width - 8)
+                        nameLine = nameLine.Substring(0, Math.Max(0, width - 11)) + "...";
+
+                    string invPoolValue = $"{ComboPointerInput.Prefix}invpool:{invIdx}";
+                    var invBtn = InventoryButtonFactory.CreateButton(x + 2, y, Math.Max(8, width - 4), invPoolValue, nameLine);
+                    clickableElements.Add(invBtn);
+                    var nameColor = invInSeq ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Magenta;
+                    var drawColor = invBtn.IsHovered ? AsciiArtAssets.Colors.Yellow : nameColor;
+                    canvas.AddText(x + 2, y, nameLine, drawColor);
+                    y++;
+                    currentLineCount++;
+
+                    RPGGame.Action? tipAction = ActionLoader.GetAction(invEntry.ActionName);
+                    string mods = CombatActionStripBuilder.BuildActionMechanicalModSummary(character, tipAction, -1);
+                    if (mods.Length > width - 8)
+                        mods = mods.Substring(0, Math.Max(0, width - 11)) + "...";
+                    canvas.AddText(x + 4, y, mods, AsciiArtAssets.Colors.Gray);
+                    y++;
+                    currentLineCount++;
+
+                    invIdx++;
+                }
+
+                if (invIdx < invEntries.Count)
+                {
+                    canvas.AddText(x + 2, y, $"... +{invEntries.Count - invIdx} more in bag", AsciiArtAssets.Colors.Gray);
                     y++;
                     currentLineCount++;
                 }

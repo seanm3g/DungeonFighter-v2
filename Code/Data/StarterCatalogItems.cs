@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.Data;
 using RPGGame.Utils;
 
@@ -34,13 +35,28 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// New-game weapon menu: all <c>starter</c>-tagged weapons in file order when any exist; otherwise one tier-1 row per <see cref="ClassPresentationConfig.ClassWeaponOrder"/> path.
+        /// New-game weapon menu: all <c>starter</c>-tagged weapons sorted by <see cref="ClassPresentationConfig.ClassWeaponOrder"/> (Barbarian→Warrior→Rogue→Wizard paths), then JSON list order within the same type; otherwise one tier-1 row per class path.
         /// </summary>
         public static List<WeaponData> ResolveStarterWeaponMenuCatalogRows()
         {
             var tagged = LoadStarterTaggedWeaponRows();
             if (tagged.Count > 0)
-                return tagged;
+            {
+                static int TypeOrderIndex(WeaponData w)
+                {
+                    if (!Enum.TryParse(w.Type?.Trim(), ignoreCase: true, out WeaponType wt))
+                        return int.MaxValue;
+                    int ix = Array.IndexOf(ClassPresentationConfig.ClassWeaponOrder, wt);
+                    return ix >= 0 ? ix : int.MaxValue;
+                }
+
+                return tagged
+                    .Select((w, fileIndex) => (w, fileIndex))
+                    .OrderBy(x => TypeOrderIndex(x.w))
+                    .ThenBy(x => x.fileIndex)
+                    .Select(x => x.w)
+                    .ToList();
+            }
 
             var fallback = new List<WeaponData>();
             foreach (var wt in ClassPresentationConfig.ClassWeaponOrder)

@@ -5,6 +5,7 @@ namespace RPGGame.Handlers.Inventory
     using System.Linq;
     using RPGGame;
     using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.Layout;
     using static RPGGame.Handlers.Inventory.ComboValidator;
     using static RPGGame.Handlers.Inventory.ComboReorderer;
     using ActionDelegate = System.Action;
@@ -17,6 +18,7 @@ namespace RPGGame.Handlers.Inventory
         private readonly GameStateManager stateManager;
         private readonly IUIManager? customUIManager;
         private readonly InventoryStateManager stateTracker;
+        private readonly InventoryItemActionHandler itemActionHandler;
         private readonly ComboInputHandler inputHandler;
         
         // Event delegates
@@ -29,11 +31,13 @@ namespace RPGGame.Handlers.Inventory
         public InventoryComboManager(
             GameStateManager stateManager,
             IUIManager? customUIManager,
-            InventoryStateManager stateTracker)
+            InventoryStateManager stateTracker,
+            InventoryItemActionHandler itemActionHandler)
         {
             this.stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
             this.customUIManager = customUIManager;
             this.stateTracker = stateTracker ?? throw new ArgumentNullException(nameof(stateTracker));
+            this.itemActionHandler = itemActionHandler ?? throw new ArgumentNullException(nameof(itemActionHandler));
             this.inputHandler = new ComboInputHandler(
                 stateManager,
                 stateTracker,
@@ -119,6 +123,70 @@ namespace RPGGame.Handlers.Inventory
                     var action = pool[index];
                     player.AddToCombo(action);
                     ShowMessageEvent?.Invoke($"Added {action.Name} to sequence.");
+                    if (stateTracker.InComboManagement)
+                        RenderComboManagementScreen();
+                    else
+                        ShowInventoryEvent?.Invoke();
+                    return;
+                }
+
+                case ComboPointerInput.Kind.InvPoolEquip:
+                {
+                    var entries = InventoryActionPoolEntries.Build(player);
+                    if (index < 0 || index >= entries.Count)
+                    {
+                        ShowMessageEvent?.Invoke("Invalid inventory action selection.");
+                        if (stateTracker.InComboManagement)
+                            RenderComboManagementScreen();
+                        else
+                            ShowInventoryEvent?.Invoke();
+                        return;
+                    }
+
+                    var entry = entries[index];
+                    if (entry.InventoryIndex < 0 || entry.InventoryIndex >= stateManager.CurrentInventory.Count)
+                    {
+                        ShowMessageEvent?.Invoke("That item is no longer in your inventory.");
+                        if (stateTracker.InComboManagement)
+                            RenderComboManagementScreen();
+                        else
+                            ShowInventoryEvent?.Invoke();
+                        return;
+                    }
+
+                    var invItem = stateManager.CurrentInventory[entry.InventoryIndex];
+                    string? slot = InventoryActionPoolEntries.GetEquipSlotForItem(invItem);
+                    if (string.IsNullOrEmpty(slot))
+                    {
+                        ShowMessageEvent?.Invoke("Cannot equip that item from here.");
+                        if (stateTracker.InComboManagement)
+                            RenderComboManagementScreen();
+                        else
+                            ShowInventoryEvent?.Invoke();
+                        return;
+                    }
+
+                    var namesNow = GearActionNames.Resolve(invItem);
+                    if (entry.ActionIndexInItem < 0 || entry.ActionIndexInItem >= namesNow.Count)
+                    {
+                        ShowMessageEvent?.Invoke("That action is no longer on the selected item.");
+                        if (stateTracker.InComboManagement)
+                            RenderComboManagementScreen();
+                        else
+                            ShowInventoryEvent?.Invoke();
+                        return;
+                    }
+
+                    string targetActionName = namesNow[entry.ActionIndexInItem];
+                    itemActionHandler.ConfirmEquipItem(entry.InventoryIndex, slot, equipNew: true, refreshInventoryScreen: false, announce: false);
+
+                    player = stateManager.CurrentPlayer;
+                    bool addedToSeq = player != null && TryAddEquippedActionToCombo(player, targetActionName);
+                    string msg = addedToSeq
+                        ? $"Equipped {invItem.Name}. Added {targetActionName} to sequence."
+                        : $"Equipped {invItem.Name}. ({targetActionName} is available in the action pool.)";
+                    ShowMessageEvent?.Invoke(msg);
+
                     if (stateTracker.InComboManagement)
                         RenderComboManagementScreen();
                     else
@@ -332,7 +400,30 @@ namespace RPGGame.Handlers.Inventory
             stateTracker.InComboManagement = true;
             RenderComboManagementScreen();
         }
-        
+
+        /// <summary>
+        /// Picks a pool instance of <paramref name="actionName"/> not already in the combo and adds it (same object identity rules as gear pool clicks).
+        /// </summary>
+        private static bool TryAddEquippedActionToCombo(Character player, string actionName)
+        {
+            if (player == null || string.IsNullOrWhiteSpace(actionName))
+                return false;
+
+            var inCombo = new HashSet<RPGGame.Action>(player.GetComboActions());
+            var match = player.ActionPool
+                .Select(t => t.action)
+                .Where(a => a != null
+                    && a.IsComboAction
+                    && string.Equals(a.Name, actionName, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(a => a!.ComboOrder)
+                .FirstOrDefault(a => !inCombo.Contains(a!));
+
+            if (match == null)
+                return false;
+
+            player.AddToCombo(match);
+            return true;
+        }
     }
 }
 

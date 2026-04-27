@@ -80,7 +80,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         /// Renders item stats with colored text support
         /// </summary>
         public static void RenderItemStats(ColoredTextWriter textWriter, GameCanvasControl canvas,
-            int x, int y, List<string> itemStats, ref int currentY, ref int lineCount, bool useColoredText = true)
+            int x, int y, List<string> itemStats, ref int currentY, ref int lineCount, bool useColoredText = true,
+            Item? displayedItem = null, WeaponItem? weaponSpeedBaseline = null)
         {
             if (itemStats.Count == 0) return;
 
@@ -88,7 +89,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             {
                 if (useColoredText)
                 {
-                    var statSegments = ItemStatFormatter.FormatStatLine(stat);
+                    var statSegments = ItemStatFormatter.FormatStatLine(stat, displayedItem, weaponSpeedBaseline);
                     textWriter.RenderSegments(statSegments, x, currentY);
                 }
                 else

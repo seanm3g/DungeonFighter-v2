@@ -2,7 +2,7 @@
   {
     "DiceResult": 1,
     "ItemRank": "Common",
-    "Name": "Chipped",
+    "Name": "Worn",
     "Description": "-1 to -3 damage",
     "Effect": "damage",
     "MinValue": -3,
@@ -218,7 +218,7 @@
   {
     "DiceResult": 17,
     "ItemRank": "Legendary",
-    "Name": "Relentless",
+    "Name": "Masterwork",
     "Description": "15% more damage",
     "Effect": "damageMultiplier",
     "MinValue": 1.15,
@@ -272,7 +272,7 @@
   {
     "DiceResult": 23,
     "ItemRank": "Mythic",
-    "Name": "Flawless",
+    "Name": "Perfect",
     "Description": "All attacks automatically succeed",
     "Effect": "autoSuccess",
     "MinValue": 1,
@@ -289,7 +289,7 @@
   },
   {
     "DiceResult": 25,
-    "ItemRank": "Mythic",
+    "ItemRank": "Transcendent",
     "Name": "Reality Breaker",
     "Description": "50% more damage \u0026 100% faster attack speed",
     "Effect": "realityBreaker",
@@ -298,7 +298,7 @@
   },
   {
     "DiceResult": 26,
-    "ItemRank": "Mythic",
+    "ItemRank": "Transcendent",
     "Name": "Omnipotent",
     "Description": "All attacks succeed \u0026 \u002B10 to all rolls",
     "Effect": "omnipotent",
@@ -307,7 +307,7 @@
   },
   {
     "DiceResult": 27,
-    "ItemRank": "Mythic",
+    "ItemRank": "Transcendent",
     "Name": "Infinite",
     "Description": "Infinite durability \u0026 perfect stats",
     "Effect": "infinite",
@@ -316,9 +316,9 @@
   },
   {
     "DiceResult": 28,
-    "ItemRank": "Mythic",
-    "Name": "Astral",
-    "Description": "Beyond all limitations",
+    "ItemRank": "Transcendent",
+    "Name": "Cosmic",
+    "Description": "Transcends all limitations",
     "Effect": "cosmic",
     "MinValue": 1,
     "MaxValue": 1

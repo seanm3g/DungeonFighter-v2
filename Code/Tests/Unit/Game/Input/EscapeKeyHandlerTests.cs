@@ -31,6 +31,7 @@ namespace RPGGame.Tests.Unit.Game.Input
             TestHandleEscapeKey_Inventory();
             TestHandleEscapeKey_CharacterInfo();
             TestHandleEscapeKey_DungeonSelection();
+            TestHandleEscapeKey_DungeonSelection_EscapeClearsCustomLevelPrompt();
             TestHandleEscapeKey_ActionInteractionLab_InvokesExitDelegate();
             TestHandleEscapeKey_Default();
 
@@ -131,6 +132,42 @@ namespace RPGGame.Tests.Unit.Game.Input
             
             TestBase.AssertEqualEnum(GameState.GameLoop, stateManager.CurrentState,
                 "State should transition to GameLoop from DungeonSelection",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestHandleEscapeKey_DungeonSelection_EscapeClearsCustomLevelPrompt()
+        {
+            Console.WriteLine("\n--- Testing HandleEscapeKey - DungeonSelection clears custom level prompt ---");
+
+            var stateManager = new GameStateManager();
+            stateManager.TransitionToState(GameState.DungeonSelection);
+            var character = new Character("Hero", 2);
+            stateManager.SetCurrentPlayer(character);
+
+            stateManager.AvailableDungeons.Clear();
+            stateManager.AvailableDungeons.Add(new Dungeon("A", 1, 1, "Forest"));
+            stateManager.AvailableDungeons.Add(new Dungeon("B", 2, 2, "Forest"));
+            stateManager.AvailableDungeons.Add(new Dungeon("C", 3, 3, "Forest"));
+            stateManager.AvailableDungeons.Add(new Dungeon(RPGGame.GameConstants.DungeonCustomLevelMenuName, 1, 1, "Crypt"));
+
+            var dungeonManager = new DungeonManagerWithRegistry();
+            var dungeonSelectionHandler = new DungeonSelectionHandler(stateManager, dungeonManager, null);
+
+            Task.Run(async () => await dungeonSelectionHandler.HandleMenuInput("4")).Wait();
+
+            var handlers = new EscapeKeyHandlers { DungeonSelectionHandler = dungeonSelectionHandler };
+            System.Action showGameLoop = () => { };
+            System.Action showMainMenu = () => { };
+            System.Action showSettings = () => { };
+            System.Action showDeveloperMenu = () => { };
+            System.Action showActionEditor = () => { };
+            System.Action exitLab = () => { };
+            var escapeHandler = new EscapeKeyHandler(stateManager, handlers, showGameLoop, showMainMenu, showSettings, showDeveloperMenu, showActionEditor, exitLab);
+
+            Task.Run(async () => await escapeHandler.HandleEscapeKey()).Wait();
+
+            TestBase.AssertEqualEnum(GameState.DungeonSelection, stateManager.CurrentState,
+                "Escape while entering a custom level should stay on dungeon selection",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

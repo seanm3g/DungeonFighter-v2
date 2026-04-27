@@ -61,8 +61,8 @@ namespace RPGGame.Tests.Unit.World
             var availableDungeons = new List<Dungeon>();
             manager.RegenerateDungeons(character, availableDungeons);
 
-            TestBase.AssertTrue(availableDungeons.Count >= 0,
-                $"RegenerateDungeons should populate dungeons, got {availableDungeons.Count}",
+            TestBase.AssertEqual(4, availableDungeons.Count,
+                "RegenerateDungeons should produce three scaled dungeons plus the custom-level option",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // If dungeons were generated, verify they have properties
@@ -80,6 +80,11 @@ namespace RPGGame.Tests.Unit.World
                         ref _testsRun, ref _testsPassed, ref _testsFailed);
                 }
             }
+
+            var last = availableDungeons[availableDungeons.Count - 1];
+            TestBase.AssertTrue(last.Name == RPGGame.GameConstants.DungeonCustomLevelMenuName,
+                "Last row should be the custom difficulty placeholder",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestGetAvailableDungeons()

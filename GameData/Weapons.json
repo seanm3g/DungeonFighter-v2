@@ -1,1812 +1,2010 @@
 [
   {
-    "type": "Wand",
-    "name": "BEAD",
+    "Type": "Dagger",
+    "Name": "TWIG",
     "baseDamage": 3,
-    "attackSpeed": 0.9,
-    "tier": 1,
+    "attackSpeed": 0.72,
+    "Tier": 1,
     "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "BLUDGEON",
-    "baseDamage": 4,
-    "attackSpeed": 1.24,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "BRANCH",
-    "baseDamage": 3,
-    "attackSpeed": 1.34,
-    "tier": 1,
-    "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": [
       "starter"
     ]
   },
   {
-    "type": "Wand",
-    "name": "CHARM",
-    "baseDamage": 3,
-    "attackSpeed": 0.97,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "CHOPOPER",
-    "baseDamage": 3,
-    "attackSpeed": 1.11,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "CLAW",
-    "baseDamage": 2,
-    "attackSpeed": 0.85,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "CLEAVER",
-    "baseDamage": 3,
-    "attackSpeed": 0.98,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "CLONKER",
+    "Type": "Dagger",
+    "Name": "THORN",
     "baseDamage": 4,
-    "attackSpeed": 1.13,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "CLUB",
-    "baseDamage": 2,
-    "attackSpeed": 1.11,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "CUDGEL",
-    "baseDamage": 4,
-    "attackSpeed": 1.04,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "CUTTER",
-    "baseDamage": 2,
     "attackSpeed": 0.99,
-    "tier": 1,
+    "Tier": 1,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Dagger",
-    "name": "FANG",
-    "baseDamage": 3,
-    "attackSpeed": 0.73,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "GRIMOIRE",
-    "baseDamage": 2,
-    "attackSpeed": 1.02,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "GYLGH",
-    "baseDamage": 5,
-    "attackSpeed": 1.04,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "KNIFE",
-    "baseDamage": 2,
-    "attackSpeed": 0.69,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "KNOB",
-    "baseDamage": 3,
-    "attackSpeed": 1.09,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "LONG EDGE",
-    "baseDamage": 5,
-    "attackSpeed": 1.02,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "LUMP",
-    "baseDamage": 5,
-    "attackSpeed": 1.07,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "MACHETE",
-    "baseDamage": 4,
-    "attackSpeed": 1.02,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "MALLET",
-    "baseDamage": 4,
-    "attackSpeed": 1.09,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "ONE ARMED SCISSOR",
-    "baseDamage": 4,
-    "attackSpeed": 1.02,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "PEELER",
-    "baseDamage": 3,
-    "attackSpeed": 0.91,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "PICK",
+    "Type": "Dagger",
+    "Name": "KNIFE",
     "baseDamage": 4,
     "attackSpeed": 0.87,
-    "tier": 1,
+    "Tier": 1,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Mace",
-    "name": "POUNDER",
-    "baseDamage": 6,
-    "attackSpeed": 1.36,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "PRONG",
-    "baseDamage": 3,
-    "attackSpeed": 1.02,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "RAZOR",
-    "baseDamage": 3,
-    "attackSpeed": 0.97,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "ROD",
-    "baseDamage": 2,
-    "attackSpeed": 0.86,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "RUNE",
-    "baseDamage": 5,
-    "attackSpeed": 1.09,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "SABER",
-    "baseDamage": 2,
-    "attackSpeed": 1.06,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": [
-      "starter"
-    ]
-  },
-  {
-    "type": "Wand",
-    "name": "SHARD",
-    "baseDamage": 3,
-    "attackSpeed": 0.88,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "SPIKE",
+    "Type": "Dagger",
+    "Name": "CLAW",
     "baseDamage": 4,
-    "attackSpeed": 0.95,
-    "tier": 1,
+    "attackSpeed": 0.74,
+    "Tier": 1,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Dagger",
-    "name": "SPLINTER",
-    "baseDamage": 2,
-    "attackSpeed": 0.64,
-    "tier": 1,
+    "Type": "Dagger",
+    "Name": "RAZOR",
+    "baseDamage": 6,
+    "attackSpeed": 0.99,
+    "Tier": 1,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Wand",
-    "name": "STAFF",
-    "baseDamage": 2,
-    "attackSpeed": 1.09,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "STICK",
-    "baseDamage": 2,
-    "attackSpeed": 1,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": [
-      "starter"
-    ]
-  },
-  {
-    "type": "Wand",
-    "name": "STICK",
-    "baseDamage": 2,
-    "attackSpeed": 1,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": [
-      "starter"
-    ]
-  },
-  {
-    "type": "Sword",
-    "name": "SWORD",
-    "baseDamage": 3,
-    "attackSpeed": 0.81,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "THORN",
-    "baseDamage": 2,
+    "Type": "Dagger",
+    "Name": "PEELER",
+    "baseDamage": 6,
     "attackSpeed": 0.87,
-    "tier": 1,
+    "Tier": 1,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Dagger",
-    "name": "TWIG",
-    "baseDamage": 1,
-    "attackSpeed": 0.66,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": [
-      "starter"
-    ]
-  },
-  {
-    "type": "Mace",
-    "name": "BASHER",
-    "baseDamage": 7,
-    "attackSpeed": 1.37,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "BLADE",
-    "baseDamage": 5,
-    "attackSpeed": 0.96,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "BLADE",
-    "baseDamage": 5,
-    "attackSpeed": 0.96,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "BREAKER",
-    "baseDamage": 9,
-    "attackSpeed": 1.13,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "BROADSWORD",
-    "baseDamage": 5,
-    "attackSpeed": 0.82,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "CRACKER",
+    "Type": "Dagger",
+    "Name": "SPLINTER",
     "baseDamage": 6,
-    "attackSpeed": 1.39,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "CRUSHER",
-    "baseDamage": 5,
-    "attackSpeed": 1.38,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "CUTLASS",
-    "baseDamage": 7,
-    "attackSpeed": 1.04,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "DAGGER",
-    "baseDamage": 4,
-    "attackSpeed": 0.86,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "DIRK",
-    "baseDamage": 7,
     "attackSpeed": 0.79,
-    "tier": 2,
+    "Tier": 1,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Sword",
-    "name": "FALCHION",
+    "Type": "Dagger",
+    "Name": "FANG",
     "baseDamage": 6,
-    "attackSpeed": 1.03,
-    "tier": 2,
+    "attackSpeed": 0.71,
+    "Tier": 1,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Sword",
-    "name": "FINE SABER",
-    "baseDamage": 4,
-    "attackSpeed": 0.86,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "FLAIL",
-    "baseDamage": 9,
-    "attackSpeed": 1.37,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "GLAIVE",
-    "baseDamage": 5,
-    "attackSpeed": 0.94,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "GUTTER",
-    "baseDamage": 7,
-    "attackSpeed": 0.93,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "HAMMER",
-    "baseDamage": 11,
-    "attackSpeed": 1.29,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "HOOK",
-    "baseDamage": 3,
-    "attackSpeed": 0.75,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "IDOL",
-    "baseDamage": 8,
-    "attackSpeed": 0.99,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "KNOCKER",
-    "baseDamage": 6,
-    "attackSpeed": 1.08,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "KRIS",
-    "baseDamage": 6,
-    "attackSpeed": 0.99,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "LENS",
-    "baseDamage": 6,
-    "attackSpeed": 0.99,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "LONGSWORD",
-    "baseDamage": 6,
-    "attackSpeed": 1.2,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "MACE",
-    "baseDamage": 7,
-    "attackSpeed": 1.08,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "MACE",
-    "baseDamage": 7,
-    "attackSpeed": 1.08,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "NEEDLE",
-    "baseDamage": 4,
-    "attackSpeed": 0.83,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "ORB",
-    "baseDamage": 5,
-    "attackSpeed": 0.94,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "POINT",
-    "baseDamage": 2,
-    "attackSpeed": 0.66,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "SCIMITAR",
-    "baseDamage": 8,
-    "attackSpeed": 1.03,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "SHIV",
-    "baseDamage": 7,
-    "attackSpeed": 0.94,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "SHORTSWORD",
-    "baseDamage": 3,
-    "attackSpeed": 0.91,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "SIGIL",
-    "baseDamage": 8,
-    "attackSpeed": 1.11,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "SLASHER",
-    "baseDamage": 4,
-    "attackSpeed": 1.08,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "SLICER",
-    "baseDamage": 9,
-    "attackSpeed": 1.06,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "STILETTO",
-    "baseDamage": 5,
-    "attackSpeed": 0.86,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "STRIKER",
-    "baseDamage": 6,
-    "attackSpeed": 1.21,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "TAILSMAN",
-    "baseDamage": 6,
-    "attackSpeed": 1.11,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "THUMPER",
-    "baseDamage": 5,
-    "attackSpeed": 1.25,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "TOME",
-    "baseDamage": 6,
-    "attackSpeed": 0.9,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "TOME",
-    "baseDamage": 6,
-    "attackSpeed": 0.9,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "TOTEM",
-    "baseDamage": 4,
-    "attackSpeed": 0.85,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "TRINKET",
-    "baseDamage": 4,
-    "attackSpeed": 0.98,
-    "tier": 2,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "BARBED HOOK",
-    "baseDamage": 13,
-    "attackSpeed": 0.95,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "BASTARD SWORD",
-    "baseDamage": 6,
-    "attackSpeed": 0.99,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "BATTLE FLAIL",
-    "baseDamage": 8,
-    "attackSpeed": 1.18,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "CANDLE",
-    "baseDamage": 10,
-    "attackSpeed": 0.92,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "CLAYMORE",
-    "baseDamage": 13,
-    "attackSpeed": 0.99,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "CRYSTAL",
-    "baseDamage": 8,
-    "attackSpeed": 1.18,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "DARK BLADE",
-    "baseDamage": 7,
-    "attackSpeed": 1,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "DEMONBLADE",
-    "baseDamage": 11,
-    "attackSpeed": 1.15,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "DIRE FANG",
-    "baseDamage": 8,
-    "attackSpeed": 0.65,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "DIVINE CUTLASS",
-    "baseDamage": 10,
-    "attackSpeed": 0.89,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "DOOMHAMMER",
-    "baseDamage": 12,
-    "attackSpeed": 1.2,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "DUSKRIFT DAGGER",
-    "baseDamage": 9,
-    "attackSpeed": 0.61,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "EFFIGY",
-    "baseDamage": 7,
-    "attackSpeed": 1.12,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "ELVIN DIRK",
-    "baseDamage": 7,
-    "attackSpeed": 0.62,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "ELVIN GLAIVE",
+    "Type": "Dagger",
+    "Name": "PICK",
     "baseDamage": 7,
     "attackSpeed": 0.81,
-    "tier": 3,
+    "Tier": 1,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Wand",
-    "name": "ESSENCE",
-    "baseDamage": 15,
-    "attackSpeed": 1,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "ESSENCE",
-    "baseDamage": 15,
-    "attackSpeed": 1,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "GEODE",
-    "baseDamage": 11,
-    "attackSpeed": 0.87,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "GHOST KRIS",
-    "baseDamage": 7,
-    "attackSpeed": 0.94,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "GREATSWORD",
-    "baseDamage": 13,
-    "attackSpeed": 0.9,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "GUILDED GUTTER",
+    "Type": "Dagger",
+    "Name": "SPIKE",
     "baseDamage": 8,
-    "attackSpeed": 0.78,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "HARDENED SHIV",
-    "baseDamage": 8,
-    "attackSpeed": 0.92,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "HEADCRACKER",
-    "baseDamage": 9,
-    "attackSpeed": 1.1,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "MAUL",
-    "baseDamage": 18,
-    "attackSpeed": 1.33,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "MORNINGSTAR",
-    "baseDamage": 10,
-    "attackSpeed": 1.36,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "PRISM",
-    "baseDamage": 10,
-    "attackSpeed": 1.02,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "RAPIER",
-    "baseDamage": 7,
-    "attackSpeed": 0.97,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "RECKONER",
-    "baseDamage": 13,
-    "attackSpeed": 1.08,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "RELIC",
-    "baseDamage": 7,
-    "attackSpeed": 0.97,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "RUNE SLICER",
-    "baseDamage": 13,
-    "attackSpeed": 1.1,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "SHADOW DAGGER",
-    "baseDamage": 5,
-    "attackSpeed": 0.72,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "SILVER STILETTO",
-    "baseDamage": 6,
-    "attackSpeed": 0.68,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "SKULL",
-    "baseDamage": 7,
-    "attackSpeed": 0.82,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "SKULLCRUSHER",
-    "baseDamage": 12,
-    "attackSpeed": 1.12,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "SMASHER",
-    "baseDamage": 10,
-    "attackSpeed": 1.05,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "SOUL RENDER",
-    "baseDamage": 11,
-    "attackSpeed": 1.09,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "SPIRIT COMPASS",
-    "baseDamage": 11,
     "attackSpeed": 0.81,
-    "tier": 3,
+    "Tier": 1,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Mace",
-    "name": "TOMBSTONE",
-    "baseDamage": 15,
-    "attackSpeed": 1.04,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "VESSEL",
-    "baseDamage": 9,
-    "attackSpeed": 0.98,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "WARBLADE",
+    "Type": "Dagger",
+    "Name": "POINT",
     "baseDamage": 7,
-    "attackSpeed": 1.08,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "WARCLUB",
-    "baseDamage": 7,
-    "attackSpeed": 1.09,
-    "tier": 3,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "ALTAR",
-    "baseDamage": 20,
-    "attackSpeed": 1.1,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "ANNIHILATOR",
-    "baseDamage": 22,
-    "attackSpeed": 1,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "ARTIFACT",
-    "baseDamage": 11,
     "attackSpeed": 0.96,
-    "tier": 4,
+    "Tier": 2,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Dagger",
-    "name": "ASHBLAZE KNIFE",
-    "baseDamage": 21,
-    "attackSpeed": 0.9,
-    "tier": 4,
+    "Type": "Dagger",
+    "Name": "HOOK",
+    "baseDamage": 6,
+    "attackSpeed": 0.75,
+    "Tier": 2,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Wand",
-    "name": "BINDING",
-    "baseDamage": 15,
-    "attackSpeed": 1.03,
-    "tier": 4,
+    "Type": "Dagger",
+    "Name": "NEEDLE",
+    "baseDamage": 6,
+    "attackSpeed": 0.71,
+    "Tier": 2,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Wand",
-    "name": "CATALYST",
-    "baseDamage": 15,
-    "attackSpeed": 0.92,
-    "tier": 4,
+    "Type": "Dagger",
+    "Name": "DAGGER",
+    "baseDamage": 7,
+    "attackSpeed": 0.73,
+    "Tier": 2,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Dagger",
-    "name": "DAWNRIFT STILETTO",
-    "baseDamage": 10,
-    "attackSpeed": 0.64,
-    "tier": 4,
+    "Type": "Dagger",
+    "Name": "BLADE",
+    "baseDamage": 9,
+    "attackSpeed": 0.83,
+    "Tier": 2,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Wand",
-    "name": "DEMON SEED",
-    "baseDamage": 27,
-    "attackSpeed": 1.12,
-    "tier": 4,
+    "Type": "Dagger",
+    "Name": "KRIS",
+    "baseDamage": 9,
+    "attackSpeed": 0.81,
+    "Tier": 2,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Mace",
-    "name": "DESOLATOR",
-    "baseDamage": 27,
-    "attackSpeed": 1.16,
-    "tier": 4,
+    "Type": "Dagger",
+    "Name": "STILETTO",
+    "baseDamage": 9,
+    "attackSpeed": 0.72,
+    "Tier": 2,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Sword",
-    "name": "DESTROYER",
-    "baseDamage": 15,
-    "attackSpeed": 0.95,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "DEVASTATOR",
+    "Type": "Dagger",
+    "Name": "SHIV",
     "baseDamage": 11,
-    "attackSpeed": 1.02,
-    "tier": 4,
+    "attackSpeed": 0.78,
+    "Tier": 2,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Mace",
-    "name": "DOOMFALL",
+    "Type": "Dagger",
+    "Name": "GUTTER",
+    "baseDamage": 12,
+    "attackSpeed": 0.77,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "DIRK",
+    "baseDamage": 13,
+    "attackSpeed": 0.78,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "SHADOW DAGGER",
+    "baseDamage": 12,
+    "attackSpeed": 0.93,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "DARK BLADE",
+    "baseDamage": 10,
+    "attackSpeed": 0.74,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "GHOST KRIS",
+    "baseDamage": 10,
+    "attackSpeed": 0.63,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "SILVER STILETTO",
+    "baseDamage": 11,
+    "attackSpeed": 0.64,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "HARDENED SHIV",
+    "baseDamage": 17,
+    "attackSpeed": 0.93,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "GUILDED GUTTER",
+    "baseDamage": 16,
+    "attackSpeed": 0.8,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "ELVIN DIRK",
+    "baseDamage": 15,
+    "attackSpeed": 0.67,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "DIRE FANG",
+    "baseDamage": 15,
+    "attackSpeed": 0.6,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "BARBED HOOK",
+    "baseDamage": 25,
+    "attackSpeed": 0.95,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "DUSKRIFT DAGGER",
+    "baseDamage": 29,
+    "attackSpeed": 1,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "SOULPIERCER",
+    "baseDamage": 13,
+    "attackSpeed": 0.6,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "HELLSTRING",
+    "baseDamage": 17,
+    "attackSpeed": 0.71,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "EMBERVENOM",
+    "baseDamage": 18,
+    "attackSpeed": 0.68,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "STORMSHARD FANG",
+    "baseDamage": 26,
+    "attackSpeed": 0.9,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "DAWNRIFT STILETTO",
+    "baseDamage": 22,
+    "attackSpeed": 0.68,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "VOID DAGGER",
+    "baseDamage": 24,
+    "attackSpeed": 0.67,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "HELLBOUND DIRK",
+    "baseDamage": 36,
+    "attackSpeed": 0.93,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "SORROWS KRIS",
+    "baseDamage": 33,
+    "attackSpeed": 0.77,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "ASHBLAZE KNIFE",
     "baseDamage": 32,
-    "attackSpeed": 1.24,
-    "tier": 4,
+    "attackSpeed": 0.68,
+    "Tier": 4,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Dagger",
-    "name": "EMBERVENOM",
+    "Type": "Dagger",
+    "Name": "RUINBLADE",
+    "baseDamage": 46,
+    "attackSpeed": 0.88,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "DEMONPIERCER",
+    "baseDamage": 30,
+    "attackSpeed": 0.77,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "GODSBANE FANG",
+    "baseDamage": 29,
+    "attackSpeed": 0.67,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "HELLSONG KRIS",
+    "baseDamage": 34,
+    "attackSpeed": 0.72,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "ETERNITY\u0027S SHIV",
+    "baseDamage": 37,
+    "attackSpeed": 0.72,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "DUSKRIFT STILETTO",
+    "baseDamage": 55,
+    "attackSpeed": 0.96,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "OBLIVIONS PRICK",
+    "baseDamage": 46,
+    "attackSpeed": 0.73,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "EPOCHAL STING",
+    "baseDamage": 64,
+    "attackSpeed": 0.92,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "ARCHON DIRK",
+    "baseDamage": 51,
+    "attackSpeed": 0.67,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "ETERNAL DAGGER",
+    "baseDamage": 54,
+    "attackSpeed": 0.64,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Dagger",
+    "Name": "DEVIL BLADE",
+    "baseDamage": 72,
+    "attackSpeed": 0.78,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "LOG",
+    "baseDamage": 5,
+    "attackSpeed": 1.2,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": [
+      "starter"
+    ]
+  },
+  {
+    "Type": "Mace",
+    "Name": "CLUB",
+    "baseDamage": 5,
+    "attackSpeed": 1.09,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "MACE",
+    "baseDamage": 6,
+    "attackSpeed": 1.29,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "KNOB",
+    "baseDamage": 7,
+    "attackSpeed": 1.4,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "BLUDGEON",
+    "baseDamage": 7,
+    "attackSpeed": 1.18,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "MALLET",
+    "baseDamage": 8,
+    "attackSpeed": 1.19,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "CLONKER",
+    "baseDamage": 8,
+    "attackSpeed": 1.08,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "CUDGEL",
+    "baseDamage": 9,
+    "attackSpeed": 1.12,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "LUMP",
+    "baseDamage": 11,
+    "attackSpeed": 1.33,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "POUNDER",
+    "baseDamage": 11,
+    "attackSpeed": 1.14,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "CRUSHER",
+    "baseDamage": 7,
+    "attackSpeed": 1.05,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "THUMPER",
+    "baseDamage": 10,
+    "attackSpeed": 1.23,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "CRACKER",
+    "baseDamage": 11,
+    "attackSpeed": 1.33,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "STRIKER",
+    "baseDamage": 12,
+    "attackSpeed": 1.29,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "BASHER",
+    "baseDamage": 11,
+    "attackSpeed": 1.07,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "KNOCKER",
+    "baseDamage": 12,
+    "attackSpeed": 1.04,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "MACE",
+    "baseDamage": 17,
+    "attackSpeed": 1.33,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "FLAIL",
+    "baseDamage": 16,
+    "attackSpeed": 1.18,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "BREAKER",
+    "baseDamage": 18,
+    "attackSpeed": 1.21,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "HAMMER",
+    "baseDamage": 20,
+    "attackSpeed": 1.18,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "WARCLUB",
+    "baseDamage": 17,
+    "attackSpeed": 1.36,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "BATTLE FLAIL",
+    "baseDamage": 15,
+    "attackSpeed": 1.06,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "MORNINGSTAR",
+    "baseDamage": 17,
+    "attackSpeed": 1.13,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "HEADCRACKER",
+    "baseDamage": 22,
+    "attackSpeed": 1.34,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "SMASHER",
+    "baseDamage": 21,
+    "attackSpeed": 1.14,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "DOOMHAMMER",
+    "baseDamage": 20,
+    "attackSpeed": 1,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "SKULLCRUSHER",
+    "baseDamage": 22,
+    "attackSpeed": 1.01,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "RECKONER",
+    "baseDamage": 27,
+    "attackSpeed": 1.09,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "MAUL",
+    "baseDamage": 35,
+    "attackSpeed": 1.32,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "TOMBSTONE",
+    "baseDamage": 30,
+    "attackSpeed": 1.01,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "DEVASTATOR",
+    "baseDamage": 23,
+    "attackSpeed": 1.03,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "OBLITERATOR",
+    "baseDamage": 25,
+    "attackSpeed": 1.05,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "SHATTER",
+    "baseDamage": 27,
+    "attackSpeed": 1.03,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "VERDICT",
+    "baseDamage": 34,
+    "attackSpeed": 1.14,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "JUDGEMENT",
+    "baseDamage": 36,
+    "attackSpeed": 1.12,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "RAVAGER",
+    "baseDamage": 39,
+    "attackSpeed": 1.1,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "PULVERIZER",
+    "baseDamage": 52,
+    "attackSpeed": 1.32,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "ANNIHILATOR",
+    "baseDamage": 53,
+    "attackSpeed": 1.22,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "DESOLATOR",
+    "baseDamage": 63,
+    "attackSpeed": 1.32,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "DOOMFALL",
+    "baseDamage": 69,
+    "attackSpeed": 1.32,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "WORLDENDER",
+    "baseDamage": 51,
+    "attackSpeed": 1.3,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "RUINATION",
+    "baseDamage": 44,
+    "attackSpeed": 1.02,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "GODFALL",
+    "baseDamage": 53,
+    "attackSpeed": 1.12,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "EPOCH",
+    "baseDamage": 64,
+    "attackSpeed": 1.22,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "TERMINUS",
+    "baseDamage": 67,
+    "attackSpeed": 1.17,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "RECKONING",
+    "baseDamage": 64,
+    "attackSpeed": 1.01,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "DOMINION",
+    "baseDamage": 80,
+    "attackSpeed": 1.16,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "OBLIVION",
+    "baseDamage": 83,
+    "attackSpeed": 1.09,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "SUNDERKING",
+    "baseDamage": 113,
+    "attackSpeed": 1.35,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Mace",
+    "Name": "WARHAMMER",
+    "baseDamage": 101,
+    "attackSpeed": 1.09,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "BRANCH",
+    "baseDamage": 5,
+    "attackSpeed": 1.13,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": [
+      "starter"
+    ]
+  },
+  {
+    "Type": "Sword",
+    "Name": "BLADE",
+    "baseDamage": 4,
+    "attackSpeed": 0.93,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "CUTTER",
+    "baseDamage": 5,
+    "attackSpeed": 1.07,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "STICK",
+    "baseDamage": 4,
+    "attackSpeed": 0.8,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "CHOPOPER",
+    "baseDamage": 6,
+    "attackSpeed": 0.94,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "CLEAVER",
+    "baseDamage": 6,
+    "attackSpeed": 0.91,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "ONE ARMED SCISSOR",
+    "baseDamage": 7,
+    "attackSpeed": 0.94,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "SWORD",
+    "baseDamage": 8,
+    "attackSpeed": 1.06,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "MACHETE",
+    "baseDamage": 8,
+    "attackSpeed": 0.95,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "LONG EDGE",
+    "baseDamage": 11,
+    "attackSpeed": 1.15,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "SHORTSWORD",
+    "baseDamage": 8,
+    "attackSpeed": 1.15,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "SLASHER",
+    "baseDamage": 8,
+    "attackSpeed": 1.05,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "FINE SABER",
+    "baseDamage": 8,
+    "attackSpeed": 0.96,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "LONGSWORD",
+    "baseDamage": 11,
+    "attackSpeed": 1.12,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "GLAIVE",
+    "baseDamage": 10,
+    "attackSpeed": 1,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "FALCHION",
+    "baseDamage": 9,
+    "attackSpeed": 0.8,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "BROADSWORD",
+    "baseDamage": 15,
+    "attackSpeed": 1.16,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "CUTLASS",
     "baseDamage": 12,
     "attackSpeed": 0.89,
-    "tier": 4,
+    "Tier": 2,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Sword",
-    "name": "EXECUTIONER",
-    "baseDamage": 18,
-    "attackSpeed": 0.94,
-    "tier": 4,
+    "Type": "Sword",
+    "Name": "SCIMITAR",
+    "baseDamage": 17,
+    "attackSpeed": 1.13,
+    "Tier": 2,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Sword",
-    "name": "FLAYER",
-    "baseDamage": 13,
-    "attackSpeed": 0.89,
-    "tier": 4,
+    "Type": "Sword",
+    "Name": "SLICER",
+    "baseDamage": 17,
+    "attackSpeed": 1.04,
+    "Tier": 2,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Sword",
-    "name": "FOIL",
-    "baseDamage": 21,
-    "attackSpeed": 1.18,
-    "tier": 4,
+    "Type": "Sword",
+    "Name": "BASTARD SWORD",
+    "baseDamage": 14,
+    "attackSpeed": 1.13,
+    "Tier": 3,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Wand",
-    "name": "GHOST CRADLE",
-    "baseDamage": 10,
-    "attackSpeed": 0.84,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "HALBRED",
+    "Type": "Sword",
+    "Name": "WARBLADE",
     "baseDamage": 16,
     "attackSpeed": 1.17,
-    "tier": 4,
+    "Tier": 3,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Sword",
-    "name": "HELL REAPER",
-    "baseDamage": 20,
-    "attackSpeed": 0.83,
-    "tier": 4,
+    "Type": "Sword",
+    "Name": "RAPIER",
+    "baseDamage": 14,
+    "attackSpeed": 0.92,
+    "Tier": 3,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Dagger",
-    "name": "HELLBOUND DIRK",
-    "baseDamage": 12,
-    "attackSpeed": 0.6,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "HELLSTRING",
-    "baseDamage": 11,
-    "attackSpeed": 0.94,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "JUDGEMENT",
-    "baseDamage": 20,
-    "attackSpeed": 1.23,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "KUKRI",
-    "baseDamage": 31,
-    "attackSpeed": 1.19,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "OBLITERATOR",
+    "Type": "Sword",
+    "Name": "ELVIN GLAIVE",
     "baseDamage": 17,
-    "attackSpeed": 1.38,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "POCKET MONOLITH",
-    "baseDamage": 17,
-    "attackSpeed": 0.81,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "PULVERIZER",
-    "baseDamage": 26,
-    "attackSpeed": 1.33,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "RAVAGER",
-    "baseDamage": 22,
-    "attackSpeed": 1.04,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "RAVAGER",
-    "baseDamage": 22,
-    "attackSpeed": 1.04,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "RUINBLADE",
-    "baseDamage": 18,
-    "attackSpeed": 0.7,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "SANCTUM ROD",
-    "baseDamage": 21,
-    "attackSpeed": 1.07,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "SCROLL",
-    "baseDamage": 13,
     "attackSpeed": 1,
-    "tier": 4,
+    "Tier": 3,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Sword",
-    "name": "SCYTHE",
-    "baseDamage": 10,
-    "attackSpeed": 0.82,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "SHATTER",
-    "baseDamage": 18,
-    "attackSpeed": 1.34,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "SHUNKEN HEAD",
-    "baseDamage": 27,
-    "attackSpeed": 1.03,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "SORROWS KRIS",
-    "baseDamage": 18,
-    "attackSpeed": 0.81,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "SOULPIERCER",
-    "baseDamage": 8,
-    "attackSpeed": 0.72,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "SPLITTER",
-    "baseDamage": 12,
-    "attackSpeed": 1.11,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "STORMSHARD FANG",
-    "baseDamage": 13,
-    "attackSpeed": 0.9,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "VERDICT",
-    "baseDamage": 19,
-    "attackSpeed": 1.3,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "VOID DAGGER",
-    "baseDamage": 16,
-    "attackSpeed": 0.87,
-    "tier": 4,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "ARCHON DIRK",
-    "baseDamage": 27,
-    "attackSpeed": 0.7,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "AXIOM",
-    "baseDamage": 34,
-    "attackSpeed": 1.18,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "CAULDRON",
-    "baseDamage": 36,
-    "attackSpeed": 1.04,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "CONVERGENCE",
-    "baseDamage": 26,
-    "attackSpeed": 0.82,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "COVENANT",
-    "baseDamage": 27,
-    "attackSpeed": 1.04,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "CRYSTAL STILETTO",
-    "baseDamage": 29,
-    "attackSpeed": 1.03,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "DEATH LANTERN",
-    "baseDamage": 40,
-    "attackSpeed": 1.06,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "DEMONPIERCER",
+    "Type": "Sword",
+    "Name": "DEMONBLADE",
     "baseDamage": 15,
-    "attackSpeed": 0.76,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "DEVIL BLADE",
-    "baseDamage": 42,
-    "attackSpeed": 0.92,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "DEVIL TOME",
-    "baseDamage": 26,
-    "attackSpeed": 1.19,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "DOMINION",
-    "baseDamage": 35,
-    "attackSpeed": 0.91,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "DOMINION",
-    "baseDamage": 35,
-    "attackSpeed": 0.91,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "DOOMSTRIKE",
-    "baseDamage": 31,
-    "attackSpeed": 1.2,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "DUSKRIFT STILETTO",
-    "baseDamage": 27,
-    "attackSpeed": 0.94,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "EPOCH",
-    "baseDamage": 26,
-    "attackSpeed": 1.01,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "EPOCHAL STING",
-    "baseDamage": 33,
-    "attackSpeed": 0.95,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "ETERNAL BLADE",
-    "baseDamage": 29,
-    "attackSpeed": 0.82,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "ETERNAL DAGGER",
-    "baseDamage": 37,
-    "attackSpeed": 0.89,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "ETERNITY\u0027S SHIV",
-    "baseDamage": 20,
-    "attackSpeed": 0.76,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "FATEBRINGER",
-    "baseDamage": 27,
-    "attackSpeed": 0.86,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "FLOATING OBELISK",
-    "baseDamage": 16,
     "attackSpeed": 0.84,
-    "tier": 5,
+    "Tier": 3,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Wand",
-    "name": "GHOST PILLAR",
+    "Type": "Sword",
+    "Name": "SOUL RENDER",
     "baseDamage": 24,
-    "attackSpeed": 1.03,
-    "tier": 5,
+    "attackSpeed": 1.2,
+    "Tier": 3,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Sword",
-    "name": "GHOST SWORD",
-    "baseDamage": 53,
-    "attackSpeed": 1.15,
-    "tier": 5,
+    "Type": "Sword",
+    "Name": "DIVINE CUTLASS",
+    "baseDamage": 19,
+    "attackSpeed": 0.87,
+    "Tier": 3,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Mace",
-    "name": "GODFALL",
-    "baseDamage": 26,
-    "attackSpeed": 1.12,
-    "tier": 5,
+    "Type": "Sword",
+    "Name": "RUNE SLICER",
+    "baseDamage": 20,
+    "attackSpeed": 0.82,
+    "Tier": 3,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Dagger",
-    "name": "GODSBANE FANG",
-    "baseDamage": 16,
-    "attackSpeed": 0.72,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "HELLSONG KRIS",
-    "baseDamage": 22,
-    "attackSpeed": 0.92,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "OBLIVION",
-    "baseDamage": 40,
-    "attackSpeed": 1.05,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "OBLIVION SWORD",
-    "baseDamage": 43,
-    "attackSpeed": 1.02,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Dagger",
-    "name": "OBLIVIONS PRICK",
+    "Type": "Sword",
+    "Name": "CLAYMORE",
     "baseDamage": 21,
-    "attackSpeed": 0.65,
-    "tier": 5,
+    "attackSpeed": 0.8,
+    "Tier": 3,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Mace",
-    "name": "RECKONING",
-    "baseDamage": 35,
-    "attackSpeed": 1.12,
-    "tier": 5,
+    "Type": "Sword",
+    "Name": "GREATSWORD",
+    "baseDamage": 27,
+    "attackSpeed": 0.93,
+    "Tier": 3,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Mace",
-    "name": "RUINATION",
+    "Type": "Sword",
+    "Name": "SPLITTER",
+    "baseDamage": 25,
+    "attackSpeed": 1.14,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "SCYTHE",
+    "baseDamage": 27,
+    "attackSpeed": 1.13,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "HALBRED",
+    "baseDamage": 28,
+    "attackSpeed": 1.04,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "FLAYER",
+    "baseDamage": 24,
+    "attackSpeed": 0.83,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "DESTROYER",
+    "baseDamage": 28,
+    "attackSpeed": 0.85,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "FOIL",
+    "baseDamage": 33,
+    "attackSpeed": 0.94,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "EXECUTIONER",
+    "baseDamage": 46,
+    "attackSpeed": 1.18,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "RAVAGER",
+    "baseDamage": 51,
+    "attackSpeed": 1.19,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "HELL REAPER",
+    "baseDamage": 47,
+    "attackSpeed": 0.99,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "KUKRI",
+    "baseDamage": 43,
+    "attackSpeed": 0.82,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "SOULREAVER",
+    "baseDamage": 36,
+    "attackSpeed": 0.93,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "TWINBLADE",
+    "baseDamage": 42,
+    "attackSpeed": 0.98,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "WORLDCLEAVE",
+    "baseDamage": 53,
+    "attackSpeed": 1.13,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "DOOMSTRIKE",
+    "baseDamage": 59,
+    "attackSpeed": 1.14,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "CRYSTAL STILETTO",
+    "baseDamage": 61,
+    "attackSpeed": 1.07,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "FATEBRINGER",
+    "baseDamage": 75,
+    "attackSpeed": 1.19,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "ETERNAL BLADE",
+    "baseDamage": 74,
+    "attackSpeed": 1.06,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "DOMINION",
+    "baseDamage": 62,
+    "attackSpeed": 0.81,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "OBLIVION SWORD",
+    "baseDamage": 79,
+    "attackSpeed": 0.94,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Sword",
+    "Name": "GHOST SWORD",
+    "baseDamage": 80,
+    "attackSpeed": 0.86,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "STICK",
+    "baseDamage": 4,
+    "attackSpeed": 0.92,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": [
+      "starter"
+    ]
+  },
+  {
+    "Type": "Wand",
+    "Name": "STAFF",
+    "baseDamage": 5,
+    "attackSpeed": 1.14,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "GRIMOIRE",
+    "baseDamage": 5,
+    "attackSpeed": 1.06,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "ROD",
+    "baseDamage": 5,
+    "attackSpeed": 0.88,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "SHARD",
+    "baseDamage": 5,
+    "attackSpeed": 0.82,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "PRONG",
+    "baseDamage": 6,
+    "attackSpeed": 0.97,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "CHARM",
+    "baseDamage": 8,
+    "attackSpeed": 1.11,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "BEAD",
+    "baseDamage": 9,
+    "attackSpeed": 1.16,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "RUNE",
+    "baseDamage": 9,
+    "attackSpeed": 1.03,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "GYLGH",
+    "baseDamage": 9,
+    "attackSpeed": 1,
+    "Tier": 1,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "TOME",
+    "baseDamage": 8,
+    "attackSpeed": 1.19,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "ESSENCE",
+    "baseDamage": 7,
+    "attackSpeed": 0.92,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "TRINKET",
+    "baseDamage": 7,
+    "attackSpeed": 0.86,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "TOTEM",
+    "baseDamage": 8,
+    "attackSpeed": 0.87,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "TAILSMAN",
+    "baseDamage": 11,
+    "attackSpeed": 1.07,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "ORB",
+    "baseDamage": 10,
+    "attackSpeed": 0.89,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "LENS",
+    "baseDamage": 13,
+    "attackSpeed": 1.01,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "TOME",
+    "baseDamage": 12,
+    "attackSpeed": 0.84,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "SIGIL",
+    "baseDamage": 16,
+    "attackSpeed": 1.08,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "IDOL",
+    "baseDamage": 18,
+    "attackSpeed": 1.08,
+    "Tier": 2,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "EFFIGY",
+    "baseDamage": 12,
+    "attackSpeed": 0.97,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "CRYSTAL",
+    "baseDamage": 14,
+    "attackSpeed": 1,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "RELIC",
+    "baseDamage": 17,
+    "attackSpeed": 1.1,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "SKULL",
+    "baseDamage": 15,
+    "attackSpeed": 0.87,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "VESSEL",
+    "baseDamage": 16,
+    "attackSpeed": 0.9,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "PRISM",
+    "baseDamage": 19,
+    "attackSpeed": 0.96,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "CANDLE",
     "baseDamage": 24,
     "attackSpeed": 1.1,
-    "tier": 5,
+    "Tier": 3,
     "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   },
   {
-    "type": "Sword",
-    "name": "SOULREAVER",
-    "baseDamage": 21,
-    "attackSpeed": 1.08,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "SUNDERKING",
-    "baseDamage": 55,
-    "attackSpeed": 1.32,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "TERMINUS",
-    "baseDamage": 33,
-    "attackSpeed": 1.15,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "TWINBLADE",
-    "baseDamage": 23,
-    "attackSpeed": 1.05,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "VIAL OF DARKNESS",
-    "baseDamage": 49,
-    "attackSpeed": 1.17,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Wand",
-    "name": "VOID TOME",
-    "baseDamage": 41,
-    "attackSpeed": 0.88,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "WARHAMMER",
-    "baseDamage": 60,
-    "attackSpeed": 1.3,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Sword",
-    "name": "WORLDCLEAVE",
-    "baseDamage": 23,
-    "attackSpeed": 0.98,
-    "tier": 5,
-    "attributeRequirements": null,
-    "tags": null
-  },
-  {
-    "type": "Mace",
-    "name": "WORLDENDER",
+    "Type": "Wand",
+    "Name": "GEODE",
     "baseDamage": 20,
-    "attackSpeed": 1.05,
-    "tier": 5,
+    "attackSpeed": 0.81,
+    "Tier": 3,
     "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "SPIRIT COMPASS",
+    "baseDamage": 29,
+    "attackSpeed": 1.1,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "ESSENCE",
+    "baseDamage": 27,
+    "attackSpeed": 0.93,
+    "Tier": 3,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "ARTIFACT",
+    "baseDamage": 26,
+    "attackSpeed": 1.19,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "GHOST CRADLE",
+    "baseDamage": 26,
+    "attackSpeed": 1.05,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "SCROLL",
+    "baseDamage": 26,
+    "attackSpeed": 0.96,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "BINDING",
+    "baseDamage": 32,
+    "attackSpeed": 1.08,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "CATALYST",
+    "baseDamage": 37,
+    "attackSpeed": 1.15,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "ALTAR",
+    "baseDamage": 35,
+    "attackSpeed": 0.98,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "SANCTUM ROD",
+    "baseDamage": 42,
+    "attackSpeed": 1.07,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "POCKET MONOLITH",
+    "baseDamage": 47,
+    "attackSpeed": 1.1,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "DEMON SEED",
+    "baseDamage": 41,
+    "attackSpeed": 0.87,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "SHUNKEN HEAD",
+    "baseDamage": 59,
+    "attackSpeed": 1.13,
+    "Tier": 4,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "FLOATING OBELISK",
+    "baseDamage": 43,
+    "attackSpeed": 1.09,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "DEVIL TOME",
+    "baseDamage": 45,
+    "attackSpeed": 1.04,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "GHOST PILLAR",
+    "baseDamage": 40,
+    "attackSpeed": 0.84,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "COVENANT",
+    "baseDamage": 60,
+    "attackSpeed": 1.15,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "AXIOM",
+    "baseDamage": 48,
+    "attackSpeed": 0.84,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "CONVERGENCE",
+    "baseDamage": 58,
+    "attackSpeed": 0.93,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "CAULDRON",
+    "baseDamage": 81,
+    "attackSpeed": 1.16,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "DEATH LANTERN",
+    "baseDamage": 61,
+    "attackSpeed": 0.8,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "VIAL OF DARKNESS",
+    "baseDamage": 79,
+    "attackSpeed": 0.94,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
+    "tags": null
+  },
+  {
+    "Type": "Wand",
+    "Name": "VOID TOME",
+    "baseDamage": 81,
+    "attackSpeed": 0.88,
+    "Tier": 5,
+    "attributeRequirements": null,
+    "Compelled Action": null,
     "tags": null
   }
 ]

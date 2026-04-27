@@ -47,7 +47,7 @@ namespace RPGGame
             this.stateTracker = new InventoryStateManager();
             this.itemActionHandler = new InventoryItemActionHandler(stateManager, customUIManager, stateTracker);
             this.itemComparisonHandler = new InventoryItemComparisonHandler(stateManager, customUIManager, stateTracker);
-            this.comboManager = new InventoryComboManager(stateManager, customUIManager, stateTracker);
+            this.comboManager = new InventoryComboManager(stateManager, customUIManager, stateTracker, itemActionHandler);
             this.tradeUpHandler = new InventoryTradeUpHandler(stateManager, customUIManager, stateTracker);
             
             // Wire up events

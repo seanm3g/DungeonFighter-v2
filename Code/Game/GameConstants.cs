@@ -96,6 +96,11 @@ namespace RPGGame
         public const int MaxLevel = 100;
         public const int MinTier = 1;
         public const int MaxTier = 5;
+
+        /// <summary>
+        /// Dungeon selection list row that prompts for an arbitrary dungeon level (must match dungeon regeneration).
+        /// </summary>
+        public const string DungeonCustomLevelMenuName = "Custom difficulty";
         
         // Combat Constants
         public const double DefaultNarrativeBalance = 0.5;

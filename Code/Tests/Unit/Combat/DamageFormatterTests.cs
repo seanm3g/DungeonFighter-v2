@@ -379,6 +379,22 @@ namespace RPGGame.Tests.Unit.Combat
                 TestBase.AssertTrue(multiHitHitsSuffix != null && ColorValidator.AreColorsEqual(multiHitHitsSuffix.Color, Colors.White),
                     "multi-hit line \" hits)\" should be white (hits keyword)",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // Enemy attacker: action name uses purple (not green / roll cyan / damage red)
+                var enemyAttacker = TestDataBuilders.Enemy()
+                    .WithName("Skeleton")
+                    .WithHealth(50)
+                    .Build();
+                var heroTarget = TestDataBuilders.Character()
+                    .WithName("Hero")
+                    .WithStats(10, 10, 10, 10)
+                    .Build();
+                var (enemyDamageText, _) = DamageFormatter.FormatDamageDisplayColored(
+                    enemyAttacker, heroTarget, 5, 3, action, 1.0, 1.0, 0, 10, 1);
+                var jabSegment = enemyDamageText!.FirstOrDefault(s => s.Text == "JAB");
+                TestBase.AssertTrue(jabSegment != null && ColorValidator.AreColorsEqual(jabSegment.Color, ColorPalette.Purple.GetColor()),
+                    "enemy attack action name should use purple",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             catch (Exception ex)
             {

@@ -50,7 +50,7 @@ namespace RPGGame.UI.Avalonia.Layout
             {
                 y += 2;
 
-                const int actionPoolReserve = 9;
+                const int actionPoolReserve = 16;
                 int comboLinesAvailable = panelBottom - y - actionPoolReserve;
                 int maxDisplay = Math.Max(0, Math.Min(comboActions.Count, comboLinesAvailable - 1));
                 if (maxDisplay == 0 && comboActions.Count > 0)

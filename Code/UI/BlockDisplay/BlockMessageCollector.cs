@@ -32,6 +32,18 @@ namespace RPGGame.UI.BlockDisplay
         /// <summary>
         /// Collects all messages for an action block into a structured list
         /// </summary>
+        private static bool ColoredListEndsWithLineBreak(List<ColoredText> segments)
+        {
+            for (int i = segments.Count - 1; i >= 0; i--)
+            {
+                string? t = segments[i]?.Text;
+                if (string.IsNullOrEmpty(t)) continue;
+                char c = t[t.Length - 1];
+                return c == '\n' || c == '\r';
+            }
+            return false;
+        }
+
         public static List<(List<ColoredText> segments, UIMessageType messageType)> CollectActionBlockMessages(
             List<ColoredText>? actionText,
             List<ColoredText>? rollInfo,
@@ -90,8 +102,8 @@ namespace RPGGame.UI.BlockDisplay
                 {
                     if (effect != null && effect.Count > 0)
                     {
-                        // If not the first effect, add a newline before it
-                        if (!isFirst)
+                        // If not the first effect, add a newline before it (skip if prior line already ends with newline)
+                        if (!isFirst && !ColoredListEndsWithLineBreak(combinedStatusEffects))
                         {
                             combinedStatusEffects.Add(new ColoredText(System.Environment.NewLine, Colors.White));
                         }

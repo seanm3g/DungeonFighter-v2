@@ -138,7 +138,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 var damageColor = damageDiffers
                     ? (info.DamageModified > info.DamageBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
                     : AsciiArtAssets.Colors.White;
-                string damageLine = $"Dmg {damageDisplay:F0}%";
+                string damageLine = CombatActionStripBuilder.FormatSwingDamageLine(info.EffectiveMultiHitCount, damageDisplay);
                 if (damageLine.Length > contentW) damageLine = damageLine.Substring(0, contentW - 3) + "...";
                 if (contentY < py + panelH)
                 {

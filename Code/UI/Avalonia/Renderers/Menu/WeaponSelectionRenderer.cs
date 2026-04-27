@@ -36,11 +36,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             // Calculate content box dimensions
             int boxPadding = 4;
             int boxWidth = Math.Min(60, width - boxPadding * 2);
-            // Calculate height to include title (3 lines) + spacing (2) + all weapons (4 lines each) + separator (1) + instructions (2)
-            // Each weapon takes: 1 line for name/number + 1 line for stats + 2 lines spacing = 4 lines total
+            // Calculate height to include title (3 lines) + spacing (2) + all weapons (5 lines each) + separator (1) + instructions (2)
+            // Each weapon takes: 1 line for name/number + 1 line for class + 1 line for stats + 2 lines spacing = 5 lines total
             int titleHeight = 3; // top line + title + bottom line
             int titleSpacing = 2; // spacing after title
-            int weaponsHeight = weapons != null ? weapons.Count * 4 : 0; // 4 lines per weapon
+            int weaponsHeight = weapons != null ? weapons.Count * 5 : 0; // 5 lines per weapon
             int separatorHeight = 1; // separator line
             int instructionsHeight = 2; // instructions + spacing
             int contentHeight = titleHeight + titleSpacing + weaponsHeight + separatorHeight + instructionsHeight;
@@ -113,6 +113,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             for (int pi = 0; pi < weapons.Count; pi++)
                 previews.Add(GameInitializer.CreateStarterWeaponForMenuIndex(pi + 1));
 
+            var classPresentation = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
+
             // Find max weapon display text length for centering (actual item names from the starter pipeline)
             int maxLength = 0;
             for (int i = 0; i < weapons.Count; i++)
@@ -148,7 +150,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     X = optionX - 2,
                     Y = currentY,
                     Width = maxLength + 2,
-                    Height = 3, // Include stats line
+                    Height = 4, // Name + class + stats rows
                     Type = ElementType.MenuOption,
                     Value = weaponNum.ToString(),
                     DisplayText = displayText
@@ -164,6 +166,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 canvas.AddText(optionX, currentY, numberText, weaponColor);
                 int nameX = optionX + numberText.Length + 1;
                 canvas.AddText(nameX, currentY, weaponName ?? "", option.IsHovered ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White);
+                currentY++;
+
+                string className = classPresentation.GetDisplayName(preview.WeaponType);
+                string classLine = $"Class: {className}";
+                int classLineX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, classLine.Length);
+                canvas.AddText(classLineX, currentY, classLine, AsciiArtAssets.Colors.DarkGray);
                 currentY++;
                 
                 // Weapon stats from the same pipeline as InitializeNewGame (starter-tagged menu rows + tuning)

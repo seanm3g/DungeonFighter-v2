@@ -125,6 +125,20 @@ namespace RPGGame.Tests.Unit.UI.Spacing
             TestBase.AssertEqual(0, heroAttackAfterOwnBurn,
                 "no blank before afflicted hero combat action after burn/poison tick on that hero",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TextSpacingSystem.Reset();
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage, "Neville Stoneheart");
+            int sameVictimConsecutiveDot = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.PoisonDamage, "Neville Stoneheart");
+            TestBase.AssertEqual(0, sameVictimConsecutiveDot,
+                "no blank between consecutive DoT blocks for the same afflicted entity (e.g. stacked poison lines)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TextSpacingSystem.Reset();
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage, "Hero");
+            int differentVictimDot = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.PoisonDamage, "Goblin");
+            TestBase.AssertEqual(1, differentVictimDot,
+                "blank before DoT block when afflicted entity differs from previous DoT block",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

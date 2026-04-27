@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using RPGGame.Tests;
 
@@ -31,6 +32,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             TestHandleMenuInput_ReturnToGameLoop();
             TestHandleMenuInput_InvalidChoice();
             TestHandleMenuInput_NoCharacter();
+            TestHandleMenuInput_CustomLevelThenStart();
 
             TestBase.PrintSummary("DungeonSelectionHandler Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -154,6 +156,41 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             TestBase.AssertTrue(true,
                 "HandleMenuInput should complete even with no character",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestHandleMenuInput_CustomLevelThenStart()
+        {
+            Console.WriteLine("\n--- Testing HandleMenuInput - Custom level flow ---");
+
+            var stateManager = new GameStateManager();
+            var dungeonManager = new DungeonManagerWithRegistry();
+            var character = new Character("TestHero", 1);
+            stateManager.SetCurrentPlayer(character);
+
+            stateManager.AvailableDungeons.Clear();
+            stateManager.AvailableDungeons.Add(new Dungeon("A", 1, 1, "Forest", new List<string> { "Goblin" }));
+            stateManager.AvailableDungeons.Add(new Dungeon("B", 2, 2, "Forest", new List<string> { "Goblin" }));
+            stateManager.AvailableDungeons.Add(new Dungeon("C", 3, 3, "Forest", new List<string> { "Goblin" }));
+            stateManager.AvailableDungeons.Add(new Dungeon(RPGGame.GameConstants.DungeonCustomLevelMenuName, 1, 1, "Crypt", new List<string> { "Skeleton" }));
+
+            var handler = new DungeonSelectionHandler(stateManager, dungeonManager, null);
+            handler.StartDungeonEvent += async () => { await Task.CompletedTask; };
+
+            Task.Run(async () => await handler.HandleMenuInput("4")).Wait();
+            Task.Run(async () => await handler.HandleMenuInput("12")).Wait();
+
+            TestBase.AssertNotNull(stateManager.CurrentDungeon,
+                "Custom level entry should set current dungeon",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (stateManager.CurrentDungeon != null)
+            {
+                TestBase.AssertEqual(12, stateManager.CurrentDungeon.MinLevel,
+                    "Dungeon should use the entered level",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(stateManager.CurrentDungeon.Name.Contains("12"),
+                    "Dungeon name should include the chosen level",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
         }
 
         #endregion

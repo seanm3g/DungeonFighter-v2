@@ -163,7 +163,7 @@ namespace RPGGame
             
             // Source name with enemy-specific colors
             builder.Add(source.Name, EntityColorHelper.GetActorColor(source));
-            AddUsesAction(builder, action.Name, ColorPalette.Green);
+            AddUsesAction(builder, action.Name, source is Enemy ? ColorPalette.Purple : ColorPalette.Green);
             
             builder.AddSpace(); // Explicit space between action name and "on"
             builder.Add("on", Colors.White);

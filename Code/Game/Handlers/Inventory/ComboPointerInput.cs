@@ -16,7 +16,9 @@ namespace RPGGame.Handlers.Inventory
             AddAll,
             Reorder,
             PoolAdd,
-            SequenceRemove
+            SequenceRemove,
+            /// <summary>Equip the inventory item that grants this action, then add that action to the combo sequence.</summary>
+            InvPoolEquip
         }
 
         public static bool TryParse(string input, out Kind kind, out int index)
@@ -46,6 +48,14 @@ namespace RPGGame.Handlers.Inventory
                     {
                         kind = Kind.PoolAdd;
                         index = pi;
+                        return true;
+                    }
+                    return false;
+                case "invpool":
+                    if (parts.Length >= 3 && int.TryParse(parts[2], out int ii) && ii >= 0)
+                    {
+                        kind = Kind.InvPoolEquip;
+                        index = ii;
                         return true;
                     }
                     return false;

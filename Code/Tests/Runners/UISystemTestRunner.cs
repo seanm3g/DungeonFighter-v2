@@ -60,6 +60,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             InventoryRightPanelLayoutTests.RunAllTests();
             Console.WriteLine();
+            InventoryActionPoolEntriesTests.RunAllTests();
+            Console.WriteLine();
             StatusEffectDisplayLinesTests.RunAllTests();
             Console.WriteLine();
             HoverTooltipDrawingTests.RunAllTests();
@@ -77,6 +79,8 @@ namespace RPGGame.Tests.Runners
             ActionStripReorderPolicyTests.RunAllTests();
             Console.WriteLine();
             ItemDisplayFormatterTests.RunAllTests();
+            Console.WriteLine();
+            ItemStatFormatterTests.RunAllTests();
             Console.WriteLine();
             
             // Spacing System Tests

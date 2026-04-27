@@ -255,14 +255,23 @@ namespace RPGGame.Actions.RollModification
         /// <summary>
         /// Multihit count used when scaling per-hit modifiers: deferred roll-mod threshold adjustments, deferred sheet accuracy on hit, etc.
         /// Aligns with multihit damage tick count in <see cref="RPGGame.Actions.Execution.MultiHitProcessor"/>.
+        /// Uses the actor's current <see cref="ActionUtilities.GetComboStep"/> for chain-position bonuses.
         /// </summary>
         public static int GetEffectiveMultiHitCountForModifierScaling(Action action, Actor source)
+            => GetEffectiveMultiHitCountForModifierScaling(action, source, ActionUtilities.GetComboStep(source));
+
+        /// <summary>
+        /// Same as <see cref="GetEffectiveMultiHitCountForModifierScaling(Action, Actor)"/>, but uses <paramref name="chainPositionComboStep"/>
+        /// when evaluating chain-position multi-hit deltas (e.g. per combo slot on the action strip).
+        /// </summary>
+        public static int GetEffectiveMultiHitCountForModifierScaling(Action action, Actor source, int chainPositionComboStep)
         {
             int n = action.Advanced?.MultiHitCount ?? 1;
             if (n <= 0) n = 1;
             if (source is Character character && character.Effects.ConsumedMultiHitMod != 0)
                 n = Math.Max(1, n + (int)Math.Max(0, character.Effects.ConsumedMultiHitMod));
-            n = Math.Max(1, n + ChainPositionBonusApplier.GetMultiHitDelta(source, action, ActionUtilities.GetComboActions(source), ActionUtilities.GetComboStep(source)));
+            var combo = ActionUtilities.GetComboActions(source) ?? new List<Action>();
+            n = Math.Max(1, n + ChainPositionBonusApplier.GetMultiHitDelta(source, action, combo, chainPositionComboStep));
             return n;
         }
 

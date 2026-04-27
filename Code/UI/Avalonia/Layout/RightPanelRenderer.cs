@@ -105,7 +105,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x, y, $"Step: {currentStepInSequence}/{comboActions.Count}", AsciiArtAssets.Colors.White);
                 y += 2;
                 
-                const int actionPoolReserve = 9; // spacing + POOL header + subtitle + Total + list line(s)
+                const int actionPoolReserve = 16; // POOL + INVENTORY headers / totals + at least one row each (sync InventoryRightPanelLayout)
                 int comboLinesAvailable = panelBottom - y - actionPoolReserve;
                 int maxDisplay = Math.Max(0, Math.Min(comboActions.Count, comboLinesAvailable - 1)); // -1 for "... +N more" when truncated
                 if (maxDisplay == 0 && comboActions.Count > 0)
@@ -187,11 +187,63 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (poolIdx < actionPool.Count)
                 {
                     canvas.AddText(x, y, $"... +{actionPool.Count - poolIdx} more", AsciiArtAssets.Colors.Gray);
+                    y++;
                 }
             }
             else
             {
                 canvas.AddText(x, y, "(No actions)", AsciiArtAssets.Colors.DarkGray);
+                y++;
+            }
+
+            // INVENTORY: actions on bag items — click equips that item (swap) and adds the action to the sequence when possible
+            y += 1;
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("INVENTORY"), AsciiArtAssets.Colors.Gold);
+            y++;
+            canvas.AddText(x, y, "(from bag)", AsciiArtAssets.Colors.DarkGray);
+            y += 2;
+
+            var invEntries = InventoryActionPoolEntries.Build(character);
+            if (invEntries.Count == 0)
+            {
+                canvas.AddText(x, y, "(empty)", AsciiArtAssets.Colors.DarkGray);
+            }
+            else
+            {
+                canvas.AddText(x, y, $"Total: {invEntries.Count}", AsciiArtAssets.Colors.White);
+                y += 2;
+
+                int invFlat = 0;
+                for (; invFlat < invEntries.Count && y <= panelBottom - 1; invFlat++)
+                {
+                    var invEntry = invEntries[invFlat];
+                    bool invInSeq = comboActions.Any(a =>
+                        string.Equals(a.Name, invEntry.ActionName, StringComparison.OrdinalIgnoreCase));
+                    string invActionName = invEntry.ActionName;
+                    if (invActionName.Length > 16)
+                        invActionName = invActionName.Substring(0, 13) + "...";
+                    string invTag = invInSeq ? "*" : "";
+                    string invLine = $"{invTag}{invActionName}";
+                    if (interactive)
+                    {
+                        string invValue = $"{ComboPointerInput.Prefix}invpool:{invFlat}";
+                        var invBtn = InventoryButtonFactory.CreateButton(x, y, rowWidth, invValue, invLine);
+                        interactionManager!.AddClickableElement(invBtn);
+                        var invC = invBtn.IsHovered ? AsciiArtAssets.Colors.Yellow
+                            : (invInSeq ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Magenta);
+                        canvas.AddText(x, y, invLine, invC);
+                    }
+                    else
+                    {
+                        var invBase = invInSeq ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Magenta;
+                        canvas.AddText(x, y, invLine, invBase);
+                    }
+
+                    y++;
+                }
+
+                if (invFlat < invEntries.Count)
+                    canvas.AddText(x, y, $"... +{invEntries.Count - invFlat} more", AsciiArtAssets.Colors.Gray);
             }
 
             DrawPoolHoverTooltipIfNeeded(character);

@@ -1,6 +1,7 @@
 namespace RPGGame
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using RPGGame.UI.Avalonia;
 
@@ -13,6 +14,7 @@ namespace RPGGame
         private GameStateManager stateManager;
         private DungeonManagerWithRegistry? dungeonManager;
         private IUIManager? customUIManager;
+        private bool awaitingCustomDungeonLevel;
         
         // Delegates
         public delegate Task OnStartDungeon();
@@ -40,6 +42,8 @@ namespace RPGGame
         {
             
             if (stateManager.CurrentPlayer == null || dungeonManager == null) return;
+
+            awaitingCustomDungeonLevel = false;
             
             // Regenerate dungeons based on current player level
             dungeonManager.RegenerateDungeons(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
@@ -52,6 +56,27 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// When the player opened the custom-level prompt, Escape cancels it and keeps them on dungeon selection.
+        /// </summary>
+        /// <returns>True if a pending custom-level prompt was cleared (caller should not also leave the screen).</returns>
+        public bool CancelCustomLevelPromptIfActive()
+        {
+            if (!awaitingCustomDungeonLevel)
+                return false;
+            awaitingCustomDungeonLevel = false;
+            RefreshDungeonSelectionScreen();
+            return true;
+        }
+
+        private void RefreshDungeonSelectionScreen()
+        {
+            if (customUIManager is not CanvasUICoordinator canvasUI || stateManager.CurrentPlayer == null)
+                return;
+            canvasUI.Clear();
+            canvasUI.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
+        }
+
+        /// <summary>
         /// Handle dungeon selection input
         /// </summary>
         public async Task HandleMenuInput(string input)
@@ -60,28 +85,41 @@ namespace RPGGame
             {
                 return;
             }
-            if (int.TryParse(input, out int choice))
+
+            if (awaitingCustomDungeonLevel)
+            {
+                await HandleCustomDungeonLevelInput(input);
+                return;
+            }
+
+            if (int.TryParse(input.Trim(), out int choice))
             {
                 if (choice >= 1 && choice <= stateManager.AvailableDungeons.Count)
                 {
-                    // Stop dungeon selection animation
+                    int dungeonIndex = choice - 1;
+                    var picked = stateManager.AvailableDungeons[dungeonIndex];
+                    if (picked.Name == GameConstants.DungeonCustomLevelMenuName)
+                    {
+                        awaitingCustomDungeonLevel = true;
+                        ShowMessageEvent?.Invoke(
+                            $"Enter dungeon level ({RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL}-{RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL}), or 0 to cancel.");
+                        return;
+                    }
+
                     if (customUIManager is CanvasUICoordinator canvasUI)
                     {
                         canvasUI.StopDungeonSelectionAnimation();
                     }
-                    
-                    // Select the dungeon (choice is 1-based, convert to 0-based)
-                    await SelectDungeon(choice - 1);
+
+                    await SelectDungeon(dungeonIndex);
                 }
                 else if (choice == 0)
                 {
-                    // Stop dungeon selection animation
                     if (customUIManager is CanvasUICoordinator canvasUI)
                     {
                         canvasUI.StopDungeonSelectionAnimation();
                     }
-                    
-                    // Return to game menu
+
                     stateManager.TransitionToState(GameState.GameLoop);
                     ShowGameLoopEvent?.Invoke();
                 }
@@ -97,6 +135,48 @@ namespace RPGGame
             }
         }
 
+        private async Task HandleCustomDungeonLevelInput(string input)
+        {
+            if (!int.TryParse(input.Trim(), out int level))
+            {
+                ShowMessageEvent?.Invoke($"Enter a level from {RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL} to {RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL}, or 0 to cancel.");
+                return;
+            }
+
+            if (level == 0)
+            {
+                awaitingCustomDungeonLevel = false;
+                RefreshDungeonSelectionScreen();
+                return;
+            }
+
+            if (level < RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL || level > RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL)
+            {
+                ShowMessageEvent?.Invoke($"Level must be between {RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL} and {RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL}.");
+                return;
+            }
+
+            var template = stateManager.AvailableDungeons.FirstOrDefault(d => d.Name == GameConstants.DungeonCustomLevelMenuName);
+            if (template == null)
+            {
+                awaitingCustomDungeonLevel = false;
+                ShowMessageEvent?.Invoke("Custom dungeon option is unavailable. Try opening dungeon selection again.");
+                return;
+            }
+
+            awaitingCustomDungeonLevel = false;
+
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.StopDungeonSelectionAnimation();
+            }
+
+            string runName = $"{template.Theme} (level {level})";
+            var dungeon = new Dungeon(runName, level, level, template.Theme, template.PossibleEnemies, template.ColorOverride);
+            stateManager.SetCurrentDungeon(dungeon);
+            await BeginCurrentDungeonRunAsync();
+        }
+
         /// <summary>
         /// Select a specific dungeon and start it
         /// </summary>
@@ -110,27 +190,19 @@ namespace RPGGame
                 return;
             }
             
-            if (stateManager.CurrentPlayer != null)
+            stateManager.SetCurrentDungeon(stateManager.AvailableDungeons[dungeonIndex]);
+            await BeginCurrentDungeonRunAsync();
+        }
+
+        private async Task BeginCurrentDungeonRunAsync()
+        {
+            if (stateManager.CurrentDungeon == null)
+                return;
+
+            stateManager.CurrentDungeon.Generate();
+            if (StartDungeonEvent != null)
             {
-                stateManager.SetCurrentDungeon(stateManager.AvailableDungeons[dungeonIndex]);
-                if (stateManager.CurrentDungeon != null)
-                {
-                    stateManager.CurrentDungeon.Generate();
-                    // Start the dungeon run
-                    if (StartDungeonEvent != null)
-                    {
-                        await StartDungeonEvent.Invoke();
-                    }
-                    else
-                    {
-                    }
-                }
-                else
-                {
-                }
-            }
-            else
-            {
+                await StartDungeonEvent.Invoke();
             }
         }
     }

@@ -18,6 +18,7 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
             TestAddAll(ref run, ref passed, ref failed);
             TestReorder(ref run, ref passed, ref failed);
             TestPool(ref run, ref passed, ref failed);
+            TestInvPool(ref run, ref passed, ref failed);
             TestRemove(ref run, ref passed, ref failed);
             TestInvalid(ref run, ref passed, ref failed);
 
@@ -50,6 +51,15 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
             bool ok = ComboPointerInput.TryParse($"{ComboPointerInput.Prefix}pool:3", out var k, out var i);
             TestBase.AssertTrue(ok && k == ComboPointerInput.Kind.PoolAdd && i == 3,
                 "cpi:pool:3 parses index 3", ref run, ref passed, ref failed);
+        }
+
+        private static void TestInvPool(ref int run, ref int passed, ref int failed)
+        {
+            bool ok = ComboPointerInput.TryParse($"{ComboPointerInput.Prefix}invpool:2", out var k, out var i);
+            TestBase.AssertTrue(ok && k == ComboPointerInput.Kind.InvPoolEquip && i == 2,
+                "cpi:invpool:2 parses flat index 2", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!ComboPointerInput.TryParse($"{ComboPointerInput.Prefix}invpool:-1", out _, out _),
+                "cpi:invpool:-1 rejected", ref run, ref passed, ref failed);
         }
 
         private static void TestRemove(ref int run, ref int passed, ref int failed)

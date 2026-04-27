@@ -2,6 +2,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 {
     using System;
     using System.Collections.Generic;
+    using RPGGame;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Renderers.Helpers;
@@ -118,7 +119,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     }
                     
                     // Render stats with colored text (Damage, Speed, Armor, stat bonuses)
-                    ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true);
+                    var equippedWeapon = character.Weapon as WeaponItem;
+                    ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true,
+                        displayedItem: item, weaponSpeedBaseline: equippedWeapon);
                 }
                 y++;
                 currentLineCount++;
@@ -256,7 +259,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 currentLineCount++;
                 
                 // Render stats with colored text
-                ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true);
+                var equippedForTrade = character.Weapon as WeaponItem;
+                ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true,
+                    displayedItem: item, weaponSpeedBaseline: equippedForTrade);
             }
             
             y += 2;
@@ -278,7 +283,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             currentLineCount++;
             
             // Render resulting item stats
-            ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, resultingItemStats, ref y, ref currentLineCount, useColoredText: true);
+            var equippedForResult = character.Weapon as WeaponItem;
+            ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, resultingItemStats, ref y, ref currentLineCount, useColoredText: true,
+                displayedItem: resultingItem, weaponSpeedBaseline: equippedForResult);
             
             y += 2;
             currentLineCount += 2;

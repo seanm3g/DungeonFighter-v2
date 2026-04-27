@@ -18,16 +18,18 @@ namespace RPGGame.Combat.Formatting
         }
         
         /// <summary>
-        /// Gets the color for the action name based on the combat outcome
+        /// Gets the color for the action name based on the combat outcome and whether the attacker is an enemy.
+        /// Enemy actions use purple (normal) and orange (critical) so they are not confused with player green,
+        /// roll-info cyan, or damage red.
         /// </summary>
-        public static ColorPalette GetActionColor(CombatOutcome outcome)
+        public static ColorPalette GetActionColor(CombatOutcome outcome, bool attackerIsEnemy)
         {
             if (outcome.IsCritical)
             {
-                return ColorPalette.Critical;
+                return attackerIsEnemy ? ColorPalette.Orange : ColorPalette.Critical;
             }
-            
-            return ColorPalette.Green; // Default action color
+
+            return attackerIsEnemy ? ColorPalette.Purple : ColorPalette.Green;
         }
         
         /// <summary>

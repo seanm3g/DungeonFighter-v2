@@ -25,8 +25,10 @@ namespace RPGGame
         public string ThresholdText { get; }
         /// <summary>Total roll bonus for this combo slot (same basis as hover tooltip / <see cref="CombatCalculator.CalculateRollBonus"/>).</summary>
         public int AccuracyRollBonus { get; }
+        /// <summary>Effective number of damage ticks (base multi-hit + consumed mod + chain position), same basis as combat execution.</summary>
+        public int EffectiveMultiHitCount { get; }
 
-        public ActionPanelInfo(string name, double damageBase, double damageModified, double speedBase, double speedModified, string thresholdText, int accuracyRollBonus)
+        public ActionPanelInfo(string name, double damageBase, double damageModified, double speedBase, double speedModified, string thresholdText, int accuracyRollBonus, int effectiveMultiHitCount)
         {
             Name = name ?? "";
             DamageBase = damageBase;
@@ -35,6 +37,7 @@ namespace RPGGame
             SpeedModified = speedModified;
             ThresholdText = thresholdText ?? "";
             AccuracyRollBonus = accuracyRollBonus;
+            EffectiveMultiHitCount = Math.Max(1, effectiveMultiHitCount);
         }
     }
 
@@ -99,9 +102,22 @@ namespace RPGGame
 
                 int accuracyRollBonus = CombatCalculator.CalculateRollBonus(character, action, actions, i, consumeTempBonus: false);
 
-                list.Add(new ActionPanelInfo(name, baseDamagePct, modifiedDamagePct, baseSpeedPct, modifiedSpeedPct, thresholdText, accuracyRollBonus));
+                int effectiveHits = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(action, character, i);
+
+                list.Add(new ActionPanelInfo(name, baseDamagePct, modifiedDamagePct, baseSpeedPct, modifiedSpeedPct, thresholdText, accuracyRollBonus, effectiveHits));
             }
             return list;
+        }
+
+        /// <summary>
+        /// Compact damage line for the action strip and matching tooltip swing segment: multihit uses <c>2x50% damage</c>; single hit uses <c>Dmg 50%</c>.
+        /// </summary>
+        public static string FormatSwingDamageLine(int effectiveHitCount, double damagePercentForDisplay)
+        {
+            int hits = Math.Max(1, effectiveHitCount);
+            return hits > 1
+                ? $"{hits}x{damagePercentForDisplay:F0}% damage"
+                : $"Dmg {damagePercentForDisplay:F0}%";
         }
 
         private static string GetThresholdText(Action action)
@@ -283,7 +299,7 @@ namespace RPGGame
                     const double damageCmpEps = 0.0001;
                     double damageDisplay = Math.Abs(info.DamageModified - info.DamageBase) > damageCmpEps ? info.DamageModified : info.DamageBase;
                     double speedDisplay = info.SpeedModified != info.SpeedBase ? info.SpeedModified : info.SpeedBase;
-                    return $"Dmg {damageDisplay:F0}% | Spd {speedDisplay:F0}%";
+                    return $"{FormatSwingDamageLine(info.EffectiveMultiHitCount, damageDisplay)} | Spd {speedDisplay:F0}%";
                 }
             }
 
@@ -291,7 +307,10 @@ namespace RPGGame
             double baseSpeedPct = action.Length > 0
                 ? ActionDisplayFormatter.CalculateActionSpeedPercentage(action)
                 : 0;
-            return $"Dmg {baseDamagePct:F0}% | Spd {baseSpeedPct:F0}%";
+            int hits = character != null
+                ? RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(action, character)
+                : Math.Max(1, action.Advanced?.MultiHitCount ?? 1);
+            return $"{FormatSwingDamageLine(hits, baseDamagePct)} | Spd {baseSpeedPct:F0}%";
         }
 
         private static string FormatTooltipActionName(string? name)

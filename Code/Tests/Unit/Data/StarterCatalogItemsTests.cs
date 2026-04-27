@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame;
 using RPGGame.Data;
 using RPGGame.Tests;
@@ -78,13 +79,33 @@ namespace RPGGame.Tests.Unit.Data
             if (tagged.Count > 0)
             {
                 TestBase.AssertEqual(tagged.Count, resolved.Count,
-                    "When Weapons.json has starter-tagged rows, menu should list all of them in file order",
+                    "When Weapons.json has starter-tagged rows, menu should list all of them",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                for (int i = 0; i < tagged.Count; i++)
+
+                var taggedNames = tagged.Select(t => t.Name).OrderBy(n => n).ToList();
+                var resolvedNames = resolved.Select(r => r.Name).OrderBy(n => n).ToList();
+                for (int i = 0; i < taggedNames.Count; i++)
                 {
-                    TestBase.AssertEqual(tagged[i].Name, resolved[i].Name,
-                        $"starter weapon menu row {i} name",
+                    TestBase.AssertEqual(taggedNames[i], resolvedNames[i],
+                        $"starter weapon menu multiset name {i}",
                         ref _testsRun, ref _testsPassed, ref _testsFailed);
+                }
+
+                int prevOrder = -1;
+                for (int i = 0; i < resolved.Count; i++)
+                {
+                    TestBase.AssertTrue(
+                        Enum.TryParse(resolved[i].Type?.Trim(), ignoreCase: true, out WeaponType wt),
+                        $"starter menu row {i} should parse to WeaponType",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    int ord = Array.IndexOf(ClassPresentationConfig.ClassWeaponOrder, wt);
+                    TestBase.AssertTrue(ord >= 0,
+                        $"starter menu row {i} type should appear in ClassWeaponOrder",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    TestBase.AssertTrue(ord >= prevOrder,
+                        "Starter weapon menu should follow Barbarian→Warrior→Rogue→Wizard path order",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    prevOrder = ord;
                 }
             }
             else
