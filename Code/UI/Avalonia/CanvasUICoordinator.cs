@@ -52,6 +52,14 @@ namespace RPGGame.UI.Avalonia
         
         // Screen state tracking to prevent unnecessary re-renders
         private GameState? lastRenderedScreenState = null;
+        
+        /// <summary>Arguments from the last <see cref="RenderDungeonCompletion"/> for timer-driven undulation repaints.</summary>
+        private Dungeon? _dungeonCompletionRenderDungeon;
+        private Character? _dungeonCompletionRenderPlayer;
+        private int _dungeonCompletionRenderXpGained;
+        private Item? _dungeonCompletionRenderLoot;
+        private List<LevelUpInfo>? _dungeonCompletionRenderLevelUps;
+        private List<Item>? _dungeonCompletionRenderItemsFound;
 
         /// <summary>
         /// Sets optional inline custom dungeon level entry display for the dungeon selection screen.
@@ -220,6 +228,23 @@ namespace RPGGame.UI.Avalonia
                         RenderDungeonSelection(player, dungeons);
                 };
                 canvasAnimationManager.SetupAnimationManager(dungeonRenderer, reRenderCallback, stateManager);
+                
+                canvasAnimationManager.SetDungeonCompletionReRenderCallback(() =>
+                {
+                    if (stateManager?.CurrentState != GameState.DungeonCompletion)
+                        return;
+                    var dungeon = _dungeonCompletionRenderDungeon;
+                    var player = _dungeonCompletionRenderPlayer;
+                    if (dungeon == null || player == null)
+                        return;
+                    RenderDungeonCompletion(
+                        dungeon,
+                        player,
+                        _dungeonCompletionRenderXpGained,
+                        _dungeonCompletionRenderLoot,
+                        _dungeonCompletionRenderLevelUps ?? new List<LevelUpInfo>(),
+                        _dungeonCompletionRenderItemsFound ?? new List<Item>());
+                });
                 
                 // Set up crit line re-render callback to trigger display buffer re-renders
                 // Reuse canvasTextManager from outer scope if it exists

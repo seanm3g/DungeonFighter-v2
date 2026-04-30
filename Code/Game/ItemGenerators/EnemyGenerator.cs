@@ -38,8 +38,6 @@ namespace RPGGame
                     var loadedEnemies = System.Text.Json.JsonSerializer.Deserialize<List<EnemyData>>(existingJson);
                     if (loadedEnemies != null)
                     {
-                        foreach (var e in loadedEnemies)
-                            EnemyDataPostLoad.Apply(e);
                         existingEnemies = loadedEnemies;
                     }
                 }

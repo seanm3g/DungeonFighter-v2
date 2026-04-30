@@ -318,15 +318,16 @@ After tuning:
 - Assess if progression feels right
 - Check if game feels too easy/hard
 
-## Magic Find (initial rarity roll)
+## Magic Find (affix rolls only)
 
-`LootRarityProcessor.RollRarity(magicFind, playerLevel)` applies **magic find only to the first weighted rarity roll** (before the optional `RarityUpgrade` cascade). Base weights come from `GameData/RarityTable.json`, filtered by level (`IsRarityUnlockedAtPlayerLevel`).
+**Base item rarity** is chosen only from `GameData/RarityTable.json` weights in `LootRarityProcessor.RollRarity` (level-gated). The `magicFind` argument on `RollRarity` is **ignored** for that roll so MF does not skew the rarity table.
 
-- **Clamp**: effective MF is `clamp(magicFind, 0, 100)`; `t = effectiveMF / 100`.
-- **Tilt**: `adjustedWeight = baseWeight * Exp(alpha * t * k_r)` where `alpha` is `rarityScaling.magicFindDistributionAlpha` in `TuningConfig.json` (values ≤ 0 disable tilt). Per-rarity `k_r` comes from `rarityScaling.magicFindScaling.*.perPointMultiplier`; when all configured multipliers are ~0, built-in defaults are used (Common −1 … Mythic +1).
-- **Preview**: `LootRarityProcessor.GetBaseRollDistribution(cache, playerLevel, magicFind)` matches this first-roll math (Item Generation settings panel shows MF 0 vs MF 100).
+**Magic find** (clamped **0–100** on the player) is passed into `LootBonusApplier.ApplyBonuses` and affects:
 
-The separate **rarity upgrade** chain (`lootSystem.rarityUpgrade`) can still step rarity up after the first roll when enabled; it uses its own `MagicFindBonus` tuning.
+1. **Affix-line tier** (prefix / suffix pool tier): weights from `RarityData` rows are scaled so that at MF 100 the rarest tier present in the pool gets up to **`lootSystem.affixMagicFindMaxWeightBoost`** (default 2×) while Common stays 1× (`LootBonusApplier.RollAffixLineRarityForPools`).
+2. **Optional extra affix counts** (`prefixExtraChance`, `statSuffixExtraChance`, `actionExtraChance`): each extra-step chance is multiplied by up to **`lootSystem.affixMagicFindMaxExtraChanceBoost`** at MF 100, capped at 1.0 per step (`ItemAffixByRaritySettings.RollAffixCounts` with MF).
+
+The **rarity upgrade** cascade (`lootSystem.rarityUpgrade`) does not receive player MF from loot generation today.
 
 ## Related Systems
 

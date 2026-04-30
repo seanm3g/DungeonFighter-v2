@@ -263,7 +263,8 @@ namespace RPGGame.Handlers.Inventory
                 context.WeaponType = weapon.WeaponType.ToString();
             }
             
-            bonusApplier.ApplyBonuses(item, rarityData, context);
+            int affixMf = Math.Clamp(player?.GetMagicFind() ?? 0, 0, 100);
+            bonusApplier.ApplyBonuses(item, rarityData, context, affixMf);
             
             // Validate that the item has the correct rarity (defensive check)
             if (!string.Equals(item.Rarity, rarity, StringComparison.OrdinalIgnoreCase))

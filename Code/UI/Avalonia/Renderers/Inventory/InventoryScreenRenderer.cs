@@ -6,6 +6,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Renderers.Helpers;
+    using RPGGame.UI.ColorSystem.Applications.ItemFormatting;
     using RPGGame.Items.Helpers;
     using static RPGGame.UI.LeftPanelHoverState;
 
@@ -139,7 +140,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         {
                             actionsText = actionsText.Substring(0, maxActionWidth - 3) + "...";
                         }
-                        canvas.AddText(x + 4, y, actionsText, AsciiArtAssets.Colors.Cyan);
+                        var actionsColor = ItemNameFormatter.IsCommonRarity(item.Rarity)
+                            ? AsciiArtAssets.Colors.White
+                            : AsciiArtAssets.Colors.Cyan;
+                        canvas.AddText(x + 4, y, actionsText, actionsColor);
                         y++;
                         currentLineCount++;
                     }

@@ -1,3 +1,4 @@
+using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.UI;
 using RPGGame.Utils;
@@ -16,6 +17,8 @@ namespace RPGGame.UI.BlockDisplay
         {
             // Skip delays if combat UI output is disabled (e.g., during statistics runs)
             if (CombatManager.DisableCombatUIOutput) return;
+
+            if (DeveloperModeState.IsCombatLogInstant) return;
             
             if (!UIManager.EnableDelays) return;
             
@@ -31,6 +34,9 @@ namespace RPGGame.UI.BlockDisplay
             // Action interaction lab: stepped play and undo replay should not wait on display timers.
             var lab = ActionInteractionLabSession.Current;
             if (lab != null && lab.ZeroDisplayDelays)
+                return 0;
+
+            if (DeveloperModeState.IsCombatLogInstant)
                 return 0;
 
             // Skip delays if combat UI output is disabled (e.g., during statistics runs)

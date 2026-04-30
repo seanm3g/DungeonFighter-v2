@@ -22,10 +22,14 @@ namespace RPGGame
         public const string GameSettingsJson = "GameSettings.json";
         public const string StatBonusesJson = "StatBonuses.json";
         public const string ModificationsJson = "Modifications.json";
+        /// <summary>Quality / Material / Adjective prefix rows merged into loot with <see cref="ModificationsJson"/> at runtime.</summary>
+        public const string PrefixMaterialQualityJson = "PrefixMaterialQuality.json";
         public const string TierDistributionJson = "TierDistribution.json";
         public const string DungeonConfigJson = "DungeonConfig.json";
         public const string RoomsJson = "Rooms.json";
         public const string DungeonsJson = "Dungeons.json";
+        /// <summary>CLASS ACTIONS sheet pull → class tier / path → combo action unlocks.</summary>
+        public const string ClassActionsJson = "ClassActions.json";
         public const string CharacterSaveJson = "character_save.json";
         /// <summary>Tombstone save for legacy single-slot flow when the hero dies (not loadable).</summary>
         public const string CharacterSaveDeadJson = "character_save_dead.json";

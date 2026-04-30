@@ -10,10 +10,18 @@ namespace RPGGame
     /// </summary>
     public class LootBonusApplier
     {
+        private static readonly string[] AffixTierOrder =
+        {
+            "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"
+        };
+
         private readonly LootDataCache _dataCache;
         private readonly Random _random;
         private readonly LootModificationSelector? _modificationSelector;
         private readonly LootActionSelector? _actionSelector;
+
+        /// <summary>Clamped 0–100 for the current <see cref="ApplyBonuses"/> call (prefix/suffix tier + optional affix extras).</summary>
+        private int _affixMagicFind;
 
         public LootBonusApplier(LootDataCache dataCache, Random random)
         {
@@ -24,30 +32,46 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Applies all bonuses to an item based on its rarity
+        /// Applies all bonuses to an item based on its rarity.
+        /// <paramref name="magicFind"/> (0–100) tilts affix-line tier rolls and optional affix extra chances; it does not change base item rarity.
         /// </summary>
-        public void ApplyBonuses(Item item, RarityData rarity, LootContext? context = null)
+        public void ApplyBonuses(Item item, RarityData rarity, LootContext? context = null, int magicFind = 0)
         {
-            string rarityName = rarity.Name?.Trim() ?? "Common";
+            _affixMagicFind = Math.Clamp(magicFind, 0, 100);
+            try
+            {
+                string rarityName = rarity.Name?.Trim() ?? "Common";
 
-            item.StatBonuses.Clear();
-            item.ActionBonuses.Clear();
+                item.StatBonuses.Clear();
+                item.ActionBonuses.Clear();
 
-            var rule = ItemAffixByRaritySettings.GetResolvedAffixRule(
-                rarityName,
-                rarity,
-                GameConfiguration.Instance?.ItemAffixByRarity);
-            ItemAffixByRaritySettings.RollAffixCounts(_random, rule, out int prefixSlots, out int statSuffixes, out int actionBonuses);
+                var rule = ItemAffixByRaritySettings.GetResolvedAffixRule(
+                    rarityName,
+                    rarity,
+                    GameConfiguration.Instance?.ItemAffixByRarity);
+                ItemAffixByRaritySettings.RollAffixCounts(
+                    _random,
+                    rule,
+                    _affixMagicFind,
+                    GameConfiguration.Instance?.LootSystem,
+                    out int prefixSlots,
+                    out int statSuffixes,
+                    out int actionBonuses);
 
-            ApplyStatBonuses(item, statSuffixes);
-            ApplyActionBonuses(item, actionBonuses, context);
-            ApplyPrefixSlots(item, prefixSlots, context);
+                ApplyStatBonuses(item, statSuffixes);
+                ApplyActionBonuses(item, actionBonuses, context);
+                ApplyPrefixSlots(item, prefixSlots, context);
 
-            item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
-            AdjustRarityBasedOnBonuses(item, rarity);
-            ResolveRerollAdjectiveIfPresent(item, context);
-            AdjustRarityBasedOnBonuses(item, rarity);
-            item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
+                item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
+                AdjustRarityBasedOnBonuses(item, rarity);
+                ResolveRerollAdjectiveIfPresent(item, context);
+                AdjustRarityBasedOnBonuses(item, rarity);
+                item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
+            }
+            finally
+            {
+                _affixMagicFind = 0;
+            }
         }
 
         /// <summary>
@@ -195,6 +219,20 @@ namespace RPGGame
             return -1;
         }
 
+        private static int AffixTierOrderIndex(string? rarityName)
+        {
+            if (string.IsNullOrWhiteSpace(rarityName))
+                return 0;
+            string t = rarityName.Trim();
+            for (int i = 0; i < AffixTierOrder.Length; i++)
+            {
+                if (AffixTierOrder[i].Equals(t, StringComparison.OrdinalIgnoreCase))
+                    return i;
+            }
+
+            return 0;
+        }
+
         public void ApplyStatBonuses(Item item, int count)
         {
             if (_dataCache.StatBonuses == null || _dataCache.StatBonuses.Count == 0 || count <= 0)
@@ -206,7 +244,7 @@ namespace RPGGame
 
             for (int i = 0; i < count; i++)
             {
-                string tier = RollAffixLineRarityForPools(_random, _dataCache.RarityData, tierSet);
+                string tier = RollAffixLineRarityForPools(tierSet);
                 var pool = FilterStatBonusesByAffixTier(_dataCache.StatBonuses, tier);
                 for (int attempt = 0; attempt < 8 && pool.Count == 0; attempt++)
                 {
@@ -277,7 +315,7 @@ namespace RPGGame
             foreach (var m in basePool)
                 tierSet.Add(string.IsNullOrWhiteSpace(m.ItemRank) ? "Common" : m.ItemRank.Trim());
 
-            string tier = RollAffixLineRarityForPools(_random, _dataCache.RarityData, tierSet);
+            string tier = RollAffixLineRarityForPools(tierSet);
             var pool = FilterModificationsByAffixTier(basePool, tier);
             for (int attempt = 0; attempt < 8 && pool.Count == 0; attempt++)
             {
@@ -317,29 +355,53 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Weighted affix-line tier using <see cref="RarityData"/> rows whose <see cref="RarityData.Name"/> appears in <paramref name="tierNames"/>.
+        /// Weighted affix-line tier using <see cref="RarityData"/> rows present in <paramref name="tierNames"/>.
+        /// Magic find ramps weight on higher tier indices up to <see cref="LootSystemConfig.AffixMagicFindMaxWeightBoost"/> at MF 100.
         /// </summary>
-        private static string RollAffixLineRarityForPools(Random random, IReadOnlyList<RarityData> rarityData, HashSet<string> tierNames)
+        private string RollAffixLineRarityForPools(HashSet<string> tierNames)
         {
-            var rows = rarityData
+            if (_dataCache.RarityData == null || _dataCache.RarityData.Count == 0)
+                return tierNames.ElementAt(_random.Next(tierNames.Count));
+
+            var rows = _dataCache.RarityData
                 .Where(r => !string.IsNullOrWhiteSpace(r.Name) && tierNames.Contains(r.Name.Trim()))
                 .Where(r => r.Weight > 0)
                 .ToList();
 
             if (rows.Count == 0)
-                return tierNames.ElementAt(random.Next(tierNames.Count));
+                return tierNames.ElementAt(_random.Next(tierNames.Count));
 
-            double total = rows.Sum(r => r.Weight);
-            if (total <= 0)
-                return tierNames.ElementAt(random.Next(tierNames.Count));
+            double t = _affixMagicFind / 100.0;
+            double maxBoost = GameConfiguration.Instance?.LootSystem?.AffixMagicFindMaxWeightBoost ?? 2.0;
+            if (maxBoost < 1.0)
+                maxBoost = 1.0;
 
-            double roll = random.NextDouble() * total;
-            double acc = 0;
-            foreach (var row in rows)
+            int maxIdx = rows.Max(r => AffixTierOrderIndex(r.Name));
+            double total = 0;
+            var weights = new double[rows.Count];
+            for (int i = 0; i < rows.Count; i++)
             {
-                acc += row.Weight;
+                int idx = AffixTierOrderIndex(rows[i].Name);
+                double frac = maxIdx > 0 ? (double)idx / maxIdx : 0.0;
+                double factor = 1.0 + t * (maxBoost - 1.0) * frac;
+                weights[i] = Math.Max(0.0, rows[i].Weight) * factor;
+                total += weights[i];
+            }
+
+            if (total <= 0)
+            {
+                total = rows.Sum(r => Math.Max(0.0, r.Weight));
+                for (int i = 0; i < rows.Count; i++)
+                    weights[i] = Math.Max(0.0, rows[i].Weight);
+            }
+
+            double roll = _random.NextDouble() * total;
+            double acc = 0;
+            for (int i = 0; i < rows.Count; i++)
+            {
+                acc += weights[i];
                 if (roll < acc)
-                    return row.Name.Trim();
+                    return rows[i].Name.Trim();
             }
 
             return rows[^1].Name.Trim();

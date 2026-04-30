@@ -5,6 +5,7 @@ using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
+using RPGGame.UI.ColorSystem.Applications.ItemFormatting;
 using RPGGame.UI.ColorSystem.Themes;
 
 namespace RPGGame.UI.Avalonia.Renderers.Helpers
@@ -42,6 +43,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             string slotName = GetSlotName(item);
             string rarity = item.Rarity?.Trim() ?? "Common";
             var rarityColor = ItemThemeProvider.GetRarityColor(rarity);
+            // Gray brackets/slot so rarity and item name colors read clearly (Common name uses type/material theming).
+            var metaColor = Colors.Gray;
             
             if (useColoredText)
             {
@@ -51,10 +54,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 {
                     displayBuilder.Add($"[{itemIndex + 1}] ", Colors.White);
                 }
-                displayBuilder.Add("[", Colors.Gray);
+                displayBuilder.Add("[", metaColor);
                 displayBuilder.Add(rarity, rarityColor);
-                displayBuilder.Add("] ", Colors.Gray);
-                displayBuilder.Add($"[{slotName}] ", Colors.Gray);
+                displayBuilder.Add("] ", metaColor);
+                displayBuilder.Add($"[{slotName}] ", metaColor);
                 var itemNameSegments = ItemDisplayColoredText.FormatFullItemName(item);
                 displayBuilder.AddRange(itemNameSegments);
                 textWriter.RenderSegments(displayBuilder.Build(), x, y);

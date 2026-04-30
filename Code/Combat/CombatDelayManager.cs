@@ -86,6 +86,9 @@ namespace RPGGame
         /// </summary>
         private static bool ShouldApplyDelay()
         {
+            if (DeveloperModeState.IsCombatLogInstant)
+                return false;
+
             // Skip all delays if combat UI output is disabled (e.g., during statistics runs)
             if (CombatManager.DisableCombatUIOutput)
             {

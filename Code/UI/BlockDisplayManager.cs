@@ -313,6 +313,8 @@ namespace RPGGame
         {
             // Skip delays if combat UI output is disabled (e.g., during statistics runs)
             if (CombatManager.DisableCombatUIOutput) return;
+
+            if (DeveloperModeState.IsCombatLogInstant) return;
             
             if (!UIManager.EnableDelays) return;
             

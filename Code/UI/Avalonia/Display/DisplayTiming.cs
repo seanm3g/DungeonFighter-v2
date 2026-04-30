@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Avalonia.Threading;
+using RPGGame;
 
 namespace RPGGame.UI.Avalonia.Display
 {
@@ -57,6 +58,11 @@ namespace RPGGame.UI.Avalonia.Display
                 {
                     int minDelay = mode.MinRenderDelayMs - (int)timeSinceLastRender;
                     delayMs = Math.Max(delayMs, minDelay);
+                }
+
+                if (DeveloperModeState.IsCombatLogInstant)
+                {
+                    delayMs = 0;
                 }
                 
                 if (delayMs <= 0)

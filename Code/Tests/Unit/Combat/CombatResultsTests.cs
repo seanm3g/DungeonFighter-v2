@@ -43,6 +43,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestExecuteActionWithUIAndStatusEffectsColored();
             TestWeaponPoisonSingleApplicationColoredExecutePath();
             TestWeaponPoisonNotAppliedOnNonCritColoredExecutePath();
+            TestQueuedActionModsShowImmediatelyAfterQueuingAction();
 
             TestBase.PrintSummary("CombatResults Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -378,6 +379,37 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestBase.AssertTrue(Math.Abs(target.PoisonPercentOfMaxHealth) < 0.0001,
                 $"Enemy poison % should stay 0 on non-crit, got {target.PoisonPercentOfMaxHealth}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            ActionSelector.RemoveStoredRoll(hero);
+        }
+
+        /// <summary>
+        /// UX: When an action queues action-mod bonuses (e.g. SPEED_MOD / AMP_MOD), the log should show those queued mods immediately
+        /// after the action line, not wait until the following roll when they are consumed.
+        /// </summary>
+        private static void TestQueuedActionModsShowImmediatelyAfterQueuingAction()
+        {
+            Console.WriteLine("\n--- UX: queued action mods show immediately after action ---");
+
+            RollModificationManager.GetThresholdManager().Clear();
+            ActionSelector.ClearStoredRolls();
+
+            var hero = TestDataBuilders.Character().WithName("Hero").WithStats(20, 20, 20, 20).Build();
+            var target = TestDataBuilders.Enemy().WithName("Target").WithHealth(200).Build();
+
+            var hasteStrike = TestDataBuilders.CreateMockAction("HASTE STRIKE");
+            hasteStrike.Type = ActionType.Attack;
+            // ModifierParser.ParsePercent expects percent points (e.g. "20" = 20%).
+            hasteStrike.SpeedMod = "20";
+
+            ActionSelector.SetStoredActionRoll(hero, 15); // hit at default thresholds, not necessarily crit
+            var (_, statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(hero, target, hasteStrike, null, null, null);
+
+            string combined = string.Join("\n", statusEffects.Select(ColoredTextRenderer.RenderAsPlainText));
+            TestBase.AssertTrue(
+                combined.Contains("Next attack", StringComparison.OrdinalIgnoreCase) && combined.Contains("SPD", StringComparison.OrdinalIgnoreCase),
+                $"Queued SPEED_MOD should be displayed immediately after action. Got:\n{combined}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             ActionSelector.RemoveStoredRoll(hero);

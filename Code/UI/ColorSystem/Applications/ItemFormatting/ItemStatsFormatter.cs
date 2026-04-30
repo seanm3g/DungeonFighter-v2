@@ -55,7 +55,17 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
             {
                 var damageLine = new ColoredTextBuilder();
                 damageLine.Add("  Damage: ", ColorPalette.Info);
-                damageLine.Add(weapon.BaseDamage.ToString(), ColorPalette.Damage);
+                damageLine.Add(weapon.GetTotalDamage().ToString(), ColorPalette.Damage);
+                damageLine.Add($" ({weapon.BaseDamage} base", Colors.Gray);
+                if (weapon.RolledDamageBonus != 0)
+                {
+                    damageLine.Add($" + {weapon.RolledDamageBonus} roll", Colors.Gray);
+                }
+                if (weapon.BonusDamage != 0)
+                {
+                    damageLine.Add($" + {weapon.BonusDamage} tier", Colors.Gray);
+                }
+                damageLine.Add(")", Colors.Gray);
                 lines.Add(damageLine.Build());
             }
             

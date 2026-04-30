@@ -2,6 +2,7 @@ using System;
 using RPGGame;
 using RPGGame.Tests.Unit.Handlers.Inventory;
 using RPGGame.Tests.Unit.UI;
+using RPGGame.Tests.Unit.UI.TitleScreen;
 using RPGGame.Tests.Unit.UI.Spacing;
 using RPGGame.Tests.Unit.UI.Chunking;
 using RPGGame.Tests.Unit.UI.BlockDisplay;
@@ -82,6 +83,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ItemStatFormatterTests.RunAllTests();
             Console.WriteLine();
+            TitleScreenAsciiSpacingTests.RunAllTests();
+            Console.WriteLine();
             
             // Spacing System Tests
             TextSpacingSystemTests.RunAllTests();
@@ -97,6 +100,8 @@ namespace RPGGame.Tests.Runners
             
             // Block Display Tests
             BlockDelayManagerTests.RunAllTests();
+            Console.WriteLine();
+            DeveloperModeStateTests.RunAllTests();
             Console.WriteLine();
             BlockMessageCollectorTests.RunAllTests();
             Console.WriteLine();

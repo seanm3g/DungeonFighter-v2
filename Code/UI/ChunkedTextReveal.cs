@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Chunking;
 using RPGGame.Config;
+using RPGGame;
 
 namespace RPGGame.UI
 {
@@ -145,7 +146,8 @@ namespace RPGGame.UI
                 if (i < chunks.Count - 1)
                 {
                     int delay = CalculateDelay(chunk, config);
-                    await Task.Delay(delay);
+                    if (delay > 0)
+                        await Task.Delay(delay);
                 }
             }
         }
@@ -177,6 +179,9 @@ namespace RPGGame.UI
         /// </summary>
         private static int CalculateDelay(string chunk, RevealConfig config)
         {
+            if (DeveloperModeState.IsCombatLogInstant)
+                return 0;
+
             // Get the display length (excluding color markup)
             var segments = ColoredTextParser.Parse(chunk);
             int displayLength = ColoredTextRenderer.GetDisplayLength(segments);

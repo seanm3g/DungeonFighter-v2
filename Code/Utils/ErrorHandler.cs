@@ -1,4 +1,5 @@
 using System;
+using RPGGame.Utils;
 
 namespace RPGGame
 {
@@ -102,9 +103,11 @@ namespace RPGGame
             catch (Exception ex)
             {
                 UIManager.WriteSystemLine($"Error loading {fileName}: {ex.Message}");
+                ScrollDebugLogger.LogAlways($"JsonLoader/TryLoadJson: Error loading {fileName}: {ex.Message}");
                 if (GameConfiguration.IsDebugEnabled)
                 {
                     UIManager.WriteSystemLine($"Stack trace: {ex.StackTrace}");
+                    ScrollDebugLogger.LogAlways($"JsonLoader/TryLoadJson stack: {ex.StackTrace}");
                 }
                 return fallbackValue;
             }
@@ -126,9 +129,11 @@ namespace RPGGame
             catch (Exception ex)
             {
                 UIManager.WriteSystemLine($"Error saving {fileName}: {ex.Message}");
+                ScrollDebugLogger.LogAlways($"JsonLoader/TrySaveJson: Error saving {fileName}: {ex.Message}");
                 if (GameConfiguration.IsDebugEnabled)
                 {
                     UIManager.WriteSystemLine($"Stack trace: {ex.StackTrace}");
+                    ScrollDebugLogger.LogAlways($"JsonLoader/TrySaveJson stack: {ex.StackTrace}");
                 }
                 return false;
             }

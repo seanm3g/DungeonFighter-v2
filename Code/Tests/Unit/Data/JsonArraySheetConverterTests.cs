@@ -18,6 +18,8 @@ namespace RPGGame.Tests.Unit.Data
             WeaponsWithTagsRoundTrip(ref run, ref pass, ref fail);
             WeaponsImportMapsTypoMinBonusHeaders(ref run, ref pass, ref fail);
             ModificationsRoundTrip(ref run, ref pass, ref fail);
+            MergeJsonRootArraysCoreThenExtra(ref run, ref pass, ref fail);
+            SplitModificationsMergedJsonMaterialQualityToSecondFile(ref run, ref pass, ref fail);
             StatBonusesRoundTrip(ref run, ref pass, ref fail);
             StatBonusesLegacyWeightCsvImportsAsCommon(ref run, ref pass, ref fail);
             EnemiesRoundTrip(ref run, ref pass, ref fail);
@@ -26,10 +28,10 @@ namespace RPGGame.Tests.Unit.Data
             EnemiesActionsPipeDelimitedNormalized(ref run, ref pass, ref fail);
             EnemiesTagsPlainStringAndListNormalized(ref run, ref pass, ref fail);
             EnemiesPushUsesFlatStatColumns(ref run, ref pass, ref fail);
-            EnemiesLegacyOverridesJsonBlobStillImports(ref run, ref pass, ref fail);
             EnemiesTwoRowHeaderCsvImports(ref run, ref pass, ref fail);
+            EnemiesTwoRowHeaderMergedCategoryBandImports(ref run, ref pass, ref fail);
+            EnemiesActionsQuotedCommaListNormalizes(ref run, ref pass, ref fail);
             EnemiesPushOmitsLegacyRootStatExtraColumns(ref run, ref pass, ref fail);
-            EnemiesCsvHoistsLegacyRootStatsIntoNested(ref run, ref pass, ref fail);
             EnvironmentsRoundTrip(ref run, ref pass, ref fail);
             EnvironmentsWithEnemiesRoundTrip(ref run, ref pass, ref fail);
             DungeonsRoundTrip(ref run, ref pass, ref fail);
@@ -143,6 +145,39 @@ namespace RPGGame.Tests.Unit.Data
             using var a = JsonDocument.Parse(outJson);
             TestBase.AssertEqual("Worn", a.RootElement[0].GetProperty("Name").GetString(), "Name", ref run, ref pass, ref fail);
             TestBase.AssertEqual(-3, a.RootElement[0].GetProperty("MinValue").GetDouble(), "Min", ref run, ref pass, ref fail);
+        }
+
+        private static void MergeJsonRootArraysCoreThenExtra(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(MergeJsonRootArraysCoreThenExtra));
+            const string core = """[{"DiceResult":1,"Name":"Core"}]""";
+            const string extra = """[{"DiceResult":202,"Name":"BRONZE"}]""";
+            string merged = JsonArraySheetConverter.MergeJsonRootArrays(core, extra);
+            using var doc = JsonDocument.Parse(merged);
+            TestBase.AssertEqual(2, doc.RootElement.GetArrayLength(), "merged length", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Core", doc.RootElement[0].GetProperty("Name").GetString(), "first from core", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("BRONZE", doc.RootElement[1].GetProperty("Name").GetString(), "second from extra", ref run, ref pass, ref fail);
+        }
+
+        /// <summary>After sheet pull, Material/Quality rows must land in PrefixMaterialQuality.json, not only Modifications.json.</summary>
+        private static void SplitModificationsMergedJsonMaterialQualityToSecondFile(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(SplitModificationsMergedJsonMaterialQualityToSecondFile));
+            const string merged = """
+            [
+              {"DiceResult":1,"ItemRank":"Common","Name":"Sharp","Effect":"damage","MinValue":1,"MaxValue":2},
+              {"DiceResult":201,"ItemRank":"Common","prefixCategory":"Material","Name":"BONE","Effect":"equipmentStr","MinValue":1,"MaxValue":2},
+              {"DiceResult":101,"ItemRank":"Common","prefixCategory":"Quality","Name":"Broken","Effect":"gearPrimaryStatMultiplier","MinValue":0.5,"MaxValue":0.75}
+            ]
+            """;
+            var (core, pmq) = JsonArraySheetConverter.SplitModificationsMergedJson(merged);
+            using var a = JsonDocument.Parse(core);
+            using var b = JsonDocument.Parse(pmq);
+            TestBase.AssertEqual(1, a.RootElement.GetArrayLength(), "core count", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Sharp", a.RootElement[0].GetProperty("Name").GetString(), "core row", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(2, b.RootElement.GetArrayLength(), "pmq count", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("BONE", b.RootElement[0].GetProperty("Name").GetString(), "material", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Broken", b.RootElement[1].GetProperty("Name").GetString(), "quality", ref run, ref pass, ref fail);
         }
 
         private static void StatBonusesRoundTrip(ref int run, ref int pass, ref int fail)
@@ -281,19 +316,6 @@ of Test,+1,1,15,Armor,
             TestBase.AssertEqual(0.2, first.GetProperty("growthPerLevel").GetProperty("agility").GetDouble(), "gp agi", ref run, ref pass, ref fail);
         }
 
-        private static void EnemiesLegacyOverridesJsonBlobStillImports(ref int run, ref int pass, ref int fail)
-        {
-            TestBase.SetCurrentTestName(nameof(EnemiesLegacyOverridesJsonBlobStillImports));
-            const string csv = """
-            name,archetype,baseHealth,overrides,actions,isLiving,description
-            Goblin,Assassin,100,"{""health"":0.9}",JAB|TAUNT,true,A goblin
-            """;
-            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Enemies);
-            using var a = JsonDocument.Parse(outJson);
-            var first = a.RootElement[0];
-            TestBase.AssertFalse(first.TryGetProperty("overrides", out _), "overrides removed after promote", ref run, ref pass, ref fail);
-            TestBase.AssertEqual(90, first.GetProperty("baseHealth").GetInt32(), "baseHealth * legacy override health", ref run, ref pass, ref fail);
-        }
 
         private static void EnemiesTwoRowHeaderCsvImports(ref int run, ref int pass, ref int fail)
         {
@@ -310,6 +332,46 @@ of Test,+1,1,15,Armor,
             TestBase.AssertEqual(0.1, first.GetProperty("growthPerLevel").GetProperty("strength").GetDouble(), "gp.str", ref run, ref pass, ref fail);
         }
 
+        private static void EnemiesTwoRowHeaderMergedCategoryBandImports(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(EnemiesTwoRowHeaderMergedCategoryBandImports));
+            // Simulates a sheet export where the category band uses merged cells: only the first column of each
+            // block contains the category label, subsequent columns are blank.
+            const string csv = """
+            ,,base attributes,,,,growth,,,
+            name,archetype,strength,agility,technique,intelligence,strength,agility,technique,intelligence
+            Imp,Assassin,3,4,5,6,0.1,0.2,0.3,0.4
+            """;
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Enemies);
+            using var a = JsonDocument.Parse(outJson);
+            var first = a.RootElement[0];
+            var ba = first.GetProperty("baseAttributes");
+            var gp = first.GetProperty("growthPerLevel");
+            TestBase.AssertEqual(3, ba.GetProperty("strength").GetInt32(), "ba.str", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(4, ba.GetProperty("agility").GetInt32(), "ba.agi", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(5, ba.GetProperty("technique").GetInt32(), "ba.tec", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(6, ba.GetProperty("intelligence").GetInt32(), "ba.int", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(0.1, gp.GetProperty("strength").GetDouble(), "gp.str", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(0.2, gp.GetProperty("agility").GetDouble(), "gp.agi", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(0.3, gp.GetProperty("technique").GetDouble(), "gp.tec", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(0.4, gp.GetProperty("intelligence").GetDouble(), "gp.int", ref run, ref pass, ref fail);
+        }
+
+        private static void EnemiesActionsQuotedCommaListNormalizes(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(EnemiesActionsQuotedCommaListNormalizes));
+            const string csv =
+                "name,archetype,baseHealth,actions,isLiving,description\n" +
+                "Goblin,Assassin,10,\"\"\"JAB\"\",\n\"\"TAUNT\"\"\",true,G\n";
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Enemies);
+            using var a = JsonDocument.Parse(outJson);
+            var first = a.RootElement[0];
+            var actions = first.GetProperty("actions");
+            TestBase.AssertTrue(actions.ValueKind == JsonValueKind.Array, "actions array", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("JAB", actions[0].GetString(), "a0", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("TAUNT", actions[1].GetString(), "a1", ref run, ref pass, ref fail);
+        }
+
         /// <summary>Historical root <c>strength</c> / <c>agility</c> must not create extra trailing sheet columns; they map into canonical base/growth cells.</summary>
         private static void EnemiesPushOmitsLegacyRootStatExtraColumns(ref int run, ref int pass, ref int fail)
         {
@@ -324,20 +386,6 @@ of Test,+1,1,15,Armor,
                 "no trailing legacy root columns", ref run, ref pass, ref fail);
         }
 
-        private static void EnemiesCsvHoistsLegacyRootStatsIntoNested(ref int run, ref int pass, ref int fail)
-        {
-            TestBase.SetCurrentTestName(nameof(EnemiesCsvHoistsLegacyRootStatsIntoNested));
-            const string csv = """
-            name,archetype,strength,agility,actions,isLiving,description
-            X,Berserker,1.1,0.2,J,true,Hi
-            """;
-            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Enemies);
-            using var a = JsonDocument.Parse(outJson);
-            var first = a.RootElement[0];
-            TestBase.AssertEqual(1.1, first.GetProperty("growthPerLevel").GetProperty("strength").GetDouble(), "legacy strength -> growth", ref run, ref pass, ref fail);
-            TestBase.AssertEqual(0.2, first.GetProperty("growthPerLevel").GetProperty("agility").GetDouble(), "legacy agility -> growth", ref run, ref pass, ref fail);
-            TestBase.AssertFalse(first.TryGetProperty("strength", out _), "root strength removed", ref run, ref pass, ref fail);
-        }
 
         private static void EnvironmentsRoundTrip(ref int run, ref int pass, ref int fail)
         {

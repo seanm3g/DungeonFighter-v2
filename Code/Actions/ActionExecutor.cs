@@ -209,6 +209,19 @@ namespace RPGGame
                 ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
                 ActionStatusEffectApplier.ApplyStatBonusColored(result.SelectedAction, source, coloredStatusEffects);
             }
+
+            // Action mods (SPEED_MOD / DAMAGE_MOD / MULTIHIT_MOD / AMP_MOD) should be visible immediately when queued by the action,
+            // not delayed until they are consumed on the following roll.
+            if (result.SelectedAction != null)
+            {
+                ActionStatusEffectApplier.AppendQueuedActionModMessages(
+                    result.SelectedAction,
+                    source,
+                    target,
+                    actionHit: result.Hit,
+                    actionWasComboSuccess: result.IsCombo,
+                    coloredStatusEffects: coloredStatusEffects);
+            }
             
             var mainResult = FormatAsColoredText(result, source, target);
             return (mainResult, coloredStatusEffects);

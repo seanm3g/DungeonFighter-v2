@@ -144,7 +144,7 @@
                                        TextWrapping="Wrap"/>
                             <TextBlock Text="WEAPONS → Weapons.json" FontSize="12" Foreground="#FF555555"/>
                             <TextBox x:Name="WeaponsTabGidTextBox" MinHeight="28" Watermark="e.g. 1234567890" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
-                            <TextBlock Text="MODIFICATIONS → Modifications.json" FontSize="12" Foreground="#FF555555"/>
+                            <TextBlock Text="Prefix (sheet tab) → Modifications.json" FontSize="12" Foreground="#FF555555"/>
                             <TextBox x:Name="ModificationsTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
                             <TextBlock Text="ARMOR → Armor.json" FontSize="12" Foreground="#FF555555"/>
                             <TextBox x:Name="ArmorTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
@@ -156,6 +156,8 @@
                             <TextBox x:Name="EnvironmentsTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
                             <TextBlock Text="CLASSES → classPresentation in TuningConfig.json" FontSize="12" Foreground="#FF555555"/>
                             <TextBox x:Name="ClassPresentationTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
+                            <TextBlock Text="CLASS ACTIONS → ClassActions.json (tier / class / action)" FontSize="12" Foreground="#FF555555"/>
+                            <TextBox x:Name="ClassActionsTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
                         </StackPanel>
                     </Expander>
                     <Border Background="#FFF5F5F5" BorderBrush="#FFCCCCCC" BorderThickness="1" CornerRadius="4" Padding="12">
@@ -178,13 +180,14 @@
                             <WrapPanel Orientation="Horizontal">
                                 <CheckBox x:Name="PushActionsTabCheckBox" Content="ACTIONS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
                                 <CheckBox x:Name="PushWeaponsTabCheckBox" Content="WEAPONS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
-                                <CheckBox x:Name="PushModificationsTabCheckBox" Content="MODIFICATIONS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
+                                <CheckBox x:Name="PushModificationsTabCheckBox" Content="PREFIX" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
                                 <CheckBox x:Name="PushArmorTabCheckBox" Content="ARMOR" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
                                 <CheckBox x:Name="PushStatBonusesTabCheckBox" Content="SUFFIXES" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
                                 <CheckBox x:Name="PushEnemiesTabCheckBox" Content="ENEMIES" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
                                 <CheckBox x:Name="PushEnvironmentsTabCheckBox" Content="ENVIRONMENTS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
                                 <CheckBox x:Name="PushDungeonsTabCheckBox" Content="DUNGEONS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
                                 <CheckBox x:Name="PushClassPresentationTabCheckBox" Content="CLASSES" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
+                                <CheckBox x:Name="PushClassActionsTabCheckBox" Content="CLASS ACTIONS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
                             </WrapPanel>
                         </StackPanel>
                     </Border>

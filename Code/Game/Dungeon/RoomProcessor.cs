@@ -64,8 +64,8 @@ namespace RPGGame
                 // Render the room entry screen
                 canvasUI.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
                 
-                // Delay to show dungeon and room information (skip in MCP mode)
-                if (!RPGGame.MCP.MCPMode.IsActive)
+                // Delay to show dungeon and room information (skip in MCP mode / developer mode)
+                if (!RPGGame.MCP.MCPMode.IsActive && !DeveloperModeState.IsCombatLogInstant)
                 {
                     await Task.Delay(3500);
                 }
@@ -179,7 +179,8 @@ namespace RPGGame
                 if (customUIManager is CanvasUICoordinator canvasUIExplore)
                 {
                     canvasUIExplore.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
-                    await Task.Delay(2000);
+                    if (!DeveloperModeState.IsCombatLogInstant)
+                        await Task.Delay(2000);
                 }
             }
             
@@ -201,7 +202,7 @@ namespace RPGGame
                         displayManager.AddCombatEvent("", stateManager.CurrentPlayer); // Blank line after safe message
                         // Re-render room entry to show the safe message
                         canvasUISafe.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
-                        if (!RPGGame.MCP.MCPMode.IsActive)
+                        if (!RPGGame.MCP.MCPMode.IsActive && !DeveloperModeState.IsCombatLogInstant)
                         {
                             await Task.Delay(2000);
                         }
@@ -240,7 +241,8 @@ namespace RPGGame
                     if (customUIManager is CanvasUICoordinator canvasUIAdvantage && stateManager.CurrentPlayer != null)
                     {
                         canvasUIAdvantage.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
-                        await Task.Delay(1500);
+                        if (!DeveloperModeState.IsCombatLogInstant)
+                            await Task.Delay(1500);
                     }
                     
                     // Process all enemies in the room
@@ -292,7 +294,8 @@ namespace RPGGame
                 if (customUIManager is CanvasUICoordinator canvasUISearch)
                 {
                     canvasUISearch.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
-                    await Task.Delay(2000);
+                    if (!DeveloperModeState.IsCombatLogInstant)
+                        await Task.Delay(2000);
                 }
             }
             
@@ -300,7 +303,8 @@ namespace RPGGame
             if (roomWasHostile && !skipCombat && !foundLoot && customUIManager is CanvasUICoordinator canvasUI2)
             {
                 canvasUI2.AddRoomClearedMessage();
-                await Task.Delay(2000);
+                if (!DeveloperModeState.IsCombatLogInstant)
+                    await Task.Delay(2000);
             }
 
             if (stateManager.CurrentPlayer != null)

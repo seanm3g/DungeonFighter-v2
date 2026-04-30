@@ -186,7 +186,10 @@ namespace RPGGame.Entity.Services
             if (character.ActionPool.Count == 0)
             {
                 var allActions = ActionLoader.GetAllActions();
-                var fallbackAction = allActions.FirstOrDefault(a => a.IsComboAction);
+                var fallbackAction = allActions.FirstOrDefault(a =>
+                    a.IsComboAction &&
+                    !GameDataTagHelper.HasEnvironmentTag(a.Tags) &&
+                    !GameDataTagHelper.HasEnemyTag(a.Tags));
                 if (fallbackAction != null)
                 {
                     character.AddAction(fallbackAction, 1.0);
@@ -206,6 +209,7 @@ namespace RPGGame.Entity.Services
                                  action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
                                  action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
                                  !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
+                                 !action.Tags.Any(tag => tag.Equals("enemy", StringComparison.OrdinalIgnoreCase)) &&
                                  !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
                 .Select(action => action.Name)
                 .ToList();

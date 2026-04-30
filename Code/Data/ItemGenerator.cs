@@ -27,10 +27,12 @@ namespace RPGGame
             minB = Math.Max(0, minB);
             maxB = Math.Max(0, maxB);
             int rolledBonus = RandomUtility.Next(minB, maxB + 1);
-            int damage = weaponData.BaseDamage + rolledBonus;
 
             var weapon = new WeaponItem(weaponData.Name, weaponData.Tier,
-                damage, weaponData.AttackSpeed, weaponType);
+                weaponData.BaseDamage, weaponData.AttackSpeed, weaponType)
+            {
+                RolledDamageBonus = rolledBonus
+            };
             
             // Copy attribute requirements if present
             if (weaponData.AttributeRequirements != null && weaponData.AttributeRequirements.Count > 0)
@@ -297,7 +299,9 @@ namespace RPGGame
                 // Apply simplified tier-based scaling
                 double tierMultiplier = 1.0 + (weapon.Tier - 1) * 0.3; // 30% increase per tier
                 double globalMultiplier = scalingConfig.GlobalDamageMultiplier;
-                weapon.BaseDamage = (int)Math.Round(weapon.BaseDamage * tierMultiplier * globalMultiplier);
+                double m = tierMultiplier * globalMultiplier;
+                weapon.BaseDamage = (int)Math.Round(weapon.BaseDamage * m);
+                weapon.RolledDamageBonus = (int)Math.Round(weapon.RolledDamageBonus * m);
                 
                 // Apply speed bonus per tier
                 double speedBonusPerTier = scalingConfig.SpeedBonusPerTier;

@@ -44,6 +44,16 @@ namespace RPGGame.UI.Avalonia
 
         private async void OnKeyDown(object? sender, KeyEventArgs e)
         {
+            if (e.Key == Key.F11)
+            {
+                DeveloperModeState.ToggleCombatLogInstant();
+                e.Handled = true;
+                UpdateStatus(DeveloperModeState.IsCombatLogInstant
+                    ? "Developer mode: instant text (combat, room, menus)"
+                    : "Developer mode: off");
+                return;
+            }
+
             // If waiting for key after animation, initialize game
             if (initializationHandler != null && initializationHandler.WaitingForKeyAfterAnimation)
             {

@@ -104,7 +104,7 @@ namespace RPGGame.UI.Avalonia.Coordinators
                 }
                 
                 // Apply final delay after the entire batch (delay between action blocks)
-                if (delayAfterBatchMs > 0)
+                if (delayAfterBatchMs > 0 && !DeveloperModeState.IsCombatLogInstant)
                 {
                     await Task.Delay(delayAfterBatchMs);
                 }
@@ -138,7 +138,7 @@ namespace RPGGame.UI.Avalonia.Coordinators
                 }
                 
                 // Apply final delay after the entire batch (delay between action blocks)
-                if (delayAfterBatchMs > 0)
+                if (delayAfterBatchMs > 0 && !DeveloperModeState.IsCombatLogInstant)
                 {
                     await Task.Delay(delayAfterBatchMs);
                 }

@@ -1,0 +1,222 @@
+{
+  "name": "Otis Hollowsong",
+  "level": 3,
+  "xp": 73,
+  "currentHealth": 66,
+  "maxHealth": 66,
+  "strength": 9,
+  "agility": 5,
+  "technique": 5,
+  "intelligence": 5,
+  "barbarianPoints": 2,
+  "warriorPoints": 0,
+  "roguePoints": 0,
+  "wizardPoints": 0,
+  "comboStep": 0,
+  "comboBonus": 0,
+  "tempComboBonus": 0,
+  "tempComboBonusTurns": 0,
+  "damageReduction": 0,
+  "inventory": [
+    {
+      "$itemType": "feet",
+      "armor": 1,
+      "name": "SHOES",
+      "type": 1,
+      "tier": 1,
+      "level": 1,
+      "comboBonus": 0,
+      "rarity": "Common",
+      "statBonuses": [],
+      "actionBonuses": [
+        {
+          "name": "VAULT COLLAPSE",
+          "description": "The vault begins to collapse, stunning all combatants",
+          "weight": 1
+        }
+      ],
+      "modifications": [],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "starter"
+      ],
+      "weaponType": 0,
+      "attributeRequirements": {},
+      "gearAction": "Chip Scatter",
+      "isStarterItem": true
+    },
+    {
+      "$itemType": "weapon",
+      "baseDamage": 4,
+      "rolledDamageBonus": 0,
+      "baseAttackSpeed": 0.81,
+      "name": "Cutter",
+      "type": 3,
+      "tier": 1,
+      "level": 3,
+      "comboBonus": 0,
+      "rarity": "Common",
+      "statBonuses": [],
+      "actionBonuses": [],
+      "modifications": [],
+      "armorStatuses": [],
+      "bonusDamage": 3,
+      "bonusAttackSpeed": 0,
+      "tags": [],
+      "weaponType": 0,
+      "attributeRequirements": {},
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "weapon",
+      "baseDamage": 4,
+      "rolledDamageBonus": 0,
+      "baseAttackSpeed": 1.01,
+      "name": "Log",
+      "type": 3,
+      "tier": 1,
+      "level": 1,
+      "comboBonus": 0,
+      "rarity": "Common",
+      "statBonuses": [],
+      "actionBonuses": [],
+      "modifications": [],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "starter"
+      ],
+      "weaponType": 2,
+      "attributeRequirements": {},
+      "gearAction": null,
+      "isStarterItem": true
+    }
+  ],
+  "head": {
+    "$itemType": "head",
+    "armor": 1,
+    "name": "CAP",
+    "type": 0,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [
+      "starter"
+    ],
+    "weaponType": 0,
+    "attributeRequirements": {},
+    "gearAction": null,
+    "isStarterItem": true
+  },
+  "body": {
+    "$itemType": "chest",
+    "armor": 1,
+    "name": "SHIRT",
+    "type": 2,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [
+      "starter"
+    ],
+    "weaponType": 0,
+    "attributeRequirements": {},
+    "gearAction": null,
+    "isStarterItem": true
+  },
+  "weapon": {
+    "$itemType": "weapon",
+    "baseDamage": 8,
+    "rolledDamageBonus": 0,
+    "baseAttackSpeed": 1,
+    "name": "Dull Cudgel",
+    "type": 3,
+    "tier": 1,
+    "level": 3,
+    "comboBonus": 0,
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [
+      {
+        "diceResult": 2,
+        "itemRank": "Common",
+        "prefixCategory": "",
+        "name": "Dull",
+        "description": "5% slower attack speed",
+        "effect": "speedMultiplier",
+        "minValue": 0.95,
+        "maxValue": 0.95,
+        "rolledValue": 0.95,
+        "statusEffects": []
+      }
+    ],
+    "armorStatuses": [],
+    "bonusDamage": 3,
+    "bonusAttackSpeed": 0,
+    "tags": [],
+    "weaponType": 2,
+    "attributeRequirements": {},
+    "gearAction": null,
+    "isStarterItem": false
+  },
+  "feet": {
+    "$itemType": "feet",
+    "armor": 1,
+    "name": "GLASS BROGUES",
+    "type": 1,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [
+      {
+        "name": "SLAPBACK ECHO",
+        "description": "Repeat previous action, -50% damage",
+        "weight": 1
+      }
+    ],
+    "modifications": [
+      {
+        "diceResult": 203,
+        "itemRank": "Common",
+        "prefixCategory": "Material",
+        "name": "GLASS",
+        "description": "\u002B1\u20132 TEC",
+        "effect": "equipmentTec",
+        "minValue": 1,
+        "maxValue": 2,
+        "rolledValue": 1.466977016161259,
+        "statusEffects": []
+      }
+    ],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [],
+    "weaponType": 0,
+    "attributeRequirements": {},
+    "gearAction": "BULK DAY",
+    "isStarterItem": false
+  },
+  "isDead": false
+}

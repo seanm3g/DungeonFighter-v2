@@ -32,7 +32,7 @@ namespace RPGGame
         public int DungeonLevel { get; set; } = 1;
         public int Seed { get; set; } = 12345;
 
-        /// <summary>Magic find (0–100) for the first rarity roll when <see cref="Rarity"/> is Any and fixed chances are not used; matches dungeon loot behavior.</summary>
+        /// <summary>Magic find (0–100) for <see cref="LootBonusApplier.ApplyBonuses"/> only (affix tiers + optional extras); base rarity roll does not use MF.</summary>
         public double MagicFind { get; set; } = 0;
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace RPGGame
                 }
                 else
                 {
-                    rarityForItem = rarityProcessor.RollRarity(magicFind: spec.MagicFind, playerLevel: heroLevel);
+                    rarityForItem = rarityProcessor.RollRarity(magicFind: 0.0, playerLevel: heroLevel);
                 }
 
                 var item = GenerateSingleForced(cache, rnd, spec, rarityForItem, availableWeaponTiers, availableArmorTiers, lockRarityAfterBonuses: !rollRarityEachItem);
@@ -278,7 +278,8 @@ namespace RPGGame
                 context.WeaponType = wItem.WeaponType.ToString();
 
             var applier = new LootBonusApplier(cache, rnd);
-            applier.ApplyBonuses(item, forcedRarity, context);
+            int labMf = (int)Math.Clamp(spec.MagicFind, 0, 100);
+            applier.ApplyBonuses(item, forcedRarity, context, labMf);
 
             // When a rarity was explicitly chosen, keep that tier/rarity even if bonus rolls imply higher ranks.
             if (lockRarityAfterBonuses)

@@ -3,360 +3,360 @@
     "Name": "of Protection",
     "Description": "\u002B1 armor value",
     "Value": 1,
+    "Rarity": "Common",
     "StatType": "Armor",
-    "ItemRank": null,
-    "Rarity": "common"
+    "ItemRank": null
   },
   {
     "Name": "of Vitality",
     "Description": "\u002B10 maximum health",
     "Value": 10,
+    "Rarity": "Common",
     "StatType": "Health",
-    "ItemRank": null,
-    "Rarity": "common"
+    "ItemRank": null
   },
   {
     "Name": "of Swiftness",
     "Description": "\u002B5% attack speed",
-    "Value": "5%",
+    "Value": 0.5,
+    "Rarity": "Common",
     "StatType": "AttackSpeed",
-    "ItemRank": null,
-    "Rarity": "common"
+    "ItemRank": null
   },
   {
     "Name": "of Power",
     "Description": "\u002B3 base damage",
     "Value": 3,
+    "Rarity": "Common",
     "StatType": "Damage",
-    "ItemRank": null,
-    "Rarity": "common"
+    "ItemRank": null
   },
   {
     "Name": "of Recovery",
     "Description": "\u002B1 health regeneration",
     "Value": 1,
+    "Rarity": "Common",
     "StatType": "HealthRegen",
-    "ItemRank": null,
-    "Rarity": "common"
+    "ItemRank": null
   },
   {
     "Name": "of Intelligence",
     "Description": "\u002B2 Intelligence stat",
     "Value": 2,
+    "Rarity": "Common",
     "StatType": "INT",
-    "ItemRank": null,
-    "Rarity": "common"
+    "ItemRank": null
   },
   {
     "Name": "of Strength",
     "Description": "\u002B2 Strength stat",
     "Value": 2,
+    "Rarity": "Common",
     "StatType": "STR",
-    "ItemRank": null,
-    "Rarity": "common"
+    "ItemRank": null
   },
   {
     "Name": "of Agility",
     "Description": "\u002B2 Agility stat",
     "Value": 2,
+    "Rarity": "Common",
     "StatType": "AGI",
-    "ItemRank": null,
-    "Rarity": "common"
+    "ItemRank": null
   },
   {
     "Name": "of Technique",
     "Description": "\u002B2 Technique stat",
     "Value": 2,
+    "Rarity": "Common",
     "StatType": "TEC",
-    "ItemRank": null,
-    "Rarity": "common"
+    "ItemRank": null
   },
   {
     "Name": "of Accuracy",
     "Description": "\u002B1 to attack rolls",
     "Value": 1,
+    "Rarity": "Common",
     "StatType": "RollBonus",
-    "ItemRank": null,
-    "Rarity": "common"
+    "ItemRank": null
   },
   {
     "Name": "of Fortification",
     "Description": "\u002B1 armor value",
     "Value": 1,
+    "Rarity": "Uncommon",
     "StatType": "Armor",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of Vigor",
     "Description": "\u002B20 maximum health",
     "Value": 20,
+    "Rarity": "Uncommon",
     "StatType": "Health",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of Alacrity",
     "Description": "\u002B0.01 attack speed",
     "Value": 0.01,
+    "Rarity": "Uncommon",
     "StatType": "AttackSpeed",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of Might",
     "Description": "\u002B6 base damage",
     "Value": 6,
+    "Rarity": "Uncommon",
     "StatType": "Damage",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of Resilience",
     "Description": "\u002B3 health regeneration",
     "Value": 3,
+    "Rarity": "Uncommon",
     "StatType": "HealthRegen",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of the Bear",
     "Description": "\u002B3 Strength, \u002B1 armor",
     "Value": 3,
+    "Rarity": "Uncommon",
     "StatType": "STR",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of the Cat",
     "Description": "\u002B3 Agility, \u002B0.005 speed",
     "Value": 3,
+    "Rarity": "Uncommon",
     "StatType": "AGI",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of the Owl",
     "Description": "\u002B3 Intelligence, \u002B5 health",
     "Value": 3,
+    "Rarity": "Uncommon",
     "StatType": "INT",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of the Hawk",
     "Description": "\u002B3 Technique, \u002B2 damage",
     "Value": 3,
+    "Rarity": "Uncommon",
     "StatType": "TEC",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of Precision",
     "Description": "\u002B2 to attack rolls",
     "Value": 2,
+    "Rarity": "Common",
     "StatType": "RollBonus",
-    "ItemRank": null,
-    "Rarity": "common"
+    "ItemRank": null
   },
   {
     "Name": "of Warding",
     "Description": "\u002B2 armor value",
     "Value": 2,
+    "Rarity": "Uncommon",
     "StatType": "Armor",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of Endurance",
     "Description": "\u002B30 maximum health",
     "Value": 30,
+    "Rarity": "Uncommon",
     "StatType": "Health",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of Haste",
     "Description": "\u002B0.015 attack speed",
-    "Value": 0.015,
+    "Value": 1,
+    "Rarity": "Uncommon",
     "StatType": "AttackSpeed",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of Destruction",
     "Description": "\u002B10 base damage",
     "Value": 10,
+    "Rarity": "Uncommon",
     "StatType": "Damage",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of Regeneration",
     "Description": "\u002B5 health regeneration",
     "Value": 5,
+    "Rarity": "Uncommon",
     "StatType": "HealthRegen",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of the Titan",
     "Description": "\u002B5 Strength, \u002B15 health",
     "Value": 5,
+    "Rarity": "Rare",
     "StatType": "STR",
-    "ItemRank": null,
-    "Rarity": "rare"
+    "ItemRank": null
   },
   {
     "Name": "of the Wind",
     "Description": "\u002B5 Agility, \u002B0.01 speed",
     "Value": 5,
+    "Rarity": "Rare",
     "StatType": "AGI",
-    "ItemRank": null,
-    "Rarity": "rare"
+    "ItemRank": null
   },
   {
     "Name": "of the Sage",
     "Description": "\u002B5 Intelligence, \u002B3 regen",
     "Value": 5,
+    "Rarity": "Rare",
     "StatType": "INT",
-    "ItemRank": null,
-    "Rarity": "rare"
+    "ItemRank": null
   },
   {
     "Name": "of the Master",
     "Description": "\u002B5 Technique, \u002B5 damage",
     "Value": 5,
+    "Rarity": "Rare",
     "StatType": "TEC",
-    "ItemRank": null,
-    "Rarity": "rare"
+    "ItemRank": null
   },
   {
     "Name": "of the Marksman",
     "Description": "\u002B3 to attack rolls",
     "Value": 3,
+    "Rarity": "Uncommon",
     "StatType": "RollBonus",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of Invulnerability",
     "Description": "\u002B3 armor value",
     "Value": 3,
+    "Rarity": "Rare",
     "StatType": "Armor",
-    "ItemRank": null,
-    "Rarity": "rare"
+    "ItemRank": null
   },
   {
     "Name": "of Immortality",
     "Description": "\u002B50 maximum health",
     "Value": 50,
+    "Rarity": "Rare",
     "StatType": "Health",
-    "ItemRank": null,
-    "Rarity": "rare"
+    "ItemRank": null
   },
   {
     "Name": "of Lightning",
     "Description": "\u002B0.025 attack speed",
-    "Value": 0.025,
+    "Value": 1.5,
+    "Rarity": "Rare",
     "StatType": "AttackSpeed",
-    "ItemRank": null,
-    "Rarity": "rare"
+    "ItemRank": null
   },
   {
     "Name": "of Annihilation",
     "Description": "\u002B15 base damage",
     "Value": 15,
+    "Rarity": "Rare",
     "StatType": "Damage",
-    "ItemRank": null,
-    "Rarity": "rare"
+    "ItemRank": null
   },
   {
     "Name": "of the Phoenix",
     "Description": "\u002B10 health regen",
     "Value": 10,
+    "Rarity": "Rare",
     "StatType": "HealthRegen",
-    "ItemRank": null,
-    "Rarity": "rare"
+    "ItemRank": null
   },
   {
     "Name": "of the Colossus",
     "Description": "\u002B8 Strength, \u002B25 health",
     "Value": 8,
+    "Rarity": "Epic",
     "StatType": "STR",
-    "ItemRank": null,
-    "Rarity": "epic"
+    "ItemRank": null
   },
   {
     "Name": "of the Storm",
     "Description": "\u002B8 Agility, \u002B0.015 speed",
     "Value": 8,
+    "Rarity": "Epic",
     "StatType": "AGI",
-    "ItemRank": null,
-    "Rarity": "epic"
+    "ItemRank": null
   },
   {
     "Name": "of the Archmage",
     "Description": "\u002B8 Intelligence, \u002B8 damage",
     "Value": 8,
+    "Rarity": "Epic",
     "StatType": "INT",
-    "ItemRank": null,
-    "Rarity": "epic"
+    "ItemRank": null
   },
   {
     "Name": "of the Grandmaster",
     "Description": "\u002B8 Technique, \u002B10 damage",
     "Value": 8,
+    "Rarity": "Epic",
     "StatType": "TEC",
-    "ItemRank": null,
-    "Rarity": "epic"
+    "ItemRank": null
   },
   {
     "Name": "of the Gods",
     "Description": "\u002B3 to all stats",
     "Value": 3,
+    "Rarity": "Epic",
     "StatType": "ALL",
-    "ItemRank": null,
-    "Rarity": "epic"
+    "ItemRank": null
   },
   {
     "Name": "of Discovery",
     "Description": "\u002B5 Magic Find",
     "Value": 5,
+    "Rarity": "Common",
     "StatType": "MagicFind",
-    "ItemRank": null,
-    "Rarity": "common"
+    "ItemRank": null
   },
   {
     "Name": "of Fortune",
     "Description": "\u002B10 Magic Find",
     "Value": 10,
+    "Rarity": "Uncommon",
     "StatType": "MagicFind",
-    "ItemRank": null,
-    "Rarity": "uncommon"
+    "ItemRank": null
   },
   {
     "Name": "of the Treasure Hunter",
     "Description": "\u002B15 Magic Find",
     "Value": 15,
+    "Rarity": "Rare",
     "StatType": "MagicFind",
-    "ItemRank": null,
-    "Rarity": "rare"
+    "ItemRank": null
   },
   {
     "Name": "of the Collector",
     "Description": "\u002B20 Magic Find",
     "Value": 20,
+    "Rarity": "Epic",
     "StatType": "MagicFind",
-    "ItemRank": null,
-    "Rarity": "epic"
+    "ItemRank": null
   },
   {
     "Name": "of Legendary Fortune",
     "Description": "\u002B30 Magic Find",
     "Value": 30,
+    "Rarity": "legendary",
     "StatType": "MagicFind",
-    "ItemRank": null,
-    "Rarity": "legendary"
+    "ItemRank": null
   }
 ]

@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace RPGGame.UI.Avalonia.Settings
     public partial class ItemGenerationSettingsPanel : UserControl
     {
         private readonly ObservableCollection<ItemGeneratedRowViewModel> rows = new();
+        private bool _generatedListVisible = true;
 
         public ItemGenerationSettingsPanel()
         {
@@ -116,6 +118,60 @@ namespace RPGGame.UI.Avalonia.Settings
             if (tierCombo != null)
                 tierCombo.SelectionChanged += (_, __) => RefreshHeroLevelLootPreviews();
             Loaded += (_, __) => RefreshHeroLevelLootPreviews();
+
+            var toggleList = this.FindControl<Button>("ToggleGeneratedListButton");
+            if (toggleList != null)
+                toggleList.Click += (_, __) => ToggleGeneratedListVisibility();
+        }
+
+        private void ToggleGeneratedListVisibility()
+        {
+            _generatedListVisible = !_generatedListVisible;
+            ApplyGeneratedListPanelVisibility();
+
+            var list = this.FindControl<ListBox>("ItemsListBox");
+            if (_generatedListVisible && list != null && rows.Count > 0)
+            {
+                list.SelectedIndex = 0;
+                UpdateSelectedDetails(list.SelectedItem as ItemGeneratedRowViewModel);
+            }
+        }
+
+        private void ApplyGeneratedListPanelVisibility()
+        {
+            var grid = this.FindControl<Grid>("ResultsSplitGrid");
+            var host = this.FindControl<Control>("GeneratedItemsHost");
+            var list = this.FindControl<ListBox>("ItemsListBox");
+            var btn = this.FindControl<Button>("ToggleGeneratedListButton");
+
+            if (grid != null && grid.ColumnDefinitions.Count > 0)
+            {
+                grid.ColumnDefinitions[0].Width = _generatedListVisible
+                    ? new GridLength(2, GridUnitType.Star)
+                    : new GridLength(0);
+            }
+
+            if (host != null)
+                host.IsVisible = _generatedListVisible;
+
+            if (list != null)
+            {
+                if (_generatedListVisible)
+                {
+                    if (!ReferenceEquals(list.ItemsSource, rows))
+                        list.ItemsSource = rows;
+                }
+                else
+                    list.ItemsSource = null;
+            }
+
+            if (btn != null)
+            {
+                btn.Content = _generatedListVisible ? "\u2039" : "\u203a";
+                ToolTip.SetTip(btn, _generatedListVisible
+                    ? "Hide the generated item list (less UI work for very large batches). Statistics stay visible."
+                    : "Show the generated item list.");
+            }
         }
 
         /// <summary>
@@ -143,24 +199,21 @@ namespace RPGGame.UI.Avalonia.Settings
                 try
                 {
                     var cache = LootDataCache.Load();
-                    var rows0 = LootRarityProcessor.GetBaseRollDistribution(cache, level, 0);
-                    var rows100 = LootRarityProcessor.GetBaseRollDistribution(cache, level, 100);
-                    if (rows0.Count == 0)
+                    var rows = LootRarityProcessor.GetBaseRollDistribution(cache, level);
+                    if (rows.Count == 0)
                     {
                         rarityPreview.Text = "No rarity table loaded.";
                     }
                     else
                     {
                         string pct(double p) => p.ToString("0.##", CultureInfo.InvariantCulture) + "%";
-                        string fmt(IReadOnlyList<(string Name, double Weight, double ProbabilityPercent)> rows) =>
-                            string.Join(" · ", rows.Select(t => $"{t.Name} {pct(t.ProbabilityPercent)}"));
-                        string line0 = "First rarity roll (MF 0): " + fmt(rows0);
-                        string line1 = "First rarity roll (MF 100): " + fmt(rows100);
+                        string line = "When Rarity is Any, each item’s first rarity roll: " +
+                                       string.Join(" · ", rows.Select(t => $"{t.Name} {pct(t.ProbabilityPercent)}"));
                         bool upgrades = GameConfiguration.Instance?.LootSystem?.RarityUpgrade?.Enabled ?? false;
                         string tail = upgrades
                             ? " Rarity upgrade (TuningConfig): On — final rarity can step up from this base roll."
-                            : " Rarity upgrade (TuningConfig): Off.";
-                        rarityPreview.Text = line0 + " " + line1 + tail;
+                            : " Rarity upgrade (TuningConfig): Off. Magic find does not change this table; MF affects affix rolls only.";
+                        rarityPreview.Text = line + tail;
                     }
                 }
                 catch
@@ -270,8 +323,22 @@ namespace RPGGame.UI.Avalonia.Settings
             }
 
             var list = this.FindControl<ListBox>("ItemsListBox");
-            if (list != null && rows.Count > 0)
-                list.SelectedIndex = 0;
+            if (_generatedListVisible)
+            {
+                if (list != null && rows.Count > 0)
+                {
+                    if (!ReferenceEquals(list.ItemsSource, rows))
+                        list.ItemsSource = rows;
+                    list.SelectedIndex = 0;
+                    UpdateSelectedDetails(list.SelectedItem as ItemGeneratedRowViewModel);
+                }
+            }
+            else
+            {
+                if (list != null)
+                    list.ItemsSource = null;
+                UpdateSelectedDetails(rows.Count > 0 ? rows[0] : null);
+            }
 
             UpdateBatchStats(batch);
         }
@@ -279,6 +346,18 @@ namespace RPGGame.UI.Avalonia.Settings
         private void Clear()
         {
             rows.Clear();
+            var list = this.FindControl<ListBox>("ItemsListBox");
+            if (list != null)
+            {
+                if (_generatedListVisible)
+                {
+                    if (!ReferenceEquals(list.ItemsSource, rows))
+                        list.ItemsSource = rows;
+                }
+                else
+                    list.ItemsSource = null;
+            }
+
             UpdateSelectedDetails(null);
             UpdateBatchStats(null);
         }
@@ -507,7 +586,7 @@ namespace RPGGame.UI.Avalonia.Settings
 
                 if (_item is WeaponItem w)
                 {
-                    lines.Add($"Damage: {w.GetTotalDamage()}");
+                    lines.Add($"Damage: {w.FormatDamageBreakdownForDisplay()}");
                     lines.Add($"Attack speed: {w.GetTotalAttackSpeed():0.##}×");
                 }
                 else if (_item is HeadItem h)

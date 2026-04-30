@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using RPGGame.Utils;
@@ -59,7 +60,7 @@ namespace RPGGame.UI.BlockDisplay.Renderers
             }
             
             // Apply final delay after the entire batch (delay between action blocks)
-            if (delayMs > 0 && !CombatManager.DisableCombatUIOutput && UIManager.EnableDelays)
+            if (delayMs > 0 && !CombatManager.DisableCombatUIOutput && UIManager.EnableDelays && !DeveloperModeState.IsCombatLogInstant)
             {
                 await Task.Delay(delayMs);
             }

@@ -217,6 +217,7 @@ namespace RPGGame
                                     action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
                                     action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
                                     !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
+                                    !action.Tags.Any(tag => tag.Equals("enemy", StringComparison.OrdinalIgnoreCase)) &&
                                     !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
                     .Select(action => action.Name)
                     .ToList();

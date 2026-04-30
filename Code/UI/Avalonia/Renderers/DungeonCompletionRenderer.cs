@@ -1,8 +1,11 @@
+using Avalonia.Media;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Renderers.Text;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RPGGame.UI.Avalonia.Renderers
 {
@@ -39,13 +42,16 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             string victoryHeader = AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Victory);
             int headerX = x + Math.Max(0, (width - victoryHeader.Length) / 2);
-            canvas.AddText(headerX, currentY, victoryHeader, AsciiArtAssets.Colors.Gold);
+            textWriter.RenderSegments(
+                UndulatingTextHelper.ApplyUndulationToPlainText(victoryHeader, AsciiArtAssets.Colors.Gold, currentY),
+                headerX, currentY);
             currentY += 2;
             currentLineCount += 2;
 
             const string congrats = "Congratulations! You have successfully completed the dungeon!";
             int fullWidth = Math.Max(8, width - 4);
-            int lines = textWriter.WriteLineColoredWrapped(congrats, x + 2, currentY, fullWidth);
+            var congratsSegments = UndulatingTextHelper.ApplyUndulationToPlainText(congrats, AsciiArtAssets.Colors.Green, currentY);
+            int lines = textWriter.WriteLineColoredWrapped(congratsSegments, x + 2, currentY, fullWidth);
             currentY += lines;
             currentLineCount += lines;
 
@@ -86,7 +92,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     if (currentY <= bodyMaxY)
                     {
-                        canvas.AddText(x + 2, currentY, "Health Fully Restored", AsciiArtAssets.Colors.Green);
+                        textWriter.RenderSegments(
+                            UndulatingTextHelper.ApplyUndulationToPlainText("Health Fully Restored", AsciiArtAssets.Colors.Green, currentY),
+                            x + 2, currentY);
                         currentY++;
                         currentLineCount++;
                     }
@@ -101,7 +109,11 @@ namespace RPGGame.UI.Avalonia.Renderers
 
                 if (currentY <= bodyMaxY)
                 {
-                    canvas.AddText(x + 2, currentY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.DungeonStatistics), AsciiArtAssets.Colors.Green);
+                    textWriter.RenderSegments(
+                        UndulatingTextHelper.ApplyUndulationToPlainText(
+                            AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.DungeonStatistics),
+                            AsciiArtAssets.Colors.Green, currentY),
+                        x + 2, currentY);
                     currentY++;
                     currentLineCount++;
                 }
@@ -134,15 +146,19 @@ namespace RPGGame.UI.Avalonia.Renderers
 
                 if (currentY <= bodyMaxY)
                 {
-                    canvas.AddText(x + 2, currentY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.RewardsEarned), AsciiArtAssets.Colors.Yellow);
+                    textWriter.RenderSegments(
+                        UndulatingTextHelper.ApplyUndulationToPlainText(
+                            AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.RewardsEarned),
+                            AsciiArtAssets.Colors.Yellow, currentY),
+                        x + 2, currentY);
                     currentY++;
                     currentLineCount++;
                 }
                 if (currentY <= bodyMaxY)
                 {
-                    canvas.AddText(x + 4, currentY, $"Experience Gained: {xpGained:N0} XP", AsciiArtAssets.Colors.White);
-                    currentY++;
-                    currentLineCount++;
+                    int xpLines = WriteExperienceGainedLine(x + 4, currentY, xpGained, fullWidth - 2);
+                    currentY += xpLines;
+                    currentLineCount += xpLines;
                 }
 
                 if (levelUpInfos != null && levelUpInfos.Count > 0)
@@ -158,7 +174,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                         foreach (var line in LevelUpDisplayColoredText.BuildDisplayLines(levelUpInfo))
                         {
                             if (currentY > bodyMaxY) break;
-                            int m = textWriter.WriteLineColoredWrapped(line, x + 4, currentY, fullWidth - 2);
+                            int m = textWriter.WriteLineColoredWrapped(MaybeShimmerLevelUpLine(line, currentY), x + 4, currentY, fullWidth - 2);
                             currentY += m;
                             currentLineCount += m;
                         }
@@ -170,7 +186,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     if (currentY <= bodyMaxY)
                     {
-                        canvas.AddText(x + 4, currentY, "Loot Received:", AsciiArtAssets.Colors.White);
+                        textWriter.RenderSegments(
+                            UndulatingTextHelper.ApplyUndulationToPlainText("Loot Received:", AsciiArtAssets.Colors.Yellow, currentY),
+                            x + 4, currentY);
                         currentY++;
                         currentLineCount++;
                     }
@@ -194,7 +212,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             int footerPromptY = y + height - FooterReservedRows;
             int menuStartY = footerPromptY + 2;
 
-            canvas.AddText(x + 2, footerPromptY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.WhatWouldYouLikeToDo), AsciiArtAssets.Colors.Gold);
+            textWriter.RenderSegments(
+                UndulatingTextHelper.ApplyUndulationToPlainText(
+                    AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.WhatWouldYouLikeToDo),
+                    AsciiArtAssets.Colors.Gold, footerPromptY),
+                x + 2, footerPromptY);
             currentLineCount += 1;
 
             int menuX = x + Math.Max(2, (width / 2) - 10);
@@ -249,7 +271,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             int maxHealth = player.GetEffectiveMaxHealth();
             if (player.CurrentHealth == maxHealth && y <= bodyMaxY)
             {
-                canvas.AddText(leftX, y, "Health Fully Restored", AsciiArtAssets.Colors.Green);
+                textWriter.RenderSegments(
+                    UndulatingTextHelper.ApplyUndulationToPlainText("Health Fully Restored", AsciiArtAssets.Colors.Green, y),
+                    leftX, y);
                 y++;
                 currentLineCount++;
             }
@@ -263,7 +287,11 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             if (y <= bodyMaxY)
             {
-                canvas.AddText(leftX, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.DungeonStatistics), AsciiArtAssets.Colors.Green);
+                textWriter.RenderSegments(
+                    UndulatingTextHelper.ApplyUndulationToPlainText(
+                        AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.DungeonStatistics),
+                        AsciiArtAssets.Colors.Green, y),
+                    leftX, y);
                 y++;
                 currentLineCount++;
             }
@@ -296,22 +324,28 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             if (y <= bodyMaxY)
             {
-                canvas.AddText(leftX, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.RewardsEarned), AsciiArtAssets.Colors.Yellow);
+                textWriter.RenderSegments(
+                    UndulatingTextHelper.ApplyUndulationToPlainText(
+                        AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.RewardsEarned),
+                        AsciiArtAssets.Colors.Yellow, y),
+                    leftX, y);
                 y++;
                 currentLineCount++;
             }
             if (y <= bodyMaxY)
             {
-                canvas.AddText(leftX, y, $"Experience Gained: {xpGained:N0} XP", AsciiArtAssets.Colors.White);
-                y++;
-                currentLineCount++;
+                int xpLines = WriteExperienceGainedLine(leftX, y, xpGained, leftColW);
+                y += xpLines;
+                currentLineCount += xpLines;
             }
 
             if (allLoot.Count > 0)
             {
                 if (y <= bodyMaxY)
                 {
-                    canvas.AddText(leftX, y, "Loot Received:", AsciiArtAssets.Colors.White);
+                    textWriter.RenderSegments(
+                        UndulatingTextHelper.ApplyUndulationToPlainText("Loot Received:", AsciiArtAssets.Colors.Yellow, y),
+                        leftX, y);
                     y++;
                     currentLineCount++;
                 }
@@ -334,6 +368,23 @@ namespace RPGGame.UI.Avalonia.Renderers
             return y;
         }
 
+        private int WriteExperienceGainedLine(int x, int y, int xpGained, int maxWidth)
+        {
+            var parts = new List<ColoredText>();
+            parts.AddRange(UndulatingTextHelper.ApplyUndulationToPlainText("Experience Gained: ", AsciiArtAssets.Colors.Gold, y));
+            parts.Add(new ColoredText($"{xpGained:N0} XP", AsciiArtAssets.Colors.White));
+            return textWriter.WriteLineColoredWrapped(parts, x, y, maxWidth);
+        }
+
+        private static List<ColoredText> MaybeShimmerLevelUpLine(List<ColoredText> line, int lineY)
+        {
+            string full = string.Concat(line.Select(s => s.Text ?? ""));
+            if (full.Contains("LEVEL UP!", StringComparison.Ordinal) ||
+                full.Contains("known as:", StringComparison.OrdinalIgnoreCase))
+                return UndulatingTextHelper.ApplyUndulationToSegmentLine(line, lineY);
+            return line;
+        }
+
         private int RenderRightColumnLevelUp(int rightX, int rightY, int rightColW, int bodyMaxY, List<LevelUpInfo>? levelUpInfos, ref int currentLineCount)
         {
             int y = rightY;
@@ -352,7 +403,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     foreach (var line in LevelUpDisplayColoredText.BuildDisplayLines(levelUpInfo))
                     {
                         if (y > bodyMaxY) break;
-                        int m = textWriter.WriteLineColoredWrapped(line, rightX, y, rightColW);
+                        int m = textWriter.WriteLineColoredWrapped(MaybeShimmerLevelUpLine(line, y), rightX, y, rightColW);
                         y += m;
                         currentLineCount += m;
                     }

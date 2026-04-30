@@ -31,6 +31,9 @@ namespace RPGGame.Data
         [JsonPropertyName("classPresentationSheetTabName")]
         public string ClassPresentationSheetTabName { get; set; } = "";
 
+        [JsonPropertyName("classActionsSheetTabName")]
+        public string ClassActionsSheetTabName { get; set; } = "";
+
         [JsonPropertyName("enemiesSheetTabName")]
         public string EnemiesSheetTabName { get; set; } = "";
 
@@ -83,10 +86,14 @@ namespace RPGGame.Data
         [JsonPropertyName("pushClassPresentationTab")]
         public bool PushClassPresentationTab { get; set; } = true;
 
+        [JsonPropertyName("pushClassActionsTab")]
+        public bool PushClassActionsTab { get; set; } = true;
+
         public const string DefaultWeaponsSheetTabName = "WEAPONS";
-        public const string DefaultModificationsSheetTabName = "MODIFICATIONS";
+        public const string DefaultModificationsSheetTabName = "Prefix";
         public const string DefaultArmorSheetTabName = "ARMOR";
         public const string DefaultClassPresentationSheetTabName = "CLASSES";
+        public const string DefaultClassActionsSheetTabName = "CLASS ACTIONS";
         public const string DefaultEnemiesSheetTabName = "ENEMIES";
         public const string DefaultEnvironmentsSheetTabName = "ENVIRONMENTS";
 
@@ -95,7 +102,7 @@ namespace RPGGame.Data
         public const string DefaultStatBonusesSheetTabName = "SUFFIXES";
 
         /// <summary>
-        /// When <b>all</b> optional tab names (weapons / modifications / armor / classes / enemies / environments / dungeons / stat bonuses) are blank, assigns the
+        /// When <b>all</b> optional tab names (weapons / modifications / armor / classes / class actions / enemies / environments / dungeons / stat bonuses) are blank, assigns the
         /// conventional names from <c>SheetsPushConfig.template.json</c> so a first push can populate those tabs.
         /// </summary>
         /// <returns>True if defaults were applied.</returns>
@@ -105,6 +112,7 @@ namespace RPGGame.Data
                 || !string.IsNullOrWhiteSpace(ModificationsSheetTabName)
                 || !string.IsNullOrWhiteSpace(ArmorSheetTabName)
                 || !string.IsNullOrWhiteSpace(ClassPresentationSheetTabName)
+                || !string.IsNullOrWhiteSpace(ClassActionsSheetTabName)
                 || !string.IsNullOrWhiteSpace(EnemiesSheetTabName)
                 || !string.IsNullOrWhiteSpace(EnvironmentsSheetTabName)
                 || !string.IsNullOrWhiteSpace(DungeonsSheetTabName)
@@ -115,6 +123,7 @@ namespace RPGGame.Data
             ModificationsSheetTabName = DefaultModificationsSheetTabName;
             ArmorSheetTabName = DefaultArmorSheetTabName;
             ClassPresentationSheetTabName = DefaultClassPresentationSheetTabName;
+            ClassActionsSheetTabName = DefaultClassActionsSheetTabName;
             EnemiesSheetTabName = DefaultEnemiesSheetTabName;
             EnvironmentsSheetTabName = DefaultEnvironmentsSheetTabName;
             DungeonsSheetTabName = DefaultDungeonsSheetTabName;
@@ -166,6 +175,15 @@ namespace RPGGame.Data
             return true;
         }
 
+        /// <summary>Fills <see cref="ClassActionsSheetTabName"/> when still blank (configs created before CLASS ACTIONS push).</summary>
+        public bool ApplyDefaultClassActionsTabNameIfUnset()
+        {
+            if (!string.IsNullOrWhiteSpace(ClassActionsSheetTabName))
+                return false;
+            ClassActionsSheetTabName = DefaultClassActionsSheetTabName;
+            return true;
+        }
+
         public static SheetsPushConfig Load(string? configPath = null)
         {
             configPath ??= GameConstants.GetGameDataFilePath("SheetsPushConfig.json");
@@ -182,6 +200,7 @@ namespace RPGGame.Data
                     if (config == null)
                         return new SheetsPushConfig();
                     ApplyMissingPushTabDefaults(config, json);
+                    ApplyRenamedModificationsSheetTabName(config);
                     return config;
                 }
             }
@@ -243,11 +262,25 @@ namespace RPGGame.Data
                     cfg.PushDungeonsTab = true;
                 if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushClassPresentationTab"))
                     cfg.PushClassPresentationTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushClassActionsTab"))
+                    cfg.PushClassActionsTab = true;
             }
             catch
             {
                 EnableAllPushTabs(cfg);
             }
+        }
+
+        /// <summary>
+        /// Google Sheet tab was renamed from MODIFICATIONS to Prefix; configs that still use the old default tab title are updated on load.
+        /// </summary>
+        internal static void ApplyRenamedModificationsSheetTabName(SheetsPushConfig cfg)
+        {
+            if (cfg == null)
+                return;
+            string t = cfg.ModificationsSheetTabName?.Trim() ?? "";
+            if (t.Equals("MODIFICATIONS", StringComparison.OrdinalIgnoreCase))
+                cfg.ModificationsSheetTabName = DefaultModificationsSheetTabName;
         }
 
         private static void EnableAllPushTabs(SheetsPushConfig cfg)
@@ -261,6 +294,7 @@ namespace RPGGame.Data
             cfg.PushEnvironmentsTab = true;
             cfg.PushDungeonsTab = true;
             cfg.PushClassPresentationTab = true;
+            cfg.PushClassActionsTab = true;
         }
 
         /// <summary>Writes this config to JSON (indented). Creates parent directory if needed.</summary>

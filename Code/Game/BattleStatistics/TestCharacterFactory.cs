@@ -37,7 +37,7 @@ namespace RPGGame.BattleStatistics
             
             int currentWeaponDamage = weapon.GetTotalDamage();
             int targetWeaponDamage = Math.Max(1, damage - baseStrength);
-            weapon.BaseDamage = Math.Max(1, targetWeaponDamage - weapon.BonusDamage);
+            weapon.BaseDamage = Math.Max(1, targetWeaponDamage - weapon.BonusDamage - weapon.RolledDamageBonus);
             weapon.BaseAttackSpeed = attackSpeed;
             
             character.EquipItem(weapon, "weapon");

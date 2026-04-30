@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Avalonia.Media;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.TitleScreen
@@ -150,64 +149,21 @@ namespace RPGGame.UI.TitleScreen
         }
 
         /// <summary>
-        /// Prepends spaces to a list of ColoredText segments
+        /// Prepends spaces to a list of ColoredText segments.
+        /// Uses a solid-color segment so the spacing is rendered consistently.
         /// </summary>
         private List<ColoredText> PrependSpaces(List<ColoredText> segments, int spaceCount)
         {
             var result = new List<ColoredText>();
             
-            // Add spaces at the beginning (using white color)
             if (spaceCount > 0)
             {
-                result.Add(new ColoredText(new string(' ', spaceCount), Colors.White));
+                result.Add(new ColoredText(new string(' ', spaceCount), ColorTemplateLibrary.ColorCodeToColor("Y")));
             }
             
-            // Add all existing segments
             if (segments != null)
             {
                 result.AddRange(segments);
-            }
-            
-            return result;
-        }
-
-        /// <summary>
-        /// Ensures exactly one space between each segment in a list
-        /// This fixes spacing issues where segments are rendered without spaces between them
-        /// </summary>
-        private List<ColoredText> EnsureSpacesBetweenSegments(List<ColoredText> segments)
-        {
-            if (segments == null || segments.Count <= 1)
-                return segments ?? new List<ColoredText>();
-            
-            var result = new List<ColoredText>();
-            
-            for (int i = 0; i < segments.Count; i++)
-            {
-                var segment = segments[i];
-                
-                // Add the segment
-                result.Add(segment);
-                
-                // If this is not the last segment, check if we need to add a space
-                if (i < segments.Count - 1)
-                {
-                    var nextSegment = segments[i + 1];
-                    
-                    // Check if current segment ends with space or next starts with space
-                    bool currentEndsWithSpace = !string.IsNullOrEmpty(segment.Text) && 
-                                                segment.Text.Length > 0 && 
-                                                char.IsWhiteSpace(segment.Text[segment.Text.Length - 1]);
-                    bool nextStartsWithSpace = !string.IsNullOrEmpty(nextSegment.Text) && 
-                                               nextSegment.Text.Length > 0 && 
-                                               char.IsWhiteSpace(nextSegment.Text[0]);
-                    
-                    // If neither segment has a space at the boundary, add one
-                    if (!currentEndsWithSpace && !nextStartsWithSpace)
-                    {
-                        result.Add(new ColoredText(" ", Colors.White));
-                    }
-                }
             }
             
             return result;
@@ -233,26 +189,20 @@ namespace RPGGame.UI.TitleScreen
             // DUNGEON title lines
             foreach (var line in dungeonLines)
             {
-                // Ensure spaces are preserved between segments
-                var lineWithSpaces = EnsureSpacesBetweenSegments(line);
-                frameList.Add(lineWithSpaces);
+                frameList.Add(line ?? new List<ColoredText>());
             }
 
             // Spacing and decorator
             frameList.Add(new List<ColoredText>());
             // Decorator line - use white color
             var decoratorSegments = TitleColorApplicator.ApplySolidColor(TitleArtAssets.DecoratorLine, "Y");
-            // Ensure spaces are preserved between segments
-            var decoratorWithSpaces = EnsureSpacesBetweenSegments(decoratorSegments);
-            frameList.Add(decoratorWithSpaces);
+            frameList.Add(decoratorSegments);
             frameList.Add(new List<ColoredText>());
 
             // FIGHTERS title lines
             foreach (var line in fighterLines)
             {
-                // Ensure spaces are preserved between segments
-                var lineWithSpaces = EnsureSpacesBetweenSegments(line);
-                frameList.Add(lineWithSpaces);
+                frameList.Add(line ?? new List<ColoredText>());
             }
 
             // Bottom spacing
@@ -262,10 +212,8 @@ namespace RPGGame.UI.TitleScreen
 
             // Tagline - use white color
             var taglineSegments = TitleColorApplicator.ApplySolidColor(TitleArtAssets.Tagline, "Y");
-            // Ensure spaces are preserved between segments
-            var taglineWithSpaces = EnsureSpacesBetweenSegments(taglineSegments);
             // Add 6 spaces to the right to move the tagline
-            var taglineWithIndent = PrependSpaces(taglineWithSpaces, 6);
+            var taglineWithIndent = PrependSpaces(taglineSegments, 6);
             frameList.Add(taglineWithIndent);
 
             // Final spacing

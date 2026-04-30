@@ -287,6 +287,10 @@ namespace RPGGame
     public class WeaponItem : Item
     {
         public int BaseDamage { get; set; }
+
+        /// <summary>Flat damage rolled once from catalog <c>DamageBonusMin</c>..<c>DamageBonusMax</c> when the weapon is created (loot, lab, starters).</summary>
+        public int RolledDamageBonus { get; set; }
+
         public double BaseAttackSpeed { get; set; } = 0.05;
 
         public WeaponItem(string? name = null, int tier = 1, int baseDamage = 10, double baseAttackSpeed = 0.05, WeaponType weaponType = WeaponType.Sword)
@@ -299,9 +303,21 @@ namespace RPGGame
 
         public int GetTotalDamage()
         {
-            int sum = BaseDamage + BonusDamage;
+            int sum = BaseDamage + RolledDamageBonus + BonusDamage;
             double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
             return Math.Max(1, (int)Math.Round(sum * q));
+        }
+
+        /// <summary>Single-line damage text: total, then flat components (base, optional catalog roll, optional tier <see cref="Item.BonusDamage"/>).</summary>
+        public string FormatDamageBreakdownForDisplay()
+        {
+            int total = GetTotalDamage();
+            var parts = new System.Collections.Generic.List<string> { $"base {BaseDamage}" };
+            if (RolledDamageBonus != 0)
+                parts.Add($"roll {RolledDamageBonus}");
+            if (BonusDamage != 0)
+                parts.Add($"tier {BonusDamage}");
+            return $"{total} ({string.Join(" + ", parts)})";
         }
 
         public double GetTotalAttackSpeed()

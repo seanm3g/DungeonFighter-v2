@@ -117,7 +117,7 @@ namespace RPGGame
             UIManager.WriteMenuLine($"Damage: {damage} (Strength: {player.GetEffectiveStrength()} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
             if (magicFind > 0)
             {
-                UIManager.WriteMenuLine($"Magic Find: +{magicFind} (tilts first rarity roll toward higher tiers)");
+                UIManager.WriteMenuLine($"Magic Find: +{magicFind} (affix rolls; not base item rarity)");
             }
             // Show only classes with points > 0
             var classPointsInfo = new List<string>();

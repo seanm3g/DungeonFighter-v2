@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Avalonia.Media;
 using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem.Applications.ItemFormatting;
+using RPGGame.UI.ColorSystem.Themes;
 
 namespace RPGGame.UI.ColorSystem.Applications
 {
@@ -15,21 +15,6 @@ namespace RPGGame.UI.ColorSystem.Applications
     /// </summary>
     public static class ItemDisplayColoredText
     {
-        /// <summary>
-        /// Rarity color mapping
-        /// </summary>
-        private static readonly Dictionary<string, ColorPalette> RarityColors = new Dictionary<string, ColorPalette>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["Common"] = ColorPalette.Common,
-            ["Uncommon"] = ColorPalette.Uncommon,
-            ["Rare"] = ColorPalette.Rare,
-            ["Epic"] = ColorPalette.Epic,
-            ["Legendary"] = ColorPalette.Legendary,
-            ["Mythic"] = ColorPalette.Purple,
-            // Backward-compat for old saves/data: treat transcendent as mythic (no longer a category)
-            ["Transcendent"] = ColorPalette.Purple
-        };
-        
         /// <summary>
         /// Formats a simple item name with rarity color
         /// </summary>
@@ -62,9 +47,8 @@ namespace RPGGame.UI.ColorSystem.Applications
             // Rarity tag
             builder.Add("[", Colors.Gray);
             var rarityText = item.Rarity?.TrimEnd() ?? "Common";
-            var rarityColor = GetRarityColor(rarityText);
             // Use TrimEnd() to ensure no trailing spaces before the closing bracket
-            builder.Add(rarityText, rarityColor);
+            builder.Add(rarityText, ItemThemeProvider.GetRarityColor(rarityText));
             builder.Add("]", Colors.Gray);
             
             return builder.Build();
@@ -209,9 +193,9 @@ namespace RPGGame.UI.ColorSystem.Applications
             // Manually construct to avoid automatic spacing between bracket and rarity
             // Use Trim() to ensure no leading or trailing spaces before the closing bracket
             var rarityText = (item.Rarity?.Trim() ?? "Common");
-            var rarityColor = GetRarityColor(rarityText);
+            var rarityColor = ItemThemeProvider.GetRarityColor(rarityText);
             result.Add(new ColoredText("[", Colors.Gray));
-            result.Add(new ColoredText(rarityText, rarityColor.GetColor()));
+            result.Add(new ColoredText(rarityText, rarityColor));
             result.Add(new ColoredText("]", Colors.Gray));
             
             // Add full item name with all colored elements
@@ -230,18 +214,6 @@ namespace RPGGame.UI.ColorSystem.Applications
             result.AddRange(itemSegments);
             
             return result;
-        }
-        
-        /// <summary>
-        /// Gets the color for an item rarity
-        /// </summary>
-        private static ColorPalette GetRarityColor(string rarity)
-        {
-            if (RarityColors.TryGetValue(rarity, out var color))
-            {
-                return color;
-            }
-            return ColorPalette.Common; // Default to common/white
         }
         
         /// <summary>

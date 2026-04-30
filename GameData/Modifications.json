@@ -6,7 +6,8 @@
     "Description": "-1 to -3 damage",
     "Effect": "damage",
     "MinValue": -3,
-    "MaxValue": -1
+    "MaxValue": -1,
+    "prefixCategory": null
   },
   {
     "DiceResult": 2,
@@ -15,7 +16,8 @@
     "Description": "5% slower attack speed",
     "Effect": "speedMultiplier",
     "MinValue": 0.95,
-    "MaxValue": 0.95
+    "MaxValue": 0.95,
+    "prefixCategory": null
   },
   {
     "DiceResult": 3,
@@ -24,7 +26,8 @@
     "Description": "\u002B1-3 damage",
     "Effect": "damage",
     "MinValue": 1,
-    "MaxValue": 3
+    "MaxValue": 3,
+    "prefixCategory": null
   },
   {
     "DiceResult": 4,
@@ -33,7 +36,8 @@
     "Description": "\u002B1 to attack rolls",
     "Effect": "rollBonus",
     "MinValue": 1,
-    "MaxValue": 1
+    "MaxValue": 1,
+    "prefixCategory": null
   },
   {
     "DiceResult": 29,
@@ -42,52 +46,58 @@
     "Description": "\u002B1 Magic Find",
     "Effect": "magicFind",
     "MinValue": 1,
-    "MaxValue": 1
+    "MaxValue": 1,
+    "prefixCategory": null
   },
   {
     "DiceResult": 5,
-    "ItemRank": "Uncommon",
+    "ItemRank": "uncommon",
     "Name": "Sharp",
     "Description": "\u002B2 damage",
     "Effect": "damage",
     "MinValue": 2,
-    "MaxValue": 2
+    "MaxValue": 2,
+    "prefixCategory": null
   },
   {
     "DiceResult": 6,
-    "ItemRank": "Uncommon",
+    "ItemRank": "uncommon",
     "Name": "Swift",
     "Description": "10% faster attack speed",
     "Effect": "speedMultiplier",
     "MinValue": 1.1,
-    "MaxValue": 1.1
+    "MaxValue": 1.1,
+    "prefixCategory": null
   },
   {
     "DiceResult": 7,
-    "ItemRank": "Uncommon",
+    "ItemRank": "uncommon",
     "Name": "Precise",
     "Description": "\u002B2 to attack rolls",
     "Effect": "rollBonus",
     "MinValue": 2,
-    "MaxValue": 2
+    "MaxValue": 2,
+    "prefixCategory": null
   },
   {
     "DiceResult": 8,
-    "ItemRank": "Uncommon",
+    "ItemRank": "uncommon",
     "Name": "Reinforced",
     "Description": "\u002B5 to \u002B10 durability",
     "Effect": "durability",
     "MinValue": 5,
-    "MaxValue": 10
+    "MaxValue": 10,
+    "prefixCategory": null
   },
   {
     "DiceResult": 30,
-    "ItemRank": "Uncommon",
+    "ItemRank": "uncommon",
     "Name": "Lucky",
     "Description": "\u002B3 to \u002B5 Magic Find",
     "Effect": "magicFind",
     "MinValue": 3,
-    "MaxValue": 5
+    "MaxValue": 5,
+    "prefixCategory": null
   },
   {
     "DiceResult": 9,
@@ -96,7 +106,8 @@
     "Description": "\u002B3 damage",
     "Effect": "damage",
     "MinValue": 3,
-    "MaxValue": 3
+    "MaxValue": 3,
+    "prefixCategory": null
   },
   {
     "DiceResult": 10,
@@ -105,7 +116,8 @@
     "Description": "20% faster attack speed",
     "Effect": "speedMultiplier",
     "MinValue": 1.2,
-    "MaxValue": 1.2
+    "MaxValue": 1.2,
+    "prefixCategory": null
   },
   {
     "DiceResult": 11,
@@ -114,7 +126,8 @@
     "Description": "\u002B3 to attack rolls",
     "Effect": "rollBonus",
     "MinValue": 3,
-    "MaxValue": 3
+    "MaxValue": 3,
+    "prefixCategory": null
   },
   {
     "DiceResult": 12,
@@ -123,7 +136,8 @@
     "Description": "1-3% lifesteal on hit",
     "Effect": "lifesteal",
     "MinValue": 0.01,
-    "MaxValue": 0.03
+    "MaxValue": 0.03,
+    "prefixCategory": null
   },
   {
     "DiceResult": 32,
@@ -132,7 +146,8 @@
     "Description": "\u002B2 to \u002B3 burn on each successful hit",
     "Effect": "weaponBurn",
     "MinValue": 5,
-    "MaxValue": 5
+    "MaxValue": 5,
+    "prefixCategory": null
   },
   {
     "DiceResult": 33,
@@ -141,7 +156,8 @@
     "Description": "\u002B2 to \u002B3 bleed on each successful hit",
     "Effect": "weaponBleed",
     "MinValue": 5,
-    "MaxValue": 5
+    "MaxValue": 5,
+    "prefixCategory": null
   },
   {
     "DiceResult": 13,
@@ -150,7 +166,8 @@
     "Description": "\u002B2 to \u002B3 damage",
     "Effect": "damage",
     "MinValue": 2,
-    "MaxValue": 3
+    "MaxValue": 3,
+    "prefixCategory": null
   },
   {
     "DiceResult": 14,
@@ -159,7 +176,8 @@
     "Description": "30% faster attack speed",
     "Effect": "speedMultiplier",
     "MinValue": 1.3,
-    "MaxValue": 1.3
+    "MaxValue": 1.3,
+    "prefixCategory": null
   },
   {
     "DiceResult": 15,
@@ -168,7 +186,8 @@
     "Description": "\u002B4 to attack rolls",
     "Effect": "rollBonus",
     "MinValue": 4,
-    "MaxValue": 4
+    "MaxValue": 4,
+    "prefixCategory": null
   },
   {
     "DiceResult": 16,
@@ -177,7 +196,8 @@
     "Description": "\u002B1% to \u002B2% max HP poison on each successful hit",
     "Effect": "weaponPoison",
     "MinValue": 5,
-    "MaxValue": 5
+    "MaxValue": 5,
+    "prefixCategory": null
   },
   {
     "DiceResult": 31,
@@ -186,7 +206,8 @@
     "Description": "\u002B5 to \u002B15 Magic Find",
     "Effect": "magicFind",
     "MinValue": 5,
-    "MaxValue": 15
+    "MaxValue": 15,
+    "prefixCategory": null
   },
   {
     "DiceResult": 34,
@@ -195,7 +216,8 @@
     "Description": "40% chance to cause freeze",
     "Effect": "freezeChance",
     "MinValue": 0.4,
-    "MaxValue": 0.4
+    "MaxValue": 0.4,
+    "prefixCategory": null
   },
   {
     "DiceResult": 35,
@@ -204,7 +226,8 @@
     "Description": "25% chance to cause stun",
     "Effect": "stunChance",
     "MinValue": 0.25,
-    "MaxValue": 0.25
+    "MaxValue": 0.25,
+    "prefixCategory": null
   },
   {
     "DiceResult": 36,
@@ -213,7 +236,8 @@
     "Description": "\u002B2% to \u002B3% max HP poison on each successful hit",
     "Effect": "weaponPoison",
     "MinValue": 5,
-    "MaxValue": 5
+    "MaxValue": 5,
+    "prefixCategory": null
   },
   {
     "DiceResult": 17,
@@ -222,7 +246,8 @@
     "Description": "15% more damage",
     "Effect": "damageMultiplier",
     "MinValue": 1.15,
-    "MaxValue": 1.15
+    "MaxValue": 1.15,
+    "prefixCategory": null
   },
   {
     "DiceResult": 18,
@@ -231,7 +256,8 @@
     "Description": "40% faster attack speed",
     "Effect": "speedMultiplier",
     "MinValue": 1.4,
-    "MaxValue": 1.4
+    "MaxValue": 1.4,
+    "prefixCategory": null
   },
   {
     "DiceResult": 19,
@@ -240,7 +266,8 @@
     "Description": "5%-15% Unique Action Chance",
     "Effect": "uniqueActionChance",
     "MinValue": 0.05,
-    "MaxValue": 0.15
+    "MaxValue": 0.15,
+    "prefixCategory": null
   },
   {
     "DiceResult": 20,
@@ -249,7 +276,8 @@
     "Description": "\u002B5 to attack rolls \u0026 \u002B1 STR",
     "Effect": "godlike",
     "MinValue": 5,
-    "MaxValue": 5
+    "MaxValue": 5,
+    "prefixCategory": null
   },
   {
     "DiceResult": 21,
@@ -258,7 +286,8 @@
     "Description": "25% more damage on all attacks",
     "Effect": "damageMultiplier",
     "MinValue": 1.25,
-    "MaxValue": 1.25
+    "MaxValue": 1.25,
+    "prefixCategory": null
   },
   {
     "DiceResult": 22,
@@ -267,7 +296,8 @@
     "Description": "50% faster attack speed",
     "Effect": "speedMultiplier",
     "MinValue": 1.5,
-    "MaxValue": 1.5
+    "MaxValue": 1.5,
+    "prefixCategory": null
   },
   {
     "DiceResult": 23,
@@ -276,7 +306,8 @@
     "Description": "All attacks automatically succeed",
     "Effect": "autoSuccess",
     "MinValue": 1,
-    "MaxValue": 1
+    "MaxValue": 1,
+    "prefixCategory": null
   },
   {
     "DiceResult": 24,
@@ -285,7 +316,8 @@
     "Description": "ADD \u002B3 TO MODS AND REROLL",
     "Effect": "reroll",
     "MinValue": 3,
-    "MaxValue": 3
+    "MaxValue": 3,
+    "prefixCategory": null
   },
   {
     "DiceResult": 25,
@@ -294,7 +326,8 @@
     "Description": "50% more damage \u0026 100% faster attack speed",
     "Effect": "realityBreaker",
     "MinValue": 1.5,
-    "MaxValue": 2
+    "MaxValue": 2,
+    "prefixCategory": null
   },
   {
     "DiceResult": 26,
@@ -303,7 +336,8 @@
     "Description": "All attacks succeed \u0026 \u002B10 to all rolls",
     "Effect": "omnipotent",
     "MinValue": 10,
-    "MaxValue": 10
+    "MaxValue": 10,
+    "prefixCategory": null
   },
   {
     "DiceResult": 27,
@@ -312,7 +346,8 @@
     "Description": "Infinite durability \u0026 perfect stats",
     "Effect": "infinite",
     "MinValue": 1,
-    "MaxValue": 1
+    "MaxValue": 1,
+    "prefixCategory": null
   },
   {
     "DiceResult": 28,
@@ -321,6 +356,7 @@
     "Description": "Transcends all limitations",
     "Effect": "cosmic",
     "MinValue": 1,
-    "MaxValue": 1
+    "MaxValue": 1,
+    "prefixCategory": null
   }
 ]

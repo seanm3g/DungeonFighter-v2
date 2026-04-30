@@ -570,7 +570,13 @@ namespace RPGGame.UI.Avalonia
 
         public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun)
         {
-            renderer.RenderDungeonCompletion(dungeon, player, xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>(), itemsFoundDuringRun ?? new List<Item>(), GetContext());
+            _dungeonCompletionRenderDungeon = dungeon;
+            _dungeonCompletionRenderPlayer = player;
+            _dungeonCompletionRenderXpGained = xpGained;
+            _dungeonCompletionRenderLoot = lootReceived;
+            _dungeonCompletionRenderLevelUps = levelUpInfos ?? new List<LevelUpInfo>();
+            _dungeonCompletionRenderItemsFound = itemsFoundDuringRun ?? new List<Item>();
+            renderer.RenderDungeonCompletion(dungeon, player, xpGained, lootReceived, _dungeonCompletionRenderLevelUps, _dungeonCompletionRenderItemsFound, GetContext());
         }
 
         public void RenderDeathScreen(Character player, string defeatSummary)

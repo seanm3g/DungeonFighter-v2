@@ -157,7 +157,7 @@
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,16,0"/>
                                             <TextBlock Grid.Column="2"
-                                                       Text="{Binding BaseDamage, StringFormat=Damage: {0}}"
+                                                       Text="{Binding WeaponDamageListText}"
                                                        FontSize="13"
                                                        Foreground="#FF666666"
                                                        VerticalAlignment="Center"

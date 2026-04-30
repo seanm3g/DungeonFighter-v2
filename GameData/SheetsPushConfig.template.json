@@ -2,13 +2,14 @@
   "spreadsheetId": "YOUR_SPREADSHEET_ID_FROM_THE_EDIT_URL",
   "actionsSheetTabName": "ACTIONS",
   "weaponsSheetTabName": "WEAPONS",
-  "modificationsSheetTabName": "MODIFICATIONS",
+  "modificationsSheetTabName": "Prefix",
   "armorSheetTabName": "ARMOR",
   "enemiesSheetTabName": "ENEMIES",
   "environmentsSheetTabName": "ENVIRONMENTS",
   "dungeonsSheetTabName": "DUNGEONS",
   "statBonusesSheetTabName": "SUFFIXES",
   "classPresentationSheetTabName": "CLASSES",
+  "classActionsSheetTabName": "CLASS ACTIONS",
   "oauthClientSecretsPath": "secrets/client_secret_desktop.json",
   "oauthTokenStorePath": "SheetsOAuthToken",
   "previewRowCount": 5,
@@ -20,5 +21,6 @@
   "pushEnemiesTab": true,
   "pushEnvironmentsTab": true,
   "pushDungeonsTab": true,
-  "pushClassPresentationTab": true
+  "pushClassPresentationTab": true,
+  "pushClassActionsTab": true
 }

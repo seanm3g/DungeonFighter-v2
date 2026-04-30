@@ -226,10 +226,8 @@ namespace RPGGame
             // ROLL 5: Apply scaling formulas to base stats
             ApplyItemScaling(item, tuning);
 
-            // ROLL 6: Rarity (determines number of bonuses)
-            // Get magic find from player, pass to rarity processor for upgrade calculations
-            double magicFind = player?.GetMagicFind() ?? 0.0;
-            var rarity = RarityProcessor.RollRarity(magicFind, playerLevel);
+            // ROLL 6: Rarity (determines number of bonuses) — MF does not alter base rarity roll
+            var rarity = RarityProcessor.RollRarity(0.0, playerLevel);
             item.Rarity = rarity.Name?.Trim() ?? "Common";
             RarityProcessor.ApplyRarityScaling(item, rarity);
 
@@ -242,8 +240,9 @@ namespace RPGGame
                 context.WeaponType = weapon.WeaponType.ToString();
             }
 
-            // ROLL 7: Bonus selection (with context for 80/20 actions and 70/30 mod bias)
-            BonusApplier.ApplyBonuses(item, rarity, context);
+            // ROLL 7: Bonus selection (MF affects affix-line tiers and optional extra affix counts only)
+            int affixMagicFind = Math.Clamp(player?.GetMagicFind() ?? 0, 0, 100);
+            BonusApplier.ApplyBonuses(item, rarity, context, affixMagicFind);
 
             return item;
         }
@@ -344,11 +343,11 @@ namespace RPGGame
         [JsonPropertyName("attackSpeed")]
         public double AttackSpeed { get; set; }
 
-        /// <summary>Inclusive lower bound for a random damage bonus added to <see cref="BaseDamage"/> when a <see cref="WeaponItem"/> is created (loot, starters, lab).</summary>
+        /// <summary>Inclusive lower bound for a one-time roll stored on <see cref="WeaponItem.RolledDamageBonus"/> when a weapon is created (loot, starters, lab).</summary>
         [JsonPropertyName("damageBonusMin")]
         public int DamageBonusMin { get; set; }
 
-        /// <summary>Inclusive upper bound for the random damage bonus (Google sheet column often named &quot;Max Bonus&quot;).</summary>
+        /// <summary>Inclusive upper bound for <see cref="WeaponItem.RolledDamageBonus"/> (sheet column often named &quot;Max Bonus&quot;).</summary>
         [JsonPropertyName("damageBonusMax")]
         public int DamageBonusMax { get; set; }
 

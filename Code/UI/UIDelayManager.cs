@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using RPGGame.Config;
+using RPGGame;
 
 namespace RPGGame.UI
 {
@@ -25,6 +26,9 @@ namespace RPGGame.UI
         /// </summary>
         public async Task ApplyDelayAsync(UIMessageType messageType)
         {
+            if (DeveloperModeState.IsCombatLogInstant)
+                return;
+
             // Check if delays are enabled globally
             if (!UIManager.EnableDelays)
             {
@@ -44,6 +48,9 @@ namespace RPGGame.UI
         /// </summary>
         public void ApplyDelay(UIMessageType messageType)
         {
+            if (DeveloperModeState.IsCombatLogInstant)
+                return;
+
             if (!UIManager.EnableDelays)
             {
                 return;
@@ -67,6 +74,9 @@ namespace RPGGame.UI
         /// </summary>
         public async Task ApplyProgressiveMenuDelayAsync()
         {
+            if (DeveloperModeState.IsCombatLogInstant)
+                return;
+
             // Check if delays are enabled globally
             if (!UIManager.EnableDelays)
             {
@@ -112,6 +122,9 @@ namespace RPGGame.UI
         /// </summary>
         public void ApplyProgressiveMenuDelay()
         {
+            if (DeveloperModeState.IsCombatLogInstant)
+                return;
+
             if (!UIManager.EnableDelays)
             {
                 return;

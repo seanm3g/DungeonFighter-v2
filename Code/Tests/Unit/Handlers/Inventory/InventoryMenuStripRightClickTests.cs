@@ -54,11 +54,14 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
             sm.TransitionToState(GameState.Inventory);
 
             var handler = new InventoryMenuHandler(sm, null);
-            bool ok = handler.TryHandleStripRightClickRemove(0);
+            var comboBefore = c.GetComboActions();
+            int z1Slot = comboBefore.FindIndex(a => string.Equals(a.Name, "Z1", StringComparison.Ordinal));
+            TestBase.AssertTrue(z1Slot >= 0, "Z1 appears in sorted combo", ref run, ref passed, ref failed);
+            bool ok = handler.TryHandleStripRightClickRemove(z1Slot);
             var names = c.GetComboActions().Select(a => a.Name).ToList();
 
             TestBase.AssertTrue(ok && names.Count == 1 && string.Equals(names[0], "Z2", StringComparison.Ordinal),
-                "Strip right-click removes slot 0", ref run, ref passed, ref failed);
+                "Strip right-click removes Z1 slot", ref run, ref passed, ref failed);
         }
 
         private static void TestBlockedDuringEquipPrompt(ref int run, ref int passed, ref int failed)

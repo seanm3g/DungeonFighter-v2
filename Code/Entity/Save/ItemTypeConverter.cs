@@ -58,6 +58,7 @@ namespace RPGGame
             if (item is WeaponItem originalWeapon)
             {
                 weapon.BaseDamage = originalWeapon.BaseDamage;
+                weapon.RolledDamageBonus = originalWeapon.RolledDamageBonus;
                 weapon.BaseAttackSpeed = originalWeapon.BaseAttackSpeed;
                 weapon.WeaponType = originalWeapon.WeaponType;
             }

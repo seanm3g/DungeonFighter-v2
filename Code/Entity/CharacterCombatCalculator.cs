@@ -204,7 +204,7 @@ namespace RPGGame
             
             if (magicFind > 0)
             {
-                stats += $"  Magic Find: +{magicFind} (tilts first rarity roll toward higher tiers)";
+                stats += $"  Magic Find: +{magicFind} (better prefix/suffix/action rolls; not base rarity)";
             }
 
             return stats;

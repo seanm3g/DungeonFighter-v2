@@ -4,8 +4,8 @@ using System.Linq;
 using Avalonia.Media;
 using RPGGame.Data;
 using RPGGame.UI.Avalonia.Layout;
-using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
+using RPGGame.UI.Avalonia.Renderers.Text;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia.Display
@@ -18,12 +18,10 @@ namespace RPGGame.UI.Avalonia.Display
     public class DisplayRenderer
     {
         private readonly ColoredTextWriter textWriter;
-        private readonly DungeonSelectionAnimationState animationState;
         
         public DisplayRenderer(ColoredTextWriter textWriter)
         {
             this.textWriter = textWriter;
-            this.animationState = DungeonSelectionAnimationState.Instance;
         }
         
         /// <summary>
@@ -271,8 +269,7 @@ namespace RPGGame.UI.Avalonia.Display
                 int charPos = 0;
                 foreach (var segment in segments)
                 {
-                    ApplyAnimationToText(segment.Text, segment.Color, animated, charPos, y, null);
-                    charPos += segment.Text.Length;
+                    UndulatingTextHelper.AppendAnimatedChars(segment.Text, segment.Color, animated, ref charPos, y, null);
                 }
                 return animated;
             }
@@ -325,8 +322,7 @@ namespace RPGGame.UI.Avalonia.Display
                         {
                             string namePart = segmentText.Substring(afterPrefix);
                             charPosition = prefix.Length;
-                            ApplyAnimationToText(namePart, segment.Color, result, charPosition, y, segment.SourceTemplate);
-                            charPosition += namePart.Length;
+                            UndulatingTextHelper.AppendAnimatedChars(namePart, segment.Color, result, ref charPosition, y, segment.SourceTemplate);
                         }
                     }
                     else
@@ -339,96 +335,11 @@ namespace RPGGame.UI.Avalonia.Display
                 else
                 {
                     // We're past the prefix, animate the name
-                    ApplyAnimationToText(segment.Text, segment.Color, result, charPosition, y, segment.SourceTemplate);
-                    charPosition += segment.Text.Length;
+                    UndulatingTextHelper.AppendAnimatedChars(segment.Text, segment.Color, result, ref charPosition, y, segment.SourceTemplate);
                 }
             }
             
             return result;
-        }
-        
-        /// <summary>
-        /// Applies animation effects character-by-character to text
-        /// Similar to DungeonSelectionRenderer's animation logic
-        /// </summary>
-        private void ApplyAnimationToText(string text, Color baseColor, List<ColoredText> result, int startCharPosition, int lineOffset, string? sourceTemplate = null)
-        {
-            // Check if the template has undulation enabled
-            bool shouldUndulate = false;
-            if (!string.IsNullOrEmpty(sourceTemplate))
-            {
-                var templateData = ColorTemplateLoader.GetTemplate(sourceTemplate);
-                if (templateData != null)
-                {
-                    shouldUndulate = templateData.Undulate;
-                }
-            }
-            
-            // If no template source, apply undulation to all (backward compatibility)
-            // This maintains the current behavior for text without template sources
-            if (string.IsNullOrEmpty(sourceTemplate))
-            {
-                shouldUndulate = true;
-            }
-            
-            // Generate a small random offset for this animated element based on line position
-            // This makes each animated element look different from others
-            // Use a hash of the line offset to get a consistent but varied offset per line
-            int elementOffset = GetElementRandomOffset(lineOffset);
-            
-            foreach (char c in text)
-            {
-                // Add element offset to position to make this element's animation unique
-                int adjustedPosition = startCharPosition + elementOffset;
-                
-                // Get brightness mask adjustment from centralized state
-                float brightnessAdjustment = animationState.GetBrightnessAt(adjustedPosition, lineOffset);
-                double brightnessFactor = 1.0 + (brightnessAdjustment / 100.0) * 2.0;
-                brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
-                
-                // Get position-based undulation brightness (creates sine wave across text)
-                // Only apply if the template has undulation enabled
-                if (shouldUndulate)
-                {
-                    double undulationBrightness = animationState.GetUndulationBrightnessAt(adjustedPosition, lineOffset);
-                    brightnessFactor += undulationBrightness * 3.0;
-                    brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
-                }
-                
-                // Apply brightness adjustments to color
-                Color adjustedColor = AdjustColorBrightness(baseColor, brightnessFactor);
-                result.Add(new ColoredText(c.ToString(), adjustedColor, sourceTemplate));
-                
-                startCharPosition++;
-            }
-        }
-        
-        /// <summary>
-        /// Generates a small random offset for an animated element based on its line position
-        /// Uses a simple hash to ensure the same line always gets the same offset
-        /// Returns a value between -50 and +50 to create visual variation
-        /// </summary>
-        private int GetElementRandomOffset(int lineOffset)
-        {
-            // Use a simple hash function to generate a consistent but varied offset
-            // Multiply by a prime number and use modulo to get a pseudo-random value
-            int hash = (lineOffset * 7919 + 12345) % 101; // Prime number 7919, offset 12345, modulo 101 gives -50 to +50 range
-            return hash - 50; // Shift to -50 to +50 range
-        }
-        
-        /// <summary>
-        /// Adjusts the brightness of a color by a factor
-        /// Same logic as DungeonSelectionRenderer
-        /// </summary>
-        private Color AdjustColorBrightness(Color color, double factor)
-        {
-            factor = Math.Max(0.0, Math.Min(2.0, factor)); // Clamp between 0 and 2
-            
-            byte r = (byte)Math.Min(255, (int)(color.R * factor));
-            byte g = (byte)Math.Min(255, (int)(color.G * factor));
-            byte b = (byte)Math.Min(255, (int)(color.B * factor));
-            
-            return Color.FromRgb(r, g, b);
         }
     }
 }

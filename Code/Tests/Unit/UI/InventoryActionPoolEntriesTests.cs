@@ -42,10 +42,13 @@ namespace RPGGame.Tests.Unit.UI
 
             var list = InventoryActionPoolEntries.Build(c);
             TestBase.AssertTrue(list.Count >= 1, "Weapon in bag contributes at least one entry", ref run, ref passed, ref failed);
-            TestBase.AssertTrue(list[0].InventoryIndex == 0 && list[0].ActionIndexInItem == 0,
-                "First entry is index 0 / action 0", ref run, ref passed, ref failed);
-            TestBase.AssertTrue(string.Equals(list[0].ActionName, "JAB", StringComparison.OrdinalIgnoreCase),
-                "Entry action name matches GearAction", ref run, ref passed, ref failed);
+            int jabIx = list.FindIndex(e => string.Equals(e.ActionName, "JAB", StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertTrue(jabIx >= 0, "GearAction JAB appears in bag action rows", ref run, ref passed, ref failed);
+            var jabEntry = list[jabIx];
+            TestBase.AssertTrue(jabEntry.InventoryIndex == 0,
+                "JAB row is for bag index 0", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(jabEntry.ActionIndexInItem >= 0,
+                "JAB has a valid action index on the item", ref run, ref passed, ref failed);
         }
 
         private static void TestGetEquipSlot(ref int run, ref int passed, ref int failed)

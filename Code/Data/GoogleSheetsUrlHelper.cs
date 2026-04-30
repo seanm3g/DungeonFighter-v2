@@ -180,7 +180,8 @@ namespace RPGGame.Data
                     sheetsConfig.EnemiesSheetUrl,
                     sheetsConfig.EnvironmentsSheetUrl,
                     sheetsConfig.DungeonsSheetUrl,
-                    sheetsConfig.ClassPresentationSheetUrl
+                    sheetsConfig.ClassPresentationSheetUrl,
+                    sheetsConfig.ClassActionsSheetUrl
                 };
 
                 foreach (string? u in candidates)

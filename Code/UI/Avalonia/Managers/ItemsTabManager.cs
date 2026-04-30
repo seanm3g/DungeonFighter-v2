@@ -118,6 +118,8 @@ namespace RPGGame.UI.Avalonia.Managers
                 Slot = selectedItem.Slot,
                 Tier = selectedItem.SelectedTier,
                 BaseDamage = selectedItem.BaseDamage,
+                DamageBonusMin = selectedItem.DamageBonusMin,
+                DamageBonusMax = selectedItem.DamageBonusMax,
                 AttackSpeed = selectedItem.AttackSpeed,
                 Armor = selectedItem.Armor,
                 IsWeapon = selectedItem.IsWeapon,
@@ -166,6 +168,8 @@ namespace RPGGame.UI.Avalonia.Managers
                         selectedItem.Slot = viewModel.Slot;
                         selectedItem.SelectedTier = viewModel.Tier;
                         selectedItem.BaseDamage = viewModel.BaseDamage;
+                        selectedItem.DamageBonusMin = viewModel.DamageBonusMin;
+                        selectedItem.DamageBonusMax = viewModel.DamageBonusMax;
                         selectedItem.AttackSpeed = viewModel.AttackSpeed;
                         selectedItem.Armor = viewModel.Armor;
                         var parsedTags = GameDataTagHelper.ParseCommaSeparatedTags(viewModel.Tags);
@@ -187,6 +191,8 @@ namespace RPGGame.UI.Avalonia.Managers
                                     Name = viewModel.Name,
                                     Tier = viewModel.Tier,
                                     BaseDamage = viewModel.BaseDamage,
+                                    DamageBonusMin = viewModel.DamageBonusMin,
+                                    DamageBonusMax = viewModel.DamageBonusMax,
                                     AttackSpeed = viewModel.AttackSpeed,
                                     Tags = tagsForJson
                                 };
@@ -196,6 +202,8 @@ namespace RPGGame.UI.Avalonia.Managers
                                 originalWeapon.Type = viewModel.Type;
                                 originalWeapon.Tier = viewModel.Tier;
                                 originalWeapon.BaseDamage = viewModel.BaseDamage;
+                                originalWeapon.DamageBonusMin = viewModel.DamageBonusMin;
+                                originalWeapon.DamageBonusMax = viewModel.DamageBonusMax;
                                 originalWeapon.AttackSpeed = viewModel.AttackSpeed;
                                 originalWeapon.Tags = tagsForJson;
                             }

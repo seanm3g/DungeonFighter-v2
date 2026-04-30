@@ -10,7 +10,7 @@ using RPGGame;
 
 namespace RPGGame.Data
 {
-    /// <summary>Pushes Actions plus optional WEAPONS / MODIFICATIONS / ARMOR / SUFFIXES (StatBonuses) / ENEMIES / ENVIRONMENTS / DUNGEONS / CLASSES tabs via Sheets API.</summary>
+    /// <summary>Pushes Actions plus optional WEAPONS / Prefix (Modifications.json + PrefixMaterialQuality.json when present) / ARMOR / SUFFIXES (StatBonuses) / ENEMIES / ENVIRONMENTS / DUNGEONS / CLASSES / CLASS ACTIONS tabs via Sheets API.</summary>
     public static class GameDataSheetsPushService
     {
         public static async Task<GameDataSheetsPushResult> PushAllGameDataSheetsAsync(
@@ -28,7 +28,7 @@ namespace RPGGame.Data
                 {
                     cfg.Save(pushConfigPath);
                     result.AddLine(
-                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, MODIFICATIONS, ARMOR, SUFFIXES, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES " +
+                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, Prefix (Modifications.json + PrefixMaterialQuality.json), ARMOR, SUFFIXES, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES, CLASS ACTIONS " +
                         "(all optional tabs were blank). Edit the file if your sheet uses different tab titles.");
                 }
                 catch (Exception ex)
@@ -85,6 +85,22 @@ namespace RPGGame.Data
                 }
             }
 
+            if (cfg.ApplyDefaultClassActionsTabNameIfUnset())
+            {
+                try
+                {
+                    cfg.Save(pushConfigPath);
+                    result.AddLine(
+                        "Set default CLASS ACTIONS tab name in SheetsPushConfig.json (classActionsSheetTabName was blank). " +
+                        "Edit if your spreadsheet uses a different tab title.");
+                }
+                catch (Exception ex)
+                {
+                    result.AddLine(
+                        $"Note: could not save SheetsPushConfig after CLASS ACTIONS default ({ex.Message}); push still uses that tab name for this run.");
+                }
+            }
+
             var service = await SheetsPushUtilities.CreateAuthorizedSheetsServiceAsync(cfg, pushConfigPath, cancellationToken)
                 .ConfigureAwait(false);
 
@@ -123,13 +139,15 @@ namespace RPGGame.Data
                     service,
                     cfg,
                     cfg.PushModificationsTab,
-                    "MODIFICATIONS",
+                    "PREFIX",
                     cfg.ModificationsSheetTabName,
                     GameConstants.ModificationsJson,
                     GameDataTabularSheetKind.Modifications,
                     "Modifications.json",
                     result,
-                    cancellationToken)
+                    cancellationToken,
+                    mergeSecondJsonFileName: GameConstants.PrefixMaterialQualityJson,
+                    mergeSecondDisplayName: GameConstants.PrefixMaterialQualityJson)
                 .ConfigureAwait(false);
 
             await PushOptionalJsonArrayTabAsync(
@@ -199,6 +217,8 @@ namespace RPGGame.Data
 
             await PushOptionalClassPresentationTabAsync(service, cfg, result, cancellationToken).ConfigureAwait(false);
 
+            await PushOptionalClassActionsTabAsync(service, cfg, result, cancellationToken).ConfigureAwait(false);
+
             return result;
         }
 
@@ -230,6 +250,9 @@ namespace RPGGame.Data
 
             if (cfg.PushClassPresentationTab && !string.IsNullOrWhiteSpace(cfg.ClassPresentationSheetTabName))
                 yield return cfg.ClassPresentationSheetTabName.Trim();
+
+            if (cfg.PushClassActionsTab && !string.IsNullOrWhiteSpace(cfg.ClassActionsSheetTabName))
+                yield return cfg.ClassActionsSheetTabName.Trim();
         }
 
         private static async Task PushOptionalJsonArrayTabAsync(
@@ -242,7 +265,9 @@ namespace RPGGame.Data
             GameDataTabularSheetKind kind,
             string displayFileName,
             GameDataSheetsPushResult result,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            string? mergeSecondJsonFileName = null,
+            string? mergeSecondDisplayName = null)
         {
             if (!pushThisTab)
             {
@@ -256,10 +281,22 @@ namespace RPGGame.Data
 
             string tab = sheetTabName.Trim();
             string? path = GameConstants.TryGetExistingGameDataFilePath(jsonFileName);
-            bool hadFile = path != null && File.Exists(path);
-            string jsonText = hadFile
+            bool hadPrimaryFile = path != null && File.Exists(path);
+            string jsonText = hadPrimaryFile
                 ? await File.ReadAllTextAsync(path!, cancellationToken).ConfigureAwait(false)
                 : "[]";
+
+            bool mergedSecond = false;
+            if (!string.IsNullOrWhiteSpace(mergeSecondJsonFileName))
+            {
+                string? mergePath = GameConstants.TryGetExistingGameDataFilePath(mergeSecondJsonFileName);
+                if (mergePath != null && File.Exists(mergePath))
+                {
+                    string extra = await File.ReadAllTextAsync(mergePath, cancellationToken).ConfigureAwait(false);
+                    jsonText = JsonArraySheetConverter.MergeJsonRootArrays(jsonText, extra);
+                    mergedSecond = true;
+                }
+            }
 
             var rows = JsonArraySheetConverter.BuildPushValueRows(jsonText, kind);
             int headerRows = JsonArraySheetConverter.GetTabularSheetHeaderRowCount(kind);
@@ -273,8 +310,21 @@ namespace RPGGame.Data
                     cancellationToken)
                 .ConfigureAwait(false);
 
-            string fileNote = hadFile ? "" : $" {displayFileName} was not found — pushed header row only (empty []).";
-            result.AddLine($"Tab '{tab}': {dataRows} data row(s), {rows[0].Count} column(s), {headerRows} header row(s).{fileNote}");
+            string fileNote;
+            if (!hadPrimaryFile)
+            {
+                if (mergedSecond && dataRows > 0)
+                    fileNote = $" {displayFileName} was not found — sheet data built from {mergeSecondDisplayName ?? mergeSecondJsonFileName} only.";
+                else
+                    fileNote = $" {displayFileName} was not found — pushed header row only (empty []).";
+            }
+            else
+                fileNote = "";
+
+            string mergeNote = mergedSecond && !string.IsNullOrWhiteSpace(mergeSecondDisplayName)
+                ? $" Merged {mergeSecondDisplayName}."
+                : "";
+            result.AddLine($"Tab '{tab}': {dataRows} data row(s), {rows[0].Count} column(s), {headerRows} header row(s).{mergeNote}{fileNote}");
         }
 
         private static async Task PushOptionalClassPresentationTabAsync(
@@ -318,6 +368,31 @@ namespace RPGGame.Data
 
             string note = File.Exists(tuningPath) ? "" : " TuningConfig.json was not found — pushed default empty classPresentation.";
             result.AddLine($"Tab '{tab}' (class presentation): 1 payload row + header.{note}");
+        }
+
+        private static async Task PushOptionalClassActionsTabAsync(
+            SheetsService service,
+            SheetsPushConfig cfg,
+            GameDataSheetsPushResult result,
+            CancellationToken cancellationToken)
+        {
+            if (!cfg.PushClassActionsTab)
+            {
+                if (!string.IsNullOrWhiteSpace(cfg.ClassActionsSheetTabName))
+                    result.AddLine($"Skipped tab '{cfg.ClassActionsSheetTabName.Trim()}' (CLASS ACTIONS) — push disabled in SheetsPushConfig.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(cfg.ClassActionsSheetTabName))
+                return;
+
+            string tab = cfg.ClassActionsSheetTabName.Trim();
+            ClassActionsUnlockConfig unlock = ClassActionsUnlockConfig.TryLoadFromGameDataFile()
+                ?? ClassActionsUnlockConfig.CreateBuiltInDefaults();
+            var rows = ClassActionsSheetConverter.BuildPushValueRows(unlock);
+            await PushRowsAtA1Async(service, cfg.SpreadsheetId, tab, rows, headerRowCount: 1, cancellationToken).ConfigureAwait(false);
+            int dataRows = Math.Max(0, rows.Count - 1);
+            result.AddLine($"Tab '{tab}' (class actions): {dataRows} data row(s) + header (from ClassActions.json or built-in defaults).");
         }
 
         private static async Task PushRowsAtA1Async(

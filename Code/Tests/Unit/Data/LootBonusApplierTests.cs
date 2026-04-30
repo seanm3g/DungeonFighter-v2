@@ -37,6 +37,7 @@ namespace RPGGame.Tests.Unit.Data
             TestApplyModifications();
             TestTuningAffixOverridesRarityTable();
             TestProbabilisticAffixTuningHitsMax();
+            TestAffixMagicFindBoostsOptionalExtraChances();
 
             TestBase.PrintSummary("LootBonusApplier Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -334,6 +335,28 @@ namespace RPGGame.Tests.Unit.Data
             {
                 cfg.ItemAffixByRarity = backup;
             }
+        }
+
+        private static void TestAffixMagicFindBoostsOptionalExtraChances()
+        {
+            Console.WriteLine("\n--- Testing MF on optional affix extra chances ---");
+            TestBase.SetCurrentTestName(nameof(TestAffixMagicFindBoostsOptionalExtraChances));
+
+            var rule = new ItemAffixRollRule(0, 3, 0.2, 0, 2, 0.2, 0, 1, 0.2);
+            var loot = new LootSystemConfig { AffixMagicFindMaxExtraChanceBoost = 2.0 };
+            int sum0 = 0, sum100 = 0;
+            const int n = 5000;
+            for (int i = 0; i < n; i++)
+            {
+                ItemAffixByRaritySettings.RollAffixCounts(new Random(i), rule, 0, loot, out int p0, out int s0, out int a0);
+                ItemAffixByRaritySettings.RollAffixCounts(new Random(i), rule, 100, loot, out int p100, out int s100, out int a100);
+                sum0 += p0 + s0 + a0;
+                sum100 += p100 + s100 + a100;
+            }
+
+            TestBase.AssertTrue(sum100 > sum0,
+                $"MF=100 should roll more optional affix steps on average (MF100 sum {sum100} vs MF0 {sum0})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestApplyModifications()

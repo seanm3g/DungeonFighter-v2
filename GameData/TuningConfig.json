@@ -394,14 +394,13 @@
       "actionBonusChance": "",
       "statBonusChance": ""
     },
-    "magicFindDistributionAlpha": 0.5,
     "magicFindScaling": {
       "common": {
-        "perPointMultiplier": -1,
-        "description": "k_r tilt for MF (exponential); Common stays relatively lower at high MF"
+        "perPointMultiplier": 0,
+        "description": "Unused for base rarity; magic find applies to affix rolls in LootBonusApplier"
       },
       "uncommon": {
-        "perPointMultiplier": -0.5,
+        "perPointMultiplier": 0,
         "description": ""
       },
       "rare": {
@@ -409,15 +408,15 @@
         "description": ""
       },
       "epic": {
-        "perPointMultiplier": 0.4,
+        "perPointMultiplier": 0,
         "description": ""
       },
       "legendary": {
-        "perPointMultiplier": 0.7,
+        "perPointMultiplier": 0,
         "description": ""
       },
       "mythic": {
-        "perPointMultiplier": 1,
+        "perPointMultiplier": 0,
         "description": ""
       }
     },
@@ -453,7 +452,8 @@
         "levelBonus": 0,
         "description": ""
       }
-    }
+    },
+    "magicFindDistributionAlpha": 0
   },
   "equipmentScaling": {
     "weaponDamagePerTier": 3,
@@ -471,6 +471,8 @@
     "magicFindEffectiveness": 0,
     "goldDropMultiplier": 1,
     "itemValueMultiplier": 1,
+    "affixMagicFindMaxWeightBoost": 2,
+    "affixMagicFindMaxExtraChanceBoost": 2,
     "rarityUpgrade": {
       "enabled": false,
       "baseUpgradeChance": 0.05,

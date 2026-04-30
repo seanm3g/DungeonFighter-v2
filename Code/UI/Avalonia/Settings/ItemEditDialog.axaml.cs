@@ -58,6 +58,8 @@ namespace RPGGame.UI.Avalonia.Settings
         private string _slot = "";
         private int _tier = 1;
         private int _baseDamage = 0;
+        private int _damageBonusMin = 0;
+        private int _damageBonusMax = 0;
         private double _attackSpeed = 0.0;
         private int _armor = 0;
         private bool _isWeapon = true;
@@ -93,6 +95,20 @@ namespace RPGGame.UI.Avalonia.Settings
         {
             get => _baseDamage;
             set { _baseDamage = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>Inclusive min for catalog damage bonus roll (stored as <c>RolledDamageBonus</c> when the weapon is created).</summary>
+        public int DamageBonusMin
+        {
+            get => _damageBonusMin;
+            set { _damageBonusMin = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>Inclusive max for catalog damage bonus roll.</summary>
+        public int DamageBonusMax
+        {
+            get => _damageBonusMax;
+            set { _damageBonusMax = value; OnPropertyChanged(); }
         }
 
         public double AttackSpeed
@@ -161,6 +177,14 @@ namespace RPGGame.UI.Avalonia.Settings
                 if (AttackSpeed < 0)
                 {
                     return "Attack speed must be non-negative";
+                }
+                if (DamageBonusMin < 0 || DamageBonusMax < 0)
+                {
+                    return "Damage bonus min/max must be non-negative";
+                }
+                if (DamageBonusMax < DamageBonusMin)
+                {
+                    return "Damage bonus max must be greater than or equal to min";
                 }
             }
             else

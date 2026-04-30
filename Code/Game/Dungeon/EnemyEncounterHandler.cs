@@ -98,7 +98,8 @@ namespace RPGGame
                     canvasUIEnemy.RenderEnemyEncounter(enemy, player, displayManager.DungeonContext, 
                         stateManager.CurrentDungeon?.Name, stateManager.CurrentRoom?.Name);
                     // Brief delay to show enemy encounter information
-                    await Task.Delay(2000);
+                    if (!DeveloperModeState.IsCombatLogInstant)
+                        await Task.Delay(2000);
                 }
                 
                 // Initial render of combat screen with structured content
@@ -213,7 +214,7 @@ namespace RPGGame
             
             // Wait for any reactive renders triggered by AddCombatEvent to complete before final render
             // This prevents text from overlapping when multiple renders happen in quick succession
-            if (!RPGGame.MCP.MCPMode.IsActive)
+            if (!RPGGame.MCP.MCPMode.IsActive && !DeveloperModeState.IsCombatLogInstant)
             {
                 await Task.Delay(250);
             }
@@ -232,7 +233,7 @@ namespace RPGGame
                     }
                 });
                 // Small delay to ensure the final render completes before continuing
-                if (!RPGGame.MCP.MCPMode.IsActive)
+                if (!RPGGame.MCP.MCPMode.IsActive && !DeveloperModeState.IsCombatLogInstant)
                 {
                     await Task.Delay(100);
                 }
@@ -252,7 +253,7 @@ namespace RPGGame
             }
             
             // Small delay before next
-            if (!RPGGame.MCP.MCPMode.IsActive)
+            if (!RPGGame.MCP.MCPMode.IsActive && !DeveloperModeState.IsCombatLogInstant)
             {
                 await Task.Delay(1000);
             }

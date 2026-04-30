@@ -1,0 +1,790 @@
+{
+  "rules": [
+    {
+      "tier": 1,
+      "classKey": "Barbarian",
+      "actionName": "PUNCH HARD",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Barbarian",
+      "actionName": "PUNCH HARDER",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Barbarian",
+      "actionName": "PUNCH HARDEST",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Barbarian",
+      "actionName": "OL\u0027 FAITHFUL",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Warrior",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Warrior",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Warrior",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Warrior",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Warrior",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Warrior",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Warrior",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Warrior",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Rogue",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Rogue",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Rogue",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Rogue",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Rogue",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Rogue",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Rogue",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Rogue",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Wizard",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Wizard",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Wizard",
+      "actionName": "CAST",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Wizard",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Wizard",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Wizard",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Wizard",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Mace",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Mace",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Sword",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Sword",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Mace",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Mace",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Sword",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Sword",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Mace",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Mace",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Sword",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Sword",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Mace",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Mace",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Sword",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Sword",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Mace",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Mace",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Dagger",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Dagger",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Mace",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Mace",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Dagger",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Dagger",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Mace",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Mace",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Dagger",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Dagger",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Mace",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Mace",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Dagger",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Dagger",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Mace",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Mace",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Wand",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Wand",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Mace",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Mace",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Wand",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Wand",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Mace",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Mace",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Wand",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Wand",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Mace",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Mace",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Wand",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Wand",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Sword",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Sword",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Dagger",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Dagger",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Sword",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Sword",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Dagger",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Dagger",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Sword",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Sword",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Dagger",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Dagger",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Sword",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Sword",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Dagger",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Dagger",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Sword",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Sword",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Wand",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Wand",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Sword",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Sword",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Wand",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Wand",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Sword",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Sword",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Wand",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Wand",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Sword",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Sword",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Wand",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Wand",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Dagger",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Dagger",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Wand",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Wand",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Dagger",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Dagger",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Wand",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Wand",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Dagger",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Dagger",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Wand",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 3,
+      "classKey": "Wand",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Dagger",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Dagger",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Wand",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 4,
+      "classKey": "Wand",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 0,
+      "classKey": "Prophet",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 0,
+      "classKey": "Prophet",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 0,
+      "classKey": "Godkiller",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 0,
+      "classKey": "Godkiller",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 0,
+      "classKey": "Worldbreaker",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 0,
+      "classKey": "Worldbreaker",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
+      "tier": 0,
+      "classKey": "Eternal",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 0,
+      "classKey": "Eternal",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    }
+  ]
+}

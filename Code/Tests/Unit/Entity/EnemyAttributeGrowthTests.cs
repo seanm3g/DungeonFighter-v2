@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using RPGGame;
 using RPGGame.Tests;
 
@@ -24,7 +23,6 @@ namespace RPGGame.Tests.Unit.Entity
             TestPartialGrowthSharesSixPointBudget();
             TestJsonEnemyUsesAttributesNotDirectStats();
             TestPartialBaseAttributesFallsBackForOmittedStats();
-            TestLegacyRootStatsFoldIntoGrowthOnly();
             TestExplicitGrowthPerLevelFractional();
             TestExplicitHealthGrowthPerLevel();
 
@@ -187,22 +185,6 @@ namespace RPGGame.Tests.Unit.Entity
             TestBase.AssertTrue(e.Intelligence > 0, "Omitted base INT must fall back to baseline scaling, not 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestLegacyRootStatsFoldIntoGrowthOnly()
-        {
-            Console.WriteLine("\n--- Legacy root strength/agility (ExtensionData) fold into growth ---");
-
-            const string json = """
-            {"name":"T","archetype":"Mage","strength":0.7,"agility":0.2,"baseAttributes":{"strength":2},"growthPerLevel":{},"baseHealth":100,"actions":[],"isLiving":false,"description":""}
-            """;
-            var opts = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-            var e = JsonSerializer.Deserialize<EnemyData>(json, opts);
-            TestBase.AssertNotNull(e, "Deserialize enemy", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            if (e == null) return;
-
-            EnemyDataPostLoad.Apply(e);
-            TestBase.AssertEqual(0.7, e.GrowthPerLevel!.Strength!.Value, "root strength -> growthPerLevel.strength", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0.2, e.GrowthPerLevel.Agility!.Value, "root agility -> growthPerLevel.agility", ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
 
         private static void TestExplicitGrowthPerLevelFractional()
         {

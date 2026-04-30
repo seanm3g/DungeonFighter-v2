@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace RPGGame
 {
@@ -24,6 +25,10 @@ namespace RPGGame
         public ExperienceSystemConfig ExperienceSystem { get; set; } = new();
         public ClassBalanceConfig ClassBalance { get; set; } = new();
         public ClassPresentationConfig ClassPresentation { get; set; } = new();
+
+        /// <summary>CLASS ACTIONS sheet / ClassActions.json — not written by <see cref="SaveToFile"/>.</summary>
+        [JsonIgnore]
+        public ClassActionsUnlockConfig ClassActionsUnlock { get; set; } = ClassActionsUnlockConfig.CreateBuiltInDefaults();
 
         // Combat-related configurations
         public CombatConfig Combat { get; set; } = new();
@@ -286,6 +291,14 @@ namespace RPGGame
             ItemScaling.EnsureSanitizedWeaponScalingDefaults();
             ClassBalance.EnsureNonDegenerateClassMultipliers();
             DungeonScaling.EnsureSensibleDefaults();
+
+            ReloadClassActionsUnlockFromDisk();
+        }
+
+        private void ReloadClassActionsUnlockFromDisk()
+        {
+            ClassActionsUnlock = ClassActionsUnlockConfig.TryLoadFromGameDataFile()
+                ?? ClassActionsUnlockConfig.CreateBuiltInDefaults();
         }
 
         public void Reload()

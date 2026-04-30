@@ -19,6 +19,8 @@ namespace RPGGame.Tests.Unit.Data
             HasEnvironmentTagFalseWhenMissing(ref run, ref pass, ref fail);
             HasTagCaseInsensitive(ref run, ref pass, ref fail);
             HasTagFalseWhenMissing(ref run, ref pass, ref fail);
+            HasEnemyTagCaseInsensitive(ref run, ref pass, ref fail);
+            HasEnemyTagFalseWhenMissing(ref run, ref pass, ref fail);
 
             TestBase.PrintSummary("GameDataTagHelper Tests", run, pass, fail);
         }
@@ -123,6 +125,31 @@ namespace RPGGame.Tests.Unit.Data
             {
                 fail++;
                 Console.WriteLine("FAIL HasTagFalseWhenMissing");
+            }
+        }
+
+        private static void HasEnemyTagCaseInsensitive(ref int run, ref int pass, ref int fail)
+        {
+            run++;
+            if (GameDataTagHelper.HasEnemyTag(new[] { "attack", "Enemy", "boss" }))
+                pass++;
+            else
+            {
+                fail++;
+                Console.WriteLine("FAIL HasEnemyTagCaseInsensitive");
+            }
+        }
+
+        private static void HasEnemyTagFalseWhenMissing(ref int run, ref int pass, ref int fail)
+        {
+            run++;
+            if (!GameDataTagHelper.HasEnemyTag(new[] { "environment", "weapon" }) &&
+                !GameDataTagHelper.HasEnemyTag(null))
+                pass++;
+            else
+            {
+                fail++;
+                Console.WriteLine("FAIL HasEnemyTagFalseWhenMissing");
             }
         }
     }

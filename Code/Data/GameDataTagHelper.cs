@@ -34,6 +34,12 @@ namespace RPGGame.Data
             return HasTag(tags, "environment");
         }
 
+        /// <summary>True when the tag list includes <c>enemy</c> (case-insensitive). Such actions are for enemy pools only, not the hero.</summary>
+        public static bool HasEnemyTag(IEnumerable<string>? tags)
+        {
+            return HasTag(tags, "enemy");
+        }
+
         /// <summary>Split comma/semicolon/pipe cell or settings text into normalized tags (empty if none).</summary>
         public static List<string> ParseCommaSeparatedTags(string? s)
         {

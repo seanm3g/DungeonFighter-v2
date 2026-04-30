@@ -71,7 +71,15 @@ namespace RPGGame.Tests.Unit.Data
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 TestBase.AssertEqual(10, weapon.BaseDamage,
-                    "Weapon should have correct base damage",
+                    "Weapon should have catalog base damage",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                TestBase.AssertEqual(0, weapon.RolledDamageBonus,
+                    "Weapon with no damage bonus range should have zero rolled bonus",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                TestBase.AssertEqual(10, weapon.GetTotalDamage(),
+                    "Total damage should match base when roll and tier bonus are zero",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 TestBase.AssertEqual(0.05, weapon.BaseAttackSpeed,
@@ -99,9 +107,15 @@ namespace RPGGame.Tests.Unit.Data
             for (int i = 0; i < 400; i++)
             {
                 var w = ItemGenerator.GenerateWeaponItem(weaponData);
-                int bonus = w.BaseDamage - weaponData.BaseDamage;
+                TestBase.AssertEqual(weaponData.BaseDamage, w.BaseDamage,
+                    "catalog base damage should stay on BaseDamage",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                int bonus = w.RolledDamageBonus;
                 TestBase.AssertTrue(bonus >= 0 && bonus <= 2,
                     "rolled bonus must be within inclusive 0..2",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(weaponData.BaseDamage + bonus, w.GetTotalDamage(),
+                    "total should be base + rolled when tier bonus is zero",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 seen.Add(bonus);
             }
@@ -121,8 +135,14 @@ namespace RPGGame.Tests.Unit.Data
                 AttackSpeed = 1.0
             };
             var wFixed = ItemGenerator.GenerateWeaponItem(fixedBonus);
-            TestBase.AssertEqual(14, wFixed.BaseDamage,
-                "min equals max implies deterministic bonus",
+            TestBase.AssertEqual(10, wFixed.BaseDamage,
+                "catalog base unchanged",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(4, wFixed.RolledDamageBonus,
+                "min equals max implies deterministic rolled bonus",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(14, wFixed.GetTotalDamage(),
+                "total is base + roll when tier bonus is zero",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

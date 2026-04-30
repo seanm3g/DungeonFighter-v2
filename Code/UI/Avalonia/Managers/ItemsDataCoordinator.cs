@@ -76,6 +76,8 @@ namespace RPGGame.UI.Avalonia.Managers
                     CurrentTier = weapon.Tier,
                     SelectedTier = weapon.Tier,
                     BaseDamage = weapon.BaseDamage,
+                    DamageBonusMin = weapon.DamageBonusMin,
+                    DamageBonusMax = weapon.DamageBonusMax,
                     AttackSpeed = weapon.AttackSpeed,
                     HitCount = 0, // Not available in WeaponData class
                     Effect = "none", // Not available in WeaponData class
@@ -154,6 +156,8 @@ namespace RPGGame.UI.Avalonia.Managers
                         originalWeapon.Type = weaponVM.Type;
                         originalWeapon.Tier = weaponVM.SelectedTier;
                         originalWeapon.BaseDamage = weaponVM.BaseDamage;
+                        originalWeapon.DamageBonusMin = weaponVM.DamageBonusMin;
+                        originalWeapon.DamageBonusMax = weaponVM.DamageBonusMax;
                         originalWeapon.AttackSpeed = weaponVM.AttackSpeed;
                         originalWeapon.Tags = TagsListFromItemsSettingsSummary(weaponVM.TagsSummary);
                         // HitCount and Effect not available in WeaponData class
@@ -168,6 +172,8 @@ namespace RPGGame.UI.Avalonia.Managers
                             Name = weaponVM.Name,
                             Tier = weaponVM.SelectedTier,
                             BaseDamage = weaponVM.BaseDamage,
+                            DamageBonusMin = weaponVM.DamageBonusMin,
+                            DamageBonusMax = weaponVM.DamageBonusMax,
                             AttackSpeed = weaponVM.AttackSpeed,
                             Tags = TagsListFromItemsSettingsSummary(weaponVM.TagsSummary)
                             // HitCount and Effect not available in WeaponData class

@@ -32,6 +32,8 @@ namespace RPGGame.Tests.Unit.Data
             TestGetAllEnemyNames();
             TestGetAllEnemyData();
             TestDeserializeEnemyTagsFlexibleFormats();
+            TestEnemyBaseAttributesDifferBetweenTemplates();
+            TestEnemyTemplatesHaveDamagingActions();
 
             TestBase.PrintSummary("EnemyLoader Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -203,6 +205,56 @@ namespace RPGGame.Tests.Unit.Data
             var fromNull = JsonSerializer.Deserialize<EnemyData>(nullTagsJson, opts);
             TestBase.AssertNotNull(fromNull, "Deserialize with tags null", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertNull(fromNull!.Tags, "tags null in JSON -> null property", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Regression: enemies were observed with every base attribute equal (often 3) despite data specifying different templates.
+        /// This verifies that two different enemies created from <c>GameData/Enemies.json</c> do not collapse to identical stats.
+        /// </summary>
+        private static void TestEnemyBaseAttributesDifferBetweenTemplates()
+        {
+            Console.WriteLine("\n--- Regression: per-enemy base attributes differ ---");
+
+            EnemyLoader.LoadEnemies();
+
+            var goblin = EnemyLoader.CreateEnemy("Goblin", level: 1);
+            var lavaGolem = EnemyLoader.CreateEnemy("Lava Golem", level: 1);
+
+            TestBase.AssertNotNull(goblin, "Goblin should be creatable from Enemies.json", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertNotNull(lavaGolem, "Lava Golem should be creatable from Enemies.json", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (goblin == null || lavaGolem == null) return;
+
+            bool allSame =
+                goblin.Strength == lavaGolem.Strength
+                && goblin.Agility == lavaGolem.Agility
+                && goblin.Technique == lavaGolem.Technique
+                && goblin.Intelligence == lavaGolem.Intelligence;
+
+            TestBase.AssertFalse(allSame,
+                $"Different enemy templates should not have identical base attributes. " +
+                $"Goblin({goblin.Strength},{goblin.Agility},{goblin.Technique},{goblin.Intelligence}) vs " +
+                $"LavaGolem({lavaGolem.Strength},{lavaGolem.Agility},{lavaGolem.Technique},{lavaGolem.Intelligence})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Regression: some enemies were logging "has no damaging actions" because their <c>actions</c> list failed to load.
+        /// This verifies that a canonical template results in at least one Attack/Spell action in the runtime pool.
+        /// </summary>
+        private static void TestEnemyTemplatesHaveDamagingActions()
+        {
+            Console.WriteLine("\n--- Regression: enemy templates have damaging actions ---");
+
+            EnemyLoader.LoadEnemies();
+
+            var goblin = EnemyLoader.CreateEnemy("Goblin", level: 1);
+            TestBase.AssertNotNull(goblin, "Goblin should be creatable from Enemies.json", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (goblin == null) return;
+
+            bool hasDamagingAction = goblin.ActionPool.Any(a => a.action.Type == ActionType.Attack || a.action.Type == ActionType.Spell);
+            TestBase.AssertTrue(hasDamagingAction,
+                "Goblin should have at least one damaging action (Attack/Spell) in its action pool",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

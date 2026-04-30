@@ -1,4 +1,5 @@
 using System;
+using RPGGame;
 using RPGGame.UI.BlockDisplay;
 using RPGGame.Tests;
 
@@ -27,6 +28,7 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
 
             TestApplyBlockDelay();
             TestCalculateActionBlockDelay();
+            TestCalculateActionBlockDelay_DeveloperModeZero();
 
             TestBase.PrintSummary("BlockDelayManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -54,6 +56,25 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
             TestBase.AssertTrue(delay >= 0,
                 "CalculateActionBlockDelay should return a non-negative delay",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCalculateActionBlockDelay_DeveloperModeZero()
+        {
+            Console.WriteLine("\n--- Testing CalculateActionBlockDelay (developer mode) ---");
+
+            bool previous = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                DeveloperModeState.SetCombatLogInstant(true);
+                int delay = BlockDelayManager.CalculateActionBlockDelay();
+                TestBase.AssertEqual(0, delay,
+                    "CalculateActionBlockDelay should be 0 when developer mode is on",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(previous);
+            }
         }
 
         #endregion

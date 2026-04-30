@@ -1,12 +1,13 @@
 using System;
 using System.IO;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using RPGGame;
 
 namespace RPGGame.Data
 {
-    /// <summary>Pulls Actions plus optional tabs from published CSV URLs in <see cref="SheetsConfig"/> (weapons, mods, armor, stat bonuses / suffixes, enemies, environments, dungeons, classes).</summary>
+    /// <summary>Pulls Actions plus optional tabs from published CSV URLs in <see cref="SheetsConfig"/> (weapons, mods, armor, stat bonuses / suffixes, enemies, environments, dungeons, classes, class actions).</summary>
     public static class GameDataSheetsPullService
     {
         public static async Task PullAllFromSheetsConfigAsync(
@@ -33,11 +34,16 @@ namespace RPGGame.Data
             if (!string.IsNullOrWhiteSpace(sc.ModificationsSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.ModificationsSheetUrl, cancellationToken).ConfigureAwait(false);
-                string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Modifications);
-                string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.ModificationsJson)
+                string merged = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Modifications);
+                var (coreJson, prefixMqJson) = JsonArraySheetConverter.SplitModificationsMergedJson(merged);
+                string modsPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.ModificationsJson)
                     ?? GameConstants.GetGameDataFilePath(GameConstants.ModificationsJson);
-                await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                await File.WriteAllTextAsync(modsPath, coreJson, cancellationToken).ConfigureAwait(false);
                 ClearJsonCacheForGameDataFile(GameConstants.ModificationsJson);
+                string pmqPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.PrefixMaterialQualityJson)
+                    ?? GameConstants.GetGameDataFilePath(GameConstants.PrefixMaterialQualityJson);
+                await File.WriteAllTextAsync(pmqPath, prefixMqJson, cancellationToken).ConfigureAwait(false);
+                ClearJsonCacheForGameDataFile(GameConstants.PrefixMaterialQualityJson);
             }
 
             if (!string.IsNullOrWhiteSpace(sc.ArmorSheetUrl))
@@ -96,6 +102,31 @@ namespace RPGGame.Data
                 string tuningPath = GameConfiguration.GetTuningConfigFilePathForWrite();
                 ClassPresentationSheetConverter.MergeClassPresentationFromCsvIntoTuningFile(csv, tuningPath);
                 GameConfiguration.ResetInstance();
+            }
+
+            if (!string.IsNullOrWhiteSpace(sc.ClassActionsSheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.ClassActionsSheetUrl, cancellationToken).ConfigureAwait(false);
+                var pres = ClassActionsSheetConverter.LoadClassPresentationForImport();
+                var unlockCfg = ClassActionsSheetConverter.ParseCsvToConfig(csv, pres);
+                if (unlockCfg.Rules.Count == 0)
+                {
+                    Console.WriteLine(
+                        "Warning: CLASS ACTIONS sheet produced no rules (check TIER/CLASS/ACTIONS headers and tier names). ClassActions.json was not updated.");
+                }
+                else
+                {
+                    string json = JsonSerializer.Serialize(unlockCfg, new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    });
+                    string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.ClassActionsJson)
+                        ?? GameConstants.GetGameDataFilePath(GameConstants.ClassActionsJson);
+                    await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                    ClearJsonCacheForGameDataFile(GameConstants.ClassActionsJson);
+                    GameConfiguration.ResetInstance();
+                }
             }
 
             ReloadRuntimeCachesAfterPull();

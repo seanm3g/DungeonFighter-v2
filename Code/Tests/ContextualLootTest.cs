@@ -44,7 +44,7 @@ namespace RPGGame.Tests
                 var tuning = GameConfiguration.Instance;
 
                 // Simulate ROLL 6-7: Rarity and bonuses
-                double magicFind = player.GetMagicFind();
+                int affixMf = Math.Clamp(player.GetMagicFind(), 0, 100);
                 var rarity = new RarityData {
                     Name = "Uncommon",
                     Weight = 1,
@@ -57,7 +57,7 @@ namespace RPGGame.Tests
 
                 // Apply bonuses with context
                 var bonusApplier = new LootBonusApplier(LootDataCache.Load(), random);
-                bonusApplier.ApplyBonuses(wand, rarity, context);
+                bonusApplier.ApplyBonuses(wand, rarity, context, affixMf);
 
                 // Count actions
                 totalActions += wand.ActionBonuses.Count;
@@ -116,7 +116,8 @@ namespace RPGGame.Tests
                 context.WeaponType = sword.WeaponType.ToString();
 
                 var bonusApplier = new LootBonusApplier(LootDataCache.Load(), random);
-                bonusApplier.ApplyBonuses(sword, rarity, context);
+                int affixMf = Math.Clamp(player.GetMagicFind(), 0, 100);
+                bonusApplier.ApplyBonuses(sword, rarity, context, affixMf);
 
                 totalActions += sword.ActionBonuses.Count;
                 foreach (var action in sword.ActionBonuses)
@@ -173,7 +174,8 @@ namespace RPGGame.Tests
                 context.WeaponType = dagger.WeaponType.ToString();
 
                 var bonusApplier = new LootBonusApplier(LootDataCache.Load(), random);
-                bonusApplier.ApplyBonuses(dagger, rarity, context);
+                int affixMf = Math.Clamp(player.GetMagicFind(), 0, 100);
+                bonusApplier.ApplyBonuses(dagger, rarity, context, affixMf);
 
                 totalActions += dagger.ActionBonuses.Count;
                 foreach (var action in dagger.ActionBonuses)
@@ -235,7 +237,8 @@ namespace RPGGame.Tests
                 context.WeaponType = item.WeaponType.ToString();
 
                 var bonusApplier = new LootBonusApplier(LootDataCache.Load(), random);
-                bonusApplier.ApplyBonuses(item, rarity, context);
+                int affixMf = Math.Clamp(player.GetMagicFind(), 0, 100);
+                bonusApplier.ApplyBonuses(item, rarity, context, affixMf);
 
                 foreach (var mod in item.Modifications.Where(m => m.GetPrefixCategory() == ModificationPrefixCategory.Adjective))
                 {

@@ -80,12 +80,8 @@ namespace RPGGame
         [JsonConverter(typeof(EnemyTagsJsonConverter))]
         public List<string>? Tags { get; set; }
 
-        /// <summary>
-        /// Captures JSON root properties that are not mapped to typed fields (historical <c>strength</c>, <c>agility</c>, … on enemies).
-        /// <see cref="EnemyDataPostLoad.Apply"/> folds legacy keys into <see cref="GrowthPerLevel"/> after load.
-        /// </summary>
-        [JsonExtensionData]
-        public Dictionary<string, JsonElement>? ExtensionData { get; set; }
+        // EnemyData intentionally does not capture unknown JSON keys.
+        // The canonical file shape is enforced by the ENEMIES spreadsheet pull/push pipeline.
     }
 
     /// <summary>
@@ -173,7 +169,6 @@ namespace RPGGame
                     {
                         foreach (var enemy in enemyList)
                         {
-                            EnemyDataPostLoad.Apply(enemy);
                             if (!string.IsNullOrEmpty(enemy.Name))
                             {
                                 _enemies[enemy.Name] = enemy;

@@ -73,6 +73,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.EnvironmentsSheetUrl, out string vg) ? vg : "");
             SetText(balancePanel, "ClassPresentationTabGidTextBox",
                 GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.ClassPresentationSheetUrl, out string cg) ? cg : "");
+            SetText(balancePanel, "ClassActionsTabGidTextBox",
+                GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.ClassActionsSheetUrl, out string caGidOut) ? caGidOut : "");
 
             LoadPushTabCheckboxes(balancePanel);
         }
@@ -110,6 +112,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             string eGid = TrimBox(balancePanel.FindControl<TextBox>("EnemiesTabGidTextBox"));
             string vGid = TrimBox(balancePanel.FindControl<TextBox>("EnvironmentsTabGidTextBox"));
             string cGid = TrimBox(balancePanel.FindControl<TextBox>("ClassPresentationTabGidTextBox"));
+            string caGid = TrimBox(balancePanel.FindControl<TextBox>("ClassActionsTabGidTextBox"));
 
             foreach (string u in new[] { edit, actions })
             {
@@ -123,7 +126,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 }
             }
 
-            foreach (string g in new[] { wGid, mGid, aGid, sGid, eGid, vGid, cGid })
+            foreach (string g in new[] { wGid, mGid, aGid, sGid, eGid, vGid, cGid, caGid })
             {
                 if (string.IsNullOrEmpty(g))
                     continue;
@@ -135,7 +138,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 }
             }
 
-            bool anyGid = wGid.Length > 0 || mGid.Length > 0 || aGid.Length > 0 || sGid.Length > 0 || eGid.Length > 0 || vGid.Length > 0 || cGid.Length > 0;
+            bool anyGid = wGid.Length > 0 || mGid.Length > 0 || aGid.Length > 0 || sGid.Length > 0 || eGid.Length > 0 || vGid.Length > 0 || cGid.Length > 0 || caGid.Length > 0;
             if (anyGid && !IsHttpUrl(actions))
             {
                 if (logErrors)
@@ -154,6 +157,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             MergeTabUrlFromGid(actions, eGid, cfg, (c, v) => { c.EnemiesSheetUrl = v; }, c => c.EnemiesSheetUrl);
             MergeTabUrlFromGid(actions, vGid, cfg, (c, v) => { c.EnvironmentsSheetUrl = v; }, c => c.EnvironmentsSheetUrl);
             MergeTabUrlFromGid(actions, cGid, cfg, (c, v) => { c.ClassPresentationSheetUrl = v; }, c => c.ClassPresentationSheetUrl);
+            MergeTabUrlFromGid(actions, caGid, cfg, (c, v) => { c.ClassActionsSheetUrl = v; }, c => c.ClassActionsSheetUrl);
 
             cfg.Save();
             GoogleSheetsUrlHelper.TrySyncSpreadsheetIdToPushConfigFromSheetsConfig(cfg);
@@ -204,7 +208,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     && string.IsNullOrWhiteSpace(cfg.EnemiesSheetUrl)
                     && string.IsNullOrWhiteSpace(cfg.EnvironmentsSheetUrl)
                     && string.IsNullOrWhiteSpace(cfg.DungeonsSheetUrl)
-                    && string.IsNullOrWhiteSpace(cfg.ClassPresentationSheetUrl))
+                    && string.IsNullOrWhiteSpace(cfg.ClassPresentationSheetUrl)
+                    && string.IsNullOrWhiteSpace(cfg.ClassActionsSheetUrl))
                 {
                     sheetsRunner.AppendOutput("✗ Set the Actions CSV URL (base for all tabs) and optional tab gids, or full URLs in JSON.\n\n");
                     var st = panel.FindControl<TextBlock>("SheetsSyncProgressTextBlock");
@@ -332,6 +337,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             SetPushCheckbox(panel, "PushEnvironmentsTabCheckBox", pushCfg.PushEnvironmentsTab);
             SetPushCheckbox(panel, "PushDungeonsTabCheckBox", pushCfg.PushDungeonsTab);
             SetPushCheckbox(panel, "PushClassPresentationTabCheckBox", pushCfg.PushClassPresentationTab);
+            SetPushCheckbox(panel, "PushClassActionsTabCheckBox", pushCfg.PushClassActionsTab);
         }
 
         private static void TrySavePushTabSelectionsFromPanel(BalanceTuningSettingsPanel panel)
@@ -350,6 +356,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             pushCfg.PushEnvironmentsTab = ReadPushCheckbox(panel, "PushEnvironmentsTabCheckBox", defaultIfNull: true);
             pushCfg.PushDungeonsTab = ReadPushCheckbox(panel, "PushDungeonsTabCheckBox", defaultIfNull: true);
             pushCfg.PushClassPresentationTab = ReadPushCheckbox(panel, "PushClassPresentationTabCheckBox", defaultIfNull: true);
+            pushCfg.PushClassActionsTab = ReadPushCheckbox(panel, "PushClassActionsTabCheckBox", defaultIfNull: true);
             pushCfg.Save(path);
         }
 

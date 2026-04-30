@@ -34,6 +34,7 @@ namespace RPGGame.Tests.Runners
             GameDataTagHelperTests.RunAllTests();
             Console.WriteLine();
             ClassPresentationSheetConverterTests.RunAllTests();
+            ClassActionsSheetConverterTests.RunAllTests();
             Console.WriteLine();
             GoogleSheetsUrlHelperTests.RunAllTests();
             Console.WriteLine();

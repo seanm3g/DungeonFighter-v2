@@ -132,11 +132,7 @@ namespace RPGGame
                 {
                     string jsonContent = File.ReadAllText(foundPath);
                     var loadedEnemies = System.Text.Json.JsonSerializer.Deserialize<List<EnemyData>>(jsonContent);
-                    if (loadedEnemies != null)
-                    {
-                        foreach (var e in loadedEnemies)
-                            EnemyDataPostLoad.Apply(e);
-                    }
+                    // ENEMIES data is expected to already be canonical (baseAttributes + growthPerLevel) from the sheet pipeline.
                     return loadedEnemies;
                 }
                 else

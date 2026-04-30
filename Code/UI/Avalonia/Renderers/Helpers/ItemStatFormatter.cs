@@ -66,7 +66,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         {
             var builder = new ColoredTextBuilder();
             builder.Add("    ", Colors.White);
-            
+
             if (stat.StartsWith("Armor: +"))
             {
                 var parts = stat.Split(new[] { ": +" }, StringSplitOptions.None);

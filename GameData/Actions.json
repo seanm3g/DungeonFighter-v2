@@ -874,8 +874,16 @@
     "speed": "0.50"
   },
   {
-    "action": "CAST",
+    "action": "MAGIC MISSLE",
     "category": "WEAPON",
+    "dps": "90%",
+    "numberOfHits": "3",
+    "damage": "75%",
+    "speed": "2.5",
+    "heroCombo": "1"
+  },
+  {
+    "action": "CAST",
     "dps": "3%",
     "numberOfHits": "1",
     "damage": "10%",

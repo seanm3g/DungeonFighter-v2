@@ -198,9 +198,12 @@ namespace RPGGame.UI.ColorSystem.Themes
         /// </summary>
         public static Color GetRarityColor(string rarity)
         {
-            return rarity.ToLower() switch
+            if (string.IsNullOrWhiteSpace(rarity))
+                return ColorPalette.Common.GetColor();
+
+            return rarity.Trim().ToLowerInvariant() switch
             {
-                "common" => Colors.White,
+                "common" => ColorPalette.Common.GetColor(),
                 "uncommon" => ColorPalette.Green.GetColor(),
                 "rare" => ColorPalette.Blue.GetColor(),
                 "epic" => ColorPalette.Purple.GetColor(),

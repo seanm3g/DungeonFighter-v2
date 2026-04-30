@@ -20,6 +20,8 @@ namespace RPGGame.Tests.Unit.Data
             TestApplyDefaultEnemiesAndEnvironmentsTabNamesWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyDefaultDungeonsTabNameWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyDefaultStatBonusesTabNameWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
+            TestApplyDefaultClassActionsTabNameWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
+            TestApplyRenamedModificationsSheetTabName(ref testsRun, ref testsPassed, ref testsFailed);
             TestResolvePathsRelativeToConfigFile(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyMissingPushTabDefaultsLegacyJsonAllTrue(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyMissingPushTabDefaultsPartialKeys(ref testsRun, ref testsPassed, ref testsFailed);
@@ -58,7 +60,7 @@ namespace RPGGame.Tests.Unit.Data
               "spreadsheetId": "x",
               "actionsSheetTabName": "ACTIONS",
               "weaponsSheetTabName": "WEAPONS",
-              "modificationsSheetTabName": "MODIFICATIONS",
+              "modificationsSheetTabName": "Prefix",
               "armorSheetTabName": "ARMOR",
               "classPresentationSheetTabName": "CLASSES",
               "oauthClientSecretsPath": "s.json",
@@ -92,6 +94,7 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual(SheetsPushConfig.DefaultEnvironmentsSheetTabName, cfg.EnvironmentsSheetTabName, "environments", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual(SheetsPushConfig.DefaultDungeonsSheetTabName, cfg.DungeonsSheetTabName, "dungeons", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual(SheetsPushConfig.DefaultStatBonusesSheetTabName, cfg.StatBonusesSheetTabName, "stat bonuses / suffixes", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(SheetsPushConfig.DefaultClassActionsSheetTabName, cfg.ClassActionsSheetTabName, "class actions", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
         private static void TestApplyDefaultOptionalTabNamesSkipsWhenAnySet(ref int testsRun, ref int testsPassed, ref int testsFailed)
@@ -154,6 +157,34 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(!cfg.ApplyDefaultStatBonusesTabNameIfUnset(), "second call no-op", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
+        private static void TestApplyDefaultClassActionsTabNameWhenUnset(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestApplyDefaultClassActionsTabNameWhenUnset));
+            var cfg = new SheetsPushConfig
+            {
+                SpreadsheetId = "x",
+                ActionsSheetTabName = "ACTIONS",
+                OAuthClientSecretsPath = "s.json",
+                WeaponsSheetTabName = "WEAPONS",
+                ClassActionsSheetTabName = ""
+            };
+            TestBase.AssertTrue(cfg.ApplyDefaultClassActionsTabNameIfUnset(), "returns true", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(SheetsPushConfig.DefaultClassActionsSheetTabName, cfg.ClassActionsSheetTabName, "class actions tab defaulted", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(!cfg.ApplyDefaultClassActionsTabNameIfUnset(), "second call no-op", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestApplyRenamedModificationsSheetTabName(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestApplyRenamedModificationsSheetTabName));
+            var legacy = new SheetsPushConfig { ModificationsSheetTabName = "MODIFICATIONS" };
+            SheetsPushConfig.ApplyRenamedModificationsSheetTabName(legacy);
+            TestBase.AssertEqual(SheetsPushConfig.DefaultModificationsSheetTabName, legacy.ModificationsSheetTabName, "legacy MODIFICATIONS → Prefix", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var custom = new SheetsPushConfig { ModificationsSheetTabName = "CustomMods" };
+            SheetsPushConfig.ApplyRenamedModificationsSheetTabName(custom);
+            TestBase.AssertEqual("CustomMods", custom.ModificationsSheetTabName, "custom tab unchanged", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
         private static void TestResolvePathsRelativeToConfigFile(ref int testsRun, ref int testsPassed, ref int testsFailed)
         {
             TestBase.SetCurrentTestName(nameof(TestResolvePathsRelativeToConfigFile));
@@ -184,7 +215,7 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(cfg != null, "deserializes", ref testsRun, ref testsPassed, ref testsFailed);
             if (cfg == null) return;
             SheetsPushConfig.ApplyMissingPushTabDefaults(cfg, json);
-            TestBase.AssertTrue(cfg.PushActionsTab && cfg.PushWeaponsTab && cfg.PushEnemiesTab && cfg.PushDungeonsTab && cfg.PushClassPresentationTab, "all push flags true", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(cfg.PushActionsTab && cfg.PushWeaponsTab && cfg.PushEnemiesTab && cfg.PushDungeonsTab && cfg.PushClassPresentationTab && cfg.PushClassActionsTab, "all push flags true", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
         private static void TestApplyMissingPushTabDefaultsPartialKeys(ref int testsRun, ref int testsPassed, ref int testsFailed)
@@ -204,6 +235,7 @@ namespace RPGGame.Tests.Unit.Data
             SheetsPushConfig.ApplyMissingPushTabDefaults(cfg, json);
             TestBase.AssertTrue(cfg.PushActionsTab, "missing pushActionsTab → true", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertTrue(cfg.PushWeaponsTab, "missing pushWeaponsTab → true", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(cfg.PushClassActionsTab, "missing pushClassActionsTab → true", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertTrue(!cfg.PushEnemiesTab, "explicit pushEnemiesTab false preserved", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
@@ -223,14 +255,15 @@ namespace RPGGame.Tests.Unit.Data
               "pushEnemiesTab": false,
               "pushEnvironmentsTab": false,
               "pushDungeonsTab": false,
-              "pushClassPresentationTab": false
+              "pushClassPresentationTab": false,
+              "pushClassActionsTab": false
             }
             """;
             var cfg = JsonSerializer.Deserialize<SheetsPushConfig>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             TestBase.AssertTrue(cfg != null, "deserializes", ref testsRun, ref testsPassed, ref testsFailed);
             if (cfg == null) return;
             SheetsPushConfig.ApplyMissingPushTabDefaults(cfg, json);
-            TestBase.AssertTrue(!cfg.PushEnemiesTab && !cfg.PushActionsTab, "all explicit false preserved", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(!cfg.PushEnemiesTab && !cfg.PushActionsTab && !cfg.PushClassActionsTab, "all explicit false preserved", ref testsRun, ref testsPassed, ref testsFailed);
         }
     }
 }

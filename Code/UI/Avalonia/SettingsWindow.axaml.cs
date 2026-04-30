@@ -134,6 +134,16 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         private void OnKeyDown(object? sender, KeyEventArgs e)
         {
+            if (e.Key == Key.F11)
+            {
+                DeveloperModeState.ToggleCombatLogInstant();
+                e.Handled = true;
+                updateStatus?.Invoke(DeveloperModeState.IsCombatLogInstant
+                    ? "Developer mode: instant text (combat, room, menus)"
+                    : "Developer mode: off");
+                return;
+            }
+
             if (e.Key == Key.Escape && !SuppressEscapeClose)
             {
                 Close();

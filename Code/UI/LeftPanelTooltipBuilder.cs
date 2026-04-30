@@ -204,7 +204,7 @@ namespace RPGGame
         {
             addWrapped("Class points");
             addWrapped("Points per class track how much you have invested in Barbarian, Warrior, Rogue, and Wizard paths.");
-            addWrapped("They affect which advanced actions and passives you can unlock.");
+            addWrapped("Which combo actions unlock at each tier (and optional extra point gates) comes from GameData/ClassActions.json, usually filled from the CLASS ACTIONS sheet when you pull from Google Sheets.");
         }
 
         private static void AppendThresholdCrit(Character c, Action<string> addWrapped)
@@ -383,7 +383,7 @@ namespace RPGGame
             addWrapped("Magic find");
             addWrapped($"Total: +{v}");
             addWrapped("Sum of MagicFind stat bonuses on equipment plus modification magicFind effects.");
-            addWrapped("Loot: tilts the first weighted rarity roll toward higher tiers (capped at 100 for that math).");
+            addWrapped("Loot: improves affix-line tier odds and optional extra affix chances (0–100); does not change base rarity table.");
         }
 
         private static void AppendSimpleStat(Character c, string title, string detail, List<string> result, Action<string> addWrapped, int maxLines)
@@ -410,7 +410,7 @@ namespace RPGGame
 
             if (item is WeaponItem wi)
             {
-                addWrapped($"Weapon damage: {wi.GetTotalDamage()} (base {wi.BaseDamage} + bonus {wi.BonusDamage}).");
+                addWrapped($"Weapon damage: {wi.FormatDamageBreakdownForDisplay()}.");
                 addWrapped($"Weapon BaseAttackSpeed (JSON): {wi.BaseAttackSpeed.ToString("F2", CultureInfo.InvariantCulture)} (used in attack-time formula).");
                 addWrapped($"Weapon type: {wi.WeaponType}.");
             }

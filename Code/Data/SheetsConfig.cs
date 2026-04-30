@@ -30,6 +30,9 @@ namespace RPGGame.Data
         [JsonPropertyName("classPresentationSheetUrl")]
         public string ClassPresentationSheetUrl { get; set; } = "";
 
+        [JsonPropertyName("classActionsSheetUrl")]
+        public string ClassActionsSheetUrl { get; set; } = "";
+
         [JsonPropertyName("enemiesSheetUrl")]
         public string EnemiesSheetUrl { get; set; } = "";
 

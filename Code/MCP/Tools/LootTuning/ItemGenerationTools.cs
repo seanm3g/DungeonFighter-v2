@@ -75,7 +75,7 @@ namespace RPGGame.MCP.Tools.LootTuning
                         tier = item.Tier,
                         rarity = item.Rarity,
                         type = item.GetType().Name,
-                        damage = (item as WeaponItem)?.BaseDamage ?? 0,
+                        damage = (item as WeaponItem)?.GetTotalDamage() ?? 0,
                         armor = (item as HeadItem)?.Armor ?? (item as FeetItem)?.Armor ?? (item as ChestItem)?.Armor ?? 0,
                         statBonuses = item.StatBonuses?.Count ?? 0,
                         modifications = item.Modifications?.Count ?? 0

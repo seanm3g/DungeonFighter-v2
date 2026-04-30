@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Media;
+using RPGGame;
 using RPGGame.Tests;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications.ItemFormatting;
+using RPGGame.UI.ColorSystem.Themes;
 
 namespace RPGGame.Tests.Unit
 {
@@ -27,6 +31,7 @@ namespace RPGGame.Tests.Unit
             TestColorLayerSystem();
             TestKeywordColorSystem();
             TestItemColorSystem();
+            TestItemNameFormatterEmbeddedMaterialAndBaseType();
             TestStatusEffectColorHelper();
 
             TestBase.PrintSummary("Color System Application Tests", _testsRun, _testsPassed, _testsFailed);
@@ -153,6 +158,49 @@ namespace RPGGame.Tests.Unit
                     $"Item should have {rarity} rarity", 
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        #endregion
+
+        #region ItemNameFormatter Tests
+
+        private static void TestItemNameFormatterEmbeddedMaterialAndBaseType()
+        {
+            Console.WriteLine("\n--- Testing ItemNameFormatter (base name theming) ---");
+
+            var glassBrogues = new FeetItem("GLASS BROGUES", 1, 1)
+            {
+                Rarity = "Common",
+                Modifications = new List<Modification>()
+            };
+            var gbSegments = ItemNameFormatter.FormatFullItemName(glassBrogues);
+            var glassSeg = gbSegments.FirstOrDefault(s => s.Text == "GLASS");
+            var broguesSeg = gbSegments.FirstOrDefault(s => s.Text == "BROGUES");
+            var feetTheme = ItemThemeProvider.GetItemTypeTheme(ItemType.Feet);
+            TestBase.AssertTrue(feetTheme.Count > 0, "Feet item type theme should exist", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var expectedFeetColor = feetTheme[0].Color;
+            TestBase.AssertNotNull(glassSeg,
+                "FormatFullItemName should emit a segment for GLASS",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertNotNull(broguesSeg,
+                "FormatFullItemName should emit a segment for BROGUES",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(glassSeg!.Color, ColorPalette.Cyan.GetColor()),
+                "Leading material word GLASS should use cyan material color",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(broguesSeg!.Color, expectedFeetColor),
+                "Base equipment word should use feet armor type theme",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var plainShoes = new FeetItem("SHOES", 1, 1) { Rarity = "Common" };
+            var shoesSeg = ItemNameFormatter.FormatFullItemName(plainShoes).FirstOrDefault(s => s.Text == "SHOES");
+            TestBase.AssertNotNull(shoesSeg, "Single-word feet name should still produce a segment", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(shoesSeg!.Color, expectedFeetColor),
+                "Single-word feet item should use feet armor type theme (not flat white)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

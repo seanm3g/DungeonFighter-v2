@@ -76,6 +76,10 @@ namespace RPGGame.UI.Avalonia.Settings
         // Weapon properties
         private int _baseDamage = 0;
         private double _attackSpeed = 0;
+        /// <summary>Catalog inclusive lower bound for one-time rolled damage bonus when the weapon is generated from JSON.</summary>
+        private int _damageBonusMin = 0;
+        /// <summary>Catalog inclusive upper bound for rolled damage bonus.</summary>
+        private int _damageBonusMax = 0;
         private int _hitCount = 0;
         private string _effect = "";
 
@@ -150,7 +154,30 @@ namespace RPGGame.UI.Avalonia.Settings
         public int BaseDamage
         {
             get => _baseDamage;
-            set { _baseDamage = value; UpdateDetails(); OnPropertyChanged(); }
+            set { _baseDamage = value; UpdateDetails(); OnPropertyChanged(); OnPropertyChanged(nameof(WeaponDamageListText)); }
+        }
+
+        public int DamageBonusMin
+        {
+            get => _damageBonusMin;
+            set { _damageBonusMin = value; UpdateDetails(); OnPropertyChanged(); OnPropertyChanged(nameof(WeaponDamageListText)); }
+        }
+
+        public int DamageBonusMax
+        {
+            get => _damageBonusMax;
+            set { _damageBonusMax = value; UpdateDetails(); OnPropertyChanged(); OnPropertyChanged(nameof(WeaponDamageListText)); }
+        }
+
+        /// <summary>Weapons list row: base damage and optional catalog bonus range (rolled once when the weapon is created in-game).</summary>
+        public string WeaponDamageListText
+        {
+            get
+            {
+                if (_damageBonusMin == 0 && _damageBonusMax == 0)
+                    return $"Damage: {_baseDamage}";
+                return $"Damage: {_baseDamage} (bonus {_damageBonusMin}–{_damageBonusMax})";
+            }
         }
 
         public double AttackSpeed
@@ -191,7 +218,10 @@ namespace RPGGame.UI.Avalonia.Settings
         {
             if (IsWeapon)
             {
-                Details = $"Damage: {BaseDamage}  Speed: {AttackSpeed:F2}×";
+                string bonusPart = (DamageBonusMin == 0 && DamageBonusMax == 0)
+                    ? ""
+                    : $"  Bonus: {DamageBonusMin}–{DamageBonusMax}";
+                Details = $"Damage: {BaseDamage}{bonusPart}  Speed: {AttackSpeed:F2}×";
                 if (HitCount > 0)
                     Details += $"  Hits: {HitCount}";
                 if (!string.IsNullOrEmpty(Effect) && Effect != "none")

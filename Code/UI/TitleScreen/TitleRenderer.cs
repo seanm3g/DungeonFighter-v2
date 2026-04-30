@@ -67,7 +67,7 @@ namespace RPGGame.UI.TitleScreen
                 
                 // Calculate title line ranges in the frame
                 // Frame structure: 15 top padding + 2 blank + 6 DUNGEON + 1 blank + 1 decorator + 1 blank + 6 FIGHTERS + ...
-                const int dungeonStartIndex = 17; // 15 padding + 2 blank lines
+                const int dungeonStartIndex = 16; // 15 padding + 2 blank lines
                 const int dungeonEndIndex = 22;    // dungeonStartIndex + 6 lines - 1
                 // const int decoratorIndex = 24; // dungeonEndIndex + 1 blank + 1 (reserved for future use)
                 const int fighterStartIndex = 26; // decoratorIndex + 1 blank + 1

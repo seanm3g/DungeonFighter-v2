@@ -67,8 +67,6 @@ namespace RPGGame.UI.Avalonia.Managers
         public void ReloadFromDisk()
         {
             loadedEnemies = dataService.LoadEnemies();
-            foreach (var e in loadedEnemies)
-                EnemyDataPostLoad.Apply(e);
 
             rows = new ObservableCollection<EnemySettingsRowViewModel>();
             for (var i = 0; i < loadedEnemies.Count; i++)

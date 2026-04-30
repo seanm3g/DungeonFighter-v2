@@ -445,10 +445,13 @@ namespace RPGGame
 
         /// <summary>
         /// Heroes and enemies must not carry room/environment hazard actions; those belong on <see cref="Environment"/> only.
+        /// The hero (non-<see cref="Enemy"/>) must not gain actions tagged <c>enemy</c>; those are reserved for enemy action pools.
         /// </summary>
         public override void AddAction(Action action, double probability)
         {
             if (action == null || GameDataTagHelper.HasEnvironmentTag(action.Tags))
+                return;
+            if (this is not Enemy && GameDataTagHelper.HasEnemyTag(action.Tags))
                 return;
             base.AddAction(action, probability);
         }
@@ -457,6 +460,8 @@ namespace RPGGame
         public override void AddActionAllowDuplicates(Action action, double probability)
         {
             if (action == null || GameDataTagHelper.HasEnvironmentTag(action.Tags))
+                return;
+            if (this is not Enemy && GameDataTagHelper.HasEnemyTag(action.Tags))
                 return;
             base.AddActionAllowDuplicates(action, probability);
         }

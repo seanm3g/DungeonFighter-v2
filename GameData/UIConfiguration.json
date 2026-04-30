@@ -55,7 +55,7 @@
     "updateIntervalMs": 100
   },
   "dungeonSelectionAnimation": {
-    "undulationSpeed": 0.05,
+    "undulationSpeed": -0.05,
     "undulationIntervalMs": 50,
     "undulationWaveLength": 4,
     "brightnessMask": {

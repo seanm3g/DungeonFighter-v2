@@ -39,8 +39,13 @@ namespace RPGGame.UI.Avalonia.Managers
         
         // Render throttling to prevent excessive renders
         private DateTime lastRenderTime = DateTime.MinValue;
+        private DateTime lastDungeonCompletionRenderTime = DateTime.MinValue;
         private readonly int minRenderIntervalMs = 42; // ~24fps max render rate (1/24th of a second ≈ 41.67ms, rounded to 42ms)
         private readonly object renderThrottleLock = new object();
+        private readonly object dungeonCompletionThrottleLock = new object();
+        
+        /// <summary>Invoked on a timer while <see cref="GameState.DungeonCompletion"/> is active so undulating text re-renders.</summary>
+        private System.Action? dungeonCompletionReRenderCallback;
         
         public CanvasAnimationManager(GameCanvasControl canvas, DungeonRenderer? dungeonRenderer, Action<Character, List<Dungeon>>? reRenderCallback)
         {
@@ -198,6 +203,36 @@ namespace RPGGame.UI.Avalonia.Managers
         }
         
         /// <summary>
+        /// Throttled re-render for victory / dungeon completion undulation.
+        /// Separate throttle from <see cref="ThrottledRender"/> because that method updates
+        /// <see cref="lastRenderTime"/> even when dungeon selection is inactive, which would block this path.
+        /// </summary>
+        private void ThrottledDungeonCompletionRender()
+        {
+            if (dungeonCompletionReRenderCallback == null)
+                return;
+            
+            lock (dungeonCompletionThrottleLock)
+            {
+                var now = DateTime.Now;
+                if ((now - lastDungeonCompletionRenderTime).TotalMilliseconds < minRenderIntervalMs)
+                    return;
+                lastDungeonCompletionRenderTime = now;
+            }
+            
+            if (stateManager == null || stateManager.CurrentState != GameState.DungeonCompletion)
+                return;
+            
+            var onRepaint = dungeonCompletionReRenderCallback;
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (stateManager?.CurrentState != GameState.DungeonCompletion)
+                    return;
+                onRepaint?.Invoke();
+            }, DispatcherPriority.Background);
+        }
+        
+        /// <summary>
         /// Update callback for undulation animation
         /// </summary>
         private void UpdateUndulation(object? state)
@@ -211,6 +246,9 @@ namespace RPGGame.UI.Avalonia.Managers
                 // Trigger throttled render for dungeon selection
                 ThrottledRender();
             }
+            
+            // Victory / dungeon completion screen uses the same undulation state; re-draw while that screen is up.
+            ThrottledDungeonCompletionRender();
             
             // Also trigger re-render for display buffer (for "ENTERING DUNGEON" lines)
             // This is handled by crit line animation manager
@@ -230,6 +268,8 @@ namespace RPGGame.UI.Avalonia.Managers
                 // Trigger throttled render for dungeon selection
                 ThrottledRender();
             }
+            
+            ThrottledDungeonCompletionRender();
             
             // Also trigger re-render for display buffer (for "ENTERING DUNGEON" lines)
             // This is handled by crit line animation manager
@@ -349,6 +389,15 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             this.critLineReRenderCallback = callback;
             critLineAnimationManager.SetCritLineReRenderCallback(callback);
+        }
+        
+        /// <summary>
+        /// Sets a callback to re-draw the dungeon completion (victory) screen while undulation advances.
+        /// Uses the same shared <see cref="DungeonSelectionAnimationState"/> as dungeon selection text.
+        /// </summary>
+        public void SetDungeonCompletionReRenderCallback(System.Action? callback)
+        {
+            dungeonCompletionReRenderCallback = callback;
         }
         
         /// <summary>
