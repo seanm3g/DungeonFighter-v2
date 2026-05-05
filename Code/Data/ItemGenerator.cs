@@ -11,6 +11,24 @@ namespace RPGGame
     /// </summary>
     public static class ItemGenerator
     {
+        /// <summary>Stat suffix keywords appended after the base name: Uncommon, then Common, then Rare, then higher tiers.</summary>
+        private static readonly string[] StatSuffixDisplayRarityOrder =
+            { "Uncommon", "Common", "Rare", "Epic", "Legendary", "Mythic" };
+
+        /// <summary>Lower sorts earlier in the displayed item name among stat suffixes.</summary>
+        internal static int StatSuffixDisplayOrderRank(string? rarity)
+        {
+            if (string.IsNullOrWhiteSpace(rarity))
+                return 999;
+            string t = rarity.Trim();
+            for (int i = 0; i < StatSuffixDisplayRarityOrder.Length; i++)
+            {
+                if (string.Equals(StatSuffixDisplayRarityOrder[i], t, StringComparison.OrdinalIgnoreCase))
+                    return i;
+            }
+
+            return 100;
+        }
 
         /// <summary>
         /// Generates a weapon item from weapon data
@@ -67,6 +85,16 @@ namespace RPGGame
             }
 
             item.Tags = GameDataTagHelper.NormalizeDistinct(armorData.Tags);
+
+            item.BaseStrength = armorData.Strength;
+            item.BaseAgility = armorData.Agility;
+            item.BaseTechnique = armorData.Technique;
+            item.BaseIntelligence = armorData.Intelligence;
+            item.BaseHit = armorData.Hit;
+            item.BaseCombo = armorData.Combo;
+            item.BaseCrit = armorData.Crit;
+            item.ExtraActionSlots = armorData.ExtraActionSlots;
+            item.MinGeneratedActionBonuses = armorData.MinActionBonuses;
             
             return item;
         }
@@ -136,7 +164,9 @@ namespace RPGGame
             }
             
             // Add stat bonus names as suffixes (these are typically "of Protection", "of Swiftness", etc.)
-            foreach (var statBonus in item.StatBonuses)
+            foreach (var statBonus in item.StatBonuses
+                         .OrderBy(s => StatSuffixDisplayOrderRank(s.Rarity))
+                         .ThenBy(s => s.Name ?? "", StringComparer.OrdinalIgnoreCase))
             {
                 if (!string.IsNullOrEmpty(statBonus.Name))
                 {
@@ -418,7 +448,7 @@ namespace RPGGame
                 switch (selectedBonus)
                 {
                     case StatBonus statBonus:
-                        item.StatBonuses.Add(statBonus);
+                        item.StatBonuses.Add(statBonus.CloneForItemInstance());
                         break;
                     case ActionBonus actionBonus:
                         item.ActionBonuses.Add(actionBonus);

@@ -31,11 +31,14 @@ namespace RPGGame
             {
                 if (item != null)
                 {
+                    totalBonus += BaseCatalogStatBonus(item, statType);
                     foreach (var statBonus in item.StatBonuses)
                     {
-                        if (statBonus.StatType == statType || statBonus.StatType == "ALL")
+                        foreach (var (contribType, contribValue) in statBonus.EnumerateContributions())
                         {
-                            totalBonus += (int)statBonus.Value;
+                            if (string.Equals(contribType, statType, StringComparison.OrdinalIgnoreCase) ||
+                                string.Equals(contribType, "ALL", StringComparison.OrdinalIgnoreCase))
+                                totalBonus += (int)contribValue;
                         }
                     }
 
@@ -47,6 +50,31 @@ namespace RPGGame
             }
 
             return totalBonus;
+        }
+
+        /// <summary>Armor sheet / <see cref="Item"/> base fields (STR, HIT, …) before rolled suffixes.</summary>
+        private static int BaseCatalogStatBonus(Item item, string statType)
+        {
+            string t = (statType ?? "").Trim();
+            if (string.Equals(t, "STR", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(t, "STRENGTH", StringComparison.OrdinalIgnoreCase))
+                return item.BaseStrength;
+            if (string.Equals(t, "AGI", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(t, "AGILITY", StringComparison.OrdinalIgnoreCase))
+                return item.BaseAgility;
+            if (string.Equals(t, "TEC", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(t, "TECHNIQUE", StringComparison.OrdinalIgnoreCase))
+                return item.BaseTechnique;
+            if (string.Equals(t, "INT", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(t, "INTELLIGENCE", StringComparison.OrdinalIgnoreCase))
+                return item.BaseIntelligence;
+            if (string.Equals(t, "HIT", StringComparison.OrdinalIgnoreCase))
+                return item.BaseHit;
+            if (string.Equals(t, "COMBO", StringComparison.OrdinalIgnoreCase))
+                return item.BaseCombo;
+            if (string.Equals(t, "CRIT", StringComparison.OrdinalIgnoreCase))
+                return item.BaseCrit;
+            return 0;
         }
 
         private static int MaterialStatBonus(Modification modification, string statType)
@@ -75,11 +103,14 @@ namespace RPGGame
             {
                 if (item != null)
                 {
+                    totalBonus += BaseCatalogStatBonus(item, statType);
                     foreach (var statBonus in item.StatBonuses)
                     {
-                        if (statBonus.StatType == statType || statBonus.StatType == "ALL")
+                        foreach (var (contribType, contribValue) in statBonus.EnumerateContributions())
                         {
-                            totalBonus += statBonus.Value;
+                            if (string.Equals(contribType, statType, StringComparison.OrdinalIgnoreCase) ||
+                                string.Equals(contribType, "ALL", StringComparison.OrdinalIgnoreCase))
+                                totalBonus += contribValue;
                         }
                     }
                 }

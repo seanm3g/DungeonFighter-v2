@@ -159,12 +159,15 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 var bonusTexts = new List<string>();
                 foreach (var bonus in item.StatBonuses)
                 {
-                    string formatted = bonus.StatType switch
+                    foreach (var (contribType, contribValue) in bonus.EnumerateContributions())
                     {
-                        "AttackSpeed" => $"+{bonus.Value:F3} AttackSpeed",
-                        _ => $"+{bonus.Value} {bonus.StatType}"
-                    };
-                    bonusTexts.Add(formatted);
+                        string formatted = contribType switch
+                        {
+                            "AttackSpeed" => $"+{contribValue:F3} AttackSpeed",
+                            _ => $"+{contribValue} {contribType}"
+                        };
+                        bonusTexts.Add(formatted);
+                    }
                 }
                 
                 statsBuilder.Add(string.Join(", ", bonusTexts), Colors.White);

@@ -1,3 +1,4 @@
+using RPGGame;
 using RPGGame.Data;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,8 @@ namespace RPGGame.UI.Avalonia.Managers
                 if (filePath != null && File.Exists(filePath))
                 {
                     string json = File.ReadAllText(filePath);
+                    // Match JsonLoader: sheet exports may use null DiceResult / Min / Max or other shapes.
+                    json = GameDataJsonNormalizer.NormalizeForGameDataFile(GameConstants.ModificationsJson, json);
                     var options = new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true

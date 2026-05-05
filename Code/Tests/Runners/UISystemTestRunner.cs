@@ -133,6 +133,10 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ItemModifiersTabManagerTests.RunAllTests();
             Console.WriteLine();
+            ItemSuffixesTabManagerTests.RunAllTests();
+            Console.WriteLine();
+            ItemSuffixesDataCoordinatorTests.RunAllTests();
+            Console.WriteLine();
             ItemsTabManagerTests.RunAllTests();
             Console.WriteLine();
             KeywordColorSystemTests.RunAllTests();

@@ -424,7 +424,7 @@ namespace RPGGame
             if (item.StatBonuses != null && item.StatBonuses.Count > 0)
             {
                 var parts = item.StatBonuses
-                    .Select(sb => $"{sb.StatType}:{sb.Value:0.##}")
+                    .SelectMany(sb => sb.EnumerateContributions().Select(c => $"{c.StatType}:{c.Value:0.##}"))
                     .ToArray();
                 addWrapped("Stat bonuses: " + string.Join(", ", parts));
             }

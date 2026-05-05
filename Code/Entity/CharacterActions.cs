@@ -37,9 +37,10 @@ namespace RPGGame
             return _comboManager.GetComboActions();
         }
 
-        public void AddToCombo(Action action)
+        /// <param name="maxComboLength">When null, no cap (tests / internal). Heroes from UI use <see cref="CharacterFacade.AddToCombo"/>.</param>
+        public void AddToCombo(Action action, int? maxComboLength = null)
         {
-            _comboManager.AddToCombo(action);
+            _comboManager.AddToCombo(action, maxComboLength);
         }
 
         public void RemoveFromCombo(Action action)

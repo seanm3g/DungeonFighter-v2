@@ -1,272 +1,326 @@
 [
   {
-    "DiceResult": 201,
-    "ItemRank": "Common",
-    "Name": "Bone",
-    "Description": "\u002B1\u20132 STR",
-    "Effect": "equipmentStr",
-    "MinValue": 1,
-    "MaxValue": 2,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 202,
-    "ItemRank": "Common",
-    "Name": "Bronze",
-    "Description": "\u002B1\u20132 AGI",
-    "Effect": "equipmentAgi",
-    "MinValue": 1,
-    "MaxValue": 2,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 203,
-    "ItemRank": "Common",
-    "Name": "Glass",
-    "Description": "\u002B1\u20132 TEC",
-    "Effect": "equipmentTec",
-    "MinValue": 1,
-    "MaxValue": 2,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 204,
-    "ItemRank": "Common",
-    "Name": "Willow",
-    "Description": "\u002B1\u20132 INT",
-    "Effect": "equipmentInt",
-    "MinValue": 1,
-    "MaxValue": 2,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 205,
-    "ItemRank": "Uncommon",
-    "Name": "Steel",
-    "Description": "\u002B2\u20133 STR",
-    "Effect": "equipmentStr",
-    "MinValue": 2,
-    "MaxValue": 3,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 206,
-    "ItemRank": "Uncommon",
-    "Name": "Gold",
-    "Description": "\u002B2\u20133 AGI",
-    "Effect": "equipmentAgi",
-    "MinValue": 2,
-    "MaxValue": 3,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 207,
-    "ItemRank": "Uncommon",
-    "Name": "Obsidian",
-    "Description": "\u002B2\u20133 TEC",
-    "Effect": "equipmentTec",
-    "MinValue": 2,
-    "MaxValue": 3,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 208,
-    "ItemRank": "Uncommon",
-    "Name": "Silver",
-    "Description": "\u002B2\u20133 INT",
-    "Effect": "equipmentInt",
-    "MinValue": 2,
-    "MaxValue": 3,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 209,
-    "ItemRank": "Rare",
-    "Name": "Damascus",
-    "Description": "\u002B3\u20134 STR",
-    "Effect": "equipmentStr",
-    "MinValue": 3,
-    "MaxValue": 4,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 210,
-    "ItemRank": "Rare",
-    "Name": "Mithril",
-    "Description": "\u002B3\u20134 AGI",
-    "Effect": "equipmentAgi",
-    "MinValue": 3,
-    "MaxValue": 4,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 211,
-    "ItemRank": "Rare",
-    "Name": "Shadow",
-    "Description": "\u002B3\u20134 TEC",
-    "Effect": "equipmentTec",
-    "MinValue": 3,
-    "MaxValue": 4,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 212,
-    "ItemRank": "Rare",
-    "Name": "Crystal",
-    "Description": "\u002B3\u20134 INT",
-    "Effect": "equipmentInt",
-    "MinValue": 3,
-    "MaxValue": 4,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 213,
-    "ItemRank": "Epic",
-    "Name": "Unknown",
-    "Description": "Mystery tag",
-    "Effect": "materialTag",
-    "MinValue": 0,
-    "MaxValue": 0,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 214,
-    "ItemRank": "Epic",
-    "Name": "Stone",
-    "Description": "Stone-tagged",
-    "Effect": "materialTag",
-    "MinValue": 0,
-    "MaxValue": 0,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 215,
-    "ItemRank": "Legendary",
-    "Name": "Strange",
-    "Description": "Strange essence",
-    "Effect": "materialTag",
-    "MinValue": 0,
-    "MaxValue": 0,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 216,
-    "ItemRank": "Legendary",
-    "Name": "Celestial",
-    "Description": "Celestial alloy",
-    "Effect": "materialTag",
-    "MinValue": 0,
-    "MaxValue": 0,
-    "prefixCategory": "Material"
-  },
-  {
-    "DiceResult": 101,
+    "DiceResult": null,
     "ItemRank": "Common",
     "Name": "Broken",
     "Description": "\u221250% to \u221225% base weapon damage / armor on this piece",
     "Effect": "gearPrimaryStatMultiplier",
     "MinValue": 0.5,
     "MaxValue": 0.75,
-    "prefixCategory": "Quality"
+    "prefixCategory": "Quality",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
   },
   {
-    "DiceResult": 102,
+    "DiceResult": null,
     "ItemRank": "Common",
     "Name": "Battle Scarred",
     "Description": "Slightly reduced base stats",
     "Effect": "gearPrimaryStatMultiplier",
     "MinValue": 0.82,
     "MaxValue": 0.9,
-    "prefixCategory": "Quality"
+    "prefixCategory": "Quality",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
   },
   {
-    "DiceResult": 103,
+    "DiceResult": null,
     "ItemRank": "Common",
     "Name": "Worn",
     "Description": "Reduced base stats",
     "Effect": "gearPrimaryStatMultiplier",
     "MinValue": 0.88,
     "MaxValue": 0.95,
-    "prefixCategory": "Quality"
+    "prefixCategory": "Quality",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
   },
   {
-    "DiceResult": 104,
+    "DiceResult": null,
     "ItemRank": "Uncommon",
     "Name": "Second Hand",
     "Description": "Small penalty to base stats",
     "Effect": "gearPrimaryStatMultiplier",
     "MinValue": 0.92,
     "MaxValue": 0.97,
-    "prefixCategory": "Quality"
+    "prefixCategory": "Quality",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
   },
   {
-    "DiceResult": 105,
+    "DiceResult": null,
     "ItemRank": "Uncommon",
     "Name": "Preowned",
     "Description": "Near-neutral base stats",
     "Effect": "gearPrimaryStatMultiplier",
     "MinValue": 0.95,
     "MaxValue": 1,
-    "prefixCategory": "Quality"
+    "prefixCategory": "Quality",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
   },
   {
-    "DiceResult": 106,
+    "DiceResult": null,
     "ItemRank": "Rare",
     "Name": "Like New",
     "Description": "Slight bonus to base stats",
     "Effect": "gearPrimaryStatMultiplier",
     "MinValue": 1.02,
     "MaxValue": 1.06,
-    "prefixCategory": "Quality"
+    "prefixCategory": "Quality",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
   },
   {
-    "DiceResult": 107,
+    "DiceResult": null,
     "ItemRank": "Rare",
     "Name": "New",
     "Description": "Bonus to base stats",
     "Effect": "gearPrimaryStatMultiplier",
     "MinValue": 1.05,
     "MaxValue": 1.1,
-    "prefixCategory": "Quality"
+    "prefixCategory": "Quality",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
   },
   {
-    "DiceResult": 108,
+    "DiceResult": null,
     "ItemRank": "Epic",
     "Name": "Perfect",
     "Description": "Strong bonus to base stats",
     "Effect": "gearPrimaryStatMultiplier",
     "MinValue": 1.1,
     "MaxValue": 1.18,
-    "prefixCategory": "Quality"
+    "prefixCategory": "Quality",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
   },
   {
-    "DiceResult": 109,
+    "DiceResult": null,
     "ItemRank": "Legendary",
     "Name": "Masterwork",
     "Description": "Large bonus to base stats",
     "Effect": "gearPrimaryStatMultiplier",
     "MinValue": 1.15,
     "MaxValue": 1.28,
-    "prefixCategory": "Quality"
+    "prefixCategory": "Quality",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
   },
   {
-    "DiceResult": 110,
+    "DiceResult": null,
     "ItemRank": "Legendary",
     "Name": "Heirloom",
     "Description": "Very large bonus to base stats",
     "Effect": "gearPrimaryStatMultiplier",
     "MinValue": 1.22,
     "MaxValue": 1.35,
-    "prefixCategory": "Quality"
+    "prefixCategory": "Quality",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
   },
   {
-    "DiceResult": 111,
+    "DiceResult": null,
     "ItemRank": "Mythic",
     "Name": "Cosmic",
     "Description": "\u002B200% to \u002B250% base stats",
     "Effect": "gearPrimaryStatMultiplier",
     "MinValue": 2,
     "MaxValue": 2.5,
-    "prefixCategory": "Quality"
+    "prefixCategory": "Quality",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Common",
+    "Name": "Bone",
+    "Description": "\u002B1\u20132 STR",
+    "Effect": "equipmentStr",
+    "MinValue": 1,
+    "MaxValue": 2,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": "STRENGTH",
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Common",
+    "Name": "Bronze",
+    "Description": "\u002B1\u20132 AGI",
+    "Effect": "equipmentAgi",
+    "MinValue": 1,
+    "MaxValue": 2,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": "AGILITY",
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Common",
+    "Name": "Glass",
+    "Description": "\u002B1\u20132 TEC",
+    "Effect": "equipmentTec",
+    "MinValue": 1,
+    "MaxValue": 2,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": "TECHNIQUE",
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Common",
+    "Name": "Willow",
+    "Description": "\u002B1\u20132 INT",
+    "Effect": "equipmentInt",
+    "MinValue": 1,
+    "MaxValue": 2,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": "INTELLIGENCE",
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Uncommon",
+    "Name": "Steel",
+    "Description": "\u002B2\u20133 STR",
+    "Effect": "equipmentStr",
+    "MinValue": 2,
+    "MaxValue": 3,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": "STRENGTH",
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Uncommon",
+    "Name": "Gold",
+    "Description": "\u002B2\u20133 AGI",
+    "Effect": "equipmentAgi",
+    "MinValue": 2,
+    "MaxValue": 3,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": "AGILITY",
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Uncommon",
+    "Name": "Obsidian",
+    "Description": "\u002B2\u20133 TEC",
+    "Effect": "equipmentTec",
+    "MinValue": 2,
+    "MaxValue": 3,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": "TECHNIQUE",
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Uncommon",
+    "Name": "Silver",
+    "Description": "\u002B2\u20133 INT",
+    "Effect": "equipmentInt",
+    "MinValue": 2,
+    "MaxValue": 3,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": "INTELLIGENCE",
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Rare",
+    "Name": "Damascus",
+    "Description": "\u002B3\u20134 STR",
+    "Effect": "equipmentStr",
+    "MinValue": 3,
+    "MaxValue": 4,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": "STRENGTH",
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Rare",
+    "Name": "Mithril",
+    "Description": "\u002B3\u20134 AGI",
+    "Effect": "equipmentAgi",
+    "MinValue": 3,
+    "MaxValue": 4,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": "AGILITY",
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Rare",
+    "Name": "Shadow",
+    "Description": "\u002B3\u20134 TEC",
+    "Effect": "equipmentTec",
+    "MinValue": 3,
+    "MaxValue": 4,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": "TECHNIQUE",
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Rare",
+    "Name": "Crystal",
+    "Description": "\u002B3\u20134 INT",
+    "Effect": "equipmentInt",
+    "MinValue": 3,
+    "MaxValue": 4,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": "INTELLIGENCE",
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Epic",
+    "Name": "Unknown",
+    "Description": "Mystery tag",
+    "Effect": "materialTag",
+    "MinValue": 0,
+    "MaxValue": 0,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Epic",
+    "Name": "Stone",
+    "Description": "Stone-tagged",
+    "Effect": "materialTag",
+    "MinValue": 0,
+    "MaxValue": 0,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Legendary",
+    "Name": "Strange",
+    "Description": "Strange essence",
+    "Effect": "materialTag",
+    "MinValue": 0,
+    "MaxValue": 0,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
+  },
+  {
+    "DiceResult": null,
+    "ItemRank": "Legendary",
+    "Name": "Celestial",
+    "Description": "Celestial alloy",
+    "Effect": "materialTag",
+    "MinValue": 0,
+    "MaxValue": 0,
+    "prefixCategory": "Material",
+    "ATTRIBUTE REQUREMENT": null,
+    "REQUIREMENT VALUE": null
   }
 ]

@@ -118,6 +118,9 @@ namespace RPGGame
 
             // Update combo sequence after equipment change
             _character.Actions.UpdateComboSequenceAfterGearChange(_character);
+            ComboSequenceMaxHelper.TrimComboSequenceToMax(
+                _character,
+                ComboSequenceMaxHelper.GetEffectiveMax(_character));
             _character.Effects.ClearPendingActionBonuses(); // Slot indices may be invalid after combo change
 
             // If combo is now empty after gear change (regardless of slot), reinitialize default combo

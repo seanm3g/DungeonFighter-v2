@@ -108,9 +108,10 @@ namespace RPGGame
             string stats = item.StatBonuses == null || item.StatBonuses.Count == 0
                 ? ""
                 : string.Join("|", item.StatBonuses
-                    .OrderBy(s => s.StatType ?? "", StringComparer.OrdinalIgnoreCase)
-                    .ThenBy(s => s.Name ?? "", StringComparer.OrdinalIgnoreCase)
-                    .Select(s => $"{(s.StatType ?? "").Trim()}:{(s.Name ?? "").Trim()}:{s.Value:0.####}"));
+                    .OrderBy(s => s.Name ?? "", StringComparer.OrdinalIgnoreCase)
+                    .SelectMany(s => s.EnumerateContributions()
+                        .OrderBy(c => c.StatType, StringComparer.OrdinalIgnoreCase)
+                        .Select(c => $"{(s.Name ?? "").Trim()}:{c.StatType}:{c.Value:0.####}")));
 
             string actions = item.ActionBonuses == null || item.ActionBonuses.Count == 0
                 ? ""

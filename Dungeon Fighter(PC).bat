@@ -1,270 +1,201 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal EnableExtensions EnableDelayedExpansion
+
+REM Avoid "%ProgramFiles(x86)%" inside parenthesized blocks — the "(x86)" breaks CMD parsing.
+set "ProgFiles64=%ProgramFiles%"
+set "ProgFiles86=%ProgramFiles(x86)%"
 
 title Dungeon Fighter v2
 
-REM Ensure we can see output
+REM ---------------------------------------------------------------------------
+REM  Dungeon Fighter v2 — Windows launcher (repo root)
+REM  - Ensures working directory is the repo root (GameData / paths)
+REM  - Builds Debug, then starts DF.exe in a separate process
+REM ---------------------------------------------------------------------------
+
 echo.
 echo ========================================
 echo    Dungeon Fighter v2 - Launcher
 echo ========================================
 echo.
-echo Starting launcher...
-echo Script location: %~dp0
-echo Current directory: %CD%
+echo Script folder: %~dp0
 echo.
 
-REM Lock file to prevent duplicate execution
+REM Lock file (best-effort; avoids stale lock from crashed runs)
 set "LOCKFILE=%TEMP%\DF2_Launcher_%USERNAME%.lock"
-if exist "%LOCKFILE%" del "%LOCKFILE%" 2>nul >nul
-echo %DATE% %TIME% > "%LOCKFILE%"
+if exist "%LOCKFILE%" del "%LOCKFILE%" 2>nul
+echo %DATE% %TIME%>"%LOCKFILE%"
 
-goto :main
+goto main
 
 :cleanup
-if exist "%LOCKFILE%" del "%LOCKFILE%" 2>nul >nul
+if exist "%LOCKFILE%" del "%LOCKFILE%" 2>nul
 exit /b %1
 
-:main
-echo [Step 1/5] Checking script directory...
-cd /d "%~dp0" 2>nul
-if errorlevel 1 (
-    echo.
-    echo ERROR: Could not access script directory.
-    echo Current directory: %CD%
-    echo Script path: %~dp0
-    echo.
-    call :cleanup 1
-    pause
-    exit /b 1
+REM ---------------------------------------------------------------------------
+:fail
+if defined DF_PUSHED (
+    popd
+    set "DF_PUSHED="
 )
-echo Script directory: %CD%
+echo.
+echo ========================================
+echo Launcher stopped ^(error^).
+echo ========================================
+echo.
+echo Press any key to close this window...
+pause
+call :cleanup 1
+exit /b 1
+
+REM ---------------------------------------------------------------------------
+:main
+echo [Step 1/5] Moving to repo root...
+pushd "%~dp0" 2>nul
+if errorlevel 1 (
+    echo ERROR: Could not open the folder containing this launcher.
+    echo Path: %~dp0
+    goto fail
+)
+set "DF_PUSHED=1"
+REM %CD% has no trailing backslash - safe for START /D (trailing "\" can break /D)
+set "REPO=%CD%"
+echo Repo root: %REPO%
 echo.
 
-REM Check for .NET 8.0 SDK
-echo [Step 2/5] Checking for .NET 8.0 SDK...
-REM First, try to find dotnet in common locations
+REM ---------------------------------------------------------------------------
+echo [Step 2/5] Checking for .NET 8.x SDK / dotnet build...
 set "DOTNET_FOUND=0"
 set "DOTNET_VERSION="
 
-REM Check if dotnet is in PATH
-dotnet --version >nul 2>&1
-if not errorlevel 1 (
+where dotnet >nul 2>&1
+if errorlevel 1 (
+    echo dotnet was not found in PATH.
+) else (
     for /f "tokens=*" %%v in ('dotnet --version 2^>nul') do set "DOTNET_VERSION=%%v"
-    echo Found .NET version: !DOTNET_VERSION!
-    echo !DOTNET_VERSION! | findstr /R "^8\." >nul
-    if not errorlevel 1 (
-        set "DOTNET_FOUND=1"
-        echo .NET 8.0 SDK detected in PATH.
-    ) else (
-        echo .NET is installed but not version 8.0 (found: !DOTNET_VERSION!)
-    )
-)
-
-REM If not found in PATH, check common installation locations
-if !DOTNET_FOUND!==0 (
-    echo Checking common installation locations...
-    if exist "%ProgramFiles%\dotnet\dotnet.exe" (
-        "%ProgramFiles%\dotnet\dotnet.exe" --version >nul 2>&1
+    if defined DOTNET_VERSION (
+        echo dotnet reports version: !DOTNET_VERSION!
+        echo !DOTNET_VERSION! | findstr /R /C:"^8\." >nul
         if not errorlevel 1 (
-            for /f "tokens=*" %%v in ('"%ProgramFiles%\dotnet\dotnet.exe" --version 2^>nul') do set "DOTNET_VERSION=%%v"
-            echo Found .NET version: !DOTNET_VERSION! at %ProgramFiles%\dotnet
-            echo !DOTNET_VERSION! | findstr /R "^8\." >nul
-            if not errorlevel 1 (
-                set "DOTNET_FOUND=1"
-                set "PATH=%ProgramFiles%\dotnet;%PATH%"
-                echo .NET 8.0 SDK detected at %ProgramFiles%\dotnet
-            )
-        )
-    )
-    if !DOTNET_FOUND!==0 if exist "%ProgramFiles(x86)%\dotnet\dotnet.exe" (
-        "%ProgramFiles(x86)%\dotnet\dotnet.exe" --version >nul 2>&1
-        if not errorlevel 1 (
-            for /f "tokens=*" %%v in ('"%ProgramFiles(x86)%\dotnet\dotnet.exe" --version 2^>nul') do set "DOTNET_VERSION=%%v"
-            echo Found .NET version: !DOTNET_VERSION! at %ProgramFiles(x86)%\dotnet
-            echo !DOTNET_VERSION! | findstr /R "^8\." >nul
-            if not errorlevel 1 (
-                set "DOTNET_FOUND=1"
-                set "PATH=%ProgramFiles(x86)%\dotnet;%PATH%"
-                echo .NET 8.0 SDK detected at %ProgramFiles(x86)%\dotnet
-            )
+            set "DOTNET_FOUND=1"
+            echo .NET 8.x SDK/runtime host OK for this project.
+        ) else (
+            echo This repo targets .NET 8. Install the .NET 8 SDK if build fails.
         )
     )
 )
 
-REM If still not found, try to install
-if !DOTNET_FOUND!==0 (
-    echo.
-    echo ========================================
-    echo .NET 8.0 SDK Not Found
-    echo ========================================
-    echo.
-    echo The game requires .NET 8.0 SDK to run.
-    echo.
-    if not "!DOTNET_VERSION!"=="" (
-        echo Detected .NET version !DOTNET_VERSION! but need 8.0.x
-        echo.
-    ) else (
-        echo .NET SDK not found in PATH or common locations.
-        echo This might be a PATH configuration issue.
-        echo.
+if "!DOTNET_FOUND!"=="0" (
+    echo Checking common install locations...
+    if exist "!ProgFiles64!\dotnet\dotnet.exe" (
+        for /f "tokens=*" %%v in ('"!ProgFiles64!\dotnet\dotnet.exe" --version 2^>nul') do set "DOTNET_VERSION=%%v"
+        echo !DOTNET_VERSION! | findstr /R /C:"^8\." >nul
+        if not errorlevel 1 (
+            set "DOTNET_FOUND=1"
+            set "PATH=!ProgFiles64!\dotnet;%PATH%"
+            echo Using dotnet at: !ProgFiles64!\dotnet
+        )
     )
-    echo Attempting to install it automatically...
+    if "!DOTNET_FOUND!"=="0" if exist "!ProgFiles86!\dotnet\dotnet.exe" (
+        for /f "tokens=*" %%v in ('"!ProgFiles86!\dotnet\dotnet.exe" --version 2^>nul') do set "DOTNET_VERSION=%%v"
+        echo !DOTNET_VERSION! | findstr /R /C:"^8\." >nul
+        if not errorlevel 1 (
+            set "DOTNET_FOUND=1"
+            set "PATH=!ProgFiles86!\dotnet;%PATH%"
+            echo Using dotnet at: !ProgFiles86!\dotnet
+        )
+    )
+)
+
+if "!DOTNET_FOUND!"=="0" (
+    echo.
+    echo .NET 8.x was not detected. A full SDK is required to build from source.
+    echo Download: https://dotnet.microsoft.com/download/dotnet/8.0
     echo.
     if not exist "Scripts\install-dotnet.ps1" (
-        echo ERROR: Install script not found!
-        echo.
-        echo Please install .NET 8.0 SDK manually from:
-        echo https://dotnet.microsoft.com/download/dotnet/8.0
-        echo.
-        echo If .NET is already installed, you may need to:
-        echo 1. Restart your computer to refresh PATH
-        echo 2. Or add the .NET installation directory to your PATH
-        echo    (usually: C:\Program Files\dotnet)
-        call :cleanup 1
-        pause
-        exit /b 1
+        echo Optional auto-install script not found: Scripts\install-dotnet.ps1
+        goto fail
     )
-    powershell -ExecutionPolicy Bypass -File "Scripts\install-dotnet.ps1"
+    echo Running Scripts\install-dotnet.ps1 ...
+    powershell -NoProfile -ExecutionPolicy Bypass -File "Scripts\install-dotnet.ps1"
+    if errorlevel 1 goto fail
+    where dotnet >nul 2>&1
     if errorlevel 1 (
-        echo.
-        echo ========================================
-        echo Installation Failed
-        echo ========================================
-        echo.
-        if not "!DOTNET_VERSION!"=="" (
-            echo .NET is installed (version !DOTNET_VERSION!) but not 8.0.
-            echo.
-            echo Solutions:
-            echo 1. Install .NET 8.0 SDK from: https://dotnet.microsoft.com/download/dotnet/8.0
-            echo 2. Or if .NET 8.0 is already installed, restart your computer
-            echo    to refresh the PATH environment variable
-            echo.
-        ) else (
-            echo The automatic installation failed. Please install .NET 8.0 SDK manually:
-            echo 1. Visit: https://dotnet.microsoft.com/download/dotnet/8.0
-            echo 2. Download the .NET 8.0 SDK installer for Windows x64
-            echo 3. Run the installer
-            echo 4. Restart your computer (to refresh PATH)
-            echo 5. Run this launcher again
-            echo.
-        )
-        call :cleanup 1
-        pause
-        exit /b 1
-    )
-    REM After installation, verify it's available
-    dotnet --version >nul 2>&1
-    if errorlevel 1 (
-        echo.
-        echo .NET was installed but may not be in PATH yet.
-        echo Please restart your computer and try again.
-        call :cleanup 1
-        pause
-        exit /b 1
+        echo dotnet still not on PATH. Restart the PC, then try again.
+        goto fail
     )
 )
 
-REM Check if game is already running
-echo [Step 3/5] Checking if game is already running...
-tasklist /FI "IMAGENAME eq DF.exe" 2>NUL | find /I /N "DF.exe">NUL
+echo.
+
+REM ---------------------------------------------------------------------------
+echo [Step 3/5] Checking if DF.exe is already running...
+tasklist /FI "IMAGENAME eq DF.exe" 2>nul | find /I "DF.exe" >nul
 if not errorlevel 1 (
-    echo.
-    echo Game is already running!
-    echo Please close the existing game instance first.
-    echo.
-    call :cleanup 1
-    pause
-    exit /b 1
+    echo Please close the existing Dungeon Fighter ^(DF.exe^) window, then run this launcher again.
+    goto fail
 )
-echo No existing game instance found.
+echo OK - no DF.exe process found.
 echo.
 
-REM Build the game
-echo [Step 4/5] Building game...
-echo This may take a moment...
+REM ---------------------------------------------------------------------------
+set "PROJ=%REPO%\Code\Code.csproj"
+set "GAME_EXE=%REPO%\Code\bin\Debug\net8.0\DF.exe"
+
+echo [Step 4/5] Building - Debug...
+echo Project: "%PROJ%"
 echo.
-dotnet build Code\Code.csproj --configuration Debug
+dotnet build "%PROJ%" --configuration Debug --nologo -v minimal
 if errorlevel 1 (
     echo.
-    echo ========================================
-    echo ERROR: Build failed!
-    echo ========================================
-    echo.
-    echo Please check the error messages above.
-    echo.
-    call :cleanup 1
-    pause
-    exit /b 1
+    echo ERROR: dotnet build failed. Read the messages above.
+    goto fail
 )
-echo Build successful!
+echo Build finished OK.
 echo.
 
-REM Verify executable exists
-echo [Step 5/5] Verifying executable...
-set "GAME_EXE=%~dp0Code\bin\Debug\net8.0\DF.exe"
+REM ---------------------------------------------------------------------------
+echo [Step 5/5] Starting game...
 if not exist "%GAME_EXE%" (
-    echo.
-    echo ========================================
-    echo ERROR: Executable not found!
-    echo ========================================
-    echo.
-    echo Expected location: %GAME_EXE%
-    echo.
-    echo The build may have failed. Please check the build output above.
-    echo.
-    call :cleanup 1
-    pause
-    exit /b 1
-)
-echo Executable found: %GAME_EXE%
-echo.
-
-REM Launch the game
-echo Launching game...
-echo.
-REM Set working directory to project root so GameData can be found
-cd /d "%~dp0"
-echo Working directory: %CD%
-echo.
-REM Launch the game visibly (window style 1 = normal window, not hidden)
-start "" "%GAME_EXE%"
-
-REM Wait a moment for game to start
-timeout /t 2 /nobreak >nul
-
-REM Check if game is running
-tasklist /FI "IMAGENAME eq DF.exe" 2>NUL | find /I /N "DF.exe">NUL
-if errorlevel 1 (
-    echo.
-    echo ========================================
-    echo WARNING: Game process not detected
-    echo ========================================
-    echo.
-    echo The game may have started but exited immediately.
-    echo Check for error messages in the game window.
-    echo.
-    echo If the game window appeared, you can close this launcher.
-    echo Otherwise, try running the game manually:
+    echo ERROR: Executable not found at:
     echo   "%GAME_EXE%"
-    echo.
-    pause
-    call :cleanup 0
-    exit /b 0
+    goto fail
+)
+echo Executable: "%GAME_EXE%"
+echo.
+
+REM /D sets the process working directory to repo root (spaces OK via %CD%).
+REM First quoted arg to START is always the window title (do not remove).
+start "Dungeon Fighter v2" /D "%REPO%" "%GAME_EXE%"
+if errorlevel 1 (
+    echo ERROR: Could not start the game process ^- start command failed.
+    echo Try running manually:
+    echo   "%GAME_EXE%"
+    goto fail
 )
 
-REM Game launched successfully
+echo Waiting a few seconds to confirm the game process started...
+set "SEEN=0"
+for /L %%i in (1,1,15) do (
+    if "!SEEN!"=="0" (
+        timeout /t 1 /nobreak >nul
+        tasklist /FI "IMAGENAME eq DF.exe" 2>nul | find /I "DF.exe" >nul
+        if not errorlevel 1 set "SEEN=1"
+    )
+)
+
+if "!SEEN!"=="1" (
+    echo Game process detected ^(DF.exe^).
+) else (
+    echo WARNING: DF.exe not seen in Task Manager yet - it may still be starting,
+    echo or it exited immediately. If no window appeared, run the .exe above from
+    echo Explorer or check Windows / antivirus blocking the app.
+)
 echo.
-echo ========================================
-echo Game launched successfully!
-echo ========================================
-echo.
-echo The game window should have opened.
-echo.
-echo If the game window did not appear, check for error messages above.
-echo.
-echo Press any key to close this window...
-pause >nul
+echo You can leave this window open while you play. When finished troubleshooting,
+echo press any key to close...
+pause
 call :cleanup 0
+popd >nul 2>&1
 endlocal
 exit /b 0

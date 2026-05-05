@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 
@@ -29,6 +30,13 @@ namespace RPGGame
         Legendary
     }
 
+    /// <summary>One line inside a multi-mechanic suffix (from <c>StatBonuses.json</c> <c>Mechanics</c> array).</summary>
+    public class StatBonusMechanic
+    {
+        public string StatType { get; set; } = "";
+        public double Value { get; set; }
+    }
+
     public class StatBonus
     {
         public string Name { get; set; } = "";
@@ -43,6 +51,67 @@ namespace RPGGame
         /// <summary>Optional loot/lab catalog rarity (same vocabulary as <see cref="Modification.ItemRank"/>). Empty = pool-wide.</summary>
         [JsonPropertyName("ItemRank")]
         public string ItemRank { get; set; } = "";
+
+        /// <summary>When non-empty, each entry contributes stats; otherwise legacy <see cref="StatType"/> / <see cref="Value"/> are used.</summary>
+        public List<StatBonusMechanic>? Mechanics { get; set; }
+
+        /// <summary>Yields each stat contribution for equipment / UI (legacy single-line when <see cref="Mechanics"/> is null or empty).</summary>
+        public IEnumerable<(string StatType, double Value)> EnumerateContributions()
+        {
+            if (Mechanics != null && Mechanics.Count > 0)
+            {
+                foreach (var m in Mechanics)
+                {
+                    if (m != null && !string.IsNullOrEmpty(m.StatType))
+                        yield return (m.StatType, m.Value);
+                }
+
+                yield break;
+            }
+
+            if (!string.IsNullOrEmpty(StatType))
+                yield return (StatType, Value);
+        }
+
+        /// <summary>Sums numeric contributions matching <paramref name="statType"/> (case-insensitive).</summary>
+        public int SumContributionValuesForStatType(string statType)
+        {
+            int sum = 0;
+            foreach (var (t, v) in EnumerateContributions())
+            {
+                if (string.Equals(t, statType, StringComparison.OrdinalIgnoreCase))
+                    sum += (int)v;
+            }
+
+            return sum;
+        }
+
+        /// <summary>Deep-enough copy for attaching loot rows to an item without mutating <see cref="LootDataCache"/> templates.</summary>
+        public StatBonus CloneForItemInstance()
+        {
+            List<StatBonusMechanic>? mechCopy = null;
+            if (Mechanics != null && Mechanics.Count > 0)
+            {
+                mechCopy = new List<StatBonusMechanic>(Mechanics.Count);
+                foreach (var m in Mechanics)
+                {
+                    if (m == null)
+                        continue;
+                    mechCopy.Add(new StatBonusMechanic { StatType = m.StatType, Value = m.Value });
+                }
+            }
+
+            return new StatBonus
+            {
+                Name = Name,
+                Description = Description,
+                Value = Value,
+                Rarity = Rarity,
+                StatType = StatType,
+                ItemRank = ItemRank,
+                Mechanics = mechCopy
+            };
+        }
     }
 
     public class ActionBonus
@@ -94,6 +163,23 @@ namespace RPGGame
         public int Tier { get; set; } = 1;
         public int Level { get; set; } = 1; // Item level based on dungeon level when generated
         public int ComboBonus { get; set; } = 0;
+
+        /// <summary>Catalog / sheet primary stat bonuses on base armor (before rolled suffixes). Mapped to STR/AGI/TEC/INT in <see cref="EquipmentBonusCalculator"/>.</summary>
+        public int BaseStrength { get; set; }
+        public int BaseAgility { get; set; }
+        public int BaseTechnique { get; set; }
+        public int BaseIntelligence { get; set; }
+
+        /// <summary>Optional threshold-style bonuses from armor sheet (HIT/COMBO/CRIT stat keys).</summary>
+        public int BaseHit { get; set; }
+        public int BaseCombo { get; set; }
+        public int BaseCrit { get; set; }
+
+        /// <summary>Feet: extra combo sequence slots beyond tuning base (see <see cref="ComboSequenceMaxHelper"/>).</summary>
+        public int ExtraActionSlots { get; set; }
+
+        /// <summary>Head: minimum granted <see cref="ActionBonus"/> lines when loot affixes are applied.</summary>
+        public int MinGeneratedActionBonuses { get; set; }
         public string Rarity { get; set; } = "Common";
         public List<StatBonus> StatBonuses { get; set; } = new List<StatBonus>();
         public List<ActionBonus> ActionBonuses { get; set; } = new List<ActionBonus>();
@@ -158,6 +244,33 @@ namespace RPGGame
             return true; // All requirements met
         }
 
+        /// <summary>Armor from suffix lines and prefix modifications; null-safe for lab / partial JSON rows.</summary>
+        protected static int AddArmorFromAffixes(Item item, int totalArmor)
+        {
+            if (item.StatBonuses != null)
+            {
+                foreach (var statBonus in item.StatBonuses)
+                {
+                    if (statBonus == null) continue;
+                    totalArmor += statBonus.SumContributionValuesForStatType("Armor");
+                }
+            }
+
+            if (item.Modifications != null)
+            {
+                foreach (var modification in item.Modifications)
+                {
+                    if (modification == null) continue;
+                    string? eff = modification.Effect;
+                    if (string.IsNullOrEmpty(eff)) continue;
+                    if (eff.Contains("armor", StringComparison.OrdinalIgnoreCase))
+                        totalArmor += (int)modification.RolledValue;
+                }
+            }
+
+            return totalArmor;
+        }
+
         public Item(ItemType type, string? name = null, int tier = 1, int comboBonus = 0)
         {
             Type = type;
@@ -178,26 +291,7 @@ namespace RPGGame
 
         public int GetTotalArmor()
         {
-            int totalArmor = Armor;
-            
-            // Add armor bonuses from stat bonuses
-            foreach (var statBonus in StatBonuses)
-            {
-                if (statBonus.StatType == "Armor")
-                {
-                    totalArmor += (int)statBonus.Value;
-                }
-            }
-            
-            // Add armor bonuses from modifications
-            foreach (var modification in Modifications)
-            {
-                if (modification.Effect.Contains("armor") || modification.Effect.Contains("Armor"))
-                {
-                    totalArmor += (int)modification.RolledValue; // Use RolledValue as the bonus amount
-                }
-            }
-            
+            int totalArmor = AddArmorFromAffixes(this, Armor);
             double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
             totalArmor = (int)Math.Round(totalArmor * q);
 
@@ -217,26 +311,7 @@ namespace RPGGame
 
         public int GetTotalArmor()
         {
-            int totalArmor = Armor;
-            
-            // Add armor bonuses from stat bonuses
-            foreach (var statBonus in StatBonuses)
-            {
-                if (statBonus.StatType == "Armor")
-                {
-                    totalArmor += (int)statBonus.Value;
-                }
-            }
-            
-            // Add armor bonuses from modifications
-            foreach (var modification in Modifications)
-            {
-                if (modification.Effect.Contains("armor") || modification.Effect.Contains("Armor"))
-                {
-                    totalArmor += (int)modification.RolledValue; // Use RolledValue as the bonus amount
-                }
-            }
-
+            int totalArmor = AddArmorFromAffixes(this, Armor);
             double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
             totalArmor = (int)Math.Round(totalArmor * q);
             
@@ -256,26 +331,7 @@ namespace RPGGame
 
         public int GetTotalArmor()
         {
-            int totalArmor = Armor;
-            
-            // Add armor bonuses from stat bonuses
-            foreach (var statBonus in StatBonuses)
-            {
-                if (statBonus.StatType == "Armor")
-                {
-                    totalArmor += (int)statBonus.Value;
-                }
-            }
-            
-            // Add armor bonuses from modifications
-            foreach (var modification in Modifications)
-            {
-                if (modification.Effect.Contains("armor") || modification.Effect.Contains("Armor"))
-                {
-                    totalArmor += (int)modification.RolledValue; // Use RolledValue as the bonus amount
-                }
-            }
-
+            int totalArmor = AddArmorFromAffixes(this, Armor);
             double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
             totalArmor = (int)Math.Round(totalArmor * q);
             

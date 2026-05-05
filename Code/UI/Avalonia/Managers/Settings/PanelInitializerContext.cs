@@ -12,6 +12,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         public SettingsInitialization? Initialization { get; set; }
         public Managers.StatusEffectsTabManager? StatusEffectsTabManager { get; set; }
         public ItemModifiersTabManager? ItemModifiersTabManager { get; set; }
+        public ItemSuffixesTabManager? ItemSuffixesTabManager { get; set; }
         public ItemsTabManager? ItemsTabManager { get; set; }
         public EnemiesTabManager? EnemiesTabManager { get; set; }
         public PanelHandlerRegistry? PanelHandlerRegistry { get; set; }

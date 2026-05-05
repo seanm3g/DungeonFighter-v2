@@ -160,11 +160,18 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
         public static List<ColoredText> FormatStatBonus(StatBonus bonus)
         {
             var builder = new ColoredTextBuilder();
-            
-            var sign = bonus.Value >= 0 ? "+" : "";
-            builder.Add($"{sign}{bonus.Value} ", bonus.Value >= 0 ? ColorPalette.Success : ColorPalette.Error);
-            builder.Add(bonus.StatType, Colors.White);
-            
+            bool first = true;
+            foreach (var (contribType, contribValue) in bonus.EnumerateContributions())
+            {
+                if (!first)
+                    builder.Add(", ", Colors.Gray);
+                first = false;
+
+                var sign = contribValue >= 0 ? "+" : "";
+                builder.Add($"{sign}{contribValue} ", contribValue >= 0 ? ColorPalette.Success : ColorPalette.Error);
+                builder.Add(contribType, Colors.White);
+            }
+
             return builder.Build();
         }
         

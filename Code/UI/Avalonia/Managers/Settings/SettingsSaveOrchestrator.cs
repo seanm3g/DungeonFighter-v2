@@ -25,6 +25,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         private readonly GameVariablesTabManager? gameVariablesTabManager;
         private readonly ActionsTabManager? actionsTabManager;
         private readonly ItemModifiersTabManager? itemModifiersTabManager;
+        private readonly ItemSuffixesTabManager? itemSuffixesTabManager;
         private readonly ItemsTabManager? itemsTabManager;
         private readonly EnemiesTabManager? enemiesTabManager;
         private readonly Action<string, bool>? showStatusMessage;
@@ -39,6 +40,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             GameVariablesTabManager? gameVariablesTabManager,
             ActionsTabManager? actionsTabManager,
             ItemModifiersTabManager? itemModifiersTabManager,
+            ItemSuffixesTabManager? itemSuffixesTabManager,
             ItemsTabManager? itemsTabManager,
             EnemiesTabManager? enemiesTabManager,
             Action<string, bool>? showStatusMessage,
@@ -49,6 +51,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             this.gameVariablesTabManager = gameVariablesTabManager;
             this.actionsTabManager = actionsTabManager;
             this.itemModifiersTabManager = itemModifiersTabManager;
+            this.itemSuffixesTabManager = itemSuffixesTabManager;
             this.itemsTabManager = itemsTabManager;
             this.enemiesTabManager = enemiesTabManager;
             this.showStatusMessage = showStatusMessage;
@@ -130,6 +133,18 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     catch (Exception ex)
                     {
                         ScrollDebugLogger.Log($"SettingsPanel: Error saving item modifier rarities: {ex.Message}");
+                    }
+                }
+
+                if (itemSuffixesTabManager != null)
+                {
+                    try
+                    {
+                        itemSuffixesTabManager.SaveSuffixes();
+                    }
+                    catch (Exception ex)
+                    {
+                        ScrollDebugLogger.Log($"SettingsPanel: Error saving item suffixes: {ex.Message}");
                     }
                 }
 

@@ -308,6 +308,24 @@ namespace RPGGame.UI.Avalonia.Managers
         }
 
 
+        /// <summary>After spreadsheet PULL or other external reload, refresh if this tab was opened.</summary>
+        public void RefreshFromFileIfLoaded()
+        {
+            if (panel == null) return;
+            try
+            {
+                deletedDiceResults.Clear();
+                selectedModifier = null;
+                panel.SetSelectedModifier(null);
+                panel.SetButtonStates(false, false);
+                LoadModifiersData(panel);
+            }
+            catch (Exception ex)
+            {
+                showStatusMessage?.Invoke($"Error refreshing prefixes tab: {ex.Message}", false);
+            }
+        }
+
         /// <summary>
         /// Save modifier rarity assignments back to Modifications.json
         /// </summary>

@@ -225,6 +225,14 @@
                                        FontSize="11"
                                        Foreground="#FFAAAAAA"
                                        TextWrapping="Wrap"/>
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <TextBlock Text="Affix rules for:" VerticalAlignment="Center" Foreground="#FFCCCCCC" FontSize="11"/>
+                                <ComboBox x:Name="AffixSlotCombo" Width="120" Classes="ParamCombo" MinHeight="28"/>
+                                <TextBlock Text="Combo max (base)" VerticalAlignment="Center" Foreground="#FFAAAAAA" FontSize="10" Margin="16,0,0,0"/>
+                                <TextBox x:Name="ComboSeqBaseMaxText" Width="44" Classes="ParamField" MaxLength="2"/>
+                                <TextBlock Text="hard cap" VerticalAlignment="Center" Foreground="#FFAAAAAA" FontSize="10"/>
+                                <TextBox x:Name="ComboSeqAbsMaxText" Width="44" Classes="ParamField" MaxLength="2"/>
+                            </StackPanel>
                             <ScrollViewer MaxHeight="420"
                                           VerticalScrollBarVisibility="Auto"
                                           HorizontalScrollBarVisibility="Disabled">

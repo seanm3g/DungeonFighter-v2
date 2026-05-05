@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using RPGGame;
 using RPGGame.UI.Avalonia;
 using ActionDelegate = System.Action;
 
@@ -56,8 +57,12 @@ namespace RPGGame.Handlers.Inventory
             if (actionIndex >= 1 && actionIndex <= actionPool.Count)
             {
                 var action = actionPool[actionIndex - 1];
+                int before = character.GetComboActions().Count;
                 character.AddToCombo(action);
-                onSuccess($"Added {action.Name} to combo sequence.");
+                if (character.GetComboActions().Count == before)
+                    showMessage($"Sequence is full ({ComboSequenceMaxHelper.GetEffectiveMax(character)} slots).");
+                else
+                    onSuccess($"Added {action.Name} to combo sequence.");
             }
             else
             {

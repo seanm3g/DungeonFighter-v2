@@ -125,7 +125,8 @@
             <ListBoxItem Content="Status Effects" Tag="StatusEffects"/>
             <ListBoxItem Content="Text Delays" Tag="TextDelays"/>
             <ListBoxItem Content="Appearance" Tag="Appearance"/>
-            <ListBoxItem Content="Item Modifiers" Tag="ItemModifiers"/>
+            <ListBoxItem Content="Item prefixes" Tag="ItemPrefixes"/>
+            <ListBoxItem Content="Item suffixes" Tag="ItemSuffixes"/>
             <ListBoxItem Content="Items" Tag="Items"/>
             <ListBoxItem Content="Item Generation" Tag="ItemGeneration"/>
             <ListBoxItem Content="Enemies" Tag="Enemies"/>

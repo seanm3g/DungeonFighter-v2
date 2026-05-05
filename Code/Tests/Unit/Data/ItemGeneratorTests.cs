@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame;
 using RPGGame.Tests;
 
@@ -35,6 +36,8 @@ namespace RPGGame.Tests.Unit.Data
             TestGenerateItemNameWithBonuses();
             TestGenerateItemNameWithBonuses_IdempotentWhenItemNameAlreadyComposed();
             TestGenerateItemNameWithBonuses_IdempotentWithEqualLengthStatSuffixes();
+            TestGenerateItemNameWithBonuses_StatSuffixRarityDisplayOrder();
+            TestStatBonusEnumerateContributionsWhenMechanicsSet();
 
             TestBase.PrintSummary("ItemGenerator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -401,6 +404,48 @@ namespace RPGGame.Tests.Unit.Data
             }
 
             return count;
+        }
+
+        private static void TestGenerateItemNameWithBonuses_StatSuffixRarityDisplayOrder()
+        {
+            Console.WriteLine("\n--- Testing GenerateItemNameWithBonuses stat suffix rarity order ---");
+            var weapon = TestDataBuilders.Weapon()
+                .WithName("Sword")
+                .WithTier(1)
+                .Build();
+
+            weapon.StatBonuses.Add(new StatBonus { Name = "of RareOne", Rarity = "Rare", StatType = "Damage", Value = 1 });
+            weapon.StatBonuses.Add(new StatBonus { Name = "of CommonOne", Rarity = "Common", StatType = "Armor", Value = 1 });
+            weapon.StatBonuses.Add(new StatBonus { Name = "of UncommonOne", Rarity = "Uncommon", StatType = "Health", Value = 1 });
+
+            string name = ItemGenerator.GenerateItemNameWithBonuses(weapon);
+            int iU = name.IndexOf("of UncommonOne", StringComparison.Ordinal);
+            int iC = name.IndexOf("of CommonOne", StringComparison.Ordinal);
+            int iR = name.IndexOf("of RareOne", StringComparison.Ordinal);
+            TestBase.AssertTrue(iU >= 0 && iC >= 0 && iR >= 0, "all suffix tokens present", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(iU < iC && iC < iR, "Uncommon then Common then Rare", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestStatBonusEnumerateContributionsWhenMechanicsSet()
+        {
+            Console.WriteLine("\n--- Testing StatBonus EnumerateContributions (Mechanics) ---");
+            var sb = new StatBonus
+            {
+                StatType = "Legacy",
+                Value = 99,
+                Mechanics = new List<StatBonusMechanic>
+                {
+                    new() { StatType = "Armor", Value = 5 },
+                    new() { StatType = "Health", Value = 15 }
+                }
+            };
+
+            var list = sb.EnumerateContributions().ToList();
+            TestBase.AssertEqual(2, list.Count, "mechanics only", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Armor", list[0].StatType, "first stat type", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(5, (int)list[0].Value, "first value", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(5, sb.SumContributionValuesForStatType("Armor"), "armor sum", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(15, sb.SumContributionValuesForStatType("Health"), "health sum", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

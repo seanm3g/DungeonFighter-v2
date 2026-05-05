@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Avalonia.Media;
+using RPGGame;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI
@@ -118,13 +119,19 @@ namespace RPGGame.UI
         public static List<ColoredText> FormatStatBonus(StatBonus statBonus)
         {
             var result = new List<ColoredText>();
-            
-            var sign = statBonus.Value >= 0 ? "+" : "";
-            var color = statBonus.Value >= 0 ? ColorPalette.Green.GetColor() : ColorPalette.Red.GetColor();
-            
-            result.Add(new ColoredText($"{sign}{statBonus.Value} ", color));
-            result.Add(new ColoredText(statBonus.StatType, GetStatColor(statBonus.StatType)));
-            
+            bool first = true;
+            foreach (var (contribType, contribValue) in statBonus.EnumerateContributions())
+            {
+                if (!first)
+                    result.Add(new ColoredText("  ", Colors.White));
+                first = false;
+
+                var sign = contribValue >= 0 ? "+" : "";
+                var color = contribValue >= 0 ? ColorPalette.Green.GetColor() : ColorPalette.Red.GetColor();
+                result.Add(new ColoredText($"{sign}{contribValue} ", color));
+                result.Add(new ColoredText(contribType, GetStatColor(contribType)));
+            }
+
             return result;
         }
         

@@ -82,26 +82,26 @@ namespace RPGGame
             
             if (equipment.Head != null)
             {
-                var stat = equipment.Head.StatBonuses.FirstOrDefault(s => s.StatType == "ComboBonus");
-                if (stat != null) bonus += (int)stat.Value;
+                foreach (var sb in equipment.Head.StatBonuses)
+                    bonus += sb.SumContributionValuesForStatType("ComboBonus");
             }
             
             if (equipment.Body != null)
             {
-                var stat = equipment.Body.StatBonuses.FirstOrDefault(s => s.StatType == "ComboBonus");
-                if (stat != null) bonus += (int)stat.Value;
+                foreach (var sb in equipment.Body.StatBonuses)
+                    bonus += sb.SumContributionValuesForStatType("ComboBonus");
             }
             
             if (equipment.Weapon != null)
             {
-                var stat = equipment.Weapon.StatBonuses.FirstOrDefault(s => s.StatType == "ComboBonus");
-                if (stat != null) bonus += (int)stat.Value;
+                foreach (var sb in equipment.Weapon.StatBonuses)
+                    bonus += sb.SumContributionValuesForStatType("ComboBonus");
             }
             
             if (equipment.Feet != null)
             {
-                var stat = equipment.Feet.StatBonuses.FirstOrDefault(s => s.StatType == "ComboBonus");
-                if (stat != null) bonus += (int)stat.Value;
+                foreach (var sb in equipment.Feet.StatBonuses)
+                    bonus += sb.SumContributionValuesForStatType("ComboBonus");
             }
         }
 

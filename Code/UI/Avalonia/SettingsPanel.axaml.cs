@@ -29,6 +29,7 @@ namespace RPGGame.UI.Avalonia
         private GameVariablesTabManager? gameVariablesTabManager;
         private ActionsTabManager? actionsTabManager;
         private ItemModifiersTabManager? itemModifiersTabManager;
+        private ItemSuffixesTabManager? itemSuffixesTabManager;
         private ItemsTabManager? itemsTabManager;
         private EnemiesTabManager? enemiesTabManager;
         private Managers.StatusEffectsTabManager? statusEffectsTabManager;
@@ -76,6 +77,7 @@ namespace RPGGame.UI.Avalonia
             gameVariablesTabManager = new GameVariablesTabManager();
             actionsTabManager = new ActionsTabManager();
             itemModifiersTabManager = new Managers.ItemModifiersTabManager(ShowStatusMessage);
+            itemSuffixesTabManager = new Managers.ItemSuffixesTabManager(ShowStatusMessage);
             itemsTabManager = new Managers.ItemsTabManager(ShowStatusMessage);
             enemiesTabManager = new EnemiesTabManager(ShowStatusMessage);
             statusEffectsTabManager = new Managers.StatusEffectsTabManager();
@@ -112,6 +114,7 @@ namespace RPGGame.UI.Avalonia
                 gameVariablesTabManager,
                 actionsTabManager,
                 itemModifiersTabManager,
+                itemSuffixesTabManager,
                 itemsTabManager,
                 enemiesTabManager,
                 ShowStatusMessage,
@@ -123,6 +126,7 @@ namespace RPGGame.UI.Avalonia
                 Initialization = initialization,
                 StatusEffectsTabManager = statusEffectsTabManager,
                 ItemModifiersTabManager = itemModifiersTabManager,
+                ItemSuffixesTabManager = itemSuffixesTabManager,
                 ItemsTabManager = itemsTabManager,
                 EnemiesTabManager = enemiesTabManager,
                 PanelHandlerRegistry = panelHandlerRegistry,
@@ -153,10 +157,15 @@ namespace RPGGame.UI.Avalonia
                                 ctx.StatusEffectsTabManager.Initialize(listBox, formPanel, createButton, deleteButton, ctx.ShowStatusMessage);
                         }, DispatcherPriority.Loaded);
                 },
-                ["ItemModifiers"] = (panel, ctx) =>
+                ["ItemPrefixes"] = (panel, ctx) =>
                 {
                     if (panel is ItemModifiersSettingsPanel modPanel && ctx.ItemModifiersTabManager != null)
                         Dispatcher.UIThread.Post(() => ctx.ItemModifiersTabManager.Initialize(modPanel), DispatcherPriority.Loaded);
+                },
+                ["ItemSuffixes"] = (panel, ctx) =>
+                {
+                    if (panel is ItemSuffixesSettingsPanel sufPanel && ctx.ItemSuffixesTabManager != null)
+                        Dispatcher.UIThread.Post(() => ctx.ItemSuffixesTabManager.Initialize(sufPanel), DispatcherPriority.Loaded);
                 },
                 ["Items"] = (panel, ctx) =>
                 {
@@ -185,6 +194,8 @@ namespace RPGGame.UI.Avalonia
             actionsTabManager?.ReloadFromDisk();
             enemiesTabManager?.RefreshFromFileIfLoaded();
             itemsTabManager?.RefreshFromFileIfLoaded();
+            itemModifiersTabManager?.RefreshFromFileIfLoaded();
+            itemSuffixesTabManager?.RefreshFromFileIfLoaded();
             // Ensure the selected category's panel is loaded (e.g. first open or SelectedIndex was set before items existed)
             if (CategoryListBox.SelectedItem is ListBoxItem selectedItem && selectedItem.Tag is string categoryTag
                 && !loadedPanels.ContainsKey(categoryTag))
@@ -385,7 +396,8 @@ namespace RPGGame.UI.Avalonia
             if (panel is TestingSettingsPanel) return "Testing";
             if (panel is ActionsSettingsPanel) return "Actions";
             if (panel is StatusEffectsSettingsPanel) return "StatusEffects";
-            if (panel is ItemModifiersSettingsPanel) return "ItemModifiers";
+            if (panel is ItemModifiersSettingsPanel) return "ItemPrefixes";
+            if (panel is ItemSuffixesSettingsPanel) return "ItemSuffixes";
             if (panel is ItemsSettingsPanel) return "Items";
             if (panel is ItemGenerationSettingsPanel) return "ItemGeneration";
             if (panel is EnemiesSettingsPanel) return "Enemies";

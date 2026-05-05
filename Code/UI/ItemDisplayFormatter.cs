@@ -26,11 +26,14 @@ namespace RPGGame
         /// </summary>
         public static string FormatStatBonus(StatBonus bonus)
         {
-            return bonus.StatType switch
-            {
-                "AttackSpeed" => $"AttackSpeed +{bonus.Value:F2}s",
-                _ => $"{bonus.StatType} +{bonus.Value}"
-            };
+            static string OneLine(string statType, double value) =>
+                statType switch
+                {
+                    "AttackSpeed" => $"AttackSpeed +{value:F2}s",
+                    _ => $"{statType} +{value}"
+                };
+
+            return string.Join(" / ", bonus.EnumerateContributions().Select(c => OneLine(c.StatType, c.Value)));
         }
 
         /// <summary>

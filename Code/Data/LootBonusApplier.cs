@@ -48,7 +48,8 @@ namespace RPGGame
                 var rule = ItemAffixByRaritySettings.GetResolvedAffixRule(
                     rarityName,
                     rarity,
-                    GameConfiguration.Instance?.ItemAffixByRarity);
+                    GameConfiguration.Instance?.ItemAffixByRarity,
+                    item.Type);
                 ItemAffixByRaritySettings.RollAffixCounts(
                     _random,
                     rule,
@@ -57,6 +58,9 @@ namespace RPGGame
                     out int prefixSlots,
                     out int statSuffixes,
                     out int actionBonuses);
+
+                if (item.MinGeneratedActionBonuses > 0)
+                    actionBonuses = Math.Max(actionBonuses, item.MinGeneratedActionBonuses);
 
                 ApplyStatBonuses(item, statSuffixes);
                 ApplyActionBonuses(item, actionBonuses, context);
@@ -242,22 +246,60 @@ namespace RPGGame
             foreach (var s in _dataCache.StatBonuses)
                 tierSet.Add(string.IsNullOrWhiteSpace(s.Rarity) ? "Common" : s.Rarity.Trim());
 
+            var usedAffixRarities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
             for (int i = 0; i < count; i++)
             {
-                string tier = RollAffixLineRarityForPools(tierSet);
-                var pool = FilterStatBonusesByAffixTier(_dataCache.StatBonuses, tier);
-                for (int attempt = 0; attempt < 8 && pool.Count == 0; attempt++)
-                {
-                    string pick = tierSet.ElementAt(_random.Next(tierSet.Count));
-                    pool = FilterStatBonusesByAffixTier(_dataCache.StatBonuses, pick);
-                }
-
-                if (pool.Count == 0)
+                var pick = PickStatBonusWithUniqueAffixRarity(tierSet, usedAffixRarities);
+                if (pick == null)
                     continue;
 
-                item.StatBonuses.Add(pool[_random.Next(pool.Count)]);
+                usedAffixRarities.Add(NormalizeStatBonusAffixRarity(pick.Rarity));
+                item.StatBonuses.Add(pick.CloneForItemInstance());
             }
         }
+
+        /// <summary>At most one stat suffix per affix-line rarity; duplicate rolls promote up <see cref="AffixTierOrder"/>.</summary>
+        private StatBonus? PickStatBonusWithUniqueAffixRarity(HashSet<string> tierSet, HashSet<string> usedAffixRarities)
+        {
+            string tierRoll = RollAffixLineRarityForPools(tierSet);
+            int startIdx = AffixTierOrderIndex(tierRoll);
+            if (startIdx < 0)
+                startIdx = 0;
+
+            for (int bump = 0; bump < AffixTierOrder.Length; bump++)
+            {
+                int idx = Math.Min(AffixTierOrder.Length - 1, startIdx + bump);
+                string tryTier = AffixTierOrder[idx];
+                var pool = FilterStatBonusesByAffixTier(_dataCache.StatBonuses, tryTier)
+                    .Where(s => !usedAffixRarities.Contains(NormalizeStatBonusAffixRarity(s.Rarity)))
+                    .ToList();
+
+                // When the rolled tier has no data rows, mirror legacy behavior: try random tiers from the pool set.
+                if (pool.Count == 0 && bump == 0)
+                {
+                    for (int attempt = 0; attempt < 8 && pool.Count == 0; attempt++)
+                    {
+                        string pickTier = tierSet.ElementAt(_random.Next(tierSet.Count));
+                        pool = FilterStatBonusesByAffixTier(_dataCache.StatBonuses, pickTier)
+                            .Where(s => !usedAffixRarities.Contains(NormalizeStatBonusAffixRarity(s.Rarity)))
+                            .ToList();
+                    }
+                }
+
+                if (pool.Count > 0)
+                    return pool[_random.Next(pool.Count)];
+            }
+
+            // No free tier in walk order: any remaining rarity not yet used on this item.
+            var fallback = _dataCache.StatBonuses
+                .Where(s => !usedAffixRarities.Contains(NormalizeStatBonusAffixRarity(s.Rarity)))
+                .ToList();
+            return fallback.Count > 0 ? fallback[_random.Next(fallback.Count)] : null;
+        }
+
+        private static string NormalizeStatBonusAffixRarity(string? rarity) =>
+            string.IsNullOrWhiteSpace(rarity) ? "Common" : rarity.Trim();
 
         public void ApplyActionBonuses(Item item, int count, LootContext? context = null)
         {

@@ -150,15 +150,7 @@ namespace RPGGame.ActionInteractionLab
             return minValue + Random.Shared.NextDouble() * (maxValue - minValue);
         }
 
-        private static StatBonus CloneStatBonus(StatBonus s) => new()
-        {
-            Name = s.Name,
-            Description = s.Description,
-            Value = s.Value,
-            Rarity = s.Rarity,
-            StatType = s.StatType,
-            ItemRank = s.ItemRank,
-        };
+        private static StatBonus CloneStatBonus(StatBonus s) => s.CloneForItemInstance();
 
         /// <summary>
         /// Finds a reasonable default <see cref="ArmorData"/> row for the current lab armor (match JSON slot, then tier).

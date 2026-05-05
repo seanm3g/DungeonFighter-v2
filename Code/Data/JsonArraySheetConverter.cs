@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -41,7 +42,12 @@ namespace RPGGame.Data
             { "DiceResult", "ItemRank", "prefixCategory", "Name", "Description", "Effect", "MinValue", "MaxValue" };
 
         public static readonly string[] ArmorCanonicalHeaders =
-            { "slot", "name", "armor", "tier", "attributeRequirements", "tags" };
+        {
+            "slot", "name", "armor", "tier",
+            "strength", "agility", "technique", "intelligence", "hit", "combo", "crit",
+            "extraActionSlots", "minActionBonuses",
+            "attributeRequirements", "tags"
+        };
 
         /// <summary>
         /// Column order for ENEMIES tab — nested stats are one column each (<c>baseAttributes.strength</c>, …).
@@ -77,8 +83,14 @@ namespace RPGGame.Data
         public static readonly string[] DungeonsCanonicalHeaders =
             { "name", "theme", "minLevel", "maxLevel", "possibleEnemies", "colorOverride" };
 
+        /// <summary>Seven columns A–G on the SUFFIXES tab; matches <c>StatBonuses.json</c> / <see cref="StatBonus"/>.</summary>
         public static readonly string[] StatBonusesCanonicalHeaders =
-            { "Name", "Description", "Value", "Rarity", "StatType", "ItemRank" };
+            { "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics" };
+
+        private static readonly HashSet<string> StatBonusAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics"
+        };
 
         public static IReadOnlyList<string> GetCanonicalHeaders(GameDataTabularSheetKind kind) =>
             kind switch
@@ -195,14 +207,18 @@ namespace RPGGame.Data
 
             var canonical = GetCanonicalHeaders(kind).ToList();
             var extraKeys = new SortedSet<string>(StringComparer.Ordinal);
-            foreach (var el in doc.RootElement.EnumerateArray())
+            // SUFFIXES tab is fixed A–G; do not emit helper/junk JSON keys as extra columns.
+            if (kind != GameDataTabularSheetKind.StatBonuses)
             {
-                if (el.ValueKind != JsonValueKind.Object)
-                    continue;
-                foreach (var p in el.EnumerateObject())
+                foreach (var el in doc.RootElement.EnumerateArray())
                 {
-                    if (!canonical.Any(c => string.Equals(c, p.Name, StringComparison.Ordinal)))
-                        extraKeys.Add(p.Name);
+                    if (el.ValueKind != JsonValueKind.Object)
+                        continue;
+                    foreach (var p in el.EnumerateObject())
+                    {
+                        if (!canonical.Any(c => string.Equals(c, p.Name, StringComparison.Ordinal)))
+                            extraKeys.Add(p.Name);
+                    }
                 }
             }
 
@@ -348,7 +364,10 @@ namespace RPGGame.Data
                     continue;
 
                 var obj = new JsonObject();
-                for (int i = 0; i < headerRow.Length; i++)
+                int headerCount = headerRow.Length;
+                if (kind == GameDataTabularSheetKind.StatBonuses)
+                    headerCount = Math.Min(headerCount, StatBonusesCanonicalHeaders.Length);
+                for (int i = 0; i < headerCount; i++)
                 {
                     // Google / Excel CSV exports may prefix the file with U+FEFF, which lands on the first header cell.
                     string header = (headerRow[i] ?? "").Trim().TrimStart('\uFEFF');
@@ -774,10 +793,16 @@ namespace RPGGame.Data
         }
 
         /// <summary>
-        /// Drops legacy <c>Weight</c>, maps lowercase <c>rarity</c> to <c>Rarity</c>, and defaults blank affix tier to Common.
+        /// Drops legacy <c>Weight</c>, maps lowercase <c>rarity</c> to <c>Rarity</c>, defaults blank affix tier to Common,
+        /// renames human SUFFIXES sheet headers, parses bracketed <c>[STAT:value,...]</c> mechanics into <c>Mechanics</c> JSON array,
+        /// and removes sheet-derived helper columns (e.g. split Mechanic 1 / 2 columns).
         /// </summary>
         private static void NormalizeStatBonusesJsonArrayRow(JsonObject obj)
         {
+            RenameStatBonusSheetImportHeaders(obj);
+            RemoveStatBonusSheetDerivedColumns(obj);
+            TryApplyStatBonusBracketMechanics(obj);
+
             string? rarityText = null;
             var hadWeight = false;
             foreach (var kvp in obj.ToList())
@@ -805,6 +830,210 @@ namespace RPGGame.Data
 
             var final = string.IsNullOrWhiteSpace(rarityText) ? "Common" : rarityText.Trim();
             obj["Rarity"] = JsonValue.Create(final);
+            RemoveStatBonusUnknownJsonKeys(obj);
+        }
+
+        /// <summary>After import normalization, drops any property not stored on <see cref="StatBonus"/> (sheet columns H+).</summary>
+        internal static void RemoveStatBonusUnknownJsonKeys(JsonObject obj)
+        {
+            foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+            {
+                if (!StatBonusAuthorizedJsonKeys.Contains(key))
+                    obj.Remove(key);
+            }
+        }
+
+        /// <summary>Maps common Google Sheets column titles to <c>StatBonuses.json</c> property names.</summary>
+        private static void RenameStatBonusSheetImportHeaders(JsonObject obj)
+        {
+            MoveStatBonusJsonKeyIfPresent(obj, "Name", "Suffix tags", "Suffix Tags", "suffix tags", "Suffix", "suffix name", "Suffix name", "Affix name");
+            MoveStatBonusJsonKeyIfPresent(obj, "ItemRank", "stat requirement", "Stat requirement", "Stat Requirement");
+            MoveStatBonusJsonKeyIfPresent(obj, "Mechanics", "Mechanics (bracket)", "mechanics bracket", "Bracket");
+            MoveStatBonusJsonKeyIfPresent(obj, "Description", "description");
+            MoveStatBonusJsonKeyIfPresent(obj, "StatType", "stat type", "Stat type");
+            MoveStatBonusJsonKeyIfPresent(obj, "Value", "value");
+            MoveStatBonusJsonKeyIfPresent(obj, "Rarity", "rarity");
+        }
+
+        /// <summary>When <paramref name="canonicalKey"/> is missing, copies the first matching alias key onto it and removes the alias.</summary>
+        private static void MoveStatBonusJsonKeyIfPresent(JsonObject obj, string canonicalKey, params string[] sourceAliases)
+        {
+            foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+            {
+                if (string.Equals(key, canonicalKey, StringComparison.OrdinalIgnoreCase))
+                    return;
+            }
+
+            foreach (var alias in sourceAliases)
+            {
+                foreach (var kvp in obj.ToList())
+                {
+                    if (!string.Equals(kvp.Key, alias, StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    if (!obj.TryGetPropertyValue(kvp.Key, out var val))
+                        continue;
+                    obj.Remove(kvp.Key);
+                    obj[canonicalKey] = val?.DeepClone() ?? JsonValue.Create("");
+                    return;
+                }
+            }
+        }
+
+        /// <summary>Removes split mechanic columns from the sheet export (keeps <c>Mechanics</c>).</summary>
+        private static void RemoveStatBonusSheetDerivedColumns(JsonObject obj)
+        {
+            foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+            {
+                if (string.Equals(key, "Mechanics", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (key.StartsWith("Mechanic", StringComparison.OrdinalIgnoreCase) ||
+                    key.StartsWith("Mechanc", StringComparison.OrdinalIgnoreCase) || // sheet typo "Mechanc i2"
+                    key.StartsWith("Mechaniv", StringComparison.OrdinalIgnoreCase)) // sheet typo "Mechaniv 1 value"
+                    obj.Remove(key);
+            }
+        }
+
+        /// <summary>
+        /// Fills <c>Mechanics</c> from a bracket cell <c>[ARMOR:5,MAX HEALTH:15]</c> or from any column whose string value matches that pattern.
+        /// When mechanics are present, mirrors the first pair onto legacy <c>StatType</c>/<c>Value</c> for older tooling.
+        /// </summary>
+        private static void TryApplyStatBonusBracketMechanics(JsonObject obj)
+        {
+            string? bracketSource = null;
+
+            if (obj.TryGetPropertyValue("Mechanics", out var mechNode) && mechNode is not null && !IsJsonNodeNullOrMissing(mechNode))
+            {
+                if (mechNode is JsonValue jv && jv.TryGetValue<string>(out var s) && !string.IsNullOrWhiteSpace(s))
+                    bracketSource = s.Trim();
+                else if (mechNode is JsonArray existingArr && existingArr.Count > 0)
+                {
+                    NormalizeStatBonusMechanicsArrayStatTypes(existingArr);
+                    return;
+                }
+            }
+
+            if (string.IsNullOrEmpty(bracketSource))
+            {
+                foreach (var kvp in obj)
+                {
+                    if (kvp.Value is JsonValue jv2 && jv2.TryGetValue<string>(out var cell) && cell != null)
+                    {
+                        string t = cell.Trim();
+                        if (t.Length >= 2 && t[0] == '[' && t[^1] == ']')
+                        {
+                            bracketSource = t;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(bracketSource))
+                return;
+
+            var parsed = ParseStatBonusBracketMechanics(bracketSource);
+            if (parsed == null || parsed.Count == 0)
+                return;
+
+            obj["Mechanics"] = parsed;
+            if (parsed.Count > 0 && parsed[0] is JsonObject first)
+            {
+                if (first.TryGetPropertyValue("StatType", out var st) && st is JsonValue stv && stv.TryGetValue<string>(out var statType))
+                    obj["StatType"] = JsonValue.Create(statType);
+                if (first.TryGetPropertyValue("Value", out var vn) && vn is JsonValue vv)
+                    obj["Value"] = vv.DeepClone();
+            }
+        }
+
+        private static void NormalizeStatBonusMechanicsArrayStatTypes(JsonArray arr)
+        {
+            foreach (var el in arr)
+            {
+                if (el is not JsonObject o)
+                    continue;
+                if (!o.TryGetPropertyValue("StatType", out var stNode) || stNode is not JsonValue stv || !stv.TryGetValue<string>(out var raw) || raw == null)
+                    continue;
+                string canon = NormalizeStatBonusSheetStatType(raw);
+                o["StatType"] = JsonValue.Create(canon);
+            }
+        }
+
+        /// <summary>Parses <c>[KEY:value,...]</c> where value is numeric; keys may contain spaces (e.g. <c>MAX HEALTH</c>).</summary>
+        internal static JsonArray? ParseStatBonusBracketMechanics(string bracketCell)
+        {
+            string t = bracketCell.Trim();
+            if (t.Length < 3 || t[0] != '[' || t[^1] != ']')
+                return null;
+
+            string inner = t[1..^1].Trim();
+            if (inner.Length == 0)
+                return null;
+
+            var segments = inner.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            var arr = new JsonArray();
+            foreach (var segment in segments)
+            {
+                int colon = segment.LastIndexOf(':');
+                if (colon <= 0 || colon >= segment.Length - 1)
+                    continue;
+
+                string rawKey = segment[..colon].Trim();
+                string rawVal = segment[(colon + 1)..].Trim();
+                if (rawKey.Length == 0)
+                    continue;
+
+                if (!double.TryParse(rawVal, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
+                    continue;
+
+                var pair = new JsonObject
+                {
+                    ["StatType"] = JsonValue.Create(NormalizeStatBonusSheetStatType(rawKey)),
+                    ["Value"] = JsonValue.Create(value)
+                };
+                arr.Add(pair);
+            }
+
+            return arr.Count > 0 ? arr : null;
+        }
+
+        /// <summary>
+        /// Normalizes SUFFIXES sheet mechanic keys to values used in <c>StatBonuses.json</c> / <see cref="EquipmentBonusCalculator"/>.
+        /// </summary>
+        internal static string NormalizeStatBonusSheetStatType(string rawKey)
+        {
+            if (string.IsNullOrWhiteSpace(rawKey))
+                return "";
+
+            string collapsed = string.Join(" ", rawKey.Trim()
+                .Replace('_', ' ')
+                .Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+            string upper = collapsed.ToUpperInvariant();
+
+            return upper switch
+            {
+                "ARMOR" => "Armor",
+                "HEALTH" => "Health",
+                "MAX HEALTH" => "Health",
+                "MAXHEALTH" => "Health",
+                "MAX ATTACK SPEED" => "AttackSpeed",
+                "MAXATTACKSPEED" => "AttackSpeed",
+                "ATTACK SPEED" => "AttackSpeed",
+                "ATTACKSPEED" => "AttackSpeed",
+                "DAMAGE" => "Damage",
+                "HEALTH REGEN" => "HealthRegen",
+                "HEALTHREGEN" => "HealthRegen",
+                "ROLL" => "RollBonus",
+                "ROLLBONUS" => "RollBonus",
+                "ROLL BONUS" => "RollBonus",
+                "MAGICFIND" => "MagicFind",
+                "MAGIC FIND" => "MagicFind",
+                "STR" or "STRENGTH" => "STR",
+                "AGI" or "AGILITY" => "AGI",
+                "TEC" or "TECHNIQUE" => "TEC",
+                "INT" or "INTELLIGENCE" => "INT",
+                "ALL" => "ALL",
+                _ => collapsed
+            };
         }
 
         private static string? StatBonusRarityCellToString(JsonNode? n)

@@ -121,8 +121,15 @@ namespace RPGGame.Handlers.Inventory
                     }
 
                     var action = pool[index];
+                    int before = player.GetComboActions().Count;
                     player.AddToCombo(action);
-                    ShowMessageEvent?.Invoke($"Added {action.Name} to sequence.");
+                    if (player.GetComboActions().Count == before)
+                    {
+                        int cap = ComboSequenceMaxHelper.GetEffectiveMax(player);
+                        ShowMessageEvent?.Invoke($"Sequence is full ({cap} slots). Remove an action or use feet gear that adds capacity.");
+                    }
+                    else
+                        ShowMessageEvent?.Invoke($"Added {action.Name} to sequence.");
                     if (stateTracker.InComboManagement)
                         RenderComboManagementScreen();
                     else
@@ -392,11 +399,18 @@ namespace RPGGame.Handlers.Inventory
             int addedCount = 0;
             foreach (var action in actionsToAdd)
             {
+                int before = stateManager.CurrentPlayer.GetComboActions().Count;
                 stateManager.CurrentPlayer.AddToCombo(action);
-                addedCount++;
+                if (stateManager.CurrentPlayer.GetComboActions().Count > before)
+                    addedCount++;
+                else
+                    break;
             }
             
-            ShowMessageEvent?.Invoke($"Successfully added {addedCount} actions to combo sequence!");
+            int cap = ComboSequenceMaxHelper.GetEffectiveMax(stateManager.CurrentPlayer);
+            ShowMessageEvent?.Invoke(addedCount > 0
+                ? $"Added {addedCount} action(s) to sequence (max {cap})."
+                : $"Sequence is full ({cap} slots). Nothing added.");
             stateTracker.InComboManagement = true;
             RenderComboManagementScreen();
         }

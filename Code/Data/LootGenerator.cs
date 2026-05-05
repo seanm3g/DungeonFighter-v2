@@ -328,6 +328,35 @@ namespace RPGGame
         /// <summary>Optional multi-value tags from <c>Armor.json</c> / armor sheet (JSON array or omitted).</summary>
         [JsonPropertyName("tags")]
         public List<string>? Tags { get; set; }
+
+        [JsonPropertyName("strength")]
+        public int Strength { get; set; }
+
+        [JsonPropertyName("agility")]
+        public int Agility { get; set; }
+
+        [JsonPropertyName("technique")]
+        public int Technique { get; set; }
+
+        [JsonPropertyName("intelligence")]
+        public int Intelligence { get; set; }
+
+        [JsonPropertyName("hit")]
+        public int Hit { get; set; }
+
+        [JsonPropertyName("combo")]
+        public int Combo { get; set; }
+
+        [JsonPropertyName("crit")]
+        public int Crit { get; set; }
+
+        /// <summary>Feet: adds to max combo sequence length (capped by tuning).</summary>
+        [JsonPropertyName("extraActionSlots")]
+        public int ExtraActionSlots { get; set; }
+
+        /// <summary>Head: minimum number of granted-action lines after rarity affix rolls.</summary>
+        [JsonPropertyName("minActionBonuses")]
+        public int MinActionBonuses { get; set; }
     }
 
     public class WeaponData

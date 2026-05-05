@@ -2,7 +2,6 @@
   {
     "name": "Goblin",
     "archetype": "Assassin",
-    "baseHealth": 29.24,
     "healthGrowthPerLevel": 2.35,
     "baseAttributes": {
       "strength": 0.18,
@@ -10,24 +9,24 @@
       "technique": 3,
       "intelligence": 2
     },
-    "actions": [
-      "JAB",
-      "TAUNT"
-    ],
-    "isLiving": true,
-    "description": "A quick and cunning creature that strikes from the shadows",
-    "tags": [
-      "tested"
-    ],
     "growthPerLevel": {
       "technique": 0.2,
-      "intelligence": 0.12
+      "intelligence": 0.12,
+      "baseHealth": 29.24,
+      "actions": [
+        "JAB",
+        "TAUNT"
+      ],
+      "isLiving": true,
+      "description": "A quick and cunning creature that strikes from the shadows",
+      "tags": [
+        "tested"
+      ]
     }
   },
   {
     "name": "Spider",
     "archetype": "Assassin",
-    "baseHealth": 10,
     "healthGrowthPerLevel": 1.65,
     "baseAttributes": {
       "strength": 0.12,
@@ -35,21 +34,21 @@
       "technique": 3,
       "intelligence": 1
     },
-    "actions": [
-      "WEB STRIKE",
-      "POISON BITE"
-    ],
-    "isLiving": true,
-    "description": "A large forest spider with venomous fangs - extremely fast, fragile",
     "growthPerLevel": {
       "technique": 0.28,
-      "intelligence": 0.14
+      "intelligence": 0.14,
+      "baseHealth": 10,
+      "actions": [
+        "WEB STRIKE",
+        "POISON BITE"
+      ],
+      "isLiving": true,
+      "description": "A large forest spider with venomous fangs - extremely fast, fragile"
     }
   },
   {
     "name": "Wolf",
     "archetype": "Berserker",
-    "baseHealth": 53.36,
     "healthGrowthPerLevel": 3.1,
     "baseAttributes": {
       "strength": 0.22,
@@ -57,21 +56,21 @@
       "technique": 2,
       "intelligence": 2
     },
-    "actions": [
-      "BITE",
-      "HOWL"
-    ],
-    "isLiving": true,
-    "description": "A swift predator that hunts in packs - balanced attacker",
     "growthPerLevel": {
       "technique": 0.18,
-      "intelligence": 0.12
+      "intelligence": 0.12,
+      "baseHealth": 53.36,
+      "actions": [
+        "BITE",
+        "HOWL"
+      ],
+      "isLiving": true,
+      "description": "A swift predator that hunts in packs - balanced attacker"
     }
   },
   {
     "name": "Fire Elemental",
     "archetype": "Mage",
-    "baseHealth": 22.8,
     "healthGrowthPerLevel": 2.25,
     "baseAttributes": {
       "strength": 0.1,
@@ -79,21 +78,21 @@
       "technique": 4,
       "intelligence": 4
     },
-    "actions": [
-      "FIRE BOLT",
-      "IGNITE"
-    ],
-    "isLiving": false,
-    "description": "A being of pure flame with magical powers - high damage caster",
     "growthPerLevel": {
       "technique": 0.22,
-      "intelligence": 0.28
+      "intelligence": 0.28,
+      "baseHealth": 22.8,
+      "actions": [
+        "FIRE BOLT",
+        "IGNITE"
+      ],
+      "isLiving": false,
+      "description": "A being of pure flame with magical powers - high damage caster"
     }
   },
   {
     "name": "Lava Golem",
     "archetype": "Brute",
-    "baseHealth": 78.4,
     "healthGrowthPerLevel": 4.3,
     "baseAttributes": {
       "strength": 0.28,
@@ -101,21 +100,21 @@
       "technique": 2,
       "intelligence": 1
     },
-    "actions": [
-      "MAGMA FIST",
-      "ERUPTION"
-    ],
-    "isLiving": false,
-    "description": "A massive construct of molten rock and metal - slow tank with high damage",
     "growthPerLevel": {
       "technique": 0.14,
-      "intelligence": 0.1
+      "intelligence": 0.1,
+      "baseHealth": 78.4,
+      "actions": [
+        "MAGMA FIST",
+        "ERUPTION"
+      ],
+      "isLiving": false,
+      "description": "A massive construct of molten rock and metal - slow tank with high damage"
     }
   },
   {
     "name": "Bat",
     "archetype": "Assassin",
-    "baseHealth": 6.4,
     "healthGrowthPerLevel": 1.35,
     "baseAttributes": {
       "strength": 0.08,
@@ -123,21 +122,21 @@
       "technique": 2,
       "intelligence": 1
     },
-    "actions": [
-      "BAT SWARM",
-      "QUICK STRIKE"
-    ],
-    "isLiving": true,
-    "description": "A flying bat that attacks in swarms - ultra-fast but very fragile",
     "growthPerLevel": {
       "technique": 0.18,
-      "intelligence": 0.1
+      "intelligence": 0.1,
+      "baseHealth": 6.4,
+      "actions": [
+        "BAT SWARM",
+        "QUICK STRIKE"
+      ],
+      "isLiving": true,
+      "description": "A flying bat that attacks in swarms - ultra-fast but very fragile"
     }
   },
   {
     "name": "Skeleton",
     "archetype": "Guardian",
-    "baseHealth": 32.4,
     "healthGrowthPerLevel": 2.75,
     "baseAttributes": {
       "strength": 0.16,
@@ -145,21 +144,21 @@
       "technique": 3,
       "intelligence": 2
     },
-    "actions": [
-      "BONE STRIKE",
-      "RATTLE"
-    ],
-    "isLiving": false,
-    "description": "An undead warrior with bony armor - protected but fragile bones",
     "growthPerLevel": {
       "technique": 0.15,
-      "intelligence": 0.1
+      "intelligence": 0.1,
+      "baseHealth": 32.4,
+      "actions": [
+        "BONE STRIKE",
+        "RATTLE"
+      ],
+      "isLiving": false,
+      "description": "An undead warrior with bony armor - protected but fragile bones"
     }
   },
   {
     "name": "Zombie",
     "archetype": "Brute",
-    "baseHealth": 60.5,
     "healthGrowthPerLevel": 3.15,
     "baseAttributes": {
       "strength": 0.22,
@@ -167,21 +166,21 @@
       "technique": 1,
       "intelligence": 1
     },
-    "actions": [
-      "CLAW",
-      "GROAN"
-    ],
-    "isLiving": false,
-    "description": "A shambling undead - durable but slow and decaying",
     "growthPerLevel": {
       "technique": 0.12,
-      "intelligence": 0.06
+      "intelligence": 0.06,
+      "baseHealth": 60.5,
+      "actions": [
+        "CLAW",
+        "GROAN"
+      ],
+      "isLiving": false,
+      "description": "A shambling undead - durable but slow and decaying"
     }
   },
   {
     "name": "Wraith",
     "archetype": "Mage",
-    "baseHealth": 17.16,
     "healthGrowthPerLevel": 2.05,
     "baseAttributes": {
       "strength": 0.08,
@@ -189,21 +188,21 @@
       "technique": 3,
       "intelligence": 4
     },
-    "actions": [
-      "SOUL DRAIN",
-      "PHASE"
-    ],
-    "isLiving": false,
-    "description": "A spectral being with powerful magic - fast magical caster",
     "growthPerLevel": {
       "technique": 0.2,
-      "intelligence": 0.28
+      "intelligence": 0.28,
+      "baseHealth": 17.16,
+      "actions": [
+        "SOUL DRAIN",
+        "PHASE"
+      ],
+      "isLiving": false,
+      "description": "A spectral being with powerful magic - fast magical caster"
     }
   },
   {
     "name": "Bear",
     "archetype": "Berserker",
-    "baseHealth": 63,
     "healthGrowthPerLevel": 3.45,
     "baseAttributes": {
       "strength": 0.26,
@@ -211,21 +210,21 @@
       "technique": 2,
       "intelligence": 2
     },
-    "actions": [
-      "SLAM",
-      "GRUNT"
-    ],
-    "isLiving": true,
-    "description": "A powerful forest predator - heavy hitter with high health",
     "growthPerLevel": {
       "technique": 0.14,
-      "intelligence": 0.1
+      "intelligence": 0.1,
+      "baseHealth": 63,
+      "actions": [
+        "SLAM",
+        "GRUNT"
+      ],
+      "isLiving": true,
+      "description": "A powerful forest predator - heavy hitter with high health"
     }
   },
   {
     "name": "Treant",
     "archetype": "Brute",
-    "baseHealth": 73.44,
     "healthGrowthPerLevel": 4.1,
     "baseAttributes": {
       "strength": 0.22,
@@ -233,21 +232,21 @@
       "technique": 2,
       "intelligence": 2
     },
-    "actions": [
-      "SLAM",
-      "PUNCH HARD"
-    ],
-    "isLiving": false,
-    "description": "An ancient tree spirit - slow but heavily armored",
     "growthPerLevel": {
       "technique": 0.12,
-      "intelligence": 0.1
+      "intelligence": 0.1,
+      "baseHealth": 73.44,
+      "actions": [
+        "SLAM",
+        "PUNCH HARD"
+      ],
+      "isLiving": false,
+      "description": "An ancient tree spirit - slow but heavily armored"
     }
   },
   {
     "name": "Boar",
     "archetype": "Berserker",
-    "baseHealth": 48.4,
     "healthGrowthPerLevel": 3.05,
     "baseAttributes": {
       "strength": 0.24,
@@ -255,21 +254,21 @@
       "technique": 2,
       "intelligence": 1
     },
-    "actions": [
-      "JAB",
-      "PUNCH HARD"
-    ],
-    "isLiving": true,
-    "description": "A fierce woodland beast that charges and gores",
     "growthPerLevel": {
       "technique": 0.15,
-      "intelligence": 0.08
+      "intelligence": 0.08,
+      "baseHealth": 48.4,
+      "actions": [
+        "JAB",
+        "PUNCH HARD"
+      ],
+      "isLiving": true,
+      "description": "A fierce woodland beast that charges and gores"
     }
   },
   {
     "name": "Salamander",
     "archetype": "Assassin",
-    "baseHealth": 19.6,
     "healthGrowthPerLevel": 2.15,
     "baseAttributes": {
       "strength": 0.12,
@@ -277,21 +276,21 @@
       "technique": 3,
       "intelligence": 2
     },
-    "actions": [
-      "CHEAP SHOT",
-      "JAB"
-    ],
-    "isLiving": true,
-    "description": "A fire-dwelling lizard that strikes from the heat haze",
     "growthPerLevel": {
       "technique": 0.2,
-      "intelligence": 0.16
+      "intelligence": 0.16,
+      "baseHealth": 19.6,
+      "actions": [
+        "CHEAP SHOT",
+        "JAB"
+      ],
+      "isLiving": true,
+      "description": "A fire-dwelling lizard that strikes from the heat haze"
     }
   },
   {
     "name": "Ember Spirit",
     "archetype": "Mage",
-    "baseHealth": 14.4,
     "healthGrowthPerLevel": 1.85,
     "baseAttributes": {
       "strength": 0.06,
@@ -299,21 +298,21 @@
       "technique": 4,
       "intelligence": 4
     },
-    "actions": [
-      "CRITICAL ATTACK",
-      "FLURRY"
-    ],
-    "isLiving": false,
-    "description": "A wisp of living flame - bursts of magical damage",
     "growthPerLevel": {
       "technique": 0.22,
-      "intelligence": 0.3
+      "intelligence": 0.3,
+      "baseHealth": 14.4,
+      "actions": [
+        "CRITICAL ATTACK",
+        "FLURRY"
+      ],
+      "isLiving": false,
+      "description": "A wisp of living flame - bursts of magical damage"
     }
   },
   {
     "name": "Magma Beast",
     "archetype": "Brute",
-    "baseHealth": 67.6,
     "healthGrowthPerLevel": 4,
     "baseAttributes": {
       "strength": 0.27,
@@ -321,20 +320,18 @@
       "technique": 2,
       "intelligence": 1
     },
-    "actions": [
-      "SLAM"
-    ],
-    "isLiving": false,
-    "description": "A creature of molten rock - devastating heavy attacks",
     "growthPerLevel": {
       "technique": 0.13,
-      "intelligence": 0.09
+      "intelligence": 0.09,
+      "baseHealth": 67.6,
+      "actions": "[\n      \u0022SLAM\u0022,\n    ]",
+      "isLiving": false,
+      "description": "A creature of molten rock - devastating heavy attacks"
     }
   },
   {
     "name": "Ghoul",
     "archetype": "Assassin",
-    "baseHealth": 25.6,
     "healthGrowthPerLevel": 2.55,
     "baseAttributes": {
       "strength": 0.18,
@@ -342,21 +339,21 @@
       "technique": 2,
       "intelligence": 2
     },
-    "actions": [
-      "CHEAP SHOT",
-      "JAB"
-    ],
-    "isLiving": false,
-    "description": "A ravenous undead that lunges from the shadows",
     "growthPerLevel": {
       "technique": 0.22,
-      "intelligence": 0.12
+      "intelligence": 0.12,
+      "baseHealth": 25.6,
+      "actions": [
+        "CHEAP SHOT",
+        "JAB"
+      ],
+      "isLiving": false,
+      "description": "A ravenous undead that lunges from the shadows"
     }
   },
   {
     "name": "Lich",
     "archetype": "Mage",
-    "baseHealth": 32.4,
     "healthGrowthPerLevel": 2.85,
     "baseAttributes": {
       "strength": 0.12,
@@ -364,21 +361,21 @@
       "technique": 4,
       "intelligence": 5
     },
-    "actions": [
-      "CRITICAL ATTACK",
-      "STUN"
-    ],
-    "isLiving": false,
-    "description": "An undead spellcaster with potent magical strikes",
     "growthPerLevel": {
       "technique": 0.24,
-      "intelligence": 0.32
+      "intelligence": 0.32,
+      "baseHealth": 32.4,
+      "actions": [
+        "CRITICAL ATTACK",
+        "STUN"
+      ],
+      "isLiving": false,
+      "description": "An undead spellcaster with potent magical strikes"
     }
   },
   {
     "name": "Wight",
     "archetype": "Guardian",
-    "baseHealth": 40,
     "healthGrowthPerLevel": 2.9,
     "baseAttributes": {
       "strength": 0.18,
@@ -386,15 +383,16 @@
       "technique": 3,
       "intelligence": 3
     },
-    "actions": [
-      "SLAM",
-      "TAUNT"
-    ],
-    "isLiving": false,
-    "description": "A spectral guardian of the crypt - tough and controlling",
     "growthPerLevel": {
       "technique": 0.2,
-      "intelligence": 0.14
+      "intelligence": 0.14,
+      "baseHealth": 40,
+      "actions": [
+        "SLAM",
+        "TAUNT"
+      ],
+      "isLiving": false,
+      "description": "A spectral guardian of the crypt - tough and controlling"
     }
   }
 ]

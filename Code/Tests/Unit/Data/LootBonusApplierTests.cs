@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit.Data
             TestApplyBonuses();
             TestApplyStatBonuses();
             TestApplyStatBonusesUsesAffixTierPools();
+            TestApplyStatBonusesEnforcesUniqueAffixRarity();
             TestApplyPrefixSlotsUsesAffixTierPools();
             TestApplyActionBonuses();
             TestApplyModifications();
@@ -125,16 +126,45 @@ namespace RPGGame.Tests.Unit.Data
 
                 var item = TestDataBuilders.Item().WithName("T").Build();
                 var applier = new LootBonusApplier(cache, new Random(1));
-                applier.ApplyStatBonuses(item, 15);
+                applier.ApplyStatBonuses(item, 2);
 
-                TestBase.AssertEqual(15, item.StatBonuses.Count, "suffix count", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertTrue(item.StatBonuses.All(s => s.Name == "RareLine"),
-                    "only Rare-tier StatBonuses rows should be chosen when RarityTable weights exclude Common",
+                TestBase.AssertEqual(2, item.StatBonuses.Count, "two suffix slots", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                int distinctRarities = item.StatBonuses.Select(s => s.Rarity.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).Count();
+                TestBase.AssertEqual(2, distinctRarities, "at most one suffix per affix rarity", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(item.StatBonuses.Any(s => s.Name == "RareLine") && item.StatBonuses.Any(s => s.Name == "CommonLine"),
+                    "Rare-weighted rolls still yield a Rare line and a promoted non-duplicate line",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             catch (Exception ex)
             {
                 TestBase.AssertTrue(false, $"Affix-tier stat test: {ex.Message}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestApplyStatBonusesEnforcesUniqueAffixRarity()
+        {
+            Console.WriteLine("\n--- Testing ApplyStatBonuses unique affix rarity ---");
+            TestBase.SetCurrentTestName(nameof(TestApplyStatBonusesEnforcesUniqueAffixRarity));
+            try
+            {
+                var cache = LootDataCache.CreateEmpty();
+                cache.StatBonuses.Add(new StatBonus { Name = "C1", Rarity = "Common", StatType = "Armor", Value = 1 });
+                cache.StatBonuses.Add(new StatBonus { Name = "C2", Rarity = "Common", StatType = "Armor", Value = 2 });
+                cache.StatBonuses.Add(new StatBonus { Name = "U1", Rarity = "Uncommon", StatType = "Armor", Value = 3 });
+                cache.RarityData.Add(new RarityData { Name = "Common", Weight = 100, StatBonuses = 0, ActionBonuses = 0, Modifications = 0 });
+                cache.RarityData.Add(new RarityData { Name = "Uncommon", Weight = 1, StatBonuses = 0, ActionBonuses = 0, Modifications = 0 });
+
+                var item = TestDataBuilders.Item().WithName("T").Build();
+                var applier = new LootBonusApplier(cache, new Random(42));
+                applier.ApplyStatBonuses(item, 2);
+
+                TestBase.AssertEqual(2, item.StatBonuses.Count, "two picks", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                int distinct = item.StatBonuses.Select(s => s.Rarity.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).Count();
+                TestBase.AssertEqual(2, distinct, "two different affix rarities", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            catch (Exception ex)
+            {
+                TestBase.AssertTrue(false, $"Unique affix rarity test: {ex.Message}", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
 

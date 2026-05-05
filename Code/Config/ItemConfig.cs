@@ -188,6 +188,23 @@ namespace RPGGame
         /// <summary>Keys are rarity names, e.g. Common, Rare (matched case-insensitively).</summary>
         public Dictionary<string, ItemAffixPerRarityEntry> PerRarity { get; set; } = new();
 
+        /// <summary>
+        /// Optional per–item-category overrides (keys: Head, Chest, Feet, Weapon — case-insensitive).
+        /// When present for <paramref name="itemType"/> and rarity, overrides <see cref="PerRarity"/>.
+        /// </summary>
+        public Dictionary<string, Dictionary<string, ItemAffixPerRarityEntry>> PerItemType { get; set; } = new();
+
+        /// <summary>Maps <see cref="ItemType"/> to <see cref="PerItemType"/> outer dictionary key.</summary>
+        public static string ItemTypeToAffixCategoryKey(ItemType type) =>
+            type switch
+            {
+                ItemType.Head => "Head",
+                ItemType.Chest => "Chest",
+                ItemType.Feet => "Feet",
+                ItemType.Weapon => "Weapon",
+                _ => "Chest"
+            };
+
         /// <summary>Built-in prefix-slot count when tuning does not override this rarity.</summary>
         public static int DefaultPrefixSlotsForRarity(string rarityName)
         {
@@ -204,9 +221,14 @@ namespace RPGGame
         public static ItemAffixRollRule GetResolvedAffixRule(
             string? rarityName,
             RarityData? rarityTableRow,
-            ItemAffixByRaritySettings? tuning)
+            ItemAffixByRaritySettings? tuning,
+            ItemType? itemType = null)
         {
             string name = rarityName?.Trim() ?? "Common";
+            if (tuning != null && itemType.HasValue &&
+                tuning.TryGetForItemTypeAndRarity(itemType.Value, name, out var typedEntry))
+                return BuildRuleFromTuningEntry(typedEntry, rarityTableRow);
+
             if (tuning != null && tuning.TryGetForRarity(name, out var entry))
                 return BuildRuleFromTuningEntry(entry, rarityTableRow);
 
@@ -318,9 +340,10 @@ namespace RPGGame
             ItemAffixByRaritySettings? tuning,
             out int prefixSlots,
             out int statSuffixes,
-            out int actionBonuses)
+            out int actionBonuses,
+            ItemType? itemType = null)
         {
-            var rule = GetResolvedAffixRule(rarityName, rarityTableRow, tuning);
+            var rule = GetResolvedAffixRule(rarityName, rarityTableRow, tuning, itemType);
             prefixSlots = rule.PrefixMin;
             statSuffixes = rule.StatMin;
             actionBonuses = rule.ActionMin;
@@ -341,6 +364,51 @@ namespace RPGGame
             }
 
             foreach (var kv in PerRarity)
+            {
+                if (kv.Key.Equals(trimmed, StringComparison.OrdinalIgnoreCase) && kv.Value != null)
+                {
+                    entry = kv.Value;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>True when <see cref="PerItemType"/> has an entry for this item category and rarity.</summary>
+        public bool TryGetForItemTypeAndRarity(ItemType itemType, string? rarityName, out ItemAffixPerRarityEntry entry)
+        {
+            entry = null!;
+            if (PerItemType == null || PerItemType.Count == 0 || string.IsNullOrWhiteSpace(rarityName))
+                return false;
+
+            string cat = ItemTypeToAffixCategoryKey(itemType);
+            Dictionary<string, ItemAffixPerRarityEntry>? inner = null;
+            if (PerItemType.TryGetValue(cat, out var direct) && direct != null)
+                inner = direct;
+            else
+            {
+                foreach (var kv in PerItemType)
+                {
+                    if (kv.Key.Equals(cat, StringComparison.OrdinalIgnoreCase) && kv.Value != null)
+                    {
+                        inner = kv.Value;
+                        break;
+                    }
+                }
+            }
+
+            if (inner == null || inner.Count == 0)
+                return false;
+
+            string trimmed = rarityName.Trim();
+            if (inner.TryGetValue(trimmed, out var row) && row != null)
+            {
+                entry = row;
+                return true;
+            }
+
+            foreach (var kv in inner)
             {
                 if (kv.Key.Equals(trimmed, StringComparison.OrdinalIgnoreCase) && kv.Value != null)
                 {
@@ -372,6 +440,12 @@ namespace RPGGame
         /// <summary>At MF 100, optional affix *extra* chances (prefix/stat/action) multiply by this value before capping at 1.0 per step.</summary>
         public double AffixMagicFindMaxExtraChanceBoost { get; set; } = 2.0;
 
+        /// <summary>Default maximum number of actions in the player combo sequence before feet bonuses.</summary>
+        public int ComboSequenceBaseMax { get; set; } = 2;
+
+        /// <summary>Hard cap on combo sequence length after feet <see cref="Item.ExtraActionSlots"/>.</summary>
+        public int ComboSequenceAbsoluteMax { get; set; } = 8;
+
         public RarityUpgradeConfig RarityUpgrade { get; set; } = new();
         public string Description { get; set; } = "";
 
@@ -395,6 +469,10 @@ namespace RPGGame
                 AffixMagicFindMaxWeightBoost = 1.0;
             if (AffixMagicFindMaxExtraChanceBoost < 1.0)
                 AffixMagicFindMaxExtraChanceBoost = 1.0;
+            if (ComboSequenceBaseMax < 1)
+                ComboSequenceBaseMax = 2;
+            if (ComboSequenceAbsoluteMax < ComboSequenceBaseMax)
+                ComboSequenceAbsoluteMax = ComboSequenceBaseMax;
         }
     }
 

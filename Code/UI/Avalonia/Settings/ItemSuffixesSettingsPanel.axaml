@@ -4,10 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:settings="clr-namespace:RPGGame.UI.Avalonia.Settings"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
-             x:Class="RPGGame.UI.Avalonia.Settings.ItemModifiersSettingsPanel"
+             x:Class="RPGGame.UI.Avalonia.Settings.ItemSuffixesSettingsPanel"
              Background="Transparent">
     <UserControl.Styles>
-        <!-- ComboBox dropdown item styles for better readability -->
         <Style Selector="ComboBoxItem">
             <Setter Property="Background" Value="#FF2A2A2A"/>
             <Setter Property="Foreground" Value="White"/>
@@ -26,7 +25,6 @@
             <Setter Property="Background" Value="#FF5A5A5A"/>
             <Setter Property="Foreground" Value="White"/>
         </Style>
-        <!-- Style the popup background -->
         <Style Selector="ComboBox /template/ Popup#PART_Popup Border">
             <Setter Property="Background" Value="#FF2A2A2A"/>
         </Style>
@@ -34,11 +32,10 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                  HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="20" Margin="20">
-            <!-- Header -->
-            <Border Background="White" 
-                    BorderBrush="#FF404040" 
-                    BorderThickness="1" 
-                    CornerRadius="6" 
+            <Border Background="White"
+                    BorderBrush="#FF404040"
+                    BorderThickness="1"
+                    CornerRadius="6"
                     Padding="18">
                 <StackPanel Spacing="10">
                     <Grid>
@@ -47,22 +44,22 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Spacing="10">
-                            <TextBlock Text="Item prefixes" 
-                                       FontSize="20" 
-                                       FontWeight="Bold" 
-                                       Foreground="Black" 
+                            <TextBlock Text="Item suffixes"
+                                       FontSize="20"
+                                       FontWeight="Bold"
+                                       Foreground="Black"
                                        Margin="0,0,0,8"/>
-                            <TextBlock FontSize="14" 
-                                       Foreground="#FF666666" 
+                            <TextBlock FontSize="14"
+                                       Foreground="#FF666666"
                                        TextWrapping="Wrap"
-                                       Text="Prefix lines from Modifications.json (adjective / material / quality dice rows). Use the Item suffixes tab for StatBonuses.json. Add, edit, or delete rows below; click Save in the settings footer to write Modifications.json."/>
+                                       Text="Edits name suffixes and stat lines from StatBonuses.json (loot suffix pool). Rows are grouped by rarity tier (Rarity). Use Save in the settings footer to write the file."/>
                         </StackPanel>
-                        <StackPanel Grid.Column="1" 
-                                    Orientation="Horizontal" 
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
                                     Spacing="10"
                                     VerticalAlignment="Top">
-                            <Button x:Name="AddModifierButton"
-                                    Content="Add prefix"
+                            <Button x:Name="AddSuffixButton"
+                                    Content="Add suffix"
                                     Width="120"
                                     Height="35"
                                     Background="#FF4CAF50"
@@ -71,8 +68,8 @@
                                     CornerRadius="3"
                                     FontSize="13"
                                     Cursor="Hand"/>
-                            <Button x:Name="EditModifierButton"
-                                    Content="Edit Selected"
+                            <Button x:Name="EditSuffixButton"
+                                    Content="Edit selected"
                                     Width="120"
                                     Height="35"
                                     Background="#FF2196F3"
@@ -82,8 +79,8 @@
                                     FontSize="13"
                                     Cursor="Hand"
                                     IsEnabled="False"/>
-                            <Button x:Name="DeleteModifierButton"
-                                    Content="Delete Selected"
+                            <Button x:Name="DeleteSuffixButton"
+                                    Content="Delete selected"
                                     Width="120"
                                     Height="35"
                                     Background="#FFF44336"
@@ -98,25 +95,24 @@
                 </StackPanel>
             </Border>
 
-            <!-- Modifiers by Rarity -->
-            <ItemsControl x:Name="RarityGroupsItemsControl">
+            <ItemsControl x:Name="SuffixGroupsItemsControl">
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="settings:RarityGroupViewModel">
-                        <Border Background="White" 
-                                BorderBrush="#FF404040" 
-                                BorderThickness="1" 
-                                CornerRadius="6" 
+                    <DataTemplate x:DataType="settings:SuffixRarityGroupViewModel">
+                        <Border Background="White"
+                                BorderBrush="#FF404040"
+                                BorderThickness="1"
+                                CornerRadius="6"
                                 Padding="18"
                                 Margin="0,0,0,15">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="{Binding RarityName}" 
-                                           FontSize="18" 
-                                           FontWeight="SemiBold" 
-                                           Foreground="Black" 
+                                <TextBlock Text="{Binding RarityName}"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Foreground="Black"
                                            Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding Modifiers}">
                                     <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="settings:ModifierViewModel">
+                                        <DataTemplate x:DataType="settings:SuffixModifierViewModel">
                                             <Border Background="{Binding BackgroundColor}"
                                                     BorderBrush="#FF404040"
                                                     BorderThickness="1"
@@ -124,7 +120,7 @@
                                                     Padding="8"
                                                     Margin="0,0,0,8"
                                                     Cursor="Hand"
-                                                    PointerPressed="OnModifierPointerPressed">
+                                                    PointerPressed="OnSuffixPointerPressed">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto"/>
@@ -133,23 +129,23 @@
                                                         <ColumnDefinition Width="200"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0"
-                                                               Text="{Binding Name}" 
-                                                               FontSize="14" 
+                                                               Text="{Binding Name}"
+                                                               FontSize="14"
                                                                FontWeight="SemiBold"
                                                                Foreground="Black"
                                                                VerticalAlignment="Center"
                                                                Margin="0,0,10,0"
                                                                MinWidth="120"/>
                                                     <TextBlock Grid.Column="1"
-                                                               Text="{Binding Description}" 
-                                                               FontSize="13" 
+                                                               Text="{Binding Description}"
+                                                               FontSize="13"
                                                                Foreground="#FF666666"
                                                                VerticalAlignment="Center"
                                                                TextWrapping="Wrap"
                                                                Margin="0,0,10,0"/>
                                                     <TextBlock Grid.Column="2"
-                                                               Text="Rarity:" 
-                                                               FontSize="13" 
+                                                               Text="Rarity:"
+                                                               FontSize="13"
                                                                Foreground="Black"
                                                                VerticalAlignment="Center"
                                                                Margin="0,0,8,0"/>
@@ -182,4 +178,3 @@
         </StackPanel>
     </ScrollViewer>
 </UserControl>
-

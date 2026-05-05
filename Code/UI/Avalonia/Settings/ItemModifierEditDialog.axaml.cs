@@ -64,7 +64,7 @@ namespace RPGGame.UI.Avalonia.Settings
         private double _maxValue;
         private bool _isEditMode;
 
-        public string DialogTitle => IsEditMode ? "Edit Item Modifier" : "Add Item Modifier";
+        public string DialogTitle => IsEditMode ? "Edit prefix" : "Add prefix";
 
         public int DiceResult
         {

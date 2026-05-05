@@ -27,10 +27,14 @@ namespace RPGGame
         /// Allows duplicate actions (same name) by checking if the exact Action object is already in combo
         /// This supports items that have the same action multiple times
         /// </summary>
-        public void AddToCombo(Action action)
+        /// <param name="maxComboLength">When set (hero sequence cap), blocks adds at or above this count.</param>
+        public void AddToCombo(Action action, int? maxComboLength = null)
         {
             if (action.IsComboAction)
             {
+                if (maxComboLength.HasValue && ComboSequence.Count >= maxComboLength.Value)
+                    return;
+
                 // Check if this exact Action object is already in the combo
                 // This allows multiple instances of the same action name (duplicates)
                 bool alreadyInCombo = ComboSequence.Contains(action);
@@ -97,6 +101,8 @@ namespace RPGGame
             // Clear existing combo sequence
             ClearCombo();
 
+            int? maxLen = entity is Character ch ? ComboSequenceMaxHelper.GetEffectiveMax(ch) : null;
+
             // Add the two weapon actions to the combo by default
             if (weapon != null)
             {
@@ -110,7 +116,7 @@ namespace RPGGame
                     
                     if (actionEntry.action != null && actionEntry.action.IsComboAction)
                     {
-                        AddToCombo(actionEntry.action);
+                        AddToCombo(actionEntry.action, maxLen);
                     }
                 }
             }
@@ -127,7 +133,7 @@ namespace RPGGame
                 if (availableComboActions.Count > 0)
                 {
                     // Add the first available combo action
-                    AddToCombo(availableComboActions[0]);
+                    AddToCombo(availableComboActions[0], maxLen);
                 }
                 else
                 {
@@ -203,6 +209,7 @@ namespace RPGGame
             ClearCombo();
 
             int nextSlot = 1;
+            int? maxLen = entity is Character ch ? ComboSequenceMaxHelper.GetEffectiveMax(ch) : null;
             foreach (var actionName in actionNames)
             {
                 if (string.IsNullOrWhiteSpace(actionName))
@@ -216,11 +223,13 @@ namespace RPGGame
                     // Fresh Action instances from ActionLoader keep JSON ComboOrder; ReorderComboSequence sorts by it.
                     // Match saved name order so the combo matches the player's sequence after RebuildCharacterActions.
                     actionEntry.action.ComboOrder = nextSlot++;
-                    AddToCombo(actionEntry.action);
+                    AddToCombo(actionEntry.action, maxLen);
                 }
             }
 
             WeaponRequiredComboAction.EnsureRequiredBasicInCombo(entity);
+            if (entity is Character chr)
+                ComboSequenceMaxHelper.TrimComboSequenceToMax(chr, ComboSequenceMaxHelper.GetEffectiveMax(chr));
 
             return ComboSequence.Count > 0;
         }

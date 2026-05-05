@@ -110,7 +110,11 @@ namespace RPGGame
         public List<Action> GetActionPool() => _character.Actions.GetActionPool(_character);
         public void AddToCombo(Action action)
         {
-            _character.Actions.AddToCombo(action);
+            int max = ComboSequenceMaxHelper.GetEffectiveMax(_character);
+            if (_character.GetComboActions().Count >= max)
+                return;
+
+            _character.Actions.AddToCombo(action, max);
             // Reset combo step to first action when actions are added to combo
             _character.ComboStep = 0;
         }

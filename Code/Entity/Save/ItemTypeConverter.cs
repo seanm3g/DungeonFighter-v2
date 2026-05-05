@@ -133,6 +133,15 @@ namespace RPGGame
             destination.Type = source.Type;
             destination.Tier = source.Tier;
             destination.ComboBonus = source.ComboBonus;
+            destination.BaseStrength = source.BaseStrength;
+            destination.BaseAgility = source.BaseAgility;
+            destination.BaseTechnique = source.BaseTechnique;
+            destination.BaseIntelligence = source.BaseIntelligence;
+            destination.BaseHit = source.BaseHit;
+            destination.BaseCombo = source.BaseCombo;
+            destination.BaseCrit = source.BaseCrit;
+            destination.ExtraActionSlots = source.ExtraActionSlots;
+            destination.MinGeneratedActionBonuses = source.MinGeneratedActionBonuses;
             destination.Rarity = source.Rarity;
             destination.StatBonuses = source.StatBonuses;
             destination.ActionBonuses = source.ActionBonuses;

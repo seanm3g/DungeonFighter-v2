@@ -101,6 +101,8 @@ namespace RPGGame
                     string.Equals(poolAction.Name, requiredName, StringComparison.OrdinalIgnoreCase) &&
                     poolAction.IsComboAction)
                 {
+                    int max = ComboSequenceMaxHelper.GetEffectiveMax(character);
+                    ComboSequenceMaxHelper.MakeRoomForOneComboAction(character, max);
                     character.AddToCombo(poolAction);
                     return;
                 }

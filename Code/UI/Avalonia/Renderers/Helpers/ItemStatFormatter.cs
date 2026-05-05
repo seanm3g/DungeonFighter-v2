@@ -40,16 +40,22 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             {
                 foreach (var bonus in item.StatBonuses)
                 {
-                    string formattedValue = bonus.StatType switch
+                    var parts = new List<string>();
+                    foreach (var (contribType, contribValue) in bonus.EnumerateContributions())
                     {
-                        "AttackSpeed" => $"+{bonus.Value:F3} AttackSpeed",
-                        _ => $"+{bonus.Value} {bonus.StatType}"
-                    };
-                    
+                        string formattedValue = contribType switch
+                        {
+                            "AttackSpeed" => $"+{contribValue:F3} AttackSpeed",
+                            _ => $"+{contribValue} {contribType}"
+                        };
+                        parts.Add(formattedValue);
+                    }
+
+                    string line = string.Join(", ", parts);
                     if (!string.IsNullOrEmpty(bonus.Name))
-                        stats.Add($"{bonus.Name}: {formattedValue}");
+                        stats.Add($"{bonus.Name}: {line}");
                     else
-                        stats.Add(formattedValue);
+                        stats.Add(line);
                 }
             }
             

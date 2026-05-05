@@ -106,9 +106,11 @@ namespace RPGGame
             int totalRollBonus = 0;
             foreach (var statBonus in gear.StatBonuses)
             {
-                if (statBonus.StatType == "RollBonus" || statBonus.StatType == "Roll")
+                foreach (var (contribType, contribValue) in statBonus.EnumerateContributions())
                 {
-                    totalRollBonus += (int)statBonus.Value;
+                    if (string.Equals(contribType, "RollBonus", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(contribType, "Roll", StringComparison.OrdinalIgnoreCase))
+                        totalRollBonus += (int)contribValue;
                 }
             }
 
@@ -132,9 +134,11 @@ namespace RPGGame
             int totalRollBonus = 0;
             foreach (var statBonus in gear.StatBonuses)
             {
-                if (statBonus.StatType == "RollBonus" || statBonus.StatType == "Roll")
+                foreach (var (contribType, contribValue) in statBonus.EnumerateContributions())
                 {
-                    totalRollBonus += (int)statBonus.Value;
+                    if (string.Equals(contribType, "RollBonus", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(contribType, "Roll", StringComparison.OrdinalIgnoreCase))
+                        totalRollBonus += (int)contribValue;
                 }
             }
 

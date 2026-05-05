@@ -56,6 +56,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ItemPrefixHelperTests.RunAllTests();
             Console.WriteLine();
+            ItemGetTotalArmorNullSafetyTests.RunAllTests();
+            Console.WriteLine();
             ItemGenerationLabServiceTests.RunAllTests();
             Console.WriteLine();
             ItemGenerationBatchStatisticsTests.RunAllTests();

@@ -6,7 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500"
         x:Class="RPGGame.UI.Avalonia.Settings.ItemModifierEditDialog"
         x:DataType="settings:ItemModifierEditViewModel"
-        Title="Edit Item Modifier"
+        Title="Edit prefix"
         Width="600" Height="500" MinWidth="500" MinHeight="400"
         WindowStartupLocation="CenterOwner"
         Background="#FF1A1A1A">

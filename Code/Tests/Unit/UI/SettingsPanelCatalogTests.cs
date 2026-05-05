@@ -18,6 +18,7 @@ namespace RPGGame.Tests.Unit.UI
             _testsRun = _testsPassed = _testsFailed = 0;
 
             ActionInteractionLab_Is_Main_Content_And_Creates_Panel();
+            ItemPrefixes_And_Suffixes_Are_Main_Content_And_Create_Panels();
 
             TestBase.PrintSummary("SettingsPanelCatalog Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -35,6 +36,30 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(
                 panel is ActionInteractionLabSettingsPanel,
                 "CreatePanel(ActionInteractionLab) should return ActionInteractionLabSettingsPanel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void ItemPrefixes_And_Suffixes_Are_Main_Content_And_Create_Panels()
+        {
+            Console.WriteLine("--- ItemPrefixes / ItemSuffixes categories ---");
+
+            TestBase.AssertTrue(
+                SettingsPanelCatalog.MainContentCategories.Contains("ItemPrefixes"),
+                "ItemPrefixes should use main content area",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                SettingsPanelCatalog.MainContentCategories.Contains("ItemSuffixes"),
+                "ItemSuffixes should use main content area",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var pre = SettingsPanelCatalog.CreatePanel("ItemPrefixes");
+            TestBase.AssertTrue(pre is ItemModifiersSettingsPanel,
+                "CreatePanel(ItemPrefixes) should return ItemModifiersSettingsPanel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var suf = SettingsPanelCatalog.CreatePanel("ItemSuffixes");
+            TestBase.AssertTrue(suf is ItemSuffixesSettingsPanel,
+                "CreatePanel(ItemSuffixes) should return ItemSuffixesSettingsPanel",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

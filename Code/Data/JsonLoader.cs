@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -93,12 +94,14 @@ namespace RPGGame
                     throw new FileNotFoundException($"JSON file not found: {filePath}");
                 }
 
-                // Read and deserialize JSON
+                // Read and deserialize JSON (repair sheet exports that don't match CLR shapes)
                 string json = File.ReadAllText(filePath);
                 if (string.IsNullOrWhiteSpace(json))
                 {
                     throw new InvalidDataException($"JSON file is empty: {filePath}");
                 }
+
+                json = GameDataJsonNormalizer.NormalizeForGameDataFile(Path.GetFileName(filePath), json);
 
                 var result = JsonSerializer.Deserialize<T>(json, _defaultOptions);
                 if (result == null)
