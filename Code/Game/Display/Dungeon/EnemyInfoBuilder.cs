@@ -25,8 +25,8 @@ namespace RPGGame.Display.Dungeon
             // "A "
             encounteredBuilder.Add("A ", Colors.White);
             
-            // Enemy name in enemy-specific color
-            encounteredBuilder.Add(enemy.Name, EntityColorHelper.GetEnemyColor(enemy));
+            // Enemy name — multi-shade creature keywords when applicable
+            EntityColorHelper.AppendEnemyNameColored(encounteredBuilder, enemy);
             
             // Weapon info if present
             if (enemy.Weapon != null)

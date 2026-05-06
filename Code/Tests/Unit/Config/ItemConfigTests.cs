@@ -38,8 +38,10 @@ namespace RPGGame.Tests.Unit.Config
             TestLootSystemSanitizer();
             TestItemAffixByRaritySettingsJson();
             TestItemAffixExtraFieldsJson();
+            TestItemAffixExtraComboSlotsJson();
             TestItemAffixOmittedActionMaxDefaultsToOneWhenMinZero();
             TestItemAffixRollAxis();
+            TestItemAffixPerItemTypeOverridesPerRarity();
 
             TestBase.PrintSummary("ItemConfig Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -263,6 +265,41 @@ namespace RPGGame.Tests.Unit.Config
             TestBase.AssertEqual(2, rule.ActionMax, "action max", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        private static void TestItemAffixExtraComboSlotsJson()
+        {
+            Console.WriteLine("\n--- Testing ItemAffix extraComboSlots JSON ---");
+
+            const string json = """
+{
+  "itemAffixByRarity": {
+    "perRarity": {
+      "Epic": {
+        "prefixSlots": 0,
+        "statSuffixes": 0,
+        "actionBonuses": 0,
+        "extraComboSlots": 1,
+        "extraComboSlotsMax": 4,
+        "extraComboSlotsExtraChance": 0.4
+      }
+    }
+  }
+}
+""";
+
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var root = JsonSerializer.Deserialize<GameConfiguration>(json, options);
+
+            TestBase.AssertTrue(
+                root!.ItemAffixByRarity.TryGetForRarity("Epic", out var entry),
+                "TryGetForRarity Epic",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var rule = ItemAffixByRaritySettings.BuildRuleFromTuningEntry(entry!, null);
+            TestBase.AssertEqual(1, rule.ExtraComboSlotsMin, "extra combo min", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(4, rule.ExtraComboSlotsMax, "extra combo max", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0.4, rule.ExtraComboSlotsExtraChance, "extra combo chance", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         /// <summary>
         /// JSON/UI often omit actionBonusesMax when "0 or 1 action" is intended; legacy code used max 5.
         /// </summary>
@@ -298,6 +335,40 @@ namespace RPGGame.Tests.Unit.Config
 
             int d = ItemAffixByRaritySettings.RollAxis(new Random(2), 0, 4, 1.0);
             TestBase.AssertEqual(4, d, "100% chance fills to max", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestItemAffixPerItemTypeOverridesPerRarity()
+        {
+            Console.WriteLine("\n--- Testing PerItemType affix overrides ---");
+
+            var commonRow = new RarityData { Name = "Common", StatBonuses = 5, ActionBonuses = 5, Modifications = 0 };
+            var tuning = new ItemAffixByRaritySettings
+            {
+                PerRarity = new Dictionary<string, ItemAffixPerRarityEntry>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["Common"] = new ItemAffixPerRarityEntry { PrefixSlots = 1, StatSuffixes = 1, ActionBonuses = 1 }
+                },
+                PerItemType = new Dictionary<string, Dictionary<string, ItemAffixPerRarityEntry>>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["Head"] = new Dictionary<string, ItemAffixPerRarityEntry>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["Common"] = new ItemAffixPerRarityEntry
+                        {
+                            PrefixSlots = 0,
+                            StatSuffixes = 2,
+                            ActionBonuses = 0
+                        }
+                    }
+                }
+            };
+
+            var headRule = ItemAffixByRaritySettings.GetResolvedAffixRule("Common", commonRow, tuning, ItemType.Head);
+            TestBase.AssertEqual(0, headRule.PrefixMin, "head prefix min", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, headRule.StatMin, "head stat min from PerItemType", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var chestRule = ItemAffixByRaritySettings.GetResolvedAffixRule("Common", commonRow, tuning, ItemType.Chest);
+            TestBase.AssertEqual(1, chestRule.PrefixMin, "chest uses PerRarity", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, chestRule.StatMin, "chest stat", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

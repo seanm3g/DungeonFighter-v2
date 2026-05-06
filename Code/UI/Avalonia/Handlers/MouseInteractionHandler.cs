@@ -237,7 +237,11 @@ namespace RPGGame.UI.Avalonia.Handlers
             int filled = combo?.Count ?? 0;
             int displayCount = player != null ? ActionInfoStripLayout.GetDisplayPanelCount(filled) : 0;
             if (player != null && displayCount > 0 && ActionInfoStripLayout.TryGetPanelIndex(gridPos.X, gridPos.Y, displayCount, out int stripIdx))
-                newStripHover = stripIdx;
+            {
+                int stripCap = ComboSequenceMaxHelper.GetEffectiveMax(player);
+                if (stripIdx < stripCap)
+                    newStripHover = stripIdx;
+            }
 
             bool stripHoverChanged = ActionStripHoverState.SetHoveredPanelIndex(newStripHover);
 

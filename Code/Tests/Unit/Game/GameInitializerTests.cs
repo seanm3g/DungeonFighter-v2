@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RPGGame;
 using RPGGame.Tests;
 
@@ -27,6 +28,7 @@ namespace RPGGame.Tests.Unit.Game
 
             TestConstructor();
             TestLoadStartingGear();
+            TestInitializeNewGame_EquipsWeaponOnlyNoArmorOrInventory();
             TestCatalogStarterKeepsWeaponsJsonBaseDamage();
             TestLegacySlotPathUsesStartingGearDamage();
             TestCreateStarterWeaponForMenuIndex_UsesCatalogRow();
@@ -75,10 +77,32 @@ namespace RPGGame.Tests.Unit.Game
                     "Starting gear should have armor list",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-                TestBase.AssertTrue(startingGear.armor.Count > 0,
-                    "Starting gear should load armor from StartingGear.json",
+                TestBase.AssertEqual(0, startingGear.armor.Count,
+                    "Default StartingGear.json should list no armor; use starter-tagged Armor.json or explicit entries to equip starting armor",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestInitializeNewGame_EquipsWeaponOnlyNoArmorOrInventory()
+        {
+            Console.WriteLine("\n--- Testing InitializeNewGame: weapon only, empty armor slots and inventory ---");
+
+            _ = GameConfiguration.Instance;
+
+            var player = new Character("InitGearTest", 1);
+            var initializer = new GameInitializer();
+            var dungeons = new List<Dungeon>();
+            initializer.InitializeNewGame(player, dungeons, weaponChoice: 1);
+
+            TestBase.AssertNotNull(player.Weapon,
+                "New game should equip a starter weapon",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(player.Head == null && player.Body == null && player.Feet == null,
+                "New game should not equip head/body/feet unless configured",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, player.Inventory.Count,
+                "New game should start with an empty inventory (gear is only equipped weapon)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestCatalogStarterKeepsWeaponsJsonBaseDamage()

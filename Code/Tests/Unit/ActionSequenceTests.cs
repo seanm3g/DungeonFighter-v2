@@ -31,6 +31,18 @@ namespace RPGGame.Tests.Unit
             _testsPassed = 0;
             _testsFailed = 0;
 
+            var cfg = GameConfiguration.Instance;
+            ArgumentNullException.ThrowIfNull(cfg);
+            LootSystemConfig savedLoot = cfg.LootSystem ?? new LootSystemConfig();
+            int savedBase = savedLoot.ComboSequenceBaseMax;
+            int savedAbs = savedLoot.ComboSequenceAbsoluteMax;
+            cfg.LootSystem ??= new LootSystemConfig();
+            cfg.LootSystem.ComboSequenceBaseMax = 10;
+            cfg.LootSystem.ComboSequenceAbsoluteMax = 20;
+
+            try
+            {
+
             // Test action sequence ordering
             TestActionSequenceOrdering();
             TestComboStepBasedActionSelection();
@@ -69,6 +81,13 @@ namespace RPGGame.Tests.Unit
             TestGetComboSlotForPendingBonusesUsesSelectedComboAction();
 
             TestBase.PrintSummary("Action Sequence Tests", _testsRun, _testsPassed, _testsFailed);
+            }
+            finally
+            {
+                cfg.LootSystem = savedLoot;
+                cfg.LootSystem.ComboSequenceBaseMax = savedBase;
+                cfg.LootSystem.ComboSequenceAbsoluteMax = savedAbs;
+            }
         }
 
         #region Action Sequence Ordering Tests

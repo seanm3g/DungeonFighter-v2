@@ -1,9 +1,7 @@
 [
   {
-    "tags": null,
     "Description": "armor",
     "mechanics": "[Armor:1]",
-    "Mechaniv 1 value": 1,
     "Name": "of Protection",
     "ItemRank": "",
     "StatType": "Armor",
@@ -17,10 +15,8 @@
     "Rarity": "Common"
   },
   {
-    "tags": null,
     "Description": "max health",
     "mechanics": "[Health:10]",
-    "Mechaniv 1 value": 10,
     "Name": "of Vitality",
     "ItemRank": "",
     "StatType": "Health",
@@ -34,20 +30,16 @@
     "Rarity": "Common"
   },
   {
-    "tags": null,
     "Description": "attack speed",
     "mechanics": "[AttackSpeed:]",
-    "Mechaniv 1 value": null,
     "Name": "of fleeting",
     "ItemRank": "",
     "StatType": "",
     "Rarity": "Common"
   },
   {
-    "tags": null,
     "Description": "base damage",
     "mechanics": "[base damage:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of Power",
     "ItemRank": "",
     "StatType": "base damage",
@@ -61,30 +53,24 @@
     "Rarity": "Common"
   },
   {
-    "tags": null,
     "Description": "weapon damage",
     "mechanics": "[weapon damage:]",
-    "Mechaniv 1 value": null,
     "Name": "of killing",
     "ItemRank": "",
     "StatType": "",
     "Rarity": "Common"
   },
   {
-    "tags": null,
     "Description": "health regen",
     "mechanics": "[health regen:]",
-    "Mechaniv 1 value": null,
     "Name": "of Rejuvination",
     "ItemRank": "",
     "StatType": "",
     "Rarity": "Common"
   },
   {
-    "tags": null,
     "Description": "5% int",
     "mechanics": "[INT:2]",
-    "Mechaniv 1 value": 2,
     "Name": "of Intelligence",
     "ItemRank": "",
     "StatType": "INT",
@@ -98,10 +84,8 @@
     "Rarity": "Common"
   },
   {
-    "tags": null,
     "Description": "5% strength",
     "mechanics": "[STR:2]",
-    "Mechaniv 1 value": 2,
     "Name": "of Strength",
     "ItemRank": "",
     "StatType": "STR",
@@ -115,10 +99,8 @@
     "Rarity": "Common"
   },
   {
-    "tags": null,
     "Description": "% agility",
     "mechanics": "[AGI:2]",
-    "Mechaniv 1 value": 2,
     "Name": "of Agility",
     "ItemRank": "",
     "StatType": "AGI",
@@ -132,10 +114,8 @@
     "Rarity": "Common"
   },
   {
-    "tags": null,
     "Description": "5% technique",
     "mechanics": "[TEC:2]",
-    "Mechaniv 1 value": 2,
     "Name": "of Technique",
     "ItemRank": "",
     "StatType": "TEC",
@@ -149,16 +129,14 @@
     "Rarity": "Common"
   },
   {
-    "tags": null,
     "Description": "1 to hit",
-    "mechanics": "[1 to hit:1]",
-    "Mechaniv 1 value": 1,
+    "mechanics": "[HIT:1]",
     "Name": "of Accuracy",
     "ItemRank": "",
-    "StatType": "1 to hit",
+    "StatType": "HIT",
     "Mechanics": [
       {
-        "StatType": "1 to hit",
+        "StatType": "HIT",
         "Value": 1
       }
     ],
@@ -166,16 +144,14 @@
     "Rarity": "Common"
   },
   {
-    "tags": null,
     "Description": "1 to combo",
-    "mechanics": "[1 to combo:1]",
-    "Mechaniv 1 value": 1,
+    "mechanics": "[COMBO:1]",
     "Name": "of Precision",
     "ItemRank": "",
-    "StatType": "1 to combo",
+    "StatType": "COMBO",
     "Mechanics": [
       {
-        "StatType": "1 to combo",
+        "StatType": "COMBO",
         "Value": 1
       }
     ],
@@ -183,16 +159,14 @@
     "Rarity": "Common"
   },
   {
-    "tags": null,
     "Description": "1 to crit",
-    "mechanics": "[1 to crit:1]",
-    "Mechaniv 1 value": 1,
+    "mechanics": "[CRIT:1]",
     "Name": "of ferosity",
     "ItemRank": "",
-    "StatType": "1 to crit",
+    "StatType": "CRIT",
     "Mechanics": [
       {
-        "StatType": "1 to crit",
+        "StatType": "CRIT",
         "Value": 1
       }
     ],
@@ -200,16 +174,14 @@
     "Rarity": "Common"
   },
   {
-    "tags": null,
     "Description": "1 to crit miss",
-    "mechanics": "[1 to crit miss:1]",
-    "Mechaniv 1 value": 1,
+    "mechanics": "[CRIT MISS:1]",
     "Name": "of truth",
     "ItemRank": "",
-    "StatType": "1 to crit miss",
+    "StatType": "CRIT MISS",
     "Mechanics": [
       {
-        "StatType": "1 to crit miss",
+        "StatType": "CRIT MISS",
         "Value": 1
       }
     ],
@@ -217,10 +189,8 @@
     "Rarity": "Common"
   },
   {
-    "tags": "Armored Megafauna",
     "Description": null,
     "mechanics": "[ARMOR:5,MAX HEALTH:15]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Tortoise",
     "ItemRank": "",
     "StatType": "Armor",
@@ -238,10 +208,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Armored Megafauna",
     "Description": null,
     "mechanics": "[ARMOR:5,MAX ATTACK SPEED:10]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Crab",
     "ItemRank": "",
     "StatType": "Armor",
@@ -259,10 +227,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Armored Megafauna",
     "Description": null,
     "mechanics": "[ARMOR:5,BASE DAMAGE:4]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Rhinoceros",
     "ItemRank": "",
     "StatType": "Armor",
@@ -280,10 +246,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[ARMOR:4,WEAPON DAMAGE:4]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Scarab Beetle",
     "ItemRank": "",
     "StatType": "Armor",
@@ -301,10 +265,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Armored Megafauna",
     "Description": null,
     "mechanics": "[ARMOR:5,HEALTH REGEN:3]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Pangolin",
     "ItemRank": "",
     "StatType": "Armor",
@@ -322,10 +284,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Armored Megafauna",
     "Description": null,
     "mechanics": "[ARMOR:4,STR:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Auroch",
     "ItemRank": "",
     "StatType": "Armor",
@@ -343,10 +303,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Armored Megafauna",
     "Description": null,
     "mechanics": "[ARMOR:4,AGILITY:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Fiddler Crab",
     "ItemRank": "",
     "StatType": "Armor",
@@ -364,10 +322,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Cephalopods \u0026 Deep Sea",
     "Description": null,
     "mechanics": "[ARMOR:4,INT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Nautilus",
     "ItemRank": "",
     "StatType": "Armor",
@@ -385,10 +341,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[ARMOR:4,TECH:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Trilobite",
     "ItemRank": "",
     "StatType": "Armor",
@@ -406,10 +360,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Armored Megafauna",
     "Description": null,
     "mechanics": "[ARMOR:4,ACCURACY:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Armadillo",
     "ItemRank": "",
     "StatType": "Armor",
@@ -427,10 +379,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Armored Megafauna",
     "Description": null,
     "mechanics": "[ARMOR:4,HIT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Lobster",
     "ItemRank": "",
     "StatType": "Armor",
@@ -448,10 +398,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[ARMOR:4,COMBO:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Mantis Shrimp",
     "ItemRank": "",
     "StatType": "Armor",
@@ -469,10 +417,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Regenerative / Aquatic",
     "Description": null,
     "mechanics": "[ARMOR:4,CRIT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Stonefish",
     "ItemRank": "",
     "StatType": "Armor",
@@ -490,10 +436,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Armored Megafauna",
     "Description": null,
     "mechanics": "[ARMOR:4,CRIT MISS:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Snail",
     "ItemRank": "",
     "StatType": "Armor",
@@ -511,10 +455,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[ARMOR:4,MAGIC FIND:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Abalone",
     "ItemRank": "",
     "StatType": "Armor",
@@ -532,10 +474,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Cephalopods \u0026 Deep Sea",
     "Description": null,
     "mechanics": "[ARMOR:4,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Cuttlefish",
     "ItemRank": "",
     "StatType": "Armor",
@@ -553,10 +493,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Continental Megafauna",
     "Description": null,
     "mechanics": "[MAX HEALTH:15,MAX ATTACK SPEED:10]",
-    "Mechaniv 1 value": 15,
     "Name": "of the Bison",
     "ItemRank": "",
     "StatType": "Health",
@@ -574,10 +512,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Continental Megafauna",
     "Description": null,
     "mechanics": "[MAX HEALTH:15,BASE DAMAGE:4]",
-    "Mechaniv 1 value": 15,
     "Name": "of the Elephant",
     "ItemRank": "",
     "StatType": "Health",
@@ -595,10 +531,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Continental Megafauna",
     "Description": null,
     "mechanics": "[MAX HEALTH:15,WEAPON DAMAGE:4]",
-    "Mechaniv 1 value": 15,
     "Name": "of the Cape Buffalo",
     "ItemRank": "",
     "StatType": "Health",
@@ -616,10 +550,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Regenerative / Aquatic",
     "Description": null,
     "mechanics": "[MAX HEALTH:12,HEALTH REGEN:4]",
-    "Mechaniv 1 value": 12,
     "Name": "of the Toad",
     "ItemRank": "",
     "StatType": "Health",
@@ -637,10 +569,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Continental Megafauna",
     "Description": null,
     "mechanics": "[MAX HEALTH:15,STR:3]",
-    "Mechaniv 1 value": 15,
     "Name": "of the Gorilla",
     "ItemRank": "",
     "StatType": "Health",
@@ -658,10 +588,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Continental Megafauna",
     "Description": null,
     "mechanics": "[MAX HEALTH:15,AGILITY:3]",
-    "Mechaniv 1 value": 15,
     "Name": "of the Hippopotamus",
     "ItemRank": "",
     "StatType": "Health",
@@ -679,10 +607,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Cephalopods \u0026 Deep Sea",
     "Description": null,
     "mechanics": "[MAX HEALTH:15,INT:3]",
-    "Mechaniv 1 value": 15,
     "Name": "of the Sperm Whale",
     "ItemRank": "",
     "StatType": "Health",
@@ -700,10 +626,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[MAX HEALTH:15,TECH:3]",
-    "Mechaniv 1 value": 15,
     "Name": "of the Golem",
     "ItemRank": "",
     "StatType": "Health",
@@ -721,10 +645,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Continental Megafauna",
     "Description": null,
     "mechanics": "[MAX HEALTH:15,ACCURACY:3]",
-    "Mechaniv 1 value": 15,
     "Name": "of the Moose",
     "ItemRank": "",
     "StatType": "Health",
@@ -742,10 +664,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Continental Megafauna",
     "Description": null,
     "mechanics": "[MAX HEALTH:15,HIT:3]",
-    "Mechaniv 1 value": 15,
     "Name": "of the Elk",
     "ItemRank": "",
     "StatType": "Health",
@@ -763,10 +683,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Serpents \u0026 Reptiles",
     "Description": null,
     "mechanics": "[MAX HEALTH:12,COMBO:3]",
-    "Mechaniv 1 value": 12,
     "Name": "of the Python",
     "ItemRank": "",
     "StatType": "Health",
@@ -784,10 +702,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Serpents \u0026 Reptiles",
     "Description": null,
     "mechanics": "[MAX HEALTH:12,CRIT:3]",
-    "Mechaniv 1 value": 12,
     "Name": "of the Crocodile",
     "ItemRank": "",
     "StatType": "Health",
@@ -805,10 +721,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Regenerative / Aquatic",
     "Description": null,
     "mechanics": "[MAX HEALTH:12,CRIT MISS:3]",
-    "Mechaniv 1 value": 12,
     "Name": "of the Manatee",
     "ItemRank": "",
     "StatType": "Health",
@@ -826,10 +740,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[MAX HEALTH:15,MAGIC FIND:3]",
-    "Mechaniv 1 value": 15,
     "Name": "of the Kirin",
     "ItemRank": "",
     "StatType": "Health",
@@ -847,10 +759,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Cephalopods \u0026 Deep Sea",
     "Description": null,
     "mechanics": "[MAX HEALTH:12,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 12,
     "Name": "of the Giant Squid",
     "ItemRank": "",
     "StatType": "Health",
@@ -868,10 +778,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Apex Predators",
     "Description": null,
     "mechanics": "[MAX ATTACK SPEED:12,BASE DAMAGE:4]",
-    "Mechaniv 1 value": 12,
     "Name": "of the Cheetah",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -889,10 +797,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Birds of Prey",
     "Description": null,
     "mechanics": "[MAX ATTACK SPEED:12,WEAPON DAMAGE:4]",
-    "Mechaniv 1 value": 12,
     "Name": "of the Peregrine Falcon",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -910,10 +816,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[MAX ATTACK SPEED:12,HEALTH REGEN:3]",
-    "Mechaniv 1 value": 12,
     "Name": "of the Hummingbird",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -931,10 +835,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Serpents \u0026 Reptiles",
     "Description": null,
     "mechanics": "[MAX ATTACK SPEED:10,STR:3]",
-    "Mechaniv 1 value": 10,
     "Name": "of the Cobra",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -952,10 +854,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[MAX ATTACK SPEED:10,AGILITY:3]",
-    "Mechaniv 1 value": 10,
     "Name": "of the Mongoose",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -973,10 +873,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Birds of Prey",
     "Description": null,
     "mechanics": "[MAX ATTACK SPEED:12,INT:3]",
-    "Mechaniv 1 value": 12,
     "Name": "of the Swift",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -994,10 +892,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[MAX ATTACK SPEED:12,TECH:3]",
-    "Mechaniv 1 value": 12,
     "Name": "of the Dragonfly",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -1015,10 +911,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Birds of Prey",
     "Description": null,
     "mechanics": "[MAX ATTACK SPEED:12,ACCURACY:3]",
-    "Mechaniv 1 value": 12,
     "Name": "of the Osprey",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -1036,10 +930,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Birds of Prey",
     "Description": null,
     "mechanics": "[MAX ATTACK SPEED:12,HIT:3]",
-    "Mechaniv 1 value": 12,
     "Name": "of the Kingfisher",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -1057,10 +949,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[MAX ATTACK SPEED:10,COMBO:3]",
-    "Mechaniv 1 value": 10,
     "Name": "of the Marten",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -1078,10 +968,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Birds of Prey",
     "Description": null,
     "mechanics": "[MAX ATTACK SPEED:12,CRIT:3]",
-    "Mechaniv 1 value": 12,
     "Name": "of the Sparrowhawk",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -1099,10 +987,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[MAX ATTACK SPEED:10,CRIT MISS:3]",
-    "Mechaniv 1 value": 10,
     "Name": "of the Jackrabbit",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -1120,10 +1006,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[MAX ATTACK SPEED:10,MAGIC FIND:3]",
-    "Mechaniv 1 value": 10,
     "Name": "of the Firefly",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -1141,10 +1025,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Cephalopods \u0026 Deep Sea",
     "Description": null,
     "mechanics": "[MAX ATTACK SPEED:10,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 10,
     "Name": "of the Squid",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -1162,10 +1044,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Apex Predators",
     "Description": null,
     "mechanics": "[BASE DAMAGE:5,WEAPON DAMAGE:4]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Wolverine",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -1183,10 +1063,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Continental Megafauna",
     "Description": null,
     "mechanics": "[BASE DAMAGE:4,HEALTH REGEN:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Water Buffalo",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -1204,10 +1082,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Apex Predators",
     "Description": null,
     "mechanics": "[BASE DAMAGE:5,STR:3]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Grizzly Bear",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -1225,10 +1101,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Apex Predators",
     "Description": null,
     "mechanics": "[BASE DAMAGE:5,AGILITY:3]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Jaguar",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -1246,10 +1120,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Pack \u0026 Social Hunters",
     "Description": null,
     "mechanics": "[BASE DAMAGE:4,INT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Hyena",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -1267,10 +1139,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[BASE DAMAGE:4,TECH:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Mantis",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -1288,10 +1158,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Apex Predators",
     "Description": null,
     "mechanics": "[BASE DAMAGE:5,ACCURACY:3]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Lynx",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -1309,10 +1177,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Continental Megafauna",
     "Description": null,
     "mechanics": "[BASE DAMAGE:4,HIT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Boar",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -1330,10 +1196,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[BASE DAMAGE:4,COMBO:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Badger",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -1351,10 +1215,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Serpents \u0026 Reptiles",
     "Description": null,
     "mechanics": "[BASE DAMAGE:5,CRIT:3]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Saltwater Crocodile",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -1372,10 +1234,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Continental Megafauna",
     "Description": null,
     "mechanics": "[BASE DAMAGE:4,CRIT MISS:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Warthog",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -1393,10 +1253,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[BASE DAMAGE:5,MAGIC FIND:3]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Basilisk",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -1414,10 +1272,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[BASE DAMAGE:5,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Kraken",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -1435,10 +1291,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Pack \u0026 Social Hunters",
     "Description": null,
     "mechanics": "[WEAPON DAMAGE:4,HEALTH REGEN:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Wolf",
     "ItemRank": "",
     "StatType": "WEAPON DAMAGE",
@@ -1456,10 +1310,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[WEAPON DAMAGE:5,STR:3]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Dire Wolf",
     "ItemRank": "",
     "StatType": "WEAPON DAMAGE",
@@ -1477,10 +1329,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Apex Predators",
     "Description": null,
     "mechanics": "[WEAPON DAMAGE:5,AGILITY:3]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Panther",
     "ItemRank": "",
     "StatType": "WEAPON DAMAGE",
@@ -1498,10 +1348,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Nocturnal Hunters",
     "Description": null,
     "mechanics": "[WEAPON DAMAGE:4,INT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Raven",
     "ItemRank": "",
     "StatType": "WEAPON DAMAGE",
@@ -1519,10 +1367,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Regenerative / Aquatic",
     "Description": null,
     "mechanics": "[WEAPON DAMAGE:4,TECH:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Sawfish",
     "ItemRank": "",
     "StatType": "WEAPON DAMAGE",
@@ -1540,10 +1386,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Birds of Prey",
     "Description": null,
     "mechanics": "[WEAPON DAMAGE:5,ACCURACY:3]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Golden Eagle",
     "ItemRank": "",
     "StatType": "WEAPON DAMAGE",
@@ -1561,10 +1405,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Serpents \u0026 Reptiles",
     "Description": null,
     "mechanics": "[WEAPON DAMAGE:5,HIT:3]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Viper",
     "ItemRank": "",
     "StatType": "WEAPON DAMAGE",
@@ -1582,10 +1424,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Pack \u0026 Social Hunters",
     "Description": null,
     "mechanics": "[WEAPON DAMAGE:4,COMBO:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Piranha",
     "ItemRank": "",
     "StatType": "WEAPON DAMAGE",
@@ -1603,10 +1443,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Apex Predators",
     "Description": null,
     "mechanics": "[WEAPON DAMAGE:5,CRIT:3]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Tiger",
     "ItemRank": "",
     "StatType": "WEAPON DAMAGE",
@@ -1624,10 +1462,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Birds of Prey",
     "Description": null,
     "mechanics": "[WEAPON DAMAGE:4,CRIT MISS:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Pelican",
     "ItemRank": "",
     "StatType": "WEAPON DAMAGE",
@@ -1645,10 +1481,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[WEAPON DAMAGE:5,MAGIC FIND:3]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Thunderbird",
     "ItemRank": "",
     "StatType": "WEAPON DAMAGE",
@@ -1666,10 +1500,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Cephalopods \u0026 Deep Sea",
     "Description": null,
     "mechanics": "[WEAPON DAMAGE:4,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Octopus",
     "ItemRank": "",
     "StatType": "WEAPON DAMAGE",
@@ -1687,10 +1519,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Continental Megafauna",
     "Description": null,
     "mechanics": "[HEALTH REGEN:4,STR:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Ox",
     "ItemRank": "",
     "StatType": "HealthRegen",
@@ -1708,10 +1538,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[HEALTH REGEN:3,AGILITY:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Deer",
     "ItemRank": "",
     "StatType": "HealthRegen",
@@ -1729,10 +1557,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Birds of Prey",
     "Description": null,
     "mechanics": "[HEALTH REGEN:3,INT:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Crane",
     "ItemRank": "",
     "StatType": "HealthRegen",
@@ -1750,10 +1576,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[HEALTH REGEN:3,TECH:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Horseshoe Crab",
     "ItemRank": "",
     "StatType": "HealthRegen",
@@ -1771,10 +1595,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Birds of Prey",
     "Description": null,
     "mechanics": "[HEALTH REGEN:3,ACCURACY:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Heron",
     "ItemRank": "",
     "StatType": "HealthRegen",
@@ -1792,10 +1614,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Regenerative / Aquatic",
     "Description": null,
     "mechanics": "[HEALTH REGEN:4,HIT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Salamander",
     "ItemRank": "",
     "StatType": "HealthRegen",
@@ -1813,10 +1633,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[HEALTH REGEN:5,COMBO:3]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Hydra",
     "ItemRank": "",
     "StatType": "HealthRegen",
@@ -1834,10 +1652,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Apex Predators",
     "Description": null,
     "mechanics": "[HEALTH REGEN:3,CRIT:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Tasmanian Devil",
     "ItemRank": "",
     "StatType": "HealthRegen",
@@ -1855,10 +1671,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Regenerative / Aquatic",
     "Description": null,
     "mechanics": "[HEALTH REGEN:4,CRIT MISS:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Sloth",
     "ItemRank": "",
     "StatType": "HealthRegen",
@@ -1876,10 +1690,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[HEALTH REGEN:5,MAGIC FIND:3]",
-    "Mechaniv 1 value": 5,
     "Name": "of the Phoenix",
     "ItemRank": "",
     "StatType": "HealthRegen",
@@ -1897,10 +1709,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Regenerative / Aquatic",
     "Description": null,
     "mechanics": "[HEALTH REGEN:4,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Starfish",
     "ItemRank": "",
     "StatType": "HealthRegen",
@@ -1918,10 +1728,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Apex Predators",
     "Description": null,
     "mechanics": "[STR:4,AGILITY:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Lion",
     "ItemRank": "",
     "StatType": "STR",
@@ -1939,10 +1747,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Continental Megafauna",
     "Description": null,
     "mechanics": "[STR:3,INT:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Orangutan",
     "ItemRank": "",
     "StatType": "STR",
@@ -1960,10 +1766,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[STR:4,TECH:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Mammoth",
     "ItemRank": "",
     "StatType": "STR",
@@ -1981,10 +1785,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[STR:3,ACCURACY:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Stallion",
     "ItemRank": "",
     "StatType": "STR",
@@ -2002,10 +1804,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Continental Megafauna",
     "Description": null,
     "mechanics": "[STR:4,HIT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Ram",
     "ItemRank": "",
     "StatType": "STR",
@@ -2023,10 +1823,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Apex Predators",
     "Description": null,
     "mechanics": "[STR:4,COMBO:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Kodiak Bear",
     "ItemRank": "",
     "StatType": "STR",
@@ -2044,10 +1842,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[STR:4,CRIT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Cave Bear",
     "ItemRank": "",
     "StatType": "STR",
@@ -2065,10 +1861,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Continental Megafauna",
     "Description": null,
     "mechanics": "[STR:4,CRIT MISS:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Bull",
     "ItemRank": "",
     "StatType": "STR",
@@ -2086,10 +1880,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[STR:3,MAGIC FIND:4]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Jade Serpent",
     "ItemRank": "",
     "StatType": "STR",
@@ -2107,10 +1899,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[STR:3,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Mule",
     "ItemRank": "",
     "StatType": "STR",
@@ -2128,10 +1918,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Nocturnal Hunters",
     "Description": null,
     "mechanics": "[AGILITY:3,INT:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Fox",
     "ItemRank": "",
     "StatType": "AGI",
@@ -2149,10 +1937,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[AGILITY:3,TECH:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Ferret",
     "ItemRank": "",
     "StatType": "AGI",
@@ -2170,10 +1956,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[AGILITY:4,ACCURACY:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Pronghorn",
     "ItemRank": "",
     "StatType": "AGI",
@@ -2191,10 +1975,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Apex Predators",
     "Description": null,
     "mechanics": "[AGILITY:4,HIT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Caracal",
     "ItemRank": "",
     "StatType": "AGI",
@@ -2212,10 +1994,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[AGILITY:3,COMBO:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Otter",
     "ItemRank": "",
     "StatType": "AGI",
@@ -2233,10 +2013,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[AGILITY:4,CRIT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Weasel",
     "ItemRank": "",
     "StatType": "AGI",
@@ -2254,10 +2032,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[AGILITY:4,CRIT MISS:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Rabbit",
     "ItemRank": "",
     "StatType": "AGI",
@@ -2275,10 +2051,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[AGILITY:3,MAGIC FIND:4]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Kitsune",
     "ItemRank": "",
     "StatType": "AGI",
@@ -2296,10 +2070,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Serpents \u0026 Reptiles",
     "Description": null,
     "mechanics": "[AGILITY:3,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Gecko",
     "ItemRank": "",
     "StatType": "AGI",
@@ -2317,10 +2089,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Nocturnal Hunters",
     "Description": null,
     "mechanics": "[INT:3,TECH:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Jackdaw",
     "ItemRank": "",
     "StatType": "INT",
@@ -2338,10 +2108,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Nocturnal Hunters",
     "Description": null,
     "mechanics": "[INT:4,ACCURACY:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Owl",
     "ItemRank": "",
     "StatType": "INT",
@@ -2359,10 +2127,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Birds of Prey",
     "Description": null,
     "mechanics": "[INT:3,HIT:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Hawk",
     "ItemRank": "",
     "StatType": "INT",
@@ -2380,10 +2146,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Nocturnal Hunters",
     "Description": null,
     "mechanics": "[INT:3,COMBO:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Jay",
     "ItemRank": "",
     "StatType": "INT",
@@ -2401,10 +2165,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[INT:4,CRIT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Dragon",
     "ItemRank": "",
     "StatType": "INT",
@@ -2422,10 +2184,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Nocturnal Hunters",
     "Description": null,
     "mechanics": "[INT:3,CRIT MISS:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Lemur",
     "ItemRank": "",
     "StatType": "INT",
@@ -2443,10 +2203,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Nocturnal Hunters",
     "Description": null,
     "mechanics": "[INT:3,MAGIC FIND:4]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Magpie",
     "ItemRank": "",
     "StatType": "INT",
@@ -2464,10 +2222,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[INT:3,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Spider",
     "ItemRank": "",
     "StatType": "INT",
@@ -2485,10 +2241,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Pack \u0026 Social Hunters",
     "Description": null,
     "mechanics": "[TECH:3,ACCURACY:4]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Bloodhound",
     "ItemRank": "",
     "StatType": "TECH",
@@ -2506,10 +2260,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Birds of Prey",
     "Description": null,
     "mechanics": "[TECH:3,HIT:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Kestrel",
     "ItemRank": "",
     "StatType": "TECH",
@@ -2527,10 +2279,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[TECH:3,COMBO:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Scorpion",
     "ItemRank": "",
     "StatType": "TECH",
@@ -2548,10 +2298,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[TECH:3,CRIT:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Pistol Shrimp",
     "ItemRank": "",
     "StatType": "TECH",
@@ -2569,10 +2317,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[TECH:3,CRIT MISS:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Pigeon",
     "ItemRank": "",
     "StatType": "TECH",
@@ -2590,10 +2336,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[TECH:3,MAGIC FIND:4]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Sphinx",
     "ItemRank": "",
     "StatType": "TECH",
@@ -2611,10 +2355,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[TECH:4,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Clockwork Beetle",
     "ItemRank": "",
     "StatType": "TECH",
@@ -2632,10 +2374,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Apex Predators",
     "Description": null,
     "mechanics": "[ACCURACY:4,HIT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Snow Leopard",
     "ItemRank": "",
     "StatType": "ACCURACY",
@@ -2653,10 +2393,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[ACCURACY:3,COMBO:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Praying Mantis",
     "ItemRank": "",
     "StatType": "ACCURACY",
@@ -2674,10 +2412,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Serpents \u0026 Reptiles",
     "Description": null,
     "mechanics": "[ACCURACY:4,CRIT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Fer-de-Lance",
     "ItemRank": "",
     "StatType": "ACCURACY",
@@ -2695,10 +2431,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Nocturnal Hunters",
     "Description": null,
     "mechanics": "[ACCURACY:3,CRIT MISS:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Mole",
     "ItemRank": "",
     "StatType": "ACCURACY",
@@ -2716,10 +2450,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[ACCURACY:3,MAGIC FIND:4]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Ibis",
     "ItemRank": "",
     "StatType": "ACCURACY",
@@ -2737,10 +2469,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[ACCURACY:3,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Ant",
     "ItemRank": "",
     "StatType": "ACCURACY",
@@ -2758,10 +2488,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[HIT:3,COMBO:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Swallow",
     "ItemRank": "",
     "StatType": "HIT",
@@ -2779,10 +2507,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Birds of Prey",
     "Description": null,
     "mechanics": "[HIT:3,CRIT:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Shrike",
     "ItemRank": "",
     "StatType": "HIT",
@@ -2800,10 +2526,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Nocturnal Hunters",
     "Description": null,
     "mechanics": "[HIT:3,CRIT MISS:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Bat",
     "ItemRank": "",
     "StatType": "HIT",
@@ -2821,10 +2545,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Nocturnal Hunters",
     "Description": null,
     "mechanics": "[HIT:3,MAGIC FIND:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Rook",
     "ItemRank": "",
     "StatType": "HIT",
@@ -2842,10 +2564,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[HIT:3,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Millipede",
     "ItemRank": "",
     "StatType": "HIT",
@@ -2863,10 +2583,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Mythological",
     "Description": null,
     "mechanics": "[COMBO:3,CRIT:4]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Velociraptor",
     "ItemRank": "",
     "StatType": "COMBO",
@@ -2884,10 +2602,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[COMBO:3,CRIT MISS:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Stoat",
     "ItemRank": "",
     "StatType": "COMBO",
@@ -2905,10 +2621,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Insects \u0026 Arthropods",
     "Description": null,
     "mechanics": "[COMBO:3,MAGIC FIND:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Damselfly",
     "ItemRank": "",
     "StatType": "COMBO",
@@ -2926,10 +2640,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Swift Mammals",
     "Description": null,
     "mechanics": "[COMBO:3,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Monkey",
     "ItemRank": "",
     "StatType": "COMBO",
@@ -2947,10 +2659,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Apex Predators",
     "Description": null,
     "mechanics": "[CRIT:3,CRIT MISS:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Clouded Leopard",
     "ItemRank": "",
     "StatType": "CRIT",
@@ -2968,10 +2678,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Nocturnal Hunters",
     "Description": null,
     "mechanics": "[CRIT:3,MAGIC FIND:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Nighthawk",
     "ItemRank": "",
     "StatType": "CRIT",
@@ -2989,10 +2697,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Birds of Prey",
     "Description": null,
     "mechanics": "[CRIT:3,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Sicklebill",
     "ItemRank": "",
     "StatType": "CRIT",
@@ -3010,10 +2716,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Birds of Prey",
     "Description": null,
     "mechanics": "[CRIT MISS:3,MAGIC FIND:3]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Albatross",
     "ItemRank": "",
     "StatType": "CRIT MISS",
@@ -3031,10 +2735,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Cephalopods \u0026 Deep Sea",
     "Description": null,
     "mechanics": "[CRIT MISS:3,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 3,
     "Name": "of the Nautilus",
     "ItemRank": "",
     "StatType": "CRIT MISS",
@@ -3052,10 +2754,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": "Nocturnal Hunters",
     "Description": null,
     "mechanics": "[MAGIC FIND:4,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 4,
     "Name": "of the Corvid",
     "ItemRank": "",
     "StatType": "MagicFind",
@@ -3073,10 +2773,8 @@
     "Rarity": "Uncommon"
   },
   {
-    "tags": null,
     "Description": "Once misplaced, now bound \u2014 carries the memory of being sought",
     "mechanics": "[STR:3,AGILITY:3,MAGIC FIND:4]",
-    "Mechaniv 1 value": 3,
     "Name": "lost and found again",
     "ItemRank": "",
     "StatType": "STR",
@@ -3098,10 +2796,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Stripped of pretense by long use \u2014 nothing left but purpose",
     "mechanics": "[BASE DAMAGE:5,WEAPON DAMAGE:4,HEALTH REGEN:2]",
-    "Mechaniv 1 value": 5,
     "Name": "worn to the bone",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -3123,10 +2819,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Ownerless and untamed \u2014 refuses to serve any single master",
     "mechanics": "[AGILITY:4,CRIT:3,MAGIC FIND:3]",
-    "Mechaniv 1 value": 4,
     "Name": "claimed by none",
     "ItemRank": "",
     "StatType": "AGI",
@@ -3148,10 +2842,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Heavy with obligation \u2014 the weight of family carried into battle",
     "mechanics": "[MAX HEALTH:12,STR:3,CRIT MISS:3]",
-    "Mechaniv 1 value": 12,
     "Name": "burden of kin",
     "ItemRank": "",
     "StatType": "Health",
@@ -3173,10 +2865,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Promised to the next in line \u2014 its power strains toward the future",
     "mechanics": "[STR:4,INT:3,MAGIC FIND:3]",
-    "Mechaniv 1 value": 4,
     "Name": "owed to heir",
     "ItemRank": "",
     "StatType": "STR",
@@ -3198,10 +2888,16 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
+    "Description": "given up",
+    "mechanics": "[:]",
+    "Name": "lost of will",
+    "ItemRank": "",
+    "StatType": "",
+    "Rarity": "Rare"
+  },
+  {
     "Description": "Held through dreamless sleep \u2014 crosses the boundary between rest and readiness",
     "mechanics": "[MAX HEALTH:10,HEALTH REGEN:4,ACCURACY:3]",
-    "Mechaniv 1 value": 10,
     "Name": "carried til waking",
     "ItemRank": "",
     "StatType": "Health",
@@ -3223,10 +2919,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Its true name spoken only at night \u2014 bound to shadow and silver",
     "mechanics": "[AGILITY:4,INT:3,CRIT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "named by moonlight",
     "ItemRank": "",
     "StatType": "AGI",
@@ -3248,10 +2942,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Concealed beneath layers \u2014 its power known only to the wearer",
     "mechanics": "[ARMOR:4,AGILITY:3,MAGIC FIND:3]",
-    "Mechaniv 1 value": 4,
     "Name": "hidden beneath",
     "ItemRank": "",
     "StatType": "Armor",
@@ -3273,11 +2965,9 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
-    "Description": "Moves with uncanny grace where others stumble blind",
+    "Description": null,
     "mechanics": "[AGILITY:4,COMBO:4,CRIT:3]",
-    "Mechaniv 1 value": 4,
-    "Name": "danced in dark",
+    "Name": "danced in daylight",
     "ItemRank": "",
     "StatType": "AGI",
     "Mechanics": [
@@ -3298,10 +2988,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "The moment before release \u2014 coiled potential, never quite still",
     "mechanics": "[MAX ATTACK SPEED:10,ACCURACY:4,CRIT:3]",
-    "Mechaniv 1 value": 10,
     "Name": "held in breath",
     "ItemRank": "",
     "StatType": "AttackSpeed",
@@ -3323,10 +3011,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Seasoned by countless battles \u2014 the red has seeped in and stayed",
     "mechanics": "[BASE DAMAGE:5,WEAPON DAMAGE:4,CRIT:4]",
-    "Mechaniv 1 value": 5,
     "Name": "bathed in blood",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -3348,35 +3034,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
-    "Description": "Small, overlooked, and vastly underestimated",
-    "mechanics": "[AGILITY:3,INT:3,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 3,
-    "Name": "tucked away",
-    "ItemRank": "",
-    "StatType": "AGI",
-    "Mechanics": [
-      {
-        "StatType": "AGI",
-        "Value": 3
-      },
-      {
-        "StatType": "INT",
-        "Value": 3
-      },
-      {
-        "StatType": "# OF ACTION SLOTS",
-        "Value": 1
-      }
-    ],
-    "Value": 3,
-    "Rarity": "Rare"
-  },
-  {
-    "tags": null,
     "Description": "Its deeds go unrecorded \u2014 what it has done, none can say",
     "mechanics": "[INT:4,TECH:3,MAGIC FIND:4]",
-    "Mechaniv 1 value": 4,
     "Name": "hushed in secret",
     "ItemRank": "",
     "StatType": "INT",
@@ -3398,10 +3057,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Gone so long the world forgot it \u2014 returned changed and strange",
     "mechanics": "[MAX HEALTH:10,MAGIC FIND:5,CRIT MISS:3]",
-    "Mechaniv 1 value": 10,
     "Name": "absent for long",
     "ItemRank": "",
     "StatType": "Health",
@@ -3423,11 +3080,9 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Weathered past the point of breaking \u2014 only the true remains",
     "mechanics": "[ARMOR:4,MAX HEALTH:10,HEALTH REGEN:3]",
-    "Mechaniv 1 value": 4,
-    "Name": "left in rain",
+    "Name": "rusted by Dew",
     "ItemRank": "",
     "StatType": "Armor",
     "Mechanics": [
@@ -3448,10 +3103,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Mended with love and quiet ferocity \u2014 nothing may break what she kept whole",
     "mechanics": "[MAX HEALTH:12,HEALTH REGEN:5,CRIT MISS:4]",
-    "Mechaniv 1 value": 12,
     "Name": "stitched by a mother",
     "ItemRank": "",
     "StatType": "Health",
@@ -3473,10 +3126,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Bears the name of a provider \u2014 strength passed through blood and word",
     "mechanics": "[STR:5,BASE DAMAGE:4,HIT:3]",
-    "Mechaniv 1 value": 5,
     "Name": "named after a father",
     "ItemRank": "",
     "StatType": "STR",
@@ -3498,10 +3149,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Seen through young eyes as magnificent \u2014 and perhaps it truly is",
     "mechanics": "[MAGIC FIND:5,MAX HEALTH:10,COMBO:3]",
-    "Mechaniv 1 value": 5,
     "Name": "worshipped by a child",
     "ItemRank": "",
     "StatType": "MagicFind",
@@ -3523,10 +3172,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Repaired with careful hands and quiet loyalty \u2014 holds together under any strain",
     "mechanics": "[ARMOR:4,HEALTH REGEN:4,CRIT MISS:4]",
-    "Mechaniv 1 value": 4,
     "Name": "mended by a sister",
     "ItemRank": "",
     "StatType": "Armor",
@@ -3548,10 +3195,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Borne in another\u0027s shadow, faithful and uncomplaining",
     "mechanics": "[STR:4,MAX HEALTH:10,HIT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "carried by a brother",
     "ItemRank": "",
     "StatType": "STR",
@@ -3573,10 +3218,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Held through doubt and silence \u2014 belief made tangible",
     "mechanics": "[magiC FIND:5,int:4,combo:3]",
-    "Mechaniv 1 value": 5,
     "Name": "kept in faith",
     "ItemRank": "",
     "StatType": "MagicFind",
@@ -3598,10 +3241,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "The last gift of the fallen \u2014 its power drawn from a final act of will",
     "mechanics": "[BASE DAMAGE:5,WEAPON DAMAGE:5,STR:3]",
-    "Mechaniv 1 value": 5,
     "Name": "given by dying hands",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -3623,10 +3264,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Aged beyond expectation \u2014 time has only made it more itself",
     "mechanics": "[ALL:2,MAGIC FIND:3,CRIT MISS:3]",
-    "Mechaniv 1 value": 2,
     "Name": "kissed by time",
     "ItemRank": "",
     "StatType": "ALL",
@@ -3648,11 +3287,9 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Adored so completely that the love became part of the material",
     "mechanics": "[MAX HEALTH:12,MAGIC FIND:4,COMBO:3]",
-    "Mechaniv 1 value": 12,
-    "Name": "loved by cherished",
+    "Name": "cherished by lovers",
     "ItemRank": "",
     "StatType": "Health",
     "Mechanics": [
@@ -3673,10 +3310,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Lost from memory, then suddenly vivid \u2014 its return feels fated",
     "mechanics": "[INT:4,MAGIC FIND:5,ACCURACY:3]",
-    "Mechaniv 1 value": 4,
     "Name": "forgotten and remembered",
     "ItemRank": "",
     "StatType": "INT",
@@ -3698,10 +3333,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "The storm kept its secret \u2014 found only when the weather finally broke",
     "mechanics": "[AGILITY:4,ARMOR:4,CRIT MISS:3]",
-    "Mechaniv 1 value": 4,
     "Name": "hidden by rain",
     "ItemRank": "",
     "StatType": "AGI",
@@ -3723,10 +3356,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Wagered and lost, wagered and won \u2014 every victory feels borrowed",
     "mechanics": "[MAGIC FIND:5,CRIT:4,CRIT MISS:4]",
-    "Mechaniv 1 value": 5,
     "Name": "gambled by debt",
     "ItemRank": "",
     "StatType": "MagicFind",
@@ -3748,11 +3379,9 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Nearly lost so many times its luck has hardened into something useful",
     "mechanics": "[MAGIC FIND:4,AGILITY:3,# OF ACTION SLOTS:1]",
-    "Mechaniv 1 value": 4,
-    "Name": "fumbled by careless",
+    "Name": "remembered by the careless",
     "ItemRank": "",
     "StatType": "MagicFind",
     "Mechanics": [
@@ -3773,10 +3402,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "Balanced on the threshold \u2014 between breaking and becoming",
     "mechanics": "[BASE DAMAGE:4,WEAPON DAMAGE:4,CRIT:4]",
-    "Mechaniv 1 value": 4,
     "Name": "cradled on edge",
     "ItemRank": "",
     "StatType": "BASE DAMAGE",
@@ -3798,10 +3425,8 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": "The weight of a wrong never set right \u2014 carried forward as fuel",
     "mechanics": "[STR:4,BASE DAMAGE:5,HIT:3]",
-    "Mechaniv 1 value": 4,
     "Name": "bound by shame",
     "ItemRank": "",
     "StatType": "STR",
@@ -3823,11 +3448,9 @@
     "Rarity": "Rare"
   },
   {
-    "tags": null,
     "Description": null,
     "mechanics": "[all:5]",
-    "Mechaniv 1 value": 5,
-    "Name": "of the gods",
+    "Name": "of gods",
     "ItemRank": "",
     "StatType": "ALL",
     "Mechanics": [
@@ -3837,6 +3460,6 @@
       }
     ],
     "Value": 5,
-    "Rarity": "Common"
+    "Rarity": "Rare"
   }
 ]

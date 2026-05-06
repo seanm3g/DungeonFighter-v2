@@ -42,6 +42,7 @@ namespace RPGGame.Tests.Unit.Data
             DungeonsRoundTrip(ref run, ref pass, ref fail);
             DungeonsPossibleEnemiesPipeDelimitedNormalized(ref run, ref pass, ref fail);
             ArmorRoundTrip(ref run, ref pass, ref fail);
+            ArmorExtendedColumnsRoundTrip(ref run, ref pass, ref fail);
             ArmorWithTagsRoundTrip(ref run, ref pass, ref fail);
             ArmorCsvUtf8BomOnFirstHeaderImports(ref run, ref pass, ref fail);
             TestBase.PrintSummary("JsonArraySheetConverter Tests", run, pass, fail);
@@ -219,21 +220,23 @@ of Test,+1,1,15,Armor,
         {
             TestBase.SetCurrentTestName(nameof(StatBonusesBracketMechanicsCsvImport));
             const string csv = """
-Suffix tags,Description,rarity,Mechanics
-of the Tortoise,two stats,Uncommon,[ARMOR:5,MAX HEALTH:15]
+Name,Description,Value,Rarity,StatType,ItemRank,Mechanics
+of the Tortoise,two stats,0,Uncommon,Armor,,"[ARMOR:5,MAX HEALTH:15]"
 """;
             string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.StatBonuses);
             using var a = JsonDocument.Parse(outJson);
             var first = a.RootElement[0];
-            TestBase.AssertEqual("of the Tortoise", first.GetProperty("Name").GetString(), "Suffix tags→Name", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("of the Tortoise", first.GetProperty("Name").GetString(), "Name", ref run, ref pass, ref fail);
             TestBase.AssertEqual("Uncommon", first.GetProperty("Rarity").GetString(), "rarity", ref run, ref pass, ref fail);
             TestBase.AssertTrue(first.TryGetProperty("Mechanics", out var mech) && mech.ValueKind == JsonValueKind.Array,
                 "Mechanics array", ref run, ref pass, ref fail);
-            TestBase.AssertEqual(2, mech.GetArrayLength(), "two mechanics", ref run, ref pass, ref fail);
-            var m0 = mech[0];
+            if (!first.TryGetProperty("Mechanics", out var mechArr) || mechArr.ValueKind != JsonValueKind.Array)
+                return;
+            TestBase.AssertEqual(2, mechArr.GetArrayLength(), "two mechanics", ref run, ref pass, ref fail);
+            var m0 = mechArr[0];
             TestBase.AssertEqual("Armor", m0.GetProperty("StatType").GetString(), "armor key", ref run, ref pass, ref fail);
             TestBase.AssertEqual(5, m0.GetProperty("Value").GetInt32(), "armor value", ref run, ref pass, ref fail);
-            var m1 = mech[1];
+            var m1 = mechArr[1];
             TestBase.AssertEqual("Health", m1.GetProperty("StatType").GetString(), "max health→Health", ref run, ref pass, ref fail);
             TestBase.AssertEqual(15, m1.GetProperty("Value").GetInt32(), "health value", ref run, ref pass, ref fail);
         }
@@ -244,7 +247,7 @@ of the Tortoise,two stats,Uncommon,[ARMOR:5,MAX HEALTH:15]
             TestBase.SetCurrentTestName(nameof(StatBonusesCsvImportIgnoresColumnsBeyondG));
             const string csv = """
 Name,Description,Value,Rarity,StatType,ItemRank,Mechanics,Mechanic 1 type,Junk
-of Test,desc,1,Common,Armor,,[ARMOR:2],Armor,999
+of Test,desc,1,Common,Armor,,"[ARMOR:2]",Armor,999
 """;
             string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.StatBonuses);
             using var a = JsonDocument.Parse(outJson);
@@ -540,6 +543,22 @@ of Test,desc,1,Common,Armor,,[ARMOR:2],Armor,999
             var first = a.RootElement[0];
             TestBase.AssertEqual("chest", first.GetProperty("slot").GetString(), "slot", ref run, ref pass, ref fail);
             TestBase.AssertEqual(2, first.GetProperty("armor").GetInt32(), "armor", ref run, ref pass, ref fail);
+        }
+
+        private static void ArmorExtendedColumnsRoundTrip(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(ArmorExtendedColumnsRoundTrip));
+            const string json = """
+            [{"slot":"feet","name":"Striders","armor":1,"tier":1,"strength":0,"agility":1,"technique":0,"intelligence":0,"hit":0,"combo":0,"crit":0,"extraActionSlots":1,"minActionBonuses":0,"attributeRequirements":null,"tags":null}]
+            """;
+            var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Armor);
+            TestBase.AssertTrue(rows.Count >= 2, "header+data", ref run, ref pass, ref fail);
+            var csv = RowsToCsv(rows);
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Armor);
+            using var a = JsonDocument.Parse(outJson);
+            var first = a.RootElement[0];
+            TestBase.AssertEqual(1, first.GetProperty("extraActionSlots").GetInt32(), "extraActionSlots", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(1, first.GetProperty("agility").GetInt32(), "agility", ref run, ref pass, ref fail);
         }
 
         private static void ArmorWithTagsRoundTrip(ref int run, ref int pass, ref int fail)

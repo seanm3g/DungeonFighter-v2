@@ -209,7 +209,7 @@
                           HorizontalScrollBarVisibility="Auto"
                           VerticalScrollBarVisibility="Auto"
                           Margin="0,0,0,10">
-                <Grid ColumnDefinitions="*,10,272" MinWidth="480">
+                <Grid ColumnDefinitions="*,16,340" MinWidth="720">
                     <Border Grid.Column="0"
                             Background="#FF252526"
                             BorderBrush="#FF3F3F46"
@@ -217,27 +217,59 @@
                             CornerRadius="4"
                             Padding="8">
                         <StackPanel Spacing="6">
-                            <TextBlock Text="Real loot + this lab (TuningConfig itemAffixByRarity)"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Foreground="White"/>
-                            <TextBlock Text="Prefix = Quality/Adjective/Material slots (0–3). Suffix = StatBonuses.json lines. Actions = granted-action lines."
-                                       FontSize="11"
-                                       Foreground="#FFAAAAAA"
-                                       TextWrapping="Wrap"/>
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Real loot — this lab"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="White"/>
+                                <TextBlock Text="TuningConfig.json → itemAffixByRarity (C#: ItemAffixByRaritySettings)"
+                                           FontSize="10"
+                                           Foreground="#FF888888"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Border Background="#FF1E1E1E"
+                                    BorderBrush="#FF3F3F46"
+                                    BorderThickness="1"
+                                    CornerRadius="4"
+                                    Padding="10,8">
+                                <StackPanel Spacing="6">
+                                    <TextBlock FontSize="11"
+                                               Foreground="#FFCCCCCC"
+                                               TextWrapping="Wrap"
+                                               LineHeight="15"
+                                               Text="Per-rarity matrix used when rolling items: prefix slot count, StatBonuses suffix lines, and granted action-bonus lines. Applies to real dungeon loot and to batches generated here (LootBonusApplier resolves the row for the concrete item type)."/>
+                                    <TextBlock FontSize="11"
+                                               Foreground="#FFAAAAAA"
+                                               TextWrapping="Wrap"
+                                               LineHeight="15"
+                                               Text="Prefix — Quality / Adjective / Material modification slots (0–3; Modifications.json, prefixCategory). Suffix — extra lines from StatBonuses.json (rolled “of …” stats), not the same as prefix modification names. Actions — additional granted-action lines on the item."/>
+                                    <TextBlock FontSize="11"
+                                               Foreground="#FFAAAAAA"
+                                               TextWrapping="Wrap"
+                                               LineHeight="15"
+                                               Text="Affix rules for: Head, Chest, Feet, or Weapon each has its own table. Save writes all four under perItemType; the Weapon row is also copied to perRarity for older configs that only read the flat map."/>
+                                </StackPanel>
+                            </Border>
                             <StackPanel Orientation="Horizontal" Spacing="12">
                                 <TextBlock Text="Affix rules for:" VerticalAlignment="Center" Foreground="#FFCCCCCC" FontSize="11"/>
                                 <ComboBox x:Name="AffixSlotCombo" Width="120" Classes="ParamCombo" MinHeight="28"/>
                                 <TextBlock Text="Combo max (base)" VerticalAlignment="Center" Foreground="#FFAAAAAA" FontSize="10" Margin="16,0,0,0"/>
-                                <TextBox x:Name="ComboSeqBaseMaxText" Width="44" Classes="ParamField" MaxLength="2"/>
+                                <TextBox x:Name="ComboSeqBaseMaxText" Width="44" Classes="ParamField" MaxLength="2"
+                                         ToolTip.Tip="LootSystemConfig.ComboSequenceBaseMax → JSON lootSystem.comboSequenceBaseMax. Default max combo actions before gear extra slots; must be ≤ hard cap."/>
                                 <TextBlock Text="hard cap" VerticalAlignment="Center" Foreground="#FFAAAAAA" FontSize="10"/>
-                                <TextBox x:Name="ComboSeqAbsMaxText" Width="44" Classes="ParamField" MaxLength="2"/>
+                                <TextBox x:Name="ComboSeqAbsMaxText" Width="44" Classes="ParamField" MaxLength="2"
+                                         ToolTip.Tip="LootSystemConfig.ComboSequenceAbsoluteMax → JSON lootSystem.comboSequenceAbsoluteMax. Hard ceiling; effective max is min(this, base + sum of equipped head/chest/feet/weapon: catalog Item.ExtraActionSlots plus StatBonuses typed ExtraActionSlots)."/>
                             </StackPanel>
+                            <TextBlock FontSize="10"
+                                       Foreground="#FF888888"
+                                       TextWrapping="Wrap"
+                                       LineHeight="13"
+                                       Text="Combo caps live on lootSystem in the same TuningConfig file (not inside itemAffixByRarity). Saved together when you use Save on this settings screen."/>
                             <ScrollViewer MaxHeight="420"
                                           VerticalScrollBarVisibility="Auto"
                                           HorizontalScrollBarVisibility="Disabled">
                                 <StackPanel Spacing="6">
-                                    <Grid ColumnDefinitions="86,36,30,30,6,36,30,30,6,36,30,30"
+                                    <Grid ColumnDefinitions="100,*,*,*,8,*,*,*,8,*,*,*,8,*,*,*"
                                           RowDefinitions="Auto,Auto"
                                           Margin="0,2,0,0">
                                         <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
@@ -279,9 +311,23 @@
                                         <TextBlock Grid.Row="1" Grid.Column="9" Text="+%" FontWeight="SemiBold" Foreground="#FFCCCCCC" VerticalAlignment="Center" FontSize="9" HorizontalAlignment="Center" TextAlignment="Center" ToolTip.Tip="Per-step chance (0–100) to add another granted action line while below Max"/>
                                         <TextBlock Grid.Row="1" Grid.Column="10" Text="Min" FontWeight="SemiBold" Foreground="#FFCCCCCC" VerticalAlignment="Center" FontSize="9" HorizontalAlignment="Center" TextAlignment="Center" ToolTip.Tip="Minimum extra granted-action lines"/>
                                         <TextBlock Grid.Row="1" Grid.Column="11" Text="Max" FontWeight="SemiBold" Foreground="#FFCCCCCC" VerticalAlignment="Center" FontSize="9" HorizontalAlignment="Center" TextAlignment="Center" ToolTip.Tip="Maximum extra granted-action lines"/>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="13" Grid.ColumnSpan="3"
+                                                   Text="Extra slots"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="#FFDDDDDD"
+                                                   FontSize="10"
+                                                   HorizontalAlignment="Center"
+                                                   TextAlignment="Center"
+                                                   TextWrapping="Wrap"
+                                                   MaxWidth="72"
+                                                   ToolTip.Tip="Additional combo strip slots applied when affixes roll (Item.ExtraActionSlots). Added on top of catalog/sheet extraActionSlots. Not the same as Actions (granted-action lines)."/>
+                                        <TextBlock Grid.Row="1" Grid.Column="13" Text="+%" FontWeight="SemiBold" Foreground="#FFCCCCCC" VerticalAlignment="Center" FontSize="9" HorizontalAlignment="Center" TextAlignment="Center" ToolTip.Tip="Per-step chance (0–100) to add one more extra strip slot while below Max"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="14" Text="Min" FontWeight="SemiBold" Foreground="#FFCCCCCC" VerticalAlignment="Center" FontSize="9" HorizontalAlignment="Center" TextAlignment="Center" ToolTip.Tip="Guaranteed minimum extra strip slots from the affix pass"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="15" Text="Max" FontWeight="SemiBold" Foreground="#FFCCCCCC" VerticalAlignment="Center" FontSize="9" HorizontalAlignment="Center" TextAlignment="Center" ToolTip.Tip="Ceiling for extra strip slots from the affix pass"/>
                                     </Grid>
                                     <StackPanel Spacing="4">
-                                        <Grid ColumnDefinitions="86,36,30,30,6,36,30,30,6,36,30,30">
+                                        <Grid ColumnDefinitions="100,*,*,*,8,*,*,*,8,*,*,*,8,*,*,*">
                                             <TextBlock Grid.Column="0" Text="Common" Foreground="#FFDDDDDD" VerticalAlignment="Center" FontSize="10"/>
                                             <TextBox Grid.Column="1" x:Name="AffixPrefixChanceCommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="2" x:Name="AffixPrefixMinCommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
@@ -292,8 +338,11 @@
                                             <TextBox Grid.Column="9" x:Name="AffixActionChanceCommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="10" x:Name="AffixActionMinCommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                             <TextBox Grid.Column="11" x:Name="AffixActionMaxCommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                            <TextBox Grid.Column="13" x:Name="AffixExtraComboChanceCommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                            <TextBox Grid.Column="14" x:Name="AffixExtraComboMinCommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                            <TextBox Grid.Column="15" x:Name="AffixExtraComboMaxCommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                         </Grid>
-                                        <Grid ColumnDefinitions="86,36,30,30,6,36,30,30,6,36,30,30">
+                                        <Grid ColumnDefinitions="100,*,*,*,8,*,*,*,8,*,*,*,8,*,*,*">
                                             <TextBlock Grid.Column="0" Text="Uncommon" Foreground="#FFDDDDDD" VerticalAlignment="Center" FontSize="10"/>
                                             <TextBox Grid.Column="1" x:Name="AffixPrefixChanceUncommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="2" x:Name="AffixPrefixMinUncommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
@@ -304,8 +353,11 @@
                                             <TextBox Grid.Column="9" x:Name="AffixActionChanceUncommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="10" x:Name="AffixActionMinUncommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                             <TextBox Grid.Column="11" x:Name="AffixActionMaxUncommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                            <TextBox Grid.Column="13" x:Name="AffixExtraComboChanceUncommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                            <TextBox Grid.Column="14" x:Name="AffixExtraComboMinUncommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                            <TextBox Grid.Column="15" x:Name="AffixExtraComboMaxUncommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                         </Grid>
-                                        <Grid ColumnDefinitions="86,36,30,30,6,36,30,30,6,36,30,30">
+                                        <Grid ColumnDefinitions="100,*,*,*,8,*,*,*,8,*,*,*,8,*,*,*">
                                             <TextBlock Grid.Column="0" Text="Rare" Foreground="#FFDDDDDD" VerticalAlignment="Center" FontSize="10"/>
                                             <TextBox Grid.Column="1" x:Name="AffixPrefixChanceRare" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="2" x:Name="AffixPrefixMinRare" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
@@ -316,8 +368,11 @@
                                             <TextBox Grid.Column="9" x:Name="AffixActionChanceRare" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="10" x:Name="AffixActionMinRare" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                             <TextBox Grid.Column="11" x:Name="AffixActionMaxRare" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                            <TextBox Grid.Column="13" x:Name="AffixExtraComboChanceRare" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                            <TextBox Grid.Column="14" x:Name="AffixExtraComboMinRare" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                            <TextBox Grid.Column="15" x:Name="AffixExtraComboMaxRare" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                         </Grid>
-                                        <Grid ColumnDefinitions="86,36,30,30,6,36,30,30,6,36,30,30">
+                                        <Grid ColumnDefinitions="100,*,*,*,8,*,*,*,8,*,*,*,8,*,*,*">
                                             <TextBlock Grid.Column="0" Text="Epic" Foreground="#FFDDDDDD" VerticalAlignment="Center" FontSize="10"/>
                                             <TextBox Grid.Column="1" x:Name="AffixPrefixChanceEpic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="2" x:Name="AffixPrefixMinEpic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
@@ -328,8 +383,11 @@
                                             <TextBox Grid.Column="9" x:Name="AffixActionChanceEpic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="10" x:Name="AffixActionMinEpic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                             <TextBox Grid.Column="11" x:Name="AffixActionMaxEpic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                            <TextBox Grid.Column="13" x:Name="AffixExtraComboChanceEpic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                            <TextBox Grid.Column="14" x:Name="AffixExtraComboMinEpic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                            <TextBox Grid.Column="15" x:Name="AffixExtraComboMaxEpic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                         </Grid>
-                                        <Grid ColumnDefinitions="86,36,30,30,6,36,30,30,6,36,30,30">
+                                        <Grid ColumnDefinitions="100,*,*,*,8,*,*,*,8,*,*,*,8,*,*,*">
                                             <TextBlock Grid.Column="0" Text="Legendary" Foreground="#FFDDDDDD" VerticalAlignment="Center" FontSize="10"/>
                                             <TextBox Grid.Column="1" x:Name="AffixPrefixChanceLegendary" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="2" x:Name="AffixPrefixMinLegendary" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
@@ -340,8 +398,11 @@
                                             <TextBox Grid.Column="9" x:Name="AffixActionChanceLegendary" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="10" x:Name="AffixActionMinLegendary" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                             <TextBox Grid.Column="11" x:Name="AffixActionMaxLegendary" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                            <TextBox Grid.Column="13" x:Name="AffixExtraComboChanceLegendary" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                            <TextBox Grid.Column="14" x:Name="AffixExtraComboMinLegendary" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                            <TextBox Grid.Column="15" x:Name="AffixExtraComboMaxLegendary" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                         </Grid>
-                                        <Grid ColumnDefinitions="86,36,30,30,6,36,30,30,6,36,30,30">
+                                        <Grid ColumnDefinitions="100,*,*,*,8,*,*,*,8,*,*,*,8,*,*,*">
                                             <TextBlock Grid.Column="0" Text="Mythic" Foreground="#FFDDDDDD" VerticalAlignment="Center" FontSize="10"/>
                                             <TextBox Grid.Column="1" x:Name="AffixPrefixChanceMythic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="2" x:Name="AffixPrefixMinMythic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
@@ -352,6 +413,9 @@
                                             <TextBox Grid.Column="9" x:Name="AffixActionChanceMythic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="10" x:Name="AffixActionMinMythic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                             <TextBox Grid.Column="11" x:Name="AffixActionMaxMythic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                            <TextBox Grid.Column="13" x:Name="AffixExtraComboChanceMythic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
+                                            <TextBox Grid.Column="14" x:Name="AffixExtraComboMinMythic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
+                                            <TextBox Grid.Column="15" x:Name="AffixExtraComboMaxMythic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                         </Grid>
                                     </StackPanel>
                                     <Border Background="#FF1E1E1E"
@@ -362,14 +426,17 @@
                                         <TextBlock FontSize="11"
                                                    Foreground="#FFAAAAAA"
                                                    TextWrapping="Wrap"
-                                                   Text="Min = guaranteed counts. Extra % = per-step chance to add one more while below Max. Stored in TuningConfig.json (itemAffixByRarity). Use Save at the bottom of Settings to persist."/>
+                                                   LineHeight="15"
+                                                   Text="Min = guaranteed counts before optional steps. +% = per-step chance (0–100) to add one more while below Max; at magic find &gt; 0 only these extra chances scale (up to LootSystemConfig.affixMagicFindMaxExtraChanceBoost at MF 100, each step still capped at 100%). Max = ceiling for that axis (prefix slots ≤ 3). Extra slots = additional Item.ExtraActionSlots from the affix pass (on top of catalog extraActionSlots), distinct from Actions (granted-action lines). Persist: TuningConfig.json itemAffixByRarity — use Save at the bottom of Settings."/>
                                     </Border>
                                 </StackPanel>
                             </ScrollViewer>
                         </StackPanel>
                     </Border>
 
-                    <StackPanel Grid.Column="2" Spacing="12">
+                    <StackPanel Grid.Column="2"
+                                Spacing="12"
+                                HorizontalAlignment="Stretch">
                         <Border Background="#FF252526"
                                 BorderBrush="#FF3F3F46"
                                 BorderThickness="1"

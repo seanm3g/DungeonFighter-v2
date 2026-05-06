@@ -6,7 +6,7 @@ using RPGGame.UI.ColorSystem.Applications;
 namespace RPGGame.Combat.Formatting
 {
     /// <summary>
-    /// Builds combat-log status lines with actor names using <see cref="EntityColorHelper.GetActorColor"/>
+    /// Builds combat-log status lines with actor names using <see cref="EntityColorHelper.AppendActorNameColored"/>
     /// (same as primary action lines), instead of legacy <c>{{player|Name}}</c> markup.
     /// </summary>
     public static class StatusEffectCombatLogMessageBuilder
@@ -23,7 +23,7 @@ namespace RPGGame.Combat.Formatting
         {
             var builder = new ColoredTextBuilder();
             builder.Add("     ", Colors.White);
-            builder.Add(target.Name, EntityColorHelper.GetActorColor(target));
+            EntityColorHelper.AppendActorNameColored(builder, target);
             builder.AddSpace();
             builder.Add("is", Colors.White);
             builder.AddSpace();
@@ -39,7 +39,7 @@ namespace RPGGame.Combat.Formatting
         {
             var builder = new ColoredTextBuilder();
             builder.Add("     ", Colors.White);
-            builder.Add(target.Name, EntityColorHelper.GetActorColor(target));
+            EntityColorHelper.AppendActorNameColored(builder, target);
             builder.AddSpace();
             builder.Add(suffix, Colors.White);
             results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));

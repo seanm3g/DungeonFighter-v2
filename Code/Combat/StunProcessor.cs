@@ -58,7 +58,7 @@ namespace RPGGame
         private static (List<ColoredText> actionText, List<List<ColoredText>> statusEffects, Character? character) BuildStunBlockContent<T>(T entity) where T : Actor
         {
             var builder = new ColoredTextBuilder();
-            builder.Add(entity.Name, EntityColorHelper.GetActorColor(entity));
+            EntityColorHelper.AppendActorNameColored(builder, entity);
             builder.AddSpace();
             builder.Add("is", Colors.White);
             builder.AddSpace();

@@ -17,11 +17,29 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
             Console.WriteLine("=== ComboReorderer.ApplyReorderMove Tests ===\n");
             int run = 0, passed = 0, failed = 0;
 
+            var cfg = GameConfiguration.Instance;
+            ArgumentNullException.ThrowIfNull(cfg);
+            LootSystemConfig savedLoot = cfg.LootSystem ?? new LootSystemConfig();
+            int savedBase = savedLoot.ComboSequenceBaseMax;
+            int savedAbs = savedLoot.ComboSequenceAbsoluteMax;
+            cfg.LootSystem ??= new LootSystemConfig();
+            cfg.LootSystem.ComboSequenceBaseMax = 10;
+            cfg.LootSystem.ComboSequenceAbsoluteMax = 20;
+
+            try
+            {
             TestMoveFirstToLastMatchesApplyReorder(ref run, ref passed, ref failed);
             TestMoveNoOpReturnsFalse(ref run, ref passed, ref failed);
             TestMoveMiddleSlot(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ComboReorderer.ApplyReorderMove Tests", run, passed, failed);
+            }
+            finally
+            {
+                cfg.LootSystem = savedLoot;
+                cfg.LootSystem.ComboSequenceBaseMax = savedBase;
+                cfg.LootSystem.ComboSequenceAbsoluteMax = savedAbs;
+            }
         }
 
         private static void TestMoveFirstToLastMatchesApplyReorder(ref int run, ref int passed, ref int failed)

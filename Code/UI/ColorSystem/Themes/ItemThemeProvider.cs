@@ -12,6 +12,13 @@ namespace RPGGame.UI.ColorSystem.Themes
     /// </summary>
     public static class ItemThemeProvider
     {
+        /// <summary>Dimmed color for &quot;of &quot; / &quot;of the &quot; before suffix keywords (grammar, not fantasy prose).</summary>
+        public static Color AffixConnectorColor => ColorPalette.DarkGray.GetColor();
+
+        private static Color QualityPrefixCraftColor => ColorPalette.Bronze.GetColor();
+
+        private static Color MaterialPrefixDefaultColor => ColorPalette.Silver.GetColor();
+
         /// <summary>
         /// Gets all color themes for an item
         /// </summary>
@@ -213,6 +220,121 @@ namespace RPGGame.UI.ColorSystem.Themes
                 "transcendent" => ColorPalette.Purple.GetColor(),
                 _ => Colors.White
             };
+        }
+
+        /// <summary>
+        /// Narrative coloring for one prefix-slot word (Quality / Adjective / Material): templates and rank fallbacks live here.
+        /// </summary>
+        public static List<ColoredText> GetPrefixWordTheme(Modification? mod, string surfaceForm, string? fallbackAffixRank)
+        {
+            if (string.IsNullOrEmpty(surfaceForm))
+                return new List<ColoredText>();
+
+            string rank = string.IsNullOrWhiteSpace(fallbackAffixRank) ? "Common" : fallbackAffixRank.Trim();
+
+            if (mod == null)
+                return GetModificationTheme(surfaceForm.ToLowerInvariant(), rank);
+
+            string lower = surfaceForm.ToLowerInvariant();
+
+            switch (mod.GetPrefixCategory())
+            {
+                case ModificationPrefixCategory.Quality:
+                    return ColoredText.FromColor(surfaceForm, QualityPrefixCraftColor);
+
+                case ModificationPrefixCategory.Material:
+                    if (TryGetMaterialPaletteColor(surfaceForm, out Color substance))
+                        return ColoredText.FromColor(surfaceForm, substance);
+                    if (ColorTemplateLibrary.HasTemplate(lower))
+                        return ColoredText.FromTemplate(lower, surfaceForm);
+                    return ColoredText.FromColor(surfaceForm, MaterialPrefixDefaultColor);
+
+                case ModificationPrefixCategory.Adjective:
+                default:
+                    if (ColorTemplateLibrary.HasTemplate(lower))
+                        return ColoredText.FromTemplate(lower, surfaceForm);
+                    return GetModificationTheme(lower, mod.ItemRank ?? rank);
+            }
+        }
+
+        /// <summary>
+        /// Keyword-only theme for a rolled stat line; <paramref name="affixLineRarity"/> is <see cref="StatBonus.Rarity"/> (affix pool tier).
+        /// Uses the rarity ramp so tier power reads clearly (named word templates do not override affix tier for stat lines).
+        /// </summary>
+        public static List<ColoredText> GetStatBonusKeywordTheme(string keywordSurface, string affixLineRarity)
+        {
+            string rank = string.IsNullOrWhiteSpace(affixLineRarity) ? "Common" : affixLineRarity.Trim();
+            var c = GetRarityColor(rank);
+            return ColoredText.FromColor(keywordSurface, c);
+        }
+
+        /// <summary>
+        /// Leading word(s) of the catalog base name (before the final archetype word): material, template, or rank tint.
+        /// </summary>
+        public static List<ColoredText> GetBaseLeadingWordTheme(string word, string itemRarityForFallback)
+        {
+            if (string.IsNullOrEmpty(word))
+                return new List<ColoredText>();
+
+            string lower = word.ToLowerInvariant();
+            string rank = string.IsNullOrWhiteSpace(itemRarityForFallback) ? "Common" : itemRarityForFallback.Trim();
+
+            if (ColorTemplateLibrary.HasTemplate(lower))
+                return ColoredText.FromTemplate(lower, word);
+
+            if (TryGetMaterialPaletteColor(word, out Color mat))
+                return ColoredText.FromColor(word, mat);
+
+            var mt = GetModificationTheme(lower, rank);
+            if (mt != null && mt.Count > 0)
+                return mt;
+
+            return ColoredText.FromColor(word, ColorPalette.DarkGray.GetColor());
+        }
+
+        /// <summary>
+        /// Uppercase material tokens embedded in base names (glass, mithril, …).
+        /// </summary>
+        public static bool TryGetMaterialPaletteColor(string word, out Color color)
+        {
+            color = default;
+            if (string.IsNullOrEmpty(word))
+                return false;
+
+            string u = word.ToUpperInvariant();
+            Color? c = u switch
+            {
+                "GLASS" => ColorPalette.Cyan.GetColor(),
+                "CRYSTAL" => ColorPalette.Cyan.GetColor(),
+                "OBSIDIAN" => ColorPalette.DarkBlue.GetColor(),
+                "BONE" => ColorPalette.LightGray.GetColor(),
+                "BRONZE" => ColorPalette.Bronze.GetColor(),
+                "WILLOW" => ColorPalette.DarkGreen.GetColor(),
+                "STEEL" => ColorPalette.Silver.GetColor(),
+                "GOLD" => ColorPalette.Gold.GetColor(),
+                "SILVER" => ColorPalette.Silver.GetColor(),
+                "MITHRIL" => ColorPalette.Cyan.GetColor(),
+                "DAMASCUS" => ColorPalette.Orange.GetColor(),
+                "SHADOW" => ColorPalette.Purple.GetColor(),
+                "STONE" => ColorPalette.Gray.GetColor(),
+                "UNKNOWN" => ColorPalette.Purple.GetColor(),
+                "STRANGE" => ColorPalette.Magenta.GetColor(),
+                "CELESTIAL" => ColorPalette.Gold.GetColor(),
+                _ => null
+            };
+            if (!c.HasValue)
+                return false;
+            color = c.Value;
+            return true;
+        }
+
+        /// <summary>
+        /// Keyword for a modification suffix (&quot;of …&quot; mod row); uses <paramref name="affixPoolRank"/> (<see cref="Modification.ItemRank"/>).
+        /// </summary>
+        public static List<ColoredText> GetModificationSuffixKeywordTheme(string keywordSurface, string affixPoolRank)
+        {
+            string rank = string.IsNullOrWhiteSpace(affixPoolRank) ? "Common" : affixPoolRank.Trim();
+            return GetModificationTheme(keywordSurface.ToLowerInvariant(), rank);
         }
     }
 }

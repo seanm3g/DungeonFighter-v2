@@ -22,6 +22,17 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("=== ComboSequenceManager Tests ===\n");
 
+            var cfg = GameConfiguration.Instance;
+            ArgumentNullException.ThrowIfNull(cfg);
+            LootSystemConfig savedLoot = cfg.LootSystem ?? new LootSystemConfig();
+            int savedBase = savedLoot.ComboSequenceBaseMax;
+            int savedAbs = savedLoot.ComboSequenceAbsoluteMax;
+            cfg.LootSystem ??= new LootSystemConfig();
+            cfg.LootSystem.ComboSequenceBaseMax = 10;
+            cfg.LootSystem.ComboSequenceAbsoluteMax = 20;
+
+            try
+            {
             TestGetComboActions();
             TestAddToCombo();
             TestRemoveFromCombo();
@@ -39,6 +50,13 @@ namespace RPGGame.Tests.Unit
             TestRestoreComboFromActionNamesPreservesSavedNameOrder();
 
             TestBase.PrintSummary("ComboSequenceManager Tests", _testsRun, _testsPassed, _testsFailed);
+            }
+            finally
+            {
+                cfg.LootSystem = savedLoot;
+                cfg.LootSystem.ComboSequenceBaseMax = savedBase;
+                cfg.LootSystem.ComboSequenceAbsoluteMax = savedAbs;
+            }
         }
 
         #region Basic Functionality Tests

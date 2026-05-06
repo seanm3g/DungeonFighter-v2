@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame;
 using RPGGame.Data;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications;
 using RPGGame.UI.Avalonia;
 
 namespace RPGGame.UI.ColorSystem
@@ -31,21 +33,7 @@ namespace RPGGame.UI.ColorSystem
                 }
             }
             
-            // Check for name-based color mapping
-            var nameBasedColor = GetEnemyColorByNameInternal(enemy.Name);
-            if (nameBasedColor.HasValue)
-            {
-                return nameBasedColor.Value;
-            }
-            
-            // Fallback to default enemy color
-            var defaultPaletteName = ColorConfigurationLoader.GetEntityDefault("enemy");
-            if (Enum.TryParse<ColorPalette>(defaultPaletteName, true, out var defaultPalette))
-            {
-                return defaultPalette.GetColor();
-            }
-            
-            return ColorPalette.Enemy.GetColor();
+            return GetEnemyColorByName(enemy.Name);
         }
         
         /// <summary>
@@ -54,12 +42,87 @@ namespace RPGGame.UI.ColorSystem
         /// </summary>
         public static Color GetEnemyColorByName(string enemyName)
         {
+            var shaded = AnimalEnemyNameColoredText.TryBuildSegments(enemyName);
+            if (shaded != null && shaded.Count > 0)
+                return shaded[0].Color;
+
             var color = GetEnemyColorByNameInternal(enemyName);
             if (color.HasValue)
                 return color.Value;
-            
-            // Fallback to default enemy color
+
             return ColorPalette.Enemy.GetColor();
+        }
+
+        /// <summary>
+        /// Right-panel LOCATION line: same coloring as the combat log but uses the ellipsized <paramref name="lineText"/>
+        /// so the glyph count matches the monospace row (creature keywords re-evaluated on the truncated string).
+        /// </summary>
+        public static List<ColoredText> BuildEnemyNamePanelLineSegments(Enemy enemy, string lineText)
+        {
+            if (enemy == null)
+                return new List<ColoredText>();
+
+            var colorOverride = GetColorOverride(enemy);
+            if (colorOverride != null)
+            {
+                var overrideColor = ResolveColorOverride(colorOverride);
+                if (overrideColor.HasValue)
+                    return new List<ColoredText> { new ColoredText(lineText, overrideColor.Value) };
+            }
+
+            var animal = AnimalEnemyNameColoredText.TryBuildSegments(lineText);
+            if (animal != null)
+                return animal;
+
+            return new List<ColoredText> { new ColoredText(lineText, GetEnemyColor(enemy)) };
+        }
+
+        /// <summary>
+        /// Enemy name for HUD / combat log: multi-shade creature keywords, otherwise one segment using catalog colors.
+        /// </summary>
+        public static List<ColoredText> BuildEnemyNameDisplaySegments(Enemy enemy)
+        {
+            if (enemy == null)
+                return new List<ColoredText>();
+
+            var colorOverride = GetColorOverride(enemy);
+            if (colorOverride != null)
+            {
+                var overrideColor = ResolveColorOverride(colorOverride);
+                if (overrideColor.HasValue)
+                    return new List<ColoredText> { new ColoredText(enemy.Name, overrideColor.Value) };
+            }
+
+            var animal = AnimalEnemyNameColoredText.TryBuildSegments(enemy.Name);
+            if (animal != null)
+                return animal;
+
+            return new List<ColoredText> { new ColoredText(enemy.Name, GetEnemyColorByName(enemy.Name)) };
+        }
+
+        /// <summary>Appends enemy display name segments (creature shading when applicable).</summary>
+        public static void AppendEnemyNameColored(ColoredTextBuilder builder, Enemy enemy)
+        {
+            builder.AddRange(BuildEnemyNameDisplaySegments(enemy));
+        }
+
+        /// <summary>Creature shading when the string matches keywords; otherwise solid enemy color.</summary>
+        public static void AppendEnemyNameByString(ColoredTextBuilder builder, string enemyName)
+        {
+            var shaded = AnimalEnemyNameColoredText.TryBuildSegments(enemyName);
+            if (shaded != null)
+                builder.AddRange(shaded);
+            else
+                builder.Add(enemyName, GetEnemyColorByName(enemyName));
+        }
+
+        /// <summary>Uses shaded creature names for enemies; other actors use existing actor color rules.</summary>
+        public static void AppendActorNameColored(ColoredTextBuilder builder, Actor actor)
+        {
+            if (actor is Enemy enemy)
+                AppendEnemyNameColored(builder, enemy);
+            else
+                builder.Add(actor.Name, GetActorColor(actor));
         }
         
         /// <summary>
@@ -78,11 +141,8 @@ namespace RPGGame.UI.ColorSystem
             return normalizedName.ToLowerInvariant() switch
             {
                 "goblin" => ColorPalette.Green.GetColor(),           // Classic green goblin
-                "spider" => ColorPalette.DarkMagenta.GetColor(),     // Dark purple for spider
-                "wolf" => ColorPalette.Gray.GetColor(),               // Gray for wolf
                 "fire elemental" => ColorPalette.Red.GetColor(),     // Red for fire
                 "lava golem" => ColorPalette.Orange.GetColor(),      // Orange for lava
-                "bat" => ColorPalette.DarkGray.GetColor(),           // Dark gray for bat
                 "skeleton" => ColorPalette.LightGray.GetColor(),     // Light gray/white for bones
                 "zombie" => ColorPalette.DarkGreen.GetColor(),       // Dark green for rotting undead
                 "wraith" => ColorPalette.Purple.GetColor(),          // Purple for spectral being

@@ -31,6 +31,22 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// One-time roll for catalog <see cref="Item.ExtraActionSlots"/> on armor or weapons.
+        /// When both min and max are zero after clamp/swap, returns <paramref name="legacyFixed"/> (JSON <c>extraActionSlots</c>).
+        /// Otherwise rolls inclusive between min and max (same pattern as damage bonus min/max).
+        /// </summary>
+        internal static int RollCatalogExtraActionSlots(int legacyFixed, int minBound, int maxBound)
+        {
+            int minS = Math.Max(0, minBound);
+            int maxS = Math.Max(0, maxBound);
+            if (maxS < minS)
+                (minS, maxS) = (maxS, minS);
+            if (maxS > 0 || minS > 0)
+                return RandomUtility.Next(minS, maxS + 1);
+            return Math.Max(0, legacyFixed);
+        }
+
+        /// <summary>
         /// Generates a weapon item from weapon data
         /// </summary>
         /// <param name="weaponData">The weapon data to use</param>
@@ -49,7 +65,11 @@ namespace RPGGame
             var weapon = new WeaponItem(weaponData.Name, weaponData.Tier,
                 weaponData.BaseDamage, weaponData.AttackSpeed, weaponType)
             {
-                RolledDamageBonus = rolledBonus
+                RolledDamageBonus = rolledBonus,
+                ExtraActionSlots = RollCatalogExtraActionSlots(
+                    weaponData.ExtraActionSlots,
+                    weaponData.ExtraActionSlotsMin,
+                    weaponData.ExtraActionSlotsMax)
             };
             
             // Copy attribute requirements if present
@@ -93,7 +113,10 @@ namespace RPGGame
             item.BaseHit = armorData.Hit;
             item.BaseCombo = armorData.Combo;
             item.BaseCrit = armorData.Crit;
-            item.ExtraActionSlots = armorData.ExtraActionSlots;
+            item.ExtraActionSlots = RollCatalogExtraActionSlots(
+                armorData.ExtraActionSlots,
+                armorData.ExtraActionSlotsMin,
+                armorData.ExtraActionSlotsMax);
             item.MinGeneratedActionBonuses = armorData.MinActionBonuses;
             
             return item;

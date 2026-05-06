@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using RPGGame;
+using RPGGame.Data;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Data
@@ -31,7 +33,13 @@ namespace RPGGame.Tests.Unit.Data
             TestGenerateWeaponItem_RollsDamageBonusInclusive();
             TestGenerateWeaponItem_CopiesTags();
             TestGenerateArmorItem();
+            TestArmorData_DeserializesNullStatCellsAsZero();
+            TestArmorData_JsonNormalizerCoercesNullStatsBeforeDeserialize();
             TestGenerateArmorItem_CopiesTags();
+            TestGenerateArmorItem_CopiesExtendedCatalogStats();
+            TestGenerateArmorItem_ExtraActionSlotsCatalogRolls();
+            TestGenerateWeaponItem_CatalogExtraActionSlots();
+            TestEquipmentStatBonusIncludesBaseCatalogStrength();
             TestSelectRandomItemByTier();
             TestGenerateItemNameWithBonuses();
             TestGenerateItemNameWithBonuses_IdempotentWhenItemNameAlreadyComposed();
@@ -87,6 +95,10 @@ namespace RPGGame.Tests.Unit.Data
 
                 TestBase.AssertEqual(0.05, weapon.BaseAttackSpeed,
                     "Weapon should have correct attack speed",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                TestBase.AssertEqual(0, weapon.ExtraActionSlots,
+                    "Weapon without extra slot catalog fields should have zero combo slots",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
@@ -227,6 +239,51 @@ namespace RPGGame.Tests.Unit.Data
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        /// <summary>Armor.json from sheets often uses <c>null</c> for blank stat columns (e.g. AGILITY).</summary>
+        private static void TestArmorData_DeserializesNullStatCellsAsZero()
+        {
+            Console.WriteLine("\n--- Testing ArmorData JSON null stat cells ---");
+            const string json = """
+                [{
+                    "slot": "chest",
+                    "name": "Shirt",
+                    "armor": 1,
+                    "STRENGTH": 1,
+                    "AGILITY": null,
+                    "TECHNIQUE": null,
+                    "tier": 1
+                }]
+                """;
+            var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var list = JsonSerializer.Deserialize<List<ArmorData>>(json, opts);
+            TestBase.AssertNotNull(list, "list", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (list == null || list.Count == 0) return;
+            var row = list[0];
+            TestBase.AssertEqual(1, row.Strength, "STR", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, row.Agility, "AGI null -> 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, row.Technique, "TEC null -> 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestArmorData_JsonNormalizerCoercesNullStatsBeforeDeserialize()
+        {
+            Console.WriteLine("\n--- Testing GameDataJsonNormalizer for Armor.json null stats ---");
+            const string json = """
+                [{
+                    "slot": "chest",
+                    "name": "Shirt",
+                    "armor": 1,
+                    "AGILITY": null,
+                    "tier": 1
+                }]
+                """;
+            string norm = GameDataJsonNormalizer.NormalizeForGameDataFile(GameConstants.ArmorJson, json);
+            var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var list = JsonSerializer.Deserialize<List<ArmorData>>(norm, opts);
+            TestBase.AssertNotNull(list, "list", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (list == null || list.Count == 0) return;
+            TestBase.AssertEqual(0, list[0].Agility, "normalized AGILITY", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         private static void TestGenerateArmorItem_CopiesTags()
         {
             Console.WriteLine("\n--- Testing GenerateArmorItem copies tags ---");
@@ -243,6 +300,140 @@ namespace RPGGame.Tests.Unit.Data
             if (item == null) return;
             TestBase.AssertEqual(1, item.Tags.Count, "deduped", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(item.Tags.Contains("heavy"), "heavy tag", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestGenerateArmorItem_CopiesExtendedCatalogStats()
+        {
+            Console.WriteLine("\n--- Testing GenerateArmorItem extended catalog stats ---");
+            var data = new ArmorData
+            {
+                Name = "War Boots",
+                Slot = "feet",
+                Tier = 1,
+                Armor = 2,
+                Strength = 1,
+                Agility = 0,
+                Technique = 0,
+                Intelligence = 0,
+                Hit = 0,
+                Combo = 0,
+                Crit = 0,
+                ExtraActionSlots = 2,
+                MinActionBonuses = 0
+            };
+            var item = ItemGenerator.GenerateArmorItem(data) as FeetItem;
+            TestBase.AssertNotNull(item, "feet", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (item == null) return;
+            TestBase.AssertEqual(1, item.BaseStrength, "base str", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, item.ExtraActionSlots, "extra slots", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var helm = new ArmorData
+            {
+                Name = "Circlet",
+                Slot = "head",
+                Tier = 1,
+                Armor = 1,
+                MinActionBonuses = 2
+            };
+            var head = ItemGenerator.GenerateArmorItem(helm) as HeadItem;
+            TestBase.AssertNotNull(head, "head", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (head != null)
+                TestBase.AssertEqual(2, head.MinGeneratedActionBonuses, "min action bonuses", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestGenerateArmorItem_ExtraActionSlotsCatalogRolls()
+        {
+            Console.WriteLine("\n--- Testing GenerateArmorItem extraActionSlots min/max roll ---");
+            var fixedRange = new ArmorData
+            {
+                Name = "Treads",
+                Slot = "feet",
+                Tier = 1,
+                Armor = 1,
+                ExtraActionSlotsMin = 2,
+                ExtraActionSlotsMax = 2
+            };
+            for (int i = 0; i < 5; i++)
+            {
+                var feet = ItemGenerator.GenerateArmorItem(fixedRange) as FeetItem;
+                TestBase.AssertNotNull(feet, "feet", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                if (feet != null)
+                    TestBase.AssertEqual(2, feet.ExtraActionSlots, "min=max=2", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+
+            var varied = new ArmorData
+            {
+                Name = "Greaves",
+                Slot = "feet",
+                Tier = 1,
+                Armor = 1,
+                ExtraActionSlotsMin = 0,
+                ExtraActionSlotsMax = 2
+            };
+            var seen = new HashSet<int>();
+            for (int i = 0; i < 48; i++)
+            {
+                var f = ItemGenerator.GenerateArmorItem(varied) as FeetItem;
+                TestBase.AssertNotNull(f, "feet2", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                if (f != null)
+                {
+                    TestBase.AssertTrue(f.ExtraActionSlots >= 0 && f.ExtraActionSlots <= 2, "roll in 0..2",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    seen.Add(f.ExtraActionSlots);
+                }
+            }
+
+            TestBase.AssertTrue(seen.Count >= 2, "expected spread over 0..2 range",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var legacyOnly = new ArmorData
+            {
+                Name = "Sandals",
+                Slot = "feet",
+                Tier = 1,
+                Armor = 1,
+                ExtraActionSlots = 4,
+                ExtraActionSlotsMin = 0,
+                ExtraActionSlotsMax = 0
+            };
+            var sand = ItemGenerator.GenerateArmorItem(legacyOnly) as FeetItem;
+            TestBase.AssertNotNull(sand, "sand", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (sand != null)
+                TestBase.AssertEqual(4, sand.ExtraActionSlots, "legacy fixed when min/max unused",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestGenerateWeaponItem_CatalogExtraActionSlots()
+        {
+            Console.WriteLine("\n--- Testing GenerateWeaponItem catalog extraActionSlots ---");
+            var w = ItemGenerator.GenerateWeaponItem(new WeaponData
+            {
+                Name = "Combo Staff",
+                Type = "Wand",
+                Tier = 1,
+                BaseDamage = 5,
+                AttackSpeed = 0.05,
+                ExtraActionSlotsMin = 1,
+                ExtraActionSlotsMax = 1
+            });
+            TestBase.AssertEqual(1, w.ExtraActionSlots, "weapon fixed roll 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEquipmentStatBonusIncludesBaseCatalogStrength()
+        {
+            Console.WriteLine("\n--- Testing equipment STR includes catalog base ---");
+            var c = TestDataBuilders.Character().WithName("StrGear").Build();
+            var chest = ItemGenerator.GenerateArmorItem(new ArmorData
+            {
+                Name = "Plate",
+                Slot = "chest",
+                Tier = 1,
+                Armor = 5,
+                Strength = 3
+            });
+            c.EquipItem(chest, "body");
+            TestBase.AssertEqual(3, c.Equipment.GetEquipmentStatBonus("STR"),
+                "STR from chest BaseStrength", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

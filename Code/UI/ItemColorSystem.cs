@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications.ItemFormatting;
+using RPGGame.UI.ColorSystem.Themes;
 
 namespace RPGGame.UI
 {
@@ -15,18 +17,8 @@ namespace RPGGame.UI
         /// <summary>
         /// Gets the color for an item's rarity
         /// </summary>
-        public static Color GetRarityColor(string rarity)
-        {
-            return rarity.ToLower() switch
-            {
-                "common" => ColorPalette.Gray.GetColor(),
-                "uncommon" => ColorPalette.Green.GetColor(),
-                "rare" => ColorPalette.Blue.GetColor(),
-                "epic" => ColorPalette.Purple.GetColor(),
-                "legendary" => ColorPalette.Orange.GetColor(),
-                _ => Colors.White
-            };
-        }
+        public static Color GetRarityColor(string rarity) =>
+            ItemThemeProvider.GetRarityColor(rarity);
         
         /// <summary>
         /// Gets colored text for an item name based on rarity
@@ -97,21 +89,15 @@ namespace RPGGame.UI
         /// Formats a simple item display (name with rarity color)
         /// Uses the new multi-theme system
         /// </summary>
-        public static List<ColoredText> FormatSimpleItemDisplay(Item item)
-        {
-            // Use the new theme system for multi-color support
-            return ItemColorThemeSystem.FormatItemNameWithThemes(item, includeModifications: false);
-        }
+        public static List<ColoredText> FormatSimpleItemDisplay(Item item) =>
+            ItemNameFormatter.FormatSimpleItemName(item);
         
         /// <summary>
         /// Formats full item name with rarity, modifications, and type
         /// Uses the new multi-theme system
         /// </summary>
-        public static List<ColoredText> FormatFullItemName(Item item)
-        {
-            // Use the new theme system for multi-color support
-            return ItemColorThemeSystem.FormatItemNameWithThemes(item, includeModifications: true);
-        }
+        public static List<ColoredText> FormatFullItemName(Item item) =>
+            ItemNameFormatter.FormatFullItemName(item);
         
         /// <summary>
         /// Formats a stat bonus

@@ -197,7 +197,7 @@ namespace RPGGame
                 displayManager.AddCombatEvent("");
                 displayManager.AddCombatEvent("");
                 var victoryBuilder = new ColoredTextBuilder();
-                victoryBuilder.Add(enemy.Name, EntityColorHelper.GetEnemyColor(enemy));
+                EntityColorHelper.AppendEnemyNameColored(victoryBuilder, enemy);
                 victoryBuilder.Add(" has been defeated!", ColorPalette.Success);
                 displayManager.AddCombatEvent(ColoredTextRenderer.RenderAsMarkup(victoryBuilder.Build()));
                 

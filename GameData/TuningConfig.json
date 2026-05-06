@@ -473,6 +473,8 @@
     "itemValueMultiplier": 1,
     "affixMagicFindMaxWeightBoost": 2,
     "affixMagicFindMaxExtraChanceBoost": 2,
+    "comboSequenceBaseMax": 2,
+    "comboSequenceAbsoluteMax": 8,
     "rarityUpgrade": {
       "enabled": false,
       "baseUpgradeChance": 0.05,
@@ -495,7 +497,10 @@
         "statSuffixesMax": 1,
         "statSuffixExtraChance": 0.05,
         "actionBonusesMax": 1,
-        "actionExtraChance": 0.25
+        "actionExtraChance": 0.25,
+        "extraComboSlots": 0,
+        "extraComboSlotsMax": null,
+        "extraComboSlotsExtraChance": 0
       },
       "Uncommon": {
         "prefixSlots": 1,
@@ -506,7 +511,10 @@
         "statSuffixesMax": 1,
         "statSuffixExtraChance": 0.15,
         "actionBonusesMax": 1,
-        "actionExtraChance": 0.5
+        "actionExtraChance": 0.5,
+        "extraComboSlots": 0,
+        "extraComboSlotsMax": null,
+        "extraComboSlotsExtraChance": 0
       },
       "Rare": {
         "prefixSlots": 2,
@@ -517,7 +525,10 @@
         "statSuffixesMax": 2,
         "statSuffixExtraChance": 0.5,
         "actionBonusesMax": 1,
-        "actionExtraChance": 0.75
+        "actionExtraChance": 0.75,
+        "extraComboSlots": 0,
+        "extraComboSlotsMax": null,
+        "extraComboSlotsExtraChance": 0
       },
       "Epic": {
         "prefixSlots": 2,
@@ -528,7 +539,10 @@
         "statSuffixesMax": 3,
         "statSuffixExtraChance": 0.75,
         "actionBonusesMax": 2,
-        "actionExtraChance": 0.25
+        "actionExtraChance": 0.25,
+        "extraComboSlots": 0,
+        "extraComboSlotsMax": null,
+        "extraComboSlotsExtraChance": 0
       },
       "Legendary": {
         "prefixSlots": 3,
@@ -539,7 +553,10 @@
         "statSuffixesMax": 4,
         "statSuffixExtraChance": 0.75,
         "actionBonusesMax": 3,
-        "actionExtraChance": 0.5
+        "actionExtraChance": 0.5,
+        "extraComboSlots": 0,
+        "extraComboSlotsMax": null,
+        "extraComboSlotsExtraChance": 0
       },
       "Mythic": {
         "prefixSlots": 3,
@@ -550,9 +567,13 @@
         "statSuffixesMax": 5,
         "statSuffixExtraChance": 0.75,
         "actionBonusesMax": 4,
-        "actionExtraChance": 0.75
+        "actionExtraChance": 0.75,
+        "extraComboSlots": 0,
+        "extraComboSlotsMax": null,
+        "extraComboSlotsExtraChance": 0
       }
-    }
+    },
+    "perItemType": {}
   },
   "startingGear": {
     "weapons": [],

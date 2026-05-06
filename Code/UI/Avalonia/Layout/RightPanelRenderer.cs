@@ -8,6 +8,7 @@ namespace RPGGame.UI.Avalonia.Layout
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Managers;
+    using RPGGame.UI.Avalonia.Renderers;
     using RPGGame.UI.Avalonia.Renderers.Inventory;
     using RPGGame.UI.ColorSystem;
 
@@ -17,13 +18,16 @@ namespace RPGGame.UI.Avalonia.Layout
     public class RightPanelRenderer
     {
         private readonly GameCanvasControl canvas;
+        private readonly ColoredTextWriter textWriter;
         private readonly ICanvasInteractionManager? interactionManager;
 
         public RightPanelRenderer(
             GameCanvasControl canvas,
+            ColoredTextWriter textWriter,
             ICanvasInteractionManager? interactionManager = null)
         {
             this.canvas = canvas;
+            this.textWriter = textWriter;
             this.interactionManager = interactionManager;
         }
         
@@ -341,9 +345,9 @@ namespace RPGGame.UI.Avalonia.Layout
             
             if (enemy != null)
             {
-                string enemyName = RightPanelContentText.EllipsizeToPanelWidth(enemy.Name);
-                
-                canvas.AddText(x, y, enemyName, EntityColorHelper.GetEnemyColor(enemy));
+                string enemyNameLine = RightPanelContentText.EllipsizeToPanelWidth(enemy.Name);
+                var nameSegments = EntityColorHelper.BuildEnemyNamePanelLineSegments(enemy, enemyNameLine);
+                textWriter.RenderSegments(nameSegments, x, y);
                 y++;
 
                 int levelRowY = y;

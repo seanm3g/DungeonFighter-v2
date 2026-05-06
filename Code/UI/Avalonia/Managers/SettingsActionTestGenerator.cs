@@ -270,8 +270,7 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             var builder = new ColoredTextBuilder();
             
-            // Attacker name with appropriate color
-            builder.Add(attacker.Name, EntityColorHelper.GetActorColor(attacker));
+            EntityColorHelper.AppendActorNameColored(builder, attacker);
             
             // Action verb and name
             string actionName = action.Name;
@@ -296,7 +295,7 @@ namespace RPGGame.UI.Avalonia.Managers
             builder.AddSpace();
             builder.Add("hits", ColorPalette.Success);
             builder.AddSpace();
-            builder.Add(target.Name, EntityColorHelper.GetActorColor(target));
+            EntityColorHelper.AppendActorNameColored(builder, target);
             builder.AddSpace();
             builder.Add("with", ColorPalette.White);
             builder.AddSpace();

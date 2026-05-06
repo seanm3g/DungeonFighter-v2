@@ -1,3 +1,5 @@
+using Avalonia.Media;
+
 namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
@@ -7,6 +9,23 @@ namespace RPGGame.UI.Avalonia.Layout
     /// </summary>
     public static class ActionInfoStripLayout
     {
+        /// <summary>
+        /// Border color for a strip panel. Indices at or beyond <paramref name="effectiveMaxComboSlots"/> use black so unused capacity blends into the background.
+        /// </summary>
+        /// <param name="selectedResolvedIndex">Highlighted combo slot from <c>ComboStep % filled</c>, or -1 when the strip is empty.</param>
+        public static Color GetPanelBorderColor(int panelIndex, int filledActionCount, int selectedResolvedIndex, int effectiveMaxComboSlots)
+        {
+            if (panelIndex >= effectiveMaxComboSlots)
+                return AsciiArtAssets.Colors.Black;
+            bool isEmptySlot = panelIndex >= filledActionCount;
+            bool isSelected = !isEmptySlot && selectedResolvedIndex >= 0 && panelIndex == selectedResolvedIndex;
+            if (isSelected)
+                return AsciiArtAssets.Colors.Gold;
+            if (isEmptySlot)
+                return AsciiArtAssets.Colors.DarkGray;
+            return AsciiArtAssets.Colors.Cyan;
+        }
+
         /// <summary>
         /// Display slot count for the strip: at least <see cref="LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT"/>, or the combo length if longer.
         /// </summary>

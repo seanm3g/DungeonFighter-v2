@@ -211,7 +211,7 @@ namespace RPGGame
             // Initialize combo sequence with weapon actions now that weapon is equipped
             player.InitializeDefaultCombo();
             
-            // Starting armor: Armor.json rows tagged "starter" (first per slot); else StartingGear.json / tuning fallback
+            // Starting armor: only when specified — Armor.json rows tagged "starter" (first per slot), else legacy entries in StartingGear.json / TuningConfig (default: none)
             var catalogStarterArmor = StarterCatalogItems.LoadStarterArmorItems();
             if (catalogStarterArmor.Count > 0)
             {

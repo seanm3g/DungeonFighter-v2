@@ -175,7 +175,7 @@ namespace RPGGame
         public int BaseCombo { get; set; }
         public int BaseCrit { get; set; }
 
-        /// <summary>Feet: extra combo sequence slots beyond tuning base (see <see cref="ComboSequenceMaxHelper"/>).</summary>
+        /// <summary>Catalog-rolled extra combo sequence slots (any armor slot or weapon); affix lines use StatType <c>ExtraActionSlots</c>. Capped with tuning in <see cref="ComboSequenceMaxHelper"/>.</summary>
         public int ExtraActionSlots { get; set; }
 
         /// <summary>Head: minimum granted <see cref="ActionBonus"/> lines when loot affixes are applied.</summary>

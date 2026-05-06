@@ -1,5 +1,6 @@
 using System;
 using RPGGame.Tests;
+using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.Tests.Unit.UI
@@ -24,6 +25,8 @@ namespace RPGGame.Tests.Unit.UI
             TestPanelWidthsEqualWithinOnePixel(ref run, ref passed, ref failed);
             TestStripHitTestUsesDisplaySlotCountNotComboLength(ref run, ref passed, ref failed);
             TestNarrowCenterColumnAllFiveStripSlotsHittable(ref run, ref passed, ref failed);
+            TestGetPanelBorderColorBeyondEffectiveMaxIsBlack(ref run, ref passed, ref failed);
+            TestGetPanelBorderColorWithinMaxUnchanged(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ActionInfoStripLayout Tests", run, passed, failed);
         }
@@ -217,6 +220,36 @@ namespace RPGGame.Tests.Unit.UI
             {
                 LayoutConstants.UpdateEffectiveVisibleWidth(2100, 10);
             }
+        }
+
+        private static void TestGetPanelBorderColorBeyondEffectiveMaxIsBlack(ref int run, ref int passed, ref int failed)
+        {
+            var black = ActionInfoStripLayout.GetPanelBorderColor(2, 2, 0, effectiveMaxComboSlots: 2);
+            TestBase.AssertTrue(
+                black == AsciiArtAssets.Colors.Black,
+                "Panel index at effective max uses black border",
+                ref run, ref passed, ref failed);
+            var alsoBlack = ActionInfoStripLayout.GetPanelBorderColor(4, 0, -1, effectiveMaxComboSlots: 2);
+            TestBase.AssertTrue(
+                alsoBlack == AsciiArtAssets.Colors.Black,
+                "Empty strip: indices beyond max stay black",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void TestGetPanelBorderColorWithinMaxUnchanged(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.AssertTrue(
+                ActionInfoStripLayout.GetPanelBorderColor(0, 2, 0, effectiveMaxComboSlots: 5) == AsciiArtAssets.Colors.Gold,
+                "Selected filled slot: gold",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                ActionInfoStripLayout.GetPanelBorderColor(1, 2, 0, effectiveMaxComboSlots: 5) == AsciiArtAssets.Colors.Cyan,
+                "Non-selected filled slot: cyan",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                ActionInfoStripLayout.GetPanelBorderColor(2, 2, 0, effectiveMaxComboSlots: 5) == AsciiArtAssets.Colors.DarkGray,
+                "Empty slot within max: dark gray",
+                ref run, ref passed, ref failed);
         }
 
         private static void TestGapBetweenPanelsMisses(ref int run, ref int passed, ref int failed)

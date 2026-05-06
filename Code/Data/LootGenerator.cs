@@ -317,9 +317,11 @@ namespace RPGGame
         public string Name { get; set; } = "";
         
         [JsonPropertyName("armor")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
         public int Armor { get; set; }
         
         [JsonPropertyName("tier")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
         public int Tier { get; set; }
 
         [JsonPropertyName("attributeRequirements")]
@@ -330,32 +332,51 @@ namespace RPGGame
         public List<string>? Tags { get; set; }
 
         [JsonPropertyName("strength")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
         public int Strength { get; set; }
 
         [JsonPropertyName("agility")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
         public int Agility { get; set; }
 
         [JsonPropertyName("technique")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
         public int Technique { get; set; }
 
         [JsonPropertyName("intelligence")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
         public int Intelligence { get; set; }
 
         [JsonPropertyName("hit")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
         public int Hit { get; set; }
 
         [JsonPropertyName("combo")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
         public int Combo { get; set; }
 
         [JsonPropertyName("crit")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
         public int Crit { get; set; }
 
-        /// <summary>Feet: adds to max combo sequence length (capped by tuning).</summary>
+        /// <summary>Catalog combo strip slots when <see cref="ExtraActionSlotsMin"/> / <see cref="ExtraActionSlotsMax"/> are both zero (no range roll).</summary>
         [JsonPropertyName("extraActionSlots")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
         public int ExtraActionSlots { get; set; }
+
+        /// <summary>Inclusive lower bound for a one-time roll onto <see cref="Item.ExtraActionSlots"/> when generated; used when min/max indicate a range (any bound non-zero after normalization).</summary>
+        [JsonPropertyName("extraActionSlotsMin")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
+        public int ExtraActionSlotsMin { get; set; }
+
+        /// <summary>Inclusive upper bound for <see cref="Item.ExtraActionSlots"/> roll (same rules as <see cref="ExtraActionSlotsMin"/>).</summary>
+        [JsonPropertyName("extraActionSlotsMax")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
+        public int ExtraActionSlotsMax { get; set; }
 
         /// <summary>Head: minimum number of granted-action lines after rarity affix rolls.</summary>
         [JsonPropertyName("minActionBonuses")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
         public int MinActionBonuses { get; set; }
     }
 
@@ -388,6 +409,16 @@ namespace RPGGame
         /// <summary>Optional multi-value tags from <c>Weapons.json</c> / weapons sheet (JSON array or omitted).</summary>
         [JsonPropertyName("tags")]
         public List<string>? Tags { get; set; }
+
+        /// <summary>When min/max are both zero, use this fixed value on the weapon instance.</summary>
+        [JsonPropertyName("extraActionSlots")]
+        public int ExtraActionSlots { get; set; }
+
+        [JsonPropertyName("extraActionSlotsMin")]
+        public int ExtraActionSlotsMin { get; set; }
+
+        [JsonPropertyName("extraActionSlotsMax")]
+        public int ExtraActionSlotsMax { get; set; }
     }
 
     public class RarityData

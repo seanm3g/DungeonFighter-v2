@@ -37,7 +37,10 @@ namespace RPGGame.Tests.Unit.Data
             TestApplyActionBonuses();
             TestApplyModifications();
             TestTuningAffixOverridesRarityTable();
+            TestPerItemTypeAffixOverridesPerRarityForHeadOnly();
+            TestHeadMinGeneratedActionBonusesFloorsActionLines();
             TestProbabilisticAffixTuningHitsMax();
+            TestLootAffixRollsExtraComboSlotsOntoItem();
             TestAffixMagicFindBoostsOptionalExtraChances();
 
             TestBase.PrintSummary("LootBonusApplier Tests", _testsRun, _testsPassed, _testsFailed);
@@ -300,6 +303,122 @@ namespace RPGGame.Tests.Unit.Data
             }
         }
 
+        private static void TestPerItemTypeAffixOverridesPerRarityForHeadOnly()
+        {
+            Console.WriteLine("\n--- Testing PerItemType affix tuning (head vs chest) ---");
+
+            var cfg = GameConfiguration.Instance;
+            var backup = cfg.ItemAffixByRarity;
+            try
+            {
+                cfg.ItemAffixByRarity = new ItemAffixByRaritySettings
+                {
+                    PerRarity = new Dictionary<string, ItemAffixPerRarityEntry>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["Common"] = new ItemAffixPerRarityEntry
+                        {
+                            PrefixSlots = 0,
+                            StatSuffixes = 1,
+                            ActionBonuses = 0
+                        }
+                    },
+                    PerItemType = new Dictionary<string, Dictionary<string, ItemAffixPerRarityEntry>>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["Head"] = new Dictionary<string, ItemAffixPerRarityEntry>(StringComparer.OrdinalIgnoreCase)
+                        {
+                            ["Common"] = new ItemAffixPerRarityEntry
+                            {
+                                PrefixSlots = 0,
+                                // At most one suffix per affix-line rarity in the pool; 3 rolls still exceeds chest (1).
+                                StatSuffixes = 3,
+                                ActionBonuses = 0
+                            }
+                        }
+                    }
+                };
+
+                var rarityFromTable = new RarityData
+                {
+                    Name = "Common",
+                    StatBonuses = 0,
+                    ActionBonuses = 0,
+                    Modifications = 0
+                };
+
+                var cache = LootDataCache.Load();
+                var applier = new LootBonusApplier(cache, new Random(11));
+
+                var head = new HeadItem("Helm", 1, 1);
+                head.Rarity = "Common";
+                applier.ApplyBonuses(head, rarityFromTable);
+                TestBase.AssertEqual(3, head.StatBonuses.Count,
+                    "Head should use PerItemType stat suffix count 3",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var chest = new ChestItem("Vest", 1, 1);
+                chest.Rarity = "Common";
+                applier.ApplyBonuses(chest, rarityFromTable);
+                TestBase.AssertEqual(1, chest.StatBonuses.Count,
+                    "Chest should use PerRarity stat suffix count 1",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            catch (Exception ex)
+            {
+                TestBase.AssertTrue(false,
+                    $"PerItemType affix test failed: {ex.Message}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.ItemAffixByRarity = backup;
+            }
+        }
+
+        private static void TestHeadMinGeneratedActionBonusesFloorsActionLines()
+        {
+            Console.WriteLine("\n--- Testing MinGeneratedActionBonuses floor on head items ---");
+
+            var cfg = GameConfiguration.Instance;
+            var backup = cfg.ItemAffixByRarity;
+            try
+            {
+                cfg.ItemAffixByRarity = new ItemAffixByRaritySettings
+                {
+                    PerRarity = new Dictionary<string, ItemAffixPerRarityEntry>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["Common"] = new ItemAffixPerRarityEntry
+                        {
+                            PrefixSlots = 0,
+                            StatSuffixes = 0,
+                            ActionBonuses = 0
+                        }
+                    }
+                };
+
+                var rarityFromTable = new RarityData
+                {
+                    Name = "Common",
+                    StatBonuses = 0,
+                    ActionBonuses = 0,
+                    Modifications = 0
+                };
+
+                var head = new HeadItem("Crown", 1, 1) { MinGeneratedActionBonuses = 2 };
+                head.Rarity = "Common";
+                var cache = LootDataCache.Load();
+                var applier = new LootBonusApplier(cache, new Random(13));
+                applier.ApplyBonuses(head, rarityFromTable);
+
+                TestBase.AssertTrue(head.ActionBonuses.Count >= 2,
+                    $"head should get at least 2 action bonus lines, got {head.ActionBonuses.Count}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.ItemAffixByRarity = backup;
+            }
+        }
+
         private static void TestProbabilisticAffixTuningHitsMax()
         {
             Console.WriteLine("\n--- Testing probabilistic affix tuning (100% extra hits max) ---");
@@ -367,6 +486,62 @@ namespace RPGGame.Tests.Unit.Data
             }
         }
 
+        private static void TestLootAffixRollsExtraComboSlotsOntoItem()
+        {
+            Console.WriteLine("\n--- Testing loot affix tuning adds ExtraActionSlots ---");
+            TestBase.SetCurrentTestName(nameof(TestLootAffixRollsExtraComboSlotsOntoItem));
+
+            var cfg = GameConfiguration.Instance;
+            var backup = cfg.ItemAffixByRarity;
+            try
+            {
+                cfg.ItemAffixByRarity = new ItemAffixByRaritySettings
+                {
+                    PerRarity = new Dictionary<string, ItemAffixPerRarityEntry>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["Rare"] = new ItemAffixPerRarityEntry
+                        {
+                            PrefixSlots = 0,
+                            StatSuffixes = 0,
+                            ActionBonuses = 0,
+                            ExtraComboSlots = 0,
+                            ExtraComboSlotsMax = 2,
+                            ExtraComboSlotsExtraChance = 1.0
+                        }
+                    }
+                };
+
+                var head = new HeadItem("Circlet", 1, 1) { ExtraActionSlots = 4 };
+                head.Rarity = "Rare";
+
+                var rarityFromTable = new RarityData
+                {
+                    Name = "Rare",
+                    StatBonuses = 0,
+                    ActionBonuses = 0,
+                    Modifications = 0
+                };
+
+                var cache = LootDataCache.Load();
+                var applier = new LootBonusApplier(cache, new Random(3));
+                applier.ApplyBonuses(head, rarityFromTable);
+
+                TestBase.AssertEqual(6, head.ExtraActionSlots,
+                    "100% extra combo chance to max 2 should add 2 to catalog 4",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            catch (Exception ex)
+            {
+                TestBase.AssertTrue(false,
+                    $"Extra combo slots affix test failed: {ex.Message}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.ItemAffixByRarity = backup;
+            }
+        }
+
         private static void TestAffixMagicFindBoostsOptionalExtraChances()
         {
             Console.WriteLine("\n--- Testing MF on optional affix extra chances ---");
@@ -378,8 +553,8 @@ namespace RPGGame.Tests.Unit.Data
             const int n = 5000;
             for (int i = 0; i < n; i++)
             {
-                ItemAffixByRaritySettings.RollAffixCounts(new Random(i), rule, 0, loot, out int p0, out int s0, out int a0);
-                ItemAffixByRaritySettings.RollAffixCounts(new Random(i), rule, 100, loot, out int p100, out int s100, out int a100);
+                ItemAffixByRaritySettings.RollAffixCounts(new Random(i), rule, 0, loot, out int p0, out int s0, out int a0, out _);
+                ItemAffixByRaritySettings.RollAffixCounts(new Random(i), rule, 100, loot, out int p100, out int s100, out int a100, out _);
                 sum0 += p0 + s0 + a0;
                 sum100 += p100 + s100 + a100;
             }

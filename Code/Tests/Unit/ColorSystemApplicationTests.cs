@@ -32,6 +32,9 @@ namespace RPGGame.Tests.Unit
             TestKeywordColorSystem();
             TestItemColorSystem();
             TestItemNameFormatterEmbeddedMaterialAndBaseType();
+            TestStatSuffixUsesStatBonusAffixRarity();
+            TestRemoveRarityPrefixStripsMythic();
+            TestItemColorSystemFormatFullMatchesItemNameFormatter();
             TestStatusEffectColorHelper();
 
             TestBase.PrintSummary("Color System Application Tests", _testsRun, _testsPassed, _testsFailed);
@@ -201,6 +204,90 @@ namespace RPGGame.Tests.Unit
                 ColorValidator.AreColorsEqual(shoesSeg!.Color, expectedFeetColor),
                 "Single-word feet item should use feet armor type theme (not flat white)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestStatSuffixUsesStatBonusAffixRarity()
+        {
+            Console.WriteLine("\n--- Testing ItemNameFormatter stat suffix uses StatBonus.Rarity ---");
+
+            var boots = new FeetItem("BOOTS of Swiftness", 1, 1)
+            {
+                Rarity = "Common",
+                StatBonuses = new List<StatBonus>
+                {
+                    new StatBonus
+                    {
+                        Name = "of Swiftness",
+                        Rarity = "Rare",
+                        StatType = "Agility",
+                        Value = 1
+                    }
+                }
+            };
+
+            var segments = ItemNameFormatter.FormatFullItemName(boots);
+            var swiftSeg = segments.FirstOrDefault(s =>
+                string.Equals(s.Text, "Swiftness", StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertNotNull(swiftSeg, "Swiftness keyword segment exists", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var rareBlue = ColorPalette.Blue.GetColor();
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(swiftSeg!.Color, rareBlue),
+                "Stat suffix keyword should use Rare affix-line color (blue), not Common gray",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var commonAffixColor = ItemThemeProvider.GetRarityColor("Common");
+            TestBase.AssertTrue(
+                !ColorValidator.AreColorsEqual(swiftSeg.Color, commonAffixColor),
+                "Rare-tier stat suffix must differ from Common-tier ramp color",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRemoveRarityPrefixStripsMythic()
+        {
+            Console.WriteLine("\n--- Testing ItemNameParser.RemoveRarityPrefix (Mythic) ---");
+
+            var stripped = ItemNameParser.RemoveRarityPrefix("Mythic Iron Sword");
+            TestBase.AssertEqual(
+                "Iron Sword",
+                stripped,
+                "Leading Mythic rarity token should be stripped for display parsing",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var strippedT = ItemNameParser.RemoveRarityPrefix("Transcendent Rusty Nail");
+            TestBase.AssertEqual(
+                "Rusty Nail",
+                strippedT,
+                "Leading Transcendent rarity token should strip for legacy data",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestItemColorSystemFormatFullMatchesItemNameFormatter()
+        {
+            Console.WriteLine("\n--- Testing ItemColorSystem.FormatFullItemName delegates to ItemNameFormatter ---");
+
+            var item = new HeadItem("BONE Hat", 1, 1)
+            {
+                Rarity = "Rare",
+                Modifications = new List<Modification>
+                {
+                    new Modification
+                    {
+                        Name = "BONE",
+                        PrefixCategory = "Material",
+                        ItemRank = "Common",
+                        Effect = "equipmentStr",
+                        RolledValue = 1
+                    }
+                }
+            };
+
+            var a = RPGGame.UI.ItemColorSystem.FormatFullItemName(item);
+            var b = ItemNameFormatter.FormatFullItemName(item);
+            string plainA = ColoredTextRenderer.RenderAsPlainText(a);
+            string plainB = ColoredTextRenderer.RenderAsPlainText(b);
+            TestBase.AssertEqual(plainA, plainB, "Plain text output should match", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(a.Count == b.Count, "Segment count should match", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

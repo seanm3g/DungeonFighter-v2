@@ -74,6 +74,8 @@ namespace RPGGame
                 return item.BaseCombo;
             if (string.Equals(t, "CRIT", StringComparison.OrdinalIgnoreCase))
                 return item.BaseCrit;
+            if (string.Equals(t, "ExtraActionSlots", StringComparison.OrdinalIgnoreCase))
+                return Math.Max(0, item.ExtraActionSlots);
             return 0;
         }
 

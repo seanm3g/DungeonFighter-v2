@@ -32,10 +32,13 @@ namespace RPGGame.Data
         /// Runtime fields use JSON keys <c>baseDamage</c> (whole number), inclusive <c>damageBonusMin</c> / <c>damageBonusMax</c>
         /// (rolled onto base when loot is generated), then <c>attackSpeed</c> (fractional allowed;
         /// 1 = baseline swing spacing, &gt;1 slower, &lt;1 faster in combat).
+        /// Optional <c>extraActionSlots</c> / <c>extraActionSlotsMin</c> / <c>extraActionSlotsMax</c> roll combo-strip slots (see <see cref="ItemGenerator.RollCatalogExtraActionSlots"/>).
         /// </summary>
         public static readonly string[] WeaponsCanonicalHeaders =
         {
-            "type", "name", "dps", "balance", "baseDamage", "damageBonusMin", "damageBonusMax", "attackSpeed", "tier", "attributeRequirements", "tags", "Compelled Action"
+            "type", "name", "dps", "balance", "baseDamage", "damageBonusMin", "damageBonusMax", "attackSpeed", "tier",
+            "extraActionSlots", "extraActionSlotsMin", "extraActionSlotsMax",
+            "attributeRequirements", "tags", "Compelled Action"
         };
 
         public static readonly string[] ModificationsCanonicalHeaders =
@@ -45,7 +48,7 @@ namespace RPGGame.Data
         {
             "slot", "name", "armor", "tier",
             "strength", "agility", "technique", "intelligence", "hit", "combo", "crit",
-            "extraActionSlots", "minActionBonuses",
+            "extraActionSlots", "extraActionSlotsMin", "extraActionSlotsMax", "minActionBonuses",
             "attributeRequirements", "tags"
         };
 
@@ -269,6 +272,8 @@ namespace RPGGame.Data
                         continue;
                     if (nestedParents.Contains(p.Name))
                         continue;
+                    if (EnemyLegacyRootStatPropertyNames.Contains(p.Name))
+                        continue;
                     extraKeys.Add(p.Name);
                 }
             }
@@ -316,8 +321,33 @@ namespace RPGGame.Data
             return canonicalHeader;
         }
 
+        private static readonly HashSet<string> EnemyLegacyRootStatPropertyNames = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "strength", "agility", "technique", "intelligence"
+        };
+
         private static string GetEnemyPushCell(JsonElement el, string header)
         {
+            if (header.StartsWith("baseAttributes.", StringComparison.Ordinal))
+            {
+                if (TryGetPropertyPath(el, header, out var nested))
+                    return JsonElementToCellString(nested);
+                string leaf = header["baseAttributes.".Length..];
+                if (el.TryGetProperty(leaf, out var rootStat))
+                    return JsonElementToCellString(rootStat);
+                return "";
+            }
+
+            if (header.StartsWith("growthPerLevel.", StringComparison.Ordinal))
+            {
+                if (TryGetPropertyPath(el, header, out var nestedG))
+                    return JsonElementToCellString(nestedG);
+                string leafG = header["growthPerLevel.".Length..];
+                if (el.TryGetProperty(leafG, out var rootG))
+                    return JsonElementToCellString(rootG);
+                return "";
+            }
+
             if (header.Contains('.', StringComparison.Ordinal))
             {
                 if (TryGetPropertyPath(el, header, out var at))
@@ -497,6 +527,11 @@ namespace RPGGame.Data
             if (subHeader.Length == 0)
                 return "";
 
+            // Sheet row-0 blanks reuse the last category label (Excel merges). Columns after growthPerLevel.*
+            // (actions, isLiving, …) have blank row-0 but must not inherit "growth" or actions land in growthPerLevel.actions.
+            if (EnemyImportSubHeaderIsRootEnemyColumn(subHeader))
+                return subHeader;
+
             if (category.Length == 0)
                 return subHeader;
 
@@ -519,6 +554,14 @@ namespace RPGGame.Data
 
             return subHeader;
         }
+
+        /// <summary>Short headers on ENEMIES row-1 that are top-level JSON fields, not growth/baseAttributes sub-keys.</summary>
+        private static bool EnemyImportSubHeaderIsRootEnemyColumn(string subHeader) =>
+            string.Equals(subHeader, "actions", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(subHeader, "isLiving", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(subHeader, "description", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(subHeader, "colorOverride", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(subHeader, "tags", StringComparison.OrdinalIgnoreCase);
 
         private static JsonSerializerOptions GetSerializerOptions(GameDataTabularSheetKind kind)
         {

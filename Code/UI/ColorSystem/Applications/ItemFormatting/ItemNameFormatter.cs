@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Media;
+using RPGGame;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Themes;
 
@@ -31,77 +33,54 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
             }
             
             var builder = new ColoredTextBuilder();
-            var themes = ItemThemeProvider.GetItemThemes(item);
+            string fallbackRank = string.IsNullOrWhiteSpace(item.Rarity) ? "Common" : item.Rarity.Trim();
             
             string fullName = item.Name ?? "(unnamed item)";
             string remainingName = ItemNameParser.RemoveRarityPrefix(fullName);
             
-            // Extract and color modification prefixes - each gets its own unique color
             var (nameAfterPrefixes, prefixMods) = ItemNameParser.ExtractPrefixModifications(item, remainingName);
             foreach (var prefixMod in prefixMods)
             {
-                // Get the unique color theme for this specific prefix modifier
-                if (themes.ModificationThemes.TryGetValue(prefixMod, out var prefixTheme))
-                {
-                    // Use the first color from the theme sequence for the prefix
-                    var prefixColor = prefixTheme.Count > 0 ? prefixTheme[0].Color : ColorPalette.Success.GetColor();
-                    builder.Add(prefixMod, prefixColor);
-                }
-                else
-                {
-                    // Fallback: get theme directly from ItemThemeProvider
-                    var fallbackTheme = ItemThemeProvider.GetModificationTheme(prefixMod.ToLower(), item.Rarity);
-                    var fallbackColor = fallbackTheme.Count > 0 ? fallbackTheme[0].Color : ColorPalette.Success.GetColor();
-                    builder.Add(prefixMod, fallbackColor);
-                }
+                Modification? prefixModification = item.Modifications?.FirstOrDefault(m =>
+                    m != null &&
+                    !string.IsNullOrEmpty(m.Name) &&
+                    string.Equals(m.Name, prefixMod, StringComparison.OrdinalIgnoreCase));
+
+                builder.AddRange(ItemThemeProvider.GetPrefixWordTheme(prefixModification, prefixMod, fallbackRank));
                 builder.AddSpace();
             }
             
-            // Parse base name and suffixes
             var parsed = ItemNameParser.ParseItemName(item, nameAfterPrefixes);
             
             AddBaseNameWithTheming(builder, parsed.BaseName, item);
             
-            // Add all suffixes with their own unique colors (only color the keyword)
             foreach (var (suffixName, isStatBonus) in parsed.Suffixes)
             {
-                // Add space before each suffix (after base name or previous suffix keyword)
                 builder.AddSpace();
                 
-                var (prefix, keyword) = ItemKeywordExtractor.ExtractKeyword(suffixName);
+                var (connector, keyword) = ItemKeywordExtractor.ExtractKeyword(suffixName);
                 
-                // Add prefix in white (e.g., "of the ")
-                if (!string.IsNullOrEmpty(prefix))
-                {
-                    builder.Add(prefix, Colors.White);
-                }
-                
-                // Color only the keyword with its unique color
-                Color keywordColor;
+                if (!string.IsNullOrEmpty(connector))
+                    builder.Add(connector, ItemThemeProvider.AffixConnectorColor);
+
                 if (isStatBonus)
                 {
-                    // Stat bonus: extract keyword and use theme system to get unique color
-                    // For "of the Phoenix", look up template "phoenix" (the keyword)
-                    var keywordLower = keyword.ToLower();
-                    var statBonusTheme = ItemThemeProvider.GetModificationTheme(keywordLower, item.Rarity);
-                    keywordColor = statBonusTheme.Count > 0 ? statBonusTheme[0].Color : ColorPalette.Info.GetColor();
+                    StatBonus? sb = item.StatBonuses?.FirstOrDefault(b =>
+                        b != null &&
+                        !string.IsNullOrEmpty(b.Name) &&
+                        string.Equals(b.Name, suffixName, StringComparison.OrdinalIgnoreCase));
+                    string affixTier = sb?.Rarity ?? fallbackRank;
+                    builder.AddRange(ItemThemeProvider.GetStatBonusKeywordTheme(keyword, affixTier));
                 }
                 else
                 {
-                    // Modification suffix: use theme from the modifications dictionary
-                    if (themes.ModificationThemes.TryGetValue(suffixName, out var modTheme))
-                    {
-                        keywordColor = modTheme.Count > 0 ? modTheme[0].Color : ColorPalette.Magenta.GetColor();
-                    }
-                    else
-                    {
-                        // Fallback: get theme directly from ItemThemeProvider
-                        var fallbackTheme = ItemThemeProvider.GetModificationTheme(suffixName.ToLower(), item.Rarity);
-                        keywordColor = fallbackTheme.Count > 0 ? fallbackTheme[0].Color : ColorPalette.Magenta.GetColor();
-                    }
+                    Modification? suffMod = item.Modifications?.FirstOrDefault(m =>
+                        m != null &&
+                        !string.IsNullOrEmpty(m.Name) &&
+                        string.Equals(m.Name, suffixName, StringComparison.OrdinalIgnoreCase));
+                    string affixRank = string.IsNullOrWhiteSpace(suffMod?.ItemRank) ? fallbackRank : suffMod!.ItemRank!;
+                    builder.AddRange(ItemThemeProvider.GetModificationSuffixKeywordTheme(keyword, affixRank));
                 }
-                
-                builder.Add(keyword, keywordColor);
             }
 
             return builder.Build();
@@ -135,7 +114,7 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 if (i == words.Length - 1)
                     builder.Add(words[i], GetBaseEquipmentCoreColor(item));
                 else
-                    builder.Add(words[i], TryGetLeadingBaseNameWordColor(words[i], rarity));
+                    builder.AddRange(ItemThemeProvider.GetBaseLeadingWordTheme(words[i], rarity));
             }
         }
 
@@ -145,59 +124,6 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
             if (theme != null && theme.Count > 0)
                 return theme[0].Color;
             return ItemThemeProvider.GetTierColorForName(item.Tier);
-        }
-
-        private static Color TryGetLeadingBaseNameWordColor(string word, string itemRarity)
-        {
-            string lower = word.ToLowerInvariant();
-            if (ColorTemplateLibrary.HasTemplate(lower))
-            {
-                var t = ItemThemeProvider.GetModificationTheme(lower, itemRarity);
-                if (t != null && t.Count > 0)
-                    return t[0].Color;
-            }
-
-            if (TryGetMaterialPaletteColor(word, out Color fromMaterial))
-                return fromMaterial;
-
-            var modTheme = ItemThemeProvider.GetModificationTheme(lower, itemRarity);
-            if (modTheme != null && modTheme.Count > 0)
-                return modTheme[0].Color;
-
-            return Colors.White;
-        }
-
-        private static bool TryGetMaterialPaletteColor(string word, out Color color)
-        {
-            color = default;
-            if (string.IsNullOrEmpty(word))
-                return false;
-
-            string u = word.ToUpperInvariant();
-            Color? c = u switch
-            {
-                "GLASS" => ColorPalette.Cyan.GetColor(),
-                "CRYSTAL" => ColorPalette.Cyan.GetColor(),
-                "OBSIDIAN" => ColorPalette.DarkBlue.GetColor(),
-                "BONE" => ColorPalette.LightGray.GetColor(),
-                "BRONZE" => ColorPalette.Bronze.GetColor(),
-                "WILLOW" => ColorPalette.DarkGreen.GetColor(),
-                "STEEL" => ColorPalette.Silver.GetColor(),
-                "GOLD" => ColorPalette.Gold.GetColor(),
-                "SILVER" => ColorPalette.Silver.GetColor(),
-                "MITHRIL" => ColorPalette.Cyan.GetColor(),
-                "DAMASCUS" => ColorPalette.Orange.GetColor(),
-                "SHADOW" => ColorPalette.Purple.GetColor(),
-                "STONE" => ColorPalette.Gray.GetColor(),
-                "UNKNOWN" => ColorPalette.Purple.GetColor(),
-                "STRANGE" => ColorPalette.Magenta.GetColor(),
-                "CELESTIAL" => ColorPalette.Gold.GetColor(),
-                _ => (Color?)null
-            };
-            if (!c.HasValue)
-                return false;
-            color = c.Value;
-            return true;
         }
         
         /// <summary>
@@ -217,4 +143,3 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
         }
     }
 }
-

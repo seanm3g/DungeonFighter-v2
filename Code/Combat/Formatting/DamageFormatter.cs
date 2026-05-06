@@ -80,6 +80,17 @@ namespace RPGGame.Combat.Formatting
             builder.AddSpace();
             builder.Add(targetName, targetColor);
         }
+
+        /// <summary>
+        /// Adds "hits [target]" using creature-shaded enemy names when applicable.
+        /// </summary>
+        public static void AddHitsTarget(ColoredTextBuilder builder, Actor target, ColorPalette? hitsColor = null)
+        {
+            builder.AddSpace();
+            builder.Add("hits", hitsColor.HasValue ? hitsColor.Value.GetColor() : Colors.White);
+            builder.AddSpace();
+            EntityColorHelper.AppendActorNameColored(builder, target);
+        }
         
         /// <summary>
         /// Adds "attack X - Y armor" pattern to a ColoredTextBuilder with proper spacing
@@ -316,10 +327,10 @@ namespace RPGGame.Combat.Formatting
             ColorPalette damageColor = CombatColorStrategy.GetDamageColor(outcome);
 
             // Attacker name with enemy-specific colors
-            builder.Add(attacker.Name, EntityColorHelper.GetActorColor(attacker));
+            EntityColorHelper.AppendActorNameColored(builder, attacker);
 
             // Target name with "hits" verb with appropriate color based on outcome
-            AddHitsTarget(builder, target.Name, EntityColorHelper.GetActorColor(target), hitsColor);
+            AddHitsTarget(builder, target, hitsColor);
 
             // Action name only when action has a displayable name (normal attack has none)
             if (hasDisplayableAction && isComboAction)

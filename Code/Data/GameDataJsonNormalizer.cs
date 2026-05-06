@@ -28,8 +28,51 @@ namespace RPGGame.Data
             if (string.Equals(name, GameConstants.ModificationsJson, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(name, GameConstants.PrefixMaterialQualityJson, StringComparison.OrdinalIgnoreCase))
                 return NormalizeModificationsJson(json);
+            if (string.Equals(name, GameConstants.ArmorJson, StringComparison.OrdinalIgnoreCase))
+                return NormalizeArmorJson(json);
 
             return json;
+        }
+
+        private static string NormalizeArmorJson(string json)
+        {
+            try
+            {
+                JsonNode? root = JsonNode.Parse(json);
+                if (root is not JsonArray arr)
+                    return json;
+
+                foreach (var el in arr)
+                {
+                    if (el is JsonObject o)
+                        NormalizeArmorRow(o);
+                }
+
+                return root.ToJsonString();
+            }
+            catch
+            {
+                return json;
+            }
+        }
+
+        /// <summary>Sheet exports use <c>null</c> for blank stat columns; coerce to <c>0</c> so <see cref="LootGenerator.ArmorData"/> integers deserialize.</summary>
+        private static void NormalizeArmorRow(JsonObject o)
+        {
+            CoercePropertyToInt(o, "armor");
+            CoercePropertyToInt(o, "tier");
+            CoercePropertyToInt(o, "strength");
+            CoercePropertyToInt(o, "agility");
+            CoercePropertyToInt(o, "technique");
+            CoercePropertyToInt(o, "intelligence");
+            CoercePropertyToInt(o, "hit");
+            CoercePropertyToInt(o, "combo");
+            CoercePropertyToInt(o, "crit");
+            CoercePropertyToInt(o, "extraActionSlots");
+            CoercePropertyToInt(o, "extraActionSlotsMin");
+            CoercePropertyToInt(o, "extraActionSlotsMax");
+            CoercePropertyToInt(o, "minActionBonuses");
+            CoercePropertyToInt(o, "requirement value");
         }
 
         private static string NormalizeWeaponsJson(string json)

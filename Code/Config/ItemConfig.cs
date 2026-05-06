@@ -102,8 +102,8 @@ namespace RPGGame
     /// When <see cref="ItemAffixByRaritySettings.PerRarity"/> contains a key matching the rolled rarity
     /// (case-insensitive), these bounds override <c>RarityTable.json</c> stat/action columns and the
     /// built-in prefix-slot rules for that rarity only. Rarities omitted from the map keep legacy behavior.
-    /// <see cref="PrefixSlots"/>, <see cref="StatSuffixes"/>, and <see cref="ActionBonuses"/> are minimums;
-    /// optional max + extra chance roll additional affixes up to the cap (see <see cref="ItemAffixByRaritySettings.GetResolvedAffixRule"/>).
+    /// <see cref="PrefixSlots"/>, <see cref="StatSuffixes"/>, <see cref="ActionBonuses"/>, and <see cref="ExtraComboSlots"/> are minimums;
+    /// optional max + extra chance roll additional affixes (or extra strip slots) up to the cap (see <see cref="ItemAffixByRaritySettings.GetResolvedAffixRule"/>).
     /// </summary>
     public sealed class ItemAffixPerRarityEntry
     {
@@ -131,6 +131,14 @@ namespace RPGGame
 
         /// <summary>Per-step chance (0–1) to add one more action bonus while below max.</summary>
         public double ActionExtraChance { get; set; }
+
+        /// <summary>Minimum extra combo strip slots added in <see cref="LootBonusApplier"/> (added to <c>Item.ExtraActionSlots</c> after catalog roll).</summary>
+        public int ExtraComboSlots { get; set; }
+
+        public int? ExtraComboSlotsMax { get; set; }
+
+        /// <summary>Per-step chance (0–1) to add one more extra combo slot while below max.</summary>
+        public double ExtraComboSlotsExtraChance { get; set; }
     }
 
     /// <summary>
@@ -147,7 +155,10 @@ namespace RPGGame
             double statExtraChance,
             int actionMin,
             int actionMax,
-            double actionExtraChance)
+            double actionExtraChance,
+            int extraComboSlotsMin = 0,
+            int extraComboSlotsMax = 0,
+            double extraComboSlotsExtraChance = 0)
         {
             PrefixMin = prefixMin;
             PrefixMax = prefixMax;
@@ -158,6 +169,9 @@ namespace RPGGame
             ActionMin = actionMin;
             ActionMax = actionMax;
             ActionExtraChance = actionExtraChance;
+            ExtraComboSlotsMin = extraComboSlotsMin;
+            ExtraComboSlotsMax = extraComboSlotsMax;
+            ExtraComboSlotsExtraChance = extraComboSlotsExtraChance;
         }
 
         public int PrefixMin { get; }
@@ -169,6 +183,9 @@ namespace RPGGame
         public int ActionMin { get; }
         public int ActionMax { get; }
         public double ActionExtraChance { get; }
+        public int ExtraComboSlotsMin { get; }
+        public int ExtraComboSlotsMax { get; }
+        public double ExtraComboSlotsExtraChance { get; }
     }
 
     /// <summary>
@@ -183,7 +200,7 @@ namespace RPGGame
         };
 
         public string Description { get; set; } =
-            "Per-rarity affix bounds. PrefixSlots/StatSuffixes/ActionBonuses = minimums; *Max and *ExtraChance = optional random extras up to max. Omit a rarity to use RarityTable + built-in prefix rules for that tier.";
+            "Per-rarity affix bounds. PrefixSlots/StatSuffixes/ActionBonuses/ExtraComboSlots = minimums; *Max and *ExtraChance = optional random extras up to max (extra combo slots add to Item.ExtraActionSlots in LootBonusApplier). Omit a rarity to use RarityTable + built-in prefix rules for that tier.";
 
         /// <summary>Keys are rarity names, e.g. Common, Rare (matched case-insensitively).</summary>
         public Dictionary<string, ItemAffixPerRarityEntry> PerRarity { get; set; } = new();
@@ -235,7 +252,7 @@ namespace RPGGame
             int p = DefaultPrefixSlotsForRarity(name);
             int s = Math.Max(0, rarityTableRow?.StatBonuses ?? 0);
             int a = Math.Max(0, rarityTableRow?.ActionBonuses ?? 0);
-            return new ItemAffixRollRule(p, p, 0, s, s, 0, a, a, 0);
+            return new ItemAffixRollRule(p, p, 0, s, s, 0, a, a, 0, 0, 0, 0);
         }
 
         /// <summary>
@@ -271,7 +288,16 @@ namespace RPGGame
                 ? Math.Max(aMin, entry.ActionBonusesMax.Value)
                 : (aCh <= 0 ? aMin : aDefaultCeiling);
 
-            return new ItemAffixRollRule(pMin, pMax, pCh, sMin, sMax, sCh, aMin, aMax, aCh);
+            int eMin = Math.Max(0, entry.ExtraComboSlots);
+            double eCh = Clamp01(entry.ExtraComboSlotsExtraChance);
+            int eDefaultCeiling = eMin;
+            if (eDefaultCeiling == eMin && eCh > 0)
+                eDefaultCeiling = Math.Max(eMin + 1, 1);
+            int eMax = entry.ExtraComboSlotsMax.HasValue
+                ? Math.Max(eMin, entry.ExtraComboSlotsMax.Value)
+                : (eCh <= 0 ? eMin : eDefaultCeiling);
+
+            return new ItemAffixRollRule(pMin, pMax, pCh, sMin, sMax, sCh, aMin, aMax, aCh, eMin, eMax, eCh);
         }
 
         /// <summary>
@@ -279,7 +305,7 @@ namespace RPGGame
         /// </summary>
         public static void RollAffixCounts(Random random, in ItemAffixRollRule rule, out int prefixSlots, out int statSuffixes, out int actionBonuses)
         {
-            RollAffixCounts(random, rule, 0, null, out prefixSlots, out statSuffixes, out actionBonuses);
+            RollAffixCounts(random, rule, 0, null, out prefixSlots, out statSuffixes, out actionBonuses, out _);
         }
 
         /// <summary>
@@ -292,7 +318,8 @@ namespace RPGGame
             LootSystemConfig? loot,
             out int prefixSlots,
             out int statSuffixes,
-            out int actionBonuses)
+            out int actionBonuses,
+            out int extraComboSlots)
         {
             double t = Math.Clamp(magicFind0To100, 0, 100) / 100.0;
             double maxBoost = loot?.AffixMagicFindMaxExtraChanceBoost ?? 2.0;
@@ -303,10 +330,12 @@ namespace RPGGame
             double pCh = Clamp01(rule.PrefixExtraChance * chanceMult);
             double sCh = Clamp01(rule.StatExtraChance * chanceMult);
             double aCh = Clamp01(rule.ActionExtraChance * chanceMult);
+            double eCh = Clamp01(rule.ExtraComboSlotsExtraChance * chanceMult);
 
             prefixSlots = RollAxis(random, rule.PrefixMin, rule.PrefixMax, pCh);
             statSuffixes = RollAxis(random, rule.StatMin, rule.StatMax, sCh);
             actionBonuses = RollAxis(random, rule.ActionMin, rule.ActionMax, aCh);
+            extraComboSlots = RollAxis(random, rule.ExtraComboSlotsMin, rule.ExtraComboSlotsMax, eCh);
         }
 
         /// <summary>
@@ -341,12 +370,14 @@ namespace RPGGame
             out int prefixSlots,
             out int statSuffixes,
             out int actionBonuses,
+            out int extraComboSlotsMin,
             ItemType? itemType = null)
         {
             var rule = GetResolvedAffixRule(rarityName, rarityTableRow, tuning, itemType);
             prefixSlots = rule.PrefixMin;
             statSuffixes = rule.StatMin;
             actionBonuses = rule.ActionMin;
+            extraComboSlotsMin = rule.ExtraComboSlotsMin;
         }
 
         /// <summary>Returns true when <paramref name="rarityName"/> has an explicit tuning entry.</summary>
@@ -443,7 +474,7 @@ namespace RPGGame
         /// <summary>Default maximum number of actions in the player combo sequence before feet bonuses.</summary>
         public int ComboSequenceBaseMax { get; set; } = 2;
 
-        /// <summary>Hard cap on combo sequence length after feet <see cref="Item.ExtraActionSlots"/>.</summary>
+        /// <summary>Hard cap on combo sequence length after equipment <see cref="Item.ExtraActionSlots"/> and <c>ExtraActionSlots</c> affixes.</summary>
         public int ComboSequenceAbsoluteMax { get; set; } = 8;
 
         public RarityUpgradeConfig RarityUpgrade { get; set; } = new();

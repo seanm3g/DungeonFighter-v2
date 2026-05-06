@@ -116,7 +116,7 @@ namespace RPGGame
             ColorPalette missColor = CombatColorStrategy.GetMissColor(outcome);
             
             // Attacker name with enemy-specific colors
-            builder.Add(attacker.Name, EntityColorHelper.GetActorColor(attacker));
+            EntityColorHelper.AppendActorNameColored(builder, attacker);
             
             if (outcome.IsCriticalMiss)
             {
@@ -132,7 +132,7 @@ namespace RPGGame
             }
             
             builder.AddSpace(); // Explicit space between "MISS"/"misses" and target name
-            builder.Add(target.Name, EntityColorHelper.GetActorColor(target));
+            EntityColorHelper.AppendActorNameColored(builder, target);
             
             var missText = builder.Build();
             
@@ -162,7 +162,7 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             // Source name with enemy-specific colors
-            builder.Add(source.Name, EntityColorHelper.GetActorColor(source));
+            EntityColorHelper.AppendActorNameColored(builder, source);
             AddUsesAction(builder, action.Name, source is Enemy ? ColorPalette.Purple : ColorPalette.Green);
             
             builder.AddSpace(); // Explicit space between action name and "on"
@@ -170,7 +170,7 @@ namespace RPGGame
             builder.AddSpace(); // Explicit space between "on" and target name
             
             // Target name with enemy-specific colors
-            builder.Add(target.Name, EntityColorHelper.GetActorColor(target));
+            EntityColorHelper.AppendActorNameColored(builder, target);
             
             var actionText = builder.Build();
             
@@ -194,7 +194,7 @@ namespace RPGGame
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add(Actor.Name, EntityColorHelper.GetActorColor(Actor));
+            EntityColorHelper.AppendActorNameColored(builder, Actor);
             builder.Add("is", Colors.White);
             
             if (healthPercentage <= 0.1)
@@ -237,7 +237,7 @@ namespace RPGGame
             builder.Add(damageBlocked.ToString(), ColorPalette.Block);
             builder.Add("damage", Colors.White);
             builder.Add("from", Colors.White);
-            builder.Add(attacker.Name, EntityColorHelper.GetActorColor(attacker));
+            EntityColorHelper.AppendActorNameColored(builder, attacker);
             builder.Add("!", Colors.White);
             
             return builder.Build();
@@ -254,7 +254,7 @@ namespace RPGGame
             
             builder.Add(defender.Name, ColorPalette.Player);
             builder.Add("dodges", ColorPalette.Dodge);
-            builder.Add(attacker.Name, ColorPalette.Enemy);
+            EntityColorHelper.AppendActorNameColored(builder, attacker);
             builder.Add("'s", Colors.White);
             builder.Add("attack!", Colors.White);
             
@@ -275,7 +275,7 @@ namespace RPGGame
             
             // Add 5 spaces for indentation to match roll detail lines
             builder.Add("     ", Colors.White);
-            builder.Add(target.Name, EntityColorHelper.GetActorColor(target));
+            EntityColorHelper.AppendActorNameColored(builder, target);
             
             if (isApplied)
             {
@@ -331,11 +331,11 @@ namespace RPGGame
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add(healer.Name, EntityColorHelper.GetActorColor(healer));
+            EntityColorHelper.AppendActorNameColored(builder, healer);
             builder.AddSpace();
             builder.Add("heals", Colors.White);
             builder.AddSpace();
-            builder.Add(target.Name, EntityColorHelper.GetActorColor(target));
+            EntityColorHelper.AppendActorNameColored(builder, target);
             AddForAmountUnit(builder, healAmount.ToString(), ColorPalette.Healing, "health", ColorPalette.Healing);
             builder.Add("!", Colors.White);
             
@@ -349,10 +349,10 @@ namespace RPGGame
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add(victor.Name, EntityColorHelper.GetActorColor(victor));
+            EntityColorHelper.AppendActorNameColored(builder, victor);
             builder.Add("has", Colors.White);
             builder.Add("defeated", Colors.White);
-            builder.Add(defeated.Name, EntityColorHelper.GetActorColor(defeated));
+            EntityColorHelper.AppendActorNameColored(builder, defeated);
             builder.Add("!", ColorPalette.Success);
             
             return builder.Build();
@@ -365,12 +365,12 @@ namespace RPGGame
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add(defeated.Name, EntityColorHelper.GetActorColor(defeated));
+            EntityColorHelper.AppendActorNameColored(builder, defeated);
             builder.Add("has", Colors.White);
             builder.Add("been", Colors.White);
             builder.Add("defeated", Colors.White);
             builder.Add("by", Colors.White);
-            builder.Add(victor.Name, EntityColorHelper.GetActorColor(victor));
+            EntityColorHelper.AppendActorNameColored(builder, victor);
             builder.Add("!", ColorPalette.Error);
             
             return builder.Build();

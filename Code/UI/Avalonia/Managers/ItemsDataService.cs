@@ -1,9 +1,10 @@
-using RPGGame.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using RPGGame;
+using RPGGame.Data;
 
 namespace RPGGame.UI.Avalonia.Managers
 {
@@ -31,6 +32,7 @@ namespace RPGGame.UI.Avalonia.Managers
                 if (filePath != null && File.Exists(filePath))
                 {
                     string json = File.ReadAllText(filePath);
+                    json = GameDataJsonNormalizer.NormalizeForGameDataFile(GameConstants.WeaponsJson, json);
                     var options = new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
@@ -57,6 +59,7 @@ namespace RPGGame.UI.Avalonia.Managers
                 if (filePath != null && File.Exists(filePath))
                 {
                     string json = File.ReadAllText(filePath);
+                    json = GameDataJsonNormalizer.NormalizeForGameDataFile(GameConstants.ArmorJson, json);
                     var options = new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true

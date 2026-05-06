@@ -23,6 +23,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ComboSequenceManagerTests.RunAllTests();
             Console.WriteLine();
+            ComboSequenceMaxHelperTests.RunAllTests();
+            Console.WriteLine();
             WeaponRequiredComboActionTests.RunAllTests();
             Console.WriteLine();
             EnemyTests.RunAllTests();

@@ -181,12 +181,10 @@ namespace RPGGame
         /// <returns>Formatted effect message as ColoredText, or null if not applicable</returns>
         private static List<ColoredText>? FormatEnvironmentalEffectMessageColored(Actor source, Actor target, Action action, int duration)
         {
-            string displayName = GetDisplayName(target);
-            
             // Build effect line - "affected by BLEED for x turns"
             // Note: Don't add indentation here - BlockMessageCollector handles it
             var effectBuilder = new ColoredTextBuilder();
-            effectBuilder.Add(displayName, EntityColorHelper.GetActorColor(target));
+            EntityColorHelper.AppendActorNameColored(effectBuilder, target);
             effectBuilder.AddSpace();
             effectBuilder.Add("affected", Colors.White);
             effectBuilder.AddSpace();
@@ -211,16 +209,6 @@ namespace RPGGame
             AddForAmountUnit(effectBuilder, duration.ToString(), ColorPalette.White, "turns", ColorPalette.White);
             
             return effectBuilder.Build();
-        }
-
-        /// <summary>
-        /// Gets the display name for an Actor in environmental messages
-        /// </summary>
-        /// <param name="actor">The Actor to get display name for</param>
-        /// <returns>Display name with Actor's actual name</returns>
-        private static string GetDisplayName(Actor actor)
-        {
-            return actor.Name;
         }
 
         /// <summary>

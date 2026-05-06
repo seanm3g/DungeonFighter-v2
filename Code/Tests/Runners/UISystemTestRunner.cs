@@ -41,6 +41,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             HeroNamePanelColoredTextTests.RunAllTests();
             Console.WriteLine();
+            AnimalEnemyNameColoredTextTests.RunAllTests();
+            Console.WriteLine();
             CanvasInteractionManagerHitTestTests.RunAllTests();
             Console.WriteLine();
             CombatActionStripBuilderTests.RunAllTests();
@@ -138,6 +140,8 @@ namespace RPGGame.Tests.Runners
             ItemSuffixesDataCoordinatorTests.RunAllTests();
             Console.WriteLine();
             ItemsTabManagerTests.RunAllTests();
+            Console.WriteLine();
+            ItemsDataServiceTests.RunAllTests();
             Console.WriteLine();
             KeywordColorSystemTests.RunAllTests();
             Console.WriteLine();

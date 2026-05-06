@@ -40,7 +40,7 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.SetCurrentTestName(nameof(ParseGoogleStyleTierClassActions));
             const string csv = """
 TIER,CLASS,ACTIONS
-Lesser,Barbarian,["PUNCH","KICK"]
+Lesser,Barbarian,"[""PUNCH"",""KICK""]"
 """;
             var cfg = ClassActionsSheetConverter.ParseCsvToConfig(csv);
             TestBase.AssertEqual(2, cfg.Rules.Count, "two actions from JSON array", ref run, ref pass, ref fail);
@@ -79,7 +79,7 @@ Lesser,Barbarian,PUNCH
             TestBase.SetCurrentTestName(nameof(ParseDuoClassExpandsToTwoPaths));
             const string csv = """
 TIER,CLASS,ACTIONS
-Blooded,Warbrute,["JAB"]
+Blooded,Warbrute,"[""JAB""]"
 """;
             var cfg = ClassActionsSheetConverter.ParseCsvToConfig(csv);
             TestBase.AssertEqual(2, cfg.Rules.Count, "duo → Mace + Sword", ref run, ref pass, ref fail);

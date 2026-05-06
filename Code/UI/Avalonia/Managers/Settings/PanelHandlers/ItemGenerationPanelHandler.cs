@@ -195,7 +195,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                             StatSuffixesMax = null,
                             ActionBonuses = rule.ActionMin,
                             ActionExtraChance = 0,
-                            ActionBonusesMax = null
+                            ActionBonusesMax = null,
+                            ExtraComboSlots = rule.ExtraComboSlotsMin,
+                            ExtraComboSlotsExtraChance = 0,
+                            ExtraComboSlotsMax = null
                         };
                     }
                 }
@@ -234,7 +237,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 StatSuffixesMax = e.StatSuffixesMax,
                 ActionBonuses = e.ActionBonuses,
                 ActionExtraChance = e.ActionExtraChance,
-                ActionBonusesMax = e.ActionBonusesMax
+                ActionBonusesMax = e.ActionBonusesMax,
+                ExtraComboSlots = e.ExtraComboSlots,
+                ExtraComboSlotsExtraChance = e.ExtraComboSlotsExtraChance,
+                ExtraComboSlotsMax = e.ExtraComboSlotsMax
             };
 
         private void PersistUiToScratch(ItemGenerationSettingsPanel p, string slotKey)
@@ -274,6 +280,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 SetInt(p, $"AffixActionMin{rarity}", entry.ActionBonuses);
                 SetChancePercent(p, $"AffixActionChance{rarity}", entry.ActionExtraChance);
                 SetOptionalIntText(p, $"AffixActionMax{rarity}", entry.ActionBonusesMax);
+
+                SetChancePercent(p, $"AffixExtraComboChance{rarity}", entry.ExtraComboSlotsExtraChance);
+                SetInt(p, $"AffixExtraComboMin{rarity}", entry.ExtraComboSlots);
+                SetOptionalIntText(p, $"AffixExtraComboMax{rarity}", entry.ExtraComboSlotsMax);
             }
         }
 
@@ -362,6 +372,18 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 return false;
             }
 
+            if (!TryParseChancePercent(p, $"AffixExtraComboChance{rarity}", out double eCh, ref error))
+                return false;
+            if (!TryParseInt(p, $"AffixExtraComboMin{rarity}", 0, 99, out int eMin, out error))
+                return false;
+            if (!TryParseOptionalIntNonNeg(p, $"AffixExtraComboMax{rarity}", out int? eMax, ref error))
+                return false;
+            if (eMax.HasValue && eMax.Value < eMin)
+            {
+                error = $"Extra combo slot max for {rarity} must be ≥ min ({eMin}).";
+                return false;
+            }
+
             entry.PrefixSlots = pMin;
             entry.PrefixExtraChance = pCh;
             entry.PrefixSlotsMax = pMax;
@@ -371,6 +393,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             entry.ActionBonuses = aMin;
             entry.ActionExtraChance = aCh;
             entry.ActionBonusesMax = aMax;
+            entry.ExtraComboSlots = eMin;
+            entry.ExtraComboSlotsExtraChance = eCh;
+            entry.ExtraComboSlotsMax = eMax;
             return true;
         }
 

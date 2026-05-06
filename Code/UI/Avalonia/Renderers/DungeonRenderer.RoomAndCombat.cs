@@ -85,6 +85,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// Renders the action-info strip at the top of the center column (combat, inventory, etc.), above the combat log.
         /// Shows at least <see cref="LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT"/> panels (empty placeholders when the combo is shorter or empty);
         /// selected (current combo step) panel border is highlighted when the sequence is non-empty.
+        /// Panels at indices ≥ <see cref="ComboSequenceMaxHelper.GetEffectiveMax(Character?)"/> use a black border so unused strip capacity matches the character’s combo slot limit.
         /// When player is null, strip is cleared.
         /// </summary>
         /// <param name="drawHoverDetailOverlay">When false, skips the large center tooltip (e.g. character creation narrative occupies the same cells; clearing would erase it).</param>
@@ -105,18 +106,16 @@ namespace RPGGame.UI.Avalonia.Renderers
             int filled = panelData.Count;
             int displayCount = ActionInfoStripLayout.GetDisplayPanelCount(filled);
             int selectedIndex = filled > 0 ? player.ComboStep % filled : -1;
+            int effectiveMaxSlots = ComboSequenceMaxHelper.GetEffectiveMax(player);
 
             for (int i = 0; i < displayCount; i++)
             {
                 ActionInfoStripLayout.GetPanelRect(i, displayCount, out int px, out int py, out int pw, out int panelH);
                 bool isEmptySlot = i >= filled;
-                bool isSelected = !isEmptySlot && i == selectedIndex;
-                var borderColor = isSelected
-                    ? AsciiArtAssets.Colors.Gold
-                    : (isEmptySlot ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Cyan);
+                var borderColor = ActionInfoStripLayout.GetPanelBorderColor(i, filled, selectedIndex, effectiveMaxSlots);
                 canvas.AddBorder(px, py, pw, panelH, borderColor);
 
-                if (isEmptySlot)
+                if (isEmptySlot || i >= effectiveMaxSlots)
                     continue;
 
                 int contentX = px + 1;

@@ -114,7 +114,11 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
         public static string RemoveRarityPrefix(string name)
         {
             string remainingName = name;
-            string[] rarityPrefixes = { "Legendary", "Epic", "Rare", "Uncommon", "Common" };
+            // Longer tokens first; include Mythic / Transcendent for legacy or embedded names
+            string[] rarityPrefixes =
+            {
+                "Transcendent", "Mythic", "Legendary", "Epic", "Rare", "Uncommon", "Common"
+            };
             
             foreach (string rarity in rarityPrefixes)
             {

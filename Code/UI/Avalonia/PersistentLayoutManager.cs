@@ -40,7 +40,7 @@ namespace RPGGame.UI.Avalonia
                 textWriter, 
                 statsPanelStateManager, 
                 interactionManager);
-            this.rightPanelRenderer = new RightPanelRenderer(canvas, interactionManager);
+            this.rightPanelRenderer = new RightPanelRenderer(canvas, textWriter, interactionManager);
         }
         
         /// <summary>

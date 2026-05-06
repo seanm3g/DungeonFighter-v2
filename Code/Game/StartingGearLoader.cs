@@ -7,8 +7,9 @@ using RPGGame.Utils;
 namespace RPGGame
 {
     /// <summary>
-    /// Loads legacy starting armor slots from StartingGear.json (primary) or TuningConfig.json (fallback)
+    /// Loads optional legacy starting armor from StartingGear.json (primary) or TuningConfig.json (fallback)
     /// when <c>Armor.json</c> has no <c>starter</c>-tagged rows (<see cref="StarterCatalogItems.LoadStarterArmorItems"/>).
+    /// Default new characters have no starting armor unless rows are listed here, in tuning, or tagged in the catalog.
     /// Starter weapons are not loaded here — the menu uses all <c>starter</c>-tagged rows in <c>Weapons.json</c> when present
     /// (<see cref="StarterCatalogItems.ResolveStarterWeaponMenuCatalogRows"/>).
     /// </summary>

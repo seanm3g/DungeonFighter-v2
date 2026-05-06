@@ -57,10 +57,14 @@ namespace RPGGame
                     GameConfiguration.Instance?.LootSystem,
                     out int prefixSlots,
                     out int statSuffixes,
-                    out int actionBonuses);
+                    out int actionBonuses,
+                    out int extraComboSlotsLoot);
 
                 if (item.MinGeneratedActionBonuses > 0)
                     actionBonuses = Math.Max(actionBonuses, item.MinGeneratedActionBonuses);
+
+                if (extraComboSlotsLoot > 0)
+                    item.ExtraActionSlots = Math.Max(0, item.ExtraActionSlots + extraComboSlotsLoot);
 
                 ApplyStatBonuses(item, statSuffixes);
                 ApplyActionBonuses(item, actionBonuses, context);
