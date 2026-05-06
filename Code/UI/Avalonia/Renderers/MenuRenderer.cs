@@ -28,6 +28,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly MainMenuRenderer mainMenuRenderer;
         private readonly SettingsMenuRenderer settingsMenuRenderer;
         private readonly WeaponSelectionRenderer weaponSelectionRenderer;
+        private readonly TrainingGroundOfferRenderer trainingGroundOfferRenderer;
         private readonly GameMenuRenderer gameMenuRenderer;
         private readonly DeveloperMenuRenderer developerMenuRenderer;
         private readonly BattleStatisticsRenderer battleStatisticsRenderer;
@@ -50,6 +51,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.mainMenuRenderer = new MainMenuRenderer(canvas, clickableElements, textManager);
             this.settingsMenuRenderer = new SettingsMenuRenderer(canvas, clickableElements, textManager);
             this.weaponSelectionRenderer = new WeaponSelectionRenderer(canvas, clickableElements, interactionManager, textManager);
+            this.trainingGroundOfferRenderer = new TrainingGroundOfferRenderer(canvas, interactionManager, textManager);
             this.gameMenuRenderer = new GameMenuRenderer(canvas, clickableElements, textManager);
             this.developerMenuRenderer = new DeveloperMenuRenderer(canvas, clickableElements, textManager);
             this.battleStatisticsRenderer = new BattleStatisticsRenderer(canvas, clickableElements, textManager);
@@ -216,6 +218,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             currentY++;
             canvas.AddText(indent, currentY, $"Body: {(character.Body != null ? character.Body.Name : "None")}", AsciiArtAssets.Colors.White);
             currentY++;
+            canvas.AddText(indent, currentY, $"Legs: {(character.Legs != null ? character.Legs.Name : "None")}", AsciiArtAssets.Colors.White);
+            currentY++;
             canvas.AddText(indent, currentY, $"Feet: {(character.Feet != null ? character.Feet.Name : "None")}", AsciiArtAssets.Colors.White);
         }
 
@@ -225,6 +229,11 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderWeaponSelectionContent(int x, int y, int width, int height, List<StartingWeapon> weapons)
         {
             currentLineCount = weaponSelectionRenderer.RenderWeaponSelectionContent(x, y, width, height, weapons);
+        }
+
+        public void RenderTrainingGroundOfferContent(int x, int y, int width, int height, Character character)
+        {
+            currentLineCount = trainingGroundOfferRenderer.RenderTrainingGroundOfferContent(x, y, width, height, character);
         }
         
         public int RenderCharacterSelectionContent(int x, int y, int width, int height, List<Character> characters, string? activeCharacterName, Dictionary<string, string> characterStatuses)

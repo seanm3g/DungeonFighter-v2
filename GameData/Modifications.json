@@ -8,7 +8,7 @@
     "value": 1,
     "prefixCategory": "ADJECTIVE",
     "ATTRIBUTE REQUREMENT": "STRENGTH",
-    "REQUIREMENT VALUE": "5%"
+    "REQUIREMENT VALUE": 5
   },
   {
     "DiceResult": null,

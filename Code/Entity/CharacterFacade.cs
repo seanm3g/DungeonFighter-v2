@@ -37,6 +37,9 @@ namespace RPGGame
         public void ApplyHealthMultiplier(double multiplier) => _character.Health.ApplyHealthMultiplier(multiplier);
 
         // === EQUIPMENT MANAGEMENT ===
+        public bool TryEquipItem(Item item, string slot, out Item? replacedItem, out string? failureReason) =>
+            _character.TryEquipItem(item, slot, out replacedItem, out failureReason);
+
         public Item? EquipItem(Item item, string slot) => _equipment.EquipItem(item, slot);
         public Item? UnequipItem(string slot) => _equipment.UnequipItem(slot);
         public void AddToInventory(Item item) => _equipment.AddToInventory(item);

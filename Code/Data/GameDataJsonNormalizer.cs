@@ -56,6 +56,18 @@ namespace RPGGame.Data
             }
         }
 
+        /// <summary>
+        /// Applies the same per-row rules as <see cref="NormalizeArmorJson"/> for a single armor catalog object
+        /// (null stat coercion, sheet <c>attributeRequirements</c> abbrev + <c>requirement value</c> merge, <c>attackSpeed</c> coercion).
+        /// Used by <see cref="ArmorDataJsonConverter"/> so armor loads even when JSON is deserialized outside <see cref="JsonLoader"/>.
+        /// </summary>
+        public static void NormalizeArmorDataRow(JsonObject o)
+        {
+            if (o == null)
+                throw new ArgumentNullException(nameof(o));
+            NormalizeArmorRow(o);
+        }
+
         /// <summary>Sheet exports use <c>null</c> for blank stat columns; coerce to <c>0</c> so <see cref="LootGenerator.ArmorData"/> integers deserialize.</summary>
         private static void NormalizeArmorRow(JsonObject o)
         {
@@ -73,6 +85,29 @@ namespace RPGGame.Data
             CoercePropertyToInt(o, "extraActionSlotsMax");
             CoercePropertyToInt(o, "minActionBonuses");
             CoercePropertyToInt(o, "requirement value");
+            CoercePropertyToDouble(o, "attackSpeed");
+            MergeSheetAbbrevAttributeRequirementsIfPresent(o);
+        }
+
+        /// <summary>
+        /// Sheet rows often use <c>attributeRequirements</c> as a stat abbrev string plus <c>requirement value</c>;
+        /// runtime models expect a <c>Dictionary&lt;string,int&gt;</c> JSON object (same as weapons).
+        /// </summary>
+        private static void MergeSheetAbbrevAttributeRequirementsIfPresent(JsonObject o)
+        {
+            JsonNode? attrNode = FindPropertyIgnoreCase(o, "attributeRequirements");
+            if (attrNode is JsonObject)
+                return;
+            if (attrNode is not JsonValue strVal || !strVal.TryGetValue<string>(out var abbrev) ||
+                string.IsNullOrWhiteSpace(abbrev))
+                return;
+
+            int reqVal = CoerceInt(FindPropertyIgnoreCase(o, "requirement value"));
+            string statKey = MapSheetStatAbbrevToRequirementKey(abbrev.Trim());
+
+            RemovePropertyIgnoreCase(o, "attributeRequirements");
+            var dict = new JsonObject { [statKey] = JsonValue.Create(reqVal) };
+            o["attributeRequirements"] = dict;
         }
 
         private static string NormalizeWeaponsJson(string json)
@@ -100,17 +135,7 @@ namespace RPGGame.Data
         /// <summary>Merges sheet columns <c>attributeRequirements</c> (abbrev string) + <c>requirement value</c> into a dictionary.</summary>
         private static void NormalizeWeaponRow(JsonObject o)
         {
-            JsonNode? attrNode = FindPropertyIgnoreCase(o, "attributeRequirements");
-            if (attrNode is not JsonValue strVal || !strVal.TryGetValue<string>(out var abbrev) ||
-                string.IsNullOrWhiteSpace(abbrev))
-                return;
-
-            int reqVal = CoerceInt(FindPropertyIgnoreCase(o, "requirement value"));
-            string statKey = MapSheetStatAbbrevToRequirementKey(abbrev.Trim());
-
-            RemovePropertyIgnoreCase(o, "attributeRequirements");
-            var dict = new JsonObject { [statKey] = JsonValue.Create(reqVal) };
-            o["attributeRequirements"] = dict;
+            MergeSheetAbbrevAttributeRequirementsIfPresent(o);
         }
 
         private static string NormalizeStatBonusesJson(string json)

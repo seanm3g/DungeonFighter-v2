@@ -105,6 +105,18 @@ namespace RPGGame
         /// Dungeon selection list row that prompts for an arbitrary dungeon level (must match dungeon regeneration).
         /// </summary>
         public const string DungeonCustomLevelMenuName = "Custom difficulty";
+
+        /// <summary>Pre-weapon tutorial dungeon (not listed in Dungeons.json).</summary>
+        public const string TrainingGroundDungeonName = "Training Ground";
+
+        /// <summary>Fixed opponent in the pre-weapon Training Ground.</summary>
+        public const string TrainingDummyEnemyName = "Training Dummy";
+
+        public const int TrainingDummyMaxHealth = 15;
+        public const int TrainingDummyDamage = 1;
+
+        /// <summary>Direct-stat dummy: <see cref="Enemy.GetTotalAttackSpeed"/> seconds baseline (scaled by action length in combat).</summary>
+        public const double TrainingDummyBaseAttackSpeedSeconds = 8.0;
         
         // Combat Constants
         public const double DefaultNarrativeBalance = 0.5;

@@ -96,6 +96,7 @@ namespace RPGGame
                         WeaponItem => "Weapon",
                         HeadItem => "Head Armor",
                         ChestItem => "Chest Armor",
+                        LegsItem => "Legs Armor",
                         FeetItem => "Feet Armor",
                         _ => "Unknown"
                     };

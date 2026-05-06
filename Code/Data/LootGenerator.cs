@@ -148,35 +148,41 @@ namespace RPGGame
             // ROLL 1: Calculate loot level
             int lootLevel = TierCalculator.CalculateLootLevel(playerLevel, dungeonLevel);
             
-            // ROLL 2: Determine item type (25% weapon, 75% armor)
-            bool isWeapon = ItemSelector.DetermineIsWeapon();
-            
+            // ROLL 2: 50% weapon, 12.5% each armor slot (head / chest / legs / feet)
+            var (isWeapon, armorJsonSlot) = ItemSelector.RollLootCategory();
+
             // ROLL 3: Item tier based on loot level
             int tier = TierCalculator.RollTier(lootLevel);
-            
+
             // ROLL 4: Specific item selection
             // For guaranteed loot, retry with different tiers/types if needed
-            Item? item = ItemSelector.SelectItem(tier, isWeapon);
-            
+            Item? item = ItemSelector.SelectItem(tier, isWeapon, armorJsonSlot);
+
             if (item == null && guaranteedLoot)
             {
                 // Try all tiers from 1 to 5, and both weapon and armor types
                 for (int fallbackTier = 1; fallbackTier <= 5; fallbackTier++)
                 {
                     // Try current item type first
-                    item = ItemSelector.SelectItem(fallbackTier, isWeapon);
-                    if (item != null) 
+                    item = ItemSelector.SelectItem(fallbackTier, isWeapon, armorJsonSlot);
+                    if (item != null)
                     {
                         tier = fallbackTier;
                         break;
                     }
-                    
-                    // Try opposite item type
-                    item = ItemSelector.SelectItem(fallbackTier, !isWeapon);
-                    if (item != null) 
+
+                    // Try opposite item type (fresh armor slot if we were weapon)
+                    bool oppositeWeapon = !isWeapon;
+                    string? slotWhenArmor = oppositeWeapon
+                        ? null
+                        : (isWeapon ? ItemSelector.RollArmorJsonSlotUniform() : armorJsonSlot);
+                    item = ItemSelector.SelectItem(fallbackTier, oppositeWeapon, slotWhenArmor);
+                    if (item != null)
                     {
                         tier = fallbackTier;
-                        isWeapon = !isWeapon;
+                        isWeapon = oppositeWeapon;
+                        if (!isWeapon)
+                            armorJsonSlot = slotWhenArmor;
                         break;
                     }
                 }
@@ -358,6 +364,10 @@ namespace RPGGame
         [JsonPropertyName("crit")]
         [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
         public int Crit { get; set; }
+
+        /// <summary>Optional catalog attack-time reduction (seconds) from <c>Armor.json</c>; copied to <see cref="Items.Item.CatalogAttackSpeed"/>.</summary>
+        [JsonPropertyName("attackSpeed")]
+        public double AttackSpeed { get; set; }
 
         /// <summary>Catalog combo strip slots when <see cref="ExtraActionSlotsMin"/> / <see cref="ExtraActionSlotsMax"/> are both zero (no range roll).</summary>
         [JsonPropertyName("extraActionSlots")]

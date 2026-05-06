@@ -21,10 +21,12 @@ namespace RPGGame
         public delegate void OnShowGameLoop();
         public delegate void OnShowMainMenu();
         public delegate void OnShowWeaponSelection();
+        public delegate void OnShowTrainingGroundOffer();
         public delegate void OnShowMessage(string message);
         public event OnShowGameLoop? ShowGameLoopEvent;
         public event OnShowMainMenu? ShowMainMenuEvent;
         public event OnShowWeaponSelection? ShowWeaponSelectionEvent;
+        public event OnShowTrainingGroundOffer? ShowTrainingGroundOfferEvent;
         public event OnShowMessage? ShowMessageEvent;
 
         public CharacterManagementHandler(
@@ -229,37 +231,36 @@ namespace RPGGame
                         activeCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
                     }
                     
-                    DebugLogger.Log("CharacterManagementHandler", "CreateNewCharacter: Invoking ShowWeaponSelectionEvent before state transition");
-                    // Render weapon selection BEFORE transitioning state to prevent canvas clearing during transition
-                    // This ensures the screen is rendered before any state-change-triggered clears happen
-                    if (ShowWeaponSelectionEvent != null)
+                    activeCharacter.PendingPreWeaponTrainingGround = true;
+
+                    DebugLogger.Log("CharacterManagementHandler", "CreateNewCharacter: Invoking ShowTrainingGroundOfferEvent before state transition");
+                    if (ShowTrainingGroundOfferEvent != null)
                     {
                         try
                         {
-                            DebugLogger.Log("CharacterManagementHandler", "CreateNewCharacter: Invoking ShowWeaponSelectionEvent");
-                            ShowWeaponSelectionEvent.Invoke();
-                            DebugLogger.Log("CharacterManagementHandler", "CreateNewCharacter: ShowWeaponSelectionEvent invoked successfully");
-                            
-                            // Transition state AFTER rendering to prevent flashing
-                            DebugLogger.Log("CharacterManagementHandler", "CreateNewCharacter: Transitioning to WeaponSelection state after render");
-                            // Only transition if not already in WeaponSelection state
-                            if (stateManager.CurrentState != GameState.WeaponSelection)
-                            {
-                                stateManager.TransitionToState(GameState.WeaponSelection);
-                            }
+                            DebugLogger.Log("CharacterManagementHandler", "CreateNewCharacter: Invoking ShowTrainingGroundOfferEvent");
+                            ShowTrainingGroundOfferEvent.Invoke();
+                            DebugLogger.Log("CharacterManagementHandler", "CreateNewCharacter: ShowTrainingGroundOfferEvent invoked successfully");
                         }
                         catch (Exception ex)
                         {
-                            ShowMessageEvent?.Invoke($"Error showing weapon selection: {ex.Message}");
-                            DebugLogger.Log("CharacterManagementHandler", $"Error invoking ShowWeaponSelectionEvent: {ex}");
+                            ShowMessageEvent?.Invoke($"Error showing Training Ground offer: {ex.Message}");
+                            DebugLogger.Log("CharacterManagementHandler", $"Error invoking ShowTrainingGroundOfferEvent: {ex}");
                             stateManager.TransitionToState(GameState.MainMenu);
                             ShowMainMenuEvent?.Invoke();
                         }
                     }
+                    else if (ShowWeaponSelectionEvent != null)
+                    {
+                        activeCharacter.PendingPreWeaponTrainingGround = false;
+                        ShowWeaponSelectionEvent.Invoke();
+                        if (stateManager.CurrentState != GameState.WeaponSelection)
+                            stateManager.TransitionToState(GameState.WeaponSelection);
+                    }
                     else
                     {
-                        ShowMessageEvent?.Invoke("Error: Weapon selection not available. Please restart the game.");
-                        DebugLogger.Log("CharacterManagementHandler", "ShowWeaponSelectionEvent is null");
+                        ShowMessageEvent?.Invoke("Error: Training Ground offer not available. Please restart the game.");
+                        DebugLogger.Log("CharacterManagementHandler", "ShowTrainingGroundOfferEvent is null");
                         stateManager.TransitionToState(GameState.MainMenu);
                         ShowMainMenuEvent?.Invoke();
                     }

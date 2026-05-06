@@ -36,8 +36,8 @@ namespace RPGGame
                 return SelectWeaponAction(weapon.WeaponType.ToString());
             }
 
-            // For armor (Head, Feet, Chest items), use armor action pool
-            if (item is HeadItem or FeetItem or ChestItem)
+            // For armor (Head, Chest, Legs, Feet items), use armor action pool
+            if (item is HeadItem or ChestItem or LegsItem or FeetItem)
             {
                 return SelectArmorAction();
             }

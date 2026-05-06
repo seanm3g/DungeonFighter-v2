@@ -1,6 +1,7 @@
 using System;
 using RPGGame;
 using RPGGame.Tests.Unit.Config;
+using RPGGame.Tests.Unit.Editors;
 
 namespace RPGGame.Tests.Runners
 {
@@ -23,6 +24,8 @@ namespace RPGGame.Tests.Runners
             CombatConfigTests.RunAllTests();
             Console.WriteLine();
             ItemConfigTests.RunAllTests();
+            Console.WriteLine();
+            VariableEditorTests.RunAllTests();
             Console.WriteLine();
             EnemyConfigTests.RunAllTests();
             Console.WriteLine();

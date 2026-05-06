@@ -25,7 +25,7 @@ namespace RPGGame.World.Tags
                 }
             }
 
-            // Add armor tags (Body, Head, Feet)
+            // Add armor tags (Body, Head, Legs, Feet)
             if (character.Body != null && character.Body.Tags != null)
             {
                 foreach (var tag in character.Body.Tags)
@@ -39,6 +39,11 @@ namespace RPGGame.World.Tags
                 {
                     tags.Add(tag);
                 }
+            }
+            if (character.Legs != null && character.Legs.Tags != null)
+            {
+                foreach (var tag in character.Legs.Tags)
+                    tags.Add(tag);
             }
             if (character.Feet != null && character.Feet.Tags != null)
             {

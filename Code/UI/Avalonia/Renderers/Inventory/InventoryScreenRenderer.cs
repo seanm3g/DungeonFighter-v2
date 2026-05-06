@@ -43,6 +43,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             {
                 ItemType.Head => "Head",
                 ItemType.Chest => "Body",
+                ItemType.Legs => "Legs",
                 ItemType.Feet => "Feet",
                 _ => "Item"
             };

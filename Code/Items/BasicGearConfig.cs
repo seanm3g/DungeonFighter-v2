@@ -18,9 +18,11 @@ namespace RPGGame
             { 
                 "Leather Helmet", 
                 "Leather Armor", 
+                "Leather Greaves",
                 "Leather Boots", 
                 "Cloth Hood", 
                 "Cloth Robes", 
+                "Cloth Pants",
                 "Cloth Shoes" 
             };
         }

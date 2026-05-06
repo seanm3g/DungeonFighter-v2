@@ -2921,7 +2921,7 @@
   {
     "Description": "Its true name spoken only at night \u2014 bound to shadow and silver",
     "mechanics": "[AGILITY:4,INT:3,CRIT:3]",
-    "Name": "named by moonlight",
+    "Name": "dipped in moonlight",
     "ItemRank": "",
     "StatType": "AGI",
     "Mechanics": [

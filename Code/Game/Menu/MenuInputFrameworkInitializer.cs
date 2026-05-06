@@ -37,6 +37,7 @@ namespace RPGGame.Menu
                 validator.RegisterRules(GameState.Inventory, new InventoryValidationRules());
                 validator.RegisterRules(GameState.Settings, new SettingsValidationRules());
                 validator.RegisterRules(GameState.DungeonSelection, new DungeonSelectionValidationRules(4));
+                validator.RegisterRules(GameState.TrainingGroundOffer, new TrainingGroundOfferValidationRules());
                 return new MenuInputFrameworkResult
                 {
                     MenuInputRouter = router,

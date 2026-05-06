@@ -42,6 +42,13 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 armorLine.Add(bodyArmor.Armor.ToString(), ColorPalette.Success);
                 lines.Add(armorLine.Build());
             }
+            else if (item is LegsItem legsArmor)
+            {
+                var armorLine = new ColoredTextBuilder();
+                armorLine.Add("  Armor: ", ColorPalette.Info);
+                armorLine.Add(legsArmor.Armor.ToString(), ColorPalette.Success);
+                lines.Add(armorLine.Build());
+            }
             else if (item is FeetItem feetArmor)
             {
                 var armorLine = new ColoredTextBuilder();
@@ -150,7 +157,16 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 
                 lines.Add(modsLine.Build());
             }
-            
+
+            string? reqSummary = item.GetAttributeRequirementsSummaryLine();
+            if (!string.IsNullOrEmpty(reqSummary))
+            {
+                var reqLine = new ColoredTextBuilder();
+                reqLine.Add("  ", Colors.Gray);
+                reqLine.Add(reqSummary, ColorPalette.Warning);
+                lines.Add(reqLine.Build());
+            }
+
             return lines;
         }
         

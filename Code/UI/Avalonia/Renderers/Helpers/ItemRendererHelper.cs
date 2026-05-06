@@ -29,6 +29,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             {
                 ItemType.Head => "Head",
                 ItemType.Chest => "Body",
+                ItemType.Legs => "Legs",
                 ItemType.Feet => "Feet",
                 _ => "Item"
             };

@@ -22,6 +22,7 @@ namespace RPGGame.UI.Avalonia.Display
             return state == GameState.MainMenu ||
                    state == GameState.GameLoop ||
                    state == GameState.WeaponSelection ||
+                   state == GameState.TrainingGroundOffer ||
                    state == GameState.CharacterCreation ||
                    state == GameState.CharacterSelection ||
                    state == GameState.LoadCharacterSelection ||

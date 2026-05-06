@@ -37,6 +37,12 @@ namespace RPGGame
         // Session statistics tracking
         public SessionStatistics SessionStats { get; private set; }
 
+        /// <summary>
+        /// When true, the hero must see the Training Ground offer (or complete/skip it) before normal weapon selection.
+        /// Cleared when the player skips the tutorial or completes the Training Ground run.
+        /// </summary>
+        public bool PendingPreWeaponTrainingGround { get; set; }
+
         /// <summary>Action Interaction Lab only: added to <see cref="GetTotalArmor"/> for sandbox tuning (default 0).</summary>
         public int ActionLabArmorBonus { get; set; }
 
@@ -130,6 +136,9 @@ namespace RPGGame
         public void ApplyHealthMultiplier(double multiplier) => Health.ApplyHealthMultiplier(multiplier);
 
         // Equipment management (delegated to EquipmentManager)
+        public bool TryEquipItem(Item item, string slot, out Item? replacedItem, out string? failureReason) =>
+            _equipmentManager.TryEquipItem(item, slot, out replacedItem, out failureReason);
+
         public Item? EquipItem(Item item, string slot) => _equipmentManager.EquipItem(item, slot);
         public Item? UnequipItem(string slot) => _equipmentManager.UnequipItem(slot);
 
@@ -182,6 +191,7 @@ namespace RPGGame
         public List<Item> Inventory => Facade.Properties.Inventory;
         public Item? Head => Facade.Properties.Head;
         public Item? Body => Facade.Properties.Body;
+        public Item? Legs => Facade.Properties.Legs;
         public Item? Weapon { get => Facade.Properties.Weapon; set => Facade.Properties.Weapon = value; }
         public Item? Feet => Facade.Properties.Feet;
 

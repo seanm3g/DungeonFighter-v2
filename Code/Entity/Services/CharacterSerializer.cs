@@ -44,9 +44,11 @@ namespace RPGGame.Entity.Services
                 Inventory = character.Equipment.Inventory,
                 Head = character.Equipment.Head,
                 Body = character.Equipment.Body,
+                Legs = character.Equipment.Legs,
                 Weapon = character.Equipment.Weapon,
                 Feet = character.Equipment.Feet,
-                IsDead = markDead
+                IsDead = markDead,
+                PendingPreWeaponTrainingGround = character.PendingPreWeaponTrainingGround
             };
 
             var options = new JsonSerializerOptions
@@ -100,11 +102,13 @@ namespace RPGGame.Entity.Services
             character.Effects.TempComboBonus = saveData.TempComboBonus;
             character.Effects.TempComboBonusTurns = saveData.TempComboBonusTurns;
             character.DamageReduction = saveData.DamageReduction;
+            character.PendingPreWeaponTrainingGround = saveData.PendingPreWeaponTrainingGround;
             
             // Restore equipment with proper type conversion
             character.Equipment.Inventory = ItemTypeConverter.ConvertItemsToProperTypes(saveData.Inventory);
             character.Equipment.Head = ItemTypeConverter.ConvertItemToProperType(saveData.Head);
             character.Equipment.Body = ItemTypeConverter.ConvertItemToProperType(saveData.Body);
+            character.Equipment.Legs = ItemTypeConverter.ConvertItemToProperType(saveData.Legs);
             character.Equipment.Weapon = ItemTypeConverter.ConvertItemToProperType(saveData.Weapon) as WeaponItem;
             character.Equipment.Feet = ItemTypeConverter.ConvertItemToProperType(saveData.Feet);
 
@@ -133,6 +137,8 @@ namespace RPGGame.Entity.Services
                 character.Actions.AddArmorActions(character, character.Equipment.Head);
             if (character.Equipment.Body != null)
                 character.Actions.AddArmorActions(character, character.Equipment.Body);
+            if (character.Equipment.Legs != null)
+                character.Actions.AddArmorActions(character, character.Equipment.Legs);
             if (character.Equipment.Weapon is WeaponItem weapon)
                 character.Actions.AddWeaponActions(character, weapon);
             if (character.Equipment.Feet != null)

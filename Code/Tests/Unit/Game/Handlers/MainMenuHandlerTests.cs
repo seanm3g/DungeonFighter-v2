@@ -89,7 +89,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             var gameInitializer = new GameInitializer();
             
             var handler = new MainMenuHandler(stateManager, initManager, null, gameInitializer);
-            handler.ShowWeaponSelectionEvent += () => { };
+            handler.ShowTrainingGroundOfferEvent += () => { };
             
             // Test new game input
             Task.Run(async () => await handler.HandleMenuInput("1")).Wait();

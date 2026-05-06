@@ -69,6 +69,12 @@ namespace RPGGame
             set => _character.Equipment.Body = value;
         }
 
+        public Item? Legs
+        {
+            get => _character.Equipment.Legs;
+            set => _character.Equipment.Legs = value;
+        }
+
         public Item? Weapon
         {
             get => _character.Equipment.Weapon;

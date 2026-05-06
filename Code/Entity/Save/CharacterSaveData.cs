@@ -28,10 +28,14 @@ namespace RPGGame
         public List<Item> Inventory { get; set; } = new List<Item>();
         public Item? Head { get; set; }
         public Item? Body { get; set; }
+        public Item? Legs { get; set; }
         public Item? Weapon { get; set; }
         public Item? Feet { get; set; }
         /// <summary>When true, this file is a tombstone only; the game will not load this adventurer.</summary>
         public bool IsDead { get; set; }
+
+        /// <summary>When true, resume pre-weapon Training Ground flow after load (omit or false for legacy saves).</summary>
+        public bool PendingPreWeaponTrainingGround { get; set; }
     }
 }
 

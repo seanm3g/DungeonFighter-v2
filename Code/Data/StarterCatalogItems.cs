@@ -69,7 +69,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// At most one generated piece per JSON slot (<c>head</c>, <c>chest</c>, <c>feet</c>), using the first matching row in file order.
+        /// At most one generated piece per JSON slot (<c>head</c>, <c>chest</c>, <c>legs</c>, <c>feet</c>), using the first matching row in file order.
         /// </summary>
         public static List<Item> LoadStarterArmorItems()
         {
@@ -84,7 +84,7 @@ namespace RPGGame
                 if (!GameDataTagHelper.HasTag(row.Tags, StarterTag))
                     continue;
                 string slotKey = (row.Slot ?? "").Trim().ToLowerInvariant();
-                if (slotKey != "head" && slotKey != "chest" && slotKey != "feet")
+                if (slotKey != "head" && slotKey != "chest" && slotKey != "legs" && slotKey != "feet")
                     continue;
                 if (!filledSlots.Add(slotKey))
                     continue;
@@ -98,6 +98,7 @@ namespace RPGGame
         {
             HeadItem => "head",
             ChestItem => "body",
+            LegsItem => "legs",
             FeetItem => "feet",
             _ => "head"
         };

@@ -30,6 +30,7 @@ namespace RPGGame
         public delegate void OnShowSettings();
         public delegate void OnShowGameLoop();
         public delegate void OnShowWeaponSelection();
+        public delegate void OnShowTrainingGroundOffer();
         public delegate void OnShowCharacterSelection();
         
         public event OnExitGame? ExitGameEvent;
@@ -37,6 +38,7 @@ namespace RPGGame
         public event OnShowSettings? ShowSettingsEvent;
         public event OnShowGameLoop? ShowGameLoopEvent;
         public event OnShowWeaponSelection? ShowWeaponSelectionEvent;
+        public event OnShowTrainingGroundOffer? ShowTrainingGroundOfferEvent;
         public event OnShowCharacterSelection? ShowCharacterSelectionEvent;
 
         public MainMenuHandler(
@@ -162,27 +164,37 @@ namespace RPGGame
                 {
                     activeCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
                 }
+
+                activeCharacter.PendingPreWeaponTrainingGround = true;
+
+                if (customUIManager is CanvasUICoordinator canvasUISetChar)
+                {
+                    canvasUISetChar.SetCharacter(activeCharacter);
+                }
                 
-                // Show weapon selection screen
-                // ScreenTransitionProtocol will handle state transition, display buffer suppression, canvas clearing, etc.
-                DebugLogger.Log("MainMenuHandler", "About to show weapon selection screen");
-                if (ShowWeaponSelectionEvent != null)
+                DebugLogger.Log("MainMenuHandler", "About to show Training Ground offer");
+                if (ShowTrainingGroundOfferEvent != null)
                 {
                     try
                     {
-                        ShowWeaponSelectionEvent.Invoke();
-                        DebugLogger.Log("MainMenuHandler", "Weapon selection event invoked successfully");
+                        ShowTrainingGroundOfferEvent.Invoke();
+                        DebugLogger.Log("MainMenuHandler", "Training Ground offer invoked successfully");
                     }
                     catch (Exception ex)
                     {
-                        DebugLogger.Log("MainMenuHandler", $"Error showing weapon selection: {ex}");
+                        DebugLogger.Log("MainMenuHandler", $"Error showing Training Ground offer: {ex}");
                         ShowMessageEvent?.Invoke($"Error: {ex.Message}");
                     }
                 }
+                else if (ShowWeaponSelectionEvent != null)
+                {
+                    activeCharacter.PendingPreWeaponTrainingGround = false;
+                    ShowWeaponSelectionEvent.Invoke();
+                }
                 else
                 {
-                    DebugLogger.Log("MainMenuHandler", "ShowWeaponSelectionEvent is null - weapon selection not available");
-                    ShowMessageEvent?.Invoke("Error: Weapon selection event not initialized. Please restart the game.");
+                    DebugLogger.Log("MainMenuHandler", "ShowTrainingGroundOfferEvent is null");
+                    ShowMessageEvent?.Invoke("Error: Training Ground offer not initialized. Please restart the game.");
                 }
             }
             catch (Exception ex)

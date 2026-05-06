@@ -4,7 +4,6 @@ using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using RPGGame;
-using RPGGame.Data;
 
 namespace RPGGame.UI.Avalonia.Managers
 {
@@ -28,17 +27,7 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             try
             {
-                string? filePath = JsonLoader.FindGameDataFile("Weapons.json");
-                if (filePath != null && File.Exists(filePath))
-                {
-                    string json = File.ReadAllText(filePath);
-                    json = GameDataJsonNormalizer.NormalizeForGameDataFile(GameConstants.WeaponsJson, json);
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    };
-                    return JsonSerializer.Deserialize<List<WeaponData>>(json, options) ?? new List<WeaponData>();
-                }
+                return JsonLoader.LoadJsonList<WeaponData>(GameConstants.WeaponsJson, useCache: true);
             }
             catch (Exception ex)
             {
@@ -55,17 +44,7 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             try
             {
-                string? filePath = JsonLoader.FindGameDataFile("Armor.json");
-                if (filePath != null && File.Exists(filePath))
-                {
-                    string json = File.ReadAllText(filePath);
-                    json = GameDataJsonNormalizer.NormalizeForGameDataFile(GameConstants.ArmorJson, json);
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    };
-                    return JsonSerializer.Deserialize<List<ArmorData>>(json, options) ?? new List<ArmorData>();
-                }
+                return JsonLoader.LoadJsonList<ArmorData>(GameConstants.ArmorJson, useCache: true);
             }
             catch (Exception ex)
             {

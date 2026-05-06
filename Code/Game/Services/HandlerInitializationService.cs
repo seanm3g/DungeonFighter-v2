@@ -37,6 +37,7 @@ namespace RPGGame.Game.Services
             public DeathScreenHandler? DeathScreenHandler { get; set; }
             public CharacterManagementHandler? CharacterManagementHandler { get; set; }
             public LoadCharacterSelectionHandler? LoadCharacterSelectionHandler { get; set; }
+            public TrainingGroundOfferHandler? TrainingGroundOfferHandler { get; set; }
             public MenuInputRouter? MenuInputRouter { get; set; }
             public MenuInputValidator? MenuInputValidator { get; set; }
             public GameInputRouter? InputRouter { get; set; }
@@ -91,6 +92,7 @@ namespace RPGGame.Game.Services
             result.DeathScreenHandler = handlerResult.DeathScreenHandler;
             result.CharacterManagementHandler = handlerResult.CharacterManagementHandler;
             result.LoadCharacterSelectionHandler = handlerResult.LoadCharacterSelectionHandler;
+            result.TrainingGroundOfferHandler = handlerResult.TrainingGroundOfferHandler;
             
             // Create additional handlers that aren't in HandlerInitializer
             result.DeveloperMenuHandler = new DeveloperMenuHandler(stateManager, uiManager);
@@ -191,7 +193,8 @@ namespace RPGGame.Game.Services
                 DeathScreenHandler = result.DeathScreenHandler,
                 CharacterManagementHandler = result.CharacterManagementHandler,
                 LoadCharacterSelectionHandler = result.LoadCharacterSelectionHandler,
-                DungeonExitChoiceHandler = result.DungeonRunnerManager?.GetExitChoiceHandler()
+                DungeonExitChoiceHandler = result.DungeonRunnerManager?.GetExitChoiceHandler(),
+                TrainingGroundOfferHandler = result.TrainingGroundOfferHandler
             };
             
             var escapeKeyHandlers = new EscapeKeyHandlers

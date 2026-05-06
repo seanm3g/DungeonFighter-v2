@@ -16,6 +16,7 @@ namespace RPGGame
         Any,
         Head,
         Chest,
+        Legs,
         Feet
     }
 
@@ -58,6 +59,7 @@ namespace RPGGame
         public double Speed => Item is WeaponItem w ? w.GetTotalAttackSpeed() : 0;
         public int Armor => Item is HeadItem h ? h.GetTotalArmor()
             : Item is ChestItem c ? c.GetTotalArmor()
+            : Item is LegsItem l ? l.GetTotalArmor()
             : Item is FeetItem f ? f.GetTotalArmor()
             : 0;
         public int PrefixCount => Item.Modifications?.Count ?? 0;
@@ -181,7 +183,7 @@ namespace RPGGame
             // Stable tiebreak to keep list deterministic.
             int r = IndexOfRarity(item.Rarity);
             int tier = item.Tier;
-            int primary = item is WeaponItem w ? w.GetTotalDamage() : item is HeadItem h ? h.GetTotalArmor() : item is ChestItem c ? c.GetTotalArmor() : item is FeetItem f ? f.GetTotalArmor() : 0;
+            int primary = item is WeaponItem w ? w.GetTotalDamage() : item is HeadItem h ? h.GetTotalArmor() : item is ChestItem c ? c.GetTotalArmor() : item is LegsItem l ? l.GetTotalArmor() : item is FeetItem f ? f.GetTotalArmor() : 0;
             double speed = item is WeaponItem ww ? ww.GetTotalAttackSpeed() : 0;
             int affix = (item.Modifications?.Count ?? 0) + (item.StatBonuses?.Count ?? 0) + (item.ActionBonuses?.Count ?? 0);
             return $"{r:D2}-{tier:D2}-{primary:D5}-{speed:0000.000}-{affix:D2}-{item.Name}";

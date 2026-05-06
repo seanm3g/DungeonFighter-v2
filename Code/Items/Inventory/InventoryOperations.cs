@@ -34,13 +34,19 @@ namespace RPGGame
                     ItemType.Weapon => "weapon",
                     ItemType.Head => "head",
                     ItemType.Chest => "body",
+                    ItemType.Legs => "legs",
                     ItemType.Feet => "feet",
                     _ => ""
                 };
                 
-                // Get the previously equipped item (if any)
-                var previousItem = player.EquipItem(item, slot);
-                
+                if (!player.TryEquipItem(item, slot, out var previousItem, out var equipFail))
+                {
+                    Console.WriteLine(string.IsNullOrEmpty(equipFail)
+                        ? $"\nCannot equip {item.Name}."
+                        : $"\nCannot equip {item.Name}. {equipFail}");
+                    return;
+                }
+
                 // Remove the new item from inventory
                 inventory.RemoveAt(equipChoice - 1);
                 
@@ -69,18 +75,20 @@ namespace RPGGame
             UIManager.WriteMenuLine("1. Weapon");
             UIManager.WriteMenuLine("2. Head");
             UIManager.WriteMenuLine("3. Body");
-            UIManager.WriteMenuLine("4. Feet");
+            UIManager.WriteMenuLine("4. Legs");
+            UIManager.WriteMenuLine("5. Feet");
             UIManager.Write("Enter your choice: ");
 
             if (int.TryParse(Console.ReadLine(), out int slotChoice) && 
-                slotChoice >= 1 && slotChoice <= 4)
+                slotChoice >= 1 && slotChoice <= 5)
             {
                 string slot = slotChoice switch
                 {
                     1 => "weapon",
                     2 => "head",
                     3 => "body",
-                    4 => "feet",
+                    4 => "legs",
+                    5 => "feet",
                     _ => ""
                 };
                 

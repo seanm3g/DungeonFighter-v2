@@ -18,32 +18,43 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Equips an item and handles all related updates
+        /// Equips an item when catalog <see cref="Item.AttributeRequirements"/> are met by effective STR/AGI/TEC/INT.
+        /// Inventory and UI must use this (or check <see cref="Item.GetEquipBlockedReason"/> first) before mutating bag contents.
+        /// </summary>
+        /// <returns><c>true</c> if the item is now equipped; <c>false</c> if requirements block equip (no state change).</returns>
+        public bool TryEquipItem(Item item, string slot, out Item? replacedItem, out string? failureReason)
+        {
+            replacedItem = null;
+            failureReason = item.GetEquipBlockedReason(_character);
+            if (failureReason != null)
+                return false;
+
+            int oldMaxHealth = _character.GetEffectiveMaxHealth();
+
+            replacedItem = _character.Equipment.EquipItem(item, slot);
+
+            int newMaxHealth = _character.GetEffectiveMaxHealth();
+            _character.Health.AdjustHealthForMaxHealthChange(oldMaxHealth, newMaxHealth);
+
+            UpdateActionsAfterGearChange(replacedItem, item, slot);
+
+            _character.Actions.ApplyRollBonusesFromGear(_character, item);
+
+            _character.Effects.RerollCharges = _character.Equipment.GetTotalRerollCharges();
+
+            DamageCalculator.InvalidateCache(_character);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Equips an item and handles all related updates. On attribute requirement failure, returns <c>null</c> and does not equip.
+        /// Prefer <see cref="TryEquipItem"/> when the caller must distinguish failure from an empty slot.
         /// </summary>
         public Item? EquipItem(Item item, string slot)
         {
-            // Store current health percentage before equipping
-            double healthPercentage = _character.GetHealthPercentage();
-            int oldMaxHealth = _character.GetEffectiveMaxHealth();
-            
-            Item? previousItem = _character.Equipment.EquipItem(item, slot);
-            
-            // Check if max health changed and adjust current health accordingly
-            int newMaxHealth = _character.GetEffectiveMaxHealth();
-            _character.Health.AdjustHealthForMaxHealthChange(oldMaxHealth, newMaxHealth);
-            
-            // Update actions after equipment change
-            UpdateActionsAfterGearChange(previousItem, item, slot);
-            
-            // Apply roll bonuses from the new item
-            _character.Actions.ApplyRollBonusesFromGear(_character, item);
-            
-            // Update reroll charges from Divine modifications
-            _character.Effects.RerollCharges = _character.Equipment.GetTotalRerollCharges();
-            
-            // Invalidate damage cache since equipment changed
-            DamageCalculator.InvalidateCache(_character);
-            
+            if (!TryEquipItem(item, slot, out var previousItem, out _))
+                return null;
             return previousItem;
         }
 

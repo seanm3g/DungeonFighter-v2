@@ -64,7 +64,7 @@ namespace RPGGame.UI.Avalonia.Settings
 
             if (armorSlotCombo != null)
             {
-                armorSlotCombo.ItemsSource = new[] { "Any", "Head", "Chest", "Feet" };
+                armorSlotCombo.ItemsSource = new[] { "Any", "Head", "Chest", "Legs", "Feet" };
                 armorSlotCombo.SelectedIndex = 0;
             }
 
@@ -551,6 +551,7 @@ namespace RPGGame.UI.Avalonia.Settings
             {
                 "Head" => ItemGenerationArmorSlot.Head,
                 "Chest" => ItemGenerationArmorSlot.Chest,
+                "Legs" => ItemGenerationArmorSlot.Legs,
                 "Feet" => ItemGenerationArmorSlot.Feet,
                 _ => ItemGenerationArmorSlot.Any
             };
@@ -597,9 +598,19 @@ namespace RPGGame.UI.Avalonia.Settings
                 {
                     lines.Add($"Armor: {c.GetTotalArmor()}");
                 }
+                else if (_item is LegsItem l)
+                {
+                    lines.Add($"Armor: {l.GetTotalArmor()}");
+                }
                 else if (_item is FeetItem f)
                 {
                     lines.Add($"Armor: {f.GetTotalArmor()}");
+                }
+
+                if (_item.ExtraActionSlots > 0)
+                {
+                    string slotWord = _item.ExtraActionSlots == 1 ? "slot" : "slots";
+                    lines.Add($"Adds {_item.ExtraActionSlots} extra combo strip {slotWord} (longer attack sequence when equipped).");
                 }
 
                 if (_item.Modifications != null && _item.Modifications.Count > 0)

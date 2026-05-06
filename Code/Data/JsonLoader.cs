@@ -57,7 +57,8 @@ namespace RPGGame
         private static readonly JsonSerializerOptions _defaultOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
-            WriteIndented = true
+            WriteIndented = true,
+            Converters = { new ArmorDataJsonConverter() }
         };
 
         /// <summary>
@@ -307,12 +308,27 @@ namespace RPGGame
         /// <param name="fileName">The name of the file to load</param>
         /// <param name="useCache">Whether to use caching (default: true)</param>
         /// <returns>The loaded list or empty list if loading fails</returns>
-        public static List<T> LoadJsonList<T>(string fileName, bool useCache = true)
+        public static List<T> LoadJsonList<T>(string fileNameOrPath, bool useCache = true)
         {
-            var filePath = FindGameDataFile(fileName);
+            string? filePath = null;
+            if (Path.IsPathRooted(fileNameOrPath))
+            {
+                try
+                {
+                    string full = Path.GetFullPath(fileNameOrPath);
+                    if (File.Exists(full))
+                        filePath = full;
+                }
+                catch
+                {
+                    // ignore invalid rooted paths
+                }
+            }
+
+            filePath ??= FindGameDataFile(fileNameOrPath);
             if (filePath == null)
             {
-                ErrorHandler.LogWarning($"File not found: {fileName}", "JsonLoader");
+                ErrorHandler.LogWarning($"File not found: {fileNameOrPath}", "JsonLoader");
                 return new List<T>();
             }
             

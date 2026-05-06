@@ -94,7 +94,8 @@
             <Setter Property="CaretBrush" Value="White"/>
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="MinHeight" Value="22"/>
-            <Setter Property="Padding" Value="3,1"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="Padding" Value="2,1"/>
         </Style>
         <Style Selector="TextBox.AffixCell /template/ Border#border">
             <Setter Property="Background" Value="#FF2D2D30"/>
@@ -206,18 +207,24 @@
         <Grid Grid.Column="1" Margin="14,0,0,0" RowDefinitions="2*,3*" MinHeight="520">
             <!-- Top: affix table + lab / tier -->
             <ScrollViewer Grid.Row="0"
-                          HorizontalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
                           VerticalScrollBarVisibility="Auto"
                           Margin="0,0,0,10">
-                <Grid ColumnDefinitions="*,16,340" MinWidth="720">
-                    <Border Grid.Column="0"
-                            Background="#FF252526"
-                            BorderBrush="#FF3F3F46"
-                            BorderThickness="1"
-                            CornerRadius="4"
-                            Padding="8">
-                        <StackPanel Spacing="6">
-                            <StackPanel Spacing="2">
+                <Grid ColumnDefinitions="*,16,340">
+                    <!-- Affix column is width-constrained (no horizontal scroll) so * grid columns share the pane; lab + tier stay in fixed right column. -->
+                    <ScrollViewer Grid.Column="0"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Disabled"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  MinWidth="0">
+                        <Border Background="#FF252526"
+                                BorderBrush="#FF3F3F46"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="8">
+                            <StackPanel Spacing="6">
+                                <StackPanel Spacing="2">
                                 <TextBlock Text="Real loot — this lab"
                                            FontSize="12"
                                            FontWeight="SemiBold"
@@ -226,8 +233,8 @@
                                            FontSize="10"
                                            Foreground="#FF888888"
                                            TextWrapping="Wrap"/>
-                            </StackPanel>
-                            <Border Background="#FF1E1E1E"
+                                </StackPanel>
+                                <Border Background="#FF1E1E1E"
                                     BorderBrush="#FF3F3F46"
                                     BorderThickness="1"
                                     CornerRadius="4"
@@ -247,10 +254,10 @@
                                                Foreground="#FFAAAAAA"
                                                TextWrapping="Wrap"
                                                LineHeight="15"
-                                               Text="Affix rules for: Head, Chest, Feet, or Weapon each has its own table. Save writes all four under perItemType; the Weapon row is also copied to perRarity for older configs that only read the flat map."/>
+                                               Text="Affix rules for: Head, Chest, Legs, Feet, or Weapon each has its own table. Save writes all five under perItemType; the Weapon row is also copied to perRarity for older configs that only read the flat map."/>
                                 </StackPanel>
-                            </Border>
-                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                </Border>
+                                <StackPanel Orientation="Horizontal" Spacing="12">
                                 <TextBlock Text="Affix rules for:" VerticalAlignment="Center" Foreground="#FFCCCCCC" FontSize="11"/>
                                 <ComboBox x:Name="AffixSlotCombo" Width="120" Classes="ParamCombo" MinHeight="28"/>
                                 <TextBlock Text="Combo max (base)" VerticalAlignment="Center" Foreground="#FFAAAAAA" FontSize="10" Margin="16,0,0,0"/>
@@ -258,9 +265,9 @@
                                          ToolTip.Tip="LootSystemConfig.ComboSequenceBaseMax → JSON lootSystem.comboSequenceBaseMax. Default max combo actions before gear extra slots; must be ≤ hard cap."/>
                                 <TextBlock Text="hard cap" VerticalAlignment="Center" Foreground="#FFAAAAAA" FontSize="10"/>
                                 <TextBox x:Name="ComboSeqAbsMaxText" Width="44" Classes="ParamField" MaxLength="2"
-                                         ToolTip.Tip="LootSystemConfig.ComboSequenceAbsoluteMax → JSON lootSystem.comboSequenceAbsoluteMax. Hard ceiling; effective max is min(this, base + sum of equipped head/chest/feet/weapon: catalog Item.ExtraActionSlots plus StatBonuses typed ExtraActionSlots)."/>
-                            </StackPanel>
-                            <TextBlock FontSize="10"
+                                         ToolTip.Tip="LootSystemConfig.ComboSequenceAbsoluteMax → JSON lootSystem.comboSequenceAbsoluteMax. Hard ceiling; effective max is min(this, base + sum of equipped head/chest/legs/feet/weapon: catalog Item.ExtraActionSlots plus StatBonuses typed ExtraActionSlots)."/>
+                                </StackPanel>
+                                <TextBlock FontSize="10"
                                        Foreground="#FF888888"
                                        TextWrapping="Wrap"
                                        LineHeight="13"
@@ -268,8 +275,8 @@
                             <ScrollViewer MaxHeight="420"
                                           VerticalScrollBarVisibility="Auto"
                                           HorizontalScrollBarVisibility="Disabled">
-                                <StackPanel Spacing="6">
-                                    <Grid ColumnDefinitions="100,*,*,*,8,*,*,*,8,*,*,*,8,*,*,*"
+                                    <StackPanel Spacing="6">
+                                    <Grid ColumnDefinitions="76,*,*,*,4,*,*,*,4,*,*,*,4,*,*,*"
                                           RowDefinitions="Auto,Auto"
                                           Margin="0,2,0,0">
                                         <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
@@ -327,7 +334,7 @@
                                         <TextBlock Grid.Row="1" Grid.Column="15" Text="Max" FontWeight="SemiBold" Foreground="#FFCCCCCC" VerticalAlignment="Center" FontSize="9" HorizontalAlignment="Center" TextAlignment="Center" ToolTip.Tip="Ceiling for extra strip slots from the affix pass"/>
                                     </Grid>
                                     <StackPanel Spacing="4">
-                                        <Grid ColumnDefinitions="100,*,*,*,8,*,*,*,8,*,*,*,8,*,*,*">
+                                        <Grid ColumnDefinitions="76,*,*,*,4,*,*,*,4,*,*,*,4,*,*,*">
                                             <TextBlock Grid.Column="0" Text="Common" Foreground="#FFDDDDDD" VerticalAlignment="Center" FontSize="10"/>
                                             <TextBox Grid.Column="1" x:Name="AffixPrefixChanceCommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="2" x:Name="AffixPrefixMinCommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
@@ -342,7 +349,7 @@
                                             <TextBox Grid.Column="14" x:Name="AffixExtraComboMinCommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                             <TextBox Grid.Column="15" x:Name="AffixExtraComboMaxCommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                         </Grid>
-                                        <Grid ColumnDefinitions="100,*,*,*,8,*,*,*,8,*,*,*,8,*,*,*">
+                                        <Grid ColumnDefinitions="76,*,*,*,4,*,*,*,4,*,*,*,4,*,*,*">
                                             <TextBlock Grid.Column="0" Text="Uncommon" Foreground="#FFDDDDDD" VerticalAlignment="Center" FontSize="10"/>
                                             <TextBox Grid.Column="1" x:Name="AffixPrefixChanceUncommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="2" x:Name="AffixPrefixMinUncommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
@@ -357,7 +364,7 @@
                                             <TextBox Grid.Column="14" x:Name="AffixExtraComboMinUncommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                             <TextBox Grid.Column="15" x:Name="AffixExtraComboMaxUncommon" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                         </Grid>
-                                        <Grid ColumnDefinitions="100,*,*,*,8,*,*,*,8,*,*,*,8,*,*,*">
+                                        <Grid ColumnDefinitions="76,*,*,*,4,*,*,*,4,*,*,*,4,*,*,*">
                                             <TextBlock Grid.Column="0" Text="Rare" Foreground="#FFDDDDDD" VerticalAlignment="Center" FontSize="10"/>
                                             <TextBox Grid.Column="1" x:Name="AffixPrefixChanceRare" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="2" x:Name="AffixPrefixMinRare" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
@@ -372,7 +379,7 @@
                                             <TextBox Grid.Column="14" x:Name="AffixExtraComboMinRare" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                             <TextBox Grid.Column="15" x:Name="AffixExtraComboMaxRare" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                         </Grid>
-                                        <Grid ColumnDefinitions="100,*,*,*,8,*,*,*,8,*,*,*,8,*,*,*">
+                                        <Grid ColumnDefinitions="76,*,*,*,4,*,*,*,4,*,*,*,4,*,*,*">
                                             <TextBlock Grid.Column="0" Text="Epic" Foreground="#FFDDDDDD" VerticalAlignment="Center" FontSize="10"/>
                                             <TextBox Grid.Column="1" x:Name="AffixPrefixChanceEpic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="2" x:Name="AffixPrefixMinEpic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
@@ -387,7 +394,7 @@
                                             <TextBox Grid.Column="14" x:Name="AffixExtraComboMinEpic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                             <TextBox Grid.Column="15" x:Name="AffixExtraComboMaxEpic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                         </Grid>
-                                        <Grid ColumnDefinitions="100,*,*,*,8,*,*,*,8,*,*,*,8,*,*,*">
+                                        <Grid ColumnDefinitions="76,*,*,*,4,*,*,*,4,*,*,*,4,*,*,*">
                                             <TextBlock Grid.Column="0" Text="Legendary" Foreground="#FFDDDDDD" VerticalAlignment="Center" FontSize="10"/>
                                             <TextBox Grid.Column="1" x:Name="AffixPrefixChanceLegendary" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="2" x:Name="AffixPrefixMinLegendary" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
@@ -402,7 +409,7 @@
                                             <TextBox Grid.Column="14" x:Name="AffixExtraComboMinLegendary" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                             <TextBox Grid.Column="15" x:Name="AffixExtraComboMaxLegendary" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="3"/>
                                         </Grid>
-                                        <Grid ColumnDefinitions="100,*,*,*,8,*,*,*,8,*,*,*,8,*,*,*">
+                                        <Grid ColumnDefinitions="76,*,*,*,4,*,*,*,4,*,*,*,4,*,*,*">
                                             <TextBlock Grid.Column="0" Text="Mythic" Foreground="#FFDDDDDD" VerticalAlignment="Center" FontSize="10"/>
                                             <TextBox Grid.Column="1" x:Name="AffixPrefixChanceMythic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="5"/>
                                             <TextBox Grid.Column="2" x:Name="AffixPrefixMinMythic" Classes="AffixCell" HorizontalAlignment="Stretch" VerticalAlignment="Center" MaxLength="2"/>
@@ -432,7 +439,8 @@
                                 </StackPanel>
                             </ScrollViewer>
                         </StackPanel>
-                    </Border>
+                        </Border>
+                    </ScrollViewer>
 
                     <StackPanel Grid.Column="2"
                                 Spacing="12"

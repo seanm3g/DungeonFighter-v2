@@ -26,6 +26,7 @@ namespace RPGGame.UI.Services
             GameState.GameLoop,
             GameState.CharacterCreation,
             GameState.WeaponSelection,
+            GameState.TrainingGroundOffer,
             GameState.DungeonCompletion,
             GameState.Death,
             GameState.BattleStatistics,

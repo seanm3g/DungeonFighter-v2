@@ -4,13 +4,14 @@ using System.Collections.Generic;
 namespace RPGGame
 {
     /// <summary>
-    /// Manages equipment slots (Head, Body, Weapon, Feet) for a character.
+    /// Manages equipment slots (Head, Body, Legs, Weapon, Feet) for a character.
     /// Handles equipping and unequipping items from specific slots.
     /// </summary>
     public class EquipmentSlotManager
     {
         public Item? Head { get; set; }
         public Item? Body { get; set; }
+        public Item? Legs { get; set; }
         public Item? Weapon { get; set; }
         public Item? Feet { get; set; }
 
@@ -18,6 +19,7 @@ namespace RPGGame
         {
             Head = null;
             Body = null;
+            Legs = null;
             Weapon = null;
             Feet = null;
         }
@@ -26,7 +28,7 @@ namespace RPGGame
         /// Equips an item to a specific slot, returning any previously equipped item.
         /// </summary>
         /// <param name="item">The item to equip</param>
-        /// <param name="slot">The slot name (head, body, weapon, feet)</param>
+        /// <param name="slot">The slot name (head, body, legs, weapon, feet)</param>
         /// <returns>The previously equipped item, or null if slot was empty</returns>
         public Item? EquipItem(Item item, string slot)
         {
@@ -40,6 +42,10 @@ namespace RPGGame
                 case "body":
                     previousItem = Body;
                     Body = item;
+                    break;
+                case "legs":
+                    previousItem = Legs;
+                    Legs = item;
                     break;
                 case "weapon":
                     previousItem = Weapon;
@@ -56,7 +62,7 @@ namespace RPGGame
         /// <summary>
         /// Unequips an item from a specific slot.
         /// </summary>
-        /// <param name="slot">The slot name (head, body, weapon, feet)</param>
+        /// <param name="slot">The slot name (head, body, legs, weapon, feet)</param>
         /// <returns>The unequipped item, or null if slot was empty</returns>
         public Item? UnequipItem(string slot)
         {
@@ -70,6 +76,10 @@ namespace RPGGame
                 case "body":
                     unequippedItem = Body;
                     Body = null;
+                    break;
+                case "legs":
+                    unequippedItem = Legs;
+                    Legs = null;
                     break;
                 case "weapon":
                     unequippedItem = Weapon;
@@ -89,7 +99,7 @@ namespace RPGGame
         /// <returns>Array of equipped items (may contain nulls)</returns>
         public Item?[] GetEquippedItems()
         {
-            return new[] { Head, Body, Weapon, Feet };
+            return new[] { Head, Body, Legs, Weapon, Feet };
         }
 
         /// <summary>
@@ -103,6 +113,7 @@ namespace RPGGame
             {
                 "head" => Head != null,
                 "body" => Body != null,
+                "legs" => Legs != null,
                 "weapon" => Weapon != null,
                 "feet" => Feet != null,
                 _ => false
@@ -120,6 +131,7 @@ namespace RPGGame
             {
                 "head" => Head,
                 "body" => Body,
+                "legs" => Legs,
                 "weapon" => Weapon,
                 "feet" => Feet,
                 _ => null
@@ -133,9 +145,9 @@ namespace RPGGame
         {
             Head = null;
             Body = null;
+            Legs = null;
             Weapon = null;
             Feet = null;
         }
     }
 }
-

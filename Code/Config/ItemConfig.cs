@@ -206,7 +206,7 @@ namespace RPGGame
         public Dictionary<string, ItemAffixPerRarityEntry> PerRarity { get; set; } = new();
 
         /// <summary>
-        /// Optional per–item-category overrides (keys: Head, Chest, Feet, Weapon — case-insensitive).
+        /// Optional per–item-category overrides (keys: Head, Chest, Legs, Feet, Weapon — case-insensitive).
         /// When present for <paramref name="itemType"/> and rarity, overrides <see cref="PerRarity"/>.
         /// </summary>
         public Dictionary<string, Dictionary<string, ItemAffixPerRarityEntry>> PerItemType { get; set; } = new();
@@ -217,6 +217,7 @@ namespace RPGGame
             {
                 ItemType.Head => "Head",
                 ItemType.Chest => "Chest",
+                ItemType.Legs => "Legs",
                 ItemType.Feet => "Feet",
                 ItemType.Weapon => "Weapon",
                 _ => "Chest"

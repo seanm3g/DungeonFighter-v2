@@ -88,6 +88,7 @@ namespace RPGGame
                 ItemType.Weapon => GetWeaponClassDisplay(item as WeaponItem),
                 ItemType.Head => "Head",
                 ItemType.Chest => "Chest",
+                ItemType.Legs => "Legs",
                 ItemType.Feet => "Feet",
                 _ => "Item"
             };
@@ -121,6 +122,7 @@ namespace RPGGame
             {
                 HeadItem head => head.GetTotalArmor(),
                 ChestItem chest => chest.GetTotalArmor(),
+                LegsItem legs => legs.GetTotalArmor(),
                 FeetItem feet => feet.GetTotalArmor(),
                 _ => 0
             };
@@ -129,6 +131,7 @@ namespace RPGGame
             {
                 HeadItem head => head.GetTotalArmor(),
                 ChestItem chest => chest.GetTotalArmor(),
+                LegsItem legs => legs.GetTotalArmor(),
                 FeetItem feet => feet.GetTotalArmor(),
                 _ => 0
             };
@@ -188,6 +191,7 @@ namespace RPGGame
                 WeaponItem weapon => $"Damage: {weapon.GetTotalDamage()}{GetWeaponDiff(weapon, player.Weapon as WeaponItem)}, Attack Speed: {weapon.GetAttackSpeedMultiplier():F1}x",
                 HeadItem head => $"Armor: {head.GetTotalArmor()}{GetArmorDiff(head, player.Head)}",
                 ChestItem chest => $"Armor: {chest.GetTotalArmor()}{GetArmorDiff(chest, player.Body)}",
+                LegsItem legs => $"Armor: {legs.GetTotalArmor()}{GetArmorDiff(legs, player.Legs)}",
                 FeetItem feet => $"Armor: {feet.GetTotalArmor()}{GetArmorDiff(feet, player.Feet)}",
                 _ => ""
             };

@@ -19,6 +19,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         void RenderTradeUpPreview(Character character, List<Item> itemsToTrade, Item resultingItem, string currentRarity, string nextRarity, CanvasContext context);
         void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot, CanvasContext context);
         void RenderWeaponSelection(List<StartingWeapon> weapons, CanvasContext context);
+        void RenderTrainingGroundOffer(Character character, CanvasContext context);
         void RenderCharacterCreation(Character character, CanvasContext context);
         void RenderSettings();
         void RenderDungeonSelection(Character player, List<Dungeon> dungeons, CanvasContext context, string? customDungeonLevelEntryBuffer = null);

@@ -41,6 +41,12 @@ namespace RPGGame
         public event DungeonCompletedHandler? DungeonCompletedEvent;
         public event ShowDeathScreenHandler? ShowDeathScreenEvent;
         public event DungeonExitedEarlyHandler? DungeonExitedEarlyEvent;
+
+        /// <summary>Pre-weapon Training Ground finished successfully; navigate to weapon selection.</summary>
+        public event System.Action? PreWeaponTrainingCompleteNavigateToWeaponSelection;
+
+        /// <summary>Player left the pre-weapon Training Ground early; show the offer screen again.</summary>
+        public event System.Action? PreWeaponTrainingEarlyExitReturnToOffer;
         
         // Store last reward data for completion screen
         private int lastXPGained;
@@ -84,7 +90,9 @@ namespace RPGGame
                 rewardManager,
                 exitChoiceHandler,
                 (System.Action<int, Item?, List<LevelUpInfo>, List<Item>>)OnDungeonCompleted,
-                (System.Action)OnDungeonExitedEarly);
+                (System.Action)OnDungeonExitedEarly,
+                () => PreWeaponTrainingCompleteNavigateToWeaponSelection?.Invoke(),
+                () => PreWeaponTrainingEarlyExitReturnToOffer?.Invoke());
         }
         
         /// <summary>

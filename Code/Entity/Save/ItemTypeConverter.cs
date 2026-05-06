@@ -23,6 +23,7 @@ namespace RPGGame
                 ItemType.Head => ConvertToHeadItem(item),
                 ItemType.Chest => ConvertToChestItem(item),
                 ItemType.Feet => ConvertToFeetItem(item),
+                ItemType.Legs => ConvertToLegsItem(item),
                 _ => item // Return as-is if type is unknown
             };
         }
@@ -127,6 +128,19 @@ namespace RPGGame
             return feet;
         }
 
+        private static LegsItem ConvertToLegsItem(Item item)
+        {
+            var legs = new LegsItem(item.Name, item.Tier);
+            CopyBaseItemProperties(item, legs);
+
+            if (item is LegsItem originalLegs)
+                legs.Armor = originalLegs.Armor;
+            else
+                legs.Armor = ResolveArmorWhenDeserializedAsBaseItem(item);
+
+            return legs;
+        }
+
         private static void CopyBaseItemProperties(Item source, Item destination)
         {
             destination.Name = source.Name;
@@ -141,6 +155,7 @@ namespace RPGGame
             destination.BaseCombo = source.BaseCombo;
             destination.BaseCrit = source.BaseCrit;
             destination.ExtraActionSlots = source.ExtraActionSlots;
+            destination.CatalogAttackSpeed = source.CatalogAttackSpeed;
             destination.MinGeneratedActionBonuses = source.MinGeneratedActionBonuses;
             destination.Rarity = source.Rarity;
             destination.StatBonuses = source.StatBonuses;
@@ -170,6 +185,7 @@ namespace RPGGame
                 ItemType.Head => 5 + item.Tier,
                 ItemType.Chest => 8 + item.Tier * 2,
                 ItemType.Feet => 3 + item.Tier,
+                ItemType.Legs => 3 + item.Tier,
                 _ => 0
             };
         }
@@ -185,6 +201,7 @@ namespace RPGGame
                 ItemType.Head => "head",
                 ItemType.Chest => "chest",
                 ItemType.Feet => "feet",
+                ItemType.Legs => "legs",
                 _ => null
             };
             if (jsonSlot == null)

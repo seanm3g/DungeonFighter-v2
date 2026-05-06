@@ -42,6 +42,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             {
                 ItemType.Head => "Head",
                 ItemType.Chest => "Body",
+                ItemType.Legs => "Legs",
                 ItemType.Feet => "Feet",
                 _ => "Item"
             };
@@ -158,7 +159,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 (1, "Weapon", character.Weapon?.Name ?? "(empty)"),
                 (2, "Head", character.Head?.Name ?? "(empty)"),
                 (3, "Body", character.Body?.Name ?? "(empty)"),
-                (4, "Feet", character.Feet?.Name ?? "(empty)")
+                (4, "Legs", character.Legs?.Name ?? "(empty)"),
+                (5, "Feet", character.Feet?.Name ?? "(empty)")
             };
             
             foreach (var (number, slotName, itemName) in slots)

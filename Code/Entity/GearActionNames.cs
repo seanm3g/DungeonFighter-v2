@@ -33,7 +33,7 @@ namespace RPGGame
 
             if (gear is WeaponItem weapon && actions.Count == 0)
                 actions.AddRange(GetWeaponTypeActionNames(weapon.WeaponType));
-            else if (gear is HeadItem || gear is ChestItem || gear is FeetItem)
+            else if (gear is HeadItem || gear is ChestItem || gear is FeetItem || gear is LegsItem)
                 actions.AddRange(GetArmorExtraActionNames(gear));
 
             if (gear is WeaponItem w)
@@ -198,8 +198,7 @@ namespace RPGGame
             if (armor.ActionBonuses.Count > 0)
                 return true;
 
-            string[] basicGearNames = { "Leather Helmet", "Leather Armor", "Leather Boots", "Cloth Hood", "Cloth Robes", "Cloth Shoes" };
-            if (basicGearNames.Contains(armor.Name))
+            if (BasicGearConfig.IsBasicGear(armor.Name ?? ""))
                 return false;
 
             return false;

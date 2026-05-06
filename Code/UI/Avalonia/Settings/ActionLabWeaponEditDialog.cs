@@ -21,6 +21,7 @@ namespace RPGGame.UI.Avalonia.Settings
         Head,
         Body,
         Feet,
+        Legs,
     }
 
     /// <summary>
@@ -45,6 +46,7 @@ namespace RPGGame.UI.Avalonia.Settings
             ActionLabGearEditSlot.Head => "head",
             ActionLabGearEditSlot.Body => "body",
             ActionLabGearEditSlot.Feet => "feet",
+            ActionLabGearEditSlot.Legs => "legs",
             _ => throw new ArgumentOutOfRangeException(nameof(slot))
         };
 
@@ -75,6 +77,7 @@ namespace RPGGame.UI.Avalonia.Settings
                 ActionLabGearEditSlot.Head => await ShowArmorInternalAsync(owner, labPlayer, cache, mods, suffixes, ActionLabGearEditSlot.Head, "head").ConfigureAwait(true),
                 ActionLabGearEditSlot.Body => await ShowArmorInternalAsync(owner, labPlayer, cache, mods, suffixes, ActionLabGearEditSlot.Body, "body").ConfigureAwait(true),
                 ActionLabGearEditSlot.Feet => await ShowArmorInternalAsync(owner, labPlayer, cache, mods, suffixes, ActionLabGearEditSlot.Feet, "feet").ConfigureAwait(true),
+                ActionLabGearEditSlot.Legs => await ShowArmorInternalAsync(owner, labPlayer, cache, mods, suffixes, ActionLabGearEditSlot.Legs, "legs").ConfigureAwait(true),
                 _ => throw new ArgumentOutOfRangeException(nameof(slot)),
             };
         }
@@ -294,6 +297,7 @@ namespace RPGGame.UI.Avalonia.Settings
                 ActionLabGearEditSlot.Head => "Action Lab — head",
                 ActionLabGearEditSlot.Body => "Action Lab — body",
                 ActionLabGearEditSlot.Feet => "Action Lab — feet",
+                ActionLabGearEditSlot.Legs => "Action Lab — legs",
                 _ => "Action Lab — armor",
             };
 
@@ -302,6 +306,7 @@ namespace RPGGame.UI.Avalonia.Settings
                 ActionLabGearEditSlot.Head => "Head",
                 ActionLabGearEditSlot.Body => "Body",
                 ActionLabGearEditSlot.Feet => "Feet",
+                ActionLabGearEditSlot.Legs => "Legs",
                 _ => "Armor",
             };
 
@@ -361,6 +366,7 @@ namespace RPGGame.UI.Avalonia.Settings
             {
                 "head" => labPlayer?.Head,
                 "body" => labPlayer?.Body,
+                "legs" => labPlayer?.Legs,
                 "feet" => labPlayer?.Feet,
                 _ => null,
             };

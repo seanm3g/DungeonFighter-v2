@@ -395,6 +395,11 @@ namespace RPGGame.UI.Avalonia
             renderer.RenderWeaponSelection(weapons, GetContext());
         }
 
+        public void RenderTrainingGroundOffer(Character player)
+        {
+            renderer.RenderTrainingGroundOffer(player, GetContext());
+        }
+
         public void RenderCharacterCreation(Character character)
         {
             renderer.RenderCharacterCreation(character, GetContext());

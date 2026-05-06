@@ -203,7 +203,12 @@ namespace RPGGame
                 }
             }
             
-            player.EquipItem(starterWeapon, "weapon");
+            if (!player.TryEquipItem(starterWeapon, "weapon", out _, out var starterWeaponFail))
+            {
+                DebugLogger.LogFormat("GameInitializer",
+                    "CRITICAL: Starter weapon '{0}' could not be equipped: {1}",
+                    starterWeapon.Name, starterWeaponFail ?? "unknown reason");
+            }
             
             // Add default actions (actions marked with IsDefaultAction = true)
             player.Actions.AddDefaultActions(player);
@@ -218,7 +223,12 @@ namespace RPGGame
                 foreach (var armorItem in catalogStarterArmor)
                 {
                     string slot = StarterCatalogItems.GetEquipmentSlotKey(armorItem);
-                    player.EquipItem(armorItem, slot);
+                    if (!player.TryEquipItem(armorItem, slot, out _, out var catalogArmorFail))
+                    {
+                        DebugLogger.LogFormat("GameInitializer",
+                            "WARNING: Starter armor '{0}' could not be equipped ({1}): {2}",
+                            armorItem.Name, slot, catalogArmorFail ?? "unknown reason");
+                    }
                 }
             }
             else
@@ -229,6 +239,7 @@ namespace RPGGame
                     {
                         "head" => new HeadItem(armorData.name, 1, armorData.armor),
                         "chest" => new ChestItem(armorData.name, 1, armorData.armor),
+                        "legs" => new LegsItem(armorData.name, 1, armorData.armor),
                         "feet" => new FeetItem(armorData.name, 1, armorData.armor),
                         _ => new HeadItem(armorData.name, 1, armorData.armor)
                     };
@@ -237,11 +248,17 @@ namespace RPGGame
                     {
                         "head" => "head",
                         "chest" => "body",
+                        "legs" => "legs",
                         "feet" => "feet",
                         _ => "head"
                     };
 
-                    player.EquipItem(armorItem, slot);
+                    if (!player.TryEquipItem(armorItem, slot, out _, out var legacyArmorFail))
+                    {
+                        DebugLogger.LogFormat("GameInitializer",
+                            "WARNING: Legacy starting armor '{0}' could not be equipped ({1}): {2}",
+                            armorItem.Name, slot, legacyArmorFail ?? "unknown reason");
+                    }
                 }
             }
 
@@ -305,7 +322,7 @@ namespace RPGGame
         /// <summary>
         /// Gets weapon-type actions for fallback when no actions are available
         /// </summary>
-        private List<string> GetWeaponTypeActionsForFallback(WeaponType weaponType)
+        private static List<string> GetWeaponTypeActionsForFallback(WeaponType weaponType)
         {
             var weaponTag = weaponType.ToString().ToLower();
             var allActions = ActionLoader.GetAllActions();

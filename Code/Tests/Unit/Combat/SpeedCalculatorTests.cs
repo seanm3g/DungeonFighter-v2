@@ -1,4 +1,5 @@
 using System;
+using RPGGame;
 using RPGGame.Combat.Calculators;
 using RPGGame.Items;
 using RPGGame.Tests;
@@ -32,6 +33,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestWeaponSpeedModifier();
             TestWeaponAttackSpeedMultiplierVsBaseline();
             TestEquipmentSpeedBonus();
+            TestCatalogAttackSpeedOnEquippedLegsAddsToEquipmentBonus();
             TestSlowDebuff();
             TestMinimumAttackTime();
 
@@ -187,6 +189,33 @@ namespace RPGGame.Tests.Unit.Combat
             // Equipment speed bonus should reduce attack time
             TestBase.AssertTrue(speed > 0,
                 "Speed calculation should account for equipment bonuses",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Armor.json <c>attackSpeed</c> → <see cref="Item.CatalogAttackSpeed"/> → <see cref="EquipmentBonusCalculator.GetStatBonusDouble"/> for <c>AttackSpeed</c>.
+        /// </summary>
+        private static void TestCatalogAttackSpeedOnEquippedLegsAddsToEquipmentBonus()
+        {
+            Console.WriteLine("\n--- Testing CatalogAttackSpeed on equipped legs adds to equipment bonus ---");
+
+            _ = GameConfiguration.Instance;
+            var character = TestDataBuilders.Character()
+                .WithName("LegSpeedTest")
+                .WithStats(10, 10, 10, 10)
+                .Build();
+
+            var legs = new LegsItem("Swift Greaves", 1, 1) { CatalogAttackSpeed = 0.04 };
+            character.EquipItem(legs, "legs");
+
+            double bonus = character.Equipment.GetEquipmentAttackSpeedBonus();
+            TestBase.AssertTrue(Math.Abs(bonus - 0.04) < 0.0001,
+                $"GetEquipmentAttackSpeedBonus should include catalog legs speed, got {bonus}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            double viaDouble = character.Equipment.GetEquipmentStatBonusDouble("AttackSpeed");
+            TestBase.AssertTrue(Math.Abs(viaDouble - 0.04) < 0.0001,
+                $"GetEquipmentStatBonusDouble AttackSpeed should match, got {viaDouble}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

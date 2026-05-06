@@ -34,6 +34,7 @@ namespace RPGGame.Tests.Unit
             TestProgressionPersistence();
             TestInventoryPersistence();
             TestWeaponTypeRoundTripInCharacterSerializer();
+            TestPendingPreWeaponTrainingFlagRoundTrip();
             TestStarterLeatherArmorSurvivesCharacterSerializerRoundTrip();
             TestDeadCharacterTombstone();
 
@@ -261,6 +262,7 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character().WithName("LeatherArmorRoundTrip").WithLevel(1).Build();
             character.EquipItem(new HeadItem("Leather Helmet", 1, 1), "head");
             character.EquipItem(new ChestItem("Leather Armor", 1, 1), "body");
+            character.EquipItem(new LegsItem("Leather Greaves", 1, 1), "legs");
             character.EquipItem(new FeetItem("Leather Boots", 1, 1), "feet");
 
             string json = serializer.Serialize(character);
@@ -274,10 +276,12 @@ namespace RPGGame.Tests.Unit
                 "Leather Helmet armor persists as 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(loaded.Equipment.Body is ChestItem ch && ch.Armor == 1,
                 "Leather Armor armor persists as 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(loaded.Equipment.Legs is LegsItem lg && lg.Armor == 1,
+                "Leather Greaves armor persists as 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(loaded.Equipment.Feet is FeetItem ft && ft.Armor == 1,
                 "Leather Boots armor persists as 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(3, loaded.GetTotalArmor(),
-                "Total armor from three leather pieces is 3", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(4, loaded.GetTotalArmor(),
+                "Total armor from four leather pieces is 4", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestWeaponTypeRoundTripInCharacterSerializer()
@@ -303,6 +307,29 @@ namespace RPGGame.Tests.Unit
                 return;
             TestBase.AssertTrue(weapon.WeaponType == WeaponType.Mace,
                 "WeaponType.Mace persists so level-ups use Barbarian stat spread", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestPendingPreWeaponTrainingFlagRoundTrip()
+        {
+            Console.WriteLine("\n--- Testing PendingPreWeaponTrainingGround serializer round-trip ---");
+
+            _ = GameConfiguration.Instance;
+            var serializer = new CharacterSerializer();
+            var character = TestDataBuilders.Character().WithName("TutorialFlag").WithLevel(1).Build();
+            character.PendingPreWeaponTrainingGround = true;
+
+            string json = serializer.Serialize(character);
+            var data = serializer.Deserialize(json);
+            TestBase.AssertNotNull(data, "deserialize", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (data == null)
+                return;
+
+            TestBase.AssertTrue(data.PendingPreWeaponTrainingGround,
+                "flag in save payload", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var loaded = serializer.CreateCharacterFromSaveData(data);
+            TestBase.AssertTrue(loaded.PendingPreWeaponTrainingGround,
+                "flag restored on character", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestProgressionPersistence()

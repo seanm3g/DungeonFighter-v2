@@ -463,7 +463,15 @@ namespace RPGGame.UI.Avalonia.Handlers
                 flyout.Hide();
                 var item = await ActionLabWeaponEditDialog.ShowGearEditAsync(owner, player, editSlot).ConfigureAwait(true);
                 if (item != null)
-                    lab.ApplyLabGear(item, equipSlot);
+                {
+                    if (!lab.TryApplyLabGear(item, equipSlot, out var labEquipFail))
+                    {
+                        string msg = string.IsNullOrEmpty(labEquipFail)
+                            ? "Cannot equip that item on the lab hero."
+                            : labEquipFail;
+                        canvasUI?.ShowInvalidKeyMessage(msg);
+                    }
+                }
             };
             var noneItem = new MenuItem { Header = "None" };
             noneItem.Click += (_, _) =>
@@ -484,6 +492,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                 case "weapon": editSlot = ActionLabGearEditSlot.Weapon; break;
                 case "head": editSlot = ActionLabGearEditSlot.Head; break;
                 case "body": editSlot = ActionLabGearEditSlot.Body; break;
+                case "legs": editSlot = ActionLabGearEditSlot.Legs; break;
                 case "feet": editSlot = ActionLabGearEditSlot.Feet; break;
                 default:
                     editSlot = default;

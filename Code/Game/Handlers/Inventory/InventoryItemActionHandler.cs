@@ -97,34 +97,47 @@ namespace RPGGame.Handlers.Inventory
         /// </summary>
         /// <param name="refreshInventoryScreen">When false, caller must refresh the inventory UI after any follow-up (e.g. combo add).</param>
         /// <param name="announce">When false, success messages are skipped (caller composes a single message).</param>
-        public void ConfirmEquipItem(int itemIndex, string slot, bool equipNew, bool refreshInventoryScreen = true, bool announce = true)
+        /// <param name="failureMessage">Set when the method returns <c>false</c> (e.g. attribute requirements or invalid selection).</param>
+        /// <returns><c>true</c> if the flow completed (equipped new, or kept current); <c>false</c> on blocked equip or error.</returns>
+        public bool ConfirmEquipItem(int itemIndex, string slot, bool equipNew, bool refreshInventoryScreen, bool announce, out string? failureMessage)
         {
+            failureMessage = null;
             if (stateManager.CurrentPlayer == null)
             {
+                failureMessage = "Error: No player character available.";
                 if (announce)
-                    ShowMessageEvent?.Invoke("Error: No player character available.");
+                    ShowMessageEvent?.Invoke(failureMessage);
                 if (refreshInventoryScreen)
                     ShowInventoryEvent?.Invoke();
-                return;
+                return false;
             }
-            
+
             if (itemIndex < 0 || itemIndex >= stateManager.CurrentInventory.Count)
             {
+                failureMessage = "Error: Invalid item selection.";
                 if (announce)
-                    ShowMessageEvent?.Invoke("Error: Invalid item selection.");
+                    ShowMessageEvent?.Invoke(failureMessage);
                 if (refreshInventoryScreen)
                     ShowInventoryEvent?.Invoke();
-                return;
+                return false;
             }
-            
+
             var newItem = stateManager.CurrentInventory[itemIndex];
-            
+
             if (equipNew)
             {
                 var player = stateManager.CurrentPlayer;
                 var comboBefore = player.GetComboActions().ToList();
-                // Equip the new item
-                var previousItem = player.EquipItem(newItem, slot);
+                if (!player.TryEquipItem(newItem, slot, out var previousItem, out var reqFail))
+                {
+                    failureMessage = reqFail ?? "Cannot equip that item.";
+                    if (announce)
+                        ShowMessageEvent?.Invoke($"Cannot equip {newItem.Name}. {failureMessage}");
+                    if (refreshInventoryScreen)
+                        ShowInventoryEvent?.Invoke();
+                    return false;
+                }
+
                 stateManager.CurrentInventory.RemoveAt(itemIndex);
                 string pruneNote = FormatSequencePruneNote(comboBefore, player.GetComboActions());
 
@@ -144,11 +157,16 @@ namespace RPGGame.Handlers.Inventory
                 if (announce)
                     ShowMessageEvent?.Invoke("Kept current equipment.");
             }
-            
+
             if (refreshInventoryScreen)
                 ShowInventoryEvent?.Invoke();
+            return true;
         }
-        
+
+        /// <summary>Overload that discards <paramref name="failureMessage"/>; use the <c>out string?</c> overload when the caller needs the reason (e.g. combo pool equip).</summary>
+        public bool ConfirmEquipItem(int itemIndex, string slot, bool equipNew, bool refreshInventoryScreen = true, bool announce = true) =>
+            ConfirmEquipItem(itemIndex, slot, equipNew, refreshInventoryScreen, announce, out _);
+
         /// <summary>
         /// Unequip an item from a specific slot
         /// </summary>
@@ -161,7 +179,8 @@ namespace RPGGame.Handlers.Inventory
                 1 => "weapon",
                 2 => "head",
                 3 => "body",
-                4 => "feet",
+                4 => "legs",
+                5 => "feet",
                 _ => ""
             };
             

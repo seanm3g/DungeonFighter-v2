@@ -4,6 +4,8 @@ namespace RPGGame
     {
         MainMenu,
         WeaponSelection,
+        /// <summary>Offer pre-weapon Training Ground or skip before starter weapon is chosen.</summary>
+        TrainingGroundOffer,
         CharacterCreation,
         GameLoop,
         Inventory,

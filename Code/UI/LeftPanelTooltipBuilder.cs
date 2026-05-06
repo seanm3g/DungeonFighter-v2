@@ -93,6 +93,9 @@ namespace RPGGame
                 case "gear:body":
                     AppendGear(character, character.Body, "Body", result, AddWrapped, maxLines);
                     break;
+                case "gear:legs":
+                    AppendGear(character, character.Legs, "Legs", result, AddWrapped, maxLines);
+                    break;
                 case "gear:feet":
                     AppendGear(character, character.Feet, "Feet", result, AddWrapped, maxLines);
                     break;
@@ -336,8 +339,9 @@ namespace RPGGame
             addWrapped($"Total: {total}");
             int h = c.Head is HeadItem hh ? hh.GetTotalArmor() : 0;
             int b = c.Body is ChestItem ch ? ch.GetTotalArmor() : 0;
+            int lg = c.Legs is LegsItem li ? li.GetTotalArmor() : 0;
             int f = c.Feet is FeetItem ft ? ft.GetTotalArmor() : 0;
-            addWrapped($"Head piece: {h}, Body: {b}, Feet: {f} (each includes that item's armor stats/mods).");
+            addWrapped($"Head piece: {h}, Body: {b}, Legs: {lg}, Feet: {f} (each includes that item's armor stats/mods).");
             addWrapped("Plus global Armor-type stat bonuses from all equipped items (EquipmentBonusCalculator).");
         }
 
@@ -404,6 +408,10 @@ namespace RPGGame
             addWrapped(string.IsNullOrEmpty(item.Name) ? "(unnamed)" : item.Name);
             addWrapped($"Rarity: {item.Rarity}, tier {item.Tier}, level {item.Level}.");
 
+            string? reqSummary = item.GetAttributeRequirementsSummaryLine();
+            if (!string.IsNullOrEmpty(reqSummary))
+                addWrapped(reqSummary);
+
             var resolvedGearActions = c.Equipment.GetGearActions(item);
             if (resolvedGearActions != null && resolvedGearActions.Count > 0)
                 addWrapped("Actions: " + string.Join(", ", resolvedGearActions));
@@ -418,8 +426,16 @@ namespace RPGGame
                 addWrapped($"Armor (piece): {hh.GetTotalArmor()}.");
             else if (item is ChestItem ch)
                 addWrapped($"Armor (piece): {ch.GetTotalArmor()}.");
+            else if (item is LegsItem li)
+                addWrapped($"Armor (piece): {li.GetTotalArmor()}.");
             else if (item is FeetItem ft)
                 addWrapped($"Armor (piece): {ft.GetTotalArmor()}.");
+
+            if (item.ExtraActionSlots > 0)
+            {
+                string slotWord = item.ExtraActionSlots == 1 ? "slot" : "slots";
+                addWrapped($"Adds {item.ExtraActionSlots} extra combo strip {slotWord} (longer attack sequence when equipped).");
+            }
 
             if (item.StatBonuses != null && item.StatBonuses.Count > 0)
             {

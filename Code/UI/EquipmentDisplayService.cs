@@ -33,6 +33,7 @@ namespace RPGGame
             // Show armor pieces with indented stats
             DisplayArmorPiece(character.Head, "Head", writeMenuLine);
             DisplayArmorPiece(character.Body, "Chest", writeMenuLine);
+            DisplayArmorPiece(character.Legs, "Legs", writeMenuLine);
             DisplayArmorPiece(character.Feet, "Feet", writeMenuLine);
         }
 
@@ -64,6 +65,7 @@ namespace RPGGame
             {
                 HeadItem head => head.GetTotalArmor(),
                 ChestItem chest => chest.GetTotalArmor(),
+                LegsItem legs => legs.GetTotalArmor(),
                 FeetItem feet => feet.GetTotalArmor(),
                 _ => 0
             };

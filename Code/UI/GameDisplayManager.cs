@@ -79,6 +79,7 @@ namespace RPGGame
             UIManager.WriteLine($"Weapon: {(player.Weapon != null ? ItemDisplayFormatter.GetColoredItemName(player.Weapon) : "None")}");
             UIManager.WriteLine($"Head: {(player.Head != null ? ItemDisplayFormatter.GetColoredItemName(player.Head) : "None")}");
             UIManager.WriteLine($"Body: {(player.Body != null ? ItemDisplayFormatter.GetColoredItemName(player.Body) : "None")}");
+            UIManager.WriteLine($"Legs: {(player.Legs != null ? ItemDisplayFormatter.GetColoredItemName(player.Legs) : "None")}");
             UIManager.WriteLine($"Feet: {(player.Feet != null ? ItemDisplayFormatter.GetColoredItemName(player.Feet) : "None")}");
             UIManager.WriteBlankLine();
         }

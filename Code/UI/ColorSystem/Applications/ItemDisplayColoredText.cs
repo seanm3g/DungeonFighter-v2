@@ -141,6 +141,13 @@ namespace RPGGame.UI.ColorSystem.Applications
                     builder.Add(" armor", Colors.Gray);
                     builder.Add(")", Colors.Gray);
                 }
+                else if (item is LegsItem legsItem)
+                {
+                    builder.Add(" (", Colors.Gray);
+                    builder.Add(legsItem.Armor.ToString(), ColorPalette.Success);
+                    builder.Add(" armor", Colors.Gray);
+                    builder.Add(")", Colors.Gray);
+                }
                 else if (item is FeetItem feetItem)
                 {
                     builder.Add(" (", Colors.Gray);

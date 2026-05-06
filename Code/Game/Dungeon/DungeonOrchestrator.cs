@@ -21,6 +21,8 @@ namespace RPGGame
         private readonly DungeonExitChoiceHandler? exitChoiceHandler;
         private readonly System.Action<int, Item?, List<LevelUpInfo>, List<Item>>? onDungeonCompleted;
         private readonly System.Action? onDungeonExitedEarly;
+        private readonly System.Action? onPreWeaponTrainingCompleteToWeaponSelection;
+        private readonly System.Action? onPreWeaponTrainingEarlyExitToOffer;
 
         public DungeonOrchestrator(
             GameStateManager stateManager,
@@ -30,7 +32,9 @@ namespace RPGGame
             DungeonRewardManager rewardManager,
             DungeonExitChoiceHandler? exitChoiceHandler,
             System.Action<int, Item?, List<LevelUpInfo>, List<Item>>? onDungeonCompleted = null,
-            System.Action? onDungeonExitedEarly = null)
+            System.Action? onDungeonExitedEarly = null,
+            System.Action? onPreWeaponTrainingCompleteToWeaponSelection = null,
+            System.Action? onPreWeaponTrainingEarlyExitToOffer = null)
         {
             this.stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
             this.customUIManager = customUIManager;
@@ -40,6 +44,8 @@ namespace RPGGame
             this.exitChoiceHandler = exitChoiceHandler;
             this.onDungeonCompleted = onDungeonCompleted;
             this.onDungeonExitedEarly = onDungeonExitedEarly;
+            this.onPreWeaponTrainingCompleteToWeaponSelection = onPreWeaponTrainingCompleteToWeaponSelection;
+            this.onPreWeaponTrainingEarlyExitToOffer = onPreWeaponTrainingEarlyExitToOffer;
         }
 
         /// <summary>
@@ -170,9 +176,21 @@ namespace RPGGame
                                     }
                                 }
                                 
-                                // Clear dungeon state and return to game loop
+                                string? exitingDungeonName = stateManager.CurrentDungeon?.Name;
+                                bool returnToTrainingOffer = stateManager.CurrentPlayer != null &&
+                                    stateManager.CurrentPlayer.PendingPreWeaponTrainingGround &&
+                                    PreWeaponTrainingFlow.IsTrainingGroundDungeonName(exitingDungeonName);
+
                                 stateManager.SetCurrentDungeon(null!);
                                 stateManager.SetCurrentRoom(null!);
+
+                                if (returnToTrainingOffer)
+                                {
+                                    stateManager.TransitionToState(GameState.TrainingGroundOffer);
+                                    onPreWeaponTrainingEarlyExitToOffer?.Invoke();
+                                    return;
+                                }
+
                                 stateManager.TransitionToState(GameState.GameLoop);
                                 
                                 // Trigger event to show game loop screen
@@ -185,10 +203,19 @@ namespace RPGGame
                 }
                 
                 // Dungeon completed successfully
-                var (xpGained, lootReceived, levelUpInfos, itemsFoundDuringRun) = await rewardManager.CompleteDungeon();
+                var (xpGained, lootReceived, levelUpInfos, itemsFoundDuringRun, skipDungeonCompletionScreen) = await rewardManager.CompleteDungeon();
 
                 if (stateManager.CurrentPlayer != null)
                     stateManager.CurrentPlayer.ClearAllTempEffects();
+
+                if (skipDungeonCompletionScreen)
+                {
+                    stateManager.SetCurrentDungeon(null!);
+                    stateManager.SetCurrentRoom(null!);
+                    stateManager.TransitionToState(GameState.WeaponSelection);
+                    onPreWeaponTrainingCompleteToWeaponSelection?.Invoke();
+                    return;
+                }
                 
                 // Transition to completion state
                 stateManager.TransitionToState(GameState.DungeonCompletion);

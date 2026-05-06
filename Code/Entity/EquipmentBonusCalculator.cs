@@ -106,6 +106,8 @@ namespace RPGGame
                 if (item != null)
                 {
                     totalBonus += BaseCatalogStatBonus(item, statType);
+                    if (string.Equals(statType, "AttackSpeed", StringComparison.OrdinalIgnoreCase))
+                        totalBonus += item.CatalogAttackSpeed;
                     foreach (var statBonus in item.StatBonuses)
                     {
                         foreach (var (contribType, contribValue) in statBonus.EnumerateContributions())
@@ -167,6 +169,8 @@ namespace RPGGame
                 totalArmor += head.GetTotalArmor();
             if (slots.Body is ChestItem chest)
                 totalArmor += chest.GetTotalArmor();
+            if (slots.Legs is LegsItem legs)
+                totalArmor += legs.GetTotalArmor();
             if (slots.Feet is FeetItem feet)
                 totalArmor += feet.GetTotalArmor();
 

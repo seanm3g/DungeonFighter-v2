@@ -91,6 +91,12 @@ namespace RPGGame
                 foreach (var sb in equipment.Body.StatBonuses)
                     bonus += sb.SumContributionValuesForStatType("ComboBonus");
             }
+
+            if (equipment.Legs != null)
+            {
+                foreach (var sb in equipment.Legs.StatBonuses)
+                    bonus += sb.SumContributionValuesForStatType("ComboBonus");
+            }
             
             if (equipment.Weapon != null)
             {

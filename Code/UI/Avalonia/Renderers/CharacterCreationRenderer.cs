@@ -76,6 +76,11 @@ namespace RPGGame.UI.Avalonia.Renderers
                 textManager.WriteLineColored($"• {ItemDisplayFormatter.GetColoredItemName(character.Body)}", x + 6, centerY);
                 centerY++;
             }
+            if (character.Legs != null)
+            {
+                textManager.WriteLineColored($"• {ItemDisplayFormatter.GetColoredItemName(character.Legs)}", x + 6, centerY);
+                centerY++;
+            }
             if (character.Feet != null)
             {
                 textManager.WriteLineColored($"• {ItemDisplayFormatter.GetColoredItemName(character.Feet)}", x + 6, centerY);

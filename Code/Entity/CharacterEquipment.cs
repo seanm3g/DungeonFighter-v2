@@ -53,6 +53,12 @@ namespace RPGGame
             set => slotManager.Weapon = value;
         }
 
+        public Item? Legs
+        {
+            get => slotManager.Legs;
+            set => slotManager.Legs = value;
+        }
+
         public Item? Feet
         {
             get => slotManager.Feet;

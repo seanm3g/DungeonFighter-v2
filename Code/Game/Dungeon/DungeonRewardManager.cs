@@ -32,11 +32,26 @@ namespace RPGGame
         /// <summary>
         /// Complete the dungeon run and calculate rewards
         /// </summary>
-        public async Task<(int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun)> CompleteDungeon()
+        /// <param name="skipDungeonCompletionScreen">True when the pre-weapon Training Ground finished and the UI should go straight to weapon selection.</param>
+        public async Task<(int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun, bool skipDungeonCompletionScreen)> CompleteDungeon()
         {
             if (stateManager.CurrentPlayer == null || stateManager.CurrentDungeon == null)
             {
-                return (0, null, new List<LevelUpInfo>(), new List<Item>());
+                return (0, null, new List<LevelUpInfo>(), new List<Item>(), false);
+            }
+
+            if (PreWeaponTrainingFlow.IsPreWeaponTrainingDungeon(stateManager, stateManager.CurrentDungeon.Name))
+            {
+                var player = stateManager.CurrentPlayer;
+                player.PendingPreWeaponTrainingGround = false;
+                player.ClearAllTempEffects();
+                int maxHp = player.GetEffectiveMaxHealth();
+                if (player.CurrentHealth < maxHp)
+                    player.Heal(maxHp - player.CurrentHealth);
+                startingInventory = null;
+                if (!RPGGame.MCP.MCPMode.IsActive)
+                    await Task.Delay(400);
+                return (0, null, new List<LevelUpInfo>(), new List<Item>(), true);
             }
             
             // Award rewards and get the data
@@ -90,7 +105,7 @@ namespace RPGGame
             // Reset starting inventory for next run
             startingInventory = null;
             
-            return (xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>(), itemsFoundDuringRun);
+            return (xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>(), itemsFoundDuringRun, false);
         }
     }
 }

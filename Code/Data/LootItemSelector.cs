@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RPGGame
@@ -19,19 +20,40 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Determines if the generated item should be a weapon (25% chance) or armor (75% chance)
+        /// Loot table: 50% weapon, 12.5% each armor slot (head / chest / legs / feet).
         /// </summary>
-        public bool DetermineIsWeapon()
+        public (bool isWeapon, string? armorJsonSlot) RollLootCategory()
         {
-            return _random.NextDouble() < 0.25;
+            double r = _random.NextDouble();
+            if (r < 0.5)
+                return (true, null);
+            if (r < 0.625)
+                return (false, "head");
+            if (r < 0.75)
+                return (false, "chest");
+            if (r < 0.875)
+                return (false, "legs");
+            return (false, "feet");
+        }
+
+        /// <summary>Uniform pick among the four armor JSON slots (for fallback when switching item category).</summary>
+        public string RollArmorJsonSlotUniform()
+        {
+            double r = _random.NextDouble();
+            if (r < 0.25) return "head";
+            if (r < 0.5) return "chest";
+            if (r < 0.75) return "legs";
+            return "feet";
         }
 
         /// <summary>
-        /// Selects an item (weapon or armor) based on tier
+        /// Selects an item (weapon or armor) based on tier.
+        /// When <paramref name="armorJsonSlot"/> is set and <paramref name="isWeapon"/> is false, prefers that catalog slot; falls back if no rows match.
+        /// When <paramref name="armorJsonSlot"/> is null and not weapon, any armor at tier (legacy / trade-up).
         /// </summary>
-        public Item? SelectItem(int tier, bool isWeapon)
+        public Item? SelectItem(int tier, bool isWeapon, string? armorJsonSlot = null)
         {
-            return isWeapon ? RollWeapon(tier) : RollArmor(tier);
+            return isWeapon ? RollWeapon(tier) : RollArmor(tier, armorJsonSlot);
         }
 
         /// <summary>
@@ -40,60 +62,49 @@ namespace RPGGame
         public Item? RollWeapon(int tier)
         {
             var weaponsInTier = _dataCache.WeaponData.Where(w => w.Tier == tier).ToList();
-            
+
             if (!weaponsInTier.Any())
             {
                 return null;
             }
 
             var selectedWeapon = weaponsInTier[_random.Next(weaponsInTier.Count)];
-            
-            // DISABLED: "highest item jumps to next tier up" rule - this was breaking tier distribution
-            // if (IsHighestItemInTier(selectedWeapon, weaponsInTier) && tier < 5)
-            // {
-            //     // Roll again on next tier
-            //     var nextTierWeapons = _dataCache.WeaponData?.Where(w => w.Tier == tier + 1).ToList() ?? new List<WeaponData>();
-            //     if (nextTierWeapons.Any())
-            //     {
-            //         selectedWeapon = nextTierWeapons[_random.Next(nextTierWeapons.Count)];
-            //     }
-            // }
 
             return ItemGenerator.GenerateWeaponItem(selectedWeapon);
         }
 
         /// <summary>
-        /// Rolls for a random armor piece of the specified tier
+        /// Rolls for a random armor piece of the specified tier, optionally constrained to a catalog <c>slot</c> value.
         /// </summary>
-        public Item? RollArmor(int tier)
+        public Item? RollArmor(int tier, string? preferredJsonSlot = null)
         {
-            var armorInTier = _dataCache.ArmorData.Where(a => a.Tier == tier).ToList();
-            
-            if (!armorInTier.Any())
+            IEnumerable<ArmorData> source = _dataCache.ArmorData;
+            IEnumerable<ArmorData> atTier = source.Where(a => a.Tier == tier);
+            List<ArmorData> pool;
+
+            if (!string.IsNullOrEmpty(preferredJsonSlot))
             {
-                return null;
+                pool = atTier.Where(a => string.Equals(a.Slot, preferredJsonSlot, StringComparison.OrdinalIgnoreCase)).ToList();
+                if (!pool.Any())
+                    pool = atTier.ToList();
+            }
+            else
+            {
+                pool = atTier.ToList();
             }
 
-            var selectedArmor = armorInTier[_random.Next(armorInTier.Count)];
-            
-            // DISABLED: "highest item jumps to next tier up" rule - this was breaking tier distribution
-            // if (IsHighestItemInTier(selectedArmor, armorInTier) && tier < 5)
-            // {
-            //     // Roll again on next tier
-            //     var nextTierArmor = _dataCache.ArmorData?.Where(a => a.Tier == tier + 1).ToList() ?? new List<ArmorData>();
-            //     if (nextTierArmor.Any())
-            //     {
-            //         selectedArmor = nextTierArmor[_random.Next(nextTierArmor.Count)];
-            //     }
-            // }
+            if (!pool.Any())
+                pool = source.ToList();
+
+            if (!pool.Any())
+                return null;
+
+            var selectedArmor = pool[_random.Next(pool.Count)];
 
             Item? item = ItemGenerator.GenerateArmorItem(selectedArmor);
 
-            // Assign random action for all armor types to provide variety
             if (item != null)
-            {
                 item.GearAction = GetRandomArmorAction();
-            }
 
             return item;
         }
@@ -103,24 +114,19 @@ namespace RPGGame
         /// </summary>
         private string? GetRandomArmorAction()
         {
-            // Get ALL combo actions (not just armor-tagged ones) for maximum variety
             var allActions = ActionLoader.GetAllActions();
             var availableActions = allActions
-                .Where(action => action.IsComboAction && 
+                .Where(action => action.IsComboAction &&
                                !action.Tags.Contains("environment") &&
                                !action.Tags.Contains("enemy") &&
                                !action.Tags.Contains("unique"))
                 .Select(action => action.Name)
                 .ToList();
 
-            // Return completely random action if any are available
             if (availableActions.Count > 0)
-            {
                 return availableActions[_random.Next(availableActions.Count)];
-            }
-            
-            return null; // No action if none available
+
+            return null;
         }
     }
 }
-

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using RPGGame;
 using RPGGame.Data;
 using RPGGame.Entity.Services;
 using RPGGame.Tests;
@@ -17,6 +18,7 @@ namespace RPGGame.Tests.Unit.Entity
             int run = 0, passed = 0, failed = 0;
 
             TestRebuild_KeepsNonEmptyComboAfterSecondPass(ref run, ref passed, ref failed);
+            TestRebuild_NoWeapon_StillHasActionPoolAndCombo(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("RebuildCharacterActionsComboTests", run, passed, failed);
         }
@@ -62,6 +64,34 @@ namespace RPGGame.Tests.Unit.Entity
             var namesAfter = character.GetComboActions().Select(a => a.Name).ToList();
             bool sameOrder = namesBefore.SequenceEqual(namesAfter, StringComparer.OrdinalIgnoreCase);
             TestBase.AssertTrue(sameOrder, "combo action names/order preserved across rebuild", ref run, ref passed, ref failed);
+        }
+
+        /// <summary>
+        /// Pre-weapon Training Ground: no stand-in weapon; rebuild must still yield a usable pool (fallback path).
+        /// </summary>
+        private static void TestRebuild_NoWeapon_StillHasActionPoolAndCombo(ref int run, ref int passed, ref int failed)
+        {
+            Console.WriteLine("--- TestRebuild_NoWeapon_StillHasActionPoolAndCombo ---");
+
+            try
+            {
+                ActionLoader.LoadActions();
+            }
+            catch
+            {
+                TestBase.AssertTrue(true, "Skip: ActionLoader unavailable", ref run, ref passed, ref failed);
+                return;
+            }
+
+            var character = TestDataBuilders.Character().WithName("NoWeaponTutorial").Build();
+            character.Equipment.Weapon = null;
+
+            CharacterSerializer.RebuildCharacterActions(character);
+
+            TestBase.AssertTrue(character.Equipment.Weapon == null, "weapon slot stays empty (pre-weapon tutorial)", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(character.ActionPool.Count > 0, "action pool non-empty after rebuild with no weapon", ref run, ref passed, ref failed);
+            int comboCount = character.GetComboActions()?.Count ?? 0;
+            TestBase.AssertTrue(comboCount > 0, "combo non-empty after rebuild with no weapon", ref run, ref passed, ref failed);
         }
     }
 }

@@ -95,6 +95,7 @@ namespace RPGGame
                 "head" => new HeadItem(armorData.Name, armorData.Tier, armorData.Armor),
                 "chest" => new ChestItem(armorData.Name, armorData.Tier, armorData.Armor),
                 "feet" => new FeetItem(armorData.Name, armorData.Tier, armorData.Armor),
+                "legs" => new LegsItem(armorData.Name, armorData.Tier, armorData.Armor),
                 _ => throw new ArgumentException($"Unknown armor slot: {armorData.Slot}")
             };
             
@@ -118,7 +119,8 @@ namespace RPGGame
                 armorData.ExtraActionSlotsMin,
                 armorData.ExtraActionSlotsMax);
             item.MinGeneratedActionBonuses = armorData.MinActionBonuses;
-            
+            item.CatalogAttackSpeed = armorData.AttackSpeed;
+
             return item;
         }
 
@@ -332,7 +334,7 @@ namespace RPGGame
             {
                 ApplyWeaponScaling(weapon, scalingConfig, level);
             }
-            else if (item is HeadItem || item is ChestItem || item is FeetItem)
+            else if (item is HeadItem || item is ChestItem || item is FeetItem || item is LegsItem)
             {
                 ApplyArmorScaling(item, scalingConfig, level);
             }
@@ -387,6 +389,9 @@ namespace RPGGame
                     break;
                 case FeetItem feetItem:
                     feetItem.Armor += (feetItem.Tier - 1) * armorValuePerTier;
+                    break;
+                case LegsItem legsItem:
+                    legsItem.Armor += (legsItem.Tier - 1) * armorValuePerTier;
                     break;
             }
         }

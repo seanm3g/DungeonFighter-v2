@@ -29,6 +29,7 @@ namespace RPGGame.Handlers
             public DeathScreenHandler? DeathScreenHandler { get; set; }
             public CharacterManagementHandler? CharacterManagementHandler { get; set; }
             public LoadCharacterSelectionHandler? LoadCharacterSelectionHandler { get; set; }
+            public TrainingGroundOfferHandler? TrainingGroundOfferHandler { get; set; }
         }
 
         /// <summary>
@@ -43,21 +44,26 @@ namespace RPGGame.Handlers
             GameNarrativeManager narrativeManager,
             IUIManager? uiManager)
         {
+            var weaponSelectionHandler = new WeaponSelectionHandler(stateManager, initializationManager, uiManager);
+            var dungeonRunnerManager = new DungeonRunnerManager(stateManager, narrativeManager, combatManager, uiManager);
+            var trainingGroundOfferHandler = new TrainingGroundOfferHandler(stateManager, uiManager, dungeonRunnerManager, weaponSelectionHandler);
+
             return new HandlerInitializationResult
             {
                 MainMenuHandler = new MainMenuHandler(stateManager, initializationManager, uiManager, gameInitializer),
                 CharacterMenuHandler = new CharacterMenuHandler(stateManager, uiManager),
                 SettingsMenuHandler = new SettingsMenuHandler(stateManager, uiManager),
                 InventoryMenuHandler = new InventoryMenuHandler(stateManager, uiManager),
-                WeaponSelectionHandler = new WeaponSelectionHandler(stateManager, initializationManager, uiManager),
+                WeaponSelectionHandler = weaponSelectionHandler,
                 CharacterCreationHandler = new CharacterCreationHandler(stateManager, uiManager),
                 GameLoopInputHandler = new GameLoopInputHandler(stateManager),
                 DungeonSelectionHandler = new DungeonSelectionHandler(stateManager, dungeonManager, uiManager),
-                DungeonRunnerManager = new DungeonRunnerManager(stateManager, narrativeManager, combatManager, uiManager),
+                DungeonRunnerManager = dungeonRunnerManager,
                 DungeonCompletionHandler = new DungeonCompletionHandler(stateManager),
                 DeathScreenHandler = new DeathScreenHandler(stateManager),
                 CharacterManagementHandler = new CharacterManagementHandler(stateManager, uiManager, initializationManager),
-                LoadCharacterSelectionHandler = new LoadCharacterSelectionHandler(stateManager, uiManager, gameInitializer)
+                LoadCharacterSelectionHandler = new LoadCharacterSelectionHandler(stateManager, uiManager, gameInitializer),
+                TrainingGroundOfferHandler = trainingGroundOfferHandler
             };
         }
 
@@ -92,6 +98,10 @@ namespace RPGGame.Handlers
                     {
                         // WeaponSelectionHandler is null - event will be ignored
                     }
+                };
+                handlers.MainMenuHandler.ShowTrainingGroundOfferEvent += () =>
+                {
+                    handlers.TrainingGroundOfferHandler?.ShowTrainingGroundOffer();
                 };
                 handlers.MainMenuHandler.ShowSettingsEvent += () => handlers.SettingsMenuHandler?.ShowSettings();
                 handlers.MainMenuHandler.ShowCharacterSelectionEvent += () => handlers.CharacterManagementHandler?.ShowCharacterSelection();
@@ -148,6 +158,10 @@ namespace RPGGame.Handlers
                     {
                         handlers.WeaponSelectionHandler.ShowWeaponSelection();
                     }
+                };
+                handlers.CharacterManagementHandler.ShowTrainingGroundOfferEvent += () =>
+                {
+                    handlers.TrainingGroundOfferHandler?.ShowTrainingGroundOffer();
                 };
                 handlers.CharacterManagementHandler.ShowMessageEvent += (msg) => showMessage(msg);
                 // Character creation is handled by CharacterManagementHandler / CharacterCreationHandler as applicable
@@ -215,6 +229,19 @@ namespace RPGGame.Handlers
                 handlers.DungeonRunnerManager.DungeonCompletedEvent += (xpGained, lootReceived, levelUpInfos, itemsFoundDuringRun) => showDungeonCompletion(xpGained, lootReceived, levelUpInfos, itemsFoundDuringRun);
                 handlers.DungeonRunnerManager.ShowDeathScreenEvent += (player) => showDeathScreen(player);
                 handlers.DungeonRunnerManager.DungeonExitedEarlyEvent += () => showGameLoop();
+                handlers.DungeonRunnerManager.PreWeaponTrainingCompleteNavigateToWeaponSelection += () =>
+                {
+                    handlers.WeaponSelectionHandler?.ShowWeaponSelection();
+                };
+                handlers.DungeonRunnerManager.PreWeaponTrainingEarlyExitReturnToOffer += () =>
+                {
+                    handlers.TrainingGroundOfferHandler?.ShowTrainingGroundOffer();
+                };
+            }
+
+            if (handlers.TrainingGroundOfferHandler != null)
+            {
+                handlers.TrainingGroundOfferHandler.ShowMessageEvent += (msg) => showMessage(msg);
             }
             
             if (handlers.DungeonCompletionHandler != null)

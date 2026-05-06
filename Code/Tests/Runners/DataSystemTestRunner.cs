@@ -46,6 +46,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             LootGeneratorTests.RunAllTests();
             Console.WriteLine();
+            LootItemSelectorTests.RunAllTests();
+            Console.WriteLine();
             ItemGeneratorTests.RunAllTests();
             Console.WriteLine();
             WeaponTypeFromCatalogTests.RunAllTests();

@@ -288,6 +288,7 @@ namespace RPGGame.Tests
                 {
                     ItemType.Head => new HeadItem(_name, _tier, _armor),
                     ItemType.Chest => new ChestItem(_name, _tier, _armor),
+                    ItemType.Legs => new LegsItem(_name, _tier, _armor),
                     ItemType.Feet => new FeetItem(_name, _tier, _armor),
                     _ => new HeadItem(_name, _tier, _armor)
                 };

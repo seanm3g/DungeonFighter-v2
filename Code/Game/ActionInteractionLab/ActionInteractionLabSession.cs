@@ -289,10 +289,12 @@ namespace RPGGame.ActionInteractionLab
         }
 
         /// <summary>
-        /// Equips lab gear for <paramref name="slot"/> (<c>weapon</c>, <c>head</c>, <c>body</c>, <c>feet</c>), clears step history, and re-bases undo snapshot.
+        /// Equips lab gear for <paramref name="slot"/> (<c>weapon</c>, <c>head</c>, <c>body</c>, <c>legs</c>, <c>feet</c>), clears step history, and re-bases undo snapshot.
         /// </summary>
-        public void ApplyLabGear(Item item, string slot)
+        /// <returns><c>true</c> if gear was applied; <c>false</c> if attribute requirements block equip (no lab state change).</returns>
+        public bool TryApplyLabGear(Item item, string slot, out string? failureReason)
         {
+            failureReason = null;
             if (item == null)
                 throw new ArgumentNullException(nameof(item));
             if (string.IsNullOrWhiteSpace(slot))
@@ -313,15 +315,24 @@ namespace RPGGame.ActionInteractionLab
                     if (item is not ChestItem)
                         throw new ArgumentException("Item must be a ChestItem for body slot.", nameof(item));
                     break;
+                case "legs":
+                    if (item is not LegsItem)
+                        throw new ArgumentException("Item must be a LegsItem for legs slot.", nameof(item));
+                    break;
                 case "feet":
                     if (item is not FeetItem)
                         throw new ArgumentException("Item must be a FeetItem for feet slot.", nameof(item));
                     break;
                 default:
-                    throw new ArgumentException("Slot must be weapon, head, body, or feet.", nameof(slot));
+                    throw new ArgumentException("Slot must be weapon, head, body, legs, or feet.", nameof(slot));
             }
 
-            _labPlayer.EquipItem(item, s);
+            if (!_labPlayer.TryEquipItem(item, s, out _, out var reqFail))
+            {
+                failureReason = reqFail ?? "Cannot equip item (attribute requirements).";
+                return false;
+            }
+
             _history.Clear();
             ResetSimulatedCombatTurnAccumulator();
             ResetLabPanelDeltas();
@@ -330,10 +341,20 @@ namespace RPGGame.ActionInteractionLab
             _initialPlayerJson = serializer.Serialize(_labPlayer);
             SyncCatalogSelectionToUpcomingActor();
             _refreshCombatUi();
+            return true;
         }
 
         /// <summary>
-        /// Unequips the lab hero in <paramref name="slot"/> (<c>weapon</c>, <c>head</c>, <c>body</c>, <c>feet</c>),
+        /// Same as <see cref="TryApplyLabGear"/> but throws <see cref="InvalidOperationException"/> when requirements block equip.
+        /// </summary>
+        public void ApplyLabGear(Item item, string slot)
+        {
+            if (!TryApplyLabGear(item, slot, out var err))
+                throw new InvalidOperationException(err ?? "Cannot equip item in Action Lab.");
+        }
+
+        /// <summary>
+        /// Unequips the lab hero in <paramref name="slot"/> (<c>weapon</c>, <c>head</c>, <c>body</c>, <c>legs</c>, <c>feet</c>),
         /// clears step history, and re-bases undo snapshot (same bookkeeping as <see cref="ApplyLabGear"/>).
         /// </summary>
         public void ClearLabGear(string slot)
@@ -347,11 +368,12 @@ namespace RPGGame.ActionInteractionLab
                 case "weapon":
                 case "head":
                 case "body":
+                case "legs":
                 case "feet":
                     _labPlayer.UnequipItem(s);
                     break;
                 default:
-                    throw new ArgumentException("Slot must be weapon, head, body, or feet.", nameof(slot));
+                    throw new ArgumentException("Slot must be weapon, head, body, legs, or feet.", nameof(slot));
             }
 
             _history.Clear();

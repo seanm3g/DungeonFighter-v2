@@ -36,7 +36,7 @@ namespace RPGGame.Tests.Unit.Data
                 if (!GameDataTagHelper.HasTag(row.Tags, StarterCatalogItems.StarterTag))
                     continue;
                 string slotKey = (row.Slot ?? "").Trim().ToLowerInvariant();
-                if (slotKey != "head" && slotKey != "chest" && slotKey != "feet")
+                if (slotKey != "head" && slotKey != "chest" && slotKey != "legs" && slotKey != "feet")
                     continue;
                 if (!filledSlots.Add(slotKey))
                     continue;

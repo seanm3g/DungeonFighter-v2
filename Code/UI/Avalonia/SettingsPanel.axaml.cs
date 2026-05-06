@@ -472,7 +472,9 @@ namespace RPGGame.UI.Avalonia
             // Defer save by one UI tick so focus leaves the current control first (LostFocus fires) and form values are committed before we flush/save (fixes Actions tab revert when editing then clicking Save).
             UserControl? displayed = ContentScrollViewer.IsVisible ? ContentArea.Content as UserControl
                 : TestingContentArea.IsVisible ? TestingContentArea.Content as UserControl
-                : ActionsContentArea.Content as UserControl;
+                : ActionsContentArea.IsVisible ? ActionsContentArea.Content as UserControl
+                : ItemGenerationContentArea.IsVisible ? ItemGenerationContentArea.Content as UserControl
+                : null;
             Dispatcher.UIThread.Post(() =>
             {
                 var result = saveOrchestrator?.SaveSettings(displayed) ?? default;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
 using RPGGame.Tests;
+using RPGGame.UI.Avalonia.Settings;
 
 namespace RPGGame.Tests.Unit.Data
 {
@@ -20,6 +21,7 @@ namespace RPGGame.Tests.Unit.Data
             DungeonLevelMathTests.RunAllTests();
 
             TestForcedGenerationConstraints();
+            TestLegsArmorSlotGeneratesOnlyLegsItems();
             TestSortingByRarityThenTier();
             TestAnyRarityRollsNonCommonDistribution();
             TestBaseRollDistributionLevel1ExcludesMythic();
@@ -27,6 +29,7 @@ namespace RPGGame.Tests.Unit.Data
             TestAnyTierUsesTierDistributionAtLootLevel19();
             TestFixedRarityChancesOverridesAnyAndIgnoresLevelGates();
             TestBaseRatioBuildsGeometricRarityPercents();
+            TestGeneratedRowDetailsIncludesExtraComboStripSlots();
 
             TestBase.PrintSummary("ItemGenerationLabService Tests", _run, _pass, _fail);
             TestBase.ClearCurrentTestName();
@@ -65,6 +68,33 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(allWeapons, "all are weapons", ref _run, ref _pass, ref _fail);
             TestBase.AssertTrue(allTier3, "all are tier 3", ref _run, ref _pass, ref _fail);
             TestBase.AssertTrue(allRare, "all are Rare", ref _run, ref _pass, ref _fail);
+        }
+
+        private static void TestLegsArmorSlotGeneratesOnlyLegsItems()
+        {
+            TestBase.SetCurrentTestName(nameof(TestLegsArmorSlotGeneratesOnlyLegsItems));
+            _ = GameConfiguration.Instance;
+
+            var spec = new ItemGenerationSpec
+            {
+                ItemType = ItemGenerationItemType.Armor,
+                Rarity = "Common",
+                Tier = 1,
+                WeaponType = null,
+                ArmorSlot = ItemGenerationArmorSlot.Legs,
+                Seed = 777,
+                PlayerLevel = 10,
+                DungeonLevel = 10
+            };
+
+            var rows = ItemGenerationLabService.GenerateBatch(spec, 40);
+            TestBase.AssertTrue(rows.Count >= 35, "most batch rows should generate for legs tier 1", ref _run, ref _pass, ref _fail);
+            foreach (var r in rows)
+            {
+                TestBase.AssertTrue(r.Item is LegsItem,
+                    $"armor slot Legs should yield LegsItem, got {r.Item?.GetType().Name}",
+                    ref _run, ref _pass, ref _fail);
+            }
         }
 
         private static void TestSortingByRarityThenTier()
@@ -238,6 +268,25 @@ namespace RPGGame.Tests.Unit.Data
             double ratioUR = map["Uncommon"] / map["Rare"];
             TestBase.AssertTrue(Math.Abs(ratioCU - 8.0) < 0.05, $"C/U approx 8, got {ratioCU:0.###}", ref _run, ref _pass, ref _fail);
             TestBase.AssertTrue(Math.Abs(ratioUR - 8.0) < 0.05, $"U/R approx 8, got {ratioUR:0.###}", ref _run, ref _pass, ref _fail);
+        }
+
+        private static void TestGeneratedRowDetailsIncludesExtraComboStripSlots()
+        {
+            TestBase.SetCurrentTestName(nameof(TestGeneratedRowDetailsIncludesExtraComboStripSlots));
+
+            var feet = new FeetItem("Striders", tier: 1, armor: 1) { ExtraActionSlots = 2, Rarity = "Rare" };
+            var row = new ItemGeneratedRow
+            {
+                Item = feet,
+                Index = 1,
+                SortKey = "k"
+            };
+            var vm = ItemGeneratedRowViewModel.FromRow(row, 1);
+            TestBase.AssertTrue(
+                vm.DetailsText.Contains("combo strip", StringComparison.OrdinalIgnoreCase) &&
+                vm.DetailsText.Contains('2'),
+                "item generation details mention extra combo strip slots when FeetItem.ExtraActionSlots > 0",
+                ref _run, ref _pass, ref _fail);
         }
     }
 }

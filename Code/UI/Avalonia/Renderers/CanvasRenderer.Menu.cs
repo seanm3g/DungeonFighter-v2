@@ -31,6 +31,16 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.Refresh();
         }
 
+        public void RenderTrainingGroundOffer(Character character, CanvasContext context)
+        {
+            RenderWithLayout(character, "TRAINING GROUND", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                menuRenderer.RenderTrainingGroundOfferContent(contentX, contentY, contentWidth, contentHeight, character);
+            }, context, null, null, null, clearCanvas: true, usePersistentChrome: true);
+            messageRenderer.ClearLoadingStatus();
+            canvas.Refresh();
+        }
+
         public void RenderCharacterSelection(List<Character> characters, string? activeCharacterName, Dictionary<string, string> characterStatuses, CanvasContext context)
         {
             RenderWithLayout(null, "CHARACTER SELECTION", (contentX, contentY, contentWidth, contentHeight) =>

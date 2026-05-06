@@ -172,6 +172,37 @@ namespace RPGGame
         {
             if (player == null) return;
 
+            // Pre-weapon Training Ground: revive and return to offer (no tombstone)
+            if (player.PendingPreWeaponTrainingGround &&
+                PreWeaponTrainingFlow.IsTrainingGroundDungeonName(stateManager.CurrentDungeon?.Name))
+            {
+                int maxHp = player.GetEffectiveMaxHealth();
+                if (player.CurrentHealth < maxHp)
+                    player.Heal(maxHp - player.CurrentHealth);
+                player.ClearAllTempEffects();
+                stateManager.SetCurrentDungeon(null!);
+                stateManager.SetCurrentRoom(null!);
+
+                var offerCanvas = TryGetCanvasUI();
+                if (offerCanvas != null)
+                {
+                    ScreenTransitionProtocol.TransitionToMenuScreen(
+                        stateManager,
+                        offerCanvas,
+                        GameState.TrainingGroundOffer,
+                        (ui) => ui.RenderTrainingGroundOffer(player),
+                        character: player,
+                        clearEnemyContext: true,
+                        clearDungeonContext: true);
+                }
+                else
+                {
+                    stateManager.TransitionToState(GameState.TrainingGroundOffer);
+                }
+
+                return;
+            }
+
             // End session and calculate final statistics
             player.SessionStats.EndSession();
 
@@ -311,6 +342,29 @@ namespace RPGGame
                 GameState.WeaponSelection,
                 (ui) => ui.RenderWeaponSelection(weapons),
                 character: null, // Don't show character panel - character isn't fully initialized yet
+                clearEnemyContext: true,
+                clearDungeonContext: true
+            );
+        }
+
+        /// <summary>
+        /// Pre-weapon tutorial: enter Training Ground or skip to weapon selection.
+        /// </summary>
+        public void ShowTrainingGroundOffer(Character player)
+        {
+            var canvasUI = TryGetCanvasUI();
+            if (canvasUI == null || player == null)
+            {
+                stateManager.TransitionToState(GameState.TrainingGroundOffer);
+                return;
+            }
+
+            ScreenTransitionProtocol.TransitionToMenuScreen(
+                stateManager,
+                canvasUI,
+                GameState.TrainingGroundOffer,
+                (ui) => ui.RenderTrainingGroundOffer(player),
+                character: player,
                 clearEnemyContext: true,
                 clearDungeonContext: true
             );

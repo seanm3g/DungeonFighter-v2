@@ -35,8 +35,10 @@ namespace RPGGame.Tests.Unit.Data
             TestGenerateArmorItem();
             TestArmorData_DeserializesNullStatCellsAsZero();
             TestArmorData_JsonNormalizerCoercesNullStatsBeforeDeserialize();
+            TestArmorData_NormalizerMergesSheetStringAttributeRequirementsToDictionary();
             TestGenerateArmorItem_CopiesTags();
             TestGenerateArmorItem_CopiesExtendedCatalogStats();
+            TestArmorData_JsonNormalizerCoercesNullAttackSpeedBeforeDeserialize();
             TestGenerateArmorItem_ExtraActionSlotsCatalogRolls();
             TestGenerateWeaponItem_CatalogExtraActionSlots();
             TestEquipmentStatBonusIncludesBaseCatalogStrength();
@@ -237,6 +239,25 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertNotNull(feetItem,
                 "Should generate feet item",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var legsData = new ArmorData
+            {
+                Name = "Test Greaves",
+                Slot = "legs",
+                Tier = 2,
+                Armor = 2,
+                AttackSpeed = 0.03
+            };
+            var legsItem = ItemGenerator.GenerateArmorItem(legsData) as LegsItem;
+            TestBase.AssertNotNull(legsItem,
+                "Should generate legs item",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (legsItem != null)
+            {
+                TestBase.AssertEqual(0.03, legsItem.CatalogAttackSpeed,
+                    "Catalog attackSpeed copies to item",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
         }
 
         /// <summary>Armor.json from sheets often uses <c>null</c> for blank stat columns (e.g. AGILITY).</summary>
@@ -282,6 +303,53 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertNotNull(list, "list", ref _testsRun, ref _testsPassed, ref _testsFailed);
             if (list == null || list.Count == 0) return;
             TestBase.AssertEqual(0, list[0].Agility, "normalized AGILITY", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>Shipped <c>Armor.json</c> uses sheet columns: string <c>attributeRequirements</c> + <c>requirement value</c>.</summary>
+        private static void TestArmorData_NormalizerMergesSheetStringAttributeRequirementsToDictionary()
+        {
+            Console.WriteLine("\n--- Testing GameDataJsonNormalizer merges armor sheet attributeRequirements string ---");
+            const string json = """
+                [{
+                    "slot": "chest",
+                    "name": "Shirt",
+                    "armor": 1,
+                    "tier": 1,
+                    "attributeRequirements": "strength",
+                    "requirement value": 5
+                }]
+                """;
+            string norm = GameDataJsonNormalizer.NormalizeForGameDataFile(GameConstants.ArmorJson, json);
+            var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var list = JsonSerializer.Deserialize<List<ArmorData>>(norm, opts);
+            TestBase.AssertNotNull(list, "list", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (list == null || list.Count == 0) return;
+            var req = list[0].AttributeRequirements;
+            TestBase.AssertNotNull(req, "AttributeRequirements dictionary", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (req == null) return;
+            TestBase.AssertTrue(req.TryGetValue("strength", out int v) && v == 5,
+                "sheet abbrev + value should become strength:5",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestArmorData_JsonNormalizerCoercesNullAttackSpeedBeforeDeserialize()
+        {
+            Console.WriteLine("\n--- Testing GameDataJsonNormalizer for Armor.json null attackSpeed ---");
+            const string json = """
+                [{
+                    "slot": "legs",
+                    "name": "Pants",
+                    "armor": 1,
+                    "attackSpeed": null,
+                    "tier": 1
+                }]
+                """;
+            string norm = GameDataJsonNormalizer.NormalizeForGameDataFile(GameConstants.ArmorJson, json);
+            var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var list = JsonSerializer.Deserialize<List<ArmorData>>(norm, opts);
+            TestBase.AssertNotNull(list, "list", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (list == null || list.Count == 0) return;
+            TestBase.AssertEqual(0.0, list[0].AttackSpeed, "normalized attackSpeed", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestGenerateArmorItem_CopiesTags()

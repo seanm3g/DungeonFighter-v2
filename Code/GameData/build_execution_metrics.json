@@ -2,48 +2,6 @@
   "BuildMetrics": [],
   "ExecutionMetrics": [
     {
-      "Timestamp": "2026-04-23T22:11:39.7270656Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 284587,
-      "ExecutionTimeSeconds": 284.5878469
-    },
-    {
-      "Timestamp": "2026-04-23T22:16:27.6719948Z",
-      "Mode": "TEST",
-      "ExecutionTimeMs": 220036,
-      "ExecutionTimeSeconds": 220.0367992
-    },
-    {
-      "Timestamp": "2026-04-23T22:18:59.603976Z",
-      "Mode": "TEST",
-      "ExecutionTimeMs": 741,
-      "ExecutionTimeSeconds": 0.7413853
-    },
-    {
-      "Timestamp": "2026-04-23T22:20:33.4274548Z",
-      "Mode": "TEST",
-      "ExecutionTimeMs": 671,
-      "ExecutionTimeSeconds": 0.6718574
-    },
-    {
-      "Timestamp": "2026-04-23T22:47:42.3396981Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 1047308,
-      "ExecutionTimeSeconds": 1047.3083678
-    },
-    {
-      "Timestamp": "2026-04-24T03:21:02.6638631Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 4314107,
-      "ExecutionTimeSeconds": 4314.1072155
-    },
-    {
-      "Timestamp": "2026-04-24T15:40:33.7917328Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 48568,
-      "ExecutionTimeSeconds": 48.5688483
-    },
-    {
       "Timestamp": "2026-04-25T19:59:47.9883346Z",
       "Mode": "GUI",
       "ExecutionTimeMs": 273193,
@@ -600,6 +558,48 @@
       "Mode": "GUI",
       "ExecutionTimeMs": 5839266,
       "ExecutionTimeSeconds": 5839.2669704
+    },
+    {
+      "Timestamp": "2026-05-06T16:54:53.5623592Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 2378415,
+      "ExecutionTimeSeconds": 2378.4158392
+    },
+    {
+      "Timestamp": "2026-05-06T17:55:01.1925822Z",
+      "Mode": "TEST",
+      "ExecutionTimeMs": 198548,
+      "ExecutionTimeSeconds": 198.5484319
+    },
+    {
+      "Timestamp": "2026-05-06T18:13:29.9531696Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 308889,
+      "ExecutionTimeSeconds": 308.8890463
+    },
+    {
+      "Timestamp": "2026-05-06T18:58:27.9441969Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 2690555,
+      "ExecutionTimeSeconds": 2690.5559073
+    },
+    {
+      "Timestamp": "2026-05-06T19:59:43.6019815Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 3658678,
+      "ExecutionTimeSeconds": 3658.6787834
+    },
+    {
+      "Timestamp": "2026-05-06T20:18:48.6240319Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 501433,
+      "ExecutionTimeSeconds": 501.4331943
+    },
+    {
+      "Timestamp": "2026-05-06T20:23:54.3844186Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 293965,
+      "ExecutionTimeSeconds": 293.9652009
     }
   ]
 }

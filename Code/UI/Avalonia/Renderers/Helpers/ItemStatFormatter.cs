@@ -27,13 +27,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             {
                 stats.Add($"Armor: +{headItem.GetTotalArmor()}");
             }
-            else if (item is FeetItem feetItem)
-            {
-                stats.Add($"Armor: +{feetItem.GetTotalArmor()}");
-            }
             else if (item is ChestItem chestItem)
             {
                 stats.Add($"Armor: +{chestItem.GetTotalArmor()}");
+            }
+            else if (item is LegsItem legsItem)
+            {
+                stats.Add($"Armor: +{legsItem.GetTotalArmor()}");
+            }
+            else if (item is FeetItem feetItem)
+            {
+                stats.Add($"Armor: +{feetItem.GetTotalArmor()}");
             }
             
             if (item.StatBonuses.Count > 0)

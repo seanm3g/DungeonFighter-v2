@@ -159,6 +159,7 @@ namespace RPGGame.UI.ColorSystem.Themes
                 ItemType.Weapon => ColoredText.FromTemplate("weapon_class", itemType.ToString()),
                 ItemType.Head => ColoredText.FromTemplate("head_armor", itemType.ToString()),
                 ItemType.Chest => ColoredText.FromTemplate("chest_armor", itemType.ToString()),
+                ItemType.Legs => ColoredText.FromTemplate("chest_armor", itemType.ToString()),
                 ItemType.Feet => ColoredText.FromTemplate("feet_armor", itemType.ToString()),
                 _ => ColoredText.FromColor(itemType.ToString(), Colors.White)
             };

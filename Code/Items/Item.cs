@@ -10,7 +10,9 @@ namespace RPGGame
         Head,
         Feet,
         Chest,
-        Weapon
+        Weapon,
+        /// <summary>Leg armor slot; appended last so legacy numeric enum values in saves stay stable.</summary>
+        Legs
     }
 
     public enum WeaponType
@@ -155,6 +157,7 @@ namespace RPGGame
     [JsonDerivedType(typeof(HeadItem), "head")]
     [JsonDerivedType(typeof(ChestItem), "chest")]
     [JsonDerivedType(typeof(FeetItem), "feet")]
+    [JsonDerivedType(typeof(LegsItem), "legs")]
     [JsonDerivedType(typeof(WeaponItem), "weapon")]
     public class Item
     {
@@ -177,6 +180,10 @@ namespace RPGGame
 
         /// <summary>Catalog-rolled extra combo sequence slots (any armor slot or weapon); affix lines use StatType <c>ExtraActionSlots</c>. Capped with tuning in <see cref="ComboSequenceMaxHelper"/>.</summary>
         public int ExtraActionSlots { get; set; }
+
+        /// <summary>Armor catalog <c>attackSpeed</c> (seconds subtracted in <see cref="Combat.Calculators.SpeedCalculator"/> via <see cref="EquipmentBonusCalculator.GetAttackSpeedBonus"/>).</summary>
+        [JsonPropertyName("catalogAttackSpeed")]
+        public double CatalogAttackSpeed { get; set; }
 
         /// <summary>Head: minimum granted <see cref="ActionBonus"/> lines when loot affixes are applied.</summary>
         public int MinGeneratedActionBonuses { get; set; }
@@ -206,6 +213,71 @@ namespace RPGGame
             (!string.IsNullOrEmpty(Name) && Name.Contains("Starter", StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
+        /// Effective value for a catalog requirement key (<c>strength</c>, <c>agility</c>, <c>technique</c>, <c>intelligence</c>).
+        /// Unknown keys resolve to <c>0</c> until supported in <see cref="MeetsRequirements"/>.
+        /// </summary>
+        public static int GetEffectiveValueForRequirementKey(string requirementKeyLower, int strength, int agility, int technique, int intelligence) =>
+            requirementKeyLower switch
+            {
+                "strength" => strength,
+                "agility" => agility,
+                "technique" => technique,
+                "intelligence" => intelligence,
+                _ => 0
+            };
+
+        /// <summary>Player-facing name for a normalized requirement key (lowercase).</summary>
+        public static string FormatRequirementAttributeDisplayName(string requirementKeyLower) =>
+            requirementKeyLower switch
+            {
+                "strength" => "Strength",
+                "agility" => "Agility",
+                "technique" => "Technique",
+                "intelligence" => "Intelligence",
+                _ => string.IsNullOrEmpty(requirementKeyLower)
+                    ? requirementKeyLower
+                    : char.ToUpperInvariant(requirementKeyLower[0]) + requirementKeyLower.Substring(1)
+            };
+
+        /// <summary>
+        /// When non-null, the character cannot equip this item due to attribute gates (effective STR/AGI/TEC/INT).
+        /// </summary>
+        public string? GetEquipBlockedReason(Character character)
+        {
+            if (character == null || character.Facade == null || !AttributeRequirements.HasRequirements)
+                return null;
+
+            int strength = character.Facade.GetEffectiveStrength();
+            int agility = character.Facade.GetEffectiveAgility();
+            int technique = character.Facade.GetEffectiveTechnique();
+            int intelligence = character.Facade.GetEffectiveIntelligence();
+
+            foreach (var requirement in AttributeRequirements)
+            {
+                string keyLower = requirement.Key.ToLowerInvariant();
+                int have = GetEffectiveValueForRequirementKey(keyLower, strength, agility, technique, intelligence);
+                if (have < requirement.Value)
+                {
+                    string label = FormatRequirementAttributeDisplayName(keyLower);
+                    return $"Requires {label} {requirement.Value} (you have {have}).";
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>Single-line summary for tooltips (e.g. <c>Requires: Technique 5, Strength 10</c>).</summary>
+        public string? GetAttributeRequirementsSummaryLine()
+        {
+            if (!AttributeRequirements.HasRequirements)
+                return null;
+
+            var parts = AttributeRequirements
+                .Select(kv => $"{FormatRequirementAttributeDisplayName(kv.Key.ToLowerInvariant())} {kv.Value}");
+            return "Requires: " + string.Join(", ", parts);
+        }
+
+        /// <summary>
         /// Checks if a character meets all attribute requirements for this item
         /// </summary>
         /// <param name="character">The character to check</param>
@@ -217,28 +289,18 @@ namespace RPGGame
                 return true; // No requirements or no character means always pass
             }
 
-            // Get character's effective attributes
             int strength = character.Facade.GetEffectiveStrength();
             int agility = character.Facade.GetEffectiveAgility();
             int technique = character.Facade.GetEffectiveTechnique();
             int intelligence = character.Facade.GetEffectiveIntelligence();
 
-            // Check each requirement
             foreach (var requirement in AttributeRequirements)
             {
-                int characterValue = requirement.Key.ToLower() switch
-                {
-                    "strength" => strength,
-                    "agility" => agility,
-                    "technique" => technique,
-                    "intelligence" => intelligence,
-                    _ => 0 // Future secondary attributes will need to be added here
-                };
+                int characterValue = GetEffectiveValueForRequirementKey(
+                    requirement.Key.ToLowerInvariant(), strength, agility, technique, intelligence);
 
                 if (characterValue < requirement.Value)
-                {
-                    return false; // Character doesn't meet this requirement
-                }
+                    return false;
             }
 
             return true; // All requirements met
@@ -336,6 +398,25 @@ namespace RPGGame
             totalArmor = (int)Math.Round(totalArmor * q);
             
             // Prevent integer overflow
+            return Math.Max(int.MinValue + 1, Math.Min(int.MaxValue - 1, totalArmor));
+        }
+    }
+
+    public class LegsItem : Item
+    {
+        public int Armor { get; set; }
+        public LegsItem(string? name = null, int tier = 1, int armor = 1)
+            : base(ItemType.Legs, name, tier)
+        {
+            Armor = armor;
+        }
+
+        public int GetTotalArmor()
+        {
+            int totalArmor = AddArmorFromAffixes(this, Armor);
+            double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
+            totalArmor = (int)Math.Round(totalArmor * q);
+
             return Math.Max(int.MinValue + 1, Math.Min(int.MaxValue - 1, totalArmor));
         }
     }

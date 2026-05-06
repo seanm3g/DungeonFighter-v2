@@ -255,6 +255,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 RenderEquipmentSlot(x, ref y, headerClickWidth, "Weapon", character.Weapon, "gear:weapon", 1);
                 RenderEquipmentSlot(x, ref y, headerClickWidth, "Head", character.Head, "gear:head", 1);
                 RenderEquipmentSlot(x, ref y, headerClickWidth, "Body", character.Body, "gear:body", 1);
+                RenderEquipmentSlot(x, ref y, headerClickWidth, "Legs", character.Legs, "gear:legs", 1);
                 RenderEquipmentSlot(x, ref y, headerClickWidth, "Feet", character.Feet, "gear:feet", 1);
             }
 

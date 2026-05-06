@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame.Tests;
+using RPGGame;
 
 namespace RPGGame.Tests.Unit.Entity
 {
@@ -29,6 +30,8 @@ namespace RPGGame.Tests.Unit.Entity
             TestEquipWeapon();
             TestEquipArmor();
             TestStatBonuses();
+            TestTryEquipItem_BlockedByAttributeRequirements();
+            TestTryEquipItem_SucceedsWhenAttributeRequirementsMet();
 
             TestBase.PrintSummary("EquipmentManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -106,6 +109,67 @@ namespace RPGGame.Tests.Unit.Entity
             // Verify armor is equipped
             TestBase.AssertNotNull(character.Equipment.Head,
                 "Armor should be equipped",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        #endregion
+
+        #region Attribute requirement equip
+
+        private static void TestTryEquipItem_BlockedByAttributeRequirements()
+        {
+            Console.WriteLine("\n--- Testing TryEquipItem blocked by attribute requirements ---");
+
+            var character = TestDataBuilders.Character()
+                .WithName("LowStat")
+                .WithStats(3, 3, 3, 3)
+                .Build();
+
+            var weapon = TestDataBuilders.Weapon()
+                .WithName("High Tec Blade")
+                .WithTier(1)
+                .Build();
+            weapon.AttributeRequirements = new AttributeRequirements(new Dictionary<string, int> { ["technique"] = 10 });
+
+            bool ok = character.TryEquipItem(weapon, "weapon", out var replaced, out var fail);
+            TestBase.AssertFalse(ok,
+                "TryEquipItem should fail when technique too low",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!string.IsNullOrEmpty(fail),
+                "Failure reason should mention requirements",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(character.Equipment.Weapon == null,
+                "Weapon slot should stay empty on failed equip",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(replaced == null,
+                "replacedItem should be null on failed TryEquipItem",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestTryEquipItem_SucceedsWhenAttributeRequirementsMet()
+        {
+            Console.WriteLine("\n--- Testing TryEquipItem succeeds when requirements met ---");
+
+            var character = TestDataBuilders.Character()
+                .WithName("OkStat")
+                .WithStats(3, 3, 12, 3)
+                .Build();
+
+            var weapon = TestDataBuilders.Weapon()
+                .WithName("Tec Blade")
+                .WithTier(1)
+                .Build();
+            weapon.AttributeRequirements = new AttributeRequirements(new Dictionary<string, int> { ["technique"] = 10 });
+
+            bool ok = character.TryEquipItem(weapon, "weapon", out var replaced, out var fail);
+            TestBase.AssertTrue(ok,
+                "TryEquipItem should succeed when technique meets requirement",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(string.IsNullOrEmpty(fail),
+                "No failure message on success",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(ReferenceEquals(weapon, character.Equipment.Weapon),
+                "Equipped weapon should be the instance passed in",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

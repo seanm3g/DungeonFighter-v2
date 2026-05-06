@@ -11,15 +11,16 @@ namespace RPGGame.ActionInteractionLab
     {
         private static readonly string[] RarityOrder = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
 
-        /// <summary>Maps equip slot names (<c>head</c>, <c>body</c>, <c>feet</c>) to <see cref="ArmorData.Slot"/> JSON values.</summary>
+        /// <summary>Maps equip slot names (<c>head</c>, <c>body</c>, <c>legs</c>, <c>feet</c>) to <see cref="ArmorData.Slot"/> JSON values.</summary>
         public static string ArmorJsonSlotFromEquipSlot(string equipSlot)
         {
             return equipSlot.ToLowerInvariant() switch
             {
                 "head" => "head",
                 "body" => "chest",
+                "legs" => "legs",
                 "feet" => "feet",
-                _ => throw new ArgumentException("Slot must be head, body, or feet.", nameof(equipSlot))
+                _ => throw new ArgumentException("Slot must be head, body, legs, or feet.", nameof(equipSlot))
             };
         }
 
@@ -187,6 +188,7 @@ namespace RPGGame.ActionInteractionLab
         {
             ItemType.Head => "head",
             ItemType.Chest => "chest",
+            ItemType.Legs => "legs",
             ItemType.Feet => "feet",
             _ => null,
         };

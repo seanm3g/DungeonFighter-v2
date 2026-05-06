@@ -127,6 +127,7 @@ namespace RPGGame.Game
             var decision = state.CurrentState switch
             {
                 "MainMenu" => DecideMainMenu(actions),
+                "TrainingGroundOffer" => DecideTrainingGroundOffer(actions),
                 "WeaponSelection" => DecideWeaponSelection(actions),
                 "CharacterCreation" => DecideCharacterCreation(actions),
                 "DungeonSelection" => DecieDungeonSelection(state, actions),
@@ -145,6 +146,15 @@ namespace RPGGame.Game
             {
                 Action = "1",
                 Reasoning = "At main menu: Starting new game"
+            };
+        }
+
+        private AIDecision DecideTrainingGroundOffer(List<string> actions)
+        {
+            return new AIDecision
+            {
+                Action = "2",
+                Reasoning = "Skip pre-weapon tutorial to reach weapon selection"
             };
         }
 

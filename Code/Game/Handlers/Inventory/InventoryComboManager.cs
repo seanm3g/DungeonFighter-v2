@@ -185,7 +185,18 @@ namespace RPGGame.Handlers.Inventory
                     }
 
                     string targetActionName = namesNow[entry.ActionIndexInItem];
-                    itemActionHandler.ConfirmEquipItem(entry.InventoryIndex, slot, equipNew: true, refreshInventoryScreen: false, announce: false);
+                    if (!itemActionHandler.ConfirmEquipItem(entry.InventoryIndex, slot, equipNew: true, refreshInventoryScreen: false, announce: false, out var equipFail))
+                    {
+                        string err = string.IsNullOrEmpty(equipFail)
+                            ? $"Cannot equip {invItem.Name}."
+                            : $"Cannot equip {invItem.Name}. {equipFail}";
+                        ShowMessageEvent?.Invoke(err);
+                        if (stateTracker.InComboManagement)
+                            RenderComboManagementScreen();
+                        else
+                            ShowInventoryEvent?.Invoke();
+                        return;
+                    }
 
                     player = stateManager.CurrentPlayer;
                     bool addedToSeq = player != null && TryAddEquippedActionToCombo(player, targetActionName);

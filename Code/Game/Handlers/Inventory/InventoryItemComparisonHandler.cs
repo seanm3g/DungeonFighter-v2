@@ -54,6 +54,7 @@ namespace RPGGame.Handlers.Inventory
                 ItemType.Weapon => "weapon",
                 ItemType.Head => "head",
                 ItemType.Chest => "body",
+                ItemType.Legs => "legs",
                 ItemType.Feet => "feet",
                 _ => ""
             };
@@ -64,14 +65,26 @@ namespace RPGGame.Handlers.Inventory
                 ShowInventoryEvent?.Invoke();
                 return;
             }
-            
+
+            var player = stateManager.CurrentPlayer;
+            if (!newItem.MeetsRequirements(player))
+            {
+                string? reason = newItem.GetEquipBlockedReason(player);
+                ShowMessageEvent?.Invoke(string.IsNullOrEmpty(reason)
+                    ? $"Cannot equip {newItem.Name}: attribute requirements not met."
+                    : $"Cannot equip {newItem.Name}. {reason}");
+                ShowInventoryEvent?.Invoke();
+                return;
+            }
+
             // Get currently equipped item for this slot
             Item? currentItem = slot switch
             {
-                "weapon" => stateManager.CurrentPlayer.Weapon,
-                "head" => stateManager.CurrentPlayer.Head,
-                "body" => stateManager.CurrentPlayer.Body,
-                "feet" => stateManager.CurrentPlayer.Feet,
+                "weapon" => player.Weapon,
+                "head" => player.Head,
+                "body" => player.Body,
+                "legs" => player.Legs,
+                "feet" => player.Feet,
                 _ => null
             };
             
@@ -83,7 +96,7 @@ namespace RPGGame.Handlers.Inventory
             // Render comparison screen
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                canvasUI.RenderItemComparison(stateManager.CurrentPlayer, newItem, currentItem, slot);
+                canvasUI.RenderItemComparison(player, newItem, currentItem, slot);
             }
         }
         

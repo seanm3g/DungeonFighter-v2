@@ -326,6 +326,13 @@ namespace RPGGame
                         canvasUI.RenderCharacterCreation(player);
                     }
                     break;
+                case GameState.TrainingGroundOffer:
+                    if (player != null)
+                    {
+                        canvasUI.Clear();
+                        canvasUI.RenderTrainingGroundOffer(player);
+                    }
+                    break;
                 case GameState.Settings:
                     canvasUI.Clear();
                     canvasUI.RenderSettings();

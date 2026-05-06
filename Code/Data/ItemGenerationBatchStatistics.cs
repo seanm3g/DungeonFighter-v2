@@ -131,6 +131,8 @@ namespace RPGGame
                     ? $"arm:{h.GetTotalArmor()}"
                     : item is ChestItem c
                         ? $"arm:{c.GetTotalArmor()}"
+                        : item is LegsItem l
+                            ? $"arm:{l.GetTotalArmor()}"
                         : item is FeetItem f
                             ? $"arm:{f.GetTotalArmor()}"
                             : "prim:0";

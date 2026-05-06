@@ -127,7 +127,7 @@ namespace RPGGame.MCP.Tools.LootTuning
 
                 // Analyze power metrics
                 var weaponItems = items.OfType<WeaponItem>().ToList();
-                var armorItems = items.Where(i => i is HeadItem or FeetItem or ChestItem).ToList();
+                var armorItems = items.Where(i => i is HeadItem or ChestItem or LegsItem or FeetItem).ToList();
 
                 return new
                 {

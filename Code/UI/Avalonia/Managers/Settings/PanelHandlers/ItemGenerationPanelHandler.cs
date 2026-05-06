@@ -10,15 +10,15 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 {
     /// <summary>
     /// Loads/saves per-rarity affix tuning on the Item Generation tab (TuningConfig itemAffixByRarity),
-    /// with separate rows per item category (Head, Chest, Feet, Weapon) and combo-sequence cap fields on LootSystem.
+    /// with separate rows per item category (Head, Chest, Legs, Feet, Weapon) and combo-sequence cap fields on LootSystem.
     /// </summary>
     public sealed class ItemGenerationPanelHandler : ISettingsPanelHandler
     {
-        private static readonly string[] AffixSlotKeys = { "Head", "Chest", "Feet", "Weapon" };
+        private static readonly string[] AffixSlotKeys = { "Head", "Chest", "Legs", "Feet", "Weapon" };
 
         private readonly Action<string, bool>? showStatusMessage;
 
-        /// <summary>Scratch copy: outer key Head/Chest/Feet/Weapon, inner rarity → entry.</summary>
+        /// <summary>Scratch copy: outer key Head/Chest/Legs/Feet/Weapon, inner rarity → entry.</summary>
         private Dictionary<string, Dictionary<string, ItemAffixPerRarityEntry>>? _affixScratch;
 
         private string _activeAffixSlot = "Head";
@@ -40,6 +40,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (slotCombo != null)
             {
                 slotCombo.ItemsSource = AffixSlotKeys.ToList();
+                slotCombo.SelectedItem = _activeAffixSlot;
+                if (slotCombo.SelectedIndex < 0 && AffixSlotKeys.Length > 0)
+                    slotCombo.SelectedIndex = 0;
                 slotCombo.SelectionChanged -= OnAffixSlotChanged;
                 slotCombo.SelectionChanged += OnAffixSlotChanged;
             }
@@ -223,6 +226,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
         private static ItemType SlotKeyToItemType(string slot) =>
             slot.Equals("Head", StringComparison.OrdinalIgnoreCase) ? ItemType.Head :
             slot.Equals("Chest", StringComparison.OrdinalIgnoreCase) ? ItemType.Chest :
+            slot.Equals("Legs", StringComparison.OrdinalIgnoreCase) ? ItemType.Legs :
             slot.Equals("Feet", StringComparison.OrdinalIgnoreCase) ? ItemType.Feet :
             ItemType.Weapon;
 

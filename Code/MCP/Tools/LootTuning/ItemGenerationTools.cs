@@ -45,7 +45,7 @@ namespace RPGGame.MCP.Tools.LootTuning
                     byRarity = rarityCounts,
                     byTier = tierCounts,
                     weaponCount = items.Count(i => i is WeaponItem),
-                    armorCount = items.Count(i => i is HeadItem or FeetItem or ChestItem)
+                    armorCount = items.Count(i => i is HeadItem or ChestItem or LegsItem or FeetItem)
                 };
             }, writeIndented: true);
         }
@@ -76,7 +76,7 @@ namespace RPGGame.MCP.Tools.LootTuning
                         rarity = item.Rarity,
                         type = item.GetType().Name,
                         damage = (item as WeaponItem)?.GetTotalDamage() ?? 0,
-                        armor = (item as HeadItem)?.Armor ?? (item as FeetItem)?.Armor ?? (item as ChestItem)?.Armor ?? 0,
+                        armor = (item as HeadItem)?.Armor ?? (item as ChestItem)?.Armor ?? (item as LegsItem)?.Armor ?? (item as FeetItem)?.Armor ?? 0,
                         statBonuses = item.StatBonuses?.Count ?? 0,
                         modifications = item.Modifications?.Count ?? 0
                     }

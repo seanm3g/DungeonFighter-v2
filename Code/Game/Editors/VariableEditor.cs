@@ -12,13 +12,11 @@ namespace RPGGame.Editors
     /// </summary>
     public class VariableEditor
     {
-        private readonly GameConfiguration config;
         private readonly GameSettings gameSettings;
         private readonly Dictionary<string, List<EditableVariable>> variablesByCategory;
 
         public VariableEditor()
         {
-            config = GameConfiguration.Instance;
             gameSettings = GameSettings.Instance;
             variablesByCategory = new Dictionary<string, List<EditableVariable>>();
             InitializeVariables();
@@ -32,109 +30,109 @@ namespace RPGGame.Editors
             // Combat Parameters
             var combatVars = new List<EditableVariable>
             {
-                new EditableVariable("Combat.CriticalHitThreshold", () => config.Combat.CriticalHitThreshold, v => config.Combat.CriticalHitThreshold = Convert.ToInt32(v), "Critical hit threshold (1-20)"),
-                new EditableVariable("Combat.CriticalHitMultiplier", () => config.Combat.CriticalHitMultiplier, v => config.Combat.CriticalHitMultiplier = Convert.ToDouble(v), "Critical hit damage multiplier"),
-                new EditableVariable("Combat.MinimumDamage", () => config.Combat.MinimumDamage, v => config.Combat.MinimumDamage = Convert.ToInt32(v), "Minimum damage dealt"),
-                new EditableVariable("Combat.BaseAttackTime", () => config.Combat.BaseAttackTime, v => config.Combat.BaseAttackTime = Convert.ToDouble(v), "Base attack time in seconds"),
-                new EditableVariable("Combat.MinimumAttackTime", () => config.Combat.MinimumAttackTime, v => config.Combat.MinimumAttackTime = Convert.ToDouble(v), "Minimum attack time"),
-                new EditableVariable("Combat.AgilityMin", () => config.Combat.AgilityMin, v => config.Combat.AgilityMin = Convert.ToInt32(v), "Minimum agility value for speed calculation"),
-                new EditableVariable("Combat.AgilityMax", () => config.Combat.AgilityMax, v => config.Combat.AgilityMax = Convert.ToInt32(v), "Maximum agility value for speed calculation"),
-                new EditableVariable("Combat.AgilityMinSpeedMultiplier", () => config.Combat.AgilityMinSpeedMultiplier, v => config.Combat.AgilityMinSpeedMultiplier = Convert.ToDouble(v), "Speed multiplier at minimum agility (e.g., 0.99 = 1% faster)"),
-                new EditableVariable("Combat.AgilityMaxSpeedMultiplier", () => config.Combat.AgilityMaxSpeedMultiplier, v => config.Combat.AgilityMaxSpeedMultiplier = Convert.ToDouble(v), "Speed multiplier at maximum agility (e.g., 0.01 = 99% faster)"),
-                new EditableVariable("CombatBalance.CriticalHitChance", () => config.CombatBalance.CriticalHitChance, v => config.CombatBalance.CriticalHitChance = Convert.ToDouble(v), "Base critical hit chance"),
-                new EditableVariable("CombatBalance.CriticalHitDamageMultiplier", () => config.CombatBalance.CriticalHitDamageMultiplier, v => config.CombatBalance.CriticalHitDamageMultiplier = Convert.ToDouble(v), "Critical hit damage multiplier"),
-                new EditableVariable("CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier", () => config.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier, v => config.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier = Convert.ToDouble(v), "Combo roll damage multiplier"),
-                new EditableVariable("CombatBalance.RollDamageMultipliers.BasicRollDamageMultiplier", () => config.CombatBalance.RollDamageMultipliers.BasicRollDamageMultiplier, v => config.CombatBalance.RollDamageMultipliers.BasicRollDamageMultiplier = Convert.ToDouble(v), "Basic roll damage multiplier"),
+                new EditableVariable("Combat.CriticalHitThreshold", () => GameConfiguration.Instance.Combat.CriticalHitThreshold, v => GameConfiguration.Instance.Combat.CriticalHitThreshold = Convert.ToInt32(v), "Critical hit threshold (1-20)"),
+                new EditableVariable("Combat.CriticalHitMultiplier", () => GameConfiguration.Instance.Combat.CriticalHitMultiplier, v => GameConfiguration.Instance.Combat.CriticalHitMultiplier = Convert.ToDouble(v), "Critical hit damage multiplier"),
+                new EditableVariable("Combat.MinimumDamage", () => GameConfiguration.Instance.Combat.MinimumDamage, v => GameConfiguration.Instance.Combat.MinimumDamage = Convert.ToInt32(v), "Minimum damage dealt"),
+                new EditableVariable("Combat.BaseAttackTime", () => GameConfiguration.Instance.Combat.BaseAttackTime, v => GameConfiguration.Instance.Combat.BaseAttackTime = Convert.ToDouble(v), "Base attack time in seconds"),
+                new EditableVariable("Combat.MinimumAttackTime", () => GameConfiguration.Instance.Combat.MinimumAttackTime, v => GameConfiguration.Instance.Combat.MinimumAttackTime = Convert.ToDouble(v), "Minimum attack time"),
+                new EditableVariable("Combat.AgilityMin", () => GameConfiguration.Instance.Combat.AgilityMin, v => GameConfiguration.Instance.Combat.AgilityMin = Convert.ToInt32(v), "Minimum agility value for speed calculation"),
+                new EditableVariable("Combat.AgilityMax", () => GameConfiguration.Instance.Combat.AgilityMax, v => GameConfiguration.Instance.Combat.AgilityMax = Convert.ToInt32(v), "Maximum agility value for speed calculation"),
+                new EditableVariable("Combat.AgilityMinSpeedMultiplier", () => GameConfiguration.Instance.Combat.AgilityMinSpeedMultiplier, v => GameConfiguration.Instance.Combat.AgilityMinSpeedMultiplier = Convert.ToDouble(v), "Speed multiplier at minimum agility (e.g., 0.99 = 1% faster)"),
+                new EditableVariable("Combat.AgilityMaxSpeedMultiplier", () => GameConfiguration.Instance.Combat.AgilityMaxSpeedMultiplier, v => GameConfiguration.Instance.Combat.AgilityMaxSpeedMultiplier = Convert.ToDouble(v), "Speed multiplier at maximum agility (e.g., 0.01 = 99% faster)"),
+                new EditableVariable("CombatBalance.CriticalHitChance", () => GameConfiguration.Instance.CombatBalance.CriticalHitChance, v => GameConfiguration.Instance.CombatBalance.CriticalHitChance = Convert.ToDouble(v), "Base critical hit chance"),
+                new EditableVariable("CombatBalance.CriticalHitDamageMultiplier", () => GameConfiguration.Instance.CombatBalance.CriticalHitDamageMultiplier, v => GameConfiguration.Instance.CombatBalance.CriticalHitDamageMultiplier = Convert.ToDouble(v), "Critical hit damage multiplier"),
+                new EditableVariable("CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier", () => GameConfiguration.Instance.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier, v => GameConfiguration.Instance.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier = Convert.ToDouble(v), "Combo roll damage multiplier"),
+                new EditableVariable("CombatBalance.RollDamageMultipliers.BasicRollDamageMultiplier", () => GameConfiguration.Instance.CombatBalance.RollDamageMultipliers.BasicRollDamageMultiplier, v => GameConfiguration.Instance.CombatBalance.RollDamageMultipliers.BasicRollDamageMultiplier = Convert.ToDouble(v), "Basic roll damage multiplier"),
             };
             variablesByCategory["Combat"] = combatVars;
 
             // Roll System
             var rollSystemVars = new List<EditableVariable>
             {
-                new EditableVariable("RollSystem.MissThreshold.Min", () => config.RollSystem.MissThreshold.Min, v => config.RollSystem.MissThreshold.Min = Convert.ToInt32(v), "Minimum roll for miss"),
-                new EditableVariable("RollSystem.MissThreshold.Max", () => config.RollSystem.MissThreshold.Max, v => config.RollSystem.MissThreshold.Max = Convert.ToInt32(v), "Maximum roll for miss"),
-                new EditableVariable("RollSystem.BasicAttackThreshold.Min", () => config.RollSystem.BasicAttackThreshold.Min, v => config.RollSystem.BasicAttackThreshold.Min = Convert.ToInt32(v), "Minimum roll for normal attack"),
-                new EditableVariable("RollSystem.BasicAttackThreshold.Max", () => config.RollSystem.BasicAttackThreshold.Max, v => config.RollSystem.BasicAttackThreshold.Max = Convert.ToInt32(v), "Maximum roll for normal attack"),
-                new EditableVariable("RollSystem.ComboThreshold.Min", () => config.RollSystem.ComboThreshold.Min, v => config.RollSystem.ComboThreshold.Min = Convert.ToInt32(v), "Minimum roll for combo"),
-                new EditableVariable("RollSystem.ComboThreshold.Max", () => config.RollSystem.ComboThreshold.Max, v => config.RollSystem.ComboThreshold.Max = Convert.ToInt32(v), "Maximum roll for combo"),
-                new EditableVariable("RollSystem.CriticalThreshold", () => config.RollSystem.CriticalThreshold, v => config.RollSystem.CriticalThreshold = Convert.ToInt32(v), "Roll required for critical hit"),
+                new EditableVariable("RollSystem.MissThreshold.Min", () => GameConfiguration.Instance.RollSystem.MissThreshold.Min, v => GameConfiguration.Instance.RollSystem.MissThreshold.Min = Convert.ToInt32(v), "Minimum roll for miss"),
+                new EditableVariable("RollSystem.MissThreshold.Max", () => GameConfiguration.Instance.RollSystem.MissThreshold.Max, v => GameConfiguration.Instance.RollSystem.MissThreshold.Max = Convert.ToInt32(v), "Maximum roll for miss"),
+                new EditableVariable("RollSystem.BasicAttackThreshold.Min", () => GameConfiguration.Instance.RollSystem.BasicAttackThreshold.Min, v => GameConfiguration.Instance.RollSystem.BasicAttackThreshold.Min = Convert.ToInt32(v), "Minimum roll for normal attack"),
+                new EditableVariable("RollSystem.BasicAttackThreshold.Max", () => GameConfiguration.Instance.RollSystem.BasicAttackThreshold.Max, v => GameConfiguration.Instance.RollSystem.BasicAttackThreshold.Max = Convert.ToInt32(v), "Maximum roll for normal attack"),
+                new EditableVariable("RollSystem.ComboThreshold.Min", () => GameConfiguration.Instance.RollSystem.ComboThreshold.Min, v => GameConfiguration.Instance.RollSystem.ComboThreshold.Min = Convert.ToInt32(v), "Minimum roll for combo"),
+                new EditableVariable("RollSystem.ComboThreshold.Max", () => GameConfiguration.Instance.RollSystem.ComboThreshold.Max, v => GameConfiguration.Instance.RollSystem.ComboThreshold.Max = Convert.ToInt32(v), "Maximum roll for combo"),
+                new EditableVariable("RollSystem.CriticalThreshold", () => GameConfiguration.Instance.RollSystem.CriticalThreshold, v => GameConfiguration.Instance.RollSystem.CriticalThreshold = Convert.ToInt32(v), "Roll required for critical hit"),
             };
             variablesByCategory["RollSystem"] = rollSystemVars;
 
             // Character/Player Settings
             var characterVars = new List<EditableVariable>
             {
-                new EditableVariable("Character.PlayerBaseHealth", () => config.Character.PlayerBaseHealth, v => config.Character.PlayerBaseHealth = Convert.ToInt32(v), "Player base health at level 1"),
-                new EditableVariable("Character.HealthPerLevel", () => config.Character.HealthPerLevel, v => config.Character.HealthPerLevel = Convert.ToInt32(v), "Health gained per level"),
-                new EditableVariable("Attributes.PlayerBaseAttributes.Strength", () => config.Attributes.PlayerBaseAttributes.Strength, v => config.Attributes.PlayerBaseAttributes.Strength = Convert.ToInt32(v), "Base Strength"),
-                new EditableVariable("Attributes.PlayerBaseAttributes.Agility", () => config.Attributes.PlayerBaseAttributes.Agility, v => config.Attributes.PlayerBaseAttributes.Agility = Convert.ToInt32(v), "Base Agility"),
-                new EditableVariable("Attributes.PlayerBaseAttributes.Technique", () => config.Attributes.PlayerBaseAttributes.Technique, v => config.Attributes.PlayerBaseAttributes.Technique = Convert.ToInt32(v), "Base Technique"),
-                new EditableVariable("Attributes.PlayerBaseAttributes.Intelligence", () => config.Attributes.PlayerBaseAttributes.Intelligence, v => config.Attributes.PlayerBaseAttributes.Intelligence = Convert.ToInt32(v), "Base Intelligence"),
-                new EditableVariable("Attributes.PlayerAttributesPerLevel", () => config.Attributes.PlayerAttributesPerLevel, v => config.Attributes.PlayerAttributesPerLevel = Convert.ToInt32(v), "Attributes gained per level"),
-                new EditableVariable("Attributes.EnemyAttributesPerLevel", () => config.Attributes.EnemyAttributesPerLevel, v => config.Attributes.EnemyAttributesPerLevel = Convert.ToInt32(v), "Enemy attributes per level"),
-                new EditableVariable("Attributes.EnemyPrimaryAttributeBonus", () => config.Attributes.EnemyPrimaryAttributeBonus, v => config.Attributes.EnemyPrimaryAttributeBonus = Convert.ToInt32(v), "Enemy primary attribute bonus"),
-                new EditableVariable("Attributes.IntelligenceRollBonusPer", () => config.Attributes.IntelligenceRollBonusPer, v => config.Attributes.IntelligenceRollBonusPer = Convert.ToInt32(v), "Intelligence roll bonus per 10 points"),
+                new EditableVariable("Character.PlayerBaseHealth", () => GameConfiguration.Instance.Character.PlayerBaseHealth, v => GameConfiguration.Instance.Character.PlayerBaseHealth = Convert.ToInt32(v), "Player base health at level 1"),
+                new EditableVariable("Character.HealthPerLevel", () => GameConfiguration.Instance.Character.HealthPerLevel, v => GameConfiguration.Instance.Character.HealthPerLevel = Convert.ToInt32(v), "Health gained per level"),
+                new EditableVariable("Attributes.PlayerBaseAttributes.Strength", () => GameConfiguration.Instance.Attributes.PlayerBaseAttributes.Strength, v => GameConfiguration.Instance.Attributes.PlayerBaseAttributes.Strength = Convert.ToInt32(v), "Base Strength"),
+                new EditableVariable("Attributes.PlayerBaseAttributes.Agility", () => GameConfiguration.Instance.Attributes.PlayerBaseAttributes.Agility, v => GameConfiguration.Instance.Attributes.PlayerBaseAttributes.Agility = Convert.ToInt32(v), "Base Agility"),
+                new EditableVariable("Attributes.PlayerBaseAttributes.Technique", () => GameConfiguration.Instance.Attributes.PlayerBaseAttributes.Technique, v => GameConfiguration.Instance.Attributes.PlayerBaseAttributes.Technique = Convert.ToInt32(v), "Base Technique"),
+                new EditableVariable("Attributes.PlayerBaseAttributes.Intelligence", () => GameConfiguration.Instance.Attributes.PlayerBaseAttributes.Intelligence, v => GameConfiguration.Instance.Attributes.PlayerBaseAttributes.Intelligence = Convert.ToInt32(v), "Base Intelligence"),
+                new EditableVariable("Attributes.PlayerAttributesPerLevel", () => GameConfiguration.Instance.Attributes.PlayerAttributesPerLevel, v => GameConfiguration.Instance.Attributes.PlayerAttributesPerLevel = Convert.ToInt32(v), "Attributes gained per level"),
+                new EditableVariable("Attributes.EnemyAttributesPerLevel", () => GameConfiguration.Instance.Attributes.EnemyAttributesPerLevel, v => GameConfiguration.Instance.Attributes.EnemyAttributesPerLevel = Convert.ToInt32(v), "Enemy attributes per level"),
+                new EditableVariable("Attributes.EnemyPrimaryAttributeBonus", () => GameConfiguration.Instance.Attributes.EnemyPrimaryAttributeBonus, v => GameConfiguration.Instance.Attributes.EnemyPrimaryAttributeBonus = Convert.ToInt32(v), "Enemy primary attribute bonus"),
+                new EditableVariable("Attributes.IntelligenceRollBonusPer", () => GameConfiguration.Instance.Attributes.IntelligenceRollBonusPer, v => GameConfiguration.Instance.Attributes.IntelligenceRollBonusPer = Convert.ToInt32(v), "Intelligence roll bonus per 10 points"),
             };
             variablesByCategory["Character"] = characterVars;
 
             // Enemy System
             var enemyVars = new List<EditableVariable>
             {
-                new EditableVariable("EnemySystem.GlobalMultipliers.HealthMultiplier", () => config.EnemySystem.GlobalMultipliers.HealthMultiplier, v => config.EnemySystem.GlobalMultipliers.HealthMultiplier = Convert.ToDouble(v), "Global enemy health multiplier"),
-                new EditableVariable("EnemySystem.GlobalMultipliers.DamageMultiplier", () => config.EnemySystem.GlobalMultipliers.DamageMultiplier, v => config.EnemySystem.GlobalMultipliers.DamageMultiplier = Convert.ToDouble(v), "Global enemy damage multiplier"),
-                new EditableVariable("EnemySystem.GlobalMultipliers.ArmorMultiplier", () => config.EnemySystem.GlobalMultipliers.ArmorMultiplier, v => config.EnemySystem.GlobalMultipliers.ArmorMultiplier = Convert.ToDouble(v), "Global enemy armor multiplier"),
-                new EditableVariable("EnemySystem.GlobalMultipliers.SpeedMultiplier", () => config.EnemySystem.GlobalMultipliers.SpeedMultiplier, v => config.EnemySystem.GlobalMultipliers.SpeedMultiplier = Convert.ToDouble(v), "Global enemy speed multiplier"),
-                new EditableVariable("EnemySystem.BaselineStats.Health", () => config.EnemySystem.BaselineStats.Health, v => config.EnemySystem.BaselineStats.Health = Convert.ToInt32(v), "Enemy baseline health"),
-                new EditableVariable("EnemySystem.BaselineStats.Strength", () => config.EnemySystem.BaselineStats.Strength, v => config.EnemySystem.BaselineStats.Strength = Convert.ToInt32(v), "Enemy baseline strength"),
-                new EditableVariable("EnemySystem.BaselineStats.Agility", () => config.EnemySystem.BaselineStats.Agility, v => config.EnemySystem.BaselineStats.Agility = Convert.ToInt32(v), "Enemy baseline agility"),
-                new EditableVariable("EnemySystem.BaselineStats.Technique", () => config.EnemySystem.BaselineStats.Technique, v => config.EnemySystem.BaselineStats.Technique = Convert.ToInt32(v), "Enemy baseline technique"),
-                new EditableVariable("EnemySystem.BaselineStats.Intelligence", () => config.EnemySystem.BaselineStats.Intelligence, v => config.EnemySystem.BaselineStats.Intelligence = Convert.ToInt32(v), "Enemy baseline intelligence"),
-                new EditableVariable("EnemySystem.BaselineStats.Armor", () => config.EnemySystem.BaselineStats.Armor, v => config.EnemySystem.BaselineStats.Armor = Convert.ToInt32(v), "Enemy baseline armor"),
-                new EditableVariable("EnemySystem.ScalingPerLevel.Health", () => config.EnemySystem.ScalingPerLevel.Health, v => config.EnemySystem.ScalingPerLevel.Health = Convert.ToInt32(v), "Enemy health per level"),
-                new EditableVariable("EnemySystem.ScalingPerLevel.Attributes", () => config.EnemySystem.ScalingPerLevel.Attributes, v => config.EnemySystem.ScalingPerLevel.Attributes = Convert.ToDouble(v), "Enemy attributes per level"),
-                new EditableVariable("EnemySystem.ScalingPerLevel.Armor", () => config.EnemySystem.ScalingPerLevel.Armor, v => config.EnemySystem.ScalingPerLevel.Armor = Convert.ToDouble(v), "Enemy armor per level"),
+                new EditableVariable("EnemySystem.GlobalMultipliers.HealthMultiplier", () => GameConfiguration.Instance.EnemySystem.GlobalMultipliers.HealthMultiplier, v => GameConfiguration.Instance.EnemySystem.GlobalMultipliers.HealthMultiplier = Convert.ToDouble(v), "Global enemy health multiplier"),
+                new EditableVariable("EnemySystem.GlobalMultipliers.DamageMultiplier", () => GameConfiguration.Instance.EnemySystem.GlobalMultipliers.DamageMultiplier, v => GameConfiguration.Instance.EnemySystem.GlobalMultipliers.DamageMultiplier = Convert.ToDouble(v), "Global enemy damage multiplier"),
+                new EditableVariable("EnemySystem.GlobalMultipliers.ArmorMultiplier", () => GameConfiguration.Instance.EnemySystem.GlobalMultipliers.ArmorMultiplier, v => GameConfiguration.Instance.EnemySystem.GlobalMultipliers.ArmorMultiplier = Convert.ToDouble(v), "Global enemy armor multiplier"),
+                new EditableVariable("EnemySystem.GlobalMultipliers.SpeedMultiplier", () => GameConfiguration.Instance.EnemySystem.GlobalMultipliers.SpeedMultiplier, v => GameConfiguration.Instance.EnemySystem.GlobalMultipliers.SpeedMultiplier = Convert.ToDouble(v), "Global enemy speed multiplier"),
+                new EditableVariable("EnemySystem.BaselineStats.Health", () => GameConfiguration.Instance.EnemySystem.BaselineStats.Health, v => GameConfiguration.Instance.EnemySystem.BaselineStats.Health = Convert.ToInt32(v), "Enemy baseline health"),
+                new EditableVariable("EnemySystem.BaselineStats.Strength", () => GameConfiguration.Instance.EnemySystem.BaselineStats.Strength, v => GameConfiguration.Instance.EnemySystem.BaselineStats.Strength = Convert.ToInt32(v), "Enemy baseline strength"),
+                new EditableVariable("EnemySystem.BaselineStats.Agility", () => GameConfiguration.Instance.EnemySystem.BaselineStats.Agility, v => GameConfiguration.Instance.EnemySystem.BaselineStats.Agility = Convert.ToInt32(v), "Enemy baseline agility"),
+                new EditableVariable("EnemySystem.BaselineStats.Technique", () => GameConfiguration.Instance.EnemySystem.BaselineStats.Technique, v => GameConfiguration.Instance.EnemySystem.BaselineStats.Technique = Convert.ToInt32(v), "Enemy baseline technique"),
+                new EditableVariable("EnemySystem.BaselineStats.Intelligence", () => GameConfiguration.Instance.EnemySystem.BaselineStats.Intelligence, v => GameConfiguration.Instance.EnemySystem.BaselineStats.Intelligence = Convert.ToInt32(v), "Enemy baseline intelligence"),
+                new EditableVariable("EnemySystem.BaselineStats.Armor", () => GameConfiguration.Instance.EnemySystem.BaselineStats.Armor, v => GameConfiguration.Instance.EnemySystem.BaselineStats.Armor = Convert.ToInt32(v), "Enemy baseline armor"),
+                new EditableVariable("EnemySystem.ScalingPerLevel.Health", () => GameConfiguration.Instance.EnemySystem.ScalingPerLevel.Health, v => GameConfiguration.Instance.EnemySystem.ScalingPerLevel.Health = Convert.ToInt32(v), "Enemy health per level"),
+                new EditableVariable("EnemySystem.ScalingPerLevel.Attributes", () => GameConfiguration.Instance.EnemySystem.ScalingPerLevel.Attributes, v => GameConfiguration.Instance.EnemySystem.ScalingPerLevel.Attributes = Convert.ToDouble(v), "Enemy attributes per level"),
+                new EditableVariable("EnemySystem.ScalingPerLevel.Armor", () => GameConfiguration.Instance.EnemySystem.ScalingPerLevel.Armor, v => GameConfiguration.Instance.EnemySystem.ScalingPerLevel.Armor = Convert.ToDouble(v), "Enemy armor per level"),
             };
             variablesByCategory["EnemySystem"] = enemyVars;
 
             // Items/Equipment
             var itemVars = new List<EditableVariable>
             {
-                new EditableVariable("EquipmentScaling.WeaponDamagePerTier", () => config.EquipmentScaling.WeaponDamagePerTier, v => config.EquipmentScaling.WeaponDamagePerTier = Convert.ToInt32(v), "Weapon damage per tier"),
-                new EditableVariable("EquipmentScaling.ArmorValuePerTier", () => config.EquipmentScaling.ArmorValuePerTier, v => config.EquipmentScaling.ArmorValuePerTier = Convert.ToInt32(v), "Armor value per tier"),
-                new EditableVariable("EquipmentScaling.SpeedBonusPerTier", () => config.EquipmentScaling.SpeedBonusPerTier, v => config.EquipmentScaling.SpeedBonusPerTier = Convert.ToDouble(v), "Speed bonus per tier"),
-                new EditableVariable("EquipmentScaling.MaxTier", () => config.EquipmentScaling.MaxTier, v => config.EquipmentScaling.MaxTier = Convert.ToInt32(v), "Maximum tier"),
-                new EditableVariable("EquipmentScaling.EnchantmentChance", () => config.EquipmentScaling.EnchantmentChance, v => config.EquipmentScaling.EnchantmentChance = Convert.ToDouble(v), "Enchantment chance"),
-                new EditableVariable("WeaponScaling.GlobalDamageMultiplier", () => config.WeaponScaling?.GlobalDamageMultiplier ?? 1.0, v => { if (config.WeaponScaling != null) config.WeaponScaling.GlobalDamageMultiplier = Convert.ToDouble(v); }, "Global weapon damage multiplier"),
+                new EditableVariable("EquipmentScaling.WeaponDamagePerTier", () => GameConfiguration.Instance.EquipmentScaling.WeaponDamagePerTier, v => GameConfiguration.Instance.EquipmentScaling.WeaponDamagePerTier = Convert.ToInt32(v), "Weapon damage per tier"),
+                new EditableVariable("EquipmentScaling.ArmorValuePerTier", () => GameConfiguration.Instance.EquipmentScaling.ArmorValuePerTier, v => GameConfiguration.Instance.EquipmentScaling.ArmorValuePerTier = Convert.ToInt32(v), "Armor value per tier"),
+                new EditableVariable("EquipmentScaling.SpeedBonusPerTier", () => GameConfiguration.Instance.EquipmentScaling.SpeedBonusPerTier, v => GameConfiguration.Instance.EquipmentScaling.SpeedBonusPerTier = Convert.ToDouble(v), "Speed bonus per tier"),
+                new EditableVariable("EquipmentScaling.MaxTier", () => GameConfiguration.Instance.EquipmentScaling.MaxTier, v => GameConfiguration.Instance.EquipmentScaling.MaxTier = Convert.ToInt32(v), "Maximum tier"),
+                new EditableVariable("EquipmentScaling.EnchantmentChance", () => GameConfiguration.Instance.EquipmentScaling.EnchantmentChance, v => GameConfiguration.Instance.EquipmentScaling.EnchantmentChance = Convert.ToDouble(v), "Enchantment chance"),
+                new EditableVariable("WeaponScaling.GlobalDamageMultiplier", () => GameConfiguration.Instance.WeaponScaling?.GlobalDamageMultiplier ?? 1.0, v => { if (GameConfiguration.Instance.WeaponScaling != null) GameConfiguration.Instance.WeaponScaling.GlobalDamageMultiplier = Convert.ToDouble(v); }, "Global weapon damage multiplier"),
                 // Loot System Variables
-                new EditableVariable("LootSystem.BaseDropChance", () => config.LootSystem.BaseDropChance, v => config.LootSystem.BaseDropChance = Convert.ToDouble(v), "Base loot drop chance (0-1)"),
-                new EditableVariable("LootSystem.DropChancePerLevel", () => config.LootSystem.DropChancePerLevel, v => config.LootSystem.DropChancePerLevel = Convert.ToDouble(v), "Drop chance increase per level"),
-                new EditableVariable("LootSystem.MagicFindEffectiveness", () => config.LootSystem.MagicFindEffectiveness, v => config.LootSystem.MagicFindEffectiveness = Convert.ToDouble(v), "Magic find effectiveness"),
-                new EditableVariable("LootSystem.RarityUpgrade.Enabled", () => config.LootSystem.RarityUpgrade.Enabled, v => config.LootSystem.RarityUpgrade.Enabled = Convert.ToBoolean(v), "Enable rarity upgrades"),
-                new EditableVariable("LootSystem.RarityUpgrade.BaseUpgradeChance", () => config.LootSystem.RarityUpgrade.BaseUpgradeChance, v => config.LootSystem.RarityUpgrade.BaseUpgradeChance = Convert.ToDouble(v), "Base upgrade chance (0-1)"),
-                new EditableVariable("LootSystem.RarityUpgrade.UpgradeChanceDecayPerTier", () => config.LootSystem.RarityUpgrade.UpgradeChanceDecayPerTier, v => config.LootSystem.RarityUpgrade.UpgradeChanceDecayPerTier = Convert.ToDouble(v), "Upgrade decay per tier"),
+                new EditableVariable("LootSystem.BaseDropChance", () => GameConfiguration.Instance.LootSystem.BaseDropChance, v => GameConfiguration.Instance.LootSystem.BaseDropChance = Convert.ToDouble(v), "Base loot drop chance (0-1)"),
+                new EditableVariable("LootSystem.DropChancePerLevel", () => GameConfiguration.Instance.LootSystem.DropChancePerLevel, v => GameConfiguration.Instance.LootSystem.DropChancePerLevel = Convert.ToDouble(v), "Drop chance increase per level"),
+                new EditableVariable("LootSystem.MagicFindEffectiveness", () => GameConfiguration.Instance.LootSystem.MagicFindEffectiveness, v => GameConfiguration.Instance.LootSystem.MagicFindEffectiveness = Convert.ToDouble(v), "Magic find effectiveness"),
+                new EditableVariable("LootSystem.RarityUpgrade.Enabled", () => GameConfiguration.Instance.LootSystem.RarityUpgrade.Enabled, v => GameConfiguration.Instance.LootSystem.RarityUpgrade.Enabled = Convert.ToBoolean(v), "Enable rarity upgrades"),
+                new EditableVariable("LootSystem.RarityUpgrade.BaseUpgradeChance", () => GameConfiguration.Instance.LootSystem.RarityUpgrade.BaseUpgradeChance, v => GameConfiguration.Instance.LootSystem.RarityUpgrade.BaseUpgradeChance = Convert.ToDouble(v), "Base upgrade chance (0-1)"),
+                new EditableVariable("LootSystem.RarityUpgrade.UpgradeChanceDecayPerTier", () => GameConfiguration.Instance.LootSystem.RarityUpgrade.UpgradeChanceDecayPerTier, v => GameConfiguration.Instance.LootSystem.RarityUpgrade.UpgradeChanceDecayPerTier = Convert.ToDouble(v), "Upgrade decay per tier"),
             };
             variablesByCategory["Items"] = itemVars;
 
             // Progression/XP
             var progressionVars = new List<EditableVariable>
             {
-                new EditableVariable("Progression.BaseXPToLevel2", () => config.Progression.BaseXPToLevel2, v => config.Progression.BaseXPToLevel2 = Convert.ToInt32(v), "L1→2 XP bar; 0 = one tier-1 dungeon completion; >0 scales whole curve to that first bar"),
-                new EditableVariable("Progression.XPScalingFactor", () => config.Progression.XPScalingFactor, v => config.Progression.XPScalingFactor = Convert.ToDouble(v), "Multiplies every XP bar; ≤0 = 1.0 (dungeon-paced curve: 1, 1.5, 2, 3… completions/level)"),
-                new EditableVariable("Progression.EnemyXPBase", () => config.Progression.EnemyXPBase, v => config.Progression.EnemyXPBase = Convert.ToInt32(v), "Base XP from enemies"),
-                new EditableVariable("Progression.EnemyXPPerLevel", () => config.Progression.EnemyXPPerLevel, v => config.Progression.EnemyXPPerLevel = Convert.ToInt32(v), "XP per enemy level"),
-                new EditableVariable("Progression.EnemyGoldBase", () => config.Progression.EnemyGoldBase, v => config.Progression.EnemyGoldBase = Convert.ToInt32(v), "Base gold from enemies"),
-                new EditableVariable("Progression.EnemyGoldPerLevel", () => config.Progression.EnemyGoldPerLevel, v => config.Progression.EnemyGoldPerLevel = Convert.ToInt32(v), "Gold per enemy level"),
-                new EditableVariable("ExperienceSystem.LevelCap", () => config.ExperienceSystem.LevelCap, v => config.ExperienceSystem.LevelCap = Convert.ToInt32(v), "Maximum level"),
-                new EditableVariable("ExperienceSystem.StatPointsPerLevel", () => config.ExperienceSystem.StatPointsPerLevel, v => config.ExperienceSystem.StatPointsPerLevel = Convert.ToInt32(v), "Stat points per level"),
-                new EditableVariable("ExperienceSystem.SkillPointsPerLevel", () => config.ExperienceSystem.SkillPointsPerLevel, v => config.ExperienceSystem.SkillPointsPerLevel = Convert.ToInt32(v), "Skill points per level"),
-                new EditableVariable("ExperienceSystem.AttributeCap", () => config.ExperienceSystem.AttributeCap, v => config.ExperienceSystem.AttributeCap = Convert.ToInt32(v), "Maximum attribute value"),
+                new EditableVariable("Progression.BaseXPToLevel2", () => GameConfiguration.Instance.Progression.BaseXPToLevel2, v => GameConfiguration.Instance.Progression.BaseXPToLevel2 = Convert.ToInt32(v), "L1→2 XP bar; 0 = one tier-1 dungeon completion; >0 scales whole curve to that first bar"),
+                new EditableVariable("Progression.XPScalingFactor", () => GameConfiguration.Instance.Progression.XPScalingFactor, v => GameConfiguration.Instance.Progression.XPScalingFactor = Convert.ToDouble(v), "Multiplies every XP bar; ≤0 = 1.0 (dungeon-paced curve: 1, 1.5, 2, 3… completions/level)"),
+                new EditableVariable("Progression.EnemyXPBase", () => GameConfiguration.Instance.Progression.EnemyXPBase, v => GameConfiguration.Instance.Progression.EnemyXPBase = Convert.ToInt32(v), "Base XP from enemies"),
+                new EditableVariable("Progression.EnemyXPPerLevel", () => GameConfiguration.Instance.Progression.EnemyXPPerLevel, v => GameConfiguration.Instance.Progression.EnemyXPPerLevel = Convert.ToInt32(v), "XP per enemy level"),
+                new EditableVariable("Progression.EnemyGoldBase", () => GameConfiguration.Instance.Progression.EnemyGoldBase, v => GameConfiguration.Instance.Progression.EnemyGoldBase = Convert.ToInt32(v), "Base gold from enemies"),
+                new EditableVariable("Progression.EnemyGoldPerLevel", () => GameConfiguration.Instance.Progression.EnemyGoldPerLevel, v => GameConfiguration.Instance.Progression.EnemyGoldPerLevel = Convert.ToInt32(v), "Gold per enemy level"),
+                new EditableVariable("ExperienceSystem.LevelCap", () => GameConfiguration.Instance.ExperienceSystem.LevelCap, v => GameConfiguration.Instance.ExperienceSystem.LevelCap = Convert.ToInt32(v), "Maximum level"),
+                new EditableVariable("ExperienceSystem.StatPointsPerLevel", () => GameConfiguration.Instance.ExperienceSystem.StatPointsPerLevel, v => GameConfiguration.Instance.ExperienceSystem.StatPointsPerLevel = Convert.ToInt32(v), "Stat points per level"),
+                new EditableVariable("ExperienceSystem.SkillPointsPerLevel", () => GameConfiguration.Instance.ExperienceSystem.SkillPointsPerLevel, v => GameConfiguration.Instance.ExperienceSystem.SkillPointsPerLevel = Convert.ToInt32(v), "Skill points per level"),
+                new EditableVariable("ExperienceSystem.AttributeCap", () => GameConfiguration.Instance.ExperienceSystem.AttributeCap, v => GameConfiguration.Instance.ExperienceSystem.AttributeCap = Convert.ToInt32(v), "Maximum attribute value"),
             };
             variablesByCategory["Progression"] = progressionVars;
 
             // Status Effects - dynamically generated from dictionary
             var statusVars = new List<EditableVariable>();
-            config.StatusEffects.InitializeDefaults();
-            foreach (var kvp in config.StatusEffects.Effects)
+            GameConfiguration.Instance.StatusEffects.InitializeDefaults();
+            foreach (var kvp in GameConfiguration.Instance.StatusEffects.Effects)
             {
                 string effectName = kvp.Key;
                 var effectConfig = kvp.Value;
@@ -179,36 +177,36 @@ namespace RPGGame.Editors
             // Dungeon Generation
             var dungeonVars = new List<EditableVariable>
             {
-                new EditableVariable("DungeonScaling.RoomCountBase", () => config.DungeonScaling.RoomCountBase, v => config.DungeonScaling.RoomCountBase = Convert.ToInt32(v), "Base room count"),
-                new EditableVariable("DungeonScaling.RoomCountPerLevel", () => config.DungeonScaling.RoomCountPerLevel, v => config.DungeonScaling.RoomCountPerLevel = Convert.ToDouble(v), "Room count per level"),
-                new EditableVariable("DungeonScaling.EnemyCountPerRoom", () => config.DungeonScaling.EnemyCountPerRoom, v => config.DungeonScaling.EnemyCountPerRoom = Convert.ToInt32(v), "Enemies per room"),
-                new EditableVariable("DungeonScaling.BossRoomChance", () => config.DungeonScaling.BossRoomChance, v => config.DungeonScaling.BossRoomChance = Convert.ToDouble(v), "Boss room chance"),
-                new EditableVariable("DungeonScaling.TrapRoomChance", () => config.DungeonScaling.TrapRoomChance, v => config.DungeonScaling.TrapRoomChance = Convert.ToDouble(v), "Trap room chance"),
-                new EditableVariable("DungeonScaling.TreasureRoomChance", () => config.DungeonScaling.TreasureRoomChance, v => config.DungeonScaling.TreasureRoomChance = Convert.ToDouble(v), "Treasure room chance"),
+                new EditableVariable("DungeonScaling.RoomCountBase", () => GameConfiguration.Instance.DungeonScaling.RoomCountBase, v => GameConfiguration.Instance.DungeonScaling.RoomCountBase = Convert.ToInt32(v), "Base room count"),
+                new EditableVariable("DungeonScaling.RoomCountPerLevel", () => GameConfiguration.Instance.DungeonScaling.RoomCountPerLevel, v => GameConfiguration.Instance.DungeonScaling.RoomCountPerLevel = Convert.ToDouble(v), "Room count per level"),
+                new EditableVariable("DungeonScaling.EnemyCountPerRoom", () => GameConfiguration.Instance.DungeonScaling.EnemyCountPerRoom, v => GameConfiguration.Instance.DungeonScaling.EnemyCountPerRoom = Convert.ToInt32(v), "Enemies per room"),
+                new EditableVariable("DungeonScaling.BossRoomChance", () => GameConfiguration.Instance.DungeonScaling.BossRoomChance, v => GameConfiguration.Instance.DungeonScaling.BossRoomChance = Convert.ToDouble(v), "Boss room chance"),
+                new EditableVariable("DungeonScaling.TrapRoomChance", () => GameConfiguration.Instance.DungeonScaling.TrapRoomChance, v => GameConfiguration.Instance.DungeonScaling.TrapRoomChance = Convert.ToDouble(v), "Trap room chance"),
+                new EditableVariable("DungeonScaling.TreasureRoomChance", () => GameConfiguration.Instance.DungeonScaling.TreasureRoomChance, v => GameConfiguration.Instance.DungeonScaling.TreasureRoomChance = Convert.ToDouble(v), "Treasure room chance"),
             };
             variablesByCategory["Dungeon"] = dungeonVars;
 
             // Loot System
             var lootVars = new List<EditableVariable>
             {
-                new EditableVariable("LootSystem.BaseDropChance", () => config.LootSystem.BaseDropChance, v => config.LootSystem.BaseDropChance = Convert.ToDouble(v), "Base drop chance"),
-                new EditableVariable("LootSystem.DropChancePerLevel", () => config.LootSystem.DropChancePerLevel, v => config.LootSystem.DropChancePerLevel = Convert.ToDouble(v), "Drop chance per level"),
-                new EditableVariable("LootSystem.MaxDropChance", () => config.LootSystem.MaxDropChance, v => config.LootSystem.MaxDropChance = Convert.ToDouble(v), "Maximum drop chance"),
-                new EditableVariable("LootSystem.GuaranteedLootChance", () => config.LootSystem.GuaranteedLootChance, v => config.LootSystem.GuaranteedLootChance = Convert.ToDouble(v), "Guaranteed loot chance"),
-                new EditableVariable("LootSystem.MagicFindEffectiveness", () => config.LootSystem.MagicFindEffectiveness, v => config.LootSystem.MagicFindEffectiveness = Convert.ToDouble(v), "Magic find effectiveness"),
-                new EditableVariable("LootSystem.AffixMagicFindMaxWeightBoost", () => config.LootSystem.AffixMagicFindMaxWeightBoost, v => config.LootSystem.AffixMagicFindMaxWeightBoost = Convert.ToDouble(v), "MF 100: max affix-line tier weight boost (prefix/suffix pools)"),
-                new EditableVariable("LootSystem.AffixMagicFindMaxExtraChanceBoost", () => config.LootSystem.AffixMagicFindMaxExtraChanceBoost, v => config.LootSystem.AffixMagicFindMaxExtraChanceBoost = Convert.ToDouble(v), "MF 100: max multiplier on optional affix extra chances"),
-                new EditableVariable("LootSystem.GoldDropMultiplier", () => config.LootSystem.GoldDropMultiplier, v => config.LootSystem.GoldDropMultiplier = Convert.ToDouble(v), "Gold drop multiplier"),
+                new EditableVariable("LootSystem.BaseDropChance", () => GameConfiguration.Instance.LootSystem.BaseDropChance, v => GameConfiguration.Instance.LootSystem.BaseDropChance = Convert.ToDouble(v), "Base drop chance"),
+                new EditableVariable("LootSystem.DropChancePerLevel", () => GameConfiguration.Instance.LootSystem.DropChancePerLevel, v => GameConfiguration.Instance.LootSystem.DropChancePerLevel = Convert.ToDouble(v), "Drop chance per level"),
+                new EditableVariable("LootSystem.MaxDropChance", () => GameConfiguration.Instance.LootSystem.MaxDropChance, v => GameConfiguration.Instance.LootSystem.MaxDropChance = Convert.ToDouble(v), "Maximum drop chance"),
+                new EditableVariable("LootSystem.GuaranteedLootChance", () => GameConfiguration.Instance.LootSystem.GuaranteedLootChance, v => GameConfiguration.Instance.LootSystem.GuaranteedLootChance = Convert.ToDouble(v), "Guaranteed loot chance"),
+                new EditableVariable("LootSystem.MagicFindEffectiveness", () => GameConfiguration.Instance.LootSystem.MagicFindEffectiveness, v => GameConfiguration.Instance.LootSystem.MagicFindEffectiveness = Convert.ToDouble(v), "Magic find effectiveness"),
+                new EditableVariable("LootSystem.AffixMagicFindMaxWeightBoost", () => GameConfiguration.Instance.LootSystem.AffixMagicFindMaxWeightBoost, v => GameConfiguration.Instance.LootSystem.AffixMagicFindMaxWeightBoost = Convert.ToDouble(v), "MF 100: max affix-line tier weight boost (prefix/suffix pools)"),
+                new EditableVariable("LootSystem.AffixMagicFindMaxExtraChanceBoost", () => GameConfiguration.Instance.LootSystem.AffixMagicFindMaxExtraChanceBoost, v => GameConfiguration.Instance.LootSystem.AffixMagicFindMaxExtraChanceBoost = Convert.ToDouble(v), "MF 100: max multiplier on optional affix extra chances"),
+                new EditableVariable("LootSystem.GoldDropMultiplier", () => GameConfiguration.Instance.LootSystem.GoldDropMultiplier, v => GameConfiguration.Instance.LootSystem.GoldDropMultiplier = Convert.ToDouble(v), "Gold drop multiplier"),
             };
             variablesByCategory["Loot"] = lootVars;
 
             // Combo System
             var comboVars = new List<EditableVariable>
             {
-                new EditableVariable("ComboSystem.ComboAmplifierAtTech5", () => config.ComboSystem.ComboAmplifierAtTech5, v => config.ComboSystem.ComboAmplifierAtTech5 = Convert.ToDouble(v), "Legacy; curve uses flat 1.0 amp below technique 5"),
-                new EditableVariable("ComboSystem.ComboAmplifierMax", () => config.ComboSystem.ComboAmplifierMax, v => config.ComboSystem.ComboAmplifierMax = Convert.ToDouble(v), "Maximum combo amplifier"),
-                new EditableVariable("ComboSystem.ComboAmplifierMaxTech", () => config.ComboSystem.ComboAmplifierMaxTech, v => config.ComboSystem.ComboAmplifierMaxTech = Convert.ToInt32(v), "Technique for max combo amplifier"),
-                new EditableVariable("ComboSystem.ComboAmplifierCurveExponent", () => config.ComboSystem.ComboAmplifierCurveExponent, v => config.ComboSystem.ComboAmplifierCurveExponent = Convert.ToDouble(v), "Technique→amp curve exponent (>1 = low amp until high TECH); 0 uses default 2.5"),
+                new EditableVariable("ComboSystem.ComboAmplifierAtTech5", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierAtTech5, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierAtTech5 = Convert.ToDouble(v), "Legacy; curve uses flat 1.0 amp below technique 5"),
+                new EditableVariable("ComboSystem.ComboAmplifierMax", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierMax, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierMax = Convert.ToDouble(v), "Maximum combo amplifier"),
+                new EditableVariable("ComboSystem.ComboAmplifierMaxTech", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierMaxTech, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierMaxTech = Convert.ToInt32(v), "Technique for max combo amplifier"),
+                new EditableVariable("ComboSystem.ComboAmplifierCurveExponent", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierCurveExponent, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierCurveExponent = Convert.ToDouble(v), "Technique→amp curve exponent (>1 = low amp until high TECH); 0 uses default 2.5"),
             };
             variablesByCategory["Combo"] = comboVars;
 
@@ -268,7 +266,7 @@ namespace RPGGame.Editors
             try
             {
                 // Save GameConfiguration to TuningConfig.json
-                bool configSaved = config.SaveToFile();
+                bool configSaved = GameConfiguration.Instance.SaveToFile();
                 
                 // Save GameSettings to gamesettings.json
                 gameSettings.SaveSettings();

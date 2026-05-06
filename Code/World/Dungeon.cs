@@ -27,6 +27,29 @@ namespace RPGGame
         {
             Rooms.Clear();
 
+            if (string.Equals(Name, GameConstants.TrainingGroundDungeonName, StringComparison.OrdinalIgnoreCase))
+            {
+                var room = new Environment(
+                    name: GameConstants.TrainingGroundDungeonName,
+                    description: "A practice yard with a lone training dummy. Strike freely—nothing here can end your journey.",
+                    isHostile: true,
+                    theme: "Generic");
+                var dummy = new Enemy(
+                    name: GameConstants.TrainingDummyEnemyName,
+                    level: 1,
+                    maxHealth: GameConstants.TrainingDummyMaxHealth,
+                    damage: GameConstants.TrainingDummyDamage,
+                    armor: 0,
+                    attackSpeed: GameConstants.TrainingDummyBaseAttackSpeedSeconds,
+                    PrimaryAttribute.Strength,
+                    isLiving: true,
+                    EnemyArchetype.Guardian,
+                    useDirectStats: true);
+                room.GetEnemies().Add(dummy);
+                Rooms.Add(room);
+                return;
+            }
+
             try
             {
                 // Use TuningConfig for dungeon scaling

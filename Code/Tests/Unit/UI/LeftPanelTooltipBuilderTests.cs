@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using RPGGame;
 using RPGGame.Tests;
 using RPGGame.UI;
 
@@ -47,10 +48,14 @@ namespace RPGGame.Tests.Unit.UI
             {
                 GearAction = "JAB"
             };
+            w.AttributeRequirements = new AttributeRequirements(new System.Collections.Generic.Dictionary<string, int> { ["strength"] = 99 });
             c.Weapon = w;
             var gearW = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "gear:weapon", 50, 30);
             TestBase.AssertTrue(gearW.Any(l => l.Contains("Rusty", StringComparison.Ordinal)),
                 "weapon name in tooltip",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(gearW.Any(l => l.Contains("Requires:", StringComparison.Ordinal)),
+                "weapon tooltip shows attribute requirements summary",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(gearW.Any(l => l.Contains("Weapon damage", StringComparison.Ordinal)),
                 "weapon stats line",
@@ -67,6 +72,16 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(invTip.Any(l => l.StartsWith("Actions:", StringComparison.Ordinal)),
                 "bag item tooltip lists resolved gear actions",
+                ref run, ref passed, ref failed);
+
+            var boots = new FeetItem("Striders", tier: 1, armor: 2) { ExtraActionSlots = 2 };
+            c.EquipItem(boots, "feet");
+            var feetTip = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "gear:feet", 50, 30);
+            TestBase.AssertTrue(feetTip.Any(l => l.Contains("Striders", StringComparison.Ordinal)),
+                "feet item name in tooltip",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(feetTip.Any(l => l.Contains("combo strip", StringComparison.OrdinalIgnoreCase) && l.Contains('2')),
+                "feet tooltip mentions extra combo strip slots from catalog",
                 ref run, ref passed, ref failed);
 
             var heroHp = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "hero:hp", 40, 8);

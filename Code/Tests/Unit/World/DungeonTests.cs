@@ -28,6 +28,7 @@ namespace RPGGame.Tests.Unit.World
             TestDungeonCreation();
             TestDungeonProperties();
             TestDungeonGenerate();
+            TestTrainingGroundDungeonGenerate();
 
             TestBase.PrintSummary("Dungeon Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -117,6 +118,39 @@ namespace RPGGame.Tests.Unit.World
                         ref _testsRun, ref _testsPassed, ref _testsFailed);
                 }
             }
+        }
+
+        private static void TestTrainingGroundDungeonGenerate()
+        {
+            Console.WriteLine("\n--- Testing Training Ground Dungeon Generate ---");
+
+            var dungeon = PreWeaponTrainingFlow.CreateTrainingGroundDungeon();
+            dungeon.Generate();
+
+            TestBase.AssertEqual(1, dungeon.Rooms.Count,
+                "Training Ground should have exactly one room",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var room = dungeon.Rooms[0];
+            TestBase.AssertTrue(room.IsHostile, "Training room should be hostile", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var enemies = room.GetEnemies();
+            TestBase.AssertEqual(1, enemies.Count, "Training room should have one enemy", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var dummy = enemies[0];
+            TestBase.AssertEqual(GameConstants.TrainingDummyEnemyName, dummy.Name,
+                "Enemy should be Training Dummy",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(GameConstants.TrainingDummyMaxHealth, dummy.MaxHealth,
+                "Dummy max health",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(dummy.UsesDirectCombatStats(), "Dummy uses direct combat stats", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, dummy.GetEffectiveStrength(),
+                "Dummy effective damage (strength path)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(GameConstants.TrainingDummyBaseAttackSpeedSeconds, dummy.GetTotalAttackSpeed(),
+                "Dummy base attack time (seconds, direct stats)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion
