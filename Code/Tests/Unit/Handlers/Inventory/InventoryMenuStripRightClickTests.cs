@@ -18,6 +18,7 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
 
             TestRemovesFirstSlot(ref run, ref passed, ref failed);
             TestBlockedDuringEquipPrompt(ref run, ref passed, ref failed);
+            TestEquipMenuSkipsMutatingConfirmation(ref run, ref passed, ref failed);
             TestInvalidIndexReturnsFalse(ref run, ref passed, ref failed);
             TestGameCoordinatorDelegates(ref run, ref passed, ref failed);
 
@@ -96,6 +97,21 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
                 "Strip remove ignored during equip item selection", ref run, ref passed, ref failed);
 
             handler.HandleMenuInput("0"); // cancel equip prompt
+        }
+
+        private static void TestEquipMenuSkipsMutatingConfirmation(ref int run, ref int passed, ref int failed)
+        {
+            var sm = new GameStateManager();
+            var c = TestDataBuilders.Character().WithName("EquipSkip").Build();
+            c.Inventory.Add(TestDataBuilders.Item().WithName("EqItem").Build());
+            sm.SetCurrentPlayer(c);
+            sm.TransitionToState(GameState.Inventory);
+
+            var handler = new InventoryMenuHandler(sm, null);
+            handler.HandleMenuInput("1");
+
+            TestBase.AssertTrue(!handler.IsWaitingForMenuMutatingActionConfirmation,
+                "Equip menu does not require mutating-action confirmation screen", ref run, ref passed, ref failed);
         }
 
         private static void TestInvalidIndexReturnsFalse(ref int run, ref int passed, ref int failed)

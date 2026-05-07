@@ -36,16 +36,34 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         }
 
         /// <summary>
-        /// Renders an item name with colored text support
+        /// True when <paramref name="character"/> has the item in a context where attribute requirements
+        /// matter (bag display, comparison previews) but does not currently meet them. Used to surface
+        /// a red category bracket on inventory rows so the player can see at a glance which items their
+        /// effective STR/AGI/TEC/INT block from equipping.
+        /// </summary>
+        public static bool IsEquipBlockedForCharacter(Item item, Character? character)
+        {
+            if (item == null || character == null)
+                return false;
+            return item.GetEquipBlockedReason(character) != null;
+        }
+
+        /// <summary>
+        /// Renders an item name with colored text support. When <paramref name="character"/> is provided
+        /// and the item fails its <see cref="Item.GetEquipBlockedReason"/> check, the category bracket
+        /// (e.g. <c>[Head]</c> / <c>[Mace]</c>) is drawn in red so the player can see at a glance that
+        /// the item is not equippable with their current effective stats.
         /// </summary>
         public static void RenderItemName(ColoredTextWriter textWriter, GameCanvasControl canvas, 
-            int x, int y, int itemIndex, Item item, bool useColoredText = true)
+            int x, int y, int itemIndex, Item item, bool useColoredText = true, Character? character = null)
         {
             string slotName = GetSlotName(item);
             string rarity = item.Rarity?.Trim() ?? "Common";
             var rarityColor = ItemThemeProvider.GetRarityColor(rarity);
             // Gray brackets/slot so rarity and item name colors read clearly (Common name uses type/material theming).
             var metaColor = Colors.Gray;
+            bool slotBlocked = IsEquipBlockedForCharacter(item, character);
+            var slotColor = slotBlocked ? Colors.Red : metaColor;
             
             if (useColoredText)
             {
@@ -58,7 +76,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 displayBuilder.Add("[", metaColor);
                 displayBuilder.Add(rarity, rarityColor);
                 displayBuilder.Add("] ", metaColor);
-                displayBuilder.Add($"[{slotName}] ", metaColor);
+                displayBuilder.Add($"[{slotName}] ", slotColor);
                 var itemNameSegments = ItemDisplayColoredText.FormatFullItemName(item);
                 displayBuilder.AddRange(itemNameSegments);
                 textWriter.RenderSegments(displayBuilder.Build(), x, y);

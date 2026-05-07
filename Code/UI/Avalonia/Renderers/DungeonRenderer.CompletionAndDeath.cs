@@ -1,6 +1,7 @@
 using Avalonia.Media;
 using RPGGame;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Display;
 using System.Collections.Generic;
 
 namespace RPGGame.UI.Avalonia.Renderers
@@ -32,11 +33,15 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>
-        /// Renders the dungeon completion screen with detailed statistics and menu choices.
+        /// Renders the scrollable completion log (display buffer) and fixed footer menu.
         /// </summary>
-        public void RenderDungeonCompletion(int x, int y, int width, int height, Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun, List<string>? dungeonContext = null)
+        public void RenderDungeonCompletion(int x, int y, int width, int height, DisplayBuffer buffer)
         {
-            currentLineCount = dungeonCompletionRenderer.RenderDungeonCompletion(x, y, width, height, dungeon, player, xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>(), itemsFoundDuringRun ?? new List<Item>(), dungeonContext);
+            int logHeight = System.Math.Max(1, height - DungeonCompletionRenderer.FooterReservedRows);
+            var displayRenderer = new DisplayRenderer(textWriter);
+            displayRenderer.Render(buffer, x, y, width, logHeight, clearContent: true);
+            dungeonCompletionRenderer.RenderFooterOnly(x, y, width, height);
+            currentLineCount = 0;
         }
 
         /// <summary>

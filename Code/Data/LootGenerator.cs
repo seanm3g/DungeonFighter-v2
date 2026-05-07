@@ -253,6 +253,116 @@ namespace RPGGame
             return item;
         }
 
+        private static readonly string[] NewGameBonusArmorJsonSlots = { "head", "chest", "legs", "feet" };
+
+        /// <summary>
+        /// One guaranteed piece of armor loot (head, chest, legs, or feet — never a weapon) for a new character
+        /// after they pick a starting weapon. Uses the same tier/rarity/affix pipeline as dungeon armor drops.
+        /// Re-rolls when the result is <see cref="Item.IsStarterItem"/> when the catalog allows a non-starter piece.
+        /// </summary>
+        public static Item? GenerateNewGameBonusLoot(Character player)
+        {
+            if (player == null)
+                return null;
+
+            Initialize();
+
+            int playerLevel = Math.Max(1, player.Level);
+            const int dungeonLevel = 1;
+
+            const int maxAttempts = 16;
+            Item? last = null;
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                last = GenerateGuaranteedArmorLootOnce(player, playerLevel, dungeonLevel);
+                if (last == null || last is WeaponItem)
+                    continue;
+                if (!last.IsStarterItem)
+                    return last;
+            }
+
+            return last is WeaponItem ? null : last;
+        }
+
+        /// <summary>
+        /// Guaranteed armor selection + the same post-selection steps as <see cref="GenerateLoot"/> (level, scaling, rarity, bonuses).
+        /// </summary>
+        private static Item? GenerateGuaranteedArmorLootOnce(Character player, int playerLevel, int dungeonLevel)
+        {
+            var tuning = GameConfiguration.Instance;
+            int lootLevel = TierCalculator.CalculateLootLevel(playerLevel, dungeonLevel);
+            string armorJsonSlot = ItemSelector.RollArmorJsonSlotUniform();
+            int tier = TierCalculator.RollTier(lootLevel);
+            Item? item = ItemSelector.SelectItem(tier, isWeapon: false, armorJsonSlot);
+
+            if (item == null)
+            {
+                for (int fallbackTier = 1; fallbackTier <= 5; fallbackTier++)
+                {
+                    item = ItemSelector.SelectItem(fallbackTier, isWeapon: false, armorJsonSlot);
+                    if (item != null)
+                    {
+                        tier = fallbackTier;
+                        break;
+                    }
+
+                    foreach (string slot in NewGameBonusArmorJsonSlots)
+                    {
+                        item = ItemSelector.SelectItem(fallbackTier, isWeapon: false, slot);
+                        if (item != null)
+                        {
+                            tier = fallbackTier;
+                            armorJsonSlot = slot;
+                            break;
+                        }
+                    }
+
+                    if (item != null)
+                        break;
+                }
+            }
+
+            if (item == null)
+            {
+                int fallbackTier = tier > 0 ? tier : 1;
+                armorJsonSlot = ItemSelector.RollArmorJsonSlotUniform();
+                item = armorJsonSlot switch
+                {
+                    "head" => new HeadItem("Basic Helmet", fallbackTier, 3),
+                    "chest" => new ChestItem("Basic Armor", fallbackTier, 5),
+                    "legs" => new LegsItem("Basic Legs", fallbackTier, 3),
+                    "feet" => new FeetItem("Basic Boots", fallbackTier, 3),
+                    _ => new ChestItem("Basic Armor", fallbackTier, 5)
+                };
+                item.Level = Math.Max(1, lootLevel);
+                item.Tier = fallbackTier;
+                item.Rarity = "Common";
+            }
+
+            if (item is WeaponItem)
+                return null;
+
+            double levelRoll = _random.NextDouble();
+            if (levelRoll < 0.5)
+                item.Level = dungeonLevel;
+            else if (levelRoll < 0.75)
+                item.Level = dungeonLevel + 1;
+            else
+                item.Level = Math.Max(1, dungeonLevel - 1);
+
+            ApplyItemScaling(item, tuning);
+
+            var rarity = RarityProcessor.RollRarity(0.0, playerLevel);
+            item.Rarity = rarity.Name?.Trim() ?? "Common";
+            RarityProcessor.ApplyRarityScaling(item, rarity);
+
+            var context = LootContext.Create(player, dungeonTheme: null, enemyArchetype: null);
+            int affixMagicFind = Math.Clamp(player.GetMagicFind(), 0, 100);
+            BonusApplier.ApplyBonuses(item, rarity, context, affixMagicFind);
+
+            return item;
+        }
+
         /// <summary>
         /// Calculates the loot drop chance based on player level, magic find, and guaranteed flag
         /// </summary>

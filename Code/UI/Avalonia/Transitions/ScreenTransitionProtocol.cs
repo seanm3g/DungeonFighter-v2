@@ -51,7 +51,8 @@ namespace RPGGame.UI.Avalonia.Transitions
             // STEP 2: Suppress display buffer rendering
             // Prevents combat log from auto-rendering and clearing menu
             canvasUI.SuppressDisplayBufferRendering();
-            canvasUI.ClearDisplayBufferWithoutRender();
+            if (!context.PreserveDisplayBuffer)
+                canvasUI.ClearDisplayBufferWithoutRender();
 
             // STEP 3: Clear interactive elements
             canvasUI.ClearClickableElements();
@@ -102,14 +103,16 @@ namespace RPGGame.UI.Avalonia.Transitions
             Action<CanvasUICoordinator> renderAction,
             Character? character = null,
             bool clearEnemyContext = true,
-            bool clearDungeonContext = false)
+            bool clearDungeonContext = false,
+            bool preserveDisplayBuffer = false)
         {
             var context = new ScreenTransitionContext(
                 targetState,
                 renderAction,
                 character,
                 clearEnemyContext,
-                clearDungeonContext);
+                clearDungeonContext,
+                preserveDisplayBuffer);
 
             TransitionToMenuScreen(stateManager, canvasUI, context);
         }

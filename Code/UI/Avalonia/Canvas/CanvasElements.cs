@@ -32,6 +32,10 @@ namespace RPGGame.UI.Avalonia.Canvas
         public int Width { get; set; }
         public int Height { get; set; }
         public Color BorderColor { get; set; } = Colors.White;
+
+        /// <summary>Device pixels for the rectangle stroke (default 1).</summary>
+        public int BorderThicknessPixels { get; set; } = 1;
+
         public Color BackgroundColor { get; set; } = Colors.Transparent;
 
         /// <summary>

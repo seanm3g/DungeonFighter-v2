@@ -2,6 +2,7 @@ using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.UI.Avalonia.Handlers;
 using RPGGame.UI.TitleScreen;
 using RPGGame.Utils;
@@ -45,6 +46,8 @@ namespace RPGGame.UI.Avalonia.Handlers
             {
                 // Initialize the canvas UI manager
                 canvasUIManager = new CanvasUICoordinator(gameCanvas);
+
+                HeroActionStripFeedback.SetRequestInvalidate(() => gameCanvas.Refresh());
 
                 // Set the close action for the UI manager
                 if (canvasUIManager is CanvasUICoordinator canvasUI)

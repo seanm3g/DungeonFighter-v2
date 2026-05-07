@@ -209,6 +209,10 @@ namespace RPGGame
                     "CRITICAL: Starter weapon '{0}' could not be equipped: {1}",
                     starterWeapon.Name, starterWeaponFail ?? "unknown reason");
             }
+
+            var bonusLoot = LootGenerator.GenerateNewGameBonusLoot(player);
+            if (bonusLoot != null)
+                player.AddToInventory(bonusLoot);
             
             // Add default actions (actions marked with IsDefaultAction = true)
             player.Actions.AddDefaultActions(player);

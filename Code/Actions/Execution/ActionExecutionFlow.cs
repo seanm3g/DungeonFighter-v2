@@ -2,6 +2,7 @@ using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Events;
+using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.Utils;
 using RPGGame.Data;
 using System;
@@ -85,10 +86,34 @@ namespace RPGGame.Actions.Execution
             SelectActionAndResolveRoll(source, target, result, lastUsedActions, lastCriticalMissStatus, forcedAction);
             if (result.SelectedAction == null)
                 return result;
+
+            Character? heroForStripFeedback = null;
+            int? stripIndexForFeedback = null;
+            if (source is Character heroStrip && heroStrip is not Enemy)
+            {
+                heroForStripFeedback = heroStrip;
+                var comboForFeedback = ActionUtilities.GetComboActions(heroStrip);
+                if (comboForFeedback.Count > 0)
+                    stripIndexForFeedback = heroStrip.ComboStep % comboForFeedback.Count;
+            }
+
             if (result.Hit)
                 ApplyHitOutcome(source, target, result, battleNarrative);
             else
                 ApplyMissOutcome(source, target, result, battleNarrative);
+
+            if (stripIndexForFeedback.HasValue && heroForStripFeedback != null)
+            {
+                HeroActionStripFlashKind flashKind;
+                if (!result.Hit)
+                    flashKind = HeroActionStripFlashKind.Miss;
+                else if (ShouldFlashComboComplete(heroForStripFeedback, stripIndexForFeedback.Value, result))
+                    flashKind = HeroActionStripFlashKind.ComboComplete;
+                else
+                    flashKind = HeroActionStripFlashKind.Hit;
+                HeroActionStripFeedback.Trigger(stripIndexForFeedback.Value, flashKind);
+            }
+
             source.ConsumeRollPenaltyAfterCombatRoll(result.SelectedAction);
             return result;
         }
@@ -596,6 +621,17 @@ namespace RPGGame.Actions.Execution
             if (source is Character comboCharacterMiss)
                 comboCharacterMiss.ComboStep = 0;
             ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction!, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, false, false, 0, 0, false, result.BaseRoll, battleNarrative);
+        }
+
+        /// <summary>
+        /// Gold strip flash: any successful combo action hit.
+        /// Non-combo hits stay green.
+        /// </summary>
+        internal static bool ShouldFlashComboComplete(Character hero, int stripIndexForResolvedSwing, ActionExecutionResult result)
+        {
+            if (!result.Hit || result.SelectedAction?.IsComboAction != true)
+                return false;
+            return true;
         }
     }
 }

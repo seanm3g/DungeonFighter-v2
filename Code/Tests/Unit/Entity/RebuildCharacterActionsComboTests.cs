@@ -92,6 +92,13 @@ namespace RPGGame.Tests.Unit.Entity
             TestBase.AssertTrue(character.ActionPool.Count > 0, "action pool non-empty after rebuild with no weapon", ref run, ref passed, ref failed);
             int comboCount = character.GetComboActions()?.Count ?? 0;
             TestBase.AssertTrue(comboCount > 0, "combo non-empty after rebuild with no weapon", ref run, ref passed, ref failed);
+
+            bool hasPunch = character.ActionPool.Any(a => string.Equals(a.action.Name, "PUNCH", StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertTrue(hasPunch, "unarmed rebuild includes PUNCH in the action pool", ref run, ref passed, ref failed);
+
+            var firstCombo = character.GetComboActions().FirstOrDefault();
+            TestBase.AssertTrue(firstCombo != null && string.Equals(firstCombo.Name, "PUNCH", StringComparison.OrdinalIgnoreCase),
+                "unarmed default combo starts with PUNCH", ref run, ref passed, ref failed);
         }
     }
 }

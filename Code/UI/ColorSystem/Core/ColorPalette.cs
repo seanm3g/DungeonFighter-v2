@@ -85,7 +85,8 @@ namespace RPGGame.UI.ColorSystem
         Weapon,
         Armor,
         Potion,
-        Scroll
+        Scroll,
+        NeutralGray70
     }
     
     /// <summary>

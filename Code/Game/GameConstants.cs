@@ -112,7 +112,7 @@ namespace RPGGame
         /// <summary>Fixed opponent in the pre-weapon Training Ground.</summary>
         public const string TrainingDummyEnemyName = "Training Dummy";
 
-        public const int TrainingDummyMaxHealth = 15;
+        public const int TrainingDummyMaxHealth = 8;
         public const int TrainingDummyDamage = 1;
 
         /// <summary>Direct-stat dummy: <see cref="Enemy.GetTotalAttackSpeed"/> seconds baseline (scaled by action length in combat).</summary>

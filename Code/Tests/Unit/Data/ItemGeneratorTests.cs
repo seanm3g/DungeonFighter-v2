@@ -36,6 +36,7 @@ namespace RPGGame.Tests.Unit.Data
             TestArmorData_DeserializesNullStatCellsAsZero();
             TestArmorData_JsonNormalizerCoercesNullStatsBeforeDeserialize();
             TestArmorData_NormalizerMergesSheetStringAttributeRequirementsToDictionary();
+            TestArmorData_NormalizerCanonicalizesAttributeRequirementKeys();
             TestGenerateArmorItem_CopiesTags();
             TestGenerateArmorItem_CopiesExtendedCatalogStats();
             TestArmorData_JsonNormalizerCoercesNullAttackSpeedBeforeDeserialize();
@@ -329,6 +330,59 @@ namespace RPGGame.Tests.Unit.Data
             if (req == null) return;
             TestBase.AssertTrue(req.TryGetValue("strength", out int v) && v == 5,
                 "sheet abbrev + value should become strength:5",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Regression: <c>Armor.json</c> previously contained 48 rows whose <c>attributeRequirements</c>
+        /// dictionary used the typo'd key <c>techinque</c>. <see cref="Items.Item.GetEffectiveValueForRequirementKey"/>
+        /// only matches canonical lowercase keys, so any character had effective <c>0</c> for that requirement
+        /// and could never equip those armor pieces. The normalizer now rewrites typo'd / abbreviated dictionary
+        /// keys (and known typos like <c>techinque</c>) to canonical <c>technique</c>.
+        /// </summary>
+        private static void TestArmorData_NormalizerCanonicalizesAttributeRequirementKeys()
+        {
+            Console.WriteLine("\n--- Testing GameDataJsonNormalizer canonicalizes armor attributeRequirements dictionary keys ---");
+            const string json = """
+                [{
+                    "slot": "feet",
+                    "name": "Bindings",
+                    "armor": 0,
+                    "tier": 1,
+                    "attributeRequirements": {
+                        "techinque": 5
+                    }
+                }, {
+                    "slot": "head",
+                    "name": "Helm",
+                    "armor": 0,
+                    "tier": 1,
+                    "attributeRequirements": {
+                        "STR": 3
+                    }
+                }]
+                """;
+            string norm = GameDataJsonNormalizer.NormalizeForGameDataFile(GameConstants.ArmorJson, json);
+            var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var list = JsonSerializer.Deserialize<List<ArmorData>>(norm, opts);
+            TestBase.AssertNotNull(list, "list", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (list == null || list.Count < 2) return;
+
+            var typoFix = list[0].AttributeRequirements;
+            TestBase.AssertNotNull(typoFix, "AttributeRequirements typo row", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (typoFix == null) return;
+            TestBase.AssertTrue(typoFix.TryGetValue("technique", out int techVal) && techVal == 5,
+                "techinque -> technique:5",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(typoFix.ContainsKey("techinque"),
+                "raw techinque key removed",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var abbrev = list[1].AttributeRequirements;
+            TestBase.AssertNotNull(abbrev, "AttributeRequirements abbrev row", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (abbrev == null) return;
+            TestBase.AssertTrue(abbrev.TryGetValue("strength", out int strVal) && strVal == 3,
+                "STR -> strength:3",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

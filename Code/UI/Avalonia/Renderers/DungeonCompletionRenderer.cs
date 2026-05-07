@@ -1,23 +1,18 @@
-using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Renderers.Text;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace RPGGame.UI.Avalonia.Renderers
 {
     /// <summary>
-    /// Specialized renderer for dungeon completion screen
+    /// Dungeon completion: summary lines for the scrollable combat log plus a fixed footer menu.
     /// </summary>
     public class DungeonCompletionRenderer
     {
-        private const int TwoColumnMinWidth = 80;
-        private const int ColumnGap = 2;
         /// <summary>Prompt + gap + 3 menu rows (anchored to bottom of content rect).</summary>
-        private const int FooterReservedRows = 5;
+        public const int FooterReservedRows = 5;
 
         private readonly GameCanvasControl canvas;
         private readonly ColoredTextWriter textWriter;
@@ -31,36 +26,69 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>
-        /// Renders the dungeon completion screen with detailed statistics and menu choices
+        /// Builds colored lines appended to the center display buffer so the victory summary sits after combat log text.
         /// </summary>
-        public int RenderDungeonCompletion(int x, int y, int width, int height, Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun, List<string>? dungeonContext = null)
+        public static List<List<ColoredText>> BuildCompletionSummaryLines(
+            Dungeon dungeon,
+            Character player,
+            int xpGained,
+            Item? lootReceived,
+            List<LevelUpInfo> levelUpInfos,
+            List<Item> itemsFoundDuringRun)
         {
-            int currentLineCount = 0;
-            int bodyMaxY = y + height - FooterReservedRows - 1;
-            int startY = y + 1;
-            int currentY = startY;
+            var lines = new List<List<ColoredText>>();
 
             string victoryHeader = AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Victory);
-            int headerX = x + Math.Max(0, (width - victoryHeader.Length) / 2);
-            textWriter.RenderSegments(
-                UndulatingTextHelper.ApplyUndulationToPlainText(victoryHeader, AsciiArtAssets.Colors.Gold, currentY),
-                headerX, currentY);
-            currentY += 2;
-            currentLineCount += 2;
+            lines.Add(new List<ColoredText> { new ColoredText(victoryHeader, AsciiArtAssets.Colors.Gold) });
+            lines.Add(new List<ColoredText>());
 
             const string congrats = "Congratulations! You have successfully completed the dungeon!";
-            int fullWidth = Math.Max(8, width - 4);
-            var congratsSegments = UndulatingTextHelper.ApplyUndulationToPlainText(congrats, AsciiArtAssets.Colors.Green, currentY);
-            int lines = textWriter.WriteLineColoredWrapped(congratsSegments, x + 2, currentY, fullWidth);
-            currentY += lines;
-            currentLineCount += lines;
+            lines.Add(new List<ColoredText> { new ColoredText(congrats, AsciiArtAssets.Colors.Green) });
+
+            int maxHealth = player.GetEffectiveMaxHealth();
+            if (player.CurrentHealth == maxHealth)
+                lines.Add(new List<ColoredText> { new ColoredText("Health Fully Restored", AsciiArtAssets.Colors.Green) });
 
             var themeColor = DungeonThemeColors.GetThemeColor(dungeon.Theme);
-            var dungeonNameSegments = new List<ColoredText>
+            lines.Add(new List<ColoredText>
             {
                 new ColoredText("Dungeon: ", AsciiArtAssets.Colors.White),
                 new ColoredText(dungeon.Name, themeColor)
-            };
+            });
+
+            lines.Add(new List<ColoredText>
+            {
+                new ColoredText(AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.DungeonStatistics), AsciiArtAssets.Colors.Green)
+            });
+
+            var sessionStats = player.SessionStats;
+            lines.Add(new List<ColoredText> { new ColoredText($"  Rooms Cleared: {dungeon.Rooms.Count}", AsciiArtAssets.Colors.White) });
+            lines.Add(new List<ColoredText> { new ColoredText($"  Enemies Defeated: {sessionStats.EnemiesDefeated}", AsciiArtAssets.Colors.White) });
+            lines.Add(new List<ColoredText> { new ColoredText($"  Total Damage Dealt: {sessionStats.TotalDamageDealt:N0}", AsciiArtAssets.Colors.White) });
+            lines.Add(new List<ColoredText> { new ColoredText($"  Total Damage Received: {sessionStats.TotalDamageReceived:N0}", AsciiArtAssets.Colors.White) });
+
+            lines.Add(new List<ColoredText>
+            {
+                new ColoredText(AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.RewardsEarned), AsciiArtAssets.Colors.Yellow)
+            });
+
+            lines.Add(new List<ColoredText>
+            {
+                new ColoredText("Experience Gained: ", AsciiArtAssets.Colors.Gold),
+                new ColoredText($"{xpGained:N0} XP", AsciiArtAssets.Colors.White)
+            });
+
+            if (levelUpInfos != null && levelUpInfos.Count > 0)
+            {
+                lines.Add(new List<ColoredText>());
+                foreach (var levelUpInfo in levelUpInfos)
+                {
+                    if (!levelUpInfo.IsValid) continue;
+                    foreach (var line in LevelUpDisplayColoredText.BuildDisplayLines(levelUpInfo))
+                        lines.Add(line);
+                    lines.Add(new List<ColoredText>());
+                }
+            }
 
             List<Item> allLoot = new List<Item>();
             if (itemsFoundDuringRun != null)
@@ -68,147 +96,25 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (lootReceived != null)
                 allLoot.Add(lootReceived);
 
-            bool useTwoColumns = width >= TwoColumnMinWidth;
-            if (useTwoColumns)
+            if (allLoot.Count > 0)
             {
-                int innerPad = 2;
-                int usable = width - innerPad * 2 - ColumnGap;
-                int leftColW = Math.Max(12, usable / 2);
-                int rightColW = Math.Max(12, usable - leftColW);
-                int leftX = x + innerPad;
-                int rightX = leftX + leftColW + ColumnGap;
-
-                int splitY = currentY;
-                int leftY = splitY;
-                int rightY = splitY;
-
-                RenderLeftColumnStats(leftX, leftY, leftColW, bodyMaxY, dungeon, player, xpGained, dungeonNameSegments, allLoot, ref currentLineCount);
-                RenderRightColumnLevelUp(rightX, rightY, rightColW, bodyMaxY, levelUpInfos, ref currentLineCount);
+                lines.Add(new List<ColoredText> { new ColoredText("  Loot Received:", AsciiArtAssets.Colors.Yellow) });
+                foreach (var item in allLoot)
+                    lines.Add(ItemDisplayColoredText.FormatLootForCompletion(item));
             }
             else
             {
-                int maxHealth = player.GetEffectiveMaxHealth();
-                if (player.CurrentHealth == maxHealth)
-                {
-                    if (currentY <= bodyMaxY)
-                    {
-                        textWriter.RenderSegments(
-                            UndulatingTextHelper.ApplyUndulationToPlainText("Health Fully Restored", AsciiArtAssets.Colors.Green, currentY),
-                            x + 2, currentY);
-                        currentY++;
-                        currentLineCount++;
-                    }
-                }
-
-                if (currentY <= bodyMaxY)
-                {
-                    int n = textWriter.WriteLineColoredWrapped(dungeonNameSegments, x + 2, currentY, fullWidth);
-                    currentY += n;
-                    currentLineCount += n;
-                }
-
-                if (currentY <= bodyMaxY)
-                {
-                    textWriter.RenderSegments(
-                        UndulatingTextHelper.ApplyUndulationToPlainText(
-                            AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.DungeonStatistics),
-                            AsciiArtAssets.Colors.Green, currentY),
-                        x + 2, currentY);
-                    currentY++;
-                    currentLineCount++;
-                }
-
-                var sessionStats = player.SessionStats;
-                if (currentY <= bodyMaxY)
-                {
-                    canvas.AddText(x + 4, currentY, $"Rooms Cleared: {dungeon.Rooms.Count}", AsciiArtAssets.Colors.White);
-                    currentY++;
-                    currentLineCount++;
-                }
-                if (currentY <= bodyMaxY)
-                {
-                    canvas.AddText(x + 4, currentY, $"Enemies Defeated: {sessionStats.EnemiesDefeated}", AsciiArtAssets.Colors.White);
-                    currentY++;
-                    currentLineCount++;
-                }
-                if (currentY <= bodyMaxY)
-                {
-                    canvas.AddText(x + 4, currentY, $"Total Damage Dealt: {sessionStats.TotalDamageDealt:N0}", AsciiArtAssets.Colors.White);
-                    currentY++;
-                    currentLineCount++;
-                }
-                if (currentY <= bodyMaxY)
-                {
-                    canvas.AddText(x + 4, currentY, $"Total Damage Received: {sessionStats.TotalDamageReceived:N0}", AsciiArtAssets.Colors.White);
-                    currentY++;
-                    currentLineCount++;
-                }
-
-                if (currentY <= bodyMaxY)
-                {
-                    textWriter.RenderSegments(
-                        UndulatingTextHelper.ApplyUndulationToPlainText(
-                            AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.RewardsEarned),
-                            AsciiArtAssets.Colors.Yellow, currentY),
-                        x + 2, currentY);
-                    currentY++;
-                    currentLineCount++;
-                }
-                if (currentY <= bodyMaxY)
-                {
-                    int xpLines = WriteExperienceGainedLine(x + 4, currentY, xpGained, fullWidth - 2);
-                    currentY += xpLines;
-                    currentLineCount += xpLines;
-                }
-
-                if (levelUpInfos != null && levelUpInfos.Count > 0)
-                {
-                    if (currentY <= bodyMaxY)
-                    {
-                        currentY++;
-                        currentLineCount++;
-                    }
-                    foreach (var levelUpInfo in levelUpInfos)
-                    {
-                        if (!levelUpInfo.IsValid) continue;
-                        foreach (var line in LevelUpDisplayColoredText.BuildDisplayLines(levelUpInfo))
-                        {
-                            if (currentY > bodyMaxY) break;
-                            int m = textWriter.WriteLineColoredWrapped(MaybeShimmerLevelUpLine(line, currentY), x + 4, currentY, fullWidth - 2);
-                            currentY += m;
-                            currentLineCount += m;
-                        }
-                        if (currentY <= bodyMaxY) { currentY++; currentLineCount++; }
-                    }
-                }
-
-                if (allLoot.Count > 0)
-                {
-                    if (currentY <= bodyMaxY)
-                    {
-                        textWriter.RenderSegments(
-                            UndulatingTextHelper.ApplyUndulationToPlainText("Loot Received:", AsciiArtAssets.Colors.Yellow, currentY),
-                            x + 4, currentY);
-                        currentY++;
-                        currentLineCount++;
-                    }
-                    foreach (var item in allLoot)
-                    {
-                        if (currentY > bodyMaxY) break;
-                        var lootSegments = ItemDisplayColoredText.FormatLootForCompletion(item);
-                        int ln = textWriter.WriteLineColoredWrapped(lootSegments, x + 4, currentY, fullWidth - 2);
-                        currentY += ln;
-                        currentLineCount += ln;
-                    }
-                }
-                else if (currentY <= bodyMaxY)
-                {
-                    canvas.AddText(x + 4, currentY, "Loot Received: None", AsciiArtAssets.Colors.Gray);
-                    currentY++;
-                    currentLineCount++;
-                }
+                lines.Add(new List<ColoredText> { new ColoredText("  Loot Received: None", AsciiArtAssets.Colors.Gray) });
             }
 
+            return lines;
+        }
+
+        /// <summary>
+        /// Draws the bottom prompt and menu options (fixed; not part of the scrollable log).
+        /// </summary>
+        public void RenderFooterOnly(int x, int y, int width, int height)
+        {
             int footerPromptY = y + height - FooterReservedRows;
             int menuStartY = footerPromptY + 2;
 
@@ -217,7 +123,6 @@ namespace RPGGame.UI.Avalonia.Renderers
                     AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.WhatWouldYouLikeToDo),
                     AsciiArtAssets.Colors.Gold, footerPromptY),
                 x + 2, footerPromptY);
-            currentLineCount += 1;
 
             int menuX = x + Math.Max(2, (width / 2) - 10);
 
@@ -259,163 +164,6 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.AddMenuOption(menuX, menuStartY, 1, UIConstants.MenuOptions.GoToDungeon, AsciiArtAssets.Colors.White, option1.IsHovered);
             canvas.AddMenuOption(menuX, menuStartY + 1, 2, UIConstants.MenuOptions.ShowInventory, AsciiArtAssets.Colors.White, option2.IsHovered);
             canvas.AddMenuOption(menuX, menuStartY + 2, 0, UIConstants.MenuOptions.SaveAndExit, AsciiArtAssets.Colors.White, option3.IsHovered);
-            currentLineCount += 5;
-
-            return currentLineCount;
-        }
-
-        private int RenderLeftColumnStats(int leftX, int leftY, int leftColW, int bodyMaxY, Dungeon dungeon, Character player, int xpGained, List<ColoredText> dungeonNameSegments, List<Item> allLoot, ref int currentLineCount)
-        {
-            int y = leftY;
-
-            int maxHealth = player.GetEffectiveMaxHealth();
-            if (player.CurrentHealth == maxHealth && y <= bodyMaxY)
-            {
-                textWriter.RenderSegments(
-                    UndulatingTextHelper.ApplyUndulationToPlainText("Health Fully Restored", AsciiArtAssets.Colors.Green, y),
-                    leftX, y);
-                y++;
-                currentLineCount++;
-            }
-
-            if (y <= bodyMaxY)
-            {
-                int n = textWriter.WriteLineColoredWrapped(dungeonNameSegments, leftX, y, leftColW);
-                y += n;
-                currentLineCount += n;
-            }
-
-            if (y <= bodyMaxY)
-            {
-                textWriter.RenderSegments(
-                    UndulatingTextHelper.ApplyUndulationToPlainText(
-                        AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.DungeonStatistics),
-                        AsciiArtAssets.Colors.Green, y),
-                    leftX, y);
-                y++;
-                currentLineCount++;
-            }
-
-            var sessionStats = player.SessionStats;
-            if (y <= bodyMaxY)
-            {
-                canvas.AddText(leftX, y, $"Rooms Cleared: {dungeon.Rooms.Count}", AsciiArtAssets.Colors.White);
-                y++;
-                currentLineCount++;
-            }
-            if (y <= bodyMaxY)
-            {
-                canvas.AddText(leftX, y, $"Enemies Defeated: {sessionStats.EnemiesDefeated}", AsciiArtAssets.Colors.White);
-                y++;
-                currentLineCount++;
-            }
-            if (y <= bodyMaxY)
-            {
-                canvas.AddText(leftX, y, $"Total Damage Dealt: {sessionStats.TotalDamageDealt:N0}", AsciiArtAssets.Colors.White);
-                y++;
-                currentLineCount++;
-            }
-            if (y <= bodyMaxY)
-            {
-                canvas.AddText(leftX, y, $"Total Damage Received: {sessionStats.TotalDamageReceived:N0}", AsciiArtAssets.Colors.White);
-                y++;
-                currentLineCount++;
-            }
-
-            if (y <= bodyMaxY)
-            {
-                textWriter.RenderSegments(
-                    UndulatingTextHelper.ApplyUndulationToPlainText(
-                        AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.RewardsEarned),
-                        AsciiArtAssets.Colors.Yellow, y),
-                    leftX, y);
-                y++;
-                currentLineCount++;
-            }
-            if (y <= bodyMaxY)
-            {
-                int xpLines = WriteExperienceGainedLine(leftX, y, xpGained, leftColW);
-                y += xpLines;
-                currentLineCount += xpLines;
-            }
-
-            if (allLoot.Count > 0)
-            {
-                if (y <= bodyMaxY)
-                {
-                    textWriter.RenderSegments(
-                        UndulatingTextHelper.ApplyUndulationToPlainText("Loot Received:", AsciiArtAssets.Colors.Yellow, y),
-                        leftX, y);
-                    y++;
-                    currentLineCount++;
-                }
-                foreach (var item in allLoot)
-                {
-                    if (y > bodyMaxY) break;
-                    var lootSegments = ItemDisplayColoredText.FormatLootForCompletion(item);
-                    int ln = textWriter.WriteLineColoredWrapped(lootSegments, leftX, y, leftColW);
-                    y += ln;
-                    currentLineCount += ln;
-                }
-            }
-            else if (y <= bodyMaxY)
-            {
-                canvas.AddText(leftX, y, "Loot Received: None", AsciiArtAssets.Colors.Gray);
-                y++;
-                currentLineCount++;
-            }
-
-            return y;
-        }
-
-        private int WriteExperienceGainedLine(int x, int y, int xpGained, int maxWidth)
-        {
-            var parts = new List<ColoredText>();
-            parts.AddRange(UndulatingTextHelper.ApplyUndulationToPlainText("Experience Gained: ", AsciiArtAssets.Colors.Gold, y));
-            parts.Add(new ColoredText($"{xpGained:N0} XP", AsciiArtAssets.Colors.White));
-            return textWriter.WriteLineColoredWrapped(parts, x, y, maxWidth);
-        }
-
-        private static List<ColoredText> MaybeShimmerLevelUpLine(List<ColoredText> line, int lineY)
-        {
-            string full = string.Concat(line.Select(s => s.Text ?? ""));
-            if (full.Contains("LEVEL UP!", StringComparison.Ordinal) ||
-                full.Contains("known as:", StringComparison.OrdinalIgnoreCase))
-                return UndulatingTextHelper.ApplyUndulationToSegmentLine(line, lineY);
-            return line;
-        }
-
-        private int RenderRightColumnLevelUp(int rightX, int rightY, int rightColW, int bodyMaxY, List<LevelUpInfo>? levelUpInfos, ref int currentLineCount)
-        {
-            int y = rightY;
-
-            if (levelUpInfos != null && levelUpInfos.Count > 0)
-            {
-                if (y <= bodyMaxY)
-                {
-                    y++;
-                    currentLineCount++;
-                }
-
-                foreach (var levelUpInfo in levelUpInfos)
-                {
-                    if (!levelUpInfo.IsValid) continue;
-                    foreach (var line in LevelUpDisplayColoredText.BuildDisplayLines(levelUpInfo))
-                    {
-                        if (y > bodyMaxY) break;
-                        int m = textWriter.WriteLineColoredWrapped(MaybeShimmerLevelUpLine(line, y), rightX, y, rightColW);
-                        y += m;
-                        currentLineCount += m;
-                    }
-                    if (y <= bodyMaxY)
-                    {
-                        y++;
-                        currentLineCount++;
-                    }
-                }
-            }
-
-            return y;
         }
     }
 }

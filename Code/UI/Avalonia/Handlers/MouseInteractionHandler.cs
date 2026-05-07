@@ -154,31 +154,27 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
-        /// Handles pointer wheel events (mouse wheel scrolling).
+        /// Handles pointer wheel events over the framed combat log (center column below the action strip).
         /// </summary>
         public void HandlePointerWheelChanged(PointerWheelEventArgs e)
         {
             if (canvasUI == null) return;
 
-            // Get wheel delta (positive = scroll up, negative = scroll down)
-            var delta = e.Delta.Y;
-            
-            // Only handle scrolling if there's a significant delta
-            if (Math.Abs(delta) < 0.1) return;
+            var point = e.GetCurrentPoint(gameCanvas).Position;
+            var grid = ScreenToGrid(point);
+            if (!LayoutConstants.ContainsCenterPanelContent(grid.X, grid.Y))
+                return;
 
-            // Scroll the center panel display
+            double delta = e.Delta.Y;
+            if (Math.Abs(delta) < 0.01) return;
+
+            // Match keyboard scroll step (see <see cref="GameCoordinator"/> combat scroll); scale a bit for large DIPs-per-notch values.
+            int lines = Math.Max(2, Math.Min(18, (int)Math.Ceiling(Math.Abs(delta) / 40.0) * 3));
             if (delta > 0)
-            {
-                // Scroll up (show earlier content)
-                canvasUI.ScrollUp(3);
-            }
+                canvasUI.ScrollUp(lines);
             else
-            {
-                // Scroll down (show later content)
-                canvasUI.ScrollDown(3);
-            }
-            
-            // Mark event as handled to prevent default scrolling behavior
+                canvasUI.ScrollDown(lines);
+
             e.Handled = true;
         }
 

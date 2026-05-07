@@ -198,6 +198,15 @@ namespace RPGGame.Tests.UI
                     clearDungeonContext: true);
                 Assert(context2.ClearDungeonContext == true, "Context should respect clearDungeonContext = true");
 
+                var contextPreserve = new ScreenTransitionContext(
+                    GameState.DungeonCompletion,
+                    (ui) => { },
+                    preserveDisplayBuffer: true);
+                Assert(contextPreserve.PreserveDisplayBuffer == true, "Context should respect preserveDisplayBuffer = true");
+
+                var contextDefaultPreserve = new ScreenTransitionContext(GameState.MainMenu, (ui) => { });
+                Assert(contextDefaultPreserve.PreserveDisplayBuffer == false, "preserveDisplayBuffer should default to false");
+
                 _testsPassed++;
                 Console.WriteLine("✓ TestContextParameters passed");
             }

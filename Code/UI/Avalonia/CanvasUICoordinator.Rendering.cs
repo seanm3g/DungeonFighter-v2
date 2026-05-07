@@ -10,6 +10,7 @@ using RPGGame.UI.Avalonia.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.ColorSystem;
 using RPGGame.Utils;
 
@@ -209,10 +210,61 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
+        /// Appends dungeon completion summary after existing center-panel log lines (combat log preserved).
+        /// </summary>
+        public void AppendDungeonCompletionSummaryToBuffer(
+            Dungeon dungeon,
+            Character player,
+            int xpGained,
+            Item? lootReceived,
+            List<LevelUpInfo> levelUpInfos,
+            List<Item> itemsFoundDuringRun)
+        {
+            if (textManager is not CanvasTextManager ctm)
+                return;
+            ctm.SwitchToCharacterDisplayManager(player);
+            var dm = ctm.GetDisplayManagerForCharacter(player);
+            dm.Buffer.Add(new List<ColoredText>());
+            dm.Buffer.AddRange(DungeonCompletionRenderer.BuildCompletionSummaryLines(
+                dungeon,
+                player,
+                xpGained,
+                lootReceived,
+                levelUpInfos,
+                itemsFoundDuringRun));
+        }
+
+        /// <summary>
         /// Scrolls the display up.
         /// </summary>
         public void ScrollUp(int lines = 3)
         {
+            if (stateManager?.CurrentState == GameState.DungeonCompletion && textManager is CanvasTextManager ctm)
+            {
+                var player = stateManager.GetActiveCharacter();
+                if (player == null)
+                {
+                    textManager.ScrollUp(lines);
+                    return;
+                }
+                var dm = ctm.GetDisplayManagerForCharacter(player);
+                int contentWidth = LayoutConstants.CENTER_PANEL_WIDTH - 2;
+                int logHeight = Math.Max(1, LayoutConstants.CENTER_PANEL_HEIGHT - 2 - DungeonCompletionRenderer.FooterReservedRows);
+                var dr = new DisplayRenderer(new ColoredTextWriter(canvas));
+                int maxOffset = dr.CalculateMaxScrollOffset(dm.Buffer, contentWidth, logHeight);
+                dm.Buffer.ScrollUp(lines, maxOffset);
+                if (_dungeonCompletionRenderDungeon != null && _dungeonCompletionRenderPlayer != null)
+                {
+                    RenderDungeonCompletion(
+                        _dungeonCompletionRenderDungeon,
+                        _dungeonCompletionRenderPlayer,
+                        _dungeonCompletionRenderXpGained,
+                        _dungeonCompletionRenderLoot,
+                        _dungeonCompletionRenderLevelUps ?? new List<LevelUpInfo>(),
+                        _dungeonCompletionRenderItemsFound ?? new List<Item>());
+                }
+                return;
+            }
             textManager.ScrollUp(lines);
         }
 
@@ -221,6 +273,32 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public void ScrollDown(int lines = 3)
         {
+            if (stateManager?.CurrentState == GameState.DungeonCompletion && textManager is CanvasTextManager ctm)
+            {
+                var player = stateManager.GetActiveCharacter();
+                if (player == null)
+                {
+                    textManager.ScrollDown(lines);
+                    return;
+                }
+                var dm = ctm.GetDisplayManagerForCharacter(player);
+                int contentWidth = LayoutConstants.CENTER_PANEL_WIDTH - 2;
+                int logHeight = Math.Max(1, LayoutConstants.CENTER_PANEL_HEIGHT - 2 - DungeonCompletionRenderer.FooterReservedRows);
+                var dr = new DisplayRenderer(new ColoredTextWriter(canvas));
+                int maxOffset = dr.CalculateMaxScrollOffset(dm.Buffer, contentWidth, logHeight);
+                dm.Buffer.ScrollDown(lines, maxOffset);
+                if (_dungeonCompletionRenderDungeon != null && _dungeonCompletionRenderPlayer != null)
+                {
+                    RenderDungeonCompletion(
+                        _dungeonCompletionRenderDungeon,
+                        _dungeonCompletionRenderPlayer,
+                        _dungeonCompletionRenderXpGained,
+                        _dungeonCompletionRenderLoot,
+                        _dungeonCompletionRenderLevelUps ?? new List<LevelUpInfo>(),
+                        _dungeonCompletionRenderItemsFound ?? new List<Item>());
+                }
+                return;
+            }
             textManager.ScrollDown(lines);
         }
 
@@ -480,9 +558,9 @@ namespace RPGGame.UI.Avalonia
             renderer.RenderComprehensiveWeaponEnemyResults(results);
         }
 
-        public void RenderInventory(Character character, List<Item> inventory)
+        public void RenderInventory(Character character, List<Item> inventory, string? pendingMutatingInventoryMenuAction = null)
         {
-            renderer.RenderInventory(character, inventory, GetContext());
+            renderer.RenderInventory(character, inventory, GetContext(), pendingMutatingInventoryMenuAction);
         }
 
         public void RenderItemSelectionPrompt(Character character, List<Item> inventory, string promptMessage, string actionType)

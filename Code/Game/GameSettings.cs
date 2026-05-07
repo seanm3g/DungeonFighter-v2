@@ -34,6 +34,15 @@ namespace RPGGame
         public bool ShowHealthBars { get; set; } = true;
         public bool ShowDamageNumbers { get; set; } = true;
         public bool ShowComboProgress { get; set; } = true;
+
+        /// <summary>How long the combo strip border stays solid red after a hero miss (milliseconds).</summary>
+        public int ActionStripMissFlashDurationMs { get; set; } = 1200;
+
+        /// <summary>Total time the combo strip flashes gold on successful hero actions — alternates on/off each <see cref="ActionStripSuccessFlashPulseHalfPeriodMs"/> (milliseconds).</summary>
+        public int ActionStripSuccessFlashDurationMs { get; set; } = 3000;
+
+        /// <summary>Half-period for success pulse: gold for this long, then normal border for this long, repeating until <see cref="ActionStripSuccessFlashDurationMs"/> elapses.</summary>
+        public int ActionStripSuccessFlashPulseHalfPeriodMs { get; set; } = 150;
         
         // Appearance/Color Settings
         public string PanelBackgroundColor { get; set; } = "#FFFFFF"; // White
@@ -207,6 +216,10 @@ namespace RPGGame
             
             // Gameplay Settings
             AutoSaveInterval = Math.Max(1, AutoSaveInterval);
+
+            ActionStripMissFlashDurationMs = Math.Clamp(ActionStripMissFlashDurationMs, 200, 8000);
+            ActionStripSuccessFlashDurationMs = Math.Clamp(ActionStripSuccessFlashDurationMs, 500, 15000);
+            ActionStripSuccessFlashPulseHalfPeriodMs = Math.Clamp(ActionStripSuccessFlashPulseHalfPeriodMs, 50, 2000);
         }
         
         /// <summary>
@@ -272,6 +285,9 @@ namespace RPGGame
             ShowHealthBars = true;
             ShowDamageNumbers = true;
             ShowComboProgress = true;
+            ActionStripMissFlashDurationMs = 1200;
+            ActionStripSuccessFlashDurationMs = 3000;
+            ActionStripSuccessFlashPulseHalfPeriodMs = 150;
             PanelBackgroundColor = "#FFFFFF";
             PanelBorderColor = "#404040";
             PanelTextColor = "#000000";

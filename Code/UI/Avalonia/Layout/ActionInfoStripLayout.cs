@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Media;
 
 namespace RPGGame.UI.Avalonia.Layout
@@ -11,8 +12,9 @@ namespace RPGGame.UI.Avalonia.Layout
     {
         /// <summary>
         /// Border color for a strip panel. Indices at or beyond <paramref name="effectiveMaxComboSlots"/> use black so unused capacity blends into the background.
+        /// Non-selected filled slots use half-brightness of <see cref="AsciiArtAssets.Colors.NeutralGray70"/>.
         /// </summary>
-        /// <param name="selectedResolvedIndex">Highlighted combo slot from <c>ComboStep % filled</c>, or -1 when the strip is empty.</param>
+        /// <param name="selectedResolvedIndex">Next combo slot from <c>ComboStep % filled</c>, or -1 when the strip is empty.</param>
         public static Color GetPanelBorderColor(int panelIndex, int filledActionCount, int selectedResolvedIndex, int effectiveMaxComboSlots)
         {
             if (panelIndex >= effectiveMaxComboSlots)
@@ -20,10 +22,17 @@ namespace RPGGame.UI.Avalonia.Layout
             bool isEmptySlot = panelIndex >= filledActionCount;
             bool isSelected = !isEmptySlot && selectedResolvedIndex >= 0 && panelIndex == selectedResolvedIndex;
             if (isSelected)
-                return AsciiArtAssets.Colors.Gold;
+                return AsciiArtAssets.Colors.White;
             if (isEmptySlot)
                 return AsciiArtAssets.Colors.DarkGray;
-            return AsciiArtAssets.Colors.Cyan;
+            return DarkenRgb(AsciiArtAssets.Colors.NeutralGray70, 0.5);
+        }
+
+        /// <summary>Multiplies RGB channels by <paramref name="factor"/> (clamped); alpha unchanged.</summary>
+        internal static Color DarkenRgb(Color c, double factor)
+        {
+            byte Scale(byte ch) => (byte)Math.Clamp((int)Math.Round(ch * factor), 0, 255);
+            return Color.FromArgb(c.A, Scale(c.R), Scale(c.G), Scale(c.B));
         }
 
         /// <summary>

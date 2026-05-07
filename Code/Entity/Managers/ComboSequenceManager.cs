@@ -124,6 +124,17 @@ namespace RPGGame
             // If no weapon or no weapon actions were added, ensure we have proper combo actions
             if (ComboSequence.Count == 0)
             {
+                // Unarmed: prefer Punch as the default first action when present.
+                if (weapon == null)
+                {
+                    var punchEntry = entity.ActionPool.FirstOrDefault(item =>
+                        string.Equals(item.action.Name, "PUNCH", StringComparison.OrdinalIgnoreCase));
+                    if (punchEntry.action != null && punchEntry.action.IsComboAction)
+                    {
+                        AddToCombo(punchEntry.action, maxLen);
+                    }
+                }
+
                 // Find any available combo actions from the action pool
                 var availableComboActions = entity.ActionPool
                     .Where(item => item.action.IsComboAction)
@@ -133,7 +144,8 @@ namespace RPGGame
                 if (availableComboActions.Count > 0)
                 {
                     // Add the first available combo action
-                    AddToCombo(availableComboActions[0], maxLen);
+                    if (ComboSequence.Count == 0)
+                        AddToCombo(availableComboActions[0], maxLen);
                 }
                 else
                 {

@@ -49,6 +49,10 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ActionInfoStripLayoutTests.RunAllTests();
             Console.WriteLine();
+            HeroActionStripFeedbackTests.RunAllTests();
+            Console.WriteLine();
+            ItemRendererHelperBlockedSlotTests.RunAllTests();
+            Console.WriteLine();
             EffectiveVisibleWidthRegressionTests.RunAllTests();
             Console.WriteLine();
             DisplayRendererClearBandRegressionTests.RunAllTests();
@@ -133,6 +137,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             DungeonRendererTests.RunAllTests();
             Console.WriteLine();
+            DungeonCompletionRendererTests.RunAllTests();
+            Console.WriteLine();
             ItemModifiersTabManagerTests.RunAllTests();
             Console.WriteLine();
             ItemSuffixesTabManagerTests.RunAllTests();
@@ -146,6 +152,8 @@ namespace RPGGame.Tests.Runners
             KeywordColorSystemTests.RunAllTests();
             Console.WriteLine();
             DisplayRendererTests.RunAllTests();
+            Console.WriteLine();
+            DisplayTimingTests.RunAllTests();
             Console.WriteLine();
             GameCanvasControlTests.RunAllTests();
             Console.WriteLine();

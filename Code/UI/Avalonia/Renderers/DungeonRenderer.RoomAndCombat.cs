@@ -2,6 +2,7 @@ using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Display;
+using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
 using System;
@@ -84,7 +85,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the action-info strip at the top of the center column (combat, inventory, etc.), above the combat log.
         /// Shows at least <see cref="LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT"/> panels (empty placeholders when the combo is shorter or empty);
-        /// selected (current combo step) panel border is highlighted when the sequence is non-empty.
+        /// selected (next combo step) panel border is white when the sequence is non-empty; other filled slots use neutral gray darkened 50%; brief pulsing red/green/gold border after each hero swing is handled by <see cref="RPGGame.UI.Avalonia.Feedback.HeroActionStripFeedback"/> (thicker stroke for the flashing panel during the sequence).
         /// Panels at indices ≥ <see cref="ComboSequenceMaxHelper.GetEffectiveMax(Character?)"/> use a black border so unused strip capacity matches the character’s combo slot limit.
         /// When player is null, strip is cleared.
         /// </summary>
@@ -112,8 +113,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 ActionInfoStripLayout.GetPanelRect(i, displayCount, out int px, out int py, out int pw, out int panelH);
                 bool isEmptySlot = i >= filled;
-                var borderColor = ActionInfoStripLayout.GetPanelBorderColor(i, filled, selectedIndex, effectiveMaxSlots);
-                canvas.AddBorder(px, py, pw, panelH, borderColor);
+                var baseBorder = ActionInfoStripLayout.GetPanelBorderColor(i, filled, selectedIndex, effectiveMaxSlots);
+                var borderColor = HeroActionStripFeedback.TryGetBorderOverride(i, out var flashColor)
+                    ? flashColor
+                    : baseBorder;
+                int borderThick = HeroActionStripFeedback.IsFlashEmphasisActive(i)
+                    ? HeroActionStripFeedback.FlashBorderThicknessPixels
+                    : 1;
+                canvas.AddBorder(px, py, pw, panelH, borderColor, borderThick);
 
                 if (isEmptySlot || i >= effectiveMaxSlots)
                     continue;

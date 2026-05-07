@@ -14,8 +14,6 @@ namespace RPGGame.UI.Avalonia.Canvas
     /// </summary>
     public class CanvasPrimitivesRenderer
     {
-        private const double OnePixelPenHalfThickness = 0.5;
-
         private readonly CanvasCoordinateConverter coordinateConverter;
         
         public CanvasPrimitivesRenderer(CanvasCoordinateConverter coordinateConverter)
@@ -76,8 +74,9 @@ namespace RPGGame.UI.Avalonia.Canvas
                 context.FillRectangle(new SolidColorBrush(box.BackgroundColor), fillRect);
             }
 
-            var pen = new Pen(new SolidColorBrush(box.BorderColor), 1);
-            context.DrawRectangle(null, pen, InsetRectForOnePixelStroke(x, y, width, height));
+            double penThickness = System.Math.Max(1, box.BorderThicknessPixels);
+            var pen = new Pen(new SolidColorBrush(box.BorderColor), penThickness);
+            context.DrawRectangle(null, pen, InsetRectForStroke(x, y, width, height, penThickness));
         }
         
         private void RenderProgressBars(DrawingContext context, List<CanvasProgressBar> progressBars)
@@ -192,18 +191,20 @@ namespace RPGGame.UI.Avalonia.Canvas
             context.FillRectangle(new SolidColorBrush(progressBar.ForegroundColor), new Rect(x, y, progressWidth, height));
 
             // Border
-            var pen = new Pen(new SolidColorBrush(progressBar.BorderColor), 1);
-            context.DrawRectangle(null, pen, InsetRectForOnePixelStroke(x, y, width, height));
+            const double barPenThickness = 1;
+            var pen = new Pen(new SolidColorBrush(progressBar.BorderColor), barPenThickness);
+            context.DrawRectangle(null, pen, InsetRectForStroke(x, y, width, height, barPenThickness));
         }
 
         /// <summary>
-        /// Shrinks the logical rect by half a 1px pen thickness on each side so the stroke stays inside pixel bounds.
+        /// Shrinks the logical rect by half the pen thickness on each side so the stroke stays inside pixel bounds.
         /// </summary>
-        private static Rect InsetRectForOnePixelStroke(double x, double y, double width, double height)
+        private static Rect InsetRectForStroke(double x, double y, double width, double height, double penThickness)
         {
-            double w = System.Math.Max(0, width - 2 * OnePixelPenHalfThickness);
-            double h = System.Math.Max(0, height - 2 * OnePixelPenHalfThickness);
-            return new Rect(x + OnePixelPenHalfThickness, y + OnePixelPenHalfThickness, w, h);
+            double half = penThickness / 2.0;
+            double w = System.Math.Max(0, width - 2 * half);
+            double h = System.Math.Max(0, height - 2 * half);
+            return new Rect(x + half, y + half, w, h);
         }
         
         private void RenderText(DrawingContext context, List<CanvasText> textElements, bool overlayPass)

@@ -275,7 +275,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
                 SetInt(p, $"AffixPrefixMin{rarity}", entry.PrefixSlots);
                 SetChancePercent(p, $"AffixPrefixChance{rarity}", entry.PrefixExtraChance);
-                SetOptionalIntText(p, $"AffixPrefixMax{rarity}", entry.PrefixSlotsMax);
+                // Match BuildRuleFromTuningEntry: prefix slots never exceed 3 (legacy JSON used 4).
+                SetOptionalIntText(p, $"AffixPrefixMax{rarity}",
+                    entry.PrefixSlotsMax.HasValue ? Math.Min(entry.PrefixSlotsMax.Value, 3) : null);
 
                 SetInt(p, $"AffixStatMin{rarity}", entry.StatSuffixes);
                 SetChancePercent(p, $"AffixStatChance{rarity}", entry.StatSuffixExtraChance);
@@ -339,17 +341,15 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 return false;
             if (pMax.HasValue)
             {
-                if (pMax.Value > 3)
+                // Match BuildRuleFromTuningEntry (Math.Clamp(..., 3)): do not block save when tuning JSON has prefixSlotsMax > 3.
+                int capped = Math.Min(pMax.Value, 3);
+                if (capped < pMin)
                 {
-                    error = $"Prefix max for {rarity} must be ≤ 3.";
+                    error = $"Prefix max for {rarity} must be ≥ min ({pMin}) (capped at 3).";
                     return false;
                 }
 
-                if (pMax.Value < pMin)
-                {
-                    error = $"Prefix max for {rarity} must be ≥ min ({pMin}).";
-                    return false;
-                }
+                pMax = capped;
             }
 
             if (!TryParseInt(p, $"AffixStatMin{rarity}", 0, 999, out int sMin, out error))

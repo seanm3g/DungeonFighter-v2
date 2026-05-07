@@ -206,7 +206,7 @@ namespace RPGGame
             }
             
             // Add duration information
-            AddForAmountUnit(effectBuilder, duration.ToString(), ColorPalette.White, "turns", ColorPalette.White);
+            AddForAmountUnit(effectBuilder, duration.ToString(), ColorPalette.White, duration == 1 ? "turn" : "turns", ColorPalette.White);
             
             return effectBuilder.Build();
         }
@@ -235,7 +235,7 @@ namespace RPGGame
                 builder.AddRange(coloredEffect);
             }
             
-            AddForAmountUnit(builder, duration.ToString(), ColorPalette.White, "turns", ColorPalette.White);
+            AddForAmountUnit(builder, duration.ToString(), ColorPalette.White, duration == 1 ? "turn" : "turns", ColorPalette.White);
             
             return builder.Build();
         }

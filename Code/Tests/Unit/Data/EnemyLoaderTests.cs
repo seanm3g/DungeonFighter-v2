@@ -34,6 +34,7 @@ namespace RPGGame.Tests.Unit.Data
             TestDeserializeEnemyTagsFlexibleFormats();
             TestEnemyBaseAttributesDifferBetweenTemplates();
             TestEnemyTemplatesHaveDamagingActions();
+            TestEnemyJsonActionStringsAreActionIds();
 
             TestBase.PrintSummary("EnemyLoader Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -255,6 +256,28 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(hasDamagingAction,
                 "Goblin should have at least one damaging action (Attack/Spell) in its action pool",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Regression: bracket-only strings in <c>actions</c> were mis-read as action ids and produced combat lines like "with [ for 1 damage".
+        /// </summary>
+        private static void TestEnemyJsonActionStringsAreActionIds()
+        {
+            Console.WriteLine("\n--- Regression: enemy action strings are real action ids ---");
+
+            EnemyLoader.LoadEnemies();
+
+            foreach (var enemy in EnemyLoader.GetAllEnemyData())
+            {
+                foreach (var raw in enemy.Actions)
+                {
+                    if (string.IsNullOrEmpty(raw))
+                        continue;
+                    TestBase.AssertTrue(raw.Any(char.IsLetterOrDigit),
+                        $"Enemy '{enemy.Name}' actions entry must contain a letter or digit (got '{raw}')",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                }
+            }
         }
     }
 }

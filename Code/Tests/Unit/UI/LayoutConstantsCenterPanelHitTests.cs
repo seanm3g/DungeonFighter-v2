@@ -5,6 +5,7 @@ namespace RPGGame.Tests.Unit.UI
 {
     /// <summary>
     /// Hit tests for <see cref="LayoutConstants.ContainsCenterPanelContent"/> (combat log vs action strip).
+    /// Main-window mouse wheel scrolling uses the same predicate so the wheel only moves the log, not when the pointer is over the action strip or side panels.
     /// </summary>
     public static class LayoutConstantsCenterPanelHitTests
     {

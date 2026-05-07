@@ -52,7 +52,9 @@ namespace RPGGame
                 case "2":
                     // Show Inventory Menu - clear display when leaving dungeon completion
                     ClearDisplayIfNeeded();
-                    stateManager.TransitionToState(GameState.Inventory);
+                    // Let GameScreenCoordinator / ScreenTransitionProtocol transition to Inventory when the
+                    // wired ShowInventory callback runs (avoids entering Inventory before that path, which
+                    // would force a strip-only refresh instead of a full screen transition).
                     ShowInventoryEvent?.Invoke();
                     break;
                 case "0":

@@ -35,7 +35,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// New-game weapon menu: all <c>starter</c>-tagged weapons sorted by <see cref="ClassPresentationConfig.ClassWeaponOrder"/> (Barbarian→Warrior→Rogue→Wizard paths), then JSON list order within the same type; otherwise one tier-1 row per class path.
+        /// New-game weapon menu: <c>starter</c>-tagged weapons sorted by <see cref="ClassPresentationConfig.ClassWeaponOrder"/> (Barbarian→Warrior→Rogue→Wizard paths), then starter-list order within the same type; at most one row per <see cref="WeaponType"/> (first in that order wins) so duplicate catalog rows cannot add extra menu slots. Otherwise one tier-1 row per class path.
         /// </summary>
         public static List<WeaponData> ResolveStarterWeaponMenuCatalogRows()
         {
@@ -50,12 +50,25 @@ namespace RPGGame
                     return ix >= 0 ? ix : int.MaxValue;
                 }
 
-                return tagged
+                var ordered = tagged
                     .Select((w, fileIndex) => (w, fileIndex))
                     .OrderBy(x => TypeOrderIndex(x.w))
                     .ThenBy(x => x.fileIndex)
                     .Select(x => x.w)
                     .ToList();
+
+                var seenTypes = new HashSet<WeaponType>();
+                var deduped = new List<WeaponData>();
+                foreach (var w in ordered)
+                {
+                    if (!Enum.TryParse(w.Type?.Trim(), ignoreCase: true, out WeaponType wt))
+                        continue;
+                    if (!seenTypes.Add(wt))
+                        continue;
+                    deduped.Add(w);
+                }
+
+                return deduped;
             }
 
             var fallback = new List<WeaponData>();

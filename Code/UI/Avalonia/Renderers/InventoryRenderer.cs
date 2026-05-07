@@ -90,9 +90,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the inventory screen with items and actions
         /// </summary>
-        public void RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory)
+        public void RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory, string? pendingMutatingInventoryMenuAction = null)
         {
-            currentLineCount = screenRenderer.RenderInventory(x, y, width, height, character, inventory);
+            currentLineCount = screenRenderer.RenderInventory(x, y, width, height, character, inventory, pendingMutatingInventoryMenuAction);
         }
         
         /// <summary>

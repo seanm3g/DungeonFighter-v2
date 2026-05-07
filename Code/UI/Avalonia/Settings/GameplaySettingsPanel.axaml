@@ -56,6 +56,24 @@
                               Foreground="#FFE8E8E8"
                               FontSize="15"
                               IsChecked="True"/>
+
+                    <TextBlock Text="Combo strip — hit/miss border feedback (milliseconds)"
+                               Foreground="#FFB0B0B0"
+                               FontSize="13"
+                               TextWrapping="Wrap"
+                               Margin="0,8,0,0"/>
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" Margin="0,4,0,0">
+                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" FontSize="14" Text="Miss (red) duration" Margin="0,0,12,8"/>
+                        <TextBox x:Name="ActionStripMissFlashMsTextBox" Grid.Row="0" Grid.Column="1" Width="120" HorizontalAlignment="Left" Margin="0,0,0,8" Watermark="ms"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" FontSize="14" Text="Hit / combo pulse total" Margin="0,0,12,8"/>
+                        <TextBox x:Name="ActionStripSuccessFlashMsTextBox" Grid.Row="1" Grid.Column="1" Width="120" HorizontalAlignment="Left" Margin="0,0,0,8" Watermark="ms"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" FontSize="14" Text="Hit pulse half-blink" Margin="0,0,12,0"/>
+                        <TextBox x:Name="ActionStripSuccessPulseHalfMsTextBox" Grid.Row="2" Grid.Column="1" Width="120" HorizontalAlignment="Left" Watermark="ms"/>
+                    </Grid>
+                    <TextBlock Text="Miss pulses red; a normal hit pulses green; completing a multi-step combo (last slot or finisher) pulses gold. Each uses on/off half-blinks; miss uses miss duration, hits use success total."
+                               Foreground="#FF909090"
+                               FontSize="12"
+                               TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
             

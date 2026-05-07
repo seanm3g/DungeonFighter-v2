@@ -106,6 +106,11 @@ namespace RPGGame.Data.Validation
                     {
                         result.AddWarning(FileName, entityName, "actions", "Empty action name in actions array");
                     }
+                    else if (!actionName.Any(char.IsLetterOrDigit))
+                    {
+                        result.AddError(FileName, entityName, "actions",
+                            $"Action entry '{actionName}' has no letters or digits (check for stray JSON brackets or markup)");
+                    }
                     else if (_validActionNames != null && !_validActionNames.Contains(actionName))
                     {
                         result.AddError(FileName, entityName, "actions", 

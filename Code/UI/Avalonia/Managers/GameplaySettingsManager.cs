@@ -137,6 +137,9 @@ namespace RPGGame.UI.Avalonia.Managers
             GameSettings.Instance.AutoSaveInterval = backup.AutoSaveInterval;
             GameSettings.Instance.ShowDetailedStats = backup.ShowDetailedStats;
             GameSettings.Instance.EnableSoundEffects = backup.EnableSoundEffects;
+            GameSettings.Instance.ActionStripMissFlashDurationMs = backup.ActionStripMissFlashDurationMs;
+            GameSettings.Instance.ActionStripSuccessFlashDurationMs = backup.ActionStripSuccessFlashDurationMs;
+            GameSettings.Instance.ActionStripSuccessFlashPulseHalfPeriodMs = backup.ActionStripSuccessFlashPulseHalfPeriodMs;
         }
     }
 }

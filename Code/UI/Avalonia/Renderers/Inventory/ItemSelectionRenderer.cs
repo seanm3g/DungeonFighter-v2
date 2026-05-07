@@ -99,8 +99,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         $"[{i + 1}] [{rarity}] [{slotName}] {item.Name}",
                         Prefix + "inv:" + i));
                     
-                    // Render item name with colored text
-                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true);
+                    // Render item name with colored text (slot bracket red when requirements unmet)
+                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true, character: character);
                     y++;
                     currentLineCount++;
                     
@@ -278,9 +278,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             y += 2;
             currentLineCount += 2;
             
-            // Render resulting item
+            // Render resulting item (slot bracket red when this character cannot equip it)
             var resultingItemStats = ItemStatFormatter.GetItemStats(resultingItem, character);
-            ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, -1, resultingItem, useColoredText: true);
+            ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, -1, resultingItem, useColoredText: true, character: character);
             y++;
             currentLineCount++;
             

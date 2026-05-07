@@ -28,6 +28,11 @@ namespace RPGGame.Handlers.Inventory
         public bool WaitingForTradeUpConfirmation { get; set; } = false;
         public string? SelectedTradeUpRarity { get; set; } = null;
         public Item? PreviewTradeUpItem { get; set; } = null;
+
+        /// <summary>True after choosing unequip/discard/trade-up (menus 2–4) until user confirms (1) or cancels (0/ESC). Equip skips this.</summary>
+        public bool WaitingForMenuMutatingActionConfirmation { get; set; } = false;
+        /// <summary>Pending main-menu choice: "1" equip, "2" unequip, "3" discard, "4" trade-up.</summary>
+        public string PendingMutatingMenuChoice { get; set; } = "";
         
         /// <summary>
         /// Resets all item action states
@@ -39,6 +44,8 @@ namespace RPGGame.Handlers.Inventory
             WaitingForComparisonChoice = false;
             WaitingForRaritySelection = false;
             WaitingForTradeUpConfirmation = false;
+            WaitingForMenuMutatingActionConfirmation = false;
+            PendingMutatingMenuChoice = "";
             ItemSelectionAction = "";
             SelectedItemIndex = -1;
             SelectedSlot = "";
@@ -63,7 +70,7 @@ namespace RPGGame.Handlers.Inventory
         /// </summary>
         public bool IsAnySelectionActive()
         {
-            return WaitingForItemSelection || WaitingForSlotSelection || WaitingForComparisonChoice || WaitingForRaritySelection || WaitingForTradeUpConfirmation;
+            return WaitingForItemSelection || WaitingForSlotSelection || WaitingForComparisonChoice || WaitingForRaritySelection || WaitingForTradeUpConfirmation || WaitingForMenuMutatingActionConfirmation;
         }
         
         /// <summary>
@@ -75,6 +82,16 @@ namespace RPGGame.Handlers.Inventory
             
             if (!IsAnySelectionActive())
                 return true;
+
+            if (WaitingForMenuMutatingActionConfirmation)
+            {
+                if (!int.TryParse(input, out int d) || (d != 0 && d != 1))
+                {
+                    errorMessage = "Press 1 to continue or 0 to cancel.";
+                    return false;
+                }
+                return true;
+            }
             
             if (!int.TryParse(input, out _))
             {

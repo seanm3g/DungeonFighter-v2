@@ -205,6 +205,26 @@ namespace RPGGame.Tests.Unit.UI
                 "BuildActionTooltipLines omits narrative Action.Description",
                 ref run, ref passed, ref failed);
 
+            string tipStrikeJoined = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charWithCombo, 0, 80));
+            TestBase.AssertTrue(
+                tipStrikeJoined.Contains("Weapon basic", StringComparison.Ordinal) && tipStrikeJoined.Contains("sequence", StringComparison.Ordinal),
+                "BuildActionTooltipLines notes required weapon basic when action matches equipped type",
+                ref run, ref passed, ref failed);
+
+            var charOpener = CreateCharacterWithTaggedComboAction(isOpener: true, isFinisher: false, name: "OpeningMove");
+            string tipOpener = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charOpener, 0, 80));
+            TestBase.AssertTrue(
+                tipOpener.Contains("Opener", StringComparison.Ordinal) && tipOpener.Contains("first combo slot", StringComparison.Ordinal),
+                "BuildActionTooltipLines notes opener role",
+                ref run, ref passed, ref failed);
+
+            var charFinisher = CreateCharacterWithTaggedComboAction(isOpener: false, isFinisher: true, name: "ClosingMove");
+            string tipFinisher = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charFinisher, 0, 80));
+            TestBase.AssertTrue(
+                tipFinisher.Contains("Finisher", StringComparison.Ordinal) && tipFinisher.Contains("last combo slot", StringComparison.Ordinal),
+                "BuildActionTooltipLines notes finisher role",
+                ref run, ref passed, ref failed);
+
             var wrap = CombatActionStripBuilder.WrapTextToLines("hello world wide", 5);
             TestBase.AssertTrue(wrap != null && wrap.Count >= 2 && wrap.TrueForAll(l => l.Length <= 5),
                 "WrapTextToLines respects max width",
@@ -261,6 +281,23 @@ namespace RPGGame.Tests.Unit.UI
                     new ChainPositionBonusEntry { ModifiesParam = "Accuracy", Value = 1, ValueKind = "#", PositionBasis = "" }
                 }
             };
+            character.AddAction(action, 1.0);
+            character.Actions.AddToCombo(action);
+            return character;
+        }
+
+        private static Character CreateCharacterWithTaggedComboAction(bool isOpener, bool isFinisher, string name)
+        {
+            var character = TestDataBuilders.Character().WithName("TaggedCombo").WithStats(10, 10, 10, 10).Build();
+            var weapon = TestDataBuilders.Weapon().WithWeaponType(WeaponType.Wand).WithBaseDamage(5).Build();
+            character.EquipItem(weapon, "weapon");
+            var action = TestDataBuilders.CreateMockAction(name, ActionType.Attack);
+            action.DamageMultiplier = 1.0;
+            action.Length = 1.0;
+            action.IsComboAction = true;
+            action.ComboRouting ??= new ComboRoutingProperties();
+            action.ComboRouting.IsOpener = isOpener;
+            action.ComboRouting.IsFinisher = isFinisher;
             character.AddAction(action, 1.0);
             character.Actions.AddToCombo(action);
             return character;

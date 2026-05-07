@@ -152,6 +152,7 @@ namespace RPGGame.Data
                     new ColorPaletteData { Name = "Gray", Rgb = new[] { 128, 128, 128 } },
                     new ColorPaletteData { Name = "DarkGray", Rgb = new[] { 64, 64, 64 } },
                     new ColorPaletteData { Name = "LightGray", Rgb = new[] { 211, 211, 211 } },
+                    new ColorPaletteData { Name = "NeutralGray70", Rgb = new[] { 178, 178, 178 } },
                     
                     // Primary colors
                     new ColorPaletteData { Name = "Red", Rgb = new[] { 255, 0, 0 } },

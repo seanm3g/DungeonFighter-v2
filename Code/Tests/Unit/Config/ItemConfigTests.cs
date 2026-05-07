@@ -39,6 +39,7 @@ namespace RPGGame.Tests.Unit.Config
             TestItemAffixByRaritySettingsJson();
             TestItemAffixExtraFieldsJson();
             TestItemAffixExtraComboSlotsJson();
+            TestItemAffixPrefixMaxAboveThreeClampsInBuildRule();
             TestItemAffixOmittedActionMaxDefaultsToOneWhenMinZero();
             TestItemAffixRollAxis();
             TestItemAffixPerItemTypeOverridesPerRarity();
@@ -298,6 +299,23 @@ namespace RPGGame.Tests.Unit.Config
             TestBase.AssertEqual(1, rule.ExtraComboSlotsMin, "extra combo min", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(4, rule.ExtraComboSlotsMax, "extra combo max", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0.4, rule.ExtraComboSlotsExtraChance, "extra combo chance", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Tuning JSON historically used prefixSlotsMax &gt; 3; runtime clamps to 3. Item Generation save must accept the same so other affix columns (e.g. extra combo slots) can persist.
+        /// </summary>
+        private static void TestItemAffixPrefixMaxAboveThreeClampsInBuildRule()
+        {
+            Console.WriteLine("\n--- Testing ItemAffix prefixSlotsMax &gt; 3 clamps in BuildRuleFromTuningEntry ---");
+
+            var entry = new ItemAffixPerRarityEntry
+            {
+                PrefixSlots = 2,
+                PrefixExtraChance = 0.5,
+                PrefixSlotsMax = 4
+            };
+            var rule = ItemAffixByRaritySettings.BuildRuleFromTuningEntry(entry, null);
+            TestBase.AssertEqual(3, rule.PrefixMax, "prefix max clamped to 3", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         /// <summary>

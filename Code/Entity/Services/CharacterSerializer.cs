@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -147,6 +148,8 @@ namespace RPGGame.Entity.Services
             var weaponType = (character.Equipment.Weapon as WeaponItem)?.WeaponType;
             character.Actions.AddClassActions(character, character.Progression, weaponType);
 
+            EnsureUnarmedPunchInActionPool(character);
+
             // Restore user's combo sequence if possible; otherwise use default
             bool restored = character.RestoreComboFromActionNames(savedComboNames);
             if (!restored)
@@ -158,6 +161,52 @@ namespace RPGGame.Entity.Services
             EnsureActionPoolNotEmptyAfterRebuild(character);
             if (character.GetComboActions().Count == 0 && character.ActionPool.Count > 0)
                 character.InitializeDefaultCombo();
+
+            NormalizeUnarmedComboOpener(character);
+        }
+
+        /// <summary>
+        /// Pre-weapon tutorial and any unarmed state: ensure catalog PUNCH is in the pool so default combo and fallbacks can use it.
+        /// </summary>
+        private static void EnsureUnarmedPunchInActionPool(Character character)
+        {
+            if (character.Equipment.Weapon != null)
+                return;
+
+            var punch = ActionLoader.GetAction("PUNCH");
+            if (punch == null)
+                return;
+
+            bool hasPunch = character.ActionPool.Any(e =>
+                string.Equals(e.action.Name, "PUNCH", StringComparison.OrdinalIgnoreCase));
+            if (hasPunch)
+                return;
+
+            punch.IsComboAction = true;
+            character.AddAction(punch, 1.0);
+        }
+
+        /// <summary>
+        /// Class unlocks add JAB for Warrior/Rogue paths even with no weapon; opener should stay PUNCH until a weapon is equipped.
+        /// </summary>
+        private static void NormalizeUnarmedComboOpener(Character character)
+        {
+            if (character.Equipment.Weapon != null)
+                return;
+            if (ActionLoader.GetAction("PUNCH") == null)
+                return;
+
+            var combo = character.GetComboActions();
+            if (combo.Count == 0)
+                return;
+            if (!string.Equals(combo[0].Name, "JAB", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            var names = new List<string>(combo.Count);
+            foreach (var a in combo)
+                names.Add(a.Name);
+            names[0] = "PUNCH";
+            _ = character.RestoreComboFromActionNames(names);
         }
 
         /// <summary>
@@ -171,6 +220,20 @@ namespace RPGGame.Entity.Services
 
             DebugLogger.LogFormat("CharacterSerializer",
                 "WARNING: Character '{0}' has no actions after rebuild. Adding fallback actions.", character.Name);
+
+            // Pre-weapon / unarmed: prefer a clean baseline punch if it exists in Actions.json.
+            if (character.Equipment.Weapon == null)
+            {
+                var punch = ActionLoader.GetAction("PUNCH");
+                if (punch != null)
+                {
+                    punch.IsComboAction = true;
+                    character.AddAction(punch, 1.0);
+                    DebugLogger.LogFormat("CharacterSerializer",
+                        "Added unarmed fallback action 'PUNCH' to character '{0}'", character.Name);
+                    return;
+                }
+            }
 
             if (character.Equipment.Weapon is WeaponItem fallbackWeapon)
             {

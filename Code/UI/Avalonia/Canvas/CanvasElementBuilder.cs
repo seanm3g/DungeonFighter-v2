@@ -98,14 +98,15 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// <summary>
         /// Adds a box to the canvas
         /// </summary>
-        public void AddBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor = default, int opaqueBackgroundBleedDevicePixels = 0)
+        public void AddBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor = default, int opaqueBackgroundBleedDevicePixels = 0, int borderThicknessPixels = 1)
         {
             if (backgroundColor == default) backgroundColor = Colors.Transparent;
             elementManager.AddBox(new CanvasBox 
             { 
                 X = x, Y = y, Width = width, Height = height, 
                 BorderColor = borderColor, BackgroundColor = backgroundColor,
-                OpaqueBackgroundBleedDevicePixels = opaqueBackgroundBleedDevicePixels
+                OpaqueBackgroundBleedDevicePixels = opaqueBackgroundBleedDevicePixels,
+                BorderThicknessPixels = System.Math.Max(1, borderThicknessPixels)
             });
         }
 
@@ -149,9 +150,9 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// <summary>
         /// Adds a border (box with no background) to the canvas
         /// </summary>
-        public void AddBorder(int x, int y, int width, int height, Color color)
+        public void AddBorder(int x, int y, int width, int height, Color color, int borderThicknessPixels = 1)
         {
-            AddBox(x, y, width, height, color);
+            AddBox(x, y, width, height, color, default, 0, borderThicknessPixels);
         }
 
         /// <summary>

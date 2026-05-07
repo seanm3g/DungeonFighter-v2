@@ -28,6 +28,7 @@ namespace RPGGame.Tests.Unit.UI
             TestSettingsSaveResult_ActionsAndTextDelaysFlags();
             TestGameSettings_InMemoryUpdate_ReflectsInSameInstance();
             TestGameSettings_ValidateAndFix_DoesNotLoseValues();
+            TestGameSettings_ActionStripFlashClamped();
 
             TestBase.PrintSummary("Settings Save Revamp Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -75,6 +76,21 @@ namespace RPGGame.Tests.Unit.UI
             settings.ValidateAndFix();
             TestBase.AssertTrue(settings.FastCombat, "FastCombat still true after ValidateAndFix", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(settings.ShowComboProgress, "ShowComboProgress still true after ValidateAndFix", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestGameSettings_ActionStripFlashClamped()
+        {
+            Console.WriteLine("--- GameSettings action strip flash durations clamped ---");
+            var settings = new GameSettings
+            {
+                ActionStripMissFlashDurationMs = 50,
+                ActionStripSuccessFlashDurationMs = 100,
+                ActionStripSuccessFlashPulseHalfPeriodMs = 10
+            };
+            settings.ValidateAndFix();
+            TestBase.AssertTrue(settings.ActionStripMissFlashDurationMs >= 200, "Miss flash clamped to min", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(settings.ActionStripSuccessFlashDurationMs >= 500, "Success total clamped to min", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(settings.ActionStripSuccessFlashPulseHalfPeriodMs >= 50, "Pulse half clamped to min", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

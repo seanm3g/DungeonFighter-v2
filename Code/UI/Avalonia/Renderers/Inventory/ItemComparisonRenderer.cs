@@ -35,7 +35,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// </summary>
         public int RenderItemComparison(int x, int y, int width, int height, Character character, Item newItem, Item? currentItem, string slot)
         {
-            clickableElements.Clear();
             int currentLineCount = 0;
             
             canvas.ClearTextInArea(x, y, width, height);
@@ -102,8 +101,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             rightY++;
             currentLineCount++;
             
-            // Render new item name
-            ItemRendererHelper.RenderItemName(textWriter, canvas, rightColumnX, rightY, -1, newItem, useColoredText: true);
+            // Render new item name (slot bracket red when requirements block equip)
+            ItemRendererHelper.RenderItemName(textWriter, canvas, rightColumnX, rightY, -1, newItem, useColoredText: true, character: character);
             rightY++;
             currentLineCount++;
             
@@ -130,15 +129,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             y += 2;
             currentLineCount += 2;
             
-            // Create buttons for choices
-            var newItemButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, "2", MenuOptionFormatter.Format(2, "Equip new item"));
-            var oldItemButton = InventoryButtonFactory.CreateButton(x + 32, y, 28, "1", MenuOptionFormatter.Format(1, "Keep current item"));
+            // Buttons must align with column labels above: [1] CURRENT (left), [2] NEW (right).
+            // Input routing: 1 = keep current, 2 = equip new (see InventoryMenuHandler / InventoryItemComparisonHandler).
+            var keepCurrentButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, "1", MenuOptionFormatter.Format(1, "Keep current item"));
+            var equipNewButton = InventoryButtonFactory.CreateButton(x + 32, y, 28, "2", MenuOptionFormatter.Format(2, "Equip new item"));
             var cancelButton = InventoryButtonFactory.CreateButton(x + 2, y + 1, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Cancel));
             
-            clickableElements.AddRange(new[] { newItemButton, oldItemButton, cancelButton });
+            clickableElements.AddRange(new[] { keepCurrentButton, equipNewButton, cancelButton });
             
-            canvas.AddMenuOption(x + 2, y, 2, "Equip new item", AsciiArtAssets.Colors.White, newItemButton.IsHovered);
-            canvas.AddMenuOption(x + 32, y, 1, "Keep current item", AsciiArtAssets.Colors.White, oldItemButton.IsHovered);
+            canvas.AddMenuOption(x + 2, y, 1, "Keep current item", AsciiArtAssets.Colors.White, keepCurrentButton.IsHovered);
+            canvas.AddMenuOption(x + 32, y, 2, "Equip new item", AsciiArtAssets.Colors.White, equipNewButton.IsHovered);
             currentLineCount++;
             canvas.AddMenuOption(x + 2, y + 1, 0, UIConstants.MenuOptions.Cancel, AsciiArtAssets.Colors.White, cancelButton.IsHovered);
             currentLineCount++;

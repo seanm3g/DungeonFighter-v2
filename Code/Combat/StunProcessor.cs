@@ -70,7 +70,8 @@ namespace RPGGame
 
             var statusEffectBuilder = new ColoredTextBuilder();
             statusEffectBuilder.Add("(");
-            statusEffectBuilder.Add($"{entity.StunTurnsRemaining} turns remaining", Colors.White);
+            int stunTurns = entity.StunTurnsRemaining;
+            statusEffectBuilder.Add($"{stunTurns} {(stunTurns == 1 ? "turn" : "turns")} remaining", Colors.White);
             statusEffectBuilder.Add(")");
             var turnsRemainingStatusEffect = statusEffectBuilder.Build();
             var statusEffects = new List<List<ColoredText>> { turnsRemainingStatusEffect };

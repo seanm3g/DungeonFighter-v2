@@ -6,6 +6,7 @@ namespace RPGGame
     using RPGGame.UI.Avalonia;
     using RPGGame.Handlers.Inventory;
     using static RPGGame.Handlers.Inventory.ComboPointerInput;
+    using static RPGGame.UI.Avalonia.UIConstants.MenuOptions;
 
     /// <summary>
     /// Handles inventory menu display and item management.
@@ -117,7 +118,37 @@ namespace RPGGame
             else
             {
                 var inv = stateManager.CurrentInventory ?? player.Inventory ?? new List<Item>();
-                canvasUI.RenderInventory(player, inv);
+                if (stateTracker.WaitingForComparisonChoice
+                    && stateTracker.SelectedItemIndex >= 0
+                    && stateTracker.SelectedItemIndex < inv.Count
+                    && !string.IsNullOrEmpty(stateTracker.SelectedSlot))
+                {
+                    var newItem = inv[stateTracker.SelectedItemIndex];
+                    Item? currentItem = stateTracker.SelectedSlot switch
+                    {
+                        "weapon" => player.Weapon,
+                        "head" => player.Head,
+                        "body" => player.Body,
+                        "legs" => player.Legs,
+                        "feet" => player.Feet,
+                        _ => null
+                    };
+                    canvasUI.RenderItemComparison(player, newItem, currentItem, stateTracker.SelectedSlot);
+                }
+                else if (stateTracker.WaitingForItemSelection)
+                {
+                    string prompt = stateTracker.ItemSelectionAction == "discard"
+                        ? "Select Item to Discard"
+                        : "Select Item to Equip";
+                    canvasUI.RenderItemSelectionPrompt(player, inv, prompt, stateTracker.ItemSelectionAction);
+                }
+                else if (stateTracker.WaitingForSlotSelection)
+                    canvasUI.RenderSlotSelectionPrompt(player);
+                else
+                    canvasUI.RenderInventory(
+                        player,
+                        inv,
+                        stateTracker.WaitingForMenuMutatingActionConfirmation ? stateTracker.PendingMutatingMenuChoice : null);
             }
         }
 
@@ -126,6 +157,10 @@ namespace RPGGame
         /// </summary>
         public void HandleMenuInput(string input)
         {
+            if (!string.IsNullOrEmpty(input))
+                input = input.Trim();
+            if (string.IsNullOrEmpty(input))
+                return;
             if (stateManager.CurrentPlayer == null) return;
             
             // Combo management screen: mouse tokens before keyboard handler
@@ -246,6 +281,48 @@ namespace RPGGame
                 return;
             }
 
+            // Confirm equip / unequip / discard / trade-up menu choice before starting sub-flows
+            if (stateTracker.WaitingForMenuMutatingActionConfirmation)
+            {
+                if (!int.TryParse(input, out int menuConfirmDigit))
+                {
+                    ShowMessageEvent?.Invoke("Press 1 to continue or 0 to cancel.");
+                    return;
+                }
+                if (menuConfirmDigit == 0)
+                {
+                    stateTracker.WaitingForMenuMutatingActionConfirmation = false;
+                    stateTracker.PendingMutatingMenuChoice = "";
+                    ShowMessageEvent?.Invoke("Cancelled.");
+                    ShowInventoryEvent?.Invoke();
+                    return;
+                }
+                if (menuConfirmDigit != 1)
+                {
+                    ShowMessageEvent?.Invoke("Press 1 to continue or 0 to cancel.");
+                    return;
+                }
+                string pendingMenu = stateTracker.PendingMutatingMenuChoice;
+                stateTracker.WaitingForMenuMutatingActionConfirmation = false;
+                stateTracker.PendingMutatingMenuChoice = "";
+                switch (pendingMenu)
+                {
+                    case "1":
+                        itemActionHandler.PromptEquipItem();
+                        break;
+                    case "2":
+                        itemActionHandler.PromptUnequipItem();
+                        break;
+                    case "3":
+                        itemActionHandler.PromptDiscardItem();
+                        break;
+                    case "4":
+                        tradeUpHandler.PromptTradeUp();
+                        break;
+                }
+                return;
+            }
+
             // Mouse: right-panel sequence/pool (cpi:…) — ignore during equip/compare/trade flows
             if (!string.IsNullOrEmpty(input) && input.StartsWith(Prefix, StringComparison.Ordinal))
             {
@@ -270,20 +347,26 @@ namespace RPGGame
                 }
             }
             
-            // Normal menu actions
+            // Normal menu actions: equip opens item selection immediately; other mutating actions use WaitingForMenuMutatingActionConfirmation.
             switch (input)
             {
                 case "1":
-                    itemActionHandler.PromptEquipItem();
-                    break;
                 case "2":
-                    itemActionHandler.PromptUnequipItem();
-                    break;
                 case "3":
-                    itemActionHandler.PromptDiscardItem();
-                    break;
                 case "4":
-                    tradeUpHandler.PromptTradeUp();
+                    if (stateTracker.WaitingForComparisonChoice || stateTracker.WaitingForItemSelection
+                        || stateTracker.WaitingForSlotSelection || stateTracker.WaitingForRaritySelection
+                        || stateTracker.WaitingForTradeUpConfirmation)
+                        return;
+                    if (input == "1")
+                    {
+                        itemActionHandler.PromptEquipItem();
+                        break;
+                    }
+                    stateTracker.WaitingForMenuMutatingActionConfirmation = true;
+                    stateTracker.PendingMutatingMenuChoice = input;
+                    ShowMessageEvent?.Invoke(GetMutatingMenuConfirmMessage(input));
+                    ShowInventoryEvent?.Invoke();
                     break;
                 case "0":
                     stateManager.TransitionToState(GameState.GameLoop);
@@ -293,6 +376,40 @@ namespace RPGGame
                     ShowMessageEvent?.Invoke("Invalid choice. Press 1-4, 0 (Return to game menu), or ESC to go back.");
                     break;
             }
+        }
+
+        /// <summary>
+        /// When true, the user chose unequip / discard / trade-up and must press 1 to continue or 0/ESC to cancel (equip skips this step).
+        /// </summary>
+        public bool IsWaitingForMenuMutatingActionConfirmation => stateTracker.WaitingForMenuMutatingActionConfirmation;
+
+        /// <summary>
+        /// Cancels the pending main-menu mutating action (equip/unequip/discard/trade-up) and refreshes inventory UI.
+        /// </summary>
+        public bool TryCancelMutatingInventoryMenuActionConfirmation()
+        {
+            if (!stateTracker.WaitingForMenuMutatingActionConfirmation)
+                return false;
+            stateTracker.WaitingForMenuMutatingActionConfirmation = false;
+            stateTracker.PendingMutatingMenuChoice = "";
+            ShowMessageEvent?.Invoke("Cancelled.");
+            ShowInventoryEvent?.Invoke();
+            return true;
+        }
+
+        private static string GetMutatingMenuActionLabel(string choice) => choice switch
+        {
+            "1" => EquipItem,
+            "2" => UnequipItem,
+            "3" => DiscardItem,
+            "4" => TradeUpItems,
+            _ => "this action"
+        };
+
+        private static string GetMutatingMenuConfirmMessage(string choice)
+        {
+            string label = GetMutatingMenuActionLabel(choice);
+            return $"{label} can change your equipment or inventory. Press 1 to continue or 0 to cancel.";
         }
         
         /// <summary>

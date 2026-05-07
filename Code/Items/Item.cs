@@ -213,6 +213,26 @@ namespace RPGGame
             (!string.IsNullOrEmpty(Name) && Name.Contains("Starter", StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
+        /// Normalizes requirement dictionary keys from saves, editors, or legacy data (<c>INT</c>, <c>TECH</c>, typos)
+        /// to the lowercase names used by <see cref="GetEffectiveValueForRequirementKey"/> and tooltips.
+        /// Matches <see cref="RPGGame.Data.GameDataJsonNormalizer"/> sheet abbrev rules.
+        /// </summary>
+        public static string CanonicalizeAttributeRequirementKey(string raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+                return string.Empty;
+            string u = raw.Trim().ToUpperInvariant().Replace(" ", "").Replace("_", "");
+            return u switch
+            {
+                "STR" or "STRENGTH" or "STENGTH" or "STRENTH" => "strength",
+                "AGI" or "AGILITY" or "AGILTIY" => "agility",
+                "TEC" or "TECH" or "TECHNIQUE" or "TECHINQUE" or "TEHCNIQUE" => "technique",
+                "INT" or "INTELLIGENCE" or "INTELIGENCE" or "INTELLEGENCE" => "intelligence",
+                _ => raw.Trim().ToLowerInvariant()
+            };
+        }
+
+        /// <summary>
         /// Effective value for a catalog requirement key (<c>strength</c>, <c>agility</c>, <c>technique</c>, <c>intelligence</c>).
         /// Unknown keys resolve to <c>0</c> until supported in <see cref="MeetsRequirements"/>.
         /// </summary>
@@ -254,7 +274,7 @@ namespace RPGGame
 
             foreach (var requirement in AttributeRequirements)
             {
-                string keyLower = requirement.Key.ToLowerInvariant();
+                string keyLower = CanonicalizeAttributeRequirementKey(requirement.Key);
                 int have = GetEffectiveValueForRequirementKey(keyLower, strength, agility, technique, intelligence);
                 if (have < requirement.Value)
                 {
@@ -273,7 +293,7 @@ namespace RPGGame
                 return null;
 
             var parts = AttributeRequirements
-                .Select(kv => $"{FormatRequirementAttributeDisplayName(kv.Key.ToLowerInvariant())} {kv.Value}");
+                .Select(kv => $"{FormatRequirementAttributeDisplayName(CanonicalizeAttributeRequirementKey(kv.Key))} {kv.Value}");
             return "Requires: " + string.Join(", ", parts);
         }
 
@@ -297,7 +317,7 @@ namespace RPGGame
             foreach (var requirement in AttributeRequirements)
             {
                 int characterValue = GetEffectiveValueForRequirementKey(
-                    requirement.Key.ToLowerInvariant(), strength, agility, technique, intelligence);
+                    CanonicalizeAttributeRequirementKey(requirement.Key), strength, agility, technique, intelligence);
 
                 if (characterValue < requirement.Value)
                     return false;

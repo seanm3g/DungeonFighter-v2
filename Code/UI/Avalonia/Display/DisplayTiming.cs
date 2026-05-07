@@ -29,21 +29,24 @@ namespace RPGGame.UI.Avalonia.Display
         public void ScheduleRender(System.Action renderAction)
         {
             if (renderAction == null) return;
-            
+
+            System.Action? immediateAction = null;
+
             lock (timingLock)
             {
                 // Store the latest render action (allows batching)
                 pendingRender = renderAction;
-                
+
                 // Cancel any pending render timer
                 debounceTimer?.Dispose();
-                
+                debounceTimer = null;
+
                 var now = DateTime.Now;
                 var timeSinceLastRender = (now - lastRenderTime).TotalMilliseconds;
-                
+
                 // Calculate delay based on mode
                 int delayMs = 0;
-                
+
                 if (mode.DebounceMs > 0)
                 {
                     // Use debounce delay
@@ -52,7 +55,7 @@ namespace RPGGame.UI.Avalonia.Display
                         delayMs = mode.DebounceMs - (int)timeSinceLastRender;
                     }
                 }
-                
+
                 // Apply minimum render delay if needed
                 if (mode.MinRenderDelayMs > 0 && timeSinceLastRender < mode.MinRenderDelayMs)
                 {
@@ -64,14 +67,13 @@ namespace RPGGame.UI.Avalonia.Display
                 {
                     delayMs = 0;
                 }
-                
+
                 if (delayMs <= 0)
                 {
-                    // Render immediately
+                    // Capture for execution outside the lock so nested ScheduleRender / ForceRender cannot deadlock.
                     lastRenderTime = now;
-                    var actionToExecute = pendingRender;
+                    immediateAction = pendingRender;
                     pendingRender = null;
-                    actionToExecute?.Invoke();
                 }
                 else
                 {
@@ -80,16 +82,27 @@ namespace RPGGame.UI.Avalonia.Display
                     {
                         Dispatcher.UIThread.Post(() =>
                         {
+                            System.Action? actionToExecute;
                             lock (timingLock)
                             {
                                 lastRenderTime = DateTime.Now;
-                                var actionToExecute = pendingRender;
+                                actionToExecute = pendingRender;
                                 pendingRender = null;
-                                actionToExecute?.Invoke();
                             }
+
+                            actionToExecute?.Invoke();
                         }, DispatcherPriority.Background);
                     }, null, delayMs, Timeout.Infinite);
                 }
+            }
+
+            if (immediateAction != null)
+            {
+                // IMPORTANT: Execute on the UI thread. Background combat posts from a threadpool thread.
+                if (Dispatcher.UIThread.CheckAccess())
+                    immediateAction();
+                else
+                    Dispatcher.UIThread.Post(immediateAction, DispatcherPriority.Background);
             }
         }
         
@@ -99,17 +112,18 @@ namespace RPGGame.UI.Avalonia.Display
         public void ForceRender(System.Action renderAction)
         {
             if (renderAction == null) return;
-            
+
             lock (timingLock)
             {
                 // Cancel any pending render
                 debounceTimer?.Dispose();
                 debounceTimer = null;
                 pendingRender = null;
-                
+
                 lastRenderTime = DateTime.Now;
-                renderAction.Invoke();
             }
+
+            renderAction.Invoke();
         }
         
         /// <summary>

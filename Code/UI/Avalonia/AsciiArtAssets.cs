@@ -24,6 +24,7 @@ namespace RPGGame.UI.Avalonia
             public static Color Orange => ColorPalette.Orange.GetColor();
             public static Color Purple => ColorPalette.Purple.GetColor();
             public static Color Cyan => ColorPalette.Cyan.GetColor();
+            public static Color NeutralGray70 => ColorPalette.NeutralGray70.GetColor();
             public static Color Magenta => ColorPalette.Magenta.GetColor();
             public static Color Gold => ColorPalette.Gold.GetColor();
             public static Color Silver => ColorPalette.Silver.GetColor();

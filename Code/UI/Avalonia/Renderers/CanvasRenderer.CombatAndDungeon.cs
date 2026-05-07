@@ -184,9 +184,19 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun, CanvasContext context)
         {
+            EnsureDisplayManagerForPlayer(player);
+            if (textManager is CanvasTextManager ctm)
+            {
+                ctm.DisplayManager.SetMode(new StandardDisplayMode());
+                ctm.DisplayManager.SetExternalRenderCallback(null);
+            }
             RenderWithLayout(player, $"DUNGEON COMPLETED: {dungeon.Name.ToUpper()}", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                dungeonRenderer.RenderDungeonCompletion(contentX, contentY, contentWidth, contentHeight, dungeon, player, xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>(), itemsFoundDuringRun ?? new List<Item>(), context.DungeonContext);
+                if (textManager is CanvasTextManager canvasTextManager)
+                {
+                    var buffer = canvasTextManager.GetDisplayManagerForCharacter(player).Buffer;
+                    dungeonRenderer.RenderDungeonCompletion(contentX, contentY, contentWidth, contentHeight, buffer);
+                }
             }, context, null, context.DungeonName, null);
             dungeonRenderer.RenderActionInfoStrip(player);
             canvas.Refresh();

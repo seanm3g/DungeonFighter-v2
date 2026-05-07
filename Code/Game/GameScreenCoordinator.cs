@@ -88,6 +88,14 @@ namespace RPGGame
                 return;
             }
 
+            canvasUI.AppendDungeonCompletionSummaryToBuffer(
+                dungeon,
+                player,
+                xpGained,
+                lootReceived,
+                levelUpInfos ?? new List<LevelUpInfo>(),
+                itemsFoundDuringRun ?? new List<Item>());
+
             ScreenTransitionProtocol.TransitionToMenuScreen(
                 stateManager,
                 canvasUI,
@@ -102,7 +110,8 @@ namespace RPGGame
                 ),
                 character: player,
                 clearEnemyContext: true,
-                clearDungeonContext: false
+                clearDungeonContext: false,
+                preserveDisplayBuffer: true
             );
         }
 

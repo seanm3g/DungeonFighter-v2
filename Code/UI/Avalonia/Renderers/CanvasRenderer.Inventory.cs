@@ -7,11 +7,11 @@ namespace RPGGame.UI.Avalonia.Renderers
 {
     public partial class CanvasRenderer
     {
-        public void RenderInventory(Character character, List<Item> inventory, CanvasContext context)
+        public void RenderInventory(Character character, List<Item> inventory, CanvasContext context, string? pendingMutatingInventoryMenuAction = null)
         {
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                inventoryRenderer.RenderInventory(contentX, contentY, contentWidth, contentHeight, character, inventory);
+                inventoryRenderer.RenderInventory(contentX, contentY, contentWidth, contentHeight, character, inventory, pendingMutatingInventoryMenuAction);
             }, context, null, null, null, clearCanvas: true, inventoryComboRightPanel: true);
             dungeonRenderer.RenderActionInfoStrip(character);
             canvas.Refresh();

@@ -167,6 +167,11 @@ namespace RPGGame.GameCore.Input
                         await handlers.LoadCharacterSelectionHandler.HandleLoadCharacterSelectionInput(input);
                     break;
                 case GameState.DungeonCompletion:
+                    if (input == "up" || input == "down" || input == "pageup" || input == "pagedown")
+                    {
+                        handleCombatScroll(input);
+                        return;
+                    }
                     if (handlers.DungeonCompletionHandler != null)
                         await handlers.DungeonCompletionHandler.HandleMenuInput(input);
                     break;

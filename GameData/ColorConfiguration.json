@@ -147,6 +147,12 @@
         "category": "basic"
       },
       {
+        "name": "NeutralGray70",
+        "rgb": [178, 178, 178],
+        "hex": "#b2b2b2",
+        "category": "basic"
+      },
+      {
         "name": "Red",
         "colorCode": "R",
         "hex": "#d74200",
@@ -1621,7 +1627,7 @@
       "colorPattern": "electric",
       "caseSensitive": false,
       "keywords": [
-        "jab", "taunt", "flurry", "cleave", "shield bash", "precision strike",
+        "jab", "punch", "taunt", "flurry", "cleave", "shield bash", "precision strike",
         "momentum bash", "lucky strike", "overkill", "dance", "opening volley",
         "focus", "sharp edge", "blood frenzy", "berzerk", "swing for the fences",
         "true strike", "last grasp", "second wind", "quick reflexes", "first blood",

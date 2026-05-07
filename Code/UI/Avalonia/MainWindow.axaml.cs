@@ -28,6 +28,7 @@ namespace RPGGame.UI.Avalonia
             GameCanvasHitSurface.PointerPressed += OnCanvasPointerPressed;
             GameCanvasHitSurface.PointerMoved += OnCanvasPointerMoved;
             GameCanvasHitSurface.PointerReleased += OnCanvasPointerReleased;
+            GameCanvasHitSurface.PointerWheelChanged += OnCanvasPointerWheelChanged;
             // After Pointer.Capture(GameCanvas), released/moved are routed to the captured element, not the parent Border — subscribe on the canvas too or combo drag never completes.
             GameCanvas.PointerMoved += OnCanvasPointerMoved;
             GameCanvas.PointerReleased += OnCanvasPointerReleased;
@@ -159,6 +160,13 @@ namespace RPGGame.UI.Avalonia
             if (initializationHandler == null || !initializationHandler.IsInitialized || initializationHandler.MouseHandler == null) 
                 return;
             initializationHandler.MouseHandler.HandlePointerReleased(e);
+        }
+
+        private void OnCanvasPointerWheelChanged(object? sender, PointerWheelEventArgs e)
+        {
+            if (initializationHandler == null || !initializationHandler.IsInitialized || initializationHandler.MouseHandler == null)
+                return;
+            initializationHandler.MouseHandler.HandlePointerWheelChanged(e);
         }
 
         private async Task CopyCenterPanelToClipboard()

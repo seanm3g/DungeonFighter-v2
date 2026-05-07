@@ -5,6 +5,7 @@ using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI.Avalonia.Settings;
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
@@ -61,6 +62,20 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 showDamageNumbersCb.IsCheckedChanged += (s, e) => { if (showDamageNumbersCb.IsChecked.HasValue) GameSettings.Instance.ShowDamageNumbers = showDamageNumbersCb.IsChecked.Value; };
             if (showComboProgressCb != null)
                 showComboProgressCb.IsCheckedChanged += (s, e) => { if (showComboProgressCb.IsChecked.HasValue) GameSettings.Instance.ShowComboProgress = showComboProgressCb.IsChecked.Value; };
+
+            var missFlashTb = gameplayPanel.ActionStripMissFlashMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripMissFlashMsTextBox");
+            var successTotalTb = gameplayPanel.ActionStripSuccessFlashMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripSuccessFlashMsTextBox");
+            var pulseHalfTb = gameplayPanel.ActionStripSuccessPulseHalfMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripSuccessPulseHalfMsTextBox");
+            void onStripFlashChanged()
+            {
+                ApplyActionStripFlashFieldsFromTextBoxes(missFlashTb, successTotalTb, pulseHalfTb);
+            }
+            if (missFlashTb != null)
+                missFlashTb.TextChanged += (_, _) => onStripFlashChanged();
+            if (successTotalTb != null)
+                successTotalTb.TextChanged += (_, _) => onStripFlashChanged();
+            if (pulseHalfTb != null)
+                pulseHalfTb.TextChanged += (_, _) => onStripFlashChanged();
 
             // Wire up clear saved characters button
             var clearButton = gameplayPanel.ClearSavedCharactersButton ?? gameplayPanel.FindControl<Button>("ClearSavedCharactersButton");
@@ -142,6 +157,13 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (showHealthBars != null) showHealthBars.IsChecked = s.ShowHealthBars;
             if (showDamageNumbers != null) showDamageNumbers.IsChecked = s.ShowDamageNumbers;
             if (showComboProgress != null) showComboProgress.IsChecked = s.ShowComboProgress;
+
+            var missFlashTb = gameplayPanel.ActionStripMissFlashMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripMissFlashMsTextBox");
+            var successTotalTb = gameplayPanel.ActionStripSuccessFlashMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripSuccessFlashMsTextBox");
+            var pulseHalfTb = gameplayPanel.ActionStripSuccessPulseHalfMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripSuccessPulseHalfMsTextBox");
+            if (missFlashTb != null) missFlashTb.Text = s.ActionStripMissFlashDurationMs.ToString(CultureInfo.InvariantCulture);
+            if (successTotalTb != null) successTotalTb.Text = s.ActionStripSuccessFlashDurationMs.ToString(CultureInfo.InvariantCulture);
+            if (pulseHalfTb != null) pulseHalfTb.Text = s.ActionStripSuccessFlashPulseHalfPeriodMs.ToString(CultureInfo.InvariantCulture);
         }
 
         public void SaveSettings(UserControl panel)
@@ -154,8 +176,24 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             var showHealthBars = gameplayPanel.ShowHealthBarsCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowHealthBarsCheckBox");
             var showDamageNumbers = gameplayPanel.ShowDamageNumbersCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowDamageNumbersCheckBox");
             var showComboProgress = gameplayPanel.ShowComboProgressCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowComboProgressCheckBox");
+            var missFlashTb = gameplayPanel.ActionStripMissFlashMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripMissFlashMsTextBox");
+            var successTotalTb = gameplayPanel.ActionStripSuccessFlashMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripSuccessFlashMsTextBox");
+            var pulseHalfTb = gameplayPanel.ActionStripSuccessPulseHalfMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripSuccessPulseHalfMsTextBox");
+            ApplyActionStripFlashFieldsFromTextBoxes(missFlashTb, successTotalTb, pulseHalfTb);
             if (showIndividual != null)
                 settingsManager.SaveGameplaySettings(showIndividual, enableTextDelays!, fastCombat!, showDetailedStats!, showHealthBars!, showDamageNumbers!, showComboProgress!, null);
+        }
+
+        private static void ApplyActionStripFlashFieldsFromTextBoxes(TextBox? missMs, TextBox? successTotalMs, TextBox? pulseHalfMs)
+        {
+            var s = GameSettings.Instance;
+            if (missMs != null && int.TryParse(missMs.Text, NumberStyles.Integer, CultureInfo.InvariantCulture, out int miss))
+                s.ActionStripMissFlashDurationMs = miss;
+            if (successTotalMs != null && int.TryParse(successTotalMs.Text, NumberStyles.Integer, CultureInfo.InvariantCulture, out int success))
+                s.ActionStripSuccessFlashDurationMs = success;
+            if (pulseHalfMs != null && int.TryParse(pulseHalfMs.Text, NumberStyles.Integer, CultureInfo.InvariantCulture, out int pulse))
+                s.ActionStripSuccessFlashPulseHalfPeriodMs = pulse;
+            s.ValidateAndFix();
         }
     }
 }

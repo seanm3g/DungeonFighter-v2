@@ -134,7 +134,16 @@ namespace RPGGame.Handlers
             
             if (handlers.InventoryMenuHandler != null)
             {
-                handlers.InventoryMenuHandler.ShowInventoryEvent += () => showInventory();
+                // While already on the inventory screen, redraw via RefreshInventoryScreen so equip / compare /
+                // item-selection substates stay in sync with InventoryStateManager. A full ShowInventory() run
+                // always renders the main bag and would orphan multi-step flows (clicks stop matching the UI).
+                handlers.InventoryMenuHandler.ShowInventoryEvent += () =>
+                {
+                    if (stateManager.CurrentState == GameState.Inventory)
+                        handlers.InventoryMenuHandler.RefreshInventoryScreen();
+                    else
+                        showInventory();
+                };
                 handlers.InventoryMenuHandler.ShowGameLoopEvent += () => showGameLoop();
                 handlers.InventoryMenuHandler.ShowMessageEvent += (msg) => showMessage(msg);
             }

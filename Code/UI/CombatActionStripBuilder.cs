@@ -371,11 +371,28 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Combo routing and weapon-required lines for action hover tooltips (opener/finisher tags; per-type weapon basic).
+        /// </summary>
+        private static void AppendComboRoleAndWeaponRequirementNotation(List<string> segments, Character? character, Action? action)
+        {
+            if (action == null)
+                return;
+            if (action.ComboRouting?.IsOpener == true)
+                segments.Add("Opener — first combo slot.");
+            if (action.ComboRouting?.IsFinisher == true)
+                segments.Add("Finisher — last combo slot.");
+            if (character != null && WeaponRequiredComboAction.IsRequiredBasicForEquippedWeapon(character, action))
+                segments.Add("Weapon basic — must stay in your sequence.");
+        }
+
+        /// <summary>
         /// Ordered mechanical segments after the title line: swing Dmg/Spd, then each spreadsheet / keyword / roll / status block.
         /// </summary>
         private static List<string> BuildMechanicalDetailSegments(Character? character, Action action, int panelIndex)
         {
-            var segments = new List<string> { BuildTooltipSwingModsLine(character, action, panelIndex) };
+            var segments = new List<string>();
+            AppendComboRoleAndWeaponRequirementNotation(segments, character, action);
+            segments.Add(BuildTooltipSwingModsLine(character, action, panelIndex));
             segments.AddRange(BuildSpreadsheetFriendlyModLines(action));
 
             if (action.ActionAttackBonuses?.BonusGroups != null)

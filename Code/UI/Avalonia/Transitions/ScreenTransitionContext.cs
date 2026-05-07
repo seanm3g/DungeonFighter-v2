@@ -28,6 +28,11 @@ namespace RPGGame.UI.Avalonia.Transitions
         /// Whether to clear dungeon/room context when transitioning
         /// </summary>
         public bool ClearDungeonContext { get; init; } = false;
+
+        /// <summary>
+        /// When true, the center display buffer is not cleared (e.g. dungeon completion keeps combat log).
+        /// </summary>
+        public bool PreserveDisplayBuffer { get; init; }
         
         /// <summary>
         /// Action to perform the actual screen rendering
@@ -42,13 +47,15 @@ namespace RPGGame.UI.Avalonia.Transitions
             Action<CanvasUICoordinator> renderAction,
             Character? character = null,
             bool clearEnemyContext = true,
-            bool clearDungeonContext = false)
+            bool clearDungeonContext = false,
+            bool preserveDisplayBuffer = false)
         {
             TargetState = targetState;
             RenderAction = renderAction ?? throw new ArgumentNullException(nameof(renderAction));
             Character = character;
             ClearEnemyContext = clearEnemyContext;
             ClearDungeonContext = clearDungeonContext;
+            PreserveDisplayBuffer = preserveDisplayBuffer;
         }
     }
 }

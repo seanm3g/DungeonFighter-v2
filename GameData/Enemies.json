@@ -329,9 +329,7 @@
     "archetype": "Brute",
     "healthGrowthPerLevel": 4,
     "actions": [
-      "[",
-      "SLAM",
-      "]"
+      "SLAM"
     ],
     "isLiving": false,
     "description": "A creature of molten rock - devastating heavy attacks",

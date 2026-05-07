@@ -59,10 +59,19 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             return n;
         }
 
+        private static string GetMutatingMenuActionTitle(string pendingChoice) => pendingChoice switch
+        {
+            "1" => UIConstants.MenuOptions.EquipItem,
+            "2" => UIConstants.MenuOptions.UnequipItem,
+            "3" => UIConstants.MenuOptions.DiscardItem,
+            "4" => UIConstants.MenuOptions.TradeUpItems,
+            _ => "This action"
+        };
+
         /// <summary>
         /// Renders the inventory screen with items and actions
         /// </summary>
-        public int RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory)
+        public int RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory, string? pendingMutatingInventoryMenuAction = null)
         {
             // Do not Clear() the shared clickables list: PersistentLayoutManager already cleared it this frame,
             // and CharacterPanelRenderer registered left-panel lphover targets before this callback. Clearing here
@@ -106,6 +115,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             else
             {
                 int maxItems = Math.Min(inventory.Count, 20);
+                bool blockRowClicks = pendingMutatingInventoryMenuAction != null;
                 for (int i = 0; i < maxItems; i++)
                 {
                     var item = inventory[i];
@@ -117,17 +127,22 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     int rowLines = CountItemDisplayLines(item, character, itemStats);
                     string slotName = GetSlotName(item);
                     string rarity = item.Rarity?.Trim() ?? "Common";
-                    clickableElements.Add(InventoryButtonFactory.CreateButton(
-                        x + 2,
-                        y,
-                        width - 4,
-                        rowLines,
-                        i.ToString(),
-                        $"[{i + 1}] [{rarity}] [{slotName}] {item.Name}",
-                        Prefix + "inv:" + i));
+                    // During mutating-action confirmation, row Values are "1","2",… — same as Continue / menu
+                    // digits and hijack clicks. Rows are display-only until the user confirms or cancels.
+                    if (!blockRowClicks)
+                    {
+                        clickableElements.Add(InventoryButtonFactory.CreateButton(
+                            x + 2,
+                            y,
+                            width - 4,
+                            rowLines,
+                            (i + 1).ToString(),
+                            $"[{i + 1}] [{rarity}] [{slotName}] {item.Name}",
+                            Prefix + "inv:" + i));
+                    }
                     
-                    // Render item name
-                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true);
+                    // Render item name (slot bracket goes red when attribute requirements block equip)
+                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true, character: character);
                     y++;
                     currentLineCount++;
                     
@@ -156,8 +171,31 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 }
             }
             
-            // Actions section at bottom
-            y = startY + height - 10;
+            // Actions / confirm section at bottom
+            int confirmExtra = pendingMutatingInventoryMenuAction != null ? 6 : 0;
+            y = startY + height - 10 - confirmExtra;
+            if (pendingMutatingInventoryMenuAction != null)
+            {
+                string actionTitle = GetMutatingMenuActionTitle(pendingMutatingInventoryMenuAction);
+                canvas.AddText(x + 2, y, "WARNING: " + actionTitle + " can change equipment or your bag.", AsciiArtAssets.Colors.Yellow);
+                y++;
+                currentLineCount++;
+                canvas.AddText(x + 2, y, "Use Continue / Cancel below — item rows are inactive for now.", AsciiArtAssets.Colors.DarkGray);
+                y++;
+                currentLineCount++;
+                canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader("CONFIRM"), AsciiArtAssets.Colors.Gold);
+                y += 2;
+                currentLineCount += 2;
+                var continueBtn = InventoryButtonFactory.CreateButton(x + 2, y, width - 4, 1, "1", MenuOptionFormatter.Format(1, "Continue — " + actionTitle), tooltipHoverValue: null);
+                var cancelBtn = InventoryButtonFactory.CreateButton(x + 2, y + 1, width - 4, 1, "0", MenuOptionFormatter.Format(0, "Cancel"), tooltipHoverValue: null);
+                clickableElements.Add(continueBtn);
+                clickableElements.Add(cancelBtn);
+                canvas.AddMenuOption(x + 2, y, 1, "Continue — " + actionTitle, AsciiArtAssets.Colors.White, continueBtn.IsHovered);
+                canvas.AddMenuOption(x + 2, y + 1, 0, "Cancel", AsciiArtAssets.Colors.White, cancelBtn.IsHovered);
+                currentLineCount += 2;
+                return currentLineCount;
+            }
+
             int actionsHeaderY = y;
             canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Actions), AsciiArtAssets.Colors.Gold);
             y += 2;

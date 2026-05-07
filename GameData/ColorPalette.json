@@ -35,6 +35,12 @@
       "category": "basic"
     },
     {
+      "name": "NeutralGray70",
+      "rgb": [178, 178, 178],
+      "hex": "#b2b2b2",
+      "category": "basic"
+    },
+    {
       "name": "Red",
       "colorCode": "R",
       "hex": "#d74200",

@@ -86,7 +86,10 @@ namespace RPGGame.UI.Avalonia.Managers
                     PlayerDamageMultiplier = s.PlayerDamageMultiplier,
                     ShowHealthBars = s.ShowHealthBars,
                     ShowDamageNumbers = s.ShowDamageNumbers,
-                    ShowComboProgress = s.ShowComboProgress
+                    ShowComboProgress = s.ShowComboProgress,
+                    ActionStripMissFlashDurationMs = s.ActionStripMissFlashDurationMs,
+                    ActionStripSuccessFlashDurationMs = s.ActionStripSuccessFlashDurationMs,
+                    ActionStripSuccessFlashPulseHalfPeriodMs = s.ActionStripSuccessFlashPulseHalfPeriodMs
                 };
 
                 gameplaySettingsManager.SaveSettings(
@@ -170,7 +173,10 @@ namespace RPGGame.UI.Avalonia.Managers
                     ShowDetailedStats = s.ShowDetailedStats,
                     ShowHealthBars = s.ShowHealthBars,
                     ShowDamageNumbers = s.ShowDamageNumbers,
-                    ShowComboProgress = s.ShowComboProgress
+                    ShowComboProgress = s.ShowComboProgress,
+                    ActionStripMissFlashDurationMs = s.ActionStripMissFlashDurationMs,
+                    ActionStripSuccessFlashDurationMs = s.ActionStripSuccessFlashDurationMs,
+                    ActionStripSuccessFlashPulseHalfPeriodMs = s.ActionStripSuccessFlashPulseHalfPeriodMs
                 };
 
                 // Save gameplay settings
@@ -227,6 +233,9 @@ namespace RPGGame.UI.Avalonia.Managers
             s.ShowHealthBars = backup.ShowHealthBars;
             s.ShowDamageNumbers = backup.ShowDamageNumbers;
             s.ShowComboProgress = backup.ShowComboProgress;
+            s.ActionStripMissFlashDurationMs = backup.ActionStripMissFlashDurationMs;
+            s.ActionStripSuccessFlashDurationMs = backup.ActionStripSuccessFlashDurationMs;
+            s.ActionStripSuccessFlashPulseHalfPeriodMs = backup.ActionStripSuccessFlashPulseHalfPeriodMs;
         }
 
         public void ResetToDefaults()

@@ -81,7 +81,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             stateManager.SetCurrentPlayer(character);
             
             var handler = new DungeonCompletionHandler(stateManager);
-            handler.ShowInventoryEvent += () => { };
+            handler.ShowInventoryEvent += () => stateManager.TransitionToState(GameState.Inventory);
             
             // Test inventory option
             Task.Run(async () => await handler.HandleMenuInput("2")).Wait();

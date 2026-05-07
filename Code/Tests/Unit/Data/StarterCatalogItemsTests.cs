@@ -78,16 +78,42 @@ namespace RPGGame.Tests.Unit.Data
 
             if (tagged.Count > 0)
             {
-                TestBase.AssertEqual(tagged.Count, resolved.Count,
-                    "When Weapons.json has starter-tagged rows, menu should list all of them",
+                TestBase.AssertTrue(resolved.Count <= tagged.Count,
+                    "Starter weapon menu should not list more rows than starter-tagged catalog entries",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-                var taggedNames = tagged.Select(t => t.Name).OrderBy(n => n).ToList();
-                var resolvedNames = resolved.Select(r => r.Name).OrderBy(n => n).ToList();
-                for (int i = 0; i < taggedNames.Count; i++)
+                static int TypeOrderIndex(WeaponData w)
                 {
-                    TestBase.AssertEqual(taggedNames[i], resolvedNames[i],
-                        $"starter weapon menu multiset name {i}",
+                    if (!Enum.TryParse(w.Type?.Trim(), ignoreCase: true, out WeaponType wt))
+                        return int.MaxValue;
+                    int ix = Array.IndexOf(ClassPresentationConfig.ClassWeaponOrder, wt);
+                    return ix >= 0 ? ix : int.MaxValue;
+                }
+
+                var expectedOrdered = tagged
+                    .Select((w, taggedIndex) => (w, taggedIndex))
+                    .OrderBy(x => TypeOrderIndex(x.w))
+                    .ThenBy(x => x.taggedIndex)
+                    .Select(x => x.w)
+                    .ToList();
+                var seen = new HashSet<WeaponType>();
+                var expected = new List<WeaponData>();
+                foreach (var w in expectedOrdered)
+                {
+                    if (!Enum.TryParse(w.Type?.Trim(), ignoreCase: true, out WeaponType wt))
+                        continue;
+                    if (!seen.Add(wt))
+                        continue;
+                    expected.Add(w);
+                }
+
+                TestBase.AssertEqual(expected.Count, resolved.Count,
+                    "Starter menu should keep first starter-tagged row per weapon type (class path order)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                for (int i = 0; i < expected.Count; i++)
+                {
+                    TestBase.AssertTrue(ReferenceEquals(expected[i], resolved[i]),
+                        $"starter menu row {i} should match deduped catalog row reference",
                         ref _testsRun, ref _testsPassed, ref _testsFailed);
                 }
 

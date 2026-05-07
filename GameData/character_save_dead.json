@@ -23,5 +23,6 @@
   "legs": null,
   "weapon": null,
   "feet": null,
-  "isDead": true
+  "isDead": true,
+  "pendingPreWeaponTrainingGround": false
 }

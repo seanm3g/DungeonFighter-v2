@@ -297,7 +297,7 @@ namespace RPGGame
                 
                 if (duration.HasValue)
                 {
-                    builder.Add($"[{duration.Value} turns]", Colors.Gray);
+                    builder.Add($"[{duration.Value} {(duration.Value == 1 ? "turn" : "turns")}]", Colors.Gray);
                 }
             }
             else

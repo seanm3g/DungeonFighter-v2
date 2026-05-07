@@ -92,12 +92,18 @@ namespace RPGGame.Data
         /// <summary>
         /// Sheet rows often use <c>attributeRequirements</c> as a stat abbrev string plus <c>requirement value</c>;
         /// runtime models expect a <c>Dictionary&lt;string,int&gt;</c> JSON object (same as weapons).
+        /// When <c>attributeRequirements</c> is already a dictionary, dictionary keys are still canonicalized
+        /// (abbreviations like <c>STR</c> and known typos like <c>techinque</c> map to <c>strength</c> /
+        /// <c>technique</c>) so <see cref="Items.Item.GetEffectiveValueForRequirementKey"/> recognizes them.
         /// </summary>
         private static void MergeSheetAbbrevAttributeRequirementsIfPresent(JsonObject o)
         {
             JsonNode? attrNode = FindPropertyIgnoreCase(o, "attributeRequirements");
-            if (attrNode is JsonObject)
+            if (attrNode is JsonObject obj)
+            {
+                CanonicalizeAttributeRequirementKeys(obj);
                 return;
+            }
             if (attrNode is not JsonValue strVal || !strVal.TryGetValue<string>(out var abbrev) ||
                 string.IsNullOrWhiteSpace(abbrev))
                 return;
@@ -108,6 +114,43 @@ namespace RPGGame.Data
             RemovePropertyIgnoreCase(o, "attributeRequirements");
             var dict = new JsonObject { [statKey] = JsonValue.Create(reqVal) };
             o["attributeRequirements"] = dict;
+        }
+
+        /// <summary>
+        /// Rewrites each key of an <c>attributeRequirements</c> object to the canonical
+        /// <c>strength</c>/<c>agility</c>/<c>technique</c>/<c>intelligence</c> form used by
+        /// <see cref="Items.Item.GetEffectiveValueForRequirementKey"/>. Unrecognized keys are passed through
+        /// lowercased so JSON authors can still see and fix bad data, but known abbreviations and the
+        /// historical <c>techinque</c> typo round-trip to the canonical key.
+        /// </summary>
+        private static void CanonicalizeAttributeRequirementKeys(JsonObject reqs)
+        {
+            if (reqs == null || reqs.Count == 0)
+                return;
+
+            var pairs = reqs.Select(kvp => (kvp.Key, kvp.Value)).ToList();
+            bool changed = false;
+            var normalized = new List<(string Key, JsonNode? Value)>(pairs.Count);
+            foreach (var (key, value) in pairs)
+            {
+                string mapped = MapSheetStatAbbrevToRequirementKey(key ?? string.Empty);
+                if (!string.Equals(mapped, key, StringComparison.Ordinal))
+                    changed = true;
+                normalized.Add((mapped, value));
+            }
+
+            if (!changed)
+                return;
+
+            foreach (var key in pairs.Select(p => p.Key).ToList())
+                reqs.Remove(key);
+
+            foreach (var (key, value) in normalized)
+            {
+                if (reqs.ContainsKey(key))
+                    continue;
+                reqs[key] = value?.DeepClone();
+            }
         }
 
         private static string NormalizeWeaponsJson(string json)
@@ -335,18 +378,12 @@ namespace RPGGame.Data
             o[name] = value;
         }
 
-        /// <summary>Maps weapon sheet stat abbreviations to <see cref="Items.Item.MeetsRequirements"/> dictionary keys.</summary>
-        private static string MapSheetStatAbbrevToRequirementKey(string raw)
-        {
-            string u = raw.Trim().ToUpperInvariant().Replace(" ", "").Replace("_", "");
-            return u switch
-            {
-                "STR" or "STRENGTH" => "strength",
-                "AGI" or "AGILITY" => "agility",
-                "TEC" or "TECH" or "TECHNIQUE" => "technique",
-                "INT" or "INTELLIGENCE" => "intelligence",
-                _ => raw.Trim().ToLowerInvariant()
-            };
-        }
+        /// <summary>
+        /// Maps weapon / armor sheet stat abbreviations and known JSON typos to canonical
+        /// <see cref="Items.Item.MeetsRequirements"/> dictionary keys. Unknown values fall through as
+        /// the lowercased input so authors can still see bad data in tooltips.
+        /// </summary>
+        private static string MapSheetStatAbbrevToRequirementKey(string raw) =>
+            Item.CanonicalizeAttributeRequirementKey(raw);
     }
 }

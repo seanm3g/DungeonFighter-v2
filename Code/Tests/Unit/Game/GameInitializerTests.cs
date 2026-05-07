@@ -28,7 +28,7 @@ namespace RPGGame.Tests.Unit.Game
 
             TestConstructor();
             TestLoadStartingGear();
-            TestInitializeNewGame_EquipsWeaponOnlyNoArmorOrInventory();
+            TestInitializeNewGame_EquipsWeaponBonusLootNoExtraArmorSlots();
             TestCatalogStarterKeepsWeaponsJsonBaseDamage();
             TestLegacySlotPathUsesStartingGearDamage();
             TestCreateStarterWeaponForMenuIndex_UsesCatalogRow();
@@ -83,9 +83,9 @@ namespace RPGGame.Tests.Unit.Game
             }
         }
 
-        private static void TestInitializeNewGame_EquipsWeaponOnlyNoArmorOrInventory()
+        private static void TestInitializeNewGame_EquipsWeaponBonusLootNoExtraArmorSlots()
         {
-            Console.WriteLine("\n--- Testing InitializeNewGame: weapon only, empty armor slots and inventory ---");
+            Console.WriteLine("\n--- Testing InitializeNewGame: weapon, random inventory bonus, no extra equipped armor ---");
 
             _ = GameConfiguration.Instance;
 
@@ -100,8 +100,12 @@ namespace RPGGame.Tests.Unit.Game
             TestBase.AssertTrue(player.Head == null && player.Body == null && player.Feet == null,
                 "New game should not equip head/body/feet unless configured",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0, player.Inventory.Count,
-                "New game should start with an empty inventory (gear is only equipped weapon)",
+            TestBase.AssertTrue(player.Inventory.Count >= 1,
+                "New game should add one random armor piece to inventory with the starting weapon",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var bonus = player.Inventory[0];
+            TestBase.AssertTrue(bonus is not WeaponItem,
+                "New game bonus inventory item must not be a weapon",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

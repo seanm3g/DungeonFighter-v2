@@ -125,7 +125,7 @@ namespace RPGGame
                     canvasUI.SetCharacter(stateManager.CurrentPlayer);
                 }
                 
-                ShowMessageEvent?.Invoke($"You selected weapon {weaponChoice}.");
+                ShowMessageEvent?.Invoke($"You selected weapon {weaponChoice}. A random armor piece was added to your inventory.");
                 
                 var screenCoordinator = new GameScreenCoordinator(stateManager);
                 screenCoordinator.ShowCharacterCreation(stateManager.CurrentPlayer);

@@ -30,6 +30,7 @@ namespace RPGGame.Tests.Unit.Items
             TestStatBonuses();
             TestModifications();
             TestMeetsRequirements();
+            TestMeetsRequirements_IntAbbrevRequirementKey();
             TestIsStarterItem();
 
             TestBase.PrintSummary("Item Tests", _testsRun, _testsPassed, _testsFailed);
@@ -214,6 +215,39 @@ namespace RPGGame.Tests.Unit.Items
             item.AttributeRequirements["Strength"] = 20;
             TestBase.AssertFalse(item.MeetsRequirements(character),
                 "Item should not meet requirements when character lacks stats",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Regression: dictionary key <c>INT</c> (common in hand-written JSON) must not lower-case to <c>int</c>,
+        /// which <see cref="Item.GetEffectiveValueForRequirementKey"/> treats as unknown (0) and blocks equip.
+        /// </summary>
+        private static void TestMeetsRequirements_IntAbbrevRequirementKey()
+        {
+            Console.WriteLine("\n--- Testing MeetsRequirements with INT abbrev key ---");
+
+            var character = TestDataBuilders.Character()
+                .WithName("TestPlayer")
+                .WithLevel(1)
+                .Build();
+            character.Stats.Intelligence = 5;
+
+            var head = new HeadItem("Hood", 1, 0);
+            head.AttributeRequirements.Clear();
+            head.AttributeRequirements["INT"] = 1;
+
+            TestBase.AssertTrue(head.MeetsRequirements(character),
+                "INT abbrev requirement key should resolve to intelligence for stat check",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string? blocked = head.GetEquipBlockedReason(character);
+            TestBase.AssertTrue(string.IsNullOrEmpty(blocked),
+                "GetEquipBlockedReason should be null when INT abbrev requirement is met",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string? line = head.GetAttributeRequirementsSummaryLine();
+            TestBase.AssertTrue(line != null && line.Contains("Intelligence", StringComparison.Ordinal),
+                "Tooltip line should show Intelligence for INT key",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

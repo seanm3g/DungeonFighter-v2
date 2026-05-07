@@ -44,6 +44,7 @@ namespace RPGGame.Tests.Unit
             TestEnemySheetDamageModDoesNotPersistAcrossEnemySwings();
             TestDeferredSheetAccuracyOnEnemyHitQueuesEnemyFifo();
             TestEnemyComboSelectionUsesFreshThresholdAfterPriorSwingOverrides();
+            TestShouldFlashComboCompleteRules();
 
             TestBase.PrintSummary("Action Execution Flow Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -658,6 +659,67 @@ namespace RPGGame.Tests.Unit
                 tm.ResetThresholds(enemy);
                 tm.ResetThresholds(hero);
             }
+        }
+
+        private static void TestShouldFlashComboCompleteRules()
+        {
+            Console.WriteLine("\n--- Strip flash: combo-complete classification ---");
+
+            var one = BuildHeroWithComboSlotCount(1);
+            var oneCombo = one.GetComboActions();
+            TestBase.AssertTrue(ActionExecutionFlow.ShouldFlashComboComplete(one, 0,
+                    new ActionExecutionResult { Hit = true, SelectedAction = oneCombo[0] }),
+                "Single-slot combo hit is gold flash",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var two = BuildHeroWithComboSlotCount(2);
+            var twoCombo = two.GetComboActions();
+            TestBase.AssertTrue(ActionExecutionFlow.ShouldFlashComboComplete(two, 1,
+                    new ActionExecutionResult { Hit = true, SelectedAction = twoCombo[1] }),
+                "Combo action hit (last slot) is gold flash",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(ActionExecutionFlow.ShouldFlashComboComplete(two, 0,
+                    new ActionExecutionResult { Hit = true, SelectedAction = twoCombo[0] }),
+                "Combo action hit (first slot) is gold flash",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertTrue(!ActionExecutionFlow.ShouldFlashComboComplete(two, 1,
+                    new ActionExecutionResult { Hit = false, SelectedAction = twoCombo[1] }),
+                "Miss never combo-complete",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var normal = TestDataBuilders.CreateMockAction("", ActionType.Attack);
+            normal.IsComboAction = false;
+            TestBase.AssertTrue(!ActionExecutionFlow.ShouldFlashComboComplete(two, 1,
+                    new ActionExecutionResult { Hit = true, SelectedAction = normal }),
+                "Non-combo action does not qualify",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var finisherMid = BuildHeroWithComboSlotCount(2);
+            var fc = finisherMid.GetComboActions();
+            fc[0].ComboRouting ??= new ComboRoutingProperties();
+            fc[0].ComboRouting.IsFinisher = true;
+            TestBase.AssertTrue(ActionExecutionFlow.ShouldFlashComboComplete(finisherMid, 0,
+                    new ActionExecutionResult { Hit = true, SelectedAction = fc[0] }),
+                "Tagged finisher is gold flash (combo action hit)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static Character BuildHeroWithComboSlotCount(int slotCount)
+        {
+            var character = TestDataBuilders.Character().WithName("StripFlash").WithStats(10, 10, 10, 10).Build();
+            var weapon = TestDataBuilders.Weapon().WithBaseDamage(5).Build();
+            character.EquipItem(weapon, "weapon");
+            for (int i = 0; i < slotCount; i++)
+            {
+                var action = TestDataBuilders.CreateMockAction($"Strip{i}", ActionType.Attack);
+                action.DamageMultiplier = 1.0;
+                action.Length = 1.0;
+                action.IsComboAction = true;
+                character.AddAction(action, 1.0);
+                character.Actions.AddToCombo(action);
+            }
+            return character;
         }
     }
 }

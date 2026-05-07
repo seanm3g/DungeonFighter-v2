@@ -239,12 +239,13 @@ namespace RPGGame.Tests.Unit.UI
         private static void TestGetPanelBorderColorWithinMaxUnchanged(ref int run, ref int passed, ref int failed)
         {
             TestBase.AssertTrue(
-                ActionInfoStripLayout.GetPanelBorderColor(0, 2, 0, effectiveMaxComboSlots: 5) == AsciiArtAssets.Colors.Gold,
-                "Selected filled slot: gold",
+                ActionInfoStripLayout.GetPanelBorderColor(0, 2, 0, effectiveMaxComboSlots: 5) == AsciiArtAssets.Colors.White,
+                "Selected filled slot (next action): white",
                 ref run, ref passed, ref failed);
+            var expectedUnselected = ActionInfoStripLayout.DarkenRgb(AsciiArtAssets.Colors.NeutralGray70, 0.5);
             TestBase.AssertTrue(
-                ActionInfoStripLayout.GetPanelBorderColor(1, 2, 0, effectiveMaxComboSlots: 5) == AsciiArtAssets.Colors.Cyan,
-                "Non-selected filled slot: cyan",
+                ActionInfoStripLayout.GetPanelBorderColor(1, 2, 0, effectiveMaxComboSlots: 5) == expectedUnselected,
+                "Non-selected filled slot: neutral gray darkened 50%",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(
                 ActionInfoStripLayout.GetPanelBorderColor(2, 2, 0, effectiveMaxComboSlots: 5) == AsciiArtAssets.Colors.DarkGray,
