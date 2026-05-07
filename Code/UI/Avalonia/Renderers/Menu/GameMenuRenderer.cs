@@ -27,22 +27,23 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         {
             int currentLineCount = 0;
             
-            // Welcome message
-            int centerY = y + (height / 2) - 5;
-            string welcomeText = AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.WhatWouldYouLikeToDo);
-            int welcomeX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, welcomeText.Length);
-            canvas.AddText(welcomeX, centerY, welcomeText, AsciiArtAssets.Colors.Gold);
-            currentLineCount++;
-            centerY += 3;
-            
             // Game menu options
+            int centerY = y + (height / 2) - 5;
             int menuX = x + (width / 2) - 10;
+            const int menuWidth = 20;
+
+            // Prompt (plain white, centered above options)
+            const string promptText = "What would you like to do?";
+            int promptX = menuX + System.Math.Max(0, (menuWidth - promptText.Length) / 2);
+            canvas.AddText(promptX, centerY, promptText, AsciiArtAssets.Colors.White);
+            currentLineCount++;
+            centerY += 2;
             
             var option1 = new ClickableElement
             {
                 X = menuX,
                 Y = centerY,
-                Width = 20,
+                Width = menuWidth,
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "1",
@@ -53,7 +54,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             {
                 X = menuX,
                 Y = centerY + 1,
-                Width = 20,
+                Width = menuWidth,
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "2",
@@ -64,7 +65,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             {
                 X = menuX,
                 Y = centerY + 2,
-                Width = 20,
+                Width = menuWidth,
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "0",

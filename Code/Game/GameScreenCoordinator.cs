@@ -236,6 +236,8 @@ namespace RPGGame
                 return;
             }
 
+            canvasUI.AppendDeathSummaryToBuffer(player, defeatSummary);
+
             ScreenTransitionProtocol.TransitionToMenuScreen(
                 stateManager,
                 canvasUI,
@@ -243,7 +245,8 @@ namespace RPGGame
                 (ui) => ui.RenderDeathScreen(player, defeatSummary),
                 character: player,
                 clearEnemyContext: true,
-                clearDungeonContext: true
+                clearDungeonContext: true,
+                preserveDisplayBuffer: true
             );
         }
 

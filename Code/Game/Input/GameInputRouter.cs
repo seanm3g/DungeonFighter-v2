@@ -176,6 +176,11 @@ namespace RPGGame.GameCore.Input
                         await handlers.DungeonCompletionHandler.HandleMenuInput(input);
                     break;
                 case GameState.Death:
+                    if (input == "up" || input == "down" || input == "pageup" || input == "pagedown")
+                    {
+                        handleCombatScroll(input);
+                        return;
+                    }
                     if (handlers.DeathScreenHandler != null)
                         await handlers.DeathScreenHandler.HandleMenuInput(input);
                     break;

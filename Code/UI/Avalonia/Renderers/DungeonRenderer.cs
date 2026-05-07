@@ -24,6 +24,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         // Specialized renderers (only keep complex ones)
         private readonly DungeonSelectionRenderer selectionRenderer;
         private readonly DungeonCompletionRenderer dungeonCompletionRenderer;
+        private readonly DeathScreenRenderer deathScreenRenderer;
         
         public DungeonRenderer(GameCanvasControl canvas, ColoredTextWriter textWriter, List<ClickableElement> clickableElements)
         {
@@ -35,6 +36,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             // Initialize specialized renderers (only complex ones)
             this.selectionRenderer = new DungeonSelectionRenderer(canvas, textWriter, clickableElements);
             this.dungeonCompletionRenderer = new DungeonCompletionRenderer(canvas, textWriter, clickableElements);
+            this.deathScreenRenderer = new DeathScreenRenderer(canvas, clickableElements);
         }
         
         // IScreenRenderer implementation

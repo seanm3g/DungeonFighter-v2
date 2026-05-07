@@ -110,8 +110,8 @@ namespace RPGGame.UI.Avalonia.Display
             if (DisplayStateCoordinator.IsMenuState(newState))
             {
                 canvasUI.SuppressDisplayBufferRendering();
-                // Keep combat log for dungeon completion (summary is appended to the same buffer).
-                if (newState != GameState.DungeonCompletion)
+                // Keep combat log for completion/death screens (summary is appended to the same buffer).
+                if (newState != GameState.DungeonCompletion && newState != GameState.Death)
                     canvasUI.ClearDisplayBufferWithoutRender();
             }
             // Automatically restore for non-menu states (Combat, Dungeon, etc.)

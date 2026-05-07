@@ -6,6 +6,8 @@ This file tracks the work currently in progress. Only items listed here should b
 
 - [x] **UI / Combat — strip flash colors (hit vs combo):** Miss = pulsing **red** (same blink cadence as hits); normal hit = pulsing **green**; **gold** only for multi-step combo completion (last strip slot or finisher tag). `HeroActionStripFlashKind`, `ActionExecutionFlow.ShouldFlashComboComplete`, `HeroActionStripFeedback`; settings copy in `GameplaySettingsPanel.axaml`; tests `HeroActionStripFeedbackTests`; `OVERVIEW.md`.
 
+- [x] **UI / Game menu — prompt text style + centering:** Render “What would you like to do?” as normal **white** text centered above the in-game menu options (Go to Dungeon / Show Inventory / Save & Exit), instead of the gold ASCII header.
+
 - [x] **UI / Action tooltips — opener, finisher, required weapon basic:** Hover text for actions (`CombatActionStripBuilder.BuildActionTooltipLines` / `BuildMechanicalDetailSegments`) notes **Opener** / **Finisher** from `ComboRouting` and the **Weapon basic** line when `WeaponRequiredComboAction.IsRequiredBasicForEquippedWeapon` applies. Tests: `CombatActionStripBuilderTests`; `OVERVIEW.md` (inventory bullet).
 
 - [x] **Bugfix / Training Ground — unarmed opener shows JAB:** `Actions.json` had no **PUNCH** row, so class-granted **JAB** became the first combo action pre-weapon. Added **PUNCH** (100% damage/speed), `CharacterSerializer.EnsureUnarmedPunchInActionPool` + `NormalizeUnarmedComboOpener` after rebuild; keyword color lists include **punch**. Tests: `RebuildCharacterActionsComboTests`; `OVERVIEW.md` (Training Ground unarmed baseline).

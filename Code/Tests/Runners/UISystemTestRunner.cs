@@ -139,6 +139,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             DungeonCompletionRendererTests.RunAllTests();
             Console.WriteLine();
+            DeathScreenRendererTests.RunAllTests();
+            Console.WriteLine();
             ItemModifiersTabManagerTests.RunAllTests();
             Console.WriteLine();
             ItemSuffixesTabManagerTests.RunAllTests();

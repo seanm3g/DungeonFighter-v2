@@ -118,19 +118,19 @@ namespace RPGGame.UI.Avalonia.Renderers
             int footerPromptY = y + height - FooterReservedRows;
             int menuStartY = footerPromptY + 2;
 
-            textWriter.RenderSegments(
-                UndulatingTextHelper.ApplyUndulationToPlainText(
-                    AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.WhatWouldYouLikeToDo),
-                    AsciiArtAssets.Colors.Gold, footerPromptY),
-                x + 2, footerPromptY);
-
             int menuX = x + Math.Max(2, (width / 2) - 10);
+            const int menuWidth = 20;
+
+            // Prompt (plain white, centered above options)
+            const string promptText = "What would you like to do?";
+            int promptX = menuX + Math.Max(0, (menuWidth - promptText.Length) / 2);
+            canvas.AddText(promptX, footerPromptY, promptText, AsciiArtAssets.Colors.White);
 
             var option1 = new ClickableElement
             {
                 X = menuX,
                 Y = menuStartY,
-                Width = 20,
+                Width = menuWidth,
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "1",
@@ -141,7 +141,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 X = menuX,
                 Y = menuStartY + 1,
-                Width = 20,
+                Width = menuWidth,
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "2",
@@ -152,7 +152,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 X = menuX,
                 Y = menuStartY + 2,
-                Width = 20,
+                Width = menuWidth,
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "0",

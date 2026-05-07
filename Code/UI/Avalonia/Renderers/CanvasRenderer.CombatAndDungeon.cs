@@ -211,12 +211,16 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 canvasTextManager.DisplayManager.CancelPendingRenders();
-                canvasTextManager.DisplayManager.SetMode(new MenuDisplayMode());
+                canvasTextManager.DisplayManager.SetMode(new StandardDisplayMode());
                 canvasTextManager.DisplayManager.SetExternalRenderCallback(null);
             }
             RenderWithLayout(player, "YOU DIED", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                dungeonRenderer.RenderDeathScreen(contentX, contentY, contentWidth, contentHeight, player, defeatSummary);
+                if (textManager is CanvasTextManager canvasTextManager)
+                {
+                    var buffer = canvasTextManager.GetDisplayManagerForCharacter(player).Buffer;
+                    dungeonRenderer.RenderDeathScreen(contentX, contentY, contentWidth, contentHeight, buffer);
+                }
             }, context, null, context.DungeonName, null, clearCanvas: false);
             dungeonRenderer.RenderActionInfoStrip(player);
             canvas.Refresh();

@@ -1,18 +1,18 @@
-using Avalonia.Media;
-using RPGGame;
 using RPGGame.UI;
-using RPGGame.UI.Avalonia.Managers;
-using RPGGame.Utils;
+using RPGGame.UI.ColorSystem;
+using System;
 using System.Collections.Generic;
 
 namespace RPGGame.UI.Avalonia.Renderers
 {
     /// <summary>
-    /// Renders the death screen with run statistics.
-    /// Extracted from DungeonRenderer to reduce size and improve Single Responsibility Principle compliance.
+    /// Death screen: summary lines for the scrollable combat log plus a fixed footer menu.
     /// </summary>
     public class DeathScreenRenderer
     {
+        /// <summary>Footer text + button + prompt (anchored to bottom of content rect).</summary>
+        public const int FooterReservedRows = 4;
+
         private readonly GameCanvasControl canvas;
         private readonly List<ClickableElement> clickableElements;
         
@@ -23,26 +23,19 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Renders the death screen with run statistics (condensed version)
+        /// Builds colored lines appended to the center display buffer so the death summary sits after combat log text.
         /// </summary>
-        public void RenderDeathScreen(int x, int y, int width, int height, Character player, string defeatSummary)
+        public static List<List<ColoredText>> BuildDeathSummaryLines(string defeatSummary)
         {
-            int currentY = y + 1;
-            int startX = x + 2;
-            
-            // ===== COMPACT HEADER =====
-            string headerText = "═══ YOU DIED ═══";
-            int headerX = x + (width / 2) - (headerText.Length / 2);
-            canvas.AddText(headerX, currentY, headerText, AsciiArtAssets.Colors.Red);
-            currentY += 2;
-            
-            // ===== PARSE AND DISPLAY STATISTICS (CONDENSED) =====
-            string[] summaryLines = defeatSummary.Split('\n');
-            Color sectionColor = AsciiArtAssets.Colors.White;
+            var lines = new List<List<ColoredText>>();
+
+            lines.Add(new List<ColoredText> { new ColoredText("═══ YOU DIED ═══", AsciiArtAssets.Colors.Red) });
+            lines.Add(new List<ColoredText>());
+
+            string[] summaryLines = (defeatSummary ?? "").Split('\n');
             bool inSection = false;
             bool skipNextEmpty = false;
-            
-            // Stats to skip (less relevant - only skip if zero or meaningless)
+
             var statsToSkip = new HashSet<string>
             {
                 "Total Healing Received: 0",
@@ -98,69 +91,48 @@ namespace RPGGame.UI.Avalonia.Renderers
                 // Detect and render section headers (compact, no separator lines)
                 if (trimmedLine.Contains("CHARACTER PROGRESSION"))
                 {
-                    sectionColor = AsciiArtAssets.Colors.Cyan;
                     inSection = true;
-                    canvas.AddText(startX, currentY, $"  {trimmedLine}", sectionColor);
-                    currentY++;
+                    lines.Add(new List<ColoredText> { new ColoredText($"  {trimmedLine}", AsciiArtAssets.Colors.Cyan) });
                     continue;
                 }
                 else if (trimmedLine.Contains("COMBAT PERFORMANCE"))
                 {
-                    sectionColor = AsciiArtAssets.Colors.Red;
                     inSection = true;
-                    canvas.AddText(startX, currentY, $"  {trimmedLine}", sectionColor);
-                    currentY++;
+                    lines.Add(new List<ColoredText> { new ColoredText($"  {trimmedLine}", AsciiArtAssets.Colors.Red) });
                     continue;
                 }
                 else if (trimmedLine.Contains("DAMAGE RECORDS"))
                 {
-                    // Merge into combat section - skip header, just show stats
-                    sectionColor = AsciiArtAssets.Colors.Orange;
                     inSection = true;
                     continue; // Skip the header, just show the stats
                 }
                 else if (trimmedLine.Contains("COMBO MASTERY"))
                 {
-                    sectionColor = AsciiArtAssets.Colors.Yellow;
                     inSection = true;
-                    canvas.AddText(startX, currentY, $"  {trimmedLine}", sectionColor);
-                    currentY++;
+                    lines.Add(new List<ColoredText> { new ColoredText($"  {trimmedLine}", AsciiArtAssets.Colors.Yellow) });
                     continue;
                 }
                 else if (trimmedLine.Contains("ITEM COLLECTION"))
                 {
-                    sectionColor = AsciiArtAssets.Colors.Magenta;
                     inSection = true;
-                    canvas.AddText(startX, currentY, $"  {trimmedLine}", sectionColor);
-                    currentY++;
+                    lines.Add(new List<ColoredText> { new ColoredText($"  {trimmedLine}", AsciiArtAssets.Colors.Magenta) });
                     continue;
                 }
                 else if (trimmedLine.Contains("EXPLORATION"))
                 {
                     // Skip exploration if all zeros
                     inSection = false;
-                    sectionColor = AsciiArtAssets.Colors.White;
                     continue;
                 }
                 else if (trimmedLine.Contains("ACHIEVEMENTS UNLOCKED"))
                 {
-                    sectionColor = AsciiArtAssets.Colors.Gold;
                     inSection = true;
-                    canvas.AddText(startX, currentY, $"  {trimmedLine}", sectionColor);
-                    currentY++;
+                    lines.Add(new List<ColoredText> { new ColoredText($"  {trimmedLine}", AsciiArtAssets.Colors.Gold) });
                     continue;
                 }
                 
                 // Render stat lines
-                Color lineColor = AsciiArtAssets.Colors.White;
-                if (trimmedLine.Contains("✓"))
-                {
-                    lineColor = AsciiArtAssets.Colors.Green;
-                }
-                else if (inSection && sectionColor != AsciiArtAssets.Colors.White)
-                {
-                    lineColor = AsciiArtAssets.Colors.White;
-                }
+                var lineColor = trimmedLine.Contains("✓", StringComparison.Ordinal) ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.White;
                 
                 // Compact formatting - remove extra indentation
                 string formattedLine = trimmedLine;
@@ -169,43 +141,49 @@ namespace RPGGame.UI.Avalonia.Renderers
                     formattedLine = "    " + formattedLine.TrimStart();
                 }
                 
-                canvas.AddText(startX, currentY, formattedLine, lineColor);
-                currentY++;
+                lines.Add(new List<ColoredText> { new ColoredText(formattedLine, lineColor) });
             }
-            
-            currentY += 1;
-            
-            // ===== COMPACT FOOTER =====
+
+            lines.Add(new List<ColoredText>());
+            lines.Add(new List<ColoredText> { new ColoredText("Better luck next time!", AsciiArtAssets.Colors.Yellow) });
+
+            return lines;
+        }
+
+        /// <summary>
+        /// Draws the bottom footer (fixed; not part of the scrollable log).
+        /// </summary>
+        public void RenderFooterOnly(int x, int y, int width, int height)
+        {
+            int footerTextY = y + height - FooterReservedRows;
+            int buttonY = footerTextY + 2;
+
             string footerText = "Better luck next time!";
             int footerX = x + (width / 2) - (footerText.Length / 2);
-            canvas.AddText(footerX, currentY, footerText, AsciiArtAssets.Colors.Yellow);
-            currentY += 2;
-            
-            // ===== CONTINUE BUTTON =====
+            canvas.AddText(footerX, footerTextY, footerText, AsciiArtAssets.Colors.Yellow);
+
             string continueText = UIConstants.MenuOptions.ReturnToMainMenu;
             string continueDisplayText = MenuOptionFormatter.Format(0, continueText);
             string buttonText = $"[ {continueDisplayText} ]";
             int buttonX = x + (width / 2) - (buttonText.Length / 2);
-            
+
             var continueButton = new ClickableElement
             {
                 X = buttonX,
-                Y = currentY,
+                Y = buttonY,
                 Width = buttonText.Length,
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "enter",
                 DisplayText = continueDisplayText
             };
-            
+
             clickableElements.Add(continueButton);
-            canvas.AddText(buttonX, currentY, buttonText, AsciiArtAssets.Colors.Yellow);
-            
-            // Compact prompt
-            currentY += 1;
+            canvas.AddText(buttonX, buttonY, buttonText, AsciiArtAssets.Colors.Yellow);
+
             string promptText = "Press any key to continue...";
             int promptX = x + (width / 2) - (promptText.Length / 2);
-            canvas.AddText(promptX, currentY, promptText, AsciiArtAssets.Colors.Gray);
+            canvas.AddText(promptX, buttonY + 1, promptText, AsciiArtAssets.Colors.Gray);
         }
     }
 }

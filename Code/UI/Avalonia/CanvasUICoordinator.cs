@@ -61,6 +61,10 @@ namespace RPGGame.UI.Avalonia
         private List<LevelUpInfo>? _dungeonCompletionRenderLevelUps;
         private List<Item>? _dungeonCompletionRenderItemsFound;
 
+        /// <summary>Arguments from the last <see cref="RenderDeathScreen"/> so manual scroll can re-render.</summary>
+        private Character? _deathRenderPlayer;
+        private string? _deathRenderSummary;
+
         /// <summary>
         /// Sets optional inline custom dungeon level entry display for the dungeon selection screen.
         /// Pass null when not entering a custom level.

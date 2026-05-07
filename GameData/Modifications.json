@@ -1,266 +1,218 @@
 [
   {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Reinforced",
-    "Description": null,
-    "Effect": "ARMOR",
-    "value": 1,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "STRENGTH",
-    "REQUIREMENT VALUE": 5
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Balanced",
-    "Description": null,
-    "Effect": "COMBO",
-    "value": 1,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Precise",
-    "Description": null,
-    "Effect": "COMBO",
-    "value": 2,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Swift",
-    "Description": null,
-    "Effect": "HIT",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Featherweight",
-    "Description": null,
-    "Effect": "SPEED",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "AGILITY",
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Hardened",
-    "Description": null,
-    "Effect": "ARMOR",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "STRENGTH",
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Light",
-    "Description": null,
-    "Effect": "MULTI-HIT",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Heavy",
-    "Description": null,
-    "Effect": "DAMAGE",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "STRENGTH",
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Short",
-    "Description": null,
-    "Effect": "HIT",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Long",
-    "Description": null,
-    "Effect": "CRIT",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Blessed",
-    "Description": "2% Magic Find",
-    "Effect": "MAGIC FIND",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Enchanted",
-    "Description": "\u002B1 Magic Find",
-    "Effect": "MAGIC FIND",
-    "value": 1,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Charged",
-    "Description": null,
-    "Effect": "CRIT",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Acrobatic",
-    "Description": null,
-    "Effect": "MULTI-HIT",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Ancient",
-    "Description": null,
-    "Effect": "HEALTH BONUS",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Keen",
-    "Description": null,
-    "Effect": "AMP",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "TECHNIQUE",
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "flaming",
-    "Description": null,
-    "Effect": "BURN",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "poisonous",
-    "Description": null,
-    "Effect": "POISON",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "serrated",
-    "Description": null,
-    "Effect": "BLEED",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "refined",
-    "Description": null,
-    "Effect": "AMP",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "TECHNIQUE",
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Nimble",
-    "Description": null,
-    "Effect": "SPEED",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Brutal",
-    "Description": null,
-    "Effect": "DAMAGE",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
-    "ItemRank": "Common",
-    "Name": "Sturdy",
-    "Description": null,
-    "Effect": "HEALTH BONUS",
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
-  },
-  {
-    "DiceResult": null,
+    "DiceResult": 0,
     "ItemRank": "Common",
     "Name": "Blinding",
     "Description": "- HIT to enemy",
-    "Effect": null,
-    "value": null,
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": null,
-    "REQUIREMENT VALUE": null
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
+  },
+  {
+    "DiceResult": 0,
+    "ItemRank": "Common",
+    "Name": "Blinding",
+    "Description": "- HIT to enemy",
+    "Effect": "",
+    "MinValue": 0,
+    "MaxValue": 0
   }
 ]
