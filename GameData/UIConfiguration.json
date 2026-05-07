@@ -46,7 +46,7 @@
     }
   },
   "whiteTemperatureIntensity": 1.1,
-  "subsequentLineDarkening": 0.65,
+  "subsequentLineDarkening": 0.4,
   "undulationTimerMs": 1000,
   "brightnessMask": {
     "enabled": false,
@@ -58,6 +58,8 @@
     "undulationSpeed": -0.05,
     "undulationIntervalMs": 50,
     "undulationWaveLength": 4,
+    "animatedTextBrightnessMin": 150,
+    "animatedTextBrightnessMax": 255,
     "brightnessMask": {
       "enabled": false,
       "intensity": 10,

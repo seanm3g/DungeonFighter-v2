@@ -315,7 +315,7 @@ namespace RPGGame.UI.ColorSystem
                 {
                     // Truncate this segment
                     var truncatedText = segment.Text.Substring(0, remainingLength);
-                    result.Add(new ColoredText(truncatedText, segment.Color));
+                    result.Add(new ColoredText(truncatedText, segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas));
                     break;
                 }
             }

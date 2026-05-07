@@ -27,6 +27,8 @@ namespace RPGGame.Tests.Unit
             TestEquipArmor();
             TestUnequipArmor();
             TestStatBonusApplication();
+            TestStatBonusSuffixPercentOfStrength();
+            TestLiteralHitSuffixNotPercentScaled();
             TestStatBonusRemoval();
             TestActionPoolUpdates();
             TestInventoryManagement();
@@ -131,14 +133,53 @@ namespace RPGGame.Tests.Unit
 
             var weapon = TestDataBuilders.Weapon()
                 .WithName("StrengthWeapon")
-                .WithStatBonus("STR", 5)
+                .WithStatBonus("STR", 15)
                 .Build();
 
             character.EquipItem(weapon, "weapon");
 
             int newStrength = character.Strength;
             TestBase.AssertTrue(newStrength > originalStrength,
-                $"Strength should increase after equipping weapon with bonus: {originalStrength} -> {newStrength}",
+                $"Strength should increase after equipping weapon with % STR suffix: {originalStrength} -> {newStrength}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestStatBonusSuffixPercentOfStrength()
+        {
+            Console.WriteLine("\n--- Testing StatBonuses suffix Value as % of STR reference ---");
+
+            var character = TestDataBuilders.Character()
+                .WithName("PctSuffix")
+                .WithStats(100, 10, 10, 10)
+                .Build();
+            int strBefore = character.Strength;
+            var weapon = TestDataBuilders.Weapon()
+                .WithName("PctStrWeapon")
+                .WithStatBonus("STR", 10)
+                .Build();
+            character.EquipItem(weapon, "weapon");
+            int strAfter = character.Strength;
+            TestBase.AssertEqual(10, strAfter - strBefore,
+                "10% of 100 base STR should add 10 effective STR from suffix",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestLiteralHitSuffixNotPercentScaled()
+        {
+            Console.WriteLine("\n--- Testing HIT suffix is literal (+7), not % of reference ---");
+
+            var character = TestDataBuilders.Character()
+                .WithName("HitLiteral")
+                .WithStats(100, 10, 10, 10)
+                .Build();
+            var weapon = TestDataBuilders.Weapon()
+                .WithName("HitStick")
+                .WithStatBonus("HIT", 7)
+                .Build();
+            character.EquipItem(weapon, "weapon");
+            int hit = character.Equipment.GetEquipmentStatBonus("HIT", character);
+            TestBase.AssertEqual(7, hit,
+                "HIT suffix 7 should be +7 flat, not 7% of catalog HIT reference",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -149,7 +190,7 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character().WithName("TestHero").Build();
             var weapon = TestDataBuilders.Weapon()
                 .WithName("StrengthWeapon")
-                .WithStatBonus("STR", 5)
+                .WithStatBonus("STR", 15)
                 .Build();
 
             character.EquipItem(weapon, "weapon");
@@ -159,7 +200,7 @@ namespace RPGGame.Tests.Unit
             int strengthWithoutWeapon = character.Strength;
 
             TestBase.AssertTrue(strengthWithoutWeapon < strengthWithWeapon,
-                $"Strength should decrease after unequipping weapon: {strengthWithWeapon} -> {strengthWithoutWeapon}",
+                $"Strength should decrease after unequipping % STR weapon: {strengthWithWeapon} -> {strengthWithoutWeapon}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -303,7 +344,7 @@ namespace RPGGame.Tests.Unit
             Console.WriteLine("\n--- Testing Roll Bonus Application ---");
 
             var character = TestDataBuilders.Character().WithName("TestHero").Build();
-            int originalRollBonus = character.Equipment.GetEquipmentRollBonus();
+            int originalRollBonus = character.Equipment.GetEquipmentRollBonus(character);
 
             var weapon = TestDataBuilders.Weapon()
                 .WithName("RollBonusWeapon")
@@ -311,10 +352,10 @@ namespace RPGGame.Tests.Unit
                 .Build();
 
             character.EquipItem(weapon, "weapon");
-            int newRollBonus = character.Equipment.GetEquipmentRollBonus();
+            int newRollBonus = character.Equipment.GetEquipmentRollBonus(character);
 
-            TestBase.AssertTrue(newRollBonus >= originalRollBonus,
-                $"Roll bonus should increase after equipping weapon: {originalRollBonus} -> {newRollBonus}",
+            TestBase.AssertEqual(originalRollBonus + 3, newRollBonus,
+                "RollBonus suffix values are literal (+3), not percent of reference",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

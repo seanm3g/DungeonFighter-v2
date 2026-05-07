@@ -139,7 +139,7 @@ namespace RPGGame
         /// <returns>Effective maximum health</returns>
         public int GetEffectiveMaxHealth()
         {
-            return MaxHealth + character.Equipment.GetEquipmentHealthBonus();
+            return MaxHealth + character.Equipment.GetEquipmentHealthBonus(character);
         }
 
         /// <summary>
@@ -206,7 +206,7 @@ namespace RPGGame
         /// </summary>
         public void ProcessHealthRegeneration()
         {
-            int healthRegen = character.Equipment.GetEquipmentHealthRegenBonus();
+            int healthRegen = character.Equipment.GetEquipmentHealthRegenBonus(character);
             if (healthRegen > 0 && CurrentHealth < GetEffectiveMaxHealth())
             {
                 int oldHealth = CurrentHealth;

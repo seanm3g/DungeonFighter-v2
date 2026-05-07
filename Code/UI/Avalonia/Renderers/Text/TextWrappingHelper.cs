@@ -111,7 +111,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
                         // Process this part (which may still need word wrapping)
                         if (!string.IsNullOrEmpty(part))
                         {
-                            ProcessSegmentPart(part, segment.Color, ref currentLine, ref currentLineWidth, maxWidth, ref wrappedLines);
+                            ProcessSegmentPart(part, segment, ref currentLine, ref currentLineWidth, maxWidth, ref wrappedLines);
                         }
                     }
                     
@@ -151,12 +151,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
                         // Add space before word if not first on line
                         if (currentLine.Count > 0 && currentLineWidth > 0)
                         {
-                            currentLine.Add(new ColoredText(" ", segment.Color));
+                            currentLine.Add(new ColoredText(" ", segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas));
                             currentLineWidth += spaceCharWidth;
                         }
                         
                         // Add word
-                        currentLine.Add(new ColoredText(word, segment.Color));
+                        currentLine.Add(new ColoredText(word, segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas));
                         currentLineWidth += wordCharWidth;
                     }
                 }
@@ -187,14 +187,14 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
         /// Helper method to process a segment part (after splitting on newlines)
         /// Handles word wrapping for the part
         /// </summary>
-        private static void ProcessSegmentPart(string part, global::Avalonia.Media.Color color, ref List<ColoredText> currentLine, ref int currentLineWidth, int maxWidth, ref List<List<ColoredText>> wrappedLines)
+        private static void ProcessSegmentPart(string part, ColoredText sourceSegment, ref List<ColoredText> currentLine, ref int currentLineWidth, int maxWidth, ref List<List<ColoredText>> wrappedLines)
         {
             int partCharWidth = part.Length;
             
             // If part fits on current line, add it
             if (currentLineWidth + partCharWidth <= maxWidth)
             {
-                currentLine.Add(new ColoredText(part, color));
+                currentLine.Add(new ColoredText(part, sourceSegment.Color, sourceSegment.SourceTemplate, sourceSegment.ColorReadyForCanvas));
                 currentLineWidth += partCharWidth;
             }
             else if (partCharWidth > maxWidth)
@@ -217,12 +217,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
                     // Add space before word if not first on line
                     if (currentLine.Count > 0 && currentLineWidth > 0)
                     {
-                        currentLine.Add(new ColoredText(" ", color));
+                        currentLine.Add(new ColoredText(" ", sourceSegment.Color, sourceSegment.SourceTemplate, sourceSegment.ColorReadyForCanvas));
                         currentLineWidth += spaceCharWidth;
                     }
                     
                     // Add word
-                    currentLine.Add(new ColoredText(word, color));
+                    currentLine.Add(new ColoredText(word, sourceSegment.Color, sourceSegment.SourceTemplate, sourceSegment.ColorReadyForCanvas));
                     currentLineWidth += wordCharWidth;
                 }
             }
@@ -237,7 +237,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
                 }
                 
                 // Add part to new line
-                currentLine.Add(new ColoredText(part, color));
+                currentLine.Add(new ColoredText(part, sourceSegment.Color, sourceSegment.SourceTemplate, sourceSegment.ColorReadyForCanvas));
                 currentLineWidth += partCharWidth;
             }
         }

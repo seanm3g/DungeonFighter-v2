@@ -11,8 +11,7 @@
       "Bear",
       "Treant",
       "Boar"
-    ],
-    "colorOverride": null
+    ]
   },
   {
     "name": "Lava Caves",
@@ -26,8 +25,7 @@
       "Salamander",
       "Ember Spirit",
       "Magma Beast"
-    ],
-    "colorOverride": null
+    ]
   },
   {
     "name": "Haunted Crypt",
@@ -41,7 +39,6 @@
       "Ghoul",
       "Lich",
       "Wight"
-    ],
-    "colorOverride": null
+    ]
   }
 ]

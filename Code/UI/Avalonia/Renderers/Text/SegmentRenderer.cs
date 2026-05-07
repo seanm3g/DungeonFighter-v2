@@ -34,11 +34,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
         /// Uses Strategy pattern to select appropriate renderer (template vs standard).
         /// Applies animation to critical hit lines.
         /// </summary>
-        public void RenderSegments(List<ColoredText> segments, int x, int y, Func<Color, Color> colorConverter)
+        /// <param name="legacyColorConverter">Unused; segment colors use <see cref="ColorConverter.ConvertSegmentToCanvasColor"/>.</param>
+        public void RenderSegments(List<ColoredText> segments, int x, int y, Func<Color, Color> legacyColorConverter)
         {
             if (segments == null || segments.Count == 0)
                 return;
             
+            _ = legacyColorConverter;
             // Check if this is a critical hit ACTION line (not a status effect line)
             // Must contain "CRITICAL" AND "hits" AND "damage" to be an action line
             // This excludes status effect lines like "affected by poison" which should not be animated
@@ -51,12 +53,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
             if (isCritActionLine)
             {
                 // Render with animation for crit action lines only
-                RenderCritLineWithAnimation(segments, x, y, colorConverter);
+                RenderCritLineWithAnimation(segments, x, y);
             }
             else
             {
                 // Normal rendering for non-crit lines and status effect lines
-                RenderSegmentsNormal(segments, x, y, colorConverter);
+                RenderSegmentsNormal(segments, x, y);
             }
         }
         
@@ -64,7 +66,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
         /// Renders a critical hit line with animation effects
         /// Only applies undulation animation to the "CRITICAL *ACTION NAME*" segment, not the full line
         /// </summary>
-        private void RenderCritLineWithAnimation(List<ColoredText> segments, int x, int y, Func<Color, Color> colorConverter)
+        private void RenderCritLineWithAnimation(List<ColoredText> segments, int x, int y)
         {
             int currentX = x;
             int charPosition = 0;
@@ -91,7 +93,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
                     // Render character-by-character with undulation animation for CRITICAL segment only
                     foreach (char c in segment.Text)
                     {
-                        var baseColor = colorConverter(segment.Color);
+                        var baseColor = ColorConverter.ConvertSegmentToCanvasColor(segment);
                         
                         // Add element offset to position to make this element's animation unique
                         int adjustedPosition = charPosition + elementOffset;
@@ -105,7 +107,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
                         brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
                         
                         // Apply brightness adjustment to color
-                        Color animatedColor = AdjustColorBrightness(baseColor, brightnessFactor);
+                        Color animatedColor = ColorValidator.ScaleBrightnessHsv(baseColor, brightnessFactor);
+                        animatedColor = ColorValidator.ClampAnimatedTextBrightness(
+                            animatedColor, critAnimationState.AnimatedTextBrightnessMin, critAnimationState.AnimatedTextBrightnessMax);
                         
                         // Render single character
                         canvas.AddText(currentX, y, c.ToString(), animatedColor);
@@ -117,7 +121,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
                 else
                 {
                     // Render non-critical segments normally (attacker name, "hits", target name, damage, etc.)
-                    var canvasColor = colorConverter(segment.Color);
+                    var canvasColor = ColorConverter.ConvertSegmentToCanvasColor(segment);
                     int renderedX = int.MinValue;
                     
                     double newXDouble = standardRenderer.RenderSegment(segment, canvasColor, currentX, 
@@ -147,7 +151,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
         /// <summary>
         /// Renders segments normally without animation
         /// </summary>
-        private void RenderSegmentsNormal(List<ColoredText> segments, int x, int y, Func<Color, Color> colorConverter)
+        private void RenderSegmentsNormal(List<ColoredText> segments, int x, int y)
         {
             // Select appropriate renderer using Strategy pattern
             ISegmentRenderer renderer = templateRenderer.ShouldUseRenderer(segments) 
@@ -165,7 +169,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
                 if (string.IsNullOrEmpty(segment.Text))
                     continue;
                 
-                var canvasColor = colorConverter(segment.Color);
+                var canvasColor = ColorConverter.ConvertSegmentToCanvasColor(segment);
                 int renderedX = int.MinValue;
                 
                 // Use selected renderer to render segment
@@ -182,20 +186,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
                 }
                 lastColor = canvasColor;
             }
-        }
-        
-        /// <summary>
-        /// Adjusts the brightness of a color by a factor
-        /// </summary>
-        private Color AdjustColorBrightness(Color color, double factor)
-        {
-            factor = Math.Max(0.0, Math.Min(2.0, factor)); // Clamp between 0 and 2
-            
-            byte r = (byte)Math.Min(255, (int)(color.R * factor));
-            byte g = (byte)Math.Min(255, (int)(color.G * factor));
-            byte b = (byte)Math.Min(255, (int)(color.B * factor));
-            
-            return Color.FromRgb(r, g, b);
         }
     }
 }

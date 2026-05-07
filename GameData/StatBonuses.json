@@ -4,14 +4,15 @@
     "Description": "1 to hit",
     "Value": 1,
     "Rarity": "Common",
-    "StatType": "HIT",
+    "StatType": "hit",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of Agility",
@@ -25,30 +26,38 @@
         "StatType": "AGI",
         "Value": 2
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of ferosity",
     "Description": "1 to crit",
     "Value": 1,
     "Rarity": "Common",
-    "StatType": "CRIT",
+    "StatType": "crit",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of fleeting",
     "Description": "attack speed",
-    "Value": 0,
+    "Value": 5,
     "Rarity": "Common",
-    "StatType": "",
+    "StatType": "speed",
     "ItemRank": "",
-    "Mechanics": null
+    "Mechanics": [
+      {
+        "StatType": "speed",
+        "Value": 5
+      }
+    ],
+    "Requirements": null
   },
   {
     "Name": "of Intelligence",
@@ -62,16 +71,23 @@
         "StatType": "INT",
         "Value": 2
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of killing",
     "Description": "weapon damage",
-    "Value": 0,
+    "Value": 5,
     "Rarity": "Common",
-    "StatType": "",
+    "StatType": "weapon damage",
     "ItemRank": "",
-    "Mechanics": null
+    "Mechanics": [
+      {
+        "StatType": "weapon damage",
+        "Value": 5
+      }
+    ],
+    "Requirements": null
   },
   {
     "Name": "of Power",
@@ -85,21 +101,23 @@
         "StatType": "base damage",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of Precision",
     "Description": "1 to combo",
     "Value": 1,
     "Rarity": "Common",
-    "StatType": "COMBO",
+    "StatType": "combo",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of Protection",
@@ -113,16 +131,23 @@
         "StatType": "Armor",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of Rejuvination",
     "Description": "health regen",
-    "Value": 0,
+    "Value": 2,
     "Rarity": "Common",
-    "StatType": "",
+    "StatType": "HealthRegen",
     "ItemRank": "",
-    "Mechanics": null
+    "Mechanics": [
+      {
+        "StatType": "HealthRegen",
+        "Value": 2
+      }
+    ],
+    "Requirements": null
   },
   {
     "Name": "of Strength",
@@ -136,7 +161,8 @@
         "StatType": "STR",
         "Value": 2
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of Technique",
@@ -150,35 +176,23 @@
         "StatType": "TEC",
         "Value": 2
       }
-    ]
-  },
-  {
-    "Name": "of truth",
-    "Description": "1 to crit miss",
-    "Value": 1,
-    "Rarity": "Common",
-    "StatType": "CRIT MISS",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "CRIT MISS",
-        "Value": 1
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of Vitality",
     "Description": "max health",
     "Value": 10,
     "Rarity": "Common",
-    "StatType": "Health",
+    "StatType": "HealthRegen",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "Health",
+        "StatType": "HealthRegen",
         "Value": 10
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Abalone",
@@ -196,43 +210,27 @@
         "StatType": "MagicFind",
         "Value": 3
       }
-    ]
-  },
-  {
-    "Name": "of the Albatross",
-    "Description": "",
-    "Value": 3,
-    "Rarity": "Uncommon",
-    "StatType": "CRIT MISS",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 3
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Ant",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "ACCURACY",
+    "StatType": "accuracy",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 3
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Armadillo",
@@ -247,10 +245,11 @@
         "Value": 4
       },
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Auroch",
@@ -268,61 +267,46 @@
         "StatType": "STR",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Badger",
     "Description": "",
     "Value": 4,
     "Rarity": "Uncommon",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 4
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Basilisk",
     "Description": "",
     "Value": 5,
     "Rarity": "Uncommon",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 5
       },
       {
         "StatType": "MagicFind",
         "Value": 3
       }
-    ]
-  },
-  {
-    "Name": "of the Bat",
-    "Description": "",
-    "Value": 3,
-    "Rarity": "Uncommon",
-    "StatType": "HIT",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HIT",
-        "Value": 3
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Bison",
@@ -337,64 +321,49 @@
         "Value": 15
       },
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 10
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Bloodhound",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "TECH",
+    "StatType": "TEC",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       },
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Boar",
     "Description": "",
     "Value": 4,
     "Rarity": "Uncommon",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 4
       },
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       }
-    ]
-  },
-  {
-    "Name": "of the Bull",
-    "Description": "",
-    "Value": 4,
-    "Rarity": "Uncommon",
-    "StatType": "STR",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "STR",
-        "Value": 4
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Cape Buffalo",
@@ -409,10 +378,11 @@
         "Value": 15
       },
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Caracal",
@@ -427,10 +397,11 @@
         "Value": 4
       },
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Cave Bear",
@@ -445,82 +416,68 @@
         "Value": 4
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Cheetah",
     "Description": "",
     "Value": 12,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "speed",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 12
       },
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Clockwork Beetle",
     "Description": "",
     "Value": 4,
     "Rarity": "Uncommon",
-    "StatType": "TECH",
+    "StatType": "TEC",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 4
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
-  },
-  {
-    "Name": "of the Clouded Leopard",
-    "Description": "",
-    "Value": 3,
-    "Rarity": "Uncommon",
-    "StatType": "CRIT",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Cobra",
     "Description": "",
     "Value": 10,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "speed",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 10
       },
       {
         "StatType": "STR",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Corvid",
@@ -535,10 +492,11 @@
         "Value": 4
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Crab",
@@ -553,10 +511,11 @@
         "Value": 5
       },
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 10
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Crane",
@@ -574,7 +533,8 @@
         "StatType": "INT",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Crocodile",
@@ -589,10 +549,11 @@
         "Value": 12
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Cuttlefish",
@@ -607,28 +568,30 @@
         "Value": 4
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Damselfly",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "COMBO",
+    "StatType": "combo",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       },
       {
         "StatType": "MagicFind",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Deer",
@@ -646,25 +609,27 @@
         "StatType": "AGI",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Dire Wolf",
     "Description": "",
     "Value": 5,
     "Rarity": "Uncommon",
-    "StatType": "WEAPON DAMAGE",
+    "StatType": "weapon damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 5
       },
       {
         "StatType": "STR",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Dragon",
@@ -679,28 +644,30 @@
         "Value": 4
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Dragonfly",
     "Description": "",
     "Value": 12,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "speed",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 12
       },
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Elephant",
@@ -715,10 +682,11 @@
         "Value": 15
       },
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Elk",
@@ -733,28 +701,30 @@
         "Value": 15
       },
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Fer-de-Lance",
     "Description": "",
     "Value": 4,
     "Rarity": "Uncommon",
-    "StatType": "ACCURACY",
+    "StatType": "accuracy",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 4
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Ferret",
@@ -769,10 +739,11 @@
         "Value": 3
       },
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Fiddler Crab",
@@ -790,25 +761,27 @@
         "StatType": "AGI",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Firefly",
     "Description": "",
     "Value": 10,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "speed",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 10
       },
       {
         "StatType": "MagicFind",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Fox",
@@ -826,7 +799,8 @@
         "StatType": "INT",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Gecko",
@@ -841,10 +815,11 @@
         "Value": 3
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Giant Squid",
@@ -859,28 +834,30 @@
         "Value": 12
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Golden Eagle",
     "Description": "",
     "Value": 5,
     "Rarity": "Uncommon",
-    "StatType": "WEAPON DAMAGE",
+    "StatType": "weapon damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 5
       },
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Golem",
@@ -895,10 +872,11 @@
         "Value": 15
       },
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Gorilla",
@@ -916,25 +894,27 @@
         "StatType": "STR",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Grizzly Bear",
     "Description": "",
     "Value": 5,
     "Rarity": "Uncommon",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 5
       },
       {
         "StatType": "STR",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Hawk",
@@ -949,10 +929,11 @@
         "Value": 3
       },
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Heron",
@@ -967,10 +948,11 @@
         "Value": 3
       },
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Hippopotamus",
@@ -988,7 +970,8 @@
         "StatType": "AGI",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Horseshoe Crab",
@@ -1003,28 +986,30 @@
         "Value": 3
       },
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Hummingbird",
     "Description": "",
     "Value": 12,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "speed",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 12
       },
       {
         "StatType": "HealthRegen",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Hydra",
@@ -1039,46 +1024,49 @@
         "Value": 5
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Hyena",
     "Description": "",
     "Value": 4,
     "Rarity": "Uncommon",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 4
       },
       {
         "StatType": "INT",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Ibis",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "ACCURACY",
+    "StatType": "accuracy",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 3
       },
       {
         "StatType": "MagicFind",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Jackdaw",
@@ -1093,28 +1081,11 @@
         "Value": 3
       },
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       }
-    ]
-  },
-  {
-    "Name": "of the Jackrabbit",
-    "Description": "",
-    "Value": 10,
-    "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AttackSpeed",
-        "Value": 10
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Jade Serpent",
@@ -1132,25 +1103,27 @@
         "StatType": "MagicFind",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Jaguar",
     "Description": "",
     "Value": 5,
     "Rarity": "Uncommon",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 5
       },
       {
         "StatType": "AGI",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Jay",
@@ -1165,46 +1138,49 @@
         "Value": 3
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Kestrel",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "TECH",
+    "StatType": "TEC",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       },
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Kingfisher",
     "Description": "",
     "Value": 12,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "speed",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 12
       },
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Kirin",
@@ -1222,7 +1198,8 @@
         "StatType": "MagicFind",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Kitsune",
@@ -1240,7 +1217,8 @@
         "StatType": "MagicFind",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Kodiak Bear",
@@ -1255,46 +1233,30 @@
         "Value": 4
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Kraken",
     "Description": "",
     "Value": 5,
     "Rarity": "Uncommon",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 5
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
-  },
-  {
-    "Name": "of the Lemur",
-    "Description": "",
-    "Value": 3,
-    "Rarity": "Uncommon",
-    "StatType": "INT",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "INT",
-        "Value": 3
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Lion",
@@ -1312,7 +1274,8 @@
         "StatType": "AGI",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Lobster",
@@ -1327,28 +1290,30 @@
         "Value": 4
       },
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Lynx",
     "Description": "",
     "Value": 5,
     "Rarity": "Uncommon",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 5
       },
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Magpie",
@@ -1366,7 +1331,8 @@
         "StatType": "MagicFind",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Mammoth",
@@ -1381,46 +1347,30 @@
         "Value": 4
       },
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       }
-    ]
-  },
-  {
-    "Name": "of the Manatee",
-    "Description": "",
-    "Value": 12,
-    "Rarity": "Uncommon",
-    "StatType": "Health",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 12
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Mantis",
     "Description": "",
     "Value": 4,
     "Rarity": "Uncommon",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 4
       },
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Mantis Shrimp",
@@ -1435,100 +1385,87 @@
         "Value": 4
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Marten",
     "Description": "",
     "Value": 10,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "speed",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 10
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Millipede",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "HIT",
+    "StatType": "hit",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
-  },
-  {
-    "Name": "of the Mole",
-    "Description": "",
-    "Value": 3,
-    "Rarity": "Uncommon",
-    "StatType": "ACCURACY",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "ACCURACY",
-        "Value": 3
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Mongoose",
     "Description": "",
     "Value": 10,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "speed",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 10
       },
       {
         "StatType": "AGI",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Monkey",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "COMBO",
+    "StatType": "combo",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Moose",
@@ -1543,10 +1480,11 @@
         "Value": 15
       },
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Mule",
@@ -1561,10 +1499,11 @@
         "Value": 3
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Nautilus",
@@ -1582,61 +1521,46 @@
         "StatType": "INT",
         "Value": 3
       }
-    ]
-  },
-  {
-    "Name": "of the Nautilus",
-    "Description": "",
-    "Value": 3,
-    "Rarity": "Uncommon",
-    "StatType": "CRIT MISS",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      },
-      {
-        "StatType": "# OF ACTION SLOTS",
-        "Value": 1
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Nighthawk",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "CRIT",
+    "StatType": "crit",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       },
       {
         "StatType": "MagicFind",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Octopus",
     "Description": "",
     "Value": 4,
     "Rarity": "Uncommon",
-    "StatType": "WEAPON DAMAGE",
+    "StatType": "weapon damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 4
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Orangutan",
@@ -1654,25 +1578,27 @@
         "StatType": "INT",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Osprey",
     "Description": "",
     "Value": 12,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "speed",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 12
       },
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Otter",
@@ -1687,10 +1613,11 @@
         "Value": 3
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Owl",
@@ -1705,10 +1632,11 @@
         "Value": 4
       },
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Ox",
@@ -1726,7 +1654,8 @@
         "StatType": "STR",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Pangolin",
@@ -1744,61 +1673,46 @@
         "StatType": "HealthRegen",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Panther",
     "Description": "",
     "Value": 5,
     "Rarity": "Uncommon",
-    "StatType": "WEAPON DAMAGE",
+    "StatType": "weapon damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 5
       },
       {
         "StatType": "AGI",
         "Value": 3
       }
-    ]
-  },
-  {
-    "Name": "of the Pelican",
-    "Description": "",
-    "Value": 4,
-    "Rarity": "Uncommon",
-    "StatType": "WEAPON DAMAGE",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "WEAPON DAMAGE",
-        "Value": 4
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Peregrine Falcon",
     "Description": "",
     "Value": 12,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "speed",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 12
       },
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Phoenix",
@@ -1816,79 +1730,65 @@
         "StatType": "MagicFind",
         "Value": 3
       }
-    ]
-  },
-  {
-    "Name": "of the Pigeon",
-    "Description": "",
-    "Value": 3,
-    "Rarity": "Uncommon",
-    "StatType": "TECH",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "TECH",
-        "Value": 3
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Piranha",
     "Description": "",
     "Value": 4,
     "Rarity": "Uncommon",
-    "StatType": "WEAPON DAMAGE",
+    "StatType": "weapon damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 4
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Pistol Shrimp",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "TECH",
+    "StatType": "TEC",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Praying Mantis",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "ACCURACY",
+    "StatType": "accuracy",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 3
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Pronghorn",
@@ -1903,10 +1803,11 @@
         "Value": 4
       },
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Python",
@@ -1921,28 +1822,11 @@
         "Value": 12
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       }
-    ]
-  },
-  {
-    "Name": "of the Rabbit",
-    "Description": "",
-    "Value": 4,
-    "Rarity": "Uncommon",
-    "StatType": "AGI",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AGI",
-        "Value": 4
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Ram",
@@ -1957,28 +1841,30 @@
         "Value": 4
       },
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Raven",
     "Description": "",
     "Value": 4,
     "Rarity": "Uncommon",
-    "StatType": "WEAPON DAMAGE",
+    "StatType": "weapon damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 4
       },
       {
         "StatType": "INT",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Rhinoceros",
@@ -1993,28 +1879,30 @@
         "Value": 5
       },
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Rook",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "HIT",
+    "StatType": "hit",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       },
       {
         "StatType": "MagicFind",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Salamander",
@@ -2029,46 +1917,49 @@
         "Value": 4
       },
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Saltwater Crocodile",
     "Description": "",
     "Value": 5,
     "Rarity": "Uncommon",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 5
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Sawfish",
     "Description": "",
     "Value": 4,
     "Rarity": "Uncommon",
-    "StatType": "WEAPON DAMAGE",
+    "StatType": "weapon damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 4
       },
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Scarab Beetle",
@@ -2083,136 +1974,106 @@
         "Value": 4
       },
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Scorpion",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "TECH",
+    "StatType": "TEC",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Shrike",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "HIT",
+    "StatType": "hit",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Sicklebill",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "CRIT",
+    "StatType": "crit",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
-  },
-  {
-    "Name": "of the Sloth",
-    "Description": "",
-    "Value": 4,
-    "Rarity": "Uncommon",
-    "StatType": "HealthRegen",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HealthRegen",
-        "Value": 4
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      }
-    ]
-  },
-  {
-    "Name": "of the Snail",
-    "Description": "",
-    "Value": 4,
-    "Rarity": "Uncommon",
-    "StatType": "Armor",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 4
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Snow Leopard",
     "Description": "",
     "Value": 4,
     "Rarity": "Uncommon",
-    "StatType": "ACCURACY",
+    "StatType": "accuracy",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 4
       },
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Sparrowhawk",
     "Description": "",
     "Value": 12,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "speed",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 12
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Sperm Whale",
@@ -2230,25 +2091,27 @@
         "StatType": "INT",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Sphinx",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "TECH",
+    "StatType": "TEC",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       },
       {
         "StatType": "MagicFind",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Spider",
@@ -2263,28 +2126,30 @@
         "Value": 3
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Squid",
     "Description": "",
     "Value": 10,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "speed",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 10
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Stallion",
@@ -2299,10 +2164,11 @@
         "Value": 3
       },
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Starfish",
@@ -2317,28 +2183,11 @@
         "Value": 4
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
-  },
-  {
-    "Name": "of the Stoat",
-    "Description": "",
-    "Value": 3,
-    "Rarity": "Uncommon",
-    "StatType": "COMBO",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Stonefish",
@@ -2353,46 +2202,49 @@
         "Value": 4
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Swallow",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "HIT",
+    "StatType": "hit",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Swift",
     "Description": "",
     "Value": 12,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "speed",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 12
       },
       {
         "StatType": "INT",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Tasmanian Devil",
@@ -2407,46 +2259,49 @@
         "Value": 3
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Thunderbird",
     "Description": "",
     "Value": 5,
     "Rarity": "Uncommon",
-    "StatType": "WEAPON DAMAGE",
+    "StatType": "weapon damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 5
       },
       {
         "StatType": "MagicFind",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Tiger",
     "Description": "",
     "Value": 5,
     "Rarity": "Uncommon",
-    "StatType": "WEAPON DAMAGE",
+    "StatType": "weapon damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 5
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Toad",
@@ -2464,7 +2319,8 @@
         "StatType": "HealthRegen",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Tortoise",
@@ -2482,7 +2338,8 @@
         "StatType": "Health",
         "Value": 15
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Trilobite",
@@ -2497,82 +2354,68 @@
         "Value": 4
       },
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Velociraptor",
     "Description": "",
     "Value": 3,
     "Rarity": "Uncommon",
-    "StatType": "COMBO",
+    "StatType": "combo",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Viper",
     "Description": "",
     "Value": 5,
     "Rarity": "Uncommon",
-    "StatType": "WEAPON DAMAGE",
+    "StatType": "weapon damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 5
       },
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       }
-    ]
-  },
-  {
-    "Name": "of the Warthog",
-    "Description": "",
-    "Value": 4,
-    "Rarity": "Uncommon",
-    "StatType": "BASE DAMAGE",
-    "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "BASE DAMAGE",
-        "Value": 4
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
-      }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Water Buffalo",
     "Description": "",
     "Value": 4,
     "Rarity": "Uncommon",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 4
       },
       {
         "StatType": "HealthRegen",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Weasel",
@@ -2587,46 +2430,49 @@
         "Value": 4
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Wolf",
     "Description": "",
     "Value": 4,
     "Rarity": "Uncommon",
-    "StatType": "WEAPON DAMAGE",
+    "StatType": "weapon damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 4
       },
       {
         "StatType": "HealthRegen",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of the Wolverine",
     "Description": "",
     "Value": 5,
     "Rarity": "Uncommon",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 5
       },
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "absent for long",
@@ -2643,34 +2489,32 @@
       {
         "StatType": "MagicFind",
         "Value": 5
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "bathed in blood",
     "Description": "Seasoned by countless battles \u2014 the red has seeped in and stayed",
     "Value": 5,
     "Rarity": "Rare",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 5
       },
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 4
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "bound by shame",
@@ -2685,14 +2529,15 @@
         "Value": 4
       },
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 5
       },
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "burden of kin",
@@ -2709,12 +2554,9 @@
       {
         "StatType": "STR",
         "Value": 3
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "carried by a brother",
@@ -2733,10 +2575,11 @@
         "Value": 10
       },
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "carried til waking",
@@ -2755,10 +2598,11 @@
         "Value": 4
       },
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "cherished by lovers",
@@ -2777,10 +2621,11 @@
         "Value": 4
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "claimed by none",
@@ -2795,36 +2640,38 @@
         "Value": 4
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       },
       {
         "StatType": "MagicFind",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "cradled on edge",
     "Description": "Balanced on the threshold \u2014 between breaking and becoming",
     "Value": 4,
     "Rarity": "Rare",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 4
       },
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 4
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "danced in daylight",
@@ -2839,14 +2686,15 @@
         "Value": 4
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 4
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "dipped in moonlight",
@@ -2865,10 +2713,11 @@
         "Value": 3
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "forgotten and remembered",
@@ -2887,10 +2736,11 @@
         "Value": 5
       },
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "gambled by debt",
@@ -2905,58 +2755,57 @@
         "Value": 5
       },
       {
-        "StatType": "CRIT",
-        "Value": 4
-      },
-      {
-        "StatType": "CRIT MISS",
+        "StatType": "crit",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "given by dying hands",
     "Description": "The last gift of the fallen \u2014 its power drawn from a final act of will",
     "Value": 5,
     "Rarity": "Rare",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 5
       },
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 5
       },
       {
         "StatType": "STR",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "held in breath",
     "Description": "The moment before release \u2014 coiled potential, never quite still",
     "Value": 10,
     "Rarity": "Rare",
-    "StatType": "AttackSpeed",
+    "StatType": "speed",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "AttackSpeed",
+        "StatType": "speed",
         "Value": 10
       },
       {
-        "StatType": "ACCURACY",
+        "StatType": "accuracy",
         "Value": 4
       },
       {
-        "StatType": "CRIT",
+        "StatType": "crit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "hidden beneath",
@@ -2978,7 +2827,8 @@
         "StatType": "MagicFind",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "hidden by rain",
@@ -2995,12 +2845,9 @@
       {
         "StatType": "Armor",
         "Value": 4
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "hushed in secret",
@@ -3015,14 +2862,15 @@
         "Value": 4
       },
       {
-        "StatType": "TECH",
+        "StatType": "TEC",
         "Value": 3
       },
       {
         "StatType": "MagicFind",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "kept in faith",
@@ -3044,7 +2892,8 @@
         "StatType": "combo",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "kissed by time",
@@ -3061,12 +2910,9 @@
       {
         "StatType": "MagicFind",
         "Value": 3
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "lost and found again",
@@ -3088,16 +2934,31 @@
         "StatType": "MagicFind",
         "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "lost of will",
     "Description": "given up",
-    "Value": 0,
+    "Value": -5,
     "Rarity": "Rare",
-    "StatType": "",
+    "StatType": "STR",
     "ItemRank": "",
-    "Mechanics": null
+    "Mechanics": [
+      {
+        "StatType": "STR",
+        "Value": -5
+      },
+      {
+        "StatType": "AGI",
+        "Value": -5
+      },
+      {
+        "StatType": "TEC",
+        "Value": -5
+      }
+    ],
+    "Requirements": null
   },
   {
     "Name": "mended by a sister",
@@ -3114,12 +2975,9 @@
       {
         "StatType": "HealthRegen",
         "Value": 4
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "named after a father",
@@ -3134,14 +2992,15 @@
         "Value": 5
       },
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 4
       },
       {
-        "StatType": "HIT",
+        "StatType": "hit",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "of gods",
@@ -3155,7 +3014,8 @@
         "StatType": "ALL",
         "Value": 5
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "owed to heir",
@@ -3177,7 +3037,8 @@
         "StatType": "MagicFind",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "remembered by the careless",
@@ -3196,10 +3057,11 @@
         "Value": 3
       },
       {
-        "StatType": "# OF ACTION SLOTS",
+        "StatType": "# of action slots",
         "Value": 1
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "rusted by Dew",
@@ -3221,7 +3083,8 @@
         "StatType": "HealthRegen",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "stitched by a mother",
@@ -3238,34 +3101,32 @@
       {
         "StatType": "HealthRegen",
         "Value": 5
-      },
-      {
-        "StatType": "CRIT MISS",
-        "Value": 4
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "worn to the bone",
     "Description": "Stripped of pretense by long use \u2014 nothing left but purpose",
     "Value": 5,
     "Rarity": "Rare",
-    "StatType": "BASE DAMAGE",
+    "StatType": "base damage",
     "ItemRank": "",
     "Mechanics": [
       {
-        "StatType": "BASE DAMAGE",
+        "StatType": "base damage",
         "Value": 5
       },
       {
-        "StatType": "WEAPON DAMAGE",
+        "StatType": "weapon damage",
         "Value": 4
       },
       {
         "StatType": "HealthRegen",
         "Value": 2
       }
-    ]
+    ],
+    "Requirements": null
   },
   {
     "Name": "worshipped by a child",
@@ -3284,9 +3145,10 @@
         "Value": 10
       },
       {
-        "StatType": "COMBO",
+        "StatType": "combo",
         "Value": 3
       }
-    ]
+    ],
+    "Requirements": null
   }
 ]

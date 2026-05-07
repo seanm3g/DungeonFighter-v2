@@ -27,6 +27,16 @@ namespace RPGGame.Actions.Execution
             return src.Select(b => new ActionAttackBonusItem { Type = b.Type, Value = b.Value }).ToList();
         }
 
+        private static int ReadTempStatBonusForResolvedCode(Character character, string concreteCode) =>
+            concreteCode switch
+            {
+                DynamicAttributeCategoryResolver.CodeStrength => character.Stats.TempStrengthBonus,
+                DynamicAttributeCategoryResolver.CodeAgility => character.Stats.TempAgilityBonus,
+                DynamicAttributeCategoryResolver.CodeTechnique => character.Stats.TempTechniqueBonus,
+                DynamicAttributeCategoryResolver.CodeIntelligence => character.Stats.TempIntelligenceBonus,
+                _ => 0
+            };
+
         /// <summary>Returns stat bonus entries from the action (list if non-empty, else legacy single as one entry).</summary>
         private static List<StatBonusEntry> GetStatBonusEntries(Action action)
         {
@@ -130,14 +140,13 @@ namespace RPGGame.Actions.Execution
                 var (nextBonus, nextStatType, nextDuration) = nextAttackStatCharacter.Effects.ConsumeNextAttackStatBonus();
                 if (nextBonus == 0 || string.IsNullOrEmpty(nextStatType)) return;
                 string statType = nextStatType!.ToUpper();
-                int currentBonus = statType switch
-                {
-                    "STR" or "STRENGTH" => nextAttackStatCharacter.Stats.TempStrengthBonus,
-                    "AGI" or "AGILITY" => nextAttackStatCharacter.Stats.TempAgilityBonus,
-                    "TEC" or "TECH" or "TECHNIQUE" => nextAttackStatCharacter.Stats.TempTechniqueBonus,
-                    "INT" or "INTELLIGENCE" => nextAttackStatCharacter.Stats.TempIntelligenceBonus,
-                    _ => 0
-                };
+                if (!DynamicAttributeCategoryResolver.IsStatOrDynamicCategoryType(statType))
+                    return;
+                string concrete = DynamicAttributeCategoryResolver.ResolveStatBonusTypeToConcreteCode(nextAttackStatCharacter, statType);
+                if (concrete != DynamicAttributeCategoryResolver.CodeStrength && concrete != DynamicAttributeCategoryResolver.CodeAgility
+                    && concrete != DynamicAttributeCategoryResolver.CodeTechnique && concrete != DynamicAttributeCategoryResolver.CodeIntelligence)
+                    return;
+                int currentBonus = ReadTempStatBonusForResolvedCode(nextAttackStatCharacter, concrete);
                 int newBonus = currentBonus + nextBonus;
                 int duration = nextDuration > 0 ? nextDuration : 999;
                 nextAttackStatCharacter.ApplyStatBonus(newBonus, statType, duration);
@@ -273,6 +282,16 @@ namespace RPGGame.Actions.Execution
             if (actionBonusHit != 0 && source is Character hitBonusCharacter)
                 thresholdManager.AdjustHitThreshold(hitBonusCharacter, actionBonusHit);
 
+            // Persistent + temporary combo-threshold bonuses (gear-derived ComboBonus and short-lived TempComboBonus).
+            // These lower the required combo threshold, and must affect both action selection previews and combat resolution.
+            if (source is Character comboThresholdBonusCharacter && comboThresholdBonusCharacter is not Enemy)
+            {
+                int temp = comboThresholdBonusCharacter.Effects.ConsumeTempComboBonus();
+                int bonus = comboThresholdBonusCharacter.Effects.ComboBonus + temp;
+                if (bonus != 0)
+                    thresholdManager.AdjustComboThreshold(comboThresholdBonusCharacter, bonus);
+            }
+
             result.RollBonus = ActionUtilities.CalculateRollBonus(source, result.SelectedAction);
             result.AttackRoll = result.ModifiedBaseRoll + result.RollBonus;
             int hitThreshold = thresholdManager.GetHitThreshold(source);
@@ -310,14 +329,12 @@ namespace RPGGame.Actions.Execution
                 foreach (var bonus in abilityBonuses)
                 {
                     string bonusType = bonus.Type.ToUpper();
-                    if (bonusType != "STR" && bonusType != "AGI" && bonusType != "TECH" && bonusType != "INT") continue;
-                    int currentBonus = bonusType switch
-                    {
-                        "STR" => abilityBonusCharacter.Stats.TempStrengthBonus,
-                        "AGI" => abilityBonusCharacter.Stats.TempAgilityBonus,
-                        "TECH" => abilityBonusCharacter.Stats.TempTechniqueBonus,
-                        _ => abilityBonusCharacter.Stats.TempIntelligenceBonus
-                    };
+                    if (!DynamicAttributeCategoryResolver.IsStatOrDynamicCategoryType(bonusType)) continue;
+                    string concrete = DynamicAttributeCategoryResolver.ResolveStatBonusTypeToConcreteCode(abilityBonusCharacter, bonusType);
+                    if (concrete != DynamicAttributeCategoryResolver.CodeStrength && concrete != DynamicAttributeCategoryResolver.CodeAgility
+                        && concrete != DynamicAttributeCategoryResolver.CodeTechnique && concrete != DynamicAttributeCategoryResolver.CodeIntelligence)
+                        continue;
+                    int currentBonus = ReadTempStatBonusForResolvedCode(abilityBonusCharacter, concrete);
                     abilityBonusCharacter.ApplyStatBonus(currentBonus + (int)bonus.Value, bonusType, 999);
                 }
                 // Apply consumed ATTACK bonuses (stat bonuses only on hit)
@@ -325,14 +342,12 @@ namespace RPGGame.Actions.Execution
                 foreach (var bonus in consumedAttack)
                 {
                     string bonusType = (bonus.Type ?? "").ToUpper();
-                    if (bonusType != "STR" && bonusType != "AGI" && bonusType != "TECH" && bonusType != "INT") continue;
-                    int currentBonus = bonusType switch
-                    {
-                        "STR" => abilityBonusCharacter.Stats.TempStrengthBonus,
-                        "AGI" => abilityBonusCharacter.Stats.TempAgilityBonus,
-                        "TECH" => abilityBonusCharacter.Stats.TempTechniqueBonus,
-                        _ => abilityBonusCharacter.Stats.TempIntelligenceBonus
-                    };
+                    if (!DynamicAttributeCategoryResolver.IsStatOrDynamicCategoryType(bonusType)) continue;
+                    string concrete = DynamicAttributeCategoryResolver.ResolveStatBonusTypeToConcreteCode(abilityBonusCharacter, bonusType);
+                    if (concrete != DynamicAttributeCategoryResolver.CodeStrength && concrete != DynamicAttributeCategoryResolver.CodeAgility
+                        && concrete != DynamicAttributeCategoryResolver.CodeTechnique && concrete != DynamicAttributeCategoryResolver.CodeIntelligence)
+                        continue;
+                    int currentBonus = ReadTempStatBonusForResolvedCode(abilityBonusCharacter, concrete);
                     abilityBonusCharacter.ApplyStatBonus(currentBonus + (int)bonus.Value, bonusType, 999);
                 }
             }
@@ -507,15 +522,12 @@ namespace RPGGame.Actions.Execution
                         if (entry.Value == 0 && string.IsNullOrEmpty(entry.Type)) continue;
                         string statType = (entry.Type ?? "").ToUpper();
                         if (string.IsNullOrEmpty(statType)) continue;
-                        int currentBonus = statType switch
-                        {
-                            "STR" or "STRENGTH" => statBonusCharacter.Stats.TempStrengthBonus,
-                            "AGI" or "AGILITY" => statBonusCharacter.Stats.TempAgilityBonus,
-                            "TEC" or "TECH" or "TECHNIQUE" => statBonusCharacter.Stats.TempTechniqueBonus,
-                            "INT" or "INTELLIGENCE" => statBonusCharacter.Stats.TempIntelligenceBonus,
-                            _ => -1
-                        };
-                        if (currentBonus < 0) continue;
+                        if (!DynamicAttributeCategoryResolver.IsStatOrDynamicCategoryType(statType)) continue;
+                        string concrete = DynamicAttributeCategoryResolver.ResolveStatBonusTypeToConcreteCode(statBonusCharacter, statType);
+                        if (concrete != DynamicAttributeCategoryResolver.CodeStrength && concrete != DynamicAttributeCategoryResolver.CodeAgility
+                            && concrete != DynamicAttributeCategoryResolver.CodeTechnique && concrete != DynamicAttributeCategoryResolver.CodeIntelligence)
+                            continue;
+                        int currentBonus = ReadTempStatBonusForResolvedCode(statBonusCharacter, concrete);
                         statBonusCharacter.ApplyStatBonus(currentBonus + entry.Value, statType, duration);
                     }
                 }

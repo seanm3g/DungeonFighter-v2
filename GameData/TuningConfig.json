@@ -473,7 +473,7 @@
     "itemValueMultiplier": 1,
     "affixMagicFindMaxWeightBoost": 2,
     "affixMagicFindMaxExtraChanceBoost": 2,
-    "comboSequenceBaseMax": 2,
+    "comboSequenceBaseMax": 1,
     "comboSequenceAbsoluteMax": 8,
     "rarityUpgrade": {
       "enabled": false,
@@ -578,86 +578,86 @@
         "Common": {
           "prefixSlots": 0,
           "statSuffixes": 0,
-          "actionBonuses": 0,
+          "actionBonuses": 1,
           "prefixSlotsMax": 1,
           "prefixExtraChance": 0.25,
           "statSuffixesMax": 1,
           "statSuffixExtraChance": 0.05,
-          "actionBonusesMax": 1,
-          "actionExtraChance": 0.25,
+          "actionBonusesMax": 3,
+          "actionExtraChance": 0.5,
           "extraComboSlots": 0,
-          "extraComboSlotsMax": null,
-          "extraComboSlotsExtraChance": 0
+          "extraComboSlotsMax": 3,
+          "extraComboSlotsExtraChance": 0.05
         },
         "Uncommon": {
           "prefixSlots": 1,
           "statSuffixes": 0,
-          "actionBonuses": 0,
+          "actionBonuses": 1,
           "prefixSlotsMax": 3,
           "prefixExtraChance": 0.25,
           "statSuffixesMax": 1,
           "statSuffixExtraChance": 0.15,
-          "actionBonusesMax": 1,
-          "actionExtraChance": 0.5,
+          "actionBonusesMax": 3,
+          "actionExtraChance": 0.75,
           "extraComboSlots": 0,
-          "extraComboSlotsMax": null,
-          "extraComboSlotsExtraChance": 0
+          "extraComboSlotsMax": 4,
+          "extraComboSlotsExtraChance": 0.1
         },
         "Rare": {
           "prefixSlots": 2,
           "statSuffixes": 1,
-          "actionBonuses": 0,
+          "actionBonuses": 1,
           "prefixSlotsMax": 3,
           "prefixExtraChance": 0.5,
           "statSuffixesMax": 2,
           "statSuffixExtraChance": 0.5,
-          "actionBonusesMax": 1,
+          "actionBonusesMax": 4,
           "actionExtraChance": 0.75,
-          "extraComboSlots": 0,
-          "extraComboSlotsMax": null,
-          "extraComboSlotsExtraChance": 0
+          "extraComboSlots": 1,
+          "extraComboSlotsMax": 5,
+          "extraComboSlotsExtraChance": 0.1
         },
         "Epic": {
           "prefixSlots": 2,
           "statSuffixes": 1,
-          "actionBonuses": 1,
+          "actionBonuses": 2,
           "prefixSlotsMax": 3,
           "prefixExtraChance": 0.75,
           "statSuffixesMax": 3,
           "statSuffixExtraChance": 0.75,
-          "actionBonusesMax": 2,
+          "actionBonusesMax": 5,
           "actionExtraChance": 0.25,
-          "extraComboSlots": 0,
-          "extraComboSlotsMax": null,
-          "extraComboSlotsExtraChance": 0
+          "extraComboSlots": 2,
+          "extraComboSlotsMax": 6,
+          "extraComboSlotsExtraChance": 0.25
         },
         "Legendary": {
           "prefixSlots": 3,
           "statSuffixes": 2,
-          "actionBonuses": 2,
+          "actionBonuses": 3,
           "prefixSlotsMax": 3,
           "prefixExtraChance": 0,
           "statSuffixesMax": 4,
           "statSuffixExtraChance": 0.75,
-          "actionBonusesMax": 3,
+          "actionBonusesMax": 5,
           "actionExtraChance": 0.5,
-          "extraComboSlots": 0,
-          "extraComboSlotsMax": null,
-          "extraComboSlotsExtraChance": 0
+          "extraComboSlots": 3,
+          "extraComboSlotsMax": 6,
+          "extraComboSlotsExtraChance": 0.5
         },
         "Mythic": {
           "prefixSlots": 3,
           "statSuffixes": 3,
-          "actionBonuses": 2,
+          "actionBonuses": 1,
           "prefixSlotsMax": 3,
           "prefixExtraChance": 0,
           "statSuffixesMax": 5,
           "statSuffixExtraChance": 0.75,
-          "actionBonusesMax": 4,
-          "actionExtraChance": 0.75,
-          "extraComboSlots": 0,
-          "extraComboSlotsMax": null,
-          "extraComboSlotsExtraChance": 0
+          "actionBonusesMax": 5,
+          "actionExtraChance": 0.95,
+          "extraComboSlots": 3,
+          "extraComboSlotsMax": 6,
+          "extraComboSlotsExtraChance": 0.75
         }
       },
       "Chest": {
@@ -670,7 +670,7 @@
           "statSuffixesMax": 1,
           "statSuffixExtraChance": 0.05,
           "actionBonusesMax": 1,
-          "actionExtraChance": 0.25,
+          "actionExtraChance": 0.05,
           "extraComboSlots": 0,
           "extraComboSlotsMax": null,
           "extraComboSlotsExtraChance": 0
@@ -684,7 +684,7 @@
           "statSuffixesMax": 1,
           "statSuffixExtraChance": 0.15,
           "actionBonusesMax": 1,
-          "actionExtraChance": 0.5,
+          "actionExtraChance": 0.1,
           "extraComboSlots": 0,
           "extraComboSlotsMax": null,
           "extraComboSlotsExtraChance": 0
@@ -693,12 +693,12 @@
           "prefixSlots": 2,
           "statSuffixes": 1,
           "actionBonuses": 0,
-          "prefixSlotsMax": 4,
+          "prefixSlotsMax": 3,
           "prefixExtraChance": 0.5,
           "statSuffixesMax": 2,
           "statSuffixExtraChance": 0.5,
           "actionBonusesMax": 1,
-          "actionExtraChance": 0.75,
+          "actionExtraChance": 0.1,
           "extraComboSlots": 0,
           "extraComboSlotsMax": null,
           "extraComboSlotsExtraChance": 0
@@ -707,7 +707,7 @@
           "prefixSlots": 2,
           "statSuffixes": 1,
           "actionBonuses": 1,
-          "prefixSlotsMax": 4,
+          "prefixSlotsMax": 3,
           "prefixExtraChance": 0.75,
           "statSuffixesMax": 3,
           "statSuffixExtraChance": 0.75,
@@ -756,7 +756,7 @@
           "statSuffixesMax": 1,
           "statSuffixExtraChance": 0.05,
           "actionBonusesMax": 1,
-          "actionExtraChance": 0.25,
+          "actionExtraChance": 0.05,
           "extraComboSlots": 0,
           "extraComboSlotsMax": null,
           "extraComboSlotsExtraChance": 0
@@ -770,7 +770,7 @@
           "statSuffixesMax": 1,
           "statSuffixExtraChance": 0.15,
           "actionBonusesMax": 1,
-          "actionExtraChance": 0.5,
+          "actionExtraChance": 0.1,
           "extraComboSlots": 0,
           "extraComboSlotsMax": null,
           "extraComboSlotsExtraChance": 0
@@ -779,12 +779,12 @@
           "prefixSlots": 2,
           "statSuffixes": 1,
           "actionBonuses": 0,
-          "prefixSlotsMax": 4,
+          "prefixSlotsMax": 3,
           "prefixExtraChance": 0.5,
           "statSuffixesMax": 2,
           "statSuffixExtraChance": 0.5,
           "actionBonusesMax": 1,
-          "actionExtraChance": 0.75,
+          "actionExtraChance": 0.25,
           "extraComboSlots": 0,
           "extraComboSlotsMax": null,
           "extraComboSlotsExtraChance": 0
@@ -793,12 +793,12 @@
           "prefixSlots": 2,
           "statSuffixes": 1,
           "actionBonuses": 1,
-          "prefixSlotsMax": 4,
+          "prefixSlotsMax": 3,
           "prefixExtraChance": 0.75,
           "statSuffixesMax": 3,
           "statSuffixExtraChance": 0.75,
           "actionBonusesMax": 2,
-          "actionExtraChance": 0.25,
+          "actionExtraChance": 0.5,
           "extraComboSlots": 0,
           "extraComboSlotsMax": null,
           "extraComboSlotsExtraChance": 0
@@ -842,10 +842,10 @@
           "statSuffixesMax": 1,
           "statSuffixExtraChance": 0.05,
           "actionBonusesMax": 1,
-          "actionExtraChance": 0.25,
+          "actionExtraChance": 0.05,
           "extraComboSlots": 1,
-          "extraComboSlotsMax": 1,
-          "extraComboSlotsExtraChance": 0
+          "extraComboSlotsMax": 3,
+          "extraComboSlotsExtraChance": 0.1
         },
         "Uncommon": {
           "prefixSlots": 1,
@@ -856,10 +856,10 @@
           "statSuffixesMax": 1,
           "statSuffixExtraChance": 0.15,
           "actionBonusesMax": 1,
-          "actionExtraChance": 0.5,
-          "extraComboSlots": 0,
-          "extraComboSlotsMax": null,
-          "extraComboSlotsExtraChance": 0
+          "actionExtraChance": 0.1,
+          "extraComboSlots": 1,
+          "extraComboSlotsMax": 4,
+          "extraComboSlotsExtraChance": 0.15
         },
         "Rare": {
           "prefixSlots": 2,
@@ -870,10 +870,10 @@
           "statSuffixesMax": 2,
           "statSuffixExtraChance": 0.5,
           "actionBonusesMax": 1,
-          "actionExtraChance": 0.75,
-          "extraComboSlots": 0,
-          "extraComboSlotsMax": null,
-          "extraComboSlotsExtraChance": 0
+          "actionExtraChance": 0.15,
+          "extraComboSlots": 1,
+          "extraComboSlotsMax": 5,
+          "extraComboSlotsExtraChance": 0.25
         },
         "Epic": {
           "prefixSlots": 2,
@@ -885,9 +885,9 @@
           "statSuffixExtraChance": 0.75,
           "actionBonusesMax": 2,
           "actionExtraChance": 0.25,
-          "extraComboSlots": 0,
-          "extraComboSlotsMax": null,
-          "extraComboSlotsExtraChance": 0
+          "extraComboSlots": 2,
+          "extraComboSlotsMax": 6,
+          "extraComboSlotsExtraChance": 0.4
         },
         "Legendary": {
           "prefixSlots": 3,
@@ -899,8 +899,8 @@
           "statSuffixExtraChance": 0.75,
           "actionBonusesMax": 3,
           "actionExtraChance": 0.5,
-          "extraComboSlots": 0,
-          "extraComboSlotsMax": null,
+          "extraComboSlots": 2,
+          "extraComboSlotsMax": 6,
           "extraComboSlotsExtraChance": 0
         },
         "Mythic": {
@@ -913,8 +913,8 @@
           "statSuffixExtraChance": 0.75,
           "actionBonusesMax": 4,
           "actionExtraChance": 0.75,
-          "extraComboSlots": 0,
-          "extraComboSlotsMax": null,
+          "extraComboSlots": 2,
+          "extraComboSlotsMax": 6,
           "extraComboSlotsExtraChance": 0
         }
       },

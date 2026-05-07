@@ -41,8 +41,15 @@ namespace RPGGame.Data
             "attributeRequirements", "tags", "Compelled Action"
         };
 
+        /// <summary>
+        /// PREFIX tab columns A–I: dice tier, name/description/effect, rolled magnitude, category, optional stat gate.
+        /// Legacy JSON may still use <c>MinValue</c>/<c>MaxValue</c>; sheet <c>value</c> maps to both on import.
+        /// </summary>
         public static readonly string[] ModificationsCanonicalHeaders =
-            { "DiceResult", "ItemRank", "prefixCategory", "Name", "Description", "Effect", "MinValue", "MaxValue" };
+        {
+            "DiceResult", "ItemRank", "Name", "Description", "Effect", "value", "prefixCategory",
+            "ATTRIBUTE REQUIREMENT", "REQUIREMENT VALUE"
+        };
 
         public static readonly string[] ArmorCanonicalHeaders =
         {
@@ -86,13 +93,13 @@ namespace RPGGame.Data
         public static readonly string[] DungeonsCanonicalHeaders =
             { "name", "theme", "minLevel", "maxLevel", "possibleEnemies", "colorOverride" };
 
-        /// <summary>Seven columns A–G on the SUFFIXES tab; matches <c>StatBonuses.json</c> / <see cref="StatBonus"/>.</summary>
+        /// <summary>Eight columns A–H on the SUFFIXES tab; matches <c>StatBonuses.json</c> / <see cref="StatBonus"/>.</summary>
         public static readonly string[] StatBonusesCanonicalHeaders =
-            { "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics" };
+            { "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics", "Requirements" };
 
         private static readonly HashSet<string> StatBonusAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
         {
-            "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics"
+            "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics", "Requirements"
         };
 
         public static IReadOnlyList<string> GetCanonicalHeaders(GameDataTabularSheetKind kind) =>
@@ -243,12 +250,52 @@ namespace RPGGame.Data
                         row.Add("");
                         continue;
                     }
+
+                    if (kind == GameDataTabularSheetKind.StatBonuses
+                        && string.Equals(h, "Requirements", StringComparison.Ordinal)
+                        && prop.ValueKind == JsonValueKind.Object)
+                    {
+                        row.Add(FormatStatBonusRequirementsForSheetCell(prop));
+                        continue;
+                    }
+
                     row.Add(JsonElementToCellString(prop));
                 }
                 rows.Add(row);
             }
 
             return rows;
+        }
+
+        /// <summary>Renders a parsed Requirements object (<c>{strength:5,primary:15}</c>) back to the bracket cell form used by sheet authors.</summary>
+        internal static string FormatStatBonusRequirementsForSheetCell(JsonElement obj)
+        {
+            if (obj.ValueKind != JsonValueKind.Object)
+                return "";
+
+            var parts = new List<string>();
+            foreach (var prop in obj.EnumerateObject())
+            {
+                if (string.IsNullOrWhiteSpace(prop.Name))
+                    continue;
+                int value;
+                if (prop.Value.ValueKind == JsonValueKind.Number)
+                {
+                    if (prop.Value.TryGetInt32(out int iv))
+                        value = iv;
+                    else if (prop.Value.TryGetDouble(out double dv))
+                        value = (int)Math.Round(dv);
+                    else
+                        continue;
+                }
+                else
+                {
+                    continue;
+                }
+                parts.Add($"{prop.Name}:{value.ToString(CultureInfo.InvariantCulture)}");
+            }
+
+            return parts.Count == 0 ? "" : "[" + string.Join(",", parts) + "]";
         }
 
         private static List<IList<object>> BuildEnemyPushValueRows(string jsonFileText)
@@ -404,7 +451,9 @@ namespace RPGGame.Data
                     if (header.Length == 0)
                         continue;
                     string cell = i < cells.Length ? cells[i] ?? "" : "";
-                    obj[header] = CellToJsonNode(cell);
+                    JsonNode? parsed = CellToJsonNode(cell);
+                    if (parsed != null)
+                        obj[header] = parsed;
                 }
 
                 if (kind == GameDataTabularSheetKind.Enemies)
@@ -423,6 +472,10 @@ namespace RPGGame.Data
                 else if (kind == GameDataTabularSheetKind.StatBonuses)
                 {
                     NormalizeStatBonusesJsonArrayRow(obj);
+                }
+                else if (kind == GameDataTabularSheetKind.Modifications)
+                {
+                    GameDataJsonNormalizer.NormalizeModificationsImportRow(obj);
                 }
 
                 arr.Add(obj);
@@ -845,6 +898,7 @@ namespace RPGGame.Data
             RenameStatBonusSheetImportHeaders(obj);
             RemoveStatBonusSheetDerivedColumns(obj);
             TryApplyStatBonusBracketMechanics(obj);
+            TryApplyStatBonusBracketRequirements(obj);
 
             string? rarityText = null;
             var hadWeight = false;
@@ -890,7 +944,7 @@ namespace RPGGame.Data
         private static void RenameStatBonusSheetImportHeaders(JsonObject obj)
         {
             MoveStatBonusJsonKeyIfPresent(obj, "Name", "Suffix tags", "Suffix Tags", "suffix tags", "Suffix", "suffix name", "Suffix name", "Affix name");
-            MoveStatBonusJsonKeyIfPresent(obj, "ItemRank", "stat requirement", "Stat requirement", "Stat Requirement");
+            MoveStatBonusJsonKeyIfPresent(obj, "Requirements", "stat requirement", "Stat requirement", "Stat Requirement", "requirement", "Requirement", "requirements");
             MoveStatBonusJsonKeyIfPresent(obj, "Mechanics", "Mechanics (bracket)", "mechanics bracket", "Bracket");
             MoveStatBonusJsonKeyIfPresent(obj, "Description", "description");
             MoveStatBonusJsonKeyIfPresent(obj, "StatType", "stat type", "Stat type");
@@ -959,6 +1013,10 @@ namespace RPGGame.Data
             {
                 foreach (var kvp in obj)
                 {
+                    // The Requirements column is also bracket-formatted but parsed separately.
+                    if (string.Equals(kvp.Key, "Requirements", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
                     if (kvp.Value is JsonValue jv2 && jv2.TryGetValue<string>(out var cell) && cell != null)
                     {
                         string t = cell.Trim();
@@ -999,6 +1057,186 @@ namespace RPGGame.Data
                 string canon = NormalizeStatBonusSheetStatType(raw);
                 o["StatType"] = JsonValue.Create(canon);
             }
+        }
+
+        /// <summary>
+        /// Fills <c>Requirements</c> from a bracket cell <c>[strength:5,primary:15]</c> on the SUFFIXES sheet
+        /// (or whatever cell currently holds the value after header rename / pre-existing JSON). Duplicate keys
+        /// keep the maximum value. Already-parsed object form is canonicalized in place. Unknown keys are dropped.
+        /// </summary>
+        private static void TryApplyStatBonusBracketRequirements(JsonObject obj)
+        {
+            string? bracketSource = null;
+
+            if (obj.TryGetPropertyValue("Requirements", out var reqNode) && reqNode is not null && !IsJsonNodeNullOrMissing(reqNode))
+            {
+                if (reqNode is JsonValue jv && jv.TryGetValue<string>(out var s) && !string.IsNullOrWhiteSpace(s))
+                {
+                    bracketSource = s.Trim();
+                }
+                else if (reqNode is JsonObject existingObj && existingObj.Count > 0)
+                {
+                    obj["Requirements"] = NormalizeStatBonusRequirementsObject(existingObj);
+                    return;
+                }
+                else if (reqNode is JsonArray existingArr && existingArr.Count > 0)
+                {
+                    var fromArr = StatBonusRequirementsArrayToObject(existingArr);
+                    if (fromArr != null)
+                    {
+                        obj["Requirements"] = fromArr;
+                        return;
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(bracketSource))
+                return;
+
+            var parsed = ParseStatBonusBracketRequirements(bracketSource);
+            if (parsed == null || parsed.Count == 0)
+            {
+                obj.Remove("Requirements");
+                return;
+            }
+
+            obj["Requirements"] = parsed;
+        }
+
+        /// <summary>
+        /// Parses <c>[strength:5,primary:15]</c> into a <see cref="JsonObject"/> mapping canonical lowercase keys to
+        /// integer thresholds. Unknown keys (after <see cref="Item.CanonicalizeAttributeRequirementKey"/> normalization)
+        /// are accepted but stored as authored; non-numeric values are dropped. Duplicate keys collapse to the maximum.
+        /// </summary>
+        internal static JsonObject? ParseStatBonusBracketRequirements(string bracketCell)
+        {
+            string t = bracketCell.Trim();
+            if (t.Length < 3 || t[0] != '[' || t[^1] != ']')
+                return null;
+
+            string inner = t[1..^1].Trim();
+            if (inner.Length == 0)
+                return null;
+
+            var segments = inner.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            var aggregated = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var segment in segments)
+            {
+                int colon = segment.LastIndexOf(':');
+                if (colon <= 0 || colon >= segment.Length - 1)
+                    continue;
+
+                string rawKey = segment[..colon].Trim();
+                string rawVal = segment[(colon + 1)..].Trim();
+                if (rawKey.Length == 0)
+                    continue;
+
+                if (!double.TryParse(rawVal, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
+                    continue;
+
+                string canonical = Item.CanonicalizeAttributeRequirementKey(rawKey);
+                if (string.IsNullOrEmpty(canonical))
+                    continue;
+
+                int intValue = (int)Math.Round(value);
+                if (aggregated.TryGetValue(canonical, out int cur))
+                    aggregated[canonical] = Math.Max(cur, intValue);
+                else
+                    aggregated[canonical] = intValue;
+            }
+
+            if (aggregated.Count == 0)
+                return null;
+
+            var result = new JsonObject();
+            foreach (var kv in aggregated)
+                result[kv.Key] = JsonValue.Create(kv.Value);
+            return result;
+        }
+
+        /// <summary>Canonicalizes already-parsed <c>Requirements</c> object keys (e.g. JSON files written before normalization).</summary>
+        private static JsonObject NormalizeStatBonusRequirementsObject(JsonObject existing)
+        {
+            var aggregated = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var kvp in existing)
+            {
+                if (string.IsNullOrWhiteSpace(kvp.Key) || kvp.Value is not JsonValue jv)
+                    continue;
+                int value;
+                if (jv.TryGetValue<int>(out int iv))
+                    value = iv;
+                else if (jv.TryGetValue<double>(out double dv))
+                    value = (int)Math.Round(dv);
+                else
+                    continue;
+
+                string canonical = Item.CanonicalizeAttributeRequirementKey(kvp.Key);
+                if (string.IsNullOrEmpty(canonical))
+                    continue;
+
+                if (aggregated.TryGetValue(canonical, out int cur))
+                    aggregated[canonical] = Math.Max(cur, value);
+                else
+                    aggregated[canonical] = value;
+            }
+
+            var result = new JsonObject();
+            foreach (var kv in aggregated)
+                result[kv.Key] = JsonValue.Create(kv.Value);
+            return result;
+        }
+
+        /// <summary>Converts a list-form requirements array (<c>[{key,value},…]</c>) into the canonical dictionary form.</summary>
+        private static JsonObject? StatBonusRequirementsArrayToObject(JsonArray arr)
+        {
+            var aggregated = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var el in arr)
+            {
+                if (el is not JsonObject o)
+                    continue;
+                string? key = null;
+                int? value = null;
+                foreach (var kvp in o)
+                {
+                    if (kvp.Value is not JsonValue jv)
+                        continue;
+                    if (key == null && (string.Equals(kvp.Key, "Key", StringComparison.OrdinalIgnoreCase) ||
+                                        string.Equals(kvp.Key, "StatType", StringComparison.OrdinalIgnoreCase) ||
+                                        string.Equals(kvp.Key, "Attribute", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        if (jv.TryGetValue<string>(out var s))
+                            key = s;
+                    }
+                    else if (value == null && (string.Equals(kvp.Key, "Value", StringComparison.OrdinalIgnoreCase) ||
+                                                string.Equals(kvp.Key, "Required", StringComparison.OrdinalIgnoreCase) ||
+                                                string.Equals(kvp.Key, "Threshold", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        if (jv.TryGetValue<int>(out int iv))
+                            value = iv;
+                        else if (jv.TryGetValue<double>(out double dv))
+                            value = (int)Math.Round(dv);
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(key) || value == null)
+                    continue;
+                string canonical = Item.CanonicalizeAttributeRequirementKey(key);
+                if (string.IsNullOrEmpty(canonical))
+                    continue;
+
+                if (aggregated.TryGetValue(canonical, out int cur))
+                    aggregated[canonical] = Math.Max(cur, value.Value);
+                else
+                    aggregated[canonical] = value.Value;
+            }
+
+            if (aggregated.Count == 0)
+                return null;
+
+            var result = new JsonObject();
+            foreach (var kv in aggregated)
+                result[kv.Key] = JsonValue.Create(kv.Value);
+            return result;
         }
 
         /// <summary>Parses <c>[KEY:value,...]</c> where value is numeric; keys may contain spaces (e.g. <c>MAX HEALTH</c>).</summary>

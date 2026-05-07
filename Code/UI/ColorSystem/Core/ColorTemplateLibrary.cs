@@ -80,19 +80,20 @@ namespace RPGGame.UI.ColorSystem
                 if (currentSegment == null)
                 {
                     // First segment - always add it
-                    currentSegment = new ColoredText(segment.Text, segment.Color, segment.SourceTemplate);
+                    currentSegment = new ColoredText(segment.Text, segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas);
                 }
                 else if (ColorValidator.AreColorsEqual(currentSegment.Color, segment.Color) && 
                          isWhitespace == currentIsWhitespace)
                 {
                     // Same color AND same type (both whitespace or both non-whitespace) - merge
-                    currentSegment = new ColoredText(currentSegment.Text + segment.Text, currentSegment.Color, currentSegment.SourceTemplate);
+                    currentSegment = new ColoredText(currentSegment.Text + segment.Text, currentSegment.Color, currentSegment.SourceTemplate,
+                        currentSegment.ColorReadyForCanvas && segment.ColorReadyForCanvas);
                 }
                 else
                 {
                     // Different color or different type - add current segment and start new one
                     merged.Add(currentSegment);
-                    currentSegment = new ColoredText(segment.Text, segment.Color, segment.SourceTemplate);
+                    currentSegment = new ColoredText(segment.Text, segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas);
                 }
             }
             

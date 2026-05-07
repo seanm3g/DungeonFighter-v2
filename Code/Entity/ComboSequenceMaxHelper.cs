@@ -18,7 +18,7 @@ namespace RPGGame
             if (absMax < baseMax)
                 absMax = baseMax;
 
-            int bonusSlots = character?.Equipment?.GetEquipmentStatBonus("ExtraActionSlots") ?? 0;
+            int bonusSlots = character?.Equipment?.GetEquipmentStatBonus("ExtraActionSlots", character) ?? 0;
             return Math.Min(absMax, baseMax + Math.Max(0, bonusSlots));
         }
 

@@ -102,6 +102,8 @@ namespace RPGGame
                 if (mod != null)
                     item.Modifications.Add(mod);
             }
+
+            item.RecomputeAttributeRequirementsIncludingModifications();
         }
 
         private static List<ModificationPrefixCategory> SelectCategoriesForPrefixSlotCount(int count, Random rnd)
@@ -146,6 +148,8 @@ namespace RPGGame
                 if (mod != null)
                     item.Modifications.Add(mod);
             }
+
+            item.RecomputeAttributeRequirementsIncludingModifications();
         }
 
         private void ResolveRerollAdjectiveIfPresent(Item item, LootContext? context)
@@ -162,6 +166,8 @@ namespace RPGGame
             var replacement = RollOneCategory(ModificationPrefixCategory.Adjective, item, context, bonus);
             if (replacement != null)
                 item.Modifications.Add(replacement);
+
+            item.RecomputeAttributeRequirementsIncludingModifications();
         }
 
         private void AdjustRarityBasedOnBonuses(Item item, RarityData currentRarity)
@@ -261,6 +267,9 @@ namespace RPGGame
                 usedAffixRarities.Add(NormalizeStatBonusAffixRarity(pick.Rarity));
                 item.StatBonuses.Add(pick.CloneForItemInstance());
             }
+
+            // Suffix Requirements (when authored on rolled rows) merge into the equip gate.
+            item.RecomputeAttributeRequirementsIncludingModifications();
         }
 
         /// <summary>At most one stat suffix per affix-line rarity; duplicate rolls promote up <see cref="AffixTierOrder"/>.</summary>
@@ -483,7 +492,7 @@ namespace RPGGame
 
         private Modification? CloneRolledModification(Modification template, int _)
         {
-            return new Modification
+            var clone = new Modification
             {
                 DiceResult = template.DiceResult,
                 ItemRank = template.ItemRank,
@@ -496,6 +505,9 @@ namespace RPGGame
                 RolledValue = RollValueBetween(template.MinValue, template.MaxValue),
                 StatusEffects = template.StatusEffects != null ? new List<string>(template.StatusEffects) : new List<string>()
             };
+            if (template.AttributeRequirements != null && template.AttributeRequirements.Count > 0)
+                clone.AttributeRequirements = new AttributeRequirements(new Dictionary<string, int>(template.AttributeRequirements));
+            return clone;
         }
 
         private double RollValueBetween(double minValue, double maxValue)

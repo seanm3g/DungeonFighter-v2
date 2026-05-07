@@ -4,6 +4,7 @@ using Avalonia.Threading;
 using RPGGame;
 using RPGGame.Config;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Settings;
 using System;
@@ -215,6 +216,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 };
             }
 
+            WireUpAnimatedTextBrightnessControls(appearancePanel);
+
             // Load settings once when panel is wired. Do not subscribe to Loaded: Loaded can fire again on
             // layout/focus (e.g. when user clicks Save), which would overwrite user edits with stale values.
             // Single deferred post so FindControl works when the panel is in the visual tree.
@@ -273,6 +276,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 subsequentLineDarkeningSlider.Value = uiConfig.SubsequentLineDarkening;
                 subsequentLineDarkeningTextBox.Text = uiConfig.SubsequentLineDarkening.ToString("F2");
             }
+
+            LoadAnimatedTextBrightnessControls(appearancePanel);
         }
 
         public void SaveSettings(UserControl panel)
@@ -313,6 +318,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             var subsequentLineDarkeningSlider = appearancePanel.FindControl<Slider>("SubsequentLineDarkeningSlider");
             if (subsequentLineDarkeningSlider != null)
                 SaveSubsequentLineDarkening(subsequentLineDarkeningSlider.Value);
+
+            var minSlider = appearancePanel.FindControl<Slider>("AnimatedTextBrightnessMinSlider");
+            var maxSlider = appearancePanel.FindControl<Slider>("AnimatedTextBrightnessMaxSlider");
+            if (minSlider != null && maxSlider != null)
+                SaveAnimatedTextBrightness(minSlider.Value, maxSlider.Value);
             // Orchestrator persists GameSettings once at end of save; do not call GameSettings.Instance.SaveSettings() here.
         }
         
@@ -338,6 +348,137 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             catch (System.Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error saving subsequent line darkening: {ex.Message}");
+            }
+        }
+
+        private void WireUpAnimatedTextBrightnessControls(AppearanceSettingsPanel appearancePanel)
+        {
+            var minSlider = appearancePanel.FindControl<Slider>("AnimatedTextBrightnessMinSlider");
+            var minTextBox = appearancePanel.FindControl<TextBox>("AnimatedTextBrightnessMinTextBox");
+            var maxSlider = appearancePanel.FindControl<Slider>("AnimatedTextBrightnessMaxSlider");
+            var maxTextBox = appearancePanel.FindControl<TextBox>("AnimatedTextBrightnessMaxTextBox");
+            if (minSlider == null || minTextBox == null || maxSlider == null || maxTextBox == null)
+                return;
+
+            void PushFromUi()
+            {
+                var normalized = SaveAnimatedTextBrightness(minSlider.Value, maxSlider.Value);
+                if (normalized.HasValue)
+                {
+                    minSlider.Value = normalized.Value.min;
+                    maxSlider.Value = normalized.Value.max;
+                    minTextBox.Text = ((int)Math.Round(normalized.Value.min)).ToString();
+                    maxTextBox.Text = ((int)Math.Round(normalized.Value.max)).ToString();
+                }
+            }
+
+            minSlider.ValueChanged += (s, e) =>
+            {
+                minTextBox.Text = ((int)Math.Round(e.NewValue)).ToString();
+                PushFromUi();
+            };
+            maxSlider.ValueChanged += (s, e) =>
+            {
+                maxTextBox.Text = ((int)Math.Round(e.NewValue)).ToString();
+                PushFromUi();
+            };
+
+            minTextBox.LostFocus += (s, e) =>
+            {
+                if (double.TryParse(minTextBox.Text, out double v))
+                {
+                    v = Math.Clamp(Math.Round(v), 0, 255);
+                    minSlider.Value = v;
+                    minTextBox.Text = ((int)v).ToString();
+                    PushFromUi();
+                }
+                else
+                    minTextBox.Text = ((int)Math.Round(minSlider.Value)).ToString();
+            };
+            maxTextBox.LostFocus += (s, e) =>
+            {
+                if (double.TryParse(maxTextBox.Text, out double v))
+                {
+                    v = Math.Clamp(Math.Round(v), 0, 255);
+                    maxSlider.Value = v;
+                    maxTextBox.Text = ((int)v).ToString();
+                    PushFromUi();
+                }
+                else
+                    maxTextBox.Text = ((int)Math.Round(maxSlider.Value)).ToString();
+            };
+        }
+
+        private void LoadAnimatedTextBrightnessControls(AppearanceSettingsPanel appearancePanel)
+        {
+            var minSlider = appearancePanel.FindControl<Slider>("AnimatedTextBrightnessMinSlider");
+            var minTextBox = appearancePanel.FindControl<TextBox>("AnimatedTextBrightnessMinTextBox");
+            var maxSlider = appearancePanel.FindControl<Slider>("AnimatedTextBrightnessMaxSlider");
+            var maxTextBox = appearancePanel.FindControl<TextBox>("AnimatedTextBrightnessMaxTextBox");
+            if (minSlider == null || minTextBox == null || maxSlider == null || maxTextBox == null)
+                return;
+
+            var anim = UIConfiguration.LoadFromFile().DungeonSelectionAnimation;
+            double minB = Math.Clamp(Math.Round(anim.AnimatedTextBrightnessMin), 0, 255);
+            double maxB = Math.Clamp(Math.Round(anim.AnimatedTextBrightnessMax), 0, 255);
+            if (minB > maxB)
+                (minB, maxB) = (maxB, minB);
+            minSlider.Value = minB;
+            maxSlider.Value = maxB;
+            minTextBox.Text = ((int)minB).ToString();
+            maxTextBox.Text = ((int)maxB).ToString();
+        }
+
+        /// <summary>Persists luminance bounds to UIConfiguration.json and reloads canvas animation state.</summary>
+        private (double min, double max)? SaveAnimatedTextBrightness(double minBrightness, double maxBrightness)
+        {
+            try
+            {
+                double minB = Math.Clamp(Math.Round(minBrightness), 0, 255);
+                double maxB = Math.Clamp(Math.Round(maxBrightness), 0, 255);
+                if (minB > maxB)
+                    (minB, maxB) = (maxB, minB);
+
+                var uiConfig = UIConfiguration.LoadFromFile();
+                uiConfig.DungeonSelectionAnimation.AnimatedTextBrightnessMin = minB;
+                uiConfig.DungeonSelectionAnimation.AnimatedTextBrightnessMax = maxB;
+
+                string? foundPath = JsonLoader.FindGameDataFile("UIConfiguration.json");
+                if (foundPath != null)
+                {
+                    var jsonOptions = new System.Text.Json.JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                    };
+                    string json = System.Text.Json.JsonSerializer.Serialize(uiConfig, jsonOptions);
+                    System.IO.File.WriteAllText(foundPath, json);
+                }
+
+                ReloadCanvasAnimationConfiguration();
+                return (minB, maxB);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error saving animated text brightness: {ex.Message}");
+                return null;
+            }
+        }
+
+        private static void ReloadCanvasAnimationConfiguration()
+        {
+            try
+            {
+                var uiManager = UIManager.GetCustomUIManager();
+                if (uiManager is CanvasUICoordinator coordinator &&
+                    coordinator.GetAnimationManager() is CanvasAnimationManager canvasAnimManager)
+                {
+                    canvasAnimManager.ReloadAnimationConfiguration();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ReloadCanvasAnimationConfiguration: {ex.Message}");
             }
         }
 

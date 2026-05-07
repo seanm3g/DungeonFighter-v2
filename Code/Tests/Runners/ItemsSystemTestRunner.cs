@@ -29,6 +29,8 @@ namespace RPGGame.Tests.Runners
             AttributeRequirementTests.RunAllTests();
             Console.WriteLine();
             BasicGearConfigTests.RunAllTests();
+            Console.WriteLine();
+            WeaponItemQualityMultiplierTests.RunAllTests();
         }
     }
 }

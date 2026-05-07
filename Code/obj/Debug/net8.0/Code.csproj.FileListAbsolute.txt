@@ -13432,3 +13432,18 @@ d:\Code Projects\github projects\DungeonFighter-v2\Code\bin\agent_build_out2\run
 d:\Code Projects\github projects\DungeonFighter-v2\Code\bin\agent_build_out2\runtimes\win\lib\net8.0\System.Diagnostics.EventLog.dll
 d:\Code Projects\github projects\DungeonFighter-v2\Code\bin\agent_build_out2\runtimes\win\lib\net7.0\System.Management.dll
 d:\Code Projects\github projects\DungeonFighter-v2\Code\bin\agent_build_out2\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
+d:\Code Projects\github projects\DungeonFighter-v2\_build_verify_jitter\DF.exe
+d:\Code Projects\github projects\DungeonFighter-v2\_build_verify_jitter\DF.deps.json
+d:\Code Projects\github projects\DungeonFighter-v2\_build_verify_jitter\DF.runtimeconfig.json
+d:\Code Projects\github projects\DungeonFighter-v2\_build_verify_jitter\DF.dll
+d:\Code Projects\github projects\DungeonFighter-v2\_build_verify_jitter\DF.pdb
+d:\Code Projects\github projects\DungeonFighter-v2\_hsv_out\DF.exe
+d:\Code Projects\github projects\DungeonFighter-v2\_hsv_out\DF.deps.json
+d:\Code Projects\github projects\DungeonFighter-v2\_hsv_out\DF.runtimeconfig.json
+d:\Code Projects\github projects\DungeonFighter-v2\_hsv_out\DF.dll
+d:\Code Projects\github projects\DungeonFighter-v2\_hsv_out\DF.pdb
+d:\temp\dfbuild_verify\DF.exe
+d:\temp\dfbuild_verify\DF.deps.json
+d:\temp\dfbuild_verify\DF.runtimeconfig.json
+d:\temp\dfbuild_verify\DF.dll
+d:\temp\dfbuild_verify\DF.pdb

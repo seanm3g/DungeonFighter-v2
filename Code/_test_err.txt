@@ -1,0 +1,16 @@
+Unhandled exception. System.InvalidOperationException: Unable to locate 'Avalonia.Platform.ICursorFactory'.
+   at Avalonia.LocatorExtensions.GetRequiredService[T](IAvaloniaDependencyResolver resolver)
+   at Avalonia.Input.Cursor.GetCursorFactory()
+   at Avalonia.Input.Cursor..ctor(StandardCursorType cursorType)
+   at RPGGame.UI.Avalonia.Settings.ItemModifiersSettingsPanel.!XamlIlPopulate(IServiceProvider, ItemModifiersSettingsPanel) in D:\Code Projects\github projects\DungeonFighter-v2\Code\UI/Avalonia/Settings/ItemModifiersSettingsPanel.axaml:line 73
+   at RPGGame.UI.Avalonia.Settings.ItemModifiersSettingsPanel.!XamlIlPopulateTrampoline(ItemModifiersSettingsPanel)
+   at RPGGame.UI.Avalonia.Settings.ItemModifiersSettingsPanel.InitializeComponent() in D:\Code Projects\github projects\DungeonFighter-v2\Code\UI\Avalonia\Settings\ItemModifiersSettingsPanel.axaml.cs:line 24
+   at RPGGame.UI.Avalonia.Settings.ItemModifiersSettingsPanel..ctor() in D:\Code Projects\github projects\DungeonFighter-v2\Code\UI\Avalonia\Settings\ItemModifiersSettingsPanel.axaml.cs:line 19
+   at RPGGame.UI.Avalonia.Managers.Settings.SettingsPanelCatalog.<>c.<.cctor>b__5_6() in D:\Code Projects\github projects\DungeonFighter-v2\Code\UI\Avalonia\Managers\Settings\SettingsPanelCatalog.cs:line 57
+   at RPGGame.UI.Avalonia.Managers.Settings.SettingsPanelCatalog.CreatePanel(String categoryTag) in D:\Code Projects\github projects\DungeonFighter-v2\Code\UI\Avalonia\Managers\Settings\SettingsPanelCatalog.cs:line 37
+   at RPGGame.Tests.Unit.UI.SettingsPanelCatalogTests.ItemPrefixes_And_Suffixes_Are_Main_Content_And_Create_Panels() in D:\Code Projects\github projects\DungeonFighter-v2\Code\Tests\Unit\UI\SettingsPanelCatalogTests.cs:line 55
+   at RPGGame.Tests.Unit.UI.SettingsPanelCatalogTests.RunAllTests() in D:\Code Projects\github projects\DungeonFighter-v2\Code\Tests\Unit\UI\SettingsPanelCatalogTests.cs:line 21
+   at RPGGame.Tests.Runners.UISystemTestRunner.RunAllTests() in D:\Code Projects\github projects\DungeonFighter-v2\Code\Tests\Runners\UISystemTestRunner.cs:line 134
+   at RPGGame.Tests.Runners.ComprehensiveTestRunner.RunAllTests() in D:\Code Projects\github projects\DungeonFighter-v2\Code\Tests\Runners\ComprehensiveTestRunner.cs:line 171
+   at RPGGame.Program.Main(String[] args) in D:\Code Projects\github projects\DungeonFighter-v2\Code\Game\Program.cs:line 81
+   at RPGGame.Program.<Main>(String[] args)

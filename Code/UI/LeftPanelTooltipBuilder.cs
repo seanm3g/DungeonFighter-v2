@@ -364,7 +364,7 @@ namespace RPGGame
                 "INT" => stats.TempIntelligenceBonus,
                 _ => 0
             };
-            int eq = c.Equipment.GetEquipmentStatBonus(code);
+            int eq = c.Equipment.GetEquipmentStatBonus(code, c);
             int god = code == "STR" ? c.GetModificationGodlikeBonus() : 0;
             int eff = code switch
             {

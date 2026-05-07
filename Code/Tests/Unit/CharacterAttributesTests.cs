@@ -32,6 +32,8 @@ namespace RPGGame.Tests.Unit
             TestIntelligence();
             TestTemporaryBonuses();
             TestApplyStatBonusAliasesMatchSpreadsheetAndActions();
+            TestDynamicAttributeCategoryRankingAndTieBreak();
+            TestApplyStatBonusResolvesPrimaryCategory();
             TestEquipmentBonuses();
             TestStatDecay();
             TestLevelUp();
@@ -189,13 +191,58 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(4, c.Stats.TempIntelligenceBonus, "INTELLIGENCE should set intelligence temp bonus", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        private static void TestDynamicAttributeCategoryRankingAndTieBreak()
+        {
+            Console.WriteLine("\n--- Testing dynamic attribute category ranking (PRIMARY..WEAKNESS) ---");
+
+            var distinct = DynamicAttributeCategoryResolver.GetRankedAttributeCodes(10, 7, 4, 2);
+            TestBase.AssertEqual("STR", distinct[0], "PRIMARY", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("AGI", distinct[1], "SECONDARY", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("TECH", distinct[2], "NEGLECTED", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("INT", distinct[3], "WEAKNESS", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // All equal: tie-break STR > AGI > TECH > INT
+            var allFive = DynamicAttributeCategoryResolver.GetRankedAttributeCodes(5, 5, 5, 5);
+            TestBase.AssertEqual("STR", allFive[0], "Tie: first is STR", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("AGI", allFive[1], "Tie: second is AGI", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("TECH", allFive[2], "Tie: third is TECH", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("INT", allFive[3], "Tie: fourth is INT", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Pair tie: 8,8,3,3 → STR before AGI, TECH before INT
+            var pair = DynamicAttributeCategoryResolver.GetRankedAttributeCodes(8, 8, 3, 3);
+            TestBase.AssertEqual("STR", pair[0], "Pair tie 8,8,3,3: first is STR", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("AGI", pair[1], "Pair tie: second is AGI", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("TECH", pair[2], "Pair tie: third is TECH", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("INT", pair[3], "Pair tie: fourth is INT", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestApplyStatBonusResolvesPrimaryCategory()
+        {
+            Console.WriteLine("\n--- Testing ApplyStatBonus resolves PRIMARY via facade ---");
+
+            // Effective order: AGI 12, TECH 8, INT 8 (tie → TECH before INT), STR 5 (weakest).
+            var c = TestDataBuilders.Character().WithName("PrimaryCatHero").WithStats(5, 12, 8, 8).Build();
+            c.Stats.TempStrengthBonus = 0;
+            c.Stats.TempAgilityBonus = 0;
+            c.Stats.TempTechniqueBonus = 0;
+            c.Stats.TempIntelligenceBonus = 0;
+
+            c.ApplyStatBonus(3, "PRIMARY", 2);
+            TestBase.AssertEqual(3, c.Stats.TempAgilityBonus, "PRIMARY should target highest effective stat (Agility)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, c.Stats.TempStrengthBonus, "PRIMARY should not apply to STR", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            c.Stats.TempAgilityBonus = 0;
+            c.ApplyStatBonus(1, "weakness", 1);
+            TestBase.AssertEqual(1, c.Stats.TempStrengthBonus, "WEAKNESS targets lowest effective stat (Strength)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         private static void TestEquipmentBonuses()
         {
             Console.WriteLine("\n--- Testing Equipment Bonuses ---");
 
             var character = TestDataBuilders.Character().WithName("TestHero").Build();
 
-            int equipmentBonus = character.Equipment.GetEquipmentStatBonus("STR");
+            int equipmentBonus = character.Equipment.GetEquipmentStatBonus("STR", character);
             TestBase.AssertTrue(equipmentBonus >= 0, 
                 $"Equipment bonus should be non-negative, got {equipmentBonus}", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);

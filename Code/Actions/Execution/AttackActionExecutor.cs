@@ -25,6 +25,15 @@ namespace RPGGame.Actions.Execution
         {
             double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, selectedAction);
             int totalRoll = baseRoll + rollBonus;
+
+            // Persistent + temporary combo-threshold bonuses must affect combo outcome in the colored execution path too.
+            // Consume temp here (one roll), matching ActionExecutionFlow's behavior.
+            int consumedComboThresholdBonus = 0;
+            if (source is Character comboBonusCharacter && comboBonusCharacter is not Enemy)
+            {
+                int temp = comboBonusCharacter.Effects.ConsumeTempComboBonus();
+                consumedComboThresholdBonus = comboBonusCharacter.Effects.ComboBonus + temp;
+            }
             
             // Check for multi-hit attacks (base + consumed MULTIHIT_MOD from ACTION/ABILITY keyword)
             int multiHitCount = selectedAction.Advanced.MultiHitCount;
@@ -80,7 +89,9 @@ namespace RPGGame.Actions.Execution
                 
                 // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
                 bool isCriticalHit = totalRoll >= RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
-                bool isComboEvent = selectedAction.IsComboAction && totalRoll >= RollModificationManager.GetThresholdManager().GetComboThreshold(source);
+                int effectiveComboThreshold = RollModificationManager.GetThresholdManager().GetComboThreshold(source) - consumedComboThresholdBonus;
+                if (effectiveComboThreshold < 1) effectiveComboThreshold = 1;
+                bool isComboEvent = selectedAction.IsComboAction && totalRoll >= effectiveComboThreshold;
                 ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, totalDamage, totalRoll, rollBonus, true, isComboEvent, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
                 
                 // Reset combo when a non-combo (normal) attack completes successfully
@@ -91,23 +102,24 @@ namespace RPGGame.Actions.Execution
                 // Handle combo advancement based on roll value; only advance when executed action was a combo action
                 if (source is Character comboCharacter && !(comboCharacter is Enemy) && selectedAction.IsComboAction)
                 {
-                    int comboThreshold = RollModificationManager.GetThresholdManager().GetComboThreshold(comboCharacter);
+                    int effectiveComboThresholdForAdvance = RollModificationManager.GetThresholdManager().GetComboThreshold(comboCharacter) - consumedComboThresholdBonus;
+                    if (effectiveComboThresholdForAdvance < 1) effectiveComboThresholdForAdvance = 1;
                     
                     if (comboCharacter.ComboStep == 0)
                     {
-                        if (totalRoll >= comboThreshold)
+                        if (totalRoll >= effectiveComboThresholdForAdvance)
                             comboCharacter.IncrementComboStep(selectedAction);
                     }
                     else if (comboCharacter.ComboStep == 1)
                     {
-                        if (totalRoll >= comboThreshold)
+                        if (totalRoll >= effectiveComboThresholdForAdvance)
                             comboCharacter.IncrementComboStep(selectedAction);
                         else
                             comboCharacter.ComboStep = 0;
                     }
                     else if (comboCharacter.ComboStep >= 2)
                     {
-                        if (totalRoll >= comboThreshold)
+                        if (totalRoll >= effectiveComboThresholdForAdvance)
                             comboCharacter.IncrementComboStep(selectedAction);
                         else
                             comboCharacter.ComboStep = 0;
@@ -138,7 +150,9 @@ namespace RPGGame.Actions.Execution
                     ActionStatisticsTracker.RecordDamageReceived(targetCharacter, damage);
                 }
                 
-                bool isCombo = selectedAction.IsComboAction && totalRoll >= RollModificationManager.GetThresholdManager().GetComboThreshold(source);
+                int effectiveComboThreshold = RollModificationManager.GetThresholdManager().GetComboThreshold(source) - consumedComboThresholdBonus;
+                if (effectiveComboThreshold < 1) effectiveComboThreshold = 1;
+                bool isCombo = selectedAction.IsComboAction && totalRoll >= effectiveComboThreshold;
                 // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
                 bool isCriticalHit = totalRoll >= RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
                 ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, damage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
@@ -155,23 +169,24 @@ namespace RPGGame.Actions.Execution
                 // Handle combo advancement; only advance when executed action was a combo action
                 if (source is Character comboCharacter && !(comboCharacter is Enemy) && selectedAction.IsComboAction)
                 {
-                    int comboThreshold = RollModificationManager.GetThresholdManager().GetComboThreshold(comboCharacter);
+                    int effectiveComboThresholdForAdvance = RollModificationManager.GetThresholdManager().GetComboThreshold(comboCharacter) - consumedComboThresholdBonus;
+                    if (effectiveComboThresholdForAdvance < 1) effectiveComboThresholdForAdvance = 1;
                     
                     if (comboCharacter.ComboStep == 0)
                     {
-                        if (totalRoll >= comboThreshold)
+                        if (totalRoll >= effectiveComboThresholdForAdvance)
                             comboCharacter.IncrementComboStep(selectedAction);
                     }
                     else if (comboCharacter.ComboStep == 1)
                     {
-                        if (totalRoll >= comboThreshold)
+                        if (totalRoll >= effectiveComboThresholdForAdvance)
                             comboCharacter.IncrementComboStep(selectedAction);
                         else
                             comboCharacter.ComboStep = 0;
                     }
                     else if (comboCharacter.ComboStep >= 2)
                     {
-                        if (totalRoll >= comboThreshold)
+                        if (totalRoll >= effectiveComboThresholdForAdvance)
                             comboCharacter.IncrementComboStep(selectedAction);
                         else
                             comboCharacter.ComboStep = 0;

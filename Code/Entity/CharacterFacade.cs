@@ -83,30 +83,30 @@ namespace RPGGame
         // === STAT ACCESS ===
         public int Strength 
         { 
-            get => _character.Stats.GetEffectiveStrength(_character.Equipment.GetEquipmentStatBonus("STR"), _character.Equipment.GetModificationGodlikeBonus());
+            get => _character.Stats.GetEffectiveStrength(_character.Equipment.GetEquipmentStatBonus("STR", _character), _character.Equipment.GetModificationGodlikeBonus());
             set => _character.Stats.Strength = value;
         }
         public int Agility 
         { 
-            get => _character.Stats.GetEffectiveAgility(_character.Equipment.GetEquipmentStatBonus("AGI"));
+            get => _character.Stats.GetEffectiveAgility(_character.Equipment.GetEquipmentStatBonus("AGI", _character));
             set => _character.Stats.Agility = value;
         }
         public int Technique 
         { 
-            get => _character.Stats.GetEffectiveTechnique(_character.Equipment.GetEquipmentStatBonus("TEC"));
+            get => _character.Stats.GetEffectiveTechnique(_character.Equipment.GetEquipmentStatBonus("TEC", _character));
             set => _character.Stats.Technique = value;
         }
         public int Intelligence 
         { 
-            get => _character.Stats.GetEffectiveIntelligence(_character.Equipment.GetEquipmentStatBonus("INT"));
+            get => _character.Stats.GetEffectiveIntelligence(_character.Equipment.GetEquipmentStatBonus("INT", _character));
             set => _character.Stats.Intelligence = value;
         }
 
         // === EFFECTIVE STAT METHODS ===
-        public int GetEffectiveStrength() => _character.Stats.GetEffectiveStrength(_character.Equipment.GetEquipmentStatBonus("STR"), _character.Equipment.GetModificationGodlikeBonus());
-        public int GetEffectiveAgility() => _character.Stats.GetEffectiveAgility(_character.Equipment.GetEquipmentStatBonus("AGI"));
-        public int GetEffectiveTechnique() => _character.Stats.GetEffectiveTechnique(_character.Equipment.GetEquipmentStatBonus("TEC"));
-        public int GetEffectiveIntelligence() => _character.Stats.GetEffectiveIntelligence(_character.Equipment.GetEquipmentStatBonus("INT"));
+        public int GetEffectiveStrength() => _character.Stats.GetEffectiveStrength(_character.Equipment.GetEquipmentStatBonus("STR", _character), _character.Equipment.GetModificationGodlikeBonus());
+        public int GetEffectiveAgility() => _character.Stats.GetEffectiveAgility(_character.Equipment.GetEquipmentStatBonus("AGI", _character));
+        public int GetEffectiveTechnique() => _character.Stats.GetEffectiveTechnique(_character.Equipment.GetEquipmentStatBonus("TEC", _character));
+        public int GetEffectiveIntelligence() => _character.Stats.GetEffectiveIntelligence(_character.Equipment.GetEquipmentStatBonus("INT", _character));
 
         // === ACTION MANAGEMENT ===
         public List<Action> GetComboActions() => _character.Actions.GetComboActions();
@@ -144,7 +144,14 @@ namespace RPGGame
         public void ActivateComboMode() => _character.Effects.ActivateComboMode();
         public void DeactivateComboMode() => _character.Effects.DeactivateComboMode();
         public void ResetCombo() => _character.Effects.ResetCombo();
-        public void ApplyStatBonus(int bonus, string statType, int duration) => _character.Stats.ApplyStatBonus(bonus, statType, duration);
+        public void ApplyStatBonus(int bonus, string statType, int duration)
+        {
+            string resolved = statType;
+            string? concrete = DynamicAttributeCategoryResolver.TryResolveToConcreteStatCode(_character, statType);
+            if (concrete != null)
+                resolved = concrete;
+            _character.Stats.ApplyStatBonus(bonus, resolved, duration);
+        }
         public void UpdateTempEffects(double actionLength = 1.0)
         {
             // Update base class effects directly (avoid circular call)
@@ -191,13 +198,13 @@ namespace RPGGame
         public bool UseRerollCharge() => _character.Effects.UseRerollCharge();
 
         // === EQUIPMENT BONUSES ===
-        public int GetEquipmentDamageBonus() => _character.Equipment.GetEquipmentDamageBonus();
-        public int GetEquipmentHealthBonus() => _character.Equipment.GetEquipmentHealthBonus();
-        public int GetEquipmentRollBonus() => _character.Equipment.GetEquipmentRollBonus();
-        public int GetMagicFind() => _character.Equipment.GetMagicFind();
-        public double GetEquipmentAttackSpeedBonus() => _character.Equipment.GetEquipmentAttackSpeedBonus();
-        public int GetEquipmentHealthRegenBonus() => _character.Equipment.GetEquipmentHealthRegenBonus();
-        public int GetTotalArmor() => _character.Equipment.GetTotalArmor();
+        public int GetEquipmentDamageBonus() => _character.Equipment.GetEquipmentDamageBonus(_character);
+        public int GetEquipmentHealthBonus() => _character.Equipment.GetEquipmentHealthBonus(_character);
+        public int GetEquipmentRollBonus() => _character.Equipment.GetEquipmentRollBonus(_character);
+        public int GetMagicFind() => _character.Equipment.GetMagicFind(_character);
+        public double GetEquipmentAttackSpeedBonus() => _character.Equipment.GetEquipmentAttackSpeedBonus(_character);
+        public int GetEquipmentHealthRegenBonus() => _character.Equipment.GetEquipmentHealthRegenBonus(_character);
+        public int GetTotalArmor() => _character.Equipment.GetTotalArmor(_character);
         public int GetTotalRerollCharges() => _character.Equipment.GetTotalRerollCharges();
         public int GetModificationMagicFind() => _character.Equipment.GetModificationMagicFind();
         public int GetModificationRollBonus() => _character.Equipment.GetModificationRollBonus();

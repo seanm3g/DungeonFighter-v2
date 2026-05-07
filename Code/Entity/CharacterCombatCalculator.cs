@@ -123,7 +123,7 @@ namespace RPGGame
         public int GetTotalDamage()
         {
             int weaponDamage = (character.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
-            int equipmentDamageBonus = character.Equipment.GetEquipmentDamageBonus();
+            int equipmentDamageBonus = character.Equipment.GetEquipmentDamageBonus(character);
             int modificationDamageBonus = character.Equipment.GetModificationDamageBonus();
             return character.GetEffectiveStrength() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
         }
@@ -134,7 +134,7 @@ namespace RPGGame
         /// <returns>Total roll bonus</returns>
         public int GetTotalRollBonus()
         {
-            return GetIntelligenceRollBonus() + character.Equipment.GetModificationRollBonus() + character.Equipment.GetEquipmentRollBonus();
+            return GetIntelligenceRollBonus() + character.Equipment.GetModificationRollBonus() + character.Equipment.GetEquipmentRollBonus(character);
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace RPGGame
         /// <returns>Total armor value</returns>
         public int GetTotalArmor()
         {
-            return character.Equipment.GetTotalArmor();
+            return character.Equipment.GetTotalArmor(character);
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace RPGGame
         /// <returns>Magic find bonus</returns>
         public int GetMagicFind()
         {
-            return character.Equipment.GetMagicFind();
+            return character.Equipment.GetMagicFind(character);
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace RPGGame
         /// <returns>True if stat meets threshold</returns>
         public bool MeetsStatThreshold(string statType, double threshold)
         {
-            return character.Stats.MeetsStatThreshold(statType, threshold, character.Equipment.GetEquipmentStatBonus(statType), character.Equipment.GetModificationGodlikeBonus());
+            return character.Stats.MeetsStatThreshold(statType, threshold, character.Equipment.GetEquipmentStatBonus(statType, character), character.Equipment.GetModificationGodlikeBonus());
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace RPGGame
         public string GetDetailedCombatStats()
         {
             int weaponDamage = (character.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
-            int equipmentDamageBonus = character.Equipment.GetEquipmentDamageBonus();
+            int equipmentDamageBonus = character.Equipment.GetEquipmentDamageBonus(character);
             int modificationDamageBonus = character.Equipment.GetModificationDamageBonus();
             int damage = GetTotalDamage();
             double attackSpeed = GetTotalAttackSpeed();

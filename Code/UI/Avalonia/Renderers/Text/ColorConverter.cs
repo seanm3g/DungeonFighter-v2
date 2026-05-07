@@ -29,6 +29,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
             // The canvas can render any RGB color value directly
             return ColorValidator.EnsureVisible(color);
         }
+
+        /// <summary>
+        /// Converts a segment's color for canvas drawing, respecting <see cref="ColoredText.ColorReadyForCanvas"/>.
+        /// </summary>
+        public static Color ConvertSegmentToCanvasColor(ColoredText segment)
+        {
+            if (segment.ColorReadyForCanvas)
+                return segment.Color;
+            return ColorValidator.EnsureVisible(segment.Color);
+        }
     }
 }
 

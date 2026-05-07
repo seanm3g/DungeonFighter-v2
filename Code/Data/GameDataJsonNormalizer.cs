@@ -206,32 +206,59 @@ namespace RPGGame.Data
         /// <summary>
         /// Sheet exports may include both a raw bracket string column (<c>mechanics</c>) and a parsed <c>Mechanics</c> array.
         /// Case-insensitive deserialization maps both to <see cref="Items.StatBonus.Mechanics"/> and breaks on string first.
+        /// Also parses a bracket cell for the new <c>Requirements</c> column into a canonical lowercase dictionary.
         /// </summary>
         private static void NormalizeStatBonusRow(JsonObject o)
         {
             try
             {
-                // Lowercase `mechanics` is the raw bracket column; `Mechanics` is the parsed array — both may exist as distinct JSON keys.
-                if (!o.TryGetPropertyValue("mechanics", out var lowMechanics) || lowMechanics is null)
-                    return;
-
-                if (o.TryGetPropertyValue("Mechanics", out var pascalMechanics) && pascalMechanics is JsonArray arr && arr.Count > 0)
-                {
-                    o.Remove("mechanics");
-                    return;
-                }
-
-                if (lowMechanics is JsonValue mv && mv.TryGetValue<string>(out var bracket) && !string.IsNullOrWhiteSpace(bracket))
-                {
-                    var parsed = JsonArraySheetConverter.ParseStatBonusBracketMechanics(bracket.Trim());
-                    if (parsed != null && parsed.Count > 0)
-                        o["Mechanics"] = parsed;
-                    o.Remove("mechanics");
-                }
+                NormalizeStatBonusMechanicsField(o);
+                NormalizeStatBonusRequirementsField(o);
             }
             finally
             {
                 JsonArraySheetConverter.RemoveStatBonusUnknownJsonKeys(o);
+            }
+        }
+
+        private static void NormalizeStatBonusMechanicsField(JsonObject o)
+        {
+            // Lowercase `mechanics` is the raw bracket column; `Mechanics` is the parsed array — both may exist as distinct JSON keys.
+            if (!o.TryGetPropertyValue("mechanics", out var lowMechanics) || lowMechanics is null)
+                return;
+
+            if (o.TryGetPropertyValue("Mechanics", out var pascalMechanics) && pascalMechanics is JsonArray arr && arr.Count > 0)
+            {
+                o.Remove("mechanics");
+                return;
+            }
+
+            if (lowMechanics is JsonValue mv && mv.TryGetValue<string>(out var bracket) && !string.IsNullOrWhiteSpace(bracket))
+            {
+                var parsed = JsonArraySheetConverter.ParseStatBonusBracketMechanics(bracket.Trim());
+                if (parsed != null && parsed.Count > 0)
+                    o["Mechanics"] = parsed;
+                o.Remove("mechanics");
+            }
+        }
+
+        /// <summary>
+        /// If <c>Requirements</c> is authored as a string (sheet bracket cell), parse it into the canonical object form
+        /// expected by <see cref="Items.StatBonus.Requirements"/>; case-insensitive aliases are not needed because
+        /// JSON files use the canonical key directly.
+        /// </summary>
+        private static void NormalizeStatBonusRequirementsField(JsonObject o)
+        {
+            if (!o.TryGetPropertyValue("Requirements", out var node) || node is null)
+                return;
+
+            if (node is JsonValue jv && jv.TryGetValue<string>(out var s) && !string.IsNullOrWhiteSpace(s))
+            {
+                var parsed = JsonArraySheetConverter.ParseStatBonusBracketRequirements(s.Trim());
+                if (parsed != null && parsed.Count > 0)
+                    o["Requirements"] = parsed;
+                else
+                    o.Remove("Requirements");
             }
         }
 
@@ -257,12 +284,93 @@ namespace RPGGame.Data
             }
         }
 
+        /// <summary>Normalizes a single PREFIX / modifications CSV row object (sheet columns A–I and legacy Min/Max).</summary>
+        public static void NormalizeModificationsImportRow(JsonObject row)
+        {
+            if (row == null)
+                throw new ArgumentNullException(nameof(row));
+            NormalizeModificationRow(row);
+        }
+
         private static void NormalizeModificationRow(JsonObject o)
         {
+            MergeModificationSheetColumnsAttributeRequirement(o);
+            MergeSheetAbbrevAttributeRequirementsIfPresent(o);
+            if (FindPropertyIgnoreCase(o, "attributeRequirements") is JsonObject reqObj)
+                CanonicalizeAttributeRequirementKeys(reqObj);
+
+            ApplyModificationValueColumnToMinMax(o);
             CoercePropertyToInt(o, "DiceResult");
             CoercePropertyToDouble(o, "MinValue");
             CoercePropertyToDouble(o, "MaxValue");
             CoercePropertyToDouble(o, "RolledValue");
+        }
+
+        /// <summary>
+        /// PREFIX tab columns <c>ATTRIBUTE REQUIREMENT</c> + <c>REQUIREMENT VALUE</c> (case-insensitive) merge into
+        /// <c>attributeRequirements</c> object, same canonical keys as weapons/armor.
+        /// </summary>
+        private static void MergeModificationSheetColumnsAttributeRequirement(JsonObject o)
+        {
+            JsonNode? abbrevNode = FindPropertyIgnoreCase(o, "ATTRIBUTE REQUIREMENT");
+            if (abbrevNode is not JsonValue jv || !jv.TryGetValue<string>(out var abbrevRaw) ||
+                string.IsNullOrWhiteSpace(abbrevRaw))
+                return;
+
+            JsonNode? reqNode = FindPropertyIgnoreCase(o, "REQUIREMENT VALUE");
+            if (reqNode == null || IsJsonNull(reqNode))
+                return;
+
+            int reqVal = CoerceInt(reqNode);
+            string statKey = MapSheetStatAbbrevToRequirementKey(abbrevRaw.Trim());
+            RemovePropertyIgnoreCase(o, "ATTRIBUTE REQUIREMENT");
+            RemovePropertyIgnoreCase(o, "REQUIREMENT VALUE");
+
+            JsonNode? existing = FindPropertyIgnoreCase(o, "attributeRequirements");
+            if (existing is JsonObject eo)
+            {
+                int prior = CoerceInt(FindPropertyIgnoreCase(eo, statKey));
+                eo[statKey] = JsonValue.Create(Math.Max(prior, reqVal));
+                CanonicalizeAttributeRequirementKeys(eo);
+            }
+            else
+            {
+                RemovePropertyIgnoreCase(o, "attributeRequirements");
+                o["attributeRequirements"] = new JsonObject { [statKey] = JsonValue.Create(reqVal) };
+            }
+        }
+
+        /// <summary>Sheet column <c>value</c> (case-insensitive) sets both <c>MinValue</c> and <c>MaxValue</c>, then is removed.</summary>
+        private static void ApplyModificationValueColumnToMinMax(JsonObject o)
+        {
+            JsonNode? vn = FindPropertyIgnoreCase(o, "value");
+            if (vn == null || IsJsonNull(vn))
+                return;
+
+            double v = CoerceDouble(vn);
+            SetPropertyIgnoreCase(o, "MinValue", JsonValue.Create(v));
+            SetPropertyIgnoreCase(o, "MaxValue", JsonValue.Create(v));
+            RemovePropertyIgnoreCase(o, "value");
+        }
+
+        private static double CoerceDouble(JsonNode? n)
+        {
+            if (n == null || IsJsonNull(n))
+                return 0;
+            if (n is JsonValue jv)
+            {
+                if (jv.TryGetValue(out double d))
+                    return d;
+                if (jv.TryGetValue(out long lng))
+                    return lng;
+                if (jv.TryGetValue(out int i))
+                    return i;
+                if (jv.TryGetValue(out string? s) && !string.IsNullOrEmpty(s) &&
+                    double.TryParse(s.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double p))
+                    return p;
+            }
+
+            return 0;
         }
 
         private static void CoercePropertyToInt(JsonObject o, string propertyName)
@@ -279,6 +387,12 @@ namespace RPGGame.Data
                 if (jv.TryGetValue(out int i))
                 {
                     SetPropertyIgnoreCase(o, propertyName, JsonValue.Create(i));
+                    return;
+                }
+
+                if (jv.TryGetValue(out long lng))
+                {
+                    SetPropertyIgnoreCase(o, propertyName, JsonValue.Create((int)lng));
                     return;
                 }
 
@@ -316,6 +430,12 @@ namespace RPGGame.Data
                     return;
                 }
 
+                if (jv.TryGetValue(out long lng))
+                {
+                    SetPropertyIgnoreCase(o, propertyName, JsonValue.Create((double)lng));
+                    return;
+                }
+
                 if (jv.TryGetValue(out string? s) && !string.IsNullOrEmpty(s) &&
                     double.TryParse(s.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double p))
                 {
@@ -341,6 +461,8 @@ namespace RPGGame.Data
             {
                 if (jv.TryGetValue(out int i))
                     return i;
+                if (jv.TryGetValue(out long lng))
+                    return (int)lng;
                 if (jv.TryGetValue(out double d))
                     return (int)d;
                 if (jv.TryGetValue(out string? s) && !string.IsNullOrEmpty(s) &&

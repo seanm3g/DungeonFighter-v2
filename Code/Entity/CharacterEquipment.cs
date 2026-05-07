@@ -75,15 +75,34 @@ namespace RPGGame
         // Equipment Bonus Methods (Facade to EquipmentBonusCalculator)
         // ============================================================================
 
-        public int GetEquipmentStatBonus(string statType) => bonusCalculator.GetStatBonus(statType);
-        public double GetEquipmentStatBonusDouble(string statType) => bonusCalculator.GetStatBonusDouble(statType);
-        public int GetEquipmentDamageBonus() => bonusCalculator.GetDamageBonus();
-        public int GetEquipmentHealthBonus() => bonusCalculator.GetHealthBonus();
-        public int GetEquipmentRollBonus() => bonusCalculator.GetRollBonus();
-        public int GetMagicFind() => bonusCalculator.GetMagicFind();
-        public double GetEquipmentAttackSpeedBonus() => bonusCalculator.GetAttackSpeedBonus();
-        public int GetEquipmentHealthRegenBonus() => bonusCalculator.GetHealthRegenBonus();
-        public int GetTotalArmor() => bonusCalculator.GetTotalArmor();
+        /// <summary>Catalog / material stats only (no <see cref="Item.StatBonuses"/> suffix lines).</summary>
+        public int GetFlatEquipmentStatExcludingSuffixes(string statType) =>
+            bonusCalculator.GetFlatStatBonusExcludingSuffixes(statType);
+
+        /// <summary>Catalog / material stats only; includes <see cref="Item.CatalogAttackSpeed"/> for attack speed.</summary>
+        public double GetFlatEquipmentStatExcludingSuffixesDouble(string statType) =>
+            bonusCalculator.GetFlatStatBonusExcludingSuffixesDouble(statType);
+
+        /// <param name="character">Pass the owning hero so suffix values apply as % of reference; omit for flat suffix sum (legacy).</param>
+        public int GetEquipmentStatBonus(string statType, Character? character) =>
+            bonusCalculator.GetStatBonus(statType, character);
+
+        /// <param name="character">Pass the owning hero so suffix values apply as % of reference; omit for flat suffix sum (legacy).</param>
+        public double GetEquipmentStatBonusDouble(string statType, Character? character) =>
+            bonusCalculator.GetStatBonusDouble(statType, character);
+
+        public int GetEquipmentDamageBonus(Character? character) => bonusCalculator.GetDamageBonus(character);
+        public int GetEquipmentHealthBonus(Character? character) => bonusCalculator.GetHealthBonus(character);
+        public int GetEquipmentRollBonus(Character? character) => bonusCalculator.GetRollBonus(character);
+        public int GetMagicFind(Character? character)
+        {
+            int itemBonus = bonusCalculator.GetStatBonus("MagicFind", character);
+            return itemBonus + modificationCalculator.GetMagicFind();
+        }
+
+        public double GetEquipmentAttackSpeedBonus(Character? character) => bonusCalculator.GetAttackSpeedBonus(character);
+        public int GetEquipmentHealthRegenBonus(Character? character) => bonusCalculator.GetHealthRegenBonus(character);
+        public int GetTotalArmor(Character? character) => bonusCalculator.GetTotalArmor(character);
         public int GetTotalRerollCharges() => bonusCalculator.GetTotalRerollCharges();
 
         // ============================================================================

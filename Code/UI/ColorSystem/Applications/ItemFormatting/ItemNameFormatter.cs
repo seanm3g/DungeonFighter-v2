@@ -100,6 +100,13 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
             if (words.Length == 0)
                 return;
 
+            // Starting catalog gear: keep prefix/suffix affix colors, but the base catalog name reads as plain gear (white).
+            if (item.IsStarterItem)
+            {
+                builder.Add(normalized, Colors.White);
+                return;
+            }
+
             if (words.Length == 1)
             {
                 builder.Add(words[0], GetBaseEquipmentCoreColor(item));

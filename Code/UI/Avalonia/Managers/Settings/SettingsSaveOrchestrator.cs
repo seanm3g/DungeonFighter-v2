@@ -32,7 +32,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         private readonly GetPanelForCategoryResolver getPanelForCategory;
 
         /// <summary>Category tags that use ISettingsPanelHandler for save. Add new handler-based panels here so the orchestrator saves them without code change.</summary>
-        private static readonly string[] HandlerSaveCategoryTags = { "TextDelays", "Appearance", "BalanceTuning", "Classes", "ItemGeneration" };
+        /// <remarks>
+        /// ItemGeneration must run before Classes: ClassesPanelHandler calls <see cref="GameConfiguration.SaveToFile"/>;
+        /// combo caps live in TextBoxes until ItemGeneration applies them — if Classes ran first, TuningConfig would be written with stale <c>lootSystem</c> when the user saved from another tab without ItemGeneration running after.
+        /// </remarks>
+        private static readonly string[] HandlerSaveCategoryTags = { "TextDelays", "Appearance", "BalanceTuning", "ItemGeneration", "Classes" };
 
         public SettingsSaveOrchestrator(
             SettingsManager? settingsManager,

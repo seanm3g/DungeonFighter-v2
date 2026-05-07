@@ -17,6 +17,11 @@ namespace RPGGame.UI.Avalonia.Managers
         protected float _brightnessMaskIntensity;
         protected float _brightnessMaskWaveLength;
         protected bool _brightnessMaskEnabled;
+
+        /// <summary>Minimum HSV Value (0–255 scale) for animated text. Loaded from <see cref="DungeonSelectionAnimationConfig"/>.</summary>
+        protected double _animatedTextBrightnessMin;
+        /// <summary>Maximum HSV Value (0–255 scale).</summary>
+        protected double _animatedTextBrightnessMax;
         
         // Undulation state (global phase for all animated text)
         protected double _undulationPhase = 0.0;
@@ -37,6 +42,35 @@ namespace RPGGame.UI.Avalonia.Managers
         /// Must be implemented by derived classes to specify which config to use
         /// </summary>
         protected abstract void LoadConfiguration();
+
+        /// <summary>
+        /// Shared animation parameters from dungeon selection animation config (undulation, mask, text luminance bounds).
+        /// </summary>
+        protected void ApplyDungeonSelectionAnimationConfig(DungeonSelectionAnimationConfig animConfig)
+        {
+            _undulationSpeed = animConfig.UndulationSpeed;
+            _undulationWaveLength = animConfig.UndulationWaveLength;
+            _brightnessMaskEnabled = animConfig.BrightnessMask.Enabled;
+            _brightnessMaskIntensity = animConfig.BrightnessMask.Intensity;
+            _brightnessMaskWaveLength = animConfig.BrightnessMask.WaveLength;
+
+            double minB = animConfig.AnimatedTextBrightnessMin;
+            double maxB = animConfig.AnimatedTextBrightnessMax;
+            if (minB > maxB)
+                (minB, maxB) = (maxB, minB);
+            minB = Math.Clamp(minB, 0, 255);
+            maxB = Math.Clamp(maxB, 0, 255);
+            if (minB > maxB)
+                minB = maxB;
+            _animatedTextBrightnessMin = minB;
+            _animatedTextBrightnessMax = maxB;
+        }
+
+        /// <summary>Minimum animated text HSV Value (0–255).</summary>
+        public double AnimatedTextBrightnessMin => _animatedTextBrightnessMin;
+
+        /// <summary>Maximum animated text HSV Value (0–255).</summary>
+        public double AnimatedTextBrightnessMax => _animatedTextBrightnessMax;
         
         /// <summary>
         /// Advances the brightness mask offset (thread-safe)

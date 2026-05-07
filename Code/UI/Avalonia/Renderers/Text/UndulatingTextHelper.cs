@@ -18,13 +18,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
         }
 
         public static Color AdjustColorBrightness(Color color, double factor)
-        {
-            factor = System.Math.Max(0.0, System.Math.Min(2.0, factor));
-            byte r = (byte)System.Math.Min(255, (int)(color.R * factor));
-            byte g = (byte)System.Math.Min(255, (int)(color.G * factor));
-            byte b = (byte)System.Math.Min(255, (int)(color.B * factor));
-            return Color.FromRgb(r, g, b);
-        }
+            => ColorValidator.ScaleBrightnessHsv(color, factor);
 
         /// <summary>
         /// Expands plain text into per-character segments with undulation (no template = always undulate).
@@ -61,7 +55,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
             ref int startCharPosition,
             int lineOffset,
             string? sourceTemplate,
-            DungeonSelectionAnimationState? animationState = null)
+            BaseAnimationState? animationState = null)
         {
             var state = animationState ?? DungeonSelectionAnimationState.Instance;
             bool shouldUndulate;
@@ -88,7 +82,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
                 }
 
                 Color adjustedColor = AdjustColorBrightness(baseColor, brightnessFactor);
-                result.Add(new ColoredText(c.ToString(), adjustedColor, sourceTemplate));
+                adjustedColor = ColorValidator.ClampAnimatedTextBrightness(
+                    adjustedColor, state.AnimatedTextBrightnessMin, state.AnimatedTextBrightnessMax);
+                result.Add(new ColoredText(c.ToString(), adjustedColor, sourceTemplate, colorReadyForCanvas: true));
                 startCharPosition++;
             }
         }

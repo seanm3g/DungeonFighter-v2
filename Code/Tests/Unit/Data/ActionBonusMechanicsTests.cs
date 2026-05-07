@@ -47,6 +47,7 @@ namespace RPGGame.Tests.Unit.Data
             TestForNextAction_OnSuccess();
             TestForNextAction_OnFailure();
             TestForNextAttack_OnSuccess();
+            TestForNextAttack_OnHit_AppliesPrimaryCategoryBonus();
             TestForNextAttack_OnFailure();
             TestStateAndDisplay();
             TestAbilityCadenceSpeedModToNextSlot();
@@ -419,6 +420,57 @@ namespace RPGGame.Tests.Unit.Data
 
             TestBase.AssertTrue(verified >= 1,
                 "For next ATTACK on hit: stat bonus applied",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// ATTACK cadence stat bonus type <c>PRIMARY</c> resolves to the hero's highest effective attribute.
+        /// </summary>
+        private static void TestForNextAttack_OnHit_AppliesPrimaryCategoryBonus()
+        {
+            Console.WriteLine("\n--- For next ATTACK: PRIMARY category on SUCCESS ---");
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            int verified = 0;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var character = CreateTestCharacterWithCombo();
+                character.Stats.Strength = 20;
+                character.Stats.Agility = 8;
+                character.Stats.Technique = 8;
+                character.Stats.Intelligence = 8;
+                character.Stats.TempStrengthBonus = 0;
+                character.Effects.AddActionAttackBonuses(new ActionAttackBonuses
+                {
+                    BonusGroups = new List<ActionAttackBonusGroup>
+                    {
+                        new ActionAttackBonusGroup
+                        {
+                            CadenceType = "ATTACK",
+                            Count = 1,
+                            Bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "PRIMARY", Value = 5 } }
+                        }
+                    }
+                });
+
+                var action = character.GetComboActions()[0];
+                var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
+                var result = ActionExecutionFlow.Execute(character, enemy, null, null, action, null, lastUsed, lastCritMiss);
+
+                if (result.Hit)
+                {
+                    verified++;
+                    TestBase.AssertTrue(character.Stats.TempStrengthBonus >= 5,
+                        "ATTACK on HIT: PRIMARY bonus applies to highest stat (STR)",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    break;
+                }
+            }
+
+            TestBase.AssertTrue(verified >= 1,
+                "For next ATTACK PRIMARY on hit: resolved to primary attribute",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -57,6 +57,20 @@ namespace RPGGame
         /// <summary>When non-empty, each entry contributes stats; otherwise legacy <see cref="StatType"/> / <see cref="Value"/> are used.</summary>
         public List<StatBonusMechanic>? Mechanics { get; set; }
 
+        /// <summary>
+        /// Attribute thresholds an equipping character must meet for the piece carrying this suffix.
+        /// Authored as <c>[strength:5,primary:15]</c>; keys are the four core attributes plus the dynamic categories
+        /// (<c>primary</c> / <c>secondary</c> / <c>neglected</c> / <c>weakness</c>) resolved at equip-check time via
+        /// <see cref="DynamicAttributeCategoryResolver"/>. Folded into <see cref="Item.AttributeRequirements"/> by
+        /// <see cref="Item.RecomputeAttributeRequirementsIncludingModifications"/>.
+        /// </summary>
+        [JsonPropertyName("Requirements")]
+        public Dictionary<string, int>? Requirements { get; set; }
+
+        /// <summary>True when the suffix lists at least one parsed requirement entry.</summary>
+        [JsonIgnore]
+        public bool HasRequirements => Requirements != null && Requirements.Count > 0;
+
         /// <summary>Yields each stat contribution for equipment / UI (legacy single-line when <see cref="Mechanics"/> is null or empty).</summary>
         public IEnumerable<(string StatType, double Value)> EnumerateContributions()
         {
@@ -103,6 +117,18 @@ namespace RPGGame
                 }
             }
 
+            Dictionary<string, int>? reqCopy = null;
+            if (Requirements != null && Requirements.Count > 0)
+            {
+                reqCopy = new Dictionary<string, int>(Requirements.Count, StringComparer.OrdinalIgnoreCase);
+                foreach (var kv in Requirements)
+                {
+                    if (string.IsNullOrWhiteSpace(kv.Key))
+                        continue;
+                    reqCopy[kv.Key] = kv.Value;
+                }
+            }
+
             return new StatBonus
             {
                 Name = Name,
@@ -111,7 +137,8 @@ namespace RPGGame
                 Rarity = Rarity,
                 StatType = StatType,
                 ItemRank = ItemRank,
-                Mechanics = mechCopy
+                Mechanics = mechCopy,
+                Requirements = reqCopy
             };
         }
     }
@@ -138,6 +165,10 @@ namespace RPGGame
         public double MaxValue { get; set; } = 0;
         public double RolledValue { get; set; } = 0; // The actual rolled value between MinValue and MaxValue
         public List<string> StatusEffects { get; set; } = new List<string>(); // Status effects to apply to Attack actions
+
+        /// <summary>Optional equip gates from this prefix alone; merged into <see cref="Item.AttributeRequirements"/> when loot/lab builds the item.</summary>
+        [JsonPropertyName("attributeRequirements")]
+        public AttributeRequirements AttributeRequirements { get; set; } = new AttributeRequirements();
     }
 
     public class ArmorStatus
@@ -203,6 +234,10 @@ namespace RPGGame
         
         // Attribute requirements for this item (extensible for future secondary attributes)
         public AttributeRequirements AttributeRequirements { get; set; } = new AttributeRequirements();
+
+        /// <summary>Catalog (base) attribute gates copied at generation time; used to recompute <see cref="AttributeRequirements"/> after prefix rolls or rerolls.</summary>
+        [JsonPropertyName("catalogAttributeRequirements")]
+        public AttributeRequirements CatalogAttributeRequirements { get; set; } = new AttributeRequirements();
         
         // The specific action this gear provides (assigned when created)
         public string? GearAction { get; set; } = null;
@@ -215,7 +250,9 @@ namespace RPGGame
         /// <summary>
         /// Normalizes requirement dictionary keys from saves, editors, or legacy data (<c>INT</c>, <c>TECH</c>, typos)
         /// to the lowercase names used by <see cref="GetEffectiveValueForRequirementKey"/> and tooltips.
-        /// Matches <see cref="RPGGame.Data.GameDataJsonNormalizer"/> sheet abbrev rules.
+        /// Matches <see cref="RPGGame.Data.GameDataJsonNormalizer"/> sheet abbrev rules; dynamic categories
+        /// (<c>primary</c> / <c>secondary</c> / <c>neglected</c> / <c>weakness</c>) are passed through in lowercase
+        /// so <see cref="GetEffectiveValueForRequirementKey(string, Character)"/> can resolve them per-character.
         /// </summary>
         public static string CanonicalizeAttributeRequirementKey(string raw)
         {
@@ -228,13 +265,25 @@ namespace RPGGame
                 "AGI" or "AGILITY" or "AGILTIY" => "agility",
                 "TEC" or "TECH" or "TECHNIQUE" or "TECHINQUE" or "TEHCNIQUE" => "technique",
                 "INT" or "INTELLIGENCE" or "INTELIGENCE" or "INTELLEGENCE" => "intelligence",
+                "PRIMARY" => "primary",
+                "SECONDARY" => "secondary",
+                "NEGLECTED" => "neglected",
+                "WEAKNESS" => "weakness",
                 _ => raw.Trim().ToLowerInvariant()
             };
         }
 
         /// <summary>
-        /// Effective value for a catalog requirement key (<c>strength</c>, <c>agility</c>, <c>technique</c>, <c>intelligence</c>).
-        /// Unknown keys resolve to <c>0</c> until supported in <see cref="MeetsRequirements"/>.
+        /// True when <paramref name="requirementKeyLower"/> names one of the four dynamic attribute categories
+        /// (<c>primary</c> / <c>secondary</c> / <c>neglected</c> / <c>weakness</c>).
+        /// </summary>
+        public static bool IsDynamicAttributeRequirementKey(string requirementKeyLower) =>
+            requirementKeyLower is "primary" or "secondary" or "neglected" or "weakness";
+
+        /// <summary>
+        /// Effective value for a core requirement key (<c>strength</c>, <c>agility</c>, <c>technique</c>, <c>intelligence</c>).
+        /// Dynamic categories return <c>0</c> on this overload; callers should pre-resolve via
+        /// <see cref="GetEffectiveValueForRequirementKey(string, Character)"/> when checking suffix gates.
         /// </summary>
         public static int GetEffectiveValueForRequirementKey(string requirementKeyLower, int strength, int agility, int technique, int intelligence) =>
             requirementKeyLower switch
@@ -246,7 +295,38 @@ namespace RPGGame
                 _ => 0
             };
 
-        /// <summary>Player-facing name for a normalized requirement key (lowercase).</summary>
+        /// <summary>
+        /// Effective value for a requirement key against <paramref name="character"/>; dynamic categories
+        /// (<c>primary</c>...<c>weakness</c>) resolve to whichever core stat currently fills that rank.
+        /// </summary>
+        public static int GetEffectiveValueForRequirementKey(string requirementKeyLower, Character character)
+        {
+            if (character == null || character.Facade == null)
+                return 0;
+            int strength = character.Facade.GetEffectiveStrength();
+            int agility = character.Facade.GetEffectiveAgility();
+            int technique = character.Facade.GetEffectiveTechnique();
+            int intelligence = character.Facade.GetEffectiveIntelligence();
+
+            string concrete = requirementKeyLower;
+            if (IsDynamicAttributeRequirementKey(requirementKeyLower))
+            {
+                string code = DynamicAttributeCategoryResolver.ResolveCategoryToStatCode(
+                    character, requirementKeyLower.ToUpperInvariant());
+                concrete = code switch
+                {
+                    DynamicAttributeCategoryResolver.CodeStrength => "strength",
+                    DynamicAttributeCategoryResolver.CodeAgility => "agility",
+                    DynamicAttributeCategoryResolver.CodeTechnique => "technique",
+                    DynamicAttributeCategoryResolver.CodeIntelligence => "intelligence",
+                    _ => requirementKeyLower
+                };
+            }
+
+            return GetEffectiveValueForRequirementKey(concrete, strength, agility, technique, intelligence);
+        }
+
+        /// <summary>Player-facing name for a normalized requirement key (lowercase). Dynamic categories render uppercase (PRIMARY, SECONDARY, …).</summary>
         public static string FormatRequirementAttributeDisplayName(string requirementKeyLower) =>
             requirementKeyLower switch
             {
@@ -254,6 +334,10 @@ namespace RPGGame
                 "agility" => "Agility",
                 "technique" => "Technique",
                 "intelligence" => "Intelligence",
+                "primary" => "PRIMARY",
+                "secondary" => "SECONDARY",
+                "neglected" => "NEGLECTED",
+                "weakness" => "WEAKNESS",
                 _ => string.IsNullOrEmpty(requirementKeyLower)
                     ? requirementKeyLower
                     : char.ToUpperInvariant(requirementKeyLower[0]) + requirementKeyLower.Substring(1)
@@ -267,15 +351,10 @@ namespace RPGGame
             if (character == null || character.Facade == null || !AttributeRequirements.HasRequirements)
                 return null;
 
-            int strength = character.Facade.GetEffectiveStrength();
-            int agility = character.Facade.GetEffectiveAgility();
-            int technique = character.Facade.GetEffectiveTechnique();
-            int intelligence = character.Facade.GetEffectiveIntelligence();
-
             foreach (var requirement in AttributeRequirements)
             {
                 string keyLower = CanonicalizeAttributeRequirementKey(requirement.Key);
-                int have = GetEffectiveValueForRequirementKey(keyLower, strength, agility, technique, intelligence);
+                int have = GetEffectiveValueForRequirementKey(keyLower, character);
                 if (have < requirement.Value)
                 {
                     string label = FormatRequirementAttributeDisplayName(keyLower);
@@ -309,21 +388,62 @@ namespace RPGGame
                 return true; // No requirements or no character means always pass
             }
 
-            int strength = character.Facade.GetEffectiveStrength();
-            int agility = character.Facade.GetEffectiveAgility();
-            int technique = character.Facade.GetEffectiveTechnique();
-            int intelligence = character.Facade.GetEffectiveIntelligence();
-
             foreach (var requirement in AttributeRequirements)
             {
                 int characterValue = GetEffectiveValueForRequirementKey(
-                    CanonicalizeAttributeRequirementKey(requirement.Key), strength, agility, technique, intelligence);
+                    CanonicalizeAttributeRequirementKey(requirement.Key), character);
 
                 if (characterValue < requirement.Value)
                     return false;
             }
 
             return true; // All requirements met
+        }
+
+        /// <summary>
+        /// Rebuilds <see cref="AttributeRequirements"/> from <see cref="CatalogAttributeRequirements"/> plus the per-stat maximum
+        /// required by each rolled <see cref="Modification"/> that defines <c>attributeRequirements</c>, and each
+        /// <see cref="StatBonus"/> suffix that defines <see cref="StatBonus.Requirements"/>.
+        /// </summary>
+        public void RecomputeAttributeRequirementsIncludingModifications()
+        {
+            AttributeRequirements = CatalogAttributeRequirements != null && CatalogAttributeRequirements.Count > 0
+                ? new AttributeRequirements(CatalogAttributeRequirements)
+                : new AttributeRequirements();
+
+            if (Modifications != null)
+            {
+                foreach (var mod in Modifications)
+                {
+                    if (mod?.AttributeRequirements == null || !mod.AttributeRequirements.HasRequirements)
+                        continue;
+
+                    foreach (var kv in mod.AttributeRequirements)
+                        MergeRequirementMax(CanonicalizeAttributeRequirementKey(kv.Key), kv.Value);
+                }
+            }
+
+            if (StatBonuses != null)
+            {
+                foreach (var suffix in StatBonuses)
+                {
+                    if (suffix == null || !suffix.HasRequirements)
+                        continue;
+
+                    foreach (var kv in suffix.Requirements!)
+                        MergeRequirementMax(CanonicalizeAttributeRequirementKey(kv.Key), kv.Value);
+                }
+            }
+        }
+
+        private void MergeRequirementMax(string canonicalKey, int value)
+        {
+            if (string.IsNullOrEmpty(canonicalKey))
+                return;
+            if (AttributeRequirements.TryGetValue(canonicalKey, out int cur))
+                AttributeRequirements[canonicalKey] = Math.Max(cur, value);
+            else
+                AttributeRequirements[canonicalKey] = value;
         }
 
         /// <summary>Armor from suffix lines and prefix modifications; null-safe for lab / partial JSON rows.</summary>
@@ -480,7 +600,14 @@ namespace RPGGame
         public double GetTotalAttackSpeed()
         {
             // attackSpeed from data: time multiplier vs 1 (higher = slower cadence). BonusAttackSpeed lowers the multiplier (faster).
-            return BaseAttackSpeed - (BonusAttackSpeed * 0.1);
+            // Quality (gearPrimaryStatMultiplier) should affect weapon speed as well as damage:
+            // higher quality => faster => LOWER time multiplier; lower quality => slower => HIGHER time multiplier.
+            double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
+            if (q <= 0) q = 1.0;
+
+            double speed = (BaseAttackSpeed / q) - (BonusAttackSpeed * 0.1);
+            // Keep speed within reasonable bounds (time multiplier).
+            return Math.Max(0.1, Math.Min(10.0, speed));
         }
         
         /// <summary>
@@ -499,8 +626,11 @@ namespace RPGGame
                 // Use a reasonable default for corrupted values
                 return 1.0; // Normal speed
             }
-            
-            return normalizedSpeed;
+
+            // Apply quality to weapon speed (see GetTotalAttackSpeed): higher quality => faster => lower multiplier.
+            double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
+            if (q <= 0) q = 1.0;
+            return Math.Max(0.1, Math.Min(10.0, normalizedSpeed / q));
         }
     }
 } 

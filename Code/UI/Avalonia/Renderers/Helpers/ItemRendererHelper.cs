@@ -57,32 +57,15 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         public static void RenderItemName(ColoredTextWriter textWriter, GameCanvasControl canvas, 
             int x, int y, int itemIndex, Item item, bool useColoredText = true, Character? character = null)
         {
-            string slotName = GetSlotName(item);
-            string rarity = item.Rarity?.Trim() ?? "Common";
-            var rarityColor = ItemThemeProvider.GetRarityColor(rarity);
-            // Gray brackets/slot so rarity and item name colors read clearly (Common name uses type/material theming).
-            var metaColor = Colors.Gray;
-            bool slotBlocked = IsEquipBlockedForCharacter(item, character);
-            var slotColor = slotBlocked ? Colors.Red : metaColor;
-            
             if (useColoredText)
             {
-                var displayBuilder = new ColoredTextBuilder();
-                // Only add index if it's >= 0 (negative values indicate no index should be shown)
-                if (itemIndex >= 0)
-                {
-                    displayBuilder.Add($"[{itemIndex + 1}] ", Colors.White);
-                }
-                displayBuilder.Add("[", metaColor);
-                displayBuilder.Add(rarity, rarityColor);
-                displayBuilder.Add("] ", metaColor);
-                displayBuilder.Add($"[{slotName}] ", slotColor);
-                var itemNameSegments = ItemDisplayColoredText.FormatFullItemName(item);
-                displayBuilder.AddRange(itemNameSegments);
-                textWriter.RenderSegments(displayBuilder.Build(), x, y);
+                var segments = BuildItemNameSegments(itemIndex, item, character);
+                textWriter.RenderSegments(segments, x, y);
             }
             else
             {
+                string slotName = GetSlotName(item);
+                string rarity = item.Rarity?.Trim() ?? "Common";
                 string coloredItemName = ItemDisplayFormatter.GetColoredItemName(item);
                 string indexPrefix = itemIndex >= 0 ? $"[{itemIndex + 1}] " : "";
                 string displayLine = $"{indexPrefix}[{rarity}] [{slotName}] {coloredItemName}";
@@ -96,6 +79,39 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                     canvas.AddText(x, y, $"{indexPrefix}[{rarity}] [{slotName}] {item.Name}", AsciiArtAssets.Colors.White);
                 }
             }
+        }
+
+        internal static List<ColoredText> BuildItemNameSegments(int itemIndex, Item item, Character? character)
+        {
+            string slotName = GetSlotName(item);
+            string rarity = item.Rarity?.Trim() ?? "Common";
+            var rarityColor = ItemThemeProvider.GetRarityColor(rarity);
+            // Gray brackets/slot so rarity and item name colors read clearly (Common name uses type/material theming).
+            var metaColor = Colors.Gray;
+            bool slotBlocked = IsEquipBlockedForCharacter(item, character);
+            var slotColor = slotBlocked ? Colors.Red : metaColor;
+
+            var displayBuilder = new ColoredTextBuilder();
+            if (itemIndex >= 0)
+                displayBuilder.Add($"[{itemIndex + 1}] ", Colors.White);
+            displayBuilder.Add("[", metaColor);
+            displayBuilder.Add(rarity, rarityColor);
+            displayBuilder.Add("] ", metaColor);
+            displayBuilder.Add($"[{slotName}] ", slotColor);
+
+            // Weapon name color should communicate rarity (Common = white). For weapons, the
+            // narrative/base-word theming can tint the name (often red) which conflicts with
+            // the "rarity is the signal" rule the UI uses for gear lists and prompts.
+            if (item is WeaponItem)
+            {
+                displayBuilder.Add(item.Name ?? string.Empty, rarityColor);
+            }
+            else
+            {
+                displayBuilder.AddRange(ItemDisplayColoredText.FormatFullItemName(item));
+            }
+
+            return displayBuilder.Build();
         }
 
         /// <summary>

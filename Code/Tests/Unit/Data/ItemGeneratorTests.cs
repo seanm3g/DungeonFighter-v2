@@ -554,7 +554,7 @@ namespace RPGGame.Tests.Unit.Data
                 Strength = 3
             });
             c.EquipItem(chest, "body");
-            TestBase.AssertEqual(3, c.Equipment.GetEquipmentStatBonus("STR"),
+            TestBase.AssertEqual(3, c.Equipment.GetEquipmentStatBonus("STR", c),
                 "STR from chest BaseStrength", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

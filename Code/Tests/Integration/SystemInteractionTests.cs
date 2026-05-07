@@ -70,7 +70,7 @@ namespace RPGGame.Tests.Integration
             var character = TestDataBuilders.Character().WithName("TestHero").Build();
 
             // Test that equipment affects stats and actions
-            int equipmentBonus = character.Equipment.GetEquipmentStatBonus("STR");
+            int equipmentBonus = character.Equipment.GetEquipmentStatBonus("STR", character);
             TestBase.AssertTrue(equipmentBonus >= 0, 
                 "Equipment should affect stats", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);

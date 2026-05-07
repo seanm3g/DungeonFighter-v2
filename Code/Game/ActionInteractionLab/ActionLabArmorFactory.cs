@@ -79,6 +79,7 @@ namespace RPGGame.ActionInteractionLab
                 }
             }
 
+            item.RecomputeAttributeRequirementsIncludingModifications();
             ApplyMinimumRarity(item);
             item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
             return item;
@@ -141,6 +142,8 @@ namespace RPGGame.ActionInteractionLab
             };
             if (template.StatusEffects != null && template.StatusEffects.Count > 0)
                 m.StatusEffects = new List<string>(template.StatusEffects);
+            if (template.AttributeRequirements != null && template.AttributeRequirements.Count > 0)
+                m.AttributeRequirements = new AttributeRequirements(new Dictionary<string, int>(template.AttributeRequirements));
             return m;
         }
 

@@ -29,6 +29,19 @@ namespace RPGGame
         /// Default: 4.0
         /// </summary>
         public float UndulationWaveLength { get; set; } = 4.0f;
+
+        /// <summary>
+        /// Minimum HSV Value for animated text, expressed on a 0–255 scale (V = value/255; see <see cref="RPGGame.UI.ColorSystem.ColorValidator.GetHsvValue255"/>).
+        /// Hue and saturation are preserved; only Value is raised toward this floor.
+        /// Default: 0 (no floor).
+        /// </summary>
+        public double AnimatedTextBrightnessMin { get; set; } = 0.0;
+
+        /// <summary>
+        /// Maximum HSV Value for animated text (0–255 scale). Hue and saturation preserved; Value is capped.
+        /// Default: 255 (no ceiling).
+        /// </summary>
+        public double AnimatedTextBrightnessMax { get; set; } = 255.0;
         
         /// <summary>
         /// Configuration for the brightness mask (wave effect across text)

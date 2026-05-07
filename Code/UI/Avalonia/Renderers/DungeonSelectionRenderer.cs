@@ -147,8 +147,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                             }
                             
                             // Apply brightness adjustments to color
-                            Color adjustedColor = AdjustColorBrightness(templateSegment.Color, brightnessFactor);
-                            segments.Add(new ColoredText(c.ToString(), adjustedColor, templateSegment.SourceTemplate));
+                            Color adjustedColor = ColorValidator.ScaleBrightnessHsv(templateSegment.Color, brightnessFactor);
+                            adjustedColor = ColorValidator.ClampAnimatedTextBrightness(
+                                adjustedColor, animationState.AnimatedTextBrightnessMin, animationState.AnimatedTextBrightnessMax);
+                            segments.Add(new ColoredText(c.ToString(), adjustedColor, templateSegment.SourceTemplate, colorReadyForCanvas: true));
                             
                             charPosition++;
                         }
@@ -205,20 +207,6 @@ namespace RPGGame.UI.Avalonia.Renderers
         private static string FormatCustomLevelEntrySuffix(string buffer) =>
             "  Level: " + (string.IsNullOrEmpty(buffer) ? "_" : buffer + "_");
 
-        /// <summary>
-        /// Adjusts the brightness of a color by a factor
-        /// </summary>
-        private Color AdjustColorBrightness(Color color, double factor)
-        {
-            factor = Math.Max(0.0, Math.Min(2.0, factor)); // Clamp between 0 and 2
-            
-            byte r = (byte)Math.Min(255, (int)(color.R * factor));
-            byte g = (byte)Math.Min(255, (int)(color.G * factor));
-            byte b = (byte)Math.Min(255, (int)(color.B * factor));
-            
-            return Color.FromRgb(r, g, b);
-        }
-        
         /// <summary>
         /// Generates a small random offset for an animated element based on its line position
         /// Uses a simple hash to ensure the same line always gets the same offset

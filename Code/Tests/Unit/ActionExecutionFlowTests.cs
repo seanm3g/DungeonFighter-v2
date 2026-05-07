@@ -41,6 +41,7 @@ namespace RPGGame.Tests.Unit
             TestDeferredEnemyRollPenaltyConsumesOneApplicationPerAttack();
             TestDeferredSheetAccuracyScalesWithMultihitOnHit();
             TestFifoAccuracyShiftsThresholdsNotRollSubtraction();
+            TestComboBonusLowersComboThresholdForResolution();
             TestEnemySheetDamageModDoesNotPersistAcrossEnemySwings();
             TestDeferredSheetAccuracyOnEnemyHitQueuesEnemyFifo();
             TestEnemyComboSelectionUsesFreshThresholdAfterPriorSwingOverrides();
@@ -269,6 +270,45 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(result.Hit,
                 "Roll 15 should still hit when hit threshold is raised 5→10 (same as old 10 vs 5)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestComboBonusLowersComboThresholdForResolution()
+        {
+            Console.WriteLine("\n--- ComboBonus lowers combo threshold for resolution ---");
+
+            _ = GameConfiguration.Instance;
+
+            var hero = TestDataBuilders.Character().WithName("ComboBonusHero").WithStats(10, 10, 10, 0).Build();
+            var enemy = TestDataBuilders.Enemy().WithName("ComboBonusFoe").Build();
+
+            // Default combo threshold is typically 14; give +3 ComboBonus so a roll of 11 qualifies as a combo.
+            hero.Effects.ComboBonus = 3;
+            hero.Effects.SetTempComboBonus(0, 0);
+
+            var comboAttack = new Action
+            {
+                Name = "ComboAttack",
+                Type = ActionType.Attack,
+                Target = TargetType.SingleTarget,
+                Cadence = "ATTACK",
+                DamageMultiplier = 0.01,
+                Length = 1.0,
+                IsComboAction = true
+            };
+
+            Dice.SetTestRoll(11);
+            ActionSelector.SetStoredActionRoll(hero, 11);
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCrit = new Dictionary<Actor, bool>();
+            var result = ActionExecutionFlow.Execute(hero, enemy, null, null, comboAttack, null, lastUsed, lastCrit);
+            Dice.SetTestRoll(null);
+
+            TestBase.AssertTrue(result.Hit,
+                "Controlled roll should hit under default thresholds",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(result.IsCombo,
+                "With ComboBonus=3, roll 11 should qualify as combo (threshold lowered by 3)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

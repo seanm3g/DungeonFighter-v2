@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit
             TestKeywordColorSystem();
             TestItemColorSystem();
             TestItemNameFormatterEmbeddedMaterialAndBaseType();
+            TestItemNameFormatterStarterBaseNameIsWhite();
             TestStatSuffixUsesStatBonusAffixRarity();
             TestRemoveRarityPrefixStripsMythic();
             TestItemColorSystemFormatFullMatchesItemNameFormatter();
@@ -203,6 +204,38 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(
                 ColorValidator.AreColorsEqual(shoesSeg!.Color, expectedFeetColor),
                 "Single-word feet item should use feet armor type theme (not flat white)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestItemNameFormatterStarterBaseNameIsWhite()
+        {
+            Console.WriteLine("\n--- Testing ItemNameFormatter starter base name is white ---");
+
+            var starterClub = new WeaponItem("Log", tier: 1, baseDamage: 1, baseAttackSpeed: 1.0, weaponType: WeaponType.Mace)
+            {
+                Rarity = "Common",
+                Tags = new List<string> { "starter" }
+            };
+            var logSeg = ItemNameFormatter.FormatFullItemName(starterClub)
+                .FirstOrDefault(s => string.Equals(s.Text, "Log", StringComparison.Ordinal));
+            TestBase.AssertNotNull(logSeg, "Starter weapon base name segment exists", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(logSeg!.Color, Colors.White),
+                "Starter item base name should be white (not weapon-type theme)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var nonStarterMace = new WeaponItem("Log", tier: 1, baseDamage: 1, baseAttackSpeed: 1.0, weaponType: WeaponType.Mace)
+            {
+                Rarity = "Common"
+            };
+            var maceTheme = ItemThemeProvider.GetItemTypeTheme(ItemType.Weapon);
+            TestBase.AssertTrue(maceTheme.Count > 0, "Weapon theme should exist", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var themedSeg = ItemNameFormatter.FormatFullItemName(nonStarterMace)
+                .FirstOrDefault(s => string.Equals(s.Text, "Log", StringComparison.Ordinal));
+            TestBase.AssertNotNull(themedSeg, "Non-starter segment exists", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(themedSeg!.Color, maceTheme[0].Color),
+                "Same base name without starter tag should still use weapon type color",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

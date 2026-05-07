@@ -9,8 +9,7 @@
         "name": "Magical Barrier",
         "weight": 1.0
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Treasure Room",
@@ -26,8 +25,7 @@
         "name": "Trap Spring",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Guard Post",
@@ -43,8 +41,7 @@
         "name": "Poisonous Gas",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Trap Room",
@@ -60,8 +57,7 @@
         "name": "Poisonous Gas",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Puzzle Chamber",
@@ -77,8 +73,7 @@
         "name": "Magical Barrier",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Rest Area",
@@ -94,8 +89,7 @@
         "name": "Forest Spirits",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Storage Room",
@@ -111,8 +105,7 @@
         "name": "Ancient Curse",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Library",
@@ -128,8 +121,7 @@
         "name": "Magical Barrier",
         "weight": 0.5
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Armory",
@@ -145,8 +137,7 @@
         "name": "Magical Barrier",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Kitchen",
@@ -162,8 +153,7 @@
         "name": "Trap Spring",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Dining Hall",
@@ -179,8 +169,7 @@
         "name": "Ancient Curse",
         "weight": 0.5
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Boss Chamber",
@@ -196,8 +185,7 @@
         "name": "Ancient Curse",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Forest Clearing",
@@ -213,8 +201,7 @@
         "name": "Magical Barrier",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Lava Chamber",
@@ -230,8 +217,7 @@
         "name": "Falling Rocks",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Crypt Passage",
@@ -247,8 +233,7 @@
         "name": "Ancient Curse",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Wolf Den",
@@ -264,8 +249,7 @@
         "name": "Thorn Vines",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Ancient Grove",
@@ -281,8 +265,7 @@
         "name": "Spider Web",
         "weight": 0.1
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Bear Cave",
@@ -302,8 +285,7 @@
         "name": "Spider Web",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Magma Pool",
@@ -319,8 +301,7 @@
         "name": "Steam Burst",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Volcanic Vent",
@@ -336,8 +317,7 @@
         "name": "Bat Swarm",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Burial Chamber",
@@ -353,8 +333,7 @@
         "name": "Ghostly Whisper",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Tomb of the Forgotten",
@@ -370,8 +349,7 @@
         "name": "Curse of the Crypt",
         "weight": 0.5
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Crystal Garden",
@@ -391,8 +369,7 @@
         "name": "Crystal Resonance",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Geode Chamber",
@@ -408,8 +385,7 @@
         "name": "Crystal Resonance",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Sacred Altar",
@@ -429,8 +405,7 @@
         "name": "Temple Blessing",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Frozen Cavern",
@@ -446,8 +421,7 @@
         "name": "Blizzard",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Glacial Chamber",
@@ -463,8 +437,7 @@
         "name": "Ice Shards",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Frozen Lake",
@@ -480,8 +453,7 @@
         "name": "Frozen Breath",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Shadow Realm",
@@ -497,8 +469,7 @@
         "name": "Darkness",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Umbra Sanctum",
@@ -514,8 +485,7 @@
         "name": "Darkness",
         "weight": 0.5
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Void Chamber",
@@ -531,8 +501,7 @@
         "name": "Shadow Grasp",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Steam Engine Room",
@@ -548,8 +517,7 @@
         "name": "Gear Trap",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Clockwork Laboratory",
@@ -565,8 +533,7 @@
         "name": "Steam Blast",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Cog Chamber",
@@ -582,8 +549,7 @@
         "name": "Steam Blast",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Bog Clearing",
@@ -599,8 +565,7 @@
         "name": "Quicksand",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Marsh Sanctuary",
@@ -616,8 +581,7 @@
         "name": "Poisonous Gas",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Toxic Pool",
@@ -633,8 +597,7 @@
         "name": "Quicksand",
         "weight": 0.1
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Star Chamber",
@@ -650,8 +613,7 @@
         "name": "Gravity Well",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Nebula Observatory",
@@ -667,8 +629,7 @@
         "name": "Cosmic Ray",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Galaxy Vault",
@@ -684,8 +645,7 @@
         "name": "Cosmic Ray",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Deep Tunnel",
@@ -701,8 +661,7 @@
         "name": "Rockfall",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Subterranean Hall",
@@ -718,8 +677,7 @@
         "name": "Cave-in",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Mining Shaft",
@@ -735,8 +693,7 @@
         "name": "Cave-in",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Thunder Hall",
@@ -752,8 +709,7 @@
         "name": "Wind Gust",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Tempest Chamber",
@@ -769,8 +725,7 @@
         "name": "Lightning Strike",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Hurricane Vault",
@@ -786,8 +741,7 @@
         "name": "Lightning Strike",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Sacred Grove",
@@ -803,8 +757,7 @@
         "name": "Thorn Vines",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Wildflower Meadow",
@@ -820,8 +773,7 @@
         "name": "Thorn Vines",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Natural Spring",
@@ -837,8 +789,7 @@
         "name": "Nature\u0027s Blessing",
         "weight": 0.1
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Spell Chamber",
@@ -854,8 +805,7 @@
         "name": "Magical Barrier",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Wizard\u0027s Study",
@@ -871,8 +821,7 @@
         "name": "Magical Barrier",
         "weight": 0.5
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Magic Vault",
@@ -888,8 +837,7 @@
         "name": "Ancient Curse",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Sand Dune",
@@ -905,8 +853,7 @@
         "name": "Quicksand",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Oasis",
@@ -922,8 +869,7 @@
         "name": "Sandstorm",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Mirage Chamber",
@@ -939,8 +885,7 @@
         "name": "Sandstorm",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Magma Chamber",
@@ -956,8 +901,7 @@
         "name": "Ash Cloud",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Volcanic Vent",
@@ -973,8 +917,7 @@
         "name": "Ash Cloud",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Fire Chamber",
@@ -990,8 +933,7 @@
         "name": "Steam Burst",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Crumbling Hall",
@@ -1007,8 +949,7 @@
         "name": "Ancient Curse",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Lost Shrine",
@@ -1024,8 +965,7 @@
         "name": "Ancient Curse",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Decayed Chamber",
@@ -1041,8 +981,7 @@
         "name": "Ruins Blessing",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Underwater Cavern",
@@ -1058,8 +997,7 @@
         "name": "Ocean Current",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Coral Garden",
@@ -1075,8 +1013,7 @@
         "name": "Ocean Current",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Abyssal Depths",
@@ -1092,8 +1029,7 @@
         "name": "Ocean Current",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Peak Summit",
@@ -1109,8 +1045,7 @@
         "name": "Rockfall",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Alpine Meadow",
@@ -1126,8 +1061,7 @@
         "name": "Avalanche",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Rocky Outcrop",
@@ -1143,8 +1077,7 @@
         "name": "Avalanche",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Time Chamber",
@@ -1160,8 +1093,7 @@
         "name": "Temporal Rift",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Chronos Sanctum",
@@ -1177,8 +1109,7 @@
         "name": "Time Distortion",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Echo Chamber",
@@ -1194,8 +1125,7 @@
         "name": "Time Distortion",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Dreamscape",
@@ -1211,8 +1141,7 @@
         "name": "Dream Weave",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Lucid Chamber",
@@ -1228,8 +1157,7 @@
         "name": "Dream Weave",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Subconscious Hall",
@@ -1245,8 +1173,7 @@
         "name": "Dream Weave",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Void Chamber",
@@ -1262,8 +1189,7 @@
         "name": "Nullification",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Emptiness Hall",
@@ -1279,8 +1205,7 @@
         "name": "Void Touch",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Nothingness Room",
@@ -1296,8 +1221,7 @@
         "name": "Void Touch",
         "weight": 0.1
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Dimension Rift",
@@ -1313,8 +1237,7 @@
         "name": "Dimensional Shift",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Multiverse Hall",
@@ -1330,8 +1253,7 @@
         "name": "Dimensional Shift",
         "weight": 0.4
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Quantum Chamber",
@@ -1347,8 +1269,7 @@
         "name": "Dimensional Shift",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Heavenly Chamber",
@@ -1364,8 +1285,7 @@
         "name": "Sacred Flames",
         "weight": 0.3
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Celestial Sanctum",
@@ -1381,8 +1301,7 @@
         "name": "Sacred Flames",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   },
   {
     "name": "Eternal Hall",
@@ -1398,7 +1317,6 @@
         "name": "Divine Blessing",
         "weight": 0.2
       }
-    ],
-    "enemies": null
+    ]
   }
 ]

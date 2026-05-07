@@ -208,12 +208,12 @@ namespace RPGGame.Tests.Unit.Combat
             var legs = new LegsItem("Swift Greaves", 1, 1) { CatalogAttackSpeed = 0.04 };
             character.EquipItem(legs, "legs");
 
-            double bonus = character.Equipment.GetEquipmentAttackSpeedBonus();
+            double bonus = character.Equipment.GetEquipmentAttackSpeedBonus(character);
             TestBase.AssertTrue(Math.Abs(bonus - 0.04) < 0.0001,
                 $"GetEquipmentAttackSpeedBonus should include catalog legs speed, got {bonus}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            double viaDouble = character.Equipment.GetEquipmentStatBonusDouble("AttackSpeed");
+            double viaDouble = character.Equipment.GetEquipmentStatBonusDouble("AttackSpeed", character);
             TestBase.AssertTrue(Math.Abs(viaDouble - 0.04) < 0.0001,
                 $"GetEquipmentStatBonusDouble AttackSpeed should match, got {viaDouble}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);

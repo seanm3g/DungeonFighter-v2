@@ -53,6 +53,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ItemRendererHelperBlockedSlotTests.RunAllTests();
             Console.WriteLine();
+            ItemRendererHelperWeaponNameColorTests.RunAllTests();
+            Console.WriteLine();
             EffectiveVisibleWidthRegressionTests.RunAllTests();
             Console.WriteLine();
             DisplayRendererClearBandRegressionTests.RunAllTests();
@@ -88,6 +90,8 @@ namespace RPGGame.Tests.Runners
             ItemDisplayFormatterTests.RunAllTests();
             Console.WriteLine();
             ItemStatFormatterTests.RunAllTests();
+            Console.WriteLine();
+            WeaponSelectionRendererTests.RunAllTests();
             Console.WriteLine();
             TitleScreenAsciiSpacingTests.RunAllTests();
             Console.WriteLine();

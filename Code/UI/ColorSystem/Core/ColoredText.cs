@@ -20,6 +20,12 @@ namespace RPGGame.UI.ColorSystem
         /// Used to check if the template has undulation enabled
         /// </summary>
         public string? SourceTemplate { get; set; }
+
+        /// <summary>
+        /// When true, <see cref="Color"/> is already finalized for the canvas (e.g. after animated-text luminance clamp)
+        /// and must not be passed through <see cref="ColorValidator.EnsureVisible"/> again when rendering.
+        /// </summary>
+        public bool ColorReadyForCanvas { get; private set; }
         
         // Undulation properties for color pattern animation (color sequence offsetting)
         // Note: This is different from brightness undulation used in Avalonia renderers
@@ -43,13 +49,14 @@ namespace RPGGame.UI.ColorSystem
         
         /// <summary>
         /// Creates a new ColoredText with the specified text and color.
-        /// The color will be validated to ensure visibility on black background.
+        /// By default the color is validated for visibility on black background unless
+        /// <paramref name="colorReadyForCanvas"/> is true (colors already finalized, e.g. animated-text clamp).
         /// </summary>
-        public ColoredText(string text, Color color, string? sourceTemplate = null)
+        public ColoredText(string text, Color color, string? sourceTemplate = null, bool colorReadyForCanvas = false)
         {
             Text = text;
-            // Ensure color is visible on black background
-            Color = ColorValidator.EnsureVisible(color);
+            ColorReadyForCanvas = colorReadyForCanvas;
+            Color = colorReadyForCanvas ? color : ColorValidator.EnsureVisible(color);
             SourceTemplate = sourceTemplate;
         }
         

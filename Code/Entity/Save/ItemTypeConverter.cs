@@ -169,6 +169,7 @@ namespace RPGGame
             destination.Level = source.Level;
             destination.Tags = source.Tags;
             destination.AttributeRequirements = source.AttributeRequirements;
+            destination.CatalogAttributeRequirements = source.CatalogAttributeRequirements;
         }
 
         /// <summary>

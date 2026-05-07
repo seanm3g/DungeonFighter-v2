@@ -6,6 +6,7 @@ using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.ColorSystem.Themes;
 
 namespace RPGGame.UI.Avalonia.Renderers.Menu
 {
@@ -165,7 +166,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 string numberText = $"[{weaponNum}]";
                 canvas.AddText(optionX, currentY, numberText, weaponColor);
                 int nameX = optionX + numberText.Length + 1;
-                canvas.AddText(nameX, currentY, weaponName ?? "", option.IsHovered ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White);
+                canvas.AddText(nameX, currentY, weaponName ?? "", GetWeaponNameColor(preview, option.IsHovered));
                 currentY++;
 
                 string className = classPresentation.GetDisplayName(preview.WeaponType);
@@ -210,6 +211,14 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             canvas.AddText(bottomX, currentY, bottomInstructions, AsciiArtAssets.Colors.Cyan);
             
             return currentY - y + 2;
+        }
+
+        internal static Color GetWeaponNameColor(WeaponItem preview, bool isHovered)
+        {
+            // Weapon names should read as "gear text": use rarity coloring (Common = white),
+            // and keep hover from overriding that rarity signal.
+            string rarity = preview?.Rarity?.Trim() ?? "Common";
+            return ItemThemeProvider.GetRarityColor(rarity);
         }
 
         private static Color WeaponMenuAccentColor(WeaponType weaponType) => weaponType switch

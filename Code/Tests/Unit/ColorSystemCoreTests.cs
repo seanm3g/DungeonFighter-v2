@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.Tests;
+using RPGGame.UI.Avalonia.Renderers.Text;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Tests.Unit
@@ -259,6 +260,33 @@ namespace RPGGame.Tests.Unit
             var notEqual = ColorValidator.AreColorsEqual(white, black);
             TestBase.AssertFalse(notEqual, 
                 "Different colors should not be equal", 
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Animated text: clamp HSV Value (0–255 scale), preserves hue/saturation
+            var dark = Color.FromRgb(20, 30, 45);
+            var clampedLow = ColorValidator.ClampAnimatedTextBrightness(dark, 120, 255);
+            TestBase.AssertTrue(ColorValidator.GetHsvValue255(clampedLow) >= 119.0,
+                "ClampAnimatedTextBrightness should enforce minimum HSV Value",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var clampedHigh = ColorValidator.ClampAnimatedTextBrightness(white, 0, 80);
+            TestBase.AssertTrue(ColorValidator.GetHsvValue255(clampedHigh) <= 81.0,
+                "ClampAnimatedTextBrightness should enforce maximum HSV Value",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var midBlue = Color.FromRgb(50, 100, 200);
+            var passthrough = ColorValidator.ClampAnimatedTextBrightness(midBlue, 0, 255);
+            TestBase.AssertTrue(
+                Math.Abs(midBlue.R - passthrough.R) <= 1 && Math.Abs(midBlue.G - passthrough.G) <= 1 && Math.Abs(midBlue.B - passthrough.B) <= 1,
+                "Full-range clamp should leave color unchanged (HSV round-trip)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Animated-text segments must not re-run EnsureVisible when flagged (avoids flash / wrong brightness)
+            var capped = ColorValidator.ClampAnimatedTextBrightness(Colors.White, 0, 40);
+            var segFinal = new ColoredText("x", capped, null, colorReadyForCanvas: true);
+            var forCanvas = ColorConverter.ConvertSegmentToCanvasColor(segFinal);
+            TestBase.AssertTrue(ColorValidator.AreColorsEqual(capped, forCanvas),
+                "ConvertSegmentToCanvasColor must not brighten ColorReadyForCanvas segments",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test invalid color handling

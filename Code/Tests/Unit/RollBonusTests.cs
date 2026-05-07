@@ -59,7 +59,7 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character().WithName("TestHero").Build();
             
             // Test equipment roll bonus calculation
-            int equipmentBonus = character.Equipment.GetEquipmentRollBonus();
+            int equipmentBonus = character.Equipment.GetEquipmentRollBonus(character);
             TestBase.AssertTrue(equipmentBonus >= 0, 
                 $"Equipment roll bonus should be non-negative, got {equipmentBonus}", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -170,7 +170,7 @@ namespace RPGGame.Tests.Unit
 
             // Test that roll bonus includes all sources
             int intBonus = character.GetIntelligenceRollBonus();
-            int equipBonus = character.Equipment.GetEquipmentRollBonus();
+            int equipBonus = character.Equipment.GetEquipmentRollBonus(character);
             int modBonus = character.Equipment.GetModificationRollBonus();
             
             // Total should be at least the sum of individual bonuses (may have more from combo/temp)

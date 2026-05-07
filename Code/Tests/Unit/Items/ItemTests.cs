@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Items
@@ -31,6 +32,10 @@ namespace RPGGame.Tests.Unit.Items
             TestModifications();
             TestMeetsRequirements();
             TestMeetsRequirements_IntAbbrevRequirementKey();
+            TestRecomputeAttributeRequirementsIncludingModifications();
+            TestRecomputeIncludesSuffixRequirements();
+            TestEquipBlockResolvesDynamicSuffixCategory();
+            TestStatBonusCloneCopiesRequirements();
             TestIsStarterItem();
 
             TestBase.PrintSummary("Item Tests", _testsRun, _testsPassed, _testsFailed);
@@ -248,6 +253,123 @@ namespace RPGGame.Tests.Unit.Items
             string? line = head.GetAttributeRequirementsSummaryLine();
             TestBase.AssertTrue(line != null && line.Contains("Intelligence", StringComparison.Ordinal),
                 "Tooltip line should show Intelligence for INT key",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRecomputeAttributeRequirementsIncludingModifications()
+        {
+            Console.WriteLine("\n--- Testing RecomputeAttributeRequirementsIncludingModifications ---");
+
+            var helm = new HeadItem("Helm", 1, 5);
+            helm.CatalogAttributeRequirements = new AttributeRequirements(new Dictionary<string, int> { ["strength"] = 3 });
+            helm.AttributeRequirements = new AttributeRequirements(helm.CatalogAttributeRequirements);
+
+            helm.Modifications.Add(new Modification
+            {
+                Name = "Heavy",
+                AttributeRequirements = new AttributeRequirements(new Dictionary<string, int> { ["strength"] = 8 })
+            });
+            helm.Modifications.Add(new Modification
+            {
+                Name = "Blessed",
+                AttributeRequirements = new AttributeRequirements(new Dictionary<string, int> { ["intelligence"] = 4 })
+            });
+
+            helm.RecomputeAttributeRequirementsIncludingModifications();
+
+            TestBase.AssertEqual(8, helm.AttributeRequirements["strength"],
+                "effective STR requirement is max of catalog and prefixes",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(4, helm.AttributeRequirements["intelligence"],
+                "INT requirement from prefix",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRecomputeIncludesSuffixRequirements()
+        {
+            Console.WriteLine("\n--- Testing Recompute Includes Suffix Requirements ---");
+
+            var helm = new HeadItem("Helm", 1, 5);
+            helm.CatalogAttributeRequirements = new AttributeRequirements(new Dictionary<string, int> { ["strength"] = 3 });
+
+            helm.StatBonuses.Add(new StatBonus
+            {
+                Name = "of Might",
+                Requirements = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["strength"] = 7
+                }
+            });
+            helm.StatBonuses.Add(new StatBonus
+            {
+                Name = "of Insight",
+                Requirements = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["agility"] = 4,
+                    ["primary"] = 12
+                }
+            });
+
+            helm.RecomputeAttributeRequirementsIncludingModifications();
+
+            TestBase.AssertEqual(7, helm.AttributeRequirements["strength"],
+                "STR requirement is max of catalog (3) and suffix (7)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(4, helm.AttributeRequirements["agility"],
+                "AGI requirement from suffix is preserved",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(helm.AttributeRequirements.ContainsKey("primary") && helm.AttributeRequirements["primary"] == 12,
+                "Dynamic category 'primary' carries onto AttributeRequirements",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEquipBlockResolvesDynamicSuffixCategory()
+        {
+            Console.WriteLine("\n--- Testing Equip Block Resolves Dynamic Suffix Category ---");
+
+            // STR 14 is highest -> PRIMARY = STR.
+            var hero = TestDataBuilders.Character()
+                .WithName("DynHero")
+                .WithLevel(1)
+                .WithStats(strength: 14, agility: 6, technique: 6, intelligence: 6)
+                .Build();
+
+            var item = new HeadItem("Crown", 1, 1);
+            item.AttributeRequirements.Clear();
+            item.AttributeRequirements["primary"] = 12;
+            string? blockedAtTwelve = item.GetEquipBlockedReason(hero);
+            TestBase.AssertTrue(string.IsNullOrEmpty(blockedAtTwelve),
+                "primary:12 with STR=14 (PRIMARY=STR) should not block",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            item.AttributeRequirements["primary"] = 20;
+            string? blockedAtTwenty = item.GetEquipBlockedReason(hero);
+            TestBase.AssertTrue(blockedAtTwenty != null && blockedAtTwenty.Contains("PRIMARY", StringComparison.Ordinal),
+                "primary:20 with STR=14 (PRIMARY=STR) should block with PRIMARY label",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestStatBonusCloneCopiesRequirements()
+        {
+            Console.WriteLine("\n--- Testing StatBonus.CloneForItemInstance Copies Requirements ---");
+
+            var template = new StatBonus
+            {
+                Name = "of Strength",
+                Requirements = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["strength"] = 5
+                }
+            };
+
+            var clone = template.CloneForItemInstance();
+            TestBase.AssertTrue(clone.HasRequirements && clone.Requirements!.ContainsKey("strength") && clone.Requirements["strength"] == 5,
+                "Clone preserves Requirements entries",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            clone.Requirements!["strength"] = 99;
+            TestBase.AssertEqual(5, template.Requirements!["strength"],
+                "Clone Requirements is independent of the template (no shared reference)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

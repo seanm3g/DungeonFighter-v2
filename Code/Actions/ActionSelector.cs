@@ -201,6 +201,12 @@ namespace RPGGame
             if (c == null || c is Enemy)
                 return;
 
+            // Persistent combo-threshold bonus from equipment plus temporary combo-threshold bonus.
+            // These are modeled as "COMBO" threshold reductions (positive bonus lowers the required threshold).
+            // Do not consume the temp bonus here; this is a peek for selection/preview math.
+            effectComboBonus += c.Effects.ComboBonus;
+            effectComboBonus += c.Effects.TempComboBonus;
+
             var comboActions = ActionUtilities.GetComboActions(c);
             int comboLength = comboActions.Count;
             if (comboLength > 0)

@@ -127,7 +127,7 @@ namespace RPGGame.UI.ColorSystem
                 {
                     // Truncate this segment
                     var truncatedText = segment.Text.Substring(0, remainingLength);
-                    result.Add(new ColoredText(truncatedText, segment.Color));
+                    result.Add(new ColoredText(truncatedText, segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas));
                     break;
                 }
             }
@@ -219,7 +219,7 @@ namespace RPGGame.UI.ColorSystem
                         // Process this part (which may still need word wrapping)
                         if (!string.IsNullOrEmpty(part))
                         {
-                            ProcessSegmentPartForCanvas(part, segment.Color, ref currentLine, ref currentLength, maxWidth, ref lines);
+                            ProcessSegmentPartForCanvas(segment, part, ref currentLine, ref currentLength, maxWidth, ref lines);
                         }
                     }
                     
@@ -264,7 +264,7 @@ namespace RPGGame.UI.ColorSystem
                             var chunk = remainingText.Substring(0, splitPoint);
                             if (chunk.Length > 0)
                             {
-                                currentLine.Add(new ColoredText(chunk, segment.Color));
+                                currentLine.Add(new ColoredText(chunk, segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas));
                             }
                             lines.Add(new List<ColoredText>(currentLine));
                             currentLine.Clear();
@@ -276,7 +276,7 @@ namespace RPGGame.UI.ColorSystem
                         
                         if (remainingText.Length > 0)
                         {
-                            currentLine.Add(new ColoredText(remainingText, segment.Color));
+                            currentLine.Add(new ColoredText(remainingText, segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas));
                             currentLength = remainingText.Length;
                         }
                     }
@@ -302,14 +302,14 @@ namespace RPGGame.UI.ColorSystem
         /// Helper method to process a segment part (after splitting on newlines) for Canvas renderer
         /// Handles word wrapping for the part
         /// </summary>
-        private void ProcessSegmentPartForCanvas(string part, global::Avalonia.Media.Color color, ref List<ColoredText> currentLine, ref int currentLength, int maxWidth, ref List<List<ColoredText>> lines)
+        private void ProcessSegmentPartForCanvas(ColoredText sourceSegment, string part, ref List<ColoredText> currentLine, ref int currentLength, int maxWidth, ref List<List<ColoredText>> lines)
         {
             int partLength = part.Length;
             
             // If part fits on current line, add it
             if (currentLength + partLength <= maxWidth)
             {
-                currentLine.Add(new ColoredText(part, color));
+                currentLine.Add(new ColoredText(part, sourceSegment.Color, sourceSegment.SourceTemplate, sourceSegment.ColorReadyForCanvas));
                 currentLength += partLength;
             }
             else if (partLength > maxWidth)
@@ -331,7 +331,7 @@ namespace RPGGame.UI.ColorSystem
                     var chunk = remainingText.Substring(0, splitPoint);
                     if (chunk.Length > 0)
                     {
-                        currentLine.Add(new ColoredText(chunk, color));
+                        currentLine.Add(new ColoredText(chunk, sourceSegment.Color, sourceSegment.SourceTemplate, sourceSegment.ColorReadyForCanvas));
                     }
                     lines.Add(new List<ColoredText>(currentLine));
                     currentLine.Clear();
@@ -343,7 +343,7 @@ namespace RPGGame.UI.ColorSystem
                 
                 if (remainingText.Length > 0)
                 {
-                    currentLine.Add(new ColoredText(remainingText, color));
+                    currentLine.Add(new ColoredText(remainingText, sourceSegment.Color, sourceSegment.SourceTemplate, sourceSegment.ColorReadyForCanvas));
                     currentLength = remainingText.Length;
                 }
             }
@@ -358,7 +358,7 @@ namespace RPGGame.UI.ColorSystem
                 }
                 
                 // Add part to new line
-                currentLine.Add(new ColoredText(part, color));
+                currentLine.Add(new ColoredText(part, sourceSegment.Color, sourceSegment.SourceTemplate, sourceSegment.ColorReadyForCanvas));
                 currentLength += partLength;
             }
         }

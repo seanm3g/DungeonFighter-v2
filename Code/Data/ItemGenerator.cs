@@ -72,10 +72,11 @@ namespace RPGGame
                     weaponData.ExtraActionSlotsMax)
             };
             
-            // Copy attribute requirements if present
+            // Copy attribute requirements if present (catalog snapshot used when recomputing after prefix rolls)
             if (weaponData.AttributeRequirements != null && weaponData.AttributeRequirements.Count > 0)
             {
                 weapon.AttributeRequirements = new AttributeRequirements(weaponData.AttributeRequirements);
+                weapon.CatalogAttributeRequirements = new AttributeRequirements(weaponData.AttributeRequirements);
             }
 
             weapon.Tags = GameDataTagHelper.NormalizeDistinct(weaponData.Tags);
@@ -99,10 +100,11 @@ namespace RPGGame
                 _ => throw new ArgumentException($"Unknown armor slot: {armorData.Slot}")
             };
             
-            // Copy attribute requirements if present
+            // Copy attribute requirements if present (catalog snapshot used when recomputing after prefix rolls)
             if (armorData.AttributeRequirements != null && armorData.AttributeRequirements.Count > 0)
             {
                 item.AttributeRequirements = new AttributeRequirements(armorData.AttributeRequirements);
+                item.CatalogAttributeRequirements = new AttributeRequirements(armorData.AttributeRequirements);
             }
 
             item.Tags = GameDataTagHelper.NormalizeDistinct(armorData.Tags);
@@ -486,6 +488,8 @@ namespace RPGGame
                         break;
                 }
             }
+
+            item.RecomputeAttributeRequirementsIncludingModifications();
         }
     }
 }

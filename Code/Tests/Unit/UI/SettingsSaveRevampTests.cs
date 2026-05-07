@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using RPGGame;
 using RPGGame.UI.Avalonia.Managers.Settings;
 using RPGGame.Tests;
@@ -29,6 +30,7 @@ namespace RPGGame.Tests.Unit.UI
             TestGameSettings_InMemoryUpdate_ReflectsInSameInstance();
             TestGameSettings_ValidateAndFix_DoesNotLoseValues();
             TestGameSettings_ActionStripFlashClamped();
+            TestHandlerSaveOrder_ItemGenerationBeforeClasses();
 
             TestBase.PrintSummary("Settings Save Revamp Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -91,6 +93,30 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(settings.ActionStripMissFlashDurationMs >= 200, "Miss flash clamped to min", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(settings.ActionStripSuccessFlashDurationMs >= 500, "Success total clamped to min", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(settings.ActionStripSuccessFlashPulseHalfPeriodMs >= 50, "Pulse half clamped to min", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Regression: ClassesPanelHandler calls <see cref="GameConfiguration.SaveToFile"/>; ItemGeneration must run first so
+        /// <c>lootSystem.comboSequenceBaseMax</c> is applied from the Item Generation tab before that write.
+        /// </summary>
+        private static void TestHandlerSaveOrder_ItemGenerationBeforeClasses()
+        {
+            Console.WriteLine("--- SettingsSaveOrchestrator: ItemGeneration runs before Classes ---");
+            var field = typeof(SettingsSaveOrchestrator).GetField(
+                "HandlerSaveCategoryTags",
+                BindingFlags.NonPublic | BindingFlags.Static);
+            TestBase.AssertNotNull(field, "HandlerSaveCategoryTags field", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (field == null)
+                return;
+            var tags = (string[]?)field.GetValue(null);
+            TestBase.AssertNotNull(tags, "handler tag list", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (tags == null)
+                return;
+            int ig = Array.IndexOf(tags, "ItemGeneration");
+            int cl = Array.IndexOf(tags, "Classes");
+            TestBase.AssertTrue(ig >= 0, "ItemGeneration present", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(cl >= 0, "Classes present", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(ig < cl, "ItemGeneration before Classes", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

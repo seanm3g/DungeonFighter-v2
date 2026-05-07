@@ -35,6 +35,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (panel is not ItemGenerationSettingsPanel p) return;
 
             LoadSettings(panel);
+            WireLootCapFieldsToConfiguration(p);
 
             var slotCombo = p.FindControl<ComboBox>("AffixSlotCombo");
             if (slotCombo != null)
@@ -125,21 +126,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (_affixScratch.TryGetValue("Weapon", out var weaponRows) && weaponRows != null)
                 cfg.ItemAffixByRarity.PerRarity = new Dictionary<string, ItemAffixPerRarityEntry>(weaponRows, StringComparer.OrdinalIgnoreCase);
 
-            if (!TryParseInt(p, "ComboSeqBaseMaxText", 1, 99, out int baseMax, out string? capErr))
+            if (!TryReadLootCapsFromUi(p, out int baseMax, out int absMax, out string? capErr))
             {
-                showStatusMessage?.Invoke(capErr ?? "Invalid combo base max.", false);
-                return;
-            }
-
-            if (!TryParseInt(p, "ComboSeqAbsMaxText", 1, 99, out int absMax, out capErr))
-            {
-                showStatusMessage?.Invoke(capErr ?? "Invalid combo absolute max.", false);
-                return;
-            }
-
-            if (absMax < baseMax)
-            {
-                showStatusMessage?.Invoke("Combo absolute max must be ≥ base max.", false);
+                showStatusMessage?.Invoke(capErr ?? "Invalid combo caps.", false);
                 return;
             }
 
@@ -246,6 +235,51 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 ExtraComboSlotsExtraChance = e.ExtraComboSlotsExtraChance,
                 ExtraComboSlotsMax = e.ExtraComboSlotsMax
             };
+
+        /// <summary>
+        /// When combo cap TextBoxes lose focus, push valid values into <see cref="GameConfiguration.Instance"/> so any later
+        /// <see cref="GameConfiguration.SaveToFile"/> (e.g. Classes tab) persists the same caps the user sees.
+        /// </summary>
+        private void WireLootCapFieldsToConfiguration(ItemGenerationSettingsPanel p)
+        {
+            void sync()
+            {
+                if (!TryReadLootCapsFromUi(p, out int baseMax, out int absMax, out _))
+                    return;
+                var cfg = GameConfiguration.Instance;
+                cfg.LootSystem ??= new LootSystemConfig();
+                cfg.LootSystem.ComboSequenceBaseMax = baseMax;
+                cfg.LootSystem.ComboSequenceAbsoluteMax = absMax;
+            }
+
+            if (p.FindControl<TextBox>("ComboSeqBaseMaxText") is { } baseTb)
+                baseTb.LostFocus += (_, _) => sync();
+            if (p.FindControl<TextBox>("ComboSeqAbsMaxText") is { } absTb)
+                absTb.LostFocus += (_, _) => sync();
+        }
+
+        /// <summary>Reads combo base / hard cap from the panel when both are valid integers and absolute ≥ base.</summary>
+        private static bool TryReadLootCapsFromUi(
+            ItemGenerationSettingsPanel p,
+            out int baseMax,
+            out int absMax,
+            out string? error)
+        {
+            baseMax = 0;
+            absMax = 0;
+            error = null;
+            if (!TryParseInt(p, "ComboSeqBaseMaxText", 1, 99, out baseMax, out error))
+                return false;
+            if (!TryParseInt(p, "ComboSeqAbsMaxText", 1, 99, out absMax, out error))
+                return false;
+            if (absMax < baseMax)
+            {
+                error = "Combo absolute max must be ≥ base max.";
+                return false;
+            }
+
+            return true;
+        }
 
         private void PersistUiToScratch(ItemGenerationSettingsPanel p, string slotKey)
         {
