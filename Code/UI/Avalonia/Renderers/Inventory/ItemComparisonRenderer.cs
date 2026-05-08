@@ -78,7 +78,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 var currentItemStats = ItemStatFormatter.GetItemStats(currentItem, character);
                 var newWeaponBaseline = newItem as WeaponItem;
                 ItemRendererHelper.RenderItemStats(textWriter, canvas, leftColumnX, leftY, currentItemStats, ref leftY, ref currentLineCount, useColoredText: true,
-                    displayedItem: currentItem, weaponSpeedBaseline: newWeaponBaseline);
+                    displayedItem: currentItem, weaponSpeedBaseline: newWeaponBaseline, armorComparisonBaseline: newItem);
                 
                 // Render current item bonuses/modifications
                 if (currentItem.StatBonuses.Count > 0 || currentItem.ActionBonuses.Count > 0 || currentItem.Modifications.Count > 0)
@@ -110,7 +110,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             var newItemStats = ItemStatFormatter.GetItemStats(newItem, character);
             var currentWeaponBaseline = currentItem as WeaponItem;
             ItemRendererHelper.RenderItemStats(textWriter, canvas, rightColumnX, rightY, newItemStats, ref rightY, ref currentLineCount, useColoredText: true,
-                displayedItem: newItem, weaponSpeedBaseline: currentWeaponBaseline);
+                displayedItem: newItem, weaponSpeedBaseline: currentWeaponBaseline, armorComparisonBaseline: currentItem);
             
             // Render new item bonuses/modifications
             if (newItem.StatBonuses.Count > 0 || newItem.ActionBonuses.Count > 0 || newItem.Modifications.Count > 0)

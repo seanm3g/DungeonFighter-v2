@@ -29,6 +29,7 @@ namespace RPGGame.Tests.Unit
             TestStatBonusApplication();
             TestStatBonusSuffixPercentOfStrength();
             TestLiteralHitSuffixNotPercentScaled();
+            TestSwiftStylePrefixHitModificationOnArmor();
             TestStatBonusRemoval();
             TestActionPoolUpdates();
             TestInventoryManagement();
@@ -180,6 +181,37 @@ namespace RPGGame.Tests.Unit
             int hit = character.Equipment.GetEquipmentStatBonus("HIT", character);
             TestBase.AssertEqual(7, hit,
                 "HIT suffix 7 should be +7 flat, not 7% of catalog HIT reference",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Modifications.json Swift uses Effect "HIT" (not equipmentAgi); it must count toward equipped HIT totals.
+        /// </summary>
+        private static void TestSwiftStylePrefixHitModificationOnArmor()
+        {
+            Console.WriteLine("\n--- Testing Swift-style prefix (Effect HIT) on feet counts toward HIT ---");
+
+            var character = TestDataBuilders.Character()
+                .WithName("SwiftBoots")
+                .WithStats(10, 10, 10, 10)
+                .Build();
+            var swiftMod = new Modification
+            {
+                Name = "Swift",
+                Effect = "HIT",
+                RolledValue = 1,
+                MinValue = 1,
+                MaxValue = 1
+            };
+            var boots = TestDataBuilders.Armor()
+                .WithType(ItemType.Feet)
+                .WithName("high Boots")
+                .WithModification(swiftMod)
+                .Build();
+            character.EquipItem(boots, "feet");
+            int hit = character.Equipment.GetEquipmentStatBonus("HIT", character);
+            TestBase.AssertEqual(1, hit,
+                "Swift-style HIT prefix should contribute +1 to equipment HIT total",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

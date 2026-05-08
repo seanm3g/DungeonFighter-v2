@@ -454,7 +454,8 @@ namespace RPGGame
 
         private static int MaterialStatBonus(Modification modification, string statType)
         {
-            return modification.Effect switch
+            string eff = modification.Effect ?? "";
+            return eff switch
             {
                 "equipmentStr" when string.Equals(statType, "STR", StringComparison.OrdinalIgnoreCase) =>
                     (int)Math.Round(modification.RolledValue),
@@ -463,6 +464,13 @@ namespace RPGGame
                 "equipmentTec" when string.Equals(statType, "TEC", StringComparison.OrdinalIgnoreCase) =>
                     (int)Math.Round(modification.RolledValue),
                 "equipmentInt" when string.Equals(statType, "INT", StringComparison.OrdinalIgnoreCase) =>
+                    (int)Math.Round(modification.RolledValue),
+                // Prefix rows in Modifications.json (e.g. Swift → HIT, Balanced → COMBO) use these effect keys.
+                "HIT" when string.Equals(statType, "HIT", StringComparison.OrdinalIgnoreCase) =>
+                    (int)Math.Round(modification.RolledValue),
+                "COMBO" when string.Equals(statType, "COMBO", StringComparison.OrdinalIgnoreCase) =>
+                    (int)Math.Round(modification.RolledValue),
+                "CRIT" when string.Equals(statType, "CRIT", StringComparison.OrdinalIgnoreCase) =>
                     (int)Math.Round(modification.RolledValue),
                 _ => 0
             };

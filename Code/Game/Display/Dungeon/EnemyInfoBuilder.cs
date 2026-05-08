@@ -13,38 +13,35 @@ namespace RPGGame.Display.Dungeon
     public static class EnemyInfoBuilder
     {
         /// <summary>
+        /// "A {enemy} with {weapon} appears." as structured segments (creature RGB preserved — no markup round-trip).
+        /// </summary>
+        public static List<ColoredText> BuildEncounterAppearanceSegments(Enemy enemy)
+        {
+            if (enemy == null)
+                throw new ArgumentNullException(nameof(enemy));
+
+            var encounteredBuilder = new ColoredTextBuilder();
+            encounteredBuilder.Add("A ", Colors.White);
+            EntityColorHelper.AppendEnemyNameColored(encounteredBuilder, enemy);
+            if (enemy.Weapon != null)
+            {
+                encounteredBuilder.Add(" with ", Colors.White);
+                var weaponRarity = enemy.Weapon.Rarity ?? "Common";
+                var weaponColor = ItemThemeProvider.GetRarityColor(weaponRarity);
+                encounteredBuilder.Add(enemy.Weapon.Name, weaponColor);
+            }
+            encounteredBuilder.Add(" appears.", Colors.White);
+            return encounteredBuilder.Build();
+        }
+
+        /// <summary>
         /// Builds enemy info lines
         /// </summary>
         public static List<string> BuildEnemyInfo(Enemy enemy)
         {
             var info = new List<string>();
 
-            // Build the "A {enemy} with {weapon} appears." message with proper colors
-            var encounteredBuilder = new ColoredTextBuilder();
-            
-            // "A "
-            encounteredBuilder.Add("A ", Colors.White);
-            
-            // Enemy name — multi-shade creature keywords when applicable
-            EntityColorHelper.AppendEnemyNameColored(encounteredBuilder, enemy);
-            
-            // Weapon info if present
-            if (enemy.Weapon != null)
-            {
-                // " with "
-                encounteredBuilder.Add(" with ", Colors.White);
-                
-                // Weapon name in rarity color
-                var weaponRarity = enemy.Weapon.Rarity ?? "Common";
-                var weaponColor = ItemThemeProvider.GetRarityColor(weaponRarity);
-                encounteredBuilder.Add(enemy.Weapon.Name, weaponColor);
-            }
-            
-            // " appears."
-            encounteredBuilder.Add(" appears.", Colors.White);
-            
-            string renderedText = ColoredTextRenderer.RenderAsMarkup(encounteredBuilder.Build());
-            // Trim any leading spaces that might be added during rendering
+            string renderedText = ColoredTextRenderer.RenderAsMarkup(BuildEncounterAppearanceSegments(enemy));
             info.Add(renderedText.TrimStart());
 
             string statsText = AsciiArtAssets.UIText.FormatEnemyStats(enemy.CurrentHealth, enemy.MaxHealth, enemy.Armor);

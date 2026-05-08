@@ -38,6 +38,11 @@ namespace RPGGame.Tests.Unit.UI
             TestCommonRarityWeaponDamageComparisonStillColored();
             TestCommonRarityWeaponSpeedComparisonStillColored();
 
+            TestArmorHigherThanBaselineGreen();
+            TestArmorLowerThanBaselineRed();
+            TestArmorEqualBaselineWhite();
+            TestArmorNoBaselineUsesSuccessPalette();
+
             TestBase.PrintSummary("ItemStatFormatter Tests", _testsRun, _testsPassed, _testsFailed);
         }
 
@@ -54,6 +59,16 @@ namespace RPGGame.Tests.Unit.UI
             for (int i = 0; i < segments.Count - 1; i++)
             {
                 if (segments[i].Text.Contains("Damage:", StringComparison.Ordinal))
+                    return segments[i + 1];
+            }
+            return null;
+        }
+
+        private static ColoredText? FindArmorValueSegment(System.Collections.Generic.List<ColoredText> segments)
+        {
+            for (int i = 0; i < segments.Count - 1; i++)
+            {
+                if (segments[i].Text.Contains("Armor:", StringComparison.Ordinal))
                     return segments[i + 1];
             }
             return null;
@@ -201,6 +216,57 @@ namespace RPGGame.Tests.Unit.UI
             var valueSeg = FindSpeedValueSegment(segments);
             var ok = valueSeg != null && valueSeg.Color == ExpectedPaletteColor(ColorPalette.Success);
             if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: Common rarity must still get compare colors for speed"); }
+        }
+
+        private static void TestArmorHigherThanBaselineGreen()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestArmorHigherThanBaselineGreen ---");
+            var high = new ChestItem("Plate", tier: 1, armor: 10) { Rarity = "Rare" };
+            var low = new ChestItem("Coat", tier: 1, armor: 4) { Rarity = "Common" };
+            string stat = $"Armor: +{high.GetTotalArmor()}";
+            var segments = ItemStatFormatter.FormatStatLine(stat, high, weaponSpeedBaseline: null, armorComparisonBaseline: low);
+            var valueSeg = FindArmorValueSegment(segments);
+            var ok = valueSeg != null && valueSeg.Color == ExpectedPaletteColor(ColorPalette.Success);
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: expected success color when armor is higher than baseline"); }
+        }
+
+        private static void TestArmorLowerThanBaselineRed()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestArmorLowerThanBaselineRed ---");
+            var high = new ChestItem("Plate", tier: 1, armor: 10) { Rarity = "Rare" };
+            var low = new ChestItem("Coat", tier: 1, armor: 4) { Rarity = "Common" };
+            string stat = $"Armor: +{low.GetTotalArmor()}";
+            var segments = ItemStatFormatter.FormatStatLine(stat, low, weaponSpeedBaseline: null, armorComparisonBaseline: high);
+            var valueSeg = FindArmorValueSegment(segments);
+            var ok = valueSeg != null && valueSeg.Color == ExpectedPaletteColor(ColorPalette.Error);
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: expected error color when armor is lower than baseline"); }
+        }
+
+        private static void TestArmorEqualBaselineWhite()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestArmorEqualBaselineWhite ---");
+            var a = new ChestItem("A", tier: 1, armor: 8) { Rarity = "Rare" };
+            var b = new ChestItem("B", tier: 1, armor: 8) { Rarity = "Rare" };
+            string stat = $"Armor: +{a.GetTotalArmor()}";
+            var segments = ItemStatFormatter.FormatStatLine(stat, a, weaponSpeedBaseline: null, armorComparisonBaseline: b);
+            var valueSeg = FindArmorValueSegment(segments);
+            var ok = valueSeg != null && valueSeg.Color == new ColoredText("x", Colors.White).Color;
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: expected white when armor matches baseline"); }
+        }
+
+        private static void TestArmorNoBaselineUsesSuccessPalette()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestArmorNoBaselineUsesSuccessPalette ---");
+            var chest = new ChestItem("Solo", tier: 1, armor: 6) { Rarity = "Common" };
+            string stat = $"Armor: +{chest.GetTotalArmor()}";
+            var segments = ItemStatFormatter.FormatStatLine(stat, chest, weaponSpeedBaseline: null, armorComparisonBaseline: null);
+            var valueSeg = FindArmorValueSegment(segments);
+            var ok = valueSeg != null && valueSeg.Color == ExpectedPaletteColor(ColorPalette.Success);
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: expected default success palette with no armor baseline"); }
         }
     }
 }

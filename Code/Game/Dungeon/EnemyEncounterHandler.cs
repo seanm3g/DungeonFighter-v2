@@ -199,7 +199,8 @@ namespace RPGGame
                 var victoryBuilder = new ColoredTextBuilder();
                 EntityColorHelper.AppendEnemyNameColored(victoryBuilder, enemy);
                 victoryBuilder.Add(" has been defeated!", ColorPalette.Success);
-                displayManager.AddCombatEvent(ColoredTextRenderer.RenderAsMarkup(victoryBuilder.Build()));
+                // Use structured routing so creature-name RGB survives; markup round-trip maps colors to nearest palette.
+                displayManager.AddCombatEvent(victoryBuilder, player);
                 
                 // Add remaining health right after defeat message
                 if (player != null)

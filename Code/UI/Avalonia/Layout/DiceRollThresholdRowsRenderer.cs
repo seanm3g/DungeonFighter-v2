@@ -29,23 +29,32 @@ namespace RPGGame.UI.Avalonia.Layout
             int defaultHit = config.RollSystem.MissThreshold.Max > 0 ? config.RollSystem.MissThreshold.Max : 5;
             int defaultCombo = config.RollSystem.ComboThreshold.Min > 0 ? config.RollSystem.ComboThreshold.Min : 14;
             int defaultCrit = config.Combat.CriticalHitThreshold > 0 ? config.Combat.CriticalHitThreshold : 20;
-            // Queued threshold shifts only (ACCURACY shared; COMBO/HIT/CRIT per row). Stat/equipment/temp roll bonus
-            // must not be folded here: combat adds those to attack total (see HitCalculator / combo check), while FIFO
-            // ACCURACY and sheet HIT/COMBO deltas shift thresholds (see ActionExecutionFlow). Mixing them caused
-            // wildly negative HUD numbers (e.g. CAST +20 with a two-card strip).
+            // Queued FIFO/slot shifts (ACCURACY shared; COMBO/HIT/CRIT per row), INT milestone steps, and literal
+            // gear HIT/COMBO/CRIT (catalog + prefixes like Swift + suffixes). Sheet/temp roll totals stay in
+            // <see cref="CombatCalculator.CalculateRollBonus"/> — do not merge deferred ACCURACY into roll bonus here
+            // (that produced wildly negative HUD numbers, e.g. CAST +20 with a two-card strip).
             var pendingHud = actor is Character chHud ? ActionSelector.PeekPendingThresholdHudShifts(chHud) : default;
             var intSteps = actor is Character chInt
                 ? IntelligenceMilestoneThresholdBonuses.GetSteps(chInt.GetEffectiveIntelligence())
                 : default;
+            // Literal HIT/COMBO/CRIT from gear (catalog, rolled prefixes like Swift, suffixes) — same “easier ladder” sense as INT steps.
+            int eqHit = 0, eqCombo = 0, eqCrit = 0;
+            if (actor is Character chEq && chEq is not Enemy)
+            {
+                eqHit = chEq.Equipment.GetEquipmentStatBonus("HIT", chEq);
+                eqCombo = chEq.Equipment.GetEquipmentStatBonus("COMBO", chEq);
+                eqCrit = chEq.Equipment.GetEquipmentStatBonus("CRIT", chEq);
+            }
+
             int comboRowShift = pendingHud.SharedAccuracy + pendingHud.ComboDelta;
             int hitRowShift = pendingHud.SharedAccuracy + pendingHud.HitDelta;
             int critRowShift = pendingHud.CritDelta;
             // CRIT_MISS bonuses raise the stored threshold; GetThresholdValueWithAccuracyParts subtracts shift → negate.
             int critMissRowShift = -pendingHud.CritMissDelta;
 
-            comboRowShift += intSteps.ComboSteps;
-            hitRowShift += intSteps.HitSteps;
-            critRowShift += intSteps.CritSteps;
+            comboRowShift += intSteps.ComboSteps + eqCombo;
+            hitRowShift += intSteps.HitSteps + eqHit;
+            critRowShift += intSteps.CritSteps + eqCrit;
 
             // One parenthetical: final displayed value minus configured default in the same units as the main number
             // (queued shifts + sheet/stored deltas combined). Negative = easier on the d20 ladder for crit/combo/hit.

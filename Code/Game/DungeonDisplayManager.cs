@@ -246,7 +246,7 @@ namespace RPGGame
                     if (enemyInfoList.Count > 0)
                     {
                         SpacingApplier.ApplySpacingBefore(batch, TextSpacingSystem.BlockType.EnemyAppearance);
-                        batch.Add(enemyInfoList[0]);
+                        batch.Add(EnemyInfoBuilder.BuildEncounterAppearanceSegments(enemy));
                         TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyAppearance);
                         
                         if (enemyInfoList.Count > 1)
@@ -262,7 +262,7 @@ namespace RPGGame
             else if (shouldAddToDisplayBuffer && uiManager != null && enemyInfoList.Count > 0)
             {
                 SpacingApplier.ApplySpacingBefore(uiManager, TextSpacingSystem.BlockType.EnemyAppearance);
-                uiManager.WriteLine(enemyInfoList[0], UIMessageType.System);
+                uiManager.WriteLineColoredSegments(EnemyInfoBuilder.BuildEncounterAppearanceSegments(enemy), UIMessageType.System);
                 TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyAppearance);
                 
                 if (enemyInfoList.Count > 1)

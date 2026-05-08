@@ -173,6 +173,20 @@ namespace RPGGame.Actions.Execution
                 IntelligenceMilestoneThresholdBonuses.Apply(thresholdManager, intMilestoneCharacter);
             }
 
+            // Catalog + suffix + prefix (Swift/HIT, etc.) dice stats: literal threshold shifts, same sign as INT milestones / FIFO HIT.
+            if (source is Character gearCharacter && gearCharacter is not Enemy)
+            {
+                int eqHit = gearCharacter.Equipment.GetEquipmentStatBonus("HIT", gearCharacter);
+                int eqCombo = gearCharacter.Equipment.GetEquipmentStatBonus("COMBO", gearCharacter);
+                int eqCrit = gearCharacter.Equipment.GetEquipmentStatBonus("CRIT", gearCharacter);
+                if (eqHit != 0)
+                    thresholdManager.AdjustHitThreshold(gearCharacter, eqHit);
+                if (eqCombo != 0)
+                    thresholdManager.AdjustComboThreshold(gearCharacter, eqCombo);
+                if (eqCrit != 0)
+                    thresholdManager.AdjustCriticalHitThreshold(gearCharacter, eqCrit);
+            }
+
             result.SelectedAction = forcedAction ?? ActionSelector.SelectActionByEntityType(source);
             if (result.SelectedAction == null) return;
             lastUsedActions[source] = result.SelectedAction;

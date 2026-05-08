@@ -72,7 +72,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         /// <param name="stat">Plain stat line (e.g. "Speed: 0.81×").</param>
         /// <param name="displayedItem">Item this line belongs to; used for weapon stat comparison.</param>
         /// <param name="weaponSpeedBaseline">Other weapon for side-by-side compare: attack speed (lower total = faster) and damage (higher total = better). When null, speed/damage values use default styling.</param>
-        public static List<ColoredText> FormatStatLine(string stat, Item? displayedItem = null, WeaponItem? weaponSpeedBaseline = null)
+        /// <param name="armorComparisonBaseline">Other armor piece for equip comparison: higher armor = green, lower = red. Head/Chest/Legs/Feet only; when null or not armor, armor value uses default success styling.</param>
+        public static List<ColoredText> FormatStatLine(string stat, Item? displayedItem = null, WeaponItem? weaponSpeedBaseline = null, Item? armorComparisonBaseline = null)
         {
             var builder = new ColoredTextBuilder();
             builder.Add("    ", Colors.White);
@@ -83,7 +84,19 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 if (parts.Length == 2)
                 {
                     builder.Add("Armor: +", ColorPalette.Info);
-                    builder.Add(parts[1], ColorPalette.Success);
+                    if (TryGetArmorPieceTotal(displayedItem, out int mine) && TryGetArmorPieceTotal(armorComparisonBaseline, out int baseline))
+                    {
+                        if (mine > baseline)
+                            builder.Add(parts[1], ColorPalette.Success);
+                        else if (mine < baseline)
+                            builder.Add(parts[1], ColorPalette.Error);
+                        else
+                            builder.Add(parts[1], Colors.White);
+                    }
+                    else
+                    {
+                        builder.Add(parts[1], ColorPalette.Success);
+                    }
                 }
                 else
                 {
@@ -173,6 +186,28 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             }
             
             return builder.Build();
+        }
+
+        private static bool TryGetArmorPieceTotal(Item? item, out int armor)
+        {
+            armor = 0;
+            switch (item)
+            {
+                case HeadItem h:
+                    armor = h.GetTotalArmor();
+                    return true;
+                case ChestItem c:
+                    armor = c.GetTotalArmor();
+                    return true;
+                case LegsItem l:
+                    armor = l.GetTotalArmor();
+                    return true;
+                case FeetItem f:
+                    armor = f.GetTotalArmor();
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 }

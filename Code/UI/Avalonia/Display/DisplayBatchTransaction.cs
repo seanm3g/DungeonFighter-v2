@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia.Display
 {
@@ -11,7 +12,7 @@ namespace RPGGame.UI.Avalonia.Display
     public class DisplayBatchTransaction : IDisposable
     {
         private readonly CenterPanelDisplayManager? displayManager;
-        private readonly List<string> messages;
+        private readonly List<List<ColoredText>> lines;
         private bool disposed = false;
         private bool autoRender;
         
@@ -19,16 +20,25 @@ namespace RPGGame.UI.Avalonia.Display
         {
             this.displayManager = displayManager;
             this.autoRender = autoRender;
-            this.messages = new List<string>();
+            this.lines = new List<List<ColoredText>>();
         }
         
         /// <summary>
-        /// Adds a message to the batch
+        /// Adds a message to the batch (parsed for markup at insert time).
         /// </summary>
         public void Add(string message)
         {
             if (disposed) throw new ObjectDisposedException(nameof(DisplayBatchTransaction));
-            messages.Add(message);
+            lines.Add(ColoredTextParser.Parse(message ?? ""));
+        }
+        
+        /// <summary>
+        /// Adds pre-built colored segments without markup round-trip (preserves exact RGB, e.g. creature names).
+        /// </summary>
+        public void Add(List<ColoredText> segments)
+        {
+            if (disposed) throw new ObjectDisposedException(nameof(DisplayBatchTransaction));
+            lines.Add(segments ?? new List<ColoredText>());
         }
         
         /// <summary>
@@ -37,7 +47,8 @@ namespace RPGGame.UI.Avalonia.Display
         public void AddRange(IEnumerable<string> messagesToAdd)
         {
             if (disposed) throw new ObjectDisposedException(nameof(DisplayBatchTransaction));
-            messages.AddRange(messagesToAdd);
+            foreach (var msg in messagesToAdd)
+                Add(msg);
         }
         
         /// <summary>
@@ -47,14 +58,10 @@ namespace RPGGame.UI.Avalonia.Display
         {
             if (disposed) return;
             
-            if (messages.Count > 0 && displayManager != null)
+            if (lines.Count > 0 && displayManager != null)
             {
-                // Use AddMessages which includes character validation checks
-                // This prevents background combat from adding messages to the display buffer
-                displayManager.AddMessages(messages);
+                displayManager.AddMessages(lines);
                 
-                // Note: AddMessages already triggers render, but we check autoRender here
-                // in case the behavior changes in the future
                 if (autoRender)
                 {
                     displayManager.TriggerRender();
@@ -65,4 +72,3 @@ namespace RPGGame.UI.Avalonia.Display
         }
     }
 }
-
