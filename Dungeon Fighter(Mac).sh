@@ -19,6 +19,12 @@ cleanup() {
     exit "$1"
 }
 
+# True if this game is already running. Do NOT use pgrep -f "DF" — it matches many
+# unrelated processes (e.g. any command line containing the substring "PDF").
+df_game_running() {
+    pgrep -f 'DF\.dll' >/dev/null 2>&1
+}
+
 # Check for .NET 8.0 SDK
 if ! command -v dotnet &> /dev/null; then
     echo "Installing .NET 8.0 SDK..."
@@ -44,7 +50,7 @@ else
 fi
 
 # Check if game is already running
-if pgrep -f "DF" > /dev/null; then
+if df_game_running; then
     echo "Game is already running!"
     cleanup 1
 fi
@@ -67,8 +73,8 @@ cd "$SCRIPT_DIR" || cleanup 1
 # Wait a moment for game to start
 sleep 2
 
-# Check if game is running (look for dotnet process running the game)
-if ! pgrep -f "dotnet.*Code.csproj" > /dev/null && ! pgrep -f "DF" > /dev/null; then
+# Check if game is running (dotnet exec .../DF.dll per AssemblyName in Code.csproj)
+if ! df_game_running; then
     echo "ERROR: Game failed to start!"
     echo "Trying to run in foreground to see errors..."
     cd "$SCRIPT_DIR/Code" || cleanup 1

@@ -165,9 +165,14 @@ chmod +x "Dungeon Fighter(Mac).sh"
    dotnet restore Code/Code.csproj
    ```
 
+### Issue: "Game is already running!" but no game window (false positive)
+**Cause:** Older launcher scripts used `pgrep` on the letters `DF`, which also matches unrelated processes (for example anything with `PDF` in the command line).
+
+**Solution:** Use the current `Dungeon Fighter(Mac).sh` / `.command`, which detects the real process via `DF\.dll` (the game assembly name).
+
 ### Issue: Game window doesn't appear
 **Solution:**
-- Check if the process is running: `ps aux | grep DF`
+- Check if the process is running: `ps aux | grep 'DF\.dll'`
 - Try running in foreground to see errors:
   ```bash
   dotnet run --project Code/Code.csproj
