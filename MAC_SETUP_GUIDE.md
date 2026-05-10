@@ -11,7 +11,15 @@ This guide provides the best methods to run the game on Mac.
 
 The project includes a ready-to-use launcher script that handles everything automatically.
 
-### Steps:
+### Double-click in Finder (recommended on a fresh Mac)
+
+macOS usually **opens `.sh` files as text** when you double-click them; it does **not** run them.
+
+Use **`Dungeon Fighter(Mac).command`** instead: double-click that file in Finder. macOS opens **Terminal** and runs the launcher. The first time, you may need to **right-click → Open** and confirm you trust the file (Gatekeeper).
+
+If double-click still does nothing, use Terminal (below).
+
+### Steps (Terminal):
 
 1. **Open Terminal** and navigate to the project directory:
    ```bash

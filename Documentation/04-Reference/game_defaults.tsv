@@ -1,0 +1,140 @@
+Category	Name	Default value	Notes
+Character	playerBaseHealth	60	Player max health at level 1 (TuningConfig: 0)
+Character	healthPerLevel	3	Health added per level (TuningConfig: 0)
+Character	enemyHealthPerLevel	0	Enemy health added per level; often 0 (uses scaling)
+Attributes	playerBaseAttributes.strength	3	Base STR at level 1 (TuningConfig: 0)
+Attributes	playerBaseAttributes.agility	3	Base AGI at level 1 (TuningConfig: 0)
+Attributes	playerBaseAttributes.technique	3	Base TEC at level 1 (TuningConfig: 0)
+Attributes	playerBaseAttributes.intelligence	3	Base INT at level 1 (TuningConfig: 0)
+Attributes	playerAttributesPerLevel	2	Attribute points added per level (TuningConfig: 0)
+Attributes	enemyAttributesPerLevel	2	Enemy attribute gain per level (TuningConfig: 0)
+Attributes	enemyPrimaryAttributeBonus	1	(TuningConfig: 0)
+Attributes	intelligenceRollBonusPer	10	(TuningConfig: 0)
+Progression	baseXPToLevel2	100	(TuningConfig: 0)
+Progression	xpScalingFactor	1.5	(TuningConfig: 0)
+Progression	enemyXPBase	10	Base XP in XP and reward formulas (TuningConfig: 0)
+Progression	enemyXPPerLevel	5	XP added per enemy level (TuningConfig: 0)
+Progression	enemyGoldBase	5	Base gold per enemy (TuningConfig: 0)
+Progression	enemyGoldPerLevel	3	Gold added per enemy level (TuningConfig: 0)
+Class balance	classBalance.barbarian.healthMultiplier	0	
+Class balance	classBalance.barbarian.damageMultiplier	0	
+Class balance	classBalance.barbarian.speedMultiplier	0	
+Class balance	classBalance.warrior.healthMultiplier	0	
+Class balance	classBalance.warrior.damageMultiplier	0	
+Class balance	classBalance.warrior.speedMultiplier	0	
+Class balance	classBalance.rogue.healthMultiplier	0	
+Class balance	classBalance.rogue.damageMultiplier	0	
+Class balance	classBalance.rogue.speedMultiplier	0	
+Class balance	classBalance.wizard.healthMultiplier	0	
+Class balance	classBalance.wizard.damageMultiplier	0	
+Class balance	classBalance.wizard.speedMultiplier	0	
+Combat	criticalHitThreshold	20	Roll ≥ this = critical hit
+Combat	criticalHitMultiplier	1.35	
+Combat	minimumDamage	1	Floor for final damage after armor
+Combat	baseAttackTime	10	Base attack time (seconds)
+Combat	agilitySpeedReduction	0.1	
+Combat	minimumAttackTime	0.5	
+Combat	agilityMin	1	Agility range for speed curve
+Combat	agilityMax	100	Agility range for speed curve
+Combat	agilityMinSpeedMultiplier	0.95	Speed multiplier at min agility
+Combat	agilityMaxSpeedMultiplier	0.7	Speed multiplier at max agility
+Combat balance	criticalHitChance	0.05	
+Combat balance	criticalHitDamageMultiplier	1.5	Damage when roll ≥ crit threshold
+Combat balance	rollDamageMultipliers.comboRollDamageMultiplier	1.1	
+Combat balance	rollDamageMultipliers.basicRollDamageMultiplier	1	
+Combat balance	rollDamageMultipliers.comboAmplificationScalingMultiplier	1.5	
+Combat balance	rollDamageMultipliers.tierScalingFallbackMultiplier	1	
+Roll system	rollSystem.missThreshold.min	1	(TuningConfig: 0)
+Roll system	rollSystem.missThreshold.max	5	Roll > this = hit; 6+ hits (TuningConfig: 0)
+Roll system	rollSystem.basicAttackThreshold.min	6	(TuningConfig: 0)
+Roll system	rollSystem.basicAttackThreshold.max	13	(TuningConfig: 0)
+Roll system	rollSystem.comboThreshold.min	14	(TuningConfig: 0)
+Roll system	rollSystem.comboThreshold.max	19	(TuningConfig: 0)
+Roll system	rollSystem.criticalThreshold	20	(TuningConfig: 0)
+Enemy baseline	enemyBaseline.health	50	Level-1 enemy baseline
+Enemy baseline	enemyBaseline.strength	3	
+Enemy baseline	enemyBaseline.agility	3	
+Enemy baseline	enemyBaseline.technique	3	
+Enemy baseline	enemyBaseline.intelligence	3	
+Enemy baseline	enemyBaseline.armor	2	
+Enemy system	enemySystem.baselineStats	health 50, str 3, agi 3, tec 3, int 3, armor 2	Same as enemyBaseline
+Enemy system	enemySystem.globalMultipliers.healthMultiplier	1.5	
+Enemy system	enemySystem.globalMultipliers.damageMultiplier	1	
+Enemy system	enemySystem.globalMultipliers.armorMultiplier	1	
+Enemy system	enemySystem.globalMultipliers.speedMultiplier	1	
+Enemy system	enemySystem.scalingPerLevel.health	5	Health added per enemy level (typical patch: 3)
+Enemy system	enemySystem.scalingPerLevel.attributes	0	Typical patch: 2
+Enemy system	enemySystem.scalingPerLevel.armor	0	Typical patch: 0.1
+Enemy system	enemySystem.levelVariance	1	
+Starting gear (weapons)	Mace.damage	7.5	
+Starting gear (weapons)	Mace.attackSpeed	0.8	
+Starting gear (weapons)	Sword.damage	6.25	
+Starting gear (weapons)	Sword.attackSpeed	1	
+Starting gear (weapons)	Dagger.damage	3.75	
+Starting gear (weapons)	Dagger.attackSpeed	1.4	
+Starting gear (weapons)	Wand.damage	5	
+Starting gear (weapons)	Wand.attackSpeed	1.1	
+Starting gear (armor)	Leather Helmet (Head).armor	0	
+Starting gear (armor)	Leather Armor (Chest).armor	0	
+Starting gear (armor)	Leather Boots (Feet).armor	0	
+Dungeon scaling	roomCountBase	2	
+Dungeon scaling	roomCountPerLevel	0.5	
+Dungeon scaling	enemyCountPerRoom	2	
+Dungeon scaling	bossRoomChance	0.1	
+Dungeon scaling	trapRoomChance	0.2	
+Dungeon scaling	treasureRoomChance	0.15	
+Dungeon generation	minRooms	2	
+Dungeon generation	roomCountScaling	0.5	
+Dungeon generation	hostileRoomChance	0.8	
+Dungeon generation	defaultTheme	Forest	
+Dungeon generation	defaultRoomType	Chamber	
+Dungeon generation	defaultDungeonLevels	5	
+Dungeon generation	defaultRoomCount	3	
+Dungeon generation	defaultCharacterName	Unknown	
+Loot / rarity	itemScaling.globalDamageMultiplier	1	
+Loot / rarity	lootSystem.rarityUpgrade.baseUpgradeChance	0.05	
+Loot / rarity	lootSystem.rarityUpgrade.upgradeChanceDecayPerTier	0.5	
+Loot / rarity	lootSystem.rarityUpgrade.maxUpgradeTiers	6	
+Modification rarity	modificationRarity.common	35	Percentage
+Modification rarity	modificationRarity.uncommon	25	
+Modification rarity	modificationRarity.rare	20	
+Modification rarity	modificationRarity.epic	12	
+Modification rarity	modificationRarity.legendary	6	
+Modification rarity	modificationRarity.mythic	1.8	
+Modification rarity	modificationRarity.transcendent	0.2	
+Modification rarity	tierBonusPerLevel	1.5	
+Modification rarity	bonusPointEffectiveness	1	
+Difficulty	easy.enemyHealthMultiplier	0	
+Difficulty	easy.enemyDamageMultiplier	0	
+Difficulty	easy.xpMultiplier	0	
+Difficulty	easy.lootMultiplier	0	
+Difficulty	normal.enemyHealthMultiplier	0	
+Difficulty	normal.enemyDamageMultiplier	0	
+Difficulty	normal.xpMultiplier	0	
+Difficulty	normal.lootMultiplier	0	
+Difficulty	hard.enemyHealthMultiplier	0	
+Difficulty	hard.enemyDamageMultiplier	0	
+Difficulty	hard.xpMultiplier	0	
+Difficulty	hard.lootMultiplier	0	
+Balance tuning goals	winRate.minTarget	85	
+Balance tuning goals	winRate.maxTarget	98	
+Balance tuning goals	combatDuration.minTarget	8	
+Balance tuning goals	combatDuration.maxTarget	15	
+Balance tuning goals	weaponBalance.maxVariance	10	
+Balance tuning goals	enemyDifferentiation.minVariance	3	
+Balance tuning goals	qualityWeights.winRateWeight	0.4	
+Balance tuning goals	qualityWeights.durationWeight	0.25	
+Balance tuning goals	qualityWeights.weaponBalanceWeight	0.2	
+Balance tuning goals	qualityWeights.enemyDiffWeight	0.15	
+XP rewards (dungeon)	dungeonCompletionBonus.baseBonus	0	
+XP rewards (dungeon)	dungeonCompletionBonus.bonusPerRoom	0	
+XP rewards (dungeon)	dungeonCompletionBonus.levelDifferenceMultiplier	0	
+Status effects (scaling)	statusEffectScaling.bleedDuration	3	(TuningConfig: 0)
+Status effects (scaling)	statusEffectScaling.poisonDuration	5	(TuningConfig: 0)
+Status effects (scaling)	statusEffectScaling.stunDuration	2	(TuningConfig: 0)
+Status effects (scaling)	statusEffectScaling.burnDuration	4	(TuningConfig: 0)
+Status effects (scaling)	statusEffectScaling.freezeDuration	3	(TuningConfig: 0)
+Status effects (scaling)	statusEffectScaling.statusEffectDamageScaling	1	(TuningConfig: 0)
+Combo system	comboAmplifierAtTech5	1.05	(TuningConfig: 0)
+Combo system	comboAmplifierMax	2	(TuningConfig: 0)
+Combo system	comboAmplifierMaxTech	100	(TuningConfig: 0)

@@ -1,0 +1,51 @@
+Variable	Description	Source
+base	Player base attribute (Strength, Agility, Technique, or Intelligence) at level 1	attributes.playerBaseAttributes (per stat)
+level	Character or enemy level (1-based integer)	Game state
+attributesPerLevel	Flat amount added to each attribute per player level	attributes.playerAttributesPerLevel
+baseHealth	Player base max health at level 1	character.playerBaseHealth
+healthPerLevel	Flat amount added to player max health per level	character.healthPerLevel
+MaxHealth	Character base max health before equipment (baseHealth + (level - 1) × healthPerLevel)	Computed
+equipmentHealthBonus	Bonus max health from equipped armor/gear	From equipment
+Primary stat	The attribute that gets +3 on level-up; determined by equipped weapon (Mace→STR, Sword→AGI, Dagger→TEC, Wand→INT)	Weapon type
+classHealthMultiplier	Multiplier applied to healthPerLevel on level-up by class (Barbarian, Warrior, Rogue, Wizard)	classBalance.<class>.healthMultiplier
+Level	Character level used in XP formulas (same as level)	Game state
+EnemyXPBase	Base XP value used in XP-to-next-level and dungeon reward formulas	progression.enemyXPBase
+baseline	Enemy baseline stats at level 1: Health, Strength, Agility, Technique, Intelligence, Armor	enemySystem.baselineStats
+archetype	Per-archetype multipliers for each stat (Berserker, Guardian, Assassin, Brute, Mage)	enemySystem.archetypes.<name> (Health, Strength, Agility, Technique, Intelligence, Armor)
+overrides	Per-enemy stat multipliers from Enemies.json (health, strength, agility, technique, intelligence, armor)	Enemy data Overrides
+globalMultipliers	Global multipliers applied to all enemies after scaling: HealthMultiplier, DamageMultiplier, ArmorMultiplier, SpeedMultiplier	enemySystem.globalMultipliers
+scaling	Per-level scaling for enemies: Health, Attributes (all four), Armor	enemySystem.scalingPerLevel
+baseHealth (enemy)	Enemy base health at level 1 = (baseline.Health × archetype.Health × overrides.Health)	Computed in EnemyDataFactory
+baseStat	Enemy base attribute at level 1 = (baseline × archetype × overrides) for STR/AGI/TEC/INT	Computed in EnemyDataFactory
+baseArmor	Enemy base armor at level 1 = (baseline.Armor × archetype.Armor × overrides.Armor)	Computed in EnemyDataFactory
+EnemyGoldBase	Base gold reward for defeating an enemy	progression.enemyGoldBase
+EnemyGoldPerLevel	Gold added to reward per enemy level	progression.enemyGoldPerLevel
+EnemyXPPerLevel	XP added to per-enemy XP reward per level	progression.enemyXPPerLevel
+effectiveSTR	Attacker effective strength (base + temp bonuses + equipment + modifications)	Computed (GetEffectiveStrength)
+weaponDamage	Total damage from equipped weapon (base + modifications)	weapon.GetTotalDamage()
+equipmentDamageBonus	Bonus damage from equipped gear	From equipment
+modificationDamageBonus	Bonus damage from modifications	From modifications
+actionMult	Action damage multiplier for the current action	action.DamageMultiplier
+comboMult	Combo amplifier (e.g. from combo state)	Computed
+damageMult	Other damage multiplier (e.g. from effects or parameters)	Parameter / effects
+roll	Dice roll value (e.g. 1–20) used for hit/combo/crit and damage tier	Game state
+CriticalHitDamageMultiplier	Damage multiplier when roll ≥ critical hit threshold	combatBalance.criticalHitDamageMultiplier (or rollDamageMultipliers)
+ComboRollDamageMultiplier	Damage multiplier when roll in combo range	combatBalance.rollDamageMultipliers.comboRollDamageMultiplier
+BasicRollDamageMultiplier	Damage multiplier for basic hit (normal roll range)	combatBalance.rollDamageMultipliers.basicRollDamageMultiplier
+criticalHitThreshold	Minimum roll for critical hit (default 20)	combat.criticalHitThreshold
+minimumDamage	Floor for final damage after armor	combat.minimumDamage
+totalDamage	Raw damage before armor reduction (output of raw damage formula)	Computed
+targetArmor	Target armor value (flat reduction)	enemy.Armor or character.GetTotalArmor()
+baseAttackTime	Base attack time in seconds before agility/equipment	combat.baseAttackTime
+speedMultiplier	Multiplier from agility: lerp(agilityMinSpeed, agilityMaxSpeed, progress)	Computed from agility and config
+agility	Actor agility (used for speed calculation)	GetEffectiveAgility()
+agilityMin	Minimum agility value for speed curve clamp	combat.agilityMin
+agilityMax	Maximum agility value for speed curve clamp	combat.agilityMax
+agilityMinSpeedMultiplier	Speed multiplier at minimum agility (slower attacks)	combat.agilityMinSpeedMultiplier
+agilityMaxSpeedMultiplier	Speed multiplier at maximum agility (faster attacks)	combat.agilityMaxSpeedMultiplier
+weaponSpeedModifier	Weapon base attack speed modifier (added to time; negative = faster)	weapon.BaseAttackSpeed
+equipmentSpeedBonus	Reduction to attack time from equipment	From equipment
+HitThreshold	Maximum roll that still counts as miss; roll > HitThreshold = hit (default 5 → 6+ hits)	rollSystem.missThreshold.max
+ComboThreshold	Minimum roll for combo tier	rollSystem.comboThreshold.min
+CriticalHitThreshold	Minimum roll for critical hit (same as criticalHitThreshold)	combat.criticalHitThreshold
+player.Level	Player character level (in dungeon XP reward)	Game state

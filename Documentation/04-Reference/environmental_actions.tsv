@@ -1,0 +1,8 @@
+Id	Name	Theme	Room type	Type	Damage multiplier	Length	Description	Causes stun	Causes bleed	Causes weaken	Causes slow	Causes poison
+forest_branch	Falling Branch	Forest		Debuff	1.3	2.0	A heavy branch falls from the forest canopy, stunning all combatants	true	false	false	false	false
+forest_vines	Thorn Vines	Forest		Debuff	1.0	3.0	Thorny vines entangle and slow all combatants	false	false	false	true	false
+lava_splash	Lava Splash	Lava		Debuff	1.3	2.0	Molten lava splashes from nearby flows, burning all combatants	false	true	false	false	false
+lava_steam	Steam Burst	Lava		Debuff	1.0	3.0	Scalding steam erupts from the ground, weakening all combatants	false	false	true	false	false
+graveyard_rising	Rising Dead	Graveyard		Debuff	1.0	3.0	Undead hands from the graveyard grab and slow all combatants	false	false	false	true	false
+ruins_curse	Ancient Curse	Ruins		Debuff	1.0	3.0	Ancient magic from the ruins weakens all who disturb them	false	false	true	false	false
+room_chamber_curse	Ancient Curse		Chamber	Debuff	1.0	3.0	Ancient chamber curse weakens all who enter	false	false	true	false	false

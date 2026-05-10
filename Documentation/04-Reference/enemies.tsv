@@ -1,0 +1,10 @@
+Name	Archetype	Health (override)	Strength	Agility	Technique	Intelligence	Armor	Health per level	Attributes per level	Armor per level	Actions	Living	Description
+Goblin	Assassin	0.85	1.05	1.2	1.1	0.9	0.6	5	0	0	JAB, TAUNT	true	A quick and cunning creature that strikes from the shadows
+Spider	Assassin	0.5	0.9	1.6	1.4	0.8	0.7	5	0	0	WEB STRIKE, POISON BITE	true	A large forest spider with venomous fangs - extremely fast, fragile
+Wolf	Berserker	1.15	1.25	1.3	1	0.8	0.7	5	0	0	BITE, HOWL	true	A swift predator that hunts in packs - balanced attacker
+Fire Elemental	Mage	0.75	0.7	1.1	1.3	1.5	0.4	5	0	0	FIRE BOLT, IGNITE	false	A being of pure flame with magical powers - high damage caster
+Lava Golem	Brute	1.4	1.2	0.5	0.8	0.9	1.3	5	0	0	MAGMA FIST, ERUPTION	false	A massive construct of molten rock and metal - slow tank with high damage
+Bat	Assassin	0.4	0.8	1.7	1.3	0.9	0.2	5	0	0	BAT SWARM, QUICK STRIKE	true	A flying bat that attacks in swarms - ultra-fast but very fragile
+Skeleton	Guardian	0.9	0.8	0.6	0.8	0.7	1.4	5	0	0	BONE STRIKE, RATTLE	false	An undead warrior with bony armor - protected but fragile bones
+Zombie	Brute	1.1	1	0.6	0.7	0.5	0.7	5	0	0	CLAW, GROAN	false	A shambling undead - durable but slow and decaying
+Wraith	Mage	0.65	0.7	1.3	1.2	1.6	0.3	5	0	0	SOUL DRAIN, PHASE	false	A spectral being with powerful magic - fast magical caster
