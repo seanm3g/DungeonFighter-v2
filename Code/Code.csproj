@@ -35,6 +35,8 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Google.Apis.Sheets.v4" Version="1.73.0.4061" />
     <PackageReference Include="Google.Apis.Auth" Version="1.73.0" />
+    <!-- Cross-platform audio engine (MiniAudio backend bundled, MIT license) -->
+    <PackageReference Include="SoundFlow" Version="1.4.0" />
   </ItemGroup>
 
 </Project>

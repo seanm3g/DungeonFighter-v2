@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using RPGGame;
+using RPGGame.Audio;
 using DungeonFighter.Game.Menu.Core;
 using Action = System.Action;
 
@@ -46,6 +47,10 @@ namespace RPGGame.GameCore.Input
         /// </summary>
         public Task HandleEscapeKey()
         {
+            // Single "menu back" SFX fires for every Escape that ends up transitioning. Tradeup
+            // and other early-returns below skip the SFX naturally because they happen before
+            // any state change. No-op if the cue is unbound.
+            AudioCues.Trigger(AudioCue.Menu_Back);
             switch (stateManager.CurrentState)
             {
                 case GameState.Inventory:

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Audio;
 using RPGGame.Combat.Calculators;
 
 namespace RPGGame
@@ -44,6 +45,7 @@ namespace RPGGame
 
             DamageCalculator.InvalidateCache(_character);
 
+            AudioCues.Trigger(AudioCue.Loot_Equip);
             return true;
         }
 
@@ -87,7 +89,9 @@ namespace RPGGame
             
             // Invalidate damage cache since equipment changed
             DamageCalculator.InvalidateCache(_character);
-            
+
+            if (unequippedItem != null)
+                AudioCues.Trigger(AudioCue.Loot_Unequip);
             return unequippedItem;
         }
 

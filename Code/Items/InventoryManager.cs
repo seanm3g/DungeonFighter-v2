@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Audio;
 
 namespace RPGGame
 {
@@ -83,6 +84,7 @@ namespace RPGGame
         public void AddItem(Item item)
         {
             inventory.Add(item);
+            AudioCues.Trigger(AudioCue.Loot_ItemPickup);
         }
 
         /// <summary>

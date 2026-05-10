@@ -1,5 +1,6 @@
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.Audio;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Feedback;
@@ -137,6 +138,19 @@ namespace RPGGame.UI.Avalonia.Handlers
                         // Initialize the game with canvas UI
                         game = new GameCoordinator(canvasUIManager);
                         game.SetUIManager(canvasUIManager);
+
+                        // Wire up the audio system once the GameStateManager exists so the music controller
+                        // reacts to state changes (MainMenu / Dungeon / Combat / Death / etc.) and the cue
+                        // dispatcher is subscribed to the combat event bus. Silent fallback if the audio
+                        // backend cannot initialize (e.g. headless CI).
+                        try
+                        {
+                            AudioBootstrap.Initialize(game.StateManager);
+                        }
+                        catch (Exception ex)
+                        {
+                            DebugLogger.Log("GameInitializationHandler", $"AudioBootstrap.Initialize threw: {ex.Message}");
+                        }
 
                         // Set the game reference in CanvasUICoordinator so it can access handlers for interactive panels
                         if (canvasUIManager is CanvasUICoordinator canvasUIForGame)

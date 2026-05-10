@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Audio;
 using RPGGame.Combat.Calculators;
 using RPGGame.UI.ColorSystem.Applications;
 
@@ -53,6 +54,9 @@ namespace RPGGame
                 _character.Progression.LevelUp();
             }
             newLevel = displayedNewLevel ?? _character.Level;
+            // Fire level-up SFX. Covers every level-up path (direct LevelUp(), batch from AddXP,
+            // test scaffolding) because they all eventually call this method. No-op if unbound.
+            AudioCues.Trigger(AudioCue.Progression_LevelUp);
             
             _character.Stats.LevelUp((_character.Equipment.Weapon as WeaponItem)?.WeaponType ?? WeaponType.Mace);
             

@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using RPGGame.Audio;
 using RPGGame.Entity.Services;
 
 namespace RPGGame
@@ -34,6 +35,9 @@ namespace RPGGame
         public static void SaveCharacter(Character character, string? characterId = null, string? filename = null, bool markDead = false)
         {
             Service.SaveCharacter(character, characterId, filename, markDead);
+            // Fired after a save completes. The service path throws on hard failure, so reaching
+            // here means the save was successful. No-op if the cue is unbound.
+            AudioCues.Trigger(AudioCue.Loot_Save);
         }
 
         /// <summary>

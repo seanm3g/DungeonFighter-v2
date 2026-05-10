@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using RPGGame;
+using RPGGame.Audio;
 using RPGGame.UI.Avalonia;
 using RPGGame.Utils;
 using System;
@@ -52,6 +53,9 @@ namespace RPGGame.UI.Avalonia
                 // Also handle application exit as a fallback
                 desktop.Exit += (sender, e) =>
                 {
+                    // Release audio backend so MiniAudio device is closed cleanly before the process exits.
+                    try { AudioBootstrap.Shutdown(); } catch { /* shutdown must not throw */ }
+
                     // Close all settings windows on application exit
                     if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
                     {

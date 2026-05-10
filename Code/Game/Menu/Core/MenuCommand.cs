@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using RPGGame;
+using RPGGame.Audio;
 
 namespace DungeonFighter.Game.Menu.Core
 {
@@ -25,6 +26,9 @@ namespace DungeonFighter.Game.Menu.Core
                 if (context != null)
                 {
                     await ExecuteCommand(context);
+                    // Every menu command success path fires the same "menu select" SFX so the player
+                    // gets consistent feedback regardless of which command ran. No-op if the cue is unbound.
+                    AudioCues.Trigger(AudioCue.Menu_Select);
                 }
             }
             catch (Exception)

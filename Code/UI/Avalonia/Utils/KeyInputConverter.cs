@@ -9,6 +9,16 @@ namespace RPGGame.UI.Avalonia.Utils
     public static class KeyInputConverter
     {
         /// <summary>
+        /// True for Ctrl+C (Windows/Linux) or Cmd+C (macOS) — used to copy the combat log while combat UI is active.
+        /// </summary>
+        public static bool IsCombatLogCopyChord(Key key, KeyModifiers modifiers)
+        {
+            if (key != Key.C)
+                return false;
+            return modifiers.HasFlag(KeyModifiers.Control) || modifiers.HasFlag(KeyModifiers.Meta);
+        }
+
+        /// <summary>
         /// Converts an Avalonia Key with modifiers to a game input string.
         /// Supports Shift+Up/Down for page scrolling (pageup/pagedown).
         /// </summary>

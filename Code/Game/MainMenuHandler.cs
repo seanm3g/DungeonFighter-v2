@@ -3,6 +3,7 @@ namespace RPGGame
     using System;
     using System.Threading.Tasks;
     using Avalonia.Threading;
+    using RPGGame.Audio;
     using RPGGame.UI.Avalonia;
     using RPGGame.Utils;
     using RPGGame.Combat.Events;
@@ -116,6 +117,7 @@ namespace RPGGame
                     HandleQuitSelection();
                     break;
                 default:
+                    AudioCues.Trigger(AudioCue.Menu_Invalid);
                     ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Settings), or 0 (Quit).");
                     break;
             }

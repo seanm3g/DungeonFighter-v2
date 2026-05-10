@@ -6,6 +6,7 @@ namespace RPGGame
     using System.Linq;
     using System.Text.Json;
     using Avalonia.Media;
+    using RPGGame.Audio;
     using RPGGame.Display.Dungeon;
     using RPGGame.GameCore.Display.Helpers;
     using RPGGame.UI;
@@ -119,6 +120,8 @@ namespace RPGGame
                 // Character is not active - don't start dungeon (another character's dungeon is still running)
                 return;
             }
+
+            AudioCues.Trigger(AudioCue.Dungeon_Enter);
 
             // Clear all previous information
             ClearAll();

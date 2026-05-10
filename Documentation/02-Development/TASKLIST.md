@@ -6,6 +6,20 @@
 
 ## Recent Completions ✅
 
+### 📋 Combat log copy shortcut (May 10, 2026)
+
+**Status:** ✅ Complete  
+**Feature:** During active combat UI, **Ctrl+C** / **Cmd+C** copies plain combat log text (full display buffer) to the system clipboard; canvas status feedback; overlays (settings/tuning) suppress the shortcut.
+
+#### Implementation Summary
+- [x] `KeyInputConverter.IsCombatLogCopyChord`
+- [x] `MainWindow.OnKeyDown` → `ClipboardHelper.CopyDisplayBufferToClipboard` with `UpdateStatus` callback
+- [x] `ClipboardHelper` optional `statusCallback` (UI-thread) for canvas status when no `TextBlock`
+- [x] Unit tests: `KeyInputConverterTests`, wired in `UISystemTestRunner`
+- [x] `OVERVIEW.md` combat log bullet updated
+
+---
+
 ### 📋 Per-Action Panels in Action Strip with Selection Highlight (February 10, 2026)
 
 **Status:** ✅ Complete  

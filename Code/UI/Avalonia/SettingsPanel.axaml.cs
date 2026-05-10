@@ -101,6 +101,7 @@ namespace RPGGame.UI.Avalonia
             // Initialize panel handler registry
             panelHandlerRegistry = new PanelHandlerRegistry();
             panelHandlerRegistry.Register(new GameplayPanelHandler(settings, settingsManager, ShowStatusMessage));
+            panelHandlerRegistry.Register(new AudioPanelHandler());
             panelHandlerRegistry.Register(new TextDelaysPanelHandler(settingsManager));
             panelHandlerRegistry.Register(new AppearancePanelHandler(settings, colorManager));
             panelHandlerRegistry.Register(new Managers.Settings.PanelHandlers.ClassesPanelHandler(ShowStatusMessage));

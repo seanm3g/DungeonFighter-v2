@@ -1,0 +1,57 @@
+{
+  "masterVolume": 1.0,
+  "musicVolume": 0.7,
+  "sfxVolume": 0.9,
+  "musicEnabled": true,
+  "sfxEnabled": true,
+  "musicCrossfadeMs": 200,
+  "cueMap": {
+    "Music_MainMenu":            { "file": "", "volume": 1.0 },
+    "Music_WeaponSelection":     { "file": "", "volume": 1.0 },
+    "Music_CharacterCreation":   { "file": "", "volume": 1.0 },
+    "Music_Inventory":           { "file": "", "volume": 1.0 },
+    "Music_DungeonSelection":    { "file": "", "volume": 1.0 },
+    "Music_Dungeon":             { "file": "", "volume": 1.0 },
+    "Music_Combat":              { "file": "", "volume": 1.0 },
+    "Music_DungeonCompletion":   { "file": "", "volume": 1.0 },
+    "Music_Death":               { "file": "", "volume": 1.0 },
+    "Music_TrainingGround":      { "file": "", "volume": 1.0 },
+
+    "Menu_Select":               { "file": "", "volume": 1.0 },
+    "Menu_Back":                 { "file": "", "volume": 1.0 },
+    "Menu_Invalid":              { "file": "", "volume": 1.0 },
+    "Menu_Confirm":              { "file": "", "volume": 1.0 },
+    "Menu_Hover":                { "file": "", "volume": 1.0, "rateLimitMs": 60 },
+
+    "Combat_Hit":                { "file": "", "volume": 1.0, "rateLimitMs": 80 },
+    "Combat_Miss":               { "file": "", "volume": 1.0 },
+    "Combat_Critical":           { "file": "", "volume": 1.0 },
+    "Combat_ComboComplete":      { "file": "", "volume": 1.0 },
+    "Combat_EnemyDied":          { "file": "", "volume": 1.0 },
+    "Combat_HeroHurt":           { "file": "", "volume": 1.0 },
+    "Combat_StatusApplied":      { "file": "", "volume": 1.0, "rateLimitMs": 120 },
+
+    "Progression_LevelUp":       { "file": "", "volume": 1.0 },
+    "Progression_XpGain":        { "file": "", "volume": 0.6, "rateLimitMs": 200 },
+    "Loot_ItemPickup":           { "file": "", "volume": 1.0 },
+    "Loot_Equip":                { "file": "", "volume": 1.0 },
+    "Loot_Unequip":              { "file": "", "volume": 1.0 },
+    "Loot_Save":                 { "file": "", "volume": 1.0 },
+
+    "Dungeon_Enter":             { "file": "", "volume": 1.0 },
+    "Dungeon_Exit":              { "file": "", "volume": 1.0 },
+    "Dungeon_RoomClear":         { "file": "", "volume": 1.0 }
+  },
+  "stateMusicMap": {
+    "MainMenu":           "Music_MainMenu",
+    "WeaponSelection":    "Music_WeaponSelection",
+    "CharacterCreation":  "Music_CharacterCreation",
+    "Inventory":          "Music_Inventory",
+    "DungeonSelection":   "Music_DungeonSelection",
+    "Dungeon":            "Music_Dungeon",
+    "Combat":             "Music_Combat",
+    "DungeonCompletion":  "Music_DungeonCompletion",
+    "Death":              "Music_Death",
+    "TrainingGroundOffer": "Music_TrainingGround"
+  }
+}

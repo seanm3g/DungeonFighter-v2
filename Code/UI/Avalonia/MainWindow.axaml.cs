@@ -7,6 +7,7 @@ using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Helpers;
 using RPGGame.UI.Avalonia.Handlers;
+using RPGGame.UI.Avalonia.Utils;
 using RPGGame.Utils;
 using System;
 using System.Threading.Tasks;
@@ -71,6 +72,18 @@ namespace RPGGame.UI.Avalonia
                 if (inputHandler == null)
                 {
                     inputHandler = new MainWindowInputHandler(initializationHandler.Game);
+                }
+
+                // Combat log: Ctrl+C or Cmd+C copies plain text from the center display buffer (full log in buffer, including scrolled-out lines).
+                if (KeyInputConverter.IsCombatLogCopyChord(e.Key, e.KeyModifiers)
+                    && SettingsPanelOverlay?.IsVisible != true
+                    && TuningPanelOverlay?.IsVisible != true
+                    && initializationHandler.CanvasUIManager is CanvasUICoordinator canvasForCopy
+                    && canvasForCopy.IsCombatDisplayActive())
+                {
+                    e.Handled = true;
+                    await ClipboardHelper.CopyDisplayBufferToClipboard(canvasForCopy, this, null, UpdateStatus);
+                    return;
                 }
 
                 // Handle special keys first
@@ -171,13 +184,10 @@ namespace RPGGame.UI.Avalonia
 
         private async Task CopyCenterPanelToClipboard()
         {
-            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI) {
-                await ClipboardHelper.CopyDisplayBufferToClipboard(canvasUI, this, null);
-            }
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+                await ClipboardHelper.CopyDisplayBufferToClipboard(canvasUI, this, null, UpdateStatus);
             else
-            {
                 UpdateStatus("Canvas UI not available");
-            }
         }
 
         /// <summary>

@@ -1,25 +1,26 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj": {}
+    "/Users/seangreen/Documents/GitHub/DungeonFighter-v2/Code/Code.csproj": {}
   },
   "projects": {
-    "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj": {
+    "/Users/seangreen/Documents/GitHub/DungeonFighter-v2/Code/Code.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj",
+        "projectUniqueName": "/Users/seangreen/Documents/GitHub/DungeonFighter-v2/Code/Code.csproj",
         "projectName": "DF",
-        "projectPath": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj",
-        "packagesPath": "C:\\Users\\Seanye\\.nuget\\packages\\",
-        "outputPath": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\obj\\",
+        "projectPath": "/Users/seangreen/Documents/GitHub/DungeonFighter-v2/Code/Code.csproj",
+        "packagesPath": "/Users/seangreen/.nuget/packages/",
+        "outputPath": "/Users/seangreen/Documents/GitHub/DungeonFighter-v2/Code/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Seanye\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/Users/seangreen/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "/Users/seangreen/.dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -78,6 +79,10 @@
             "ModelContextProtocol": {
               "target": "Package",
               "version": "[0.5.0-preview.1, )"
+            },
+            "SoundFlow": {
+              "target": "Package",
+              "version": "[1.4.0, )"
             }
           },
           "imports": [
@@ -96,7 +101,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.407/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/Users/seangreen/.dotnet/sdk/8.0.411/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

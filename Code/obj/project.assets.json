@@ -1255,6 +1255,88 @@
           }
         }
       },
+      "SoundFlow/1.4.0": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/SoundFlow.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/SoundFlow.dll": {
+            "related": ".xml"
+          }
+        },
+        "contentFiles": {
+          "contentFiles/any/net8.0/STATEMENT.md": {
+            "buildAction": "Content",
+            "codeLanguage": "any",
+            "copyToOutput": false
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/android-arm/native/libminiaudio.so": {
+            "assetType": "native",
+            "rid": "android-arm"
+          },
+          "runtimes/android-arm64/native/libminiaudio.so": {
+            "assetType": "native",
+            "rid": "android-arm64"
+          },
+          "runtimes/android-x64/native/libminiaudio.so": {
+            "assetType": "native",
+            "rid": "android-x64"
+          },
+          "runtimes/freebsd-arm64/native/libminiaudio.so": {
+            "assetType": "native",
+            "rid": "freebsd-arm64"
+          },
+          "runtimes/freebsd-x64/native/libminiaudio.so": {
+            "assetType": "native",
+            "rid": "freebsd-x64"
+          },
+          "runtimes/ios-arm64/native/miniaudio.framework/Info.plist": {
+            "assetType": "native",
+            "rid": "ios-arm64"
+          },
+          "runtimes/ios-arm64/native/miniaudio.framework/miniaudio": {
+            "assetType": "native",
+            "rid": "ios-arm64"
+          },
+          "runtimes/linux-arm/native/libminiaudio.so": {
+            "assetType": "native",
+            "rid": "linux-arm"
+          },
+          "runtimes/linux-arm64/native/libminiaudio.so": {
+            "assetType": "native",
+            "rid": "linux-arm64"
+          },
+          "runtimes/linux-x64/native/libminiaudio.so": {
+            "assetType": "native",
+            "rid": "linux-x64"
+          },
+          "runtimes/osx-arm64/native/libminiaudio.dylib": {
+            "assetType": "native",
+            "rid": "osx-arm64"
+          },
+          "runtimes/osx-x64/native/libminiaudio.dylib": {
+            "assetType": "native",
+            "rid": "osx-x64"
+          },
+          "runtimes/win-arm64/native/miniaudio.dll": {
+            "assetType": "native",
+            "rid": "win-arm64"
+          },
+          "runtimes/win-x64/native/miniaudio.dll": {
+            "assetType": "native",
+            "rid": "win-x64"
+          },
+          "runtimes/win-x86/native/miniaudio.dll": {
+            "assetType": "native",
+            "rid": "win-x86"
+          }
+        }
+      },
       "System.CodeDom/7.0.0": {
         "type": "package",
         "compile": {
@@ -3298,6 +3380,42 @@
         "skiasharp.nativeassets.win32.nuspec"
       ]
     },
+    "SoundFlow/1.4.0": {
+      "sha512": "PVc8NEpwmx16qJdOGRvc7Kpvs/3hNZBuldErmnMQSh9IClAA2UWrafcUIQUxki2GrWB2g71hPSDIUKEo3nRgeA==",
+      "type": "package",
+      "path": "soundflow/1.4.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "CONTRIBUTING.md",
+        "LICENSE.md",
+        "README.md",
+        "SOUNDFLOW-THIRD-PARTY-NOTICES.txt",
+        "SoundFlow.targets",
+        "content/STATEMENT.md",
+        "contentFiles/any/net8.0/STATEMENT.md",
+        "lib/net8.0/SoundFlow.dll",
+        "lib/net8.0/SoundFlow.xml",
+        "logo.png",
+        "runtimes/android-arm/native/libminiaudio.so",
+        "runtimes/android-arm64/native/libminiaudio.so",
+        "runtimes/android-x64/native/libminiaudio.so",
+        "runtimes/freebsd-arm64/native/libminiaudio.so",
+        "runtimes/freebsd-x64/native/libminiaudio.so",
+        "runtimes/ios-arm64/native/miniaudio.framework/Info.plist",
+        "runtimes/ios-arm64/native/miniaudio.framework/miniaudio",
+        "runtimes/linux-arm/native/libminiaudio.so",
+        "runtimes/linux-arm64/native/libminiaudio.so",
+        "runtimes/linux-x64/native/libminiaudio.so",
+        "runtimes/osx-arm64/native/libminiaudio.dylib",
+        "runtimes/osx-x64/native/libminiaudio.dylib",
+        "runtimes/win-arm64/native/miniaudio.dll",
+        "runtimes/win-x64/native/miniaudio.dll",
+        "runtimes/win-x86/native/miniaudio.dll",
+        "soundflow.1.4.0.nupkg.sha512",
+        "soundflow.nuspec"
+      ]
+    },
     "System.CodeDom/7.0.0": {
       "sha512": "GLltyqEsE5/3IE+zYRP5sNa1l44qKl9v+bfdMcwg+M9qnQf47wK3H0SUR/T+3N4JEQXF3vV4CSuuo0rsg+nq2A==",
       "type": "package",
@@ -3613,28 +3731,30 @@
       "Google.Apis.Auth >= 1.73.0",
       "Google.Apis.Sheets.v4 >= 1.73.0.4061",
       "Microsoft.Extensions.Hosting >= 8.0.0",
-      "ModelContextProtocol >= 0.5.0-preview.1"
+      "ModelContextProtocol >= 0.5.0-preview.1",
+      "SoundFlow >= 1.4.0"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Seanye\\.nuget\\packages\\": {}
+    "/Users/seangreen/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj",
+      "projectUniqueName": "/Users/seangreen/Documents/GitHub/DungeonFighter-v2/Code/Code.csproj",
       "projectName": "DF",
-      "projectPath": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj",
-      "packagesPath": "C:\\Users\\Seanye\\.nuget\\packages\\",
-      "outputPath": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\obj\\",
+      "projectPath": "/Users/seangreen/Documents/GitHub/DungeonFighter-v2/Code/Code.csproj",
+      "packagesPath": "/Users/seangreen/.nuget/packages/",
+      "outputPath": "/Users/seangreen/Documents/GitHub/DungeonFighter-v2/Code/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Seanye\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/Users/seangreen/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "/Users/seangreen/.dotnet/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -3693,6 +3813,10 @@
           "ModelContextProtocol": {
             "target": "Package",
             "version": "[0.5.0-preview.1, )"
+          },
+          "SoundFlow": {
+            "target": "Package",
+            "version": "[1.4.0, )"
           }
         },
         "imports": [
@@ -3711,7 +3835,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.407/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/Users/seangreen/.dotnet/sdk/8.0.411/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

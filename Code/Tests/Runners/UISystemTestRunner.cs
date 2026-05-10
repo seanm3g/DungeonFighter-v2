@@ -1,5 +1,6 @@
 using System;
 using RPGGame;
+using RPGGame.Tests.Unit.Audio;
 using RPGGame.Tests.Unit.Handlers.Inventory;
 using RPGGame.Tests.Unit.UI;
 using RPGGame.Tests.Unit.UI.TitleScreen;
@@ -39,6 +40,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             LeftPanelTooltipBuilderTests.RunAllTests();
             Console.WriteLine();
+            KeyInputConverterTests.RunAllTests();
+            Console.WriteLine();
             HeroNamePanelColoredTextTests.RunAllTests();
             Console.WriteLine();
             AnimalEnemyNameColoredTextTests.RunAllTests();
@@ -50,6 +53,8 @@ namespace RPGGame.Tests.Runners
             ActionInfoStripLayoutTests.RunAllTests();
             Console.WriteLine();
             HeroActionStripFeedbackTests.RunAllTests();
+            Console.WriteLine();
+            AudioCueDispatcherTests.RunAllTests();
             Console.WriteLine();
             ItemRendererHelperBlockedSlotTests.RunAllTests();
             Console.WriteLine();

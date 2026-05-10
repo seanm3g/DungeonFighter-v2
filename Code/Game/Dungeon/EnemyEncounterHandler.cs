@@ -6,6 +6,7 @@ namespace RPGGame
     using System.Threading.Tasks;
     using Avalonia.Media;
     using Avalonia.Threading;
+    using RPGGame.Audio;
     using RPGGame.GameCore.Helpers;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.ColorSystem;
@@ -173,6 +174,11 @@ namespace RPGGame
                     Progression.XPRewardSystem.AwardEnemyKillXP(player, enemy);
                 }
             }
+
+            // Each dungeon room currently contains a single enemy, so a confirmed win is also a
+            // room-clear event for audio purposes. CombatEventBus already fires Combat_EnemyDied
+            // for the per-enemy death sting; this is the longer "room complete" stinger.
+            AudioCues.Trigger(AudioCue.Dungeon_RoomClear);
             
             // Check for one-shot kill and scale dungeon level if needed
             if (playerWon && combatManager != null && combatManager.HadOneShotKill() && stateManager.CurrentDungeon != null)
