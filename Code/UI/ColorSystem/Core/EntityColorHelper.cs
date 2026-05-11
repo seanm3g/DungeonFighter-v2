@@ -116,13 +116,38 @@ namespace RPGGame.UI.ColorSystem
                 builder.Add(enemyName, GetEnemyColorByName(enemyName));
         }
 
-        /// <summary>Uses shaded creature names for enemies; other actors use existing actor color rules.</summary>
+        /// <summary>Uses shaded creature names for enemies; hero <see cref="Character"/> uses the
+        /// same per-glyph palette as the left HERO panel (<see cref="HeroNamePanelColoredText"/>) so the
+        /// combat log name matches the HUD; other actors fall back to <see cref="GetActorColor"/>.</summary>
         public static void AppendActorNameColored(ColoredTextBuilder builder, Actor actor)
         {
             if (actor is Enemy enemy)
+            {
                 AppendEnemyNameColored(builder, enemy);
-            else
-                builder.Add(actor.Name, GetActorColor(actor));
+                return;
+            }
+
+            if (actor is Character character)
+            {
+                AppendCharacterNameColored(builder, character);
+                return;
+            }
+
+            builder.Add(actor.Name, GetActorColor(actor));
+        }
+
+        /// <summary>Appends a hero <see cref="Character"/> name using the same palette as the left HERO
+        /// panel (per-glyph cycle for class-titled heroes; gold for the default Fighter display).</summary>
+        public static void AppendCharacterNameColored(ColoredTextBuilder builder, Character character)
+        {
+            builder.AddRange(BuildCharacterNameDisplaySegments(character));
+        }
+
+        /// <summary>Hero <see cref="Character"/> name segments matching the left HERO panel:
+        /// per-glyph palette while a class title is active, single gold segment otherwise.</summary>
+        public static List<ColoredText> BuildCharacterNameDisplaySegments(Character character)
+        {
+            return HeroNamePanelColoredText.BuildLeftPanelHeroNameSegments(character);
         }
         
         /// <summary>

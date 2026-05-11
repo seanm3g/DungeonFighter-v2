@@ -99,17 +99,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             displayBuilder.Add("] ", metaColor);
             displayBuilder.Add($"[{slotName}] ", slotColor);
 
-            // Weapon name color should communicate rarity (Common = white). For weapons, the
-            // narrative/base-word theming can tint the name (often red) which conflicts with
-            // the "rarity is the signal" rule the UI uses for gear lists and prompts.
-            if (item is WeaponItem)
-            {
-                displayBuilder.Add(item.Name ?? string.Empty, rarityColor);
-            }
-            else
-            {
-                displayBuilder.AddRange(ItemDisplayColoredText.FormatFullItemName(item));
-            }
+            // Full name: prefix / base / suffix segments (same as armor). Rarity stays in [brackets] only.
+            displayBuilder.AddRange(ItemDisplayColoredText.FormatFullItemName(item));
 
             return displayBuilder.Build();
         }

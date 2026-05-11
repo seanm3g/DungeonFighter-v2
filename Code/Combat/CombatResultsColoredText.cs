@@ -232,7 +232,7 @@ namespace RPGGame
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add(defender.Name, ColorPalette.Player);
+            EntityColorHelper.AppendActorNameColored(builder, defender);
             builder.Add("blocks", ColorPalette.Block);
             builder.Add(damageBlocked.ToString(), ColorPalette.Block);
             builder.Add("damage", Colors.White);
@@ -252,7 +252,7 @@ namespace RPGGame
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add(defender.Name, ColorPalette.Player);
+            EntityColorHelper.AppendActorNameColored(builder, defender);
             builder.Add("dodges", ColorPalette.Dodge);
             EntityColorHelper.AppendActorNameColored(builder, attacker);
             builder.Add("'s", Colors.White);

@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using RPGGame.Actions.RollModification;
+using RPGGame.Diagnostics;
 
 namespace RPGGame.Combat.Calculators
 {
@@ -201,6 +203,8 @@ namespace RPGGame.Combat.Calculators
         /// </summary>
         public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true)
         {
+            var sw = CombatHotPathMetrics.IsEnabled ? Stopwatch.StartNew() : null;
+
             // Calculate raw damage before armor
             int totalDamage = CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
 
@@ -226,8 +230,6 @@ namespace RPGGame.Combat.Calculators
             // Calculate final damage after armor reduction
             int finalDamage;
 
-            // Get combat configuration
-            var combatBalance = GameConfiguration.Instance.CombatBalance;
             int minimumDamage = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage); // Ensure at least 1
 
             // Apply simple armor reduction (flat reduction)
@@ -243,6 +245,12 @@ namespace RPGGame.Combat.Calculators
             if (finalDamage <= 0)
             {
                 finalDamage = 1;
+            }
+
+            if (sw != null)
+            {
+                sw.Stop();
+                CombatHotPathMetrics.RecordDamageCalculator(sw.Elapsed);
             }
 
             return finalDamage;

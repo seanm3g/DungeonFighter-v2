@@ -246,7 +246,7 @@ namespace RPGGame
             if (damage > 0)
             {
                 var builder = new ColoredTextBuilder();
-                DamageFormatter.AddActorTakesDamage(builder, actor.Name, EntityColorHelper.GetActorColor(actor), damage, "bleed");
+                DamageFormatter.AddActorTakesDamage(builder, actor, damage, "bleed");
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
             if (actor.BleedIntensity > 0 || actor.PendingBleedFromHits > 0)
@@ -258,7 +258,7 @@ namespace RPGGame
             else
             {
                 var builder = new ColoredTextBuilder();
-                DamageFormatter.AddActorNoLongerAffected(builder, actor.Name, EntityColorHelper.GetActorColor(actor), "bleeding", ColorPalette.Error);
+                DamageFormatter.AddActorNoLongerAffected(builder, actor, "bleeding", ColorPalette.Error);
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
             return damage > 0 ? damage : 0;
@@ -272,7 +272,7 @@ namespace RPGGame
             if (damage > 0)
             {
                 var builder = new ColoredTextBuilder();
-                DamageFormatter.AddActorTakesDamage(builder, actor.Name, EntityColorHelper.GetActorColor(actor), damage, "poison");
+                DamageFormatter.AddActorTakesDamage(builder, actor, damage, "poison");
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
             if (actor.PoisonPercentOfMaxHealth > 0)
@@ -284,7 +284,7 @@ namespace RPGGame
             else
             {
                 var builder = new ColoredTextBuilder();
-                DamageFormatter.AddActorNoLongerAffected(builder, actor.Name, EntityColorHelper.GetActorColor(actor), "poisoned", ColorPalette.Green);
+                DamageFormatter.AddActorNoLongerAffected(builder, actor, "poisoned", ColorPalette.Green);
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
             return damage > 0 ? damage : 0;
@@ -298,7 +298,7 @@ namespace RPGGame
             if (damage > 0)
             {
                 var builder = new ColoredTextBuilder();
-                DamageFormatter.AddActorTakesDamage(builder, actor.Name, EntityColorHelper.GetActorColor(actor), damage, "burn");
+                DamageFormatter.AddActorTakesDamage(builder, actor, damage, "burn");
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
             int displayIntensity = actor.BurnIntensity + actor.PendingBurnFromHits;
@@ -311,7 +311,7 @@ namespace RPGGame
             else
             {
                 var builder = new ColoredTextBuilder();
-                DamageFormatter.AddActorNoLongerAffected(builder, actor.Name, EntityColorHelper.GetActorColor(actor), "burning", ColorPalette.Orange);
+                DamageFormatter.AddActorNoLongerAffected(builder, actor, "burning", ColorPalette.Orange);
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
             return damage > 0 ? damage : 0;

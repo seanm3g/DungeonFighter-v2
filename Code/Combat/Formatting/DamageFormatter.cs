@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Avalonia.Media;
+using RPGGame;
 using RPGGame.Combat.Calculators;
 using RPGGame.UI.ColorSystem;
 
@@ -192,6 +193,23 @@ namespace RPGGame.Combat.Formatting
             builder.AddSpace();
             builder.Add("damage", Colors.White);
         }
+
+        /// <summary>
+        /// Same as the string overload but colors the name with <see cref="EntityColorHelper.AppendActorNameColored"/>
+        /// so creature-shaded enemy names and markup round-trips match primary combat action lines.
+        /// </summary>
+        public static void AddActorTakesDamage(ColoredTextBuilder builder, Actor actor, int damage, string damageType)
+        {
+            EntityColorHelper.AppendActorNameColored(builder, actor);
+            builder.AddSpace();
+            builder.Add("takes", Colors.White);
+            builder.AddSpace();
+            builder.Add(damage.ToString(), ColorPalette.Damage);
+            builder.AddSpace();
+            builder.Add(damageType, Colors.White);
+            builder.AddSpace();
+            builder.Add("damage", Colors.White);
+        }
         
         /// <summary>
         /// Adds "[Actor] is no longer [effect]!" pattern to a ColoredTextBuilder with proper spacing
@@ -246,6 +264,22 @@ namespace RPGGame.Combat.Formatting
             // Add effect name
             builder.Add(effectName, effectColor);
             // Add exclamation mark and closing parenthesis
+            builder.Add("!)", Colors.White);
+        }
+
+        /// <inheritdoc cref="AddActorNoLongerAffected(ColoredTextBuilder,string,Color,string,ColorPalette)"/>
+        public static void AddActorNoLongerAffected(ColoredTextBuilder builder, Actor actor, string effectName, ColorPalette effectColor)
+        {
+            builder.Add("     (", Colors.White);
+            EntityColorHelper.AppendActorNameColored(builder, actor);
+            builder.AddSpace();
+            builder.Add("is", Colors.White);
+            builder.AddSpace();
+            builder.Add("no", Colors.White);
+            builder.AddSpace();
+            builder.Add("longer", Colors.White);
+            builder.AddSpace();
+            builder.Add(effectName, effectColor);
             builder.Add("!)", Colors.White);
         }
         

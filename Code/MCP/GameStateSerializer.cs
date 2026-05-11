@@ -41,7 +41,7 @@ namespace RPGGame.MCP
             {
                 CurrentState = game.CurrentState.ToString(),
                 Player = game.CurrentPlayer != null ? SerializePlayer(game.CurrentPlayer) : null,
-                CurrentDungeon = game.CurrentDungeon != null ? SerializeDungeon(game.CurrentDungeon) : null,
+                CurrentDungeon = game.CurrentDungeon != null ? SerializeDungeon(game.CurrentDungeon, game.CurrentRoom) : null,
                 CurrentRoom = game.CurrentRoom != null ? SerializeRoom(game.CurrentRoom) : null,
                 AvailableActions = GetAvailableActions(game),
                 RecentOutput = includeRecentOutput ? (outputCapture?.GetRecentOutput(10) ?? new List<string>()) : new List<string>(),
@@ -160,15 +160,23 @@ namespace RPGGame.MCP
             };
         }
 
-        private static DungeonSnapshot SerializeDungeon(Dungeon dungeon)
+        private static DungeonSnapshot SerializeDungeon(Dungeon dungeon, Environment? currentRoom)
         {
+            int roomNumber = 0;
+            if (dungeon.Rooms != null && currentRoom != null)
+            {
+                int idx = dungeon.Rooms.IndexOf(currentRoom);
+                if (idx >= 0)
+                    roomNumber = idx + 1;
+            }
+
             return new DungeonSnapshot
             {
                 Name = dungeon.Name,
                 Level = dungeon.MinLevel, // Use MinLevel as the dungeon level
                 Theme = dungeon.Theme,
                 TotalRooms = dungeon.Rooms?.Count ?? 0,
-                CurrentRoomNumber = 0 // TODO: Track current room number
+                CurrentRoomNumber = roomNumber
             };
         }
 
@@ -183,12 +191,20 @@ namespace RPGGame.MCP
             };
         }
 
+        private static bool ResolveIsPlayerTurn(GameCoordinator game)
+        {
+            var next = game.Combat?.GetNextEntityToAct();
+            if (game.CurrentPlayer == null || next == null)
+                return true;
+            return ReferenceEquals(next, game.CurrentPlayer);
+        }
+
         private static CombatSnapshot SerializeCombat(GameCoordinator game)
         {
             var combat = new CombatSnapshot
             {
                 AvailableCombatActions = GetCombatActions(game),
-                IsPlayerTurn = true // TODO: Determine from combat state
+                IsPlayerTurn = ResolveIsPlayerTurn(game)
             };
 
             // Get current enemy from combat state
