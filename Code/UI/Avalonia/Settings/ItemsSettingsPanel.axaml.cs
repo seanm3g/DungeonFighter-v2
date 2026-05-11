@@ -88,6 +88,8 @@ namespace RPGGame.UI.Avalonia.Settings
 
         /// <summary>Display line for list rows: comma-separated tags or em dash when none.</summary>
         private string _tagsSummary = "—";
+        private string _actionsSummary = "—";
+        private string _starterSummary = "No";
 
         public string Name
         {
@@ -208,6 +210,18 @@ namespace RPGGame.UI.Avalonia.Settings
         {
             get => _tagsSummary;
             set { _tagsSummary = value; OnPropertyChanged(); }
+        }
+
+        public string ActionsSummary
+        {
+            get => _actionsSummary;
+            set { _actionsSummary = value; OnPropertyChanged(); }
+        }
+
+        public string StarterSummary
+        {
+            get => _starterSummary;
+            set { _starterSummary = value; OnPropertyChanged(); }
         }
 
         public string BackgroundColor => IsSelected ? "#FFE3F2FD" : "White";

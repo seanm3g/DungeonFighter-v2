@@ -64,6 +64,7 @@ namespace RPGGame.UI.Avalonia.Settings
         private int _armor = 0;
         private bool _isWeapon = true;
         private string _tags = "";
+        private bool _isStarter;
 
         public string DialogTitle => IsWeapon ? "Edit Weapon" : "Edit Armor";
 
@@ -128,6 +129,12 @@ namespace RPGGame.UI.Avalonia.Settings
         {
             get => _tags;
             set { _tags = value; OnPropertyChanged(); }
+        }
+
+        public bool IsStarter
+        {
+            get => _isStarter;
+            set { _isStarter = value; OnPropertyChanged(); }
         }
 
         public bool IsWeapon

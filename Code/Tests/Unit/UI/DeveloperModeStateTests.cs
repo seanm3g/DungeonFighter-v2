@@ -3,6 +3,7 @@ using System.Diagnostics;
 using RPGGame;
 using RPGGame.Tests;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.Tests.Unit.UI
 {
@@ -21,6 +22,7 @@ namespace RPGGame.Tests.Unit.UI
             _testsRun = _testsPassed = _testsFailed = 0;
 
             TestUidelaySkipsWhenDeveloperModeOn();
+            TestCenterPanelTintChangesWithDeveloperMode();
 
             TestBase.PrintSummary("DeveloperModeState Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -49,6 +51,32 @@ namespace RPGGame.Tests.Unit.UI
             {
                 DeveloperModeState.SetCombatLogInstant(prev);
                 UIManager.EnableDelays = prevEnable;
+            }
+        }
+
+        private static void TestCenterPanelTintChangesWithDeveloperMode()
+        {
+            Console.WriteLine("--- Center panel tint changes when developer mode is on ---");
+
+            bool prev = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                DeveloperModeState.SetCombatLogInstant(false);
+                var normal = CenterPanelModeTint.GetBackgroundColor();
+
+                DeveloperModeState.SetCombatLogInstant(true);
+                var fast = CenterPanelModeTint.GetBackgroundColor();
+
+                TestBase.AssertTrue(!normal.Equals(fast),
+                    "center panel background should change when fast combat mode is on",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(fast.B > fast.R,
+                    "fast combat tint should shift the dark panel toward blue/purple",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prev);
             }
         }
     }

@@ -122,6 +122,7 @@ namespace RPGGame
 
             _character.RecordLevelUp(_character.Level);
             _character.Actions.AddClassActions(_character, _character.Progression, weapon?.WeaponType);
+            ComboSequenceMaxHelper.TrimComboSequenceToMax(_character, ComboSequenceMaxHelper.GetEffectiveMax(_character));
             DamageCalculator.InvalidateCache(_character);
         }
 
@@ -170,10 +171,17 @@ namespace RPGGame
         private void HandleWeaponBasedLevelUp(WeaponItem equippedWeapon)
         {
             string className = GetClassName(equippedWeapon.WeaponType);
-            
+            int actionSlotsBefore = _character.Progression.GetClassUpgradeActionSlotBonus();
+
             _character.Progression.AwardClassPoint(equippedWeapon.WeaponType);
+            int actionSlotIncrease = Math.Max(0, _character.Progression.GetClassUpgradeActionSlotBonus() - actionSlotsBefore);
             
             DisplayLevelUpMessage(className, equippedWeapon);
+            if (actionSlotIncrease > 0)
+            {
+                string slotWord = actionSlotIncrease == 1 ? "slot" : "slots";
+                UIManager.WriteLine($"Gained +{actionSlotIncrease} action {slotWord}!");
+            }
             DisplayClassPointsInfo();
         }
         
@@ -183,8 +191,10 @@ namespace RPGGame
         private LevelUpInfo HandleWeaponBasedLevelUpWithInfo(WeaponItem equippedWeapon, int newLevel)
         {
             string className = GetClassName(equippedWeapon.WeaponType);
-            
+            int actionSlotsBefore = _character.Progression.GetClassUpgradeActionSlotBonus();
+
             _character.Progression.AwardClassPoint(equippedWeapon.WeaponType);
+            int actionSlotIncrease = Math.Max(0, _character.Progression.GetClassUpgradeActionSlotBonus() - actionSlotsBefore);
             
             var levelUpInfo = new LevelUpInfo
             {
@@ -193,6 +203,7 @@ namespace RPGGame
                 StatIncreaseMessage = _character.Stats.GetStatIncreaseMessage(equippedWeapon.WeaponType),
                 CurrentClass = _character.GetCurrentClass(),
                 FullNameWithQualifier = _character.Progression.GetFullNameWithQualifier(_character.Name, _character.Stats),
+                ActionSlotIncrease = actionSlotIncrease,
                 HasWeapon = true
             };
             

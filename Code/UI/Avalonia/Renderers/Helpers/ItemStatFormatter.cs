@@ -39,6 +39,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             {
                 stats.Add($"Armor: +{feetItem.GetTotalArmor()}");
             }
+
+            if (item is FeetItem || item.ExtraActionSlots > 0)
+            {
+                stats.Add($"Action slots: +{Math.Max(0, item.ExtraActionSlots)}");
+            }
             
             if (item.StatBonuses.Count > 0)
             {
@@ -96,6 +101,36 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                     else
                     {
                         builder.Add(parts[1], ColorPalette.Success);
+                    }
+                }
+                else
+                {
+                    builder.Add(stat, Colors.White);
+                }
+            }
+            else if (stat.StartsWith("Action slots: +"))
+            {
+                var parts = stat.Split(new[] { ": +" }, StringSplitOptions.None);
+                if (parts.Length == 2)
+                {
+                    builder.Add("Action slots: +", ColorPalette.Info);
+                    if (TryGetActionSlotDisplayTotal(displayedItem, out int mine) &&
+                        TryGetActionSlotDisplayTotal(armorComparisonBaseline, out int baseline))
+                    {
+                        if (mine > baseline)
+                            builder.Add(parts[1], ColorPalette.Success);
+                        else if (mine < baseline)
+                            builder.Add(parts[1], ColorPalette.Error);
+                        else
+                            builder.Add(parts[1], Colors.White);
+                    }
+                    else if (int.TryParse(parts[1], out int slots) && slots > 0)
+                    {
+                        builder.Add(parts[1], ColorPalette.Success);
+                    }
+                    else
+                    {
+                        builder.Add(parts[1], Colors.White);
                     }
                 }
                 else
@@ -208,6 +243,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 default:
                     return false;
             }
+        }
+
+        private static bool TryGetActionSlotDisplayTotal(Item? item, out int slots)
+        {
+            slots = 0;
+            if (item == null)
+                return false;
+
+            slots = Math.Max(0, item.ExtraActionSlots);
+            return item is FeetItem || slots > 0;
         }
     }
 }

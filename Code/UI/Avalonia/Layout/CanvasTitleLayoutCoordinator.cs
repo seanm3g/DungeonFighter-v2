@@ -71,7 +71,7 @@ namespace RPGGame.UI.Avalonia.Layout
                         characterPanelRenderer.RenderEmptyCharacterPanel();
                     }
                     
-                    canvas.AddBorder(LayoutConstants.CENTER_PANEL_X, LayoutConstants.CENTER_PANEL_Y, LayoutConstants.CENTER_PANEL_WIDTH, LayoutConstants.CENTER_PANEL_HEIGHT, AsciiArtAssets.Colors.Cyan);
+                    CenterPanelModeTint.RenderFrame(canvas);
                 }
                 else
                 {
@@ -88,7 +88,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     
                     if (titleChanged)
                     {
-                        canvas.AddBorder(LayoutConstants.CENTER_PANEL_X, LayoutConstants.CENTER_PANEL_Y, LayoutConstants.CENTER_PANEL_WIDTH, LayoutConstants.CENTER_PANEL_HEIGHT, AsciiArtAssets.Colors.Cyan);
+                        CenterPanelModeTint.RenderFrame(canvas);
                     }
                 }
             }

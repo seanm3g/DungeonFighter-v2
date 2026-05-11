@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications;
 
 namespace RPGGame
 {
@@ -77,7 +78,7 @@ namespace RPGGame
             if (healthRestored > 0)
             {
                 player.Heal(healthRestored);
-                BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"You have been fully healed! (+{healthRestored} health)"));
+                BlockDisplayManager.DisplaySystemBlock(DungeonNarrativeColoredText.FormatHealingMessage(healthRestored));
             }
         }
 

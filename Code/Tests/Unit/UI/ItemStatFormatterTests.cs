@@ -43,6 +43,11 @@ namespace RPGGame.Tests.Unit.UI
             TestArmorEqualBaselineWhite();
             TestArmorNoBaselineUsesSuccessPalette();
 
+            TestFeetStatsIncludeZeroActionSlots();
+            TestFeetStatsIncludePositiveActionSlots();
+            TestNonFeetStatsOmitZeroActionSlots();
+            TestActionSlotHigherThanBaselineGreen();
+
             TestBase.PrintSummary("ItemStatFormatter Tests", _testsRun, _testsPassed, _testsFailed);
         }
 
@@ -69,6 +74,16 @@ namespace RPGGame.Tests.Unit.UI
             for (int i = 0; i < segments.Count - 1; i++)
             {
                 if (segments[i].Text.Contains("Armor:", StringComparison.Ordinal))
+                    return segments[i + 1];
+            }
+            return null;
+        }
+
+        private static ColoredText? FindActionSlotValueSegment(System.Collections.Generic.List<ColoredText> segments)
+        {
+            for (int i = 0; i < segments.Count - 1; i++)
+            {
+                if (segments[i].Text.Contains("Action slots:", StringComparison.Ordinal))
                     return segments[i + 1];
             }
             return null;
@@ -267,6 +282,51 @@ namespace RPGGame.Tests.Unit.UI
             var valueSeg = FindArmorValueSegment(segments);
             var ok = valueSeg != null && valueSeg.Color == ExpectedPaletteColor(ColorPalette.Success);
             if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: expected default success palette with no armor baseline"); }
+        }
+
+        private static void TestFeetStatsIncludeZeroActionSlots()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestFeetStatsIncludeZeroActionSlots ---");
+            var hero = new Character("Stats", 1);
+            var feet = new FeetItem("Shoes", tier: 1, armor: 0) { ExtraActionSlots = 0 };
+            var stats = ItemStatFormatter.GetItemStats(feet, hero);
+            var ok = stats.Contains("Action slots: +0");
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: feet stats should show +0 action slots"); }
+        }
+
+        private static void TestFeetStatsIncludePositiveActionSlots()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestFeetStatsIncludePositiveActionSlots ---");
+            var hero = new Character("Stats", 1);
+            var feet = new FeetItem("Striders", tier: 1, armor: 1) { ExtraActionSlots = 2 };
+            var stats = ItemStatFormatter.GetItemStats(feet, hero);
+            var ok = stats.Contains("Action slots: +2");
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: feet stats should show positive action slots"); }
+        }
+
+        private static void TestNonFeetStatsOmitZeroActionSlots()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestNonFeetStatsOmitZeroActionSlots ---");
+            var hero = new Character("Stats", 1);
+            var chest = new ChestItem("Vest", tier: 1, armor: 1) { ExtraActionSlots = 0 };
+            var stats = ItemStatFormatter.GetItemStats(chest, hero);
+            var ok = !stats.Any(s => s.StartsWith("Action slots:", StringComparison.Ordinal));
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: zero-slot non-feet gear should not add an action-slot row"); }
+        }
+
+        private static void TestActionSlotHigherThanBaselineGreen()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestActionSlotHigherThanBaselineGreen ---");
+            var high = new FeetItem("Striders", tier: 1, armor: 1) { ExtraActionSlots = 2 };
+            var low = new FeetItem("Shoes", tier: 1, armor: 1) { ExtraActionSlots = 0 };
+            var segments = ItemStatFormatter.FormatStatLine("Action slots: +2", high, weaponSpeedBaseline: null, armorComparisonBaseline: low);
+            var valueSeg = FindActionSlotValueSegment(segments);
+            var ok = valueSeg != null && valueSeg.Color == ExpectedPaletteColor(ColorPalette.Success);
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: expected success color when action slots are higher than baseline"); }
         }
     }
 }

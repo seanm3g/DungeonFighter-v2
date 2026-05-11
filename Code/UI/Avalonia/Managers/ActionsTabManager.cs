@@ -461,6 +461,13 @@ namespace RPGGame.UI.Avalonia.Managers
             if ((v = GetText("Rarity")) != null) action.Rarity = (v == "(None)" || string.IsNullOrWhiteSpace(v)) ? "" : v;
             if ((v = GetText("Category")) != null) action.Category = (v == ActionFormOptions.GeneralOption || string.IsNullOrWhiteSpace(v)) ? "" : v;
             if ((v = GetText("Tags")) != null) action.Tags = string.IsNullOrWhiteSpace(v) ? new List<string>() : v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
+            if (actionFormControls.TryGetValue("Required Weapon Basic", out var requiredControl) && requiredControl is CheckBox requiredCheckBox)
+            {
+                action.Tags ??= new List<string>();
+                action.Tags.RemoveAll(t => string.Equals(t, WeaponRequiredComboAction.WeaponBasicTag, StringComparison.OrdinalIgnoreCase));
+                if (requiredCheckBox.IsChecked == true)
+                    action.Tags.Add(WeaponRequiredComboAction.WeaponBasicTag);
+            }
             if ((v = GetText("Target Type")) != null) action.TargetType = string.IsNullOrWhiteSpace(v) ? "SingleTarget" : v;
             if ((v = GetText("MultiHitCount")) != null && int.TryParse(v, out int i1) && i1 >= 1) action.MultiHitCount = i1;
             if ((v = GetText("DamageMultiplier")) != null && double.TryParse(v, out double d1)) action.DamageMultiplier = d1;
@@ -639,13 +646,17 @@ namespace RPGGame.UI.Avalonia.Managers
                     player.Actions.AddArmorActions(player, player.Equipment.Head);
                 if (player.Equipment.Body != null)
                     player.Actions.AddArmorActions(player, player.Equipment.Body);
-                if (player.Equipment.Weapon is WeaponItem weapon)
-                    player.Actions.AddWeaponActions(player, weapon);
+                if (player.Equipment.Legs != null)
+                    player.Actions.AddArmorActions(player, player.Equipment.Legs);
+                if (player.Equipment.Weapon != null)
+                    player.Actions.AddWeaponActions(player, player.Equipment.Weapon);
                 if (player.Equipment.Feet != null)
                     player.Actions.AddArmorActions(player, player.Equipment.Feet);
-                var weaponType = (player.Equipment.Weapon as WeaponItem)?.WeaponType;
+                WeaponType? weaponType = GearActionNames.TryResolveWeaponType(player.Equipment.Weapon, out var resolvedWeaponType)
+                    ? resolvedWeaponType
+                    : null;
                 player.Actions.AddClassActions(player, player.Progression, weaponType);
-                player.InitializeDefaultCombo();
+                player.Actions.InitializeDefaultCombo(player, player.Equipment.Weapon);
                 player.ComboStep = 0;
                 DamageCalculator.InvalidateCache(player);
             }

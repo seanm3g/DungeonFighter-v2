@@ -13,7 +13,7 @@ namespace RPGGame
         /// <summary>
         /// Adds weapon-specific actions to actor
         /// </summary>
-        public void AddWeaponActions(Actor entity, WeaponItem? weapon)
+        public void AddWeaponActions(Actor entity, Item? weapon)
         {
             if (weapon == null) return;
             
@@ -55,7 +55,7 @@ namespace RPGGame
         /// <summary>
         /// Removes weapon-specific actions from entity
         /// </summary>
-        public void RemoveWeaponActions(Actor entity, WeaponItem? weapon)
+        public void RemoveWeaponActions(Actor entity, Item? weapon)
         {
             if (weapon == null) return;
             

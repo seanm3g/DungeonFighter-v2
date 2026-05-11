@@ -42,9 +42,12 @@ namespace RPGGame.UI
             
             // Healing keywords
             AddKeyword("heal", "healing");
+            AddKeyword("healed", "healing");
             AddKeyword("heals", "healing");
+            AddKeyword("health", "healing");
             AddKeyword("healing", "healing");
             AddKeyword("restore", "healing");
+            AddKeyword("restored", "healing");
             AddKeyword("restores", "healing");
             
             // Status keywords

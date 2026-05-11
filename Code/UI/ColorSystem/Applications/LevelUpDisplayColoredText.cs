@@ -31,6 +31,8 @@ namespace RPGGame.UI.ColorSystem.Applications
                     lines.Add(BuildNameLine(info.FullNameWithQualifier));
                 if (!string.IsNullOrEmpty(info.ClassPointsInfo))
                     lines.Add(BuildClassPointsLine(info.ClassPointsInfo));
+                if (info.ActionSlotIncrease > 0)
+                    lines.Add(BuildActionSlotLine(info.ActionSlotIncrease));
                 if (!string.IsNullOrEmpty(info.ClassUpgradeInfo))
                     lines.Add(BuildNextUpgradesLine(info.ClassUpgradeInfo));
             }
@@ -102,6 +104,16 @@ namespace RPGGame.UI.ColorSystem.Applications
             var b = ColoredTextBuilder.Start();
             b.Add("Class Points: ", ColorPalette.Info);
             b.Add(classPointsInfo, Colors.White);
+            return b.Build();
+        }
+
+        private static List<ColoredText> BuildActionSlotLine(int actionSlotIncrease)
+        {
+            string slotWord = actionSlotIncrease == 1 ? "slot" : "slots";
+            var b = ColoredTextBuilder.Start();
+            b.Add("Gained ", Colors.White);
+            b.Add($"+{actionSlotIncrease} ", ColorPalette.Success);
+            b.Add($"action {slotWord}!", ColorPalette.Success);
             return b.Build();
         }
 

@@ -41,6 +41,13 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(1, manager4.TextElements.Count, "ClearOverlayTextInArea removes overlay rows, keeps body", ref run, ref passed, ref failed);
             TestBase.AssertEqual("body", manager4.TextElements[0].Content, "non-overlay text remains", ref run, ref passed, ref failed);
 
+            var manager5 = new CanvasElementManager();
+            manager5.AddBox(new CanvasBox { X = 1, Y = 2, Width = 3, Height = 4, BorderColor = Colors.Cyan, BackgroundColor = Colors.Black });
+            bool boxUpdated = manager5.TryUpdateBox(1, 2, 3, 4, Colors.Cyan, Colors.DarkBlue);
+            TestBase.AssertTrue(boxUpdated, "TryUpdateBox updates an existing box", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, manager5.BoxElements.Count, "TryUpdateBox does not add duplicate boxes", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(Colors.DarkBlue, manager5.BoxElements[0].BackgroundColor, "TryUpdateBox changes background color", ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("CanvasPrimitiveStackingTests", run, passed, failed);
         }
     }

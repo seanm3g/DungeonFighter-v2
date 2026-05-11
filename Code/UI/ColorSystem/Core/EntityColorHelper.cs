@@ -20,7 +20,7 @@ namespace RPGGame.UI.ColorSystem
         public static Color GetEnemyColor(Enemy enemy)
         {
             if (enemy == null)
-                return ColorPalette.White.GetColor();
+                return ClampEntityNameColor(ColorPalette.White.GetColor());
             
             // Check for color override first (highest priority)
             var colorOverride = GetColorOverride(enemy);
@@ -29,7 +29,7 @@ namespace RPGGame.UI.ColorSystem
                 var overrideColor = ResolveColorOverride(colorOverride);
                 if (overrideColor.HasValue)
                 {
-                    return overrideColor.Value;
+                    return ClampEntityNameColor(overrideColor.Value);
                 }
             }
             
@@ -44,13 +44,13 @@ namespace RPGGame.UI.ColorSystem
         {
             var shaded = AnimalEnemyNameColoredText.TryBuildSegments(enemyName);
             if (shaded != null && shaded.Count > 0)
-                return shaded[0].Color;
+                return ClampEntityNameColor(shaded[0].Color);
 
             var color = GetEnemyColorByNameInternal(enemyName);
             if (color.HasValue)
-                return color.Value;
+                return ClampEntityNameColor(color.Value);
 
-            return ColorPalette.Enemy.GetColor();
+            return ClampEntityNameColor(ColorPalette.Enemy.GetColor());
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace RPGGame.UI.ColorSystem
             {
                 var overrideColor = ResolveColorOverride(colorOverride);
                 if (overrideColor.HasValue)
-                    return new List<ColoredText> { new ColoredText(lineText, overrideColor.Value) };
+                    return new List<ColoredText> { new ColoredText(lineText, ClampEntityNameColor(overrideColor.Value)) };
             }
 
             var animal = AnimalEnemyNameColoredText.TryBuildSegments(lineText);
@@ -90,7 +90,7 @@ namespace RPGGame.UI.ColorSystem
             {
                 var overrideColor = ResolveColorOverride(colorOverride);
                 if (overrideColor.HasValue)
-                    return new List<ColoredText> { new ColoredText(enemy.Name, overrideColor.Value) };
+                    return new List<ColoredText> { new ColoredText(enemy.Name, ClampEntityNameColor(overrideColor.Value)) };
             }
 
             var animal = AnimalEnemyNameColoredText.TryBuildSegments(enemy.Name);
@@ -206,18 +206,20 @@ namespace RPGGame.UI.ColorSystem
         private static Color GetCharacterColor(Character character)
         {
             if (character == null)
-                return ColorPalette.White.GetColor();
+                return ClampEntityNameColor(ColorPalette.White.GetColor());
 
             var cfg = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
             string currentClass = character.GetCurrentClass();
             if (string.Equals(currentClass, cfg.DefaultNoPointsClassName, StringComparison.OrdinalIgnoreCase))
-                return ColorPalette.Gold.GetColor();
+                return ClampEntityNameColor(ColorPalette.Gold.GetColor());
 
             var wt = character.Progression.GetPrimaryClassWeaponType();
             if (wt == null)
-                return ColorPalette.Gold.GetColor();
-            return GetWeaponPathColor(wt.Value);
+                return ClampEntityNameColor(ColorPalette.Gold.GetColor());
+            return ClampEntityNameColor(GetWeaponPathColor(wt.Value));
         }
+
+        private static Color ClampEntityNameColor(Color color) => EntityNameColorClamp.Apply(color);
         
         /// <summary>
         /// Path color for the character's primary weapon class (Mace/Sword/Dagger/Wand).

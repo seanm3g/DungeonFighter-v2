@@ -172,6 +172,22 @@ namespace RPGGame.UI.Avalonia.Canvas
         {
             boxElements.Add(box);
         }
+
+        public bool TryUpdateBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor)
+        {
+            bool updated = false;
+            foreach (var box in boxElements)
+            {
+                if (box.IsOverlay || box.X != x || box.Y != y || box.Width != width || box.Height != height)
+                    continue;
+
+                box.BorderColor = borderColor;
+                box.BackgroundColor = backgroundColor;
+                updated = true;
+            }
+
+            return updated;
+        }
         
         /// <summary>
         /// Adds a progress bar element

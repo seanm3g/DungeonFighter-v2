@@ -25,7 +25,7 @@ namespace RPGGame.UI.ColorSystem.Applications
             Salamander,
         }
 
-        private static Color C(byte r, byte g, byte b) => Color.FromRgb(r, g, b);
+        private static Color C(byte r, byte g, byte b) => EntityNameColorClamp.Apply(Color.FromRgb(r, g, b));
 
         /// <summary>Returns per-character segments, or null when no creature keyword applies.</summary>
         public static List<ColoredText>? TryBuildSegments(string enemyName)
@@ -125,7 +125,7 @@ namespace RPGGame.UI.ColorSystem.Applications
                 C(255, 117, 56), C(233, 150, 122), C(178, 34, 34), C(255, 215, 0),
                 C(220, 90, 40), C(255, 160, 122),
             },
-            _ => new[] { Colors.White }
+            _ => new[] { EntityNameColorClamp.Apply(Colors.White) }
         };
     }
 }

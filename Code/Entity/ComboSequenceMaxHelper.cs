@@ -3,7 +3,7 @@ using System;
 namespace RPGGame
 {
     /// <summary>
-    /// Effective max combo sequence length from <see cref="LootSystemConfig"/> plus all equipped gear:
+    /// Effective max combo sequence length from <see cref="LootSystemConfig"/> plus class-tier upgrades and all equipped gear:
     /// catalog <see cref="Item.ExtraActionSlots"/> and affix <c>ExtraActionSlots</c> lines (see <see cref="EquipmentBonusCalculator.GetStatBonus"/>).
     /// </summary>
     public static class ComboSequenceMaxHelper
@@ -18,8 +18,9 @@ namespace RPGGame
             if (absMax < baseMax)
                 absMax = baseMax;
 
-            int bonusSlots = character?.Equipment?.GetEquipmentStatBonus("ExtraActionSlots", character) ?? 0;
-            return Math.Min(absMax, baseMax + Math.Max(0, bonusSlots));
+            int gearSlots = character?.Equipment?.GetEquipmentStatBonus("ExtraActionSlots", character) ?? 0;
+            int classSlots = character?.Progression?.GetClassUpgradeActionSlotBonus() ?? 0;
+            return Math.Min(absMax, baseMax + Math.Max(0, gearSlots) + Math.Max(0, classSlots));
         }
 
         /// <summary>

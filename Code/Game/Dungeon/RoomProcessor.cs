@@ -8,6 +8,7 @@ namespace RPGGame
     using RPGGame.Actions.RollModification;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.ColorSystem;
+    using RPGGame.UI.ColorSystem.Applications;
 
     /// <summary>
     /// Handles processing of individual rooms in a dungeon
@@ -273,8 +274,8 @@ namespace RPGGame
                 // Display search result with colors (roll number hidden, only flavor text shown)
                 displayManager.AddCombatEvent("", stateManager.CurrentPlayer); // Blank line before search message
                 
-                // Apply keyword coloring to search message
-                var searchMessageColored = KeywordColorSystem.Colorize(searchResult.Message);
+                // Preserve structured item-name colors when the search result includes loot.
+                var searchMessageColored = DungeonNarrativeColoredText.FormatSearchResult(searchResult);
                 string searchMessageMarkup = ColoredTextRenderer.RenderAsMarkup(searchMessageColored);
                 displayManager.AddCombatEvent(searchMessageMarkup, stateManager.CurrentPlayer);
                 displayManager.AddCombatEvent("", stateManager.CurrentPlayer); // Blank line after search message

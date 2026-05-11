@@ -74,7 +74,7 @@ namespace RPGGame.UI.ColorSystem
             
             // Healing-related keywords
             CreateGroup("healing", "healing", false,
-                "heal", "healing", "cure", "restore", "recover", "regenerate", "revive", "resurrect");
+                "heal", "healed", "healing", "health", "cure", "restore", "restored", "recover", "regenerate", "revive", "resurrect");
             
             // Enemy-related keywords
             CreateGroup("enemy", "enemy", false,

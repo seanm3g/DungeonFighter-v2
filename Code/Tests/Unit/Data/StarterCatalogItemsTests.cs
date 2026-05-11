@@ -110,7 +110,12 @@ namespace RPGGame.Tests.Unit.Data
                 TestBase.AssertEqual(expected.Count, resolved.Count,
                     "Starter menu should keep first starter-tagged row per weapon type (class path order)",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                for (int i = 0; i < expected.Count; i++)
+                TestBase.AssertEqual(ClassPresentationConfig.ClassWeaponOrder.Length, resolved.Count,
+                    "Starter menu should include one starter-tagged row for every class weapon path",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                int comparableCount = Math.Min(expected.Count, resolved.Count);
+                for (int i = 0; i < comparableCount; i++)
                 {
                     TestBase.AssertTrue(ReferenceEquals(expected[i], resolved[i]),
                         $"starter menu row {i} should match deduped catalog row reference",
@@ -132,6 +137,16 @@ namespace RPGGame.Tests.Unit.Data
                         "Starter weapon menu should follow Barbarian→Warrior→Rogue→Wizard path order",
                         ref _testsRun, ref _testsPassed, ref _testsFailed);
                     prevOrder = ord;
+                }
+
+                foreach (WeaponType expectedType in ClassPresentationConfig.ClassWeaponOrder)
+                {
+                    bool hasType = resolved.Any(w =>
+                        Enum.TryParse(w.Type?.Trim(), ignoreCase: true, out WeaponType wt) &&
+                        wt == expectedType);
+                    TestBase.AssertTrue(hasType,
+                        $"Starter weapon menu should include {expectedType}",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
                 }
             }
             else

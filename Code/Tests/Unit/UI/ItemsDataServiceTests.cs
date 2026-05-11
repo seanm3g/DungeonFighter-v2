@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using RPGGame;
 using RPGGame.Data;
+using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame.Tests.Unit.UI
 {
@@ -24,6 +25,8 @@ namespace RPGGame.Tests.Unit.UI
             _testsFailed = 0;
 
             TestWeaponsJsonNormalizationAllowsStringAttributeRequirements();
+            TestStarterFlagHelpers();
+            TestWeaponActionsSummaryUsesWeaponTypeRules();
 
             TestBase.PrintSummary("ItemsDataService Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -55,6 +58,35 @@ namespace RPGGame.Tests.Unit.UI
                     $"Unexpected failure: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestStarterFlagHelpers()
+        {
+            Console.WriteLine("\n--- Testing item settings starter flag helpers ---");
+
+            var starter = ItemsDataCoordinator.TagsListWithStarterFlag("foo, starter", true);
+            bool hasStarter = starter != null && GameDataTagHelper.HasTag(starter, StarterCatalogItems.StarterTag);
+            TestBase.AssertTrue(hasStarter,
+                "Starter checkbox should persist starter tag",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var notStarter = ItemsDataCoordinator.TagsListWithStarterFlag("foo, starter", false);
+            bool removedStarter = notStarter != null &&
+                !GameDataTagHelper.HasTag(notStarter, StarterCatalogItems.StarterTag) &&
+                GameDataTagHelper.HasTag(notStarter, "foo");
+            TestBase.AssertTrue(removedStarter,
+                "Clearing starter checkbox should remove starter tag while keeping other tags",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestWeaponActionsSummaryUsesWeaponTypeRules()
+        {
+            Console.WriteLine("\n--- Testing item settings weapon action summary ---");
+
+            var summary = ItemsDataCoordinator.FormatActionsSummaryForWeaponType("Sword");
+            TestBase.AssertTrue(summary.Contains("STRIKE", StringComparison.OrdinalIgnoreCase),
+                $"Sword action summary should include STRIKE; summary: {summary}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

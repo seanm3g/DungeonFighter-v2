@@ -48,7 +48,7 @@ namespace RPGGame
             _comboManager.RemoveFromCombo(action);
         }
 
-        public void InitializeDefaultCombo(Actor actor, WeaponItem? weapon)
+        public void InitializeDefaultCombo(Actor actor, Item? weapon)
         {
             _comboManager.InitializeDefaultCombo(actor, weapon);
         }
@@ -69,7 +69,7 @@ namespace RPGGame
 
         // ========== Gear Actions Delegation ==========
 
-        public void AddWeaponActions(Actor actor, WeaponItem weapon)
+        public void AddWeaponActions(Actor actor, Item? weapon)
         {
             _gearManager.AddWeaponActions(actor, weapon);
         }
@@ -79,7 +79,7 @@ namespace RPGGame
             _gearManager.AddArmorActions(actor, armor);
         }
 
-        public void RemoveWeaponActions(Actor actor, WeaponItem? weapon = null)
+        public void RemoveWeaponActions(Actor actor, Item? weapon = null)
         {
             _gearManager.RemoveWeaponActions(actor, weapon);
         }

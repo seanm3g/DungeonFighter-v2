@@ -140,12 +140,14 @@ namespace RPGGame.Entity.Services
                 character.Actions.AddArmorActions(character, character.Equipment.Body);
             if (character.Equipment.Legs != null)
                 character.Actions.AddArmorActions(character, character.Equipment.Legs);
-            if (character.Equipment.Weapon is WeaponItem weapon)
-                character.Actions.AddWeaponActions(character, weapon);
+            if (character.Equipment.Weapon != null)
+                character.Actions.AddWeaponActions(character, character.Equipment.Weapon);
             if (character.Equipment.Feet != null)
                 character.Actions.AddArmorActions(character, character.Equipment.Feet);
 
-            var weaponType = (character.Equipment.Weapon as WeaponItem)?.WeaponType;
+            WeaponType? weaponType = GearActionNames.TryResolveWeaponType(character.Equipment.Weapon, out var resolvedWeaponType)
+                ? resolvedWeaponType
+                : null;
             character.Actions.AddClassActions(character, character.Progression, weaponType);
 
             EnsureUnarmedPunchInActionPool(character);
@@ -235,9 +237,9 @@ namespace RPGGame.Entity.Services
                 }
             }
 
-            if (character.Equipment.Weapon is WeaponItem fallbackWeapon)
+            if (GearActionNames.TryResolveWeaponType(character.Equipment.Weapon, out var fallbackWeaponType))
             {
-                foreach (var actionName in GetWeaponTypeActionsForFallbackStatic(fallbackWeapon.WeaponType))
+                foreach (var actionName in GetWeaponTypeActionsForFallbackStatic(fallbackWeaponType))
                 {
                     var action = ActionLoader.GetAction(actionName);
                     if (action != null)

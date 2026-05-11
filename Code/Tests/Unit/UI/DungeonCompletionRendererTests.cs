@@ -23,12 +23,13 @@ namespace RPGGame.Tests.Unit.UI
             _testsPassed = 0;
             _testsFailed = 0;
 
-            TestBuildCompletionSummaryLinesIncludesVictoryAndDungeonName();
+            TestBuildCompletionSummaryLinesIncludesVictoryAndOmitsTopDetailRows();
+            TestBuildCompletionSummaryLinesCentersAndAlignsMetrics();
 
             TestBase.PrintSummary("DungeonCompletionRenderer Tests", _testsRun, _testsPassed, _testsFailed);
         }
 
-        private static void TestBuildCompletionSummaryLinesIncludesVictoryAndDungeonName()
+        private static void TestBuildCompletionSummaryLinesIncludesVictoryAndOmitsTopDetailRows()
         {
             Console.WriteLine("--- Testing BuildCompletionSummaryLines ---");
 
@@ -56,17 +57,90 @@ namespace RPGGame.Tests.Unit.UI
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             bool foundDungeonName = false;
+            bool foundHealthLine = false;
             foreach (var line in lines)
             {
                 string t = ColoredTextRenderer.RenderAsPlainText(line);
                 if (t.Contains("Haunted Crypt", StringComparison.Ordinal))
-                {
                     foundDungeonName = true;
-                    break;
-                }
+                if (t.Contains("Health:", StringComparison.Ordinal) || t.Contains("Fully Restored", StringComparison.Ordinal))
+                    foundHealthLine = true;
             }
 
-            TestBase.AssertTrue(foundDungeonName, "Summary should include dungeon name", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(foundDungeonName, "Summary should omit dungeon detail row", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(foundHealthLine, "Summary should omit health detail row", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestBuildCompletionSummaryLinesCentersAndAlignsMetrics()
+        {
+            Console.WriteLine("--- Testing centered completion summary layout ---");
+
+            const int summaryWidth = 80;
+            var dungeon = new Dungeon("Ancient Forest", 1, 5, "Forest");
+            dungeon.Rooms.Add(new Environment("Room A", "Test", false, "Forest"));
+            dungeon.Rooms.Add(new Environment("Room B", "Test", false, "Forest"));
+
+            var player = new Character("Hero", 1);
+            player.CurrentHealth = player.GetEffectiveMaxHealth();
+            player.SessionStats.EnemiesDefeated = 4;
+            player.SessionStats.TotalDamageDealt = 235;
+            player.SessionStats.TotalDamageReceived = 29;
+
+            var lines = DungeonCompletionRenderer.BuildCompletionSummaryLines(
+                dungeon,
+                player,
+                450,
+                null,
+                new List<LevelUpInfo>(),
+                new List<Item>(),
+                summaryWidth);
+
+            string headerPlain = ColoredTextRenderer.RenderAsPlainText(lines[0]);
+            int expectedHeaderPadding = (summaryWidth - headerPlain.TrimStart().Length) / 2;
+            TestBase.AssertEqual(
+                expectedHeaderPadding,
+                CountLeadingSpaces(headerPlain),
+                "Victory header should be centered within the summary width",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+
+            string roomsLine = FindPlainLine(lines, "Rooms Cleared:");
+            string enemiesLine = FindPlainLine(lines, "Enemies Defeated:");
+            TestBase.AssertEqual(
+                roomsLine.TrimStart().IndexOf("2", StringComparison.Ordinal),
+                enemiesLine.TrimStart().IndexOf("4", StringComparison.Ordinal),
+                "Metric values should align after padded labels",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+
+            TestBase.AssertTrue(
+                FindPlainLine(lines, "Experience Gained:").StartsWith(" ", StringComparison.Ordinal),
+                "Reward row should receive centering padding",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+        }
+
+        private static string FindPlainLine(List<List<ColoredText>> lines, string contains)
+        {
+            foreach (var line in lines)
+            {
+                string plain = ColoredTextRenderer.RenderAsPlainText(line);
+                if (plain.Contains(contains, StringComparison.Ordinal))
+                    return plain;
+            }
+
+            return string.Empty;
+        }
+
+        private static int CountLeadingSpaces(string text)
+        {
+            int count = 0;
+            while (count < text.Length && text[count] == ' ')
+                count++;
+            return count;
         }
     }
 }

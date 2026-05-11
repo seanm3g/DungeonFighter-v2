@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using RPGGame.Tests;
+using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
 
 namespace RPGGame.Tests.Unit.UI
@@ -35,6 +36,12 @@ namespace RPGGame.Tests.Unit.UI
 
             var bearSegs = AnimalEnemyNameColoredText.TryBuildSegments("Bear");
             TestBase.AssertTrue(bearSegs != null && bearSegs.Count >= 4, "bear uses multi-shade palette",
+                ref run, ref passed, ref failed);
+
+            var batSegs = AnimalEnemyNameColoredText.TryBuildSegments("Bat");
+            double minBatBrightness = batSegs!.Min(s => ColorValidator.GetHsvValue255(s.Color));
+            TestBase.AssertTrue(minBatBrightness >= EntityNameColorClamp.DefaultBrightnessFloor - 1,
+                "dark creature palette applies entity-name brightness floor",
                 ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("AnimalEnemyNameColoredText Tests", run, passed, failed);

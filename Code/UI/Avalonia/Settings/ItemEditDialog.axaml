@@ -114,6 +114,29 @@
                              FontSize="14"
                              Margin="10,0,0,0"/>
                 </Grid>
+
+                <!-- Starter catalog flag -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="Starter:"
+                               FontSize="14"
+                               Foreground="White"
+                               VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="1" Margin="10,0,0,0" Spacing="4">
+                        <CheckBox IsChecked="{Binding IsStarter, Mode=TwoWay}"
+                                  Content="Show as starting gear"
+                                  FontSize="14"
+                                  Foreground="White"/>
+                        <TextBlock Text="Saves the starter tag. Starter weapons appear in the new-game weapon picker; starter armor equips on new heroes."
+                                   FontSize="11"
+                                   Foreground="#FFAAAAAA"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
                 
                 <!-- Base Damage (only for weapons) -->
                 <Grid IsVisible="{Binding ShowWeaponFields}">

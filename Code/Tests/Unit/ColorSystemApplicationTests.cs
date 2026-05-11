@@ -5,6 +5,7 @@ using Avalonia.Media;
 using RPGGame;
 using RPGGame.Tests;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications;
 using RPGGame.UI.ColorSystem.Applications.ItemFormatting;
 using RPGGame.UI.ColorSystem.Themes;
 
@@ -36,6 +37,8 @@ namespace RPGGame.Tests.Unit
             TestStatSuffixUsesStatBonusAffixRarity();
             TestRemoveRarityPrefixStripsMythic();
             TestItemColorSystemFormatFullMatchesItemNameFormatter();
+            TestDungeonNarrativeSearchResultPreservesItemNameColors();
+            TestDungeonNarrativeHealingMessageColorsHealingSegments();
             TestStatusEffectColorHelper();
 
             TestBase.PrintSummary("Color System Application Tests", _testsRun, _testsPassed, _testsFailed);
@@ -321,6 +324,83 @@ namespace RPGGame.Tests.Unit
             string plainB = ColoredTextRenderer.RenderAsPlainText(b);
             TestBase.AssertEqual(plainA, plainB, "Plain text output should match", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(a.Count == b.Count, "Segment count should match", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestDungeonNarrativeSearchResultPreservesItemNameColors()
+        {
+            Console.WriteLine("\n--- Testing dungeon search narration item colors ---");
+
+            var loot = new ChestItem("Worn Thick Wrap", 1, 1)
+            {
+                Rarity = "Common"
+            };
+            const string message = "Hidden among the debris, you find: Worn Thick Wrap";
+
+            var segments = DungeonNarrativeColoredText.FormatSearchMessage(message, loot);
+            string plain = ColoredTextRenderer.RenderAsPlainText(segments);
+            var wrapSegment = segments.FirstOrDefault(s =>
+                string.Equals(s.Text, "Wrap", StringComparison.Ordinal));
+            var chestTheme = ItemThemeProvider.GetItemTypeTheme(ItemType.Chest);
+
+            TestBase.AssertEqual(
+                message,
+                plain,
+                "Search narration plain text should not change while applying colors",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+            TestBase.AssertNotNull(
+                wrapSegment,
+                "Loot item base word should be emitted as its own colored segment",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+            TestBase.AssertTrue(
+                chestTheme.Count > 0 && ColorValidator.AreColorsEqual(wrapSegment!.Color, chestTheme[0].Color),
+                "Loot item base word should use the item-name formatter's equipment color",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+        }
+
+        private static void TestDungeonNarrativeHealingMessageColorsHealingSegments()
+        {
+            Console.WriteLine("\n--- Testing dungeon healing narration colors ---");
+
+            var segments = DungeonNarrativeColoredText.FormatHealingMessage(11);
+            string plain = ColoredTextRenderer.RenderAsPlainText(segments);
+            var healedSegment = segments.FirstOrDefault(s =>
+                s.Text.Contains("healed", StringComparison.OrdinalIgnoreCase));
+            var healthAmountSegment = segments.FirstOrDefault(s =>
+                s.Text.Contains("+11 health", StringComparison.OrdinalIgnoreCase));
+            var healingColor = ColorPalette.Healing.GetColor();
+
+            TestBase.AssertEqual(
+                "You have been fully healed! (+11 health)",
+                plain,
+                "Healing narration plain text should match the displayed message",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+            TestBase.AssertNotNull(
+                healedSegment,
+                "Healing narration should expose the healed keyword segment",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+            TestBase.AssertNotNull(
+                healthAmountSegment,
+                "Healing narration should expose the restored health amount segment",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(healedSegment!.Color, healingColor) &&
+                ColorValidator.AreColorsEqual(healthAmountSegment!.Color, healingColor),
+                "Healing keyword and amount should use the healing palette color",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
         }
 
         #endregion

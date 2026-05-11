@@ -96,7 +96,7 @@ namespace RPGGame
         /// <summary>
         /// Initializes the default combo with weapon actions
         /// </summary>
-        public void InitializeDefaultCombo(Actor entity, WeaponItem? weapon)
+        public void InitializeDefaultCombo(Actor entity, Item? weapon)
         {
             // Clear existing combo sequence
             ClearCombo();
@@ -192,7 +192,7 @@ namespace RPGGame
         /// <summary>
         /// Weapon action names for combo initialization — same rules as <see cref="GearActionNames.Resolve"/> / action pool.
         /// </summary>
-        private static List<string> GetWeaponActionsForCombo(WeaponItem weapon)
+        private static List<string> GetWeaponActionsForCombo(Item weapon)
         {
             return GearActionNames.ResolveWeapon(weapon);
         }

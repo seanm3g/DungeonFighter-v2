@@ -31,12 +31,13 @@ The rest of the game depends only on `AudioCues.Trigger(...)` and the `IAudioEng
 | `ActionEventPublisher.PublishActionHit` (normal)                 | `Combat_Hit`                 |
 | `ActionEventPublisher.PublishActionHit` (`IsCombo=true`)         | `Combat_ComboComplete`       |
 | `ActionEventPublisher.PublishActionHit` (`IsCritical=true`)      | `Combat_CriticalHit`         |
+| `ActionEventPublisher.PublishActionHit` (enemy hits hero)        | `Combat_HeroHurt`            |
 | `EnemyDied`                              | `Combat_EnemyDied`           |
 | `HeroLowHealth` (crosses ≤20% HP alive)  | `Combat_HeroLowHealth`       |
 | `EnemyLowHealth` (crosses ≤20% HP alive) | `Combat_EnemyLowHealth`      |
 | `StatusEffectApplied`                    | `Combat_StatusApplied`       |
 
-The five direct combat outcome cues are mutually exclusive: critical miss, miss, normal hit, combo, critical hit. They fire directly from `ActionEventPublisher` after the matching hit/miss event is published so combat-thread sounds do not depend on `CombatEventBus` subscription lifetime. Critical hit takes precedence over combo if both flags are present on the same hit.
+The direct combat outcome cues are mutually exclusive. Misses use the shared miss cues. Successful hero hits use normal hit, combo, or critical hit cues; successful enemy hits against the hero use `Combat_HeroHurt` so player-offense and player-damage sounds can be tuned independently. Critical hit takes precedence over combo for hero-offense hits if both flags are present on the same hit.
 
 Low-health events are published when action damage or poison/burn/bleed ticks move the hero or enemy from above 20% HP to at-or-below 20% HP. They do not fire for already-low actors or for damage that kills the actor outright, so defeat cues remain distinct.
 

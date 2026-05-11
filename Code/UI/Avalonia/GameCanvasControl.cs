@@ -390,6 +390,11 @@ namespace RPGGame.UI.Avalonia
             elementBuilder.AddBox(x, y, width, height, borderColor, backgroundColor, opaqueBackgroundBleedDevicePixels, borderThicknessPixels);
         }
 
+        public bool TryUpdateBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor)
+        {
+            return elementManager.TryUpdateBox(x, y, width, height, borderColor, backgroundColor);
+        }
+
         /// <summary>See <see cref="CanvasElementBuilder.AddOverlayBox"/>.</summary>
         public void AddOverlayBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor, int opaqueBackgroundBleedDevicePixels = 0)
         {

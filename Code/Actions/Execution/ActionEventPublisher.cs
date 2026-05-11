@@ -43,12 +43,20 @@ namespace RPGGame.Actions.Execution
                 IsCritical = isCritical
             };
             CombatEventBus.Instance.Publish(hitEvent);
-            AudioCues.Trigger(isCritical
+            AudioCues.Trigger(ResolveHitCue(source, target, isCombo, isCritical));
+            return hitEvent;
+        }
+
+        private static AudioCue ResolveHitCue(Actor source, Actor target, bool isCombo, bool isCritical)
+        {
+            if (source is Enemy && target is Character and not Enemy)
+                return AudioCue.Combat_HeroHurt;
+
+            return isCritical
                 ? AudioCue.Combat_CriticalHit
                 : isCombo
                     ? AudioCue.Combat_ComboComplete
-                    : AudioCue.Combat_Hit);
-            return hitEvent;
+                    : AudioCue.Combat_Hit;
         }
 
         /// <summary>

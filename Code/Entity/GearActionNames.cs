@@ -31,13 +31,40 @@ namespace RPGGame
                     actions.Add(actionBonus.Name);
             }
 
-            if (gear is WeaponItem weapon && actions.Count == 0)
-                actions.AddRange(GetWeaponTypeActionNames(weapon.WeaponType));
+            bool isWeapon = TryResolveWeaponType(gear, out var weaponType);
 
-            if (gear is WeaponItem w)
-                EnsureRequiredWeaponBasicInActionNames(w.WeaponType, actions);
+            if (isWeapon && actions.Count == 0)
+                actions.AddRange(GetWeaponTypeActionNames(weaponType));
+
+            if (isWeapon)
+                EnsureRequiredWeaponBasicInActionNames(weaponType, actions);
 
             return StripEnvironmentTaggedActionNames(actions);
+        }
+
+        /// <summary>
+        /// Resolves weapon type for both fully typed weapons and base <see cref="Item"/> instances in a weapon slot.
+        /// </summary>
+        public static bool TryResolveWeaponType(Item? gear, out WeaponType weaponType)
+        {
+            weaponType = WeaponType.Sword;
+            if (gear == null || gear.Type != ItemType.Weapon)
+                return false;
+
+            if (gear is WeaponItem weapon)
+            {
+                weaponType = weapon.WeaponType;
+                return true;
+            }
+
+            if (WeaponTypeFromCatalog.TryGetByWeaponName(gear.Name, out var catalogType))
+            {
+                weaponType = catalogType;
+                return true;
+            }
+
+            weaponType = gear.WeaponType;
+            return true;
         }
 
         /// <summary>
@@ -79,9 +106,20 @@ namespace RPGGame
         /// <summary>
         /// Action names from a weapon only (same rules as <see cref="Resolve"/> for <see cref="WeaponItem"/>).
         /// </summary>
-        public static List<string> ResolveWeapon(WeaponItem weapon)
+        public static List<string> ResolveWeapon(Item weapon)
         {
             return Resolve(weapon);
+        }
+
+        /// <summary>
+        /// Returns the action names granted to every weapon of this type from action data.
+        /// Useful for settings/catalog previews where an item instance does not exist yet.
+        /// </summary>
+        public static List<string> ResolveWeaponType(WeaponType weaponType)
+        {
+            var actions = GetWeaponTypeActionNames(weaponType);
+            EnsureRequiredWeaponBasicInActionNames(weaponType, actions);
+            return StripEnvironmentTaggedActionNames(actions);
         }
 
         private static List<string> GetWeaponTypeActionNames(WeaponType weaponType)

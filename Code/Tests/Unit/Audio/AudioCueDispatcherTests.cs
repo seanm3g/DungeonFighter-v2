@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit.Audio
             TestPublisherRoutesCombatHitToHitCue(ref run, ref passed, ref failed);
             TestPublisherRoutesComboHitToComboCue(ref run, ref passed, ref failed);
             TestPublisherRoutesCriticalHitToCriticalHitCue(ref run, ref passed, ref failed);
+            TestPublisherRoutesEnemyHitToHeroHurtCue(ref run, ref passed, ref failed);
             TestPublisherRoutesMissToMissCue(ref run, ref passed, ref failed);
             TestPublisherRoutesCriticalMissToCriticalMissCue(ref run, ref passed, ref failed);
             TestRoutesLowHealthEventsToDistinctCues(ref run, ref passed, ref failed);
@@ -87,6 +88,7 @@ namespace RPGGame.Tests.Unit.Audio
             cfg.CueMap[AudioCue.Combat_CriticalMiss.ToString()].File = cueFile;
             cfg.CueMap[AudioCue.Combat_CriticalHit.ToString()].File = cueFile;
             cfg.CueMap[AudioCue.Combat_ComboComplete.ToString()].File = cueFile;
+            cfg.CueMap[AudioCue.Combat_HeroHurt.ToString()].File = cueFile;
             cfg.CueMap[AudioCue.Combat_HeroLowHealth.ToString()].File = cueFile;
             cfg.CueMap[AudioCue.Combat_EnemyLowHealth.ToString()].File = cueFile;
             cfg.CueMap[AudioCue.Music_MainMenu.ToString()].File = cueFile;
@@ -228,6 +230,42 @@ namespace RPGGame.Tests.Unit.Audio
                 CombatEventBus.Reset();
                 TryDelete(hitStub);
                 TryDelete(critStub);
+            }
+        }
+
+        private static void TestPublisherRoutesEnemyHitToHeroHurtCue(ref int run, ref int passed, ref int failed)
+        {
+            string hitStub = CreateStubFile();
+            string hurtStub = CreateStubFile();
+            try
+            {
+                CombatEventBus.Reset();
+                var engine = new NullAudioEngine { RecordCalls = true };
+                var cfg = CreateTestConfig(hitStub);
+                cfg.CueMap[AudioCue.Combat_HeroHurt.ToString()].File = hurtStub;
+                using var dispatcher = new AudioCueDispatcher(engine,
+                    configResolver: () => cfg,
+                    globalEnabledResolver: () => true);
+                AudioCues.SetDispatcher(dispatcher);
+
+                ActionEventPublisher.PublishActionHit(
+                    new Enemy(name: "Goblin", level: 1, maxHealth: 100, strength: 8, agility: 6, technique: 4, intelligence: 4, armor: 0),
+                    new Character("Hero", 1),
+                    new RPGGame.Action(name: "Savage Combo"),
+                    rollValue: 20,
+                    isCombo: true,
+                    isCritical: true);
+
+                TestBase.AssertEqual(1, engine.PlayCalls.Count, "Enemy successful hit publisher routes to one hero-hurt cue", ref run, ref passed, ref failed);
+                if (engine.PlayCalls.Count > 0)
+                    TestBase.AssertEqual(hurtStub, engine.PlayCalls[0].file, "Enemy successful hit publisher plays the hero-hurt binding instead of hit/combo/crit", ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                AudioCues.SetDispatcher(null);
+                CombatEventBus.Reset();
+                TryDelete(hitStub);
+                TryDelete(hurtStub);
             }
         }
 

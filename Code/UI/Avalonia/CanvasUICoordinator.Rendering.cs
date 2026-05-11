@@ -40,6 +40,15 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
+        /// Repaints only the center panel frame so F11 mode changes are visible immediately.
+        /// </summary>
+        public void RefreshCenterPanelModeTint()
+        {
+            if (CenterPanelModeTint.TryUpdateExistingFrame(canvas))
+                canvas.Refresh();
+        }
+
+        /// <summary>
         /// Clears the loading status message from the bottom left corner.
         /// </summary>
         public void ClearLoadingStatus()
@@ -225,13 +234,15 @@ namespace RPGGame.UI.Avalonia
             ctm.SwitchToCharacterDisplayManager(player);
             var dm = ctm.GetDisplayManagerForCharacter(player);
             dm.Buffer.Add(new List<ColoredText>());
+            int summaryWidth = Math.Max(1, LayoutConstants.CENTER_PANEL_WIDTH - 2);
             dm.Buffer.AddRange(DungeonCompletionRenderer.BuildCompletionSummaryLines(
                 dungeon,
                 player,
                 xpGained,
                 lootReceived,
                 levelUpInfos,
-                itemsFoundDuringRun));
+                itemsFoundDuringRun,
+                summaryWidth));
         }
 
         /// <summary>
@@ -244,7 +255,8 @@ namespace RPGGame.UI.Avalonia
             ctm.SwitchToCharacterDisplayManager(player);
             var dm = ctm.GetDisplayManagerForCharacter(player);
             dm.Buffer.Add(new List<ColoredText>());
-            dm.Buffer.AddRange(DeathScreenRenderer.BuildDeathSummaryLines(defeatSummary));
+            int summaryWidth = Math.Max(1, LayoutConstants.CENTER_PANEL_WIDTH - 2);
+            dm.Buffer.AddRange(DeathScreenRenderer.BuildDeathSummaryLines(defeatSummary, summaryWidth));
         }
 
         /// <summary>

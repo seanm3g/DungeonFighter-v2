@@ -15,6 +15,7 @@ namespace RPGGame
         public string? FullNameWithQualifier { get; set; }
         public string? ClassPointsInfo { get; set; }
         public string? ClassUpgradeInfo { get; set; }
+        public int ActionSlotIncrease { get; set; }
         public bool HasWeapon { get; set; }
         
         /// <summary>
@@ -52,6 +53,11 @@ namespace RPGGame
                 if (!string.IsNullOrEmpty(ClassPointsInfo))
                 {
                     messages.Add($"Class Points: {ClassPointsInfo}");
+                }
+                if (ActionSlotIncrease > 0)
+                {
+                    string slotWord = ActionSlotIncrease == 1 ? "slot" : "slots";
+                    messages.Add($"Gained +{ActionSlotIncrease} action {slotWord}!");
                 }
                 if (!string.IsNullOrEmpty(ClassUpgradeInfo))
                 {

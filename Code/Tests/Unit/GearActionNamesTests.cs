@@ -23,7 +23,10 @@ namespace RPGGame.Tests.Unit
 
             TestResolve_MatchesGearActionManager();
             TestWeaponWithGearActionOnly_IncludesRequiredBasicName();
+            TestResolveWeaponType_IncludesRequiredBasicName();
+            TestBaseWeaponItemType_ResolvesRequiredBasicName();
             TestWeaponFallback_EveryResolvedNameLoadsIntoPool();
+            TestEquipBaseWeaponItemType_LoadsRequiredBasicIntoPool();
             TestRebuildCharacterActions_PoolContainsResolvedWeaponNames();
             TestArmorStatBonusWithoutAction_DoesNotCreateRandomAction();
             TestArmorExplicitGearAction_NotDuplicatedWhenSpecialMods();
@@ -87,6 +90,27 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        private static void TestResolveWeaponType_IncludesRequiredBasicName()
+        {
+            Console.WriteLine("\n--- TestResolveWeaponType_IncludesRequiredBasicName ---");
+
+            try
+            {
+                ActionLoader.LoadActions();
+            }
+            catch
+            {
+                TestBase.AssertTrue(true, "Skip: ActionLoader unavailable", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            var names = GearActionNames.ResolveWeaponType(WeaponType.Sword);
+            TestBase.AssertTrue(
+                names.Any(n => string.Equals(n, "STRIKE", StringComparison.OrdinalIgnoreCase)),
+                $"Sword weapon-type preview should include STRIKE; names: [{string.Join(", ", names)}]",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         private static void TestWeaponFallback_EveryResolvedNameLoadsIntoPool()
         {
             Console.WriteLine("\n--- TestWeaponFallback_EveryResolvedNameLoadsIntoPool ---");
@@ -125,6 +149,75 @@ namespace RPGGame.Tests.Unit
                 bool ok = character.ActionPool.Any(e => string.Equals(e.action.Name, n, StringComparison.OrdinalIgnoreCase));
                 TestBase.AssertTrue(ok, $"Pool should contain resolved name '{n}' after AddWeaponActions", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestBaseWeaponItemType_ResolvesRequiredBasicName()
+        {
+            Console.WriteLine("\n--- TestBaseWeaponItemType_ResolvesRequiredBasicName ---");
+
+            try
+            {
+                ActionLoader.LoadActions();
+            }
+            catch
+            {
+                TestBase.AssertTrue(true, "Skip: ActionLoader unavailable", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            if (ActionLoader.GetAction("SLAM") == null)
+            {
+                TestBase.AssertTrue(true, "Skip: no SLAM in action data", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            var baseWeapon = new Item(ItemType.Weapon, "BaseMace")
+            {
+                WeaponType = WeaponType.Mace,
+                GearAction = null
+            };
+
+            var names = GearActionNames.Resolve(baseWeapon);
+            TestBase.AssertTrue(
+                names.Any(n => string.Equals(n, "SLAM", StringComparison.OrdinalIgnoreCase)),
+                $"Base Item weapon with Mace type should resolve SLAM; names: [{string.Join(", ", names)}]",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEquipBaseWeaponItemType_LoadsRequiredBasicIntoPool()
+        {
+            Console.WriteLine("\n--- TestEquipBaseWeaponItemType_LoadsRequiredBasicIntoPool ---");
+
+            try
+            {
+                ActionLoader.LoadActions();
+            }
+            catch
+            {
+                TestBase.AssertTrue(true, "Skip: ActionLoader unavailable", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            if (ActionLoader.GetAction("SLAM") == null)
+            {
+                TestBase.AssertTrue(true, "Skip: no SLAM in action data", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            var character = TestDataBuilders.Character().WithName("BaseWeaponEquip").Build();
+            var baseWeapon = new Item(ItemType.Weapon, "BaseMace")
+            {
+                WeaponType = WeaponType.Mace,
+                GearAction = null
+            };
+
+            character.EquipItem(baseWeapon, "weapon");
+
+            bool hasSlam = character.ActionPool.Any(e =>
+                string.Equals(e.action.Name, "SLAM", StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertTrue(hasSlam,
+                "Equipping a base Item weapon with Mace type should add SLAM to the action pool",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestRebuildCharacterActions_PoolContainsResolvedWeaponNames()

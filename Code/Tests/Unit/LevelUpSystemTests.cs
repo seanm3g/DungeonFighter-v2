@@ -25,6 +25,7 @@ namespace RPGGame.Tests.Unit
 
             TestMultipleLevelUps();
             TestClassPointDistribution();
+            TestClassTierUpgradeGrantsActionSlot();
             TestStatIncreasesPerClass();
             TestHealthRestorationOnLevelUp();
             TestClassBalanceMultipliers();
@@ -109,6 +110,52 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(wizardPointsAfter >= wizardPointsBefore,
                 $"Wizard should gain class points: {wizardPointsBefore} -> {wizardPointsAfter}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestClassTierUpgradeGrantsActionSlot()
+        {
+            Console.WriteLine("\n--- Testing Class Tier Upgrade Grants Action Slot ---");
+
+            var cfg = GameConfiguration.Instance;
+            var backupLoot = cfg.LootSystem;
+            var backupClassPresentation = cfg.ClassPresentation;
+            try
+            {
+                cfg.LootSystem = new LootSystemConfig
+                {
+                    ComboSequenceBaseMax = 2,
+                    ComboSequenceAbsoluteMax = 8
+                };
+                cfg.ClassPresentation = new ClassPresentationConfig
+                {
+                    TierThresholds = new[] { 2, 4, 6, 8 }
+                };
+
+                var character = TestDataBuilders.Character().WithLevel(1).Build();
+                var sword = TestDataBuilders.Weapon().WithWeaponType(WeaponType.Sword).Build();
+                character.EquipItem(sword, "weapon");
+                var manager = new LevelUpManager(character);
+
+                TestBase.AssertEqual(2, ComboSequenceMaxHelper.GetEffectiveMax(character),
+                    "base slots before class upgrade", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var firstLevel = manager.LevelUpWithInfo();
+                TestBase.AssertEqual(0, firstLevel.ActionSlotIncrease,
+                    "first pre-tier class point does not grant a slot", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(2, ComboSequenceMaxHelper.GetEffectiveMax(character),
+                    "capacity unchanged before first threshold", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var secondLevel = manager.LevelUpWithInfo();
+                TestBase.AssertEqual(1, secondLevel.ActionSlotIncrease,
+                    "crossing first class threshold reports one gained slot", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(3, ComboSequenceMaxHelper.GetEffectiveMax(character),
+                    "capacity increases after class threshold", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.LootSystem = backupLoot;
+                cfg.ClassPresentation = backupClassPresentation;
+            }
         }
 
         private static void TestStatIncreasesPerClass()

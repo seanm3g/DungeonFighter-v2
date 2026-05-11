@@ -27,7 +27,7 @@ namespace RPGGame.UI.ColorSystem.Applications
             var cfg = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
             string displayClass = AttributeClassNameComposer.ComposeDisplayClass(character.Progression, cfg);
             if (string.Equals(displayClass, cfg.DefaultNoPointsClassName, StringComparison.Ordinal))
-                return new List<ColoredText> { new ColoredText(name, ColorPalette.Gold.GetColor()) };
+                return new List<ColoredText> { new ColoredText(name, EntityNameColorClamp.Apply(ColorPalette.Gold.GetColor())) };
 
             Color[] palette = ResolvePalette(character.Progression);
             return PatternIntoSegments(name, palette);
@@ -36,7 +36,7 @@ namespace RPGGame.UI.ColorSystem.Applications
         private static List<ColoredText> PatternIntoSegments(string name, Color[] palette)
         {
             if (palette == null || palette.Length == 0)
-                palette = new[] { Colors.White };
+                palette = new[] { EntityNameColorClamp.Apply(Colors.White) };
 
             var list = new List<ColoredText>(name.Length);
             for (int i = 0; i < name.Length; i++)
@@ -81,7 +81,7 @@ namespace RPGGame.UI.ColorSystem.Applications
             }
         }
 
-        private static Color C(byte r, byte g, byte b) => Color.FromRgb(r, g, b);
+        private static Color C(byte r, byte g, byte b) => EntityNameColorClamp.Apply(Color.FromRgb(r, g, b));
 
         private static Color[] SoloPalette(WeaponType path) => path switch
         {
@@ -101,7 +101,7 @@ namespace RPGGame.UI.ColorSystem.Applications
             {
                 C(155, 89, 182), C(52, 152, 219), C(236, 240, 241), C(125, 60, 152)
             },
-            _ => new[] { Colors.White }
+            _ => new[] { EntityNameColorClamp.Apply(Colors.White) }
         };
 
         private static Color[] DuoPalette(WeaponType first, WeaponType second) => (first, second) switch

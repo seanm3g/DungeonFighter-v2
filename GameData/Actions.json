@@ -943,7 +943,8 @@
     "damage": "150%",
     "speed": "1.25",
     "target": "ENEMY",
-    "tags": "weapon"
+    "tags": "weapon, weapon_basic",
+    "weaponTypes": "Mace"
   },
   {
     "action": "STRIKE",
@@ -951,9 +952,10 @@
     "dps": "100%",
     "numberOfHits": "2",
     "damage": "50%",
-    "speed": "0.75",
+    "speed": "1.00",
     "target": "ENEMY",
-    "tags": "weapon"
+    "tags": "weapon, weapon_basic",
+    "weaponTypes": "Sword"
   },
   {
     "action": "STAB",
@@ -963,7 +965,8 @@
     "damage": "60%",
     "speed": "0.50",
     "target": "ENEMY",
-    "tags": "weapon"
+    "tags": "weapon, weapon_basic",
+    "weaponTypes": "Dagger"
   },
   {
     "action": "MAGIC MISSLE",
@@ -974,7 +977,8 @@
     "speed": "2.50",
     "heroCombo": "1",
     "target": "ENEMY",
-    "tags": "weapon"
+    "tags": "weapon, weapon_basic",
+    "weaponTypes": "Wand"
   },
   {
     "action": "CAST",

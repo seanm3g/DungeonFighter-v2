@@ -1,3 +1,4 @@
+using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using System;
@@ -12,6 +13,7 @@ namespace RPGGame.UI.Avalonia.Renderers
     {
         /// <summary>Footer text + button + prompt (anchored to bottom of content rect).</summary>
         public const int FooterReservedRows = 4;
+        private const int SummaryMetricLabelWidth = 28;
 
         private readonly GameCanvasControl canvas;
         private readonly List<ClickableElement> clickableElements;
@@ -25,16 +27,14 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Builds colored lines appended to the center display buffer so the death summary sits after combat log text.
         /// </summary>
-        public static List<List<ColoredText>> BuildDeathSummaryLines(string defeatSummary)
+        public static List<List<ColoredText>> BuildDeathSummaryLines(string defeatSummary, int summaryWidth = 0)
         {
             var lines = new List<List<ColoredText>>();
 
-            lines.Add(new List<ColoredText> { new ColoredText("═══ YOU DIED ═══", AsciiArtAssets.Colors.Red) });
+            AddCenteredLine(lines, new List<ColoredText> { new ColoredText("═══ YOU DIED ═══", AsciiArtAssets.Colors.Red) }, summaryWidth);
             lines.Add(new List<ColoredText>());
 
             string[] summaryLines = (defeatSummary ?? "").Split('\n');
-            bool inSection = false;
-            bool skipNextEmpty = false;
 
             var statsToSkip = new HashSet<string>
             {
@@ -62,15 +62,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                     continue;
                 }
                 
-                // Skip empty lines (but allow one between sections)
+                // Summary spacing is controlled here so the appended block stays compact.
                 if (string.IsNullOrWhiteSpace(trimmedLine))
                 {
-                    if (inSection && !skipNextEmpty)
-                    {
-                        skipNextEmpty = true;
-                        continue; // Skip this empty line
-                    }
-                    skipNextEmpty = false;
                     continue;
                 }
                 
@@ -86,68 +80,117 @@ namespace RPGGame.UI.Avalonia.Renderers
                 }
                 if (shouldSkip) continue;
                 
-                skipNextEmpty = false;
-                
                 // Detect and render section headers (compact, no separator lines)
                 if (trimmedLine.Contains("CHARACTER PROGRESSION"))
                 {
-                    inSection = true;
-                    lines.Add(new List<ColoredText> { new ColoredText($"  {trimmedLine}", AsciiArtAssets.Colors.Cyan) });
+                    AddCenteredLine(lines, new List<ColoredText> { new ColoredText(trimmedLine, AsciiArtAssets.Colors.Cyan) }, summaryWidth);
                     continue;
                 }
                 else if (trimmedLine.Contains("COMBAT PERFORMANCE"))
                 {
-                    inSection = true;
-                    lines.Add(new List<ColoredText> { new ColoredText($"  {trimmedLine}", AsciiArtAssets.Colors.Red) });
+                    AddCenteredLine(lines, new List<ColoredText> { new ColoredText(trimmedLine, AsciiArtAssets.Colors.Red) }, summaryWidth);
                     continue;
                 }
                 else if (trimmedLine.Contains("DAMAGE RECORDS"))
                 {
-                    inSection = true;
                     continue; // Skip the header, just show the stats
                 }
                 else if (trimmedLine.Contains("COMBO MASTERY"))
                 {
-                    inSection = true;
-                    lines.Add(new List<ColoredText> { new ColoredText($"  {trimmedLine}", AsciiArtAssets.Colors.Yellow) });
+                    AddCenteredLine(lines, new List<ColoredText> { new ColoredText(trimmedLine, AsciiArtAssets.Colors.Yellow) }, summaryWidth);
                     continue;
                 }
                 else if (trimmedLine.Contains("ITEM COLLECTION"))
                 {
-                    inSection = true;
-                    lines.Add(new List<ColoredText> { new ColoredText($"  {trimmedLine}", AsciiArtAssets.Colors.Magenta) });
+                    AddCenteredLine(lines, new List<ColoredText> { new ColoredText(trimmedLine, AsciiArtAssets.Colors.Magenta) }, summaryWidth);
                     continue;
                 }
                 else if (trimmedLine.Contains("EXPLORATION"))
                 {
                     // Skip exploration if all zeros
-                    inSection = false;
                     continue;
                 }
                 else if (trimmedLine.Contains("ACHIEVEMENTS UNLOCKED"))
                 {
-                    inSection = true;
-                    lines.Add(new List<ColoredText> { new ColoredText($"  {trimmedLine}", AsciiArtAssets.Colors.Gold) });
+                    AddCenteredLine(lines, new List<ColoredText> { new ColoredText(trimmedLine, AsciiArtAssets.Colors.Gold) }, summaryWidth);
                     continue;
                 }
                 
                 // Render stat lines
                 var lineColor = trimmedLine.Contains("✓", StringComparison.Ordinal) ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.White;
-                
-                // Compact formatting - remove extra indentation
-                string formattedLine = trimmedLine;
-                if (formattedLine.StartsWith("   "))
-                {
-                    formattedLine = "    " + formattedLine.TrimStart();
-                }
-                
-                lines.Add(new List<ColoredText> { new ColoredText(formattedLine, lineColor) });
+                AddCenteredLine(lines, BuildSummaryLine(trimmedLine, lineColor), summaryWidth);
             }
 
             lines.Add(new List<ColoredText>());
-            lines.Add(new List<ColoredText> { new ColoredText("Better luck next time!", AsciiArtAssets.Colors.Yellow) });
+            AddCenteredLine(lines, new List<ColoredText> { new ColoredText("Better luck next time!", AsciiArtAssets.Colors.Yellow) }, summaryWidth);
 
             return lines;
+        }
+
+        private static List<ColoredText> BuildSummaryLine(string text, Color color)
+        {
+            int separatorIndex = text.IndexOf(':', StringComparison.Ordinal);
+            if (separatorIndex <= 0 || separatorIndex == text.Length - 1)
+                return new List<ColoredText> { new ColoredText(text, color) };
+
+            string label = text.Substring(0, separatorIndex + 1).PadRight(SummaryMetricLabelWidth);
+            string value = text.Substring(separatorIndex + 1).TrimStart();
+            return new List<ColoredText>
+            {
+                new ColoredText(label, color),
+                new ColoredText(value, color)
+            };
+        }
+
+        private static void AddCenteredLine(List<List<ColoredText>> lines, List<ColoredText> segments, int summaryWidth)
+        {
+            lines.Add(CenterLine(segments, summaryWidth));
+        }
+
+        private static List<ColoredText> CenterLine(List<ColoredText> segments, int summaryWidth)
+        {
+            var normalized = TrimLeadingWhitespace(segments);
+            if (summaryWidth <= 0 || normalized.Count == 0)
+                return normalized;
+
+            int textLength = 0;
+            foreach (var segment in normalized)
+                textLength += segment.Text?.Length ?? 0;
+
+            int leftPadding = (summaryWidth - textLength) / 2;
+            if (leftPadding <= 0)
+                return normalized;
+
+            var centered = new List<ColoredText>
+            {
+                new ColoredText(new string(' ', leftPadding), AsciiArtAssets.Colors.White)
+            };
+            centered.AddRange(normalized);
+            return centered;
+        }
+
+        private static List<ColoredText> TrimLeadingWhitespace(List<ColoredText> segments)
+        {
+            var normalized = new List<ColoredText>();
+            bool trimming = true;
+
+            foreach (var segment in segments)
+            {
+                string text = segment.Text ?? string.Empty;
+                if (trimming)
+                {
+                    string trimmed = text.TrimStart();
+                    if (trimmed.Length == 0)
+                        continue;
+
+                    text = trimmed;
+                    trimming = false;
+                }
+
+                normalized.Add(new ColoredText(text, segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas));
+            }
+
+            return normalized;
         }
 
         /// <summary>

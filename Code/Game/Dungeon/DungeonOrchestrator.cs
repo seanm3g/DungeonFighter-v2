@@ -4,6 +4,8 @@ namespace RPGGame
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using RPGGame.UI.Avalonia;
+    using RPGGame.UI.ColorSystem;
+    using RPGGame.UI.ColorSystem.Applications;
     using RPGGame.GameCore.Helpers;
     using RPGGame.Entity.Services;
 
@@ -160,7 +162,9 @@ namespace RPGGame
                                     displayManager.AddCombatEvent("", stateManager.CurrentPlayer);
                                     if (healthRestored > 0)
                                     {
-                                        displayManager.AddCombatEvent($"You have been fully healed! (+{healthRestored} health)", stateManager.CurrentPlayer);
+                                        string healingMarkup = ColoredTextRenderer.RenderAsMarkup(
+                                            DungeonNarrativeColoredText.FormatHealingMessage(healthRestored));
+                                        displayManager.AddCombatEvent(healingMarkup, stateManager.CurrentPlayer);
                                     }
                                     displayManager.AddCombatEvent("You leave the dungeon safely, but receive no rewards.", stateManager.CurrentPlayer);
                                     if (stateManager.CurrentPlayer != null && stateManager.CurrentRoom != null)

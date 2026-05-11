@@ -1,3 +1,4 @@
+using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Renderers.Text;
 using RPGGame.UI.ColorSystem;
@@ -13,6 +14,7 @@ namespace RPGGame.UI.Avalonia.Renderers
     {
         /// <summary>Prompt + gap + 3 menu rows (anchored to bottom of content rect).</summary>
         public const int FooterReservedRows = 5;
+        private const int SummaryMetricLabelWidth = 24;
 
         private readonly GameCanvasControl canvas;
         private readonly ColoredTextWriter textWriter;
@@ -34,49 +36,37 @@ namespace RPGGame.UI.Avalonia.Renderers
             int xpGained,
             Item? lootReceived,
             List<LevelUpInfo> levelUpInfos,
-            List<Item> itemsFoundDuringRun)
+            List<Item> itemsFoundDuringRun,
+            int summaryWidth = 0)
         {
             var lines = new List<List<ColoredText>>();
 
             string victoryHeader = AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Victory);
-            lines.Add(new List<ColoredText> { new ColoredText(victoryHeader, AsciiArtAssets.Colors.Gold) });
+            AddCenteredLine(lines, new List<ColoredText> { new ColoredText(victoryHeader, AsciiArtAssets.Colors.Gold) }, summaryWidth);
             lines.Add(new List<ColoredText>());
 
             const string congrats = "Congratulations! You have successfully completed the dungeon!";
-            lines.Add(new List<ColoredText> { new ColoredText(congrats, AsciiArtAssets.Colors.Green) });
+            AddCenteredLine(lines, new List<ColoredText> { new ColoredText(congrats, AsciiArtAssets.Colors.Green) }, summaryWidth);
 
-            int maxHealth = player.GetEffectiveMaxHealth();
-            if (player.CurrentHealth == maxHealth)
-                lines.Add(new List<ColoredText> { new ColoredText("Health Fully Restored", AsciiArtAssets.Colors.Green) });
-
-            var themeColor = DungeonThemeColors.GetThemeColor(dungeon.Theme);
-            lines.Add(new List<ColoredText>
-            {
-                new ColoredText("Dungeon: ", AsciiArtAssets.Colors.White),
-                new ColoredText(dungeon.Name, themeColor)
-            });
-
-            lines.Add(new List<ColoredText>
+            lines.Add(new List<ColoredText>());
+            AddCenteredLine(lines, new List<ColoredText>
             {
                 new ColoredText(AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.DungeonStatistics), AsciiArtAssets.Colors.Green)
-            });
+            }, summaryWidth);
 
             var sessionStats = player.SessionStats;
-            lines.Add(new List<ColoredText> { new ColoredText($"  Rooms Cleared: {dungeon.Rooms.Count}", AsciiArtAssets.Colors.White) });
-            lines.Add(new List<ColoredText> { new ColoredText($"  Enemies Defeated: {sessionStats.EnemiesDefeated}", AsciiArtAssets.Colors.White) });
-            lines.Add(new List<ColoredText> { new ColoredText($"  Total Damage Dealt: {sessionStats.TotalDamageDealt:N0}", AsciiArtAssets.Colors.White) });
-            lines.Add(new List<ColoredText> { new ColoredText($"  Total Damage Received: {sessionStats.TotalDamageReceived:N0}", AsciiArtAssets.Colors.White) });
+            AddCenteredLine(lines, BuildMetricLine("Rooms Cleared:", dungeon.Rooms.Count.ToString("N0")), summaryWidth);
+            AddCenteredLine(lines, BuildMetricLine("Enemies Defeated:", sessionStats.EnemiesDefeated.ToString("N0")), summaryWidth);
+            AddCenteredLine(lines, BuildMetricLine("Total Damage Dealt:", sessionStats.TotalDamageDealt.ToString("N0")), summaryWidth);
+            AddCenteredLine(lines, BuildMetricLine("Total Damage Received:", sessionStats.TotalDamageReceived.ToString("N0")), summaryWidth);
 
-            lines.Add(new List<ColoredText>
+            lines.Add(new List<ColoredText>());
+            AddCenteredLine(lines, new List<ColoredText>
             {
                 new ColoredText(AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.RewardsEarned), AsciiArtAssets.Colors.Yellow)
-            });
+            }, summaryWidth);
 
-            lines.Add(new List<ColoredText>
-            {
-                new ColoredText("Experience Gained: ", AsciiArtAssets.Colors.Gold),
-                new ColoredText($"{xpGained:N0} XP", AsciiArtAssets.Colors.White)
-            });
+            AddCenteredLine(lines, BuildMetricLine("Experience Gained:", $"{xpGained:N0} XP", AsciiArtAssets.Colors.Gold, AsciiArtAssets.Colors.White), summaryWidth);
 
             if (levelUpInfos != null && levelUpInfos.Count > 0)
             {
@@ -85,7 +75,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     if (!levelUpInfo.IsValid) continue;
                     foreach (var line in LevelUpDisplayColoredText.BuildDisplayLines(levelUpInfo))
-                        lines.Add(line);
+                        AddCenteredLine(lines, line, summaryWidth);
                     lines.Add(new List<ColoredText>());
                 }
             }
@@ -98,16 +88,81 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             if (allLoot.Count > 0)
             {
-                lines.Add(new List<ColoredText> { new ColoredText("  Loot Received:", AsciiArtAssets.Colors.Yellow) });
+                AddCenteredLine(lines, new List<ColoredText> { new ColoredText("Loot Received:", AsciiArtAssets.Colors.Yellow) }, summaryWidth);
                 foreach (var item in allLoot)
-                    lines.Add(ItemDisplayColoredText.FormatLootForCompletion(item));
+                    AddCenteredLine(lines, ItemDisplayColoredText.FormatLootForCompletion(item), summaryWidth);
             }
             else
             {
-                lines.Add(new List<ColoredText> { new ColoredText("  Loot Received: None", AsciiArtAssets.Colors.Gray) });
+                AddCenteredLine(lines, new List<ColoredText> { new ColoredText("Loot Received: None", AsciiArtAssets.Colors.Gray) }, summaryWidth);
             }
 
             return lines;
+        }
+
+        private static List<ColoredText> BuildMetricLine(string label, string value)
+        {
+            return BuildMetricLine(label, value, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.White);
+        }
+
+        private static List<ColoredText> BuildMetricLine(string label, string value, Color labelColor, Color valueColor)
+        {
+            return new List<ColoredText>
+            {
+                new ColoredText(label.PadRight(SummaryMetricLabelWidth), labelColor),
+                new ColoredText(value, valueColor)
+            };
+        }
+
+        private static void AddCenteredLine(List<List<ColoredText>> lines, List<ColoredText> segments, int summaryWidth)
+        {
+            lines.Add(CenterLine(segments, summaryWidth));
+        }
+
+        private static List<ColoredText> CenterLine(List<ColoredText> segments, int summaryWidth)
+        {
+            var normalized = TrimLeadingWhitespace(segments);
+            if (summaryWidth <= 0 || normalized.Count == 0)
+                return normalized;
+
+            int textLength = 0;
+            foreach (var segment in normalized)
+                textLength += segment.Text?.Length ?? 0;
+
+            int leftPadding = (summaryWidth - textLength) / 2;
+            if (leftPadding <= 0)
+                return normalized;
+
+            var centered = new List<ColoredText>
+            {
+                new ColoredText(new string(' ', leftPadding), AsciiArtAssets.Colors.White)
+            };
+            centered.AddRange(normalized);
+            return centered;
+        }
+
+        private static List<ColoredText> TrimLeadingWhitespace(List<ColoredText> segments)
+        {
+            var normalized = new List<ColoredText>();
+            bool trimming = true;
+
+            foreach (var segment in segments)
+            {
+                string text = segment.Text ?? string.Empty;
+                if (trimming)
+                {
+                    string trimmed = text.TrimStart();
+                    if (trimmed.Length == 0)
+                        continue;
+
+                    text = trimmed;
+                    trimming = false;
+                }
+
+                normalized.Add(new ColoredText(text, segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas));
+            }
+
+            return normalized;
         }
 
         /// <summary>

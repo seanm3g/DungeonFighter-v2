@@ -198,6 +198,16 @@
                                                    Foreground="#FF888888"
                                                    TextWrapping="Wrap"
                                                    Margin="0,6,0,0"/>
+                                        <TextBlock Text="{Binding StarterSummary, StringFormat='Starter: {0}'}"
+                                                   FontSize="11"
+                                                   Foreground="#FF777777"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,2,0,0"/>
+                                        <TextBlock Text="{Binding ActionsSummary, StringFormat='Actions: {0}'}"
+                                                   FontSize="11"
+                                                   Foreground="#FF777777"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
@@ -288,6 +298,11 @@
                                                    Foreground="#FF888888"
                                                    TextWrapping="Wrap"
                                                    Margin="0,6,0,0"/>
+                                        <TextBlock Text="{Binding StarterSummary, StringFormat='Starter: {0}'}"
+                                                   FontSize="11"
+                                                   Foreground="#FF777777"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>

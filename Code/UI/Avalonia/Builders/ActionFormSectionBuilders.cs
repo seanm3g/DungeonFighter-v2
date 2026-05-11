@@ -309,6 +309,20 @@ namespace RPGGame.UI.Avalonia.Builders
                 }
             }, "DefaultStartingCheckBox");
 
+            _ctx.Factory.AddBooleanField(stack, "Required Weapon Basic", HasTag(action, WeaponRequiredComboAction.WeaponBasicTag), (value) =>
+            {
+                SetTag(action, WeaponRequiredComboAction.WeaponBasicTag, value);
+            });
+
+            stack.Children.Add(new TextBlock
+            {
+                Text = "Weapon type checks grant this action to every weapon of that type. Required Weapon Basic marks the one action that must stay in that weapon's combo sequence.",
+                FontSize = 12,
+                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 4)
+            });
+
             var weaponTypesLabel = new TextBlock
             {
                 Text = "Assign to Weapon Types:",
@@ -413,6 +427,19 @@ namespace RPGGame.UI.Avalonia.Builders
                     weaponCheckBox.IsChecked = action.WeaponTypes?.Contains(weaponType) ?? false;
                 }
             }
+        }
+
+        private static bool HasTag(ActionData action, string tag)
+        {
+            return action.Tags != null && action.Tags.Any(t => string.Equals(t, tag, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static void SetTag(ActionData action, string tag, bool enabled)
+        {
+            action.Tags ??= new List<string>();
+            action.Tags.RemoveAll(t => string.Equals(t, tag, StringComparison.OrdinalIgnoreCase));
+            if (enabled)
+                action.Tags.Add(tag);
         }
     }
 }

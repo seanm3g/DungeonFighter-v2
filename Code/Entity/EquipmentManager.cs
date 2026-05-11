@@ -103,9 +103,9 @@ namespace RPGGame
             // Remove actions from previous item
             if (previousItem != null)
             {
-                if (previousItem is WeaponItem oldWeapon)
+                if (IsWeaponSlotOrItem(slot, previousItem))
                 {
-                    _character.Actions.RemoveWeaponActions(_character, oldWeapon);
+                    _character.Actions.RemoveWeaponActions(_character, previousItem);
                 }
                 else
                 {
@@ -115,15 +115,17 @@ namespace RPGGame
 
             // Re-add class actions before adding gear actions so RemoveClassActions does not strip
             // gear-added actions (JAB, TAUNT, etc. are in AllClassActions and would otherwise be removed).
-            var weaponType = (_character.Equipment.Weapon as WeaponItem)?.WeaponType;
+            WeaponType? weaponType = GearActionNames.TryResolveWeaponType(_character.Equipment.Weapon, out var resolvedWeaponType)
+                ? resolvedWeaponType
+                : null;
             _character.Actions.AddClassActions(_character, _character.Progression, weaponType);
 
             // Add actions from new item (after class actions so gear actions are never removed by RemoveClassActions)
             if (newItem != null)
             {
-                if (newItem is WeaponItem weapon)
+                if (IsWeaponSlotOrItem(slot, newItem))
                 {
-                    _character.Actions.AddWeaponActions(_character, weapon);
+                    _character.Actions.AddWeaponActions(_character, newItem);
                 }
                 else
                 {
@@ -142,7 +144,7 @@ namespace RPGGame
             // This ensures that changing any gear that removes actions doesn't leave the player without a default action
             if (_character.Actions.ComboSequence.Count == 0)
             {
-                _character.Actions.InitializeDefaultCombo(_character, _character.Equipment.Weapon as WeaponItem);
+                _character.Actions.InitializeDefaultCombo(_character, _character.Equipment.Weapon);
             }
             
             // Track item equipping statistics
@@ -150,6 +152,12 @@ namespace RPGGame
             {
                 _character.RecordItemEquipped();
             }
+        }
+
+        private static bool IsWeaponSlotOrItem(string slot, Item? item)
+        {
+            return string.Equals(slot, "weapon", StringComparison.OrdinalIgnoreCase) ||
+                   item?.Type == ItemType.Weapon;
         }
 
         /// <summary>

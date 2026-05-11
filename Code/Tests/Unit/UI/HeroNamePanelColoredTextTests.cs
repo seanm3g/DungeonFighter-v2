@@ -35,6 +35,10 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(soloSegs.Count == "Grimgar".Length, "solo name -> one segment per glyph", ref run, ref passed, ref failed);
             int distinctSolo = soloSegs.Select(s => (s.Color.R, s.Color.G, s.Color.B)).Distinct().Count();
             TestBase.AssertTrue(distinctSolo >= 2, "solo barb cycles at least two colors", ref run, ref passed, ref failed);
+            double minSoloBrightness = soloSegs.Min(s => ColorValidator.GetHsvValue255(s.Color));
+            TestBase.AssertTrue(minSoloBrightness >= EntityNameColorClamp.DefaultBrightnessFloor - 1,
+                "class-colored hero name applies entity-name brightness floor",
+                ref run, ref passed, ref failed);
 
             var hybrid = new Character("Hex", 5);
             hybrid.Progression.RoguePoints = 2;

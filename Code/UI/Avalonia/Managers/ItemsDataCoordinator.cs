@@ -52,6 +52,40 @@ namespace RPGGame.UI.Avalonia.Managers
             var t = tagsSummary.Trim();
             return t == TagsEmptyPlaceholder.ToString() ? "" : t;
         }
+
+        /// <summary>List row display for starter-tagged catalog entries.</summary>
+        public static string FormatStarterSummaryForItemsSettings(List<string>? tags)
+        {
+            return GameDataTagHelper.HasTag(tags, StarterCatalogItems.StarterTag) ? "Yes" : "No";
+        }
+
+        /// <summary>Returns a normalized tag list after applying the starter checkbox from the edit dialog.</summary>
+        public static List<string>? TagsListWithStarterFlag(string? commaSeparatedTags, bool isStarter)
+        {
+            var parsed = GameDataTagHelper.ParseCommaSeparatedTags(commaSeparatedTags);
+            parsed.RemoveAll(t => string.Equals(t, StarterCatalogItems.StarterTag, StringComparison.OrdinalIgnoreCase));
+            if (isStarter)
+                parsed.Add(StarterCatalogItems.StarterTag);
+            parsed = GameDataTagHelper.NormalizeDistinct(parsed);
+            return parsed.Count == 0 ? null : parsed;
+        }
+
+        /// <summary>Preview of action names resolved from the same weapon-type rules used by action pool rebuilds.</summary>
+        public static string FormatActionsSummaryForWeaponType(string? weaponType)
+        {
+            if (!Enum.TryParse(weaponType?.Trim(), ignoreCase: true, out WeaponType parsedType))
+                return TagsEmptyPlaceholder.ToString();
+
+            try
+            {
+                var names = GearActionNames.ResolveWeaponType(parsedType);
+                return names.Count == 0 ? TagsEmptyPlaceholder.ToString() : string.Join(", ", names);
+            }
+            catch
+            {
+                return "(unavailable)";
+            }
+        }
         
         /// <summary>
         /// Loads weapons and armor from JSON and creates view models
@@ -82,7 +116,9 @@ namespace RPGGame.UI.Avalonia.Managers
                     HitCount = 0, // Not available in WeaponData class
                     Effect = "none", // Not available in WeaponData class
                     IsWeapon = true,
-                    TagsSummary = FormatTagsSummaryForItemsSettings(weapon.Tags)
+                    TagsSummary = FormatTagsSummaryForItemsSettings(weapon.Tags),
+                    StarterSummary = FormatStarterSummaryForItemsSettings(weapon.Tags),
+                    ActionsSummary = FormatActionsSummaryForWeaponType(weapon.Type)
                 };
 
                 // Add available tiers
@@ -112,7 +148,9 @@ namespace RPGGame.UI.Avalonia.Managers
                     SelectedTier = armorItem.Tier,
                     Armor = armorItem.Armor,
                     IsWeapon = false,
-                    TagsSummary = FormatTagsSummaryForItemsSettings(armorItem.Tags)
+                    TagsSummary = FormatTagsSummaryForItemsSettings(armorItem.Tags),
+                    StarterSummary = FormatStarterSummaryForItemsSettings(armorItem.Tags),
+                    ActionsSummary = TagsEmptyPlaceholder.ToString()
                 };
 
                 // Add available tiers

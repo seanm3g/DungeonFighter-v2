@@ -123,7 +123,8 @@ namespace RPGGame.UI.Avalonia.Managers
                 AttackSpeed = selectedItem.AttackSpeed,
                 Armor = selectedItem.Armor,
                 IsWeapon = selectedItem.IsWeapon,
-                Tags = ItemsDataCoordinator.TagsEditTextFromSummary(selectedItem.TagsSummary)
+                Tags = ItemsDataCoordinator.TagsEditTextFromSummary(selectedItem.TagsSummary),
+                IsStarter = string.Equals(selectedItem.StarterSummary, "Yes", StringComparison.OrdinalIgnoreCase)
             };
             
             // Populate available weapon types
@@ -172,10 +173,13 @@ namespace RPGGame.UI.Avalonia.Managers
                         selectedItem.DamageBonusMax = viewModel.DamageBonusMax;
                         selectedItem.AttackSpeed = viewModel.AttackSpeed;
                         selectedItem.Armor = viewModel.Armor;
-                        var parsedTags = GameDataTagHelper.ParseCommaSeparatedTags(viewModel.Tags);
+                        List<string>? tagsForJson = ItemsDataCoordinator.TagsListWithStarterFlag(viewModel.Tags, viewModel.IsStarter);
+                        var parsedTags = tagsForJson ?? new List<string>();
                         selectedItem.TagsSummary = ItemsDataCoordinator.FormatTagsSummaryForItemsSettings(parsedTags);
-
-                        List<string>? tagsForJson = parsedTags.Count == 0 ? null : parsedTags;
+                        selectedItem.StarterSummary = ItemsDataCoordinator.FormatStarterSummaryForItemsSettings(parsedTags);
+                        selectedItem.ActionsSummary = selectedItem.IsWeapon
+                            ? ItemsDataCoordinator.FormatActionsSummaryForWeaponType(viewModel.Type)
+                            : "—";
 
                         // Update original data if it exists
                         if (selectedItem.IsWeapon && originalWeapons.TryGetValue(oldName, out var originalWeapon))

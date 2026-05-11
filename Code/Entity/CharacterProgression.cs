@@ -229,6 +229,23 @@ namespace RPGGame
             return sorted[0].Points;
         }
 
+        /// <summary>
+        /// One combo/action strip slot is granted for each named class tier reached across all weapon paths.
+        /// Pre-tier investment (1..first threshold-1) does not count as a class upgrade.
+        /// </summary>
+        public int GetClassUpgradeActionSlotBonus()
+        {
+            var cfg = Pres;
+            int total = 0;
+            foreach (WeaponType path in ClassPresentationConfig.ClassWeaponOrder)
+            {
+                int band = cfg.GetTierBandIndex(GetClassPoints(path));
+                if (band > 0)
+                    total += Math.Min(band, ClassPresentationConfig.TierSlotCount);
+            }
+            return total;
+        }
+
         public int GetNextClassThreshold(string className)
         {
             var wt = TryResolveWeaponTypeFromName(className);

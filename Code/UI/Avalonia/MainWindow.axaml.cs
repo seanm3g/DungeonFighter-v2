@@ -49,10 +49,12 @@ namespace RPGGame.UI.Avalonia
             if (e.Key == Key.F11)
             {
                 DeveloperModeState.ToggleCombatLogInstant();
+                if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+                    canvasUI.RefreshCenterPanelModeTint();
                 e.Handled = true;
                 UpdateStatus(DeveloperModeState.IsCombatLogInstant
-                    ? "Developer mode: instant text (combat, room, menus)"
-                    : "Developer mode: off");
+                    ? "Fast combat mode: on (instant text)"
+                    : "Fast combat mode: off");
                 return;
             }
 

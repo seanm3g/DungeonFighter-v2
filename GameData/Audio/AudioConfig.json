@@ -114,9 +114,9 @@
       "rateLimitMs": null
     },
     "Combat_HeroHurt": {
-      "file": "",
+      "file": "SFX\\hitHurt (1).wav",
       "volume": 1,
-      "rateLimitMs": null
+      "rateLimitMs": 80
     },
     "Combat_HeroLowHealth": {
       "file": "",

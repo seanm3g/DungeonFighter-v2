@@ -16,6 +16,7 @@ namespace RPGGame.Tests.Unit.Entity
             _testsRun = _testsPassed = _testsFailed = 0;
 
             TestEffectiveMaxBasePlusEquippedExtraSlots();
+            TestEffectiveMaxIncludesClassUpgradeSlots();
             TestTrimRemovesNonRequiredWhenOverCap();
 
             TestBase.PrintSummary("ComboSequenceMaxHelper Tests", _testsRun, _testsPassed, _testsFailed);
@@ -54,6 +55,53 @@ namespace RPGGame.Tests.Unit.Entity
             finally
             {
                 cfg.LootSystem = backupLoot;
+            }
+        }
+
+        private static void TestEffectiveMaxIncludesClassUpgradeSlots()
+        {
+            Console.WriteLine("\n--- Testing GetEffectiveMax includes class upgrade slots ---");
+            var cfg = GameConfiguration.Instance;
+            var backupLoot = cfg.LootSystem;
+            var backupClassPresentation = cfg.ClassPresentation;
+            try
+            {
+                cfg.LootSystem = new LootSystemConfig
+                {
+                    ComboSequenceBaseMax = 2,
+                    ComboSequenceAbsoluteMax = 6
+                };
+                cfg.ClassPresentation = new ClassPresentationConfig
+                {
+                    TierThresholds = new[] { 2, 4, 6, 8 }
+                };
+
+                var c = TestDataBuilders.Character().WithName("ClassSlotTest").Build();
+
+                c.Progression.WarriorPoints = 1;
+                TestBase.AssertEqual(2, ComboSequenceMaxHelper.GetEffectiveMax(c),
+                    "pre-tier class point does not add a slot", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                c.Progression.WarriorPoints = 2;
+                TestBase.AssertEqual(3, ComboSequenceMaxHelper.GetEffectiveMax(c),
+                    "first warrior tier adds one slot", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                c.Progression.WarriorPoints = 4;
+                TestBase.AssertEqual(4, ComboSequenceMaxHelper.GetEffectiveMax(c),
+                    "second warrior tier adds another slot", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                c.Progression.RoguePoints = 2;
+                TestBase.AssertEqual(5, ComboSequenceMaxHelper.GetEffectiveMax(c),
+                    "class slots sum across paths", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                c.Equipment.Feet = new FeetItem("Boots", 1, 1) { ExtraActionSlots = 3 };
+                TestBase.AssertEqual(6, ComboSequenceMaxHelper.GetEffectiveMax(c),
+                    "class plus gear slots still respect absolute cap", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.LootSystem = backupLoot;
+                cfg.ClassPresentation = backupClassPresentation;
             }
         }
 
