@@ -65,25 +65,40 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             string? displayDungeonName = dungeonName ?? context.DungeonName;
             string? displayRoomName = room?.Name ?? context.RoomName;
-            RenderWithLayout(
-                player,
-                "DUNGEON FIGHTERS",
-                (contentX, contentY, contentWidth, contentHeight) =>
-                {
-                    if (textManager is CanvasTextManager canvasTextManager)
+
+            void PaintRoomEntryLayout()
+            {
+                RenderWithLayout(
+                    player,
+                    "DUNGEON FIGHTERS",
+                    (contentX, contentY, contentWidth, contentHeight) =>
                     {
-                        var displayManager = canvasTextManager.DisplayManager;
-                        var buffer = displayManager.Buffer;
-                        var renderer = new DisplayRenderer(new ColoredTextWriter(canvas));
-                        renderer.Render(buffer, contentX, contentY, contentWidth, contentHeight, clearContent: true);
-                    }
-                },
-                context,
-                null,
-                displayDungeonName,
-                displayRoomName,
-                clearCanvas: false
-            );
+                        if (textManager is CanvasTextManager canvasTextManager)
+                        {
+                            var displayManager = canvasTextManager.DisplayManager;
+                            var buffer = displayManager.Buffer;
+                            var renderer = new DisplayRenderer(new ColoredTextWriter(canvas));
+                            renderer.Render(buffer, contentX, contentY, contentWidth, contentHeight, clearContent: true);
+                        }
+                    },
+                    context,
+                    null,
+                    displayDungeonName,
+                    displayRoomName,
+                    clearCanvas: false
+                );
+            }
+
+            if (textManager is CanvasTextManager ctmSuppress)
+            {
+                using (ctmSuppress.DisplayManager.BeginSuppressReactiveRenderDuringImperativeRender())
+                    PaintRoomEntryLayout();
+            }
+            else
+            {
+                PaintRoomEntryLayout();
+            }
+
             dungeonRenderer.RenderActionInfoStrip(player);
             canvas.Refresh();
         }

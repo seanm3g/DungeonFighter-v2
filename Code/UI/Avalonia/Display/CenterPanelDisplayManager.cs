@@ -52,6 +52,13 @@ namespace RPGGame.UI.Avalonia.Display
         // Callback to trigger combat screen re-render when new messages are added
         // Used when external renderer (like combat screen) handles rendering
         private System.Action? externalRenderCallback = null;
+
+        /// <summary>
+        /// While &gt; 0, <see cref="TriggerRender"/> does not schedule work (avoids reactive double-paint
+        /// while an imperative path such as <c>RenderRoomEntry</c> draws the buffer explicitly).
+        /// Pending triggers are discarded when the scope ends — the imperative caller owns the final paint.
+        /// </summary>
+        private int imperativeRenderDepth;
         
         public CenterPanelDisplayManager(
             GameCanvasControl canvas,
@@ -167,10 +174,41 @@ namespace RPGGame.UI.Avalonia.Display
         }
         
         /// <summary>
+        /// Suppresses reactive <see cref="TriggerRender"/> scheduling while an imperative renderer
+        /// (e.g. room entry) paints the buffer directly. Dispose to leave scope; coalesced triggers are dropped.
+        /// </summary>
+        public IDisposable BeginSuppressReactiveRenderDuringImperativeRender()
+        {
+            imperativeRenderDepth++;
+            return new ImperativeRenderScope(this);
+        }
+
+        private sealed class ImperativeRenderScope : IDisposable
+        {
+            private readonly CenterPanelDisplayManager owner;
+            private bool disposed;
+
+            public ImperativeRenderScope(CenterPanelDisplayManager owner)
+            {
+                this.owner = owner;
+            }
+
+            public void Dispose()
+            {
+                if (disposed) return;
+                disposed = true;
+                owner.imperativeRenderDepth = Math.Max(0, owner.imperativeRenderDepth - 1);
+            }
+        }
+
+        /// <summary>
         /// Triggers a render (used by batch transactions and explicit render calls)
         /// </summary>
         internal void TriggerRender()
         {
+            if (imperativeRenderDepth > 0)
+                return;
+
             renderCoordinator.SetExternalRenderCallback(externalRenderCallback);
             renderCoordinator.TriggerRender(modeManager.Timing);
         }

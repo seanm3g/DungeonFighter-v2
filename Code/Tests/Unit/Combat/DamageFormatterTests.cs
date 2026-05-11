@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
+using RPGGame;
 using RPGGame.Combat.Formatting;
 using RPGGame.Tests;
 using RPGGame.UI.ColorSystem;
@@ -39,6 +40,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestAddTakesDamageFrom();
             TestAddBracketedActorTakesDamage();
             TestAddActorTakesDamage();
+            TestAddActorTakesDamage_ActorOverload_MatchesCreatureNameShading();
             TestAddBracketedActorNoLongerAffected();
             TestAddActorNoLongerAffected();
             TestAddEffectStacksRemain();
@@ -268,6 +270,50 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(result.Count > 0,
                 "AddActorTakesDamage should add text to builder",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// DoT lines previously used a single <see cref="EntityColorHelper.GetActorColor"/> for the full name,
+        /// which breaks creature per-letter shading and markup round-trip. Actor overload must match action-line naming.
+        /// </summary>
+        private static void TestAddActorTakesDamage_ActorOverload_MatchesCreatureNameShading()
+        {
+            Console.WriteLine("\n--- Testing AddActorTakesDamage (Actor) matches creature name shading ---");
+
+            var enemy = TestDataBuilders.Enemy().WithName("Salamander").Build();
+            var dotBuilder = new ColoredTextBuilder();
+            DamageFormatter.AddActorTakesDamage(dotBuilder, enemy, 1, "bleed");
+            var dotSegs = dotBuilder.Build();
+
+            var nameBuilder = new ColoredTextBuilder();
+            EntityColorHelper.AppendActorNameColored(nameBuilder, enemy);
+            var nameSegs = nameBuilder.Build();
+
+            TestBase.AssertTrue(nameSegs.Count > 1,
+                "Salamander should use multi-segment creature shading",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            int takesIdx = dotSegs.FindIndex(s => s.Text == "takes");
+            TestBase.AssertEqual(nameSegs.Count + 1, takesIdx,
+                "DoT line should be name segments, space, then takes",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertEqual(" ", dotSegs[nameSegs.Count].Text,
+                "Space expected between name and takes",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            for (int i = 0; i < nameSegs.Count; i++)
+            {
+                TestBase.AssertEqual(nameSegs[i].Text, dotSegs[i].Text,
+                    $"Name segment {i} text",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                bool rgb = nameSegs[i].Color.R == dotSegs[i].Color.R
+                    && nameSegs[i].Color.G == dotSegs[i].Color.G
+                    && nameSegs[i].Color.B == dotSegs[i].Color.B;
+                TestBase.AssertTrue(rgb,
+                    $"Name segment {i} color should match AppendActorNameColored",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
         }
 
         #endregion

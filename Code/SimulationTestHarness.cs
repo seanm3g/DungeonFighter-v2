@@ -116,14 +116,14 @@ namespace RPGGame.SimulationTest
             Console.WriteLine("=".PadRight(60, '='));
         }
 
-        private static Character CreateTestPlayer()
+        internal static Character CreateTestPlayer()
         {
             var player = new Character("TestWarrior", 1);
             // Initialize with basic stats
             return player;
         }
 
-        private static List<Enemy> CreateTestEnemies()
+        internal static List<Enemy> CreateTestEnemies()
         {
             var enemies = new List<Enemy>();
             

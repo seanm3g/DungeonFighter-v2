@@ -1,4 +1,6 @@
 using System.Text;
+using RPGGame.Diagnostics;
+using RPGGame.Simulation;
 
 namespace RPGGame.MCP.Tools.PerformanceProfiling
 {
@@ -179,6 +181,19 @@ namespace RPGGame.MCP.Tools.PerformanceProfiling
             output.AppendLine("✓ Consider JIT compilation hints for hot paths\n");
 
             return output.ToString();
+        }
+
+        /// <summary>
+        /// Runs the headless simulation harness with <see cref="CombatHotPathMetrics"/> enabled
+        /// and returns measured wall-clock totals (not the static estimates above).
+        /// </summary>
+        public static string RunMeasuredHeadlessBaselineReport(int repetitionsPerEnemy = 3)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("MEASURED HEADLESS BASELINE (CombatHotPathMetrics)\n");
+            sb.AppendLine(CombatHotPathBenchmark.RunHeadlessBaseline(repetitionsPerEnemy));
+            sb.AppendLine("See RPGGame.Diagnostics.CombatHotPathMetrics for methodology.");
+            return sb.ToString();
         }
     }
 }

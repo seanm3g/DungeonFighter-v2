@@ -126,6 +126,14 @@ The **Action Interaction Lab** is a stepped combat sandbox (cloned hero, lab ene
 
 When the composed HUD class title is still the configured **default no-points** label (typically **Fighter**—no weapon-path class points yet, or the highest path is still below the first tier gate), the hero **name** stays **plain white**. After that title advances to a real solo, duo, or multi-path class string, the name is drawn as **per-letter color cycles** using a palette keyed off the dominant **weapon path** (solo) or the **top two paths** by class points (hybrids), aligned with multiclass title composition (`HeroNamePanelColoredText`, `CharacterPanelRenderer`).
 
+### Combat log — hero name matches HUD HERO panel
+
+The **combat log** (and every action-line / DoT / heal / status / block / dodge / victory / defeat builder that appends an actor name through `EntityColorHelper.AppendActorNameColored`) draws the hero's name with the **same** segments produced by `HeroNamePanelColoredText.BuildLeftPanelHeroNameSegments`—so a class-titled hero like **Malachi Sunshard** reads with one consistent palette across the **HERO** panel (top-left) and every reference in the log (e.g. `Ghoul hits Malachi Sunshard …` / `Malachi Sunshard hits Ghoul …`). Default-Fighter heroes still render as a single **gold** segment in both surfaces. Enemy names continue to use creature-shaded segments (`AnimalEnemyNameColoredText`) or solid catalog colors. `EntityColorHelper.BuildCharacterNameDisplaySegments` exposes the shared segment list. Block/dodge messages no longer hard-code `ColorPalette.Player`; they reuse the same actor-name path. Tests: `HeroNamePanelColoredTextTests` (combat-log-vs-HUD parity for class-titled and Fighter heroes).
+
+### Engineering — combat profiling baseline and MCP snapshots
+
+Headless runs can enable **CombatHotPathMetrics** to measure wall-clock time in **ActionExecutionFlow.Execute** versus **DamageCalculator.CalculateDamage** (`CombatHotPathBenchmark`, **PerformanceBenchmarker.RunMeasuredHeadlessBaselineReport**). **MCP** serialization fills **dungeon current room number** by indexing **CurrentRoom** in the dungeon’s room list and sets **combat IsPlayerTurn** from **CombatManager.GetNextEntityToAct** vs the active hero. **RenderRoomEntry** wraps imperative layout in **BeginSuppressReactiveRenderDuringImperativeRender** so reactive **TriggerRender** calls during the same pass do not schedule duplicate paints.
+
 ### MultiHit Mod (Hero base stats → next action) — prior milestone
 
 The settings UI exposes **Hero base stats** including action speed %, action damage %, **MultiHit mod**, and amp mod %. Those modifiers apply to the hero’s **next** executed action; prior work ensured MultiHit mod flows through data, execution, and tests.

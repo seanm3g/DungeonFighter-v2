@@ -1,6 +1,7 @@
 using System;
 using RPGGame;
 using RPGGame.Tests.Unit.Combat;
+using RPGGame.Tests.Unit.Diagnostics;
 
 namespace RPGGame.Tests.Runners
 {
@@ -31,6 +32,8 @@ namespace RPGGame.Tests.Runners
             TurnManagerTests.RunAllTests();
             Console.WriteLine();
             DamageCalculatorTests.RunAllTests();
+            Console.WriteLine();
+            CombatHotPathMetricsTests.RunAllTests();
             Console.WriteLine();
             HitCalculatorTests.RunAllTests();
             Console.WriteLine();

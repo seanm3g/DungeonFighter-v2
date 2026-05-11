@@ -13547,3 +13547,13 @@ d:\Code Projects\github projects\DungeonFighter-v2\Code\bin\cursor-verify-build\
 d:\Code Projects\github projects\DungeonFighter-v2\Code\bin\cursor-verify-build\runtimes\win\lib\net8.0\System.Diagnostics.EventLog.dll
 d:\Code Projects\github projects\DungeonFighter-v2\Code\bin\cursor-verify-build\runtimes\win\lib\net7.0\System.Management.dll
 d:\Code Projects\github projects\DungeonFighter-v2\Code\bin\cursor-verify-build\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
+d:\Code Projects\github projects\DungeonFighter-v2\_build_verify3\DF.exe
+d:\Code Projects\github projects\DungeonFighter-v2\_build_verify3\DF.deps.json
+d:\Code Projects\github projects\DungeonFighter-v2\_build_verify3\DF.runtimeconfig.json
+d:\Code Projects\github projects\DungeonFighter-v2\_build_verify3\DF.dll
+d:\Code Projects\github projects\DungeonFighter-v2\_build_verify3\DF.pdb
+D:\Code Projects\github projects\DungeonFighter-v2\_build_verify_namecolor\DF.exe
+D:\Code Projects\github projects\DungeonFighter-v2\_build_verify_namecolor\DF.deps.json
+D:\Code Projects\github projects\DungeonFighter-v2\_build_verify_namecolor\DF.runtimeconfig.json
+D:\Code Projects\github projects\DungeonFighter-v2\_build_verify_namecolor\DF.dll
+D:\Code Projects\github projects\DungeonFighter-v2\_build_verify_namecolor\DF.pdb
