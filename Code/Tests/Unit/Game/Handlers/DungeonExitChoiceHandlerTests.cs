@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using RPGGame.UI.Avalonia;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Game.Handlers
@@ -29,6 +30,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             try
             {
                 TestConstructor();
+                TestBuildExitChoiceMenuLines_IncludesTopAndBottomDividers();
                 TestShowExitChoiceMenu();
                 TestIsWaitingForChoice();
                 TestHandleMenuInput_Continue();
@@ -67,6 +69,33 @@ namespace RPGGame.Tests.Unit.Game.Handlers
         #endregion
 
         #region Display Tests
+
+        private static void TestBuildExitChoiceMenuLines_IncludesTopAndBottomDividers()
+        {
+            Console.WriteLine("\n--- Testing Exit Choice Menu Lines ---");
+
+            var lines = DungeonExitChoiceHandler.BuildExitChoiceMenuLines();
+
+            TestBase.AssertEqual(5, lines.Count,
+                "Exit choice menu should contain top divider, two options, blank line, and bottom divider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, GetPlainText(lines[0]),
+                "Exit choice menu should draw a divider above option 1",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(GetPlainText(lines[1]).Contains("1 - Stay and continue through the dungeon"),
+                "Exit choice menu should draw continue option after top divider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(GetPlainText(lines[2]).Contains("2 - Leave the dungeon"),
+                "Exit choice menu should draw leave option after continue option",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("", GetPlainText(lines[3]),
+                "Exit choice menu should keep a blank line before the bottom divider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, GetPlainText(lines[4]),
+                "Exit choice menu should draw a divider below both options",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
 
         private static void TestShowExitChoiceMenu()
         {
@@ -266,5 +295,10 @@ namespace RPGGame.Tests.Unit.Game.Handlers
         }
 
         #endregion
+
+        private static string GetPlainText(IReadOnlyList<RPGGame.UI.ColorSystem.ColoredText> segments)
+        {
+            return string.Join("", segments.Select(segment => segment.Text));
+        }
     }
 }

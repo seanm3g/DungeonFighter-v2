@@ -346,36 +346,49 @@ namespace RPGGame.Tests.Unit.Actions
 
         /// <summary>
         /// Enemies whose pool is only combo-flagged specials must not execute a named move when the preview
-        /// attack total is below the combo threshold (regression: used to return <c>ActionPool[0]</c>).
+        /// attack total is below the combo threshold. Enemy data does not always populate an explicit combo
+        /// sequence, so action-pool specials must still be threshold-gated.
         /// </summary>
         private static void TestEnemyComboOnlyPoolBelowThresholdIsUnnamedNormal()
         {
             Console.WriteLine("\n--- Testing enemy combo-only pool vs combo threshold ---");
 
-            var enemy = TestDataBuilders.Enemy().WithName("SlamBeast").WithStats(10, 10, 10, 0).Build();
+            var enemy = TestDataBuilders.Enemy().WithName("Lich").WithStats(10, 10, 10, 0).Build();
             enemy.ActionPool.Clear();
-            var slam = TestDataBuilders.CreateMockAction("SLAM", ActionType.Attack);
-            slam.IsComboAction = true;
-            slam.ComboOrder = 1;
-            enemy.AddAction(slam, 1.0);
-            enemy.AddToCombo(slam);
+            enemy.ComboSequence.Clear();
+
+            var criticalAttack = TestDataBuilders.CreateMockAction("CRITICAL ATTACK", ActionType.Attack);
+            criticalAttack.IsComboAction = true;
+            criticalAttack.ComboOrder = 1;
+            var stun = TestDataBuilders.CreateMockAction("STUN", ActionType.Attack);
+            stun.IsComboAction = true;
+            stun.ComboOrder = 2;
+            enemy.AddAction(criticalAttack, 1.0);
+            enemy.AddAction(stun, 1.0);
 
             ActionSelector.ClearStoredRolls();
-            Dice.SetTestRoll(11);
+            Dice.SetTestRoll(12);
             var low = ActionSelector.SelectEnemyActionBasedOnRoll(enemy);
             TestBase.AssertTrue(low != null && !low.IsComboAction && string.IsNullOrEmpty(low.Name),
-                "Enemy roll 11 (below default combo threshold 14) should use unnamed synthetic normal, not SLAM",
+                "Enemy roll 12 (below default combo threshold 14) should use unnamed synthetic normal, not CRITICAL ATTACK/STUN",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            TestBase.AssertFalse(ActionSelector.WouldNaturalRollSelectComboAction(enemy, 11),
-                "WouldNaturalRollSelectComboAction should be false for enemy roll 11",
+            ActionSelector.ClearStoredRolls();
+            Dice.SetTestRoll(10);
+            var lower = ActionSelector.SelectEnemyActionBasedOnRoll(enemy);
+            TestBase.AssertTrue(lower != null && !lower.IsComboAction && string.IsNullOrEmpty(lower.Name),
+                "Enemy roll 10 (below default combo threshold 14) should use unnamed synthetic normal, not STUN",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertFalse(ActionSelector.WouldNaturalRollSelectComboAction(enemy, 12),
+                "WouldNaturalRollSelectComboAction should be false for enemy roll 12",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             ActionSelector.ClearStoredRolls();
             Dice.SetTestRoll(16);
             var high = ActionSelector.SelectEnemyActionBasedOnRoll(enemy);
-            TestBase.AssertTrue(high != null && high.IsComboAction && string.Equals(high.Name, "SLAM", StringComparison.Ordinal),
-                "Enemy roll 16 should select SLAM from the combo strip",
+            TestBase.AssertTrue(high != null && high.IsComboAction && string.Equals(high.Name, "CRITICAL ATTACK", StringComparison.Ordinal),
+                "Enemy roll 16 should select CRITICAL ATTACK from the action-pool combo strip fallback",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             TestBase.AssertTrue(ActionSelector.WouldNaturalRollSelectComboAction(enemy, 16),

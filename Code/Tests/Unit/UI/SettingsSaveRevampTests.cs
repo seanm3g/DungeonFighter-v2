@@ -117,6 +117,8 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(ig >= 0, "ItemGeneration present", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(cl >= 0, "Classes present", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(ig < cl, "ItemGeneration before Classes", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            int au = Array.IndexOf(tags, "Audio");
+            TestBase.AssertTrue(au >= 0, "Audio handler included so AudioConfig.json saves with settings", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

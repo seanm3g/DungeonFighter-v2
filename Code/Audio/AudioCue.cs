@@ -33,12 +33,15 @@ namespace RPGGame.Audio
         Menu_Confirm,
         Menu_Hover,
 
-        Combat_Hit,
+        Combat_CriticalMiss,
         Combat_Miss,
-        Combat_Critical,
+        Combat_Hit,
         Combat_ComboComplete,
+        Combat_CriticalHit,
         Combat_EnemyDied,
         Combat_HeroHurt,
+        Combat_HeroLowHealth,
+        Combat_EnemyLowHealth,
         Combat_StatusApplied,
 
         Progression_LevelUp,

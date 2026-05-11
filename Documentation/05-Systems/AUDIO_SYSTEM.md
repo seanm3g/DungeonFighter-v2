@@ -22,16 +22,23 @@ The rest of the game depends only on `AudioCues.Trigger(...)` and the `IAudioEng
 
 ## Trigger map
 
-### Combat (subscribed to `CombatEventBus`)
+### Combat
 
-| Bus event                                | Cue                          |
+| Source                                   | Cue                          |
 |------------------------------------------|------------------------------|
-| `ActionHit` (non-critical, non-combo end)| `Combat_Hit`                 |
-| `ActionMiss`                             | `Combat_Miss`                |
-| `ActionCritical`                         | `Combat_Critical`            |
-| `ComboEnded` (combo finisher hit)        | `Combat_ComboComplete`       |
+| `ActionEventPublisher.PublishActionMiss` (`IsCriticalMiss=true`) | `Combat_CriticalMiss`        |
+| `ActionEventPublisher.PublishActionMiss` (`IsCriticalMiss=false`) | `Combat_Miss`                |
+| `ActionEventPublisher.PublishActionHit` (normal)                 | `Combat_Hit`                 |
+| `ActionEventPublisher.PublishActionHit` (`IsCombo=true`)         | `Combat_ComboComplete`       |
+| `ActionEventPublisher.PublishActionHit` (`IsCritical=true`)      | `Combat_CriticalHit`         |
 | `EnemyDied`                              | `Combat_EnemyDied`           |
+| `HeroLowHealth` (crosses ≤20% HP alive)  | `Combat_HeroLowHealth`       |
+| `EnemyLowHealth` (crosses ≤20% HP alive) | `Combat_EnemyLowHealth`      |
 | `StatusEffectApplied`                    | `Combat_StatusApplied`       |
+
+The five direct combat outcome cues are mutually exclusive: critical miss, miss, normal hit, combo, critical hit. They fire directly from `ActionEventPublisher` after the matching hit/miss event is published so combat-thread sounds do not depend on `CombatEventBus` subscription lifetime. Critical hit takes precedence over combo if both flags are present on the same hit.
+
+Low-health events are published when action damage or poison/burn/bleed ticks move the hero or enemy from above 20% HP to at-or-below 20% HP. They do not fire for already-low actors or for damage that kills the actor outright, so defeat cues remain distinct.
 
 ### Music (subscribed to `GameStateManager.StateChanged`)
 
@@ -50,7 +57,7 @@ Mapping is data-driven via `stateMusicMap` in `AudioConfig.json`. Default mappin
 | `Death`                | `Music_Death`             |
 | `TrainingGroundOffer`  | `Music_TrainingGround`    |
 
-Music crossfades over the default fade duration (200 ms) when the state changes.
+Music crossfades when the track changes; default fade is **1000 ms**, adjustable in **Settings → Audio** (`musicCrossfadeMs` in `AudioConfig.json`, 0–10000 ms). The SoundFlow backend overlaps the outgoing and incoming `SoundPlayer`s and ramps their per-player volumes over that duration.
 
 ### Menu and direct-call cues
 
@@ -80,7 +87,7 @@ Lives at [GameData/Audio/AudioConfig.json](../../GameData/Audio/AudioConfig.json
   "sfxVolume": 0.9,
   "musicEnabled": true,
   "sfxEnabled": true,
-  "musicCrossfadeMs": 200,
+  "musicCrossfadeMs": 1000,
   "cueMap": {
     "Menu_Select": { "file": "SFX/menu_select.wav", "volume": 0.8 },
     "Combat_Hit":  { "file": "SFX/combat_hit.wav",  "volume": 1.0, "rateLimitMs": 80 }
@@ -131,7 +138,7 @@ New `AudioSettingsPanel` (Avalonia `UserControl`) registered in `SettingsPanelCa
    - current file path (read-only text)
    - **Browse…** (Avalonia `OpenFileDialog`, initial folder = `GameData/Audio/`)
    - volume slider
-   - **Test** button (calls `AudioCues.Trigger(cue)` immediately)
+   - **Test** button (calls `AudioCues.Trigger(cue, settingsPreview: true)` and uses an audible preview path even if master/SFX/music are muted)
    - **Clear** button
 
 The panel persists changes to `GameData/Audio/AudioConfig.json`. Saved state is also reapplied to the running engine when the user clicks **Save**.
@@ -148,6 +155,7 @@ The panel persists changes to `GameData/Audio/AudioConfig.json`. Saved state is 
 `Code/Tests/Unit/Audio/AudioCueDispatcherTests.cs`:
 
 - `AudioCueDispatcher_RoutesCombatHit_ToHitCue` — combat events route to the correct cue.
+- Low-health routing and crossing tests — hero/enemy low-health events route to distinct cues and fire only when crossing the 20% threshold.
 - `MusicController_ChangesTrack_OnStateChange` — state change triggers `PlayMusic`.
 - `AudioCueDispatcher_RespectsRateLimit` — rapid-fire cues are throttled.
 - `AudioConfig_LoadsAndValidates_MissingFile_NoCrash` — empty / missing `file` does not throw.

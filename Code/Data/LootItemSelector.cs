@@ -101,32 +101,7 @@ namespace RPGGame
 
             var selectedArmor = pool[_random.Next(pool.Count)];
 
-            Item? item = ItemGenerator.GenerateArmorItem(selectedArmor);
-
-            if (item != null)
-                item.GearAction = GetRandomArmorAction();
-
-            return item;
-        }
-
-        /// <summary>
-        /// Gets a random armor action for variety
-        /// </summary>
-        private string? GetRandomArmorAction()
-        {
-            var allActions = ActionLoader.GetAllActions();
-            var availableActions = allActions
-                .Where(action => action.IsComboAction &&
-                               !action.Tags.Contains("environment") &&
-                               !action.Tags.Contains("enemy") &&
-                               !action.Tags.Contains("unique"))
-                .Select(action => action.Name)
-                .ToList();
-
-            if (availableActions.Count > 0)
-                return availableActions[_random.Next(availableActions.Count)];
-
-            return null;
+            return ItemGenerator.GenerateArmorItem(selectedArmor);
         }
     }
 }

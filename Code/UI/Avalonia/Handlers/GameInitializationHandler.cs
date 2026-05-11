@@ -82,6 +82,15 @@ namespace RPGGame.UI.Avalonia.Handlers
                     {
                         TitleScreenHelper.ShowStaticTitleScreen();
 
+                        try
+                        {
+                            AudioBootstrap.InitializeTitleScreenMusic();
+                        }
+                        catch (Exception ex)
+                        {
+                            DebugLogger.Log("GameInitializationHandler", $"InitializeTitleScreenMusic: {ex.Message}");
+                        }
+
                         // Set flag to wait for key press
                         waitingForKeyAfterAnimation = true;
                     }

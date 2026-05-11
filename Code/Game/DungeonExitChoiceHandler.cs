@@ -46,27 +46,10 @@ namespace RPGGame
             // Display the menu
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                // Option 1 with color (no blank line - divider comes right before this)
-                var option1Builder = new ColoredTextBuilder()
-                    .Add("  ", ColorPalette.White)
-                    .Add("1", ColorPalette.Success)
-                    .Add(" - Stay and continue through the dungeon", ColorPalette.White);
-                canvasUI.WriteLineColoredSegments(option1Builder.Build(), UIMessageType.System);
-                
-                // Option 2 with color
-                var option2Builder = new ColoredTextBuilder()
-                    .Add("  ", ColorPalette.White)
-                    .Add("2", ColorPalette.Warning)
-                    .Add(" - Leave the dungeon", ColorPalette.White);
-                canvasUI.WriteLineColoredSegments(option2Builder.Build(), UIMessageType.System);
-                
-                // Blank line after menu options
-                canvasUI.WriteLineColoredSegments(new ColoredTextBuilder().Build(), UIMessageType.System);
-                
-                // Bottom separator line with color (same length as top separator)
-                var bottomSeparatorBuilder = new ColoredTextBuilder()
-                    .Add(AsciiArtAssets.UIText.Divider, ColorPalette.Info);
-                canvasUI.WriteLineColoredSegments(bottomSeparatorBuilder.Build(), UIMessageType.System);
+                foreach (var line in BuildExitChoiceMenuLines())
+                {
+                    canvasUI.WriteLineColoredSegments(line, UIMessageType.System);
+                }
                 
                 // Render the menu
                 if (stateManager.CurrentPlayer != null && stateManager.CurrentRoom != null)
@@ -83,6 +66,31 @@ namespace RPGGame
             exitChoiceTaskSource = null;
             
             return shouldExit;
+        }
+
+        public static IReadOnlyList<List<ColoredText>> BuildExitChoiceMenuLines()
+        {
+            var separatorBuilder = new ColoredTextBuilder()
+                .Add(AsciiArtAssets.UIText.Divider, ColorPalette.Info);
+
+            var option1Builder = new ColoredTextBuilder()
+                .Add("  ", ColorPalette.White)
+                .Add("1", ColorPalette.Success)
+                .Add(" - Stay and continue through the dungeon", ColorPalette.White);
+            
+            var option2Builder = new ColoredTextBuilder()
+                .Add("  ", ColorPalette.White)
+                .Add("2", ColorPalette.Warning)
+                .Add(" - Leave the dungeon", ColorPalette.White);
+
+            return new List<List<ColoredText>>
+            {
+                separatorBuilder.Build(),
+                option1Builder.Build(),
+                option2Builder.Build(),
+                new ColoredTextBuilder().Build(),
+                separatorBuilder.Build()
+            };
         }
         
         /// <summary>

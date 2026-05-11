@@ -14,7 +14,7 @@ namespace RPGGame
     public static class GearActionNames
     {
         /// <summary>
-        /// Returns ordered action names for this item (GearAction, bonuses, weapon-type fallback, armor extras).
+        /// Returns ordered action names for this item (explicit GearAction, rolled ActionBonuses, and weapon-type fallback).
         /// </summary>
         public static List<string> Resolve(Item? gear)
         {
@@ -33,8 +33,6 @@ namespace RPGGame
 
             if (gear is WeaponItem weapon && actions.Count == 0)
                 actions.AddRange(GetWeaponTypeActionNames(weapon.WeaponType));
-            else if (gear is HeadItem || gear is ChestItem || gear is FeetItem || gear is LegsItem)
-                actions.AddRange(GetArmorExtraActionNames(gear));
 
             if (gear is WeaponItem w)
                 EnsureRequiredWeaponBasicInActionNames(w.WeaponType, actions);
@@ -124,84 +122,5 @@ namespace RPGGame
             return weaponActions;
         }
 
-        private static List<string> GetArmorExtraActionNames(Item armor)
-        {
-            var actions = new List<string>();
-            if (!HasSpecialArmorActions(armor))
-                return actions;
-
-            // Resolve() already prepends GearAction when set; only add a roll-based name when the piece has no explicit action.
-            if (!string.IsNullOrEmpty(armor.GearAction))
-                return actions;
-
-            actions.AddRange(GetRandomArmorActionList(armor));
-            return actions;
-        }
-
-        private static List<string> GetRandomArmorActionList(Item armor)
-        {
-            var randomActionName = GetRandomArmorActionNamePreferCombo();
-            if (!string.IsNullOrEmpty(randomActionName))
-                return new List<string> { randomActionName };
-
-            var allActions = ActionLoader.GetAllActions();
-
-            var armorActions = allActions
-                .Where(action => action.Tags != null &&
-                                 action.Tags.Contains("armor") &&
-                                 !action.Tags.Contains("environment"))
-                .Select(action => action.Name)
-                .ToList();
-
-            if (armorActions.Count == 0)
-            {
-                armorActions = allActions
-                    .Where(action => action.IsComboAction &&
-                                     (action.Tags == null || (!action.Tags.Contains("environment") &&
-                                                              !action.Tags.Contains("enemy") &&
-                                                              !action.Tags.Contains("weapon"))))
-                    .Select(action => action.Name)
-                    .ToList();
-            }
-
-            if (armorActions.Count > 0)
-                return new List<string> { armorActions[Random.Shared.Next(armorActions.Count)] };
-
-            return new List<string>();
-        }
-
-        private static string? GetRandomArmorActionNamePreferCombo()
-        {
-            var allActions = ActionLoader.GetAllActions();
-            var availableActions = allActions
-                .Where(action => action.IsComboAction &&
-                                 action.Tags != null &&
-                                 !action.Tags.Contains("environment") &&
-                                 !action.Tags.Contains("enemy") &&
-                                 !action.Tags.Contains("unique") &&
-                                 !action.Tags.Any(t => t.Equals("weapon", StringComparison.OrdinalIgnoreCase)))
-                .Select(action => action.Name)
-                .ToList();
-
-            if (availableActions.Count > 0)
-                return availableActions[Random.Shared.Next(availableActions.Count)];
-
-            return null;
-        }
-
-        private static bool HasSpecialArmorActions(Item armor)
-        {
-            if (armor.Modifications.Count > 0)
-                return true;
-            if (armor.StatBonuses.Count > 0)
-                return true;
-            if (armor.ActionBonuses.Count > 0)
-                return true;
-
-            if (BasicGearConfig.IsBasicGear(armor.Name ?? ""))
-                return false;
-
-            return false;
-        }
     }
 }

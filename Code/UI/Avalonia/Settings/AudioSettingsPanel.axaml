@@ -39,9 +39,9 @@
                         <CheckBox  Grid.Row="4" Grid.Column="3" x:Name="SfxMuteCheckBox" Content="Mute" Foreground="#FFE8E8E8" VerticalAlignment="Center"/>
                     </Grid>
 
-                    <Grid ColumnDefinitions="160,160,*">
-                        <TextBlock Grid.Column="0" Text="Music crossfade (ms)" Foreground="#FFE8E8E8" VerticalAlignment="Center"/>
-                        <NumericUpDown Grid.Column="1" x:Name="MusicCrossfadeMsBox" Minimum="0" Maximum="5000" Increment="50" Value="200"/>
+                    <Grid ColumnDefinitions="220,160,*">
+                        <TextBlock Grid.Column="0" Text="Music track crossfade (ms)" Foreground="#FFE8E8E8" VerticalAlignment="Center"/>
+                        <NumericUpDown Grid.Column="1" x:Name="MusicCrossfadeMsBox" Minimum="0" Maximum="10000" Increment="50" Value="1000"/>
                     </Grid>
                 </StackPanel>
             </Border>

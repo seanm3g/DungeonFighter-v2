@@ -32,7 +32,9 @@ namespace RPGGame.Audio
         {
             this.engine = engine ?? throw new ArgumentNullException(nameof(engine));
             this.configResolver = configResolver ?? (() => AudioConfig.Instance);
-            this.globalEnabledResolver = globalEnabledResolver ?? (() => GameSettings.Instance.EnableSoundEffects);
+            // State music is gated by AudioConfig.MusicEnabled and per-state bindings — not GameSettings.EnableSoundEffects
+            // (that flag only gates the cue dispatcher; settings Test also bypasses it).
+            this.globalEnabledResolver = globalEnabledResolver ?? (() => true);
         }
 
         /// <summary>Attaches this controller to a <see cref="GameStateManager"/> so it reacts to state transitions.</summary>
@@ -106,7 +108,9 @@ namespace RPGGame.Audio
 
             try
             {
-                engine.PlayMusic(absolute, config.MusicCrossfadeMs, binding.Volume);
+                double? outgoing = engine.TryGetMusicPlaybackTime(out var t) ? t : (double?)null;
+                double startOffset = config.ComputeMusicStartOffsetSecondsForTransition(outgoing);
+                engine.PlayMusic(absolute, config.MusicCrossfadeMs, binding.Volume, startOffset);
                 currentMusicCue = nextCue;
             }
             catch (Exception ex)

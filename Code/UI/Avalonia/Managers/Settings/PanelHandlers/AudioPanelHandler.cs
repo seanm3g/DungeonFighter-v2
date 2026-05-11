@@ -9,6 +9,7 @@ using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using RPGGame.Audio;
 using RPGGame.UI.Avalonia.Settings;
+using RPGGame.Utils;
 
 namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 {
@@ -92,7 +93,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (sfxSlider    != null) config.SfxVolume        = (float)sfxSlider.Value;
             if (musicMute    != null) config.MusicEnabled     = !(musicMute.IsChecked ?? false);
             if (sfxMute      != null) config.SfxEnabled       = !(sfxMute.IsChecked ?? false);
-            if (crossfade    != null) config.MusicCrossfadeMs = (int)(crossfade.Value ?? 200m);
+            if (crossfade    != null) config.MusicCrossfadeMs = (int)(crossfade.Value ?? AudioConfig.DefaultMusicCrossfadeMs);
 
             // Master mute folds into GameSettings.EnableSoundEffects so legacy code that gates on
             // that flag continues to honour the panel's master mute. We don't toggle it from this
@@ -321,7 +322,14 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             grid.Children.Add(volSlider);
 
             var testBtn = new Button { Content = "Test", Margin = new global::Avalonia.Thickness(4, 0, 4, 0) };
-            testBtn.Click += (_, _) => AudioCues.Trigger(cue);
+            // Post so the click handler stack unwinds before SoundFlow touches the device (avoids UI/native deadlocks).
+            testBtn.Click += (_, _) =>
+            {
+                Dispatcher.UIThread.Post(() =>
+                {
+                    AudioCues.Trigger(cue, settingsPreview: true);
+                }, DispatcherPriority.Background);
+            };
             Grid.SetColumn(testBtn, 4);
             grid.Children.Add(testBtn);
 

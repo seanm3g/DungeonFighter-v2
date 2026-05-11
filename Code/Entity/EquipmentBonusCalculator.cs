@@ -8,7 +8,8 @@ namespace RPGGame
     /// Calculates stat bonuses provided by equipped items.
     /// Suffix lines from <c>StatBonuses.json</c> (<see cref="Item.StatBonuses"/>) are usually <b>percent of a reference total</b> on the
     /// character when <see cref="GetStatBonus"/> / <see cref="GetStatBonusDouble"/> receive a <see cref="Character"/> context
-    /// (e.g. 5 ⇒ +5% of reference STR). Dice/threshold modifiers stay <b>literal</b>: ACCURACY, HIT, COMBO, CRIT, CRIT MISS, RollBonus
+    /// (e.g. 5 ⇒ +5% of reference STR). Positive percentage bonuses have a minimum integer contribution of +1 when they would otherwise floor to 0.
+    /// Dice/threshold modifiers stay <b>literal</b>: ACCURACY, HIT, COMBO, CRIT, CRIT MISS, RollBonus
     /// (sheet <c>ROLL</c>) — a value of 3 means +3, not +3%. <c>ALL</c> uses the same rule per target stat (flat for those keys, % for others).
     /// Without a character context, suffix values sum as flat integers (legacy tests and tooling).
     /// </summary>
@@ -41,6 +42,8 @@ namespace RPGGame
 
             double reference = ResolveSuffixPercentReference(characterContext, t);
             int fromPercent = (int)Math.Floor(reference * (pct / 100.0) + 1e-9);
+            if (pct > 0 && reference > 0 && fromPercent == 0)
+                fromPercent = 1;
             return flat + fromPercent;
         }
 

@@ -23,9 +23,10 @@ namespace RPGGame.Audio
         }
 
         /// <summary>Plays the cue (if a dispatcher is wired up). No-op otherwise.</summary>
-        public static void Trigger(AudioCue cue)
+        /// <param name="settingsPreview">Passes through to <see cref="AudioCueDispatcher.Trigger(AudioCue, bool)"/> for the Audio settings <c>Test</c> button.</param>
+        public static void Trigger(AudioCue cue, bool settingsPreview = false)
         {
-            _dispatcher?.Trigger(cue);
+            _dispatcher?.Trigger(cue, settingsPreview);
         }
 
         /// <summary>Stops the currently playing music (if any).</summary>

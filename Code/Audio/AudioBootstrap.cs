@@ -1,4 +1,5 @@
 using System;
+using RPGGame;
 using RPGGame.Utils;
 
 namespace RPGGame.Audio
@@ -37,41 +38,65 @@ namespace RPGGame.Audio
                     return;
                 }
 
+                InitializeCoreLocked();
+                AttachStateManagerInternal(stateManager);
+            }
+        }
+
+        /// <summary>
+        /// Starts the main-menu theme as soon as the static title screen is visible (before <see cref="GameCoordinator"/> exists).
+        /// Later <see cref="Initialize(GameStateManager?)"/> only attaches the state manager; <see cref="MusicController"/> keeps the same cue if still MainMenu.
+        /// </summary>
+        public static void InitializeTitleScreenMusic()
+        {
+            lock (_initLock)
+            {
+                if (_initialized) return;
+                InitializeCoreLocked();
                 try
                 {
-                    // Always reload config from disk so the bootstrap sees the latest user mappings.
-                    AudioConfig.ReloadFromFile();
-
-                    var sf = new SoundFlowAudioEngine();
-                    bool ok = sf.Initialize();
-                    _engine = ok ? sf : (IAudioEngine)new NullAudioEngine();
-
-                    // Apply current AudioConfig volume/mute state to the engine immediately.
-                    var cfg = AudioConfig.Instance;
-                    _engine.SetMasterVolume(cfg.MasterVolume);
-                    _engine.SetBusVolume(AudioBusKind.Music, cfg.MusicVolume);
-                    _engine.SetBusVolume(AudioBusKind.Sfx, cfg.SfxVolume);
-                    _engine.SetBusMute(AudioBusKind.Music, !cfg.MusicEnabled);
-                    _engine.SetBusMute(AudioBusKind.Sfx, !cfg.SfxEnabled);
-
-                    _dispatcher = new AudioCueDispatcher(_engine);
-                    _dispatcher.SubscribeToCombatEvents();
-                    AudioCues.SetDispatcher(_dispatcher);
-
-                    _musicController = new MusicController(_engine);
-                    AttachStateManagerInternal(stateManager);
-
-                    _initialized = true;
+                    _musicController?.OnStateChanged(GameState.MainMenu);
                 }
                 catch (Exception ex)
                 {
-                    ErrorHandler.LogError(ex, "AudioBootstrap.Initialize", "Audio system bootstrap failed; falling back to silent");
-                    _engine = new NullAudioEngine();
-                    _dispatcher = new AudioCueDispatcher(_engine);
-                    AudioCues.SetDispatcher(_dispatcher);
-                    _musicController = new MusicController(_engine);
-                    _initialized = true;
+                    ErrorHandler.LogError(ex, "AudioBootstrap.InitializeTitleScreenMusic", "Could not start title-screen music");
                 }
+            }
+        }
+
+        /// <summary>First-time engine + dispatcher + music controller. Caller must hold <see cref="_initLock"/> and ensure !_initialized.</summary>
+        private static void InitializeCoreLocked()
+        {
+            try
+            {
+                AudioConfig.ReloadFromFile();
+
+                var sf = new SoundFlowAudioEngine();
+                bool ok = sf.Initialize();
+                _engine = ok ? sf : (IAudioEngine)new NullAudioEngine();
+
+                var cfg = AudioConfig.Instance;
+                _engine.SetMasterVolume(cfg.MasterVolume);
+                _engine.SetBusVolume(AudioBusKind.Music, cfg.MusicVolume);
+                _engine.SetBusVolume(AudioBusKind.Sfx, cfg.SfxVolume);
+                _engine.SetBusMute(AudioBusKind.Music, !cfg.MusicEnabled);
+                _engine.SetBusMute(AudioBusKind.Sfx, !cfg.SfxEnabled);
+
+                _dispatcher = new AudioCueDispatcher(_engine);
+                _dispatcher.SubscribeToCombatEvents();
+                AudioCues.SetDispatcher(_dispatcher);
+
+                _musicController = new MusicController(_engine);
+                _initialized = true;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.LogError(ex, "AudioBootstrap.InitializeCoreLocked", "Audio system bootstrap failed; falling back to silent");
+                _engine = new NullAudioEngine();
+                _dispatcher = new AudioCueDispatcher(_engine);
+                AudioCues.SetDispatcher(_dispatcher);
+                _musicController = new MusicController(_engine);
+                _initialized = true;
             }
         }
 
@@ -96,8 +121,6 @@ namespace RPGGame.Audio
 
         private static GameState GetCurrentStateOrMainMenu()
         {
-            // No DI for GameStateManager here; the controller already attached to it for live events.
-            // This shim is used only when there's nothing attached (e.g. settings opened standalone in tests).
             return GameState.MainMenu;
         }
 

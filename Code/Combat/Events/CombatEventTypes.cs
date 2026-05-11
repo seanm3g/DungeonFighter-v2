@@ -15,6 +15,8 @@ namespace RPGGame.Combat.Events
         ExactRollValue,
         EnemyDied,
         EnemyHealthThreshold,
+        HeroLowHealth,
+        EnemyLowHealth,
         ComboEnded,
         StatusEffectApplied,
         StatChanged,
@@ -35,6 +37,7 @@ namespace RPGGame.Combat.Events
         public int Damage { get; set; }
         public bool IsCombo { get; set; }
         public bool IsCritical { get; set; }
+        public bool IsCriticalMiss { get; set; }
         public bool IsMiss { get; set; }
         public double HealthPercentage { get; set; }
         public string? StatusEffectType { get; set; }

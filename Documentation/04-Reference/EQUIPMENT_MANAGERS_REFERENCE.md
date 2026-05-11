@@ -299,10 +299,9 @@ List<string> GetAllEquippedGearActions();
 - Returns weapon-specific actions
 
 **Armor Actions**:
-- Checks if armor has special properties (modifications, bonuses)
 - Returns custom gear action if defined
-- Falls back to random armor action
-- Excludes basic starting gear
+- Adds rolled action bonuses defined on the item itself
+- Does not synthesize random actions from non-action affixes
 
 **Action Bonuses**:
 - Adds any action bonuses defined on the item itself

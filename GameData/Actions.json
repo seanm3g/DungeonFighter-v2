@@ -5,14 +5,16 @@
     "dps": "66%",
     "numberOfHits": "1",
     "damage": "33%",
-    "speed": "0.50"
+    "speed": "0.50",
+    "target": "ENEMY"
   },
   {
     "action": "PUNCH HARD",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY"
   },
   {
     "action": "PUNCH HARDER",
@@ -21,7 +23,8 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "1.00",
-    "heroCrit": "1"
+    "heroCrit": "1",
+    "target": "ENEMY"
   },
   {
     "action": "PUNCH HARDEST",
@@ -30,7 +33,8 @@
     "numberOfHits": "1",
     "damage": "150%",
     "speed": "1.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY"
   },
   {
     "action": "TAUNT",
@@ -41,7 +45,8 @@
     "speed": "0.50",
     "heroAccuracy": "1",
     "enemySTR": "-1",
-    "enemyAGI": "1"
+    "enemyAGI": "1",
+    "target": "ENEMY"
   },
   {
     "action": "CONCENTRATE",
@@ -52,7 +57,8 @@
     "speed": "0.50",
     "duration": "1",
     "cadence": "ATTACK",
-    "heroAccuracy": "1"
+    "heroAccuracy": "1",
+    "target": "ENEMY"
   },
   {
     "action": "STUN",
@@ -61,7 +67,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY"
   },
   {
     "action": "CRITICAL ATTACK",
@@ -70,7 +77,8 @@
     "numberOfHits": "1",
     "damage": "300%",
     "speed": "2.00",
-    "heroCrit": "10"
+    "heroCrit": "10",
+    "target": "ENEMY"
   },
   {
     "action": "FLURRY",
@@ -81,7 +89,8 @@
     "speed": "2.00",
     "duration": "1",
     "cadence": "ACTION",
-    "heroAGI": "1"
+    "heroAGI": "1",
+    "target": "ENEMY"
   },
   {
     "action": "MOMENTUM BASH",
@@ -93,7 +102,8 @@
     "duration": "1",
     "cadence": "DUNGEON",
     "heroSTR": "1",
-    "heroTECH": "1"
+    "heroTECH": "1",
+    "target": "ENEMY"
   },
   {
     "action": "READ BOOK",
@@ -104,7 +114,8 @@
     "speed": "2.00",
     "duration": "1",
     "cadence": "DUNGEON",
-    "heroINT": "1"
+    "heroINT": "1",
+    "target": "ENEMY"
   },
   {
     "action": "CHEAP SHOT",
@@ -115,7 +126,8 @@
     "speed": "0.25",
     "duration": "3",
     "cadence": "ATTACK",
-    "heroAccuracy": "-1"
+    "heroAccuracy": "-1",
+    "target": "ENEMY"
   },
   {
     "action": "BERZERK",
@@ -124,7 +136,9 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY",
+    "tags": "barbarian"
   },
   {
     "action": "GRUNT",
@@ -136,7 +150,8 @@
     "duration": "1",
     "cadence": "ATTACK",
     "heroAccuracy": "1",
-    "heroSTR": "1"
+    "heroSTR": "1",
+    "target": "ENEMY"
   },
   {
     "action": "DISARM",
@@ -147,7 +162,8 @@
     "speed": "0.25",
     "duration": "3",
     "cadence": "ATTACK",
-    "enemyHit": "-3"
+    "enemyHit": "-3",
+    "target": "ENEMY"
   },
   {
     "action": "ONE SHOT",
@@ -158,7 +174,9 @@
     "damage": "300%",
     "speed": "0.25",
     "duration": "3",
-    "cadence": "Action"
+    "cadence": "Action",
+    "target": "ENEMY",
+    "tags": "common"
   },
   {
     "action": "DRUNKEN BRAWLER",
@@ -171,7 +189,9 @@
     "duration": "1",
     "cadence": "ATTACK",
     "heroAccuracy": "-5",
-    "enemyAccuracy": "-5"
+    "enemyAccuracy": "-5",
+    "target": "ENEMY",
+    "tags": "uncommon"
   },
   {
     "action": "STIM PACK",
@@ -185,7 +205,9 @@
     "cadence": "ATTACK",
     "heroHit": "3",
     "heroCombo": "2",
-    "heroCrit": "1"
+    "heroCrit": "1",
+    "target": "ENEMY",
+    "tags": "rare"
   },
   {
     "action": "ANIME CHARGE-UP",
@@ -196,7 +218,8 @@
     "speed": "2.00",
     "duration": "1",
     "cadence": "FIGHT",
-    "heroAccuracy": "1"
+    "heroAccuracy": "1",
+    "target": "ENEMY"
   },
   {
     "action": "OVERKILL",
@@ -206,7 +229,8 @@
     "damage": "100%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "ATTACK"
+    "cadence": "ATTACK",
+    "target": "ENEMY"
   },
   {
     "action": "DANCE",
@@ -218,14 +242,16 @@
     "duration": "1",
     "cadence": "DUNGEON",
     "opener": "true",
-    "heroAGI": "1"
+    "heroAGI": "1",
+    "target": "ENEMY"
   },
   {
     "action": "A CARD THAT GETS WORSE OVER TIME",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY"
   },
   {
     "action": "BULK DAY",
@@ -236,7 +262,8 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "ACTION",
-    "damageMod": "50"
+    "damageMod": "50",
+    "target": "ENEMY"
   },
   {
     "action": "CHUG ENERGY DRINK",
@@ -246,7 +273,8 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "3",
-    "cadence": "ATTACK"
+    "cadence": "ATTACK",
+    "target": "ENEMY"
   },
   {
     "action": "TRUE STRIKE",
@@ -257,7 +285,8 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "ATTACK",
-    "heroAccuracy": "10"
+    "heroAccuracy": "10",
+    "target": "ENEMY"
   },
   {
     "action": "SECOND WIND",
@@ -266,7 +295,8 @@
     "numberOfHits": "1",
     "damage": "200%",
     "speed": "2.00",
-    "heroHeal": "5"
+    "heroHeal": "5",
+    "target": "SELF"
   },
   {
     "action": "QUICK REFLEXES",
@@ -277,7 +307,8 @@
     "speed": "0.70",
     "duration": "1",
     "cadence": "ACTION",
-    "enemyAccuracy": "-5"
+    "enemyAccuracy": "-5",
+    "target": "ENEMY"
   },
   {
     "action": "DEJA VU",
@@ -285,7 +316,8 @@
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "2.00"
+    "speed": "2.00",
+    "target": "ENEMY"
   },
   {
     "action": "POWER OVERWHELMING",
@@ -293,7 +325,8 @@
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "2.00"
+    "speed": "2.00",
+    "target": "ENEMY"
   },
   {
     "action": "ANY DAY NOW",
@@ -303,7 +336,8 @@
     "damage": "250%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "CHAIN"
+    "cadence": "CHAIN",
+    "target": "ENEMY"
   },
   {
     "action": "I AM INVINCIBLE",
@@ -313,7 +347,8 @@
     "damage": "250%",
     "speed": "2.00",
     "duration": "1",
-    "cadence": "DUNGEON"
+    "cadence": "DUNGEON",
+    "target": "ENEMY"
   },
   {
     "action": "AVENGE",
@@ -324,7 +359,8 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "Action",
-    "enemyAccuracy": "20"
+    "enemyAccuracy": "20",
+    "target": "ENEMY"
   },
   {
     "action": "FOLLOW THROUGH",
@@ -334,7 +370,8 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "ACTION"
+    "cadence": "ACTION",
+    "target": "ENEMY"
   },
   {
     "action": "OPENING VOLLEY",
@@ -345,7 +382,8 @@
     "speed": "0.75",
     "duration": "4",
     "cadence": "ATTACK",
-    "opener": "true"
+    "opener": "true",
+    "target": "ENEMY"
   },
   {
     "action": "WEINING LIGHT",
@@ -355,7 +393,8 @@
     "damage": "100%",
     "speed": "0.75",
     "duration": "1",
-    "cadence": "FIGHT"
+    "cadence": "FIGHT",
+    "target": "ENEMY"
   },
   {
     "action": "MIRROR FLEXING",
@@ -363,7 +402,8 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY"
   },
   {
     "action": "ROGUES GAMBIT",
@@ -371,7 +411,8 @@
     "dps": "25%",
     "numberOfHits": "1",
     "damage": "25%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY"
   },
   {
     "action": "POISON TIP",
@@ -382,7 +423,8 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "FIGHT",
-    "poison": "1"
+    "poison": "1",
+    "target": "ENEMY"
   },
   {
     "action": "HAYMAKER",
@@ -393,7 +435,8 @@
     "speed": "3.00",
     "duration": "1",
     "cadence": "ACTION",
-    "heroAccuracy": "-14"
+    "heroAccuracy": "-14",
+    "target": "ENEMY"
   },
   {
     "action": "FRENZY",
@@ -406,7 +449,8 @@
     "cadence": "ATTACK",
     "finisher": "true",
     "heroHit": "3",
-    "heroCombo": "-2"
+    "heroCombo": "-2",
+    "target": "ENEMY"
   },
   {
     "action": "BLOOD KNIFE",
@@ -418,7 +462,8 @@
     "duration": "2",
     "cadence": "ACTION",
     "selfDamage": "1",
-    "heroHeal": "25"
+    "heroHeal": "25",
+    "target": "SELF"
   },
   {
     "action": "HOLY HEALY",
@@ -427,7 +472,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.50",
-    "heroHeal": "25"
+    "heroHeal": "25",
+    "target": "SELF"
   },
   {
     "action": "BLOODY SUNDAY",
@@ -438,7 +484,8 @@
     "speed": "3.00",
     "duration": "1",
     "cadence": "FIGHT",
-    "finisher": "true"
+    "finisher": "true",
+    "target": "ENEMY"
   },
   {
     "action": "24/7/365",
@@ -446,7 +493,8 @@
     "dps": "33%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "3.00"
+    "speed": "3.00",
+    "target": "ENEMY"
   },
   {
     "action": "PRETTY BOY SWAG",
@@ -458,7 +506,8 @@
     "duration": "1",
     "cadence": "DUNGEON",
     "heroCrit": "5",
-    "heroSTR": "3"
+    "heroSTR": "3",
+    "target": "ENEMY"
   },
   {
     "action": "OPENING CUT",
@@ -470,7 +519,8 @@
     "duration": "1",
     "cadence": "ACTION",
     "opener": "true",
-    "heroHit": "2"
+    "heroHit": "2",
+    "target": "ENEMY"
   },
   {
     "action": "RAZOR MARGIN",
@@ -483,7 +533,8 @@
     "cadence": "ATTACK",
     "heroHit": "-2",
     "heroCrit": "2",
-    "enemyHit": "2"
+    "enemyHit": "2",
+    "target": "ENEMY"
   },
   {
     "action": "FOCUSED BREATHING",
@@ -495,7 +546,8 @@
     "duration": "1",
     "cadence": "FIGHT",
     "heroAccuracy": "1",
-    "heroSTR": "0.30"
+    "heroSTR": "0.30",
+    "target": "ENEMY"
   },
   {
     "action": "ADRENAL SURGE",
@@ -507,7 +559,8 @@
     "duration": "1",
     "cadence": "Ability",
     "speedMod": "20",
-    "selfDamage": "ON CRIT, ON MISS"
+    "selfDamage": "ON CRIT, ON MISS",
+    "target": "ENEMY"
   },
   {
     "action": "TENSION HOLD",
@@ -518,7 +571,8 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "FIGHT",
-    "heroCombo": "1"
+    "heroCombo": "1",
+    "target": "ENEMY"
   },
   {
     "action": "LATE BLOOM",
@@ -527,7 +581,8 @@
     "numberOfHits": "1",
     "damage": "30%",
     "speed": "1.50",
-    "finisher": "true"
+    "finisher": "true",
+    "target": "ENEMY"
   },
   {
     "action": "MEASURED PATIENCE",
@@ -539,7 +594,8 @@
     "duration": "2",
     "cadence": "ACTION",
     "heroHit": "2",
-    "heroCrit": "-1"
+    "heroCrit": "-1",
+    "target": "ENEMY"
   },
   {
     "action": "MEASURED ADVANCE",
@@ -550,7 +606,8 @@
     "speed": "0.80",
     "duration": "1",
     "cadence": "ACTION",
-    "heroCombo": "1"
+    "heroCombo": "1",
+    "target": "ENEMY"
   },
   {
     "action": "GLASS STRIKE",
@@ -560,7 +617,8 @@
     "damage": "300%",
     "speed": "1.60",
     "duration": "1",
-    "cadence": "FIGHT"
+    "cadence": "FIGHT",
+    "target": "ENEMY"
   },
   {
     "action": "STATIC ODDS",
@@ -570,7 +628,8 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "ACTION"
+    "cadence": "ACTION",
+    "target": "ENEMY"
   },
   {
     "action": "LUCKY CHARM",
@@ -581,7 +640,8 @@
     "speed": "0.25",
     "duration": "1",
     "cadence": "ATTACK",
-    "heroAccuracy": "14"
+    "heroAccuracy": "14",
+    "target": "ENEMY"
   },
   {
     "action": "SWIFT",
@@ -591,7 +651,8 @@
     "damage": "100%",
     "speed": "0.70",
     "duration": "1",
-    "cadence": "COMBO"
+    "cadence": "COMBO",
+    "target": "ENEMY"
   },
   {
     "action": "EXHAUSTING RHYTHM",
@@ -601,7 +662,8 @@
     "damage": "125%",
     "speed": "1.20",
     "duration": "1",
-    "cadence": "FIGHT"
+    "cadence": "FIGHT",
+    "target": "ENEMY"
   },
   {
     "action": "WINDED STATE",
@@ -611,7 +673,8 @@
     "damage": "71%",
     "speed": "1.30",
     "duration": "1",
-    "cadence": "FIGHT"
+    "cadence": "FIGHT",
+    "target": "ENEMY"
   },
   {
     "action": "OVERHAND SMASH",
@@ -622,7 +685,8 @@
     "speed": "1.70",
     "heroHit": "-2",
     "heroCrit": "2",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY"
   },
   {
     "action": "HOLD TEMPO",
@@ -632,7 +696,8 @@
     "damage": "25%",
     "speed": "0.60",
     "duration": "1",
-    "cadence": "CHAIN"
+    "cadence": "CHAIN",
+    "target": "ENEMY"
   },
   {
     "action": "BACKSTEP SLASH",
@@ -643,7 +708,8 @@
     "speed": "0.70",
     "duration": "1",
     "cadence": "ACTION",
-    "heroHit": "2"
+    "heroHit": "2",
+    "target": "ENEMY"
   },
   {
     "action": "CRUSHING FOLLOW-THROUGH",
@@ -653,7 +719,8 @@
     "damage": "175%",
     "speed": "1.30",
     "duration": "1",
-    "cadence": "ACTION"
+    "cadence": "ACTION",
+    "target": "ENEMY"
   },
   {
     "action": "ALL IN",
@@ -663,7 +730,8 @@
     "damage": "400%",
     "speed": "2.00",
     "heroHit": "-8",
-    "heroCrit": "6"
+    "heroCrit": "6",
+    "target": "ENEMY"
   },
   {
     "action": "FINAL REP",
@@ -675,7 +743,8 @@
     "duration": "1",
     "cadence": "ACTION",
     "finisher": "true",
-    "heroAccuracy": "3"
+    "heroAccuracy": "3",
+    "target": "ENEMY"
   },
   {
     "action": "HOLLOW ADVANCE",
@@ -685,7 +754,8 @@
     "damage": "100%",
     "speed": "0.70",
     "heroCombo": "1",
-    "jumpRelative": "1"
+    "jumpRelative": "1",
+    "target": "ENEMY"
   },
   {
     "action": "SLAPBACK ECHO",
@@ -693,7 +763,8 @@
     "dps": "63%",
     "numberOfHits": "1",
     "damage": "50%",
-    "speed": "0.80"
+    "speed": "0.80",
+    "target": "ENEMY"
   },
   {
     "action": "PERFECT LINE",
@@ -705,7 +776,8 @@
     "duration": "1",
     "cadence": "Action",
     "heroCombo": "4",
-    "jumpRelative": "4"
+    "jumpRelative": "4",
+    "target": "ENEMY"
   },
   {
     "action": "OL\u0027 FAITHFUL",
@@ -715,7 +787,8 @@
     "damage": "75%",
     "speed": "1.00",
     "heroHit": "9",
-    "heroCombo": "-6"
+    "heroCombo": "-6",
+    "target": "ENEMY"
   },
   {
     "action": "CONTROLLED BURST",
@@ -727,7 +800,8 @@
     "duration": "1",
     "cadence": "ACTION",
     "heroHit": "1",
-    "heroCrit": "-1"
+    "heroCrit": "-1",
+    "target": "ENEMY"
   },
   {
     "action": "PHANTOM FOLLOW-UP",
@@ -736,7 +810,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.50",
-    "heroCombo": "1"
+    "heroCombo": "1",
+    "target": "ENEMY"
   },
   {
     "action": "FINAL PUSH",
@@ -746,7 +821,8 @@
     "damage": "500%",
     "speed": "2.50",
     "finisher": "true",
-    "consume": "1"
+    "consume": "1",
+    "target": "ENEMY"
   },
   {
     "action": "RISING PRESSURE",
@@ -756,7 +832,8 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "COMBO"
+    "cadence": "COMBO",
+    "target": "ENEMY"
   },
   {
     "action": "TEMPO SHIFT",
@@ -764,7 +841,8 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY"
   },
   {
     "action": "GUARANTEED HIT",
@@ -775,7 +853,8 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "ATTACK",
-    "heroHit": "5"
+    "heroHit": "5",
+    "target": "ENEMY"
   },
   {
     "action": "OVERCOMMIT",
@@ -783,7 +862,8 @@
     "dps": "167%",
     "numberOfHits": "1",
     "damage": "500%",
-    "speed": "3.00"
+    "speed": "3.00",
+    "target": "ENEMY"
   },
   {
     "action": "CALM BEFORE STORM",
@@ -793,7 +873,8 @@
     "damage": "100%",
     "speed": "0.60",
     "duration": "1",
-    "cadence": "ACTION"
+    "cadence": "ACTION",
+    "target": "ENEMY"
   },
   {
     "action": "CALCULATED RISK",
@@ -805,7 +886,8 @@
     "duration": "1",
     "cadence": "ACTION",
     "heroHit": "-2",
-    "heroCrit": "2"
+    "heroCrit": "2",
+    "target": "ENEMY"
   },
   {
     "action": "AMPLIFY ACCURACY",
@@ -815,7 +897,8 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "ACTION",
-    "enemyAccuracy": "20"
+    "enemyAccuracy": "20",
+    "target": "ENEMY"
   },
   {
     "action": "GROUNDHOGS DAY",
@@ -824,7 +907,8 @@
     "damage": "100%",
     "speed": "1.00",
     "heroSTR": "3",
-    "heroHeal": "100%"
+    "heroHeal": "100%",
+    "target": "SELF"
   },
   {
     "action": "DOMAIN EXPANSION",
@@ -835,7 +919,8 @@
     "duration": "3",
     "cadence": "ACTION",
     "finisher": "true",
-    "heroCombo": "14"
+    "heroCombo": "14",
+    "target": "ENEMY"
   },
   {
     "action": "EARLY BIRD GETS THE WORM",
@@ -846,7 +931,8 @@
     "speed": "0.70",
     "duration": "1",
     "cadence": "ACTION",
-    "consume": "1"
+    "consume": "1",
+    "target": "ENEMY"
   },
   {
     "action": "SLAM",
@@ -855,7 +941,9 @@
     "dps": "120%",
     "numberOfHits": "1",
     "damage": "150%",
-    "speed": "1.25"
+    "speed": "1.25",
+    "target": "ENEMY",
+    "tags": "weapon"
   },
   {
     "action": "STRIKE",
@@ -863,7 +951,9 @@
     "dps": "100%",
     "numberOfHits": "2",
     "damage": "50%",
-    "speed": "1.00"
+    "speed": "0.75",
+    "target": "ENEMY",
+    "tags": "weapon"
   },
   {
     "action": "STAB",
@@ -871,7 +961,9 @@
     "dps": "120%",
     "numberOfHits": "1",
     "damage": "60%",
-    "speed": "0.50"
+    "speed": "0.50",
+    "target": "ENEMY",
+    "tags": "weapon"
   },
   {
     "action": "MAGIC MISSLE",
@@ -879,8 +971,10 @@
     "dps": "90%",
     "numberOfHits": "3",
     "damage": "75%",
-    "speed": "2.5",
-    "heroCombo": "1"
+    "speed": "2.50",
+    "heroCombo": "1",
+    "target": "ENEMY",
+    "tags": "weapon"
   },
   {
     "action": "CAST",
@@ -890,7 +984,8 @@
     "speed": "3.00",
     "duration": "1",
     "cadence": "Action",
-    "heroAccuracy": "20"
+    "heroAccuracy": "20",
+    "target": "ENEMY"
   },
   {
     "action": "RAGE",
@@ -901,7 +996,8 @@
     "duration": "1",
     "cadence": "Action",
     "heroCrit": "4",
-    "damageMod": "50"
+    "damageMod": "50",
+    "target": "ENEMY"
   },
   {
     "action": "MOMENTUM",
@@ -909,7 +1005,8 @@
     "numberOfHits": "1",
     "damage": "200%",
     "speed": "2.00",
-    "finisher": "true"
+    "finisher": "true",
+    "target": "ENEMY"
   },
   {
     "action": "SQUAT",
@@ -918,7 +1015,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "heroSTR": "1"
+    "heroSTR": "1",
+    "target": "ENEMY",
+    "tags": "barbarian"
   },
   {
     "action": "SLASH",
@@ -928,7 +1027,9 @@
     "damage": "100%",
     "speed": "1.50",
     "duration": "3",
-    "cadence": "ATTACK"
+    "cadence": "ATTACK",
+    "target": "ENEMY",
+    "tags": "warrior"
   },
   {
     "action": "HACK",
@@ -936,7 +1037,9 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY",
+    "tags": "warrior"
   },
   {
     "action": "JUKE",
@@ -945,7 +1048,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "heroAGI": "1"
+    "heroAGI": "1",
+    "target": "ENEMY",
+    "tags": "warrior"
   },
   {
     "action": "POUND",
@@ -957,7 +1062,9 @@
     "duration": "3",
     "cadence": "Action",
     "heroCrit": "2",
-    "damageMod": "50"
+    "damageMod": "50",
+    "target": "ENEMY",
+    "tags": "rogue"
   },
   {
     "action": "SLEIGHT OF HAND",
@@ -965,7 +1072,9 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY",
+    "tags": "rogue"
   },
   {
     "action": "HONE",
@@ -974,7 +1083,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "heroTECH": "1"
+    "heroTECH": "1",
+    "target": "ENEMY",
+    "tags": "rogue"
   },
   {
     "action": "CHANNEL",
@@ -986,7 +1097,9 @@
     "speed": "0.25",
     "duration": "3",
     "cadence": "ATTACK",
-    "heroCombo": "2"
+    "heroCombo": "2",
+    "target": "ENEMY",
+    "tags": "wizard"
   },
   {
     "action": "INVOKE",
@@ -994,7 +1107,9 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY",
+    "tags": "wizard"
   },
   {
     "action": "READ",
@@ -1003,7 +1118,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "heroINT": "1"
+    "heroINT": "1",
+    "target": "ENEMY",
+    "tags": "wizard"
   },
   {
     "action": "INTELECTUAL DEBATE",
@@ -1011,7 +1128,8 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY"
   },
   {
     "action": "HUNKER DOWN",
@@ -1019,7 +1137,8 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY"
   },
   {
     "action": "WIDE SWING",
@@ -1031,7 +1150,8 @@
     "duration": "1",
     "cadence": "Action",
     "speedMod": "-40",
-    "multiHitMod": "2"
+    "multiHitMod": "2",
+    "target": "ENEMY"
   },
   {
     "action": "Commitment Cleaver",
@@ -1042,7 +1162,9 @@
     "damage": "147%",
     "speed": "1.18",
     "speedMod": "-20",
-    "damageMod": "25"
+    "damageMod": "25",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Stance of Crescendo",
@@ -1053,7 +1175,9 @@
     "damage": "95%",
     "speed": "1.08",
     "speedMod": "-10",
-    "ampMod": "15"
+    "ampMod": "15",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Windup Flurry Mark",
@@ -1064,7 +1188,9 @@
     "damage": "100%",
     "speed": "1.15",
     "speedMod": "-15",
-    "multiHitMod": "1"
+    "multiHitMod": "1",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Quick Razors",
@@ -1075,7 +1201,9 @@
     "damage": "74%",
     "speed": "0.92",
     "speedMod": "20",
-    "damageMod": "-10"
+    "damageMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Feather Chain",
@@ -1086,7 +1214,9 @@
     "damage": "84%",
     "speed": "0.92",
     "damageMod": "-10",
-    "ampMod": "10"
+    "ampMod": "10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Rakeload",
@@ -1097,7 +1227,9 @@
     "damage": "79%",
     "speed": "1.00",
     "damageMod": "-10",
-    "multiHitMod": "2"
+    "multiHitMod": "2",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Reset Step",
@@ -1105,10 +1237,12 @@
     "category": "ModTrade",
     "dps": "116%",
     "numberOfHits": "1",
-    "damage": "116%",
+    "damage": "116.0%",
     "speed": "1.00",
     "speedMod": "20",
-    "ampMod": "-15"
+    "ampMod": "-15",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Compression Strike",
@@ -1119,7 +1253,9 @@
     "damage": "126%",
     "speed": "1.00",
     "damageMod": "25",
-    "ampMod": "-15"
+    "ampMod": "-15",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Scatter Focus",
@@ -1130,7 +1266,9 @@
     "damage": "100%",
     "speed": "1.00",
     "multiHitMod": "2",
-    "ampMod": "-8"
+    "ampMod": "-8",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Singletap Recovery",
@@ -1141,7 +1279,9 @@
     "damage": "95%",
     "speed": "0.95",
     "speedMod": "15",
-    "multiHitMod": "-1"
+    "multiHitMod": "-1",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Collapse Cut",
@@ -1152,7 +1292,9 @@
     "damage": "84%",
     "speed": "1.00",
     "damageMod": "35",
-    "multiHitMod": "-2"
+    "multiHitMod": "-2",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Tight Spiral",
@@ -1163,7 +1305,9 @@
     "damage": "89%",
     "speed": "1.00",
     "multiHitMod": "-1",
-    "ampMod": "15"
+    "ampMod": "15",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Lumbering Smash",
@@ -1173,7 +1317,9 @@
     "numberOfHits": "1",
     "damage": "137%",
     "speed": "1.18",
-    "enemySpeedMod": "-20"
+    "enemySpeedMod": "-20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Charging Menace",
@@ -1183,7 +1329,9 @@
     "numberOfHits": "1",
     "damage": "105%",
     "speed": "1.12",
-    "enemySpeedMod": "-10"
+    "enemySpeedMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Delayed Shredder",
@@ -1191,9 +1339,11 @@
     "category": "ModTrade",
     "dps": "104%",
     "numberOfHits": "1",
-    "damage": "116%",
+    "damage": "116.0%",
     "speed": "1.12",
-    "enemySpeedMod": "-15"
+    "enemySpeedMod": "-15",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Harrier Poke",
@@ -1203,7 +1353,9 @@
     "numberOfHits": "1",
     "damage": "74%",
     "speed": "1.00",
-    "enemySpeedMod": "20"
+    "enemySpeedMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Taunting Feint",
@@ -1212,7 +1364,9 @@
     "dps": "79%",
     "numberOfHits": "1",
     "damage": "79%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Swarm Posture",
@@ -1221,7 +1375,9 @@
     "dps": "74%",
     "numberOfHits": "1",
     "damage": "74%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Cooldown Rush",
@@ -1229,9 +1385,11 @@
     "category": "ModTrade",
     "dps": "99%",
     "numberOfHits": "1",
-    "damage": "111%",
+    "damage": "111.0%",
     "speed": "1.12",
-    "enemySpeedMod": "20"
+    "enemySpeedMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Finishing Protocol",
@@ -1240,7 +1398,9 @@
     "dps": "108%",
     "numberOfHits": "1",
     "damage": "121%",
-    "speed": "1.12"
+    "speed": "1.12",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Scatter Burst",
@@ -1249,7 +1409,9 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Repositioning Skitter",
@@ -1259,7 +1421,9 @@
     "numberOfHits": "2",
     "damage": "89%",
     "speed": "1.00",
-    "enemySpeedMod": "15"
+    "enemySpeedMod": "15",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Coalesce Slam",
@@ -1268,7 +1432,9 @@
     "dps": "212%",
     "numberOfHits": "3",
     "damage": "79%",
-    "speed": "1.12"
+    "speed": "1.12",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Focused Predator",
@@ -1277,7 +1443,9 @@
     "dps": "190%",
     "numberOfHits": "2",
     "damage": "95%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Initiative Theft",
@@ -1288,7 +1456,9 @@
     "damage": "105%",
     "speed": "1.00",
     "speedMod": "20",
-    "enemySpeedMod": "-20"
+    "enemySpeedMod": "-20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Overextended Strike",
@@ -1299,7 +1469,9 @@
     "damage": "126%",
     "speed": "1.00",
     "speedMod": "-20",
-    "enemySpeedMod": "20"
+    "enemySpeedMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Shatter Plate",
@@ -1309,7 +1481,9 @@
     "numberOfHits": "1",
     "damage": "95%",
     "speed": "1.00",
-    "damageMod": "20"
+    "damageMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Feint Opening",
@@ -1319,7 +1493,9 @@
     "numberOfHits": "1",
     "damage": "84%",
     "speed": "1.00",
-    "damageMod": "-10"
+    "damageMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Momentum Hijack",
@@ -1329,7 +1505,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "ampMod": "15"
+    "ampMod": "15",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Stalled Rhythm",
@@ -1337,9 +1515,11 @@
     "category": "ModTrade",
     "dps": "111%",
     "numberOfHits": "1",
-    "damage": "111%",
+    "damage": "111.0%",
     "speed": "1.00",
-    "ampMod": "-8"
+    "ampMod": "-8",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Chainloaded",
@@ -1349,7 +1529,9 @@
     "numberOfHits": "1",
     "damage": "89%",
     "speed": "1.00",
-    "multiHitMod": "2"
+    "multiHitMod": "2",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Tight Combo",
@@ -1359,7 +1541,9 @@
     "numberOfHits": "2",
     "damage": "100%",
     "speed": "1.00",
-    "multiHitMod": "-1"
+    "multiHitMod": "-1",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Sprint Harmony",
@@ -1370,7 +1554,9 @@
     "damage": "95%",
     "speed": "1.00",
     "speedMod": "10",
-    "enemySpeedMod": "10"
+    "enemySpeedMod": "10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Lane Clear",
@@ -1381,7 +1567,9 @@
     "damage": "105%",
     "speed": "1.00",
     "speedMod": "20",
-    "enemySpeedMod": "-20"
+    "enemySpeedMod": "-20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Heavy Commit",
@@ -1392,7 +1580,9 @@
     "damage": "126%",
     "speed": "1.00",
     "speedMod": "-20",
-    "enemySpeedMod": "20"
+    "enemySpeedMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Anchor Duel",
@@ -1403,7 +1593,9 @@
     "damage": "105%",
     "speed": "1.00",
     "speedMod": "-10",
-    "enemySpeedMod": "-10"
+    "enemySpeedMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Blitzer\u0027s Mark",
@@ -1413,7 +1605,9 @@
     "numberOfHits": "1",
     "damage": "95%",
     "speed": "1.00",
-    "speedMod": "10"
+    "speedMod": "10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Outpace Shell",
@@ -1423,7 +1617,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "speedMod": "20"
+    "speedMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Winded Rush",
@@ -1433,7 +1629,9 @@
     "numberOfHits": "1",
     "damage": "105%",
     "speed": "1.00",
-    "speedMod": "-20"
+    "speedMod": "-20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Cautious Brake",
@@ -1443,7 +1641,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "speedMod": "-10"
+    "speedMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Flow State",
@@ -1453,7 +1653,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "speedMod": "10"
+    "speedMod": "10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Tempo Lock",
@@ -1463,7 +1665,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "speedMod": "20"
+    "speedMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Late Block",
@@ -1473,7 +1677,9 @@
     "numberOfHits": "1",
     "damage": "105%",
     "speed": "1.00",
-    "speedMod": "-20"
+    "speedMod": "-20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Fatigue Spiral",
@@ -1483,7 +1689,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "speedMod": "-10"
+    "speedMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Flurry Haste",
@@ -1493,7 +1701,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "speedMod": "10"
+    "speedMod": "10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Cut the Chain",
@@ -1503,7 +1713,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "speedMod": "20"
+    "speedMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Trapped Feet",
@@ -1513,7 +1725,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "speedMod": "-20"
+    "speedMod": "-20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Grounded Guard",
@@ -1523,7 +1737,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "speedMod": "-10"
+    "speedMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Power Rush",
@@ -1534,7 +1750,9 @@
     "damage": "95%",
     "speed": "1.00",
     "damageMod": "20",
-    "enemySpeedMod": "20"
+    "enemySpeedMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Crushing Hold",
@@ -1545,7 +1763,9 @@
     "damage": "100%",
     "speed": "1.00",
     "damageMod": "20",
-    "enemySpeedMod": "-20"
+    "enemySpeedMod": "-20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Glancing Blow",
@@ -1556,7 +1776,9 @@
     "damage": "89%",
     "speed": "1.00",
     "damageMod": "-10",
-    "enemySpeedMod": "20"
+    "enemySpeedMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Soft Tap",
@@ -1567,7 +1789,9 @@
     "damage": "100%",
     "speed": "1.00",
     "damageMod": "-10",
-    "enemySpeedMod": "-10"
+    "enemySpeedMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Arms Race Cut",
@@ -1577,7 +1801,9 @@
     "numberOfHits": "1",
     "damage": "89%",
     "speed": "1.00",
-    "damageMod": "10"
+    "damageMod": "10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Sundering Edge",
@@ -1587,7 +1813,9 @@
     "numberOfHits": "1",
     "damage": "95%",
     "speed": "1.00",
-    "damageMod": "20"
+    "damageMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Opening Gift",
@@ -1597,7 +1825,9 @@
     "numberOfHits": "1",
     "damage": "84%",
     "speed": "1.00",
-    "damageMod": "-10"
+    "damageMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Pulled Strikes",
@@ -1607,7 +1837,9 @@
     "numberOfHits": "1",
     "damage": "95%",
     "speed": "1.00",
-    "damageMod": "-10"
+    "damageMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Heavy Crescendo",
@@ -1617,7 +1849,9 @@
     "numberOfHits": "1",
     "damage": "95%",
     "speed": "1.00",
-    "damageMod": "20"
+    "damageMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Shatter Focus",
@@ -1627,7 +1861,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "damageMod": "20"
+    "damageMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Tickling Jab",
@@ -1637,7 +1873,9 @@
     "numberOfHits": "1",
     "damage": "89%",
     "speed": "1.00",
-    "damageMod": "-10"
+    "damageMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Muffled Exchange",
@@ -1647,7 +1885,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "damageMod": "-10"
+    "damageMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Cleaving Tempest",
@@ -1657,7 +1897,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "damageMod": "20"
+    "damageMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Finisher\u0027s Law",
@@ -1667,7 +1909,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "damageMod": "20"
+    "damageMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Chip Scatter",
@@ -1677,7 +1921,9 @@
     "numberOfHits": "1",
     "damage": "89%",
     "speed": "1.00",
-    "damageMod": "-10"
+    "damageMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Softened Hail",
@@ -1687,7 +1933,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "damageMod": "-10"
+    "damageMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Crescendo Sprint",
@@ -1698,7 +1946,9 @@
     "damage": "100%",
     "speed": "1.00",
     "ampMod": "10",
-    "enemySpeedMod": "10"
+    "enemySpeedMod": "10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Dominant Line",
@@ -1709,7 +1959,9 @@
     "damage": "100%",
     "speed": "1.00",
     "ampMod": "15",
-    "enemySpeedMod": "-20"
+    "enemySpeedMod": "-20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Lost Bridge",
@@ -1720,7 +1972,9 @@
     "damage": "105%",
     "speed": "1.00",
     "ampMod": "-10",
-    "enemySpeedMod": "20"
+    "enemySpeedMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Quiet Measure",
@@ -1731,7 +1985,9 @@
     "damage": "100%",
     "speed": "1.00",
     "ampMod": "-10",
-    "enemySpeedMod": "-10"
+    "enemySpeedMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Amp to Steel",
@@ -1741,7 +1997,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "ampMod": "10"
+    "ampMod": "10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Overwhelming Theme",
@@ -1751,7 +2009,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "ampMod": "15"
+    "ampMod": "15",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Burnt Fuse",
@@ -1761,7 +2021,9 @@
     "numberOfHits": "1",
     "damage": "105%",
     "speed": "1.00",
-    "ampMod": "-10"
+    "ampMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Flattened Verse",
@@ -1771,7 +2033,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "ampMod": "-10"
+    "ampMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Dueling Anthems",
@@ -1781,7 +2045,9 @@
     "numberOfHits": "1",
     "damage": "95%",
     "speed": "1.00",
-    "ampMod": "10"
+    "ampMod": "10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Steal the Chorus",
@@ -1791,7 +2057,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "ampMod": "15"
+    "ampMod": "15",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Broken Streak",
@@ -1799,9 +2067,11 @@
     "category": "ModTrade",
     "dps": "111%",
     "numberOfHits": "1",
-    "damage": "111%",
+    "damage": "111.0%",
     "speed": "1.00",
-    "ampMod": "-8"
+    "ampMod": "-8",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Suppressed Duel",
@@ -1811,7 +2081,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "ampMod": "-10"
+    "ampMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Chorus of Cuts",
@@ -1821,7 +2093,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "ampMod": "10"
+    "ampMod": "10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Precision Crescendo",
@@ -1831,7 +2105,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "ampMod": "15"
+    "ampMod": "15",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Fumbled Bridge",
@@ -1841,7 +2117,9 @@
     "numberOfHits": "1",
     "damage": "105%",
     "speed": "1.00",
-    "ampMod": "-10"
+    "ampMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Muted Finale",
@@ -1851,7 +2129,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "ampMod": "-10"
+    "ampMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Flurry Sprint",
@@ -1862,7 +2142,9 @@
     "damage": "100%",
     "speed": "1.00",
     "multiHitMod": "1",
-    "enemySpeedMod": "10"
+    "enemySpeedMod": "10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Tanglefoot Flurry",
@@ -1873,7 +2155,9 @@
     "damage": "100%",
     "speed": "1.00",
     "multiHitMod": "2",
-    "enemySpeedMod": "-20"
+    "enemySpeedMod": "-20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Short Chain",
@@ -1884,7 +2168,9 @@
     "damage": "100%",
     "speed": "1.00",
     "multiHitMod": "-1",
-    "enemySpeedMod": "20"
+    "enemySpeedMod": "20",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Collapsed Tempo",
@@ -1895,7 +2181,9 @@
     "damage": "100%",
     "speed": "1.00",
     "multiHitMod": "-1",
-    "enemySpeedMod": "-10"
+    "enemySpeedMod": "-10",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Many Cuts, Deep Answer",
@@ -1905,7 +2193,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "multiHitMod": "2"
+    "multiHitMod": "2",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Shred Armor",
@@ -1915,7 +2205,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "multiHitMod": "2"
+    "multiHitMod": "2",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Single Bite",
@@ -1925,7 +2217,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "multiHitMod": "-2"
+    "multiHitMod": "-2",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Quiet Rake",
@@ -1935,7 +2229,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "multiHitMod": "-1"
+    "multiHitMod": "-1",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Volume Crescendo",
@@ -1945,7 +2241,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "multiHitMod": "2"
+    "multiHitMod": "2",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Shred the Song",
@@ -1955,7 +2253,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "multiHitMod": "2"
+    "multiHitMod": "2",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Tight Rope",
@@ -1965,7 +2265,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "multiHitMod": "-2"
+    "multiHitMod": "-2",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Sparse Line",
@@ -1975,7 +2277,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "multiHitMod": "-1"
+    "multiHitMod": "-1",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Twin Storms",
@@ -1985,7 +2289,9 @@
     "numberOfHits": "1",
     "damage": "84%",
     "speed": "1.00",
-    "multiHitMod": "1"
+    "multiHitMod": "1",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Overwhelming Tide",
@@ -1995,7 +2301,9 @@
     "numberOfHits": "1",
     "damage": "89%",
     "speed": "1.00",
-    "multiHitMod": "2"
+    "multiHitMod": "2",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Controlled Pace",
@@ -2005,7 +2313,9 @@
     "numberOfHits": "2",
     "damage": "100%",
     "speed": "1.00",
-    "multiHitMod": "-1"
+    "multiHitMod": "-1",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "Sparse Exchange",
@@ -2015,7 +2325,9 @@
     "numberOfHits": "2",
     "damage": "95%",
     "speed": "1.00",
-    "multiHitMod": "-1"
+    "multiHitMod": "-1",
+    "target": "ENEMY",
+    "tags": "modtrade"
   },
   {
     "action": "WEB STRIKE",
@@ -2025,7 +2337,9 @@
     "numberOfHits": "1",
     "damage": "80%",
     "speed": "1.00",
-    "slow": "1"
+    "slow": "1",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "POISON BITE",
@@ -2035,7 +2349,9 @@
     "numberOfHits": "1",
     "damage": "90%",
     "speed": "0.90",
-    "poison": "1"
+    "poison": "1",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "BITE",
@@ -2044,7 +2360,9 @@
     "dps": "125%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "0.80"
+    "speed": "0.80",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "HOWL",
@@ -2054,7 +2372,9 @@
     "numberOfHits": "1",
     "damage": "40%",
     "speed": "0.50",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "FIRE BOLT",
@@ -2062,9 +2382,11 @@
     "category": "ENEMY",
     "dps": "100%",
     "numberOfHits": "1",
-    "damage": "110%",
+    "damage": "110.0%",
     "speed": "1.10",
-    "burn": "1"
+    "burn": "1",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "IGNITE",
@@ -2074,7 +2396,9 @@
     "numberOfHits": "1",
     "damage": "60%",
     "speed": "1.00",
-    "burn": "1"
+    "burn": "1",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "MAGMA FIST",
@@ -2083,7 +2407,9 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "130%",
-    "speed": "1.30"
+    "speed": "1.30",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "ERUPTION",
@@ -2093,7 +2419,9 @@
     "numberOfHits": "1",
     "damage": "150%",
     "speed": "1.80",
-    "burn": "1"
+    "burn": "1",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "BAT SWARM",
@@ -2103,7 +2431,9 @@
     "numberOfHits": "1",
     "damage": "70%",
     "speed": "0.70",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "QUICK STRIKE",
@@ -2112,7 +2442,9 @@
     "dps": "142%",
     "numberOfHits": "1",
     "damage": "85%",
-    "speed": "0.60"
+    "speed": "0.60",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "BONE STRIKE",
@@ -2122,7 +2454,9 @@
     "numberOfHits": "1",
     "damage": "95%",
     "speed": "1.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "RATTLE",
@@ -2132,7 +2466,9 @@
     "numberOfHits": "1",
     "damage": "30%",
     "speed": "0.40",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "CLAW",
@@ -2142,7 +2478,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "GROAN",
@@ -2152,7 +2490,9 @@
     "numberOfHits": "1",
     "damage": "25%",
     "speed": "0.50",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "SOUL DRAIN",
@@ -2162,7 +2502,9 @@
     "numberOfHits": "1",
     "damage": "120%",
     "speed": "1.40",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "PHASE",
@@ -2171,7 +2513,9 @@
     "dps": "125%",
     "numberOfHits": "1",
     "damage": "50%",
-    "speed": "0.40"
+    "speed": "0.40",
+    "target": "ENEMY",
+    "tags": "enemy"
   },
   {
     "action": "Doubletime Gambit",
@@ -2182,7 +2526,9 @@
     "damage": "95%",
     "speed": "1.00",
     "speedMod": "10",
-    "enemySpeedMod": "10"
+    "enemySpeedMod": "10",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "Gluefoot Exchange",
@@ -2193,7 +2539,9 @@
     "damage": "105%",
     "speed": "1.00",
     "speedMod": "-10",
-    "enemySpeedMod": "-10"
+    "enemySpeedMod": "-10",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "Blood Moon Strike",
@@ -2203,7 +2551,9 @@
     "numberOfHits": "1",
     "damage": "89%",
     "speed": "1.00",
-    "damageMod": "10"
+    "damageMod": "10",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "Pacifying Ward",
@@ -2213,7 +2563,9 @@
     "numberOfHits": "1",
     "damage": "95%",
     "speed": "1.00",
-    "damageMod": "-10"
+    "damageMod": "-10",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "Duel of Crescendos",
@@ -2223,7 +2575,9 @@
     "numberOfHits": "1",
     "damage": "95%",
     "speed": "1.00",
-    "ampMod": "10"
+    "ampMod": "10",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "Suppress Sigil",
@@ -2233,7 +2587,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "ampMod": "-10"
+    "ampMod": "-10",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "Storm of Blades",
@@ -2243,7 +2599,9 @@
     "numberOfHits": "1",
     "damage": "84%",
     "speed": "1.00",
-    "multiHitMod": "1"
+    "multiHitMod": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "Clean Exchange",
@@ -2253,7 +2611,9 @@
     "numberOfHits": "2",
     "damage": "95%",
     "speed": "1.00",
-    "multiHitMod": "-1"
+    "multiHitMod": "-1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "FOREST BRANCH",
@@ -2263,7 +2623,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "FOREST VINES",
@@ -2273,7 +2635,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
-    "slow": "1"
+    "slow": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "LAVA SPLASH",
@@ -2283,7 +2647,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "LAVA STEAM",
@@ -2293,7 +2659,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "CRYPT NECROTIC",
@@ -2304,7 +2672,9 @@
     "damage": "120%",
     "speed": "2.50",
     "poison": "1",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "CRYPT BONESHARDS",
@@ -2314,7 +2684,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "CAVERN CAVEIN",
@@ -2324,7 +2696,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "CAVERN STALACTITE",
@@ -2334,7 +2708,9 @@
     "numberOfHits": "1",
     "damage": "125%",
     "speed": "2.50",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "SWAMP MIASMA",
@@ -2345,7 +2721,9 @@
     "damage": "120%",
     "speed": "2.50",
     "poison": "1",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "SWAMP BOGSINK",
@@ -2355,7 +2733,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
-    "slow": "1"
+    "slow": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "DESERT SANDSTORM",
@@ -2365,7 +2745,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "DESERT HEATWAVE",
@@ -2375,7 +2757,9 @@
     "numberOfHits": "1",
     "damage": "120%",
     "speed": "2.50",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "ICE SHARDS",
@@ -2385,7 +2769,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "ICE BLIZZARD",
@@ -2395,7 +2781,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
-    "slow": "1"
+    "slow": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "RUINS CURSE",
@@ -2405,7 +2793,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "RUINS PILLAR",
@@ -2415,7 +2805,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "CASTLE PORTCULLIS",
@@ -2425,7 +2817,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "CASTLE ARROWS",
@@ -2435,7 +2829,9 @@
     "numberOfHits": "1",
     "damage": "125%",
     "speed": "2.50",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "GRAVEYARD MIST",
@@ -2446,7 +2842,9 @@
     "damage": "120%",
     "speed": "2.50",
     "poison": "1",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "GRAVEYARD RISING",
@@ -2456,7 +2854,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
-    "slow": "1"
+    "slow": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "TREASURE TRAP",
@@ -2466,7 +2866,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "TREASURE DUST",
@@ -2476,7 +2878,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.50",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "TREASURE COLLAPSE",
@@ -2486,7 +2890,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "GUARD ALARM",
@@ -2496,7 +2902,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
-    "slow": "1"
+    "slow": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "GUARD POST",
@@ -2506,7 +2914,9 @@
     "numberOfHits": "1",
     "damage": "125%",
     "speed": "2.50",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "GUARD BARRICADE",
@@ -2516,7 +2926,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "TRAP SPIKE",
@@ -2526,7 +2938,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "TRAP POISON",
@@ -2536,7 +2950,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "poison": "1"
+    "poison": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "TRAP PIT",
@@ -2546,7 +2962,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "TRAP NET",
@@ -2556,7 +2974,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.50",
-    "slow": "1"
+    "slow": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "BOSS SPIKES",
@@ -2566,7 +2986,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "BOSS CURSE",
@@ -2576,7 +2998,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "BOSS COLLAPSE",
@@ -2586,7 +3010,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "PUZZLE FAILURE",
@@ -2596,7 +3022,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "PUZZLE RUNES",
@@ -2606,7 +3034,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.50",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "PUZZLE MECHANICAL",
@@ -2616,7 +3046,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "REST PEACEFUL",
@@ -2626,7 +3058,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.50",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "REST HEALING",
@@ -2636,7 +3070,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "STORAGE CRATES",
@@ -2646,7 +3082,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "STORAGE DUST",
@@ -2656,7 +3094,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "poison": "1"
+    "poison": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "STORAGE SHELF",
@@ -2666,7 +3106,9 @@
     "numberOfHits": "1",
     "damage": "125%",
     "speed": "2.50",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "LIBRARY BOOKS",
@@ -2676,7 +3118,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "LIBRARY KNOWLEDGE",
@@ -2686,7 +3130,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.50",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "LIBRARY DUST",
@@ -2696,7 +3142,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "LIBRARY TOME",
@@ -2706,7 +3154,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "ARMORY WEAPONS",
@@ -2716,7 +3166,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "ARMORY RACK",
@@ -2726,7 +3178,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "ARMORY DEBRIS",
@@ -2736,7 +3190,9 @@
     "numberOfHits": "1",
     "damage": "125%",
     "speed": "2.50",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "ARMORY CLATTER",
@@ -2746,7 +3202,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "slow": "1"
+    "slow": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "KITCHEN POT",
@@ -2756,7 +3214,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "KITCHEN FIRE",
@@ -2766,7 +3226,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.50",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "KITCHEN POTS",
@@ -2776,7 +3238,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "KITCHEN STEAM",
@@ -2786,7 +3250,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "DINING CHANDELIER",
@@ -2796,7 +3262,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "DINING TABLE",
@@ -2806,7 +3274,9 @@
     "numberOfHits": "1",
     "damage": "125%",
     "speed": "2.50",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "DINING FOOD",
@@ -2816,7 +3286,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "poison": "1"
+    "poison": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "DINING WINE",
@@ -2826,7 +3298,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "CHAMBER ECHO",
@@ -2836,7 +3310,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.50",
-    "slow": "1"
+    "slow": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "CHAMBER CURSE",
@@ -2846,7 +3322,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "CHAMBER COLLAPSE",
@@ -2856,7 +3334,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "HALL ECHO",
@@ -2866,7 +3346,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "slow": "1"
+    "slow": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "HALL TAPESTRY",
@@ -2876,7 +3358,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "HALL DUST",
@@ -2886,7 +3370,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "VAULT LOCK",
@@ -2896,7 +3382,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "VAULT COLLAPSE",
@@ -2906,7 +3394,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "VAULT WARD",
@@ -2916,7 +3406,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.50",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "SANCTUM WRATH",
@@ -2926,7 +3418,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "SANCTUM FLAMES",
@@ -2936,7 +3430,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "SANCTUM LIGHT",
@@ -2946,7 +3442,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.50",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "GROTTO CAVEIN",
@@ -2956,7 +3454,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "GROTTO STALACTITE",
@@ -2966,7 +3466,9 @@
     "numberOfHits": "1",
     "damage": "125%",
     "speed": "2.50",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "GROTTO POOL",
@@ -2976,7 +3478,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "poison": "1"
+    "poison": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "CATACOMB BONESHARDS",
@@ -2986,7 +3490,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "CATACOMB NECROTIC",
@@ -2997,7 +3503,9 @@
     "damage": "120%",
     "speed": "2.50",
     "poison": "1",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "CATACOMB TOMB",
@@ -3007,7 +3515,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "SHRINE GROUND",
@@ -3017,7 +3527,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.50",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "SHRINE RETRIBUTION",
@@ -3027,7 +3539,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "SHRINE WATER",
@@ -3037,7 +3551,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "LABORATORY CHEMICAL",
@@ -3047,7 +3563,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "poison": "1"
+    "poison": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "LABORATORY EXPLOSION",
@@ -3057,7 +3575,9 @@
     "numberOfHits": "1",
     "damage": "125%",
     "speed": "2.50",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "LABORATORY EQUIPMENT",
@@ -3067,7 +3587,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "LABORATORY FUMES",
@@ -3077,7 +3599,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "OBSERVATORY TELESCOPE",
@@ -3087,7 +3611,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "OBSERVATORY STELLAR",
@@ -3097,7 +3623,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.50",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "OBSERVATORY DUST",
@@ -3107,7 +3635,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "THRONE COLLAPSE",
@@ -3117,7 +3647,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "THRONE CURSE",
@@ -3127,7 +3659,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "THRONE JEWELS",
@@ -3137,7 +3671,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "THRONE GUARD",
@@ -3147,7 +3683,9 @@
     "numberOfHits": "1",
     "damage": "125%",
     "speed": "2.50",
-    "bleed": "1"
+    "bleed": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "GENERIC COLLAPSE",
@@ -3157,7 +3695,9 @@
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "2.00",
-    "stun": "1"
+    "stun": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "GENERIC DUST",
@@ -3167,7 +3707,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "poison": "1"
+    "poison": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "GENERIC TRAP",
@@ -3178,7 +3720,9 @@
     "damage": "125%",
     "speed": "2.50",
     "bleed": "1",
-    "weaken": "1"
+    "weaken": "1",
+    "target": "ENEMY",
+    "tags": "environment"
   },
   {
     "action": "ARCANE ECHO",
@@ -3187,6 +3731,8 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "target": "ENEMY",
+    "tags": "wizard"
   }
 ]

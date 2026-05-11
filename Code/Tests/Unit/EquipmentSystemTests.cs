@@ -27,7 +27,7 @@ namespace RPGGame.Tests.Unit
             TestEquipArmor();
             TestUnequipArmor();
             TestStatBonusApplication();
-            TestStatBonusSuffixPercentOfStrength();
+            TestStatBonusSuffixPercentMinimumOneForStrength();
             TestLiteralHitSuffixNotPercentScaled();
             TestSwiftStylePrefixHitModificationOnArmor();
             TestStatBonusRemoval();
@@ -145,23 +145,38 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestStatBonusSuffixPercentOfStrength()
+        private static void TestStatBonusSuffixPercentMinimumOneForStrength()
         {
-            Console.WriteLine("\n--- Testing StatBonuses suffix Value as % of STR reference ---");
+            Console.WriteLine("\n--- Testing StatBonuses suffix Value as % of STR reference with minimum +1 ---");
 
             var character = TestDataBuilders.Character()
-                .WithName("PctSuffix")
-                .WithStats(100, 10, 10, 10)
+                .WithName("MinPctSuffix")
+                .WithStats(4, 10, 10, 10)
                 .Build();
             int strBefore = character.Strength;
             var weapon = TestDataBuilders.Weapon()
-                .WithName("PctStrWeapon")
-                .WithStatBonus("STR", 10)
+                .WithName("MinPctStrWeapon")
+                .WithStatBonus("STR", 2)
                 .Build();
             character.EquipItem(weapon, "weapon");
             int strAfter = character.Strength;
-            TestBase.AssertEqual(10, strAfter - strBefore,
-                "10% of 100 base STR should add 10 effective STR from suffix",
+            TestBase.AssertEqual(1, strAfter - strBefore,
+                "2% of 4 base STR would floor to 0, but positive percentage suffixes should grant at least +1",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var highStrengthCharacter = TestDataBuilders.Character()
+                .WithName("PctSuffix")
+                .WithStats(100, 10, 10, 10)
+                .Build();
+            int highStrengthBefore = highStrengthCharacter.Strength;
+            var highStrengthWeapon = TestDataBuilders.Weapon()
+                .WithName("PctStrWeapon")
+                .WithStatBonus("STR", 10)
+                .Build();
+            highStrengthCharacter.EquipItem(highStrengthWeapon, "weapon");
+            int highStrengthAfter = highStrengthCharacter.Strength;
+            TestBase.AssertEqual(10, highStrengthAfter - highStrengthBefore,
+                "10% of 100 base STR should still add 10 effective STR from suffix",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

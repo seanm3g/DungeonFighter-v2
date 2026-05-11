@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace RPGGame
 {
@@ -76,113 +74,8 @@ namespace RPGGame
         /// </summary>
         public string GetItemActions(Item item)
         {
-            var actions = new List<string>();
-            
-            if (item is WeaponItem weapon)
-            {
-                var weaponActions = GetWeaponActionsFromJson(weapon.WeaponType);
-                actions.AddRange(weaponActions);
-            }
-            else if (ShouldArmorHaveActions(item))
-            {
-                var armorActions = GetRandomArmorActionFromJson(item);
-                actions.AddRange(armorActions);
-            }
-            
+            var actions = GearActionNames.Resolve(item);
             return actions.Count > 0 ? " | " + string.Join(" | ", actions) : "";
-        }
-
-        /// <summary>
-        /// Determines if an armor piece should have special actions
-        /// </summary>
-        private bool ShouldArmorHaveActions(Item armor)
-        {
-            // Check if this armor piece has special properties that indicate it should have actions
-            
-            // 1. Check if it has modifications (indicates special gear)
-            if (armor.Modifications.Count > 0)
-            {
-                return true;
-            }
-            
-            // 2. Check if it has stat bonuses (indicates special gear)
-            if (armor.StatBonuses.Count > 0)
-            {
-                return true;
-            }
-            
-            // 3. Check if it has action bonuses (legacy system)
-            if (armor.ActionBonuses.Count > 0)
-            {
-                return true;
-            }
-            
-            // 4. Check if it's not basic starter gear by name
-            // Basic gear names moved to GameData configuration
-            string[] basicGearNames = BasicGearConfig.GetBasicGearNames();
-            if (basicGearNames.Contains(armor.Name))
-            {
-                return false; // Basic starter gear should have no actions
-            }
-            
-            // 5. If it has a special name or properties, it might be special gear
-            // For now, assume any non-basic gear might have actions
-            return true;
-        }
-
-        /// <summary>
-        /// Gets weapon actions from JSON data using WeaponTypes property or tag-based matching.
-        /// </summary>
-        private List<string> GetWeaponActionsFromJson(WeaponType weaponType)
-        {
-            var weaponTag = weaponType.ToString().ToLower();
-            var weaponTypeName = weaponType.ToString();
-            var allActionData = ActionLoader.GetAllActionData();
-            var weaponActions = new List<string>();
-            
-            // First, check for actions assigned via WeaponTypes property
-            foreach (var actionData in allActionData)
-            {
-                // Check if action is assigned to this weapon type via WeaponTypes property
-                if (actionData.WeaponTypes != null && 
-                    actionData.WeaponTypes.Any(wt => wt.Equals(weaponTypeName, StringComparison.OrdinalIgnoreCase)))
-                {
-                    weaponActions.Add(actionData.Name);
-                }
-            }
-            
-            // If no actions found via WeaponTypes, fall back to tag-based matching
-            if (weaponActions.Count == 0)
-            {
-                var allActions = ActionLoader.GetAllActions();
-                // Get actions that match the weapon type and have "weapon" tag, but exclude "unique" and "class" actions
-                // Exclude "class" tagged actions (class-only actions cannot appear on weapons)
-                // Uses case-insensitive comparison for robustness
-                foreach (var action in allActions)
-                {
-                    if (action.Tags != null &&
-                        action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
-                        action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
-                        !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
-                        !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
-                    {
-                        weaponActions.Add(action.Name);
-                    }
-                }
-            }
-            
-            // Return empty list if no weapon-specific actions found
-            // (No fallback - weapons should have actions defined)
-            return weaponActions;
-        }
-
-        /// <summary>
-        /// Gets random armor actions from JSON data
-        /// </summary>
-        private List<string> GetRandomArmorActionFromJson(Item armor)
-        {
-            // Return empty list - no action bonuses to display
-            return new List<string>();
         }
     }
 }

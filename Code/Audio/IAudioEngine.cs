@@ -20,7 +20,17 @@ namespace RPGGame.Audio
         /// <param name="filePath">Resolved absolute path to a supported audio file.</param>
         /// <param name="crossfadeMs">Crossfade duration in milliseconds (0 = instant cut).</param>
         /// <param name="volume">Volume multiplier 0..1 applied on top of the music bus volume.</param>
-        void PlayMusic(string filePath, int crossfadeMs, float volume);
+        /// <param name="startOffsetSeconds">If &gt; 0, seeks into the new track by this many seconds (clamped to track length).</param>
+        void PlayMusic(string filePath, int crossfadeMs, float volume, double startOffsetSeconds = 0);
+
+        /// <summary>When music is playing, returns the current playback position in seconds from the start of the decoded stream.</summary>
+        bool TryGetMusicPlaybackTime(out double seconds);
+
+        /// <summary>
+        /// Settings <c>Test</c> preview: decodes off the UI thread where needed, then plays in-game on
+        /// the SFX graph as a one-shot. Avoids opening an external player and bypasses mute state.
+        /// </summary>
+        void PlaySettingsPreview(string absolutePath, float volume);
 
         /// <summary>Stops the currently playing music with an optional fade-out.</summary>
         void StopMusic(int crossfadeMs);

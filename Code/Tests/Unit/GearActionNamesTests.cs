@@ -25,7 +25,7 @@ namespace RPGGame.Tests.Unit
             TestWeaponWithGearActionOnly_IncludesRequiredBasicName();
             TestWeaponFallback_EveryResolvedNameLoadsIntoPool();
             TestRebuildCharacterActions_PoolContainsResolvedWeaponNames();
-            TestChestItemWithStatBonus_IncludesArmorContribution();
+            TestArmorStatBonusWithoutAction_DoesNotCreateRandomAction();
             TestArmorExplicitGearAction_NotDuplicatedWhenSpecialMods();
 
             TestBase.PrintSummary("GearActionNames Tests", _testsRun, _testsPassed, _testsFailed);
@@ -165,46 +165,24 @@ namespace RPGGame.Tests.Unit
             }
         }
 
-        private static void TestChestItemWithStatBonus_IncludesArmorContribution()
+        private static void TestArmorStatBonusWithoutAction_DoesNotCreateRandomAction()
         {
-            Console.WriteLine("\n--- TestChestItemWithStatBonus_IncludesArmorContribution ---");
+            Console.WriteLine("\n--- TestArmorStatBonusWithoutAction_DoesNotCreateRandomAction ---");
 
-            try
-            {
-                ActionLoader.LoadActions();
-            }
-            catch
-            {
-                TestBase.AssertTrue(true, "Skip: ActionLoader unavailable", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                return;
-            }
-
-            // Fixed GearAction avoids two independent Resolve() random picks (test compared first Resolve
-            // to pool filled from a second Resolve inside AddArmorActions).
             var chest = new ChestItem("RareTestChest")
             {
                 Rarity = "Rare",
-                GearAction = "TAUNT",
                 StatBonuses = { new StatBonus { StatType = "Armor", Value = 2 } }
             };
 
-            var character = TestDataBuilders.Character().WithName("ArmorPool").Build();
-            var mgr = new GearActionManager();
-            mgr.AddArmorActions(character, chest);
-            var names = mgr.GetGearActions(chest);
-            TestBase.AssertTrue(names.Count > 0,
-                "Special chest with stats should resolve at least one armor-contributed action name",
+            var names = GearActionNames.Resolve(chest);
+            TestBase.AssertEqual(0, names.Count,
+                $"Armor stat suffixes should not bypass the Actions affix table; names: [{string.Join(", ", names)}]",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            foreach (var n in names.Distinct())
-            {
-                bool ok = character.ActionPool.Any(e => string.Equals(e.action.Name, n, StringComparison.OrdinalIgnoreCase));
-                TestBase.AssertTrue(ok, $"Pool should contain armor-resolved name '{n}'", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            }
         }
 
         /// <summary>
-        /// Armor with explicit GearAction + special mods used to append GearAction again from GetArmorExtraActionNames (inventory showed e.g. "Tight Combo, Tight Combo").
+        /// Armor with explicit GearAction plus affixes should keep only the authored action name.
         /// </summary>
         private static void TestArmorExplicitGearAction_NotDuplicatedWhenSpecialMods()
         {

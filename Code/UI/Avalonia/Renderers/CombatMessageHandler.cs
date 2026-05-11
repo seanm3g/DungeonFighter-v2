@@ -118,9 +118,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 textManager.AddToDisplayBuffer(AsciiArtAssets.UIText.RoomClearedMessage, UIMessageType.Combat);
             }
-            // Add blank line before divider
+            // Keep separation before follow-up prompts without drawing a second divider.
             textManager.AddToDisplayBuffer("", UIMessageType.Combat);
-            textManager.AddToDisplayBuffer(AsciiArtAssets.UIText.Divider, UIMessageType.Combat);
             
             // Record that room cleared was displayed
             TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.RoomCleared);

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Avalonia.Media;
+using RPGGame.Actions.Execution;
 using RPGGame.Combat.UI;
 using RPGGame.UI.ColorSystem;
 
@@ -66,6 +67,7 @@ namespace RPGGame.Combat.Turn
             {
                 string? barId = HealthBarEntityId.ForActor(entity);
                 int hpBefore = GetCharacterCurrentHealth(entity);
+                double lowHealthBefore = ActionEventPublisher.GetActorHealthPercentage(entity);
 
                 if (entity is Character character)
                     character.TakeDamage(damage);
@@ -75,6 +77,7 @@ namespace RPGGame.Combat.Turn
                 int actual = hpBefore - GetCharacterCurrentHealth(entity);
                 if (barId != null)
                     HealthBarDeltaDamageHint.RecordAfterMitigation(barId, 0, 0, damage, damage, actual);
+                ActionEventPublisher.PublishLowHealthThresholdIfCrossed(entity, lowHealthBefore);
             }
             if (results.Count > 0)
             {
@@ -102,6 +105,7 @@ namespace RPGGame.Combat.Turn
             {
                 string? barId = HealthBarEntityId.ForActor(entity);
                 int hpBefore = GetCharacterCurrentHealth(entity);
+                double lowHealthBefore = ActionEventPublisher.GetActorHealthPercentage(entity);
 
                 // TakeDamage is defined on Character and Enemy, not Actor
                 if (entity is Character character)
@@ -122,6 +126,7 @@ namespace RPGGame.Combat.Turn
                         bleedRequested: 0,
                         requestedTotal: damage,
                         actualHpLost: actual);
+                ActionEventPublisher.PublishLowHealthThresholdIfCrossed(entity, lowHealthBefore);
             }
             
             if (results.Count > 0)

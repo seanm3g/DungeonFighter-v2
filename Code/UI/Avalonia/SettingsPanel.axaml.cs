@@ -390,6 +390,7 @@ namespace RPGGame.UI.Avalonia
         {
             if (panel == null) return null;
             if (panel is GameplaySettingsPanel) return "Gameplay";
+            if (panel is AudioSettingsPanel) return "Audio";
             if (panel is ClassesSettingsPanel) return "Classes";
             if (panel is GameVariablesSettingsPanel) return "GameVariables";
             if (panel is TextDelaysSettingsPanel) return "TextDelays";

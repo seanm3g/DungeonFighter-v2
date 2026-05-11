@@ -1,4 +1,5 @@
 using System;
+using RPGGame.UI.Avalonia;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia.Managers.Settings;
 using RPGGame.UI.Avalonia.Settings;
@@ -19,6 +20,7 @@ namespace RPGGame.Tests.Unit.UI
 
             ActionInteractionLab_Is_Main_Content_And_Creates_Panel();
             ItemPrefixes_And_Suffixes_Are_Main_Content_And_Create_Panels();
+            AudioPanel_Is_Main_Content_And_Tag_Resolves();
 
             TestBase.PrintSummary("SettingsPanelCatalog Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -60,6 +62,24 @@ namespace RPGGame.Tests.Unit.UI
             var suf = SettingsPanelCatalog.CreatePanel("ItemSuffixes");
             TestBase.AssertTrue(suf is ItemSuffixesSettingsPanel,
                 "CreatePanel(ItemSuffixes) should return ItemSuffixesSettingsPanel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void AudioPanel_Is_Main_Content_And_Tag_Resolves()
+        {
+            Console.WriteLine("--- Audio category ---");
+
+            TestBase.AssertTrue(
+                SettingsPanelCatalog.MainContentCategories.Contains("Audio"),
+                "Audio should use main content area",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var panel = SettingsPanelCatalog.CreatePanel("Audio");
+            TestBase.AssertTrue(panel is AudioSettingsPanel,
+                "CreatePanel(Audio) should return AudioSettingsPanel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Audio", SettingsPanel.GetCategoryTagForPanel(panel),
+                "AudioSettingsPanel should resolve to the Audio category tag",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

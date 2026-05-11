@@ -42,6 +42,11 @@ namespace RPGGame.UI.Avalonia.Managers
         private TextBlock? selectedActionTagsPreview;
         private Action<string, bool>? showStatusMessage;
 
+        /// <summary>Incremental keyboard prefix for jumping in the actions <see cref="ListBox"/> (type-ahead).</summary>
+        private string _actionsListTypeAheadBuffer = "";
+        private DateTime _actionsListTypeAheadLastUtc;
+        private bool _actionsListTypeAheadHandlersAttached;
+
         public ActionsTabManager()
         {
             actionEditor = new ActionEditor();
@@ -82,12 +87,146 @@ namespace RPGGame.UI.Avalonia.Managers
                 cadenceFilterComboBox.SelectionChanged += (s, e) => ApplyFilter();
             if (tagFilterComboBox != null)
                 tagFilterComboBox.SelectionChanged += (s, e) => ApplyFilter();
+
+            AttachActionsListTypeAheadHandlers(actionsListBox);
+        }
+
+        private void AttachActionsListTypeAheadHandlers(ListBox listBox)
+        {
+            if (_actionsListTypeAheadHandlersAttached)
+                return;
+            listBox.AddHandler(InputElement.TextInputEvent, OnActionsListTypeAheadTextInput, RoutingStrategies.Bubble);
+            listBox.AddHandler(InputElement.KeyDownEvent, OnActionsListTypeAheadKeyDown, RoutingStrategies.Bubble);
+            _actionsListTypeAheadHandlersAttached = true;
+        }
+
+        private void DetachActionsListTypeAheadHandlers()
+        {
+            if (!_actionsListTypeAheadHandlersAttached || actionsListBox == null)
+                return;
+            actionsListBox.RemoveHandler(InputElement.TextInputEvent, OnActionsListTypeAheadTextInput);
+            actionsListBox.RemoveHandler(InputElement.KeyDownEvent, OnActionsListTypeAheadKeyDown);
+            _actionsListTypeAheadHandlersAttached = false;
+        }
+
+        private void OnActionsListTypeAheadTextInput(object? sender, TextInputEventArgs e)
+        {
+            if (string.IsNullOrEmpty(e.Text))
+                return;
+
+            bool advanced = false;
+            foreach (var ch in e.Text)
+            {
+                if (char.IsControl(ch))
+                    continue;
+                if (TryAppendTypeAheadAndSelect(ch))
+                    advanced = true;
+            }
+
+            if (advanced)
+                e.Handled = true;
+        }
+
+        private void OnActionsListTypeAheadKeyDown(object? sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape && _actionsListTypeAheadBuffer.Length > 0)
+            {
+                _actionsListTypeAheadBuffer = "";
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Key == Key.Back && _actionsListTypeAheadBuffer.Length > 0 &&
+                !e.KeyModifiers.HasFlag(KeyModifiers.Control) && !e.KeyModifiers.HasFlag(KeyModifiers.Alt))
+            {
+                _actionsListTypeAheadBuffer = _actionsListTypeAheadBuffer[..^1];
+                if (string.IsNullOrEmpty(_actionsListTypeAheadBuffer))
+                    e.Handled = true;
+                else
+                {
+                    SelectFirstActionMatchingTypeAhead(_actionsListTypeAheadBuffer);
+                    e.Handled = true;
+                }
+                return;
+            }
+
+            if (e.Key is Key.Up or Key.Down or Key.Home or Key.End or Key.PageUp or Key.PageDown)
+                _actionsListTypeAheadBuffer = "";
+        }
+
+        private bool TryAppendTypeAheadAndSelect(char ch)
+        {
+            if (actionsListBox == null)
+                return false;
+            var now = DateTime.UtcNow;
+            if ((now - _actionsListTypeAheadLastUtc).TotalMilliseconds > 750)
+                _actionsListTypeAheadBuffer = "";
+            _actionsListTypeAheadLastUtc = now;
+
+            var extended = _actionsListTypeAheadBuffer + ch;
+            if (extended.Length > 64)
+                extended = extended[^32..];
+
+            int index = IndexOfFirstNameWithPrefix(actionsListBox.Items, extended);
+            if (index < 0 && extended.Length > 1)
+            {
+                extended = ch.ToString();
+                index = IndexOfFirstNameWithPrefix(actionsListBox.Items, extended);
+            }
+
+            if (index < 0)
+                return false;
+
+            _actionsListTypeAheadBuffer = extended;
+            var item = actionsListBox.Items[index]!;
+            actionsListBox.SelectedItem = item;
+            actionsListBox.ScrollIntoView(item);
+            return true;
+        }
+
+        private void SelectFirstActionMatchingTypeAhead(string prefix)
+        {
+            if (actionsListBox == null || string.IsNullOrEmpty(prefix))
+                return;
+            int index = IndexOfFirstNameWithPrefix(actionsListBox.Items, prefix);
+            if (index < 0)
+                return;
+            var item = actionsListBox.Items[index]!;
+            actionsListBox.SelectedItem = item;
+            actionsListBox.ScrollIntoView(item);
+        }
+
+        private static int IndexOfFirstNameWithPrefix(ItemCollection items, string prefix)
+        {
+            if (string.IsNullOrEmpty(prefix))
+                return -1;
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i] is string name && name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                    return i;
+            }
+            return -1;
+        }
+
+        /// <summary>First index in <paramref name="orderedNames"/> whose value starts with <paramref name="prefix"/> (ordinal ignore case), or -1.</summary>
+        internal static int FindFirstActionNamePrefixIndex(IReadOnlyList<string> orderedNames, string prefix)
+        {
+            if (string.IsNullOrEmpty(prefix))
+                return -1;
+            for (int i = 0; i < orderedNames.Count; i++)
+            {
+                var name = orderedNames[i];
+                if (!string.IsNullOrEmpty(name) && name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                    return i;
+            }
+            return -1;
         }
 
         /// <summary>Unsubscribe from <see cref="ActionLoader.ActionsReloaded"/> (e.g. when Settings panel unloads).</summary>
         public void DetachFromActionLoaderEvents()
         {
             ActionLoader.ActionsReloaded -= OnGlobalActionsReloaded;
+            DetachActionsListTypeAheadHandlers();
         }
 
         private void OnGlobalActionsReloaded()
@@ -186,6 +325,7 @@ namespace RPGGame.UI.Avalonia.Managers
             bool filterByCategory = !string.IsNullOrEmpty(selectedCategory) && selectedCategory != FilterAll;
             bool filterByCadence = !string.IsNullOrEmpty(selectedCadence) && selectedCadence != FilterAll;
             bool filterByTag = !string.IsNullOrEmpty(selectedTag) && selectedTag != FilterAll;
+            _actionsListTypeAheadBuffer = "";
             var actions = actionEditor?.GetActions() ?? new List<ActionData>();
             var filtered = actions
                 .Where(a => !string.IsNullOrEmpty(a.Name))

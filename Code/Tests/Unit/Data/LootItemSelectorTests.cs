@@ -25,6 +25,7 @@ namespace RPGGame.Tests.Unit.Data
             TestRollLootCategory_ApproximateWeights();
             TestRollArmor_PreferredSlotReturnsLegsItem();
             TestRollArmor_PreferredLegsFallsBackToOtherArmorAtTier();
+            TestRollArmor_DoesNotAssignRandomGearAction();
 
             TestBase.PrintSummary("LootItemSelector Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -109,6 +110,37 @@ namespace RPGGame.Tests.Unit.Data
             Item? item = selector.RollArmor(1, "legs");
             TestBase.AssertTrue(item is HeadItem,
                 "when no legs at tier, pool widens to all armor at tier",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRollArmor_DoesNotAssignRandomGearAction()
+        {
+            Console.WriteLine("\n--- Testing RollArmor does not assign random GearAction ---");
+
+            var cache = LootDataCache.CreateEmpty();
+            cache.ArmorData.Clear();
+            cache.ArmorData.Add(new ArmorData
+            {
+                Slot = "head",
+                Name = "Plain Helm T1",
+                Tier = 1,
+                Armor = 1
+            });
+
+            var selector = new LootItemSelector(cache, new Random(0));
+            Item? item = selector.RollArmor(1, "head");
+
+            TestBase.AssertNotNull(item,
+                "armor item should be generated",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (item == null)
+                return;
+
+            TestBase.AssertTrue(string.IsNullOrEmpty(item.GearAction),
+                $"armor selector should not bypass the Actions affix table via GearAction; got '{item.GearAction}'",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, GearActionNames.Resolve(item).Count,
+                "plain armor without rolled ActionBonuses should resolve no gear actions",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

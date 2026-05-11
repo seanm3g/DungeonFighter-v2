@@ -53,6 +53,11 @@ namespace RPGGame.Actions.Execution
 
             if (selected.Type == ActionType.Attack || selected.Type == ActionType.Spell)
             {
+                double targetLowHealthBefore = ActionEventPublisher.GetActorHealthPercentage(target);
+                double sourceLowHealthBefore = selected.Target == TargetType.SelfAndTarget
+                    ? ActionEventPublisher.GetActorHealthPercentage(source)
+                    : double.NaN;
+
                 double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, selected);
                 int totalRoll = result.ModifiedBaseRoll + result.RollBonus;
                 int multiHitCount = selected.Advanced.MultiHitCount;
@@ -84,6 +89,10 @@ namespace RPGGame.Actions.Execution
                         ActionStatisticsTracker.RecordDamageReceived(selfCharacter, result.Damage);
                     ActionUtilities.CreateAndAddBattleEvent(source, target, selected, result.Damage, totalRoll, result.RollBonus, true, result.IsCombo, 0, 0, result.IsCritical, result.BaseRoll, battleNarrative);
                 }
+
+                ActionEventPublisher.PublishLowHealthThresholdIfCrossed(target, targetLowHealthBefore);
+                if (selected.Target == TargetType.SelfAndTarget && !ReferenceEquals(source, target))
+                    ActionEventPublisher.PublishLowHealthThresholdIfCrossed(source, sourceLowHealthBefore);
             }
             else if (selected.Type == ActionType.Heal)
             {
@@ -324,7 +333,7 @@ namespace RPGGame.Actions.Execution
                         enemyForFumble.Effects.AddPendingActionBonusesNextHeroRoll(payload);
                 }
             }
-            ActionEventPublisher.PublishActionMiss(source, target, result.SelectedAction!, result.AttackRoll);
+            ActionEventPublisher.PublishActionMiss(source, target, result.SelectedAction!, result.AttackRoll, result.IsCriticalMiss);
             if (source is Character characterMiss)
                 ActionStatisticsTracker.RecordMissAction(characterMiss, result.BaseRoll, result.RollBonus);
             if (source is Character comboCharacterMiss)

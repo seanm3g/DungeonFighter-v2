@@ -12,13 +12,18 @@ namespace RPGGame.Audio
     {
         /// <summary>Recorded <see cref="Play"/> invocations (only populated when <see cref="RecordCalls"/> is true).</summary>
         public List<(string file, AudioBusKind bus, float volume)> PlayCalls { get; } = new();
-        /// <summary>Recorded <see cref="PlayMusic"/> invocations.</summary>
-        public List<(string file, int crossfadeMs, float volume)> PlayMusicCalls { get; } = new();
+        /// <summary>Recorded <see cref="PlayMusic"/> invocations (last item is <c>startOffsetSeconds</c>).</summary>
+        public List<(string file, int crossfadeMs, float volume, double startOffsetSeconds)> PlayMusicCalls { get; } = new();
+        /// <summary>Recorded <see cref="PlaySettingsPreview"/> invocations.</summary>
+        public List<(string file, float volume)> PlaySettingsPreviewCalls { get; } = new();
         /// <summary>Recorded <see cref="StopMusic"/> invocations.</summary>
         public List<int> StopMusicCalls { get; } = new();
 
         /// <summary>When false (default for production), no call history is retained — keeps overhead at zero.</summary>
         public bool RecordCalls { get; set; }
+
+        /// <summary>When set, <see cref="TryGetMusicPlaybackTime"/> returns this value (tests simulate an active music clock).</summary>
+        public double? SimulatedMusicPlaybackTimeSeconds { get; set; }
 
         public void Play(string filePath, AudioBusKind bus, float volume)
         {
@@ -26,10 +31,27 @@ namespace RPGGame.Audio
                 PlayCalls.Add((filePath, bus, volume));
         }
 
-        public void PlayMusic(string filePath, int crossfadeMs, float volume)
+        public void PlayMusic(string filePath, int crossfadeMs, float volume, double startOffsetSeconds = 0)
         {
             if (RecordCalls)
-                PlayMusicCalls.Add((filePath, crossfadeMs, volume));
+                PlayMusicCalls.Add((filePath, crossfadeMs, volume, startOffsetSeconds));
+        }
+
+        public bool TryGetMusicPlaybackTime(out double seconds)
+        {
+            if (SimulatedMusicPlaybackTimeSeconds is double t && double.IsFinite(t) && t >= 0)
+            {
+                seconds = t;
+                return true;
+            }
+            seconds = 0;
+            return false;
+        }
+
+        public void PlaySettingsPreview(string absolutePath, float volume)
+        {
+            if (RecordCalls)
+                PlaySettingsPreviewCalls.Add((absolutePath, volume));
         }
 
         public void StopMusic(int crossfadeMs)
@@ -49,6 +71,7 @@ namespace RPGGame.Audio
         {
             PlayCalls.Clear();
             PlayMusicCalls.Clear();
+            PlaySettingsPreviewCalls.Clear();
             StopMusicCalls.Clear();
         }
     }

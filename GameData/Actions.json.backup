@@ -14,8 +14,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "ENEMY",
-    "isDefaultAction": "1"
+    "target": "ENEMY"
   },
   {
     "action": "PUNCH HARDER",
@@ -885,12 +884,10 @@
     "damage": "200%",
     "speed": "1.30",
     "duration": "1",
-    "cadence": "Action",
+    "cadence": "ACTION",
     "heroHit": "-2",
     "heroCrit": "2",
-    "target": "ENEMY",
-    "tags": "weapon",
-    "weaponTypes": "Wand"
+    "target": "ENEMY"
   },
   {
     "action": "AMPLIFY ACCURACY",
@@ -954,7 +951,7 @@
     "dps": "100%",
     "numberOfHits": "2",
     "damage": "50%",
-    "speed": "1.00",
+    "speed": "0.75",
     "target": "ENEMY",
     "tags": "weapon"
   },

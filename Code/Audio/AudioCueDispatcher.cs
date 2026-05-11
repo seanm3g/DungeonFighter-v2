@@ -8,8 +8,9 @@ namespace RPGGame.Audio
 {
     /// <summary>
     /// Resolves <see cref="AudioCue"/> values to audio files via <see cref="AudioConfig"/> and
-    /// dispatches them to an <see cref="IAudioEngine"/>. Subscribes to <see cref="CombatEventBus"/>
-    /// so combat-driven cues fire automatically.
+    /// dispatches them to an <see cref="IAudioEngine"/>. Non-outcome combat cues subscribe to
+    /// <see cref="CombatEventBus"/>; the five direct action outcome cues are triggered by
+    /// <see cref="Actions.Execution.ActionEventPublisher"/>.
     /// </summary>
     /// <remarks>
     /// Rate-limit (per cue, from <see cref="AudioCueBinding.RateLimitMs"/>) prevents chatty cues
@@ -25,11 +26,9 @@ namespace RPGGame.Audio
         private readonly HashSet<string> warnedMissingFiles = new();
         private readonly object subscribeLock = new();
         private bool subscribed;
-        private Action<CombatEvent>? hitHandler;
-        private Action<CombatEvent>? missHandler;
-        private Action<CombatEvent>? critHandler;
         private Action<CombatEvent>? deathHandler;
-        private Action<CombatEvent>? comboEndedHandler;
+        private Action<CombatEvent>? heroLowHealthHandler;
+        private Action<CombatEvent>? enemyLowHealthHandler;
         private Action<CombatEvent>? statusHandler;
 
         /// <summary>For unit tests: deterministic clock override. Assigned via reflection in tests.</summary>
@@ -50,23 +49,19 @@ namespace RPGGame.Audio
             this.globalEnabledResolver = globalEnabledResolver ?? (() => GameSettings.Instance.EnableSoundEffects);
         }
 
-        /// <summary>Subscribes the dispatcher to <see cref="CombatEventBus"/> for the duration of its life. Safe to call multiple times.</summary>
+        /// <summary>Subscribes the dispatcher to non-outcome <see cref="CombatEventBus"/> events for the duration of its life. Safe to call multiple times.</summary>
         public void SubscribeToCombatEvents()
         {
             lock (subscribeLock)
             {
                 if (subscribed) return;
-                hitHandler        = OnActionHit;
-                missHandler       = OnActionMiss;
-                critHandler       = OnActionCritical;
                 deathHandler      = OnEnemyDied;
-                comboEndedHandler = OnComboEnded;
+                heroLowHealthHandler  = OnHeroLowHealth;
+                enemyLowHealthHandler = OnEnemyLowHealth;
                 statusHandler     = OnStatusEffectApplied;
-                CombatEventBus.Instance.Subscribe(CombatEventType.ActionHit, hitHandler);
-                CombatEventBus.Instance.Subscribe(CombatEventType.ActionMiss, missHandler);
-                CombatEventBus.Instance.Subscribe(CombatEventType.ActionCritical, critHandler);
                 CombatEventBus.Instance.Subscribe(CombatEventType.EnemyDied, deathHandler);
-                CombatEventBus.Instance.Subscribe(CombatEventType.ComboEnded, comboEndedHandler);
+                CombatEventBus.Instance.Subscribe(CombatEventType.HeroLowHealth, heroLowHealthHandler);
+                CombatEventBus.Instance.Subscribe(CombatEventType.EnemyLowHealth, enemyLowHealthHandler);
                 CombatEventBus.Instance.Subscribe(CombatEventType.StatusEffectApplied, statusHandler);
                 subscribed = true;
             }
@@ -78,42 +73,38 @@ namespace RPGGame.Audio
             lock (subscribeLock)
             {
                 if (!subscribed) return;
-                if (hitHandler        != null) CombatEventBus.Instance.Unsubscribe(CombatEventType.ActionHit, hitHandler);
-                if (missHandler       != null) CombatEventBus.Instance.Unsubscribe(CombatEventType.ActionMiss, missHandler);
-                if (critHandler       != null) CombatEventBus.Instance.Unsubscribe(CombatEventType.ActionCritical, critHandler);
                 if (deathHandler      != null) CombatEventBus.Instance.Unsubscribe(CombatEventType.EnemyDied, deathHandler);
-                if (comboEndedHandler != null) CombatEventBus.Instance.Unsubscribe(CombatEventType.ComboEnded, comboEndedHandler);
+                if (heroLowHealthHandler  != null) CombatEventBus.Instance.Unsubscribe(CombatEventType.HeroLowHealth, heroLowHealthHandler);
+                if (enemyLowHealthHandler != null) CombatEventBus.Instance.Unsubscribe(CombatEventType.EnemyLowHealth, enemyLowHealthHandler);
                 if (statusHandler     != null) CombatEventBus.Instance.Unsubscribe(CombatEventType.StatusEffectApplied, statusHandler);
                 subscribed = false;
             }
         }
 
-        private void OnActionHit(CombatEvent evt)
-        {
-            if (evt.IsCritical) return;
-            Trigger(AudioCue.Combat_Hit);
-        }
-        private void OnActionMiss(CombatEvent _)   => Trigger(AudioCue.Combat_Miss);
-        private void OnActionCritical(CombatEvent _) => Trigger(AudioCue.Combat_Critical);
         private void OnEnemyDied(CombatEvent _)    => Trigger(AudioCue.Combat_EnemyDied);
-        private void OnComboEnded(CombatEvent _)   => Trigger(AudioCue.Combat_ComboComplete);
+        private void OnHeroLowHealth(CombatEvent _) => Trigger(AudioCue.Combat_HeroLowHealth);
+        private void OnEnemyLowHealth(CombatEvent _) => Trigger(AudioCue.Combat_EnemyLowHealth);
         private void OnStatusEffectApplied(CombatEvent _) => Trigger(AudioCue.Combat_StatusApplied);
 
         /// <summary>Plays the audio bound to a cue (if any). All public call sites enter here.</summary>
-        public void Trigger(AudioCue cue)
+        /// <param name="settingsPreview">When true (settings <c>Test</c> button), ignores master mute and per-bus mutes so the user can verify a file binding.</param>
+        public void Trigger(AudioCue cue, bool settingsPreview = false)
         {
             if (cue == AudioCue.None) return;
-            if (!globalEnabledResolver()) return;
+            if (!settingsPreview && !globalEnabledResolver()) return;
 
             var config = configResolver();
             var binding = config.GetBinding(cue);
             if (binding == null || string.IsNullOrEmpty(binding.File)) return;
 
             var bus = cue.GetBus();
-            if (bus == AudioBusKind.Music && !config.MusicEnabled) return;
-            if (bus == AudioBusKind.Sfx && !config.SfxEnabled) return;
+            if (!settingsPreview)
+            {
+                if (bus == AudioBusKind.Music && !config.MusicEnabled) return;
+                if (bus == AudioBusKind.Sfx && !config.SfxEnabled) return;
+            }
 
-            if (!PassesRateLimit(cue, binding)) return;
+            if (!settingsPreview && !PassesRateLimit(cue, binding)) return;
 
             string absolute = AudioConfig.ResolveAssetPath(binding.File);
             if (string.IsNullOrEmpty(absolute) || !File.Exists(absolute))
@@ -124,8 +115,18 @@ namespace RPGGame.Audio
 
             try
             {
-                if (bus == AudioBusKind.Music)
-                    engine.PlayMusic(absolute, config.MusicCrossfadeMs, binding.Volume);
+                if (settingsPreview)
+                {
+                    // Use the dedicated preview path for both music and SFX so Test remains audible
+                    // even while master/SFX/music are muted in the settings panel.
+                    engine.PlaySettingsPreview(absolute, binding.Volume);
+                }
+                else if (bus == AudioBusKind.Music)
+                {
+                    double? outgoing = engine.TryGetMusicPlaybackTime(out var t) ? t : (double?)null;
+                    double startOffset = config.ComputeMusicStartOffsetSecondsForTransition(outgoing);
+                    engine.PlayMusic(absolute, config.MusicCrossfadeMs, binding.Volume, startOffset);
+                }
                 else
                     engine.Play(absolute, AudioBusKind.Sfx, binding.Volume);
             }

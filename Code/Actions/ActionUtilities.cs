@@ -15,19 +15,36 @@ namespace RPGGame
     public static class ActionUtilities
     {
         /// <summary>
-        /// Gets combo actions for an entity
+        /// Gets combo actions for an entity.
+        /// Enemies are data-driven and often do not build a dedicated combo sequence, so their
+        /// combo-flagged action-pool entries act as the threshold-gated combo strip fallback.
         /// </summary>
         /// <param name="source">The entity to get combo actions for</param>
         /// <returns>List of combo actions</returns>
         public static List<Action> GetComboActions(Actor source)
         {
+            if (source is Enemy enemy)
+            {
+                var enemySequence = enemy.GetComboActions();
+                if (enemySequence.Count > 0)
+                    return enemySequence;
+
+                var enemyPoolComboActions = new List<Action>();
+                foreach (var actionEntry in enemy.ActionPool)
+                {
+                    if (actionEntry.action.IsComboAction)
+                        enemyPoolComboActions.Add(actionEntry.action);
+                }
+                return enemyPoolComboActions;
+            }
+
             if (source is Character character)
             {
                 return character.GetComboActions();
             }
             else
             {
-                // For enemies, get combo actions from ActionPool
+                // Non-character actors fall back to combo-flagged action-pool entries.
                 // Optimized: Single pass instead of LINQ chain
                 var comboActions = new List<Action>();
                 foreach (var actionEntry in source.ActionPool)
@@ -215,7 +232,7 @@ namespace RPGGame
                 // Only apply combo amplification to combo actions
                 if (action.IsComboAction)
                 {
-                    var comboActions = character.GetComboActions();
+                    var comboActions = GetComboActions(character);
                     // Action lab: the strip is configured on the lab clone; lab enemies often have no combo sequence.
                     // Use the player's sequence so forced catalog actions still get step-based amplification.
                     if (comboActions.Count == 0

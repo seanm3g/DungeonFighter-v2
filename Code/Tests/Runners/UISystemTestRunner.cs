@@ -64,6 +64,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             DisplayRendererClearBandRegressionTests.RunAllTests();
             Console.WriteLine();
+            CombatMessageHandlerTests.RunAllTests();
+            Console.WriteLine();
             LayoutConstantsCenterPanelHitTests.RunAllTests();
             Console.WriteLine();
             RightPanelContentTextTests.RunAllTests();

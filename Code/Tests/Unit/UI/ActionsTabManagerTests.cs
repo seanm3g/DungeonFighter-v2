@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RPGGame;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.Tests;
@@ -26,6 +27,10 @@ namespace RPGGame.Tests.Unit.UI
             TestRefreshCurrentPlayerActionPool_WhenPlayerNull_DoesNotThrow();
             TestRefreshCurrentPlayerActionPool_ResetsComboStep();
             TestRefreshCurrentPlayerActionPool_ActionPoolNotNull();
+
+            TestFindFirstActionNamePrefixIndex_FindsCaseInsensitivePrefix();
+            TestFindFirstActionNamePrefixIndex_ReturnsFirstOfOrderedList();
+            TestFindFirstActionNamePrefixIndex_EmptyOrMissing_ReturnsMinusOne();
 
             TestBase.PrintSummary("ActionsTabManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -76,6 +81,30 @@ namespace RPGGame.Tests.Unit.UI
             {
                 TestBase.AssertTrue(false, $"RefreshCurrentPlayerActionPool threw: {ex.Message}", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestFindFirstActionNamePrefixIndex_FindsCaseInsensitivePrefix()
+        {
+            Console.WriteLine("--- FindFirstActionNamePrefixIndex is case-insensitive ---");
+            var names = new List<string> { "Alpha", "Strike", "strike force" };
+            int idx = ActionsTabManager.FindFirstActionNamePrefixIndex(names, "stri");
+            TestBase.AssertEqual(1, idx, "Prefix 'stri' matches Strike at index 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestFindFirstActionNamePrefixIndex_ReturnsFirstOfOrderedList()
+        {
+            Console.WriteLine("--- FindFirstActionNamePrefixIndex returns first alphabetical match ---");
+            var names = new List<string> { "apple", "apricot", "banana" };
+            int idx = ActionsTabManager.FindFirstActionNamePrefixIndex(names, "ap");
+            TestBase.AssertEqual(0, idx, "First 'ap*' is apple", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestFindFirstActionNamePrefixIndex_EmptyOrMissing_ReturnsMinusOne()
+        {
+            Console.WriteLine("--- FindFirstActionNamePrefixIndex returns -1 for empty prefix or no match ---");
+            var names = new List<string> { "Zed" };
+            TestBase.AssertEqual(-1, ActionsTabManager.FindFirstActionNamePrefixIndex(names, ""), "empty prefix", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(-1, ActionsTabManager.FindFirstActionNamePrefixIndex(names, "x"), "no match", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

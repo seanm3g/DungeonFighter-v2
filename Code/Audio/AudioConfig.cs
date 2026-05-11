@@ -36,7 +36,25 @@ namespace RPGGame.Audio
         [JsonPropertyName("musicEnabled")] public bool MusicEnabled { get; set; } = true;
         [JsonPropertyName("sfxEnabled")]   public bool SfxEnabled   { get; set; } = true;
 
-        [JsonPropertyName("musicCrossfadeMs")] public int MusicCrossfadeMs { get; set; } = 200;
+        /// <summary>Default crossfade when <c>musicCrossfadeMs</c> is omitted from JSON or the save UI has no value.</summary>
+        public const int DefaultMusicCrossfadeMs = 1000;
+        /// <summary>Upper bound aligned with the Audio settings numeric (hand-edited JSON is clamped here).</summary>
+        public const int MaxMusicCrossfadeMs = 10000;
+
+        [JsonPropertyName("musicCrossfadeMs")] public int MusicCrossfadeMs { get; set; } = DefaultMusicCrossfadeMs;
+
+        /// <summary>
+        /// When &gt; 0, music transitions (state music and triggered music cues) start the incoming track at the same
+        /// phase within one beat of this tempo (seconds mod 60/BPM), so layered tracks with the same BPM stay aligned.
+        /// </summary>
+        [JsonPropertyName("musicTransitionSyncBpm")] public float MusicTransitionSyncBpm { get; set; } = 0f;
+
+        /// <summary>
+        /// When <see cref="MusicTransitionSyncBpm"/> is 0, if true the incoming track starts at the same elapsed seconds
+        /// as the outgoing track (clamped to the new file length). When false, new music always starts at 0.
+        /// Default true so layered scene music (stems) stays time-aligned without extra setup.
+        /// </summary>
+        [JsonPropertyName("musicTransitionCarryElapsed")] public bool MusicTransitionCarryElapsed { get; set; } = true;
 
         /// <summary>Cue name (matches <see cref="AudioCue"/> enum) → binding row.</summary>
         [JsonPropertyName("cueMap")] public Dictionary<string, AudioCueBinding> CueMap { get; set; } = new();
@@ -95,6 +113,22 @@ namespace RPGGame.Audio
             return Path.GetFullPath(Path.Combine(audioDir, relativeFile));
         }
 
+        /// <summary>
+        /// Older <c>AudioConfig.json</c> files omitted <see cref="MusicTransitionCarryElapsed"/>; JSON bool defaults to false
+        /// on deserialize. Treat omitted key as "carry on" so scene music stays time-aligned.
+        /// </summary>
+        private static void ApplyLegacyMusicTransitionCarryDefault(string rawJson, AudioConfig cfg)
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(rawJson);
+                if (doc.RootElement.ValueKind != JsonValueKind.Object) return;
+                if (!doc.RootElement.TryGetProperty("musicTransitionCarryElapsed", out _))
+                    cfg.MusicTransitionCarryElapsed = true;
+            }
+            catch { /* ignore; keep deserialized value */ }
+        }
+
         private static AudioConfig LoadFromFile()
         {
             string path = GetConfigFilePath();
@@ -108,6 +142,7 @@ namespace RPGGame.Audio
                         var cfg = JsonSerializer.Deserialize<AudioConfig>(json);
                         if (cfg != null)
                         {
+                            ApplyLegacyMusicTransitionCarryDefault(json, cfg);
                             cfg.ValidateAndFix();
                             cfg.EnsureDefaultEntriesForAllCues();
                             return cfg;
@@ -120,6 +155,7 @@ namespace RPGGame.Audio
                 ErrorHandler.LogError(ex, "AudioConfig.LoadFromFile", "Could not load AudioConfig.json; using defaults");
             }
             var fallback = new AudioConfig();
+            fallback.ValidateAndFix();
             fallback.EnsureDefaultEntriesForAllCues();
             return fallback;
         }
@@ -130,15 +166,44 @@ namespace RPGGame.Audio
             MasterVolume = Clamp01(MasterVolume);
             MusicVolume  = Clamp01(MusicVolume);
             SfxVolume    = Clamp01(SfxVolume);
-            MusicCrossfadeMs = Math.Max(0, MusicCrossfadeMs);
+            MusicCrossfadeMs = Math.Clamp(MusicCrossfadeMs, 0, MaxMusicCrossfadeMs);
+            if (MusicTransitionSyncBpm < 0f) MusicTransitionSyncBpm = 0f;
+            else if (MusicTransitionSyncBpm > 0f && MusicTransitionSyncBpm < 20f) MusicTransitionSyncBpm = 0f;
+            else if (MusicTransitionSyncBpm > 400f) MusicTransitionSyncBpm = 400f;
             CueMap ??= new Dictionary<string, AudioCueBinding>();
             StateMusicMap ??= new Dictionary<string, string>();
+            MigrateLegacyCombatCueNames();
             foreach (var binding in CueMap.Values)
             {
                 binding.Volume = Clamp01(binding.Volume);
                 if (binding.RateLimitMs is int ms && ms < 0) binding.RateLimitMs = 0;
                 binding.File ??= string.Empty;
             }
+
+            EnsureDefaultStateMusicMappings();
+        }
+
+        private void MigrateLegacyCombatCueNames()
+        {
+            const string legacyCritical = "Combat_Critical";
+            string criticalHit = AudioCue.Combat_CriticalHit.ToString();
+            if (CueMap.TryGetValue(legacyCritical, out var legacy)
+                && (!CueMap.TryGetValue(criticalHit, out var current) || string.IsNullOrEmpty(current.File)))
+            {
+                CueMap[criticalHit] = legacy;
+            }
+            CueMap.Remove(legacyCritical);
+        }
+
+        /// <summary>
+        /// Adds built-in state→music rows missing from older <c>AudioConfig.json</c> files. Does not overwrite existing keys.
+        /// </summary>
+        private void EnsureDefaultStateMusicMappings()
+        {
+            // GameLoop = in-game hub ("What would you like to do?"). It was omitted from early maps, so music resolved to None.
+            string gameLoop = nameof(GameState.GameLoop);
+            if (!StateMusicMap.ContainsKey(gameLoop))
+                StateMusicMap[gameLoop] = AudioCue.Music_MainMenu.ToString();
         }
 
         /// <summary>Adds a stub binding for every <see cref="AudioCue"/> that is missing from <see cref="CueMap"/>; never overwrites existing entries.</summary>
@@ -179,6 +244,24 @@ namespace RPGGame.Audio
         {
             if (cue == AudioCue.None) return null;
             return CueMap.TryGetValue(cue.ToString(), out var b) ? b : null;
+        }
+
+        /// <summary>
+        /// Uses <see cref="MusicTransitionSyncBpm"/> / <see cref="MusicTransitionCarryElapsed"/> to derive a seek offset
+        /// for the next music file from the outgoing track's playback time.
+        /// </summary>
+        public double ComputeMusicStartOffsetSecondsForTransition(double? outgoingTimeSeconds)
+        {
+            if (outgoingTimeSeconds is not double t || !double.IsFinite(t) || t < 0) return 0;
+            if (MusicTransitionSyncBpm > 0f)
+            {
+                double beat = 60.0 / MusicTransitionSyncBpm;
+                if (!double.IsFinite(beat) || beat <= 0) return 0;
+                double m = t % beat;
+                return m < 0 ? m + beat : m;
+            }
+            if (MusicTransitionCarryElapsed) return t;
+            return 0;
         }
 
         /// <summary>Returns the music cue mapped to a game state, or <see cref="AudioCue.None"/> if no music is mapped.</summary>
