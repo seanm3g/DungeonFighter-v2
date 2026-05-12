@@ -452,6 +452,14 @@ namespace RPGGame
         public void RecordOneShotKill() => SessionStats.RecordOneShotKill();
         public void EndTurn() => SessionStats.EndTurn();
         public string GetDefeatSummary() => SessionStats.GetDefeatSummary();
+        public void ResetSessionStatistics()
+        {
+            SessionStats = new SessionStatistics
+            {
+                StartingLevel = Level,
+                FinalLevel = Level
+            };
+        }
 
         /// <summary>
         /// Heroes and enemies must not carry room/environment hazard actions; those belong on <see cref="Environment"/> only.

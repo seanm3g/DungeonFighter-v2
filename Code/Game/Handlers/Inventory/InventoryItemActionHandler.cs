@@ -4,12 +4,22 @@ namespace RPGGame.Handlers.Inventory
     using System.Collections.Generic;
     using System.Linq;
     using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.Layout;
 
     /// <summary>
     /// Handles item action operations: equip, unequip, and discard.
     /// </summary>
     public class InventoryItemActionHandler
     {
+        private static readonly (string Slot, string Label)[] AutoEquipSlotOrder =
+        {
+            ("weapon", "Weapon"),
+            ("head", "Head"),
+            ("body", "Body"),
+            ("legs", "Legs"),
+            ("feet", "Feet")
+        };
+
         private readonly GameStateManager stateManager;
         private readonly IUIManager? customUIManager;
         private readonly InventoryStateManager stateTracker;
@@ -91,6 +101,71 @@ namespace RPGGame.Handlers.Inventory
             stateTracker.WaitingForItemSelection = true;
             stateTracker.ItemSelectionAction = "discard";
         }
+
+        /// <summary>
+        /// Fills only empty equipment slots from the bag, using inventory order and the normal equip requirement gate.
+        /// </summary>
+        public void AutoEquipEmptySlots()
+        {
+            var player = stateManager.CurrentPlayer;
+            if (player == null)
+                return;
+
+            var inventory = stateManager.CurrentInventory;
+            if (inventory.Count == 0)
+            {
+                ShowMessageEvent?.Invoke("No items in inventory to auto-equip.");
+                ShowInventoryEvent?.Invoke();
+                return;
+            }
+
+            var equipped = new List<string>();
+            int blockedMatches = 0;
+
+            foreach (var (slot, label) in AutoEquipSlotOrder)
+            {
+                if (GetEquippedItemForSlot(player, slot) != null)
+                    continue;
+
+                for (int i = 0; i < inventory.Count; i++)
+                {
+                    var item = inventory[i];
+                    if (!string.Equals(InventoryActionPoolEntries.GetEquipSlotForItem(item), slot, StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (!player.TryEquipItem(item, slot, out var previousItem, out _))
+                    {
+                        blockedMatches++;
+                        continue;
+                    }
+
+                    inventory.RemoveAt(i);
+                    if (previousItem != null)
+                        inventory.Add(previousItem);
+                    equipped.Add($"{label}: {item.Name}");
+                    break;
+                }
+            }
+
+            if (equipped.Count > 0)
+            {
+                ShowMessageEvent?.Invoke($"Auto-equipped {string.Join(", ", equipped)}.");
+            }
+            else if (!HasEmptyEquipmentSlot(player))
+            {
+                ShowMessageEvent?.Invoke("All equipment slots already have items.");
+            }
+            else if (blockedMatches > 0)
+            {
+                ShowMessageEvent?.Invoke("No empty slots could be filled. Matching items are blocked by requirements.");
+            }
+            else
+            {
+                ShowMessageEvent?.Invoke("No compatible items in inventory for empty equipment slots.");
+            }
+
+            ShowInventoryEvent?.Invoke();
+        }
         
         /// <summary>
         /// Confirm equip choice after comparison
@@ -162,6 +237,19 @@ namespace RPGGame.Handlers.Inventory
                 ShowInventoryEvent?.Invoke();
             return true;
         }
+
+        private static Item? GetEquippedItemForSlot(Character player, string slot) => slot switch
+        {
+            "weapon" => player.Weapon,
+            "head" => player.Head,
+            "body" => player.Body,
+            "legs" => player.Legs,
+            "feet" => player.Feet,
+            _ => null
+        };
+
+        private static bool HasEmptyEquipmentSlot(Character player) =>
+            AutoEquipSlotOrder.Any(slot => GetEquippedItemForSlot(player, slot.Slot) == null);
 
         /// <summary>Overload that discards <paramref name="failureMessage"/>; use the <c>out string?</c> overload when the caller needs the reason (e.g. combo pool equip).</summary>
         public bool ConfirmEquipItem(int itemIndex, string slot, bool equipNew, bool refreshInventoryScreen = true, bool announce = true) =>

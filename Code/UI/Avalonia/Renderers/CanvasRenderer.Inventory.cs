@@ -1,17 +1,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
+using RPGGame.Handlers.Inventory;
 using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame.UI.Avalonia.Renderers
 {
     public partial class CanvasRenderer
     {
-        public void RenderInventory(Character character, List<Item> inventory, CanvasContext context, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0)
+        public void RenderInventory(Character character, List<Item> inventory, CanvasContext context, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0, InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder, bool hideRequirementBlockedItems = false)
         {
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                inventoryRenderer.RenderInventory(contentX, contentY, contentWidth, contentHeight, character, inventory, pendingMutatingInventoryMenuAction, itemScrollOffset);
+                inventoryRenderer.RenderInventory(contentX, contentY, contentWidth, contentHeight, character, inventory, pendingMutatingInventoryMenuAction, itemScrollOffset, sortMode, hideRequirementBlockedItems);
             }, context, null, null, null, clearCanvas: true, inventoryComboRightPanel: true);
             dungeonRenderer.RenderActionInfoStrip(character);
             canvas.Refresh();

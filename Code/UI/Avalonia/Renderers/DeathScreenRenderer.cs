@@ -11,8 +11,8 @@ namespace RPGGame.UI.Avalonia.Renderers
     /// </summary>
     public class DeathScreenRenderer
     {
-        /// <summary>Footer text + button + prompt (anchored to bottom of content rect).</summary>
-        public const int FooterReservedRows = 4;
+        /// <summary>Footer choice text anchored to the bottom of the content rect.</summary>
+        public const int FooterReservedRows = 5;
         private const int SummaryMetricLabelWidth = 28;
 
         private readonly GameCanvasControl canvas;
@@ -199,34 +199,58 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderFooterOnly(int x, int y, int width, int height)
         {
             int footerTextY = y + height - FooterReservedRows;
-            int buttonY = footerTextY + 2;
+            int cloneButtonY = footerTextY + 1;
+            int returnButtonY = footerTextY + 2;
 
-            string footerText = "Better luck next time!";
+            string footerText = "Choose your fate:";
             int footerX = x + (width / 2) - (footerText.Length / 2);
             canvas.AddText(footerX, footerTextY, footerText, AsciiArtAssets.Colors.Yellow);
 
-            string continueText = UIConstants.MenuOptions.ReturnToMainMenu;
-            string continueDisplayText = MenuOptionFormatter.Format(0, continueText);
-            string buttonText = $"[ {continueDisplayText} ]";
-            int buttonX = x + (width / 2) - (buttonText.Length / 2);
+            string cloneText = "Clone this hero";
+            string cloneDisplayText = MenuOptionFormatter.Format(1, cloneText);
+            string cloneButtonText = $"[ {cloneDisplayText} ]";
+            int cloneButtonX = x + (width / 2) - (cloneButtonText.Length / 2);
 
-            var continueButton = new ClickableElement
+            var cloneButton = new ClickableElement
             {
-                X = buttonX,
-                Y = buttonY,
-                Width = buttonText.Length,
+                X = cloneButtonX,
+                Y = cloneButtonY,
+                Width = cloneButtonText.Length,
                 Height = 1,
                 Type = ElementType.MenuOption,
-                Value = "enter",
+                Value = "1",
+                DisplayText = cloneDisplayText
+            };
+
+            clickableElements.Add(cloneButton);
+            canvas.AddText(cloneButtonX, cloneButtonY, cloneButtonText, AsciiArtAssets.Colors.Green);
+
+            string continueText = UIConstants.MenuOptions.ReturnToMainMenu;
+            string continueDisplayText = MenuOptionFormatter.Format(0, continueText);
+            string returnButtonText = $"[ {continueDisplayText} ]";
+            int returnButtonX = x + (width / 2) - (returnButtonText.Length / 2);
+
+            var returnButton = new ClickableElement
+            {
+                X = returnButtonX,
+                Y = returnButtonY,
+                Width = returnButtonText.Length,
+                Height = 1,
+                Type = ElementType.MenuOption,
+                Value = "0",
                 DisplayText = continueDisplayText
             };
 
-            clickableElements.Add(continueButton);
-            canvas.AddText(buttonX, buttonY, buttonText, AsciiArtAssets.Colors.Yellow);
+            clickableElements.Add(returnButton);
+            canvas.AddText(returnButtonX, returnButtonY, returnButtonText, AsciiArtAssets.Colors.Yellow);
 
-            string promptText = "Press any key to continue...";
+            string cloneNote = "Clone keeps progress and bag, but loses equipped gear.";
+            int noteX = x + (width / 2) - (cloneNote.Length / 2);
+            canvas.AddText(noteX, returnButtonY + 1, cloneNote, AsciiArtAssets.Colors.Gray);
+
+            string promptText = "Press 1 to clone, or 0 to leave a tombstone.";
             int promptX = x + (width / 2) - (promptText.Length / 2);
-            canvas.AddText(promptX, buttonY + 1, promptText, AsciiArtAssets.Colors.Gray);
+            canvas.AddText(promptX, returnButtonY + 2, promptText, AsciiArtAssets.Colors.Gray);
         }
     }
 }

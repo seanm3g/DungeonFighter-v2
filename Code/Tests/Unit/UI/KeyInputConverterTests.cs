@@ -42,6 +42,21 @@ namespace RPGGame.Tests.Unit.UI
                 "Ctrl+V is not copy chord",
                 ref run, ref passed, ref failed);
 
+            TestBase.AssertTrue(
+                KeyInputConverter.ConvertKeyToInput(Key.Multiply, KeyModifiers.None) == "*",
+                "Numpad multiply maps to auto-equip shortcut input",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                KeyInputConverter.ConvertKeyToInput(Key.Add, KeyModifiers.None) == "+",
+                "Numpad plus maps to inventory sort shortcut input",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                KeyInputConverter.ConvertKeyToInput(Key.Subtract, KeyModifiers.None) == "-",
+                "Numpad minus maps to inventory requirement filter shortcut input",
+                ref run, ref passed, ref failed);
+
             Console.WriteLine($"\nKeyInputConverter: {passed}/{run} passed, {failed} failed\n");
         }
     }

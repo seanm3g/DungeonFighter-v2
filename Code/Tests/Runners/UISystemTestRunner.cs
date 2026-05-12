@@ -90,6 +90,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ComboPointerInputTests.RunAllTests();
             Console.WriteLine();
+            InventoryAutoEquipEmptySlotsTests.RunAllTests();
+            Console.WriteLine();
             InventoryMenuStripRightClickTests.RunAllTests();
             Console.WriteLine();
             ActionStripReorderPolicyTests.RunAllTests();

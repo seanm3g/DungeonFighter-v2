@@ -16,8 +16,10 @@ namespace RPGGame
         
         // Delegates
         public delegate void OnShowMainMenu();
+        public delegate void OnShowGameLoop();
         
         public event OnShowMainMenu? ShowMainMenuEvent;
+        public event OnShowGameLoop? ShowGameLoopEvent;
 
         public DeathScreenHandler(GameStateManager stateManager)
         {
@@ -50,16 +52,6 @@ namespace RPGGame
             }
             else
             {
-                try
-                {
-                    var characterId = stateManager.GetCharacterId(player);
-                    CharacterSaveManager.SaveCharacter(player, characterId, filename: null, markDead: true);
-                }
-                catch (Exception ex)
-                {
-                    DebugLogger.Log("DeathScreenHandler", $"Persist dead character save failed: {ex.Message}");
-                }
-
                 // Fallback for console UI
                 // Create colored death screen
                 var deathBuilder = new ColoredTextBuilder();
@@ -84,41 +76,100 @@ namespace RPGGame
                 // Add prompt to continue
                 var promptBuilder = new ColoredTextBuilder();
                 promptBuilder.Add("\n\n", ColorPalette.White);
-                promptBuilder.Add("Press any key to return to main menu...", ColorPalette.Warning);
+                promptBuilder.Add("1 - Clone this hero (equipped gear is lost)\n", ColorPalette.Warning);
+                promptBuilder.Add("0 - Return to main menu", ColorPalette.Warning);
                 UIManager.WriteLineColoredTextBuilder(promptBuilder, UIMessageType.System);
             }
         }
 
         /// <summary>
-        /// Handle any key press to return to main menu
+        /// Handles the death-screen fate choice.
         /// </summary>
         public async Task HandleMenuInput(string input)
         {
-            // Any key press returns to main menu
+            if (string.Equals(input?.Trim(), "1", StringComparison.OrdinalIgnoreCase))
+            {
+                CloneAndReturnToGameLoop();
+                await Task.CompletedTask;
+                return;
+            }
+
+            ReturnToMainMenuAsDead();
+            await Task.CompletedTask;
+        }
+
+        private void CloneAndReturnToGameLoop()
+        {
+            var player = stateManager.CurrentPlayer ?? stateManager.GetActiveCharacter();
+            if (player == null)
+            {
+                ReturnToMainMenuAsDead();
+                return;
+            }
+
             // Clear dungeon state
             stateManager.SetCurrentDungeon(null);
             stateManager.SetCurrentRoom(null);
-            
-            // Clear player reference (character is dead)
+            ClearCurrentEnemy();
+
+            CharacterCloneService.CloneAfterDeath(player);
+            stateManager.SetCurrentPlayer(player);
+
+            try
+            {
+                var characterId = stateManager.GetCharacterId(player);
+                CharacterSaveManager.SaveCharacter(player, characterId);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log("DeathScreenHandler", $"Save cloned character failed: {ex.Message}");
+            }
+
+            ClearDisplayIfNeeded();
+            if (ShowGameLoopEvent != null)
+            {
+                ShowGameLoopEvent.Invoke();
+            }
+            else
+            {
+                new GameScreenCoordinator(stateManager).ShowGameLoop();
+            }
+        }
+
+        private void ReturnToMainMenuAsDead()
+        {
+            var player = stateManager.CurrentPlayer ?? stateManager.GetActiveCharacter();
+            if (player != null)
+            {
+                try
+                {
+                    var characterId = stateManager.GetCharacterId(player);
+                    CharacterSaveManager.SaveCharacter(player, characterId, filename: null, markDead: true);
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log("DeathScreenHandler", $"Persist dead character save failed: {ex.Message}");
+                }
+            }
+
+            stateManager.SetCurrentDungeon(null);
+            stateManager.SetCurrentRoom(null);
             stateManager.SetCurrentPlayer(null);
-            
+            ClearCurrentEnemy();
+
+            stateManager.TransitionToState(GameState.MainMenu);
+            ClearDisplayIfNeeded();
+            ShowMainMenuEvent?.Invoke();
+        }
+
+        private void ClearCurrentEnemy()
+        {
             // Clear enemy from UI to prevent it from showing when starting a new game
             var uiManager = UIManager.GetCustomUIManager();
             if (uiManager is RPGGame.UI.Avalonia.CanvasUICoordinator canvasUI)
             {
                 canvasUI.ClearCurrentEnemy();
             }
-            
-            // Transition to main menu
-            stateManager.TransitionToState(GameState.MainMenu);
-            
-            // Clear display buffer
-            ClearDisplayIfNeeded();
-            
-            // Show main menu
-            ShowMainMenuEvent?.Invoke();
-            
-            await Task.CompletedTask;
         }
         
         /// <summary>

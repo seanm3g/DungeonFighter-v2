@@ -6,6 +6,7 @@ using Avalonia.Media;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.Editors;
+using RPGGame.Handlers.Inventory;
 using RPGGame.UI.Avalonia.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Layout;
@@ -609,7 +610,12 @@ namespace RPGGame.UI.Avalonia
             inventoryItemScrollOffset = 0;
         }
 
-        public void RenderInventory(Character character, List<Item> inventory, string? pendingMutatingInventoryMenuAction = null)
+        public void RenderInventory(
+            Character character,
+            List<Item> inventory,
+            string? pendingMutatingInventoryMenuAction = null,
+            InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
+            bool hideRequirementBlockedItems = false)
         {
             if (lastRenderedScreenState != GameState.Inventory || !ReferenceEquals(lastInventoryScrollCharacter, character))
             {
@@ -618,7 +624,7 @@ namespace RPGGame.UI.Avalonia
             }
 
             inventoryItemScrollOffset = InventoryItemScrollLayout.ClampFirstVisibleIndex(inventoryItemScrollOffset, inventory.Count);
-            renderer.RenderInventory(character, inventory, GetContext(), pendingMutatingInventoryMenuAction, inventoryItemScrollOffset);
+            renderer.RenderInventory(character, inventory, GetContext(), pendingMutatingInventoryMenuAction, inventoryItemScrollOffset, sortMode, hideRequirementBlockedItems);
         }
 
         public void RenderItemSelectionPrompt(Character character, List<Item> inventory, string promptMessage, string actionType)

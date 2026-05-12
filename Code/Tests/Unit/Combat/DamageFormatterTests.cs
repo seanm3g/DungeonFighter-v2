@@ -43,9 +43,11 @@ namespace RPGGame.Tests.Unit.Combat
             TestAddActorTakesDamage();
             TestAddActorTakesDamage_UsesStatusEffectTemplateForDamageType();
             TestAddActorTakesDamage_ActorOverload_MatchesCreatureNameShading();
+            TestAddActorTakesDamage_MarkupRoundTripPreservesHeroNameAndBleedTemplate();
             TestAddBracketedActorNoLongerAffected();
             TestAddActorNoLongerAffected();
             TestAddEffectStacksRemain();
+            TestBleedStatusDetailWordsUseBleedingTemplate();
             TestFormatDamageDisplayColored();
 
             TestBase.PrintSummary("DamageFormatter Tests", _testsRun, _testsPassed, _testsFailed);
@@ -335,6 +337,47 @@ namespace RPGGame.Tests.Unit.Combat
             }
         }
 
+        private static void TestAddActorTakesDamage_MarkupRoundTripPreservesHeroNameAndBleedTemplate()
+        {
+            Console.WriteLine("\n--- Testing AddActorTakesDamage markup round-trip preserves hero name and bleed template ---");
+
+            var hero = new Character("Brogan Brightmoon", 4);
+            hero.Progression.BarbarianPoints = 3;
+
+            var builder = new ColoredTextBuilder();
+            DamageFormatter.AddActorTakesDamage(builder, hero, 2, "bleed");
+
+            var heroNameSegments = HeroNamePanelColoredText.BuildLeftPanelHeroNameSegments(hero);
+            string markup = ColoredTextRenderer.RenderAsMarkup(builder.Build());
+            var parsed = ColoredTextParser.Parse(markup);
+
+            TestBase.AssertTrue(parsed.Count >= heroNameSegments.Count,
+                "Round-tripped bleed DoT line should include hero name segments",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            for (int i = 0; i < heroNameSegments.Count && i < parsed.Count; i++)
+            {
+                TestBase.AssertEqual(heroNameSegments[i].Text, parsed[i].Text,
+                    $"Round-tripped hero name segment {i} text",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                bool rgb = heroNameSegments[i].Color.R == parsed[i].Color.R
+                    && heroNameSegments[i].Color.G == parsed[i].Color.G
+                    && heroNameSegments[i].Color.B == parsed[i].Color.B;
+                TestBase.AssertTrue(rgb,
+                    $"Round-tripped hero name segment {i} color should preserve HUD palette",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+
+            string bleedTemplateText = string.Concat(parsed
+                .Where(segment => string.Equals(segment.SourceTemplate, StatusEffectColorHelper.GetTemplateName("bleed"), StringComparison.OrdinalIgnoreCase))
+                .Select(segment => segment.Text));
+
+            TestBase.AssertEqual("bleed", bleedTemplateText,
+                "Round-tripped bleed damage type should preserve bleeding status-effect template",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         #endregion
 
         #region AddBracketedActorNoLongerAffected Tests
@@ -383,6 +426,34 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestBase.AssertTrue(result.Count > 0,
                 "AddEffectStacksRemain should add text to builder",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestBleedStatusDetailWordsUseBleedingTemplate()
+        {
+            Console.WriteLine("\n--- Testing bleed status detail words use bleeding template ---");
+
+            var stacksBuilder = new ColoredTextBuilder();
+            DamageFormatter.AddEffectStacksRemain(stacksBuilder, "bleed", ColorPalette.Error, 1);
+            var stacks = stacksBuilder.Build();
+            string stacksBleedText = string.Concat(stacks
+                .Where(segment => string.Equals(segment.SourceTemplate, StatusEffectColorHelper.GetTemplateName("bleed"), StringComparison.OrdinalIgnoreCase))
+                .Select(segment => segment.Text));
+
+            TestBase.AssertEqual("bleed", stacksBleedText,
+                "Bleed stack detail should use bleeding status-effect template",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var hero = new Character("Brogan Brightmoon", 4);
+            var endedBuilder = new ColoredTextBuilder();
+            DamageFormatter.AddActorNoLongerAffected(endedBuilder, hero, "bleeding", ColorPalette.Error);
+            var ended = endedBuilder.Build();
+            string endedBleedText = string.Concat(ended
+                .Where(segment => string.Equals(segment.SourceTemplate, StatusEffectColorHelper.GetTemplateName("bleeding"), StringComparison.OrdinalIgnoreCase))
+                .Select(segment => segment.Text));
+
+            TestBase.AssertEqual("bleeding", endedBleedText,
+                "Bleed ended detail should use bleeding status-effect template",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

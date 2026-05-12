@@ -43,7 +43,6 @@ namespace RPGGame.UI.ColorSystem
             bool isSingleWord = IsSingleWord(segmentList);
             
             var markup = new StringBuilder();
-            Color? currentColor = null;
             
             for (int i = 0; i < segmentList.Count; i++)
             {
@@ -51,26 +50,45 @@ namespace RPGGame.UI.ColorSystem
                 
                 if (string.IsNullOrEmpty(segment.Text))
                     continue;
-                
-                // Only add template markup if color changed or is not white
-                bool needsColor = !currentColor.HasValue || !ColorValidator.AreColorsEqual(currentColor.Value, segment.Color);
-                bool isWhite = ColorValidator.AreColorsEqual(segment.Color, Colors.White);
-                
-                if (needsColor && !isWhite)
+
+                string textToRender = segment.Text;
+                string? sourceTemplate = GetRenderableSourceTemplate(segment);
+                int groupEndIndex = i;
+
+                if (sourceTemplate != null)
                 {
-                    // Get pattern name for this color
-                    string pattern = GetPatternForColor(segment.Color);
-                    markup.Append($"{{{{{pattern}|");
-                    currentColor = segment.Color;
+                    while (groupEndIndex + 1 < segmentList.Count)
+                    {
+                        var nextInGroup = segmentList[groupEndIndex + 1];
+                        if (nextInGroup == null
+                            || string.IsNullOrEmpty(nextInGroup.Text)
+                            || !string.Equals(GetRenderableSourceTemplate(nextInGroup), sourceTemplate, StringComparison.OrdinalIgnoreCase))
+                        {
+                            break;
+                        }
+
+                        textToRender += nextInGroup.Text;
+                        groupEndIndex++;
+                    }
                 }
                 
-                // Add the segment text
-                markup.Append(segment.Text);
+                bool isWhite = ColorValidator.AreColorsEqual(segment.Color, Colors.White);
                 
-                // Close template if we opened one
-                if (needsColor && !isWhite)
+                if (sourceTemplate != null)
                 {
+                    markup.Append($"{{{{{sourceTemplate}|");
+                    markup.Append(textToRender);
                     markup.Append("}}");
+                }
+                else if (!isWhite)
+                {
+                    markup.Append($"[color:{ColorToHex(segment.Color)}]");
+                    markup.Append(textToRender);
+                    markup.Append("[/color]");
+                }
+                else
+                {
+                    markup.Append(textToRender);
                 }
                 
                 // Ensure space after segment (unless it's the last segment, ends with punctuation/newline, or next starts with punctuation/newline)
@@ -79,14 +97,14 @@ namespace RPGGame.UI.ColorSystem
                 // IMPORTANT: Don't add space if current segment IS whitespace or already ends with whitespace
                 if (!isSingleWord)
                 {
-                    bool currentIsWhitespace = segment.Text.Trim().Length == 0 && segment.Text.Length > 0;
-                    bool currentEndsWithSpace = segment.Text.Length > 0 && char.IsWhiteSpace(segment.Text[segment.Text.Length - 1]);
+                    bool currentIsWhitespace = textToRender.Trim().Length == 0 && textToRender.Length > 0;
+                    bool currentEndsWithSpace = textToRender.Length > 0 && char.IsWhiteSpace(textToRender[textToRender.Length - 1]);
                     
                     // CRITICAL: Never add space if current segment ends with whitespace (prevents double spacing)
                     // This fixes issues like "Room: " + "Magma Chamber" where "Room: " already has a trailing space
-                    if (i < segmentList.Count - 1 && !currentIsWhitespace && !currentEndsWithSpace)
+                    if (groupEndIndex < segmentList.Count - 1 && !currentIsWhitespace && !currentEndsWithSpace)
                     {
-                        var nextSegment = segmentList[i + 1];
+                        var nextSegment = segmentList[groupEndIndex + 1];
                         if (!string.IsNullOrEmpty(nextSegment.Text))
                         {
                             // Also check if next segment starts with whitespace
@@ -97,12 +115,12 @@ namespace RPGGame.UI.ColorSystem
                             {
                                 // Check if these two segments are part of the same word
                                 // This prevents spacing within words in multi-color templates like room names
-                                bool areSameWord = AreAdjacentSegmentsSameWord(segment.Text, nextSegment.Text);
+                                bool areSameWord = AreAdjacentSegmentsSameWord(textToRender, nextSegment.Text);
                                 
                                 if (!areSameWord)
                                 {
                                     // Use centralized spacing manager with word boundary detection for multi-color templates
-                                    bool needsSpace = CombatLogSpacingManager.ShouldAddSpaceBetween(segment.Text, nextSegment.Text, checkWordBoundary: true);
+                                    bool needsSpace = CombatLogSpacingManager.ShouldAddSpaceBetween(textToRender, nextSegment.Text, checkWordBoundary: true);
                                     if (needsSpace)
                                     {
                                         // Add space as plain text (white)
@@ -113,9 +131,26 @@ namespace RPGGame.UI.ColorSystem
                         }
                     }
                 }
+
+                i = groupEndIndex;
             }
             
             return markup.ToString();
+        }
+
+        private static string? GetRenderableSourceTemplate(ColoredText segment)
+        {
+            if (segment == null || string.IsNullOrWhiteSpace(segment.SourceTemplate))
+                return null;
+
+            return ColorTemplateLibrary.HasTemplate(segment.SourceTemplate)
+                ? segment.SourceTemplate
+                : null;
+        }
+
+        private static string ColorToHex(Color color)
+        {
+            return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
         }
         
         /// <summary>
@@ -207,50 +242,6 @@ namespace RPGGame.UI.ColorSystem
         // Spacing logic has been moved to CombatLogSpacingManager for centralized management.
         // Use CombatLogSpacingManager.ShouldAddSpaceBetween() with checkWordBoundary: true
         // for renderer-specific spacing that handles multi-color templates.
-        
-        /// <summary>
-        /// Gets a pattern name for a color by finding the closest matching ColorPalette
-        /// </summary>
-        private static string GetPatternForColor(Color color)
-        {
-            // Find the closest ColorPalette match
-            ColorPalette closestPalette = ColorPalette.White;
-            double minDistance = double.MaxValue;
-            
-            foreach (ColorPalette palette in Enum.GetValues(typeof(ColorPalette)))
-            {
-                var paletteColor = palette.GetColor();
-                double distance = ColorDistance(color, paletteColor);
-                if (distance < minDistance)
-                {
-                    minDistance = distance;
-                    closestPalette = palette;
-                }
-            }
-            
-            // Find a pattern that maps to this palette
-            foreach (var pattern in ColorPatterns.GetAllPatterns())
-            {
-                if (ColorPatterns.GetPaletteForPattern(pattern) == closestPalette)
-                {
-                    return pattern;
-                }
-            }
-            
-            // Fallback to "info" if no pattern found
-            return "info";
-        }
-        
-        /// <summary>
-        /// Calculates color distance using RGB values
-        /// </summary>
-        private static double ColorDistance(Color a, Color b)
-        {
-            double rDiff = a.R - b.R;
-            double gDiff = a.G - b.G;
-            double bDiff = a.B - b.B;
-            return Math.Sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
-        }
         
         /// <summary>
         /// Renders colored text as HTML

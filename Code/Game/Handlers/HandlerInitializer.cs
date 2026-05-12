@@ -272,6 +272,7 @@ namespace RPGGame.Handlers
             if (handlers.DeathScreenHandler != null)
             {
                 handlers.DeathScreenHandler.ShowMainMenuEvent += () => showMainMenu();
+                handlers.DeathScreenHandler.ShowGameLoopEvent += () => showGameLoop();
             }
             
         }

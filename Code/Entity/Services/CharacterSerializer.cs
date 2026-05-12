@@ -150,7 +150,7 @@ namespace RPGGame.Entity.Services
                 : null;
             character.Actions.AddClassActions(character, character.Progression, weaponType);
 
-            EnsureUnarmedPunchInActionPool(character);
+            EnsureUnarmedTutorialActionInActionPool(character);
 
             // Restore user's combo sequence if possible; otherwise use default
             bool restored = character.RestoreComboFromActionNames(savedComboNames);
@@ -168,34 +168,34 @@ namespace RPGGame.Entity.Services
         }
 
         /// <summary>
-        /// Pre-weapon tutorial and any unarmed state: ensure catalog PUNCH is in the pool so default combo and fallbacks can use it.
+        /// Pre-weapon tutorial and any unarmed state: ensure the tutorial baseline action is in the pool so default combo and fallbacks can use it.
         /// </summary>
-        private static void EnsureUnarmedPunchInActionPool(Character character)
+        private static void EnsureUnarmedTutorialActionInActionPool(Character character)
         {
             if (character.Equipment.Weapon != null)
                 return;
 
-            var punch = ActionLoader.GetAction("PUNCH");
-            if (punch == null)
+            var tutorialAction = ActionLoader.GetAction(GameConstants.TrainingGroundTutorialActionName);
+            if (tutorialAction == null)
                 return;
 
-            bool hasPunch = character.ActionPool.Any(e =>
-                string.Equals(e.action.Name, "PUNCH", StringComparison.OrdinalIgnoreCase));
-            if (hasPunch)
+            bool hasTutorialAction = character.ActionPool.Any(e =>
+                string.Equals(e.action.Name, GameConstants.TrainingGroundTutorialActionName, StringComparison.OrdinalIgnoreCase));
+            if (hasTutorialAction)
                 return;
 
-            punch.IsComboAction = true;
-            character.AddAction(punch, 1.0);
+            tutorialAction.IsComboAction = true;
+            character.AddAction(tutorialAction, 1.0);
         }
 
         /// <summary>
-        /// Class unlocks add JAB for Warrior/Rogue paths even with no weapon; opener should stay PUNCH until a weapon is equipped.
+        /// Class unlocks add JAB for Warrior/Rogue paths even with no weapon; opener should stay on the tutorial action until a weapon is equipped.
         /// </summary>
         private static void NormalizeUnarmedComboOpener(Character character)
         {
             if (character.Equipment.Weapon != null)
                 return;
-            if (ActionLoader.GetAction("PUNCH") == null)
+            if (ActionLoader.GetAction(GameConstants.TrainingGroundTutorialActionName) == null)
                 return;
 
             var combo = character.GetComboActions();
@@ -207,7 +207,7 @@ namespace RPGGame.Entity.Services
             var names = new List<string>(combo.Count);
             foreach (var a in combo)
                 names.Add(a.Name);
-            names[0] = "PUNCH";
+            names[0] = GameConstants.TrainingGroundTutorialActionName;
             _ = character.RestoreComboFromActionNames(names);
         }
 
@@ -223,16 +223,18 @@ namespace RPGGame.Entity.Services
             DebugLogger.LogFormat("CharacterSerializer",
                 "WARNING: Character '{0}' has no actions after rebuild. Adding fallback actions.", character.Name);
 
-            // Pre-weapon / unarmed: prefer a clean baseline punch if it exists in Actions.json.
+            // Pre-weapon / unarmed: prefer the authored tutorial baseline action if it exists in Actions.json.
             if (character.Equipment.Weapon == null)
             {
-                var punch = ActionLoader.GetAction("PUNCH");
-                if (punch != null)
+                var tutorialAction = ActionLoader.GetAction(GameConstants.TrainingGroundTutorialActionName);
+                if (tutorialAction != null)
                 {
-                    punch.IsComboAction = true;
-                    character.AddAction(punch, 1.0);
+                    tutorialAction.IsComboAction = true;
+                    character.AddAction(tutorialAction, 1.0);
                     DebugLogger.LogFormat("CharacterSerializer",
-                        "Added unarmed fallback action 'PUNCH' to character '{0}'", character.Name);
+                        "Added unarmed fallback action '{0}' to character '{1}'",
+                        GameConstants.TrainingGroundTutorialActionName,
+                        character.Name);
                     return;
                 }
             }

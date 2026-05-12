@@ -1,8 +1,12 @@
 using System;
+using System.Linq;
 using RPGGame.Tests;
+using RPGGame.Handlers.Inventory;
 using RPGGame.UI.Avalonia.Renderers;
+using RPGGame.UI.Avalonia.Renderers.Helpers;
 using RPGGame.UI.Avalonia.Renderers.Inventory;
 using RPGGame.UI;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Tests.Unit.UI
 {
@@ -30,6 +34,8 @@ namespace RPGGame.Tests.Unit.UI
             TestInventoryRenderingMethods();
             TestItemComparisonHoverIds();
             TestInventoryItemScrollRange();
+            TestInventoryDisplaySortAndFilterKeepsOriginalIndices();
+            TestInventoryArmorComparisonBaselineColorsLowerSameSlotRed();
 
             TestBase.PrintSummary("InventoryRenderer Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -95,6 +101,79 @@ namespace RPGGame.Tests.Unit.UI
 
             bool needsStatus = InventoryItemScrollLayout.RequiresScrollStatus(rowHeights, availableRows: 7, firstVisibleIndex: 0);
             TestBase.AssertTrue(needsStatus, "inventory scroll status appears when rows exceed viewport", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestInventoryDisplaySortAndFilterKeepsOriginalIndices()
+        {
+            Console.WriteLine("\n--- Testing Inventory Display Sort and Filter ---");
+
+            var character = TestDataBuilders.Character().WithStats(10, 10, 10, 10).Build();
+            var commonFeet = TestDataBuilders.Armor().WithType(ItemType.Feet).WithName("Common Boots").Build();
+            var mythicHead = TestDataBuilders.Armor().WithType(ItemType.Head).WithName("Mythic Crown").Build();
+            var rareWeapon = TestDataBuilders.Weapon().WithName("Rare Sword").Build();
+            var uncommonLegs = TestDataBuilders.Armor().WithType(ItemType.Legs).WithName("Uncommon Pants").Build();
+            commonFeet.Rarity = "Common";
+            mythicHead.Rarity = "Mythic";
+            rareWeapon.Rarity = "Rare";
+            uncommonLegs.Rarity = "Uncommon";
+            mythicHead.AttributeRequirements.AddRequirement("strength", 999);
+
+            var inventory = new System.Collections.Generic.List<Item>
+            {
+                commonFeet,
+                mythicHead,
+                rareWeapon,
+                uncommonLegs
+            };
+
+            var rarityEntries = InventoryScreenRenderer.BuildDisplayEntries(
+                inventory,
+                character,
+                InventoryItemSortMode.Rarity,
+                hideRequirementBlockedItems: false);
+            TestBase.AssertEqual("1,2,3,0", string.Join(",", rarityEntries.Select(entry => entry.InventoryIndex)),
+                "rarity sort is highest-first while retaining original inventory indices",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var slotEntries = InventoryScreenRenderer.BuildDisplayEntries(
+                inventory,
+                character,
+                InventoryItemSortMode.ItemSlot,
+                hideRequirementBlockedItems: false);
+            TestBase.AssertEqual("2,1,3,0", string.Join(",", slotEntries.Select(entry => entry.InventoryIndex)),
+                "slot sort groups weapon/head/legs/feet while retaining original inventory indices",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var filteredEntries = InventoryScreenRenderer.BuildDisplayEntries(
+                inventory,
+                character,
+                InventoryItemSortMode.Rarity,
+                hideRequirementBlockedItems: true);
+            TestBase.AssertEqual("2,3,0", string.Join(",", filteredEntries.Select(entry => entry.InventoryIndex)),
+                "requirements filter hides blocked items without renumbering remaining entries",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestInventoryArmorComparisonBaselineColorsLowerSameSlotRed()
+        {
+            Console.WriteLine("\n--- Testing Inventory Armor Comparison Baseline Colors ---");
+
+            var character = new Character("Armor", 1);
+            var equippedLegs = new LegsItem("Steel Greaves", tier: 1, armor: 6) { Rarity = "Common" };
+            var inventoryLegs = new LegsItem("Breeches", tier: 1, armor: 4) { Rarity = "Common" };
+            character.EquipItem(equippedLegs, "legs");
+
+            Item? baseline = ItemRendererHelper.GetArmorComparisonBaseline(character, inventoryLegs);
+            TestBase.AssertTrue(ReferenceEquals(equippedLegs, baseline),
+                "inventory armor comparison uses equipped item from the same slot",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string stat = $"Armor: +{inventoryLegs.GetTotalArmor()}";
+            var segments = ItemStatFormatter.FormatStatLine(stat, inventoryLegs, weaponSpeedBaseline: null, armorComparisonBaseline: baseline);
+            var valueSegment = segments.FirstOrDefault(s => s.Text == inventoryLegs.GetTotalArmor().ToString());
+            TestBase.AssertTrue(valueSegment != null && valueSegment.Color == ColorPalette.Error.GetColor(),
+                "lower same-slot inventory armor value renders red",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

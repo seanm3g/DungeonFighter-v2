@@ -2,13 +2,27 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using RPGGame;
+    using RPGGame.Handlers.Inventory;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Renderers.Helpers;
     using RPGGame.UI.ColorSystem.Applications.ItemFormatting;
     using RPGGame.Items.Helpers;
     using static RPGGame.UI.LeftPanelHoverState;
+
+    public readonly struct InventoryDisplayEntry
+    {
+        public InventoryDisplayEntry(int inventoryIndex, Item item)
+        {
+            InventoryIndex = inventoryIndex;
+            Item = item;
+        }
+
+        public int InventoryIndex { get; }
+        public Item Item { get; }
+    }
 
     /// <summary>
     /// Renders the main inventory screen with items and actions
@@ -71,7 +85,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// <summary>
         /// Renders the inventory screen with items and actions
         /// </summary>
-        public int RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0)
+        public int RenderInventory(
+            int x,
+            int y,
+            int width,
+            int height,
+            Character character,
+            List<Item> inventory,
+            string? pendingMutatingInventoryMenuAction = null,
+            int itemScrollOffset = 0,
+            InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
+            bool hideRequirementBlockedItems = false)
         {
             // Do not Clear() the shared clickables list: PersistentLayoutManager already cleared it this frame,
             // and CharacterPanelRenderer registered left-panel lphover targets before this callback. Clearing here
@@ -97,6 +121,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.InventoryItems), AsciiArtAssets.Colors.Gold);
             y += 2;
             currentLineCount += 2;
+            string viewSummary = BuildViewSummary(inventory, character, sortMode, hideRequirementBlockedItems);
+            if (!string.IsNullOrEmpty(viewSummary))
+            {
+                canvas.AddText(x + 2, y, viewSummary, AsciiArtAssets.Colors.DarkGray);
+                y++;
+                currentLineCount++;
+            }
             clickableElements.Add(new ClickableElement
             {
                 X = x + 2,
@@ -108,24 +139,31 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 DisplayText = "Inventory items"
             });
             
+            var displayEntries = BuildDisplayEntries(inventory, character, sortMode, hideRequirementBlockedItems);
+
             if (inventory.Count == 0)
             {
                 canvas.AddText(x + 2, y, "No items in inventory", AsciiArtAssets.Colors.White);
                 currentLineCount++;
             }
+            else if (displayEntries.Count == 0)
+            {
+                canvas.AddText(x + 2, y, "No items match the current requirements filter", AsciiArtAssets.Colors.White);
+                currentLineCount++;
+            }
             else
             {
                 int availableItemRows = Math.Max(0, actionsStartY - y - 1);
-                var itemStatsByIndex = new List<string>[inventory.Count];
-                var itemActionsByIndex = new List<string>?[inventory.Count];
-                var itemLineCounts = new List<int>(inventory.Count);
-                for (int i = 0; i < inventory.Count; i++)
+                var itemStatsByDisplayIndex = new List<string>[displayEntries.Count];
+                var itemActionsByDisplayIndex = new List<string>?[displayEntries.Count];
+                var itemLineCounts = new List<int>(displayEntries.Count);
+                for (int displayIndex = 0; displayIndex < displayEntries.Count; displayIndex++)
                 {
-                    var item = inventory[i];
+                    var item = displayEntries[displayIndex].Item;
                     var itemStats = ItemStatFormatter.GetItemStats(item, character);
                     var itemActions = character.Equipment.GetGearActions(item);
-                    itemStatsByIndex[i] = itemStats;
-                    itemActionsByIndex[i] = itemActions;
+                    itemStatsByDisplayIndex[displayIndex] = itemStats;
+                    itemActionsByDisplayIndex[displayIndex] = itemActions;
                     int rowLines = 1;
                     if (itemActions != null && itemActions.Count > 0)
                         rowLines++;
@@ -133,22 +171,24 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     itemLineCounts.Add(Math.Max(1, rowLines));
                 }
 
-                int clampedScrollOffset = InventoryItemScrollLayout.ClampFirstVisibleIndex(itemScrollOffset, inventory.Count);
+                int clampedScrollOffset = InventoryItemScrollLayout.ClampFirstVisibleIndex(itemScrollOffset, displayEntries.Count);
                 bool showScrollStatus = InventoryItemScrollLayout.RequiresScrollStatus(itemLineCounts, availableItemRows, clampedScrollOffset);
                 if (!showScrollStatus)
                     clampedScrollOffset = 0;
                 int renderRowsAvailable = showScrollStatus ? Math.Max(0, availableItemRows - 1) : availableItemRows;
                 var visibleRange = InventoryItemScrollLayout.CalculateVisibleRange(itemLineCounts, clampedScrollOffset, renderRowsAvailable);
                 bool blockRowClicks = pendingMutatingInventoryMenuAction != null;
-                for (int i = visibleRange.FirstIndex; i < visibleRange.LastExclusiveIndex; i++)
+                for (int displayIndex = visibleRange.FirstIndex; displayIndex < visibleRange.LastExclusiveIndex; displayIndex++)
                 {
-                    var item = inventory[i];
-                    var itemStats = itemStatsByIndex[i];
+                    var entry = displayEntries[displayIndex];
+                    int inventoryIndex = entry.InventoryIndex;
+                    var item = entry.Item;
+                    var itemStats = itemStatsByDisplayIndex[displayIndex];
                     
                     // Get actions for this item
-                    var itemActions = itemActionsByIndex[i];
+                    var itemActions = itemActionsByDisplayIndex[displayIndex];
                     
-                    int rowLines = itemLineCounts[i];
+                    int rowLines = itemLineCounts[displayIndex];
                     string slotName = GetSlotName(item);
                     string rarity = item.Rarity?.Trim() ?? "Common";
                     // During mutating-action confirmation, row Values are "1","2",… — same as Continue / menu
@@ -160,13 +200,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                             y,
                             width - 4,
                             rowLines,
-                            (i + 1).ToString(),
-                            $"[{i + 1}] [{rarity}] [{slotName}] {item.Name}",
-                            Prefix + "inv:" + i));
+                            (inventoryIndex + 1).ToString(),
+                            $"[{inventoryIndex + 1}] [{rarity}] [{slotName}] {item.Name}",
+                            Prefix + "inv:" + inventoryIndex));
                     }
                     
                     // Render item name (slot bracket goes red when attribute requirements block equip)
-                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true, character: character);
+                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, inventoryIndex, item, useColoredText: true, character: character);
                     y++;
                     currentLineCount++;
                     
@@ -188,17 +228,18 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         currentLineCount++;
                     }
                     
-                    // Render stats (weapon speed vs currently equipped weapon)
+                    // Render stats against currently equipped same-slot gear when comparable.
                     var equippedWeapon = character.Weapon as WeaponItem;
+                    var equippedArmorBaseline = ItemRendererHelper.GetArmorComparisonBaseline(character, item);
                     ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true,
-                        displayedItem: item, weaponSpeedBaseline: equippedWeapon);
+                        displayedItem: item, weaponSpeedBaseline: equippedWeapon, armorComparisonBaseline: equippedArmorBaseline);
                 }
 
                 if (showScrollStatus)
                 {
                     int firstDisplay = visibleRange.VisibleItemCount > 0 ? visibleRange.FirstIndex + 1 : 0;
                     int lastDisplay = visibleRange.VisibleItemCount > 0 ? visibleRange.LastExclusiveIndex : 0;
-                    string status = $"Items {firstDisplay}-{lastDisplay} of {inventory.Count} - scroll Up/Down";
+                    string status = $"Showing {firstDisplay}-{lastDisplay} of {displayEntries.Count} - scroll Up/Down";
                     if (status.Length > width - 4)
                         status = status.Substring(0, Math.Max(0, width - 7)) + "...";
                     int statusY = actionsStartY - 2;
@@ -265,6 +306,92 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             currentLineCount++;
             
             return currentLineCount;
+        }
+
+        public static List<InventoryDisplayEntry> BuildDisplayEntries(
+            IReadOnlyList<Item> inventory,
+            Character character,
+            InventoryItemSortMode sortMode,
+            bool hideRequirementBlockedItems)
+        {
+            if (inventory == null)
+                return new List<InventoryDisplayEntry>();
+
+            IEnumerable<InventoryDisplayEntry> entries = inventory
+                .Select((item, index) => new InventoryDisplayEntry(index, item));
+
+            if (hideRequirementBlockedItems)
+                entries = entries.Where(entry => entry.Item.MeetsRequirements(character));
+
+            return sortMode switch
+            {
+                InventoryItemSortMode.Rarity => entries
+                    .OrderByDescending(entry => GetRaritySortRank(entry.Item.Rarity))
+                    .ThenBy(entry => entry.InventoryIndex)
+                    .ToList(),
+                InventoryItemSortMode.ItemSlot => entries
+                    .OrderBy(entry => GetSlotSortRank(entry.Item))
+                    .ThenBy(entry => entry.InventoryIndex)
+                    .ToList(),
+                _ => entries
+                    .OrderBy(entry => entry.InventoryIndex)
+                    .ToList()
+            };
+        }
+
+        private static string BuildViewSummary(
+            IReadOnlyList<Item> inventory,
+            Character character,
+            InventoryItemSortMode sortMode,
+            bool hideRequirementBlockedItems)
+        {
+            string sortLabel = sortMode switch
+            {
+                InventoryItemSortMode.Rarity => "Rarity",
+                InventoryItemSortMode.ItemSlot => "Item slot",
+                _ => "Inventory order"
+            };
+
+            string filterLabel = hideRequirementBlockedItems
+                ? "hiding unmet requirements"
+                : "showing all items";
+
+            int hiddenCount = hideRequirementBlockedItems && inventory != null
+                ? inventory.Count(item => !item.MeetsRequirements(character))
+                : 0;
+
+            string hiddenText = hiddenCount > 0 ? $" ({hiddenCount} hidden)" : "";
+            return $"Sort: {sortLabel} (+) | Filter: {filterLabel}{hiddenText} (-)";
+        }
+
+        private static int GetRaritySortRank(string? rarity)
+        {
+            return (rarity ?? "Common").Trim().ToLowerInvariant() switch
+            {
+                "transcendent" => 6,
+                "mythic" => 5,
+                "legendary" => 4,
+                "epic" => 3,
+                "rare" => 2,
+                "uncommon" => 1,
+                _ => 0
+            };
+        }
+
+        private static int GetSlotSortRank(Item item)
+        {
+            if (item == null)
+                return int.MaxValue;
+
+            return item.Type switch
+            {
+                ItemType.Weapon => 0,
+                ItemType.Head => 1,
+                ItemType.Chest => 2,
+                ItemType.Legs => 3,
+                ItemType.Feet => 4,
+                _ => 5
+            };
         }
     }
 

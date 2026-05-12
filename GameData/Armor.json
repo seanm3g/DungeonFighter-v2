@@ -3,7 +3,7 @@
     "slot": "chest",
     "name": "Shirt",
     "armor": 1,
-    "STRENGTH": 3,
+    "STRENGTH": 1,
     "tier": 1,
     "attributeRequirements": "strength",
     "requirement value": 5
@@ -12,7 +12,7 @@
     "slot": "chest",
     "name": "Vest",
     "armor": 2,
-    "STRENGTH": 2,
+    "STRENGTH": 3,
     "tier": 1,
     "attributeRequirements": "strength",
     "requirement value": 5
@@ -21,7 +21,7 @@
     "slot": "chest",
     "name": "Thick Wrap",
     "armor": 3,
-    "STRENGTH": 2,
+    "STRENGTH": 1,
     "INTELLIGENCE": 5,
     "tier": 1,
     "attributeRequirements": "strength",
@@ -31,7 +31,7 @@
     "slot": "chest",
     "name": "Jerkin",
     "armor": 4,
-    "STRENGTH": 3,
+    "STRENGTH": 1,
     "TECHNIQUE": 5,
     "tier": 1,
     "attributeRequirements": "strength",
@@ -45,17 +45,17 @@
     "AGILITY": 5,
     "tier": 1,
     "attributeRequirements": "strength",
-    "requirement value": 5
+    "requirement value": 7
   },
   {
     "slot": "chest",
     "name": "Coat",
     "armor": 6,
-    "STRENGTH": 3,
+    "STRENGTH": 1,
     "INTELLIGENCE": 5,
     "tier": 1,
     "attributeRequirements": "strength",
-    "requirement value": 7
+    "requirement value": 9
   },
   {
     "slot": "chest",
@@ -65,17 +65,17 @@
     "TECHNIQUE": 5,
     "tier": 1,
     "attributeRequirements": "strength",
-    "requirement value": 8
+    "requirement value": 10
   },
   {
     "slot": "chest",
     "name": "Surcoat",
     "armor": 8,
-    "STRENGTH": 3,
+    "STRENGTH": 1,
     "AGILITY": 5,
     "tier": 1,
     "attributeRequirements": "strength",
-    "requirement value": 8
+    "requirement value": 6
   },
   {
     "slot": "chest",
@@ -84,64 +84,64 @@
     "STRENGTH": 3,
     "tier": 1,
     "attributeRequirements": "strength",
-    "requirement value": 14
+    "requirement value": 13
   },
   {
     "slot": "chest",
     "name": "Corselet",
     "armor": 10,
-    "STRENGTH": 3,
-    "tier": 1,
-    "attributeRequirements": "strength",
-    "requirement value": 7
-  },
-  {
-    "slot": "chest",
-    "name": "Breastplate",
-    "armor": 4,
-    "STRENGTH": 4,
-    "tier": 2,
-    "attributeRequirements": "strength",
-    "requirement value": 20
-  },
-  {
-    "slot": "chest",
-    "name": "Chainmail",
-    "armor": 5,
-    "STRENGTH": 5,
-    "tier": 2,
-    "attributeRequirements": "strength",
-    "requirement value": 23
-  },
-  {
-    "slot": "chest",
-    "name": "Rover Jacket",
-    "armor": 6,
-    "STRENGTH": 5,
-    "INTELLIGENCE": 5,
-    "tier": 2,
-    "attributeRequirements": "strength",
-    "requirement value": 22
-  },
-  {
-    "slot": "chest",
-    "name": "Studded Vest",
-    "armor": 7,
     "STRENGTH": 2,
-    "TECHNIQUE": 5,
-    "tier": 2,
+    "tier": 1,
     "attributeRequirements": "strength",
     "requirement value": 11
   },
   {
     "slot": "chest",
-    "name": "Stalker\u0027s Mantle",
-    "armor": 8,
+    "name": "Breastplate",
+    "armor": 4,
+    "STRENGTH": 5,
+    "tier": 2,
+    "attributeRequirements": "strength",
+    "requirement value": 18
+  },
+  {
+    "slot": "chest",
+    "name": "Chainmail",
+    "armor": 5,
+    "STRENGTH": 6,
+    "tier": 2,
+    "attributeRequirements": "strength",
+    "requirement value": 24
+  },
+  {
+    "slot": "chest",
+    "name": "Rover Jacket",
+    "armor": 6,
     "STRENGTH": 3,
-    "AGILITY": 5,
+    "INTELLIGENCE": 5,
+    "tier": 2,
+    "attributeRequirements": "strength",
+    "requirement value": 24
+  },
+  {
+    "slot": "chest",
+    "name": "Studded Vest",
+    "armor": 7,
+    "STRENGTH": 5,
+    "TECHNIQUE": 5,
     "tier": 2,
     "attributeRequirements": "strength",
     "requirement value": 29
+  },
+  {
+    "slot": "chest",
+    "name": "Stalker\u0027s Mantle",
+    "armor": 8,
+    "STRENGTH": 4,
+    "AGILITY": 5,
+    "tier": 2,
+    "attributeRequirements": "strength",
+    "requirement value": 13
   },
   {
     "slot": "chest",
@@ -151,27 +151,27 @@
     "INTELLIGENCE": 5,
     "tier": 2,
     "attributeRequirements": "strength",
-    "requirement value": 19
+    "requirement value": 12
   },
   {
     "slot": "chest",
     "name": "Defender Cuirass",
     "armor": 10,
-    "STRENGTH": 5,
+    "STRENGTH": 4,
     "TECHNIQUE": 5,
     "tier": 2,
     "attributeRequirements": "strength",
-    "requirement value": 15
+    "requirement value": 10
   },
   {
     "slot": "chest",
     "name": "Half-Plate",
     "armor": 11,
-    "STRENGTH": 5,
+    "STRENGTH": 4,
     "AGILITY": 5,
     "tier": 2,
     "attributeRequirements": "strength",
-    "requirement value": 20
+    "requirement value": 21
   },
   {
     "slot": "chest",
@@ -180,25 +180,25 @@
     "STRENGTH": 3,
     "tier": 2,
     "attributeRequirements": "strength",
-    "requirement value": 14
+    "requirement value": 27
   },
   {
     "slot": "chest",
     "name": "War Coat",
     "armor": 13,
-    "STRENGTH": 5,
+    "STRENGTH": 2,
     "tier": 2,
     "attributeRequirements": "strength",
-    "requirement value": 25
+    "requirement value": 20
   },
   {
     "slot": "chest",
     "name": "Ironwall",
     "armor": 6,
-    "STRENGTH": 6,
+    "STRENGTH": 10,
     "tier": 3,
     "attributeRequirements": "strength",
-    "requirement value": 46
+    "requirement value": 52
   },
   {
     "slot": "chest",
@@ -207,7 +207,7 @@
     "STRENGTH": 9,
     "tier": 3,
     "attributeRequirements": "strength",
-    "requirement value": 43
+    "requirement value": 48
   },
   {
     "slot": "chest",
@@ -217,267 +217,267 @@
     "INTELLIGENCE": 5,
     "tier": 3,
     "attributeRequirements": "strength",
-    "requirement value": 44
+    "requirement value": 60
   },
   {
     "slot": "chest",
     "name": "Spaulder",
     "armor": 9,
-    "STRENGTH": 8,
+    "STRENGTH": 10,
     "TECHNIQUE": 5,
     "tier": 3,
     "attributeRequirements": "strength",
-    "requirement value": 42
+    "requirement value": 53
   },
   {
     "slot": "chest",
     "name": "Bastion Armor",
     "armor": 10,
-    "STRENGTH": 6,
+    "STRENGTH": 5,
     "AGILITY": 5,
-    "tier": 3,
-    "attributeRequirements": "strength",
-    "requirement value": 38
-  },
-  {
-    "slot": "chest",
-    "name": "Full Plate",
-    "armor": 11,
-    "STRENGTH": 6,
-    "INTELLIGENCE": 5,
-    "tier": 3,
-    "attributeRequirements": "strength",
-    "requirement value": 58
-  },
-  {
-    "slot": "chest",
-    "name": "Aegis",
-    "armor": 12,
-    "STRENGTH": 8,
-    "TECHNIQUE": 5,
-    "tier": 3,
-    "attributeRequirements": "strength",
-    "requirement value": 51
-  },
-  {
-    "slot": "chest",
-    "name": "Bulwark",
-    "armor": 13,
-    "STRENGTH": 7,
-    "AGILITY": 5,
-    "tier": 3,
-    "attributeRequirements": "strength",
-    "requirement value": 44
-  },
-  {
-    "slot": "chest",
-    "name": "Phalaanx",
-    "armor": 14,
-    "STRENGTH": 9,
-    "tier": 3,
-    "attributeRequirements": "strength",
-    "requirement value": 65
-  },
-  {
-    "slot": "chest",
-    "name": "Ironwall",
-    "armor": 15,
-    "STRENGTH": 7,
     "tier": 3,
     "attributeRequirements": "strength",
     "requirement value": 41
   },
   {
     "slot": "chest",
+    "name": "Full Plate",
+    "armor": 11,
+    "STRENGTH": 8,
+    "INTELLIGENCE": 5,
+    "tier": 3,
+    "attributeRequirements": "strength",
+    "requirement value": 52
+  },
+  {
+    "slot": "chest",
+    "name": "Aegis",
+    "armor": 12,
+    "STRENGTH": 6,
+    "TECHNIQUE": 5,
+    "tier": 3,
+    "attributeRequirements": "strength",
+    "requirement value": 38
+  },
+  {
+    "slot": "chest",
+    "name": "Bulwark",
+    "armor": 13,
+    "STRENGTH": 8,
+    "AGILITY": 5,
+    "tier": 3,
+    "attributeRequirements": "strength",
+    "requirement value": 58
+  },
+  {
+    "slot": "chest",
+    "name": "Phalaanx",
+    "armor": 14,
+    "STRENGTH": 6,
+    "tier": 3,
+    "attributeRequirements": "strength",
+    "requirement value": 52
+  },
+  {
+    "slot": "chest",
+    "name": "Ironwall",
+    "armor": 15,
+    "STRENGTH": 8,
+    "tier": 3,
+    "attributeRequirements": "strength",
+    "requirement value": 51
+  },
+  {
+    "slot": "chest",
     "name": "Adamantine Chestplate",
     "armor": 8,
-    "STRENGTH": 6,
+    "STRENGTH": 9,
     "tier": 4,
     "attributeRequirements": "strength",
-    "requirement value": 88
+    "requirement value": 85
   },
   {
     "slot": "chest",
     "name": "Banded Mail",
     "armor": 9,
-    "STRENGTH": 6,
+    "STRENGTH": 10,
     "tier": 4,
     "attributeRequirements": "strength",
-    "requirement value": 92
+    "requirement value": 94
   },
   {
     "slot": "chest",
     "name": "Splint Mail",
     "armor": 10,
-    "STRENGTH": 8,
-    "INTELLIGENCE": 5,
-    "tier": 4,
-    "attributeRequirements": "strength",
-    "requirement value": 59
-  },
-  {
-    "slot": "chest",
-    "name": "Stormwall",
-    "armor": 11,
-    "STRENGTH": 12,
-    "TECHNIQUE": 5,
-    "tier": 4,
-    "attributeRequirements": "strength",
-    "requirement value": 67
-  },
-  {
-    "slot": "chest",
-    "name": "Vanguard Plate",
-    "armor": 12,
-    "STRENGTH": 14,
-    "AGILITY": 5,
-    "tier": 4,
-    "attributeRequirements": "strength",
-    "requirement value": 59
-  },
-  {
-    "slot": "chest",
-    "name": "Mithril Chestplate",
-    "armor": 13,
-    "STRENGTH": 15,
-    "INTELLIGENCE": 5,
-    "tier": 4,
-    "attributeRequirements": "strength",
-    "requirement value": 62
-  },
-  {
-    "slot": "chest",
-    "name": "Ring Mail",
-    "armor": 14,
-    "STRENGTH": 11,
-    "TECHNIQUE": 5,
-    "tier": 4,
-    "attributeRequirements": "strength",
-    "requirement value": 92
-  },
-  {
-    "slot": "chest",
-    "name": "Scale Mail",
-    "armor": 15,
-    "STRENGTH": 7,
-    "AGILITY": 5,
-    "tier": 4,
-    "attributeRequirements": "strength",
-    "requirement value": 84
-  },
-  {
-    "slot": "chest",
-    "name": "Fortress",
-    "armor": 16,
     "STRENGTH": 9,
-    "tier": 4,
-    "attributeRequirements": "strength",
-    "requirement value": 79
-  },
-  {
-    "slot": "chest",
-    "name": "Ironclad",
-    "armor": 17,
-    "STRENGTH": 13,
-    "tier": 4,
-    "attributeRequirements": "strength",
-    "requirement value": 77
-  },
-  {
-    "slot": "chest",
-    "name": "Dragon Scale Armor",
-    "armor": 10,
-    "STRENGTH": 17,
-    "tier": 5,
-    "attributeRequirements": "strength",
-    "requirement value": 76
-  },
-  {
-    "slot": "chest",
-    "name": "Full Plate Armor",
-    "armor": 11,
-    "STRENGTH": 15,
-    "tier": 5,
-    "attributeRequirements": "strength",
-    "requirement value": 86
-  },
-  {
-    "slot": "chest",
-    "name": "Plated Mail",
-    "armor": 12,
-    "STRENGTH": 12,
     "INTELLIGENCE": 5,
-    "tier": 5,
-    "attributeRequirements": "strength",
-    "requirement value": 63
-  },
-  {
-    "slot": "chest",
-    "name": "Vanguard",
-    "armor": 13,
-    "STRENGTH": 21,
-    "TECHNIQUE": 5,
-    "tier": 5,
-    "attributeRequirements": "strength",
-    "requirement value": 100
-  },
-  {
-    "slot": "chest",
-    "name": "Citadel",
-    "armor": 14,
-    "STRENGTH": 16,
-    "AGILITY": 5,
-    "tier": 5,
+    "tier": 4,
     "attributeRequirements": "strength",
     "requirement value": 90
   },
   {
     "slot": "chest",
-    "name": "Colossus",
+    "name": "Stormwall",
+    "armor": 11,
+    "STRENGTH": 15,
+    "TECHNIQUE": 5,
+    "tier": 4,
+    "attributeRequirements": "strength",
+    "requirement value": 93
+  },
+  {
+    "slot": "chest",
+    "name": "Vanguard Plate",
+    "armor": 12,
+    "STRENGTH": 9,
+    "AGILITY": 5,
+    "tier": 4,
+    "attributeRequirements": "strength",
+    "requirement value": 64
+  },
+  {
+    "slot": "chest",
+    "name": "Mithril Chestplate",
+    "armor": 13,
+    "STRENGTH": 14,
+    "INTELLIGENCE": 5,
+    "tier": 4,
+    "attributeRequirements": "strength",
+    "requirement value": 83
+  },
+  {
+    "slot": "chest",
+    "name": "Ring Mail",
+    "armor": 14,
+    "STRENGTH": 12,
+    "TECHNIQUE": 5,
+    "tier": 4,
+    "attributeRequirements": "strength",
+    "requirement value": 95
+  },
+  {
+    "slot": "chest",
+    "name": "Scale Mail",
     "armor": 15,
-    "STRENGTH": 6,
+    "STRENGTH": 9,
+    "AGILITY": 5,
+    "tier": 4,
+    "attributeRequirements": "strength",
+    "requirement value": 75
+  },
+  {
+    "slot": "chest",
+    "name": "Fortress",
+    "armor": 16,
+    "STRENGTH": 5,
+    "tier": 4,
+    "attributeRequirements": "strength",
+    "requirement value": 83
+  },
+  {
+    "slot": "chest",
+    "name": "Ironclad",
+    "armor": 17,
+    "STRENGTH": 9,
+    "tier": 4,
+    "attributeRequirements": "strength",
+    "requirement value": 95
+  },
+  {
+    "slot": "chest",
+    "name": "Dragon Scale Armor",
+    "armor": 10,
+    "STRENGTH": 16,
+    "tier": 5,
+    "attributeRequirements": "strength",
+    "requirement value": 58
+  },
+  {
+    "slot": "chest",
+    "name": "Full Plate Armor",
+    "armor": 11,
+    "STRENGTH": 13,
+    "tier": 5,
+    "attributeRequirements": "strength",
+    "requirement value": 89
+  },
+  {
+    "slot": "chest",
+    "name": "Plated Mail",
+    "armor": 12,
+    "STRENGTH": 9,
     "INTELLIGENCE": 5,
     "tier": 5,
     "attributeRequirements": "strength",
-    "requirement value": 56
+    "requirement value": 68
+  },
+  {
+    "slot": "chest",
+    "name": "Vanguard",
+    "armor": 13,
+    "STRENGTH": 24,
+    "TECHNIQUE": 5,
+    "tier": 5,
+    "attributeRequirements": "strength",
+    "requirement value": 71
+  },
+  {
+    "slot": "chest",
+    "name": "Citadel",
+    "armor": 14,
+    "STRENGTH": 22,
+    "AGILITY": 5,
+    "tier": 5,
+    "attributeRequirements": "strength",
+    "requirement value": 94
+  },
+  {
+    "slot": "chest",
+    "name": "Colossus",
+    "armor": 15,
+    "STRENGTH": 12,
+    "INTELLIGENCE": 5,
+    "tier": 5,
+    "attributeRequirements": "strength",
+    "requirement value": 79
   },
   {
     "slot": "chest",
     "name": "Protector",
     "armor": 16,
-    "STRENGTH": 17,
+    "STRENGTH": 19,
     "TECHNIQUE": 5,
     "tier": 5,
     "attributeRequirements": "strength",
-    "requirement value": 72
+    "requirement value": 105
   },
   {
     "slot": "chest",
     "name": "Crusader",
     "armor": 17,
-    "STRENGTH": 14,
+    "STRENGTH": 13,
     "AGILITY": 5,
     "tier": 5,
     "attributeRequirements": "strength",
-    "requirement value": 103
+    "requirement value": 88
   },
   {
     "slot": "chest",
     "name": "Champion",
     "armor": 18,
-    "STRENGTH": 5,
+    "STRENGTH": 8,
     "tier": 5,
     "attributeRequirements": "strength",
-    "requirement value": 81
+    "requirement value": 55
   },
   {
     "slot": "chest",
     "name": "Sovereign Plate",
     "armor": 19,
-    "STRENGTH": 8,
+    "STRENGTH": 12,
     "tier": 5,
     "attributeRequirements": "strength",
-    "requirement value": 99
+    "requirement value": 57
   },
   {
     "slot": "feet",
@@ -492,7 +492,7 @@
     "slot": "feet",
     "name": "Boots",
     "armor": 0,
-    "TECHNIQUE": 1,
+    "TECHNIQUE": 3,
     "tier": 1,
     "attributeRequirements": "techinque",
     "requirement value": 5
@@ -512,7 +512,7 @@
     "name": "Moccassins",
     "armor": 0,
     "AGILITY": 5,
-    "TECHNIQUE": 2,
+    "TECHNIQUE": 1,
     "tier": 1,
     "attributeRequirements": "techinque",
     "requirement value": 5
@@ -522,20 +522,20 @@
     "name": "Treads",
     "armor": 0,
     "STRENGTH": 5,
-    "TECHNIQUE": 3,
+    "TECHNIQUE": 1,
     "tier": 1,
     "attributeRequirements": "techinque",
-    "requirement value": 7
+    "requirement value": 10
   },
   {
     "slot": "feet",
     "name": "Bindings",
     "armor": 0,
-    "TECHNIQUE": 2,
+    "TECHNIQUE": 1,
     "INTELLIGENCE": 5,
     "tier": 1,
     "attributeRequirements": "techinque",
-    "requirement value": 11
+    "requirement value": 12
   },
   {
     "slot": "feet",
@@ -545,7 +545,7 @@
     "TECHNIQUE": 2,
     "tier": 1,
     "attributeRequirements": "techinque",
-    "requirement value": 11
+    "requirement value": 12
   },
   {
     "slot": "feet",
@@ -555,25 +555,25 @@
     "TECHNIQUE": 1,
     "tier": 1,
     "attributeRequirements": "techinque",
-    "requirement value": 9
+    "requirement value": 8
   },
   {
     "slot": "feet",
     "name": "Brogues",
     "armor": 0,
-    "TECHNIQUE": 2,
+    "TECHNIQUE": 3,
     "tier": 1,
     "attributeRequirements": "techinque",
-    "requirement value": 12
+    "requirement value": 13
   },
   {
     "slot": "feet",
     "name": "High Boots",
     "armor": 0,
-    "TECHNIQUE": 3,
+    "TECHNIQUE": 1,
     "tier": 1,
     "attributeRequirements": "techinque",
-    "requirement value": 7
+    "requirement value": 8
   },
   {
     "slot": "feet",
@@ -582,26 +582,26 @@
     "TECHNIQUE": 6,
     "tier": 2,
     "attributeRequirements": "techinque",
-    "requirement value": 24
+    "requirement value": 26
   },
   {
     "slot": "feet",
     "name": "Duskwalker",
     "armor": 1,
-    "TECHNIQUE": 5,
+    "TECHNIQUE": 3,
     "tier": 2,
     "attributeRequirements": "techinque",
-    "requirement value": 15
+    "requirement value": 28
   },
   {
     "slot": "feet",
     "name": "Greaves",
     "armor": 1,
-    "TECHNIQUE": 5,
+    "TECHNIQUE": 6,
     "INTELLIGENCE": 5,
     "tier": 2,
     "attributeRequirements": "techinque",
-    "requirement value": 24
+    "requirement value": 13
   },
   {
     "slot": "feet",
@@ -611,37 +611,37 @@
     "TECHNIQUE": 4,
     "tier": 2,
     "attributeRequirements": "techinque",
-    "requirement value": 24
+    "requirement value": 26
   },
   {
     "slot": "feet",
     "name": "Chausses",
     "armor": 1,
     "STRENGTH": 5,
-    "TECHNIQUE": 4,
+    "TECHNIQUE": 2,
     "tier": 2,
     "attributeRequirements": "techinque",
-    "requirement value": 22
+    "requirement value": 17
   },
   {
     "slot": "feet",
     "name": "Courtly Shoes",
     "armor": 1,
-    "TECHNIQUE": 2,
+    "TECHNIQUE": 3,
     "INTELLIGENCE": 5,
     "tier": 2,
     "attributeRequirements": "techinque",
-    "requirement value": 15
+    "requirement value": 23
   },
   {
     "slot": "feet",
     "name": "Legguard",
     "armor": 1,
     "AGILITY": 5,
-    "TECHNIQUE": 5,
+    "TECHNIQUE": 4,
     "tier": 2,
     "attributeRequirements": "techinque",
-    "requirement value": 10
+    "requirement value": 26
   },
   {
     "slot": "feet",
@@ -651,43 +651,43 @@
     "TECHNIQUE": 6,
     "tier": 2,
     "attributeRequirements": "techinque",
-    "requirement value": 30
+    "requirement value": 20
   },
   {
     "slot": "feet",
     "name": "Pelt Boots",
     "armor": 1,
-    "TECHNIQUE": 5,
+    "TECHNIQUE": 3,
     "tier": 2,
     "attributeRequirements": "techinque",
-    "requirement value": 26
+    "requirement value": 28
   },
   {
     "slot": "feet",
     "name": "Ranger\u0027s Boots",
     "armor": 1,
-    "TECHNIQUE": 5,
+    "TECHNIQUE": 4,
     "tier": 2,
     "attributeRequirements": "techinque",
-    "requirement value": 29
+    "requirement value": 13
   },
   {
     "slot": "feet",
     "name": "Warboots",
     "armor": 2,
-    "TECHNIQUE": 8,
+    "TECHNIQUE": 6,
     "tier": 3,
     "attributeRequirements": "techinque",
-    "requirement value": 62
+    "requirement value": 37
   },
   {
     "slot": "feet",
     "name": "Plate Boots",
     "armor": 2,
-    "TECHNIQUE": 9,
+    "TECHNIQUE": 6,
     "tier": 3,
     "attributeRequirements": "techinque",
-    "requirement value": 59
+    "requirement value": 65
   },
   {
     "slot": "feet",
@@ -697,7 +697,7 @@
     "INTELLIGENCE": 5,
     "tier": 3,
     "attributeRequirements": "techinque",
-    "requirement value": 45
+    "requirement value": 56
   },
   {
     "slot": "feet",
@@ -707,103 +707,103 @@
     "TECHNIQUE": 7,
     "tier": 3,
     "attributeRequirements": "techinque",
-    "requirement value": 53
+    "requirement value": 55
   },
   {
     "slot": "feet",
     "name": "Mail Boots",
     "armor": 2,
     "STRENGTH": 5,
-    "TECHNIQUE": 7,
+    "TECHNIQUE": 6,
     "tier": 3,
     "attributeRequirements": "techinque",
-    "requirement value": 46
+    "requirement value": 45
   },
   {
     "slot": "feet",
     "name": "Stompers",
     "armor": 2,
-    "TECHNIQUE": 7,
+    "TECHNIQUE": 9,
     "INTELLIGENCE": 5,
     "tier": 3,
     "attributeRequirements": "techinque",
-    "requirement value": 57
+    "requirement value": 61
   },
   {
     "slot": "feet",
     "name": "Crushers",
     "armor": 2,
     "AGILITY": 5,
-    "TECHNIQUE": 9,
+    "TECHNIQUE": 5,
     "tier": 3,
     "attributeRequirements": "techinque",
-    "requirement value": 56
+    "requirement value": 47
   },
   {
     "slot": "feet",
     "name": "Tramplers",
     "armor": 2,
     "STRENGTH": 5,
-    "TECHNIQUE": 8,
+    "TECHNIQUE": 10,
     "tier": 3,
     "attributeRequirements": "techinque",
-    "requirement value": 43
+    "requirement value": 61
   },
   {
     "slot": "feet",
     "name": "Striders",
     "armor": 2,
-    "TECHNIQUE": 6,
+    "TECHNIQUE": 8,
     "tier": 3,
     "attributeRequirements": "techinque",
-    "requirement value": 39
+    "requirement value": 62
   },
   {
     "slot": "feet",
     "name": "Marchers",
     "armor": 2,
-    "TECHNIQUE": 9,
+    "TECHNIQUE": 6,
     "tier": 3,
     "attributeRequirements": "techinque",
-    "requirement value": 43
+    "requirement value": 49
   },
   {
     "slot": "feet",
     "name": "Doomtreads",
     "armor": 2,
-    "TECHNIQUE": 11,
+    "TECHNIQUE": 8,
     "tier": 4,
     "attributeRequirements": "techinque",
-    "requirement value": 78
+    "requirement value": 61
   },
   {
     "slot": "feet",
     "name": "Siegeboots",
     "armor": 2,
-    "TECHNIQUE": 12,
+    "TECHNIQUE": 14,
     "tier": 4,
     "attributeRequirements": "techinque",
-    "requirement value": 74
+    "requirement value": 58
   },
   {
     "slot": "feet",
     "name": "Warstriders",
     "armor": 2,
-    "TECHNIQUE": 10,
+    "TECHNIQUE": 14,
     "INTELLIGENCE": 5,
     "tier": 4,
     "attributeRequirements": "techinque",
-    "requirement value": 89
+    "requirement value": 64
   },
   {
     "slot": "feet",
     "name": "Battlesteps",
     "armor": 2,
     "AGILITY": 5,
-    "TECHNIQUE": 14,
+    "TECHNIQUE": 13,
     "tier": 4,
     "attributeRequirements": "techinque",
-    "requirement value": 75
+    "requirement value": 59
   },
   {
     "slot": "feet",
@@ -813,157 +813,157 @@
     "TECHNIQUE": 13,
     "tier": 4,
     "attributeRequirements": "techinque",
-    "requirement value": 76
+    "requirement value": 71
   },
   {
     "slot": "feet",
     "name": "Shadowstep",
     "armor": 2,
-    "TECHNIQUE": 13,
+    "TECHNIQUE": 9,
     "INTELLIGENCE": 5,
     "tier": 4,
     "attributeRequirements": "techinque",
-    "requirement value": 90
+    "requirement value": 92
   },
   {
     "slot": "feet",
     "name": "Oathbound Boots",
     "armor": 2,
     "AGILITY": 5,
-    "TECHNIQUE": 10,
+    "TECHNIQUE": 14,
     "tier": 4,
     "attributeRequirements": "techinque",
-    "requirement value": 90
+    "requirement value": 91
   },
   {
     "slot": "feet",
     "name": "Kneeguards",
     "armor": 2,
     "STRENGTH": 5,
-    "TECHNIQUE": 14,
+    "TECHNIQUE": 6,
     "tier": 4,
     "attributeRequirements": "techinque",
-    "requirement value": 90
+    "requirement value": 77
   },
   {
     "slot": "feet",
     "name": "Irontrods",
     "armor": 2,
-    "TECHNIQUE": 5,
+    "TECHNIQUE": 11,
     "tier": 4,
     "attributeRequirements": "techinque",
-    "requirement value": 64
+    "requirement value": 77
   },
   {
     "slot": "feet",
     "name": "Battlestriders",
     "armor": 2,
-    "TECHNIQUE": 12,
+    "TECHNIQUE": 9,
     "tier": 4,
     "attributeRequirements": "techinque",
-    "requirement value": 78
+    "requirement value": 82
   },
   {
     "slot": "feet",
     "name": "Dragon Scale Boots",
     "armor": 3,
-    "TECHNIQUE": 14,
+    "TECHNIQUE": 7,
     "tier": 5,
     "attributeRequirements": "techinque",
-    "requirement value": 101
+    "requirement value": 102
   },
   {
     "slot": "feet",
     "name": "Full Plate Boots",
     "armor": 3,
-    "TECHNIQUE": 5,
-    "tier": 5,
-    "attributeRequirements": "techinque",
-    "requirement value": 64
-  },
-  {
-    "slot": "feet",
-    "name": "Plate Mail Boots",
-    "armor": 3,
-    "TECHNIQUE": 11,
-    "INTELLIGENCE": 5,
-    "tier": 5,
-    "attributeRequirements": "techinque",
-    "requirement value": 66
-  },
-  {
-    "slot": "feet",
-    "name": "Ironsteps",
-    "armor": 3,
-    "AGILITY": 5,
-    "TECHNIQUE": 15,
+    "TECHNIQUE": 24,
     "tier": 5,
     "attributeRequirements": "techinque",
     "requirement value": 94
   },
   {
     "slot": "feet",
+    "name": "Plate Mail Boots",
+    "armor": 3,
+    "TECHNIQUE": 17,
+    "INTELLIGENCE": 5,
+    "tier": 5,
+    "attributeRequirements": "techinque",
+    "requirement value": 75
+  },
+  {
+    "slot": "feet",
+    "name": "Ironsteps",
+    "armor": 3,
+    "AGILITY": 5,
+    "TECHNIQUE": 24,
+    "tier": 5,
+    "attributeRequirements": "techinque",
+    "requirement value": 76
+  },
+  {
+    "slot": "feet",
     "name": "Battlecharges",
     "armor": 3,
     "STRENGTH": 5,
-    "TECHNIQUE": 18,
+    "TECHNIQUE": 24,
     "tier": 5,
     "attributeRequirements": "techinque",
-    "requirement value": 63
+    "requirement value": 87
   },
   {
     "slot": "feet",
     "name": "Siegetreads",
     "armor": 3,
-    "TECHNIQUE": 6,
+    "TECHNIQUE": 19,
     "INTELLIGENCE": 5,
     "tier": 5,
     "attributeRequirements": "techinque",
-    "requirement value": 90
+    "requirement value": 58
   },
   {
     "slot": "feet",
     "name": "Warsteps",
     "armor": 3,
     "AGILITY": 5,
-    "TECHNIQUE": 19,
+    "TECHNIQUE": 14,
     "tier": 5,
     "attributeRequirements": "techinque",
-    "requirement value": 97
+    "requirement value": 63
   },
   {
     "slot": "feet",
     "name": "Worldstriders",
     "armor": 3,
     "STRENGTH": 5,
-    "TECHNIQUE": 5,
+    "TECHNIQUE": 16,
     "tier": 5,
     "attributeRequirements": "techinque",
-    "requirement value": 70
+    "requirement value": 92
   },
   {
     "slot": "feet",
     "name": "Soultreads",
     "armor": 3,
-    "TECHNIQUE": 13,
+    "TECHNIQUE": 24,
     "tier": 5,
     "attributeRequirements": "techinque",
-    "requirement value": 90
+    "requirement value": 73
   },
   {
     "slot": "feet",
     "name": "Wayfarer",
     "armor": 3,
-    "TECHNIQUE": 6,
+    "TECHNIQUE": 21,
     "tier": 5,
     "attributeRequirements": "techinque",
-    "requirement value": 70
+    "requirement value": 58
   },
   {
     "slot": "head",
     "name": "Cap",
     "armor": 0,
-    "INTELLIGENCE": 1,
+    "INTELLIGENCE": 2,
     "# OF BONUS ACTIONS": 1,
     "tier": 1,
     "attributeRequirements": "intelligence",
@@ -973,7 +973,7 @@
     "slot": "head",
     "name": "Hood",
     "armor": 0,
-    "INTELLIGENCE": 3,
+    "INTELLIGENCE": 2,
     "# OF BONUS ACTIONS": 1,
     "tier": 1,
     "attributeRequirements": "intelligence",
@@ -984,7 +984,7 @@
     "name": "Wrap",
     "armor": 0,
     "STRENGTH": 5,
-    "INTELLIGENCE": 1,
+    "INTELLIGENCE": 2,
     "# OF BONUS ACTIONS": 1,
     "tier": 1,
     "attributeRequirements": "intelligence",
@@ -1010,7 +1010,7 @@
     "# OF BONUS ACTIONS": 1,
     "tier": 1,
     "attributeRequirements": "intelligence",
-    "requirement value": 5
+    "requirement value": 14
   },
   {
     "slot": "head",
@@ -1021,14 +1021,25 @@
     "# OF BONUS ACTIONS": 1,
     "tier": 1,
     "attributeRequirements": "intelligence",
-    "requirement value": 12
+    "requirement value": 10
   },
   {
     "slot": "head",
     "name": "Scraps",
     "armor": 0,
     "AGILITY": 5,
-    "INTELLIGENCE": 2,
+    "INTELLIGENCE": 1,
+    "# OF BONUS ACTIONS": 1,
+    "tier": 1,
+    "attributeRequirements": "intelligence",
+    "requirement value": 8
+  },
+  {
+    "slot": "head",
+    "name": "Hat",
+    "armor": 0,
+    "TECHNIQUE": 5,
+    "INTELLIGENCE": 3,
     "# OF BONUS ACTIONS": 1,
     "tier": 1,
     "attributeRequirements": "intelligence",
@@ -1036,24 +1047,13 @@
   },
   {
     "slot": "head",
-    "name": "Hat",
+    "name": "Skullcap",
     "armor": 0,
-    "TECHNIQUE": 5,
     "INTELLIGENCE": 2,
     "# OF BONUS ACTIONS": 1,
     "tier": 1,
     "attributeRequirements": "intelligence",
-    "requirement value": 12
-  },
-  {
-    "slot": "head",
-    "name": "Skullcap",
-    "armor": 0,
-    "INTELLIGENCE": 1,
-    "# OF BONUS ACTIONS": 1,
-    "tier": 1,
-    "attributeRequirements": "intelligence",
-    "requirement value": 13
+    "requirement value": 6
   },
   {
     "slot": "head",
@@ -1063,13 +1063,45 @@
     "# OF BONUS ACTIONS": 1,
     "tier": 1,
     "attributeRequirements": "intelligence",
-    "requirement value": 12
+    "requirement value": 10
   },
   {
     "slot": "head",
     "name": "Chainhood",
     "armor": 0,
-    "INTELLIGENCE": 2,
+    "INTELLIGENCE": 3,
+    "# OF BONUS ACTIONS": 1,
+    "tier": 2,
+    "attributeRequirements": "intelligence",
+    "requirement value": 26
+  },
+  {
+    "slot": "head",
+    "name": "Helm",
+    "armor": 0,
+    "INTELLIGENCE": 3,
+    "# OF BONUS ACTIONS": 1,
+    "tier": 2,
+    "attributeRequirements": "intelligence",
+    "requirement value": 21
+  },
+  {
+    "slot": "head",
+    "name": "War Cap",
+    "armor": 0,
+    "STRENGTH": 5,
+    "INTELLIGENCE": 3,
+    "# OF BONUS ACTIONS": 1,
+    "tier": 2,
+    "attributeRequirements": "intelligence",
+    "requirement value": 27
+  },
+  {
+    "slot": "head",
+    "name": "Nasal Helm",
+    "armor": 0,
+    "AGILITY": 5,
+    "INTELLIGENCE": 4,
     "# OF BONUS ACTIONS": 1,
     "tier": 2,
     "attributeRequirements": "intelligence",
@@ -1077,46 +1109,14 @@
   },
   {
     "slot": "head",
-    "name": "Helm",
-    "armor": 0,
-    "INTELLIGENCE": 4,
-    "# OF BONUS ACTIONS": 1,
-    "tier": 2,
-    "attributeRequirements": "intelligence",
-    "requirement value": 26
-  },
-  {
-    "slot": "head",
-    "name": "War Cap",
-    "armor": 0,
-    "STRENGTH": 5,
-    "INTELLIGENCE": 2,
-    "# OF BONUS ACTIONS": 1,
-    "tier": 2,
-    "attributeRequirements": "intelligence",
-    "requirement value": 18
-  },
-  {
-    "slot": "head",
-    "name": "Nasal Helm",
-    "armor": 0,
-    "AGILITY": 5,
-    "INTELLIGENCE": 3,
-    "# OF BONUS ACTIONS": 1,
-    "tier": 2,
-    "attributeRequirements": "intelligence",
-    "requirement value": 26
-  },
-  {
-    "slot": "head",
     "name": "Visored Cap",
     "armor": 0,
     "TECHNIQUE": 5,
-    "INTELLIGENCE": 3,
+    "INTELLIGENCE": 6,
     "# OF BONUS ACTIONS": 1,
     "tier": 2,
     "attributeRequirements": "intelligence",
-    "requirement value": 24
+    "requirement value": 21
   },
   {
     "slot": "head",
@@ -1127,29 +1127,29 @@
     "# OF BONUS ACTIONS": 1,
     "tier": 2,
     "attributeRequirements": "intelligence",
-    "requirement value": 19
+    "requirement value": 20
   },
   {
     "slot": "head",
     "name": "Pointed Helm",
     "armor": 0,
     "AGILITY": 5,
-    "INTELLIGENCE": 2,
+    "INTELLIGENCE": 4,
     "# OF BONUS ACTIONS": 1,
     "tier": 2,
     "attributeRequirements": "intelligence",
-    "requirement value": 28
+    "requirement value": 19
   },
   {
     "slot": "head",
     "name": "Face Helm",
     "armor": 0,
     "TECHNIQUE": 5,
-    "INTELLIGENCE": 5,
+    "INTELLIGENCE": 4,
     "# OF BONUS ACTIONS": 1,
     "tier": 2,
     "attributeRequirements": "intelligence",
-    "requirement value": 18
+    "requirement value": 15
   },
   {
     "slot": "head",
@@ -1159,17 +1159,17 @@
     "# OF BONUS ACTIONS": 1,
     "tier": 2,
     "attributeRequirements": "intelligence",
-    "requirement value": 15
+    "requirement value": 21
   },
   {
     "slot": "head",
     "name": "Circlet",
     "armor": 0,
-    "INTELLIGENCE": 3,
+    "INTELLIGENCE": 5,
     "# OF BONUS ACTIONS": 1,
     "tier": 2,
     "attributeRequirements": "intelligence",
-    "requirement value": 23
+    "requirement value": 22
   },
   {
     "slot": "head",
@@ -1185,66 +1185,66 @@
     "slot": "head",
     "name": "Sealed Helm",
     "armor": 1,
-    "INTELLIGENCE": 10,
+    "INTELLIGENCE": 7,
     "# OF BONUS ACTIONS": 2,
     "tier": 3,
     "attributeRequirements": "intelligence",
-    "requirement value": 45
+    "requirement value": 41
   },
   {
     "slot": "head",
     "name": "Hounskull",
     "armor": 1,
     "STRENGTH": 5,
-    "INTELLIGENCE": 6,
+    "INTELLIGENCE": 5,
     "# OF BONUS ACTIONS": 2,
     "tier": 3,
     "attributeRequirements": "intelligence",
-    "requirement value": 56
+    "requirement value": 65
   },
   {
     "slot": "head",
     "name": "Visored Helm",
     "armor": 1,
     "AGILITY": 5,
-    "INTELLIGENCE": 7,
+    "INTELLIGENCE": 10,
     "# OF BONUS ACTIONS": 2,
     "tier": 3,
     "attributeRequirements": "intelligence",
-    "requirement value": 51
+    "requirement value": 41
   },
   {
     "slot": "head",
     "name": "Forg-Mouth Helm",
     "armor": 1,
     "TECHNIQUE": 5,
-    "INTELLIGENCE": 6,
+    "INTELLIGENCE": 9,
     "# OF BONUS ACTIONS": 2,
     "tier": 3,
     "attributeRequirements": "intelligence",
-    "requirement value": 48
+    "requirement value": 37
   },
   {
     "slot": "head",
     "name": "Ironhood",
     "armor": 1,
     "STRENGTH": 5,
-    "INTELLIGENCE": 9,
+    "INTELLIGENCE": 8,
     "# OF BONUS ACTIONS": 2,
     "tier": 3,
     "attributeRequirements": "intelligence",
-    "requirement value": 50
+    "requirement value": 44
   },
   {
     "slot": "head",
     "name": "Warhelf",
     "armor": 1,
     "AGILITY": 5,
-    "INTELLIGENCE": 9,
+    "INTELLIGENCE": 8,
     "# OF BONUS ACTIONS": 2,
     "tier": 3,
     "attributeRequirements": "intelligence",
-    "requirement value": 58
+    "requirement value": 61
   },
   {
     "slot": "head",
@@ -1255,17 +1255,17 @@
     "# OF BONUS ACTIONS": 2,
     "tier": 3,
     "attributeRequirements": "intelligence",
-    "requirement value": 48
+    "requirement value": 62
   },
   {
     "slot": "head",
     "name": "Visor",
     "armor": 1,
-    "INTELLIGENCE": 9,
+    "INTELLIGENCE": 8,
     "# OF BONUS ACTIONS": 2,
     "tier": 3,
     "attributeRequirements": "intelligence",
-    "requirement value": 53
+    "requirement value": 39
   },
   {
     "slot": "head",
@@ -1281,60 +1281,38 @@
     "slot": "head",
     "name": "Warcrown",
     "armor": 1,
-    "INTELLIGENCE": 11,
+    "INTELLIGENCE": 7,
     "# OF BONUS ACTIONS": 2,
     "tier": 4,
     "attributeRequirements": "intelligence",
-    "requirement value": 65
+    "requirement value": 89
   },
   {
     "slot": "head",
     "name": "Doomhelm",
     "armor": 1,
-    "INTELLIGENCE": 13,
+    "INTELLIGENCE": 5,
     "# OF BONUS ACTIONS": 2,
     "tier": 4,
     "attributeRequirements": "intelligence",
-    "requirement value": 73
+    "requirement value": 89
   },
   {
     "slot": "head",
     "name": "Siegehelm",
     "armor": 1,
     "STRENGTH": 5,
-    "INTELLIGENCE": 10,
+    "INTELLIGENCE": 6,
     "# OF BONUS ACTIONS": 2,
     "tier": 4,
     "attributeRequirements": "intelligence",
-    "requirement value": 94
+    "requirement value": 69
   },
   {
     "slot": "head",
     "name": "Warcrown",
     "armor": 1,
     "AGILITY": 5,
-    "INTELLIGENCE": 13,
-    "# OF BONUS ACTIONS": 2,
-    "tier": 4,
-    "attributeRequirements": "intelligence",
-    "requirement value": 64
-  },
-  {
-    "slot": "head",
-    "name": "Worldcrown",
-    "armor": 1,
-    "TECHNIQUE": 5,
-    "INTELLIGENCE": 7,
-    "# OF BONUS ACTIONS": 2,
-    "tier": 4,
-    "attributeRequirements": "intelligence",
-    "requirement value": 90
-  },
-  {
-    "slot": "head",
-    "name": "Godhelm",
-    "armor": 1,
-    "STRENGTH": 5,
     "INTELLIGENCE": 15,
     "# OF BONUS ACTIONS": 2,
     "tier": 4,
@@ -1343,10 +1321,63 @@
   },
   {
     "slot": "head",
+    "name": "Worldcrown",
+    "armor": 1,
+    "TECHNIQUE": 5,
+    "INTELLIGENCE": 11,
+    "# OF BONUS ACTIONS": 2,
+    "tier": 4,
+    "attributeRequirements": "intelligence",
+    "requirement value": 61
+  },
+  {
+    "slot": "head",
+    "name": "Godhelm",
+    "armor": 1,
+    "STRENGTH": 5,
+    "INTELLIGENCE": 7,
+    "# OF BONUS ACTIONS": 2,
+    "tier": 4,
+    "attributeRequirements": "intelligence",
+    "requirement value": 84
+  },
+  {
+    "slot": "head",
     "name": "Headdress",
     "armor": 1,
     "AGILITY": 5,
-    "INTELLIGENCE": 8,
+    "INTELLIGENCE": 10,
+    "# OF BONUS ACTIONS": 2,
+    "tier": 4,
+    "attributeRequirements": "intelligence",
+    "requirement value": 95
+  },
+  {
+    "slot": "head",
+    "name": "Face Guard",
+    "armor": 1,
+    "TECHNIQUE": 5,
+    "INTELLIGENCE": 12,
+    "# OF BONUS ACTIONS": 2,
+    "tier": 4,
+    "attributeRequirements": "intelligence",
+    "requirement value": 58
+  },
+  {
+    "slot": "head",
+    "name": "Mask",
+    "armor": 1,
+    "INTELLIGENCE": 14,
+    "# OF BONUS ACTIONS": 2,
+    "tier": 4,
+    "attributeRequirements": "intelligence",
+    "requirement value": 92
+  },
+  {
+    "slot": "head",
+    "name": "Linked Hood",
+    "armor": 1,
+    "INTELLIGENCE": 9,
     "# OF BONUS ACTIONS": 2,
     "tier": 4,
     "attributeRequirements": "intelligence",
@@ -1354,54 +1385,23 @@
   },
   {
     "slot": "head",
-    "name": "Face Guard",
-    "armor": 1,
-    "TECHNIQUE": 5,
-    "INTELLIGENCE": 5,
-    "# OF BONUS ACTIONS": 2,
-    "tier": 4,
-    "attributeRequirements": "intelligence",
-    "requirement value": 72
-  },
-  {
-    "slot": "head",
-    "name": "Mask",
-    "armor": 1,
-    "INTELLIGENCE": 10,
-    "# OF BONUS ACTIONS": 2,
-    "tier": 4,
-    "attributeRequirements": "intelligence",
-    "requirement value": 79
-  },
-  {
-    "slot": "head",
-    "name": "Linked Hood",
-    "armor": 1,
-    "INTELLIGENCE": 6,
-    "# OF BONUS ACTIONS": 2,
-    "tier": 4,
-    "attributeRequirements": "intelligence",
-    "requirement value": 89
-  },
-  {
-    "slot": "head",
     "name": "Dragon Scale Helmet",
     "armor": 2,
-    "INTELLIGENCE": 14,
+    "INTELLIGENCE": 23,
     "# OF BONUS ACTIONS": 3,
     "tier": 5,
     "attributeRequirements": "intelligence",
-    "requirement value": 97
+    "requirement value": 96
   },
   {
     "slot": "head",
     "name": "Full Plate Helmet",
     "armor": 2,
-    "INTELLIGENCE": 6,
+    "INTELLIGENCE": 15,
     "# OF BONUS ACTIONS": 3,
     "tier": 5,
     "attributeRequirements": "intelligence",
-    "requirement value": 96
+    "requirement value": 93
   },
   {
     "slot": "head",
@@ -1412,58 +1412,47 @@
     "# OF BONUS ACTIONS": 3,
     "tier": 5,
     "attributeRequirements": "intelligence",
-    "requirement value": 100
+    "requirement value": 93
   },
   {
     "slot": "head",
     "name": "Jawplate",
     "armor": 2,
     "AGILITY": 5,
-    "INTELLIGENCE": 18,
+    "INTELLIGENCE": 21,
     "# OF BONUS ACTIONS": 3,
     "tier": 5,
     "attributeRequirements": "intelligence",
-    "requirement value": 79
+    "requirement value": 85
   },
   {
     "slot": "head",
     "name": "Plumed Helm",
     "armor": 2,
     "TECHNIQUE": 5,
-    "INTELLIGENCE": 14,
+    "INTELLIGENCE": 20,
     "# OF BONUS ACTIONS": 3,
     "tier": 5,
     "attributeRequirements": "intelligence",
-    "requirement value": 66
+    "requirement value": 85
   },
   {
     "slot": "head",
     "name": "Corinthian",
     "armor": 2,
     "STRENGTH": 5,
-    "INTELLIGENCE": 24,
+    "INTELLIGENCE": 22,
     "# OF BONUS ACTIONS": 3,
     "tier": 5,
     "attributeRequirements": "intelligence",
-    "requirement value": 100
+    "requirement value": 85
   },
   {
     "slot": "head",
     "name": "Kabuto",
     "armor": 2,
     "AGILITY": 5,
-    "INTELLIGENCE": 17,
-    "# OF BONUS ACTIONS": 3,
-    "tier": 5,
-    "attributeRequirements": "intelligence",
-    "requirement value": 75
-  },
-  {
-    "slot": "head",
-    "name": "Death Mask",
-    "armor": 2,
-    "TECHNIQUE": 5,
-    "INTELLIGENCE": 14,
+    "INTELLIGENCE": 22,
     "# OF BONUS ACTIONS": 3,
     "tier": 5,
     "attributeRequirements": "intelligence",
@@ -1471,29 +1460,40 @@
   },
   {
     "slot": "head",
-    "name": "Neckguard",
+    "name": "Death Mask",
     "armor": 2,
+    "TECHNIQUE": 5,
     "INTELLIGENCE": 13,
     "# OF BONUS ACTIONS": 3,
     "tier": 5,
     "attributeRequirements": "intelligence",
-    "requirement value": 93
+    "requirement value": 84
+  },
+  {
+    "slot": "head",
+    "name": "Neckguard",
+    "armor": 2,
+    "INTELLIGENCE": 10,
+    "# OF BONUS ACTIONS": 3,
+    "tier": 5,
+    "attributeRequirements": "intelligence",
+    "requirement value": 88
   },
   {
     "slot": "head",
     "name": "Skull Plate",
     "armor": 2,
-    "INTELLIGENCE": 12,
+    "INTELLIGENCE": 19,
     "# OF BONUS ACTIONS": 3,
     "tier": 5,
     "attributeRequirements": "intelligence",
-    "requirement value": 96
+    "requirement value": 78
   },
   {
     "slot": "legs",
     "name": "shinguards",
     "armor": 1,
-    "AGILITY": 2,
+    "AGILITY": 1,
     "# OF ACTION SLOTS": 1,
     "tier": 1,
     "attributeRequirements": "agility",
@@ -1514,7 +1514,7 @@
     "name": "leggings",
     "armor": 3,
     "STRENGTH": 5,
-    "AGILITY": 3,
+    "AGILITY": 2,
     "# OF ACTION SLOTS": 1,
     "tier": 1,
     "attributeRequirements": "agility",
@@ -1535,12 +1535,12 @@
     "slot": "legs",
     "name": "trousers",
     "armor": 5,
-    "AGILITY": 2,
+    "AGILITY": 1,
     "INTELLIGENCE": 5,
     "# OF ACTION SLOTS": 1,
     "tier": 1,
     "attributeRequirements": "agility",
-    "requirement value": 7
+    "requirement value": 13
   },
   {
     "slot": "legs",
@@ -1551,25 +1551,14 @@
     "# OF ACTION SLOTS": 1,
     "tier": 1,
     "attributeRequirements": "agility",
-    "requirement value": 13
+    "requirement value": 7
   },
   {
     "slot": "legs",
     "name": "Squire\u0027s Greaves",
     "armor": 7,
-    "AGILITY": 2,
-    "TECHNIQUE": 5,
-    "# OF ACTION SLOTS": 1,
-    "tier": 1,
-    "attributeRequirements": "agility",
-    "requirement value": 12
-  },
-  {
-    "slot": "legs",
-    "name": "Villager\u0027s Tassets",
-    "armor": 8,
     "AGILITY": 1,
-    "INTELLIGENCE": 5,
+    "TECHNIQUE": 5,
     "# OF ACTION SLOTS": 1,
     "tier": 1,
     "attributeRequirements": "agility",
@@ -1577,93 +1566,104 @@
   },
   {
     "slot": "legs",
-    "name": "Tattered Wraps",
-    "armor": 9,
+    "name": "Villager\u0027s Tassets",
+    "armor": 8,
     "AGILITY": 2,
+    "INTELLIGENCE": 5,
     "# OF ACTION SLOTS": 1,
     "tier": 1,
     "attributeRequirements": "agility",
-    "requirement value": 6
+    "requirement value": 10
+  },
+  {
+    "slot": "legs",
+    "name": "Tattered Wraps",
+    "armor": 9,
+    "AGILITY": 1,
+    "# OF ACTION SLOTS": 1,
+    "tier": 1,
+    "attributeRequirements": "agility",
+    "requirement value": 10
   },
   {
     "slot": "legs",
     "name": "Frayed Breeches",
     "armor": 10,
-    "AGILITY": 3,
+    "AGILITY": 1,
     "# OF ACTION SLOTS": 1,
     "tier": 1,
     "attributeRequirements": "agility",
-    "requirement value": 11
+    "requirement value": 9
   },
   {
     "slot": "legs",
     "name": "Frayed Breeches",
     "armor": 4,
-    "AGILITY": 5,
+    "AGILITY": 6,
     "# OF ACTION SLOTS": 2,
     "tier": 2,
     "attributeRequirements": "agility",
-    "requirement value": 28
+    "requirement value": 13
   },
   {
     "slot": "legs",
     "name": "Patched Trousers",
     "armor": 5,
-    "AGILITY": 6,
+    "AGILITY": 5,
     "# OF ACTION SLOTS": 2,
     "tier": 2,
     "attributeRequirements": "agility",
-    "requirement value": 15
+    "requirement value": 18
   },
   {
     "slot": "legs",
     "name": "Simple Breeches",
     "armor": 6,
     "STRENGTH": 5,
-    "AGILITY": 4,
+    "AGILITY": 6,
     "# OF ACTION SLOTS": 2,
     "tier": 2,
     "attributeRequirements": "agility",
-    "requirement value": 29
+    "requirement value": 22
   },
   {
     "slot": "legs",
     "name": "Reinforced Breeches",
     "armor": 7,
-    "AGILITY": 4,
+    "AGILITY": 3,
     "TECHNIQUE": 5,
     "# OF ACTION SLOTS": 2,
     "tier": 2,
     "attributeRequirements": "agility",
-    "requirement value": 21
+    "requirement value": 22
   },
   {
     "slot": "legs",
     "name": "Traveler\u0027s Breeches",
     "armor": 8,
-    "AGILITY": 4,
+    "AGILITY": 3,
     "INTELLIGENCE": 5,
     "# OF ACTION SLOTS": 2,
     "tier": 2,
     "attributeRequirements": "agility",
-    "requirement value": 29
+    "requirement value": 25
   },
   {
     "slot": "legs",
     "name": "Hardened Breeches",
     "armor": 9,
     "STRENGTH": 5,
-    "AGILITY": 5,
+    "AGILITY": 3,
     "# OF ACTION SLOTS": 2,
     "tier": 2,
     "attributeRequirements": "agility",
-    "requirement value": 27
+    "requirement value": 22
   },
   {
     "slot": "legs",
     "name": "Scout\u0027s Breeches",
     "armor": 10,
-    "AGILITY": 5,
+    "AGILITY": 3,
     "TECHNIQUE": 5,
     "# OF ACTION SLOTS": 2,
     "tier": 2,
@@ -1674,32 +1674,32 @@
     "slot": "legs",
     "name": "Ranger\u0027s Breeches",
     "armor": 11,
-    "AGILITY": 4,
+    "AGILITY": 5,
     "INTELLIGENCE": 5,
     "# OF ACTION SLOTS": 2,
     "tier": 2,
     "attributeRequirements": "agility",
-    "requirement value": 15
+    "requirement value": 20
   },
   {
     "slot": "legs",
     "name": "Knee Guards",
     "armor": 12,
-    "AGILITY": 5,
+    "AGILITY": 4,
     "# OF ACTION SLOTS": 2,
     "tier": 2,
     "attributeRequirements": "agility",
-    "requirement value": 18
+    "requirement value": 12
   },
   {
     "slot": "legs",
     "name": "Strider\u0027s Wraps",
     "armor": 13,
-    "AGILITY": 2,
+    "AGILITY": 6,
     "# OF ACTION SLOTS": 2,
     "tier": 2,
     "attributeRequirements": "agility",
-    "requirement value": 13
+    "requirement value": 20
   },
   {
     "slot": "legs",
@@ -1709,17 +1709,17 @@
     "# OF ACTION SLOTS": 3,
     "tier": 3,
     "attributeRequirements": "agility",
-    "requirement value": 49
+    "requirement value": 41
   },
   {
     "slot": "legs",
     "name": "Soldier\u0027s Breeches",
     "armor": 7,
-    "AGILITY": 9,
+    "AGILITY": 5,
     "# OF ACTION SLOTS": 3,
     "tier": 3,
     "attributeRequirements": "agility",
-    "requirement value": 44
+    "requirement value": 48
   },
   {
     "slot": "legs",
@@ -1730,29 +1730,29 @@
     "# OF ACTION SLOTS": 3,
     "tier": 3,
     "attributeRequirements": "agility",
-    "requirement value": 59
+    "requirement value": 58
   },
   {
     "slot": "legs",
     "name": "Linked Greaves",
     "armor": 9,
-    "AGILITY": 5,
+    "AGILITY": 7,
     "TECHNIQUE": 5,
     "# OF ACTION SLOTS": 3,
     "tier": 3,
     "attributeRequirements": "agility",
-    "requirement value": 56
+    "requirement value": 43
   },
   {
     "slot": "legs",
     "name": "Plated Greaves",
     "armor": 10,
-    "AGILITY": 5,
+    "AGILITY": 8,
     "INTELLIGENCE": 5,
     "# OF ACTION SLOTS": 3,
     "tier": 3,
     "attributeRequirements": "agility",
-    "requirement value": 65
+    "requirement value": 46
   },
   {
     "slot": "legs",
@@ -1763,18 +1763,18 @@
     "# OF ACTION SLOTS": 3,
     "tier": 3,
     "attributeRequirements": "agility",
-    "requirement value": 61
+    "requirement value": 57
   },
   {
     "slot": "legs",
     "name": "Battle Greaves",
     "armor": 12,
-    "AGILITY": 9,
+    "AGILITY": 8,
     "TECHNIQUE": 5,
     "# OF ACTION SLOTS": 3,
     "tier": 3,
     "attributeRequirements": "agility",
-    "requirement value": 52
+    "requirement value": 44
   },
   {
     "slot": "legs",
@@ -1785,17 +1785,17 @@
     "# OF ACTION SLOTS": 3,
     "tier": 3,
     "attributeRequirements": "agility",
-    "requirement value": 47
+    "requirement value": 39
   },
   {
     "slot": "legs",
     "name": "Reinforced Greaves",
     "armor": 14,
-    "AGILITY": 10,
+    "AGILITY": 8,
     "# OF ACTION SLOTS": 3,
     "tier": 3,
     "attributeRequirements": "agility",
-    "requirement value": 47
+    "requirement value": 43
   },
   {
     "slot": "legs",
@@ -1805,49 +1805,49 @@
     "# OF ACTION SLOTS": 3,
     "tier": 3,
     "attributeRequirements": "agility",
-    "requirement value": 49
+    "requirement value": 53
   },
   {
     "slot": "legs",
     "name": "Warplate Greaves",
     "armor": 8,
-    "AGILITY": 13,
+    "AGILITY": 9,
     "# OF ACTION SLOTS": 4,
     "tier": 4,
     "attributeRequirements": "agility",
-    "requirement value": 63
+    "requirement value": 59
   },
   {
     "slot": "legs",
     "name": "Fortress Greaves",
     "armor": 9,
-    "AGILITY": 13,
+    "AGILITY": 6,
     "# OF ACTION SLOTS": 4,
     "tier": 4,
     "attributeRequirements": "agility",
-    "requirement value": 95
+    "requirement value": 56
   },
   {
     "slot": "legs",
     "name": "Sentinel Greaves",
     "armor": 10,
     "STRENGTH": 5,
-    "AGILITY": 13,
+    "AGILITY": 11,
     "# OF ACTION SLOTS": 4,
     "tier": 4,
     "attributeRequirements": "agility",
-    "requirement value": 67
+    "requirement value": 84
   },
   {
     "slot": "legs",
     "name": "Guardian Greaves",
     "armor": 11,
-    "AGILITY": 5,
+    "AGILITY": 11,
     "TECHNIQUE": 5,
     "# OF ACTION SLOTS": 4,
     "tier": 4,
     "attributeRequirements": "agility",
-    "requirement value": 85
+    "requirement value": 95
   },
   {
     "slot": "legs",
@@ -1858,50 +1858,50 @@
     "# OF ACTION SLOTS": 4,
     "tier": 4,
     "attributeRequirements": "agility",
-    "requirement value": 68
+    "requirement value": 79
   },
   {
     "slot": "legs",
     "name": "Defender\u0027s Greaves",
     "armor": 13,
     "STRENGTH": 5,
-    "AGILITY": 7,
+    "AGILITY": 13,
     "# OF ACTION SLOTS": 4,
     "tier": 4,
     "attributeRequirements": "agility",
-    "requirement value": 56
+    "requirement value": 94
   },
   {
     "slot": "legs",
     "name": "Warden\u0027s Greaves",
     "armor": 14,
-    "AGILITY": 7,
+    "AGILITY": 5,
     "TECHNIQUE": 5,
     "# OF ACTION SLOTS": 4,
     "tier": 4,
     "attributeRequirements": "agility",
-    "requirement value": 68
+    "requirement value": 64
   },
   {
     "slot": "legs",
     "name": "Champion\u0027s Greaves",
     "armor": 15,
-    "AGILITY": 14,
+    "AGILITY": 7,
     "INTELLIGENCE": 5,
     "# OF ACTION SLOTS": 4,
     "tier": 4,
     "attributeRequirements": "agility",
-    "requirement value": 63
+    "requirement value": 83
   },
   {
     "slot": "legs",
     "name": "Crusader\u0027s Greaves",
     "armor": 16,
-    "AGILITY": 9,
+    "AGILITY": 15,
     "# OF ACTION SLOTS": 4,
     "tier": 4,
     "attributeRequirements": "agility",
-    "requirement value": 80
+    "requirement value": 75
   },
   {
     "slot": "legs",
@@ -1911,99 +1911,67 @@
     "# OF ACTION SLOTS": 4,
     "tier": 4,
     "attributeRequirements": "agility",
-    "requirement value": 57
+    "requirement value": 67
   },
   {
     "slot": "legs",
     "name": "Siege Plates",
     "armor": 10,
-    "AGILITY": 17,
+    "AGILITY": 15,
     "# OF ACTION SLOTS": 5,
     "tier": 5,
     "attributeRequirements": "agility",
-    "requirement value": 76
+    "requirement value": 103
   },
   {
     "slot": "legs",
     "name": "Full Greaves",
     "armor": 11,
-    "AGILITY": 10,
+    "AGILITY": 13,
     "# OF ACTION SLOTS": 5,
     "tier": 5,
     "attributeRequirements": "agility",
-    "requirement value": 92
+    "requirement value": 63
   },
   {
     "slot": "legs",
     "name": "Conqueror\u0027s Greaves",
     "armor": 12,
     "STRENGTH": 5,
-    "AGILITY": 17,
+    "AGILITY": 14,
     "# OF ACTION SLOTS": 5,
     "tier": 5,
     "attributeRequirements": "agility",
-    "requirement value": 75
+    "requirement value": 83
   },
   {
     "slot": "legs",
     "name": "Sovereign Greaves",
     "armor": 13,
-    "AGILITY": 8,
+    "AGILITY": 12,
     "TECHNIQUE": 5,
     "# OF ACTION SLOTS": 5,
     "tier": 5,
     "attributeRequirements": "agility",
-    "requirement value": 79
+    "requirement value": 60
   },
   {
     "slot": "legs",
     "name": "Titan\u0027s Greaves",
     "armor": 14,
-    "AGILITY": 16,
+    "AGILITY": 14,
     "INTELLIGENCE": 5,
     "# OF ACTION SLOTS": 5,
     "tier": 5,
     "attributeRequirements": "agility",
-    "requirement value": 58
+    "requirement value": 96
   },
   {
     "slot": "legs",
     "name": "Warlord\u0027s Greaves",
     "armor": 15,
     "STRENGTH": 5,
-    "AGILITY": 24,
-    "# OF ACTION SLOTS": 5,
-    "tier": 5,
-    "attributeRequirements": "agility",
-    "requirement value": 70
-  },
-  {
-    "slot": "legs",
-    "name": "Overlord\u0027s Greaves",
-    "armor": 16,
-    "AGILITY": 7,
-    "TECHNIQUE": 5,
-    "# OF ACTION SLOTS": 5,
-    "tier": 5,
-    "attributeRequirements": "agility",
-    "requirement value": 97
-  },
-  {
-    "slot": "legs",
-    "name": "Eternal Greaves",
-    "armor": 17,
-    "AGILITY": 11,
-    "INTELLIGENCE": 5,
-    "# OF ACTION SLOTS": 5,
-    "tier": 5,
-    "attributeRequirements": "agility",
-    "requirement value": 78
-  },
-  {
-    "slot": "legs",
-    "name": "Godplate Greaves",
-    "armor": 18,
-    "AGILITY": 7,
+    "AGILITY": 22,
     "# OF ACTION SLOTS": 5,
     "tier": 5,
     "attributeRequirements": "agility",
@@ -2011,12 +1979,44 @@
   },
   {
     "slot": "legs",
-    "name": "Absolute Greaves",
-    "armor": 19,
-    "AGILITY": 22,
+    "name": "Overlord\u0027s Greaves",
+    "armor": 16,
+    "AGILITY": 19,
+    "TECHNIQUE": 5,
     "# OF ACTION SLOTS": 5,
     "tier": 5,
     "attributeRequirements": "agility",
-    "requirement value": 101
+    "requirement value": 73
+  },
+  {
+    "slot": "legs",
+    "name": "Eternal Greaves",
+    "armor": 17,
+    "AGILITY": 21,
+    "INTELLIGENCE": 5,
+    "# OF ACTION SLOTS": 5,
+    "tier": 5,
+    "attributeRequirements": "agility",
+    "requirement value": 59
+  },
+  {
+    "slot": "legs",
+    "name": "Godplate Greaves",
+    "armor": 18,
+    "AGILITY": 19,
+    "# OF ACTION SLOTS": 5,
+    "tier": 5,
+    "attributeRequirements": "agility",
+    "requirement value": 93
+  },
+  {
+    "slot": "legs",
+    "name": "Absolute Greaves",
+    "armor": 19,
+    "AGILITY": 9,
+    "# OF ACTION SLOTS": 5,
+    "tier": 5,
+    "attributeRequirements": "agility",
+    "requirement value": 99
   }
 ]

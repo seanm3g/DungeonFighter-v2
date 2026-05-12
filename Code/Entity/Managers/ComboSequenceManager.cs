@@ -124,14 +124,14 @@ namespace RPGGame
             // If no weapon or no weapon actions were added, ensure we have proper combo actions
             if (ComboSequence.Count == 0)
             {
-                // Unarmed: prefer Punch as the default first action when present.
+                // Unarmed: prefer the Training Ground tutorial action as the default first action when present.
                 if (weapon == null)
                 {
-                    var punchEntry = entity.ActionPool.FirstOrDefault(item =>
-                        string.Equals(item.action.Name, "PUNCH", StringComparison.OrdinalIgnoreCase));
-                    if (punchEntry.action != null && punchEntry.action.IsComboAction)
+                    var tutorialEntry = entity.ActionPool.FirstOrDefault(item =>
+                        string.Equals(item.action.Name, GameConstants.TrainingGroundTutorialActionName, StringComparison.OrdinalIgnoreCase));
+                    if (tutorialEntry.action != null && tutorialEntry.action.IsComboAction)
                     {
-                        AddToCombo(punchEntry.action, maxLen);
+                        AddToCombo(tutorialEntry.action, maxLen);
                     }
                 }
 

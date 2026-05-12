@@ -149,7 +149,9 @@ namespace RPGGame
                     canvasUI.RenderInventory(
                         player,
                         inv,
-                        stateTracker.WaitingForMenuMutatingActionConfirmation ? stateTracker.PendingMutatingMenuChoice : null);
+                        stateTracker.WaitingForMenuMutatingActionConfirmation ? stateTracker.PendingMutatingMenuChoice : null,
+                        stateTracker.ItemSortMode,
+                        stateTracker.HideRequirementBlockedItems);
             }
         }
 
@@ -163,6 +165,9 @@ namespace RPGGame
             if (string.IsNullOrEmpty(input))
                 return;
             if (stateManager.CurrentPlayer == null) return;
+
+            if (TryHandleInventoryViewShortcut(input))
+                return;
 
             if (TryHandleInventoryItemScrollInput(input))
                 return;
@@ -354,6 +359,9 @@ namespace RPGGame
             // Normal menu actions: equip opens item selection immediately; other mutating actions use WaitingForMenuMutatingActionConfirmation.
             switch (input)
             {
+                case "*":
+                    itemActionHandler.AutoEquipEmptySlots();
+                    break;
                 case "1":
                 case "2":
                 case "3":
@@ -377,10 +385,57 @@ namespace RPGGame
                     ShowGameLoopEvent?.Invoke();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-4, 0 (Return to game menu), or ESC to go back.");
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-4, * (auto-equip), + (sort), - (filter), 0 (Return to game menu), or ESC to go back.");
                     break;
             }
         }
+
+        private bool TryHandleInventoryViewShortcut(string input)
+        {
+            string normalized = input.Trim();
+            if (normalized != "+" && normalized != "-")
+                return false;
+
+            if (!IsMainInventoryListVisible())
+                return true;
+
+            if (customUIManager is CanvasUICoordinator canvasUI)
+                canvasUI.ResetInventoryItemScroll();
+
+            if (normalized == "+")
+            {
+                var sortMode = stateTracker.CycleItemSortMode();
+                ShowMessageEvent?.Invoke($"Inventory sort: {GetInventorySortLabel(sortMode)}.");
+            }
+            else
+            {
+                stateTracker.HideRequirementBlockedItems = !stateTracker.HideRequirementBlockedItems;
+                ShowMessageEvent?.Invoke(stateTracker.HideRequirementBlockedItems
+                    ? "Inventory filter: hiding items with unmet requirements."
+                    : "Inventory filter: showing all items.");
+            }
+
+            RefreshInventoryScreen();
+            return true;
+        }
+
+        private bool IsMainInventoryListVisible()
+        {
+            return !stateTracker.InComboManagement
+                && !stateTracker.WaitingForItemSelection
+                && !stateTracker.WaitingForSlotSelection
+                && !stateTracker.WaitingForComparisonChoice
+                && !stateTracker.WaitingForRaritySelection
+                && !stateTracker.WaitingForTradeUpConfirmation
+                && !stateTracker.WaitingForMenuMutatingActionConfirmation;
+        }
+
+        private static string GetInventorySortLabel(InventoryItemSortMode sortMode) => sortMode switch
+        {
+            InventoryItemSortMode.Rarity => "Rarity",
+            InventoryItemSortMode.ItemSlot => "Item slot",
+            _ => "Inventory order"
+        };
 
         private bool TryHandleInventoryItemScrollInput(string input)
         {

@@ -40,6 +40,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             DungeonDisplayManagerTests.RunAllTests();
             Console.WriteLine();
+            CharacterCloneServiceTests.RunAllTests();
+            Console.WriteLine();
             
             // Handler Tests
             MainMenuHandlerTests.RunAllTests();

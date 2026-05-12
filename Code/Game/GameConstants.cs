@@ -112,7 +112,10 @@ namespace RPGGame
         /// <summary>Fixed opponent in the pre-weapon Training Ground.</summary>
         public const string TrainingDummyEnemyName = "Training Dummy";
 
-        public const int TrainingDummyMaxHealth = 8;
+        /// <summary>Forced baseline action used by the pre-weapon Training Ground tutorial.</summary>
+        public const string TrainingGroundTutorialActionName = "PUNCH HARD";
+
+        public const int TrainingDummyMaxHealth = 13;
         public const int TrainingDummyDamage = 1;
 
         /// <summary>Direct-stat dummy: <see cref="Enemy.GetTotalAttackSpeed"/> seconds baseline (scaled by action length in combat).</summary>

@@ -49,6 +49,24 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         }
 
         /// <summary>
+        /// Gets the currently equipped same-slot armor item used for inventory armor comparison colors.
+        /// </summary>
+        public static Item? GetArmorComparisonBaseline(Character? character, Item? displayedItem)
+        {
+            if (character == null || displayedItem == null)
+                return null;
+
+            return displayedItem switch
+            {
+                HeadItem => character.Head,
+                ChestItem => character.Body,
+                LegsItem => character.Legs,
+                FeetItem => character.Feet,
+                _ => null
+            };
+        }
+
+        /// <summary>
         /// Renders an item name with colored text support. When <paramref name="character"/> is provided
         /// and the item fails its <see cref="Item.GetEquipBlockedReason"/> check, the category bracket
         /// (e.g. <c>[Head]</c> / <c>[Mace]</c>) is drawn in red so the player can see at a glance that

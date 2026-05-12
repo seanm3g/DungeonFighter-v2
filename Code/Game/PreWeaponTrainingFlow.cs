@@ -38,20 +38,24 @@ namespace RPGGame
             {
                 new TrainingGroundTutorialEvent(
                     TrainingGroundTutorialActor.Hero,
-                    4,
-                    "You lunge before you are ready. The roll is 4, so the swing misses and the lesson is to slow down."),
+                    10,
+                    "You breathe, plant your feet, and drive PUNCH HARD into the target. A 10 is a clean hit: reliable, plain, and enough to move the fight forward."),
                 new TrainingGroundTutorialEvent(
                     TrainingGroundTutorialActor.Hero,
-                    10,
-                    "You center your stance. A roll of 10 is enough to connect, but not enough to unlock the combo path."),
+                    4,
+                    "The dummy swings back on its rope, and you chase it too quickly. The 4 stays in the miss band, teaching you that effort without aim is only noise."),
                 new TrainingGroundTutorialEvent(
                     TrainingGroundTutorialActor.Hero,
                     14,
-                    "You follow through with purpose. A roll of 14 reaches the combo gate and turns the punch into your first clean technique."),
+                    "The dummy rocks back, and you follow the motion instead of resetting. A 14 opens the combo path, turning one good hit into momentum."),
+                new TrainingGroundTutorialEvent(
+                    TrainingGroundTutorialActor.Hero,
+                    1,
+                    "You get greedy after the combo and trip over your own stance. The natural 1 is a critical miss: momentum can become a mistake if you lose control."),
                 new TrainingGroundTutorialEvent(
                     TrainingGroundTutorialActor.Hero,
                     20,
-                    "You recognize the opening. A natural 20 shows how a perfect roll can finish a fight.")
+                    "You settle, see the final opening, and drive PUNCH HARD straight through it. The natural 20 is both combo and crit, breaking the dummy apart.")
             });
     }
 }

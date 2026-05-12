@@ -237,6 +237,9 @@ namespace RPGGame.UI.ColorSystem
         {
             if (string.IsNullOrEmpty(pattern))
                 return Colors.White;
+
+            if (TryParseHexColor(pattern, out var explicitColor))
+                return explicitColor;
             
             // If we have a character name, try to get character-specific color first
             if (!string.IsNullOrEmpty(characterName))
@@ -253,6 +256,28 @@ namespace RPGGame.UI.ColorSystem
             
             // Fall back to global pattern color
             return ColorPatterns.GetColorForPattern(pattern);
+        }
+
+        private static bool TryParseHexColor(string pattern, out Color color)
+        {
+            color = Colors.White;
+            if (string.IsNullOrWhiteSpace(pattern))
+                return false;
+
+            string value = pattern.Trim();
+            if (!value.StartsWith("#", StringComparison.Ordinal) || (value.Length != 7 && value.Length != 9))
+                return false;
+
+            try
+            {
+                color = Color.Parse(value);
+                return true;
+            }
+            catch
+            {
+                color = Colors.White;
+                return false;
+            }
         }
         
         private static Color GetColorForWord(string word, string? characterName)

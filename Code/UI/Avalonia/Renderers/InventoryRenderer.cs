@@ -7,6 +7,7 @@ using RPGGame.UI.Avalonia.Renderers.Inventory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Handlers.Inventory;
 using RPGGame.Items.Helpers;
 using RPGGame.UI.ColorSystem.Themes;
 
@@ -90,9 +91,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the inventory screen with items and actions
         /// </summary>
-        public void RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0)
+        public void RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0, InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder, bool hideRequirementBlockedItems = false)
         {
-            currentLineCount = screenRenderer.RenderInventory(x, y, width, height, character, inventory, pendingMutatingInventoryMenuAction, itemScrollOffset);
+            currentLineCount = screenRenderer.RenderInventory(x, y, width, height, character, inventory, pendingMutatingInventoryMenuAction, itemScrollOffset, sortMode, hideRequirementBlockedItems);
         }
         
         /// <summary>

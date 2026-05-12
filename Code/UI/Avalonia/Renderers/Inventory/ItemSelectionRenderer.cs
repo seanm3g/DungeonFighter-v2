@@ -119,10 +119,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         currentLineCount++;
                     }
                     
-                    // Render stats with colored text (Damage, Speed, Armor, stat bonuses)
+                    // Render stats against currently equipped same-slot gear when comparable.
                     var equippedWeapon = character.Weapon as WeaponItem;
+                    var equippedArmorBaseline = ItemRendererHelper.GetArmorComparisonBaseline(character, item);
                     ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true,
-                        displayedItem: item, weaponSpeedBaseline: equippedWeapon);
+                        displayedItem: item, weaponSpeedBaseline: equippedWeapon, armorComparisonBaseline: equippedArmorBaseline);
                 }
                 y++;
                 currentLineCount++;
@@ -260,10 +261,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 y++;
                 currentLineCount++;
                 
-                // Render stats with colored text
+                // Render stats against currently equipped same-slot gear when comparable.
                 var equippedForTrade = character.Weapon as WeaponItem;
+                var equippedArmorForTrade = ItemRendererHelper.GetArmorComparisonBaseline(character, item);
                 ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true,
-                    displayedItem: item, weaponSpeedBaseline: equippedForTrade);
+                    displayedItem: item, weaponSpeedBaseline: equippedForTrade, armorComparisonBaseline: equippedArmorForTrade);
             }
             
             y += 2;
@@ -284,10 +286,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             y++;
             currentLineCount++;
             
-            // Render resulting item stats
+            // Render resulting item stats against currently equipped same-slot gear when comparable.
             var equippedForResult = character.Weapon as WeaponItem;
+            var equippedArmorForResult = ItemRendererHelper.GetArmorComparisonBaseline(character, resultingItem);
             ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, resultingItemStats, ref y, ref currentLineCount, useColoredText: true,
-                displayedItem: resultingItem, weaponSpeedBaseline: equippedForResult);
+                displayedItem: resultingItem, weaponSpeedBaseline: equippedForResult, armorComparisonBaseline: equippedArmorForResult);
             
             y += 2;
             currentLineCount += 2;

@@ -33,6 +33,21 @@ namespace RPGGame.Handlers.Inventory
         public bool WaitingForMenuMutatingActionConfirmation { get; set; } = false;
         /// <summary>Pending main-menu choice: "1" equip, "2" unequip, "3" discard, "4" trade-up.</summary>
         public string PendingMutatingMenuChoice { get; set; } = "";
+
+        public InventoryItemSortMode ItemSortMode { get; set; } = InventoryItemSortMode.InventoryOrder;
+        public bool HideRequirementBlockedItems { get; set; } = false;
+
+        public InventoryItemSortMode CycleItemSortMode()
+        {
+            ItemSortMode = ItemSortMode switch
+            {
+                InventoryItemSortMode.InventoryOrder => InventoryItemSortMode.Rarity,
+                InventoryItemSortMode.Rarity => InventoryItemSortMode.ItemSlot,
+                _ => InventoryItemSortMode.InventoryOrder
+            };
+
+            return ItemSortMode;
+        }
         
         /// <summary>
         /// Resets all item action states

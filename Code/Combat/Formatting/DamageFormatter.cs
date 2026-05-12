@@ -24,6 +24,17 @@ namespace RPGGame.Combat.Formatting
             builder.Add(damageType, Colors.White);
         }
 
+        private static void AddStatusEffectName(ColoredTextBuilder builder, string effectName, ColorPalette fallbackColor)
+        {
+            if (StatusEffectColorHelper.HasTemplate(effectName))
+            {
+                builder.AddRange(StatusEffectColorHelper.GetColoredStatusEffect(effectName));
+                return;
+            }
+
+            builder.Add(effectName, fallbackColor);
+        }
+
         /// <summary>
         /// Adds "for [amount] [unit]" pattern to a ColoredTextBuilder with proper spacing
         /// </summary>
@@ -155,7 +166,7 @@ namespace RPGGame.Combat.Formatting
             builder.AddSpace();
             builder.Add("from", Colors.White);
             builder.AddSpace();
-            builder.Add(effectName, effectColor);
+            AddStatusEffectName(builder, effectName, effectColor);
         }
         
         /// <summary>
@@ -247,7 +258,7 @@ namespace RPGGame.Combat.Formatting
             builder.Add("longer", Colors.White);
             builder.AddSpace();
             // Add effect name
-            builder.Add(effectName, effectColor);
+            AddStatusEffectName(builder, effectName, effectColor);
             // Add exclamation mark and closing parenthesis
             builder.Add("!)", Colors.White);
         }
@@ -274,7 +285,7 @@ namespace RPGGame.Combat.Formatting
             builder.Add("longer", Colors.White);
             builder.AddSpace();
             // Add effect name
-            builder.Add(effectName, effectColor);
+            AddStatusEffectName(builder, effectName, effectColor);
             // Add exclamation mark and closing parenthesis
             builder.Add("!)", Colors.White);
         }
@@ -291,7 +302,7 @@ namespace RPGGame.Combat.Formatting
             builder.AddSpace();
             builder.Add("longer", Colors.White);
             builder.AddSpace();
-            builder.Add(effectName, effectColor);
+            AddStatusEffectName(builder, effectName, effectColor);
             builder.Add("!)", Colors.White);
         }
         
@@ -304,7 +315,7 @@ namespace RPGGame.Combat.Formatting
             // Add indentation (5 spaces)
             builder.Add("     (", Colors.White);
             // Add effect name
-            builder.Add(effectName, effectColor);
+            AddStatusEffectName(builder, effectName, effectColor);
             // Add colon
             builder.Add(":", Colors.White);
             builder.AddSpace();
@@ -321,7 +332,7 @@ namespace RPGGame.Combat.Formatting
         public static void AddPoisonPercentRemain(ColoredTextBuilder builder, ColorPalette effectColor, double poisonPercent)
         {
             builder.Add("     (", Colors.White);
-            builder.Add("poison", effectColor);
+            AddStatusEffectName(builder, "poison", effectColor);
             builder.Add(":", Colors.White);
             builder.AddSpace();
             builder.Add($"{poisonPercent:0.##}%", Colors.White);
