@@ -33,6 +33,60 @@ if exist "%LOCKFILE%" del "%LOCKFILE%" 2>nul
 exit /b %1
 
 REM ---------------------------------------------------------------------------
+:detectDotnetSdk
+set "DOTNET_FOUND=0"
+set "DOTNET_VERSION="
+set "DOTNET_SOURCE="
+set "DOTNET_EXE="
+
+where dotnet >nul 2>&1
+if errorlevel 1 (
+    echo dotnet was not found in PATH.
+) else (
+    echo SDKs reported by dotnet in PATH:
+    call :probeDotnetSdk "dotnet" "PATH"
+)
+
+if "!DOTNET_FOUND!"=="0" (
+    echo Checking common install locations...
+    if exist "!ProgFiles64!\dotnet\dotnet.exe" (
+        echo SDKs reported by !ProgFiles64!\dotnet\dotnet.exe:
+        call :probeDotnetSdk "!ProgFiles64!\dotnet\dotnet.exe" "!ProgFiles64!\dotnet"
+        if "!DOTNET_FOUND!"=="1" set "PATH=!ProgFiles64!\dotnet;%PATH%"
+    )
+    if "!DOTNET_FOUND!"=="0" if exist "!ProgFiles86!\dotnet\dotnet.exe" (
+        echo SDKs reported by !ProgFiles86!\dotnet\dotnet.exe:
+        call :probeDotnetSdk "!ProgFiles86!\dotnet\dotnet.exe" "!ProgFiles86!\dotnet"
+        if "!DOTNET_FOUND!"=="1" set "PATH=!ProgFiles86!\dotnet;%PATH%"
+    )
+)
+
+if "!DOTNET_FOUND!"=="1" (
+    echo .NET 8.x SDK found: !DOTNET_VERSION! ^(!DOTNET_SOURCE!^)
+) else (
+    echo .NET 8.x SDK was not found.
+)
+exit /b 0
+
+REM ---------------------------------------------------------------------------
+:probeDotnetSdk
+set "DOTNET_CANDIDATE=%~1"
+set "DOTNET_LISTED_SDKS=0"
+for /f "tokens=1" %%v in ('"%DOTNET_CANDIDATE%" --list-sdks 2^>nul') do (
+    set "DOTNET_LISTED_SDKS=1"
+    echo   %%v
+    echo %%v | findstr /R /C:"^8\." >nul
+    if not errorlevel 1 if "!DOTNET_FOUND!"=="0" (
+        set "DOTNET_FOUND=1"
+        set "DOTNET_VERSION=%%v"
+        set "DOTNET_SOURCE=%~2"
+        set "DOTNET_EXE=%DOTNET_CANDIDATE%"
+    )
+)
+if "!DOTNET_LISTED_SDKS!"=="0" echo   ^(no SDKs listed^)
+exit /b 0
+
+REM ---------------------------------------------------------------------------
 :fail
 if defined DF_PUSHED (
     popd
@@ -65,47 +119,7 @@ echo.
 
 REM ---------------------------------------------------------------------------
 echo [Step 2/5] Checking for .NET 8.x SDK / dotnet build...
-set "DOTNET_FOUND=0"
-set "DOTNET_VERSION="
-
-where dotnet >nul 2>&1
-if errorlevel 1 (
-    echo dotnet was not found in PATH.
-) else (
-    for /f "tokens=*" %%v in ('dotnet --version 2^>nul') do set "DOTNET_VERSION=%%v"
-    if defined DOTNET_VERSION (
-        echo dotnet reports version: !DOTNET_VERSION!
-        echo !DOTNET_VERSION! | findstr /R /C:"^8\." >nul
-        if not errorlevel 1 (
-            set "DOTNET_FOUND=1"
-            echo .NET 8.x SDK/runtime host OK for this project.
-        ) else (
-            echo This repo targets .NET 8. Install the .NET 8 SDK if build fails.
-        )
-    )
-)
-
-if "!DOTNET_FOUND!"=="0" (
-    echo Checking common install locations...
-    if exist "!ProgFiles64!\dotnet\dotnet.exe" (
-        for /f "tokens=*" %%v in ('"!ProgFiles64!\dotnet\dotnet.exe" --version 2^>nul') do set "DOTNET_VERSION=%%v"
-        echo !DOTNET_VERSION! | findstr /R /C:"^8\." >nul
-        if not errorlevel 1 (
-            set "DOTNET_FOUND=1"
-            set "PATH=!ProgFiles64!\dotnet;%PATH%"
-            echo Using dotnet at: !ProgFiles64!\dotnet
-        )
-    )
-    if "!DOTNET_FOUND!"=="0" if exist "!ProgFiles86!\dotnet\dotnet.exe" (
-        for /f "tokens=*" %%v in ('"!ProgFiles86!\dotnet\dotnet.exe" --version 2^>nul') do set "DOTNET_VERSION=%%v"
-        echo !DOTNET_VERSION! | findstr /R /C:"^8\." >nul
-        if not errorlevel 1 (
-            set "DOTNET_FOUND=1"
-            set "PATH=!ProgFiles86!\dotnet;%PATH%"
-            echo Using dotnet at: !ProgFiles86!\dotnet
-        )
-    )
-)
+call :detectDotnetSdk
 
 if "!DOTNET_FOUND!"=="0" (
     echo.
@@ -119,9 +133,9 @@ if "!DOTNET_FOUND!"=="0" (
     echo Running Scripts\install-dotnet.ps1 ...
     powershell -NoProfile -ExecutionPolicy Bypass -File "Scripts\install-dotnet.ps1"
     if errorlevel 1 goto fail
-    where dotnet >nul 2>&1
-    if errorlevel 1 (
-        echo dotnet still not on PATH. Restart the PC, then try again.
+    call :detectDotnetSdk
+    if "!DOTNET_FOUND!"=="0" (
+        echo dotnet still cannot find a .NET 8 SDK. Restart the PC, then try again.
         goto fail
     )
 )

@@ -44,6 +44,10 @@ DungeonFighter v2 is a turn-based RPG written in C# (.NET) with a data-driven co
 
 ## Current focus area (for this change)
 
+### Bugfix — Windows launcher SDK detection
+
+The Windows PC launcher should detect an already installed .NET 8 SDK using the SDK list, not just the default `dotnet --version` value. If .NET 8 is installed, including under the common Program Files dotnet locations before PATH is refreshed, the launcher and helper install script should skip the SDK installation step and continue to build normally.
+
 ### UI — action mechanical descriptions
 
 Action hover tooltips and inventory action summaries should describe the mechanics represented by the runtime `Action`, not just the narrative `description` field. They should include damage/speed, roll and threshold changes, trigger conditions, status effects, combo routing, stat bonuses, target/type metadata, and other advanced action mechanics that can affect combat resolution or combo flow.

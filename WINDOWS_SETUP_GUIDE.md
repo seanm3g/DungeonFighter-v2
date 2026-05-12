@@ -17,7 +17,8 @@ The project includes a ready-to-use launcher script that handles everything auto
 1. **Double-click** `Dungeon Fighter(PC).bat` in the project root directory
 
 The script will:
-- Check for .NET 8.0 SDK and install it if needed (via winget or official installer)
+- Check the installed SDK list for .NET 8.0 and skip installation when it is already present
+- Install .NET 8.0 SDK only if needed (via winget or official installer)
 - Build the game automatically
 - Launch the game in the background
 
@@ -26,9 +27,9 @@ The script will:
 **If you see "ERROR: Failed to install .NET 8.0 SDK":**
 
 **First, check if .NET 8.0 is already installed:**
-- The launcher now checks common installation locations
-- If .NET is installed but not detected, it's likely a PATH issue
-- **Solution**: Restart your computer to refresh the PATH environment variable
+- The launcher checks `dotnet --list-sdks` instead of only the default `dotnet --version`, so newer SDKs such as 9.x do not hide an installed 8.x SDK.
+- It also checks common installation locations such as `C:\Program Files\dotnet` and adds that path for the current launcher run when needed.
+- If .NET is installed but not detected, restart your computer to refresh the PATH environment variable.
 
 **If .NET is not installed, the automatic installation may fail for several reasons:**
 - No internet connection

@@ -4,6 +4,8 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Bugfix / Windows launcher — skip SDK install when present:** The PC launcher and `Scripts/install-dotnet.ps1` detect an installed .NET 8 SDK from `dotnet --list-sdks` and common Program Files dotnet locations before attempting installation. If found, the launcher skips the installer and continues to build/run with that dotnet path. Docs: `OVERVIEW.md`, `WINDOWS_SETUP_GUIDE.md`. Verification: PowerShell parser check for `Scripts/install-dotnet.ps1` passes; launcher batch reviewed without running the game.
+
 - [x] **Bugfix / Death clone — clear pre-death action slots:** Cloning after death now rebuilds the action pool without preserving the pre-death combo/action strip, so discarded gear does not leave old actions visible in slots until combat starts. Focused coverage: `CharacterCloneServiceTests`. Verification: `dotnet build "Code\Code.csproj" -p:UseSharedCompilation=false -p:UseAppHost=false -p:BaseIntermediateOutputPath="obj\agent-clone-strip-msbuild\" -p:BaseOutputPath="obj\agent-clone-strip-bin\"` passes.
 
 - [x] **Bugfix / Text delays — canonical combat log speed config:** Combat log action delay saves/loads from the tracked root `GameData/TextDelayConfig.json`, not the stale duplicate under `Code/GameData`. Shipped `ActionDelayMs` is `3000` so GitHub pulls use the same combat log pacing as local settings. Verification: `dotnet build "Code/Code.csproj" -p:UseSharedCompilation=false -p:UseAppHost=false -p:BaseIntermediateOutputPath="obj/agent-text-delay-config-msbuild/" -p:BaseOutputPath="obj/agent-text-delay-config-bin/"` passes.

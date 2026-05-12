@@ -14,56 +14,68 @@ if (-not $isAdmin) {
     Write-Host ""
 }
 
-Write-Host "Checking for .NET 8.0 SDK installation..." -ForegroundColor Cyan
+function Test-DotNet8Sdk {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$DotNetCommand,
+        [Parameter(Mandatory = $true)]
+        [string]$Location
+    )
 
-# First, check if .NET 8.0 is already installed (might not be in PATH)
-$dotnetFound = $false
-$dotnetVersion = $null
-$dotnetPath = $null
-
-# Check if dotnet is in PATH
-try {
-    $dotnetVersion = & dotnet --version 2>$null
-    if ($LASTEXITCODE -eq 0) {
-        if ($dotnetVersion -match "^8\.") {
-            Write-Host ".NET 8.0 SDK is already installed (version $dotnetVersion)!" -ForegroundColor Green
-            Write-Host "If the launcher didn't detect it, try restarting your computer to refresh PATH." -ForegroundColor Yellow
-            exit 0
-        } else {
-            Write-Host "Found .NET version $dotnetVersion, but need 8.0.x" -ForegroundColor Yellow
+    try {
+        $sdkLines = & $DotNetCommand --list-sdks 2>$null
+        if ($LASTEXITCODE -ne 0 -or -not $sdkLines) {
+            return $null
         }
-    }
-} catch {
-    # Not in PATH, continue checking
-}
 
-# Check common installation locations
-$commonPaths = @(
-    "$env:ProgramFiles\dotnet\dotnet.exe",
-    "${env:ProgramFiles(x86)}\dotnet\dotnet.exe"
-)
-
-foreach ($path in $commonPaths) {
-    if (Test-Path $path) {
-        try {
-            $version = & $path --version 2>$null
-            if ($LASTEXITCODE -eq 0) {
-                if ($version -match "^8\.") {
-                    Write-Host ".NET 8.0 SDK is already installed at: $path" -ForegroundColor Green
-                    Write-Host "Version: $version" -ForegroundColor Green
-                    Write-Host ""
-                    Write-Host "The issue is that .NET is not in your PATH environment variable." -ForegroundColor Yellow
-                    Write-Host "Solutions:" -ForegroundColor Yellow
-                    Write-Host "1. Restart your computer (recommended - refreshes PATH)" -ForegroundColor White
-                    Write-Host "2. Or manually add to PATH: $([System.IO.Path]::GetDirectoryName($path))" -ForegroundColor White
-                    Write-Host ""
-                    exit 0
+        foreach ($line in @($sdkLines)) {
+            if ($line -match "^8\.") {
+                $version = ($line -split "\s+")[0]
+                return [pscustomobject]@{
+                    Version = $version
+                    Path = $DotNetCommand
+                    Location = $Location
                 }
             }
-        } catch {
-            # Continue checking other paths
+        }
+    } catch {
+        # Candidate unavailable or not executable; try the next location.
+    }
+
+    return $null
+}
+
+function Find-DotNet8Sdk {
+    $pathSdk = Test-DotNet8Sdk -DotNetCommand "dotnet" -Location "PATH"
+    if ($pathSdk) {
+        return $pathSdk
+    }
+
+    $commonPaths = @(
+        "$env:ProgramFiles\dotnet\dotnet.exe",
+        "${env:ProgramFiles(x86)}\dotnet\dotnet.exe"
+    )
+
+    foreach ($path in $commonPaths) {
+        if (Test-Path $path) {
+            $sdk = Test-DotNet8Sdk -DotNetCommand $path -Location ([System.IO.Path]::GetDirectoryName($path))
+            if ($sdk) {
+                return $sdk
+            }
         }
     }
+
+    return $null
+}
+
+Write-Host "Checking for .NET 8.0 SDK installation..." -ForegroundColor Cyan
+$installedSdk = Find-DotNet8Sdk
+if ($installedSdk) {
+    Write-Host ".NET 8.0 SDK is already installed (version $($installedSdk.Version))." -ForegroundColor Green
+    Write-Host "Location: $($installedSdk.Location)" -ForegroundColor Green
+    Write-Host "Skipping SDK installation." -ForegroundColor Green
+    Write-Host ""
+    exit 0
 }
 
 # Check if winget is available (Windows Package Manager)
@@ -100,9 +112,10 @@ if ($wingetAvailable) {
         
         # Verify installation
         Start-Sleep -Seconds 2
-        $dotnetVersion = dotnet --version 2>$null
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "Verified: .NET version $dotnetVersion is now available." -ForegroundColor Green
+        $installedSdk = Find-DotNet8Sdk
+        if ($installedSdk) {
+            Write-Host "Verified: .NET 8.0 SDK version $($installedSdk.Version) is now available." -ForegroundColor Green
+            Write-Host "Location: $($installedSdk.Location)" -ForegroundColor Green
             exit 0
         } else {
             Write-Host "Warning: .NET was installed but may require a new command prompt to be available." -ForegroundColor Yellow
@@ -164,9 +177,10 @@ try {
         
         # Verify installation
         Start-Sleep -Seconds 2
-        $dotnetVersion = & "$dotnetPath\dotnet.exe" --version 2>$null
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "Verified: .NET version $dotnetVersion is now available." -ForegroundColor Green
+        $installedSdk = Find-DotNet8Sdk
+        if ($installedSdk) {
+            Write-Host "Verified: .NET 8.0 SDK version $($installedSdk.Version) is now available." -ForegroundColor Green
+            Write-Host "Location: $($installedSdk.Location)" -ForegroundColor Green
             exit 0
         } else {
             Write-Host "Warning: .NET was installed but may require a new command prompt to be available." -ForegroundColor Yellow

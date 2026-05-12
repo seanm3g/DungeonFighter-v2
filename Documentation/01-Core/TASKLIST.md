@@ -51,6 +51,9 @@
 
 ## Recent Updates
 
+### ✅ Character saves ignored by Git (COMPLETED)
+- **Source control:** Local character save files generated in `GameData/` now use `.gitignore` patterns for legacy saves, per-character live saves, and dead-character tombstones so gameplay state stays local.
+
 ### ✅ Combo relative jump (+slots) (COMPLETED)
 - **Data / combat:** `jumpRelative` on action rows maps to `ComboRouting.JumpRelativeSlots`. On combo advance after a successful action, next slot index = current index + 1 + value (clamped). Absolute **Jump** still takes precedence when set.
 - **UI:** Actions form **Combo & Position Modifications** includes **Jump (+slots)**; sheet column **JUMP RELATIVE** for export.
