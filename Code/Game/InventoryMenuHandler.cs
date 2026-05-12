@@ -141,7 +141,13 @@ namespace RPGGame
                     string prompt = stateTracker.ItemSelectionAction == "discard"
                         ? "Select Item to Discard"
                         : "Select Item to Equip";
-                    canvasUI.RenderItemSelectionPrompt(player, inv, prompt, stateTracker.ItemSelectionAction);
+                    canvasUI.RenderItemSelectionPrompt(
+                        player,
+                        inv,
+                        prompt,
+                        stateTracker.ItemSelectionAction,
+                        stateTracker.ItemSortMode,
+                        stateTracker.HideRequirementBlockedItems);
                 }
                 else if (stateTracker.WaitingForSlotSelection)
                     canvasUI.RenderSlotSelectionPrompt(player);
@@ -194,16 +200,22 @@ namespace RPGGame
             // Handle multi-step actions (item selection, slot selection)
             if (stateTracker.WaitingForItemSelection && int.TryParse(input, out int itemIndex))
             {
-                stateTracker.WaitingForItemSelection = false;
-                
                 if (itemIndex == 0)
                 {
+                    stateTracker.WaitingForItemSelection = false;
                     ShowMessageEvent?.Invoke("Cancelled.");
                     ShowInventoryEvent?.Invoke();
                     return;
                 }
                 
                 itemIndex--; // Convert 1-based to 0-based
+                if (!IsSelectableItemIndex(itemIndex, out string selectionError))
+                {
+                    ShowMessageEvent?.Invoke(selectionError);
+                    RefreshInventoryScreen();
+                    return;
+                }
+                stateTracker.WaitingForItemSelection = false;
                 
                 if (stateTracker.ItemSelectionAction == "equip")
                 {
@@ -428,6 +440,32 @@ namespace RPGGame
                 && !stateTracker.WaitingForRaritySelection
                 && !stateTracker.WaitingForTradeUpConfirmation
                 && !stateTracker.WaitingForMenuMutatingActionConfirmation;
+        }
+
+        private bool IsSelectableItemIndex(int inventoryIndex, out string errorMessage)
+        {
+            errorMessage = "";
+            var player = stateManager.CurrentPlayer;
+            var inventory = stateManager.CurrentInventory;
+            if (player == null || inventoryIndex < 0 || inventoryIndex >= inventory.Count)
+            {
+                errorMessage = "Invalid item selection. Choose an item shown above, or 0 to cancel.";
+                return false;
+            }
+
+            var visibleSelectionEntries = InventoryScreenRenderer.BuildDisplayEntries(
+                inventory,
+                player,
+                stateTracker.ItemSortMode,
+                stateTracker.HideRequirementBlockedItems);
+
+            if (!visibleSelectionEntries.Any(entry => entry.InventoryIndex == inventoryIndex))
+            {
+                errorMessage = "That item is not shown by the current inventory filter. Choose an item shown above, or press 0 to cancel.";
+                return false;
+            }
+
+            return true;
         }
 
         private static string GetInventorySortLabel(InventoryItemSortMode sortMode) => sortMode switch

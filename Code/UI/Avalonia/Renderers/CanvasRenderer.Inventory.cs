@@ -18,11 +18,28 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.Refresh();
         }
 
-        public void RenderItemSelectionPrompt(Character character, List<Item> inventory, string promptMessage, string actionType, CanvasContext context)
+        public void RenderItemSelectionPrompt(
+            Character character,
+            List<Item> inventory,
+            string promptMessage,
+            string actionType,
+            CanvasContext context,
+            InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
+            bool hideRequirementBlockedItems = false)
         {
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                inventoryRenderer.RenderItemSelectionPrompt(contentX, contentY, contentWidth, contentHeight, character, inventory, promptMessage, actionType);
+                inventoryRenderer.RenderItemSelectionPrompt(
+                    contentX,
+                    contentY,
+                    contentWidth,
+                    contentHeight,
+                    character,
+                    inventory,
+                    promptMessage,
+                    actionType,
+                    sortMode,
+                    hideRequirementBlockedItems);
             }, context, null, null, null, inventoryComboRightPanel: true);
             dungeonRenderer.RenderActionInfoStrip(character);
             canvas.Refresh();

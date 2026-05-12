@@ -29,6 +29,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     /// </summary>
     public class InventoryScreenRenderer
     {
+        public const string NumpadShortcutHint = "Numpad +: sort | Numpad -: filter unmet reqs | Numpad *: equip empty slots";
+
         private readonly GameCanvasControl canvas;
         private readonly ColoredTextWriter textWriter;
         private readonly List<ClickableElement> clickableElements;
@@ -304,8 +306,33 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             currentLineCount++;
             canvas.AddMenuOption(x + 2, y + 2, 0, UIConstants.MenuOptions.ReturnToGameMenu, AsciiArtAssets.Colors.White, exitButton.IsHovered);
             currentLineCount++;
+
+            string shortcutHint = GetNumpadShortcutHint(width - 4);
+            if (!string.IsNullOrEmpty(shortcutHint))
+            {
+                canvas.AddText(x + 2, y + 4, shortcutHint, AsciiArtAssets.Colors.DarkGray);
+                currentLineCount++;
+            }
             
             return currentLineCount;
+        }
+
+        public static string GetNumpadShortcutHint(int maxWidth)
+        {
+            if (maxWidth <= 0)
+                return string.Empty;
+
+            if (NumpadShortcutHint.Length <= maxWidth)
+                return NumpadShortcutHint;
+
+            const string compactHint = "+ sort | - filter | * equip empty slots";
+            if (compactHint.Length <= maxWidth)
+                return compactHint;
+
+            if (maxWidth <= 3)
+                return new string('.', maxWidth);
+
+            return compactHint.Substring(0, maxWidth - 3) + "...";
         }
 
         public static List<InventoryDisplayEntry> BuildDisplayEntries(
@@ -327,10 +354,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             {
                 InventoryItemSortMode.Rarity => entries
                     .OrderByDescending(entry => GetRaritySortRank(entry.Item.Rarity))
+                    .ThenBy(entry => GetSlotSortRank(entry.Item))
+                    .ThenBy(entry => GetWeaponTypeSortRank(entry.Item))
                     .ThenBy(entry => entry.InventoryIndex)
                     .ToList(),
                 InventoryItemSortMode.ItemSlot => entries
                     .OrderBy(entry => GetSlotSortRank(entry.Item))
+                    .ThenBy(entry => GetWeaponTypeSortRank(entry.Item))
                     .ThenBy(entry => entry.InventoryIndex)
                     .ToList(),
                 _ => entries
@@ -392,6 +422,18 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 ItemType.Feet => 4,
                 _ => 5
             };
+        }
+
+        private static int GetWeaponTypeSortRank(Item item)
+        {
+            if (item == null || item.Type != ItemType.Weapon)
+                return 0;
+
+            if (!GearActionNames.TryResolveWeaponType(item, out var weaponType))
+                return int.MaxValue;
+
+            int orderIndex = Array.IndexOf(ClassPresentationConfig.ClassWeaponOrder, weaponType);
+            return orderIndex >= 0 ? orderIndex : int.MaxValue - 1;
         }
     }
 

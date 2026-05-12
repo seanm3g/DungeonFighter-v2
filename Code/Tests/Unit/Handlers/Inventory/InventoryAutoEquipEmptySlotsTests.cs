@@ -13,6 +13,7 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
 
             TestShortcutFillsEmptySlotsWithoutReplacingGear(ref run, ref passed, ref failed);
             TestBlockedItemsDoNotEquip(ref run, ref passed, ref failed);
+            TestEquipSelectionKeepsSortedFilteredOriginalItemNumbers(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("Inventory auto-equip empty slots Tests", run, passed, failed);
         }
@@ -88,6 +89,56 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
             TestBase.AssertTrue(
                 lastMessage.Contains("blocked by requirements", StringComparison.OrdinalIgnoreCase),
                 "Auto-equip explains when matching items are requirement-blocked",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void TestEquipSelectionKeepsSortedFilteredOriginalItemNumbers(ref int run, ref int passed, ref int failed)
+        {
+            var sm = new GameStateManager();
+            var character = TestDataBuilders.Character()
+                .WithName("SortedEquip")
+                .WithStats(10, 10, 10, 10)
+                .Build();
+
+            var commonFeet = TestDataBuilders.Armor().WithType(ItemType.Feet).WithName("Common Boots").Build();
+            commonFeet.Rarity = "Common";
+            var blockedMythicHead = TestDataBuilders.Armor().WithType(ItemType.Head).WithName("Mythic Crown").Build();
+            blockedMythicHead.Rarity = "Mythic";
+            blockedMythicHead.AttributeRequirements.AddRequirement("strength", 999);
+            var rareWeapon = TestDataBuilders.Weapon().WithName("Rare Sword").Build();
+            rareWeapon.Rarity = "Rare";
+
+            character.Inventory.Add(commonFeet);          // option [1]
+            character.Inventory.Add(blockedMythicHead);  // option [2], hidden by requirements filter
+            character.Inventory.Add(rareWeapon);          // option [3], first visible after rarity sort + filter
+            sm.SetCurrentPlayer(character);
+            sm.TransitionToState(GameState.Inventory);
+
+            string lastMessage = "";
+            var handler = new InventoryMenuHandler(sm, null);
+            handler.ShowMessageEvent += msg => lastMessage = msg;
+
+            handler.HandleMenuInput("+"); // Rarity sort
+            handler.HandleMenuInput("-"); // Hide unmet requirements
+            handler.HandleMenuInput("1"); // Equip item prompt
+            handler.HandleMenuInput("2"); // Hidden item should not leave the prompt
+
+            TestBase.AssertTrue(
+                character.Head == null
+                && character.Inventory.Contains(blockedMythicHead)
+                && lastMessage.Contains("current inventory filter", StringComparison.OrdinalIgnoreCase),
+                "Equip selection rejects items hidden by the active requirements filter",
+                ref run, ref passed, ref failed);
+
+            handler.HandleMenuInput("3"); // Original inventory number for Rare Sword, not display position 1
+            handler.HandleMenuInput("2"); // Equip new item from comparison
+
+            TestBase.AssertTrue(
+                ReferenceEquals(character.Weapon, rareWeapon)
+                && !character.Inventory.Contains(rareWeapon)
+                && character.Inventory.Contains(commonFeet)
+                && character.Inventory.Contains(blockedMythicHead),
+                "Equip selection uses original inventory item numbers after sort/filter",
                 ref run, ref passed, ref failed);
         }
     }

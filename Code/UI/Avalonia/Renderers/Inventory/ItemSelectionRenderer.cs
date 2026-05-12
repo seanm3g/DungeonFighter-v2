@@ -3,6 +3,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     using System;
     using System.Collections.Generic;
     using RPGGame;
+    using RPGGame.Handlers.Inventory;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Renderers.Helpers;
@@ -61,7 +62,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// <summary>
         /// Renders item selection prompt for equip/discard actions
         /// </summary>
-        public int RenderItemSelectionPrompt(int x, int y, int width, int height, Character character, List<Item> inventory, string promptMessage, string actionType)
+        public int RenderItemSelectionPrompt(
+            int x,
+            int y,
+            int width,
+            int height,
+            Character character,
+            List<Item> inventory,
+            string promptMessage,
+            string actionType,
+            InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
+            bool hideRequirementBlockedItems = false)
         {
             int currentLineCount = 0;
             int startY = y;
@@ -72,18 +83,31 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             currentLineCount += 2;
             
             // Show inventory items as clickable buttons
+            var displayEntries = InventoryScreenRenderer.BuildDisplayEntries(
+                inventory,
+                character,
+                sortMode,
+                hideRequirementBlockedItems);
             if (inventory.Count == 0)
             {
                 canvas.AddText(x + 2, y, "No items in inventory", AsciiArtAssets.Colors.White);
                 y += 2;
                 currentLineCount += 2;
             }
+            else if (displayEntries.Count == 0)
+            {
+                canvas.AddText(x + 2, y, "No items match the current requirements filter", AsciiArtAssets.Colors.White);
+                y += 2;
+                currentLineCount += 2;
+            }
             else
             {
-                int maxItems = Math.Min(inventory.Count, 20);
-                for (int i = 0; i < maxItems; i++)
+                int maxItems = Math.Min(displayEntries.Count, 20);
+                for (int displayIndex = 0; displayIndex < maxItems; displayIndex++)
                 {
-                    var item = inventory[i];
+                    var entry = displayEntries[displayIndex];
+                    int inventoryIndex = entry.InventoryIndex;
+                    var item = entry.Item;
                     var itemStats = ItemStatFormatter.GetItemStats(item, character);
                     int rowLines = CountItemDisplayLines(item, character, itemStats);
                     
@@ -95,12 +119,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         y,
                         width - 4,
                         rowLines,
-                        (i + 1).ToString(),
-                        $"[{i + 1}] [{rarity}] [{slotName}] {item.Name}",
-                        Prefix + "inv:" + i));
+                        (inventoryIndex + 1).ToString(),
+                        $"[{inventoryIndex + 1}] [{rarity}] [{slotName}] {item.Name}",
+                        Prefix + "inv:" + inventoryIndex));
                     
                     // Render item name with colored text (slot bracket red when requirements unmet)
-                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true, character: character);
+                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, inventoryIndex, item, useColoredText: true, character: character);
                     y++;
                     currentLineCount++;
                     

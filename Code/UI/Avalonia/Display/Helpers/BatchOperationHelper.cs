@@ -18,14 +18,15 @@ namespace RPGGame.UI.Avalonia.Display.Helpers
         public static void ScheduleRenderWithDelay(System.Action renderAction, int delayMs)
         {
             // Skip delays if combat UI output is disabled (e.g., during statistics runs) or developer mode
-            if (delayMs > 0 && !CombatManager.DisableCombatUIOutput && !DeveloperModeState.IsCombatLogInstant)
+            int scaledDelayMs = DeveloperModeState.ScaleDelayMs(delayMs);
+            if (scaledDelayMs > 0 && !CombatManager.DisableCombatUIOutput)
             {
                 Timer? delayTimer = null;
                 delayTimer = new Timer(_ =>
                 {
                     delayTimer?.Dispose();
                     renderAction();
-                }, null, delayMs, Timeout.Infinite);
+                }, null, scaledDelayMs, Timeout.Infinite);
             }
             else
             {
@@ -39,8 +40,9 @@ namespace RPGGame.UI.Avalonia.Display.Helpers
         public static async Task ScheduleRenderWithDelayAsync(System.Action renderAction, int delayMs)
         {
             // Skip delays if combat UI output is disabled (e.g., during statistics runs) or developer mode
-            if (delayMs > 0 && !CombatManager.DisableCombatUIOutput && !DeveloperModeState.IsCombatLogInstant)
-                await Task.Delay(delayMs);
+            int scaledDelayMs = DeveloperModeState.ScaleDelayMs(delayMs);
+            if (scaledDelayMs > 0 && !CombatManager.DisableCombatUIOutput)
+                await Task.Delay(scaledDelayMs);
             renderAction();
         }
     }

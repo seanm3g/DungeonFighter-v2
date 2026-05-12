@@ -23,6 +23,24 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(6, clamped.gw, "clamp right edge", ref run, ref passed, ref failed);
             TestBase.AssertEqual(4, clamped.gh, "clamp bottom edge", ref run, ref passed, ref failed);
 
+            int leftOfRightColumn = HoverTooltipDrawing.GetHorizontalPositionAvoidingTarget(
+                defaultX: 50,
+                boxW: 20,
+                innerLeft: 10,
+                innerRightInclusive: 99,
+                targetX: 60,
+                targetWidth: 30);
+            TestBase.AssertEqual(38, leftOfRightColumn, "right-side target opens tooltip to the left", ref run, ref passed, ref failed);
+
+            int rightOfLeftColumn = HoverTooltipDrawing.GetHorizontalPositionAvoidingTarget(
+                defaultX: 50,
+                boxW: 20,
+                innerLeft: 10,
+                innerRightInclusive: 99,
+                targetX: 20,
+                targetWidth: 30);
+            TestBase.AssertEqual(52, rightOfLeftColumn, "left-side target opens tooltip to the right", ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("HoverTooltipDrawing Tests", run, passed, failed);
         }
     }

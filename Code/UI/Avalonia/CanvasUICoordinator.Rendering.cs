@@ -42,7 +42,7 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
-        /// Repaints only the center panel frame so F11 mode changes are visible immediately.
+        /// Repaints only the center panel frame so combat speed changes are visible immediately.
         /// </summary>
         public void RefreshCenterPanelModeTint()
         {
@@ -627,9 +627,22 @@ namespace RPGGame.UI.Avalonia
             renderer.RenderInventory(character, inventory, GetContext(), pendingMutatingInventoryMenuAction, inventoryItemScrollOffset, sortMode, hideRequirementBlockedItems);
         }
 
-        public void RenderItemSelectionPrompt(Character character, List<Item> inventory, string promptMessage, string actionType)
+        public void RenderItemSelectionPrompt(
+            Character character,
+            List<Item> inventory,
+            string promptMessage,
+            string actionType,
+            InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
+            bool hideRequirementBlockedItems = false)
         {
-            renderer.RenderItemSelectionPrompt(character, inventory, promptMessage, actionType, GetContext());
+            renderer.RenderItemSelectionPrompt(
+                character,
+                inventory,
+                promptMessage,
+                actionType,
+                GetContext(),
+                sortMode,
+                hideRequirementBlockedItems);
         }
 
         public void RenderSlotSelectionPrompt(Character character)

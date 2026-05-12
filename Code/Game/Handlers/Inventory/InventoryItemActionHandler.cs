@@ -57,7 +57,13 @@ namespace RPGGame.Handlers.Inventory
             
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                canvasUI.RenderItemSelectionPrompt(stateManager.CurrentPlayer, stateManager.CurrentInventory, "Select Item to Equip", "equip");
+                canvasUI.RenderItemSelectionPrompt(
+                    stateManager.CurrentPlayer,
+                    stateManager.CurrentInventory,
+                    "Select Item to Equip",
+                    "equip",
+                    stateTracker.ItemSortMode,
+                    stateTracker.HideRequirementBlockedItems);
             }
             
             stateTracker.WaitingForItemSelection = true;
@@ -95,7 +101,13 @@ namespace RPGGame.Handlers.Inventory
             
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                canvasUI.RenderItemSelectionPrompt(stateManager.CurrentPlayer, stateManager.CurrentInventory, "Select Item to Discard", "discard");
+                canvasUI.RenderItemSelectionPrompt(
+                    stateManager.CurrentPlayer,
+                    stateManager.CurrentInventory,
+                    "Select Item to Discard",
+                    "discard",
+                    stateTracker.ItemSortMode,
+                    stateTracker.HideRequirementBlockedItems);
             }
             
             stateTracker.WaitingForItemSelection = true;

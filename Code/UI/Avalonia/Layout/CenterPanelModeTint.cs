@@ -12,10 +12,10 @@ namespace RPGGame.UI.Avalonia.Layout
         private static readonly Color FastCombatBackground = Color.FromRgb(7, 4, 22);
 
         public static Color GetBackgroundColor() =>
-            GetBackgroundColor(DeveloperModeState.IsCombatLogInstant);
+            GetBackgroundColor(DeveloperModeState.IsCombatSpeedAccelerated);
 
-        public static Color GetBackgroundColor(bool fastCombatEnabled) =>
-            fastCombatEnabled ? FastCombatBackground : NormalBackground;
+        public static Color GetBackgroundColor(bool combatSpeedAccelerated) =>
+            combatSpeedAccelerated ? FastCombatBackground : NormalBackground;
 
         public static void RenderFrame(GameCanvasControl canvas)
         {

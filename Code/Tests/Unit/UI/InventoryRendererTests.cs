@@ -34,7 +34,9 @@ namespace RPGGame.Tests.Unit.UI
             TestInventoryRenderingMethods();
             TestItemComparisonHoverIds();
             TestInventoryItemScrollRange();
+            TestInventoryNumpadShortcutHint();
             TestInventoryDisplaySortAndFilterKeepsOriginalIndices();
+            TestInventorySortedViewsGroupWeaponsByType();
             TestInventoryArmorComparisonBaselineColorsLowerSameSlotRed();
 
             TestBase.PrintSummary("InventoryRenderer Tests", _testsRun, _testsPassed, _testsFailed);
@@ -103,6 +105,23 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(needsStatus, "inventory scroll status appears when rows exceed viewport", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        private static void TestInventoryNumpadShortcutHint()
+        {
+            Console.WriteLine("\n--- Testing Inventory Numpad Shortcut Hint ---");
+
+            string fullHint = InventoryScreenRenderer.GetNumpadShortcutHint(120);
+            TestBase.AssertTrue(
+                fullHint.Contains("Numpad +") && fullHint.Contains("Numpad -") && fullHint.Contains("Numpad *"),
+                "inventory bottom shortcut hint calls out numpad sort, filter, and equip shortcuts",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string compactHint = InventoryScreenRenderer.GetNumpadShortcutHint(40);
+            TestBase.AssertTrue(
+                compactHint.Length <= 40 && compactHint.Contains("+ sort") && compactHint.Contains("- filter") && compactHint.Contains("* equip"),
+                "inventory shortcut hint has a compact fallback for narrow panels",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         private static void TestInventoryDisplaySortAndFilterKeepsOriginalIndices()
         {
             Console.WriteLine("\n--- Testing Inventory Display Sort and Filter ---");
@@ -151,6 +170,49 @@ namespace RPGGame.Tests.Unit.UI
                 hideRequirementBlockedItems: true);
             TestBase.AssertEqual("2,3,0", string.Join(",", filteredEntries.Select(entry => entry.InventoryIndex)),
                 "requirements filter hides blocked items without renumbering remaining entries",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestInventorySortedViewsGroupWeaponsByType()
+        {
+            Console.WriteLine("\n--- Testing Inventory Sorted Views Group Weapons By Type ---");
+
+            var character = TestDataBuilders.Character().WithStats(10, 10, 10, 10).Build();
+            var daggerA = TestDataBuilders.Weapon().WithName("Dagger A").WithWeaponType(WeaponType.Dagger).Build();
+            var swordA = TestDataBuilders.Weapon().WithName("Sword A").WithWeaponType(WeaponType.Sword).Build();
+            var wand = TestDataBuilders.Weapon().WithName("Wand").WithWeaponType(WeaponType.Wand).Build();
+            var daggerB = TestDataBuilders.Weapon().WithName("Dagger B").WithWeaponType(WeaponType.Dagger).Build();
+            var mace = TestDataBuilders.Weapon().WithName("Mace").WithWeaponType(WeaponType.Mace).Build();
+            var swordB = TestDataBuilders.Weapon().WithName("Sword B").WithWeaponType(WeaponType.Sword).Build();
+            var head = TestDataBuilders.Armor().WithType(ItemType.Head).WithName("Helmet").Build();
+
+            var inventory = new System.Collections.Generic.List<Item>
+            {
+                daggerA,
+                swordA,
+                wand,
+                daggerB,
+                mace,
+                swordB,
+                head
+            };
+
+            var rarityEntries = InventoryScreenRenderer.BuildDisplayEntries(
+                inventory,
+                character,
+                InventoryItemSortMode.Rarity,
+                hideRequirementBlockedItems: false);
+            TestBase.AssertEqual("4,1,5,0,3,2,6", string.Join(",", rarityEntries.Select(entry => entry.InventoryIndex)),
+                "rarity sort groups same-rarity weapons by class weapon type before original index tie-breaks",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var slotEntries = InventoryScreenRenderer.BuildDisplayEntries(
+                inventory,
+                character,
+                InventoryItemSortMode.ItemSlot,
+                hideRequirementBlockedItems: false);
+            TestBase.AssertEqual("4,1,5,0,3,2,6", string.Join(",", slotEntries.Select(entry => entry.InventoryIndex)),
+                "slot sort groups weapon rows by class weapon type before original index tie-breaks",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

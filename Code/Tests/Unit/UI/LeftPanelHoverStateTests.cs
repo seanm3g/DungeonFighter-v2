@@ -75,6 +75,12 @@ namespace RPGGame.Tests.Unit.UI
                 "TooltipHoverValue used when set",
                 ref run, ref passed, ref failed);
             TestBase.AssertEqual(LeftPanelHoverState.Prefix + "inv:0", LeftPanelHoverState.Value, "inv list id from TooltipHoverValue", ref run, ref passed, ref failed);
+            bool hasBounds = LeftPanelHoverState.TryGetTargetBounds(out int bx, out int by, out int bw, out int bh);
+            TestBase.AssertTrue(hasBounds, "Hover state keeps target bounds for tooltip placement", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, bx, "Stored target X comes from hovered element", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, by, "Stored target Y comes from hovered element", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(10, bw, "Stored target width comes from hovered element", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(2, bh, "Stored target height comes from hovered element", ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("LeftPanelHoverState Tests", run, passed, failed);
         }

@@ -620,6 +620,21 @@ namespace RPGGame.Tests.Unit.Audio
                 !MusicFadeLoopPolicy.ShouldRestartEndedTrack(7, 7, cancellationRequested: true),
                 "Outgoing fade track does not restart after fade cancellation",
                 ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                MusicFadeLoopPolicy.ShouldRestartCurrentTrack(7, 7, isCurrentTrack: true),
+                "Current music track restarts after natural EOF when its generation is still active",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                !MusicFadeLoopPolicy.ShouldRestartCurrentTrack(7, 8, isCurrentTrack: true),
+                "Current music track does not restart after a newer music transition supersedes it",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                !MusicFadeLoopPolicy.ShouldRestartCurrentTrack(7, 7, isCurrentTrack: false),
+                "Old music track does not use current-track restart after it becomes outgoing",
+                ref run, ref passed, ref failed);
         }
 
         private static void TestMusicFadeIncomingTrackPolicy(ref int run, ref int passed, ref int failed)

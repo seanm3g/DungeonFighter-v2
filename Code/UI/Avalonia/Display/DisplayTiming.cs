@@ -63,10 +63,7 @@ namespace RPGGame.UI.Avalonia.Display
                     delayMs = Math.Max(delayMs, minDelay);
                 }
 
-                if (DeveloperModeState.IsCombatLogInstant)
-                {
-                    delayMs = 0;
-                }
+                delayMs = DeveloperModeState.ScaleDelayMs(delayMs);
 
                 if (delayMs <= 0)
                 {

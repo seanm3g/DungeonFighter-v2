@@ -35,7 +35,7 @@ namespace RPGGame.UI
                 return;
             }
 
-            int delayMs = GetDelayForMessageType(messageType);
+            int delayMs = DeveloperModeState.ScaleDelayMs(GetDelayForMessageType(messageType));
 
             if (delayMs > 0)
             {
@@ -108,6 +108,8 @@ namespace RPGGame.UI
             }
 
             // Apply the delay
+            progressiveDelay = DeveloperModeState.ScaleDelayMs(progressiveDelay);
+
             if (progressiveDelay > 0)
             {
                 await Task.Delay(progressiveDelay);

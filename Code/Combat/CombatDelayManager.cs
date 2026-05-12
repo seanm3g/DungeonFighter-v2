@@ -56,7 +56,9 @@ namespace RPGGame
             else
             {
                 // Use async delay for console (non-blocking)
-                await Task.Delay(Config.ActionDelayMs);
+                int delayMs = DeveloperModeState.ScaleDelayMs(Config.ActionDelayMs);
+                if (delayMs > 0)
+                    await Task.Delay(delayMs);
             }
         }
         
@@ -77,7 +79,9 @@ namespace RPGGame
             else
             {
                 // Use async delay for console (non-blocking)
-                await Task.Delay(Config.MessageDelayMs);
+                int delayMs = DeveloperModeState.ScaleDelayMs(Config.MessageDelayMs);
+                if (delayMs > 0)
+                    await Task.Delay(delayMs);
             }
         }
         

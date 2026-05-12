@@ -99,9 +99,29 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders item selection prompt for equip/discard actions
         /// </summary>
-        public void RenderItemSelectionPrompt(int x, int y, int width, int height, Character character, List<Item> inventory, string promptMessage, string actionType)
+        public void RenderItemSelectionPrompt(
+            int x,
+            int y,
+            int width,
+            int height,
+            Character character,
+            List<Item> inventory,
+            string promptMessage,
+            string actionType,
+            InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
+            bool hideRequirementBlockedItems = false)
         {
-            currentLineCount = selectionRenderer.RenderItemSelectionPrompt(x, y, width, height, character, inventory, promptMessage, actionType);
+            currentLineCount = selectionRenderer.RenderItemSelectionPrompt(
+                x,
+                y,
+                width,
+                height,
+                character,
+                inventory,
+                promptMessage,
+                actionType,
+                sortMode,
+                hideRequirementBlockedItems);
         }
         
         /// <summary>

@@ -319,7 +319,8 @@ namespace RPGGame
             if (!UIManager.EnableDelays) return;
             
             // Get delay from configuration (default: 500ms)
-            int delayMs = Config.TextDelayConfiguration.GetEnvironmentalLineDelay();
+            int delayMs = DeveloperModeState.ScaleDelayMs(Config.TextDelayConfiguration.GetEnvironmentalLineDelay());
+            if (delayMs <= 0) return;
             
             // Apply delay for environmental action lines
             // Use Task.Delay().Wait() to block synchronously while using async delay internally

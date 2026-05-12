@@ -58,7 +58,7 @@ Mapping is data-driven via `stateMusicMap` in `AudioConfig.json`. Default mappin
 | `Death`                | `Music_Death`             |
 | `TrainingGroundOffer`  | `Music_TrainingGround`    |
 
-Music crossfades when the track changes; default fade is **1000 ms**, adjustable in **Settings → Audio** (`musicCrossfadeMs` in `AudioConfig.json`, 0–10000 ms). The SoundFlow backend overlaps the outgoing and incoming `SoundPlayer`s and ramps their per-player volumes over that duration. If there is no outgoing player, the incoming track uses the same duration as a fade-in from silence. During a crossfade, the outgoing player is kept looping until the fade completes; if a short track naturally ends mid-fade, it restarts from the beginning instead of leaving silence under the incoming ramp.
+Music crossfades when the track changes; default fade is **1000 ms**, adjustable in **Settings → Audio** (`musicCrossfadeMs` in `AudioConfig.json`, 0–10000 ms). The SoundFlow backend overlaps the outgoing and incoming `SoundPlayer`s and ramps their per-player volumes over that duration. If there is no outgoing player, the incoming track uses the same duration as a fade-in from silence. Music tracks do not use SoundFlow's built-in `IsLooping` path; the engine restarts ended tracks from a posted mixer action after `PlaybackEnded`, avoiding recursive end-of-stream handling inside the MiniAudio callback. During a crossfade, the outgoing player is kept alive until the fade completes; if a short track naturally ends mid-fade, it restarts from the beginning instead of leaving silence under the incoming ramp.
 
 ### Menu and direct-call cues
 

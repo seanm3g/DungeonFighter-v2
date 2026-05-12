@@ -60,9 +60,10 @@ namespace RPGGame.UI.BlockDisplay.Renderers
             }
             
             // Apply final delay after the entire batch (delay between action blocks)
-            if (delayMs > 0 && !CombatManager.DisableCombatUIOutput && UIManager.EnableDelays && !DeveloperModeState.IsCombatLogInstant)
+            int scaledDelayMs = DeveloperModeState.ScaleDelayMs(delayMs);
+            if (scaledDelayMs > 0 && !CombatManager.DisableCombatUIOutput && UIManager.EnableDelays)
             {
-                await Task.Delay(delayMs);
+                await Task.Delay(scaledDelayMs);
             }
         }
     }

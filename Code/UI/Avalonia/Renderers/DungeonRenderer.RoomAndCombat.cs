@@ -211,9 +211,13 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             List<string>? tipLines = null;
             int? anchorCenterX = null;
+            bool leftPanelTooltipActive = false;
 
             if (LeftPanelHoverState.IsActive)
+            {
                 tipLines = LeftPanelTooltipBuilder.BuildLines(player, LeftPanelHoverState.Value, innerTextW, maxTooltipLines + 2);
+                leftPanelTooltipActive = tipLines.Count > 0;
+            }
 
             if (tipLines == null || tipLines.Count == 0)
             {
@@ -254,6 +258,17 @@ namespace RPGGame.UI.Avalonia.Renderers
             int idealX = anchorCenterX.HasValue
                 ? anchorCenterX.Value - boxWFinal / 2
                 : innerLeft + Math.Max(0, (innerW - boxWFinal) / 2);
+            if (leftPanelTooltipActive &&
+                LeftPanelHoverState.TryGetTargetBounds(out int targetX, out _, out int targetWidth, out _))
+            {
+                idealX = HoverTooltipDrawing.GetHorizontalPositionAvoidingTarget(
+                    idealX,
+                    boxWFinal,
+                    innerLeft,
+                    innerRight,
+                    targetX,
+                    targetWidth);
+            }
             int boxX = Math.Max(innerLeft, Math.Min(idealX, innerRight - boxWFinal + 1));
             int innerTextWDraw = Math.Max(4, boxWFinal - 2);
 

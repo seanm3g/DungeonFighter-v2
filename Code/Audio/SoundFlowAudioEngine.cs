@@ -318,12 +318,13 @@ namespace RPGGame.Audio
                             if (!Initialize()) { try { wav?.Dispose(); } catch { } return; }
                             var provider = new StreamDataProvider(engine!, format, wav!);
                             var newPlayer = new SoundPlayer(engine!, format, provider);
-                            ConfigureMusicPlayerLooping(newPlayer);
+                            ConfigureMusicPlayerForManualLooping(newPlayer);
                             bool cf = mp3CrossfadeOld != null;
                             newPlayer.Volume = (cf || mp3FadeIn) ? 0f : targetVol;
                             musicMixer!.AddComponent(newPlayer);
                             currentMusicStreamProvider = provider;
                             currentMusicPlayer = newPlayer;
+                            AttachCurrentMusicManualLoop(newPlayer, gen);
                             SeekMusicIfNeeded(newPlayer, startOffsetSeconds);
                             newPlayer.Play();
                             if (cf)
@@ -348,11 +349,12 @@ namespace RPGGame.Audio
                 var fileStream = File.OpenRead(filePath);
                 var provider = new StreamDataProvider(engine!, format, fileStream);
                 var newPlayer = new SoundPlayer(engine!, format, provider);
-                ConfigureMusicPlayerLooping(newPlayer);
+                ConfigureMusicPlayerForManualLooping(newPlayer);
                 newPlayer.Volume = (useCrossfade || useFadeIn) ? 0f : targetVol;
                 musicMixer!.AddComponent(newPlayer);
                 currentMusicStreamProvider = provider;
                 currentMusicPlayer = newPlayer;
+                AttachCurrentMusicManualLoop(newPlayer, gen);
                 SeekMusicIfNeeded(newPlayer, startOffsetSeconds);
                 newPlayer.Play();
                 if (useCrossfade)
@@ -556,7 +558,7 @@ namespace RPGGame.Audio
             int fadeGeneration,
             CancellationToken cancellationToken)
         {
-            ConfigureMusicPlayerLooping(player);
+            ConfigureMusicPlayerForManualLooping(player);
             EventHandler<EventArgs> restartEndedLoop = (_, _) =>
             {
                 if (!MusicFadeLoopPolicy.ShouldRestartEndedTrack(
@@ -582,6 +584,29 @@ namespace RPGGame.Audio
             };
             player.PlaybackEnded += restartEndedLoop;
             return restartEndedLoop;
+        }
+
+        private void AttachCurrentMusicManualLoop(SoundPlayer player, int trackGeneration)
+        {
+            EventHandler<EventArgs>? restartCurrentLoop = null;
+            restartCurrentLoop = (_, _) =>
+            {
+                PostMixerAction(() =>
+                {
+                    if (!MusicFadeLoopPolicy.ShouldRestartCurrentTrack(
+                        trackGeneration,
+                        Volatile.Read(ref _playMusicGeneration),
+                        ReferenceEquals(currentMusicPlayer, player)))
+                    {
+                        try { player.PlaybackEnded -= restartCurrentLoop; } catch { /* ignore */ }
+                        return;
+                    }
+
+                    RestartMusicPlayerFromBeginning(player);
+                });
+            };
+
+            player.PlaybackEnded += restartCurrentLoop!;
         }
 
         private void PostMixerAction(global::System.Action action)
@@ -668,17 +693,18 @@ namespace RPGGame.Audio
             catch { /* ignore */ }
         }
 
-        private static void ConfigureMusicPlayerLooping(SoundPlayer player)
+        private static void ConfigureMusicPlayerForManualLooping(SoundPlayer player)
         {
-            try { player.IsLooping = true; } catch { /* ignore */ }
-            try { player.SetLoopPoints(0, -1); } catch { /* ignore */ }
+            // SoundFlow's built-in looping refills the same audio callback recursively at EOF.
+            // We restart on the next posted mixer action instead, which avoids recursive EOF handling.
+            try { player.IsLooping = false; } catch { /* ignore */ }
         }
 
         private static void RestartMusicPlayerFromBeginning(SoundPlayer player)
         {
             try
             {
-                ConfigureMusicPlayerLooping(player);
+                ConfigureMusicPlayerForManualLooping(player);
                 if (player.DataProvider.CanSeek)
                     player.Seek(0);
                 else

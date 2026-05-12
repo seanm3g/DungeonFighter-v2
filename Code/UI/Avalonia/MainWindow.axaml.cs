@@ -46,15 +46,9 @@ namespace RPGGame.UI.Avalonia
 
         private async void OnKeyDown(object? sender, KeyEventArgs e)
         {
-            if (e.Key == Key.F11)
+            if (TryHandleCombatSpeedKey(e.Key))
             {
-                DeveloperModeState.ToggleCombatLogInstant();
-                if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
-                    canvasUI.RefreshCenterPanelModeTint();
                 e.Handled = true;
-                UpdateStatus(DeveloperModeState.IsCombatLogInstant
-                    ? "Fast combat mode: on (instant text)"
-                    : "Fast combat mode: off");
                 return;
             }
 
@@ -124,6 +118,22 @@ namespace RPGGame.UI.Avalonia
             {
                 UpdateStatus($"Error handling input: {ex.Message}");
             }
+        }
+
+        private bool TryHandleCombatSpeedKey(Key key)
+        {
+            if (key != Key.PageUp && key != Key.PageDown)
+                return false;
+
+            int speed = key == Key.PageUp
+                ? DeveloperModeState.IncreaseCombatSpeed()
+                : DeveloperModeState.DecreaseCombatSpeed();
+
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+                canvasUI.RefreshCenterPanelModeTint();
+
+            UpdateStatus($"Combat speed: {speed}x (Page Up/Page Down)");
+            return true;
         }
 
         private void OnKeyUp(object? sender, KeyEventArgs e)

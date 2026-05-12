@@ -19,5 +19,13 @@ namespace RPGGame.Audio
         {
             return !cancellationRequested && fadeGeneration == currentGeneration;
         }
+
+        public static bool ShouldRestartCurrentTrack(
+            int trackGeneration,
+            int currentGeneration,
+            bool isCurrentTrack)
+        {
+            return isCurrentTrack && trackGeneration == currentGeneration;
+        }
     }
 }

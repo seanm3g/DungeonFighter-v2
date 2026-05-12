@@ -72,6 +72,55 @@ namespace RPGGame.UI.Avalonia.Layout
             return (gx, gy, gw, gh);
         }
 
+        public static int GetHorizontalPositionAvoidingTarget(
+            int defaultX,
+            int boxW,
+            int innerLeft,
+            int innerRightInclusive,
+            int targetX,
+            int targetWidth,
+            int margin = 2)
+        {
+            int innerW = innerRightInclusive - innerLeft + 1;
+            if (innerW <= 0 || boxW <= 0)
+                return defaultX;
+
+            int maxX = innerRightInclusive - boxW + 1;
+            int Clamp(int x) => System.Math.Max(innerLeft, System.Math.Min(x, maxX));
+            int clampedDefault = Clamp(defaultX);
+
+            if (targetWidth <= 0 || boxW > innerW)
+                return clampedDefault;
+
+            int targetRight = targetX + targetWidth - 1;
+            bool targetIntersectsInner = targetX <= innerRightInclusive && targetRight >= innerLeft;
+            if (!targetIntersectsInner)
+                return clampedDefault;
+
+            int leftCandidate = targetX - margin - boxW;
+            int rightCandidate = targetRight + margin + 1;
+            int panelMid = innerLeft + innerW / 2;
+            int targetCenter = targetX + targetWidth / 2;
+
+            bool leftFits = leftCandidate >= innerLeft;
+            bool rightFits = rightCandidate <= maxX;
+            if (targetCenter >= panelMid)
+            {
+                if (leftFits)
+                    return leftCandidate;
+                if (rightFits)
+                    return rightCandidate;
+            }
+            else
+            {
+                if (rightFits)
+                    return rightCandidate;
+                if (leftFits)
+                    return leftCandidate;
+            }
+            return clampedDefault;
+        }
+
         /// <summary>
         /// Clears hover overlay text/boxes in the framed center panel inner band (same region as
         /// <see cref="DrawFramedPanel"/>). Call when no tooltip should be shown so prior hover art does not persist.

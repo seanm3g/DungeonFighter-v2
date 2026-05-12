@@ -44,7 +44,7 @@ namespace RPGGame.UI.BlockDisplay
             
             if (UIManager.EnableDelays)
             {
-                return CombatDelayManager.Config.ActionDelayMs;
+                return DeveloperModeState.ScaleDelayMs(CombatDelayManager.Config.ActionDelayMs);
             }
             return 0;
         }

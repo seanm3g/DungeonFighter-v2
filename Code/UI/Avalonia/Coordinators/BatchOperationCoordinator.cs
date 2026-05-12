@@ -104,9 +104,10 @@ namespace RPGGame.UI.Avalonia.Coordinators
                 }
                 
                 // Apply final delay after the entire batch (delay between action blocks)
-                if (delayAfterBatchMs > 0 && !DeveloperModeState.IsCombatLogInstant)
+                int scaledDelayAfterBatchMs = DeveloperModeState.ScaleDelayMs(delayAfterBatchMs);
+                if (scaledDelayAfterBatchMs > 0)
                 {
-                    await Task.Delay(delayAfterBatchMs);
+                    await Task.Delay(scaledDelayAfterBatchMs);
                 }
             }
             else
@@ -138,9 +139,10 @@ namespace RPGGame.UI.Avalonia.Coordinators
                 }
                 
                 // Apply final delay after the entire batch (delay between action blocks)
-                if (delayAfterBatchMs > 0 && !DeveloperModeState.IsCombatLogInstant)
+                int scaledDelayAfterBatchMs = DeveloperModeState.ScaleDelayMs(delayAfterBatchMs);
+                if (scaledDelayAfterBatchMs > 0)
                 {
-                    await Task.Delay(delayAfterBatchMs);
+                    await Task.Delay(scaledDelayAfterBatchMs);
                 }
             }
         }

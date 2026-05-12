@@ -1,14 +1,12 @@
 using System;
-using System.Diagnostics;
 using RPGGame;
 using RPGGame.Tests;
-using RPGGame.UI;
 using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.Tests.Unit.UI
 {
     /// <summary>
-    /// Verifies developer mode zeros UIDelayManager pacing (room/system lines use message-type delays).
+    /// Verifies runtime combat speed state and the center-panel fast-pacing tint.
     /// </summary>
     public static class DeveloperModeStateTests
     {
@@ -21,62 +19,106 @@ namespace RPGGame.Tests.Unit.UI
             Console.WriteLine("=== DeveloperModeState Tests ===\n");
             _testsRun = _testsPassed = _testsFailed = 0;
 
-            TestUidelaySkipsWhenDeveloperModeOn();
-            TestCenterPanelTintChangesWithDeveloperMode();
+            TestCombatSpeedLadder();
+            TestDelayScaling();
+            TestCenterPanelTintChangesWithCombatSpeed();
 
             TestBase.PrintSummary("DeveloperModeState Tests", _testsRun, _testsPassed, _testsFailed);
         }
 
-        private static void TestUidelaySkipsWhenDeveloperModeOn()
+        private static void TestCombatSpeedLadder()
         {
-            Console.WriteLine("--- UIDelayManager skips delay when developer mode on ---");
+            Console.WriteLine("--- Combat speed ladder steps through supported values ---");
 
-            bool prev = DeveloperModeState.IsCombatLogInstant;
-            bool prevEnable = UIManager.EnableDelays;
-            try
-            {
-                UIManager.EnableDelays = true;
-                DeveloperModeState.SetCombatLogInstant(true);
-
-                var delayManager = new UIDelayManager();
-                var sw = Stopwatch.StartNew();
-                delayManager.ApplyDelayAsync(UIMessageType.System).GetAwaiter().GetResult();
-                sw.Stop();
-
-                TestBase.AssertTrue(sw.ElapsedMilliseconds < 80,
-                    "ApplyDelayAsync(System) should not wait when developer mode is on",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-            }
-            finally
-            {
-                DeveloperModeState.SetCombatLogInstant(prev);
-                UIManager.EnableDelays = prevEnable;
-            }
-        }
-
-        private static void TestCenterPanelTintChangesWithDeveloperMode()
-        {
-            Console.WriteLine("--- Center panel tint changes when developer mode is on ---");
-
-            bool prev = DeveloperModeState.IsCombatLogInstant;
+            int prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
             try
             {
                 DeveloperModeState.SetCombatLogInstant(false);
-                var normal = CenterPanelModeTint.GetBackgroundColor();
+                DeveloperModeState.SetCombatSpeedMultiplier(1);
 
-                DeveloperModeState.SetCombatLogInstant(true);
-                var fast = CenterPanelModeTint.GetBackgroundColor();
-
-                TestBase.AssertTrue(!normal.Equals(fast),
-                    "center panel background should change when fast combat mode is on",
+                TestBase.AssertEqual(1, DeveloperModeState.CombatSpeedMultiplier,
+                    "combat speed starts at 1x when set to the first ladder step",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertTrue(fast.B > fast.R,
-                    "fast combat tint should shift the dark panel toward blue/purple",
+                TestBase.AssertEqual(2, DeveloperModeState.IncreaseCombatSpeed(),
+                    "Page Up step moves 1x to 2x",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(5, DeveloperModeState.IncreaseCombatSpeed(),
+                    "Page Up step moves 2x to 5x",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(10, DeveloperModeState.IncreaseCombatSpeed(),
+                    "Page Up step moves 5x to 10x",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(10, DeveloperModeState.IncreaseCombatSpeed(),
+                    "Page Up stays capped at 10x",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(5, DeveloperModeState.DecreaseCombatSpeed(),
+                    "Page Down step moves 10x to 5x",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {
-                DeveloperModeState.SetCombatLogInstant(prev);
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                DeveloperModeState.SetCombatSpeedMultiplier(prevSpeed);
+            }
+        }
+
+        private static void TestDelayScaling()
+        {
+            Console.WriteLine("--- Combat speed scales delays without making them instant ---");
+
+            int prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                DeveloperModeState.SetCombatLogInstant(false);
+                DeveloperModeState.SetCombatSpeedMultiplier(5);
+
+                TestBase.AssertEqual(200, DeveloperModeState.ScaleDelayMs(1000),
+                    "5x speed scales 1000 ms to 200 ms",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(1, DeveloperModeState.ScaleDelayMs(1),
+                    "non-zero scaled delays keep a one millisecond floor",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                DeveloperModeState.SetCombatLogInstant(true);
+                TestBase.AssertEqual(0, DeveloperModeState.ScaleDelayMs(1000),
+                    "legacy instant mode still zeroes delays when explicitly enabled",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                DeveloperModeState.SetCombatSpeedMultiplier(prevSpeed);
+            }
+        }
+
+        private static void TestCenterPanelTintChangesWithCombatSpeed()
+        {
+            Console.WriteLine("--- Center panel tint changes when combat speed is accelerated ---");
+
+            int prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                DeveloperModeState.SetCombatLogInstant(false);
+                DeveloperModeState.SetCombatSpeedMultiplier(1);
+                var normal = CenterPanelModeTint.GetBackgroundColor();
+
+                DeveloperModeState.SetCombatSpeedMultiplier(2);
+                var fast = CenterPanelModeTint.GetBackgroundColor();
+
+                TestBase.AssertTrue(!normal.Equals(fast),
+                    "center panel background should change when combat speed is above 1x",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(fast.B > fast.R,
+                    "accelerated combat tint should shift the dark panel toward blue/purple",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                DeveloperModeState.SetCombatSpeedMultiplier(prevSpeed);
             }
         }
     }

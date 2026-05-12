@@ -27,7 +27,7 @@
                               FontSize="15"
                               IsChecked="False"/>
                     <CheckBox x:Name="FastCombatCheckBox" 
-                              Content="Fast Combat (No Delays)" 
+                              Content="Legacy Fast Combat (use Page Up/Page Down for runtime speed)"
                               Foreground="#FFE8E8E8"
                               FontSize="15"
                               IsChecked="False"/>

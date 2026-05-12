@@ -179,9 +179,6 @@ namespace RPGGame.UI
         /// </summary>
         private static int CalculateDelay(string chunk, RevealConfig config)
         {
-            if (DeveloperModeState.IsCombatLogInstant)
-                return 0;
-
             // Get the display length (excluding color markup)
             var segments = ColoredTextParser.Parse(chunk);
             int displayLength = ColoredTextRenderer.GetDisplayLength(segments);
@@ -192,7 +189,7 @@ namespace RPGGame.UI
             // Clamp to min/max
             int delay = Math.Max(config.MinDelayMs, Math.Min(config.MaxDelayMs, calculatedDelay));
             
-            return delay;
+            return DeveloperModeState.ScaleDelayMs(delay);
         }
         
         /// <summary>
