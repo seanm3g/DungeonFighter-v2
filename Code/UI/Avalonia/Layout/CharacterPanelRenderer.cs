@@ -281,7 +281,8 @@ namespace RPGGame.UI.Avalonia.Layout
             if (thresholdsOpen)
             {
                 int critY = y;
-                y = DiceRollThresholdRowsRenderer.RenderRows(canvas, x, y, character);
+                bool showThresholdChances = stateManager != null && stateManager.ThresholdsShowChances;
+                y = DiceRollThresholdRowsRenderer.RenderRows(canvas, x, y, character, showThresholdChances);
                 int comboY = critY + 1;
                 int hitY = critY + 2;
                 int critMissY = critY + 3;

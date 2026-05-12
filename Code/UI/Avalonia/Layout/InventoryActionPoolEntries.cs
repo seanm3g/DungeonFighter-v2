@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using RPGGame;
 
@@ -51,6 +52,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (character?.Inventory == null || character.Inventory.Count == 0)
                 return list;
 
+            var seenActionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             for (int i = 0; i < character.Inventory.Count; i++)
             {
                 var item = character.Inventory[i];
@@ -62,9 +64,12 @@ namespace RPGGame.UI.Avalonia.Layout
                 var names = GearActionNames.Resolve(item);
                 for (int j = 0; j < names.Count; j++)
                 {
-                    if (string.IsNullOrWhiteSpace(names[j]))
+                    string actionName = names[j]?.Trim() ?? "";
+                    if (string.IsNullOrWhiteSpace(actionName))
                         continue;
-                    list.Add(new Entry(i, j, names[j], item.Name ?? ""));
+                    if (!seenActionNames.Add(actionName))
+                        continue;
+                    list.Add(new Entry(i, j, actionName, item.Name ?? ""));
                 }
             }
 

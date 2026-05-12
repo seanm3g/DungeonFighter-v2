@@ -611,6 +611,13 @@ namespace RPGGame.UI.Avalonia.Handlers
                 var statsPanelStateManager = GetActiveStatsPanelState();
                 if (statsPanelStateManager != null)
                 {
+                    if (element.Value.StartsWith(LeftPanelHoverState.Prefix + "thresh:", StringComparison.Ordinal))
+                    {
+                        statsPanelStateManager.ToggleThresholdsDisplayMode();
+                        RefreshChromeAfterStatsToggle();
+                        return;
+                    }
+
                     switch (element.Value)
                     {
                         case "toggle_section_hero":

@@ -46,14 +46,14 @@ namespace RPGGame.Tests.Unit.UI
                 TestBase.AssertEqual(5, DeveloperModeState.IncreaseCombatSpeed(),
                     "Page Up step moves 2x to 5x",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(10, DeveloperModeState.IncreaseCombatSpeed(),
-                    "Page Up step moves 5x to 10x",
+                TestBase.AssertEqual(20, DeveloperModeState.IncreaseCombatSpeed(),
+                    "Page Up step moves 5x to 20x",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(10, DeveloperModeState.IncreaseCombatSpeed(),
-                    "Page Up stays capped at 10x",
+                TestBase.AssertEqual(20, DeveloperModeState.IncreaseCombatSpeed(),
+                    "Page Up stays capped at 20x",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(5, DeveloperModeState.DecreaseCombatSpeed(),
-                    "Page Down step moves 10x to 5x",
+                    "Page Down step moves 20x to 5x",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally

@@ -15,6 +15,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     /// </summary>
     public class ItemSelectionRenderer
     {
+        public const int MaxSelectableItems = 20;
+
         private readonly GameCanvasControl canvas;
         private readonly ColoredTextWriter textWriter;
         private readonly List<ClickableElement> clickableElements;
@@ -102,11 +104,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             else
             {
-                int maxItems = Math.Min(displayEntries.Count, 20);
+                int maxItems = Math.Min(displayEntries.Count, MaxSelectableItems);
                 for (int displayIndex = 0; displayIndex < maxItems; displayIndex++)
                 {
                     var entry = displayEntries[displayIndex];
                     int inventoryIndex = entry.InventoryIndex;
+                    int displayNumber = entry.DisplayNumber;
                     var item = entry.Item;
                     var itemStats = ItemStatFormatter.GetItemStats(item, character);
                     int rowLines = CountItemDisplayLines(item, character, itemStats);
@@ -119,12 +122,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         y,
                         width - 4,
                         rowLines,
-                        (inventoryIndex + 1).ToString(),
-                        $"[{inventoryIndex + 1}] [{rarity}] [{slotName}] {item.Name}",
+                        displayNumber.ToString(),
+                        $"[{displayNumber}] [{rarity}] [{slotName}] {item.Name}",
                         Prefix + "inv:" + inventoryIndex));
                     
                     // Render item name with colored text (slot bracket red when requirements unmet)
-                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, inventoryIndex, item, useColoredText: true, character: character);
+                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, displayNumber - 1, item, useColoredText: true, character: character);
                     y++;
                     currentLineCount++;
                     

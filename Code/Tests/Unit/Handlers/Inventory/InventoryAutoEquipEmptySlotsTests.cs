@@ -13,7 +13,7 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
 
             TestShortcutFillsEmptySlotsWithoutReplacingGear(ref run, ref passed, ref failed);
             TestBlockedItemsDoNotEquip(ref run, ref passed, ref failed);
-            TestEquipSelectionKeepsSortedFilteredOriginalItemNumbers(ref run, ref passed, ref failed);
+            TestEquipSelectionUsesSortedFilteredVisibleNumbers(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("Inventory auto-equip empty slots Tests", run, passed, failed);
         }
@@ -92,7 +92,7 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
                 ref run, ref passed, ref failed);
         }
 
-        private static void TestEquipSelectionKeepsSortedFilteredOriginalItemNumbers(ref int run, ref int passed, ref int failed)
+        private static void TestEquipSelectionUsesSortedFilteredVisibleNumbers(ref int run, ref int passed, ref int failed)
         {
             var sm = new GameStateManager();
             var character = TestDataBuilders.Character()
@@ -121,16 +121,18 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
             handler.HandleMenuInput("+"); // Rarity sort
             handler.HandleMenuInput("-"); // Hide unmet requirements
             handler.HandleMenuInput("1"); // Equip item prompt
-            handler.HandleMenuInput("2"); // Hidden item should not leave the prompt
+            handler.HandleMenuInput("3"); // Original inventory number for Rare Sword should no longer select it
 
             TestBase.AssertTrue(
-                character.Head == null
+                character.Weapon == null
+                && character.Head == null
+                && character.Feet == null
                 && character.Inventory.Contains(blockedMythicHead)
-                && lastMessage.Contains("current inventory filter", StringComparison.OrdinalIgnoreCase),
-                "Equip selection rejects items hidden by the active requirements filter",
+                && lastMessage.Contains("Invalid item selection", StringComparison.OrdinalIgnoreCase),
+                "Equip selection rejects original inventory numbers that are outside the visible filtered list",
                 ref run, ref passed, ref failed);
 
-            handler.HandleMenuInput("3"); // Original inventory number for Rare Sword, not display position 1
+            handler.HandleMenuInput("1"); // Visible option 1 is Rare Sword after rarity sort + filter
             handler.HandleMenuInput("2"); // Equip new item from comparison
 
             TestBase.AssertTrue(
@@ -138,7 +140,7 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
                 && !character.Inventory.Contains(rareWeapon)
                 && character.Inventory.Contains(commonFeet)
                 && character.Inventory.Contains(blockedMythicHead),
-                "Equip selection uses original inventory item numbers after sort/filter",
+                "Equip selection maps the visible sorted/filtered option back to the original inventory item",
                 ref run, ref passed, ref failed);
         }
     }

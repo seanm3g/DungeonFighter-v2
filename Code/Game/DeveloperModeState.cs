@@ -11,7 +11,7 @@ namespace RPGGame
     /// </summary>
     public static class DeveloperModeState
     {
-        private static readonly int[] CombatSpeedSteps = { 1, 2, 5, 10 };
+        private static readonly int[] CombatSpeedSteps = { 1, 2, 5, 20 };
         private static readonly object SpeedLock = new object();
         private static int _combatSpeedStepIndex;
         private static int _combatLogInstant;
@@ -19,7 +19,7 @@ namespace RPGGame
         /// <summary>Legacy instant toggle. New UI uses <see cref="CombatSpeedMultiplier"/> instead.</summary>
         public static bool IsCombatLogInstant => Volatile.Read(ref _combatLogInstant) != 0;
 
-        /// <summary>Current runtime combat speed multiplier: 1x, 2x, 5x, or 10x.</summary>
+        /// <summary>Current runtime combat speed multiplier: 1x, 2x, 5x, or 20x.</summary>
         public static int CombatSpeedMultiplier
         {
             get

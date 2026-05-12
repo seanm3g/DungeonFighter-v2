@@ -26,6 +26,21 @@
                                 Focusable="True"
                                 FocusAdorner="{x:Null}"/>
         </Border>
+
+        <TextBlock x:Name="CombatSpeedNotificationText"
+                   Grid.Row="0"
+                   ZIndex="500"
+                   IsVisible="False"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,0,10"
+                   Padding="12,4"
+                   Background="#D0000000"
+                   Foreground="#FFFFD700"
+                   FontFamily="Consolas, Courier New, monospace"
+                   FontSize="18"
+                   FontWeight="Bold"
+                   TextAlignment="Center"/>
         
         <!-- TextBox for text input in action creation form -->
         <!-- Positioned where the input prompt appears on the canvas -->

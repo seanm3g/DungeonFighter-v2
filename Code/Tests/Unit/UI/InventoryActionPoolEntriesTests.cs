@@ -19,6 +19,7 @@ namespace RPGGame.Tests.Unit.UI
             TestEmptyInventory(ref run, ref passed, ref failed);
             TestWeaponWithGearAction(ref run, ref passed, ref failed);
             TestRequirementBlockedItemDoesNotContributeRows(ref run, ref passed, ref failed);
+            TestDuplicateBagActionsCollapseToFirstCompatibleItem(ref run, ref passed, ref failed);
             TestGetEquipSlot(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("InventoryActionPoolEntries Tests", run, passed, failed);
@@ -72,6 +73,36 @@ namespace RPGGame.Tests.Unit.UI
                 "Requirement-blocked item contributes no inventory action rows", ref run, ref passed, ref failed);
             TestBase.AssertTrue(list.Exists(e => e.InventoryIndex == 1),
                 "Allowed item remains visible in inventory action rows", ref run, ref passed, ref failed);
+        }
+
+        private static void TestDuplicateBagActionsCollapseToFirstCompatibleItem(ref int run, ref int passed, ref int failed)
+        {
+            var first = TestDataBuilders.Armor().WithType(ItemType.Head).WithName("FirstHat").Build();
+            first.GearAction = "TAUNT";
+            var second = TestDataBuilders.Armor().WithType(ItemType.Chest).WithName("SecondVest").Build();
+            second.GearAction = "taunt";
+
+            var c = TestDataBuilders.Character().WithName("DedupBag").Build();
+            c.Inventory.Clear();
+            c.Inventory.Add(first);
+            c.Inventory.Add(second);
+
+            var list = InventoryActionPoolEntries.Build(c);
+            int tauntCount = 0;
+            int tauntIndex = -1;
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (!string.Equals(list[i].ActionName, "TAUNT", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                tauntCount++;
+                tauntIndex = i;
+            }
+
+            TestBase.AssertTrue(tauntCount == 1,
+                "Duplicate bag action names collapse to one visible inventory pool row", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(tauntIndex >= 0 && list[tauntIndex].InventoryIndex == 0,
+                "Collapsed bag action row keeps the first compatible item as its equip target", ref run, ref passed, ref failed);
         }
 
         private static void TestGetEquipSlot(ref int run, ref int passed, ref int failed)

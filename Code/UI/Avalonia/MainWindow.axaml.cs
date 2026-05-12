@@ -18,6 +18,7 @@ namespace RPGGame.UI.Avalonia
     {
         private GameInitializationHandler? initializationHandler;
         private MainWindowInputHandler? inputHandler;
+        private DispatcherTimer? combatSpeedNotificationTimer;
 
         public MainWindow()
         {
@@ -132,8 +133,29 @@ namespace RPGGame.UI.Avalonia
             if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
                 canvasUI.RefreshCenterPanelModeTint();
 
-            UpdateStatus($"Combat speed: {speed}x (Page Up/Page Down)");
+            ShowCombatSpeedNotification($"Combat speed: {speed}x");
             return true;
+        }
+
+        private void ShowCombatSpeedNotification(string message)
+        {
+            CombatSpeedNotificationText.Text = message;
+            CombatSpeedNotificationText.IsVisible = true;
+
+            combatSpeedNotificationTimer ??= new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(2)
+            };
+            combatSpeedNotificationTimer.Stop();
+            combatSpeedNotificationTimer.Tick -= HideCombatSpeedNotification;
+            combatSpeedNotificationTimer.Tick += HideCombatSpeedNotification;
+            combatSpeedNotificationTimer.Start();
+        }
+
+        private void HideCombatSpeedNotification(object? sender, EventArgs e)
+        {
+            combatSpeedNotificationTimer?.Stop();
+            CombatSpeedNotificationText.IsVisible = false;
         }
 
         private void OnKeyUp(object? sender, KeyEventArgs e)
@@ -166,11 +188,46 @@ namespace RPGGame.UI.Avalonia
         }
 
         // Mouse event handlers - delegate to MouseInteractionHandler
-        private void OnCanvasPointerPressed(object? sender, PointerPressedEventArgs e)
+        private async void OnCanvasPointerPressed(object? sender, PointerPressedEventArgs e)
         {
             if (initializationHandler == null || !initializationHandler.IsInitialized || initializationHandler.MouseHandler == null) 
                 return;
+            if (await TryHandleCombatLogRightClickCopy(e))
+                return;
             initializationHandler.MouseHandler.HandlePointerPressed(e);
+        }
+
+        private async Task<bool> TryHandleCombatLogRightClickCopy(PointerPressedEventArgs e)
+        {
+            if (initializationHandler?.CanvasUIManager is not CanvasUICoordinator canvasUI)
+                return false;
+
+            var point = e.GetCurrentPoint(GameCanvas);
+            var grid = ScreenToGrid(point.Position);
+            bool overlayOpen = SettingsPanelOverlay?.IsVisible == true || TuningPanelOverlay?.IsVisible == true;
+            if (!CombatLogCopyInput.ShouldCopyOnRightClick(
+                point.Properties.IsRightButtonPressed,
+                overlayOpen,
+                canvasUI.IsCombatDisplayActive(),
+                grid.X,
+                grid.Y))
+            {
+                return false;
+            }
+
+            e.Handled = true;
+            await ClipboardHelper.CopyDisplayBufferToClipboard(canvasUI, this, null, UpdateStatus);
+            return true;
+        }
+
+        private (int X, int Y) ScreenToGrid(Point screenPosition)
+        {
+            double charWidth = GameCanvas.GetCharWidth();
+            double charHeight = GameCanvas.GetCharHeight();
+            if (charWidth <= 0 || charHeight <= 0)
+                return (0, 0);
+
+            return ((int)(screenPosition.X / charWidth), (int)(screenPosition.Y / charHeight));
         }
 
         private void OnCanvasPointerMoved(object? sender, PointerEventArgs e)

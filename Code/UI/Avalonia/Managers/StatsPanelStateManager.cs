@@ -12,6 +12,7 @@ namespace RPGGame.UI.Avalonia.Managers
         private bool statsCollapsed;
         private bool gearCollapsed;
         private bool thresholdsCollapsed;
+        private bool thresholdsShowChances;
         private int statsAreaX = -1;
         private int statsAreaY = -1;
         private int statsAreaWidth = -1;
@@ -45,10 +46,18 @@ namespace RPGGame.UI.Avalonia.Managers
             set => thresholdsCollapsed = value;
         }
 
+        /// <summary>When true, THRESHOLDS rows show exclusive d20 outcome chances instead of ladder numbers.</summary>
+        public bool ThresholdsShowChances
+        {
+            get => thresholdsShowChances;
+            set => thresholdsShowChances = value;
+        }
+
         public void ToggleHeroCollapsed() => heroCollapsed = !heroCollapsed;
         public void ToggleStatsCollapsed() => statsCollapsed = !statsCollapsed;
         public void ToggleGearCollapsed() => gearCollapsed = !gearCollapsed;
         public void ToggleThresholdsCollapsed() => thresholdsCollapsed = !thresholdsCollapsed;
+        public void ToggleThresholdsDisplayMode() => thresholdsShowChances = !thresholdsShowChances;
         
         /// <summary>
         /// Sets the stats area bounds for click detection

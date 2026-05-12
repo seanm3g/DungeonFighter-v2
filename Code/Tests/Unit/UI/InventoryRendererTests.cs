@@ -35,7 +35,7 @@ namespace RPGGame.Tests.Unit.UI
             TestItemComparisonHoverIds();
             TestInventoryItemScrollRange();
             TestInventoryNumpadShortcutHint();
-            TestInventoryDisplaySortAndFilterKeepsOriginalIndices();
+            TestInventoryDisplaySortAndFilterUsesVisibleNumbers();
             TestInventorySortedViewsGroupWeaponsByType();
             TestInventoryArmorComparisonBaselineColorsLowerSameSlotRed();
 
@@ -122,7 +122,7 @@ namespace RPGGame.Tests.Unit.UI
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestInventoryDisplaySortAndFilterKeepsOriginalIndices()
+        private static void TestInventoryDisplaySortAndFilterUsesVisibleNumbers()
         {
             Console.WriteLine("\n--- Testing Inventory Display Sort and Filter ---");
 
@@ -153,6 +153,9 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual("1,2,3,0", string.Join(",", rarityEntries.Select(entry => entry.InventoryIndex)),
                 "rarity sort is highest-first while retaining original inventory indices",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("1,2,3,4", string.Join(",", rarityEntries.Select(entry => entry.DisplayNumber)),
+                "rarity sort displays contiguous visible item numbers",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var slotEntries = InventoryScreenRenderer.BuildDisplayEntries(
                 inventory,
@@ -162,6 +165,9 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual("2,1,3,0", string.Join(",", slotEntries.Select(entry => entry.InventoryIndex)),
                 "slot sort groups weapon/head/legs/feet while retaining original inventory indices",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("1,2,3,4", string.Join(",", slotEntries.Select(entry => entry.DisplayNumber)),
+                "slot sort displays contiguous visible item numbers",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var filteredEntries = InventoryScreenRenderer.BuildDisplayEntries(
                 inventory,
@@ -169,7 +175,10 @@ namespace RPGGame.Tests.Unit.UI
                 InventoryItemSortMode.Rarity,
                 hideRequirementBlockedItems: true);
             TestBase.AssertEqual("2,3,0", string.Join(",", filteredEntries.Select(entry => entry.InventoryIndex)),
-                "requirements filter hides blocked items without renumbering remaining entries",
+                "requirements filter hides blocked items while retaining original inventory indices internally",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("1,2,3", string.Join(",", filteredEntries.Select(entry => entry.DisplayNumber)),
+                "requirements filter renumbers remaining visible rows",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

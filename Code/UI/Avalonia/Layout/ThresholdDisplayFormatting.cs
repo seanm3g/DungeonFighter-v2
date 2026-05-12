@@ -10,6 +10,22 @@ namespace RPGGame.UI.Avalonia.Layout
     /// </summary>
     public static class ThresholdDisplayFormatting
     {
+        public readonly struct ExclusiveD20OutcomeChances
+        {
+            public ExclusiveD20OutcomeChances(int critPercent, int comboPercent, int hitPercent, int critMissPercent)
+            {
+                CritPercent = critPercent;
+                ComboPercent = comboPercent;
+                HitPercent = hitPercent;
+                CritMissPercent = critMissPercent;
+            }
+
+            public int CritPercent { get; }
+            public int ComboPercent { get; }
+            public int HitPercent { get; }
+            public int CritMissPercent { get; }
+        }
+
         public static Color GetValueColor(int current, int defaultValue)
         {
             if (current == defaultValue)
@@ -39,6 +55,53 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         public static string FormatSignedDeltaSuffix(int delta) =>
             delta == 0 ? "" : $" ({delta:+0;-0;0})";
+
+        /// <summary>
+        /// Converts effective d20 ladder rows into exclusive outcome percentages.
+        /// Priority follows the combat ladder shown in the HUD: Crit, then Combo, then normal Hit, then Crit Miss.
+        /// </summary>
+        public static ExclusiveD20OutcomeChances CalculateExclusiveD20OutcomeChances(
+            int critMinRoll,
+            int comboMinRoll,
+            int hitMinRoll,
+            int critMissMaxRoll)
+        {
+            int crit = 0;
+            int combo = 0;
+            int hit = 0;
+            int critMiss = 0;
+
+            for (int roll = 1; roll <= 20; roll++)
+            {
+                if (roll >= critMinRoll)
+                    crit++;
+                else if (roll >= comboMinRoll)
+                    combo++;
+                else if (roll >= hitMinRoll)
+                    hit++;
+                else if (roll <= critMissMaxRoll)
+                    critMiss++;
+            }
+
+            return new ExclusiveD20OutcomeChances(
+                crit * 5,
+                combo * 5,
+                hit * 5,
+                critMiss * 5);
+        }
+
+        public static string FormatD20ChancePercent(int percent) => $"{Math.Clamp(percent, 0, 100)}%";
+
+        /// <summary>
+        /// Color for percent chance rows when toggled from ladder thresholds.
+        /// Positive chance movement is green; negative movement is red.
+        /// </summary>
+        public static Color GetChanceDeltaColor(int currentPercent, int defaultPercent)
+        {
+            if (currentPercent == defaultPercent)
+                return AsciiArtAssets.Colors.White;
+            return currentPercent > defaultPercent ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red;
+        }
 
         /// <summary>
         /// Color for combined threshold delta parenthetical (same sign sense as former roll-accuracy parens).

@@ -18,7 +18,7 @@ namespace RPGGame.UI.Avalonia.Layout
         /// Draws four threshold rows starting at <paramref name="y"/>.
         /// </summary>
         /// <returns>Y coordinate immediately below the last row.</returns>
-        public static int RenderRows(GameCanvasControl canvas, int x, int y, Actor actor)
+        public static int RenderRows(GameCanvasControl canvas, int x, int y, Actor actor, bool showChances = false)
         {
             var tm = RollModificationManager.GetThresholdManager();
             var config = GameConfiguration.Instance;
@@ -58,12 +58,16 @@ namespace RPGGame.UI.Avalonia.Layout
 
             // One parenthetical: final displayed value minus configured default in the same units as the main number
             // (queued shifts + sheet/stored deltas combined). Negative = easier on the d20 ladder for crit/combo/hit.
-            void RenderThresholdRow(int rowY, string labelName, int current, int def, int baseThreshold, int rowAccuracy, int defaultDisplayedBaseline)
+            int ResolveEffectiveThreshold(int baseThreshold, int rowAccuracy)
+            {
+                ThresholdDisplayFormatting.GetThresholdValueWithAccuracyParts(baseThreshold, rowAccuracy, out int effective, out _, out _);
+                return ThresholdDisplayFormatting.ClampDiceLadderDisplayValue(effective);
+            }
+
+            void RenderThresholdRow(int rowY, string labelName, int current, int def, int effective, int defaultDisplayedBaseline)
             {
                 string labelPart = $"{labelName}:".PadRight(ThresholdLabelWidth);
                 var valueColor = ThresholdDisplayFormatting.GetValueColor(current, def);
-                ThresholdDisplayFormatting.GetThresholdValueWithAccuracyParts(baseThreshold, rowAccuracy, out int effective, out _, out _);
-                effective = ThresholdDisplayFormatting.ClampDiceLadderDisplayValue(effective);
                 int combinedDelta = effective - defaultDisplayedBaseline;
                 string modStr = ThresholdDisplayFormatting.FormatSignedDeltaSuffix(combinedDelta);
 
@@ -79,18 +83,48 @@ namespace RPGGame.UI.Avalonia.Layout
                 }
             }
 
+            void RenderChanceRow(int rowY, string labelName, int percent, int defaultPercent)
+            {
+                string labelPart = $"{labelName}:".PadRight(ThresholdLabelWidth);
+                canvas.AddText(x, rowY, labelPart, AsciiArtAssets.Colors.Cyan);
+                var valueColor = ThresholdDisplayFormatting.GetChanceDeltaColor(percent, defaultPercent);
+                canvas.AddText(x + ThresholdLabelWidth, rowY, ThresholdDisplayFormatting.FormatD20ChancePercent(percent), valueColor);
+            }
+
+            int effectiveCrit = ResolveEffectiveThreshold(crit, critRowShift);
+            int effectiveCombo = ResolveEffectiveThreshold(combo, comboRowShift);
+            int effectiveHit = ResolveEffectiveThreshold(hit + 1, hitRowShift);
+            int effectiveCritMiss = ResolveEffectiveThreshold(critMiss, critMissRowShift);
+
             int cy = y;
-            // Queued HIT/COMBO/CRIT deltas shift their respective rows; ACCURACY shifts both hit and combo (matches combat resolution).
-            RenderThresholdRow(cy, "Crit", crit, defaultCrit, crit, critRowShift, defaultCrit);
-            cy++;
-            RenderThresholdRow(cy, "Combo", combo, defaultCombo, combo, comboRowShift, defaultCombo);
-            cy++;
-            // Main number is minimum d20 to hit; baseline is default max-miss + 1 so delta matches that scale.
             int defaultMinRollToHit = defaultHit + 1;
-            RenderThresholdRow(cy, "Hit", hit, defaultHit, hit + 1, hitRowShift, defaultMinRollToHit);
-            cy++;
-            RenderThresholdRow(cy, "Crit Miss", critMiss, DefaultCritMiss, critMiss, critMissRowShift, DefaultCritMiss);
-            cy++;
+
+            if (showChances)
+            {
+                var chances = ThresholdDisplayFormatting.CalculateExclusiveD20OutcomeChances(
+                    effectiveCrit,
+                    effectiveCombo,
+                    effectiveHit,
+                    effectiveCritMiss);
+                var defaultChances = ThresholdDisplayFormatting.CalculateExclusiveD20OutcomeChances(
+                    defaultCrit,
+                    defaultCombo,
+                    defaultMinRollToHit,
+                    DefaultCritMiss);
+                RenderChanceRow(cy++, "Crit", chances.CritPercent, defaultChances.CritPercent);
+                RenderChanceRow(cy++, "Combo", chances.ComboPercent, defaultChances.ComboPercent);
+                RenderChanceRow(cy++, "Hit", chances.HitPercent, defaultChances.HitPercent);
+                RenderChanceRow(cy++, "Crit Miss", chances.CritMissPercent, defaultChances.CritMissPercent);
+            }
+            else
+            {
+                // Queued HIT/COMBO/CRIT deltas shift their respective rows; ACCURACY shifts both hit and combo (matches combat resolution).
+                RenderThresholdRow(cy++, "Crit", crit, defaultCrit, effectiveCrit, defaultCrit);
+                RenderThresholdRow(cy++, "Combo", combo, defaultCombo, effectiveCombo, defaultCombo);
+                // Main number is minimum d20 to hit; baseline is default max-miss + 1 so delta matches that scale.
+                RenderThresholdRow(cy++, "Hit", hit, defaultHit, effectiveHit, defaultMinRollToHit);
+                RenderThresholdRow(cy++, "Crit Miss", critMiss, DefaultCritMiss, effectiveCritMiss, DefaultCritMiss);
+            }
             return cy;
         }
     }

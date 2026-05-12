@@ -198,9 +198,9 @@ namespace RPGGame
             }
             
             // Handle multi-step actions (item selection, slot selection)
-            if (stateTracker.WaitingForItemSelection && int.TryParse(input, out int itemIndex))
+            if (stateTracker.WaitingForItemSelection && int.TryParse(input, out int itemChoice))
             {
-                if (itemIndex == 0)
+                if (itemChoice == 0)
                 {
                     stateTracker.WaitingForItemSelection = false;
                     ShowMessageEvent?.Invoke("Cancelled.");
@@ -208,8 +208,7 @@ namespace RPGGame
                     return;
                 }
                 
-                itemIndex--; // Convert 1-based to 0-based
-                if (!IsSelectableItemIndex(itemIndex, out string selectionError))
+                if (!TryResolveVisibleItemChoice(itemChoice, out int itemIndex, out string selectionError))
                 {
                     ShowMessageEvent?.Invoke(selectionError);
                     RefreshInventoryScreen();
@@ -442,12 +441,13 @@ namespace RPGGame
                 && !stateTracker.WaitingForMenuMutatingActionConfirmation;
         }
 
-        private bool IsSelectableItemIndex(int inventoryIndex, out string errorMessage)
+        private bool TryResolveVisibleItemChoice(int visibleChoice, out int inventoryIndex, out string errorMessage)
         {
+            inventoryIndex = -1;
             errorMessage = "";
             var player = stateManager.CurrentPlayer;
             var inventory = stateManager.CurrentInventory;
-            if (player == null || inventoryIndex < 0 || inventoryIndex >= inventory.Count)
+            if (player == null || inventory == null || visibleChoice <= 0)
             {
                 errorMessage = "Invalid item selection. Choose an item shown above, or 0 to cancel.";
                 return false;
@@ -459,9 +459,17 @@ namespace RPGGame
                 stateTracker.ItemSortMode,
                 stateTracker.HideRequirementBlockedItems);
 
-            if (!visibleSelectionEntries.Any(entry => entry.InventoryIndex == inventoryIndex))
+            int selectableCount = Math.Min(visibleSelectionEntries.Count, ItemSelectionRenderer.MaxSelectableItems);
+            if (visibleChoice > selectableCount)
             {
-                errorMessage = "That item is not shown by the current inventory filter. Choose an item shown above, or press 0 to cancel.";
+                errorMessage = "Invalid item selection. Choose an item shown above, or 0 to cancel.";
+                return false;
+            }
+
+            inventoryIndex = visibleSelectionEntries[visibleChoice - 1].InventoryIndex;
+            if (inventoryIndex < 0 || inventoryIndex >= inventory.Count)
+            {
+                errorMessage = "Invalid item selection. Choose an item shown above, or 0 to cancel.";
                 return false;
             }
 

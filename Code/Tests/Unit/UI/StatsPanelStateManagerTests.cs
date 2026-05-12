@@ -19,6 +19,7 @@ namespace RPGGame.Tests.Unit.UI
             TestToggleStatsCollapsed(ref run, ref passed, ref failed);
             TestToggleGearCollapsed(ref run, ref passed, ref failed);
             TestToggleThresholdsCollapsed(ref run, ref passed, ref failed);
+            TestToggleThresholdsDisplayMode(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("StatsPanelStateManager Tests", run, passed, failed);
         }
@@ -60,6 +61,16 @@ namespace RPGGame.Tests.Unit.UI
             var m = new StatsPanelStateManager();
             m.ToggleThresholdsCollapsed();
             TestBase.AssertTrue(m.ThresholdsCollapsed, "ToggleThresholdsCollapsed", ref run, ref passed, ref failed);
+        }
+
+        private static void TestToggleThresholdsDisplayMode(ref int run, ref int passed, ref int failed)
+        {
+            var m = new StatsPanelStateManager();
+            TestBase.AssertFalse(m.ThresholdsShowChances, "ThresholdsShowChances defaults to numbers", ref run, ref passed, ref failed);
+            m.ToggleThresholdsDisplayMode();
+            TestBase.AssertTrue(m.ThresholdsShowChances, "ToggleThresholdsDisplayMode enables chance view", ref run, ref passed, ref failed);
+            m.ToggleThresholdsDisplayMode();
+            TestBase.AssertFalse(m.ThresholdsShowChances, "ToggleThresholdsDisplayMode returns to number view", ref run, ref passed, ref failed);
         }
     }
 }

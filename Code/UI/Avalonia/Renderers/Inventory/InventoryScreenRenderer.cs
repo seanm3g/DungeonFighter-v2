@@ -14,14 +14,21 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
     public readonly struct InventoryDisplayEntry
     {
-        public InventoryDisplayEntry(int inventoryIndex, Item item)
+        public InventoryDisplayEntry(int inventoryIndex, Item item, int displayNumber = -1)
         {
             InventoryIndex = inventoryIndex;
             Item = item;
+            DisplayNumber = displayNumber > 0 ? displayNumber : inventoryIndex + 1;
         }
 
         public int InventoryIndex { get; }
+        public int DisplayNumber { get; }
         public Item Item { get; }
+
+        public InventoryDisplayEntry WithDisplayNumber(int displayNumber)
+        {
+            return new InventoryDisplayEntry(InventoryIndex, Item, displayNumber);
+        }
     }
 
     /// <summary>
@@ -193,6 +200,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     int rowLines = itemLineCounts[displayIndex];
                     string slotName = GetSlotName(item);
                     string rarity = item.Rarity?.Trim() ?? "Common";
+                    int displayNumber = entry.DisplayNumber;
                     // During mutating-action confirmation, row Values are "1","2",… — same as Continue / menu
                     // digits and hijack clicks. Rows are display-only until the user confirms or cancels.
                     if (!blockRowClicks)
@@ -202,13 +210,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                             y,
                             width - 4,
                             rowLines,
-                            (inventoryIndex + 1).ToString(),
-                            $"[{inventoryIndex + 1}] [{rarity}] [{slotName}] {item.Name}",
+                            displayNumber.ToString(),
+                            $"[{displayNumber}] [{rarity}] [{slotName}] {item.Name}",
                             Prefix + "inv:" + inventoryIndex));
                     }
                     
                     // Render item name (slot bracket goes red when attribute requirements block equip)
-                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, inventoryIndex, item, useColoredText: true, character: character);
+                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, displayNumber - 1, item, useColoredText: true, character: character);
                     y++;
                     currentLineCount++;
                     
@@ -350,7 +358,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (hideRequirementBlockedItems)
                 entries = entries.Where(entry => entry.Item.MeetsRequirements(character));
 
-            return sortMode switch
+            var orderedEntries = sortMode switch
             {
                 InventoryItemSortMode.Rarity => entries
                     .OrderByDescending(entry => GetRaritySortRank(entry.Item.Rarity))
@@ -367,6 +375,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     .OrderBy(entry => entry.InventoryIndex)
                     .ToList()
             };
+
+            return orderedEntries
+                .Select((entry, displayIndex) => entry.WithDisplayNumber(displayIndex + 1))
+                .ToList();
         }
 
         private static string BuildViewSummary(

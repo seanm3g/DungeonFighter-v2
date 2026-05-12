@@ -21,6 +21,10 @@ namespace RPGGame.Tests.Unit.UI
             AccuracyDeltaParenColorSign(ref run, ref passed, ref failed);
             ThresholdValueWithAccuracyPartsMatchesFormat(ref run, ref passed, ref failed);
             ClampDiceLadderFloorsAtOne(ref run, ref passed, ref failed);
+            ExclusiveD20ChancesUseOutcomeBands(ref run, ref passed, ref failed);
+            ExclusiveD20ChancesReflectShiftedComboThreshold(ref run, ref passed, ref failed);
+            D20ChancePercentFormatsWithinBounds(ref run, ref passed, ref failed);
+            ChanceDeltaColorUsesSignedPercentDifference(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ThresholdDisplayFormattingTests", run, passed, failed);
         }
@@ -136,6 +140,57 @@ namespace RPGGame.Tests.Unit.UI
                 "ClampDiceLadderDisplayValue floors sub-1", ref run, ref passed, ref failed);
             TestBase.AssertEqual(3, ThresholdDisplayFormatting.ClampDiceLadderDisplayValue(3),
                 "ClampDiceLadderDisplayValue leaves positives", ref run, ref passed, ref failed);
+        }
+
+        private static void ExclusiveD20ChancesUseOutcomeBands(ref int run, ref int passed, ref int failed)
+        {
+            var chances = ThresholdDisplayFormatting.CalculateExclusiveD20OutcomeChances(
+                critMinRoll: 20,
+                comboMinRoll: 14,
+                hitMinRoll: 6,
+                critMissMaxRoll: 1);
+
+            TestBase.AssertEqual(5, chances.CritPercent, "default crit chance is one d20 face", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(30, chances.ComboPercent, "default combo chance is rolls 14-19", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(40, chances.HitPercent, "default normal hit chance is rolls 6-13", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(5, chances.CritMissPercent, "default crit miss chance is one d20 face", ref run, ref passed, ref failed);
+        }
+
+        private static void ExclusiveD20ChancesReflectShiftedComboThreshold(ref int run, ref int passed, ref int failed)
+        {
+            var chances = ThresholdDisplayFormatting.CalculateExclusiveD20OutcomeChances(
+                critMinRoll: 20,
+                comboMinRoll: 12,
+                hitMinRoll: 6,
+                critMissMaxRoll: 1);
+
+            TestBase.AssertEqual(5, chances.CritPercent, "shifted combo keeps crit chance separate", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(40, chances.ComboPercent, "combo 12 means rolls 12-19", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(30, chances.HitPercent, "normal hit shrinks to rolls 6-11", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(5, chances.CritMissPercent, "crit miss remains one face", ref run, ref passed, ref failed);
+        }
+
+        private static void D20ChancePercentFormatsWithinBounds(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.AssertEqual("0%", ThresholdDisplayFormatting.FormatD20ChancePercent(-5),
+                "chance percent clamps low", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("45%", ThresholdDisplayFormatting.FormatD20ChancePercent(45),
+                "chance percent formats d20 increment", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("100%", ThresholdDisplayFormatting.FormatD20ChancePercent(105),
+                "chance percent clamps high", ref run, ref passed, ref failed);
+        }
+
+        private static void ChanceDeltaColorUsesSignedPercentDifference(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(ThresholdDisplayFormatting.GetChanceDeltaColor(30, 30), AsciiArtAssets.Colors.White),
+                "unchanged chance percent uses white", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(ThresholdDisplayFormatting.GetChanceDeltaColor(35, 30), AsciiArtAssets.Colors.Green),
+                "positive chance percent delta uses green", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(ThresholdDisplayFormatting.GetChanceDeltaColor(25, 30), AsciiArtAssets.Colors.Red),
+                "negative chance percent delta uses red", ref run, ref passed, ref failed);
         }
     }
 }
