@@ -11,6 +11,9 @@ x86/
 bld/
 [Bb]in/
 [Oo]bj/
+# .NET/MSBuild output directories can be generated below project folders.
+**/[Bb]in/
+**/[Oo]bj/
 [Ll]og/
 [Ll]ogs/
 
@@ -43,6 +46,14 @@ BenchmarkDotNet.Artifacts/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+# MSBuild/NuGet intermediates generated under obj/ during restore/build.
+*.csproj.nuget.dgspec.json
+*.csproj.nuget.g.props
+*.csproj.nuget.g.targets
+project.assets.json
+project.nuget.cache
+*.assets.cache
+*.FileListAbsolute.txt
 
 # StyleCop
 StyleCopReport.xml

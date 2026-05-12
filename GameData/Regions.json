@@ -1,0 +1,20 @@
+[
+  {
+    "id": "forest",
+    "displayName": "Ancient Forest",
+    "theme": "Forest",
+    "description": "Old roads wind beneath green boughs, mossy stones, and watchful animal eyes."
+  },
+  {
+    "id": "lava",
+    "displayName": "Lava Caves",
+    "theme": "Lava",
+    "description": "Black glass paths cross red-lit vents, molten rivers, and smoke-choked caverns."
+  },
+  {
+    "id": "crypt",
+    "displayName": "Haunted Crypt",
+    "theme": "Crypt",
+    "description": "The route sinks through broken grave roads, cold arches, and whispering burial halls."
+  }
+]

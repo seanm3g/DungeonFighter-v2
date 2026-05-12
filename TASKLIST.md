@@ -4,6 +4,8 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Repo hygiene / generated .NET artifacts:** Stop `Code/obj` MSBuild/NuGet intermediates from causing pull conflicts by making nested `bin/` and `obj/` ignore rules explicit, ignoring the generated NuGet/MSBuild intermediate filenames, and removing already-tracked generated artifacts from the Git index. Verification: `git check-ignore --no-index` matches the generated `Code/obj` files and `git ls-files "**/obj/*" "**/bin/*"` returns no tracked build artifacts.
+
 - [x] **UI / Combat — threshold chance delta colors:** In the THRESHOLDS percent view, chance values modified by shifted thresholds render green when the displayed percent is above the default chance, red when it is below default, and white when unchanged. Scope: `DiceRollThresholdRowsRenderer`, `ThresholdDisplayFormattingTests`; docs: `OVERVIEW.md`. Verification: `dotnet build "Code\Code.csproj" -p:UseSharedCompilation=false -p:UseAppHost=false -p:BaseIntermediateOutputPath="obj\agent-threshold-chance-color-msbuild\" -p:BaseOutputPath="obj\agent-threshold-chance-color-bin\"` passes.
 
 - [x] **UI / Combat log — right-click copy:** Right-clicking inside the framed Avalonia combat log copies the full center display buffer as plain text, matching the existing Ctrl+C/Cmd+C behavior and ignoring the action strip, side panels, and settings/tuning overlays. Focused coverage: `CombatLogCopyInputTests`; docs: `OVERVIEW.md`. Verification: `dotnet build "Code\Code.csproj" -p:UseSharedCompilation=false -p:UseAppHost=false -p:BaseIntermediateOutputPath="obj\agent-combat-log-copy-msbuild\" -p:BaseOutputPath="obj\agent-combat-log-copy-bin\"` passes.

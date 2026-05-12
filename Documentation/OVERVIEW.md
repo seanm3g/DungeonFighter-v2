@@ -61,6 +61,13 @@ dotnet run
 - **15+ Room Types:** Each with unique environmental actions and effects
 - **Boss Chambers:** Special final rooms with powerful enemies
 
+### 🧭 Region Travel System
+- **Persistent Regions:** Each character is always located in one of three regions: Ancient Forest, Lava Caves, or Haunted Crypt
+- **Hub Travel:** The in-game "What would you like to do?" menu includes travel to the other two regions
+- **Route Events:** Each trip resolves 10 d20 travel beats using combat-style outcome bands
+- **Data-Driven Encounters:** `GameData/TravelEvents.json` defines 100 possible route events across critical miss, miss, hit, combo, and critical outcomes
+- **Region-Based Dungeons:** Dungeon selection favors the character's current region theme
+
 ### 📖 Battle Narrative System
 - **Event-Driven Narrative:** Poetic descriptions for significant combat moments
 - **Informational Summaries:** Clear, factual combat reporting for regular actions
