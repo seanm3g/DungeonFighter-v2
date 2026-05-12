@@ -3,6 +3,7 @@ using Avalonia.Media;
 using RPGGame;
 using RPGGame.Combat.Calculators;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications;
 
 namespace RPGGame.Combat.Formatting
 {
@@ -12,6 +13,17 @@ namespace RPGGame.Combat.Formatting
     /// </summary>
     public static class DamageFormatter
     {
+        private static void AddDamageType(ColoredTextBuilder builder, string damageType)
+        {
+            if (StatusEffectColorHelper.HasTemplate(damageType))
+            {
+                builder.AddRange(StatusEffectColorHelper.GetColoredStatusEffect(damageType));
+                return;
+            }
+
+            builder.Add(damageType, Colors.White);
+        }
+
         /// <summary>
         /// Adds "for [amount] [unit]" pattern to a ColoredTextBuilder with proper spacing
         /// </summary>
@@ -166,7 +178,7 @@ namespace RPGGame.Combat.Formatting
             builder.Add(damage.ToString(), ColorPalette.Damage);
             // Add damage type with proper spacing
             builder.AddSpace();
-            builder.Add(damageType, Colors.White);
+            AddDamageType(builder, damageType);
             // Add "damage" with proper spacing
             builder.AddSpace();
             builder.Add("damage", Colors.White);
@@ -188,7 +200,7 @@ namespace RPGGame.Combat.Formatting
             builder.Add(damage.ToString(), ColorPalette.Damage);
             // Add damage type with proper spacing
             builder.AddSpace();
-            builder.Add(damageType, Colors.White);
+            AddDamageType(builder, damageType);
             // Add "damage" with proper spacing
             builder.AddSpace();
             builder.Add("damage", Colors.White);
@@ -206,7 +218,7 @@ namespace RPGGame.Combat.Formatting
             builder.AddSpace();
             builder.Add(damage.ToString(), ColorPalette.Damage);
             builder.AddSpace();
-            builder.Add(damageType, Colors.White);
+            AddDamageType(builder, damageType);
             builder.AddSpace();
             builder.Add("damage", Colors.White);
         }

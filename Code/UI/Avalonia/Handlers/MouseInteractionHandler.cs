@@ -170,6 +170,14 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             // Match keyboard scroll step (see <see cref="GameCoordinator"/> combat scroll); scale a bit for large DIPs-per-notch values.
             int lines = Math.Max(2, Math.Min(18, (int)Math.Ceiling(Math.Abs(delta) / 40.0) * 3));
+            var gameRef = game;
+            if (gameRef?.StateManager?.CurrentState == GameState.Inventory)
+            {
+                _ = gameRef.HandleInput(delta > 0 ? "up" : "down");
+                e.Handled = true;
+                return;
+            }
+
             if (delta > 0)
                 canvasUI.ScrollUp(lines);
             else
@@ -253,11 +261,13 @@ namespace RPGGame.UI.Avalonia.Handlers
             bool tooltipStripOrPanel = newStripHover >= 0
                 || RightPanelActionHoverState.HoveredSequenceIndex >= 0
                 || RightPanelActionHoverState.HoveredPoolIndex >= 0
+                || RightPanelActionHoverState.HoveredInventoryPoolIndex >= 0
                 || LeftPanelHoverState.IsActive;
 
             bool inv = game?.StateManager?.CurrentState == GameState.Inventory;
             bool rpHovering = RightPanelActionHoverState.HoveredSequenceIndex >= 0
-                || RightPanelActionHoverState.HoveredPoolIndex >= 0;
+                || RightPanelActionHoverState.HoveredPoolIndex >= 0
+                || RightPanelActionHoverState.HoveredInventoryPoolIndex >= 0;
 
             if (game != null)
             {

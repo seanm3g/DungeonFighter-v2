@@ -269,12 +269,13 @@ namespace RPGGame
             if (actor.PoisonPercentOfMaxHealth <= 0)
                 return 0;
             int damage = actor.ProcessPoison(currentTime);
-            if (damage > 0)
-            {
-                var builder = new ColoredTextBuilder();
-                DamageFormatter.AddActorTakesDamage(builder, actor, damage, "poison");
-                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
-            }
+            if (damage <= 0)
+                return 0;
+
+            var damageBuilder = new ColoredTextBuilder();
+            DamageFormatter.AddActorTakesDamage(damageBuilder, actor, damage, "poison");
+            results.Add(ColoredTextRenderer.RenderAsMarkup(damageBuilder.Build()));
+
             if (actor.PoisonPercentOfMaxHealth > 0)
             {
                 var builder = new ColoredTextBuilder();
@@ -287,7 +288,7 @@ namespace RPGGame
                 DamageFormatter.AddActorNoLongerAffected(builder, actor, "poisoned", ColorPalette.Green);
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
-            return damage > 0 ? damage : 0;
+            return damage;
         }
 
         private static int ProcessBurnDamage(Actor actor, double currentTime, List<string> results)
@@ -295,12 +296,13 @@ namespace RPGGame
             if (actor.BurnIntensity <= 0 && actor.PendingBurnFromHits <= 0)
                 return 0;
             int damage = actor.ProcessBurn(currentTime);
-            if (damage > 0)
-            {
-                var builder = new ColoredTextBuilder();
-                DamageFormatter.AddActorTakesDamage(builder, actor, damage, "burn");
-                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
-            }
+            if (damage <= 0)
+                return 0;
+
+            var damageBuilder = new ColoredTextBuilder();
+            DamageFormatter.AddActorTakesDamage(damageBuilder, actor, damage, "burn");
+            results.Add(ColoredTextRenderer.RenderAsMarkup(damageBuilder.Build()));
+
             int displayIntensity = actor.BurnIntensity + actor.PendingBurnFromHits;
             if (displayIntensity > 0)
             {
@@ -314,7 +316,7 @@ namespace RPGGame
                 DamageFormatter.AddActorNoLongerAffected(builder, actor, "burning", ColorPalette.Orange);
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
-            return damage > 0 ? damage : 0;
+            return damage;
         }
 
         /// <summary>

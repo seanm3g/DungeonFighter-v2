@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using RPGGame.Tests;
 using RPGGame;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Tests.Unit.Game
 {
@@ -29,6 +31,7 @@ namespace RPGGame.Tests.Unit.Game
             TestConstructorWithNullNarrativeManager();
             TestCombatLogProperty();
             TestCompleteDisplayLogProperty();
+            TestEnemySurpriseCombatEvent_NoLeadingBlankAndUsesColoredMarkup();
 
             TestBase.PrintSummary("DungeonDisplayManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -103,6 +106,55 @@ namespace RPGGame.Tests.Unit.Game
             TestBase.AssertTrue(manager.CompleteDisplayLog != null,
                 "CompleteDisplayLog should return non-null list",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEnemySurpriseCombatEvent_NoLeadingBlankAndUsesColoredMarkup()
+        {
+            Console.WriteLine("\n--- Testing enemy surprise combat event spacing/color ---");
+
+            var narrativeManager = new GameNarrativeManager();
+            var manager = new DungeonDisplayManager(narrativeManager);
+            var player = new Character("TestHero", 1);
+
+            EnemyEncounterHandler.AddEnemySurpriseCombatEvent(manager, player, new FixedRandom(0));
+
+            var log = manager.CombatLog;
+            TestBase.AssertEqual(2, log.Count,
+                "Enemy surprise should add the colored warning and one trailing blank only",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!string.IsNullOrWhiteSpace(log[0]),
+                "Enemy surprise should not start with a leading blank line",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("You've been surprised! The enemy will strike first!",
+                ColoredTextRenderer.RenderAsPlainText(ColoredTextParser.Parse(log[0])),
+                "Enemy surprise plain text should match the selected message",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("", log[1],
+                "Enemy surprise should keep one trailing blank before combat actions",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var coloredSegments = ColoredTextParser.Parse(log[0])
+                .Where(segment => !string.IsNullOrWhiteSpace(segment.Text))
+                .ToList();
+            TestBase.AssertTrue(coloredSegments.Count > 0 &&
+                coloredSegments.All(segment => ColorValidator.AreColorsEqual(segment.Color, ColorPalette.Red.GetColor())),
+                "Enemy surprise text should use the red warning color",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private sealed class FixedRandom : Random
+        {
+            private readonly int value;
+
+            public FixedRandom(int value)
+            {
+                this.value = value;
+            }
+
+            public override int Next(int maxValue)
+            {
+                return value;
+            }
         }
 
         #endregion

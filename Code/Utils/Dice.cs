@@ -11,6 +11,7 @@ namespace RPGGame
         /// Takes precedence over <see cref="_testRollValue"/> when set.
         /// </summary>
         private static readonly AsyncLocal<int?> AsyncLabEncounterTestRoll = new();
+        private static readonly AsyncLocal<Queue<int>?> AsyncForcedD20RollQueue = new();
 
         // Test mode support - allows setting specific roll values for testing
         private static int? _testRollValue = null;
@@ -50,6 +51,30 @@ namespace RPGGame
             AsyncLabEncounterTestRoll.Value = null;
 
         /// <summary>
+        /// Queues one-shot d20 results in the current async context. Only 1d20 rolls consume this queue,
+        /// so scripted combat beats do not accidentally force damage, loot, or other non-d20 rolls.
+        /// </summary>
+        public static void QueueAsyncForcedD20Rolls(params int[] rollValues)
+        {
+            if (rollValues == null || rollValues.Length == 0)
+            {
+                ClearAsyncForcedD20Rolls();
+                return;
+            }
+
+            foreach (int rollValue in rollValues)
+            {
+                if (rollValue < 1 || rollValue > 20)
+                    throw new ArgumentOutOfRangeException(nameof(rollValues), "Forced d20 rolls must be between 1 and 20.");
+            }
+
+            AsyncForcedD20RollQueue.Value = new Queue<int>(rollValues);
+        }
+
+        public static void ClearAsyncForcedD20Rolls() =>
+            AsyncForcedD20RollQueue.Value = null;
+
+        /// <summary>
         /// Checks if test mode is currently enabled
         /// </summary>
         public static bool IsTestModeEnabled
@@ -73,6 +98,18 @@ namespace RPGGame
                 throw new ArgumentException("Number of dice must be at least 1", nameof(numberOfDice));
             if (sides < 2)
                 throw new ArgumentException("Dice must have at least 2 sides", nameof(sides));
+
+            if (numberOfDice == 1 && sides == 20)
+            {
+                var forcedD20Queue = AsyncForcedD20RollQueue.Value;
+                if (forcedD20Queue != null && forcedD20Queue.Count > 0)
+                {
+                    int forcedRoll = forcedD20Queue.Dequeue();
+                    if (forcedD20Queue.Count == 0)
+                        AsyncForcedD20RollQueue.Value = null;
+                    return forcedRoll;
+                }
+            }
 
             if (AsyncLabEncounterTestRoll.Value is int asyncForced)
             {

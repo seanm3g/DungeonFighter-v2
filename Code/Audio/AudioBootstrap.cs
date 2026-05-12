@@ -79,6 +79,7 @@ namespace RPGGame.Audio
                 _engine.SetMasterVolume(cfg.MasterVolume);
                 _engine.SetBusVolume(AudioBusKind.Music, cfg.MusicVolume);
                 _engine.SetBusVolume(AudioBusKind.Sfx, cfg.SfxVolume);
+                _engine.SetMasterMute(!cfg.MasterEnabled);
                 _engine.SetBusMute(AudioBusKind.Music, !cfg.MusicEnabled);
                 _engine.SetBusMute(AudioBusKind.Sfx, !cfg.SfxEnabled);
 
@@ -108,6 +109,7 @@ namespace RPGGame.Audio
             _engine.SetMasterVolume(cfg.MasterVolume);
             _engine.SetBusVolume(AudioBusKind.Music, cfg.MusicVolume);
             _engine.SetBusVolume(AudioBusKind.Sfx, cfg.SfxVolume);
+            _engine.SetMasterMute(!cfg.MasterEnabled);
             _engine.SetBusMute(AudioBusKind.Music, !cfg.MusicEnabled);
             _engine.SetBusMute(AudioBusKind.Sfx, !cfg.SfxEnabled);
         }

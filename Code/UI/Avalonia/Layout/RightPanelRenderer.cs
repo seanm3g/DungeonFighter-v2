@@ -262,24 +262,48 @@ namespace RPGGame.UI.Avalonia.Layout
                 return;
 
             int rpPool = RightPanelActionHoverState.HoveredPoolIndex;
-            if (rpPool < 0)
-                return;
-
-            if (!InventoryRightPanelLayout.TryGetActionPoolRowY(character, rpPool, out int rowY))
-                return;
-
-            var pool = character.GetActionPool();
-            if (rpPool >= pool.Count)
+            int rpInvPool = RightPanelActionHoverState.HoveredInventoryPoolIndex;
+            if (rpPool < 0 && rpInvPool < 0)
                 return;
 
             int innerTop = LayoutConstants.CENTER_PANEL_Y + 1;
             int innerLeft = LayoutConstants.CENTER_PANEL_X + 1;
             int innerRight = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
             int innerW = Math.Max(8, innerRight - innerLeft + 1);
-            const int maxTooltipLines = 14;
+            const int maxTooltipLines = 18;
             int boxWFinal = Math.Min(52, innerW);
             int innerTextW = Math.Max(4, boxWFinal - 2);
-            var tipLines = CombatActionStripBuilder.BuildActionTooltipLinesForAction(character, pool[rpPool], innerTextW, maxTooltipLines + 2);
+            List<string>? tipLines;
+            int rowY;
+            if (rpInvPool >= 0)
+            {
+                if (!InventoryRightPanelLayout.TryGetInventoryActionPoolRowY(character, rpInvPool, out rowY))
+                    return;
+
+                var invEntries = InventoryActionPoolEntries.Build(character);
+                if (rpInvPool >= invEntries.Count)
+                    return;
+                var invEntry = invEntries[rpInvPool];
+                if (invEntry.InventoryIndex < 0 || invEntry.InventoryIndex >= character.Inventory.Count)
+                    return;
+
+                tipLines = LeftPanelTooltipBuilder.BuildLines(
+                    character,
+                    LeftPanelHoverState.Prefix + "inv:" + invEntry.InventoryIndex,
+                    innerTextW,
+                    maxTooltipLines + 2);
+            }
+            else
+            {
+                if (!InventoryRightPanelLayout.TryGetActionPoolRowY(character, rpPool, out rowY))
+                    return;
+
+                var pool = character.GetActionPool();
+                if (rpPool >= pool.Count)
+                    return;
+
+                tipLines = CombatActionStripBuilder.BuildActionTooltipLinesForAction(character, pool[rpPool], innerTextW, maxTooltipLines + 2);
+            }
             if (tipLines == null || tipLines.Count == 0)
                 return;
             if (tipLines.Count > maxTooltipLines)

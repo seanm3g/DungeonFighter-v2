@@ -5,7 +5,8 @@ using System.Linq;
 namespace RPGGame
 {
     /// <summary>
-    /// Each equipped weapon type has one "basic" combo action that must stay in the player's combo sequence.
+    /// Each equipped weapon type has one "basic" combo action that must stay in the player's combo sequence
+    /// until the matching weapon-path class reaches its first named tier.
     /// Marked in action data with tag <c>weapon_basic</c> plus a matching <see cref="ActionData.WeaponTypes"/> entry.
     /// </summary>
     public static class WeaponRequiredComboAction
@@ -46,11 +47,11 @@ namespace RPGGame
         /// </summary>
         public static bool IsRequiredBasicForEquippedWeapon(Character? character, Action? action)
         {
-            if (character == null || action == null)
+            if (action == null)
                 return false;
-            if (character.Equipment?.Weapon is not WeaponItem weapon)
+            if (!TryGetWeaponTypeWithActiveRequirement(character, out var weaponType))
                 return false;
-            var required = TryGetRequiredBasicActionName(weapon.WeaponType);
+            var required = TryGetRequiredBasicActionName(weaponType);
             return !string.IsNullOrEmpty(required) &&
                    string.Equals(action.Name, required, StringComparison.OrdinalIgnoreCase);
         }
@@ -62,9 +63,9 @@ namespace RPGGame
         {
             if (character == null || action == null)
                 return true;
-            if (character.Equipment?.Weapon is not WeaponItem weapon)
+            if (!TryGetWeaponTypeWithActiveRequirement(character, out var weaponType))
                 return true;
-            var requiredName = TryGetRequiredBasicActionName(weapon.WeaponType);
+            var requiredName = TryGetRequiredBasicActionName(weaponType);
             if (string.IsNullOrEmpty(requiredName) ||
                 !string.Equals(action.Name, requiredName, StringComparison.OrdinalIgnoreCase))
                 return true;
@@ -82,9 +83,9 @@ namespace RPGGame
         {
             if (actor is not Character character)
                 return;
-            if (character.Equipment?.Weapon is not WeaponItem weapon)
+            if (!TryGetWeaponTypeWithActiveRequirement(character, out var weaponType))
                 return;
-            var requiredName = TryGetRequiredBasicActionName(weapon.WeaponType);
+            var requiredName = TryGetRequiredBasicActionName(weaponType);
             if (string.IsNullOrEmpty(requiredName))
                 return;
 
@@ -107,6 +108,30 @@ namespace RPGGame
                     return;
                 }
             }
+        }
+
+        /// <summary>
+        /// The starter weapon basic is only compulsory until the player reaches the first named tier
+        /// for that weapon path (e.g. Mace points become the Barbarian path).
+        /// </summary>
+        public static bool IsRequirementActiveForWeaponPath(Character? character, WeaponType weaponType)
+        {
+            if (character?.Progression == null)
+                return false;
+
+            var presentation = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
+            int classPoints = character.Progression.GetClassPoints(weaponType);
+            return presentation.GetTierBandIndex(classPoints) < 1;
+        }
+
+        private static bool TryGetWeaponTypeWithActiveRequirement(Character? character, out WeaponType weaponType)
+        {
+            weaponType = WeaponType.Sword;
+            if (character == null)
+                return false;
+            if (!GearActionNames.TryResolveWeaponType(character.Equipment?.Weapon, out weaponType))
+                return false;
+            return IsRequirementActiveForWeaponPath(character, weaponType);
         }
     }
 }

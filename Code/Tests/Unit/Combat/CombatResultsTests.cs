@@ -102,8 +102,8 @@ namespace RPGGame.Tests.Unit.Combat
         {
             Console.WriteLine("\n--- Testing roll info shows queued sheet AMP_MOD ---");
 
-            // Technique low enough that GetComboAmplifier() is 1.0 so sheet +10% alone yields 1.10x (slot mult 1.0).
-            var attacker = TestDataBuilders.Character().WithName("Hero").WithStats(10, 10, 3, 10).Build();
+            // TECH 0 yields base AMP 1.0, so sheet +10% alone yields 1.10x (slot mult 1.0).
+            var attacker = TestDataBuilders.Character().WithName("Hero").WithStats(10, 10, 0, 10).Build();
             attacker.Effects.ConsumedAmpModPercent = 10;
             var target = TestDataBuilders.Enemy().WithName("Goblin").Build();
             var action = TestDataBuilders.CreateMockAction("JAB");
@@ -115,14 +115,14 @@ namespace RPGGame.Tests.Unit.Combat
             string rendered = ColoredTextRenderer.RenderAsMarkup(rollInfo);
             TestBase.AssertTrue(
                 rendered.Contains("1.10x", StringComparison.Ordinal),
-                "Colored roll info should show effective amp (1.10x) when ConsumedAmpModPercent is 10% and technique amp is 1.0",
+                "Colored roll info should show effective amp (1.10x) when ConsumedAmpModPercent is 10% and TECH amp is 1.0",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var (_, rollInfoPlain) = CombatResults.FormatDamageDisplaySeparated(
                 attacker, target, 12, 10, action, 1.0, 1.0, 0, 12);
             TestBase.AssertTrue(
                 rollInfoPlain.Contains("1.10x", StringComparison.Ordinal),
-                "Separated roll info should show effective amp (1.10x) when ConsumedAmpModPercent is 10% and technique amp is 1.0",
+                "Separated roll info should show effective amp (1.10x) when ConsumedAmpModPercent is 10% and TECH amp is 1.0",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

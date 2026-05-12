@@ -50,6 +50,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             WeaponSelectionHandlerTests.RunAllTests();
             Console.WriteLine();
+            TrainingGroundOfferHandlerTests.RunAllTests();
+            Console.WriteLine();
             CharacterCreationHandlerTests.RunAllTests();
             Console.WriteLine();
             DungeonSelectionHandlerTests.RunAllTests();

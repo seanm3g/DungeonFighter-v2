@@ -19,10 +19,10 @@ namespace RPGGame.Tests.Unit
             _testsPassed = 0;
             _testsFailed = 0;
 
-            TestFlatRegionOnePointZero();
-            TestMaxTechReachesMaxAmp();
+            TestZeroAndNegativeTechniqueYieldOnePointZero();
+            TestDesignerLogarithmicFormula();
             TestMonotonicIncrease();
-            TestDefaultExponentWhenZero();
+            TestIgnoresLegacyTuningFields();
 
             TestBase.PrintSummary("ComboAmplifierFromTechnique Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -34,37 +34,45 @@ namespace RPGGame.Tests.Unit
             ComboAmplifierCurveExponent = 2.5
         };
 
-        private static void TestFlatRegionOnePointZero()
+        private static void TestZeroAndNegativeTechniqueYieldOnePointZero()
         {
             var c = StandardConfig();
-            for (int tech = 0; tech < ComboAmplifierFromTechnique.FlatAmpBelowTech; tech++)
-            {
-                double amp = ComboAmplifierFromTechnique.Compute(tech, c);
-                TestBase.AssertTrue(Math.Abs(amp - 1.0) < 1e-9,
-                    $"TECH {tech} should yield amp 1.0, got {amp}",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-            }
-        }
-
-        private static void TestMaxTechReachesMaxAmp()
-        {
-            var c = StandardConfig();
-            double amp = ComboAmplifierFromTechnique.Compute(100, c);
-            TestBase.AssertTrue(Math.Abs(amp - 2.0) < 1e-9,
-                $"TECH 100 should yield amp 2.0, got {amp}",
+            double zero = ComboAmplifierFromTechnique.Compute(0, c);
+            TestBase.AssertTrue(Math.Abs(zero - 1.0) < 1e-9,
+                $"TECH 0 should yield amp 1.0, got {zero}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            double atFive = ComboAmplifierFromTechnique.Compute(5, c);
-            TestBase.AssertTrue(Math.Abs(atFive - 1.0) < 1e-9,
-                $"TECH 5 should start curved region at 1.0, got {atFive}",
+            double negative = ComboAmplifierFromTechnique.Compute(-10, c);
+            TestBase.AssertTrue(Math.Abs(negative - 1.0) < 1e-9,
+                $"Negative TECH should clamp to amp 1.0, got {negative}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestDesignerLogarithmicFormula()
+        {
+            var c = StandardConfig();
+            double atOne = ComboAmplifierFromTechnique.Compute(1, c);
+            double expectedAtOne = 1.0 + 0.5 * Math.Log10(2.0);
+            TestBase.AssertTrue(Math.Abs(atOne - expectedAtOne) < 1e-12,
+                $"TECH 1 should follow 1 + 0.5*log10(TECH+1), got {atOne}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            double atNine = ComboAmplifierFromTechnique.Compute(9, c);
+            TestBase.AssertTrue(Math.Abs(atNine - 1.5) < 1e-12,
+                $"TECH 9 should yield amp 1.5 from log10(10), got {atNine}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            double atNinetyNine = ComboAmplifierFromTechnique.Compute(99, c);
+            TestBase.AssertTrue(Math.Abs(atNinetyNine - 2.0) < 1e-12,
+                $"TECH 99 should yield amp 2.0 from log10(100), got {atNinetyNine}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestMonotonicIncrease()
         {
             var c = StandardConfig();
-            double prev = ComboAmplifierFromTechnique.Compute(4, c);
-            for (int tech = 5; tech <= 100; tech++)
+            double prev = ComboAmplifierFromTechnique.Compute(0, c);
+            for (int tech = 1; tech <= 200; tech++)
             {
                 double amp = ComboAmplifierFromTechnique.Compute(tech, c);
                 TestBase.AssertTrue(amp >= prev - 1e-12,
@@ -74,15 +82,18 @@ namespace RPGGame.Tests.Unit
             }
         }
 
-        private static void TestDefaultExponentWhenZero()
+        private static void TestIgnoresLegacyTuningFields()
         {
             var c = StandardConfig();
-            c.ComboAmplifierCurveExponent = 0;
-            double withDefault = ComboAmplifierFromTechnique.Compute(50, c);
-            c.ComboAmplifierCurveExponent = 2.5;
-            double explicitExp = ComboAmplifierFromTechnique.Compute(50, c);
-            TestBase.AssertTrue(Math.Abs(explicitExp - withDefault) < 1e-12,
-                "Exponent 0 should fall back to 2.5",
+            double standard = ComboAmplifierFromTechnique.Compute(20, c);
+
+            c.ComboAmplifierMax = 10.0;
+            c.ComboAmplifierMaxTech = 1;
+            c.ComboAmplifierCurveExponent = 10.0;
+            double withLegacyTuningChanged = ComboAmplifierFromTechnique.Compute(20, c);
+
+            TestBase.AssertTrue(Math.Abs(standard - withLegacyTuningChanged) < 1e-12,
+                "Legacy combo AMP tuning fields should not alter the designer log formula",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

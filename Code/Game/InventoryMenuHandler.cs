@@ -4,6 +4,7 @@ namespace RPGGame
     using System.Collections.Generic;
     using System.Linq;
     using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.Renderers.Inventory;
     using RPGGame.Handlers.Inventory;
     using static RPGGame.Handlers.Inventory.ComboPointerInput;
     using static RPGGame.UI.Avalonia.UIConstants.MenuOptions;
@@ -133,7 +134,7 @@ namespace RPGGame
                         "feet" => player.Feet,
                         _ => null
                     };
-                    canvasUI.RenderItemComparison(player, newItem, currentItem, stateTracker.SelectedSlot);
+                    canvasUI.RenderItemComparison(player, newItem, currentItem, stateTracker.SelectedSlot, stateTracker.SelectedItemIndex);
                 }
                 else if (stateTracker.WaitingForItemSelection)
                 {
@@ -162,6 +163,9 @@ namespace RPGGame
             if (string.IsNullOrEmpty(input))
                 return;
             if (stateManager.CurrentPlayer == null) return;
+
+            if (TryHandleInventoryItemScrollInput(input))
+                return;
             
             // Combo management screen: mouse tokens before keyboard handler
             if (stateTracker.InComboManagement)
@@ -375,6 +379,50 @@ namespace RPGGame
                 default:
                     ShowMessageEvent?.Invoke("Invalid choice. Press 1-4, 0 (Return to game menu), or ESC to go back.");
                     break;
+            }
+        }
+
+        private bool TryHandleInventoryItemScrollInput(string input)
+        {
+            if (!TryGetInventoryItemScrollDelta(input, out int itemDelta))
+                return false;
+
+            bool mainInventoryListVisible =
+                !stateTracker.InComboManagement
+                && !stateTracker.WaitingForItemSelection
+                && !stateTracker.WaitingForSlotSelection
+                && !stateTracker.WaitingForComparisonChoice
+                && !stateTracker.WaitingForRaritySelection
+                && !stateTracker.WaitingForTradeUpConfirmation;
+
+            if (mainInventoryListVisible && customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.AdjustInventoryItemScroll(itemDelta);
+                RefreshInventoryScreen();
+            }
+
+            return true;
+        }
+
+        private static bool TryGetInventoryItemScrollDelta(string input, out int itemDelta)
+        {
+            itemDelta = 0;
+            switch (input.Trim().ToLowerInvariant())
+            {
+                case "up":
+                    itemDelta = -InventoryItemScrollLayout.ScrollStepItems;
+                    return true;
+                case "down":
+                    itemDelta = InventoryItemScrollLayout.ScrollStepItems;
+                    return true;
+                case "pageup":
+                    itemDelta = -InventoryItemScrollLayout.PageScrollStepItems;
+                    return true;
+                case "pagedown":
+                    itemDelta = InventoryItemScrollLayout.PageScrollStepItems;
+                    return true;
+                default:
+                    return false;
             }
         }
 

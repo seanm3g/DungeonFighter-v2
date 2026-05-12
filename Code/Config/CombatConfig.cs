@@ -169,23 +169,23 @@ namespace RPGGame
     /// </summary>
     public class ComboSystemConfig
     {
-        /// <summary>Legacy tuning field; amplifier curve uses flat 1.0 below <see cref="ComboAmplifierFromTechnique.FlatAmpBelowTech"/> then a power curve.</summary>
+        /// <summary>Legacy tuning field; the current amplifier curve is the fixed designer log formula in <see cref="ComboAmplifierFromTechnique"/>.</summary>
         public double ComboAmplifierAtTech5 { get; set; }
 
+        /// <summary>Legacy tuning field retained for old configs; current TECH AMP no longer clamps to a configured maximum.</summary>
         public double ComboAmplifierMax { get; set; }
 
-        /// <summary>Technique at which <see cref="ComboAmplifierMax"/> is reached (e.g. 100 for 2.0x amp).</summary>
+        /// <summary>Legacy tuning field retained for old configs; current TECH AMP has no configured max-tech breakpoint.</summary>
         public int ComboAmplifierMaxTech { get; set; }
 
         /// <summary>
-        /// Exponent for technique→amp curve above the flat region. &gt;1 keeps amp low until high TECH; default 2.5 when unset or ≤0.
+        /// Legacy tuning field retained for old configs; current TECH AMP uses a fixed logarithmic curve.
         /// </summary>
         public double ComboAmplifierCurveExponent { get; set; }
 
         /// <summary>
-        /// When <see cref="ComboAmplifierMax"/> or <see cref="ComboAmplifierMaxTech"/> are zero in tuning JSON,
-        /// <see cref="ComboAmplifierFromTechnique.Compute"/> clamps technique to 0, so AMP stays 1.0x regardless of TECH.
-        /// Aligns with <see cref="Utils.GameConstants"/> combat balance defaults.
+        /// Repairs legacy tuning values for older configs. The current TECH AMP formula does not read these fields,
+        /// but settings and saved tuning profiles may still display them.
         /// </summary>
         public void EnsureValidComboAmplifierDefaults()
         {
@@ -197,32 +197,14 @@ namespace RPGGame
     }
 
     /// <summary>
-    /// Maps Technique to base combo amplifier: 1.0 below a threshold, then <c>1 + (max-1) * t^exponent</c> from threshold to max tech.
+    /// Maps Technique to base combo amplifier using the designer formula <c>1 + 0.5 * log10(TECH + 1)</c>.
     /// </summary>
     public static class ComboAmplifierFromTechnique
     {
-        /// <summary>Technique strictly below this value yields amplifier 1.0.</summary>
-        public const int FlatAmpBelowTech = 5;
-
         public static double Compute(int technique, ComboSystemConfig combo)
         {
-            double maxAmp = combo.ComboAmplifierMax;
-            int maxTech = combo.ComboAmplifierMaxTech;
-            int clamped = Math.Max(0, Math.Min(maxTech, technique));
-
-            if (clamped < FlatAmpBelowTech)
-                return 1.0;
-
-            if (maxTech <= FlatAmpBelowTech)
-                return maxAmp;
-
-            double exponent = combo.ComboAmplifierCurveExponent > 0
-                ? combo.ComboAmplifierCurveExponent
-                : 2.5;
-
-            double span = maxTech - FlatAmpBelowTech;
-            double t = (clamped - FlatAmpBelowTech) / span;
-            return 1.0 + (maxAmp - 1.0) * Math.Pow(t, exponent);
+            int clamped = Math.Max(0, technique);
+            return 1.0 + 0.5 * Math.Log10(clamped + 1.0);
         }
     }
 

@@ -10,6 +10,7 @@ namespace RPGGame
     using RPGGame.GameCore.Helpers;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.ColorSystem;
+    using RPGGame.UI.ColorSystem.Applications;
 
     /// <summary>
     /// Handles individual enemy encounters during dungeon runs
@@ -68,18 +69,7 @@ namespace RPGGame
             // Show surprise message after enemy appears (if applicable)
             if (enemyGetsFirstAttack)
             {
-                var random = new Random();
-                var surpriseMessages = new[]
-                {
-                    "You've been surprised! The enemy will strike first!",
-                    "The enemy catches you off guard! They attack first!",
-                    "You're caught unaware! The enemy gains the first strike!",
-                    "The enemy has the element of surprise! They act first!",
-                    "You're taken by surprise! The enemy strikes first!"
-                };
-                displayManager.AddCombatEvent("", player);
-                displayManager.AddCombatEvent(surpriseMessages[random.Next(surpriseMessages.Length)], player);
-                displayManager.AddCombatEvent("", player);
+                AddEnemySurpriseCombatEvent(displayManager, player);
             }
             
             // Only render UI if this character is currently active
@@ -138,7 +128,16 @@ namespace RPGGame
             bool playerWon = false;
             try
             {
-                playerWon = await Task.Run(async () => await combatManager.RunCombat(player, enemy, room!, playerGetsFirstAttack, enemyGetsFirstAttack));
+                var tutorialScript = PreWeaponTrainingFlow.IsPreWeaponTrainingDungeon(stateManager, stateManager.CurrentDungeon?.Name)
+                    ? PreWeaponTrainingFlow.CreateTrainingGroundTutorialScript()
+                    : null;
+                playerWon = await Task.Run(async () => await combatManager.RunCombat(
+                    player,
+                    enemy,
+                    room!,
+                    playerGetsFirstAttack,
+                    enemyGetsFirstAttack,
+                    tutorialScript));
             }
             finally
             {
@@ -272,6 +271,29 @@ namespace RPGGame
 
             return true; // Player survived this encounter
             }
+        }
+
+        internal static void AddEnemySurpriseCombatEvent(DungeonDisplayManager displayManager, Character player, Random? random = null)
+        {
+            if (displayManager == null) throw new ArgumentNullException(nameof(displayManager));
+            if (player == null) throw new ArgumentNullException(nameof(player));
+
+            var surpriseMessages = new[]
+            {
+                "You've been surprised! The enemy will strike first!",
+                "The enemy catches you off guard! They attack first!",
+                "You're caught unaware! The enemy gains the first strike!",
+                "The enemy has the element of surprise! They act first!",
+                "You're taken by surprise! The enemy strikes first!"
+            };
+
+            random ??= new Random();
+            string surpriseMessage = surpriseMessages[random.Next(surpriseMessages.Length)];
+            var surpriseBuilder = new ColoredTextBuilder()
+                .AddRange(DungeonNarrativeColoredText.FormatEnemySurpriseMessage(surpriseMessage));
+
+            displayManager.AddCombatEvent(surpriseBuilder, player);
+            displayManager.AddCombatEvent("", player);
         }
         
         /// <summary>

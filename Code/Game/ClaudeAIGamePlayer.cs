@@ -128,6 +128,7 @@ namespace RPGGame.Game
             {
                 "MainMenu" => DecideMainMenu(actions),
                 "TrainingGroundOffer" => DecideTrainingGroundOffer(actions),
+                "PreWeaponPathIntro" => DecidePreWeaponPathIntro(actions),
                 "WeaponSelection" => DecideWeaponSelection(actions),
                 "CharacterCreation" => DecideCharacterCreation(actions),
                 "DungeonSelection" => DecieDungeonSelection(state, actions),
@@ -164,6 +165,15 @@ namespace RPGGame.Game
             {
                 Action = "1",
                 Reasoning = "At weapon selection: Taking first available weapon"
+            };
+        }
+
+        private AIDecision DecidePreWeaponPathIntro(List<string> actions)
+        {
+            return new AIDecision
+            {
+                Action = "1",
+                Reasoning = "Continue from path intro to weapon selection"
             };
         }
 

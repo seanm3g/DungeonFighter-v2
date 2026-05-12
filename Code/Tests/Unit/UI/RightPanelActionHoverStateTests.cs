@@ -36,6 +36,16 @@ namespace RPGGame.Tests.Unit.UI
                 Value = $"{ComboPointerInput.Prefix}rm:0",
                 IsHovered = true
             };
+            var invPoolBtn = new ClickableElement
+            {
+                X = 0,
+                Y = 2,
+                Width = 10,
+                Height = 1,
+                Type = ElementType.Button,
+                Value = $"{ComboPointerInput.Prefix}invpool:4",
+                IsHovered = true
+            };
 
             TestBase.AssertTrue(RightPanelActionHoverState.UpdateFromClickables(new List<ClickableElement> { poolBtn }, true),
                 "Warm pool hover", ref run, ref passed, ref failed);
@@ -43,16 +53,25 @@ namespace RPGGame.Tests.Unit.UI
                 "Disable inventory clears after hover", ref run, ref passed, ref failed);
             TestBase.AssertEqual(-1, RightPanelActionHoverState.HoveredSequenceIndex, "Sequence cleared", ref run, ref passed, ref failed);
             TestBase.AssertEqual(-1, RightPanelActionHoverState.HoveredPoolIndex, "Pool cleared", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(-1, RightPanelActionHoverState.HoveredInventoryPoolIndex, "Inventory pool cleared", ref run, ref passed, ref failed);
 
             TestBase.AssertTrue(RightPanelActionHoverState.UpdateFromClickables(new List<ClickableElement> { poolBtn }, true),
                 "Pool hover applies", ref run, ref passed, ref failed);
             TestBase.AssertEqual(-1, RightPanelActionHoverState.HoveredSequenceIndex, "No sequence", ref run, ref passed, ref failed);
             TestBase.AssertEqual(2, RightPanelActionHoverState.HoveredPoolIndex, "Pool index 2", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(-1, RightPanelActionHoverState.HoveredInventoryPoolIndex, "No inventory pool on gear pool hover", ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(RightPanelActionHoverState.UpdateFromClickables(new List<ClickableElement> { invPoolBtn }, true),
+                "Inventory pool hover applies", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(-1, RightPanelActionHoverState.HoveredSequenceIndex, "No sequence for inventory pool", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(-1, RightPanelActionHoverState.HoveredPoolIndex, "Gear pool cleared for inventory pool row", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(4, RightPanelActionHoverState.HoveredInventoryPoolIndex, "Inventory pool index 4", ref run, ref passed, ref failed);
 
             TestBase.AssertTrue(RightPanelActionHoverState.UpdateFromClickables(new List<ClickableElement> { seqBtn }, true),
                 "Sequence hover applies", ref run, ref passed, ref failed);
             TestBase.AssertEqual(0, RightPanelActionHoverState.HoveredSequenceIndex, "Sequence index 0", ref run, ref passed, ref failed);
             TestBase.AssertEqual(-1, RightPanelActionHoverState.HoveredPoolIndex, "Pool cleared for seq row", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(-1, RightPanelActionHoverState.HoveredInventoryPoolIndex, "Inventory pool cleared for seq row", ref run, ref passed, ref failed);
 
             TestBase.AssertTrue(!RightPanelActionHoverState.UpdateFromClickables(new List<ClickableElement> { seqBtn }, true),
                 "Same hover is idempotent", ref run, ref passed, ref failed);

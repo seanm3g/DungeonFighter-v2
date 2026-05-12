@@ -11,6 +11,7 @@ using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
+using RPGGame.UI.Avalonia.Renderers.Inventory;
 using RPGGame.UI.ColorSystem;
 using RPGGame.Utils;
 
@@ -513,6 +514,11 @@ namespace RPGGame.UI.Avalonia
             renderer.RenderTrainingGroundOffer(player, GetContext());
         }
 
+        public void RenderPreWeaponPathIntro(Character player)
+        {
+            renderer.RenderPreWeaponPathIntro(player, GetContext());
+        }
+
         public void RenderCharacterCreation(Character character)
         {
             renderer.RenderCharacterCreation(character, GetContext());
@@ -593,9 +599,26 @@ namespace RPGGame.UI.Avalonia
             renderer.RenderComprehensiveWeaponEnemyResults(results);
         }
 
+        public void AdjustInventoryItemScroll(int itemDelta)
+        {
+            inventoryItemScrollOffset = Math.Max(0, inventoryItemScrollOffset + itemDelta);
+        }
+
+        public void ResetInventoryItemScroll()
+        {
+            inventoryItemScrollOffset = 0;
+        }
+
         public void RenderInventory(Character character, List<Item> inventory, string? pendingMutatingInventoryMenuAction = null)
         {
-            renderer.RenderInventory(character, inventory, GetContext(), pendingMutatingInventoryMenuAction);
+            if (lastRenderedScreenState != GameState.Inventory || !ReferenceEquals(lastInventoryScrollCharacter, character))
+            {
+                inventoryItemScrollOffset = 0;
+                lastInventoryScrollCharacter = character;
+            }
+
+            inventoryItemScrollOffset = InventoryItemScrollLayout.ClampFirstVisibleIndex(inventoryItemScrollOffset, inventory.Count);
+            renderer.RenderInventory(character, inventory, GetContext(), pendingMutatingInventoryMenuAction, inventoryItemScrollOffset);
         }
 
         public void RenderItemSelectionPrompt(Character character, List<Item> inventory, string promptMessage, string actionType)
@@ -618,9 +641,9 @@ namespace RPGGame.UI.Avalonia
             renderer.RenderTradeUpPreview(character, itemsToTrade, resultingItem, currentRarity, nextRarity, GetContext());
         }
 
-        public void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot)
+        public void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot, int newItemInventoryIndex = -1)
         {
-            renderer.RenderItemComparison(character, newItem, currentItem, slot, GetContext());
+            renderer.RenderItemComparison(character, newItem, currentItem, slot, GetContext(), newItemInventoryIndex);
         }
 
         public void RenderComboManagement(Character character)

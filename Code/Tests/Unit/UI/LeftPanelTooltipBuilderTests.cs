@@ -34,6 +34,31 @@ namespace RPGGame.Tests.Unit.UI
                 "STR tooltip shows effective",
                 ref run, ref passed, ref failed);
 
+            c.Stats.Agility = 10;
+            c.Stats.TempAgilityBonus = 2;
+            var agileHelm = new HeadItem("Agile Helm", tier: 1, armor: 1)
+            {
+                BaseAgility = 4
+            };
+            agileHelm.StatBonuses.Add(new StatBonus { Name = "of Alacrity", StatType = "AGI", Value = 10 });
+            c.EquipItem(agileHelm, "head");
+
+            var agiLines = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "stat:agi", 80, 20);
+            TestBase.AssertTrue(agiLines.Any(l => l.Contains("Base value: 10", StringComparison.Ordinal)),
+                "AGI tooltip shows base value",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(agiLines.Any(l => l.Contains("Attribute-modified value: 12", StringComparison.Ordinal)),
+                "AGI tooltip shows attribute-modified value before gear",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(agiLines.Any(l => l.Contains("Gear attribute add:", StringComparison.Ordinal) && l.Contains("flat/catalog/material +4", StringComparison.Ordinal) && l.Contains("suffix +1", StringComparison.Ordinal)),
+                "AGI tooltip splits gear attribute add into flat and suffix pieces",
+                ref run, ref passed, ref failed);
+
+            var speedLines = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "stat:speed", 90, 30);
+            TestBase.AssertTrue(speedLines.Any(l => l.Contains("AGI input: base 10", StringComparison.Ordinal) && l.Contains("gear attributes +5", StringComparison.Ordinal)),
+                "Speed tooltip shows AGI base and gear attribute input before equation",
+                ref run, ref passed, ref failed);
+
             var ampLines = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "stat:amp", 50, 12);
             TestBase.AssertTrue(ampLines.Any(l => l.Contains("per combo step", StringComparison.OrdinalIgnoreCase)),
                 "AMP tooltip describes per-step base multiplier",
@@ -42,6 +67,9 @@ namespace RPGGame.Tests.Unit.UI
             var gearEmpty = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "gear:weapon", 40, 8);
             TestBase.AssertTrue(gearEmpty.Any(l => l.Contains("No item", StringComparison.OrdinalIgnoreCase)),
                 "empty weapon slot",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(gearEmpty.Count >= 3 && gearEmpty[1] == "",
+                "left-panel hover tooltip inserts a blank line between title and detail",
                 ref run, ref passed, ref failed);
 
             var w = new WeaponItem("Rusty", tier: 1, baseDamage: 5, baseAttackSpeed: 1.0, WeaponType.Sword)
@@ -72,6 +100,10 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(invTip.Any(l => l.StartsWith("Actions:", StringComparison.Ordinal)),
                 "bag item tooltip lists resolved gear actions",
+                ref run, ref passed, ref failed);
+            int inventoryNameIndex = invTip.FindIndex(l => l.Contains("Spare", StringComparison.Ordinal));
+            TestBase.AssertTrue(inventoryNameIndex >= 0 && inventoryNameIndex + 1 < invTip.Count && invTip[inventoryNameIndex + 1] == "",
+                "inventory hover tooltip separates item name from rarity/details",
                 ref run, ref passed, ref failed);
 
             var boots = new FeetItem("Striders", tier: 1, armor: 2) { ExtraActionSlots = 2 };

@@ -6,6 +6,7 @@ using RPGGame;
 using RPGGame.Combat.Formatting;
 using RPGGame.Tests;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications;
 
 namespace RPGGame.Tests.Unit.Combat
 {
@@ -40,6 +41,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestAddTakesDamageFrom();
             TestAddBracketedActorTakesDamage();
             TestAddActorTakesDamage();
+            TestAddActorTakesDamage_UsesStatusEffectTemplateForDamageType();
             TestAddActorTakesDamage_ActorOverload_MatchesCreatureNameShading();
             TestAddBracketedActorNoLongerAffected();
             TestAddActorNoLongerAffected();
@@ -269,6 +271,23 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestBase.AssertTrue(result.Count > 0,
                 "AddActorTakesDamage should add text to builder",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestAddActorTakesDamage_UsesStatusEffectTemplateForDamageType()
+        {
+            Console.WriteLine("\n--- Testing AddActorTakesDamage status effect damage type color ---");
+
+            var builder = new ColoredTextBuilder();
+            DamageFormatter.AddActorTakesDamage(builder, "Enemy", Colors.White, 20, "poison");
+            var result = builder.Build();
+
+            string templatedText = string.Concat(result
+                .Where(segment => string.Equals(segment.SourceTemplate, StatusEffectColorHelper.GetTemplateName("poison"), StringComparison.OrdinalIgnoreCase))
+                .Select(segment => segment.Text));
+
+            TestBase.AssertEqual("poison", templatedText,
+                "Poison damage type should use status-effect color template notation",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

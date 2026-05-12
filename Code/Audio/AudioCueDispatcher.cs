@@ -38,7 +38,7 @@ namespace RPGGame.Audio
 
         /// <param name="engine">Audio backend (production = <see cref="SoundFlowAudioEngine"/>; tests = <see cref="NullAudioEngine"/>).</param>
         /// <param name="configResolver">Reads <see cref="AudioConfig"/> at use time so live edits take effect. Defaults to <see cref="AudioConfig.Instance"/>.</param>
-        /// <param name="globalEnabledResolver">Returns false to short-circuit all playback (defaults to <see cref="GameSettings.EnableSoundEffects"/>).</param>
+        /// <param name="globalEnabledResolver">Optional external gate used by tests and headless hosts.</param>
         public AudioCueDispatcher(
             IAudioEngine engine,
             Func<AudioConfig>? configResolver = null,
@@ -46,7 +46,7 @@ namespace RPGGame.Audio
         {
             this.engine = engine ?? throw new ArgumentNullException(nameof(engine));
             this.configResolver = configResolver ?? (() => AudioConfig.Instance);
-            this.globalEnabledResolver = globalEnabledResolver ?? (() => GameSettings.Instance.EnableSoundEffects);
+            this.globalEnabledResolver = globalEnabledResolver ?? (() => true);
         }
 
         /// <summary>Subscribes the dispatcher to non-outcome <see cref="CombatEventBus"/> events for the duration of its life. Safe to call multiple times.</summary>
@@ -94,6 +94,8 @@ namespace RPGGame.Audio
             if (!settingsPreview && !globalEnabledResolver()) return;
 
             var config = configResolver();
+            if (!settingsPreview && !config.MasterEnabled) return;
+
             var binding = config.GetBinding(cue);
             if (binding == null || string.IsNullOrEmpty(binding.File)) return;
 

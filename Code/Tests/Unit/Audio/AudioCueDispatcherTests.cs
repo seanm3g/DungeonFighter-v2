@@ -32,11 +32,15 @@ namespace RPGGame.Tests.Unit.Audio
             TestRoutesLowHealthEventsToDistinctCues(ref run, ref passed, ref failed);
             TestLowHealthThresholdPublishesOnlyWhenCrossing(ref run, ref passed, ref failed);
             TestRespectsGlobalMute(ref run, ref passed, ref failed);
+            TestMasterDisableSilencesBothBuses(ref run, ref passed, ref failed);
+            TestMusicBusDisableSilencesMusicOnly(ref run, ref passed, ref failed);
             TestSettingsPreviewIgnoresMutes(ref run, ref passed, ref failed);
             TestRespectsRateLimit(ref run, ref passed, ref failed);
             TestMissingFileDoesNotCrash(ref run, ref passed, ref failed);
             TestMusicControllerChangesTrackOnStateChange(ref run, ref passed, ref failed);
             TestMusicTransitionBeatSyncStartOffset(ref run, ref passed, ref failed);
+            TestMusicFadeLoopRestartPolicy(ref run, ref passed, ref failed);
+            TestMusicFadeIncomingTrackPolicy(ref run, ref passed, ref failed);
             TestSfxBusDisableSilencesSfxOnly(ref run, ref passed, ref failed);
             TestAudioConfigSerialization(ref run, ref passed, ref failed);
             TestAudioConfigMusicCrossfadeDefaultAndClamp(ref run, ref passed, ref failed);
@@ -432,6 +436,50 @@ namespace RPGGame.Tests.Unit.Audio
             finally { TryDelete(stub); }
         }
 
+        private static void TestMasterDisableSilencesBothBuses(ref int run, ref int passed, ref int failed)
+        {
+            string stub = CreateStubFile();
+            try
+            {
+                var engine = new NullAudioEngine { RecordCalls = true };
+                var cfg = CreateTestConfig(stub);
+                cfg.MasterEnabled = false;
+                var dispatcher = new AudioCueDispatcher(engine,
+                    configResolver: () => cfg,
+                    globalEnabledResolver: () => true);
+
+                dispatcher.Trigger(AudioCue.Combat_Hit);
+                dispatcher.Trigger(AudioCue.Music_MainMenu);
+
+                TestBase.AssertEqual(0, engine.PlayCalls.Count, "Master disabled -> SFX cue does not fire", ref run, ref passed, ref failed);
+                TestBase.AssertEqual(0, engine.PlayMusicCalls.Count, "Master disabled -> Music cue does not fire", ref run, ref passed, ref failed);
+            }
+            finally { TryDelete(stub); }
+        }
+
+        private static void TestMusicBusDisableSilencesMusicOnly(ref int run, ref int passed, ref int failed)
+        {
+            string stub = CreateStubFile();
+            try
+            {
+                var engine = new NullAudioEngine { RecordCalls = true };
+                var cfg = CreateTestConfig(stub);
+                cfg.MasterEnabled = true;
+                cfg.MusicEnabled = false;
+                cfg.SfxEnabled = true;
+                var dispatcher = new AudioCueDispatcher(engine,
+                    configResolver: () => cfg,
+                    globalEnabledResolver: () => true);
+
+                dispatcher.Trigger(AudioCue.Music_MainMenu);
+                dispatcher.Trigger(AudioCue.Combat_Hit);
+
+                TestBase.AssertEqual(0, engine.PlayMusicCalls.Count, "Music disabled -> Music cue does not fire", ref run, ref passed, ref failed);
+                TestBase.AssertEqual(1, engine.PlayCalls.Count, "Music disabled -> SFX cue still fires", ref run, ref passed, ref failed);
+            }
+            finally { TryDelete(stub); }
+        }
+
         /// <summary>Settings <c>Test</c> uses preview mode so bindings can be verified even when sound is muted.</summary>
         private static void TestSettingsPreviewIgnoresMutes(ref int run, ref int passed, ref int failed)
         {
@@ -514,6 +562,7 @@ namespace RPGGame.Tests.Unit.Audio
             {
                 var engine = new NullAudioEngine { RecordCalls = true };
                 var cfg = CreateTestConfig(stub);
+                cfg.MusicCrossfadeMs = 1234;
                 var controller = new MusicController(engine,
                     configResolver: () => cfg,
                     globalEnabledResolver: () => true);
@@ -526,6 +575,7 @@ namespace RPGGame.Tests.Unit.Audio
 
                 TestBase.AssertEqual(1, afterMainMenu, "MainMenu transition triggers PlayMusic", ref run, ref passed, ref failed);
                 TestBase.AssertEqual(2, afterDungeon, "Dungeon transition triggers a second PlayMusic", ref run, ref passed, ref failed);
+                TestBase.AssertEqual(1234, engine.PlayMusicCalls[0].crossfadeMs, "First music cue from silence still uses configured crossfade length", ref run, ref passed, ref failed);
                 TestBase.AssertEqualEnum(AudioCue.Music_Dungeon, controller.CurrentMusicCue, "Controller tracks active music cue", ref run, ref passed, ref failed);
             }
             finally { TryDelete(stub); }
@@ -552,6 +602,42 @@ namespace RPGGame.Tests.Unit.Audio
                 TestBase.AssertTrue(Math.Abs(off - 0.25) < 1e-6, $"Second PlayMusic uses beat phase offset (~0.25), got {off}", ref run, ref passed, ref failed);
             }
             finally { TryDelete(stub); }
+        }
+
+        private static void TestMusicFadeLoopRestartPolicy(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.AssertTrue(
+                MusicFadeLoopPolicy.ShouldRestartEndedTrack(7, 7, cancellationRequested: false),
+                "Outgoing fade track restarts when the fade generation is still current",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                !MusicFadeLoopPolicy.ShouldRestartEndedTrack(7, 8, cancellationRequested: false),
+                "Outgoing fade track does not restart after a newer music transition supersedes it",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                !MusicFadeLoopPolicy.ShouldRestartEndedTrack(7, 7, cancellationRequested: true),
+                "Outgoing fade track does not restart after fade cancellation",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void TestMusicFadeIncomingTrackPolicy(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.AssertTrue(
+                MusicFadeLoopPolicy.ShouldFadeIncomingTrack(1000, hasOutgoingTrack: false),
+                "Incoming music fades in when crossfade is configured and no track is currently playing",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                !MusicFadeLoopPolicy.ShouldFadeIncomingTrack(1000, hasOutgoingTrack: true),
+                "Incoming music uses the crossfade path when an outgoing track exists",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                !MusicFadeLoopPolicy.ShouldFadeIncomingTrack(0, hasOutgoingTrack: false),
+                "Incoming music starts immediately when crossfade duration is zero",
+                ref run, ref passed, ref failed);
         }
 
         /// <summary>GameLoop is the in-game hub; older configs omitted it from stateMusicMap.</summary>
@@ -614,6 +700,7 @@ namespace RPGGame.Tests.Unit.Audio
                 MasterVolume = 0.5f,
                 MusicVolume = 0.4f,
                 SfxVolume = 0.6f,
+                MasterEnabled = false,
                 MusicEnabled = false,
                 SfxEnabled = true,
                 MusicCrossfadeMs = 500,
@@ -629,6 +716,7 @@ namespace RPGGame.Tests.Unit.Audio
             var round = System.Text.Json.JsonSerializer.Deserialize<AudioConfig>(json)!;
 
             TestBase.AssertTrue(Math.Abs(round.MasterVolume - 0.5f) < 1e-4, "AudioConfig round-trip preserves master volume", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(round.MasterEnabled == false, "AudioConfig round-trip preserves masterEnabled flag", ref run, ref passed, ref failed);
             TestBase.AssertTrue(round.MusicEnabled == false, "AudioConfig round-trip preserves musicEnabled flag", ref run, ref passed, ref failed);
             TestBase.AssertTrue(round.CueMap.ContainsKey("Menu_Select"), "AudioConfig round-trip preserves cueMap entries", ref run, ref passed, ref failed);
             TestBase.AssertTrue(round.CueMap["Menu_Select"].File == "SFX/menu_select.wav", "AudioConfig round-trip preserves cue file path", ref run, ref passed, ref failed);

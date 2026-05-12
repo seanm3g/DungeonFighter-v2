@@ -271,6 +271,11 @@ namespace RPGGame
                 "HIT" => $"{sign}{b.Value:0} HIT",
                 "COMBO" => $"{sign}{b.Value:0} COMBO",
                 "CRIT" => $"{sign}{b.Value:0} CRIT",
+                "CRIT_MISS" => $"{sign}{b.Value:0} CRIT MISS",
+                RollModificationManager.SetCriticalMissThresholdType => $"Crit miss={b.Value:0}",
+                RollModificationManager.SetCriticalHitThresholdType => $"Crit={b.Value:0}",
+                RollModificationManager.SetComboThresholdType => $"Combo={b.Value:0}",
+                RollModificationManager.SetHitThresholdType => $"Hit={b.Value:0}",
                 "STR" => $"STR {sign}{b.Value:0}",
                 "AGI" => $"AGI {sign}{b.Value:0}",
                 "TECH" => $"TECH {sign}{b.Value:0}",
@@ -370,6 +375,318 @@ namespace RPGGame
             return lines;
         }
 
+        private static void AddSegment(List<string> segments, string? segment)
+        {
+            if (segments == null || string.IsNullOrWhiteSpace(segment))
+                return;
+            if (!segments.Contains(segment))
+                segments.Add(segment);
+        }
+
+        private static string FormatSignedValue(double value, string suffix = "")
+        {
+            string n = Math.Abs(value % 1) < 0.0001
+                ? value.ToString("0", CultureInfo.InvariantCulture)
+                : value.ToString("0.##", CultureInfo.InvariantCulture);
+            return value >= 0 ? $"+{n}{suffix}" : $"{n}{suffix}";
+        }
+
+        private static string FormatValue(double value, string suffix = "")
+        {
+            string n = Math.Abs(value % 1) < 0.0001
+                ? value.ToString("0", CultureInfo.InvariantCulture)
+                : value.ToString("0.##", CultureInfo.InvariantCulture);
+            return $"{n}{suffix}";
+        }
+
+        private static string FormatTarget(TargetType target) => target switch
+        {
+            TargetType.Self => "Self",
+            TargetType.SingleTarget => "Enemy",
+            TargetType.AreaOfEffect => "AOE",
+            TargetType.Environment => "Environment",
+            TargetType.SelfAndTarget => "Self + Enemy",
+            _ => target.ToString()
+        };
+
+        private static string BuildActionMetadataLine(Action action)
+        {
+            string comboText = action.IsComboAction ? "combo action" : "non-combo action";
+            return $"Type {action.Type} | Target {FormatTarget(action.Target)} | {comboText}";
+        }
+
+        private static void AppendAccuracyLines(List<string> segments, Action action)
+        {
+            if (action.Advanced == null)
+                return;
+
+            bool deferred = Action.DefersSheetCombatPackagesToNextHeroRoll(action);
+            string timing = deferred ? "on hit: next roll" : "current roll";
+            if (action.Advanced.RollBonus != 0)
+                AddSegment(segments, $"Hero accuracy {FormatSignedValue(action.Advanced.RollBonus)} ({timing})");
+            if (action.Advanced.EnemyRollBonus != 0)
+            {
+                string enemyTiming = deferred && action.Advanced.EnemyRollBonus < 0
+                    ? "on hit: target roll penalty"
+                    : timing;
+                AddSegment(segments, $"Enemy accuracy {FormatSignedValue(action.Advanced.EnemyRollBonus)} ({enemyTiming})");
+            }
+            if (action.Advanced.RollBonusDuration > 0)
+                AddSegment(segments, $"Accuracy duration: {action.Advanced.RollBonusDuration} roll(s)");
+        }
+
+        private static void AppendRollMechanicLines(List<string> segments, Action action)
+        {
+            var rm = action.RollMods;
+            if (rm == null)
+                return;
+
+            if (rm.MultipleDiceCount > 1)
+                AddSegment(segments, $"Roll dice: {rm.MultipleDiceCount}d20 {rm.MultipleDiceMode}");
+            if (rm.ExplodingDice)
+                AddSegment(segments, $"Roll dice: explode on {rm.ExplodingDiceThreshold}+");
+            if (rm.AllowReroll && rm.RerollChance > 0)
+                AddSegment(segments, $"Roll dice: reroll chance {FormatValue(rm.RerollChance * 100, "%")}");
+            if (rm.Additive != 0)
+                AddSegment(segments, $"Roll modifier: {FormatSignedValue(rm.Additive)}");
+            if (Math.Abs(rm.Multiplier - 1.0) > 0.0001)
+                AddSegment(segments, $"Roll multiplier: {FormatValue(rm.Multiplier, "x")}");
+            if (rm.Min != 1 || rm.Max != 20)
+                AddSegment(segments, $"Roll clamp: {rm.Min}-{rm.Max}");
+        }
+
+        private static void AppendThresholdLines(List<string> segments, Action action)
+        {
+            var rm = action.RollMods;
+            if (rm == null)
+                return;
+
+            string hero = GetThresholdText(action);
+            if (!string.IsNullOrEmpty(hero))
+                AddSegment(segments, $"Hero thresholds {hero}");
+
+            var enemyParts = new List<string>();
+            if (rm.EnemyHitThresholdAdjustment != 0) enemyParts.Add($"H:{rm.EnemyHitThresholdAdjustment:+0;-0;0}");
+            if (rm.EnemyComboThresholdAdjustment != 0) enemyParts.Add($"C:{rm.EnemyComboThresholdAdjustment:+0;-0;0}");
+            if (rm.EnemyCriticalHitThresholdAdjustment != 0) enemyParts.Add($"Cr:{rm.EnemyCriticalHitThresholdAdjustment:+0;-0;0}");
+            if (rm.EnemyCriticalMissThresholdAdjustment != 0) enemyParts.Add($"Cm:{rm.EnemyCriticalMissThresholdAdjustment:+0;-0;0}");
+            if (enemyParts.Count > 0)
+                AddSegment(segments, $"Enemy thresholds {string.Join(" ", enemyParts)}");
+
+            var overrides = new List<string>();
+            if (rm.HitThresholdOverride > 0) overrides.Add($"H={rm.HitThresholdOverride}");
+            if (rm.ComboThresholdOverride > 0) overrides.Add($"C={rm.ComboThresholdOverride}");
+            if (rm.CriticalHitThresholdOverride > 0) overrides.Add($"Cr={rm.CriticalHitThresholdOverride}");
+            if (rm.CriticalMissThresholdOverride > 0) overrides.Add($"Cm={rm.CriticalMissThresholdOverride}");
+            if (overrides.Count > 0)
+            {
+                string both = rm.ApplyThresholdAdjustmentsToBoth ? " (source + target)" : "";
+                AddSegment(segments, $"Set thresholds {string.Join(" ", overrides)}{both}");
+            }
+        }
+
+        private static void AppendTriggerLine(List<string> segments, Action action)
+        {
+            var conditions = action.Triggers?.TriggerConditions;
+            if (conditions == null || conditions.Count == 0)
+                return;
+            AddSegment(segments, "Triggers: " + string.Join(", ", conditions.Where(c => !string.IsNullOrWhiteSpace(c))));
+        }
+
+        private static void AppendStatusLine(List<string> segments, Action action)
+        {
+            if (action == null)
+                return;
+
+            var parts = new List<string>();
+            if (action.CausesWeaken) parts.Add("Weaken");
+            if (action.CausesStun) parts.Add("Stun");
+            if (action.CausesBleed) parts.Add($"Bleed +{(action.BleedAmountToAdd > 0 ? action.BleedAmountToAdd : 1)}");
+            if (action.CausesPoison) parts.Add($"Poison +{FormatValue(action.PoisonPercentToAdd > 0 ? action.PoisonPercentToAdd : 1, "% max HP")}");
+            if (action.CausesBurn) parts.Add($"Burn +{(action.BurnAmountToAdd > 0 ? action.BurnAmountToAdd : 1)}");
+            if (action.CausesSlow) parts.Add("Slow");
+            if (action.CausesVulnerability) parts.Add("Vulnerability");
+            if (action.CausesHarden) parts.Add("Harden");
+            if (action.CausesFortify) parts.Add("Fortify");
+            if (action.CausesFocus) parts.Add("Focus");
+            if (action.CausesExpose) parts.Add("Expose");
+            if (action.CausesHPRegen) parts.Add("HP Regen");
+            if (action.CausesArmorBreak) parts.Add("Armor Break");
+            if (action.CausesPierce) parts.Add("Pierce");
+            if (action.CausesReflect) parts.Add("Reflect");
+            if (action.CausesSilence) parts.Add("Silence");
+            if (action.CausesAbsorb) parts.Add("Absorb");
+            if (action.CausesTemporaryHP) parts.Add("Temporary HP");
+            if (action.CausesConfusion) parts.Add("Confusion");
+            if (action.CausesCleanse) parts.Add("Cleanse");
+            if (action.CausesMark) parts.Add("Mark");
+            if (action.CausesDisrupt) parts.Add("Disrupt");
+            if (action.CausesStatDrain) parts.Add("Stat Drain");
+
+            if (parts.Count == 0)
+                return;
+
+            bool hasDot = action.CausesPoison || action.CausesBurn || action.CausesBleed;
+            bool hasTrigger = action.Triggers?.TriggerConditions != null && action.Triggers.TriggerConditions.Count > 0;
+            string dotNote = hasDot
+                ? hasTrigger ? " (trigger-gated)" : " (DoT applies on crit)"
+                : "";
+            AddSegment(segments, $"Statuses: {string.Join(", ", parts)}{dotNote}");
+        }
+
+        private static string FormatStatBonusDuration(Action action)
+        {
+            string cadence = (action.Cadence ?? "").Trim();
+            if (!string.IsNullOrEmpty(cadence))
+                return cadence;
+            int duration = action.Advanced?.StatBonusDuration ?? 0;
+            return duration > 0 ? $"{duration} turn(s)" : "next use";
+        }
+
+        private static void AppendAdvancedMechanicLines(List<string> segments, Action action)
+        {
+            var adv = action.Advanced;
+            if (adv == null)
+                return;
+
+            if (action.ComboBonusAmount > 0 && action.ComboBonusDuration > 0)
+                AddSegment(segments, $"Combo bonus: +{action.ComboBonusAmount} for {action.ComboBonusDuration} turn(s)");
+
+            if (adv.StatBonuses != null && adv.StatBonuses.Count > 0)
+            {
+                var parts = adv.StatBonuses
+                    .Where(s => s != null && (s.Value != 0 || !string.IsNullOrWhiteSpace(s.Type)))
+                    .Select(s => $"{s.Type} {FormatSignedValue(s.Value)}")
+                    .ToList();
+                if (parts.Count > 0)
+                    AddSegment(segments, $"Stat bonus ({FormatStatBonusDuration(action)}): {string.Join(", ", parts)}");
+            }
+            else if (adv.StatBonus != 0 && !string.IsNullOrWhiteSpace(adv.StatBonusType))
+            {
+                AddSegment(segments, $"Stat bonus ({FormatStatBonusDuration(action)}): {adv.StatBonusType} {FormatSignedValue(adv.StatBonus)}");
+            }
+
+            if (adv.SelfDamagePercent > 0)
+                AddSegment(segments, $"Self damage: {adv.SelfDamagePercent}%");
+            if (adv.SkipNextTurn)
+                AddSegment(segments, adv.GuaranteeNextSuccess ? "Skips next turn; guarantees next success." : "Skips next turn.");
+            if (adv.RepeatLastAction)
+                AddSegment(segments, "Repeats last action.");
+            if (adv.EnemyRollPenalty != 0)
+                AddSegment(segments, $"Enemy roll penalty: {FormatSignedValue(-adv.EnemyRollPenalty)}");
+            if (Math.Abs(adv.ConditionalDamageMultiplier - 1.0) > 0.0001)
+                AddSegment(segments, $"Conditional damage: {FormatValue(adv.ConditionalDamageMultiplier, "x")}");
+            if (adv.HealAmount > 0)
+                AddSegment(segments, $"Heal: {adv.HealAmount}");
+            if (adv.HealthThreshold > 0)
+                AddSegment(segments, $"Health threshold: {FormatValue(adv.HealthThreshold * 100, "%")}");
+            if (adv.ComboAmplifierMultiplier != 1.0)
+                AddSegment(segments, $"Combo amp multiplier: {FormatValue(adv.ComboAmplifierMultiplier, "x")}");
+            if (adv.ExtraAttacks != 0)
+                AddSegment(segments, $"Extra attacks: {FormatSignedValue(adv.ExtraAttacks)}");
+            if (adv.ExtraDamage != 0)
+                AddSegment(segments, $"Extra damage: {FormatSignedValue(adv.ExtraDamage)}");
+            if (adv.DamageReduction != 0)
+                AddSegment(segments, $"Damage reduction: {FormatValue(adv.DamageReduction * 100, "%")}");
+            if (adv.SelfAttackChance > 0)
+                AddSegment(segments, $"Self-attack chance: {FormatValue(adv.SelfAttackChance * 100, "%")}");
+            if (adv.ResetEnemyCombo)
+                AddSegment(segments, "Resets enemy combo.");
+            if (adv.StunEnemy)
+                AddSegment(segments, adv.StunDuration > 0 ? $"Stuns enemy for {adv.StunDuration} turn(s)" : "Stuns enemy.");
+            if (adv.ReduceLengthNextActions && adv.LengthReduction > 0)
+                AddSegment(segments, $"Reduces next action length by {FormatValue(adv.LengthReduction * 100, "%")} for {adv.LengthReductionDuration} turn(s)");
+
+            AppendThresholdEntryLines(segments, adv);
+            AppendAccumulationLines(segments, adv);
+        }
+
+        private static void AppendThresholdEntryLines(List<string> segments, AdvancedMechanicsProperties adv)
+        {
+            if (adv.Thresholds == null || adv.Thresholds.Count == 0)
+                return;
+
+            var parts = adv.Thresholds
+                .Where(t => t != null)
+                .Select(t =>
+                {
+                    string who = string.IsNullOrWhiteSpace(t.Qualifier) ? "" : $"{t.Qualifier} ";
+                    string op = string.IsNullOrWhiteSpace(t.Operator) ? "<=" : t.Operator;
+                    string value = string.Equals(t.ValueKind, "%", StringComparison.OrdinalIgnoreCase) || t.Value <= 1.0
+                        ? FormatValue(t.Value * 100, "%")
+                        : FormatValue(t.Value);
+                    return $"{who}{t.Type} {op} {value}";
+                })
+                .ToList();
+            if (parts.Count > 0)
+                AddSegment(segments, $"Threshold rules: {string.Join("; ", parts)}");
+        }
+
+        private static void AppendAccumulationLines(List<string> segments, AdvancedMechanicsProperties adv)
+        {
+            if (adv.Accumulations == null || adv.Accumulations.Count == 0)
+                return;
+
+            var parts = adv.Accumulations
+                .Where(a => a != null)
+                .Select(a =>
+                {
+                    string value = string.Equals(a.ValueKind, "%", StringComparison.OrdinalIgnoreCase)
+                        ? FormatSignedValue(a.Value, "%")
+                        : FormatSignedValue(a.Value);
+                    return $"{a.Type} -> {a.ModifiesParam} {value}";
+                })
+                .ToList();
+            if (parts.Count > 0)
+                AddSegment(segments, $"Accumulation: {string.Join("; ", parts)}");
+        }
+
+        private static void AppendComboRoutingLines(List<string> segments, Action action)
+        {
+            var route = action.ComboRouting;
+            if (route == null)
+                return;
+
+            var parts = new List<string>();
+            if (route.JumpToSlot > 0) parts.Add($"jump to slot {route.JumpToSlot}");
+            if (route.JumpRelativeSlots > 0) parts.Add($"shift +{route.JumpRelativeSlots} slot(s)");
+            if (route.SkipNext) parts.Add("skip next slot");
+            if (route.RepeatPrevious) parts.Add("repeat previous slot");
+            if (route.LoopToStart) parts.Add("loop to start");
+            if (route.StopEarly) parts.Add("stop chain early");
+            if (route.DisableSlot) parts.Add("disable slot");
+            if (route.RandomAction) parts.Add("random next slot");
+            if (route.TriggerOnlyInSlot > 0) parts.Add($"only in slot {route.TriggerOnlyInSlot}");
+            if (!string.IsNullOrWhiteSpace(route.ChainPosition)) parts.Add($"position {route.ChainPosition}");
+            if (!string.IsNullOrWhiteSpace(route.ChainLength)) parts.Add($"chain length {route.ChainLength}");
+            if (!string.IsNullOrWhiteSpace(route.Reset)) parts.Add($"reset {route.Reset}");
+            if (parts.Count > 0)
+                AddSegment(segments, $"Combo route: {string.Join("; ", parts)}");
+
+            if (ChainPositionBonusApplier.IsModifyChainPositionEnabled(route))
+            {
+                if (route.ChainPositionBonuses != null && route.ChainPositionBonuses.Count > 0)
+                {
+                    var bonusParts = route.ChainPositionBonuses
+                        .Where(b => b != null)
+                        .Select(b =>
+                        {
+                            string param = ChainPositionBonusApplier.GetDisplayNameForModifiesParam(b.ModifiesParam);
+                            string value = string.Equals(b.ValueKind, "%", StringComparison.OrdinalIgnoreCase)
+                                ? FormatSignedValue(b.Value, "%")
+                                : FormatSignedValue(b.Value);
+                            string basis = string.IsNullOrWhiteSpace(b.PositionBasis) ? "ComboSlotIndex1" : b.PositionBasis;
+                            return $"{param} {value} per {basis}";
+                        })
+                        .ToList();
+                    if (bonusParts.Count > 0)
+                        AddSegment(segments, $"Chain position bonuses: {string.Join("; ", bonusParts)}");
+                }
+                else
+                    AddSegment(segments, "Chain position scaling enabled.");
+            }
+        }
+
         /// <summary>
         /// Combo routing and weapon-required lines for action hover tooltips (opener/finisher tags; per-type weapon basic).
         /// </summary>
@@ -392,7 +709,9 @@ namespace RPGGame
         {
             var segments = new List<string>();
             AppendComboRoleAndWeaponRequirementNotation(segments, character, action);
+            AddSegment(segments, BuildActionMetadataLine(action));
             segments.Add(BuildTooltipSwingModsLine(character, action, panelIndex));
+            AppendAccuracyLines(segments, action);
             segments.AddRange(BuildSpreadsheetFriendlyModLines(action));
 
             if (action.ActionAttackBonuses?.BonusGroups != null)
@@ -407,17 +726,17 @@ namespace RPGGame
                     string cad = string.IsNullOrWhiteSpace(group.CadenceType)
                         ? (string.IsNullOrWhiteSpace(group.Keyword) ? "BONUS" : group.Keyword)
                         : group.CadenceType;
-                    segments.Add($"{cad}: {items}");
+                    string count = group.Count > 1 ? $" x{group.Count}" : "";
+                    AddSegment(segments, $"{cad}{count}: {items}");
                 }
             }
 
-            string th = GetThresholdText(action);
-            if (!string.IsNullOrEmpty(th))
-                segments.Add($"Roll {th}");
-
-            string causes = GetCausesShort(action);
-            if (!string.IsNullOrEmpty(causes))
-                segments.Add($"Statuses {causes}");
+            AppendRollMechanicLines(segments, action);
+            AppendThresholdLines(segments, action);
+            AppendTriggerLine(segments, action);
+            AppendStatusLine(segments, action);
+            AppendComboRoutingLines(segments, action);
+            AppendAdvancedMechanicLines(segments, action);
 
             return segments;
         }
@@ -440,7 +759,7 @@ namespace RPGGame
         /// <param name="panelIndex">0-based combo slot.</param>
         /// <param name="maxWidth">Maximum characters per line (inner width).</param>
         /// <param name="maxLines">Cap on total lines (excluding hard truncation).</param>
-        public static List<string> BuildActionTooltipLines(Character? character, int panelIndex, int maxWidth, int maxLines = 18)
+        public static List<string> BuildActionTooltipLines(Character? character, int panelIndex, int maxWidth, int maxLines = 28)
         {
             var result = new List<string>();
             if (character == null || panelIndex < 0 || maxWidth < 4)
@@ -453,13 +772,7 @@ namespace RPGGame
             var action = actions[panelIndex];
             void AddWrapped(string? paragraph)
             {
-                if (result.Count >= maxLines || string.IsNullOrWhiteSpace(paragraph))
-                    return;
-                foreach (var line in WrapTextToLines(paragraph.Trim(), maxWidth))
-                {
-                    if (result.Count >= maxLines) break;
-                    result.Add(line);
-                }
+                AddWrappedTooltipParagraph(result, paragraph, maxWidth, maxLines);
             }
 
             result.Add(FormatTooltipActionName(action.Name));
@@ -479,7 +792,7 @@ namespace RPGGame
         /// Tooltip lines for an action that may or may not be in the current combo (e.g. pool row on the inventory right panel).
         /// When the action is already in the sequence, delegates to <see cref="BuildActionTooltipLines"/>.
         /// </summary>
-        public static List<string> BuildActionTooltipLinesForAction(Character? character, Action? action, int maxWidth, int maxLines = 18)
+        public static List<string> BuildActionTooltipLinesForAction(Character? character, Action? action, int maxWidth, int maxLines = 28)
         {
             var result = new List<string>();
             if (character == null || action == null || maxWidth < 4)
@@ -494,13 +807,7 @@ namespace RPGGame
 
             void AddWrapped(string? paragraph)
             {
-                if (result.Count >= maxLines || string.IsNullOrWhiteSpace(paragraph))
-                    return;
-                foreach (var line in WrapTextToLines(paragraph.Trim(), maxWidth))
-                {
-                    if (result.Count >= maxLines) break;
-                    result.Add(line);
-                }
+                AddWrappedTooltipParagraph(result, paragraph, maxWidth, maxLines);
             }
 
             result.Add(FormatTooltipActionName(action.Name));
@@ -554,6 +861,29 @@ namespace RPGGame
             if (current.Length > 0)
                 lines.Add(current.ToString());
             return lines;
+        }
+
+        /// <summary>
+        /// Adds one wrapped tooltip paragraph, inserting a blank line between existing paragraphs when there is room.
+        /// </summary>
+        internal static void AddWrappedTooltipParagraph(List<string> result, string? paragraph, int maxWidth, int maxLines)
+        {
+            if (result == null || result.Count >= maxLines || string.IsNullOrWhiteSpace(paragraph))
+                return;
+
+            var wrappedLines = WrapTextToLines(paragraph.Trim(), maxWidth);
+            if (wrappedLines.Count == 0)
+                return;
+
+            if (result.Count > 0 && result[result.Count - 1].Length > 0 && result.Count + 1 < maxLines)
+                result.Add("");
+
+            foreach (var line in wrappedLines)
+            {
+                if (result.Count >= maxLines)
+                    break;
+                result.Add(line);
+            }
         }
 
         private static string GetCausesShort(Action action)

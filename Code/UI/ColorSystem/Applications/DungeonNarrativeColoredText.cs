@@ -50,6 +50,16 @@ namespace RPGGame.UI.ColorSystem.Applications
                 .Build();
         }
 
+        public static List<ColoredText> FormatEnemySurpriseMessage(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+                return new List<ColoredText>();
+
+            return new ColoredTextBuilder()
+                .Add(message, ColorPalette.Red)
+                .Build();
+        }
+
         private static void AddKeywordColoredText(ColoredTextBuilder builder, string text)
         {
             if (!string.IsNullOrEmpty(text))

@@ -207,6 +207,9 @@ namespace RPGGame
                 return "TEC";
 
             string u = n.Replace(" ", "", StringComparison.Ordinal).ToUpperInvariant();
+            if (u is "HEALTHBONUS" or "HP" or "HPBONUS")
+                return "Health";
+
             if (u is "BASEDAMAGE" or "WEAPONDAMAGE")
                 return "Damage";
 
@@ -457,26 +460,41 @@ namespace RPGGame
 
         private static int MaterialStatBonus(Modification modification, string statType)
         {
-            string eff = modification.Effect ?? "";
-            return eff switch
+            string effect = NormalizeMaterialEffectKey(modification.Effect);
+            if (string.IsNullOrEmpty(effect))
+                return 0;
+
+            int value = (int)Math.Round(modification.RolledValue);
+            return effect switch
             {
-                "equipmentStr" when string.Equals(statType, "STR", StringComparison.OrdinalIgnoreCase) =>
-                    (int)Math.Round(modification.RolledValue),
-                "equipmentAgi" when string.Equals(statType, "AGI", StringComparison.OrdinalIgnoreCase) =>
-                    (int)Math.Round(modification.RolledValue),
-                "equipmentTec" when string.Equals(statType, "TEC", StringComparison.OrdinalIgnoreCase) =>
-                    (int)Math.Round(modification.RolledValue),
-                "equipmentInt" when string.Equals(statType, "INT", StringComparison.OrdinalIgnoreCase) =>
-                    (int)Math.Round(modification.RolledValue),
-                // Prefix rows in Modifications.json (e.g. Swift → HIT, Balanced → COMBO) use these effect keys.
-                "HIT" when string.Equals(statType, "HIT", StringComparison.OrdinalIgnoreCase) =>
-                    (int)Math.Round(modification.RolledValue),
-                "COMBO" when string.Equals(statType, "COMBO", StringComparison.OrdinalIgnoreCase) =>
-                    (int)Math.Round(modification.RolledValue),
-                "CRIT" when string.Equals(statType, "CRIT", StringComparison.OrdinalIgnoreCase) =>
-                    (int)Math.Round(modification.RolledValue),
+                "STR" when string.Equals(statType, "STR", StringComparison.OrdinalIgnoreCase) => value,
+                "AGI" when string.Equals(statType, "AGI", StringComparison.OrdinalIgnoreCase) => value,
+                "TEC" when string.Equals(statType, "TEC", StringComparison.OrdinalIgnoreCase) => value,
+                "INT" when string.Equals(statType, "INT", StringComparison.OrdinalIgnoreCase) => value,
+                "HIT" when string.Equals(statType, "HIT", StringComparison.OrdinalIgnoreCase) => value,
+                "COMBO" when string.Equals(statType, "COMBO", StringComparison.OrdinalIgnoreCase) => value,
+                "CRIT" when string.Equals(statType, "CRIT", StringComparison.OrdinalIgnoreCase) => value,
+                "Health" when string.Equals(statType, "Health", StringComparison.OrdinalIgnoreCase) => value,
                 _ => 0
             };
+        }
+
+        private static string NormalizeMaterialEffectKey(string? rawEffect)
+        {
+            if (string.IsNullOrWhiteSpace(rawEffect))
+                return "";
+
+            string raw = rawEffect.Trim();
+            if (string.Equals(raw, "equipmentStr", StringComparison.OrdinalIgnoreCase))
+                return "STR";
+            if (string.Equals(raw, "equipmentAgi", StringComparison.OrdinalIgnoreCase))
+                return "AGI";
+            if (string.Equals(raw, "equipmentTec", StringComparison.OrdinalIgnoreCase))
+                return "TEC";
+            if (string.Equals(raw, "equipmentInt", StringComparison.OrdinalIgnoreCase))
+                return "INT";
+
+            return NormalizeAffixContributionType(raw);
         }
     }
 }

@@ -170,7 +170,7 @@ namespace RPGGame.Tests.Unit.Config
 
             double ampMid = ComboAmplifierFromTechnique.Compute(10, zeroed);
             TestBase.AssertTrue(ampMid > 1.01,
-                $"TECH 10 should yield amp above flat 1.0 after defaults, got {ampMid}",
+                $"TECH 10 should yield amp above 1.0 from the logarithmic formula, got {ampMid}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

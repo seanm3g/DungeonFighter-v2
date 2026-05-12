@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
@@ -33,7 +34,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// <summary>
         /// Renders item comparison screen for equip decision
         /// </summary>
-        public int RenderItemComparison(int x, int y, int width, int height, Character character, Item newItem, Item? currentItem, string slot)
+        public int RenderItemComparison(int x, int y, int width, int height, Character character, Item newItem, Item? currentItem, string slot, int newItemInventoryIndex = -1)
         {
             int currentLineCount = 0;
             
@@ -60,6 +61,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int columnWidth = (width - 6) / 2; // Leave space for separator
             int leftColumnX = x + 2;
             int rightColumnX = x + 2 + columnWidth + 2;
+            int columnContentTopY = y;
             
             // Left column: Current Item
             int leftY = y;
@@ -122,6 +124,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             
             // Render action changes comparison
             RenderActionChanges(character, newItem, currentItem, leftColumnX, rightColumnX, ref leftY, ref rightY, ref currentLineCount);
+            RegisterComparisonTooltipTargets(slot, newItemInventoryIndex, leftColumnX, rightColumnX, columnWidth, columnContentTopY, leftY, rightY);
             
             // Options at bottom
             y = startY + height - 6;
@@ -144,6 +147,73 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             currentLineCount++;
             
             return currentLineCount;
+        }
+
+        internal static string? GetComparisonTooltipHoverValue(bool currentColumn, string slot, int newItemInventoryIndex)
+        {
+            if (currentColumn)
+            {
+                string? slotKey = NormalizeSlotHoverKey(slot);
+                return slotKey == null ? null : LeftPanelHoverState.Prefix + "gear:" + slotKey;
+            }
+
+            return newItemInventoryIndex >= 0
+                ? LeftPanelHoverState.Prefix + "inv:" + newItemInventoryIndex
+                : null;
+        }
+
+        private static string? NormalizeSlotHoverKey(string slot) => slot switch
+        {
+            "weapon" => "weapon",
+            "head" => "head",
+            "body" => "body",
+            "legs" => "legs",
+            "feet" => "feet",
+            _ => null
+        };
+
+        private void RegisterComparisonTooltipTargets(
+            string slot,
+            int newItemInventoryIndex,
+            int leftColumnX,
+            int rightColumnX,
+            int columnWidth,
+            int columnContentTopY,
+            int leftColumnEndY,
+            int rightColumnEndY)
+        {
+            AddComparisonTooltipTarget(
+                leftColumnX,
+                columnContentTopY,
+                columnWidth,
+                leftColumnEndY - columnContentTopY,
+                GetComparisonTooltipHoverValue(true, slot, newItemInventoryIndex),
+                "Current item details");
+
+            AddComparisonTooltipTarget(
+                rightColumnX,
+                columnContentTopY,
+                columnWidth,
+                rightColumnEndY - columnContentTopY,
+                GetComparisonTooltipHoverValue(false, slot, newItemInventoryIndex),
+                "New item details");
+        }
+
+        private void AddComparisonTooltipTarget(int x, int y, int width, int height, string? hoverValue, string displayText)
+        {
+            if (string.IsNullOrEmpty(hoverValue))
+                return;
+
+            clickableElements.Add(new ClickableElement
+            {
+                X = x,
+                Y = y,
+                Width = Math.Max(1, width),
+                Height = Math.Max(1, height),
+                Type = ElementType.Text,
+                Value = hoverValue,
+                DisplayText = displayText
+            });
         }
         
         /// <summary>

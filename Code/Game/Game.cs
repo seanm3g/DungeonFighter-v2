@@ -333,6 +333,13 @@ namespace RPGGame
                         canvasUI.RenderTrainingGroundOffer(player);
                     }
                     break;
+                case GameState.PreWeaponPathIntro:
+                    if (player != null)
+                    {
+                        canvasUI.Clear();
+                        canvasUI.RenderPreWeaponPathIntro(player);
+                    }
+                    break;
                 case GameState.Settings:
                     canvasUI.Clear();
                     canvasUI.RenderSettings();

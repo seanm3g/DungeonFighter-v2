@@ -96,7 +96,7 @@ namespace RPGGame.Handlers.Inventory
             // Render comparison screen
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                canvasUI.RenderItemComparison(player, newItem, currentItem, slot);
+                canvasUI.RenderItemComparison(player, newItem, currentItem, slot, itemIndex);
             }
         }
         

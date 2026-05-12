@@ -20,6 +20,8 @@ namespace RPGGame.Tests.Unit
 
             TestCannotRemoveLastRequiredBasicForSword();
             TestRestoreComboReInjectsRequiredBasic();
+            TestCanRemoveRequiredBasicAfterClassTier();
+            TestRestoreComboDoesNotReInjectRequiredBasicAfterClassTier();
 
             TestBase.PrintSummary("WeaponRequiredComboAction Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -89,6 +91,91 @@ namespace RPGGame.Tests.Unit
                 character.GetComboActions().Any(a => string.Equals(a.Name, "STRIKE", StringComparison.OrdinalIgnoreCase)),
                 "STRIKE should be re-added after restore omitted it",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCanRemoveRequiredBasicAfterClassTier()
+        {
+            Console.WriteLine("\n--- TestCanRemoveRequiredBasicAfterClassTier ---");
+            ActionLoader.LoadActions();
+            if (ActionLoader.GetAction("STRIKE") == null)
+            {
+                TestBase.AssertTrue(true, "TestCanRemoveRequiredBasicAfterClassTier skipped (no STRIKE)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            WithFirstClassTierAtTwo(() =>
+            {
+                var character = TestDataBuilders.Character().WithName("WeaponReqClassTierRemove").Build();
+                character.Progression.WarriorPoints = 2;
+                var sword = TestDataBuilders.Weapon().WithWeaponType(WeaponType.Sword).Build();
+                character.EquipItem(sword, "weapon");
+                CharacterSerializer.RebuildCharacterActions(character);
+
+                var strikeInCombo = character.GetComboActions()
+                    .FirstOrDefault(a => string.Equals(a.Name, "STRIKE", StringComparison.OrdinalIgnoreCase));
+                if (strikeInCombo == null)
+                {
+                    TestBase.AssertTrue(true, "TestCanRemoveRequiredBasicAfterClassTier skipped (STRIKE not in combo after rebuild)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    return;
+                }
+
+                bool removed = character.RemoveFromCombo(strikeInCombo);
+                TestBase.AssertTrue(removed, "RemoveFromCombo should allow the weapon basic after first Warrior tier", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertFalse(
+                    character.GetComboActions().Any(a => string.Equals(a.Name, "STRIKE", StringComparison.OrdinalIgnoreCase)),
+                    "STRIKE should not be compelled after first Warrior tier",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            });
+        }
+
+        private static void TestRestoreComboDoesNotReInjectRequiredBasicAfterClassTier()
+        {
+            Console.WriteLine("\n--- TestRestoreComboDoesNotReInjectRequiredBasicAfterClassTier ---");
+            ActionLoader.LoadActions();
+            if (ActionLoader.GetAction("STRIKE") == null)
+            {
+                TestBase.AssertTrue(true, "TestRestoreComboDoesNotReInjectRequiredBasicAfterClassTier skipped (no STRIKE)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            WithFirstClassTierAtTwo(() =>
+            {
+                var character = TestDataBuilders.Character().WithName("WeaponReqClassTierRestore").Build();
+                character.Progression.WarriorPoints = 2;
+                var sword = TestDataBuilders.Weapon().WithWeaponType(WeaponType.Sword).Build();
+                character.EquipItem(sword, "weapon");
+                CharacterSerializer.RebuildCharacterActions(character);
+
+                var freeAction = TestDataBuilders.CreateMockAction("FREE CUT");
+                freeAction.IsComboAction = true;
+                freeAction.ComboOrder = 2;
+                character.AddAction(freeAction, 1.0);
+
+                bool restored = character.RestoreComboFromActionNames(new[] { "FREE CUT" });
+                TestBase.AssertTrue(restored, "RestoreComboFromActionNames should restore the non-basic action", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertFalse(
+                    character.GetComboActions().Any(a => string.Equals(a.Name, "STRIKE", StringComparison.OrdinalIgnoreCase)),
+                    "STRIKE should not be re-added after the Warrior class tier is reached",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            });
+        }
+
+        private static void WithFirstClassTierAtTwo(System.Action test)
+        {
+            var cfg = GameConfiguration.Instance;
+            var backupClassPresentation = cfg.ClassPresentation;
+            try
+            {
+                cfg.ClassPresentation = new ClassPresentationConfig
+                {
+                    TierThresholds = new[] { 2, 4, 6, 8 }
+                };
+                test();
+            }
+            finally
+            {
+                cfg.ClassPresentation = backupClassPresentation;
+            }
         }
     }
 }

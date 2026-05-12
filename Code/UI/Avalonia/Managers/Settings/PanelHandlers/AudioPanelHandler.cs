@@ -63,7 +63,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (masterSlider != null) masterSlider.Value = config.MasterVolume;
             if (musicSlider  != null) musicSlider.Value  = config.MusicVolume;
             if (sfxSlider    != null) sfxSlider.Value    = config.SfxVolume;
-            if (masterMute   != null) masterMute.IsChecked = !ResolveMasterUnmuted();
+            if (masterMute   != null) masterMute.IsChecked = !config.MasterEnabled;
             if (musicMute    != null) musicMute.IsChecked  = !config.MusicEnabled;
             if (sfxMute      != null) sfxMute.IsChecked    = !config.SfxEnabled;
             if (crossfade    != null) crossfade.Value      = config.MusicCrossfadeMs;
@@ -95,11 +95,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (sfxMute      != null) config.SfxEnabled       = !(sfxMute.IsChecked ?? false);
             if (crossfade    != null) config.MusicCrossfadeMs = (int)(crossfade.Value ?? AudioConfig.DefaultMusicCrossfadeMs);
 
-            // Master mute folds into GameSettings.EnableSoundEffects so legacy code that gates on
-            // that flag continues to honour the panel's master mute. We don't toggle it from this
-            // panel beyond that — leave per-bus mutes independent.
             if (masterMute != null)
-                GameSettings.Instance.EnableSoundEffects = !(masterMute.IsChecked ?? false);
+                config.MasterEnabled = !(masterMute.IsChecked ?? false);
 
             config.Save();
             AudioBootstrap.ApplyConfigToEngine();
@@ -150,7 +147,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 masterMute.IsCheckedChanged += (_, _) =>
                 {
                     bool muted = masterMute.IsChecked ?? false;
-                    GameSettings.Instance.EnableSoundEffects = !muted;
+                    config.MasterEnabled = !muted;
                     AudioBootstrap.Engine?.SetMasterMute(muted);
                 };
             if (musicMute != null)
@@ -344,7 +341,5 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
             return grid;
         }
-
-        private static bool ResolveMasterUnmuted() => GameSettings.Instance.EnableSoundEffects;
     }
 }

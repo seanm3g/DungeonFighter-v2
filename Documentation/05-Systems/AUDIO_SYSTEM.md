@@ -58,7 +58,7 @@ Mapping is data-driven via `stateMusicMap` in `AudioConfig.json`. Default mappin
 | `Death`                | `Music_Death`             |
 | `TrainingGroundOffer`  | `Music_TrainingGround`    |
 
-Music crossfades when the track changes; default fade is **1000 ms**, adjustable in **Settings → Audio** (`musicCrossfadeMs` in `AudioConfig.json`, 0–10000 ms). The SoundFlow backend overlaps the outgoing and incoming `SoundPlayer`s and ramps their per-player volumes over that duration.
+Music crossfades when the track changes; default fade is **1000 ms**, adjustable in **Settings → Audio** (`musicCrossfadeMs` in `AudioConfig.json`, 0–10000 ms). The SoundFlow backend overlaps the outgoing and incoming `SoundPlayer`s and ramps their per-player volumes over that duration. If there is no outgoing player, the incoming track uses the same duration as a fade-in from silence. During a crossfade, the outgoing player is kept looping until the fade completes; if a short track naturally ends mid-fade, it restarts from the beginning instead of leaving silence under the incoming ramp.
 
 ### Menu and direct-call cues
 
@@ -86,6 +86,7 @@ Lives at [GameData/Audio/AudioConfig.json](../../GameData/Audio/AudioConfig.json
   "masterVolume": 1.0,
   "musicVolume": 0.7,
   "sfxVolume": 0.9,
+  "masterEnabled": true,
   "musicEnabled": true,
   "sfxEnabled": true,
   "musicCrossfadeMs": 1000,
@@ -126,7 +127,7 @@ void Shutdown();
 - `SoundFlowAudioEngine`: one `MiniAudioEngine` at 48 kHz, two child mixers (`Music` and `SFX`) added to `Mixer.Master`. SFX players are cached by file path so each cue plays without re-decoding.
 - `NullAudioEngine`: returns immediately on every call. Used by tests, the MCP server, automated tuning, and any headless launch.
 
-The engine is gated by both the per-bus mute and the legacy `GameSettings.EnableSoundEffects` flag — if either is off, nothing plays.
+The engine is gated by `AudioConfig.masterEnabled` plus the relevant per-bus mute. Music mute only stops music, SFX mute only stops SFX, and master mute stops both.
 
 ## Settings → Audio tab
 
@@ -161,5 +162,7 @@ The panel persists changes to `GameData/Audio/AudioConfig.json`. Saved state is 
 - `AudioCueDispatcher_RespectsRateLimit` — rapid-fire cues are throttled.
 - `AudioConfig_LoadsAndValidates_MissingFile_NoCrash` — empty / missing `file` does not throw.
 - `AudioCueDispatcher_RespectsGlobalMute` — `EnableSoundEffects=false` short-circuits all playback.
+- `TestMusicFadeLoopRestartPolicy` — an outgoing fade restarts a naturally ended track only while that fade generation is still current and not cancelled.
+- `TestMusicFadeIncomingTrackPolicy` — music cues fade in over the configured crossfade duration when no track is already playing.
 
 All tests use `NullAudioEngine`; no real audio runs in CI.

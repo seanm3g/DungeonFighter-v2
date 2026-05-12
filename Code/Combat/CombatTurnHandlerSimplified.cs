@@ -22,7 +22,12 @@ namespace RPGGame
         /// <summary>
         /// Processes a single player turn using the new ActionSelector system
         /// </summary>
-        public async System.Threading.Tasks.Task<bool> ProcessPlayerTurnAsync(Character player, Enemy currentEnemy, Environment room, Action? forcedAction = null)
+        public async System.Threading.Tasks.Task<bool> ProcessPlayerTurnAsync(
+            Character player,
+            Enemy currentEnemy,
+            Environment room,
+            Action? forcedAction = null,
+            TrainingGroundTutorialScript? tutorialScript = null)
         {
             // Check if player is stunned
             if (player.StunTurnsRemaining > 0)
@@ -32,7 +37,7 @@ namespace RPGGame
             else
             {
                 // Use the new ActionSelector system for action selection and execution
-                await ProcessPlayerActionAsync(player, currentEnemy, room, forcedAction);
+                await ProcessPlayerActionAsync(player, currentEnemy, room, forcedAction, tutorialScript);
             }
 
             StatusEffectProcessor.ProcessBleedAfterActorResolvedTurn(player);
@@ -47,7 +52,12 @@ namespace RPGGame
         /// <summary>
         /// Processes a single enemy turn using the new ActionSelector system
         /// </summary>
-        public async System.Threading.Tasks.Task<bool> ProcessEnemyTurnAsync(Character player, Enemy currentEnemy, Environment room, Action? forcedAction = null)
+        public async System.Threading.Tasks.Task<bool> ProcessEnemyTurnAsync(
+            Character player,
+            Enemy currentEnemy,
+            Environment room,
+            Action? forcedAction = null,
+            TrainingGroundTutorialScript? tutorialScript = null)
         {
             // Check if enemy is stunned
             if (currentEnemy.StunTurnsRemaining > 0)
@@ -56,66 +66,76 @@ namespace RPGGame
             }
             else
             {
-                // Use the new ActionExecutor system for consistent action handling with ColoredText
-                var ((actionText, rollInfo), statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
-                    currentEnemy, player, forcedAction, room, 
-                    stateManager.GetLastPlayerAction(), 
-                    stateManager.GetCurrentBattleNarrative());
+                var tutorialNarrative = ApplyTrainingGroundTutorialEvent(currentEnemy, tutorialScript);
+                try
+                {
+                    // Use the new ActionExecutor system for consistent action handling with ColoredText
+                    var ((actionText, rollInfo), statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
+                        currentEnemy, player, forcedAction, room,
+                        stateManager.GetLastPlayerAction(),
+                        stateManager.GetCurrentBattleNarrative());
                 
-                bool textDisplayed = actionText != null && actionText.Count > 0;
+                    bool textDisplayed = actionText != null && actionText.Count > 0;
                 
                 // Get the action that was actually used for turn counting
-                var usedAction = ActionExecutor.GetLastUsedAction(currentEnemy);
-                string actionName = usedAction?.Name ?? "UNKNOWN ACTION";
+                    var usedAction = ActionExecutor.GetLastUsedAction(currentEnemy);
+                    string actionName = usedAction?.Name ?? "UNKNOWN ACTION";
                 
                 // Record the action for turn counting
-                bool newTurn = stateManager.RecordAction(currentEnemy.Name, actionName);
-                if (newTurn && !CombatManager.DisableCombatUIOutput)
-                {
-                    // Turn separator line removed for cleaner combat logs
-                }
+                    bool newTurn = stateManager.RecordAction(currentEnemy.Name, actionName);
+                    if (newTurn && !CombatManager.DisableCombatUIOutput)
+                    {
+                        // Turn separator line removed for cleaner combat logs
+                    }
                 
                 // Get triggered narratives and display everything together
                 // Only retrieve significant narratives (not every critical hit)
-                var battleNarrative = stateManager.GetCurrentBattleNarrative();
-                if (textDisplayed && actionText != null && rollInfo != null && battleNarrative != null)
-                {
-                    var narratives = battleNarrative.GetTriggeredNarrativesIfSignificant();
-                    // Convert narrative strings to ColoredText
-                    var narrativeColored = new List<List<ColoredText>>();
-                    foreach (var narrative in narratives)
+                    var battleNarrative = stateManager.GetCurrentBattleNarrative();
+                    if (textDisplayed && actionText != null && rollInfo != null && battleNarrative != null)
                     {
-                        if (!string.IsNullOrEmpty(narrative))
+                        var narratives = battleNarrative.GetTriggeredNarrativesIfSignificant();
+                        // Convert narrative strings to ColoredText
+                        var narrativeColored = new List<List<ColoredText>>();
+                        AppendTutorialNarrative(narrativeColored, tutorialNarrative);
+                        foreach (var narrative in narratives)
                         {
-                            var parsed = ColoredTextParser.Parse(narrative);
-                            if (parsed.Count > 0)
+                            if (!string.IsNullOrEmpty(narrative))
                             {
-                                narrativeColored.Add(parsed);
+                                var parsed = ColoredTextParser.Parse(narrative);
+                                if (parsed.Count > 0)
+                                {
+                                    narrativeColored.Add(parsed);
+                                }
                             }
                         }
+                        // Display using the new ColoredText method (async to wait for display delay)
+                        // Pass player character to filter display for multi-character support (enemy actions are part of player's combat)
+                        await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, narrativeColored, player);
                     }
-                    // Display using the new ColoredText method (async to wait for display delay)
-                    // Pass player character to filter display for multi-character support (enemy actions are part of player's combat)
-                    await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, narrativeColored, player);
-                }
                 
-                // Update enemy's action timing in the action speed system
-                // CRITICAL: Always update action speed system, even if no action was selected
-                // This prevents infinite loops when ActionSelector returns null
-                var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
-                if (actionSpeedSystem != null)
+                    // Update enemy's action timing in the action speed system
+                    // CRITICAL: Always update action speed system, even if no action was selected
+                    // This prevents infinite loops when ActionSelector returns null
+                    var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
+                    if (actionSpeedSystem != null)
+                    {
+                        if (usedAction != null)
+                        {
+                            bool isCriticalMiss = ActionExecutor.GetLastCriticalMissStatus(currentEnemy);
+                            actionSpeedSystem.ExecuteAction(currentEnemy, usedAction, isCriticalMiss: isCriticalMiss);
+                        }
+                        else
+                        {
+                            // No action was selected (empty ActionPool or stunned) - still advance turn to prevent infinite loop
+                            DebugLogger.WriteCombatDebug("CombatTurnHandlerSimplified", $"Enemy {currentEnemy.Name} had no action selected - advancing turn to prevent infinite loop");
+                            actionSpeedSystem.AdvanceEntityTurn(currentEnemy, 1.0);
+                        }
+                    }
+                }
+                finally
                 {
-                    if (usedAction != null)
-                    {
-                        bool isCriticalMiss = ActionExecutor.GetLastCriticalMissStatus(currentEnemy);
-                        actionSpeedSystem.ExecuteAction(currentEnemy, usedAction, isCriticalMiss: isCriticalMiss);
-                    }
-                    else
-                    {
-                        // No action was selected (empty ActionPool or stunned) - still advance turn to prevent infinite loop
-                        DebugLogger.WriteCombatDebug("CombatTurnHandlerSimplified", $"Enemy {currentEnemy.Name} had no action selected - advancing turn to prevent infinite loop");
-                        actionSpeedSystem.AdvanceEntityTurn(currentEnemy, 1.0);
-                    }
+                    if (tutorialNarrative != null)
+                        Dice.ClearAsyncForcedD20Rolls();
                 }
             }
 
@@ -216,78 +236,115 @@ namespace RPGGame
         /// <summary>
         /// Processes a player action using the new ActionSelector system
         /// </summary>
-        private async System.Threading.Tasks.Task ProcessPlayerActionAsync(Character player, Enemy currentEnemy, Environment room, Action? forcedAction = null)
+        private async System.Threading.Tasks.Task ProcessPlayerActionAsync(
+            Character player,
+            Enemy currentEnemy,
+            Environment room,
+            Action? forcedAction = null,
+            TrainingGroundTutorialScript? tutorialScript = null)
         {
-            // Use the new ColoredText system to execute the action
-            var ((actionText, rollInfo), statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
-                player, currentEnemy, forcedAction, room, 
-                stateManager.GetLastPlayerAction(), 
-                stateManager.GetCurrentBattleNarrative());
+            var tutorialNarrative = ApplyTrainingGroundTutorialEvent(player, tutorialScript);
+            try
+            {
+                // Use the new ColoredText system to execute the action
+                var ((actionText, rollInfo), statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
+                    player, currentEnemy, forcedAction, room,
+                    stateManager.GetLastPlayerAction(),
+                    stateManager.GetCurrentBattleNarrative());
             
-            bool textDisplayed = actionText != null && actionText.Count > 0;
+                bool textDisplayed = actionText != null && actionText.Count > 0;
             
             // Get the action that was actually used for turn counting
-            var usedAction = ActionExecutor.GetLastUsedAction(player);
-            string actionName = usedAction?.Name ?? "UNKNOWN ACTION";
+                var usedAction = ActionExecutor.GetLastUsedAction(player);
+                string actionName = usedAction?.Name ?? "UNKNOWN ACTION";
             
             // Record the action for turn counting
-            bool newTurn = stateManager.RecordAction(player.Name, actionName);
-            if (newTurn && !CombatManager.DisableCombatUIOutput)
-            {
-                // Turn separator line removed for cleaner combat logs
-            }
+                bool newTurn = stateManager.RecordAction(player.Name, actionName);
+                if (newTurn && !CombatManager.DisableCombatUIOutput)
+                {
+                    // Turn separator line removed for cleaner combat logs
+                }
             
             // Get triggered narratives and display everything together
             // Only retrieve significant narratives (not every critical hit)
-            var battleNarrative = stateManager.GetCurrentBattleNarrative();
-            if (textDisplayed && actionText != null && rollInfo != null && battleNarrative != null)
-            {
-                var narratives = battleNarrative.GetTriggeredNarrativesIfSignificant();
-                // Convert narrative strings to ColoredText
-                var narrativeColored = new List<List<ColoredText>>();
-                foreach (var narrative in narratives)
+                var battleNarrative = stateManager.GetCurrentBattleNarrative();
+                if (textDisplayed && actionText != null && rollInfo != null && battleNarrative != null)
                 {
-                    if (!string.IsNullOrEmpty(narrative))
+                    var narratives = battleNarrative.GetTriggeredNarrativesIfSignificant();
+                    // Convert narrative strings to ColoredText
+                    var narrativeColored = new List<List<ColoredText>>();
+                    AppendTutorialNarrative(narrativeColored, tutorialNarrative);
+                    foreach (var narrative in narratives)
                     {
-                        var parsed = ColoredTextParser.Parse(narrative);
-                        if (parsed.Count > 0)
+                        if (!string.IsNullOrEmpty(narrative))
                         {
-                            narrativeColored.Add(parsed);
+                            var parsed = ColoredTextParser.Parse(narrative);
+                            if (parsed.Count > 0)
+                            {
+                                narrativeColored.Add(parsed);
+                            }
                         }
                     }
+                    // Display using the new ColoredText method (async to wait for display delay)
+                    // Pass player character to filter display for multi-character support
+                    await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, narrativeColored, player);
                 }
-                // Display using the new ColoredText method (async to wait for display delay)
-                // Pass player character to filter display for multi-character support
-                await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, narrativeColored, player);
-            }
                 
                 // End turn for statistics tracking
-            player.EndTurn();
+                player.EndTurn();
             
             // Update last player action for DEJA VU functionality
-            if (usedAction != null)
-            {
-                stateManager.UpdateLastPlayerAction(usedAction);
-            }
+                if (usedAction != null)
+                {
+                    stateManager.UpdateLastPlayerAction(usedAction);
+                }
             
             // Update player's action timing in the action speed system
             // CRITICAL: Always update action speed system, even if no action was selected
             // This prevents infinite loops when ActionSelector returns null
-            var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
-            if (actionSpeedSystem != null)
-            {
-                if (usedAction != null)
+                var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
+                if (actionSpeedSystem != null)
                 {
-                    bool isCriticalMiss = ActionExecutor.GetLastCriticalMissStatus(player);
-                    actionSpeedSystem.ExecuteAction(player, usedAction, isCriticalMiss: isCriticalMiss);
-                }
-                else
-                {
-                    // No action was selected (empty ActionPool or stunned) - still advance turn to prevent infinite loop
-                    DebugLogger.WriteCombatDebug("CombatTurnHandlerSimplified", $"Player {player.Name} had no action selected - advancing turn to prevent infinite loop");
-                    actionSpeedSystem.AdvanceEntityTurn(player, 1.0);
+                    if (usedAction != null)
+                    {
+                        bool isCriticalMiss = ActionExecutor.GetLastCriticalMissStatus(player);
+                        actionSpeedSystem.ExecuteAction(player, usedAction, isCriticalMiss: isCriticalMiss);
+                    }
+                    else
+                    {
+                        // No action was selected (empty ActionPool or stunned) - still advance turn to prevent infinite loop
+                        DebugLogger.WriteCombatDebug("CombatTurnHandlerSimplified", $"Player {player.Name} had no action selected - advancing turn to prevent infinite loop");
+                        actionSpeedSystem.AdvanceEntityTurn(player, 1.0);
+                    }
                 }
             }
+            finally
+            {
+                if (tutorialNarrative != null)
+                    Dice.ClearAsyncForcedD20Rolls();
+            }
+        }
+
+        private static List<ColoredText>? ApplyTrainingGroundTutorialEvent(
+            Actor actor,
+            TrainingGroundTutorialScript? tutorialScript)
+        {
+            if (tutorialScript == null)
+                return null;
+
+            if (!tutorialScript.TryConsumeForActor(actor, out var tutorialEvent) || tutorialEvent == null)
+                return null;
+
+            Dice.QueueAsyncForcedD20Rolls(tutorialEvent.Roll);
+            return new List<ColoredText> { new ColoredText(tutorialEvent.NarrativeLine) };
+        }
+
+        private static void AppendTutorialNarrative(
+            List<List<ColoredText>> narrativeColored,
+            List<ColoredText>? tutorialNarrative)
+        {
+            if (tutorialNarrative != null && tutorialNarrative.Count > 0)
+                narrativeColored.Add(tutorialNarrative);
         }
 
         /// <summary>

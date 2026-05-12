@@ -360,7 +360,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Pre-weapon tutorial: enter Training Ground or skip to weapon selection.
+        /// Pre-weapon tutorial: enter Training Ground or skip to the path intro before weapon selection.
         /// </summary>
         public void ShowTrainingGroundOffer(Character player)
         {
@@ -376,6 +376,29 @@ namespace RPGGame
                 canvasUI,
                 GameState.TrainingGroundOffer,
                 (ui) => ui.RenderTrainingGroundOffer(player),
+                character: player,
+                clearEnemyContext: true,
+                clearDungeonContext: true
+            );
+        }
+
+        /// <summary>
+        /// Show the post-Training-Ground path intro before starter weapon selection.
+        /// </summary>
+        public void ShowPreWeaponPathIntro(Character player)
+        {
+            var canvasUI = TryGetCanvasUI();
+            if (canvasUI == null || player == null)
+            {
+                stateManager.TransitionToState(GameState.PreWeaponPathIntro);
+                return;
+            }
+
+            ScreenTransitionProtocol.TransitionToMenuScreen(
+                stateManager,
+                canvasUI,
+                GameState.PreWeaponPathIntro,
+                (ui) => ui.RenderPreWeaponPathIntro(player),
                 character: player,
                 clearEnemyContext: true,
                 clearDungeonContext: true

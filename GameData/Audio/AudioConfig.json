@@ -1,7 +1,8 @@
 {
-  "masterVolume": 1,
+  "masterVolume": 0.24245283,
   "musicVolume": 0.7,
   "sfxVolume": 0.20377359,
+  "masterEnabled": true,
   "musicEnabled": true,
   "sfxEnabled": true,
   "musicCrossfadeMs": 10000,

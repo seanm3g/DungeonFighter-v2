@@ -150,6 +150,10 @@ namespace RPGGame.GameCore.Input
                     if (handlers.TrainingGroundOfferHandler != null)
                         await handlers.TrainingGroundOfferHandler.HandleMenuInput(input);
                     break;
+                case GameState.PreWeaponPathIntro:
+                    if (handlers.PreWeaponPathIntroHandler != null)
+                        await handlers.PreWeaponPathIntroHandler.HandleMenuInput(input);
+                    break;
                 case GameState.GameLoop:
                     if (handlers.GameLoopInputHandler != null)
                         await handlers.GameLoopInputHandler.HandleMenuInput(input);
@@ -239,6 +243,7 @@ namespace RPGGame.GameCore.Input
         public LoadCharacterSelectionHandler? LoadCharacterSelectionHandler { get; set; }
         public DungeonExitChoiceHandler? DungeonExitChoiceHandler { get; set; }
         public TrainingGroundOfferHandler? TrainingGroundOfferHandler { get; set; }
+        public PreWeaponPathIntroHandler? PreWeaponPathIntroHandler { get; set; }
     }
 }
 

@@ -90,9 +90,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the inventory screen with items and actions
         /// </summary>
-        public void RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory, string? pendingMutatingInventoryMenuAction = null)
+        public void RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0)
         {
-            currentLineCount = screenRenderer.RenderInventory(x, y, width, height, character, inventory, pendingMutatingInventoryMenuAction);
+            currentLineCount = screenRenderer.RenderInventory(x, y, width, height, character, inventory, pendingMutatingInventoryMenuAction, itemScrollOffset);
         }
         
         /// <summary>
@@ -106,9 +106,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders item comparison screen for equip decision
         /// </summary>
-        public void RenderItemComparison(int x, int y, int width, int height, Character character, Item newItem, Item? currentItem, string slot)
+        public void RenderItemComparison(int x, int y, int width, int height, Character character, Item newItem, Item? currentItem, string slot, int newItemInventoryIndex = -1)
         {
-            currentLineCount = comparisonRenderer.RenderItemComparison(x, y, width, height, character, newItem, currentItem, slot);
+            currentLineCount = comparisonRenderer.RenderItemComparison(x, y, width, height, character, newItem, currentItem, slot, newItemInventoryIndex);
         }
         
         /// <summary>

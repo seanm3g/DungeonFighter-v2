@@ -18,6 +18,7 @@ namespace RPGGame.Tests.Unit.UI
 
             TestEmptyInventory(ref run, ref passed, ref failed);
             TestWeaponWithGearAction(ref run, ref passed, ref failed);
+            TestRequirementBlockedItemDoesNotContributeRows(ref run, ref passed, ref failed);
             TestGetEquipSlot(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("InventoryActionPoolEntries Tests", run, passed, failed);
@@ -49,6 +50,28 @@ namespace RPGGame.Tests.Unit.UI
                 "JAB row is for bag index 0", ref run, ref passed, ref failed);
             TestBase.AssertTrue(jabEntry.ActionIndexInItem >= 0,
                 "JAB has a valid action index on the item", ref run, ref passed, ref failed);
+        }
+
+        private static void TestRequirementBlockedItemDoesNotContributeRows(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var blocked = TestDataBuilders.Weapon().WithName("TooQuickBlade").Build();
+            blocked.GearAction = "JAB";
+            blocked.AttributeRequirements.Add("agility", 99);
+            var allowed = TestDataBuilders.Weapon().WithName("UsableBlade").Build();
+            allowed.GearAction = "JAB";
+
+            var c = TestDataBuilders.Character().WithName("ReqGate").WithStats(10, 10, 10, 10).Build();
+            c.Inventory.Clear();
+            c.Inventory.Add(blocked);
+            c.Inventory.Add(allowed);
+
+            var list = InventoryActionPoolEntries.Build(c);
+            TestBase.AssertTrue(list.Count >= 1, "Allowed item contributes bag action rows", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(list.TrueForAll(e => e.InventoryIndex != 0),
+                "Requirement-blocked item contributes no inventory action rows", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(list.Exists(e => e.InventoryIndex == 1),
+                "Allowed item remains visible in inventory action rows", ref run, ref passed, ref failed);
         }
 
         private static void TestGetEquipSlot(ref int run, ref int passed, ref int failed)

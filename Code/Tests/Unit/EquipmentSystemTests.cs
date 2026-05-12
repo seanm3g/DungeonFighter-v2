@@ -30,12 +30,14 @@ namespace RPGGame.Tests.Unit
             TestStatBonusSuffixPercentMinimumOneForStrength();
             TestLiteralHitSuffixNotPercentScaled();
             TestSwiftStylePrefixHitModificationOnArmor();
+            TestGoldMaterialPrefixAgilityModification();
             TestStatBonusRemoval();
             TestActionPoolUpdates();
             TestInventoryManagement();
             TestEquipmentConflicts();
             TestNullEquipment();
             TestEquipmentHealthBonuses();
+            TestHealthBonusPrefixModification();
             TestHealthAdjustmentOnEquip();
             TestRollBonusApplication();
             TestRerollChargesUpdate();
@@ -230,6 +232,44 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        /// <summary>
+        /// PrefixMaterialQuality.json Gold uses Effect "AGILITY"; it must count the same as legacy equipmentAgi.
+        /// </summary>
+        private static void TestGoldMaterialPrefixAgilityModification()
+        {
+            Console.WriteLine("\n--- Testing Gold material prefix (Effect AGILITY) counts toward effective AGI ---");
+
+            var character = TestDataBuilders.Character()
+                .WithName("GoldBoots")
+                .WithStats(10, 10, 10, 10)
+                .Build();
+            int agilityBefore = character.GetEffectiveAgility();
+            var goldMod = new Modification
+            {
+                Name = "Gold",
+                Effect = "AGILITY",
+                PrefixCategory = "MATERIAL",
+                RolledValue = 3,
+                MinValue = 3,
+                MaxValue = 3
+            };
+            var boots = TestDataBuilders.Armor()
+                .WithType(ItemType.Feet)
+                .WithName("Gold high Boots")
+                .WithModification(goldMod)
+                .Build();
+
+            character.EquipItem(boots, "feet");
+
+            int agilityBonus = character.Equipment.GetEquipmentStatBonus("AGI", character);
+            TestBase.AssertEqual(3, agilityBonus,
+                "Gold material prefix should contribute +3 to equipment AGI total",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(agilityBefore + 3, character.GetEffectiveAgility(),
+                "Gold material prefix should increase effective agility by 3",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         private static void TestStatBonusRemoval()
         {
             Console.WriteLine("\n--- Testing Stat Bonus Removal ---");
@@ -383,6 +423,39 @@ namespace RPGGame.Tests.Unit
             // Health should be adjusted to new effective max when max health increases
             TestBase.AssertEqual(newEffectiveMaxHealth, finalHealth,
                 $"Health should be adjusted to new effective max when max health increases. Expected: {newEffectiveMaxHealth}, Actual: {finalHealth}, Base Max: {baseMaxHealth}, Initial Health: {initialHealth}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestHealthBonusPrefixModification()
+        {
+            Console.WriteLine("\n--- Testing HEALTH BONUS Prefix Modification ---");
+
+            var character = TestDataBuilders.Character().WithName("SturdyVestHero").Build();
+            int baseMaxHealth = character.MaxHealth;
+            var sturdy = new Modification
+            {
+                Name = "Sturdy",
+                Effect = "HEALTH BONUS",
+                RolledValue = 25,
+                MinValue = 25,
+                MaxValue = 25
+            };
+            var vest = TestDataBuilders.Armor()
+                .WithType(ItemType.Chest)
+                .WithName("Sturdy Vest")
+                .WithModification(sturdy)
+                .Build();
+
+            character.EquipItem(vest, "body");
+
+            TestBase.AssertEqual(25, character.GetEquipmentHealthBonus(),
+                "HEALTH BONUS prefix should contribute its rolled value as flat equipment health",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(baseMaxHealth + 25, character.GetEffectiveMaxHealth(),
+                "Sturdy Vest should increase effective max health by its flat HEALTH BONUS value",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(character.GetEffectiveMaxHealth(), character.CurrentHealth,
+                "Equipping a flat health-bonus prefix should adjust current health to the new max",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

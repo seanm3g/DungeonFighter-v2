@@ -71,7 +71,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// <summary>
         /// Renders the inventory screen with items and actions
         /// </summary>
-        public int RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory, string? pendingMutatingInventoryMenuAction = null)
+        public int RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0)
         {
             // Do not Clear() the shared clickables list: PersistentLayoutManager already cleared it this frame,
             // and CharacterPanelRenderer registered left-panel lphover targets before this callback. Clearing here
@@ -92,6 +92,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             
             // Inventory items section
+            int actionsStartY = InventoryItemScrollLayout.GetBottomMenuStartY(startY, height, pendingMutatingInventoryMenuAction != null);
             int itemsHeaderY = y;
             canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.InventoryItems), AsciiArtAssets.Colors.Gold);
             y += 2;
@@ -114,17 +115,40 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             else
             {
-                int maxItems = Math.Min(inventory.Count, 20);
-                bool blockRowClicks = pendingMutatingInventoryMenuAction != null;
-                for (int i = 0; i < maxItems; i++)
+                int availableItemRows = Math.Max(0, actionsStartY - y - 1);
+                var itemStatsByIndex = new List<string>[inventory.Count];
+                var itemActionsByIndex = new List<string>?[inventory.Count];
+                var itemLineCounts = new List<int>(inventory.Count);
+                for (int i = 0; i < inventory.Count; i++)
                 {
                     var item = inventory[i];
                     var itemStats = ItemStatFormatter.GetItemStats(item, character);
+                    var itemActions = character.Equipment.GetGearActions(item);
+                    itemStatsByIndex[i] = itemStats;
+                    itemActionsByIndex[i] = itemActions;
+                    int rowLines = 1;
+                    if (itemActions != null && itemActions.Count > 0)
+                        rowLines++;
+                    rowLines += itemStats.Count;
+                    itemLineCounts.Add(Math.Max(1, rowLines));
+                }
+
+                int clampedScrollOffset = InventoryItemScrollLayout.ClampFirstVisibleIndex(itemScrollOffset, inventory.Count);
+                bool showScrollStatus = InventoryItemScrollLayout.RequiresScrollStatus(itemLineCounts, availableItemRows, clampedScrollOffset);
+                if (!showScrollStatus)
+                    clampedScrollOffset = 0;
+                int renderRowsAvailable = showScrollStatus ? Math.Max(0, availableItemRows - 1) : availableItemRows;
+                var visibleRange = InventoryItemScrollLayout.CalculateVisibleRange(itemLineCounts, clampedScrollOffset, renderRowsAvailable);
+                bool blockRowClicks = pendingMutatingInventoryMenuAction != null;
+                for (int i = visibleRange.FirstIndex; i < visibleRange.LastExclusiveIndex; i++)
+                {
+                    var item = inventory[i];
+                    var itemStats = itemStatsByIndex[i];
                     
                     // Get actions for this item
-                    var itemActions = character.Equipment.GetGearActions(item);
+                    var itemActions = itemActionsByIndex[i];
                     
-                    int rowLines = CountItemDisplayLines(item, character, itemStats);
+                    int rowLines = itemLineCounts[i];
                     string slotName = GetSlotName(item);
                     string rarity = item.Rarity?.Trim() ?? "Common";
                     // During mutating-action confirmation, row Values are "1","2",… — same as Continue / menu
@@ -169,11 +193,22 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true,
                         displayedItem: item, weaponSpeedBaseline: equippedWeapon);
                 }
+
+                if (showScrollStatus)
+                {
+                    int firstDisplay = visibleRange.VisibleItemCount > 0 ? visibleRange.FirstIndex + 1 : 0;
+                    int lastDisplay = visibleRange.VisibleItemCount > 0 ? visibleRange.LastExclusiveIndex : 0;
+                    string status = $"Items {firstDisplay}-{lastDisplay} of {inventory.Count} - scroll Up/Down";
+                    if (status.Length > width - 4)
+                        status = status.Substring(0, Math.Max(0, width - 7)) + "...";
+                    int statusY = actionsStartY - 2;
+                    canvas.AddText(x + 2, statusY, status, AsciiArtAssets.Colors.DarkGray);
+                    currentLineCount++;
+                }
             }
             
             // Actions / confirm section at bottom
-            int confirmExtra = pendingMutatingInventoryMenuAction != null ? 6 : 0;
-            y = startY + height - 10 - confirmExtra;
+            y = actionsStartY;
             if (pendingMutatingInventoryMenuAction != null)
             {
                 string actionTitle = GetMutatingMenuActionTitle(pendingMutatingInventoryMenuAction);
@@ -230,6 +265,81 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             currentLineCount++;
             
             return currentLineCount;
+        }
+    }
+
+    public readonly struct InventoryItemVisibleRange
+    {
+        public InventoryItemVisibleRange(int firstIndex, int lastExclusiveIndex, int usedRows, int itemCount)
+        {
+            FirstIndex = firstIndex;
+            LastExclusiveIndex = lastExclusiveIndex;
+            UsedRows = usedRows;
+            ItemCount = itemCount;
+        }
+
+        public int FirstIndex { get; }
+        public int LastExclusiveIndex { get; }
+        public int UsedRows { get; }
+        public int ItemCount { get; }
+        public int VisibleItemCount => Math.Max(0, LastExclusiveIndex - FirstIndex);
+        public bool HasItemsAbove => FirstIndex > 0;
+        public bool HasItemsBelow => LastExclusiveIndex < ItemCount;
+    }
+
+    public static class InventoryItemScrollLayout
+    {
+        public const int ScrollStepItems = 1;
+        public const int PageScrollStepItems = 5;
+
+        public static int GetBottomMenuStartY(int contentStartY, int contentHeight, bool hasConfirmationBlock)
+        {
+            int confirmationRows = hasConfirmationBlock ? 6 : 0;
+            return contentStartY + contentHeight - 10 - confirmationRows;
+        }
+
+        public static int ClampFirstVisibleIndex(int requestedFirstIndex, int itemCount)
+        {
+            if (itemCount <= 0)
+                return 0;
+            return Math.Max(0, Math.Min(requestedFirstIndex, itemCount - 1));
+        }
+
+        public static bool RequiresScrollStatus(IReadOnlyList<int> itemLineCounts, int availableRows, int firstVisibleIndex)
+        {
+            if (itemLineCounts == null || itemLineCounts.Count == 0 || availableRows <= 0)
+                return false;
+
+            int totalRows = 0;
+            for (int i = 0; i < itemLineCounts.Count; i++)
+                totalRows += Math.Max(1, itemLineCounts[i]);
+
+            return totalRows > availableRows;
+        }
+
+        public static InventoryItemVisibleRange CalculateVisibleRange(IReadOnlyList<int> itemLineCounts, int requestedFirstIndex, int availableRows)
+        {
+            if (itemLineCounts == null)
+                return new InventoryItemVisibleRange(0, 0, 0, 0);
+
+            int itemCount = itemLineCounts.Count;
+            int firstIndex = ClampFirstVisibleIndex(requestedFirstIndex, itemCount);
+            if (itemCount == 0 || availableRows <= 0)
+                return new InventoryItemVisibleRange(firstIndex, firstIndex, 0, itemCount);
+
+            int usedRows = 0;
+            int index = firstIndex;
+            while (index < itemCount)
+            {
+                int rowLines = Math.Max(1, itemLineCounts[index]);
+                if (usedRows + rowLines > availableRows)
+                    break;
+
+                usedRows += rowLines;
+                index++;
+            }
+
+            return new InventoryItemVisibleRange(firstIndex, index, usedRows, itemCount);
         }
     }
 }

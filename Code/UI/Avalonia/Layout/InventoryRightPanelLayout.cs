@@ -90,5 +90,96 @@ namespace RPGGame.UI.Avalonia.Layout
 
             return false;
         }
+
+        /// <summary>
+        /// Grid row (character Y) of the inventory/bag action pool line for <paramref name="inventoryPoolIndex"/> when visible.
+        /// </summary>
+        /// <returns>False when the index is invalid or the row is not rendered (scrolled past bottom).</returns>
+        public static bool TryGetInventoryActionPoolRowY(Character character, int inventoryPoolIndex, out int rowY)
+        {
+            rowY = 0;
+            if (character == null || inventoryPoolIndex < 0)
+                return false;
+
+            var invEntries = InventoryActionPoolEntries.Build(character);
+            if (invEntries.Count == 0 || inventoryPoolIndex >= invEntries.Count)
+                return false;
+
+            int y = LayoutConstants.RIGHT_PANEL_Y + 1;
+            int panelBottom = LayoutConstants.RIGHT_PANEL_Y + LayoutConstants.RIGHT_PANEL_HEIGHT - 2;
+
+            y++;
+            y++;
+            y += 2;
+
+            var comboActions = character.GetComboActions();
+            if (comboActions.Count > 0)
+            {
+                y += 2;
+
+                const int actionPoolReserve = 16;
+                int comboLinesAvailable = panelBottom - y - actionPoolReserve;
+                int maxDisplay = Math.Max(0, Math.Min(comboActions.Count, comboLinesAvailable - 1));
+                if (maxDisplay == 0 && comboActions.Count > 0)
+                    maxDisplay = Math.Min(comboActions.Count, comboLinesAvailable);
+
+                for (int i = 0; i < maxDisplay; i++)
+                    y++;
+
+                if (comboActions.Count > maxDisplay)
+                    y++;
+            }
+            else
+            {
+                y += 2;
+            }
+
+            y += 1;
+
+            y++;
+            y++;
+            y += 2;
+
+            var actionPool = character.GetActionPool();
+            if (actionPool.Count > 0)
+            {
+                y += 2;
+
+                int poolIdx = 0;
+                while (poolIdx < actionPool.Count && y <= panelBottom - 1)
+                {
+                    y++;
+                    poolIdx++;
+                }
+
+                if (poolIdx < actionPool.Count)
+                    y++;
+            }
+            else
+            {
+                y++;
+            }
+
+            y += 1;
+            y++;
+            y++;
+            y += 2;
+            y += 2;
+
+            int invFlat = 0;
+            while (invFlat < invEntries.Count && y <= panelBottom - 1)
+            {
+                if (invFlat == inventoryPoolIndex)
+                {
+                    rowY = y;
+                    return true;
+                }
+
+                y++;
+                invFlat++;
+            }
+
+            return false;
+        }
     }
 }

@@ -158,6 +158,9 @@ namespace RPGGame.Tests.Unit.UI
                 && tipJoined.Contains("Spd ", StringComparison.Ordinal),
                 "BuildActionTooltipLines uses strip-style damage line and Spd percentage",
                 ref run, ref passed, ref failed);
+            TestBase.AssertTrue(tipOk != null && tipOk.Count >= 3 && tipOk[1] == "",
+                "BuildActionTooltipLines inserts a blank line after action title",
+                ref run, ref passed, ref failed);
 
             // Multihit: strip panel + tooltip use NxPct% damage (matches combat tick count basis)
             var charMultiHit = CreateCharacterWithComboAction();
@@ -225,9 +228,43 @@ namespace RPGGame.Tests.Unit.UI
                 "BuildActionTooltipLines notes finisher role",
                 ref run, ref passed, ref failed);
 
+            var charMechanical = CreateCharacterWithMechanicallyRichAction();
+            string tipMechanical = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charMechanical, 0, 120, 80));
+            TestBase.AssertTrue(
+                tipMechanical.Contains("Type Attack | Target AOE | combo action", StringComparison.Ordinal)
+                && tipMechanical.Contains("Hero accuracy +2", StringComparison.Ordinal)
+                && tipMechanical.Contains("Enemy accuracy -3", StringComparison.Ordinal)
+                && tipMechanical.Contains("Roll dice: 2d20 TakeHighest", StringComparison.Ordinal)
+                && tipMechanical.Contains("Set thresholds H=6 C=12 Cr=19 Cm=2", StringComparison.Ordinal)
+                && tipMechanical.Contains("Triggers: ONHIT, ONCRITICAL", StringComparison.Ordinal)
+                && tipMechanical.Contains("Statuses: Stun, Bleed +2, Poison +3% max HP, Burn +4", StringComparison.Ordinal)
+                && tipMechanical.Contains("Combo route: jump to slot 3", StringComparison.Ordinal)
+                && tipMechanical.Contains("Chain position bonuses: Damage +10% per AmpTier", StringComparison.Ordinal)
+                && tipMechanical.Contains("Stat bonus (Dungeon): STR +2, PRIMARY +1", StringComparison.Ordinal)
+                && tipMechanical.Contains("Threshold rules: Enemy Health <= 25%", StringComparison.Ordinal)
+                && tipMechanical.Contains("Accumulation: HitsLanded -> Damage +5", StringComparison.Ordinal),
+                "BuildActionTooltipLines includes full runtime mechanics for a complex action",
+                ref run, ref passed, ref failed);
+
+            var richAction = charMechanical.GetComboActions()[0];
+            string summaryMechanical = CombatActionStripBuilder.BuildActionMechanicalModSummary(charMechanical, richAction, 0);
+            TestBase.AssertTrue(
+                summaryMechanical.Contains("ACTION x2: +1 ACC, +20% DMG", StringComparison.Ordinal)
+                && summaryMechanical.Contains("Hero thresholds H:-1 C:+2 Cr:-1 Cm:+1", StringComparison.Ordinal)
+                && summaryMechanical.Contains("Enemy thresholds H:+1 C:-2 Cr:+3 Cm:-1", StringComparison.Ordinal),
+                "BuildActionMechanicalModSummary includes action-bonus and hero/enemy threshold mechanics",
+                ref run, ref passed, ref failed);
+
             var wrap = CombatActionStripBuilder.WrapTextToLines("hello world wide", 5);
             TestBase.AssertTrue(wrap != null && wrap.Count >= 2 && wrap.TrueForAll(l => l.Length <= 5),
                 "WrapTextToLines respects max width",
+                ref run, ref passed, ref failed);
+
+            var paragraphLines = new List<string>();
+            CombatActionStripBuilder.AddWrappedTooltipParagraph(paragraphLines, "first paragraph", 40, 8);
+            CombatActionStripBuilder.AddWrappedTooltipParagraph(paragraphLines, "second paragraph", 40, 8);
+            TestBase.AssertTrue(paragraphLines.Count == 3 && paragraphLines[1] == "",
+                "AddWrappedTooltipParagraph inserts one blank spacer between paragraphs",
                 ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("CombatActionStripBuilder Tests", run, passed, failed);
@@ -298,6 +335,108 @@ namespace RPGGame.Tests.Unit.UI
             action.ComboRouting ??= new ComboRoutingProperties();
             action.ComboRouting.IsOpener = isOpener;
             action.ComboRouting.IsFinisher = isFinisher;
+            character.AddAction(action, 1.0);
+            character.Actions.AddToCombo(action);
+            return character;
+        }
+
+        private static Character CreateCharacterWithMechanicallyRichAction()
+        {
+            var character = TestDataBuilders.Character().WithName("Mechanics").WithStats(10, 10, 10, 10).Build();
+            var weapon = TestDataBuilders.Weapon().WithBaseDamage(5).Build();
+            character.EquipItem(weapon, "weapon");
+
+            var action = TestDataBuilders.CreateMockAction("MechanicsMatrix", ActionType.Attack);
+            action.Target = TargetType.AreaOfEffect;
+            action.DamageMultiplier = 1.25;
+            action.Length = 0.75;
+            action.IsComboAction = true;
+            action.Cadence = "Dungeon";
+            action.ComboBonusAmount = 1;
+            action.ComboBonusDuration = 2;
+
+            action.Advanced.RollBonus = 2;
+            action.Advanced.EnemyRollBonus = -3;
+            action.Advanced.RollBonusDuration = 2;
+            action.Advanced.MultiHitCount = 3;
+            action.Advanced.StatBonuses = new List<StatBonusEntry>
+            {
+                new StatBonusEntry { Type = "STR", Value = 2 },
+                new StatBonusEntry { Type = "PRIMARY", Value = 1 }
+            };
+            action.Advanced.SelfDamagePercent = 5;
+            action.Advanced.SkipNextTurn = true;
+            action.Advanced.GuaranteeNextSuccess = true;
+            action.Advanced.RepeatLastAction = true;
+            action.Advanced.ConditionalDamageMultiplier = 1.5;
+            action.Advanced.Thresholds = new List<ThresholdEntry>
+            {
+                new ThresholdEntry { Qualifier = "Enemy", Type = "Health", Operator = "<=", ValueKind = "%", Value = 0.25 }
+            };
+            action.Advanced.Accumulations = new List<AccumulationEntry>
+            {
+                new AccumulationEntry { Type = "HitsLanded", ModifiesParam = "Damage", Value = 5, ValueKind = "#" }
+            };
+
+            action.RollMods.MultipleDiceCount = 2;
+            action.RollMods.MultipleDiceMode = "TakeHighest";
+            action.RollMods.ExplodingDice = true;
+            action.RollMods.ExplodingDiceThreshold = 19;
+            action.RollMods.AllowReroll = true;
+            action.RollMods.RerollChance = 0.25;
+            action.RollMods.Additive = 1;
+            action.RollMods.Multiplier = 1.5;
+            action.RollMods.Min = 2;
+            action.RollMods.Max = 18;
+            action.RollMods.HitThresholdAdjustment = -1;
+            action.RollMods.ComboThresholdAdjustment = 2;
+            action.RollMods.CriticalHitThresholdAdjustment = -1;
+            action.RollMods.CriticalMissThresholdAdjustment = 1;
+            action.RollMods.EnemyHitThresholdAdjustment = 1;
+            action.RollMods.EnemyComboThresholdAdjustment = -2;
+            action.RollMods.EnemyCriticalHitThresholdAdjustment = 3;
+            action.RollMods.EnemyCriticalMissThresholdAdjustment = -1;
+            action.RollMods.HitThresholdOverride = 6;
+            action.RollMods.ComboThresholdOverride = 12;
+            action.RollMods.CriticalHitThresholdOverride = 19;
+            action.RollMods.CriticalMissThresholdOverride = 2;
+            action.RollMods.ApplyThresholdAdjustmentsToBoth = true;
+
+            action.Triggers.TriggerConditions = new List<string> { "ONHIT", "ONCRITICAL" };
+            action.CausesStun = true;
+            action.CausesBleed = true;
+            action.BleedAmountToAdd = 2;
+            action.CausesPoison = true;
+            action.PoisonPercentToAdd = 3;
+            action.CausesBurn = true;
+            action.BurnAmountToAdd = 4;
+
+            action.ActionAttackBonuses = new ActionAttackBonuses();
+            action.ActionAttackBonuses.BonusGroups.Add(new ActionAttackBonusGroup
+            {
+                Keyword = "ACTION",
+                CadenceType = "ACTION",
+                Count = 2,
+                Bonuses = new List<ActionAttackBonusItem>
+                {
+                    new ActionAttackBonusItem { Type = "ACCURACY", Value = 1 },
+                    new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = 20 }
+                }
+            });
+
+            action.ComboRouting = new ComboRoutingProperties
+            {
+                JumpToSlot = 3,
+                ChainPosition = "Second",
+                ChainLength = "4",
+                Reset = "true",
+                ModifyBasedOnChainPosition = "true",
+                ChainPositionBonuses = new List<ChainPositionBonusEntry>
+                {
+                    new ChainPositionBonusEntry { ModifiesParam = "Damage", Value = 10, ValueKind = "%", PositionBasis = "AmpTier" }
+                }
+            };
+
             character.AddAction(action, 1.0);
             character.Actions.AddToCombo(action);
             return character;

@@ -33,6 +33,7 @@ namespace RPGGame.Audio
         [JsonPropertyName("musicVolume")]  public float MusicVolume  { get; set; } = 0.7f;
         [JsonPropertyName("sfxVolume")]    public float SfxVolume    { get; set; } = 0.9f;
 
+        [JsonPropertyName("masterEnabled")] public bool MasterEnabled { get; set; } = true;
         [JsonPropertyName("musicEnabled")] public bool MusicEnabled { get; set; } = true;
         [JsonPropertyName("sfxEnabled")]   public bool SfxEnabled   { get; set; } = true;
 

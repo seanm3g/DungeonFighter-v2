@@ -190,7 +190,12 @@ namespace RPGGame
         /// Runs one combat iteration: resolves time until an actor acts, then processes that actor's turn.
         /// </summary>
         /// <param name="forcedAction">When non-null, used only when the resolved turn is the <paramref name="player"/>'s (Action Interaction Lab catalog pick). Enemy turns always select from the enemy's own action pool.</param>
-        public async Task<CombatSingleTurnResult> AdvanceSingleTurnAsync(Character player, Enemy currentEnemy, Environment room, Action? forcedAction = null)
+        public async Task<CombatSingleTurnResult> AdvanceSingleTurnAsync(
+            Character player,
+            Enemy currentEnemy,
+            Environment room,
+            Action? forcedAction = null,
+            TrainingGroundTutorialScript? tutorialScript = null)
         {
             int maxTurns = 1000;
             int turnCount = 0;
@@ -261,7 +266,7 @@ namespace RPGGame
 
                 if (nextEntity == player && player.IsAlive)
                 {
-                    bool combatContinues = await turnHandler.ProcessPlayerTurnAsync(player, currentEnemy, room, forcedAction);
+                    bool combatContinues = await turnHandler.ProcessPlayerTurnAsync(player, currentEnemy, room, forcedAction, tutorialScript);
                     await CombatDelayManager.DelayAfterActionAsync();
                     if (!player.IsAlive)
                         return CombatSingleTurnResult.PlayerDefeated;
@@ -274,7 +279,7 @@ namespace RPGGame
 
                 if (nextEntity == currentEnemy && currentEnemy.IsAlive)
                 {
-                    bool combatContinues = await turnHandler.ProcessEnemyTurnAsync(player, currentEnemy, room, forcedAction: null);
+                    bool combatContinues = await turnHandler.ProcessEnemyTurnAsync(player, currentEnemy, room, forcedAction: null, tutorialScript);
                     await CombatDelayManager.DelayAfterActionAsync();
                     if (!player.IsAlive)
                         return CombatSingleTurnResult.PlayerDefeated;
@@ -322,8 +327,16 @@ namespace RPGGame
             return CombatSingleTurnResult.Advanced;
         }
 
-        public async Task<bool> RunCombat(Character player, Enemy currentEnemy, Environment room, bool playerGetsFirstAttack = false, bool enemyGetsFirstAttack = false)
+        public async Task<bool> RunCombat(
+            Character player,
+            Enemy currentEnemy,
+            Environment room,
+            bool playerGetsFirstAttack = false,
+            bool enemyGetsFirstAttack = false,
+            TrainingGroundTutorialScript? tutorialScript = null)
         {
+            tutorialScript?.Reset();
+
             // Reset game time FIRST to ensure clean timing state
             GameTicker.Instance.Reset();
             
@@ -341,7 +354,7 @@ namespace RPGGame
 
             while (player.IsAlive && currentEnemy.IsAlive)
             {
-                var step = await AdvanceSingleTurnAsync(player, currentEnemy, room, forcedAction: null);
+                var step = await AdvanceSingleTurnAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: tutorialScript);
                 if (step == CombatSingleTurnResult.Advanced)
                     continue;
                 break;

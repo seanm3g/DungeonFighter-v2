@@ -39,6 +39,7 @@ namespace RPGGame.Tests.Unit
             TestItemColorSystemFormatFullMatchesItemNameFormatter();
             TestDungeonNarrativeSearchResultPreservesItemNameColors();
             TestDungeonNarrativeHealingMessageColorsHealingSegments();
+            TestDungeonNarrativeEnemySurpriseMessageUsesWarningColor();
             TestStatusEffectColorHelper();
 
             TestBase.PrintSummary("Color System Application Tests", _testsRun, _testsPassed, _testsFailed);
@@ -398,6 +399,32 @@ namespace RPGGame.Tests.Unit
                 ColorValidator.AreColorsEqual(healedSegment!.Color, healingColor) &&
                 ColorValidator.AreColorsEqual(healthAmountSegment!.Color, healingColor),
                 "Healing keyword and amount should use the healing palette color",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+        }
+
+        private static void TestDungeonNarrativeEnemySurpriseMessageUsesWarningColor()
+        {
+            Console.WriteLine("\n--- Testing enemy surprise narration colors ---");
+
+            const string message = "You've been surprised! The enemy will strike first!";
+            var segments = DungeonNarrativeColoredText.FormatEnemySurpriseMessage(message);
+            string plain = ColoredTextRenderer.RenderAsPlainText(segments);
+            var red = ColorPalette.Red.GetColor();
+
+            TestBase.AssertEqual(
+                message,
+                plain,
+                "Enemy surprise narration plain text should not change while applying colors",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+            TestBase.AssertTrue(
+                segments.Count > 0 && segments
+                    .Where(segment => !string.IsNullOrWhiteSpace(segment.Text))
+                    .All(segment => ColorValidator.AreColorsEqual(segment.Color, red)),
+                "Enemy surprise narration should use the red warning color",
                 ref _testsRun,
                 ref _testsPassed,
                 ref _testsFailed);

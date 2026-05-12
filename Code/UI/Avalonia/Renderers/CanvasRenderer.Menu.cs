@@ -41,6 +41,16 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.Refresh();
         }
 
+        public void RenderPreWeaponPathIntro(Character character, CanvasContext context)
+        {
+            RenderWithLayout(null, "", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                menuRenderer.RenderPreWeaponPathIntroContent(contentX, contentY, contentWidth, contentHeight, character);
+            }, context, null, null, null, clearCanvas: true, usePersistentChrome: false);
+            messageRenderer.ClearLoadingStatus();
+            canvas.Refresh();
+        }
+
         public void RenderCharacterSelection(List<Character> characters, string? activeCharacterName, Dictionary<string, string> characterStatuses, CanvasContext context)
         {
             RenderWithLayout(null, "CHARACTER SELECTION", (contentX, contentY, contentWidth, contentHeight) =>

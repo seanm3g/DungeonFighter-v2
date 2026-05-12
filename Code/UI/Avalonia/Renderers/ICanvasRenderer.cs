@@ -12,14 +12,15 @@ namespace RPGGame.UI.Avalonia.Renderers
     {
         void RenderDisplayBuffer(CanvasContext context);
         void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel);
-        void RenderInventory(Character character, List<Item> inventory, CanvasContext context, string? pendingMutatingInventoryMenuAction = null);
+        void RenderInventory(Character character, List<Item> inventory, CanvasContext context, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0);
         void RenderItemSelectionPrompt(Character character, List<Item> inventory, string promptMessage, string actionType, CanvasContext context);
         void RenderSlotSelectionPrompt(Character character, CanvasContext context);
         void RenderRaritySelectionPrompt(Character character, List<System.Linq.IGrouping<string, Item>> rarityGroups, CanvasContext context);
         void RenderTradeUpPreview(Character character, List<Item> itemsToTrade, Item resultingItem, string currentRarity, string nextRarity, CanvasContext context);
-        void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot, CanvasContext context);
+        void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot, CanvasContext context, int newItemInventoryIndex = -1);
         void RenderWeaponSelection(List<StartingWeapon> weapons, CanvasContext context);
         void RenderTrainingGroundOffer(Character character, CanvasContext context);
+        void RenderPreWeaponPathIntro(Character character, CanvasContext context);
         void RenderCharacterCreation(Character character, CanvasContext context);
         void RenderSettings();
         void RenderDungeonSelection(Character player, List<Dungeon> dungeons, CanvasContext context, string? customDungeonLevelEntryBuffer = null);

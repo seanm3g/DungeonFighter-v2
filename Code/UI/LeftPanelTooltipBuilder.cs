@@ -31,13 +31,7 @@ namespace RPGGame
             string key = fullHoverValue.Substring(LeftPanelHoverState.Prefix.Length);
             void AddWrapped(string? paragraph)
             {
-                if (result.Count >= maxLines || string.IsNullOrWhiteSpace(paragraph))
-                    return;
-                foreach (var line in CombatActionStripBuilder.WrapTextToLines(paragraph.Trim(), maxWidth))
-                {
-                    if (result.Count >= maxLines) break;
-                    result.Add(line);
-                }
+                CombatActionStripBuilder.AddWrappedTooltipParagraph(result, paragraph, maxWidth, maxLines);
             }
 
             switch (key)
@@ -273,6 +267,7 @@ namespace RPGGame
 
             addWrapped("Damage (attack total)");
             addWrapped($"Total: {total}");
+            addWrapped(FormatAttributeInputSummary("STR input", BuildAttributeBreakdown(c, "STR")));
             addWrapped($"= effective STR ({strEff}) + weapon ({weaponDamage}) + equipment damage bonus ({equipmentDamageBonus}) + modification damage ({modificationDamageBonus}).");
             addWrapped("Note: combat rolls and action multipliers change outgoing hits; this is the base total shown in the panel.");
         }
@@ -285,7 +280,8 @@ namespace RPGGame
 
             var tuning = GameConfiguration.Instance;
             double baseAttackTime = tuning.Combat.BaseAttackTime;
-            int agility = c.GetEffectiveAgility();
+            var agiBreakdown = BuildAttributeBreakdown(c, "AGI");
+            int agility = agiBreakdown.Effective;
             int agilityMin = tuning.Combat.AgilityMin;
             int agilityMax = tuning.Combat.AgilityMax;
             agility = Math.Max(agilityMin, Math.Min(agilityMax, agility));
@@ -297,7 +293,8 @@ namespace RPGGame
             double speedMultiplier = minMul + (maxMul - minMul) * curvedProgress;
             double agilityAdjustedTime = baseAttackTime * speedMultiplier;
 
-            addWrapped($"1) Base time × AGI curve: {baseAttackTime:F3}s × {speedMultiplier:F3} (eff. AGI {c.GetEffectiveAgility()}, clamped {agility}) → {agilityAdjustedTime:F3}s.");
+            addWrapped(FormatAttributeInputSummary("AGI input", agiBreakdown, $"clamped {agility}"));
+            addWrapped($"1) Base time × AGI curve: {baseAttackTime:F3}s × {speedMultiplier:F3} (eff. AGI {agiBreakdown.Effective}, clamped {agility}) → {agilityAdjustedTime:F3}s.");
             addWrapped("   AGI uses sqrt of normalized progress between tuning min/max agility; multipliers from tuning.");
 
             double weaponTimeMul = 1.0;
@@ -325,8 +322,10 @@ namespace RPGGame
         private static void AppendAmp(Character c, Action<string> addWrapped)
         {
             double baseAmp = c.GetComboAmplifier();
+            var techBreakdown = BuildAttributeBreakdown(c, "TEC");
             addWrapped("AMP (combo growth)");
             addWrapped($"Base multiplier per combo step: {baseAmp:F2}x (from TECH; matches panel).");
+            addWrapped(FormatAttributeInputSummary("TECH input", techBreakdown));
             addWrapped("Damage on a given hit uses Pow(this base, strip slot index): first slot 0 → 1.0×, second 1 → baseline, etc. (order matches your sequence, not opener/finisher labels alone).");
             if (c.GetComboActions().Count == 0)
                 addWrapped("No combo actions on the strip yet.");
@@ -347,6 +346,52 @@ namespace RPGGame
 
         private static void AppendPrimaryStat(Character c, string code, string label, List<string> result, Action<string> addWrapped, int maxLines)
         {
+            var breakdown = BuildAttributeBreakdown(c, code);
+
+            addWrapped($"{label} ({code})");
+            addWrapped($"Effective: {breakdown.Effective}");
+            addWrapped($"Base value: {breakdown.BaseValue}.");
+            addWrapped($"Attribute-modified value: {breakdown.AttributeModifiedValue} (= base {breakdown.BaseValue} + temporary bonus {FormatSigned(breakdown.TempBonus)}" +
+                       (code == "STR" ? $" + godlike STR mod {FormatSigned(breakdown.GodlikeBonus)}" : "") +
+                       ").");
+            addWrapped($"Gear attribute add: {FormatSigned(breakdown.GearTotalBonus)} (flat/catalog/material {FormatSigned(breakdown.GearFlatBonus)}, suffix {FormatSigned(breakdown.GearSuffixBonus)}).");
+            addWrapped($"Equation: {FormatAttributeEquation(breakdown, includeGodlike: code == "STR")} = {breakdown.Effective}.");
+        }
+
+        private readonly struct AttributeBreakdown
+        {
+            public AttributeBreakdown(
+                int baseValue,
+                int tempBonus,
+                int godlikeBonus,
+                int attributeModifiedValue,
+                int gearFlatBonus,
+                int gearSuffixBonus,
+                int gearTotalBonus,
+                int effective)
+            {
+                BaseValue = baseValue;
+                TempBonus = tempBonus;
+                GodlikeBonus = godlikeBonus;
+                AttributeModifiedValue = attributeModifiedValue;
+                GearFlatBonus = gearFlatBonus;
+                GearSuffixBonus = gearSuffixBonus;
+                GearTotalBonus = gearTotalBonus;
+                Effective = effective;
+            }
+
+            public int BaseValue { get; }
+            public int TempBonus { get; }
+            public int GodlikeBonus { get; }
+            public int AttributeModifiedValue { get; }
+            public int GearFlatBonus { get; }
+            public int GearSuffixBonus { get; }
+            public int GearTotalBonus { get; }
+            public int Effective { get; }
+        }
+
+        private static AttributeBreakdown BuildAttributeBreakdown(Character c, string code)
+        {
             var stats = c.Stats;
             int baseVal = code switch
             {
@@ -364,22 +409,48 @@ namespace RPGGame
                 "INT" => stats.TempIntelligenceBonus,
                 _ => 0
             };
-            int eq = c.Equipment.GetEquipmentStatBonus(code, c);
             int god = code == "STR" ? c.GetModificationGodlikeBonus() : 0;
-            int eff = code switch
+            int gearFlat = c.Equipment.GetFlatEquipmentStatExcludingSuffixes(code);
+            int gearTotal = c.Equipment.GetEquipmentStatBonus(code, c);
+            int gearSuffix = gearTotal - gearFlat;
+            int attributeModified = baseVal + temp + god;
+            int effective = code switch
             {
                 "STR" => c.GetEffectiveStrength(),
                 "AGI" => c.GetEffectiveAgility(),
                 "TEC" => c.GetEffectiveTechnique(),
                 "INT" => c.GetEffectiveIntelligence(),
-                _ => 0
+                _ => attributeModified + gearTotal
             };
 
-            addWrapped($"{label} ({code})");
-            addWrapped($"Effective: {eff}");
-            addWrapped($"= base ({baseVal}) + temporary bonus ({temp}) + equipment ({eq})" +
-                       (code == "STR" ? $" + godlike STR mod ({god})." : "."));
+            return new AttributeBreakdown(baseVal, temp, god, attributeModified, gearFlat, gearSuffix, gearTotal, effective);
         }
+
+        private static string FormatAttributeInputSummary(string label, AttributeBreakdown b, string? afterEffective = null)
+        {
+            string effectivePart = afterEffective == null
+                ? $"effective {b.Effective}"
+                : $"effective {b.Effective}, {afterEffective}";
+            return $"{label}: base {b.BaseValue}; attribute-modified {b.AttributeModifiedValue}; gear attributes {FormatSigned(b.GearTotalBonus)} (flat/catalog/material {FormatSigned(b.GearFlatBonus)}, suffix {FormatSigned(b.GearSuffixBonus)}) => {effectivePart}.";
+        }
+
+        private static string FormatAttributeEquation(AttributeBreakdown b, bool includeGodlike)
+        {
+            var pieces = new List<string>
+            {
+                b.BaseValue.ToString(CultureInfo.InvariantCulture),
+                FormatSigned(b.TempBonus)
+            };
+            if (includeGodlike)
+                pieces.Add(FormatSigned(b.GodlikeBonus));
+            pieces.Add(FormatSigned(b.GearTotalBonus));
+            return string.Join(" ", pieces);
+        }
+
+        private static string FormatSigned(int value) =>
+            value >= 0
+                ? "+" + value.ToString(CultureInfo.InvariantCulture)
+                : value.ToString(CultureInfo.InvariantCulture);
 
         private static void AppendMagFind(Character c, List<string> result, Action<string> addWrapped, int maxLines)
         {
@@ -452,8 +523,9 @@ namespace RPGGame
                 if (action != null)
                 {
                     addWrapped(ActionDisplayFormatter.GetActionStats(action).Trim());
-                    if (!string.IsNullOrWhiteSpace(action.Description))
-                        addWrapped(action.Description.Trim());
+                    string mechanics = CombatActionStripBuilder.BuildActionMechanicalModSummary(c, action, -1);
+                    if (!string.IsNullOrWhiteSpace(mechanics))
+                        addWrapped(mechanics);
                     int acc = ActionUtilities.CalculateRollBonus(c, action, consumeTempBonus: false);
                     addWrapped($"Accuracy (roll bonus): {acc:+0;-0;0}");
                 }

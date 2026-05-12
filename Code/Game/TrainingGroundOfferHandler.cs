@@ -6,25 +6,22 @@ namespace RPGGame
     using RPGGame.UI.Avalonia;
 
     /// <summary>
-    /// Pre-weapon offer: enter Training Ground or skip to weapon selection.
+    /// Pre-weapon offer: enter Training Ground or skip to the path intro before weapon selection.
     /// </summary>
     public class TrainingGroundOfferHandler
     {
         private readonly GameStateManager stateManager;
         private readonly IUIManager? customUIManager;
         private readonly DungeonRunnerManager dungeonRunnerManager;
-        private readonly WeaponSelectionHandler weaponSelectionHandler;
 
         public TrainingGroundOfferHandler(
             GameStateManager stateManager,
             IUIManager? customUIManager,
-            DungeonRunnerManager dungeonRunnerManager,
-            WeaponSelectionHandler weaponSelectionHandler)
+            DungeonRunnerManager dungeonRunnerManager)
         {
             this.stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
             this.customUIManager = customUIManager;
             this.dungeonRunnerManager = dungeonRunnerManager ?? throw new ArgumentNullException(nameof(dungeonRunnerManager));
-            this.weaponSelectionHandler = weaponSelectionHandler ?? throw new ArgumentNullException(nameof(weaponSelectionHandler));
         }
 
         public delegate void OnShowMessage(string message);
@@ -47,7 +44,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// 1 = start Training Ground dungeon, 2 = skip to weapon selection.
+        /// 1 = start Training Ground dungeon, 2 = skip to the path intro.
         /// </summary>
         public async Task HandleMenuInput(string input)
         {
@@ -86,8 +83,8 @@ namespace RPGGame
             else if (trimmed == "2")
             {
                 stateManager.CurrentPlayer.PendingPreWeaponTrainingGround = false;
-                stateManager.TransitionToState(GameState.WeaponSelection);
-                weaponSelectionHandler.ShowWeaponSelection();
+                var screenCoordinator = new GameScreenCoordinator(stateManager);
+                screenCoordinator.ShowPreWeaponPathIntro(stateManager.CurrentPlayer);
             }
             else
             {

@@ -56,6 +56,8 @@ namespace RPGGame.UI.Avalonia.Layout
                 var item = character.Inventory[i];
                 if (item == null || GetEquipSlotForItem(item) == null)
                     continue;
+                if (item.GetEquipBlockedReason(character) != null)
+                    continue;
 
                 var names = GearActionNames.Resolve(item);
                 for (int j = 0; j < names.Count; j++)

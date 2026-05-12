@@ -32,8 +32,7 @@ namespace RPGGame.Audio
         {
             this.engine = engine ?? throw new ArgumentNullException(nameof(engine));
             this.configResolver = configResolver ?? (() => AudioConfig.Instance);
-            // State music is gated by AudioConfig.MusicEnabled and per-state bindings — not GameSettings.EnableSoundEffects
-            // (that flag only gates the cue dispatcher; settings Test also bypasses it).
+            // State music is gated by AudioConfig master/music state and per-state bindings.
             this.globalEnabledResolver = globalEnabledResolver ?? (() => true);
         }
 
@@ -74,6 +73,13 @@ namespace RPGGame.Audio
             var config = configResolver();
             AudioCue nextCue = config.GetMusicCueForState(newState.ToString());
 
+            if (!config.MasterEnabled || !config.MusicEnabled)
+            {
+                SafeStopMusic();
+                currentMusicCue = AudioCue.None;
+                return;
+            }
+
             if (nextCue == currentMusicCue) return;
 
             if (nextCue == AudioCue.None)
@@ -85,13 +91,6 @@ namespace RPGGame.Audio
 
             var binding = config.GetBinding(nextCue);
             if (binding == null || string.IsNullOrEmpty(binding.File))
-            {
-                SafeStopMusic();
-                currentMusicCue = AudioCue.None;
-                return;
-            }
-
-            if (!config.MusicEnabled)
             {
                 SafeStopMusic();
                 currentMusicCue = AudioCue.None;

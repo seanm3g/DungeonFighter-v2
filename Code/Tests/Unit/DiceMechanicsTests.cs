@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit
             TestRollRange();
             TestRollDistribution();
             TestMultipleDice();
+            TestAsyncForcedD20Queue();
             TestExplodingDice();
 
             TestBase.PrintSummary("Dice Mechanics Tests", _testsRun, _testsPassed, _testsFailed);
@@ -143,6 +144,30 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(fiveD4 >= 5 && fiveD4 <= 20, 
                 $"5d4 should be 5-20, got {fiveD4}", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestAsyncForcedD20Queue()
+        {
+            Console.WriteLine("\n--- Testing Async Forced D20 Queue ---");
+
+            Dice.ClearTestRoll();
+            Dice.ClearAsyncForcedD20Rolls();
+            Dice.QueueAsyncForcedD20Rolls(4, 14);
+
+            TestBase.AssertEqual(4, Dice.Roll(1, 20),
+                "First queued d20 result should be consumed by first 1d20",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            int d6 = Dice.Roll(1, 6);
+            TestBase.AssertTrue(d6 >= 1 && d6 <= 6,
+                $"Queued d20 should not affect non-d20 rolls, got {d6}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertEqual(14, Dice.Roll(20),
+                "Second queued d20 result should survive intervening non-d20 rolls",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            Dice.ClearAsyncForcedD20Rolls();
         }
 
         private static void TestExplodingDice()

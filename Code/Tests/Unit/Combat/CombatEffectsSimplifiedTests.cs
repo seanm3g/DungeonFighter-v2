@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestProcessStatusEffects_NoPoisonOrBurn_ReturnsZeroTotalDamage();
             TestBurnIntensityDecayAndPendingMerge();
             TestPoisonPercentUnchangedAcrossTicks();
+            TestProcessStatusEffects_DoesNotRepeatDotStateBeforeNextTick();
             TestBleedOnActionWithoutGameTimeTick();
             TestCanEntityAct_NotStunned_ReturnsTrue();
             TestCanEntityAct_Stunned_ReturnsFalse();
@@ -173,6 +174,40 @@ namespace RPGGame.Tests.Unit.Combat
                 _ = enemy.ProcessPoison(GameTicker.Instance.GetCurrentGameTime());
                 TestBase.AssertTrue(Math.Abs(pctBefore - enemy.PoisonPercentOfMaxHealth) < 0.0001,
                     "poison % should not decay on tick",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestProcessStatusEffects_DoesNotRepeatDotStateBeforeNextTick()
+        {
+            Console.WriteLine("--- ProcessStatusEffects: no duplicate DoT state before next tick ---");
+            using (GameTicker.BeginIsolatedEncounterGameTime())
+            {
+                var enemy = TestDataBuilders.Enemy().WithName("PoisonDummy").WithHealth(100).Build();
+                enemy.PoisonPercentOfMaxHealth = 2;
+                enemy.LastPoisonTickTime = 0;
+                enemy.BurnIntensity = 4;
+                enemy.LastBurnTickTime = 0;
+
+                GameTicker.Instance.AdvanceGameTime(5.1);
+                var firstResults = new List<string>();
+                var firstBreakdown = CombatEffectsSimplified.ProcessStatusEffectsWithBreakdown(enemy, firstResults);
+
+                TestBase.AssertTrue(firstBreakdown.TotalDamage > 0,
+                    "first DoT processing after interval should tick",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(firstResults.Count > 0,
+                    "first DoT processing should log tick output",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var secondResults = new List<string>();
+                var secondBreakdown = CombatEffectsSimplified.ProcessStatusEffectsWithBreakdown(enemy, secondResults);
+
+                TestBase.AssertEqual(0, secondBreakdown.TotalDamage,
+                    "second DoT processing before next interval should not tick",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(0, secondResults.Count,
+                    "second DoT processing before next interval should not repeat poison/burn detail lines",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }

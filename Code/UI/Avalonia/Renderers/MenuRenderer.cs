@@ -29,6 +29,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly SettingsMenuRenderer settingsMenuRenderer;
         private readonly WeaponSelectionRenderer weaponSelectionRenderer;
         private readonly TrainingGroundOfferRenderer trainingGroundOfferRenderer;
+        private readonly PreWeaponPathIntroRenderer preWeaponPathIntroRenderer;
         private readonly GameMenuRenderer gameMenuRenderer;
         private readonly DeveloperMenuRenderer developerMenuRenderer;
         private readonly BattleStatisticsRenderer battleStatisticsRenderer;
@@ -52,6 +53,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.settingsMenuRenderer = new SettingsMenuRenderer(canvas, clickableElements, textManager);
             this.weaponSelectionRenderer = new WeaponSelectionRenderer(canvas, clickableElements, interactionManager, textManager);
             this.trainingGroundOfferRenderer = new TrainingGroundOfferRenderer(canvas, interactionManager, textManager);
+            this.preWeaponPathIntroRenderer = new PreWeaponPathIntroRenderer(canvas, textManager);
             this.gameMenuRenderer = new GameMenuRenderer(canvas, clickableElements, textManager);
             this.developerMenuRenderer = new DeveloperMenuRenderer(canvas, clickableElements, textManager);
             this.battleStatisticsRenderer = new BattleStatisticsRenderer(canvas, clickableElements, textManager);
@@ -234,6 +236,11 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderTrainingGroundOfferContent(int x, int y, int width, int height, Character character)
         {
             currentLineCount = trainingGroundOfferRenderer.RenderTrainingGroundOfferContent(x, y, width, height, character);
+        }
+
+        public void RenderPreWeaponPathIntroContent(int x, int y, int width, int height, Character character)
+        {
+            currentLineCount = preWeaponPathIntroRenderer.RenderPreWeaponPathIntroContent(x, y, width, height, character);
         }
         
         public int RenderCharacterSelectionContent(int x, int y, int width, int height, List<Character> characters, string? activeCharacterName, Dictionary<string, string> characterStatuses)

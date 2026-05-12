@@ -100,6 +100,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             WeaponSelectionRendererTests.RunAllTests();
             Console.WriteLine();
+            PreWeaponPathIntroRendererTests.RunAllTests();
+            Console.WriteLine();
             TitleScreenAsciiSpacingTests.RunAllTests();
             Console.WriteLine();
             

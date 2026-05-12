@@ -8,6 +8,7 @@ using RPGGame.Utils;
 using SoundFlow.Abstracts.Devices;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Components;
+using SoundFlow.Enums;
 using SoundFlow.Providers;
 using SoundFlow.Structs;
 
@@ -268,6 +269,7 @@ namespace RPGGame.Audio
             SoundPlayer? outgoing = currentMusicPlayer;
             StreamDataProvider? outgoingProv = currentMusicStreamProvider;
             bool useCrossfade = crossfadeMs > 0 && outgoing != null;
+            bool useFadeIn = MusicFadeLoopPolicy.ShouldFadeIncomingTrack(crossfadeMs, outgoing != null);
 
             if (!useCrossfade)
                 StopAndDetachCurrentMusicPlayer();
@@ -287,6 +289,7 @@ namespace RPGGame.Audio
 
                 SoundPlayer? mp3CrossfadeOld = useCrossfade ? outgoing : null;
                 StreamDataProvider? mp3CrossfadeOldProv = useCrossfade ? outgoingProv : null;
+                bool mp3FadeIn = useFadeIn;
 
                 Task.Run(() =>
                 {
@@ -314,9 +317,10 @@ namespace RPGGame.Audio
                         {
                             if (!Initialize()) { try { wav?.Dispose(); } catch { } return; }
                             var provider = new StreamDataProvider(engine!, format, wav!);
-                            var newPlayer = new SoundPlayer(engine!, format, provider) { IsLooping = true };
+                            var newPlayer = new SoundPlayer(engine!, format, provider);
+                            ConfigureMusicPlayerLooping(newPlayer);
                             bool cf = mp3CrossfadeOld != null;
-                            newPlayer.Volume = cf ? 0f : targetVol;
+                            newPlayer.Volume = (cf || mp3FadeIn) ? 0f : targetVol;
                             musicMixer!.AddComponent(newPlayer);
                             currentMusicStreamProvider = provider;
                             currentMusicPlayer = newPlayer;
@@ -324,6 +328,8 @@ namespace RPGGame.Audio
                             newPlayer.Play();
                             if (cf)
                                 ScheduleMusicCrossfade(mp3CrossfadeOld!, mp3CrossfadeOldProv, newPlayer, targetVol, crossfadeMs, gen);
+                            else if (mp3FadeIn)
+                                ScheduleMusicFadeIn(newPlayer, targetVol, crossfadeMs, gen);
                         }
                         catch (Exception ex)
                         {
@@ -341,8 +347,9 @@ namespace RPGGame.Audio
 
                 var fileStream = File.OpenRead(filePath);
                 var provider = new StreamDataProvider(engine!, format, fileStream);
-                var newPlayer = new SoundPlayer(engine!, format, provider) { IsLooping = true };
-                newPlayer.Volume = useCrossfade ? 0f : targetVol;
+                var newPlayer = new SoundPlayer(engine!, format, provider);
+                ConfigureMusicPlayerLooping(newPlayer);
+                newPlayer.Volume = (useCrossfade || useFadeIn) ? 0f : targetVol;
                 musicMixer!.AddComponent(newPlayer);
                 currentMusicStreamProvider = provider;
                 currentMusicPlayer = newPlayer;
@@ -350,6 +357,8 @@ namespace RPGGame.Audio
                 newPlayer.Play();
                 if (useCrossfade)
                     ScheduleMusicCrossfade(outgoing!, outgoingProv, newPlayer, targetVol, crossfadeMs, gen);
+                else if (useFadeIn)
+                    ScheduleMusicFadeIn(newPlayer, targetVol, crossfadeMs, gen);
             }
             catch (Exception ex)
             {
@@ -394,6 +403,71 @@ namespace RPGGame.Audio
             });
         }
 
+        private void ScheduleMusicFadeIn(
+            SoundPlayer newPlayer,
+            float targetVolume,
+            int fadeMs,
+            int fadeGeneration)
+        {
+            var cts = new CancellationTokenSource();
+            lock (_musicFadeLock)
+                _musicFadeCts = cts;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await RunMusicFadeInCoreAsync(
+                        newPlayer, targetVolume, fadeMs, fadeGeneration, cts.Token).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // A newer transition or stop will take over the current player and volume.
+                }
+                finally
+                {
+                    FinishMusicFadeCts(cts);
+                }
+            });
+        }
+
+        private async Task RunMusicFadeInCoreAsync(
+            SoundPlayer newPlayer,
+            float targetVolume,
+            int fadeMs,
+            int fadeGeneration,
+            CancellationToken cancellationToken)
+        {
+            int stepCount = Math.Clamp(fadeMs / 25, 4, 80);
+            int delayMs = Math.Max(1, fadeMs / stepCount);
+
+            for (int i = 1; i <= stepCount; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (Volatile.Read(ref _playMusicGeneration) != fadeGeneration)
+                    break;
+
+                await Task.Delay(delayMs, cancellationToken).ConfigureAwait(false);
+                float t = (float)i / stepCount;
+                float vIn = targetVolume * t;
+                PostMixerAction(() =>
+                {
+                    if (Volatile.Read(ref _playMusicGeneration) != fadeGeneration)
+                        return;
+                    try { newPlayer.Volume = Clamp01(vIn); }
+                    catch { /* ignore */ }
+                });
+            }
+
+            PostMixerAction(() =>
+            {
+                if (Volatile.Read(ref _playMusicGeneration) != fadeGeneration)
+                    return;
+                try { newPlayer.Volume = Clamp01(targetVolume); }
+                catch { /* ignore */ }
+            });
+        }
+
         private async Task RunMusicCrossfadeCoreAsync(
             SoundPlayer oldPlayer,
             StreamDataProvider? oldProvider,
@@ -406,28 +480,37 @@ namespace RPGGame.Audio
         {
             int stepCount = Math.Clamp(crossfadeMs / 25, 4, 80);
             int delayMs = Math.Max(1, crossfadeMs / stepCount);
+            EventHandler<EventArgs> restartEndedLoop = AttachMusicFadeLoopRestart(oldPlayer, fadeGeneration, cancellationToken);
 
-            for (int i = 1; i <= stepCount; i++)
+            try
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (Volatile.Read(ref _playMusicGeneration) != fadeGeneration)
-                    break;
-
-                await Task.Delay(delayMs, cancellationToken).ConfigureAwait(false);
-                float t = (float)i / stepCount;
-                float vOut = oldVolumeStart * (1f - t);
-                float vIn = targetVolume * t;
-                PostMixerAction(() =>
+                for (int i = 1; i <= stepCount; i++)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     if (Volatile.Read(ref _playMusicGeneration) != fadeGeneration)
-                        return;
-                    try
+                        break;
+
+                    await Task.Delay(delayMs, cancellationToken).ConfigureAwait(false);
+                    float t = (float)i / stepCount;
+                    float vOut = oldVolumeStart * (1f - t);
+                    float vIn = targetVolume * t;
+                    PostMixerAction(() =>
                     {
-                        oldPlayer.Volume = Clamp01(vOut);
-                        newPlayer.Volume = Clamp01(vIn);
-                    }
-                    catch { /* ignore */ }
-                });
+                        if (Volatile.Read(ref _playMusicGeneration) != fadeGeneration)
+                            return;
+                        try
+                        {
+                            RestartStoppedMusicPlayerDuringFade(oldPlayer, fadeGeneration, cancellationToken);
+                            oldPlayer.Volume = Clamp01(vOut);
+                            newPlayer.Volume = Clamp01(vIn);
+                        }
+                        catch { /* ignore */ }
+                    });
+                }
+            }
+            finally
+            {
+                try { oldPlayer.PlaybackEnded -= restartEndedLoop; } catch { /* ignore */ }
             }
 
             PostMixerAction(() =>
@@ -445,6 +528,60 @@ namespace RPGGame.Audio
                 catch { /* ignore */ }
                 try { SafeRemoveAndDispose(musicMixer, oldPlayer, oldProvider); } catch { /* ignore */ }
             });
+        }
+
+        private void RestartStoppedMusicPlayerDuringFade(
+            SoundPlayer player,
+            int fadeGeneration,
+            CancellationToken cancellationToken)
+        {
+            if (!MusicFadeLoopPolicy.ShouldRestartEndedTrack(
+                fadeGeneration,
+                Volatile.Read(ref _playMusicGeneration),
+                cancellationToken.IsCancellationRequested))
+            {
+                return;
+            }
+
+            try
+            {
+                if (player.State != PlaybackState.Stopped) return;
+                RestartMusicPlayerFromBeginning(player);
+            }
+            catch { /* ignore */ }
+        }
+
+        private EventHandler<EventArgs> AttachMusicFadeLoopRestart(
+            SoundPlayer player,
+            int fadeGeneration,
+            CancellationToken cancellationToken)
+        {
+            ConfigureMusicPlayerLooping(player);
+            EventHandler<EventArgs> restartEndedLoop = (_, _) =>
+            {
+                if (!MusicFadeLoopPolicy.ShouldRestartEndedTrack(
+                    fadeGeneration,
+                    Volatile.Read(ref _playMusicGeneration),
+                    cancellationToken.IsCancellationRequested))
+                {
+                    return;
+                }
+
+                PostMixerAction(() =>
+                {
+                    if (!MusicFadeLoopPolicy.ShouldRestartEndedTrack(
+                        fadeGeneration,
+                        Volatile.Read(ref _playMusicGeneration),
+                        cancellationToken.IsCancellationRequested))
+                    {
+                        return;
+                    }
+
+                    RestartMusicPlayerFromBeginning(player);
+                });
+            };
+            player.PlaybackEnded += restartEndedLoop;
+            return restartEndedLoop;
         }
 
         private void PostMixerAction(global::System.Action action)
@@ -531,6 +668,30 @@ namespace RPGGame.Audio
             catch { /* ignore */ }
         }
 
+        private static void ConfigureMusicPlayerLooping(SoundPlayer player)
+        {
+            try { player.IsLooping = true; } catch { /* ignore */ }
+            try { player.SetLoopPoints(0, -1); } catch { /* ignore */ }
+        }
+
+        private static void RestartMusicPlayerFromBeginning(SoundPlayer player)
+        {
+            try
+            {
+                ConfigureMusicPlayerLooping(player);
+                if (player.DataProvider.CanSeek)
+                    player.Seek(0);
+                else
+                    player.Stop();
+            }
+            catch
+            {
+                try { player.Stop(); } catch { /* ignore */ }
+            }
+
+            try { player.Play(); } catch { /* ignore */ }
+        }
+
         public void StopMusic(int crossfadeMs)
         {
             int gen = Interlocked.Increment(ref _playMusicGeneration);
@@ -589,22 +750,35 @@ namespace RPGGame.Audio
         {
             int stepCount = Math.Clamp(fadeMs / 25, 4, 80);
             int delayMs = Math.Max(1, fadeMs / stepCount);
+            EventHandler<EventArgs> restartEndedLoop = AttachMusicFadeLoopRestart(player, fadeGeneration, cancellationToken);
 
-            for (int i = 1; i <= stepCount; i++)
+            try
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (Volatile.Read(ref _playMusicGeneration) != fadeGeneration)
-                    break;
-
-                await Task.Delay(delayMs, cancellationToken).ConfigureAwait(false);
-                float t = (float)i / stepCount;
-                float v = volumeStart * (1f - t);
-                PostMixerAction(() =>
+                for (int i = 1; i <= stepCount; i++)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     if (Volatile.Read(ref _playMusicGeneration) != fadeGeneration)
-                        return;
-                    try { player.Volume = Clamp01(v); } catch { /* ignore */ }
-                });
+                        break;
+
+                    await Task.Delay(delayMs, cancellationToken).ConfigureAwait(false);
+                    float t = (float)i / stepCount;
+                    float v = volumeStart * (1f - t);
+                    PostMixerAction(() =>
+                    {
+                        if (Volatile.Read(ref _playMusicGeneration) != fadeGeneration)
+                            return;
+                        try
+                        {
+                            RestartStoppedMusicPlayerDuringFade(player, fadeGeneration, cancellationToken);
+                            player.Volume = Clamp01(v);
+                        }
+                        catch { /* ignore */ }
+                    });
+                }
+            }
+            finally
+            {
+                try { player.PlaybackEnded -= restartEndedLoop; } catch { /* ignore */ }
             }
 
             PostMixerAction(() =>

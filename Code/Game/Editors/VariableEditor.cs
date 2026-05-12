@@ -203,10 +203,10 @@ namespace RPGGame.Editors
             // Combo System
             var comboVars = new List<EditableVariable>
             {
-                new EditableVariable("ComboSystem.ComboAmplifierAtTech5", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierAtTech5, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierAtTech5 = Convert.ToDouble(v), "Legacy; curve uses flat 1.0 amp below technique 5"),
-                new EditableVariable("ComboSystem.ComboAmplifierMax", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierMax, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierMax = Convert.ToDouble(v), "Maximum combo amplifier"),
-                new EditableVariable("ComboSystem.ComboAmplifierMaxTech", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierMaxTech, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierMaxTech = Convert.ToInt32(v), "Technique for max combo amplifier"),
-                new EditableVariable("ComboSystem.ComboAmplifierCurveExponent", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierCurveExponent, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierCurveExponent = Convert.ToDouble(v), "Technique→amp curve exponent (>1 = low amp until high TECH); 0 uses default 2.5"),
+                new EditableVariable("ComboSystem.ComboAmplifierAtTech5", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierAtTech5, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierAtTech5 = Convert.ToDouble(v), "Legacy; current TECH AMP uses 1 + 0.5*log10(TECH+1)"),
+                new EditableVariable("ComboSystem.ComboAmplifierMax", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierMax, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierMax = Convert.ToDouble(v), "Legacy; current TECH AMP has no configured max"),
+                new EditableVariable("ComboSystem.ComboAmplifierMaxTech", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierMaxTech, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierMaxTech = Convert.ToInt32(v), "Legacy; current TECH AMP has no max-tech breakpoint"),
+                new EditableVariable("ComboSystem.ComboAmplifierCurveExponent", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierCurveExponent, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierCurveExponent = Convert.ToDouble(v), "Legacy; current TECH AMP uses a fixed logarithmic curve"),
             };
             variablesByCategory["Combo"] = comboVars;
 

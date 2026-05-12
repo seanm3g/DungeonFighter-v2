@@ -49,6 +49,9 @@ namespace RPGGame.UI.Avalonia
         /// When non-null, dungeon selection draws this buffer inline on the custom-difficulty row (same column as that menu line).
         /// </summary>
         private string? dungeonSelectionCustomLevelEntryBuffer;
+
+        private int inventoryItemScrollOffset;
+        private Character? lastInventoryScrollCharacter;
         
         // Screen state tracking to prevent unnecessary re-renders
         private GameState? lastRenderedScreenState = null;
@@ -248,6 +251,16 @@ namespace RPGGame.UI.Avalonia
                         _dungeonCompletionRenderLoot,
                         _dungeonCompletionRenderLevelUps ?? new List<LevelUpInfo>(),
                         _dungeonCompletionRenderItemsFound ?? new List<Item>());
+                });
+
+                canvasAnimationManager.SetPreWeaponPathIntroReRenderCallback(() =>
+                {
+                    if (stateManager?.CurrentState != GameState.PreWeaponPathIntro)
+                        return;
+                    var player = stateManager.CurrentPlayer;
+                    if (player == null)
+                        return;
+                    RenderPreWeaponPathIntro(player);
                 });
                 
                 // Set up crit line re-render callback to trigger display buffer re-renders

@@ -203,7 +203,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             int innerTop = LayoutConstants.CENTER_PANEL_Y + 1;
             int innerRight = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
             int innerW = Math.Max(8, innerRight - innerLeft + 1);
-            const int maxTooltipLines = 14;
+            const int maxTooltipLines = 18;
             int boxW = Math.Min(52, innerW);
             int innerTextW = Math.Max(4, boxW - 2);
 

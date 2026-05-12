@@ -30,6 +30,7 @@ namespace RPGGame.Handlers
             public CharacterManagementHandler? CharacterManagementHandler { get; set; }
             public LoadCharacterSelectionHandler? LoadCharacterSelectionHandler { get; set; }
             public TrainingGroundOfferHandler? TrainingGroundOfferHandler { get; set; }
+            public PreWeaponPathIntroHandler? PreWeaponPathIntroHandler { get; set; }
         }
 
         /// <summary>
@@ -46,7 +47,8 @@ namespace RPGGame.Handlers
         {
             var weaponSelectionHandler = new WeaponSelectionHandler(stateManager, initializationManager, uiManager);
             var dungeonRunnerManager = new DungeonRunnerManager(stateManager, narrativeManager, combatManager, uiManager);
-            var trainingGroundOfferHandler = new TrainingGroundOfferHandler(stateManager, uiManager, dungeonRunnerManager, weaponSelectionHandler);
+            var trainingGroundOfferHandler = new TrainingGroundOfferHandler(stateManager, uiManager, dungeonRunnerManager);
+            var preWeaponPathIntroHandler = new PreWeaponPathIntroHandler(stateManager, weaponSelectionHandler);
 
             return new HandlerInitializationResult
             {
@@ -63,7 +65,8 @@ namespace RPGGame.Handlers
                 DeathScreenHandler = new DeathScreenHandler(stateManager),
                 CharacterManagementHandler = new CharacterManagementHandler(stateManager, uiManager, initializationManager),
                 LoadCharacterSelectionHandler = new LoadCharacterSelectionHandler(stateManager, uiManager, gameInitializer),
-                TrainingGroundOfferHandler = trainingGroundOfferHandler
+                TrainingGroundOfferHandler = trainingGroundOfferHandler,
+                PreWeaponPathIntroHandler = preWeaponPathIntroHandler
             };
         }
 
@@ -240,7 +243,7 @@ namespace RPGGame.Handlers
                 handlers.DungeonRunnerManager.DungeonExitedEarlyEvent += () => showGameLoop();
                 handlers.DungeonRunnerManager.PreWeaponTrainingCompleteNavigateToWeaponSelection += () =>
                 {
-                    handlers.WeaponSelectionHandler?.ShowWeaponSelection();
+                    handlers.PreWeaponPathIntroHandler?.ShowPathIntro();
                 };
                 handlers.DungeonRunnerManager.PreWeaponTrainingEarlyExitReturnToOffer += () =>
                 {
@@ -251,6 +254,11 @@ namespace RPGGame.Handlers
             if (handlers.TrainingGroundOfferHandler != null)
             {
                 handlers.TrainingGroundOfferHandler.ShowMessageEvent += (msg) => showMessage(msg);
+            }
+
+            if (handlers.PreWeaponPathIntroHandler != null)
+            {
+                handlers.PreWeaponPathIntroHandler.ShowMessageEvent += (msg) => showMessage(msg);
             }
             
             if (handlers.DungeonCompletionHandler != null)

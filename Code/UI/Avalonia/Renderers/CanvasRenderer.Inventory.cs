@@ -7,11 +7,11 @@ namespace RPGGame.UI.Avalonia.Renderers
 {
     public partial class CanvasRenderer
     {
-        public void RenderInventory(Character character, List<Item> inventory, CanvasContext context, string? pendingMutatingInventoryMenuAction = null)
+        public void RenderInventory(Character character, List<Item> inventory, CanvasContext context, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0)
         {
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                inventoryRenderer.RenderInventory(contentX, contentY, contentWidth, contentHeight, character, inventory, pendingMutatingInventoryMenuAction);
+                inventoryRenderer.RenderInventory(contentX, contentY, contentWidth, contentHeight, character, inventory, pendingMutatingInventoryMenuAction, itemScrollOffset);
             }, context, null, null, null, clearCanvas: true, inventoryComboRightPanel: true);
             dungeonRenderer.RenderActionInfoStrip(character);
             canvas.Refresh();
@@ -57,11 +57,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.Refresh();
         }
 
-        public void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot, CanvasContext context)
+        public void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot, CanvasContext context, int newItemInventoryIndex = -1)
         {
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                inventoryRenderer.RenderItemComparison(contentX, contentY, contentWidth, contentHeight, character, newItem, currentItem, slot);
+                inventoryRenderer.RenderItemComparison(contentX, contentY, contentWidth, contentHeight, character, newItem, currentItem, slot, newItemInventoryIndex);
             }, context, null, null, null, inventoryComboRightPanel: true);
             dungeonRenderer.RenderActionInfoStrip(character);
             canvas.Refresh();

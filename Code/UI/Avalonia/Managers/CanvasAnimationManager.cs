@@ -40,12 +40,17 @@ namespace RPGGame.UI.Avalonia.Managers
         // Render throttling to prevent excessive renders
         private DateTime lastRenderTime = DateTime.MinValue;
         private DateTime lastDungeonCompletionRenderTime = DateTime.MinValue;
+        private DateTime lastPreWeaponPathIntroRenderTime = DateTime.MinValue;
         private readonly int minRenderIntervalMs = 42; // ~24fps max render rate (1/24th of a second ≈ 41.67ms, rounded to 42ms)
         private readonly object renderThrottleLock = new object();
         private readonly object dungeonCompletionThrottleLock = new object();
+        private readonly object preWeaponPathIntroThrottleLock = new object();
         
         /// <summary>Invoked on a timer while <see cref="GameState.DungeonCompletion"/> is active so undulating text re-renders.</summary>
         private System.Action? dungeonCompletionReRenderCallback;
+
+        /// <summary>Invoked on a timer while <see cref="GameState.PreWeaponPathIntro"/> is active so the path line shimmers.</summary>
+        private System.Action? preWeaponPathIntroReRenderCallback;
         
         public CanvasAnimationManager(GameCanvasControl canvas, DungeonRenderer? dungeonRenderer, Action<Character, List<Dungeon>>? reRenderCallback)
         {
@@ -231,6 +236,31 @@ namespace RPGGame.UI.Avalonia.Managers
                 onRepaint?.Invoke();
             }, DispatcherPriority.Background);
         }
+
+        private void ThrottledPreWeaponPathIntroRender()
+        {
+            if (preWeaponPathIntroReRenderCallback == null)
+                return;
+
+            lock (preWeaponPathIntroThrottleLock)
+            {
+                var now = DateTime.Now;
+                if ((now - lastPreWeaponPathIntroRenderTime).TotalMilliseconds < minRenderIntervalMs)
+                    return;
+                lastPreWeaponPathIntroRenderTime = now;
+            }
+
+            if (stateManager == null || stateManager.CurrentState != GameState.PreWeaponPathIntro)
+                return;
+
+            var onRepaint = preWeaponPathIntroReRenderCallback;
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (stateManager?.CurrentState != GameState.PreWeaponPathIntro)
+                    return;
+                onRepaint?.Invoke();
+            }, DispatcherPriority.Background);
+        }
         
         /// <summary>
         /// Update callback for undulation animation
@@ -249,6 +279,9 @@ namespace RPGGame.UI.Avalonia.Managers
             
             // Victory / dungeon completion screen uses the same undulation state; re-draw while that screen is up.
             ThrottledDungeonCompletionRender();
+
+            // Post-tutorial path intro also uses periodic re-renders for its warm/cool shimmer.
+            ThrottledPreWeaponPathIntroRender();
             
             // Also trigger re-render for display buffer (for "ENTERING DUNGEON" lines)
             // This is handled by crit line animation manager
@@ -270,6 +303,7 @@ namespace RPGGame.UI.Avalonia.Managers
             }
             
             ThrottledDungeonCompletionRender();
+            ThrottledPreWeaponPathIntroRender();
             
             // Also trigger re-render for display buffer (for "ENTERING DUNGEON" lines)
             // This is handled by crit line animation manager
@@ -398,6 +432,14 @@ namespace RPGGame.UI.Avalonia.Managers
         public void SetDungeonCompletionReRenderCallback(System.Action? callback)
         {
             dungeonCompletionReRenderCallback = callback;
+        }
+
+        /// <summary>
+        /// Sets a callback to re-draw the post-Training-Ground path intro while its shimmer advances.
+        /// </summary>
+        public void SetPreWeaponPathIntroReRenderCallback(System.Action? callback)
+        {
+            preWeaponPathIntroReRenderCallback = callback;
         }
         
         /// <summary>

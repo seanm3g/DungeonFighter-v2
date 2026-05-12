@@ -1,0 +1,441 @@
+{
+  "name": "Zarek Stoneheart",
+  "level": 6,
+  "xp": 391,
+  "currentHealth": 0,
+  "maxHealth": 75,
+  "strength": 18,
+  "agility": 8,
+  "technique": 8,
+  "intelligence": 8,
+  "barbarianPoints": 5,
+  "warriorPoints": 0,
+  "roguePoints": 0,
+  "wizardPoints": 0,
+  "comboStep": 0,
+  "comboBonus": 0,
+  "tempComboBonus": 0,
+  "tempComboBonusTurns": 0,
+  "damageReduction": 0,
+  "inventory": [
+    {
+      "$itemType": "weapon",
+      "baseDamage": 2,
+      "rolledDamageBonus": 4,
+      "baseAttackSpeed": 0.93,
+      "name": "Worn Acrobatic Glass Branch",
+      "type": 3,
+      "tier": 1,
+      "level": 1,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Uncommon",
+      "statBonuses": [],
+      "actionBonuses": [
+        {
+          "name": "SLAM",
+          "description": "FOR NEXT 2 ATTACKS: 2x Damage",
+          "weight": 1
+        }
+      ],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "QUALITY",
+          "name": "Worn",
+          "description": "Affects the base stats of an item \u002B/-",
+          "effect": "gearPrimaryStatMultiplier",
+          "minValue": 0.95,
+          "maxValue": 0.95,
+          "rolledValue": 0.95,
+          "statusEffects": [],
+          "attributeRequirements": {}
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "ADJECTIVE",
+          "name": "Acrobatic",
+          "description": "",
+          "effect": "MULTI-HIT",
+          "minValue": 1,
+          "maxValue": 1,
+          "rolledValue": 1,
+          "statusEffects": [],
+          "attributeRequirements": {}
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "MATERIAL",
+          "name": "Glass",
+          "description": "Rogue",
+          "effect": "TECHNIQUE",
+          "minValue": 2,
+          "maxValue": 2,
+          "rolledValue": 2,
+          "statusEffects": [],
+          "attributeRequirements": {}
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 3,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "starter"
+      ],
+      "weaponType": 0,
+      "attributeRequirements": {},
+      "catalogAttributeRequirements": {},
+      "gearAction": null,
+      "isStarterItem": true
+    },
+    {
+      "$itemType": "weapon",
+      "baseDamage": 4,
+      "rolledDamageBonus": 2,
+      "baseAttackSpeed": 1.2,
+      "name": "Bone Prong",
+      "type": 3,
+      "tier": 1,
+      "level": 3,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Uncommon",
+      "statBonuses": [],
+      "actionBonuses": [
+        {
+          "name": "MAGIC MISSLE",
+          "description": "",
+          "weight": 1
+        }
+      ],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "MATERIAL",
+          "name": "Bone",
+          "description": "Barbarian",
+          "effect": "STRENGTH",
+          "minValue": 2,
+          "maxValue": 2,
+          "rolledValue": 2,
+          "statusEffects": [],
+          "attributeRequirements": {}
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 3,
+      "bonusAttackSpeed": 0,
+      "tags": [],
+      "weaponType": 3,
+      "attributeRequirements": {
+        "intelligence": 5
+      },
+      "catalogAttributeRequirements": {
+        "intelligence": 5
+      },
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "weapon",
+      "baseDamage": 4,
+      "rolledDamageBonus": 1,
+      "baseAttackSpeed": 1.2,
+      "name": "Worn Prong",
+      "type": 3,
+      "tier": 1,
+      "level": 2,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Uncommon",
+      "statBonuses": [],
+      "actionBonuses": [
+        {
+          "name": "MAGIC MISSLE",
+          "description": "",
+          "weight": 1
+        }
+      ],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "QUALITY",
+          "name": "Worn",
+          "description": "Affects the base stats of an item \u002B/-",
+          "effect": "gearPrimaryStatMultiplier",
+          "minValue": 0.95,
+          "maxValue": 0.95,
+          "rolledValue": 0.95,
+          "statusEffects": [],
+          "attributeRequirements": {}
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 3,
+      "bonusAttackSpeed": 0,
+      "tags": [],
+      "weaponType": 3,
+      "attributeRequirements": {
+        "intelligence": 5
+      },
+      "catalogAttributeRequirements": {
+        "intelligence": 5
+      },
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "weapon",
+      "baseDamage": 3,
+      "rolledDamageBonus": 2,
+      "baseAttackSpeed": 0.92,
+      "name": "Worn Shard",
+      "type": 3,
+      "tier": 1,
+      "level": 3,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Uncommon",
+      "statBonuses": [],
+      "actionBonuses": [],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "QUALITY",
+          "name": "Worn",
+          "description": "Affects the base stats of an item \u002B/-",
+          "effect": "gearPrimaryStatMultiplier",
+          "minValue": 0.95,
+          "maxValue": 0.95,
+          "rolledValue": 0.95,
+          "statusEffects": [],
+          "attributeRequirements": {}
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 3,
+      "bonusAttackSpeed": 0,
+      "tags": [],
+      "weaponType": 3,
+      "attributeRequirements": {
+        "intelligence": 5
+      },
+      "catalogAttributeRequirements": {
+        "intelligence": 5
+      },
+      "gearAction": null,
+      "isStarterItem": false
+    }
+  ],
+  "head": {
+    "$itemType": "head",
+    "armor": 0,
+    "name": "Skullcap",
+    "type": 0,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "baseStrength": 0,
+    "baseAgility": 0,
+    "baseTechnique": 0,
+    "baseIntelligence": 3,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 0,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [
+      {
+        "name": "BERZERK",
+        "description": "IF HEALTH IS \u003C25%: \u002B5 STR, \u002B5 AGI",
+        "weight": 1
+      }
+    ],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [],
+    "weaponType": 0,
+    "attributeRequirements": {
+      "intelligence": 5
+    },
+    "catalogAttributeRequirements": {
+      "intelligence": 5
+    },
+    "gearAction": null,
+    "isStarterItem": false
+  },
+  "body": {
+    "$itemType": "chest",
+    "armor": 6,
+    "name": "Swift Coat",
+    "type": 2,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "baseStrength": 2,
+    "baseAgility": 0,
+    "baseTechnique": 0,
+    "baseIntelligence": 5,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 0,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [
+      {
+        "diceResult": 0,
+        "itemRank": "Common",
+        "prefixCategory": "ADJECTIVE",
+        "name": "Swift",
+        "description": "",
+        "effect": "HIT",
+        "minValue": 1,
+        "maxValue": 1,
+        "rolledValue": 1,
+        "statusEffects": [],
+        "attributeRequirements": {}
+      }
+    ],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [],
+    "weaponType": 0,
+    "attributeRequirements": {
+      "strength": 5
+    },
+    "catalogAttributeRequirements": {
+      "strength": 5
+    },
+    "gearAction": null,
+    "isStarterItem": false
+  },
+  "legs": null,
+  "weapon": {
+    "$itemType": "weapon",
+    "baseDamage": 10,
+    "rolledDamageBonus": 3,
+    "baseAttackSpeed": 1.18,
+    "name": "Hammer",
+    "type": 3,
+    "tier": 2,
+    "level": 2,
+    "comboBonus": 0,
+    "baseStrength": 0,
+    "baseAgility": 0,
+    "baseTechnique": 0,
+    "baseIntelligence": 0,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 0,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 6,
+    "bonusAttackSpeed": 0,
+    "tags": [],
+    "weaponType": 2,
+    "attributeRequirements": {
+      "strength": 15
+    },
+    "catalogAttributeRequirements": {
+      "strength": 15
+    },
+    "gearAction": null,
+    "isStarterItem": false
+  },
+  "feet": {
+    "$itemType": "feet",
+    "armor": 0,
+    "name": "Treads",
+    "type": 1,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "baseStrength": 5,
+    "baseAgility": 0,
+    "baseTechnique": 2,
+    "baseIntelligence": 0,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 2,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [],
+    "weaponType": 0,
+    "attributeRequirements": {
+      "technique": 1
+    },
+    "catalogAttributeRequirements": {
+      "technique": 1
+    },
+    "gearAction": null,
+    "isStarterItem": false
+  },
+  "isDead": true,
+  "pendingPreWeaponTrainingGround": false
+}

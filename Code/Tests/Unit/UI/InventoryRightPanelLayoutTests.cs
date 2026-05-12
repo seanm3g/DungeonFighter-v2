@@ -1,5 +1,6 @@
 using System;
 using RPGGame;
+using RPGGame.Data;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia.Layout;
 
@@ -55,6 +56,18 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(ideal, clamped, "clamp unchanged when in grid", ref run, ref passed, ref failed);
             int clampedLeft = InventoryRightPanelLayout.ClampPoolTooltipBoxLeft(-100, boxW);
             TestBase.AssertEqual(1, clampedLeft, "clamp min to 1", ref run, ref passed, ref failed);
+
+            ActionLoader.LoadActions();
+            var bagActionCharacter = TestDataBuilders.Character().WithName("LayoutInvPool").Build();
+            bagActionCharacter.Inventory.Clear();
+            var bagHead = TestDataBuilders.Armor().WithType(ItemType.Head).Build();
+            bagHead.GearAction = "JAB";
+            bagActionCharacter.Inventory.Add(bagHead);
+            TestBase.AssertTrue(InventoryRightPanelLayout.TryGetInventoryActionPoolRowY(bagActionCharacter, 0, out int invY0),
+                "inventory pool row 0", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(invY0 > y0, "inventory pool row appears below gear pool rows", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!InventoryRightPanelLayout.TryGetInventoryActionPoolRowY(bagActionCharacter, 99, out _),
+                "inventory pool index OOB", ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("InventoryRightPanelLayout Tests", run, passed, failed);
         }
