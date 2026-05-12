@@ -76,16 +76,16 @@
 
 ## 🔄 CURRENT DEVELOPMENT TASKS
 
-### 0. Region Travel System 🔄
-**Status**: In Progress  
+### 0. Region Travel System ✅
+**Status**: Completed  
 **Description**: Add three persistent regions with hub travel, 10 dice-driven route events per trip, and region-filtered dungeon selection.  
 **Tasks**:
-- [ ] Define `Regions.json` and 100 travel event entries in `TravelEvents.json`
-- [ ] Persist each character's current region
-- [ ] Add travel menu, handler, renderer, and input routing
-- [ ] Generate 10 route events per destination using combat-style d20 outcome bands
-- [ ] Filter dungeon selection by current region
-- [ ] Add focused tests for travel data, rolls, persistence, UI/input, and dungeon filtering
+- [x] Define `Regions.json` and 100 travel event entries in `TravelEvents.json`
+- [x] Persist each character's current region
+- [x] Add travel menu, handler, renderer, and input routing
+- [x] Generate 10 route events per destination using combat-style d20 outcome bands
+- [x] Filter dungeon selection by current region
+- [x] Add focused tests for travel data, rolls, persistence, UI/input, and dungeon filtering
 
 ### 1. Combat Freeze Fix ✅
 **Status**: Completed  

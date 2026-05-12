@@ -43,6 +43,11 @@ namespace RPGGame
         /// </summary>
         public bool PendingPreWeaponTrainingGround { get; set; }
 
+        /// <summary>
+        /// Region id where this character is currently located. Legacy saves default to Ancient Forest.
+        /// </summary>
+        public string CurrentRegionId { get; set; } = GameConstants.DefaultRegionId;
+
         /// <summary>Action Interaction Lab only: added to <see cref="GetTotalArmor"/> for sandbox tuning (default 0).</summary>
         public int ActionLabArmorBonus { get; set; }
 

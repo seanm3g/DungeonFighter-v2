@@ -10,6 +10,7 @@ namespace RPGGame
         PreWeaponPathIntro,
         CharacterCreation,
         GameLoop,
+        RegionTravel,
         Inventory,
         CharacterInfo,
         Settings,

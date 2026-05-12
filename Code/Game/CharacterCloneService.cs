@@ -25,7 +25,7 @@ namespace RPGGame
             character.Effects.RerollCharges = character.Equipment.GetTotalRerollCharges();
             character.CurrentHealth = character.GetEffectiveMaxHealth();
             character.ResetCombo();
-            CharacterSerializer.RebuildCharacterActions(character);
+            CharacterSerializer.RebuildCharacterActions(character, preserveComboSequence: false);
             character.ResetSessionStatistics();
 
             DamageCalculator.InvalidateCache(character);

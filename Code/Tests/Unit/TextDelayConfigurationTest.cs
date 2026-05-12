@@ -179,14 +179,14 @@ namespace RPGGame.Tests.Unit
             try
             {
                 var actionDelay = TextDelayConfiguration.GetActionDelayMs();
-                AssertTrue(actionDelay == 1000, 
-                    $"Action delay should be 1000ms (got {actionDelay}ms)");
+                AssertTrue(actionDelay == 3000, 
+                    $"Action delay should be 3000ms (got {actionDelay}ms)");
                 AssertTrue(actionDelay > 0, 
                     "Action delay should be positive");
                 
                 var messageDelay = TextDelayConfiguration.GetMessageDelayMs();
-                AssertTrue(messageDelay == 200, 
-                    $"Message delay should be 200ms (got {messageDelay}ms)");
+                AssertTrue(messageDelay == 250, 
+                    $"Message delay should be 250ms (got {messageDelay}ms)");
                 AssertTrue(messageDelay > 0, 
                     "Message delay should be positive");
                 

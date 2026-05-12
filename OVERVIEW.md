@@ -143,7 +143,7 @@ The Avalonia death screen appends the defeat summary to the center display buffe
 
 ### Death — clone revival option
 
-When a hero dies outside the pre-weapon Training Ground, the death screen should offer a clone choice before the dead-character tombstone is finalized. Choosing clone keeps the character's progression and inventory, discards only currently equipped gear, revives to full effective health, rebuilds the unarmed action pool/combo sequence, and returns to the in-game menu as the next generational name: the first clone appends **Jr.**, then subsequent clone deaths advance to **III**, **IV**, **V**, **VI**, and higher Roman numerals. Declining the clone option preserves the existing tombstone behavior and removes the live save.
+When a hero dies outside the pre-weapon Training Ground, the death screen should offer a clone choice before the dead-character tombstone is finalized. Choosing clone keeps the character's progression and inventory, discards only currently equipped gear, revives to full effective health, rebuilds the unarmed action pool/combo sequence without preserving pre-death action-strip slots, and returns to the in-game menu as the next generational name: the first clone appends **Jr.**, then subsequent clone deaths advance to **III**, **IV**, **V**, **VI**, and higher Roman numerals. Declining the clone option preserves the existing tombstone behavior and removes the live save.
 
 ### UI — room reward narration colors
 
@@ -192,7 +192,7 @@ Bag rows in the inventory screen, the equip-from-bag selection prompt, the trade
 
 ### Saves — death tombstones and clones
 
-When the hero dies, the death screen offers a clone before finalizing death. Choosing clone saves a live character with the next generational suffix and no equipped gear. Declining clone persists a **tombstone** JSON (`isDead: true`) under `GameData/character_{id}_dead.json` (or `character_save_dead.json` for legacy single-slot saves without an ID) and **removes** the live `character_*_save.json` / `character_save.json` file. `ListAllSavedCharacters` and `LoadCharacterAsync` ignore tombstones so fallen adventurers do not appear in the load list. **Clear all saves** in settings also deletes `character_*_dead.json` and the legacy dead file. Tombstone persistence runs from `DeathScreenHandler` when the player leaves the death screen without cloning, wrapped in try/catch so a disk error cannot block the death UI.
+When the hero dies, the death screen offers a clone before finalizing death. Choosing clone saves a live character with the next generational suffix, no equipped gear, and a freshly initialized unarmed action strip instead of the pre-death combo slots. Declining clone persists a **tombstone** JSON (`isDead: true`) under `GameData/character_{id}_dead.json` (or `character_save_dead.json` for legacy single-slot saves without an ID) and **removes** the live `character_*_save.json` / `character_save.json` file. `ListAllSavedCharacters` and `LoadCharacterAsync` ignore tombstones so fallen adventurers do not appear in the load list. **Clear all saves** in settings also deletes `character_*_dead.json` and the legacy dead file. Tombstone persistence runs from `DeathScreenHandler` when the player leaves the death screen without cloning, wrapped in try/catch so a disk error cannot block the death UI.
 
 ### Progression — XP to next level and mid-run level-ups
 

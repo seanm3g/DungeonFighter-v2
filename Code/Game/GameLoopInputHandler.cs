@@ -18,6 +18,7 @@ namespace RPGGame
         public delegate void OnExitGame();
         public delegate void OnShowCharacterSelection();
         public delegate void OnShowMainMenu();
+        public delegate void OnShowRegionTravel();
         
         public event OnSelectDungeon? SelectDungeonEvent;
         public event OnShowInventory? ShowInventoryEvent;
@@ -27,6 +28,7 @@ namespace RPGGame
 #pragma warning restore CS0067
         public event OnShowCharacterSelection? ShowCharacterSelectionEvent;
         public event OnShowMainMenu? ShowMainMenuEvent;
+        public event OnShowRegionTravel? ShowRegionTravelEvent;
 
         public GameLoopInputHandler(GameStateManager stateManager)
         {
@@ -55,6 +57,10 @@ namespace RPGGame
                     // Show Inventory
                     ShowInventoryEvent?.Invoke();
                     break;
+                case "3":
+                    // Show Region Travel
+                    ShowRegionTravelEvent?.Invoke();
+                    break;
                 case "C":
                     // Character Selection (multi-character support)
                     ShowCharacterSelectionEvent?.Invoke();
@@ -80,7 +86,7 @@ namespace RPGGame
                     ShowMainMenuEvent?.Invoke();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1 (Dungeon), 2 (Inventory), C (Characters), or 0 (Back to Main Menu).");
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1 (Dungeon), 2 (Inventory), 3 (Travel), C (Characters), or 0 (Back to Main Menu).");
                     break;
             }
         }

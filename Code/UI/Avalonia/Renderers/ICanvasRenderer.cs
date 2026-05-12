@@ -33,6 +33,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun, CanvasContext context);
         void RenderDungeonExploration(Character player, string currentLocation, List<string> availableActions, List<string> recentEvents, CanvasContext context);
         void RenderGameMenu(Character player, List<Item> inventory, CanvasContext context);
+        void RenderRegionTravel(Character player, IReadOnlyList<TravelRegion> destinations, TravelRouteResult? routeResult, CanvasContext context);
         void ShowMessage(string message, Color color = default);
         void ShowError(string error);
         void ShowSuccess(string message);

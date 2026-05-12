@@ -31,6 +31,7 @@ namespace RPGGame.Handlers
             public LoadCharacterSelectionHandler? LoadCharacterSelectionHandler { get; set; }
             public TrainingGroundOfferHandler? TrainingGroundOfferHandler { get; set; }
             public PreWeaponPathIntroHandler? PreWeaponPathIntroHandler { get; set; }
+            public RegionTravelHandler? RegionTravelHandler { get; set; }
         }
 
         /// <summary>
@@ -66,7 +67,8 @@ namespace RPGGame.Handlers
                 CharacterManagementHandler = new CharacterManagementHandler(stateManager, uiManager, initializationManager),
                 LoadCharacterSelectionHandler = new LoadCharacterSelectionHandler(stateManager, uiManager, gameInitializer),
                 TrainingGroundOfferHandler = trainingGroundOfferHandler,
-                PreWeaponPathIntroHandler = preWeaponPathIntroHandler
+                PreWeaponPathIntroHandler = preWeaponPathIntroHandler,
+                RegionTravelHandler = new RegionTravelHandler(stateManager, uiManager)
             };
         }
 
@@ -155,9 +157,16 @@ namespace RPGGame.Handlers
             {
                 handlers.GameLoopInputHandler.SelectDungeonEvent += async () => await (showDungeonSelection?.Invoke() ?? Task.CompletedTask);
                 handlers.GameLoopInputHandler.ShowInventoryEvent += () => showInventory();
+                handlers.GameLoopInputHandler.ShowRegionTravelEvent += () => handlers.RegionTravelHandler?.ShowRegionTravel();
                 handlers.GameLoopInputHandler.ShowCharacterSelectionEvent += () => handlers.CharacterManagementHandler?.ShowCharacterSelection();
                 handlers.GameLoopInputHandler.ExitGameEvent += () => exitGame();
                 handlers.GameLoopInputHandler.ShowMainMenuEvent += () => showMainMenu();
+            }
+
+            if (handlers.RegionTravelHandler != null)
+            {
+                handlers.RegionTravelHandler.ShowGameLoopEvent += () => showGameLoop();
+                handlers.RegionTravelHandler.ShowMessageEvent += (msg) => showMessage(msg);
             }
             
             if (handlers.CharacterManagementHandler != null)

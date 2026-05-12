@@ -28,6 +28,8 @@ namespace RPGGame
         public const string DungeonConfigJson = "DungeonConfig.json";
         public const string RoomsJson = "Rooms.json";
         public const string DungeonsJson = "Dungeons.json";
+        public const string RegionsJson = "Regions.json";
+        public const string TravelEventsJson = "TravelEvents.json";
         /// <summary>CLASS ACTIONS sheet pull → class tier / path → combo action unlocks.</summary>
         public const string ClassActionsJson = "ClassActions.json";
         public const string CharacterSaveJson = "character_save.json";
@@ -105,6 +107,9 @@ namespace RPGGame
         /// Dungeon selection list row that prompts for an arbitrary dungeon level (must match dungeon regeneration).
         /// </summary>
         public const string DungeonCustomLevelMenuName = "Custom difficulty";
+
+        /// <summary>Legacy/default character region. Matches the Ancient Forest entry in Regions.json.</summary>
+        public const string DefaultRegionId = "forest";
 
         /// <summary>Pre-weapon tutorial dungeon (not listed in Dungeons.json).</summary>
         public const string TrainingGroundDungeonName = "Training Ground";

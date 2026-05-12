@@ -21,6 +21,7 @@ namespace RPGGame.UI.Avalonia.Display
             
             return state == GameState.MainMenu ||
                    state == GameState.GameLoop ||
+                   state == GameState.RegionTravel ||
                    state == GameState.WeaponSelection ||
                    state == GameState.TrainingGroundOffer ||
                    state == GameState.PreWeaponPathIntro ||

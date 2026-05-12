@@ -31,6 +31,7 @@ namespace RPGGame.UI.Avalonia
             public const string SaveAndExit = "Save & Exit";
             public const string GoToDungeon = "Go to Dungeon";
             public const string ShowInventory = "Show Inventory";
+            public const string Travel = "Travel";
             public const string EquipItem = "Equip Item";
             public const string UnequipItem = "Unequip Item";
             public const string DiscardItem = "Discard Item";

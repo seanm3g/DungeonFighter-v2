@@ -22,6 +22,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             DungeonManagerTests.RunAllTests();
             Console.WriteLine();
+            TravelSystemTests.RunAllTests();
+            Console.WriteLine();
             EnvironmentTests.RunAllTests();
             Console.WriteLine();
             RoomGeneratorTests.RunAllTests();

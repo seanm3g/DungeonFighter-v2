@@ -205,7 +205,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
 
                 if (savedSuccessfully)
                 {
-                    showStatusMessage?.Invoke("Settings saved successfully", true);
+                    var status = "Settings saved successfully";
+                    if (textDelaysSaved && !string.IsNullOrWhiteSpace(RPGGame.Config.TextDelay.TextDelayLoader.LastSavedConfigPath))
+                        status += $". Text delays saved to {RPGGame.Config.TextDelay.TextDelayLoader.LastSavedConfigPath}";
+                    showStatusMessage?.Invoke(status, true);
                 }
                 else
                 {

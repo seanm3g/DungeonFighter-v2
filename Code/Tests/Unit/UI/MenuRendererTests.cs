@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit.UI
             _testsFailed = 0;
 
             TestMenuRenderingMethods();
+            TestGameMenuIncludesTravelOption();
 
             TestBase.PrintSummary("MenuRenderer Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -39,6 +40,17 @@ namespace RPGGame.Tests.Unit.UI
             // Test that menu rendering methods exist
             TestBase.AssertTrue(true,
                 "MenuRenderer should have rendering methods",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestGameMenuIncludesTravelOption()
+        {
+            Console.WriteLine("\n--- Testing Game Menu Travel Option ---");
+
+            var options = MenuConfiguration.GetGameMenuOptions();
+
+            TestBase.AssertTrue(options.Exists(option => option.Contains("3. Travel", StringComparison.OrdinalIgnoreCase)),
+                "Game menu configuration should expose the Travel option",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

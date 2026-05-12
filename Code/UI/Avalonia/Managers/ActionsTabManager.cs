@@ -601,7 +601,6 @@ namespace RPGGame.UI.Avalonia.Managers
                 {
                     ActionsSavedThisSession = true;
                     isCreatingNewAction = false;
-                    showStatusMessage?.Invoke($"Action '{target.Name}' created. Settings saved.", true);
                     var selectedName = target.Name;
                     LoadActionsList();
                     if (!string.IsNullOrEmpty(selectedName) && actionsListBox?.ItemsSource is System.Collections.IEnumerable names)
@@ -610,6 +609,7 @@ namespace RPGGame.UI.Avalonia.Managers
                             if (n is string s && string.Equals(s, selectedName, StringComparison.OrdinalIgnoreCase))
                             { actionsListBox.SelectedItem = n; break; }
                     }
+                    ShowActionsSavedPathMessage($"Action '{target.Name}' created");
                 }
                 else
                     showStatusMessage?.Invoke($"Failed to create action '{target.Name}' (e.g. duplicate name).", false);
@@ -628,7 +628,17 @@ namespace RPGGame.UI.Avalonia.Managers
                         if (n is string s && string.Equals(s, selectedName, StringComparison.OrdinalIgnoreCase))
                         { actionsListBox.SelectedItem = n; break; }
                 }
+                ShowActionsSavedPathMessage("Actions saved");
             }
+        }
+
+        private void ShowActionsSavedPathMessage(string prefix)
+        {
+            var path = actionEditor?.LastSavedActionsFilePath;
+            var message = string.IsNullOrWhiteSpace(path)
+                ? $"{prefix}. Saved to Actions.json."
+                : $"{prefix}. Saved to {path}";
+            showStatusMessage?.Invoke(message, true);
         }
 
         /// <summary>

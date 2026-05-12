@@ -288,5 +288,15 @@ namespace RPGGame.UI.Avalonia.Renderers
             dungeonRenderer.RenderActionInfoStrip(player);
             canvas.Refresh();
         }
+
+        public void RenderRegionTravel(Character player, IReadOnlyList<TravelRegion> destinations, TravelRouteResult? routeResult, CanvasContext context)
+        {
+            RenderWithLayout(player, "REGION TRAVEL", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                regionTravelRenderer.RenderRegionTravel(contentX, contentY, contentWidth, contentHeight, player, destinations, routeResult);
+            }, context, null, null, null, clearCanvas: false);
+            dungeonRenderer.RenderActionInfoStrip(player);
+            canvas.Refresh();
+        }
     }
 }

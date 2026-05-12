@@ -11,6 +11,16 @@ namespace RPGGame.Config.TextDelay
     /// </summary>
     public static class TextDelayLoader
     {
+        private const string ConfigFileName = "TextDelayConfig.json";
+
+        /// <summary>Absolute path written by the most recent successful save, for UI confirmation/debugging.</summary>
+        public static string? LastSavedConfigPath { get; private set; }
+
+        public static string GetConfigPath()
+        {
+            return RPGGame.GameConstants.GetGameDataFilePath(ConfigFileName);
+        }
+
         /// <summary>
         /// Loads configuration from JSON file
         /// </summary>
@@ -20,7 +30,7 @@ namespace RPGGame.Config.TextDelay
 
             try
             {
-                string configPath = "GameData/TextDelayConfig.json";
+                string configPath = GetConfigPath();
                 if (System.IO.File.Exists(configPath))
                 {
                     string jsonContent = System.IO.File.ReadAllText(configPath);
@@ -173,7 +183,10 @@ namespace RPGGame.Config.TextDelay
         {
             try
             {
-                string configPath = "GameData/TextDelayConfig.json";
+                string configPath = GetConfigPath();
+                string? dir = System.IO.Path.GetDirectoryName(configPath);
+                if (!string.IsNullOrEmpty(dir) && !System.IO.Directory.Exists(dir))
+                    System.IO.Directory.CreateDirectory(dir);
                 
                 var saveData = new TextDelayConfigSaveData();
                 
@@ -227,6 +240,7 @@ namespace RPGGame.Config.TextDelay
                 
                 // Write to file
                 System.IO.File.WriteAllText(configPath, jsonContent);
+                LastSavedConfigPath = configPath;
             }
             catch (Exception ex)
             {
@@ -241,7 +255,7 @@ namespace RPGGame.Config.TextDelay
         {
             public Dictionary<UIMessageType, int> MessageTypeDelays { get; set; } = new Dictionary<UIMessageType, int>();
             public Dictionary<string, ChunkedTextRevealPreset> ChunkedTextRevealPresets { get; set; } = new Dictionary<string, ChunkedTextRevealPreset>();
-            public int ActionDelayMs { get; set; } = 1000;
+            public int ActionDelayMs { get; set; } = 3000;
             public int MessageDelayMs { get; set; } = 200;
             public int EnvironmentalLineDelay { get; set; } = 500;
             public ProgressiveMenuDelaysConfig ProgressiveMenuDelays { get; set; } = new ProgressiveMenuDelaysConfig();

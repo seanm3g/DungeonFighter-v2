@@ -424,6 +424,8 @@ dist/
 DebugAnalysis/
 # Local scratch/backup data (not used by production code)
 Code/GameData123/
+# Legacy wrong-location text-delay config; root GameData/TextDelayConfig.json is canonical.
+Code/GameData/TextDelayConfig.json
 *.log
 GameData/character_save.json
 GameData/gamesettings.json

@@ -17,6 +17,9 @@ namespace RPGGame.Editors
         private readonly string actionsFilePath;
         private List<ActionData> actions = new List<ActionData>();
 
+        /// <summary>Absolute path written by the most recent successful save, for UI confirmation/debugging.</summary>
+        public string? LastSavedActionsFilePath { get; private set; }
+
         public ActionEditor()
         {
             // Use canonical path (same as ActionLoader) so save and load always use the same file
@@ -244,6 +247,9 @@ namespace RPGGame.Editors
                     string jsonContent = JsonSerializer.Serialize(actions, options);
                     File.WriteAllText(pathToSave, jsonContent);
                 }
+
+                LastSavedActionsFilePath = pathToSave;
+                DebugLogger.LogFormat("ActionEditor", "Saved Actions to: {0}", pathToSave);
 
                 // Clear JSON cache so LoadActions() reads fresh content from disk (clear both path forms in case cache key differs)
                 JsonLoader.ClearCacheForFile(pathToSave);

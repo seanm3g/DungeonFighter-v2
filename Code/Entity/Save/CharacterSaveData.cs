@@ -36,6 +36,9 @@ namespace RPGGame
 
         /// <summary>When true, resume pre-weapon Training Ground flow after load (omit or false for legacy saves).</summary>
         public bool PendingPreWeaponTrainingGround { get; set; }
+
+        /// <summary>Current region id for the character; omitted legacy saves default to Ancient Forest.</summary>
+        public string CurrentRegionId { get; set; } = GameConstants.DefaultRegionId;
     }
 }
 

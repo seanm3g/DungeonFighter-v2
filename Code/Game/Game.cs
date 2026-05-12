@@ -305,6 +305,14 @@ namespace RPGGame
                         canvasUI.RenderGameMenu(player, inv);
                     }
                     break;
+                case GameState.RegionTravel:
+                    if (player != null)
+                    {
+                        canvasUI.Clear();
+                        var destinations = new TravelRegionCatalog().GetDestinationRegions(player);
+                        canvasUI.RenderRegionTravel(player, destinations, null);
+                    }
+                    break;
                 case GameState.DungeonSelection:
                     if (player != null && stateManager.AvailableDungeons != null)
                     {

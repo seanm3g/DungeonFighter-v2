@@ -685,6 +685,11 @@ namespace RPGGame.UI.Avalonia
             renderer.RenderGameMenu(player, inventory, GetContext());
         }
 
+        public void RenderRegionTravel(Character player, IReadOnlyList<TravelRegion> destinations, TravelRouteResult? routeResult)
+        {
+            renderer.RenderRegionTravel(player, destinations, routeResult, GetContext());
+        }
+
         /// <inheritdoc cref="CanvasRenderer.RefreshActionInfoStripOnly(Character?, bool)"/>
         public void RefreshActionInfoStripOnly(Character player, bool drawHoverDetailOverlay = true)
         {

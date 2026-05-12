@@ -76,6 +76,10 @@ namespace RPGGame.GameCore.Input
                     stateManager.TransitionToState(GameState.GameLoop);
                     showGameLoop();
                     break;
+                case GameState.RegionTravel:
+                    stateManager.TransitionToState(GameState.GameLoop);
+                    showGameLoop();
+                    break;
                 case GameState.ActionInteractionLab:
                     exitActionInteractionLab();
                     break;

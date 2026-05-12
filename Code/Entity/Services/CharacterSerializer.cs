@@ -49,7 +49,10 @@ namespace RPGGame.Entity.Services
                 Weapon = character.Equipment.Weapon,
                 Feet = character.Equipment.Feet,
                 IsDead = markDead,
-                PendingPreWeaponTrainingGround = character.PendingPreWeaponTrainingGround
+                PendingPreWeaponTrainingGround = character.PendingPreWeaponTrainingGround,
+                CurrentRegionId = string.IsNullOrWhiteSpace(character.CurrentRegionId)
+                    ? GameConstants.DefaultRegionId
+                    : character.CurrentRegionId
             };
 
             var options = new JsonSerializerOptions
@@ -104,6 +107,9 @@ namespace RPGGame.Entity.Services
             character.Effects.TempComboBonusTurns = saveData.TempComboBonusTurns;
             character.DamageReduction = saveData.DamageReduction;
             character.PendingPreWeaponTrainingGround = saveData.PendingPreWeaponTrainingGround;
+            character.CurrentRegionId = string.IsNullOrWhiteSpace(saveData.CurrentRegionId)
+                ? GameConstants.DefaultRegionId
+                : saveData.CurrentRegionId;
             
             // Restore equipment with proper type conversion
             character.Equipment.Inventory = ItemTypeConverter.ConvertItemsToProperTypes(saveData.Inventory);
@@ -121,14 +127,16 @@ namespace RPGGame.Entity.Services
         /// <summary>
         /// Rebuilds the character's action pool and combo sequence from equipment and class progression.
         /// Uses the current ActionLoader data, so call ActionLoader.ReloadActions() first if actions may have changed.
-        /// Preserves the user's custom combo sequence when rebuilding (e.g. when starting a dungeon).
+        /// Preserves the user's custom combo sequence when rebuilding (e.g. when starting a dungeon) unless explicitly disabled.
         /// </summary>
-        public static void RebuildCharacterActions(Character character)
+        public static void RebuildCharacterActions(Character character, bool preserveComboSequence = true)
         {
             // Capture current combo action names before clearing
-            var savedComboNames = character.GetComboActions()
-                .Select(a => a.Name)
-                .ToList();
+            var savedComboNames = preserveComboSequence
+                ? character.GetComboActions()
+                    .Select(a => a.Name)
+                    .ToList()
+                : new List<string>();
 
             character.ActionPool.Clear();
             

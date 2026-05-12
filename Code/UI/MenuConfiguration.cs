@@ -46,7 +46,8 @@ namespace RPGGame
             return new List<string>
             {
                 "1. Choose a Dungeon",
-                "2. Inventory", 
+                "2. Inventory",
+                "3. Travel",
                 "0. Back to Main Menu"
             };
         }

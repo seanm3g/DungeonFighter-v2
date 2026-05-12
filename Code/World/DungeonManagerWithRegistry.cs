@@ -71,11 +71,22 @@ namespace RPGGame
             
             // Load all dungeons from Dungeons.json
             var allDungeons = LoadAllDungeons();
-            
-            // Randomly select 3 unique dungeons from the full list
-            var selectedDungeons = allDungeons
+
+            // Region travel makes dungeon selection local to the character's current region.
+            var currentRegion = new TravelRegionCatalog().GetRegionForCharacter(player);
+            var regionDungeons = allDungeons
+                .Where(dungeon => string.Equals(dungeon.theme, currentRegion.Theme, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            if (regionDungeons.Count == 0)
+                regionDungeons = allDungeons;
+
+            // Select three dungeon rows from the current region. If a region only has one authored dungeon,
+            // repeat the template at the usual easy/current/hard level spread.
+            var shuffledRegionDungeons = regionDungeons
                 .OrderBy(x => random.Next())
-                .Take(3)
+                .ToList();
+            var selectedDungeons = Enumerable.Range(0, 3)
+                .Select(i => shuffledRegionDungeons[i % shuffledRegionDungeons.Count])
                 .ToList();
             
             // Create Dungeon objects with appropriate level scaling
@@ -102,7 +113,7 @@ namespace RPGGame
             availableDungeons.Clear();
             availableDungeons.AddRange(sortedDungeons);
 
-            var customTemplate = allDungeons.OrderBy(_ => random.Next()).First();
+            var customTemplate = regionDungeons.OrderBy(_ => random.Next()).First();
             availableDungeons.Add(new Dungeon(
                 GameConstants.DungeonCustomLevelMenuName,
                 Math.Max(RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL, playerLevel),

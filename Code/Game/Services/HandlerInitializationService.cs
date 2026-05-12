@@ -39,6 +39,7 @@ namespace RPGGame.Game.Services
             public LoadCharacterSelectionHandler? LoadCharacterSelectionHandler { get; set; }
             public TrainingGroundOfferHandler? TrainingGroundOfferHandler { get; set; }
             public PreWeaponPathIntroHandler? PreWeaponPathIntroHandler { get; set; }
+            public RegionTravelHandler? RegionTravelHandler { get; set; }
             public MenuInputRouter? MenuInputRouter { get; set; }
             public MenuInputValidator? MenuInputValidator { get; set; }
             public GameInputRouter? InputRouter { get; set; }
@@ -95,6 +96,7 @@ namespace RPGGame.Game.Services
             result.LoadCharacterSelectionHandler = handlerResult.LoadCharacterSelectionHandler;
             result.TrainingGroundOfferHandler = handlerResult.TrainingGroundOfferHandler;
             result.PreWeaponPathIntroHandler = handlerResult.PreWeaponPathIntroHandler;
+            result.RegionTravelHandler = handlerResult.RegionTravelHandler;
             
             // Create additional handlers that aren't in HandlerInitializer
             result.DeveloperMenuHandler = new DeveloperMenuHandler(stateManager, uiManager);
@@ -197,7 +199,8 @@ namespace RPGGame.Game.Services
                 LoadCharacterSelectionHandler = result.LoadCharacterSelectionHandler,
                 DungeonExitChoiceHandler = result.DungeonRunnerManager?.GetExitChoiceHandler(),
                 TrainingGroundOfferHandler = result.TrainingGroundOfferHandler,
-                PreWeaponPathIntroHandler = result.PreWeaponPathIntroHandler
+                PreWeaponPathIntroHandler = result.PreWeaponPathIntroHandler,
+                RegionTravelHandler = result.RegionTravelHandler
             };
             
             var escapeKeyHandlers = new EscapeKeyHandlers

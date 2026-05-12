@@ -164,7 +164,8 @@ namespace RPGGame
                 GameState.MainMenu => "1=New Game, 2=Load Game, 3=Settings, 0=Quit",
                 GameState.Inventory => "1-4=Action, 0/ESC=Return to game menu",
                 GameState.Settings => "Adjust settings or press ESC to back",
-                GameState.GameLoop => "1=Dungeon, 2=Inventory, 3=Character, 4=Settings, 0=Quit",
+                GameState.GameLoop => "1=Dungeon, 2=Inventory, 3=Travel, C=Characters, 0=Quit",
+                GameState.RegionTravel => "1-2=Travel destination, 0/ESC=Return to game menu",
                 _ => "Enter input"
             };
         }

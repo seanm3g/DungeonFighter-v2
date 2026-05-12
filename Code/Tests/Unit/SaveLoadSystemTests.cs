@@ -35,6 +35,7 @@ namespace RPGGame.Tests.Unit
             TestInventoryPersistence();
             TestWeaponTypeRoundTripInCharacterSerializer();
             TestPendingPreWeaponTrainingFlagRoundTrip();
+            TestCurrentRegionRoundTrip();
             TestStarterLeatherArmorSurvivesCharacterSerializerRoundTrip();
             TestDeadCharacterTombstone();
 
@@ -330,6 +331,29 @@ namespace RPGGame.Tests.Unit
             var loaded = serializer.CreateCharacterFromSaveData(data);
             TestBase.AssertTrue(loaded.PendingPreWeaponTrainingGround,
                 "flag restored on character", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCurrentRegionRoundTrip()
+        {
+            Console.WriteLine("\n--- Testing CurrentRegionId serializer round-trip ---");
+
+            _ = GameConfiguration.Instance;
+            var serializer = new CharacterSerializer();
+            var character = TestDataBuilders.Character().WithName("RegionRoundTrip").WithLevel(1).Build();
+            character.CurrentRegionId = "crypt";
+
+            string json = serializer.Serialize(character);
+            var data = serializer.Deserialize(json);
+            TestBase.AssertNotNull(data, "deserialize region payload", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (data == null)
+                return;
+
+            TestBase.AssertEqual("crypt", data.CurrentRegionId,
+                "region id in save payload", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var loaded = serializer.CreateCharacterFromSaveData(data);
+            TestBase.AssertEqual("crypt", loaded.CurrentRegionId,
+                "region id restored on character", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestProgressionPersistence()

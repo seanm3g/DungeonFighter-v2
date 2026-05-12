@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit.World
 
             TestConstructor();
             TestRegenerateDungeons();
+            TestRegenerateDungeonsUsesCurrentRegion();
             TestGetAvailableDungeons();
 
             TestBase.PrintSummary("DungeonManager Tests", _testsRun, _testsPassed, _testsFailed);
@@ -103,6 +104,29 @@ namespace RPGGame.Tests.Unit.World
             // Test that dungeons are accessible
             TestBase.AssertTrue(availableDungeons.Count >= 0,
                 "Available dungeons should be accessible",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRegenerateDungeonsUsesCurrentRegion()
+        {
+            Console.WriteLine("\n--- Testing RegenerateDungeons - Current Region Filter ---");
+
+            var manager = new DungeonManagerWithRegistry();
+            var character = TestDataBuilders.Character()
+                .WithName("LavaTraveler")
+                .WithLevel(5)
+                .Build();
+            character.CurrentRegionId = "lava";
+
+            var availableDungeons = new List<Dungeon>();
+            manager.RegenerateDungeons(character, availableDungeons);
+
+            var nonCustom = availableDungeons.FindAll(d => d.Name != RPGGame.GameConstants.DungeonCustomLevelMenuName);
+            TestBase.AssertTrue(nonCustom.Count > 0,
+                "Region-filtered dungeon list should include non-custom dungeon rows",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(nonCustom.TrueForAll(d => d.Theme == "Lava"),
+                "Non-custom dungeon rows should match the character's current region theme",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

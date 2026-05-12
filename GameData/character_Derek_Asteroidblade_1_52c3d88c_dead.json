@@ -1,0 +1,195 @@
+{
+  "name": "Derek Asteroidblade",
+  "level": 1,
+  "xp": 119,
+  "currentHealth": 0,
+  "maxHealth": 60,
+  "strength": 3,
+  "agility": 3,
+  "technique": 3,
+  "intelligence": 3,
+  "barbarianPoints": 0,
+  "warriorPoints": 0,
+  "roguePoints": 0,
+  "wizardPoints": 0,
+  "comboStep": 0,
+  "comboBonus": 0,
+  "tempComboBonus": 0,
+  "tempComboBonusTurns": 0,
+  "damageReduction": 0,
+  "inventory": [
+    {
+      "$itemType": "head",
+      "armor": 0,
+      "name": "Hood",
+      "type": 0,
+      "tier": 1,
+      "level": 1,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 2,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 1,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Common",
+      "statBonuses": [],
+      "actionBonuses": [
+        {
+          "name": "ANY DAY NOW",
+          "description": "FOR CHAIN: add *5* damage to this card each time it is triggered.",
+          "weight": 1
+        }
+      ],
+      "modifications": [],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [],
+      "weaponType": 0,
+      "attributeRequirements": {
+        "intelligence": 5
+      },
+      "catalogAttributeRequirements": {
+        "intelligence": 5
+      },
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "chest",
+      "armor": 6,
+      "name": "Coat",
+      "type": 2,
+      "tier": 1,
+      "level": 1,
+      "comboBonus": 0,
+      "baseStrength": 1,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 5,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Common",
+      "statBonuses": [],
+      "actionBonuses": [],
+      "modifications": [],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [],
+      "weaponType": 0,
+      "attributeRequirements": {
+        "strength": 9
+      },
+      "catalogAttributeRequirements": {
+        "strength": 9
+      },
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "head",
+      "armor": 0,
+      "name": "Toque",
+      "type": 0,
+      "tier": 1,
+      "level": 1,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 2,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Common",
+      "statBonuses": [],
+      "actionBonuses": [
+        {
+          "name": "Cut the Chain",
+          "description": "You speed up; their multihit shortens next.",
+          "weight": 1
+        },
+        {
+          "name": "TAUNT",
+          "description": "FOR FIGHT (ENEMY): -1 STR, \u002B1 AGI",
+          "weight": 1
+        },
+        {
+          "name": "OBSERVATORY STELLAR",
+          "description": "Stellar energy weakens all combatants",
+          "weight": 1
+        }
+      ],
+      "modifications": [],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [],
+      "weaponType": 0,
+      "attributeRequirements": {
+        "intelligence": 10
+      },
+      "catalogAttributeRequirements": {
+        "intelligence": 10
+      },
+      "gearAction": null,
+      "isStarterItem": false
+    }
+  ],
+  "head": null,
+  "body": null,
+  "legs": null,
+  "weapon": {
+    "$itemType": "weapon",
+    "baseDamage": 2,
+    "rolledDamageBonus": 3,
+    "baseAttackSpeed": 0.99,
+    "name": "Branch",
+    "type": 3,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "baseStrength": 0,
+    "baseAgility": 0,
+    "baseTechnique": 0,
+    "baseIntelligence": 0,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 0,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [
+      "starter"
+    ],
+    "weaponType": 0,
+    "attributeRequirements": {},
+    "catalogAttributeRequirements": {},
+    "gearAction": "AVENGE",
+    "isStarterItem": true
+  },
+  "feet": null,
+  "isDead": true,
+  "pendingPreWeaponTrainingGround": false,
+  "currentRegionId": "lava"
+}
