@@ -259,9 +259,11 @@ namespace RPGGame.UI.Avalonia.Layout
                 RenderEquipmentSlot(x, ref y, headerClickWidth, "Feet", character.Feet, "gear:feet", 1);
             }
 
-            // --- THRESHOLDS --- (dice roll thresholds; collapsible)
+            // --- THRESHOLDS / CHANCES --- (dice ladder or exclusive d20 %; collapsible)
+            bool showThresholdChances = stateManager != null && stateManager.ThresholdsShowChances;
             int thresholdsHeaderY = y;
-            canvas.AddText(x, y, FormatLeftPanelSectionHeader(UIConstants.Headers.Thresholds), AsciiArtAssets.Colors.Gold);
+            string thresholdsHeaderLabel = showThresholdChances ? UIConstants.Headers.Chances : UIConstants.Headers.Thresholds;
+            canvas.AddText(x, y, FormatLeftPanelSectionHeader(thresholdsHeaderLabel), AsciiArtAssets.Colors.Gold);
             y += 2;
             if (interactionManager != null && stateManager != null)
             {
@@ -281,7 +283,6 @@ namespace RPGGame.UI.Avalonia.Layout
             if (thresholdsOpen)
             {
                 int critY = y;
-                bool showThresholdChances = stateManager != null && stateManager.ThresholdsShowChances;
                 y = DiceRollThresholdRowsRenderer.RenderRows(canvas, x, y, character, showThresholdChances);
                 int comboY = critY + 1;
                 int hitY = critY + 2;
@@ -293,6 +294,8 @@ namespace RPGGame.UI.Avalonia.Layout
                     RegisterLeftPanelHoverRow(x, comboY, headerClickWidth, 1, "thresh:combo");
                     RegisterLeftPanelHoverRow(x, hitY, headerClickWidth, 1, "thresh:hit");
                     RegisterLeftPanelHoverRow(x, critMissY, headerClickWidth, 1, "thresh:critmiss");
+                    if (showThresholdChances)
+                        RegisterLeftPanelHoverRow(x, critY + 4, headerClickWidth, 1, "thresh:miss");
                 }
             }
             if (thresholdsOpen)

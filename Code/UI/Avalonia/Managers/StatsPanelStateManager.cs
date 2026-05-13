@@ -46,7 +46,7 @@ namespace RPGGame.UI.Avalonia.Managers
             set => thresholdsCollapsed = value;
         }
 
-        /// <summary>When true, THRESHOLDS rows show exclusive d20 outcome chances instead of ladder numbers.</summary>
+        /// <summary>When true, the section shows exclusive d20 outcome chances (Crit, Combo, Hit, Crit Miss, Miss) instead of ladder numbers; the panel header reads CHANCES.</summary>
         public bool ThresholdsShowChances
         {
             get => thresholdsShowChances;

@@ -24,7 +24,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         void RenderPreWeaponPathIntro(Character character, CanvasContext context);
         void RenderCharacterCreation(Character character, CanvasContext context);
         void RenderSettings();
-        void RenderDungeonSelection(Character player, List<Dungeon> dungeons, CanvasContext context, string? customDungeonLevelEntryBuffer = null);
+        void RenderDungeonSelection(Character player, List<Dungeon> dungeons, CanvasContext context, string? customDungeonLevelEntryBuffer = null, string? currentRegionDisplayName = null);
         void RenderDungeonStart(Dungeon dungeon, Character player, CanvasContext context);
         void RenderRoomEntry(Environment room, Character player, string? dungeonName, CanvasContext context, int? startFromBufferIndex = null);
         void RenderEnemyEncounter(Enemy enemy, Character player, List<string> dungeonLog, string? dungeonName, string? roomName, CanvasContext context);

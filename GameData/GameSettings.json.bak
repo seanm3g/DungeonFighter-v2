@@ -11,6 +11,7 @@
   "AutoSaveInterval": 5,
   "ShowDetailedStats": false,
   "EnableSoundEffects": true,
+  "TravelTimeMultiplier": 1,
   "EnemyHealthMultiplier": 1,
   "EnemyDamageMultiplier": 1,
   "PlayerHealthMultiplier": 1,

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.UI;
-using RPGGame.UI.Avalonia;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Themes;
 
@@ -43,17 +42,6 @@ namespace RPGGame.Display.Dungeon
 
             string renderedText = ColoredTextRenderer.RenderAsMarkup(BuildEncounterAppearanceSegments(enemy));
             info.Add(renderedText.TrimStart());
-
-            string statsText = AsciiArtAssets.UIText.FormatEnemyStats(enemy.CurrentHealth, enemy.MaxHealth, enemy.Armor);
-            var statsBuilder = new ColoredTextBuilder();
-            statsBuilder.Add(statsText, Colors.White);
-            info.Add(ColoredTextRenderer.RenderAsMarkup(statsBuilder.Build()));
-
-            string attackText = AsciiArtAssets.UIText.FormatEnemyAttack(enemy.Strength, enemy.Agility, enemy.Technique, enemy.Intelligence);
-            var attackBuilder = new ColoredTextBuilder();
-            attackBuilder.Add(attackText, ColorPalette.Rare);
-            info.Add(ColoredTextRenderer.RenderAsMarkup(attackBuilder.Build()));
-            info.Add("");
 
             return info;
         }

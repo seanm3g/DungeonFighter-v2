@@ -24,6 +24,11 @@ namespace RPGGame.UI.Avalonia.Layout
             public int ComboPercent { get; }
             public int HitPercent { get; }
             public int CritMissPercent { get; }
+
+            /// <summary>
+            /// d20 faces that are not crit, combo, normal hit, or crit miss (plain miss band between crit miss and hit).
+            /// </summary>
+            public int MissPercent => Math.Clamp(100 - CritPercent - ComboPercent - HitPercent - CritMissPercent, 0, 100);
         }
 
         public static Color GetValueColor(int current, int defaultValue)

@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using RPGGame;
 using RPGGame.Actions.RollModification;
 using RPGGame.Diagnostics;
 
@@ -62,7 +63,10 @@ namespace RPGGame.Combat.Calculators
             return m;
         }
 
-        public static int CalculateRawDamage(Actor attacker, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int roll = 0)
+        /// <param name="roll">Total attack roll (modified d20 + roll bonuses) used for combo/normal damage bands.</param>
+        /// <param name="rollBonusForCritEval">Same roll bonus as combat resolution; crit damage uses
+        /// <see cref="CombatCalculator.GetCritThresholdEvaluationRoll"/> so accuracy does not inflate crits.</param>
+        public static int CalculateRawDamage(Actor attacker, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int roll = 0, int rollBonusForCritEval = 0)
         {
             // Get base damage from attacker
             int baseDamage = 0;
@@ -141,8 +145,13 @@ namespace RPGGame.Combat.Calculators
                     criticalThreshold = RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(attacker);
                 }
 
-                // Critical hit on total roll of threshold or higher - FIXED: Allow 20+
-                if (roll >= criticalThreshold)
+                // Match ActionExecutionFlow / MultiHitProcessor: crit uses crit-eval roll (excludes full roll bonus), not attack total.
+                int critEvalRoll = attacker != null
+                    ? CombatCalculator.GetCritThresholdEvaluationRoll(roll, rollBonusForCritEval, attacker.RollPenalty)
+                    : roll;
+
+                // Natural 20+ on the swing total still forces crit damage when bonuses push the die (legacy safety).
+                if (critEvalRoll >= criticalThreshold || roll >= 20)
                 {
                     if (GameConfiguration.IsDebugEnabled)
                     {
@@ -161,7 +170,7 @@ namespace RPGGame.Combat.Calculators
                 else
                 {
                     // Enhanced damage scaling based on roll using RollSystem configuration
-                    // Only apply if not a critical hit (roll < 20)
+                    // Only apply when not a critical hit (crit-eval below threshold and total roll below 20)
                     var rollSystem = GameConfiguration.Instance.RollSystem;
                     var rollMultipliers = combatBalance.RollDamageMultipliers;
                     if (roll >= rollSystem.ComboThreshold.Min)
@@ -206,7 +215,7 @@ namespace RPGGame.Combat.Calculators
             var sw = CombatHotPathMetrics.IsEnabled ? Stopwatch.StartNew() : null;
 
             // Calculate raw damage before armor
-            int totalDamage = CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
+            int totalDamage = CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll, rollBonus);
 
             // Apply tag-based damage modification
             if (action != null)

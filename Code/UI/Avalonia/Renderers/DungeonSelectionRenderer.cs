@@ -35,7 +35,14 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// Renders the dungeon selection screen
         /// Applies animation effects (brightness mask and undulation) during rendering using centralized state
         /// </summary>
-        public int RenderDungeonSelection(int x, int y, int width, int height, List<Dungeon> dungeons, string? customDungeonLevelEntryBuffer = null)
+        public int RenderDungeonSelection(
+            int x,
+            int y,
+            int width,
+            int height,
+            List<Dungeon> dungeons,
+            string? customDungeonLevelEntryBuffer = null,
+            string? currentRegionDisplayName = null)
         {
             int currentLineCount = 0;
             
@@ -44,18 +51,28 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 throw new ArgumentNullException(nameof(dungeons), "Dungeon list cannot be null");
             }
-            
-            // Clear the dungeon list area before rendering to ensure animations are visible
-            int dungeonListStartY = y + 2;
-            int dungeonListEndY = dungeonListStartY + dungeons.Count;
+
+            int contentWidth = Math.Max(20, width - 4);
             int dungeonListX = x + 4;
             int dungeonListWidth = width - 8;
-            canvas.ClearTextInArea(dungeonListX, dungeonListStartY, dungeonListWidth, dungeonListEndY - dungeonListStartY + 1);
             
             // Available dungeons header
             canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.AvailableDungeons), AsciiArtAssets.Colors.Gold);
             y += 2;
             currentLineCount += 2;
+
+            if (!string.IsNullOrWhiteSpace(currentRegionDisplayName))
+            {
+                string regionLine = "Region: " + currentRegionDisplayName.Trim();
+                canvas.AddText(x + 2, y, Truncate(regionLine, contentWidth), AsciiArtAssets.Colors.Cyan);
+                y++;
+                currentLineCount++;
+            }
+
+            // Clear the dungeon option rows (after header and optional region line) before drawing the list
+            int dungeonListStartY = y;
+            int clearHeight = Math.Max(1, dungeons.Count);
+            canvas.ClearTextInArea(dungeonListX, dungeonListStartY, dungeonListWidth, clearHeight);
             
             for (int i = 0; i < dungeons.Count; i++)
             {
@@ -236,6 +253,15 @@ namespace RPGGame.UI.Avalonia.Renderers
             
             // Fallback for themes without specific templates
             return "y"; // Default to grey color code
+        }
+
+        private static string Truncate(string text, int maxLength)
+        {
+            if (string.IsNullOrEmpty(text) || text.Length <= maxLength)
+                return text;
+            if (maxLength <= 3)
+                return text.Substring(0, maxLength);
+            return text.Substring(0, maxLength - 3) + "...";
         }
     }
 }

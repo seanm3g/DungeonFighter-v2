@@ -6,7 +6,7 @@ using RPGGame.UI.Avalonia;
 namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
-    /// Renders the four dice roll threshold rows (Crit, Combo, Hit, Crit Miss) for any <see cref="Actor"/>.
+    /// Renders dice roll threshold rows (Crit, Combo, Hit, Crit Miss; in chance mode also Miss so percents sum to 100%) for any <see cref="Actor"/>.
     /// Used by the left panel (player hero) and the right panel (active enemy).
     /// </summary>
     public static class DiceRollThresholdRowsRenderer
@@ -115,6 +115,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 RenderChanceRow(cy++, "Combo", chances.ComboPercent, defaultChances.ComboPercent);
                 RenderChanceRow(cy++, "Hit", chances.HitPercent, defaultChances.HitPercent);
                 RenderChanceRow(cy++, "Crit Miss", chances.CritMissPercent, defaultChances.CritMissPercent);
+                RenderChanceRow(cy++, "Miss", chances.MissPercent, defaultChances.MissPercent);
             }
             else
             {

@@ -284,17 +284,11 @@ namespace RPGGame.UI.Avalonia
             
             // Stats display
             public const string RemainingHealth = "Remaining Health: {0}/{1}";
-            public const string EnemyStatsFormat = "Enemy Stats - Health: {0}/{1}, Armor: {2}";
-            public const string EnemyAttackFormat = "STR {0}, AGI {1}, TEC {2}, INT {3}";
             public const string EncounteredFormat = "A {0}{1} appears.";
             public const string WeaponSuffix = " with {0}";
             
             // Helper methods
             public static string CreateHeader(string text) => $"{HeaderPrefix} {text} {HeaderSuffix}";
-            public static string FormatEnemyStats(int currentHealth, int maxHealth, int armor) 
-                => string.Format(EnemyStatsFormat, currentHealth, maxHealth, armor);
-            public static string FormatEnemyAttack(int str, int agi, int tec, int intel) 
-                => string.Format(EnemyAttackFormat, str, agi, tec, intel);
         }
     }
 }

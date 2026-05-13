@@ -72,22 +72,30 @@ namespace RPGGame
             // Load all dungeons from Dungeons.json
             var allDungeons = LoadAllDungeons();
 
-            // Region travel makes dungeon selection local to the character's current region.
+            // Region travel: offer dungeons whose theme is in this region's linked pool (not only the primary Theme).
             var currentRegion = new TravelRegionCatalog().GetRegionForCharacter(player);
+            var themePool = currentRegion.ResolveLinkedDungeonThemePool().ToList();
             var regionDungeons = allDungeons
-                .Where(dungeon => string.Equals(dungeon.theme, currentRegion.Theme, StringComparison.OrdinalIgnoreCase))
+                .Where(dungeon => themePool.Any(theme =>
+                    string.Equals(dungeon.theme, theme, StringComparison.OrdinalIgnoreCase)))
                 .ToList();
             if (regionDungeons.Count == 0)
-                regionDungeons = allDungeons;
+                regionDungeons = allDungeons.ToList();
 
-            // Select three dungeon rows from the current region. If a region only has one authored dungeon,
-            // repeat the template at the usual easy/current/hard level spread.
-            var shuffledRegionDungeons = regionDungeons
-                .OrderBy(x => random.Next())
-                .ToList();
-            var selectedDungeons = Enumerable.Range(0, 3)
-                .Select(i => shuffledRegionDungeons[i % shuffledRegionDungeons.Count])
-                .ToList();
+            // One entry per slot: cycle a shuffled theme pool so the three picks usually show different themes
+            // when the pool has more than one theme and matching dungeon rows exist.
+            var shuffledThemes = themePool.OrderBy(_ => random.Next()).ToList();
+            var selectedDungeons = new List<DungeonData>(3);
+            for (int i = 0; i < 3; i++)
+            {
+                string slotTheme = shuffledThemes[i % shuffledThemes.Count];
+                var candidates = regionDungeons
+                    .Where(d => string.Equals(d.theme, slotTheme, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                if (candidates.Count == 0)
+                    candidates = regionDungeons;
+                selectedDungeons.Add(candidates[random.Next(candidates.Count)]);
+            }
             
             // Create Dungeon objects with appropriate level scaling
             // First dungeon: player level - 1 (easier)
@@ -113,7 +121,7 @@ namespace RPGGame
             availableDungeons.Clear();
             availableDungeons.AddRange(sortedDungeons);
 
-            var customTemplate = regionDungeons.OrderBy(_ => random.Next()).First();
+            var customTemplate = regionDungeons[random.Next(regionDungeons.Count)];
             availableDungeons.Add(new Dungeon(
                 GameConstants.DungeonCustomLevelMenuName,
                 Math.Max(RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL, playerLevel),

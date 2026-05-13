@@ -1,14 +1,16 @@
 using System;
+using Avalonia.Media;
 using RPGGame.Tests;
+using RPGGame.UI;
 using RPGGame.UI.Avalonia.Renderers.Helpers;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Tests.Unit.UI
 {
     /// <summary>
-    /// Tests <see cref="ItemRendererHelper.IsEquipBlockedForCharacter"/>: the bag/inventory
-    /// row category bracket (<c>[Head]</c>, <c>[Mace]</c>, …) is drawn red when the item's
-    /// <c>attributeRequirements</c> exceed the character's effective STR/AGI/TEC/INT, so the
-    /// player can see at a glance which gear they cannot equip yet.
+    /// Tests <see cref="ItemRendererHelper.IsEquipBlockedForCharacter"/> and inventory name-line coloring:
+    /// when the item's <c>attributeRequirements</c> exceed the character's effective STR/AGI/TEC/INT,
+    /// the full name row (index, rarity, slot, and item name) is drawn in red.
     /// </summary>
     public static class ItemRendererHelperBlockedSlotTests
     {
@@ -21,6 +23,7 @@ namespace RPGGame.Tests.Unit.UI
             TestItemWithoutRequirements_NotBlocked(ref run, ref passed, ref failed);
             TestItemRequirementMet_NotBlocked(ref run, ref passed, ref failed);
             TestItemRequirementUnmet_Blocked(ref run, ref passed, ref failed);
+            TestItemRequirementUnmet_NameLineAllSegmentsRed(ref run, ref passed, ref failed);
             TestNormalizedTechniqueKey_NotBlocked(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ItemRendererHelper Blocked Slot Tests", run, passed, failed);
@@ -79,6 +82,24 @@ namespace RPGGame.Tests.Unit.UI
                 ItemRendererHelper.IsEquipBlockedForCharacter(item, hero),
                 "Level-1 starter (STR 3) should be flagged as blocked from STR 5 item",
                 ref run, ref passed, ref failed);
+        }
+
+        private static void TestItemRequirementUnmet_NameLineAllSegmentsRed(ref int run, ref int passed, ref int failed)
+        {
+            var hero = BuildHero(3, 3, 3, 3);
+            var item = BuildHeadItem("strength", 5);
+            var line = ItemRendererHelper.BuildItemNameSegments(itemIndex: 0, item: item, character: hero);
+            TestBase.AssertTrue(line.Count > 0, "blocked name line should have colored segments", ref run, ref passed, ref failed);
+            var expectedRed = new ColoredText("x", Colors.Red).Color;
+            foreach (var seg in line)
+            {
+                if (seg == null || string.IsNullOrEmpty(seg.Text))
+                    continue;
+                TestBase.AssertTrue(
+                    ColorValidator.AreColorsEqual(seg.Color, expectedRed),
+                    $"Blocked item segment '{seg.Text}' should use equip-block red",
+                    ref run, ref passed, ref failed);
+            }
         }
 
         /// <summary>

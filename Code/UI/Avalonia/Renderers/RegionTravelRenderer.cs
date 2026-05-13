@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 
@@ -9,12 +8,14 @@ namespace RPGGame.UI.Avalonia.Renderers
     public class RegionTravelRenderer
     {
         private readonly GameCanvasControl canvas;
+        private readonly ColoredTextWriter textWriter;
         private readonly List<ClickableElement> clickableElements;
         private readonly TravelRegionCatalog regionCatalog = new();
 
-        public RegionTravelRenderer(GameCanvasControl canvas, List<ClickableElement> clickableElements)
+        public RegionTravelRenderer(GameCanvasControl canvas, ColoredTextWriter textWriter, List<ClickableElement> clickableElements)
         {
             this.canvas = canvas;
+            this.textWriter = textWriter ?? throw new ArgumentNullException(nameof(textWriter));
             this.clickableElements = clickableElements;
         }
 
@@ -36,8 +37,21 @@ namespace RPGGame.UI.Avalonia.Renderers
             currentY += 2;
             canvas.AddText(left, currentY, $"Current region: {currentRegion.DisplayName}", AsciiArtAssets.Colors.White);
             currentY++;
-            canvas.AddText(left, currentY, Truncate(currentRegion.Description, contentWidth), AsciiArtAssets.Colors.Gray);
-            currentY += 2;
+            foreach (var line in TextWrapper.WrapText(currentRegion.Description ?? string.Empty, contentWidth))
+            {
+                canvas.AddText(left, currentY, line, AsciiArtAssets.Colors.Gray);
+                currentY++;
+            }
+
+            foreach (var line in TextWrapper.WrapText(
+                         "Dungeons: " + string.Join(", ", currentRegion.ResolveLinkedDungeonThemePool()),
+                         contentWidth))
+            {
+                canvas.AddText(left, currentY, line, AsciiArtAssets.Colors.Cyan);
+                currentY++;
+            }
+
+            currentY++;
 
             canvas.AddText(left, currentY, "Destinations:", AsciiArtAssets.Colors.Gold);
             currentY += 2;
@@ -46,23 +60,43 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 var destination = destinations[i];
                 int optionNumber = i + 1;
-                string label = $"{destination.DisplayName} - {destination.Description}";
+                int descriptionIndent = $"[{optionNumber}] ".Length;
+                int descriptionWidth = Math.Max(1, contentWidth - descriptionIndent);
+                var descriptionLines = TextWrapper.WrapText(destination.Description ?? string.Empty, descriptionWidth);
+                var themePool = destination.ResolveLinkedDungeonThemePool();
+                string dungeonsLine = "Dungeons: " + string.Join(", ", themePool);
+                var dungeonLines = TextWrapper.WrapText(dungeonsLine, descriptionWidth);
+                int destinationHeight = 1 + descriptionLines.Count + dungeonLines.Count;
+
                 var option = new ClickableElement
                 {
                     X = left,
                     Y = currentY,
                     Width = contentWidth,
-                    Height = 1,
+                    Height = destinationHeight,
                     Type = ElementType.MenuOption,
                     Value = optionNumber.ToString(),
                     DisplayText = MenuOptionFormatter.Format(optionNumber, destination.DisplayName)
                 };
                 clickableElements.Add(option);
-                canvas.AddMenuOption(left, currentY, optionNumber, Truncate(label, Math.Max(1, contentWidth - 4)), AsciiArtAssets.Colors.White, option.IsHovered);
+                canvas.AddMenuOption(left, currentY, optionNumber, destination.DisplayName, AsciiArtAssets.Colors.White, option.IsHovered);
+                currentY++;
+
+                foreach (var line in descriptionLines)
+                {
+                    canvas.AddText(left + descriptionIndent, currentY, line, AsciiArtAssets.Colors.Gray);
+                    currentY++;
+                }
+
+                foreach (var line in dungeonLines)
+                {
+                    canvas.AddText(left + descriptionIndent, currentY, line, AsciiArtAssets.Colors.Cyan);
+                    currentY++;
+                }
+
                 currentY++;
             }
 
-            currentY++;
             var returnOption = new ClickableElement
             {
                 X = left,
@@ -82,46 +116,46 @@ namespace RPGGame.UI.Avalonia.Renderers
                 canvas.AddText(left, currentY, $"Route: {routeResult.FromRegion.DisplayName} -> {routeResult.ToRegion.DisplayName}", AsciiArtAssets.Colors.Gold);
                 currentY += 2;
 
+                if (routeResult.JourneyDungeonThemes.Count > 0)
+                {
+                    string journeyLine = "This journey's dungeon echoes: " + string.Join(", ", routeResult.JourneyDungeonThemes);
+                    canvas.AddText(left, currentY, Truncate(journeyLine, contentWidth), AsciiArtAssets.Colors.Cyan);
+                    currentY += 2;
+                }
+
+                if (routeResult.Steps.Count > 0)
+                {
+                    var headerSegments = TravelRouteColoredTextFormatter.FormatEventCountHeader(routeResult);
+                    int headerLines = textWriter.WriteLineColoredWrapped(headerSegments, left, currentY, contentWidth);
+                    currentY += headerLines;
+                }
+
                 foreach (var step in routeResult.Steps)
                 {
-                    if (currentY >= y + height - 5)
+                    var stepSegments = TravelRouteColoredTextFormatter.FormatTravelStep(step);
+                    int stepLines = textWriter.WrapColoredSegments(stepSegments, contentWidth).Count;
+                    if (currentY + stepLines > y + height - 5)
                         break;
 
-                    string line = $"{step.StepNumber}. d20 {step.Roll} {step.Outcome}: {step.Event.Title} - {step.Event.Narrative}";
-                    canvas.AddText(left, currentY, Truncate(line, contentWidth), GetOutcomeColor(step.Outcome));
-                    currentY++;
+                    currentY += textWriter.WriteLineColoredWrapped(stepSegments, left, currentY, contentWidth);
                 }
 
                 currentY++;
-                string summary = $"Progress {Signed(routeResult.TotalProgressDelta)}";
-                if (routeResult.TotalDamageTaken > 0)
-                    summary += $", damage {routeResult.TotalDamageTaken}";
-                if (routeResult.TotalHealingReceived > 0)
-                    summary += $", healed {routeResult.TotalHealingReceived}";
-                if (routeResult.TotalXpGained > 0)
-                    summary += $", XP +{routeResult.TotalXpGained}";
-                if (routeResult.LootFound.Count > 0)
-                    summary += $", loot {routeResult.LootFound.Count}";
-
-                canvas.AddText(left, currentY, Truncate(summary, contentWidth), AsciiArtAssets.Colors.Green);
-                currentY++;
-                canvas.AddText(left, currentY, $"Arrived in {routeResult.ToRegion.DisplayName}.", AsciiArtAssets.Colors.White);
+                if (routeResult.Steps.Count == 0)
+                {
+                    canvas.AddText(left, currentY, "Preparing route...", AsciiArtAssets.Colors.Gray);
+                }
+                else
+                {
+                    var summarySegments = TravelRouteColoredTextFormatter.FormatRouteSummary(routeResult);
+                    currentY += textWriter.WriteLineColoredWrapped(summarySegments, left, currentY, contentWidth);
+                    var statusSegments = TravelRouteColoredTextFormatter.FormatArrivalStatus(routeResult);
+                    currentY += textWriter.WriteLineColoredWrapped(statusSegments, left, currentY, contentWidth);
+                }
             }
 
             return currentY - y;
         }
-
-        private static Color GetOutcomeColor(TravelRollOutcome outcome) => outcome switch
-        {
-            TravelRollOutcome.CriticalMiss => AsciiArtAssets.Colors.Red,
-            TravelRollOutcome.Miss => AsciiArtAssets.Colors.Orange,
-            TravelRollOutcome.Hit => AsciiArtAssets.Colors.White,
-            TravelRollOutcome.Combo => AsciiArtAssets.Colors.Cyan,
-            TravelRollOutcome.Critical => AsciiArtAssets.Colors.Gold,
-            _ => AsciiArtAssets.Colors.White
-        };
-
-        private static string Signed(int value) => value >= 0 ? $"+{value}" : value.ToString();
 
         private static string Truncate(string text, int maxLength)
         {

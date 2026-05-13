@@ -355,7 +355,8 @@ namespace RPGGame.Combat.Formatting
             int rollBonus = 0, 
             int roll = 0,
             int multiHitCount = 1,
-            bool isCriticalMiss = false)
+            bool isCriticalMiss = false,
+            bool? resolvedCritical = null)
         {
             var builder = new ColoredTextBuilder();
             
@@ -367,7 +368,7 @@ namespace RPGGame.Combat.Formatting
             bool isComboAction = CombatColorStrategy.IsComboAction(actionName);
 
             // Create outcome before modifying actionName for critical
-            var outcome = CombatOutcome.CreateHit(action, totalRoll, roll, isComboAction);
+            var outcome = CombatOutcome.CreateHit(action, totalRoll, roll, isComboAction, resolvedCritical);
 
             if (outcome.IsCritical && hasDisplayableAction)
             {
@@ -422,7 +423,7 @@ namespace RPGGame.Combat.Formatting
             
             // Match combat damage: roll bands use total attack (modified base + bonuses), not base alone.
             int rollForDamageScaling = roll + rollBonus;
-            int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, rollForDamageScaling);
+            int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, rollForDamageScaling, rollBonus);
             double rollInfoCombo = DamageCalculator.GetDisplayedComboMultiplier(attacker, comboAmplifier, action);
             
             double actualSpeed = 0;

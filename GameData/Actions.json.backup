@@ -42,11 +42,18 @@
     "dps": "20%",
     "numberOfHits": "1",
     "damage": "10%",
-    "speed": "0.50",
-    "heroAccuracy": "1",
+    "speed": "0.20",
+    "duration": "1",
+    "cadence": "Fight",
+    "heroHit": "1",
+    "heroCombo": "-1",
+    "heroCrit": "1",
     "enemySTR": "-1",
     "enemyAGI": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "statBonusesJson": "[{\u0022value\u0022:1,\u0022type\u0022:\u0022Strength\u0022}]",
+    "tags": "weapon, weapon_basic",
+    "weaponTypes": "Mace"
   },
   {
     "action": "CONCENTRATE",
@@ -840,12 +847,17 @@
   },
   {
     "action": "TEMPO SHIFT",
-    "description": "Swap COMBO and CRIT bonuses",
+    "category": "WEAPON",
     "dps": "100%",
     "numberOfHits": "1",
-    "damage": "100%",
-    "speed": "1.00",
-    "target": "ENEMY"
+    "damage": "10%",
+    "speed": "0.10",
+    "cadence": "Fight",
+    "multiHitMod": "1",
+    "target": "ENEMY",
+    "statBonusesJson": "[{\u0022value\u0022:1,\u0022type\u0022:\u0022Technique\u0022}]",
+    "tags": "weapon, weapon_basic",
+    "weaponTypes": "Dagger"
   },
   {
     "action": "GUARANTEED HIT",
@@ -946,7 +958,8 @@
     "damage": "150%",
     "speed": "1.25",
     "target": "ENEMY",
-    "tags": "weapon"
+    "tags": "weapon, weapon_basic",
+    "weaponTypes": "Mace"
   },
   {
     "action": "STRIKE",
@@ -956,7 +969,8 @@
     "damage": "50%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "weapon"
+    "tags": "weapon",
+    "weaponTypes": "Sword"
   },
   {
     "action": "STAB",
@@ -966,7 +980,8 @@
     "damage": "60%",
     "speed": "0.50",
     "target": "ENEMY",
-    "tags": "weapon"
+    "tags": "weapon",
+    "weaponTypes": "Dagger"
   },
   {
     "action": "MAGIC MISSLE",

@@ -123,6 +123,9 @@ namespace RPGGame
                 case "thresh:critmiss":
                     AppendThresholdCritMiss(character, AddWrapped);
                     break;
+                case "thresh:miss":
+                    AppendThresholdMiss(character, AddWrapped);
+                    break;
                 case "status:overflow":
                     AddWrapped("More status effects");
                     AddWrapped("Additional effects are active; the list is truncated in the panel.");
@@ -243,6 +246,13 @@ namespace RPGGame
             int cur = tm.GetCriticalMissThreshold(c);
             addWrapped("Critical miss threshold");
             addWrapped($"Current: {cur}. Uses the same crit-eval roll as critical hit (accuracy affects hit/combo only, not this band).");
+        }
+
+        private static void AppendThresholdMiss(Character _, Action<string> addWrapped)
+        {
+            addWrapped("Miss (chance view)");
+            addWrapped("Share of d20 outcomes that are not critical hit, combo, normal hit, or critical miss.");
+            addWrapped("Shown only in CHANCES mode; together with the four rows above it sums to 100%.");
         }
 
         private static void AppendStatusLine(Character c, string key, Action<string> addWrapped)

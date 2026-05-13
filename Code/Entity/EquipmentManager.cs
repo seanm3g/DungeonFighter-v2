@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.Audio;
 using RPGGame.Combat.Calculators;
 
@@ -100,6 +101,11 @@ namespace RPGGame
         /// </summary>
         private void UpdateActionsAfterGearChange(Item? previousItem, Item? newItem, string slot)
         {
+            // Pool mutations replace some Action instances (e.g. AddClassActions removes/re-adds class actions).
+            // Combo slots hold references; matching only by reference would drop valid actions by name.
+            // Save order by name and restore after the pool is updated (same idea as CharacterSerializer.RebuildCharacterActions).
+            var savedComboNames = _character.GetComboActions().Select(a => a.Name).ToList();
+
             // Remove actions from previous item
             if (previousItem != null)
             {
@@ -133,8 +139,11 @@ namespace RPGGame
                 }
             }
 
-            // Update combo sequence after equipment change
-            _character.Actions.UpdateComboSequenceAfterGearChange(_character);
+            if (savedComboNames.Count > 0)
+                _character.RestoreComboFromActionNames(savedComboNames);
+            else
+                _character.Actions.UpdateComboSequenceAfterGearChange(_character);
+
             ComboSequenceMaxHelper.TrimComboSequenceToMax(
                 _character,
                 ComboSequenceMaxHelper.GetEffectiveMax(_character));

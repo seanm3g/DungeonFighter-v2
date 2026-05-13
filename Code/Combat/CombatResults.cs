@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Calculators;
 using RPGGame.UI.ColorSystem;
 
@@ -26,12 +27,17 @@ namespace RPGGame
         /// <returns>Tuple of (damageText, rollInfo)</returns>
         public static (string damageText, string rollInfo) FormatDamageDisplaySeparated(Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
         {
+            ArgumentNullException.ThrowIfNull(attacker);
+            ArgumentNullException.ThrowIfNull(target);
+
             bool hasDisplayableAction = !string.IsNullOrEmpty(action?.Name);
             string actionName = action?.Name ?? "attack";
 
-            // Check if this is a critical hit (total roll of 20 or higher)
+            // Critical: same rule as combat resolution (crit-eval roll vs threshold), with natural-20+ total safety.
             int totalRoll = roll + rollBonus;
-            bool isCritical = totalRoll >= 20;
+            int critThreshold = RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(attacker);
+            int critEval = CombatCalculator.GetCritThresholdEvaluationRoll(totalRoll, rollBonus, attacker.RollPenalty);
+            bool isCritical = critEval >= critThreshold || totalRoll >= 20;
 
             // Add CRITICAL prefix to action name if it's a critical hit and action has a name
             if (isCritical && hasDisplayableAction)
@@ -82,7 +88,7 @@ namespace RPGGame
             }
             
             // Match combat damage: roll bands use total attack (base + bonuses), not base alone.
-            int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, totalRoll);
+            int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, totalRoll, rollBonus);
             rollInfo.Add($"attack {actualRawDamage} - {targetDefense} armor");
             
             // Speed information - calculate actual action speed
@@ -179,10 +185,10 @@ namespace RPGGame
         /// </summary>
         public static (List<ColoredText> damageText, List<ColoredText> rollInfo) FormatDamageDisplayColored(
             Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, 
-            double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, int multiHitCount = 1, bool isCriticalMiss = false)
+            double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, int multiHitCount = 1, bool isCriticalMiss = false, bool? resolvedCritical = null)
         {
             return CombatResultsColoredText.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, 
-                action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss);
+                action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss, resolvedCritical);
         }
         
         /// <summary>

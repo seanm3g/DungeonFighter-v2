@@ -35,9 +35,10 @@ namespace RPGGame
             int rollBonus = 0, 
             int roll = 0,
             int multiHitCount = 1,
-            bool isCriticalMiss = false)
+            bool isCriticalMiss = false,
+            bool? resolvedCritical = null)
         {
-            return DamageFormatter.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss);
+            return DamageFormatter.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss, resolvedCritical);
         }
         
         /// <summary>

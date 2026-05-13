@@ -1,3 +1,4 @@
+using Avalonia.Media;
 using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
@@ -128,6 +129,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 int contentX = px + 1;
                 int contentY = py + 1;
                 int contentW = Math.Max(0, pw - 2);
+                int panelBottomExclusive = py + panelH;
                 var info = panelData[i];
                 string name = string.IsNullOrEmpty(info.Name) ? "?" : (info.Name.Length > contentW ? info.Name.Substring(0, contentW - 3) + "..." : info.Name);
                 var action = comboForStrip[i];
@@ -137,47 +139,58 @@ namespace RPGGame.UI.Avalonia.Renderers
                 canvas.AddText(contentX, contentY, name, nameColor);
                 contentY++;
 
-                // Damage % of character base (action multiplier); green/red when DAMAGE_MOD changes it
+                bool hasThreshold = !string.IsNullOrEmpty(info.ThresholdText);
+                int reserveBottomRows = hasThreshold ? 1 : 0;
+
+                void drawLine(string text, Color color)
+                {
+                    if (contentY >= panelBottomExclusive - reserveBottomRows || string.IsNullOrEmpty(text))
+                        return;
+                    if (text.Length > contentW)
+                        text = text.Substring(0, Math.Max(1, contentW - 3)) + "...";
+                    canvas.AddText(contentX, contentY, text, color);
+                    contentY++;
+                }
+
+                foreach (var roleLine in CombatActionStripBuilder.BuildActionStripComboRoleLines(player, action))
+                    drawLine(roleLine, AsciiArtAssets.Colors.White);
+
+                // Dmg | Spd on one line (same basis as hover tooltip swing segment)
                 const double damageCmpEps = 0.0001;
                 bool damageDiffers = Math.Abs(info.DamageModified - info.DamageBase) > damageCmpEps;
                 double damageDisplay = damageDiffers ? info.DamageModified : info.DamageBase;
-                var damageColor = damageDiffers
-                    ? (info.DamageModified > info.DamageBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
-                    : AsciiArtAssets.Colors.White;
-                string damageLine = CombatActionStripBuilder.FormatSwingDamageLine(info.EffectiveMultiHitCount, damageDisplay);
-                if (damageLine.Length > contentW) damageLine = damageLine.Substring(0, contentW - 3) + "...";
-                if (contentY < py + panelH)
-                {
-                    canvas.AddText(contentX, contentY, damageLine, damageColor);
-                    contentY++;
-                }
-
-                // Speed % (action details): green if faster (higher %), red if slower (lower %), white when base
                 double speedDisplay = info.SpeedModified != info.SpeedBase ? info.SpeedModified : info.SpeedBase;
-                var speedColor = info.SpeedModified != info.SpeedBase
-                    ? (info.SpeedModified > info.SpeedBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
-                    : AsciiArtAssets.Colors.White;
-                string speedLine = $"Spd {speedDisplay:F0}%";
-                if (speedLine.Length > contentW) speedLine = speedLine.Substring(0, contentW - 3) + "...";
-                if (contentY < py + panelH)
+                bool speedDiffers = info.SpeedModified != info.SpeedBase;
+                var swingLineColor = damageDiffers
+                    ? (info.DamageModified > info.DamageBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
+                    : speedDiffers
+                        ? (info.SpeedModified > info.SpeedBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
+                        : AsciiArtAssets.Colors.White;
+                string swingLine = $"{CombatActionStripBuilder.FormatSwingDamageLine(info.EffectiveMultiHitCount, damageDisplay)} | Spd {speedDisplay:F0}%";
+                drawLine(swingLine, swingLineColor);
+
+                int tailBudget = Math.Max(0, panelBottomExclusive - contentY - reserveBottomRows);
+                var tailLines = CombatActionStripBuilder.BuildActionStripModifierTailLines(action, info.AccuracyRollBonus, contentW, tailBudget);
+                foreach (var tl in tailLines)
                 {
-                    canvas.AddText(contentX, contentY, speedLine, speedColor);
-                    contentY++;
+                    var c = AsciiArtAssets.Colors.White;
+                    if (tl.StartsWith("Acc ", StringComparison.Ordinal) && tl.Length > 4)
+                    {
+                        ReadOnlySpan<char> rest = tl.AsSpan(4).Trim();
+                        if (int.TryParse(rest, System.Globalization.NumberStyles.AllowLeadingSign, System.Globalization.CultureInfo.InvariantCulture, out int accVal))
+                        {
+                            if (accVal > 0)
+                                c = AsciiArtAssets.Colors.Green;
+                            else if (accVal < 0)
+                                c = AsciiArtAssets.Colors.Red;
+                        }
+                    }
+                    drawLine(tl, c);
                 }
 
-                // Positive roll bonus (easier hit): match tooltip "Accuracy: +N" on the compact card
-                if (contentY < py + panelH && info.AccuracyRollBonus > 0)
+                if (hasThreshold && contentY < panelBottomExclusive)
                 {
-                    string accLine = $"Acc +{info.AccuracyRollBonus}";
-                    if (accLine.Length > contentW) accLine = accLine.Substring(0, contentW - 3) + "...";
-                    canvas.AddText(contentX, contentY, accLine, AsciiArtAssets.Colors.Green);
-                    contentY++;
-                }
-
-                // Thresholds: only when action has non-zero adjustments
-                if (contentY < py + panelH && !string.IsNullOrEmpty(info.ThresholdText))
-                {
-                    string thresholdLine = info.ThresholdText.Length > contentW ? info.ThresholdText.Substring(0, contentW - 3) + "..." : info.ThresholdText;
+                    string thresholdLine = info.ThresholdText!.Length > contentW ? info.ThresholdText.Substring(0, contentW - 3) + "..." : info.ThresholdText;
                     canvas.AddText(contentX, contentY, thresholdLine, AsciiArtAssets.Colors.Cyan);
                 }
             }

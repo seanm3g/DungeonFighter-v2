@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.World
@@ -125,8 +126,19 @@ namespace RPGGame.Tests.Unit.World
             TestBase.AssertTrue(nonCustom.Count > 0,
                 "Region-filtered dungeon list should include non-custom dungeon rows",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(nonCustom.TrueForAll(d => d.Theme == "Lava"),
-                "Non-custom dungeon rows should match the character's current region theme",
+
+            var catalog = new TravelRegionCatalog();
+            var lavaRegion = catalog.GetById("lava");
+            TestBase.AssertTrue(lavaRegion != null, "lava region should exist in catalog", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (lavaRegion == null)
+                return;
+
+            var pool = lavaRegion.ResolveLinkedDungeonThemePool()
+                .Select(t => t.ToUpperInvariant())
+                .ToHashSet();
+            TestBase.AssertTrue(
+                nonCustom.TrueForAll(d => pool.Contains(d.Theme.ToUpperInvariant())),
+                "Non-custom dungeon rows should use only themes linked to the current region",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

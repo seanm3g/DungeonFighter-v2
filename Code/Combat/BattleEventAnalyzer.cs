@@ -270,7 +270,7 @@ namespace RPGGame
             if (evt.IsCritical && evt.IsSuccess)
             {
                 // Roll property in BattleEvent is the base roll (without bonuses)
-                // Since IsCritical is true, we know totalRoll >= 20 (critical threshold)
+                // Since IsCritical is true, we know crit-eval reached the critical threshold (or swing total ≥ 20)
                 // Only show critical hit narratives if:
                 // 1. Narrative balance is high (>= 0.7) AND cooldown has expired, OR
                 // 2. Very high base roll (>= 18) AND cooldown has expired

@@ -497,7 +497,9 @@ namespace RPGGame.UI.Avalonia
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons)
         {
             animationManager.StartDungeonSelectionAnimation(player, dungeons);
-            renderer.RenderDungeonSelection(player, dungeons, GetContext(), dungeonSelectionCustomLevelEntryBuffer);
+            var currentRegion = new TravelRegionCatalog().GetRegionForCharacter(player);
+            string? regionLabel = string.IsNullOrWhiteSpace(currentRegion.DisplayName) ? null : currentRegion.DisplayName.Trim();
+            renderer.RenderDungeonSelection(player, dungeons, GetContext(), dungeonSelectionCustomLevelEntryBuffer, regionLabel);
         }
 
         public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)

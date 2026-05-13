@@ -180,6 +180,11 @@ namespace RPGGame.Tests.Unit
                 "Roll 20 should record as critical", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
+            var loweredCritOutcome = CombatOutcome.CreateHit(action, 14, 14, true, resolvedCritical: true);
+            TestBase.AssertTrue(loweredCritOutcome.IsCritical,
+                "Resolved critical should record as critical even when total roll < 20",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
             TestBase.AssertFalse(criticalHitOutcome.IsMiss, 
                 "Critical hit should not be miss", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);

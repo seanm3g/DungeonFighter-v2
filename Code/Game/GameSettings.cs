@@ -23,6 +23,11 @@ namespace RPGGame
         public int AutoSaveInterval { get; set; } = 5; // Save every 5 encounters
         public bool ShowDetailedStats { get; set; } = true;
         public bool EnableSoundEffects { get; set; } = false; // For future implementation
+
+        /// <summary>
+        /// Scales region-travel pacing: pause between travel steps (milliseconds) and in-world travel minutes shown in the UI. 1 = default, 0 = no wait, higher = slower.
+        /// </summary>
+        public double TravelTimeMultiplier { get; set; } = 1.0;
         
         // Difficulty Settings
         public double EnemyHealthMultiplier { get; set; } = 1.0;
@@ -216,6 +221,7 @@ namespace RPGGame
             
             // Gameplay Settings
             AutoSaveInterval = Math.Max(1, AutoSaveInterval);
+            TravelTimeMultiplier = Math.Clamp(TravelTimeMultiplier, 0.0, 5.0);
 
             ActionStripMissFlashDurationMs = Math.Clamp(ActionStripMissFlashDurationMs, 200, 8000);
             ActionStripSuccessFlashDurationMs = Math.Clamp(ActionStripSuccessFlashDurationMs, 500, 15000);
@@ -278,6 +284,7 @@ namespace RPGGame
             AutoSaveInterval = 5;
             ShowDetailedStats = true;
             EnableSoundEffects = false;
+            TravelTimeMultiplier = 1.0;
             EnemyHealthMultiplier = 1.0;
             EnemyDamageMultiplier = 1.0;
             PlayerHealthMultiplier = 1.0;

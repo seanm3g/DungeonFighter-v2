@@ -141,7 +141,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         {
                             actionsText = actionsText.Substring(0, maxActionWidth - 3) + "...";
                         }
-                        canvas.AddText(x + 2, y, actionsText, AsciiArtAssets.Colors.Cyan);
+                        var actionsColor = ItemRendererHelper.IsEquipBlockedForCharacter(item, character)
+                            ? AsciiArtAssets.Colors.Red
+                            : AsciiArtAssets.Colors.Cyan;
+                        canvas.AddText(x + 2, y, actionsText, actionsColor);
                         y++;
                         currentLineCount++;
                     }
@@ -150,7 +153,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     var equippedWeapon = character.Weapon as WeaponItem;
                     var equippedArmorBaseline = ItemRendererHelper.GetArmorComparisonBaseline(character, item);
                     ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true,
-                        displayedItem: item, weaponSpeedBaseline: equippedWeapon, armorComparisonBaseline: equippedArmorBaseline);
+                        displayedItem: item, weaponSpeedBaseline: equippedWeapon, armorComparisonBaseline: equippedArmorBaseline,
+                        characterForEquipRequirements: character);
                 }
                 y++;
                 currentLineCount++;
@@ -284,7 +288,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 var itemStats = ItemStatFormatter.GetItemStats(item, character);
                 
                 // Render item name with colored text
-                ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true);
+                ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true, character: character);
                 y++;
                 currentLineCount++;
                 
@@ -292,7 +296,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 var equippedForTrade = character.Weapon as WeaponItem;
                 var equippedArmorForTrade = ItemRendererHelper.GetArmorComparisonBaseline(character, item);
                 ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true,
-                    displayedItem: item, weaponSpeedBaseline: equippedForTrade, armorComparisonBaseline: equippedArmorForTrade);
+                    displayedItem: item, weaponSpeedBaseline: equippedForTrade, armorComparisonBaseline: equippedArmorForTrade,
+                    characterForEquipRequirements: character);
             }
             
             y += 2;
@@ -317,7 +322,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             var equippedForResult = character.Weapon as WeaponItem;
             var equippedArmorForResult = ItemRendererHelper.GetArmorComparisonBaseline(character, resultingItem);
             ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, resultingItemStats, ref y, ref currentLineCount, useColoredText: true,
-                displayedItem: resultingItem, weaponSpeedBaseline: equippedForResult, armorComparisonBaseline: equippedArmorForResult);
+                displayedItem: resultingItem, weaponSpeedBaseline: equippedForResult, armorComparisonBaseline: equippedArmorForResult,
+                characterForEquipRequirements: character);
             
             y += 2;
             currentLineCount += 2;

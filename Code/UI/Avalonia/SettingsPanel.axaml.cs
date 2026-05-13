@@ -101,6 +101,7 @@ namespace RPGGame.UI.Avalonia
             // Initialize panel handler registry
             panelHandlerRegistry = new PanelHandlerRegistry();
             panelHandlerRegistry.Register(new GameplayPanelHandler(settings, settingsManager, ShowStatusMessage));
+            panelHandlerRegistry.Register(new TravelPanelHandler());
             panelHandlerRegistry.Register(new AudioPanelHandler());
             panelHandlerRegistry.Register(new TextDelaysPanelHandler(settingsManager));
             panelHandlerRegistry.Register(new AppearancePanelHandler(settings, colorManager));
@@ -390,6 +391,7 @@ namespace RPGGame.UI.Avalonia
         {
             if (panel == null) return null;
             if (panel is GameplaySettingsPanel) return "Gameplay";
+            if (panel is TravelSettingsPanel) return "Travel";
             if (panel is AudioSettingsPanel) return "Audio";
             if (panel is ClassesSettingsPanel) return "Classes";
             if (panel is GameVariablesSettingsPanel) return "GameVariables";

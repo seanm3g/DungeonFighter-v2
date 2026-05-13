@@ -210,8 +210,8 @@ namespace RPGGame.Tests.Unit.UI
 
             string tipStrikeJoined = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charWithCombo, 0, 80));
             TestBase.AssertTrue(
-                tipStrikeJoined.Contains("Weapon basic", StringComparison.Ordinal) && tipStrikeJoined.Contains("sequence", StringComparison.Ordinal),
-                "BuildActionTooltipLines notes required weapon basic when action matches equipped type",
+                !tipStrikeJoined.Contains("Weapon basic", StringComparison.Ordinal) && !tipStrikeJoined.Contains("must stay in your sequence", StringComparison.Ordinal),
+                "BuildActionTooltipLines omits required-weapon-basic reminder (shown via strip name color only)",
                 ref run, ref passed, ref failed);
 
             var charOpener = CreateCharacterWithTaggedComboAction(isOpener: true, isFinisher: false, name: "OpeningMove");
@@ -231,7 +231,7 @@ namespace RPGGame.Tests.Unit.UI
             var charMechanical = CreateCharacterWithMechanicallyRichAction();
             string tipMechanical = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charMechanical, 0, 120, 80));
             TestBase.AssertTrue(
-                tipMechanical.Contains("Type Attack | Target AOE | combo action", StringComparison.Ordinal)
+                !tipMechanical.Contains("Type Attack | Target AOE | combo action", StringComparison.Ordinal)
                 && tipMechanical.Contains("Hero accuracy +2", StringComparison.Ordinal)
                 && tipMechanical.Contains("Enemy accuracy -3", StringComparison.Ordinal)
                 && tipMechanical.Contains("Roll dice: 2d20 TakeHighest", StringComparison.Ordinal)
@@ -265,6 +265,63 @@ namespace RPGGame.Tests.Unit.UI
             CombatActionStripBuilder.AddWrappedTooltipParagraph(paragraphLines, "second paragraph", 40, 8);
             TestBase.AssertTrue(paragraphLines.Count == 3 && paragraphLines[1] == "",
                 "AddWrappedTooltipParagraph inserts one blank spacer between paragraphs",
+                ref run, ref passed, ref failed);
+
+            // Strip card tail: deferred sheet accuracy appears even when swing roll bonus is 0 (CalculateRollBonus excludes deferred RollBonus)
+            var deferAcc = TestDataBuilders.CreateMockAction("TauntLike", ActionType.Attack);
+            deferAcc.Cadence = "";
+            deferAcc.Advanced.RollBonus = 1;
+            var deferTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(deferAcc, 0, 80, 8);
+            string deferJoined = string.Join(" ", deferTail);
+            TestBase.AssertTrue(
+                deferJoined.Contains("Hero accuracy +1", StringComparison.Ordinal) && deferJoined.Contains("on hit: next roll", StringComparison.Ordinal),
+                "BuildActionStripModifierTailLines lists deferred Hero accuracy when swing Acc total is 0",
+                ref run, ref passed, ref failed);
+
+            // ATTACK cadence: sheet hero accuracy is in roll total — omit duplicate Hero accuracy line
+            var nowAcc = TestDataBuilders.CreateMockAction("NowAcc", ActionType.Attack);
+            nowAcc.Cadence = "ATTACK";
+            nowAcc.Advanced.RollBonus = 2;
+            var nowTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(nowAcc, 2, 80, 8);
+            string nowJoined = string.Join(" ", nowTail);
+            TestBase.AssertTrue(
+                nowJoined.Contains("Acc +2", StringComparison.Ordinal) && !nowJoined.Contains("Hero accuracy", StringComparison.Ordinal),
+                "BuildActionStripModifierTailLines omits redundant Hero accuracy when it is on the current roll",
+                ref run, ref passed, ref failed);
+
+            var statTailAction = TestDataBuilders.CreateMockAction("BuffSwing", ActionType.Attack);
+            statTailAction.Cadence = "ATTACK";
+            statTailAction.Advanced.StatBonuses = new List<StatBonusEntry>
+            {
+                new StatBonusEntry { Type = "STR", Value = 1 },
+                new StatBonusEntry { Type = "HIT", Value = -1 }
+            };
+            var statTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(statTailAction, 0, 80, 8);
+            string statJoined = string.Join(" ", statTail);
+            TestBase.AssertTrue(
+                statJoined.Contains("Stats:", StringComparison.Ordinal) && statJoined.Contains("STR +1", StringComparison.Ordinal) && statJoined.Contains("HIT -1", StringComparison.Ordinal),
+                "BuildActionStripModifierTailLines includes compact advanced stat bonuses",
+                ref run, ref passed, ref failed);
+
+            var abilityTailAction = TestDataBuilders.CreateMockAction("CadenceMix", ActionType.Attack);
+            abilityTailAction.Cadence = "ATTACK";
+            abilityTailAction.ActionAttackBonuses = new ActionAttackBonuses();
+            abilityTailAction.ActionAttackBonuses.BonusGroups.Add(new ActionAttackBonusGroup
+            {
+                CadenceType = "Ability",
+                Bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "HIT", Value = 1 } }
+            });
+            abilityTailAction.ActionAttackBonuses.BonusGroups.Add(new ActionAttackBonusGroup
+            {
+                CadenceType = "ACTION",
+                Count = 1,
+                Bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "ACCURACY", Value = 2 } }
+            });
+            var abilityTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(abilityTailAction, 0, 80, 8);
+            string abilityJoined = string.Join(" ", abilityTail);
+            TestBase.AssertTrue(
+                !abilityJoined.Contains("Ability:", StringComparison.Ordinal) && abilityJoined.Contains("ACTION:", StringComparison.Ordinal),
+                "BuildActionStripModifierTailLines omits Ability cadence bonus groups but keeps other cadences",
                 ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("CombatActionStripBuilder Tests", run, passed, failed);

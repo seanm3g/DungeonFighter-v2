@@ -40,5 +40,44 @@
       "Lich",
       "Wight"
     ]
+  },
+  {
+    "name": "Frostbitten Hollows",
+    "theme": "Ice",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Wolf",
+      "Spider",
+      "Bat",
+      "Bear",
+      "Boar"
+    ]
+  },
+  {
+    "name": "Stormheld Walkways",
+    "theme": "Sky",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Bat",
+      "Spider",
+      "Goblin",
+      "Wolf",
+      "Wraith"
+    ]
+  },
+  {
+    "name": "Midnight Annex",
+    "theme": "Dark",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Skeleton",
+      "Zombie",
+      "Wraith",
+      "Ghoul",
+      "Wight"
+    ]
   }
 ]

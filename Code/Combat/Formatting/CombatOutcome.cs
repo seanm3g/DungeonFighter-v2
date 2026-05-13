@@ -33,11 +33,13 @@ namespace RPGGame.Combat.Formatting
         /// <summary>
         /// Creates a CombatOutcome for a successful hit
         /// </summary>
-        public static CombatOutcome CreateHit(Action? action, int totalRoll, int naturalRoll, bool isComboAction)
+        /// <param name="resolvedCritical">When set, matches combat resolution (<see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/>);
+        /// when null, uses total roll ≥ 20 for callers without execution context (e.g. environmental damage).</param>
+        public static CombatOutcome CreateHit(Action? action, int totalRoll, int naturalRoll, bool isComboAction, bool? resolvedCritical = null)
         {
             return new CombatOutcome
             {
-                IsCritical = totalRoll >= 20,
+                IsCritical = resolvedCritical ?? (totalRoll >= 20),
                 IsMiss = false,
                 IsBlock = false,
                 IsDodge = false,

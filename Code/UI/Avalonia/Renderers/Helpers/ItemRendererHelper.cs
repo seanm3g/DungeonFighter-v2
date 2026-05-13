@@ -37,9 +37,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
 
         /// <summary>
         /// True when <paramref name="character"/> has the item in a context where attribute requirements
-        /// matter (bag display, comparison previews) but does not currently meet them. Used to surface
-        /// a red category bracket on inventory rows so the player can see at a glance which items their
-        /// effective STR/AGI/TEC/INT block from equipping.
+        /// matter (bag display, comparison previews) but does not currently meet them. Used to draw the
+        /// whole item row (name line, stats, supporting text) in red so the player can see at a glance
+        /// which gear their effective STR/AGI/TEC/INT block from equipping.
         /// </summary>
         public static bool IsEquipBlockedForCharacter(Item item, Character? character)
         {
@@ -68,9 +68,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
 
         /// <summary>
         /// Renders an item name with colored text support. When <paramref name="character"/> is provided
-        /// and the item fails its <see cref="Item.GetEquipBlockedReason"/> check, the category bracket
-        /// (e.g. <c>[Head]</c> / <c>[Mace]</c>) is drawn in red so the player can see at a glance that
-        /// the item is not equippable with their current effective stats.
+        /// and the item fails its <see cref="Item.GetEquipBlockedReason"/> check, the entire name line
+        /// (index, rarity bracket, slot bracket, and full item name) is drawn in red.
         /// </summary>
         public static void RenderItemName(ColoredTextWriter textWriter, GameCanvasControl canvas, 
             int x, int y, int itemIndex, Item item, bool useColoredText = true, Character? character = null)
@@ -90,11 +89,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 var coloredSegments = ColoredTextParser.Parse(displayLine);
                 if (coloredSegments != null && coloredSegments.Count > 0)
                 {
+                    if (IsEquipBlockedForCharacter(item, character))
+                        coloredSegments = RecolorAllSegments(coloredSegments, Colors.Red);
                     textWriter.RenderSegments(coloredSegments, x, y);
                 }
                 else
                 {
-                    canvas.AddText(x, y, $"{indexPrefix}[{rarity}] [{slotName}] {item.Name}", AsciiArtAssets.Colors.White);
+                    var fallbackColor = IsEquipBlockedForCharacter(item, character)
+                        ? AsciiArtAssets.Colors.Red
+                        : AsciiArtAssets.Colors.White;
+                    canvas.AddText(x, y, $"{indexPrefix}[{rarity}] [{slotName}] {item.Name}", fallbackColor);
                 }
             }
         }
@@ -107,7 +111,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             // Gray brackets/slot so rarity and item name colors read clearly (Common name uses type/material theming).
             var metaColor = Colors.Gray;
             bool slotBlocked = IsEquipBlockedForCharacter(item, character);
-            var slotColor = slotBlocked ? Colors.Red : metaColor;
 
             var displayBuilder = new ColoredTextBuilder();
             if (itemIndex >= 0)
@@ -115,12 +118,29 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             displayBuilder.Add("[", metaColor);
             displayBuilder.Add(rarity, rarityColor);
             displayBuilder.Add("] ", metaColor);
-            displayBuilder.Add($"[{slotName}] ", slotColor);
+            displayBuilder.Add($"[{slotName}] ", metaColor);
 
             // Full name: prefix / base / suffix segments (same as armor). Rarity stays in [brackets] only.
             displayBuilder.AddRange(ItemDisplayColoredText.FormatFullItemName(item));
 
-            return displayBuilder.Build();
+            var built = displayBuilder.Build();
+            return slotBlocked ? RecolorAllSegments(built, Colors.Red) : built;
+        }
+
+        private static List<ColoredText> RecolorAllSegments(List<ColoredText> segments, Color color)
+        {
+            if (segments == null || segments.Count == 0)
+                return segments ?? new List<ColoredText>();
+
+            var list = new List<ColoredText>(segments.Count);
+            foreach (var s in segments)
+            {
+                if (s == null)
+                    continue;
+                list.Add(new ColoredText(s.Text ?? "", color));
+            }
+
+            return list;
         }
 
         /// <summary>
@@ -128,17 +148,24 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         /// </summary>
         /// <param name="weaponSpeedBaseline">When set (e.g. equip comparison), used with <paramref name="displayedItem"/> for relative speed/damage colors.</param>
         /// <param name="armorComparisonBaseline">Other armor piece for equip comparison coloring (higher armor green, lower red).</param>
+        /// <param name="characterForEquipRequirements">When set with <paramref name="displayedItem"/>, stat lines are drawn all red if attribute requirements are not met.</param>
         public static void RenderItemStats(ColoredTextWriter textWriter, GameCanvasControl canvas,
             int x, int y, List<string> itemStats, ref int currentY, ref int lineCount, bool useColoredText = true,
-            Item? displayedItem = null, WeaponItem? weaponSpeedBaseline = null, Item? armorComparisonBaseline = null)
+            Item? displayedItem = null, WeaponItem? weaponSpeedBaseline = null, Item? armorComparisonBaseline = null,
+            Character? characterForEquipRequirements = null)
         {
             if (itemStats.Count == 0) return;
+
+            bool statsAllRed = displayedItem != null
+                && IsEquipBlockedForCharacter(displayedItem, characterForEquipRequirements);
 
             foreach (var stat in itemStats)
             {
                 if (useColoredText)
                 {
                     var statSegments = ItemStatFormatter.FormatStatLine(stat, displayedItem, weaponSpeedBaseline, armorComparisonBaseline);
+                    if (statsAllRed)
+                        statSegments = RecolorAllSegments(statSegments, Colors.Red);
                     textWriter.RenderSegments(statSegments, x, currentY);
                 }
                 else
@@ -146,11 +173,14 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                     var statSegments = ColoredTextParser.Parse($"    {stat}");
                     if (statSegments != null && statSegments.Count > 0)
                     {
+                        if (statsAllRed)
+                            statSegments = RecolorAllSegments(statSegments, Colors.Red);
                         textWriter.RenderSegments(statSegments, x, currentY);
                     }
                     else
                     {
-                        canvas.AddText(x, currentY, $"    {stat}", AsciiArtAssets.Colors.White);
+                        var lineColor = statsAllRed ? AsciiArtAssets.Colors.Red : AsciiArtAssets.Colors.White;
+                        canvas.AddText(x, currentY, $"    {stat}", lineColor);
                     }
                 }
                 currentY++;

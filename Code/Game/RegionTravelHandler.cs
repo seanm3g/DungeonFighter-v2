@@ -14,7 +14,9 @@ namespace RPGGame
         private readonly IUIManager? customUIManager;
         private readonly TravelRegionCatalog regionCatalog;
         private readonly TravelRouteGenerator routeGenerator;
+        private readonly Func<int, Task> delayAsync;
         private TravelRouteResult? lastRouteResult;
+        private bool isTravelInProgress;
 
         public delegate void OnShowGameLoop();
         public delegate void OnShowMessage(string message);
@@ -31,12 +33,14 @@ namespace RPGGame
             GameStateManager stateManager,
             IUIManager? customUIManager,
             TravelRegionCatalog regionCatalog,
-            TravelRouteGenerator routeGenerator)
+            TravelRouteGenerator routeGenerator,
+            Func<int, Task>? delayAsync = null)
         {
             this.stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
             this.customUIManager = customUIManager;
             this.regionCatalog = regionCatalog ?? throw new ArgumentNullException(nameof(regionCatalog));
             this.routeGenerator = routeGenerator ?? throw new ArgumentNullException(nameof(routeGenerator));
+            this.delayAsync = delayAsync ?? Task.Delay;
         }
 
         public void ShowRegionTravel()
@@ -54,6 +58,9 @@ namespace RPGGame
         public async Task HandleMenuInput(string input)
         {
             if (stateManager.CurrentPlayer == null)
+                return;
+
+            if (isTravelInProgress)
                 return;
 
             string trimmedInput = (input ?? "").Trim();
@@ -79,9 +86,51 @@ namespace RPGGame
             }
 
             var destination = destinations[choice - 1];
-            lastRouteResult = routeGenerator.GenerateRoute(stateManager.CurrentPlayer, destination.Id);
-            RenderTravelScreen();
-            await Task.CompletedTask;
+            await RunRouteTravelAsync(destination);
+        }
+
+        private async Task RunRouteTravelAsync(TravelRegion destination)
+        {
+            var player = stateManager.CurrentPlayer;
+            if (player == null)
+                return;
+
+            isTravelInProgress = true;
+            try
+            {
+                lastRouteResult = routeGenerator.CreateRouteResult(player, destination.Id);
+                RenderTravelScreen();
+
+                for (int i = 0; i < lastRouteResult.EventCount; i++)
+                {
+                    var step = routeGenerator.GenerateRouteStep(player, lastRouteResult.ToRegion, i + 1, null, lastRouteResult.JourneyDungeonThemes);
+                    lastRouteResult.Steps.Add(step);
+
+                    if (step.LootReceived != null)
+                        lastRouteResult.LootFound.Add(step.LootReceived);
+
+                    RenderTravelScreen();
+
+                    if (i < lastRouteResult.EventCount - 1)
+                        await ApplyTravelDelayAsync(step.DelayMs);
+                }
+
+                routeGenerator.CompleteRoute(player, lastRouteResult);
+                RenderTravelScreen();
+            }
+            finally
+            {
+                isTravelInProgress = false;
+            }
+        }
+
+        private Task ApplyTravelDelayAsync(int delayMs)
+        {
+            int scaledDelayMs = DeveloperModeState.ScaleDelayMs(delayMs);
+            if (scaledDelayMs <= 0)
+                return Task.CompletedTask;
+
+            return delayAsync(scaledDelayMs);
         }
 
         private void RenderTravelScreen()

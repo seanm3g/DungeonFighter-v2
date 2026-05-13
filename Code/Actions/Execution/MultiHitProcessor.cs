@@ -83,10 +83,16 @@ namespace RPGGame.Actions.Execution
                 totalDamage += hitDamage;
             }
 
+            // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
+            int critEval = CombatCalculator.GetCritThresholdEvaluationRoll(
+                totalRoll, rollBonus, rollPenalty);
+            bool isCriticalHit = critEval >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
+            bool isComboEvent = action.IsComboAction && totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetComboThreshold(source);
+
             // Track statistics for total damage
             if (source is Character sourceCharacter)
             {
-                ActionStatisticsTracker.RecordAttackAction(sourceCharacter, totalRoll, naturalRoll, rollBonus, totalDamage, action, target as Enemy);
+                ActionStatisticsTracker.RecordAttackAction(sourceCharacter, totalRoll, naturalRoll, rollBonus, totalDamage, action, target as Enemy, isCriticalHit);
             }
             if (target is Character targetCharacter)
             {
@@ -99,11 +105,6 @@ namespace RPGGame.Actions.Execution
                 ActionStatisticsTracker.RecordDamageReceived(selfCharacter, totalDamage);
             }
 
-            // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
-            int critEval = CombatCalculator.GetCritThresholdEvaluationRoll(
-                totalRoll, rollBonus, rollPenalty);
-            bool isCriticalHit = critEval >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
-            bool isComboEvent = action.IsComboAction && totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetComboThreshold(source);
             ActionUtilities.CreateAndAddBattleEvent(source, target, action, totalDamage, totalRoll, rollBonus, true, isComboEvent, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
 
             return totalDamage;

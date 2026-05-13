@@ -36,7 +36,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         /// ItemGeneration must run before Classes: ClassesPanelHandler calls <see cref="GameConfiguration.SaveToFile"/>;
         /// combo caps live in TextBoxes until ItemGeneration applies them — if Classes ran first, TuningConfig would be written with stale <c>lootSystem</c> when the user saved from another tab without ItemGeneration running after.
         /// </remarks>
-        private static readonly string[] HandlerSaveCategoryTags = { "TextDelays", "Appearance", "BalanceTuning", "ItemGeneration", "Classes", "Audio" };
+        private static readonly string[] HandlerSaveCategoryTags = { "Travel", "TextDelays", "Appearance", "BalanceTuning", "ItemGeneration", "Classes", "Audio" };
 
         public SettingsSaveOrchestrator(
             SettingsManager? settingsManager,

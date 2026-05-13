@@ -1,20 +1,23 @@
 [
   {
     "id": "forest",
-    "displayName": "Ancient Forest",
+    "displayName": "Whisperledger Wilds",
     "theme": "Forest",
-    "description": "Old roads wind beneath green boughs, mossy stones, and watchful animal eyes."
+    "description": "Trade-roads where relics once changed hands; the trees remember every inscription and every hushed appraisal.",
+    "linkedDungeonThemes": ["Forest", "Crypt", "Sky"]
   },
   {
     "id": "lava",
-    "displayName": "Lava Caves",
+    "displayName": "Ashglass Covenant",
     "theme": "Lava",
-    "description": "Black glass paths cross red-lit vents, molten rivers, and smoke-choked caverns."
+    "description": "Forges and vaults where oaths were tempered in heat and brittle glass, and every blade demanded a witness.",
+    "linkedDungeonThemes": ["Lava", "Ice", "Sky"]
   },
   {
     "id": "crypt",
-    "displayName": "Haunted Crypt",
+    "displayName": "Oubliette of Echoed Names",
     "theme": "Crypt",
-    "description": "The route sinks through broken grave roads, cold arches, and whispering burial halls."
+    "description": "Lower ways where titles go to die; only the dust keeps inventory, and the walls murmur affixes long unspoken.",
+    "linkedDungeonThemes": ["Crypt", "Dark", "Forest"]
   }
 ]

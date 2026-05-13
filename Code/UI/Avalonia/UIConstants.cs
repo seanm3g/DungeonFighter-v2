@@ -58,6 +58,7 @@ namespace RPGGame.UI.Avalonia
             public const string Location = "LOCATION";
             public const string Enemy = "ENEMY";
             public const string Thresholds = "THRESHOLDS";
+            public const string Chances = "CHANCES";
             public const string StatusEffects = "STATUS EFFECTS";
             public const string AvailableDungeons = "AVAILABLE DUNGEONS";
             public const string Options = "OPTIONS";

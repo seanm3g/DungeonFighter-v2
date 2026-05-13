@@ -22,6 +22,31 @@ namespace RPGGame
         public string DisplayName { get; set; } = "";
         public string Theme { get; set; } = "";
         public string Description { get; set; } = "";
+
+        /// <summary>
+        /// Dungeon theme keys this region is tied to (e.g. Forest, Lava). Travel loot rolls
+        /// <see cref="TravelRouteGenerator.JourneyThemePickCount"/> times from this pool with replacement.
+        /// </summary>
+        public List<string> LinkedDungeonThemes { get; set; } = new();
+
+        /// <summary>
+        /// Non-empty theme pool for loot and journey rolls; falls back to <see cref="Theme"/> or default dungeon theme.
+        /// </summary>
+        public IReadOnlyList<string> ResolveLinkedDungeonThemePool()
+        {
+            var fromList = (LinkedDungeonThemes ?? new List<string>())
+                .Where(theme => !string.IsNullOrWhiteSpace(theme))
+                .Select(theme => theme.Trim())
+                .ToList();
+
+            if (fromList.Count > 0)
+                return fromList;
+
+            if (!string.IsNullOrWhiteSpace(Theme))
+                return new[] { Theme.Trim() };
+
+            return new[] { GameConstants.DefaultDungeonTheme };
+        }
     }
 
     public class TravelEvent
@@ -43,6 +68,8 @@ namespace RPGGame
         public int Roll { get; set; }
         public TravelRollOutcome Outcome { get; set; }
         public TravelEvent Event { get; set; } = new TravelEvent();
+        public int DelayMs { get; set; }
+        public int TravelMinutes { get; set; }
         public int ProgressDelta { get; set; }
         public int DamageTaken { get; set; }
         public int HealingReceived { get; set; }
@@ -54,12 +81,28 @@ namespace RPGGame
     {
         public TravelRegion FromRegion { get; set; } = new TravelRegion();
         public TravelRegion ToRegion { get; set; } = new TravelRegion();
+        /// <summary>
+        /// Number of travel events this route (from a single 4d4 roll unless overridden for tests).
+        /// </summary>
+        public int EventCount { get; set; }
+        /// <summary>
+        /// The four d4 results that summed to <see cref="EventCount"/>; empty when count was scripted.
+        /// </summary>
+        public int[] EventCountDice { get; set; } = Array.Empty<int>();
+        /// <summary>
+        /// Three dungeon themes rolled (with replacement) from <see cref="TravelRegion.ResolveLinkedDungeonThemePool"/>
+        /// for the destination; travel loot picks one of these at random per drop.
+        /// </summary>
+        public List<string> JourneyDungeonThemes { get; set; } = new();
         public List<TravelStepResult> Steps { get; set; } = new();
         public List<Item> LootFound { get; set; } = new();
+        public bool IsComplete { get; set; }
         public int TotalProgressDelta => Steps.Sum(step => step.ProgressDelta);
         public int TotalDamageTaken => Steps.Sum(step => step.DamageTaken);
         public int TotalHealingReceived => Steps.Sum(step => step.HealingReceived);
         public int TotalXpGained => Steps.Sum(step => step.XpGained);
+        public int TotalDelayMs => Steps.Sum(step => step.DelayMs);
+        public int TotalTravelMinutes => Steps.Sum(step => step.TravelMinutes);
     }
 
     public static class TravelRollResolver
@@ -75,6 +118,39 @@ namespace RPGGame
             if (roll <= 19)
                 return TravelRollOutcome.Combo;
             return TravelRollOutcome.Critical;
+        }
+    }
+
+    public static class TravelPacing
+    {
+        public static int GetDelayMs(TravelRollOutcome outcome) => outcome switch
+        {
+            TravelRollOutcome.Critical => 400,
+            TravelRollOutcome.Combo => 650,
+            TravelRollOutcome.Hit => 900,
+            TravelRollOutcome.Miss => 1300,
+            TravelRollOutcome.CriticalMiss => 1700,
+            _ => 900
+        };
+
+        public static int GetTravelMinutes(TravelRollOutcome outcome) => outcome switch
+        {
+            TravelRollOutcome.Critical => 2,
+            TravelRollOutcome.Combo => 4,
+            TravelRollOutcome.Hit => 6,
+            TravelRollOutcome.Miss => 10,
+            TravelRollOutcome.CriticalMiss => 14,
+            _ => 6
+        };
+
+        public static string FormatTravelTime(int totalMinutes)
+        {
+            if (totalMinutes < 60)
+                return $"{Math.Max(0, totalMinutes)} min";
+
+            int hours = totalMinutes / 60;
+            int minutes = totalMinutes % 60;
+            return minutes == 0 ? $"{hours} hr" : $"{hours} hr {minutes} min";
         }
     }
 
@@ -157,9 +233,30 @@ namespace RPGGame
 
         private static List<TravelRegion> CreateFallbackRegions() => new()
         {
-            new TravelRegion { Id = "forest", DisplayName = "Ancient Forest", Theme = "Forest", Description = "Old roads wind beneath green boughs." },
-            new TravelRegion { Id = "lava", DisplayName = "Lava Caves", Theme = "Lava", Description = "Black glass paths cross red-lit vents." },
-            new TravelRegion { Id = "crypt", DisplayName = "Haunted Crypt", Theme = "Crypt", Description = "Broken grave roads lead into whispering halls." }
+            new TravelRegion
+            {
+                Id = "forest",
+                DisplayName = "Whisperledger Wilds",
+                Theme = "Forest",
+                Description = "Trade-roads where relics once changed hands; the trees remember every inscription.",
+                LinkedDungeonThemes = new List<string> { "Forest", "Crypt", "Sky" }
+            },
+            new TravelRegion
+            {
+                Id = "lava",
+                DisplayName = "Ashglass Covenant",
+                Theme = "Lava",
+                Description = "Forges and vaults where oaths were tempered in heat and brittle glass.",
+                LinkedDungeonThemes = new List<string> { "Lava", "Ice", "Sky" }
+            },
+            new TravelRegion
+            {
+                Id = "crypt",
+                DisplayName = "Oubliette of Echoed Names",
+                Theme = "Crypt",
+                Description = "Lower ways where titles go to die, and only the dust keeps inventory.",
+                LinkedDungeonThemes = new List<string> { "Crypt", "Dark", "Forest" }
+            }
         };
     }
 
@@ -227,7 +324,11 @@ namespace RPGGame
 
     public class TravelRouteGenerator
     {
-        public const int RouteStepCount = 10;
+        public const int TravelEventCountDice = 4;
+        public const int TravelEventCountSides = 4;
+        public const int MinTravelEvents = TravelEventCountDice;
+        public const int MaxTravelEvents = TravelEventCountDice * TravelEventCountSides;
+        public const int JourneyThemePickCount = 3;
 
         private readonly TravelRegionCatalog regionCatalog;
         private readonly TravelEventCatalog eventCatalog;
@@ -243,7 +344,57 @@ namespace RPGGame
             this.eventCatalog = eventCatalog ?? throw new ArgumentNullException(nameof(eventCatalog));
         }
 
-        public TravelRouteResult GenerateRoute(Character player, string destinationRegionId, IReadOnlyList<int>? scriptedRolls = null)
+        /// <summary>
+        /// Rolls 4d4 (sum of four fair d4) to determine how many travel events occur on a route.
+        /// </summary>
+        public static int RollTravelEventCount() => RollTravelEventDice(out _);
+
+        /// <summary>
+        /// Rolls 4d4; returns the total and fills <paramref name="dice"/> with four values in 1..4.
+        /// </summary>
+        public static int RollTravelEventDice(out int[] dice)
+        {
+            dice = new int[TravelEventCountDice];
+            int sum = 0;
+            for (int i = 0; i < TravelEventCountDice; i++)
+            {
+                int face = Dice.Roll(TravelEventCountSides);
+                dice[i] = face;
+                sum += face;
+            }
+
+            return sum;
+        }
+
+        public static int ClampTravelEventCount(int value) =>
+            Math.Clamp(value, MinTravelEvents, MaxTravelEvents);
+
+        public TravelRouteResult GenerateRoute(
+            Character player,
+            string destinationRegionId,
+            IReadOnlyList<int>? scriptedRolls = null,
+            int? scriptedEventCount = null)
+        {
+            if (player == null)
+                throw new ArgumentNullException(nameof(player));
+
+            var result = CreateRouteResult(player, destinationRegionId, scriptedEventCount);
+
+            for (int i = 0; i < result.EventCount; i++)
+            {
+                int roll = scriptedRolls != null && i < scriptedRolls.Count ? scriptedRolls[i] : Dice.Roll(20);
+                var step = GenerateRouteStep(player, result.ToRegion, i + 1, roll, result.JourneyDungeonThemes);
+                result.Steps.Add(step);
+
+                if (step.LootReceived != null)
+                    result.LootFound.Add(step.LootReceived);
+            }
+
+            CompleteRoute(player, result);
+            return result;
+        }
+
+        public TravelRouteResult CreateRouteResult(Character player, string destinationRegionId, int? scriptedEventCount = null)
         {
             if (player == null)
                 throw new ArgumentNullException(nameof(player));
@@ -252,26 +403,74 @@ namespace RPGGame
             var toRegion = regionCatalog.GetById(destinationRegionId)
                 ?? throw new InvalidOperationException($"Unknown destination region '{destinationRegionId}'.");
 
-            var result = new TravelRouteResult
+            int eventCount;
+            int[] eventDice;
+            if (scriptedEventCount.HasValue)
             {
-                FromRegion = fromRegion,
-                ToRegion = toRegion
-            };
-
-            for (int i = 0; i < RouteStepCount; i++)
+                eventCount = ClampTravelEventCount(scriptedEventCount.Value);
+                eventDice = Array.Empty<int>();
+            }
+            else
             {
-                int roll = scriptedRolls != null && i < scriptedRolls.Count ? scriptedRolls[i] : Dice.Roll(20);
-                var outcome = TravelRollResolver.Resolve(roll);
-                var travelEvent = eventCatalog.GetRandomEvent(outcome);
-                var step = ApplyEvent(player, toRegion, i + 1, roll, outcome, travelEvent);
-                result.Steps.Add(step);
-
-                if (step.LootReceived != null)
-                    result.LootFound.Add(step.LootReceived);
+                eventCount = RollTravelEventDice(out int[] rolled);
+                eventDice = rolled;
             }
 
-            player.CurrentRegionId = toRegion.Id;
-            return result;
+            return new TravelRouteResult
+            {
+                FromRegion = fromRegion,
+                ToRegion = toRegion,
+                EventCount = eventCount,
+                EventCountDice = eventDice,
+                JourneyDungeonThemes = RollJourneyDungeonThemes(toRegion)
+            };
+        }
+
+        public TravelStepResult GenerateRouteStep(
+            Character player,
+            TravelRegion destination,
+            int stepNumber,
+            int? scriptedRoll = null,
+            IReadOnlyList<string>? journeyDungeonThemes = null)
+        {
+            if (player == null)
+                throw new ArgumentNullException(nameof(player));
+            if (destination == null)
+                throw new ArgumentNullException(nameof(destination));
+
+            int roll = scriptedRoll ?? Dice.Roll(20);
+            var outcome = TravelRollResolver.Resolve(roll);
+            var travelEvent = eventCatalog.GetRandomEvent(outcome);
+            return ApplyEvent(player, destination, stepNumber, roll, outcome, travelEvent, journeyDungeonThemes);
+        }
+
+        public void CompleteRoute(Character player, TravelRouteResult result)
+        {
+            if (player == null)
+                throw new ArgumentNullException(nameof(player));
+            if (result == null)
+                throw new ArgumentNullException(nameof(result));
+
+            player.CurrentRegionId = result.ToRegion.Id;
+            result.IsComplete = true;
+        }
+
+        private static List<string> RollJourneyDungeonThemes(TravelRegion destination)
+        {
+            var pool = destination.ResolveLinkedDungeonThemePool().ToList();
+            var picks = new List<string>(JourneyThemePickCount);
+            for (int i = 0; i < JourneyThemePickCount; i++)
+                picks.Add(pool[Random.Shared.Next(pool.Count)]);
+            return picks;
+        }
+
+        private static string PickTravelLootDungeonTheme(TravelRegion destination, IReadOnlyList<string>? journeyDungeonThemes)
+        {
+            if (journeyDungeonThemes != null && journeyDungeonThemes.Count > 0)
+                return journeyDungeonThemes[Random.Shared.Next(journeyDungeonThemes.Count)];
+
+            var pool = destination.ResolveLinkedDungeonThemePool().ToList();
+            return pool[Random.Shared.Next(pool.Count)];
         }
 
         private static TravelStepResult ApplyEvent(
@@ -280,7 +479,8 @@ namespace RPGGame
             int stepNumber,
             int roll,
             TravelRollOutcome outcome,
-            TravelEvent travelEvent)
+            TravelEvent travelEvent,
+            IReadOnlyList<string>? journeyDungeonThemes)
         {
             int damageTaken = 0;
             if (travelEvent.Damage > 0)
@@ -305,16 +505,21 @@ namespace RPGGame
             Item? lootReceived = null;
             if (travelEvent.GrantsLoot)
             {
+                string lootTheme = PickTravelLootDungeonTheme(destination, journeyDungeonThemes);
                 lootReceived = LootGenerator.GenerateLoot(
                     player.Level,
                     player.Level,
                     player,
                     guaranteedLoot: true,
-                    dungeonTheme: destination.Theme);
+                    dungeonTheme: lootTheme);
 
                 if (lootReceived != null)
                     player.AddToInventory(lootReceived);
             }
+
+            double travelTimeScale = GameSettings.Instance.TravelTimeMultiplier;
+            int delayMs = Math.Max(0, (int)Math.Round(TravelPacing.GetDelayMs(outcome) * travelTimeScale));
+            int travelMinutes = Math.Max(0, (int)Math.Round(TravelPacing.GetTravelMinutes(outcome) * travelTimeScale));
 
             return new TravelStepResult
             {
@@ -322,6 +527,8 @@ namespace RPGGame
                 Roll = roll,
                 Outcome = outcome,
                 Event = travelEvent,
+                DelayMs = delayMs,
+                TravelMinutes = travelMinutes,
                 ProgressDelta = travelEvent.ProgressDelta,
                 DamageTaken = damageTaken,
                 HealingReceived = healingReceived,

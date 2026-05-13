@@ -68,7 +68,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.helpRenderer = new HelpSystemRenderer(canvas, clearCanvasAction);
             this.characterCreationRenderer = new CharacterCreationRenderer(canvas, textManager, interactionManager);
             this.dungeonExplorationRenderer = new DungeonExplorationRenderer(canvas, interactionManager);
-            this.regionTravelRenderer = new RegionTravelRenderer(canvas, interactionManager.ClickableElements);
+            this.regionTravelRenderer = new RegionTravelRenderer(canvas, new Renderers.ColoredTextWriter(canvas), interactionManager.ClickableElements);
         }
 
         public void RenderDisplayBuffer(CanvasContext context)

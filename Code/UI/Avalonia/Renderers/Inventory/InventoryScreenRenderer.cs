@@ -230,9 +230,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         {
                             actionsText = actionsText.Substring(0, maxActionWidth - 3) + "...";
                         }
-                        var actionsColor = ItemNameFormatter.IsCommonRarity(item.Rarity)
-                            ? AsciiArtAssets.Colors.White
-                            : AsciiArtAssets.Colors.Cyan;
+                        var actionsColor = ItemRendererHelper.IsEquipBlockedForCharacter(item, character)
+                            ? AsciiArtAssets.Colors.Red
+                            : ItemNameFormatter.IsCommonRarity(item.Rarity)
+                                ? AsciiArtAssets.Colors.White
+                                : AsciiArtAssets.Colors.Cyan;
                         canvas.AddText(x + 4, y, actionsText, actionsColor);
                         y++;
                         currentLineCount++;
@@ -242,7 +244,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     var equippedWeapon = character.Weapon as WeaponItem;
                     var equippedArmorBaseline = ItemRendererHelper.GetArmorComparisonBaseline(character, item);
                     ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true,
-                        displayedItem: item, weaponSpeedBaseline: equippedWeapon, armorComparisonBaseline: equippedArmorBaseline);
+                        displayedItem: item, weaponSpeedBaseline: equippedWeapon, armorComparisonBaseline: equippedArmorBaseline,
+                        characterForEquipRequirements: character);
                 }
 
                 if (showScrollStatus)

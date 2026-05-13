@@ -72,7 +72,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (currentItem != null)
             {
                 // Render current item name
-                ItemRendererHelper.RenderItemName(textWriter, canvas, leftColumnX, leftY, -1, currentItem, useColoredText: true);
+                ItemRendererHelper.RenderItemName(textWriter, canvas, leftColumnX, leftY, -1, currentItem, useColoredText: true, character: character);
                 leftY++;
                 currentLineCount++;
                 
@@ -80,14 +80,15 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 var currentItemStats = ItemStatFormatter.GetItemStats(currentItem, character);
                 var newWeaponBaseline = newItem as WeaponItem;
                 ItemRendererHelper.RenderItemStats(textWriter, canvas, leftColumnX, leftY, currentItemStats, ref leftY, ref currentLineCount, useColoredText: true,
-                    displayedItem: currentItem, weaponSpeedBaseline: newWeaponBaseline, armorComparisonBaseline: newItem);
+                    displayedItem: currentItem, weaponSpeedBaseline: newWeaponBaseline, armorComparisonBaseline: newItem,
+                    characterForEquipRequirements: character);
                 
                 // Render current item bonuses/modifications
                 if (currentItem.StatBonuses.Count > 0 || currentItem.ActionBonuses.Count > 0 || currentItem.Modifications.Count > 0)
                 {
                     leftY++;
                     currentLineCount++;
-                    RenderItemBonuses(currentItem, leftColumnX, leftY, columnWidth, ref leftY, ref currentLineCount);
+                    RenderItemBonuses(currentItem, leftColumnX, leftY, columnWidth, ref leftY, ref currentLineCount, character);
                 }
             }
             else
@@ -112,14 +113,15 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             var newItemStats = ItemStatFormatter.GetItemStats(newItem, character);
             var currentWeaponBaseline = currentItem as WeaponItem;
             ItemRendererHelper.RenderItemStats(textWriter, canvas, rightColumnX, rightY, newItemStats, ref rightY, ref currentLineCount, useColoredText: true,
-                displayedItem: newItem, weaponSpeedBaseline: currentWeaponBaseline, armorComparisonBaseline: currentItem);
+                displayedItem: newItem, weaponSpeedBaseline: currentWeaponBaseline, armorComparisonBaseline: currentItem,
+                characterForEquipRequirements: character);
             
             // Render new item bonuses/modifications
             if (newItem.StatBonuses.Count > 0 || newItem.ActionBonuses.Count > 0 || newItem.Modifications.Count > 0)
             {
                 rightY++;
                 currentLineCount++;
-                RenderItemBonuses(newItem, rightColumnX, rightY, columnWidth, ref rightY, ref currentLineCount);
+                RenderItemBonuses(newItem, rightColumnX, rightY, columnWidth, ref rightY, ref currentLineCount, character);
             }
             
             // Render action changes comparison
@@ -219,13 +221,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// <summary>
         /// Helper method to render item bonuses and modifications
         /// </summary>
-        private void RenderItemBonuses(Item item, int x, int y, int maxWidth, ref int currentY, ref int lineCount)
+        private void RenderItemBonuses(Item item, int x, int y, int maxWidth, ref int currentY, ref int lineCount, Character character)
         {
+            bool allRed = ItemRendererHelper.IsEquipBlockedForCharacter(item, character);
+            var labelColor = allRed ? Colors.Red : ColorPalette.Cyan.GetColor();
+            var valueColor = allRed ? Colors.Red : Colors.White;
             // Stat bonuses
             if (item.StatBonuses.Count > 0)
             {
                 var statsBuilder = new ColoredTextBuilder();
-                statsBuilder.Add("Stats: ", ColorPalette.Cyan);
+                statsBuilder.Add("Stats: ", labelColor);
                 
                 var bonusTexts = new List<string>();
                 foreach (var bonus in item.StatBonuses)
@@ -241,7 +246,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     }
                 }
                 
-                statsBuilder.Add(string.Join(", ", bonusTexts), Colors.White);
+                statsBuilder.Add(string.Join(", ", bonusTexts), valueColor);
                 textWriter.RenderSegments(statsBuilder.Build(), x, currentY);
                 currentY++;
                 lineCount++;
@@ -251,8 +256,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (item.ActionBonuses.Count > 0)
             {
                 var actionsBuilder = new ColoredTextBuilder();
-                actionsBuilder.Add("Actions: ", ColorPalette.Cyan);
-                actionsBuilder.Add(string.Join(", ", item.ActionBonuses.Select(b => $"{b.Name} +{b.Weight}")), Colors.White);
+                actionsBuilder.Add("Actions: ", labelColor);
+                actionsBuilder.Add(string.Join(", ", item.ActionBonuses.Select(b => $"{b.Name} +{b.Weight}")), valueColor);
                 textWriter.RenderSegments(actionsBuilder.Build(), x, currentY);
                 currentY++;
                 lineCount++;
@@ -262,7 +267,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (item.Modifications.Count > 0)
             {
                 var modsBuilder = new ColoredTextBuilder();
-                modsBuilder.Add("Mods: ", ColorPalette.Cyan);
+                modsBuilder.Add("Mods: ", labelColor);
                 
                 var modTexts = item.Modifications.Select(m => 
                 {
@@ -270,7 +275,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     return details;
                 });
                 
-                modsBuilder.Add(string.Join(", ", modTexts), Colors.White);
+                modsBuilder.Add(string.Join(", ", modTexts), valueColor);
                 textWriter.RenderSegments(modsBuilder.Build(), x, currentY);
                 currentY++;
                 lineCount++;

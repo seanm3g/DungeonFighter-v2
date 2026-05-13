@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="RPGGame.UI.Avalonia.Settings.TravelSettingsPanel"
+             Background="Transparent">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="20" Margin="20">
+            <Border Background="#FF252525"
+                    BorderBrush="#FF404040"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="18">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Travel"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="#FFE8E8E8"
+                               Margin="0,0,0,4"/>
+                    <TextBlock Text="Each trip rolls 4d4 once to decide how many travel events (d20 rolls) occur. Travel time multiplier scales the pause between each revealed step and the journey minutes shown in the summary. Use 0 for no wait between steps; 1 is default pacing."
+                               Foreground="#FFB0B0B0"
+                               FontSize="14"
+                               TextWrapping="Wrap"/>
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                   VerticalAlignment="Center"
+                                   Foreground="#FFE8E8E8"
+                                   FontSize="14"
+                                   Text="Travel time multiplier"
+                                   Margin="0,0,12,0"/>
+                        <TextBox x:Name="TravelTimeMultiplierTextBox"
+                                 Grid.Row="0" Grid.Column="1"
+                                 Width="140"
+                                 HorizontalAlignment="Left"
+                                 Watermark="e.g. 1 or 0.5"/>
+                    </Grid>
+                    <TextBlock Text="Allowed range after save: 0 through 5. Values are clamped if out of range."
+                               Foreground="#FF909090"
+                               FontSize="12"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

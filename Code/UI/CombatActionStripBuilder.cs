@@ -415,24 +415,44 @@ namespace RPGGame
             return $"Type {action.Type} | Target {FormatTarget(action.Target)} | {comboText}";
         }
 
-        private static void AppendAccuracyLines(List<string> segments, Action action)
+        /// <summary>Cadence bonus groups labeled Ability are hidden on action strip cards and hover tooltips (sheet still applies).</summary>
+        private static bool ShouldOmitAbilityCadenceBonusGroup(ActionAttackBonusGroup? group)
         {
-            if (action.Advanced == null)
-                return;
+            if (group == null)
+                return true;
+            string cad = string.IsNullOrWhiteSpace(group.CadenceType)
+                ? (string.IsNullOrWhiteSpace(group.Keyword) ? "BONUS" : group.Keyword)
+                : group.CadenceType;
+            return string.Equals(cad, "Ability", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Sheet-defined hero/enemy accuracy lines (timing differs from <see cref="CombatCalculator.CalculateRollBonus"/> when cadence defers packages).
+        /// </summary>
+        private static IEnumerable<string> EnumerateSheetAccuracyModifierLines(Action action)
+        {
+            if (action?.Advanced == null)
+                yield break;
 
             bool deferred = Action.DefersSheetCombatPackagesToNextHeroRoll(action);
             string timing = deferred ? "on hit: next roll" : "current roll";
             if (action.Advanced.RollBonus != 0)
-                AddSegment(segments, $"Hero accuracy {FormatSignedValue(action.Advanced.RollBonus)} ({timing})");
+                yield return $"Hero accuracy {FormatSignedValue(action.Advanced.RollBonus)} ({timing})";
             if (action.Advanced.EnemyRollBonus != 0)
             {
                 string enemyTiming = deferred && action.Advanced.EnemyRollBonus < 0
                     ? "on hit: target roll penalty"
                     : timing;
-                AddSegment(segments, $"Enemy accuracy {FormatSignedValue(action.Advanced.EnemyRollBonus)} ({enemyTiming})");
+                yield return $"Enemy accuracy {FormatSignedValue(action.Advanced.EnemyRollBonus)} ({enemyTiming})";
             }
             if (action.Advanced.RollBonusDuration > 0)
-                AddSegment(segments, $"Accuracy duration: {action.Advanced.RollBonusDuration} roll(s)");
+                yield return $"Accuracy duration: {action.Advanced.RollBonusDuration} roll(s)";
+        }
+
+        private static void AppendAccuracyLines(List<string> segments, Action action)
+        {
+            foreach (var line in EnumerateSheetAccuracyModifierLines(action))
+                AddSegment(segments, line);
         }
 
         private static void AppendRollMechanicLines(List<string> segments, Action action)
@@ -688,18 +708,105 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Combo routing and weapon-required lines for action hover tooltips (opener/finisher tags; per-type weapon basic).
+        /// Opener / finisher lines shown on action strip cards and in hover tooltips (same order as mechanical segments).
+        /// </summary>
+        public static List<string> BuildActionStripComboRoleLines(Character? character, Action? action)
+        {
+            var lines = new List<string>();
+            if (action == null)
+                return lines;
+            if (action.ComboRouting?.IsOpener == true)
+                lines.Add("Opener — first combo slot.");
+            if (action.ComboRouting?.IsFinisher == true)
+                lines.Add("Finisher — last combo slot.");
+            return lines;
+        }
+
+        /// <summary>
+        /// Single-line Type | Target | combo metadata (same text as hover tooltip segment).
+        /// </summary>
+        public static string BuildActionStripMetadataLine(Action? action) =>
+            action == null ? "" : BuildActionMetadataLine(action);
+
+        /// <summary>
+        /// Combo routing lines for action hover tooltips (opener/finisher tags).
         /// </summary>
         private static void AppendComboRoleAndWeaponRequirementNotation(List<string> segments, Character? character, Action? action)
         {
-            if (action == null)
-                return;
-            if (action.ComboRouting?.IsOpener == true)
-                segments.Add("Opener — first combo slot.");
-            if (action.ComboRouting?.IsFinisher == true)
-                segments.Add("Finisher — last combo slot.");
-            if (character != null && WeaponRequiredComboAction.IsRequiredBasicForEquippedWeapon(character, action))
-                segments.Add("Weapon basic — must stay in your sequence.");
+            foreach (var line in BuildActionStripComboRoleLines(character, action))
+                segments.Add(line);
+        }
+
+        /// <summary>
+        /// Extra modifier lines for compact action strip cards after the swing (Dmg/Spd) line: total roll bonus when non-zero,
+        /// deferred sheet accuracy (and related lines) so cards match tooltip behavior, compact stat bonuses, and cadence bonus groups.
+        /// When sheet accuracy applies on the <em>current</em> roll it is already included in <paramref name="rollBonusThisSwing"/>; that hero line is omitted to avoid duplication.
+        /// </summary>
+        public static List<string> BuildActionStripModifierTailLines(Action? action, int rollBonusThisSwing, int maxWidth, int maxLines)
+        {
+            var lines = new List<string>();
+            if (action == null || maxLines <= 0 || maxWidth < 4)
+                return lines;
+
+            bool deferSheet = Action.DefersSheetCombatPackagesToNextHeroRoll(action);
+
+            void add(string? s)
+            {
+                if (string.IsNullOrWhiteSpace(s) || lines.Count >= maxLines)
+                    return;
+                s = s.Trim();
+                string t = s.Length > maxWidth ? s.Substring(0, Math.Max(1, maxWidth - 3)) + "..." : s;
+                lines.Add(t);
+            }
+
+            if (rollBonusThisSwing != 0)
+                add($"Acc {rollBonusThisSwing:+0;-0;0}");
+
+            foreach (var line in EnumerateSheetAccuracyModifierLines(action))
+            {
+                if (!deferSheet && line.StartsWith("Hero accuracy", StringComparison.Ordinal))
+                    continue;
+                add(line);
+            }
+
+            var adv = action.Advanced;
+            if (adv != null)
+            {
+                if (adv.StatBonuses != null && adv.StatBonuses.Count > 0)
+                {
+                    var parts = adv.StatBonuses
+                        .Where(s => s != null && (s.Value != 0 || !string.IsNullOrWhiteSpace(s.Type)))
+                        .Select(s => $"{s.Type} {FormatSignedValue(s.Value)}")
+                        .ToList();
+                    if (parts.Count > 0)
+                        add($"Stats: {string.Join(", ", parts)}");
+                }
+                else if (adv.StatBonus != 0 && !string.IsNullOrWhiteSpace(adv.StatBonusType))
+                    add($"Stats: {adv.StatBonusType} {FormatSignedValue(adv.StatBonus)}");
+            }
+
+            if (action.ActionAttackBonuses?.BonusGroups != null)
+            {
+                foreach (var group in action.ActionAttackBonuses.BonusGroups)
+                {
+                    if (ShouldOmitAbilityCadenceBonusGroup(group))
+                        continue;
+                    if (lines.Count >= maxLines)
+                        break;
+                    if (group?.Bonuses == null || group.Bonuses.Count == 0)
+                        continue;
+                    string items = FormatBonusItemsShort(group.Bonuses);
+                    if (string.IsNullOrEmpty(items))
+                        continue;
+                    string cad = string.IsNullOrWhiteSpace(group.CadenceType)
+                        ? (string.IsNullOrWhiteSpace(group.Keyword) ? "BONUS" : group.Keyword)
+                        : group.CadenceType;
+                    string count = group.Count > 1 ? $" x{group.Count}" : "";
+                    add($"{cad}{count}: {items}");
+                }
+            }
+
+            return lines;
         }
 
         /// <summary>
@@ -709,7 +816,6 @@ namespace RPGGame
         {
             var segments = new List<string>();
             AppendComboRoleAndWeaponRequirementNotation(segments, character, action);
-            AddSegment(segments, BuildActionMetadataLine(action));
             segments.Add(BuildTooltipSwingModsLine(character, action, panelIndex));
             AppendAccuracyLines(segments, action);
             segments.AddRange(BuildSpreadsheetFriendlyModLines(action));
@@ -718,6 +824,8 @@ namespace RPGGame
             {
                 foreach (var group in action.ActionAttackBonuses.BonusGroups)
                 {
+                    if (ShouldOmitAbilityCadenceBonusGroup(group))
+                        continue;
                     if (group?.Bonuses == null || group.Bonuses.Count == 0)
                         continue;
                     string items = FormatBonusItemsShort(group.Bonuses);

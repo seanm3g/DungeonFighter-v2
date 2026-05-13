@@ -14,9 +14,9 @@ namespace RPGGame
         /// <summary>
         /// Calculates raw damage before armor reduction
         /// </summary>
-        public static int CalculateRawDamage(Actor attacker, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int roll = 0)
+        public static int CalculateRawDamage(Actor attacker, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int roll = 0, int rollBonusForCritEval = 0)
         {
-            return DamageCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
+            return DamageCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll, rollBonusForCritEval);
         }
 
         /// <summary>

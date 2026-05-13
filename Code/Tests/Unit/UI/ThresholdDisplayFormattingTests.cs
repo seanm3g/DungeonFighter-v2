@@ -23,6 +23,7 @@ namespace RPGGame.Tests.Unit.UI
             ClampDiceLadderFloorsAtOne(ref run, ref passed, ref failed);
             ExclusiveD20ChancesUseOutcomeBands(ref run, ref passed, ref failed);
             ExclusiveD20ChancesReflectShiftedComboThreshold(ref run, ref passed, ref failed);
+            ExclusiveD20MissPercentCompletesHundred(ref run, ref passed, ref failed);
             D20ChancePercentFormatsWithinBounds(ref run, ref passed, ref failed);
             ChanceDeltaColorUsesSignedPercentDifference(ref run, ref passed, ref failed);
 
@@ -154,6 +155,7 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(30, chances.ComboPercent, "default combo chance is rolls 14-19", ref run, ref passed, ref failed);
             TestBase.AssertEqual(40, chances.HitPercent, "default normal hit chance is rolls 6-13", ref run, ref passed, ref failed);
             TestBase.AssertEqual(5, chances.CritMissPercent, "default crit miss chance is one d20 face", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(20, chances.MissPercent, "remaining d20 faces are plain miss", ref run, ref passed, ref failed);
         }
 
         private static void ExclusiveD20ChancesReflectShiftedComboThreshold(ref int run, ref int passed, ref int failed)
@@ -168,6 +170,18 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(40, chances.ComboPercent, "combo 12 means rolls 12-19", ref run, ref passed, ref failed);
             TestBase.AssertEqual(30, chances.HitPercent, "normal hit shrinks to rolls 6-11", ref run, ref passed, ref failed);
             TestBase.AssertEqual(5, chances.CritMissPercent, "crit miss remains one face", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(20, chances.MissPercent, "miss fills remainder to 100%", ref run, ref passed, ref failed);
+        }
+
+        private static void ExclusiveD20MissPercentCompletesHundred(ref int run, ref int passed, ref int failed)
+        {
+            var chances = ThresholdDisplayFormatting.CalculateExclusiveD20OutcomeChances(
+                critMinRoll: 20,
+                comboMinRoll: 14,
+                hitMinRoll: 6,
+                critMissMaxRoll: 1);
+            int sum = chances.CritPercent + chances.ComboPercent + chances.HitPercent + chances.CritMissPercent + chances.MissPercent;
+            TestBase.AssertEqual(100, sum, "crit+combo+hit+crit miss+miss sums to 100%", ref run, ref passed, ref failed);
         }
 
         private static void D20ChancePercentFormatsWithinBounds(ref int run, ref int passed, ref int failed)

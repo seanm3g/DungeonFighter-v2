@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using RPGGame.Entity.Services;
 using RPGGame.Tests;
 using RPGGame;
 
@@ -32,6 +34,7 @@ namespace RPGGame.Tests.Unit.Entity
             TestStatBonuses();
             TestTryEquipItem_BlockedByAttributeRequirements();
             TestTryEquipItem_SucceedsWhenAttributeRequirementsMet();
+            TestEquipToEmptySlot_PreservesComboWhenClassActionsRefresh();
 
             TestBase.PrintSummary("EquipmentManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -170,6 +173,59 @@ namespace RPGGame.Tests.Unit.Entity
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(ReferenceEquals(weapon, character.Equipment.Weapon),
                 "Equipped weapon should be the instance passed in",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Equipping into an empty slot re-applies class actions (new Action instances). Combo must be restored by name, not only by pool reference.
+        /// </summary>
+        private static void TestEquipToEmptySlot_PreservesComboWhenClassActionsRefresh()
+        {
+            Console.WriteLine("\n--- Testing equip to empty slot preserves combo (class action refresh) ---");
+
+            try
+            {
+                ActionLoader.LoadActions();
+            }
+            catch
+            {
+                TestBase.AssertTrue(true, "Skip: ActionLoader unavailable", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            var character = TestDataBuilders.Character()
+                .WithName("ComboPreserve")
+                .WithStats(20, 20, 20, 20)
+                .Build();
+
+            // Force class-action remove/re-add path on every gear update
+            character.Progression.BarbarianPoints = 5;
+
+            var weapon = TestDataBuilders.Weapon()
+                .WithName("ComboPreserve Sword")
+                .WithTier(1)
+                .WithWeaponType(WeaponType.Sword)
+                .Build();
+
+            character.EquipItem(weapon, "weapon");
+            CharacterSerializer.RebuildCharacterActions(character);
+
+            var expectedNames = character.GetComboActions().Select(a => a.Name).ToList();
+            TestBase.AssertTrue(expectedNames.Count > 0,
+                "Test setup should yield a non-empty combo",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var helmet = TestDataBuilders.Armor()
+                .WithType(ItemType.Head)
+                .WithName("ComboPreserve Helm")
+                .WithTier(1)
+                .Build();
+
+            character.EquipItem(helmet, "head");
+
+            var afterNames = character.GetComboActions().Select(a => a.Name).ToList();
+            TestBase.AssertTrue(expectedNames.SequenceEqual(afterNames, StringComparer.OrdinalIgnoreCase),
+                $"Combo names should match after equipping to empty head slot. Expected [{string.Join(", ", expectedNames)}], got [{string.Join(", ", afterNames)}]",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

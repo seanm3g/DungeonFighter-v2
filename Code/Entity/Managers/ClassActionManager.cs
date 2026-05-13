@@ -42,13 +42,30 @@ namespace RPGGame
         /// </summary>
         public void AddClassActions(Actor entity, CharacterProgression? progression, WeaponType? weaponType)
         {
-            if (progression != null && HasAnyClassPoints(progression))
-                RemoveClassActions(entity, progression, weaponType);
-
             var pres = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
             var rules = GameConfiguration.Instance.ClassActionsUnlock?.Rules;
             if (rules == null || rules.Count == 0)
                 return;
+
+            // Avoid remove/re-add when the unlocked class-action set already matches the pool.
+            // Otherwise every gear change creates fresh Action instances and combo slots (which hold
+            // references) are cleared by <see cref="ComboSequenceManager.UpdateComboSequenceAfterGearChange"/>.
+            if (progression != null && HasAnyClassPoints(progression))
+            {
+                var expected = BuildExpectedClassActionNames(progression, weaponType, pres);
+                var allNames = AllClassActionNamesForPoolLogic();
+                var presentExpectedInPool = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var entry in entity.ActionPool)
+                {
+                    if (allNames.Contains(entry.action.Name) && expected.Contains(entry.action.Name))
+                        presentExpectedInPool.Add(entry.action.Name);
+                }
+
+                if (presentExpectedInPool.SetEquals(expected))
+                    return;
+
+                RemoveClassActions(entity, progression, weaponType);
+            }
 
             var addedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var rule in rules)

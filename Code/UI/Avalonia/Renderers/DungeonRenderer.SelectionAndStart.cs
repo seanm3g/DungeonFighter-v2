@@ -14,11 +14,11 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the dungeon selection screen
         /// </summary>
-        public void RenderDungeonSelection(int x, int y, int width, int height, List<Dungeon> dungeons, string? customDungeonLevelEntryBuffer = null)
+        public void RenderDungeonSelection(int x, int y, int width, int height, List<Dungeon> dungeons, string? customDungeonLevelEntryBuffer = null, string? currentRegionDisplayName = null)
         {
             if (dungeons == null)
                 return;
-            currentLineCount = selectionRenderer.RenderDungeonSelection(x, y, width, height, dungeons, customDungeonLevelEntryBuffer);
+            currentLineCount = selectionRenderer.RenderDungeonSelection(x, y, width, height, dungeons, customDungeonLevelEntryBuffer, currentRegionDisplayName);
         }
 
         /// <summary>

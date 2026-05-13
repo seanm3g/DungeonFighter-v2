@@ -82,7 +82,7 @@ namespace RPGGame.Actions.Execution
                     else
                         ActionUtilities.ApplyDamage(target, result.Damage);
                     if (source is Character sourceCharacter)
-                        ActionStatisticsTracker.RecordAttackAction(sourceCharacter, totalRoll, result.BaseRoll, result.RollBonus, result.Damage, selected, target as Enemy);
+                        ActionStatisticsTracker.RecordAttackAction(sourceCharacter, totalRoll, result.BaseRoll, result.RollBonus, result.Damage, selected, target as Enemy, result.IsCritical);
                     if (target is Character targetCharacter)
                         ActionStatisticsTracker.RecordDamageReceived(targetCharacter, result.Damage);
                     if (selected.Target == TargetType.SelfAndTarget && source is Character selfCharacter)

@@ -81,7 +81,8 @@ namespace RPGGame
         /// This directly maps to the reference output structure:
         /// - DungeonHeader -> RoomHeader: 1 blank line
         /// - RoomInfo -> EnemyAppearance: 1 blank line
-        /// - EnemyAppearance -> EnemyStats: 1 blank line
+        /// - EnemyAppearance -> EnemyStats: 1 blank line (when stats lines are shown)
+        /// - EnemyAppearance -> CombatAction: 1 blank line (first combat action when stats block is skipped)
         /// - EnemyStats -> CombatAction: 1 blank line (first combat action)
         /// - CombatAction -> CombatAction: 0 blank lines (consecutive actions, no actor change spacing)
         /// - CombatAction -> EnvironmentalAction: 1 blank line
@@ -107,6 +108,7 @@ namespace RPGGame
             { (BlockType.RoomCleared, BlockType.RoomHeader), 1 },  // After room cleared, next room
             { (BlockType.RoomInfo, BlockType.EnemyAppearance), 1 },
             { (BlockType.EnemyAppearance, BlockType.EnemyStats), 1 },
+            { (BlockType.EnemyAppearance, BlockType.CombatAction), 1 }, // First combat after encounter (no stats lines)
             { (BlockType.EnemyStats, BlockType.CombatAction), 1 },  // First combat action
             { (BlockType.HeroStats, BlockType.CombatAction), 1 },   // First combat action (if hero stats shown)
             
@@ -384,6 +386,7 @@ namespace RPGGame
                 (BlockType.RoomHeader, BlockType.RoomInfo),
                 (BlockType.RoomInfo, BlockType.EnemyAppearance),
                 (BlockType.EnemyAppearance, BlockType.EnemyStats),
+                (BlockType.EnemyAppearance, BlockType.CombatAction),
                 (BlockType.EnemyStats, BlockType.HeroStats),
                 (BlockType.HeroStats, BlockType.CombatAction),
                 (BlockType.CombatAction, BlockType.CombatAction), // Consecutive actions

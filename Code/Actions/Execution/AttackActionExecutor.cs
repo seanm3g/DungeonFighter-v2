@@ -1,3 +1,4 @@
+using RPGGame;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
 using RPGGame.UI.ColorSystem;
@@ -70,16 +71,20 @@ namespace RPGGame.Actions.Execution
                     }
                 }
                 
+                // Use same crit rule as ActionExecutionFlow (crit-eval vs threshold; not raw total >= threshold).
+                int critEval = CombatCalculator.GetCritThresholdEvaluationRoll(totalRoll, rollBonus, source.RollPenalty);
+                bool isCriticalHit = critEval >= RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
+                
                 // Format single consolidated damage display for multi-hit attack
                 // Show total damage with hit count indicator
                 // Check if this is a critical miss (natural roll <= 1 is typically critical miss)
                 bool isCriticalMiss = naturalRoll <= 1;
-                var (allDamageText, allRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, totalDamage, totalDamage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, actualHits, isCriticalMiss);
+                var (allDamageText, allRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, totalDamage, totalDamage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, actualHits, isCriticalMiss, isCriticalHit);
                 
                 // Track statistics for total damage
                 if (source is Character character)
                 {
-                    ActionStatisticsTracker.RecordAttackAction(character, totalRoll, naturalRoll, rollBonus, totalDamage, selectedAction, target as Enemy);
+                    ActionStatisticsTracker.RecordAttackAction(character, totalRoll, naturalRoll, rollBonus, totalDamage, selectedAction, target as Enemy, isCriticalHit);
                 }
                 
                 if (target is Character targetCharacter)
@@ -87,8 +92,6 @@ namespace RPGGame.Actions.Execution
                     ActionStatisticsTracker.RecordDamageReceived(targetCharacter, totalDamage);
                 }
                 
-                // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
-                bool isCriticalHit = totalRoll >= RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
                 int effectiveComboThreshold = RollModificationManager.GetThresholdManager().GetComboThreshold(source) - consumedComboThresholdBonus;
                 if (effectiveComboThreshold < 1) effectiveComboThreshold = 1;
                 bool isComboEvent = selectedAction.IsComboAction && totalRoll >= effectiveComboThreshold;
@@ -139,10 +142,13 @@ namespace RPGGame.Actions.Execution
                 {
                 }
                 
+                int critEvalSingle = CombatCalculator.GetCritThresholdEvaluationRoll(totalRoll, rollBonus, source.RollPenalty);
+                bool isCriticalHit = critEvalSingle >= RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
+                
                 // Track statistics
                 if (source is Character character)
                 {
-                    ActionStatisticsTracker.RecordAttackAction(character, totalRoll, naturalRoll, rollBonus, damage, selectedAction, target as Enemy);
+                    ActionStatisticsTracker.RecordAttackAction(character, totalRoll, naturalRoll, rollBonus, damage, selectedAction, target as Enemy, isCriticalHit);
                 }
                 
                 if (target is Character targetCharacter)
@@ -153,13 +159,11 @@ namespace RPGGame.Actions.Execution
                 int effectiveComboThreshold = RollModificationManager.GetThresholdManager().GetComboThreshold(source) - consumedComboThresholdBonus;
                 if (effectiveComboThreshold < 1) effectiveComboThreshold = 1;
                 bool isCombo = selectedAction.IsComboAction && totalRoll >= effectiveComboThreshold;
-                // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
-                bool isCriticalHit = totalRoll >= RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
                 ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, damage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
                 
                 // Check if this is a critical miss (natural roll <= 1 is typically critical miss)
                 bool isCriticalMiss = naturalRoll <= 1;
-                var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, 1, isCriticalMiss);
+                var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, 1, isCriticalMiss, isCriticalHit);
                 
                 // Reset combo when a non-combo (normal) attack completes successfully
                 if (source is Character resetCharacter && !(resetCharacter is Enemy) && !selectedAction.IsComboAction

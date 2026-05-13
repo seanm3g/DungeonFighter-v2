@@ -60,6 +60,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             RegionTravelHandlerTests.RunAllTests();
             Console.WriteLine();
+            TravelRouteColoredTextFormatterTests.RunAllTests();
+            Console.WriteLine();
             DungeonCompletionHandlerTests.RunAllTests();
             Console.WriteLine();
             DeathScreenHandlerTests.RunAllTests();

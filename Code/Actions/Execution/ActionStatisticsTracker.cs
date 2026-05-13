@@ -11,11 +11,10 @@ namespace RPGGame.Actions.Execution
         /// <summary>
         /// Records statistics for a successful attack action
         /// </summary>
-        public static void RecordAttackAction(Character character, int totalRoll, int baseRoll, int rollBonus, int damage, Action selectedAction, Enemy? enemyTarget)
+        public static void RecordAttackAction(Character character, int totalRoll, int baseRoll, int rollBonus, int damage, Action selectedAction, Enemy? enemyTarget, bool isCritical)
         {
             if (character == null) return;
             
-            bool isCritical = totalRoll >= 20;
             bool isCriticalMiss = baseRoll == 1; // Natural 1 only
             
             character.RecordAction(true, isCritical, isCriticalMiss);
