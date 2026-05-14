@@ -18,14 +18,23 @@ namespace RPGGame
             if (character == null)
                 throw new ArgumentNullException(nameof(character));
 
+            // Preserve lifetime progression: gear strip / action rebuild must not alter level or bar XP.
+            int preservedLevel = character.Progression.Level;
+            int preservedXp = character.Progression.XP;
+
             character.Name = GetNextCloneName(character.Name);
             DiscardEquippedGear(character);
 
             character.ClearAllTempEffects();
+            character.ClearDungeonSearchBuffs();
             character.Effects.RerollCharges = character.Equipment.GetTotalRerollCharges();
             character.CurrentHealth = character.GetEffectiveMaxHealth();
             character.ResetCombo();
             CharacterSerializer.RebuildCharacterActions(character, preserveComboSequence: false);
+
+            character.Progression.Level = preservedLevel;
+            character.Progression.XP = preservedXp;
+
             character.ResetSessionStatistics();
 
             DamageCalculator.InvalidateCache(character);

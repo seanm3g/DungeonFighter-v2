@@ -47,6 +47,7 @@ namespace RPGGame.Handlers.Inventory
             
             // Group items by rarity and find rarities with at least 5 items
             var rarityGroups = stateManager.CurrentInventory
+                .Where(item => item != null && item.Type != ItemType.Consumable)
                 .GroupBy(item => item.Rarity ?? "Common")
                 .Where(group => group.Count() >= 5)
                 .OrderBy(group => GetRarityOrder(group.Key))
@@ -104,6 +105,7 @@ namespace RPGGame.Handlers.Inventory
             
             // Get 5 items of the specified rarity
             var itemsToTrade = stateManager.CurrentInventory
+                .Where(item => item != null && item.Type != ItemType.Consumable)
                 .Where(item => (item.Rarity ?? "Common").Equals(rarity, StringComparison.OrdinalIgnoreCase))
                 .Take(5)
                 .ToList();
@@ -161,6 +163,7 @@ namespace RPGGame.Handlers.Inventory
             
             // Get 5 items of the specified rarity
             var itemsToTrade = stateManager.CurrentInventory
+                .Where(item => item != null && item.Type != ItemType.Consumable)
                 .Where(item => (item.Rarity ?? "Common").Equals(rarity, StringComparison.OrdinalIgnoreCase))
                 .Take(5)
                 .ToList();

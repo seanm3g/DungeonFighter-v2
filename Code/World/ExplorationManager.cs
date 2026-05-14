@@ -98,16 +98,16 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Automatically searches room after combat (dice-based)
-        /// 90% chance of nothing, 10% chance of loot
-        /// Last room has 100% loot drop
+        /// Automatically searches room after combat (dice-based).
+        /// On a successful search roll, yields food or a dungeon potion (not equipment).
+        /// Last room still guarantees a consumable find.
         /// </summary>
         public SearchResult SearchRoom(Environment room, Character player, int dungeonLevel, bool isLastRoom = false)
         {
             // Last room: guaranteed loot
             if (isLastRoom)
             {
-                Item? loot = LootGenerator.GenerateLoot(player.Level, dungeonLevel, player, guaranteedLoot: true);
+                Item? loot = RoomSearchConsumableGenerator.Generate(random, player, dungeonLevel);
                 var foundMessages = new[]
                 {
                     $"You thoroughly search the area and discover: {loot?.Name ?? "nothing"}",
@@ -154,7 +154,7 @@ namespace RPGGame
             }
             else
             {
-                Item? loot = LootGenerator.GenerateLoot(player.Level, dungeonLevel, player, guaranteedLoot: false);
+                Item? loot = RoomSearchConsumableGenerator.Generate(random, player, dungeonLevel);
                 var foundMessages = new[]
                 {
                     $"You search the area and find: {loot?.Name ?? "nothing"}",

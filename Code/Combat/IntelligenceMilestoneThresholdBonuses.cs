@@ -51,7 +51,7 @@ namespace RPGGame
 
         /// <summary>
         /// Applies INT milestone deltas to the actor's thresholds.
-        /// Order matches execution: CRIT then COMBO then HIT so cascades are predictable.
+        /// Order: crit adjustments, then combo, then hit (each uses <see cref="ThresholdManager"/> adjust APIs).
         /// </summary>
         public static void Apply(ThresholdManager tm, Character attacker)
         {

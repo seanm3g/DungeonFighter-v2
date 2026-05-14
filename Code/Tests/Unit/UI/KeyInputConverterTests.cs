@@ -57,6 +57,11 @@ namespace RPGGame.Tests.Unit.UI
                 "Numpad minus maps to inventory requirement filter shortcut input",
                 ref run, ref passed, ref failed);
 
+            TestBase.AssertTrue(
+                KeyInputConverter.ConvertKeyToInput(Key.Divide, KeyModifiers.None) == "/",
+                "Numpad divide maps to inventory slot filter cycle shortcut input",
+                ref run, ref passed, ref failed);
+
             Console.WriteLine($"\nKeyInputConverter: {passed}/{run} passed, {failed} failed\n");
         }
     }

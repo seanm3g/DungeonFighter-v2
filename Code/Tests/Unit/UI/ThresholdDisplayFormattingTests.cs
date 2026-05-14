@@ -24,6 +24,9 @@ namespace RPGGame.Tests.Unit.UI
             ExclusiveD20ChancesUseOutcomeBands(ref run, ref passed, ref failed);
             ExclusiveD20ChancesReflectShiftedComboThreshold(ref run, ref passed, ref failed);
             ExclusiveD20MissPercentCompletesHundred(ref run, ref passed, ref failed);
+            ExclusiveD20ChanceRowsUseDisplayOrder(ref run, ref passed, ref failed);
+            ChanceRowsSortDescendingByPercent(ref run, ref passed, ref failed);
+            BuildChancePercentByLabelMapsLabels(ref run, ref passed, ref failed);
             D20ChancePercentFormatsWithinBounds(ref run, ref passed, ref failed);
             ChanceDeltaColorUsesSignedPercentDifference(ref run, ref passed, ref failed);
 
@@ -182,6 +185,60 @@ namespace RPGGame.Tests.Unit.UI
                 critMissMaxRoll: 1);
             int sum = chances.CritPercent + chances.ComboPercent + chances.HitPercent + chances.CritMissPercent + chances.MissPercent;
             TestBase.AssertEqual(100, sum, "crit+combo+hit+crit miss+miss sums to 100%", ref run, ref passed, ref failed);
+        }
+
+        private static void ExclusiveD20ChanceRowsUseDisplayOrder(ref int run, ref int passed, ref int failed)
+        {
+            var chances = ThresholdDisplayFormatting.CalculateExclusiveD20OutcomeChances(
+                critMinRoll: 20,
+                comboMinRoll: 14,
+                hitMinRoll: 6,
+                critMissMaxRoll: 1);
+            var rows = ThresholdDisplayFormatting.GetExclusiveD20ChanceRows(chances);
+
+            TestBase.AssertEqual("Crit", rows[0].Label, "chance row 1 label", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(5, rows[0].Percent, "chance row 1 percent", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Combo", rows[1].Label, "chance row 2 label", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(30, rows[1].Percent, "chance row 2 percent", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Hit", rows[2].Label, "chance row 3 label", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(40, rows[2].Percent, "chance row 3 percent", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Miss", rows[3].Label, "chance row 4 label", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(20, rows[3].Percent, "chance row 4 percent", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Crit Miss", rows[4].Label, "chance row 5 label", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(5, rows[4].Percent, "chance row 5 percent", ref run, ref passed, ref failed);
+        }
+
+        private static void ChanceRowsSortDescendingByPercent(ref int run, ref int passed, ref int failed)
+        {
+            var rows = new[]
+            {
+                new ThresholdDisplayFormatting.D20ChanceDisplayRow("Low", 10),
+                new ThresholdDisplayFormatting.D20ChanceDisplayRow("High", 40),
+                new ThresholdDisplayFormatting.D20ChanceDisplayRow("Mid", 25)
+            };
+            var sorted = ThresholdDisplayFormatting.SortChanceRowsByPercentDescending(rows);
+            TestBase.AssertEqual("High", sorted[0].Label, "sort puts highest percent first", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(40, sorted[0].Percent, "highest percent value", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Mid", sorted[1].Label, "sort middle", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Low", sorted[2].Label, "sort puts lowest last", ref run, ref passed, ref failed);
+
+            var tie = new[]
+            {
+                new ThresholdDisplayFormatting.D20ChanceDisplayRow("Zebra", 15),
+                new ThresholdDisplayFormatting.D20ChanceDisplayRow("Apple", 15)
+            };
+            var tieSorted = ThresholdDisplayFormatting.SortChanceRowsByPercentDescending(tie);
+            TestBase.AssertEqual("Apple", tieSorted[0].Label, "equal percent: alphabetical label order", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Zebra", tieSorted[1].Label, "equal percent: second label", ref run, ref passed, ref failed);
+        }
+
+        private static void BuildChancePercentByLabelMapsLabels(ref int run, ref int passed, ref int failed)
+        {
+            var chances = ThresholdDisplayFormatting.CalculateExclusiveD20OutcomeChances(20, 14, 6, 1);
+            var canonical = ThresholdDisplayFormatting.GetExclusiveD20ChanceRows(chances);
+            var map = ThresholdDisplayFormatting.BuildChancePercentByLabel(canonical);
+            TestBase.AssertTrue(map.TryGetValue("Crit Miss", out int cm) && cm == 5, "Crit Miss label maps", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(map.TryGetValue("Miss", out int m) && m == 20, "Miss label maps", ref run, ref passed, ref failed);
         }
 
         private static void D20ChancePercentFormatsWithinBounds(ref int run, ref int passed, ref int failed)

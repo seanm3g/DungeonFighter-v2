@@ -231,11 +231,12 @@ namespace RPGGame.Tests.Unit
             var attacker = TestDataBuilders.Character().WithName("TestHero").Build();
             var tm = RollModificationManager.GetThresholdManager();
 
-            // CRIT 19→12 cascades COMBO to 12 (when higher threshold goes lower, lower moves with it)
+            // Lowering CRIT does not pull COMBO down — crit uses crit-eval roll, combo uses attack total.
             tm.ResetThresholds(attacker);
+            int comboBaseline = tm.GetComboThreshold(attacker);
             tm.SetCriticalHitThreshold(attacker, 12);
             TestBase.AssertEqual(12, tm.GetCriticalHitThreshold(attacker), "CRIT should be 12", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(12, tm.GetComboThreshold(attacker), "COMBO should cascade to 12 when CRIT goes to 12", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(comboBaseline, tm.GetComboThreshold(attacker), "COMBO should stay at baseline when only CRIT is lowered", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // COMBO 14→4 cascades HIT to 3
             tm.ResetThresholds(attacker);

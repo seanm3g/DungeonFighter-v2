@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
+using RPGGame;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia.Display.Buffer
@@ -12,6 +13,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
     public class BufferStorage
     {
         private readonly List<List<ColoredText>> messages;
+        private readonly List<UIMessageType> lineMessageTypes;
         private readonly int maxLines;
         private readonly int maxLineWidth;
         private readonly MessageValidator validator;
@@ -19,6 +21,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
         public BufferStorage(int maxLines, int maxLineWidth)
         {
             this.messages = new List<List<ColoredText>>();
+            this.lineMessageTypes = new List<UIMessageType>();
             this.maxLines = maxLines;
             this.maxLineWidth = maxLineWidth;
             this.validator = new MessageValidator();
@@ -43,11 +46,11 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
         /// Adds a ColoredText segment list to the buffer (preferred method)
         /// Stores structured data directly to eliminate round-trip conversions
         /// </summary>
-        public void Add(List<ColoredText> segments, ScrollStateManager scrollState)
+        public void Add(List<ColoredText> segments, ScrollStateManager scrollState, UIMessageType messageType = UIMessageType.System)
         {
             if (segments == null || segments.Count == 0)
             {
-                AddEmpty(scrollState);
+                AddEmpty(scrollState, messageType);
                 return;
             }
             
@@ -71,11 +74,13 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             bool wasAtTop = scrollState.WasAtTop();
             
             messages.Add(new List<ColoredText>(segments));
+            lineMessageTypes.Add(messageType);
             
             // Keep only the last maxLines
             if (messages.Count > maxLines)
             {
                 messages.RemoveAt(0);
+                lineMessageTypes.RemoveAt(0);
             }
             
             // Update scroll state with new message count
@@ -85,9 +90,10 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
         /// <summary>
         /// Adds an empty line to the buffer
         /// </summary>
-        private void AddEmpty(ScrollStateManager scrollState)
+        private void AddEmpty(ScrollStateManager scrollState, UIMessageType messageType = UIMessageType.System)
         {
             messages.Add(new List<ColoredText>());
+            lineMessageTypes.Add(messageType);
             
             bool wasAtBottom = scrollState.WasAtBottom();
             bool wasAtTop = scrollState.WasAtTop();
@@ -96,6 +102,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             if (messages.Count > maxLines)
             {
                 messages.RemoveAt(0);
+                lineMessageTypes.RemoveAt(0);
             }
             
             // Update scroll state
@@ -106,7 +113,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
         /// Adds multiple ColoredText segment lists to the buffer (preferred method)
         /// Stores structured data directly
         /// </summary>
-        public void AddRange(IEnumerable<List<ColoredText>> segmentsList, ScrollStateManager scrollState)
+        public void AddRange(IEnumerable<List<ColoredText>> segmentsList, ScrollStateManager scrollState, UIMessageType messageType = UIMessageType.System)
         {
             if (segmentsList == null)
                 return;
@@ -125,6 +132,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                 {
                     // Always allow blank lines - they're used for spacing between sections
                     messages.Add(new List<ColoredText>());
+                    lineMessageTypes.Add(messageType);
                     continue;
                 }
                 
@@ -146,6 +154,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                 }
                 
                 messages.Add(new List<ColoredText>(processedSegments));
+                lineMessageTypes.Add(messageType);
             }
             
             // Keep only the last maxLines (batch removal)
@@ -153,6 +162,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             {
                 int removeCount = messages.Count - maxLines;
                 messages.RemoveRange(0, removeCount);
+                lineMessageTypes.RemoveRange(0, removeCount);
             }
             
             // Update scroll state with new message count
@@ -165,15 +175,25 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
         public void Clear(ScrollStateManager scrollState)
         {
             messages.Clear();
+            lineMessageTypes.Clear();
             scrollState.Reset();
         }
-        
+
         /// <summary>
-        /// Gets the last N messages as structured ColoredText segments
+        /// Gets the last N messages with the <see cref="UIMessageType"/> stored when each line was appended.
         /// </summary>
-        public List<List<ColoredText>> GetLast(int count)
+        public List<(List<ColoredText> Segments, UIMessageType MessageType)> GetLastWithMessageTypes(int count)
         {
-            return messages.TakeLast(count).Select(segments => new List<ColoredText>(segments)).ToList();
+            int n = System.Math.Min(count, messages.Count);
+            if (n <= 0)
+                return new List<(List<ColoredText>, UIMessageType)>();
+
+            var sliceMessages = messages.TakeLast(n).ToList();
+            var sliceTypes = lineMessageTypes.TakeLast(n).ToList();
+            var result = new List<(List<ColoredText>, UIMessageType)>(n);
+            for (int i = 0; i < n; i++)
+                result.Add((new List<ColoredText>(sliceMessages[i]), sliceTypes[i]));
+            return result;
         }
     }
 }

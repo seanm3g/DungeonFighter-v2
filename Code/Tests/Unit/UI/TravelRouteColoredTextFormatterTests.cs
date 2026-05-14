@@ -20,8 +20,6 @@ namespace RPGGame.Tests.Unit.UI
             _testsPassed = 0;
             _testsFailed = 0;
 
-            TestHeaderWithDice();
-            TestHeaderWithoutDice();
             TestTravelStepPlaintext();
             TestOutcomeLabels();
             TestSummaryConcatenation();
@@ -31,29 +29,6 @@ namespace RPGGame.Tests.Unit.UI
 
         private static string Flatten(IReadOnlyList<ColoredText> segments) =>
             string.Concat(segments.Select(s => s.Text));
-
-        private static void TestHeaderWithDice()
-        {
-            var route = new TravelRouteResult
-            {
-                EventCount = 10,
-                EventCountDice = new[] { 3, 3, 3, 1 }
-            };
-            var segs = TravelRouteColoredTextFormatter.FormatEventCountHeader(route);
-            var text = Flatten(segs);
-            TestBase.AssertTrue(text == "Travel events (4d4): 3+3+3+1 = 10",
-                "Header with 4d4 dice matches expected plaintext",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestHeaderWithoutDice()
-        {
-            var route = new TravelRouteResult { EventCount = 7, EventCountDice = System.Array.Empty<int>() };
-            var text = Flatten(TravelRouteColoredTextFormatter.FormatEventCountHeader(route));
-            TestBase.AssertTrue(text == "Travel events: 7",
-                "Header without dice uses compact form",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
 
         private static void TestTravelStepPlaintext()
         {
@@ -66,9 +41,10 @@ namespace RPGGame.Tests.Unit.UI
                 Event = new TravelEvent { Title = "Clear Animal Trail", Narrative = "A game trail cuts cleanly." }
             };
             var text = Flatten(TravelRouteColoredTextFormatter.FormatTravelStep(step));
-            TestBase.AssertTrue(text.Contains("2. ") && text.Contains("d20 19") && text.Contains("Combo") &&
-                                 text.Contains("Clear Animal Trail") && text.Contains("A game trail cuts cleanly."),
-                "Travel step segments concatenate to readable log line",
+            TestBase.AssertTrue(
+                text.Contains("2. Clear Animal Trail - A game trail cuts cleanly.") &&
+                text.Contains("\n     d20 19 Combo (4 min)"),
+                "Travel step: title line then indented roll line",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

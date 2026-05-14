@@ -24,6 +24,7 @@ namespace RPGGame
                 ItemType.Chest => ConvertToChestItem(item),
                 ItemType.Feet => ConvertToFeetItem(item),
                 ItemType.Legs => ConvertToLegsItem(item),
+                ItemType.Consumable => item,
                 _ => item // Return as-is if type is unknown
             };
         }
@@ -168,6 +169,9 @@ namespace RPGGame
             destination.WeaponType = source.WeaponType;
             destination.Level = source.Level;
             destination.Tags = source.Tags;
+            destination.RoomSearchConsumableKind = source.RoomSearchConsumableKind;
+            destination.ConsumableHealAmount = source.ConsumableHealAmount;
+            destination.ConsumablePotionPotency = source.ConsumablePotionPotency;
             destination.AttributeRequirements = source.AttributeRequirements;
             destination.CatalogAttributeRequirements = source.CatalogAttributeRequirements;
         }

@@ -10,41 +10,24 @@ namespace RPGGame.UI.Avalonia.Renderers
     /// </summary>
     public static class TravelRouteColoredTextFormatter
     {
-        public static List<ColoredText> FormatEventCountHeader(TravelRouteResult route)
-        {
-            var builder = new ColoredTextBuilder();
-            if (route.EventCountDice != null && route.EventCountDice.Length > 0)
-            {
-                builder.Add("Travel events (", ColorPalette.Gray);
-                builder.Add("4d4", ColorPalette.Info);
-                builder.Add("): ", ColorPalette.Gray);
-                builder.Add(string.Join("+", route.EventCountDice), ColorPalette.White);
-                builder.Add(" = ", ColorPalette.Gray);
-                builder.Add(route.EventCount.ToString(), ColorPalette.White);
-            }
-            else
-            {
-                builder.Add("Travel events: ", ColorPalette.Gray);
-                builder.Add(route.EventCount.ToString(), ColorPalette.White);
-            }
-
-            return builder.Build();
-        }
+        /// <summary>Indent before travel roll line; matches combat log roll detail lines.</summary>
+        private const string RollLineIndent = "     ";
 
         public static List<ColoredText> FormatTravelStep(TravelStepResult step)
         {
             var builder = new ColoredTextBuilder();
             builder.Add($"{step.StepNumber}. ", ColorPalette.Gray);
+            builder.Add(step.Event.Title ?? "", ColorPalette.White);
+            builder.Add(" - ", ColorPalette.Gray);
+            builder.Add(step.Event.Narrative ?? "", ColorPalette.Gray);
+            builder.Add("\n" + RollLineIndent, ColorPalette.Gray);
             builder.Add("d20 ", ColorPalette.Info);
             builder.Add(step.Roll.ToString(), ColorPalette.White);
             builder.Add(" ", ColorPalette.White);
             builder.Add(FormatOutcomeLabel(step.Outcome), GetOutcomeWordPalette(step.Outcome));
             builder.Add(" (", ColorPalette.Gray);
             builder.Add(TravelPacing.FormatTravelTime(step.TravelMinutes), ColorPalette.White);
-            builder.Add("): ", ColorPalette.Gray);
-            builder.Add(step.Event.Title ?? "", ColorPalette.White);
-            builder.Add(" - ", ColorPalette.Gray);
-            builder.Add(step.Event.Narrative ?? "", ColorPalette.Gray);
+            builder.Add(")", ColorPalette.Gray);
             return builder.Build();
         }
 

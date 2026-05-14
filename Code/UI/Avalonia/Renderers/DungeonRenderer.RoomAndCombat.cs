@@ -34,7 +34,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 var displayManager = canvasTextManager.DisplayManager;
                 var buffer = displayManager.Buffer;
                 var displayRenderer = new DisplayRenderer(textWriter);
-                displayRenderer.Render(buffer, x, y, width, height);
+                displayRenderer.Render(buffer, x, y, width, height, clearContent: true, combatEnemyNameForPrimaryLineRightAlign: enemy?.Name, combatHeroNameForLineAlignment: null);
             }
             else
             {
@@ -64,7 +64,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 var displayManager = canvasTextManager.GetDisplayManagerForCharacter(player);
                 var buffer = displayManager.Buffer;
                 var displayRenderer = new DisplayRenderer(textWriter);
-                displayRenderer.Render(buffer, x, y, width, height);
+                displayRenderer.Render(buffer, x, y, width, height, clearContent: true, combatEnemyNameForPrimaryLineRightAlign: enemy?.Name, combatHeroNameForLineAlignment: player?.Name);
             }
             else
             {
@@ -91,7 +91,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// When player is null, strip is cleared.
         /// </summary>
         /// <param name="drawHoverDetailOverlay">When false, skips the large center tooltip (e.g. character creation narrative occupies the same cells; clearing would erase it).</param>
-        public void RenderActionInfoStrip(Character? player, bool drawHoverDetailOverlay = true)
+        /// <param name="damageLineMode">Intrinsic vs slot-modified damage with combo-slot amp (global toggle; same for all panels).</param>
+        public void RenderActionInfoStrip(Character? player, bool drawHoverDetailOverlay = true, ActionStripDamageLineMode damageLineMode = ActionStripDamageLineMode.EffectiveWithComboAmp)
         {
             int stripX = LayoutConstants.ACTION_INFO_X;
             int stripY = LayoutConstants.ACTION_INFO_Y;
@@ -155,16 +156,15 @@ namespace RPGGame.UI.Avalonia.Renderers
                 foreach (var roleLine in CombatActionStripBuilder.BuildActionStripComboRoleLines(player, action))
                     drawLine(roleLine, AsciiArtAssets.Colors.White);
 
-                // Dmg | Spd on one line (same basis as hover tooltip swing segment)
-                const double damageCmpEps = 0.0001;
-                bool damageDiffers = Math.Abs(info.DamageModified - info.DamageBase) > damageCmpEps;
-                double damageDisplay = damageDiffers ? info.DamageModified : info.DamageBase;
-                double speedDisplay = info.SpeedModified != info.SpeedBase ? info.SpeedModified : info.SpeedBase;
-                bool speedDiffers = info.SpeedModified != info.SpeedBase;
-                var swingLineColor = damageDiffers
-                    ? (info.DamageModified > info.DamageBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
-                    : speedDiffers
-                        ? (info.SpeedModified > info.SpeedBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
+                // Dmg | Spd on one line (matches hover tooltip swing segment for damageLineMode)
+                const double cmpEps = 0.0001;
+                CombatActionStripBuilder.GetStripSwingDisplayPercents(in info, player, action, damageLineMode, out double damageDisplay, out double speedDisplay);
+                bool damageDiffersFromIntrinsic = Math.Abs(damageDisplay - info.DamageBase) > cmpEps;
+                bool speedDiffersFromIntrinsic = Math.Abs(speedDisplay - info.SpeedBase) > cmpEps;
+                var swingLineColor = damageDiffersFromIntrinsic
+                    ? (damageDisplay > info.DamageBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
+                    : speedDiffersFromIntrinsic
+                        ? (speedDisplay > info.SpeedBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
                         : AsciiArtAssets.Colors.White;
                 string swingLine = $"{CombatActionStripBuilder.FormatSwingDamageLine(info.EffectiveMultiHitCount, damageDisplay)} | Spd {speedDisplay:F0}%";
                 drawLine(swingLine, swingLineColor);
@@ -196,14 +196,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
 
             if (drawHoverDetailOverlay)
-                RenderActionStripTooltipOverlay(player, filled, displayCount);
+                RenderActionStripTooltipOverlay(player, filled, displayCount, damageLineMode);
         }
 
         /// <summary>
         /// Draws a text box in the top of the framed center panel when the pointer hovers an action strip card.
         /// Clears a band of the combat log area first so text remains readable.
         /// </summary>
-        private void RenderActionStripTooltipOverlay(Character? player, int filledPanelCount, int displaySlotCount)
+        private void RenderActionStripTooltipOverlay(Character? player, int filledPanelCount, int displaySlotCount, ActionStripDamageLineMode damageLineMode)
         {
             if (player == null)
                 return;
@@ -241,14 +241,14 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     ActionInfoStripLayout.GetPanelRect(hiStrip, displaySlotCount, out int px, out _, out int pw, out _);
                     anchorCenterX = px + pw / 2;
-                    tipLines = CombatActionStripBuilder.BuildActionTooltipLines(player, hiStrip, innerTextW, maxTooltipLines + 2);
+                    tipLines = CombatActionStripBuilder.BuildActionTooltipLines(player, hiStrip, innerTextW, maxTooltipLines + 2, damageLineMode);
                 }
                 else if (rpSeq >= 0)
                 {
                     var combo = player.GetComboActions();
                     if (rpSeq < combo.Count)
                     {
-                        tipLines = CombatActionStripBuilder.BuildActionTooltipLines(player, rpSeq, innerTextW, maxTooltipLines + 2);
+                        tipLines = CombatActionStripBuilder.BuildActionTooltipLines(player, rpSeq, innerTextW, maxTooltipLines + 2, damageLineMode);
                         if (filledPanelCount > 0 && displaySlotCount > 0 && rpSeq < filledPanelCount)
                         {
                             ActionInfoStripLayout.GetPanelRect(rpSeq, displaySlotCount, out int px, out _, out int pw, out _);

@@ -3,12 +3,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using global::Avalonia.Media;
     using RPGGame;
     using RPGGame.Handlers.Inventory;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Renderers.Helpers;
+    using RPGGame.UI.Avalonia.Layout;
+    using RPGGame.UI.ColorSystem;
     using RPGGame.UI.ColorSystem.Applications.ItemFormatting;
+    using RPGGame.UI.ColorSystem.Themes;
     using RPGGame.Items.Helpers;
     using static RPGGame.UI.LeftPanelHoverState;
 
@@ -36,7 +40,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     /// </summary>
     public class InventoryScreenRenderer
     {
-        public const string NumpadShortcutHint = "Numpad +: sort | Numpad -: filter unmet reqs | Numpad *: equip empty slots";
+        public const string NumpadShortcutHint = "Numpad +: sort | Numpad -: filter unmet reqs | Numpad *: equip empty slots | Numpad /: cycle slot filter";
 
         private readonly GameCanvasControl canvas;
         private readonly ColoredTextWriter textWriter;
@@ -104,7 +108,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             string? pendingMutatingInventoryMenuAction = null,
             int itemScrollOffset = 0,
             InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
-            bool hideRequirementBlockedItems = false)
+            bool hideRequirementBlockedItems = false,
+            string? inventoryEquipSlotFilter = null)
         {
             // Do not Clear() the shared clickables list: PersistentLayoutManager already cleared it this frame,
             // and CharacterPanelRenderer registered left-panel lphover targets before this callback. Clearing here
@@ -130,10 +135,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.InventoryItems), AsciiArtAssets.Colors.Gold);
             y += 2;
             currentLineCount += 2;
-            string viewSummary = BuildViewSummary(inventory, character, sortMode, hideRequirementBlockedItems);
-            if (!string.IsNullOrEmpty(viewSummary))
+            var displayEntries = BuildDisplayEntries(inventory, character, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter);
+            var viewSummarySegments = BuildViewSummaryColoredSegments(
+                inventory, character, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter, displayEntries);
+            if (viewSummarySegments.Count > 0)
             {
-                canvas.AddText(x + 2, y, viewSummary, AsciiArtAssets.Colors.DarkGray);
+                textWriter.RenderSegments(viewSummarySegments, x + 2, y);
                 y++;
                 currentLineCount++;
             }
@@ -148,8 +155,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 DisplayText = "Inventory items"
             });
             
-            var displayEntries = BuildDisplayEntries(inventory, character, sortMode, hideRequirementBlockedItems);
-
             if (inventory.Count == 0)
             {
                 canvas.AddText(x + 2, y, "No items in inventory", AsciiArtAssets.Colors.White);
@@ -157,7 +162,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             else if (displayEntries.Count == 0)
             {
-                canvas.AddText(x + 2, y, "No items match the current requirements filter", AsciiArtAssets.Colors.White);
+                string emptyMsg = !string.IsNullOrEmpty(inventoryEquipSlotFilter)
+                    ? "No items in inventory for this equipment slot."
+                    : "No items match the current requirements filter";
+                canvas.AddText(x + 2, y, emptyMsg, AsciiArtAssets.Colors.White);
                 currentLineCount++;
             }
             else
@@ -336,7 +344,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (NumpadShortcutHint.Length <= maxWidth)
                 return NumpadShortcutHint;
 
-            const string compactHint = "+ sort | - filter | * equip empty slots";
+            const string compactHint = "+ sort | - reqs | * equip | / slot";
             if (compactHint.Length <= maxWidth)
                 return compactHint;
 
@@ -350,7 +358,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             IReadOnlyList<Item> inventory,
             Character character,
             InventoryItemSortMode sortMode,
-            bool hideRequirementBlockedItems)
+            bool hideRequirementBlockedItems,
+            string? inventoryEquipSlotFilter = null)
         {
             if (inventory == null)
                 return new List<InventoryDisplayEntry>();
@@ -360,6 +369,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
             if (hideRequirementBlockedItems)
                 entries = entries.Where(entry => entry.Item.MeetsRequirements(character));
+
+            if (!string.IsNullOrEmpty(inventoryEquipSlotFilter))
+            {
+                entries = entries.Where(entry =>
+                    string.Equals(InventoryActionPoolEntries.GetEquipSlotForItem(entry.Item), inventoryEquipSlotFilter, StringComparison.Ordinal));
+            }
 
             var orderedEntries = sortMode switch
             {
@@ -384,12 +399,24 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 .ToList();
         }
 
-        private static string BuildViewSummary(
+        /// <summary>
+        /// One-line inventory view options (sort / filter / bag slot). Sort and filter clauses use a light highlight color when that option is applied (non-default).
+        /// The bag-slot clause uses the rarity color of the equipped item for the active slot filter when possible, otherwise the first bag row after sort/filter; when the slot filter is on but nothing matches, the lime applied color is used.
+        /// </summary>
+        public static List<ColoredText> BuildViewSummaryColoredSegments(
             IReadOnlyList<Item> inventory,
             Character character,
             InventoryItemSortMode sortMode,
-            bool hideRequirementBlockedItems)
+            bool hideRequirementBlockedItems,
+            string? inventoryEquipSlotFilter,
+            IReadOnlyList<InventoryDisplayEntry>? displayEntries = null)
         {
+            Color dim = AsciiArtAssets.Colors.DarkGray;
+            Color appliedHighlight = ColorPalette.Lime.GetColor();
+
+            var entries = displayEntries ?? BuildDisplayEntries(
+                inventory, character, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter);
+
             string sortLabel = sortMode switch
             {
                 InventoryItemSortMode.Rarity => "Rarity",
@@ -406,8 +433,83 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 : 0;
 
             string hiddenText = hiddenCount > 0 ? $" ({hiddenCount} hidden)" : "";
-            return $"Sort: {sortLabel} (+) | Filter: {filterLabel}{hiddenText} (-)";
+
+            string slotSummary = string.IsNullOrEmpty(inventoryEquipSlotFilter)
+                ? "all equip slots"
+                : GetInventoryEquipSlotFilterDisplayName(inventoryEquipSlotFilter) + " only";
+
+            bool sortApplied = sortMode != InventoryItemSortMode.InventoryOrder;
+            bool filterApplied = hideRequirementBlockedItems;
+
+            Color bagClauseColor = ResolveBagSlotSummaryColor(
+                character,
+                inventoryEquipSlotFilter,
+                entries,
+                slotFilterActive: !string.IsNullOrEmpty(inventoryEquipSlotFilter),
+                appliedHighlight,
+                dim);
+
+            return new List<ColoredText>
+            {
+                new ColoredText($"Sort: {sortLabel} (+)", sortApplied ? appliedHighlight : dim),
+                new ColoredText(" | ", dim),
+                new ColoredText($"Filter: {filterLabel}{hiddenText} (-)", filterApplied ? appliedHighlight : dim),
+                new ColoredText(" | ", dim),
+                new ColoredText($"Bag slot: {slotSummary} (/)", bagClauseColor),
+            };
         }
+
+        /// <summary>Rarity color for the item associated with the bag-slot line (equipped piece for the active slot filter, else first bag row after sort/filter).</summary>
+        internal static Color ResolveBagSlotSummaryColor(
+            Character character,
+            string? inventoryEquipSlotFilter,
+            IReadOnlyList<InventoryDisplayEntry> displayEntries,
+            bool slotFilterActive,
+            Color appliedHighlight,
+            Color dim)
+        {
+            Item? assoc = null;
+            if (!string.IsNullOrEmpty(inventoryEquipSlotFilter))
+            {
+                assoc = GetEquippedItemForInventorySlotFilter(character, inventoryEquipSlotFilter);
+                if (assoc == null && displayEntries.Count > 0)
+                    assoc = displayEntries[0].Item;
+            }
+            else if (displayEntries.Count > 0)
+            {
+                assoc = displayEntries[0].Item;
+            }
+
+            if (assoc != null)
+            {
+                return ItemRendererHelper.IsEquipBlockedForCharacter(assoc, character)
+                    ? AsciiArtAssets.Colors.Red
+                    : ItemThemeProvider.GetRarityColor(assoc.Rarity?.Trim() ?? "Common");
+            }
+
+            return slotFilterActive ? appliedHighlight : dim;
+        }
+
+        private static Item? GetEquippedItemForInventorySlotFilter(Character character, string slotKey) => slotKey switch
+        {
+            "weapon" => character.Weapon,
+            "head" => character.Head,
+            "body" => character.Body,
+            "legs" => character.Legs,
+            "feet" => character.Feet,
+            _ => null
+        };
+
+        /// <summary>Short label for inventory slot-only filter (matches equip menu wording).</summary>
+        public static string GetInventoryEquipSlotFilterDisplayName(string equipSlotKey) => equipSlotKey switch
+        {
+            "weapon" => "Weapon",
+            "head" => "Head",
+            "body" => "Body",
+            "legs" => "Legs",
+            "feet" => "Feet",
+            _ => equipSlotKey
+        };
 
         private static int GetRaritySortRank(string? rarity)
         {
@@ -435,7 +537,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 ItemType.Chest => 2,
                 ItemType.Legs => 3,
                 ItemType.Feet => 4,
-                _ => 5
+                ItemType.Consumable => 5,
+                _ => 99
             };
         }
 

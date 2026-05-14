@@ -8,13 +8,13 @@ namespace RPGGame.UI.Avalonia.Renderers
 {
     public partial class CanvasRenderer
     {
-        public void RenderInventory(Character character, List<Item> inventory, CanvasContext context, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0, InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder, bool hideRequirementBlockedItems = false)
+        public void RenderInventory(Character character, List<Item> inventory, CanvasContext context, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0, InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder, bool hideRequirementBlockedItems = false, string? inventoryEquipSlotFilter = null)
         {
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                inventoryRenderer.RenderInventory(contentX, contentY, contentWidth, contentHeight, character, inventory, pendingMutatingInventoryMenuAction, itemScrollOffset, sortMode, hideRequirementBlockedItems);
+                inventoryRenderer.RenderInventory(contentX, contentY, contentWidth, contentHeight, character, inventory, pendingMutatingInventoryMenuAction, itemScrollOffset, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter);
             }, context, null, null, null, clearCanvas: true, inventoryComboRightPanel: true);
-            dungeonRenderer.RenderActionInfoStrip(character);
+            dungeonRenderer.RenderActionInfoStrip(character, damageLineMode: ResolveActionStripDamageLineMode(character));
             canvas.Refresh();
         }
 
@@ -25,7 +25,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             string actionType,
             CanvasContext context,
             InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
-            bool hideRequirementBlockedItems = false)
+            bool hideRequirementBlockedItems = false,
+            string? inventoryEquipSlotFilter = null)
         {
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
@@ -39,9 +40,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                     promptMessage,
                     actionType,
                     sortMode,
-                    hideRequirementBlockedItems);
+                    hideRequirementBlockedItems,
+                    inventoryEquipSlotFilter);
             }, context, null, null, null, inventoryComboRightPanel: true);
-            dungeonRenderer.RenderActionInfoStrip(character);
+            dungeonRenderer.RenderActionInfoStrip(character, damageLineMode: ResolveActionStripDamageLineMode(character));
             canvas.Refresh();
         }
 
@@ -51,7 +53,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 inventoryRenderer.RenderSlotSelectionPrompt(contentX, contentY, contentWidth, contentHeight, character);
             }, context, null, null, null, inventoryComboRightPanel: true);
-            dungeonRenderer.RenderActionInfoStrip(character);
+            dungeonRenderer.RenderActionInfoStrip(character, damageLineMode: ResolveActionStripDamageLineMode(character));
             canvas.Refresh();
         }
 
@@ -61,7 +63,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 inventoryRenderer.RenderRaritySelectionPrompt(contentX, contentY, contentWidth, contentHeight, character, rarityGroups);
             }, context, null, null, null, inventoryComboRightPanel: true);
-            dungeonRenderer.RenderActionInfoStrip(character);
+            dungeonRenderer.RenderActionInfoStrip(character, damageLineMode: ResolveActionStripDamageLineMode(character));
             canvas.Refresh();
         }
 
@@ -71,7 +73,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 inventoryRenderer.RenderTradeUpPreview(contentX, contentY, contentWidth, contentHeight, character, itemsToTrade, resultingItem, currentRarity, nextRarity);
             }, context, null, null, null, inventoryComboRightPanel: true);
-            dungeonRenderer.RenderActionInfoStrip(character);
+            dungeonRenderer.RenderActionInfoStrip(character, damageLineMode: ResolveActionStripDamageLineMode(character));
             canvas.Refresh();
         }
 
@@ -81,7 +83,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 inventoryRenderer.RenderItemComparison(contentX, contentY, contentWidth, contentHeight, character, newItem, currentItem, slot, newItemInventoryIndex);
             }, context, null, null, null, inventoryComboRightPanel: true);
-            dungeonRenderer.RenderActionInfoStrip(character);
+            dungeonRenderer.RenderActionInfoStrip(character, damageLineMode: ResolveActionStripDamageLineMode(character));
             canvas.Refresh();
         }
 
@@ -91,7 +93,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 inventoryRenderer.RenderComboManagement(contentX, contentY, contentWidth, contentHeight, character);
             }, context, null, null, null, inventoryComboRightPanel: true);
-            dungeonRenderer.RenderActionInfoStrip(character);
+            dungeonRenderer.RenderActionInfoStrip(character, damageLineMode: ResolveActionStripDamageLineMode(character));
             canvas.Refresh();
         }
 
@@ -101,7 +103,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 inventoryRenderer.RenderComboActionSelection(contentX, contentY, contentWidth, contentHeight, character, actionType);
             }, context, null, null, null, inventoryComboRightPanel: true);
-            dungeonRenderer.RenderActionInfoStrip(character);
+            dungeonRenderer.RenderActionInfoStrip(character, damageLineMode: ResolveActionStripDamageLineMode(character));
             canvas.Refresh();
         }
 
@@ -111,7 +113,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 inventoryRenderer.RenderComboReorderPrompt(contentX, contentY, contentWidth, contentHeight, character, currentSequence);
             }, context, null, null, null, inventoryComboRightPanel: true);
-            dungeonRenderer.RenderActionInfoStrip(character);
+            dungeonRenderer.RenderActionInfoStrip(character, damageLineMode: ResolveActionStripDamageLineMode(character));
             canvas.Refresh();
         }
     }

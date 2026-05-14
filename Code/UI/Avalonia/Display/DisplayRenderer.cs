@@ -34,10 +34,12 @@ namespace RPGGame.UI.Avalonia.Display
         /// <param name="contentWidth">Width of content area</param>
         /// <param name="contentHeight">Height of content area</param>
         /// <param name="clearContent">Whether to clear the content area before rendering. Defaults to true.</param>
-        public void Render(DisplayBuffer buffer, int contentX, int contentY, int contentWidth, int contentHeight, bool clearContent = true)
+        /// <param name="combatEnemyNameForPrimaryLineRightAlign">Active enemy display name: that actor's primary lines and following indented roll/stat lines are right-justified until a hero primary line or other non-indented line breaks the block.</param>
+        /// <param name="combatHeroNameForLineAlignment">Hero display name (optional but recommended): primary lines starting with this name end the enemy continuation block and stay left-aligned.</param>
+        public void Render(DisplayBuffer buffer, int contentX, int contentY, int contentWidth, int contentHeight, bool clearContent = true, string? combatEnemyNameForPrimaryLineRightAlign = null, string? combatHeroNameForLineAlignment = null)
         {
-            var linesToRender = buffer.GetLast(buffer.MaxLines);
-            if (linesToRender.Count == 0)
+            var rows = buffer.GetLast(buffer.MaxLines);
+            if (rows.Count == 0)
             {
                 // Even if no content, clear the area to remove old text
                 if (clearContent)
@@ -47,8 +49,17 @@ namespace RPGGame.UI.Avalonia.Display
                 }
                 return;
             }
+
+            var linesToRender = rows.ConvertAll(r => r.Segments);
+            var messageTypes = rows.ConvertAll(r => r.MessageType);
             
             int availableWidth = contentWidth - 2;
+
+            bool[]? rightAlignPerRow = null;
+            if (!string.IsNullOrEmpty(combatEnemyNameForPrimaryLineRightAlign) || !string.IsNullOrEmpty(combatHeroNameForLineAlignment))
+                rightAlignPerRow = CombatCenterPanelEnemyLineAlignment.ResolveRightAlignFlags(linesToRender, combatEnemyNameForPrimaryLineRightAlign, combatHeroNameForLineAlignment);
+
+            bool[] centerAlignPerRow = CombatCenterPanelContentAlignment.ResolveCenterAlignFlags(linesToRender, messageTypes);
             
             // Calculate total height needed for all lines (accounting for text wrapping)
             int totalHeight = 0;
@@ -119,8 +130,14 @@ namespace RPGGame.UI.Avalonia.Display
                     // Check if this is the dungeon name line and apply animation
                     var animatedSegments = ApplyDungeonNameAnimation(segments, renderX, renderY);
                     
-                    // Ensure we're using exact coordinates, not calculated positions
-                    int linesRendered = textWriter.WriteLineColoredWrapped(animatedSegments, renderX, renderY, availableWidth);
+                    bool rightAlign = rightAlignPerRow != null && rightAlignPerRow[i];
+                    ColoredLineAlignment lineAlignment = ColoredLineAlignment.Left;
+                    if (centerAlignPerRow[i])
+                        lineAlignment = ColoredLineAlignment.Center;
+                    else if (rightAlign)
+                        lineAlignment = ColoredLineAlignment.Right;
+
+                    int linesRendered = textWriter.WriteLineColoredWrapped(animatedSegments, renderX, renderY, availableWidth, lineAlignment);
                     
                     // Only advance y if we actually rendered something
                     if (linesRendered > 0)
@@ -200,17 +217,17 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public int CalculateMaxScrollOffset(DisplayBuffer buffer, int contentWidth, int contentHeight)
         {
-            var linesToRender = buffer.GetLast(buffer.MaxLines);
-            if (linesToRender.Count == 0)
+            var rows = buffer.GetLast(buffer.MaxLines);
+            if (rows.Count == 0)
                 return 0;
             
             int availableWidth = contentWidth - 2;
             
             // Calculate total height needed for all lines (accounting for text wrapping)
             int totalHeight = 0;
-            foreach (var segments in linesToRender)
+            foreach (var row in rows)
             {
-                int linesNeeded = CalculateWrappedLineCount(segments, availableWidth);
+                int linesNeeded = CalculateWrappedLineCount(row.Segments, availableWidth);
                 totalHeight += linesNeeded;
             }
             

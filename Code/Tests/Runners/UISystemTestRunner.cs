@@ -70,6 +70,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             CombatLogCopyInputTests.RunAllTests();
             Console.WriteLine();
+            CanvasElementManagerSnapshotTests.RunAllTests();
+            Console.WriteLine();
             RightPanelContentTextTests.RunAllTests();
             Console.WriteLine();
             LayoutCharacterResolutionTests.RunAllTests();
@@ -87,6 +89,8 @@ namespace RPGGame.Tests.Runners
             CanvasPrimitiveStackingTests.RunAllTests();
             Console.WriteLine();
             StatsPanelStateManagerTests.RunAllTests();
+            Console.WriteLine();
+            PrimaryStatRowHighlightColorsTests.RunAllTests();
             Console.WriteLine();
             ComboReordererMoveTests.RunAllTests();
             Console.WriteLine();
@@ -171,6 +175,12 @@ namespace RPGGame.Tests.Runners
             KeywordColorSystemTests.RunAllTests();
             Console.WriteLine();
             DisplayRendererTests.RunAllTests();
+            Console.WriteLine();
+            CombatCenterPanelEnemyLineAlignmentTests.RunAllTests();
+            Console.WriteLine();
+            CombatCenterPanelContentAlignmentTests.RunAllTests();
+            Console.WriteLine();
+            CanvasContextCombatLogAlignmentTests.RunAllTests();
             Console.WriteLine();
             DisplayTimingTests.RunAllTests();
             Console.WriteLine();

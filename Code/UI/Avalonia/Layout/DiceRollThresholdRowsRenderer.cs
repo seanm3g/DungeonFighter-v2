@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using RPGGame;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
@@ -6,7 +8,7 @@ using RPGGame.UI.Avalonia;
 namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
-    /// Renders dice roll threshold rows (Crit, Combo, Hit, Crit Miss; in chance mode also Miss so percents sum to 100%) for any <see cref="Actor"/>.
+    /// Renders dice roll threshold rows (Crit, Combo, Hit, Crit Miss; in chance mode percents sorted high→low) for any <see cref="Actor"/>.
     /// Used by the left panel (player hero) and the right panel (active enemy).
     /// </summary>
     public static class DiceRollThresholdRowsRenderer
@@ -15,11 +17,27 @@ namespace RPGGame.UI.Avalonia.Layout
         private const int ThresholdLabelWidth = 11;
 
         /// <summary>
-        /// Draws four threshold rows starting at <paramref name="y"/>.
+        /// Draws threshold ladder rows (enemy / default path).
         /// </summary>
         /// <returns>Y coordinate immediately below the last row.</returns>
-        public static int RenderRows(GameCanvasControl canvas, int x, int y, Actor actor, bool showChances = false)
+        public static int RenderRows(GameCanvasControl canvas, int x, int y, Actor actor) =>
+            RenderRows(canvas, x, y, actor, false, false, out _);
+
+        /// <summary>
+        /// Draws four threshold rows or five CHANCES rows starting at <paramref name="y"/>.
+        /// </summary>
+        /// <param name="chanceHoverOrder">When <paramref name="showChances"/> is true, rows in on-screen order (for hover ids).</param>
+        /// <returns>Y coordinate immediately below the last row.</returns>
+        public static int RenderRows(
+            GameCanvasControl canvas,
+            int x,
+            int y,
+            Actor actor,
+            bool showChances,
+            bool chancesFlashHighlight,
+            out ThresholdDisplayFormatting.D20ChanceDisplayRow[]? chanceHoverOrder)
         {
+            chanceHoverOrder = null;
             var tm = RollModificationManager.GetThresholdManager();
             var config = GameConfiguration.Instance;
             int hit = tm.GetHitThreshold(actor);
@@ -86,6 +104,17 @@ namespace RPGGame.UI.Avalonia.Layout
             void RenderChanceRow(int rowY, string labelName, int percent, int defaultPercent)
             {
                 string labelPart = $"{labelName}:".PadRight(ThresholdLabelWidth);
+                if (chancesFlashHighlight)
+                {
+                    canvas.AddText(x, rowY, labelPart, AsciiArtAssets.Colors.Gold);
+                    canvas.AddText(
+                        x + ThresholdLabelWidth,
+                        rowY,
+                        ThresholdDisplayFormatting.FormatD20ChancePercent(percent),
+                        AsciiArtAssets.Colors.Gold);
+                    return;
+                }
+
                 canvas.AddText(x, rowY, labelPart, AsciiArtAssets.Colors.Cyan);
                 var valueColor = ThresholdDisplayFormatting.GetChanceDeltaColor(percent, defaultPercent);
                 canvas.AddText(x + ThresholdLabelWidth, rowY, ThresholdDisplayFormatting.FormatD20ChancePercent(percent), valueColor);
@@ -111,11 +140,16 @@ namespace RPGGame.UI.Avalonia.Layout
                     defaultCombo,
                     defaultMinRollToHit,
                     DefaultCritMiss);
-                RenderChanceRow(cy++, "Crit", chances.CritPercent, defaultChances.CritPercent);
-                RenderChanceRow(cy++, "Combo", chances.ComboPercent, defaultChances.ComboPercent);
-                RenderChanceRow(cy++, "Hit", chances.HitPercent, defaultChances.HitPercent);
-                RenderChanceRow(cy++, "Crit Miss", chances.CritMissPercent, defaultChances.CritMissPercent);
-                RenderChanceRow(cy++, "Miss", chances.MissPercent, defaultChances.MissPercent);
+                var canonicalRows = ThresholdDisplayFormatting.GetExclusiveD20ChanceRows(chances);
+                var defaultCanonical = ThresholdDisplayFormatting.GetExclusiveD20ChanceRows(defaultChances);
+                var defaultByLabel = ThresholdDisplayFormatting.BuildChancePercentByLabel(defaultCanonical);
+                var chanceRows = ThresholdDisplayFormatting.SortChanceRowsByPercentDescending(canonicalRows);
+                chanceHoverOrder = chanceRows;
+                for (int i = 0; i < chanceRows.Length; i++)
+                {
+                    defaultByLabel.TryGetValue(chanceRows[i].Label, out int defaultPct);
+                    RenderChanceRow(cy++, chanceRows[i].Label, chanceRows[i].Percent, defaultPct);
+                }
             }
             else
             {

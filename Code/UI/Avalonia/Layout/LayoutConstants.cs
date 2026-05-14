@@ -136,6 +136,21 @@ namespace RPGGame.UI.Avalonia.Layout
         }
 
         /// <summary>
+        /// Same region as <see cref="ContainsCenterPanelContent"/> using pointer coordinates in GameCanvas pixel space.
+        /// Used when grid rounding misaligns with the logical layout (e.g. letterboxing / hit surface routing).
+        /// </summary>
+        public static bool ContainsCenterPanelPixelHit(double localX, double localY, double charWidth, double charHeight)
+        {
+            if (charWidth <= 0 || charHeight <= 0)
+                return false;
+            double left = CENTER_PANEL_X * charWidth;
+            double top = CENTER_PANEL_Y * charHeight;
+            double right = left + CENTER_PANEL_WIDTH * charWidth;
+            double bottom = top + CENTER_PANEL_HEIGHT * charHeight;
+            return localX >= left && localX < right && localY >= top && localY < bottom;
+        }
+
+        /// <summary>
         /// Full usable content area when the three-panel chrome (left / center frame / right) is hidden.
         /// Spans full grid height including the row band normally reserved for the action-info strip.
         /// </summary>

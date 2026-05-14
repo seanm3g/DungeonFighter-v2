@@ -161,7 +161,7 @@ namespace RPGGame.UI.BlockDisplay
         /// <summary>
         /// Standard indentation for action block subsequent lines (roll info, effects, etc.)
         /// </summary>
-        private const string ACTION_BLOCK_INDENT = "     "; // 5 spaces
+        public const string ActionBlockSubsequentIndent = "     "; // 5 spaces
         
         /// <summary>
         /// Processes status effect indentation:
@@ -185,8 +185,8 @@ namespace RPGGame.UI.BlockDisplay
                 
                 // All status effects should be indented (they are subsequent lines in action blocks)
                 // Check if already has 5-space indentation
-                bool hasIndentation = firstText.StartsWith(ACTION_BLOCK_INDENT) || 
-                                     (firstText == ACTION_BLOCK_INDENT && result.Count > 0);
+                bool hasIndentation = firstText.StartsWith(ActionBlockSubsequentIndent) || 
+                                     (firstText == ActionBlockSubsequentIndent && result.Count > 0);
                 
                 if (!hasIndentation)
                 {
@@ -197,7 +197,7 @@ namespace RPGGame.UI.BlockDisplay
                         if (firstText == "    " && result.Count > 1)
                         {
                             // Replace the 4-space segment with 5-space
-                            result[0] = new ColoredText(ACTION_BLOCK_INDENT, Colors.White);
+                            result[0] = new ColoredText(ActionBlockSubsequentIndent, Colors.White);
                         }
                         else if (firstText.StartsWith("    "))
                         {
@@ -208,7 +208,7 @@ namespace RPGGame.UI.BlockDisplay
                     else
                     {
                         // Add 5-space indentation at the beginning
-                        result.Insert(0, new ColoredText(ACTION_BLOCK_INDENT, Colors.White));
+                        result.Insert(0, new ColoredText(ActionBlockSubsequentIndent, Colors.White));
                     }
                 }
             }

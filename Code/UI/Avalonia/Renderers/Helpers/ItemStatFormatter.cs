@@ -17,6 +17,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         public static List<string> GetItemStats(Item item, Character character)
         {
             var stats = new List<string>();
+            if (item == null)
+                return stats;
+
+            if (item.Type == ItemType.Consumable && item.RoomSearchConsumableKind != RoomSearchConsumableKind.None)
+            {
+                if (item.RoomSearchConsumableKind == RoomSearchConsumableKind.Food)
+                    stats.Add($"Eat: restores up to {Math.Max(1, item.ConsumableHealAmount)} health.");
+                else
+                    stats.Add($"Drink: dungeon buff (+{Math.Max(1, item.ConsumablePotionPotency)}).");
+                return stats;
+            }
             
             if (item is WeaponItem weapon)
             {

@@ -220,6 +220,7 @@ namespace RPGGame
                 ItemType.Legs => "Legs",
                 ItemType.Feet => "Feet",
                 ItemType.Weapon => "Weapon",
+                ItemType.Consumable => "Chest",
                 _ => "Chest"
             };
 

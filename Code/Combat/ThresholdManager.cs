@@ -5,12 +5,11 @@ using RPGGame;
 namespace RPGGame.Combat
 {
     /// <summary>
-    /// Manages dynamic threshold adjustment for combat rolls
+    /// Manages dynamic threshold adjustment for combat rolls.
     /// Allows actions to modify critical hit, combo, and hit thresholds.
-    /// Hierarchy (highest to lowest): CRIT &gt; COMBO &gt; HIT &gt; MISS &gt; CRIT MISS.
-    /// When a higher threshold is modified to go lower, the next lower threshold cascades with it.
-    /// Example: CRIT 19→12 cascades COMBO to 12; COMBO 14→4 cascades HIT to 3.
-    /// When two thresholds share the same value, the higher category is triggered.
+    /// Crit uses crit-eval roll; combo uses full attack roll — they are stored independently so a lowered
+    /// crit threshold does not force the combo threshold down (you can crit without meeting combo).
+    /// COMBO and HIT still cascade: lowering COMBO pulls HIT to at most COMBO - 1; HIT caps CRIT_MISS.
     /// </summary>
     public class ThresholdManager
     {
@@ -133,30 +132,13 @@ namespace RPGGame.Combat
         }
 
         /// <summary>
-        /// Sets the critical hit threshold for an actor.
-        /// Cascades: if new CRIT is lower than COMBO, COMBO moves down to match; then HIT cascades if needed.
+        /// Sets the critical hit threshold for an actor (crit-eval roll vs this value).
+        /// Does not change combo threshold — combo is evaluated on attack total separately.
         /// </summary>
         public void SetCriticalHitThreshold(Actor actor, int threshold)
         {
             var mod = GetOrCreateModifiers(actor);
             mod.CriticalHitThreshold = threshold;
-            // Cascade: COMBO cannot exceed CRIT; when CRIT goes lower, COMBO moves with it
-            int combo = GetComboThreshold(actor);
-            if (combo > threshold)
-            {
-                mod.ComboThreshold = threshold;
-                // Cascade HIT: must be &lt; COMBO
-                int hit = GetHitThreshold(actor);
-                int newHit = Math.Max(0, threshold - 1);
-                if (hit > newHit)
-                {
-                    mod.HitThreshold = newHit;
-                    // Cascade CRIT_MISS: cannot exceed HIT
-                    int critMiss = GetCriticalMissThreshold(actor);
-                    if (critMiss > newHit)
-                        mod.CriticalMissThreshold = newHit;
-                }
-            }
         }
 
         /// <summary>
@@ -171,14 +153,14 @@ namespace RPGGame.Combat
         }
 
         /// <summary>
-        /// Sets the combo threshold for an actor.
-        /// Cascades: COMBO is capped by CRIT; when COMBO goes lower, HIT moves to COMBO - 1.
+        /// Sets the combo threshold for an actor (attack roll vs this value).
+        /// Not capped by crit threshold — crit and combo use different roll totals.
+        /// When COMBO goes lower, HIT moves to at most COMBO - 1.
         /// </summary>
         public void SetComboThreshold(Actor actor, int threshold)
         {
             var mod = GetOrCreateModifiers(actor);
-            int crit = GetCriticalHitThreshold(actor);
-            mod.ComboThreshold = Math.Min(threshold, crit);
+            mod.ComboThreshold = threshold;
             // Cascade: when COMBO goes lower, HIT moves with it (HIT = COMBO - 1)
             int newHit = Math.Max(0, mod.ComboThreshold.Value - 1);
             int hit = GetHitThreshold(actor);

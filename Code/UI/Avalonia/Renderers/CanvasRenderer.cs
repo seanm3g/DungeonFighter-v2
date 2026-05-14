@@ -114,7 +114,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void RefreshActionInfoStripOnly(Character? player, bool drawHoverDetailOverlay = true)
         {
-            dungeonRenderer.RenderActionInfoStrip(player, drawHoverDetailOverlay);
+            dungeonRenderer.RenderActionInfoStrip(player, drawHoverDetailOverlay, ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
         }
 
@@ -142,6 +142,16 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (player == null || textManager is not CanvasTextManager ctm)
                 return;
             ctm.SwitchToCharacterDisplayManager(player);
+        }
+
+        /// <summary>
+        /// Per-character display manager holds strip intrinsic vs amped toggle (same for all strip panels).
+        /// </summary>
+        private ActionStripDamageLineMode ResolveActionStripDamageLineMode(Character? stripPlayer)
+        {
+            if (textManager is not CanvasTextManager ctm)
+                return ActionStripDamageLineMode.EffectiveWithComboAmp;
+            return ctm.GetDisplayManagerForCharacter(stripPlayer).StatsPanelStateManager.ActionStripDamageLineMode;
         }
 
         private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas = true, bool usePersistentChrome = true, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false)

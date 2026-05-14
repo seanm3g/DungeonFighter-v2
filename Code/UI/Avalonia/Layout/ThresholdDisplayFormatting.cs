@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.UI.Avalonia;
 
@@ -29,6 +30,18 @@ namespace RPGGame.UI.Avalonia.Layout
             /// d20 faces that are not crit, combo, normal hit, or crit miss (plain miss band between crit miss and hit).
             /// </summary>
             public int MissPercent => Math.Clamp(100 - CritPercent - ComboPercent - HitPercent - CritMissPercent, 0, 100);
+        }
+
+        public readonly struct D20ChanceDisplayRow
+        {
+            public D20ChanceDisplayRow(string label, int percent)
+            {
+                Label = label;
+                Percent = percent;
+            }
+
+            public string Label { get; }
+            public int Percent { get; }
         }
 
         public static Color GetValueColor(int current, int defaultValue)
@@ -96,6 +109,42 @@ namespace RPGGame.UI.Avalonia.Layout
         }
 
         public static string FormatD20ChancePercent(int percent) => $"{Math.Clamp(percent, 0, 100)}%";
+
+        /// <summary>
+        /// Canonical row order for CHANCES data (Crit → Combo → Hit → Miss → Crit Miss). The HUD sorts by percent for display.
+        /// </summary>
+        public static D20ChanceDisplayRow[] GetExclusiveD20ChanceRows(ExclusiveD20OutcomeChances chances) =>
+            new[]
+            {
+                new D20ChanceDisplayRow("Crit", chances.CritPercent),
+                new D20ChanceDisplayRow("Combo", chances.ComboPercent),
+                new D20ChanceDisplayRow("Hit", chances.HitPercent),
+                new D20ChanceDisplayRow("Miss", chances.MissPercent),
+                new D20ChanceDisplayRow("Crit Miss", chances.CritMissPercent)
+            };
+
+        /// <summary>
+        /// CHANCES panel display order: highest percent first; ties break by label for stable layout and hover rows.
+        /// </summary>
+        public static D20ChanceDisplayRow[] SortChanceRowsByPercentDescending(D20ChanceDisplayRow[] rows)
+        {
+            var copy = (D20ChanceDisplayRow[])rows.Clone();
+            Array.Sort(copy, (a, b) =>
+            {
+                int c = b.Percent.CompareTo(a.Percent);
+                return c != 0 ? c : string.CompareOrdinal(a.Label, b.Label);
+            });
+            return copy;
+        }
+
+        /// <summary>Maps default-scenario percents by row label for delta coloring when display order is sorted.</summary>
+        public static Dictionary<string, int> BuildChancePercentByLabel(D20ChanceDisplayRow[] canonicalDefaultRows)
+        {
+            var d = new Dictionary<string, int>(canonicalDefaultRows.Length);
+            for (int i = 0; i < canonicalDefaultRows.Length; i++)
+                d[canonicalDefaultRows[i].Label] = canonicalDefaultRows[i].Percent;
+            return d;
+        }
 
         /// <summary>
         /// Color for percent chance rows when toggled from ladder thresholds.

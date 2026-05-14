@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
+using RPGGame;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Avalonia.Display.Buffer;
 using RPGGame.Utils;
@@ -63,37 +64,37 @@ namespace RPGGame.UI.Avalonia.Display
         /// Adds a ColoredText segment list to the buffer (preferred method)
         /// Stores structured data directly to eliminate round-trip conversions
         /// </summary>
-        public void Add(List<ColoredText> segments)
+        public void Add(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
         {
             scrollManager.UpdateBufferCount(storage.Count);
-            storage.Add(segments, scrollManager);
+            storage.Add(segments, scrollManager, messageType);
         }
         
         /// <summary>
         /// Adds a message to the buffer (string version - parses to ColoredText for storage)
         /// </summary>
-        public void Add(string message)
+        public void Add(string message, UIMessageType messageType = UIMessageType.System)
         {
             if (string.IsNullOrEmpty(message))
             {
                 scrollManager.UpdateBufferCount(storage.Count);
-                storage.Add(new List<ColoredText>(), scrollManager);
+                storage.Add(new List<ColoredText>(), scrollManager, messageType);
                 return;
             }
             
             // Parse string to ColoredText segments for structured storage
             var segments = ColoredTextParser.Parse(message);
-            Add(segments);
+            Add(segments, messageType);
         }
         
         /// <summary>
         /// Adds multiple ColoredText segment lists to the buffer (preferred method)
         /// Stores structured data directly
         /// </summary>
-        public void AddRange(IEnumerable<List<ColoredText>> segmentsList)
+        public void AddRange(IEnumerable<List<ColoredText>> segmentsList, UIMessageType messageType = UIMessageType.System)
         {
             scrollManager.UpdateBufferCount(storage.Count);
-            storage.AddRange(segmentsList, scrollManager);
+            storage.AddRange(segmentsList, scrollManager, messageType);
         }
         
         /// <summary>
@@ -124,11 +125,11 @@ namespace RPGGame.UI.Avalonia.Display
         }
         
         /// <summary>
-        /// Gets the last N messages as structured ColoredText segments
+        /// Gets the last N messages as structured ColoredText segments with the message type used when each line was stored.
         /// </summary>
-        public List<List<ColoredText>> GetLast(int count)
+        public List<(List<ColoredText> Segments, UIMessageType MessageType)> GetLast(int count)
         {
-            return storage.GetLast(count);
+            return storage.GetLastWithMessageTypes(count);
         }
         
         /// <summary>

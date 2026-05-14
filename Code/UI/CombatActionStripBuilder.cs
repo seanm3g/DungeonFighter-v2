@@ -5,6 +5,7 @@ using System.Linq;
 using RPGGame.Actions.RollModification;
 using RPGGame.Data;
 using RPGGame.Items.Helpers;
+using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame
 {
@@ -47,6 +48,30 @@ namespace RPGGame
     /// </summary>
     public static class CombatActionStripBuilder
     {
+        /// <summary>
+        /// Resolves damage % and speed % shown on strip cards and matching hover swing line for <paramref name="mode"/>.
+        /// Effective mode: damage is slot-modified % × combo amplification for the action's strip index (see combat raw damage pipeline).
+        /// </summary>
+        public static void GetStripSwingDisplayPercents(
+            in ActionPanelInfo info,
+            Character character,
+            Action action,
+            ActionStripDamageLineMode mode,
+            out double damagePercentForDisplay,
+            out double speedPercentForDisplay)
+        {
+            if (mode == ActionStripDamageLineMode.BaseIntrinsic)
+            {
+                damagePercentForDisplay = info.DamageBase;
+                speedPercentForDisplay = info.SpeedBase;
+                return;
+            }
+
+            double amp = ActionUtilities.CalculateDamageMultiplier(character, action);
+            damagePercentForDisplay = info.DamageModified * amp;
+            speedPercentForDisplay = info.SpeedModified;
+        }
+
         /// <summary>
         /// Builds per-action panel data for the action strip (one panel per combo action, left to right).
         /// Used to render individual panels with selection highlight. Selected index is character.ComboStep % count.
@@ -293,7 +318,7 @@ namespace RPGGame
         /// Swing line for tooltips: same effective Dmg/Spd percentages as the action strip cards
         /// (<see cref="BuildPanelData"/> when <paramref name="panelIndex"/> is a valid combo slot; otherwise intrinsic action only).
         /// </summary>
-        private static string BuildTooltipSwingModsLine(Character? character, Action action, int panelIndex)
+        private static string BuildTooltipSwingModsLine(Character? character, Action action, int panelIndex, ActionStripDamageLineMode mode)
         {
             if (character != null && panelIndex >= 0)
             {
@@ -301,9 +326,7 @@ namespace RPGGame
                 if (panelIndex < panels.Count)
                 {
                     var info = panels[panelIndex];
-                    const double damageCmpEps = 0.0001;
-                    double damageDisplay = Math.Abs(info.DamageModified - info.DamageBase) > damageCmpEps ? info.DamageModified : info.DamageBase;
-                    double speedDisplay = info.SpeedModified != info.SpeedBase ? info.SpeedModified : info.SpeedBase;
+                    GetStripSwingDisplayPercents(in info, character, action, mode, out double damageDisplay, out double speedDisplay);
                     return $"{FormatSwingDamageLine(info.EffectiveMultiHitCount, damageDisplay)} | Spd {speedDisplay:F0}%";
                 }
             }
@@ -812,11 +835,11 @@ namespace RPGGame
         /// <summary>
         /// Ordered mechanical segments after the title line: swing Dmg/Spd, then each spreadsheet / keyword / roll / status block.
         /// </summary>
-        private static List<string> BuildMechanicalDetailSegments(Character? character, Action action, int panelIndex)
+        private static List<string> BuildMechanicalDetailSegments(Character? character, Action action, int panelIndex, ActionStripDamageLineMode swingLineMode)
         {
             var segments = new List<string>();
             AppendComboRoleAndWeaponRequirementNotation(segments, character, action);
-            segments.Add(BuildTooltipSwingModsLine(character, action, panelIndex));
+            segments.Add(BuildTooltipSwingModsLine(character, action, panelIndex, swingLineMode));
             AppendAccuracyLines(segments, action);
             segments.AddRange(BuildSpreadsheetFriendlyModLines(action));
 
@@ -852,11 +875,11 @@ namespace RPGGame
         /// <summary>
         /// Single-line summary for inventory rows (pipe-separated). Tooltips use <see cref="BuildMechanicalDetailSegments"/> one segment per line.
         /// </summary>
-        public static string BuildActionMechanicalModSummary(Character? character, Action? action, int comboSlotIndex)
+        public static string BuildActionMechanicalModSummary(Character? character, Action? action, int comboSlotIndex, ActionStripDamageLineMode swingLineMode = ActionStripDamageLineMode.EffectiveWithComboAmp)
         {
             if (action == null)
                 return "";
-            return string.Join(" | ", BuildMechanicalDetailSegments(character, action, comboSlotIndex));
+            return string.Join(" | ", BuildMechanicalDetailSegments(character, action, comboSlotIndex, swingLineMode));
         }
 
         /// <summary>
@@ -867,7 +890,7 @@ namespace RPGGame
         /// <param name="panelIndex">0-based combo slot.</param>
         /// <param name="maxWidth">Maximum characters per line (inner width).</param>
         /// <param name="maxLines">Cap on total lines (excluding hard truncation).</param>
-        public static List<string> BuildActionTooltipLines(Character? character, int panelIndex, int maxWidth, int maxLines = 28)
+        public static List<string> BuildActionTooltipLines(Character? character, int panelIndex, int maxWidth, int maxLines = 28, ActionStripDamageLineMode swingLineMode = ActionStripDamageLineMode.EffectiveWithComboAmp)
         {
             var result = new List<string>();
             if (character == null || panelIndex < 0 || maxWidth < 4)
@@ -886,7 +909,7 @@ namespace RPGGame
             result.Add(FormatTooltipActionName(action.Name));
             if (result.Count >= maxLines) return result;
 
-            foreach (string segment in BuildMechanicalDetailSegments(character, action, panelIndex))
+            foreach (string segment in BuildMechanicalDetailSegments(character, action, panelIndex, swingLineMode))
             {
                 if (result.Count >= maxLines)
                     return result;
@@ -900,7 +923,7 @@ namespace RPGGame
         /// Tooltip lines for an action that may or may not be in the current combo (e.g. pool row on the inventory right panel).
         /// When the action is already in the sequence, delegates to <see cref="BuildActionTooltipLines"/>.
         /// </summary>
-        public static List<string> BuildActionTooltipLinesForAction(Character? character, Action? action, int maxWidth, int maxLines = 28)
+        public static List<string> BuildActionTooltipLinesForAction(Character? character, Action? action, int maxWidth, int maxLines = 28, ActionStripDamageLineMode swingLineMode = ActionStripDamageLineMode.EffectiveWithComboAmp)
         {
             var result = new List<string>();
             if (character == null || action == null || maxWidth < 4)
@@ -910,7 +933,7 @@ namespace RPGGame
             for (int i = 0; i < combo.Count; i++)
             {
                 if (ReferenceEquals(combo[i], action))
-                    return BuildActionTooltipLines(character, i, maxWidth, maxLines);
+                    return BuildActionTooltipLines(character, i, maxWidth, maxLines, swingLineMode);
             }
 
             void AddWrapped(string? paragraph)
@@ -921,7 +944,7 @@ namespace RPGGame
             result.Add(FormatTooltipActionName(action.Name));
             if (result.Count >= maxLines) return result;
 
-            foreach (string segment in BuildMechanicalDetailSegments(character, action, -1))
+            foreach (string segment in BuildMechanicalDetailSegments(character, action, -1, swingLineMode))
             {
                 if (result.Count >= maxLines)
                     return result;

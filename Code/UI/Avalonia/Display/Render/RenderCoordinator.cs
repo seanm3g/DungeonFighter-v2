@@ -26,6 +26,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
         private readonly DisplayBuffer buffer;
         private readonly DisplayModeManager modeManager;
         private GameStateManager? stateManager;
+        private readonly StatsPanelStateManager statsPanelStateManager;
         
         // Render guard to prevent concurrent renders; coalesce extra PerformRender calls while a paint is in flight
         private bool isRendering = false;
@@ -45,6 +46,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
             ICanvasContextManager contextManager,
             DisplayBuffer buffer,
             DisplayModeManager modeManager,
+            StatsPanelStateManager statsPanelStateManager,
             GameStateManager? stateManager = null)
         {
             this.canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
@@ -55,6 +57,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
             this.contextManager = contextManager ?? throw new ArgumentNullException(nameof(contextManager));
             this.buffer = buffer ?? throw new ArgumentNullException(nameof(buffer));
             this.modeManager = modeManager ?? throw new ArgumentNullException(nameof(modeManager));
+            this.statsPanelStateManager = statsPanelStateManager ?? throw new ArgumentNullException(nameof(statsPanelStateManager));
             this.stateManager = stateManager;
         }
         
@@ -193,7 +196,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
                     bool labEnemyLevelHover = paintState == GameState.ActionInteractionLab && ActionInteractionLabSession.Current != null;
                     layoutManager.RenderLayout(
                         layoutCharacter,
-                        (x, y, w, h) => { renderer.Render(buffer, x, y, w, h); },
+                        (x, y, w, h) => { renderer.Render(buffer, x, y, w, h, clearContent: true, combatEnemyNameForPrimaryLineRightAlign: contextManager.GetCombatLogEnemyAlignmentName(), combatHeroNameForLineAlignment: layoutCharacter?.Name); },
                         title,
                         enemyToRender,
                         state.DungeonName,
@@ -206,7 +209,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
                     // Draw strip after left/center/right chrome so the right panel cannot paint over it when columns overlap.
                     if (layoutCharacter != null)
                     {
-                        dungeonRenderer.RenderActionInfoStrip(layoutCharacter);
+                        dungeonRenderer.RenderActionInfoStrip(layoutCharacter, damageLineMode: statsPanelStateManager.ActionStripDamageLineMode);
                         canvas.Refresh();
                     }
 

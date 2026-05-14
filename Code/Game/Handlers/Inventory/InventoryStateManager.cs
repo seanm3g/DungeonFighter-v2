@@ -37,6 +37,33 @@ namespace RPGGame.Handlers.Inventory
         public InventoryItemSortMode ItemSortMode { get; set; } = InventoryItemSortMode.InventoryOrder;
         public bool HideRequirementBlockedItems { get; set; } = false;
 
+        /// <summary>
+        /// When set, the main inventory list (and equip/discard item prompts) only show bag items that equip to this slot (<c>weapon</c>, <c>head</c>, etc.). Numpad / cycles this filter.
+        /// </summary>
+        public string? InventoryEquipSlotFilter { get; set; }
+
+        private static readonly string[] InventoryEquipSlotFilterCycleOrder =
+        {
+            "weapon", "head", "body", "legs", "feet"
+        };
+
+        /// <summary>
+        /// Advances <see cref="InventoryEquipSlotFilter"/> in order: weapon → head → body → legs → feet → off → weapon…
+        /// </summary>
+        public string? CycleInventoryEquipSlotFilter()
+        {
+            int idx = InventoryEquipSlotFilter == null
+                ? -1
+                : Array.IndexOf(InventoryEquipSlotFilterCycleOrder, InventoryEquipSlotFilter);
+            if (idx < 0)
+                idx = -1;
+            int next = idx + 1;
+            InventoryEquipSlotFilter = next >= InventoryEquipSlotFilterCycleOrder.Length
+                ? null
+                : InventoryEquipSlotFilterCycleOrder[next];
+            return InventoryEquipSlotFilter;
+        }
+
         public InventoryItemSortMode CycleItemSortMode()
         {
             ItemSortMode = ItemSortMode switch

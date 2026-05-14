@@ -50,7 +50,7 @@ namespace RPGGame.UI.Avalonia.Display
                 return false;
             }
 
-            buffer.Add(message);
+            buffer.Add(message, messageType);
             return true;
         }
 
@@ -71,7 +71,7 @@ namespace RPGGame.UI.Avalonia.Display
                 return false;
             }
 
-            buffer.Add(segments);
+            buffer.Add(segments, messageType);
             return true;
         }
 

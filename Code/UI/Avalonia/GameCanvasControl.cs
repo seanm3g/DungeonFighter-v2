@@ -335,6 +335,14 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
+        /// Plain-text snapshot of drawn canvas text in a character-grid rectangle (for clipboard export).
+        /// </summary>
+        public string GetPlainTextSnapshotInGridRect(int startX, int startY, int width, int height, bool excludeOverlay = true)
+        {
+            return elementManager.BuildPlainTextSnapshotInRect(startX, startY, width, height, excludeOverlay);
+        }
+
+        /// <summary>
         /// Gets the element builder for creating canvas elements with convenience methods
         /// </summary>
         public CanvasElementBuilder Builder => elementBuilder;

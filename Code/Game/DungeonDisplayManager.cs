@@ -284,7 +284,8 @@ namespace RPGGame
         /// </summary>
         /// <param name="message">The combat event message</param>
         /// <param name="sourceCharacter">The character this combat event belongs to (optional, will be inferred if not provided)</param>
-        public void AddCombatEvent(string message, Character? sourceCharacter = null)
+        /// <param name="centerLogLineType">Center combat log line type (e.g. <see cref="UIMessageType.Environmental"/> for exploration).</param>
+        public void AddCombatEvent(string message, Character? sourceCharacter = null, UIMessageType centerLogLineType = UIMessageType.System)
         {
             // Allow empty strings (for blank lines) but filter out null or whitespace-only strings
             if (message == null)
@@ -296,7 +297,8 @@ namespace RPGGame
                 message!,
                 sourceCharacter,
                 displayBuffer,
-                narrativeManager);
+                narrativeManager,
+                centerLogLineType);
             
             // Notify subscribers that a combat event was added (only if character is active)
             if (shouldUpdateUI)
@@ -312,7 +314,8 @@ namespace RPGGame
         /// </summary>
         /// <param name="builder">The colored text builder for the combat event</param>
         /// <param name="sourceCharacter">The character this combat event belongs to (optional, will be inferred if not provided)</param>
-        public void AddCombatEvent(ColoredTextBuilder builder, Character? sourceCharacter = null)
+        /// <param name="centerLogLineType">Center combat log line type.</param>
+        public void AddCombatEvent(ColoredTextBuilder builder, Character? sourceCharacter = null, UIMessageType centerLogLineType = UIMessageType.System)
         {
             if (builder == null)
                 return;
@@ -322,7 +325,8 @@ namespace RPGGame
                 builder,
                 sourceCharacter,
                 displayBuffer,
-                narrativeManager);
+                narrativeManager,
+                centerLogLineType);
             
             // Notify subscribers that a combat event was added (only if character is active)
             if (shouldUpdateUI)

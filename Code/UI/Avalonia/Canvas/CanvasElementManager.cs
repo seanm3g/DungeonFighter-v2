@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Avalonia.Media;
 using RPGGame.UI.Avalonia;
 
@@ -235,6 +237,51 @@ namespace RPGGame.UI.Avalonia.Canvas
             // No merge possible, add as new element
             AddText(new CanvasText { X = x, Y = y, Content = text, Color = color });
             return false; // New element added
+        }
+
+        /// <summary>
+        /// Reconstructs plain text for a character-grid rectangle from stored <see cref="CanvasText"/> elements
+        /// (what was drawn in that area). Later elements overwrite overlapping cells.
+        /// </summary>
+        public string BuildPlainTextSnapshotInRect(int startX, int startY, int width, int height, bool excludeOverlay)
+        {
+            if (width <= 0 || height <= 0)
+                return "";
+
+            var rows = new char[height][];
+            for (int r = 0; r < height; r++)
+                rows[r] = Enumerable.Repeat(' ', width).ToArray();
+
+            var ordered = textElements
+                .Where(t => !excludeOverlay || !t.IsOverlay)
+                .Where(t => t.Y >= startY && t.Y < startY + height)
+                .OrderBy(t => t.Y)
+                .ThenBy(t => t.X);
+
+            foreach (var t in ordered)
+            {
+                if (string.IsNullOrEmpty(t.Content))
+                    continue;
+                int row = t.Y - startY;
+                if (row < 0 || row >= height)
+                    continue;
+                for (int i = 0; i < t.Content.Length; i++)
+                {
+                    int col = t.X + i - startX;
+                    if (col >= 0 && col < width)
+                        rows[row][col] = t.Content[i];
+                }
+            }
+
+            var sb = new StringBuilder(height * (width + 2));
+            for (int r = 0; r < height; r++)
+            {
+                string line = new string(rows[r]).TrimEnd();
+                sb.AppendLine(line);
+            }
+
+            string result = sb.ToString().TrimEnd();
+            return result;
         }
     }
 }

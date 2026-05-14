@@ -47,6 +47,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 ItemType.Chest => "Body",
                 ItemType.Legs => "Legs",
                 ItemType.Feet => "Feet",
+                ItemType.Consumable => "Use",
                 _ => "Item"
             };
         }
@@ -74,7 +75,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             string promptMessage,
             string actionType,
             InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
-            bool hideRequirementBlockedItems = false)
+            bool hideRequirementBlockedItems = false,
+            string? inventoryEquipSlotFilter = null)
         {
             int currentLineCount = 0;
             int startY = y;
@@ -89,7 +91,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 inventory,
                 character,
                 sortMode,
-                hideRequirementBlockedItems);
+                hideRequirementBlockedItems,
+                inventoryEquipSlotFilter);
             if (inventory.Count == 0)
             {
                 canvas.AddText(x + 2, y, "No items in inventory", AsciiArtAssets.Colors.White);
@@ -98,7 +101,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             else if (displayEntries.Count == 0)
             {
-                canvas.AddText(x + 2, y, "No items match the current requirements filter", AsciiArtAssets.Colors.White);
+                string emptyMsg = !string.IsNullOrEmpty(inventoryEquipSlotFilter)
+                    ? "No items in inventory for this equipment slot."
+                    : "No items match the current requirements filter";
+                canvas.AddText(x + 2, y, emptyMsg, AsciiArtAssets.Colors.White);
                 y += 2;
                 currentLineCount += 2;
             }

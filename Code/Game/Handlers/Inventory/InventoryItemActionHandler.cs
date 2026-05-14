@@ -63,7 +63,8 @@ namespace RPGGame.Handlers.Inventory
                     "Select Item to Equip",
                     "equip",
                     stateTracker.ItemSortMode,
-                    stateTracker.HideRequirementBlockedItems);
+                    stateTracker.HideRequirementBlockedItems,
+                    stateTracker.InventoryEquipSlotFilter);
             }
             
             stateTracker.WaitingForItemSelection = true;
@@ -107,7 +108,8 @@ namespace RPGGame.Handlers.Inventory
                     "Select Item to Discard",
                     "discard",
                     stateTracker.ItemSortMode,
-                    stateTracker.HideRequirementBlockedItems);
+                    stateTracker.HideRequirementBlockedItems,
+                    stateTracker.InventoryEquipSlotFilter);
             }
             
             stateTracker.WaitingForItemSelection = true;

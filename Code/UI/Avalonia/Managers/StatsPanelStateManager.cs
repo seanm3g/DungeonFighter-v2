@@ -13,6 +13,8 @@ namespace RPGGame.UI.Avalonia.Managers
         private bool gearCollapsed;
         private bool thresholdsCollapsed;
         private bool thresholdsShowChances;
+        private DateTimeOffset? thresholdsChancesFlashUntilUtc;
+        private ActionStripDamageLineMode actionStripDamageLineMode = ActionStripDamageLineMode.EffectiveWithComboAmp;
         private int statsAreaX = -1;
         private int statsAreaY = -1;
         private int statsAreaWidth = -1;
@@ -50,14 +52,54 @@ namespace RPGGame.UI.Avalonia.Managers
         public bool ThresholdsShowChances
         {
             get => thresholdsShowChances;
-            set => thresholdsShowChances = value;
+            set
+            {
+                thresholdsShowChances = value;
+                if (!thresholdsShowChances)
+                    thresholdsChancesFlashUntilUtc = null;
+            }
         }
 
         public void ToggleHeroCollapsed() => heroCollapsed = !heroCollapsed;
         public void ToggleStatsCollapsed() => statsCollapsed = !statsCollapsed;
         public void ToggleGearCollapsed() => gearCollapsed = !gearCollapsed;
         public void ToggleThresholdsCollapsed() => thresholdsCollapsed = !thresholdsCollapsed;
-        public void ToggleThresholdsDisplayMode() => thresholdsShowChances = !thresholdsShowChances;
+
+        public void ToggleThresholdsDisplayMode()
+        {
+            thresholdsShowChances = !thresholdsShowChances;
+            if (!thresholdsShowChances)
+                thresholdsChancesFlashUntilUtc = null;
+        }
+
+        /// <summary>Brief highlight after switching the thresholds header into CHANCES (% view).</summary>
+        public void BeginThresholdsChancesModeFlash(TimeSpan duration)
+        {
+            thresholdsChancesFlashUntilUtc = DateTimeOffset.UtcNow.Add(duration);
+        }
+
+        /// <summary>True while the post-toggle CHANCES flash should paint (gold tint on chance rows).</summary>
+        public bool IsThresholdsChancesFlashActive() =>
+            thresholdsChancesFlashUntilUtc.HasValue && DateTimeOffset.UtcNow < thresholdsChancesFlashUntilUtc.Value;
+
+        /// <summary>
+        /// Combo strip cards: intrinsic % vs slot-modified damage with combo amplification (shared by all panels).
+        /// </summary>
+        public ActionStripDamageLineMode ActionStripDamageLineMode
+        {
+            get => actionStripDamageLineMode;
+            set => actionStripDamageLineMode = value;
+        }
+
+        /// <summary>
+        /// Cycles <see cref="ActionStripDamageLineMode"/> Base ↔ Effective+amp (same idea as threshold row click cycling chances).
+        /// </summary>
+        public void CycleActionStripDamageLineMode()
+        {
+            actionStripDamageLineMode = actionStripDamageLineMode == ActionStripDamageLineMode.BaseIntrinsic
+                ? ActionStripDamageLineMode.EffectiveWithComboAmp
+                : ActionStripDamageLineMode.BaseIntrinsic;
+        }
         
         /// <summary>
         /// Sets the stats area bounds for click detection

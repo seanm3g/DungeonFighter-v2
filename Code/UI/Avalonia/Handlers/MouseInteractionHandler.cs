@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Threading;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.Handlers.Inventory;
@@ -85,6 +86,11 @@ namespace RPGGame.UI.Avalonia.Handlers
             {
                 if (TryBeginComboStripDrag(e, point.Position))
                     return;
+                if (TryCycleActionStripDamageLineMode(point.Position))
+                {
+                    e.Handled = true;
+                    return;
+                }
                 HandleMouseClick(point.Position);
             }
         }
@@ -551,6 +557,43 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
+        /// Left-click a filled action strip panel cycles intrinsic vs slot-modified damage with combo amp (all panels), when strip reorder drag is inactive.
+        /// </summary>
+        private bool TryCycleActionStripDamageLineMode(Point position)
+        {
+            if (canvasUI == null || game?.StateManager == null)
+                return false;
+            if (CanReorderComboOnStrip())
+                return false;
+
+            var stats = GetActiveStatsPanelState();
+            if (stats == null)
+                return false;
+
+            var player = GetCharacterForActionStrip();
+            if (player == null)
+                return false;
+            var combo = player.GetComboActions();
+            if (combo == null || combo.Count == 0)
+                return false;
+
+            var grid = ScreenToGrid(position);
+            int displayCount = ActionInfoStripLayout.GetDisplayPanelCount(combo.Count);
+            if (!ActionInfoStripLayout.TryGetPanelIndex(grid.X, grid.Y, displayCount, out int idx))
+                return false;
+            if (idx < 0 || idx >= combo.Count)
+                return false;
+
+            int stripCap = ComboSequenceMaxHelper.GetEffectiveMax(player);
+            if (idx >= stripCap)
+                return false;
+
+            stats.CycleActionStripDamageLineMode();
+            game.RefreshPersistentChromeAfterStatsToggle();
+            return true;
+        }
+
+        /// <summary>
         /// Starts drag when the user presses on an action-info strip panel (see <see cref="CanReorderComboOnStrip"/>).
         /// </summary>
         private bool TryBeginComboStripDrag(PointerPressedEventArgs e, Point position)
@@ -613,7 +656,24 @@ namespace RPGGame.UI.Avalonia.Handlers
                 {
                     if (element.Value.StartsWith(LeftPanelHoverState.Prefix + "thresh:", StringComparison.Ordinal))
                     {
+                        bool wasChances = statsPanelStateManager.ThresholdsShowChances;
                         statsPanelStateManager.ToggleThresholdsDisplayMode();
+                        if (!wasChances && statsPanelStateManager.ThresholdsShowChances)
+                        {
+                            statsPanelStateManager.BeginThresholdsChancesModeFlash(TimeSpan.FromSeconds(1));
+                            var endFlashTimer = new DispatcherTimer
+                            {
+                                Interval = TimeSpan.FromSeconds(1)
+                            };
+                            void OnEndFlashTick(object? s, EventArgs e)
+                            {
+                                endFlashTimer.Stop();
+                                endFlashTimer.Tick -= OnEndFlashTick;
+                                RefreshChromeAfterStatsToggle();
+                            }
+                            endFlashTimer.Tick += OnEndFlashTick;
+                            endFlashTimer.Start();
+                        }
                         RefreshChromeAfterStatsToggle();
                         return;
                     }

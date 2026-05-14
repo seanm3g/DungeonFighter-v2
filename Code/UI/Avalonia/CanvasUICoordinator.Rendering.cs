@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Media;
+using Avalonia.Threading;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.Editors;
@@ -48,6 +49,52 @@ namespace RPGGame.UI.Avalonia
         {
             if (CenterPanelModeTint.TryUpdateExistingFrame(canvas))
                 canvas.Refresh();
+        }
+
+        /// <summary>
+        /// Tints the center panel background briefly after a successful clipboard copy (visual confirmation).
+        /// </summary>
+        public void FlashCenterPanelCopyFeedback(int flashMilliseconds = 200)
+        {
+            void RunFlash()
+            {
+                Color flashFill = Color.FromRgb(38, 58, 48);
+
+                void ApplyNormalFrame()
+                {
+                    CenterPanelModeTint.TryUpdateExistingFrame(canvas);
+                    canvas.Refresh();
+                }
+
+                // Ensure the frame box exists (TryUpdate alone fails if layout has not created it yet).
+                CenterPanelModeTint.RenderFrame(canvas);
+                canvas.TryUpdateBox(
+                    LayoutConstants.CENTER_PANEL_X,
+                    LayoutConstants.CENTER_PANEL_Y,
+                    LayoutConstants.CENTER_PANEL_WIDTH,
+                    LayoutConstants.CENTER_PANEL_HEIGHT,
+                    AsciiArtAssets.Colors.Cyan,
+                    flashFill);
+                canvas.Refresh();
+
+                var timer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(flashMilliseconds)
+                };
+                void OnTick(object? s, EventArgs ev)
+                {
+                    timer.Stop();
+                    timer.Tick -= OnTick;
+                    ApplyNormalFrame();
+                }
+                timer.Tick += OnTick;
+                timer.Start();
+            }
+
+            if (Dispatcher.UIThread.CheckAccess())
+                RunFlash();
+            else
+                Dispatcher.UIThread.Post(RunFlash);
         }
 
         /// <summary>
@@ -147,6 +194,18 @@ namespace RPGGame.UI.Avalonia
             if (textManager is CanvasTextManager canvasTextManager)
                 return canvasTextManager.DisplayManager.IsCombatDisplayMode;
             return false;
+        }
+
+        /// <summary>
+        /// True when the center panel is showing the live battle log and copy (right-click or Ctrl+C) should use the full display buffer.
+        /// Uses both display mode and <see cref="GameState"/> so copy still works if they briefly disagree (e.g. combat state before the next combat repaint).
+        /// </summary>
+        public bool IsCombatLogClipboardContext()
+        {
+            if (IsCombatDisplayActive())
+                return true;
+            var state = stateManager?.CurrentState;
+            return state == GameState.Combat || state == GameState.ActionInteractionLab;
         }
 
         /// <summary>
@@ -428,6 +487,50 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
+        /// Plain text for battle-log clipboard: left character panel (from current canvas draw state) plus center buffer.
+        /// </summary>
+        public string GetBattleLogClipboardText()
+        {
+            static string TrimTrailingBlankLines(string s)
+            {
+                if (string.IsNullOrEmpty(s))
+                    return s;
+                string[] lines = s.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
+                int end = lines.Length - 1;
+                while (end >= 0 && string.IsNullOrWhiteSpace(lines[end]))
+                    end--;
+                return end < 0 ? "" : string.Join(System.Environment.NewLine, lines.Take(end + 1));
+            }
+
+            int leftHeight = LayoutConstants.LEFT_PANEL_HEIGHT + 1;
+            string leftPanel;
+            try
+            {
+                leftPanel = canvas.GetPlainTextSnapshotInGridRect(
+                    LayoutConstants.LEFT_PANEL_X,
+                    LayoutConstants.LEFT_PANEL_Y,
+                    LayoutConstants.LEFT_PANEL_WIDTH,
+                    leftHeight,
+                    excludeOverlay: true);
+            }
+            catch
+            {
+                leftPanel = "";
+            }
+            leftPanel = TrimTrailingBlankLines(leftPanel.TrimEnd());
+            string center = GetDisplayBufferText().TrimEnd();
+
+            if (string.IsNullOrWhiteSpace(leftPanel))
+                return center;
+            if (string.IsNullOrWhiteSpace(center))
+                return "=== Character panel ===" + System.Environment.NewLine + leftPanel;
+
+            return "=== Character panel ===" + System.Environment.NewLine + leftPanel
+                + System.Environment.NewLine + System.Environment.NewLine
+                + "=== Combat log (center) ===" + System.Environment.NewLine + center;
+        }
+
+        /// <summary>
         /// Gets the clickable element at the specified coordinates.
         /// </summary>
         public ClickableElement? GetElementAt(int x, int y)
@@ -617,7 +720,8 @@ namespace RPGGame.UI.Avalonia
             List<Item> inventory,
             string? pendingMutatingInventoryMenuAction = null,
             InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
-            bool hideRequirementBlockedItems = false)
+            bool hideRequirementBlockedItems = false,
+            string? inventoryEquipSlotFilter = null)
         {
             if (lastRenderedScreenState != GameState.Inventory || !ReferenceEquals(lastInventoryScrollCharacter, character))
             {
@@ -626,7 +730,7 @@ namespace RPGGame.UI.Avalonia
             }
 
             inventoryItemScrollOffset = InventoryItemScrollLayout.ClampFirstVisibleIndex(inventoryItemScrollOffset, inventory.Count);
-            renderer.RenderInventory(character, inventory, GetContext(), pendingMutatingInventoryMenuAction, inventoryItemScrollOffset, sortMode, hideRequirementBlockedItems);
+            renderer.RenderInventory(character, inventory, GetContext(), pendingMutatingInventoryMenuAction, inventoryItemScrollOffset, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter);
         }
 
         public void RenderItemSelectionPrompt(
@@ -635,7 +739,8 @@ namespace RPGGame.UI.Avalonia
             string promptMessage,
             string actionType,
             InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
-            bool hideRequirementBlockedItems = false)
+            bool hideRequirementBlockedItems = false,
+            string? inventoryEquipSlotFilter = null)
         {
             renderer.RenderItemSelectionPrompt(
                 character,
@@ -644,7 +749,8 @@ namespace RPGGame.UI.Avalonia
                 actionType,
                 GetContext(),
                 sortMode,
-                hideRequirementBlockedItems);
+                hideRequirementBlockedItems,
+                inventoryEquipSlotFilter);
         }
 
         public void RenderSlotSelectionPrompt(Character character)

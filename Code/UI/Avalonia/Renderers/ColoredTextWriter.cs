@@ -6,6 +6,14 @@ using System.Collections.Generic;
 
 namespace RPGGame.UI.Avalonia.Renderers
 {
+    /// <summary>Horizontal placement for a wrapped colored-text row within a fixed column.</summary>
+    public enum ColoredLineAlignment
+    {
+        Left,
+        Right,
+        Center
+    }
+
     /// <summary>
     /// Handles colored text rendering with the new color system.
     /// Facade coordinator that delegates to specialized text rendering components.
@@ -142,8 +150,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// Writes colored text with word wrapping using List of ColoredText
         /// Preserves colors while wrapping text across multiple lines
         /// </summary>
+        /// <param name="lineAlignment">Horizontal placement of each wrapped row within the column of width <paramref name="maxWidth"/> starting at <paramref name="x"/>.</param>
         /// <returns>Number of lines written</returns>
-        public int WriteLineColoredWrapped(List<ColoredText> segments, int x, int y, int maxWidth)
+        public int WriteLineColoredWrapped(List<ColoredText> segments, int x, int y, int maxWidth, ColoredLineAlignment lineAlignment = ColoredLineAlignment.Left)
         {
             if (segments == null || segments.Count == 0)
             {
@@ -166,7 +175,23 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 if (lineSegments != null && lineSegments.Count > 0)
                 {
-                    RenderSegments(lineSegments, x, currentY);
+                    ColoredTextRenderer.TrimTrailingWhitespaceFromSegments(lineSegments);
+                    if (lineSegments.Count > 0)
+                    {
+                        int lineX = x;
+                        if (lineAlignment != ColoredLineAlignment.Left)
+                        {
+                            int len = ColoredTextRenderer.GetDisplayLength(lineSegments);
+                            if (len < maxWidth)
+                            {
+                                if (lineAlignment == ColoredLineAlignment.Right)
+                                    lineX = x + (maxWidth - len);
+                                else
+                                    lineX = x + (maxWidth - len) / 2;
+                            }
+                        }
+                        RenderSegments(lineSegments, lineX, currentY);
+                    }
                 }
                 // Always advance Y, even for empty line segments (blank lines within wrapped text)
                 currentY++;

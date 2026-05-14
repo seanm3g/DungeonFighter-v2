@@ -123,13 +123,6 @@ namespace RPGGame.UI.Avalonia.Renderers
                     currentY += 2;
                 }
 
-                if (routeResult.Steps.Count > 0)
-                {
-                    var headerSegments = TravelRouteColoredTextFormatter.FormatEventCountHeader(routeResult);
-                    int headerLines = textWriter.WriteLineColoredWrapped(headerSegments, left, currentY, contentWidth);
-                    currentY += headerLines;
-                }
-
                 foreach (var step in routeResult.Steps)
                 {
                     var stepSegments = TravelRouteColoredTextFormatter.FormatTravelStep(step);

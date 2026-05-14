@@ -31,6 +31,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 ItemType.Chest => "Body",
                 ItemType.Legs => "Legs",
                 ItemType.Feet => "Feet",
+                ItemType.Consumable => "Use",
                 _ => "Item"
             };
         }

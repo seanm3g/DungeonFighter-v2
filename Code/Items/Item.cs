@@ -12,7 +12,9 @@ namespace RPGGame
         Chest,
         Weapon,
         /// <summary>Leg armor slot; appended last so legacy numeric enum values in saves stay stable.</summary>
-        Legs
+        Legs,
+        /// <summary>Room food/potions from search; not equipment.</summary>
+        Consumable
     }
 
     public enum WeaponType
@@ -227,6 +229,15 @@ namespace RPGGame
         public int BonusAttackSpeed { get; set; } = 0;
         public List<string> Tags { get; set; } = new List<string>();
 
+        /// <summary>When <see cref="Type"/> is <see cref="ItemType.Consumable"/>, marks food vs potion and which buff line.</summary>
+        public RoomSearchConsumableKind RoomSearchConsumableKind { get; set; }
+
+        /// <summary>Food only: HP restored when eaten.</summary>
+        public int ConsumableHealAmount { get; set; }
+
+        /// <summary>Potions: magnitude (stat points or threshold adjustment units).</summary>
+        public int ConsumablePotionPotency { get; set; }
+
         /// <summary>
         /// Persisted for <see cref="ItemType.Weapon"/> (save/load, inventory). Drives level-up stat spread and class points — same mapping as <see cref="WeaponItem"/> (Mace/Barbarian STR, etc.). Ignored for armor.
         /// </summary>
@@ -348,6 +359,9 @@ namespace RPGGame
         /// </summary>
         public string? GetEquipBlockedReason(Character character)
         {
+            if (Type == ItemType.Consumable)
+                return "Room-search food and potions apply when found; they cannot be equipped.";
+
             if (character == null || character.Facade == null || !AttributeRequirements.HasRequirements)
                 return null;
 
@@ -476,7 +490,11 @@ namespace RPGGame
         public Item(ItemType type, string? name = null, int tier = 1, int comboBonus = 0)
         {
             Type = type;
-            Name = name ?? (type == ItemType.Weapon ? "Unknown Weapon" : "Unknown Armor");
+            Name = name ?? (type == ItemType.Weapon
+                ? "Unknown Weapon"
+                : type == ItemType.Consumable
+                    ? "Unnamed Consumable"
+                    : "Unknown Armor");
             Tier = tier;
             ComboBonus = comboBonus;
         }

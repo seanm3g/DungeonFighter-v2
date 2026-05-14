@@ -13,7 +13,7 @@ namespace RPGGame.UI.Avalonia.Helpers
     public static class ClipboardHelper
     {
         /// <summary>
-        /// Copies the display buffer text to the clipboard.
+        /// Copies the center display buffer plus a plain-text snapshot of the left character panel to the clipboard.
         /// </summary>
         /// <param name="canvasUI">The canvas UI coordinator</param>
         /// <param name="window">The main window (for TopLevel access)</param>
@@ -35,12 +35,9 @@ namespace RPGGame.UI.Avalonia.Helpers
 
             try
             {
-                System.Console.WriteLine("[COPY] CopyDisplayBufferToClipboard called");
-
                 Notify("Copying to clipboard...");
 
-                string bufferText = canvasUI.GetDisplayBufferText();
-                System.Console.WriteLine($"[COPY] Buffer text length: {bufferText?.Length ?? 0}");
+                string bufferText = canvasUI.GetBattleLogClipboardText();
 
                 if (string.IsNullOrWhiteSpace(bufferText))
                 {
@@ -54,21 +51,19 @@ namespace RPGGame.UI.Avalonia.Helpers
                 {
                     await topLevel.Clipboard.SetTextAsync(bufferText);
                     int lineCount = bufferText.Split(new[] { System.Environment.NewLine, "\n", "\r\n" }, StringSplitOptions.None).Length;
-                    string message = $"Copied {lineCount} lines to clipboard";
+                    string message = $"Copied {lineCount} lines (character panel + combat log)";
                     Notify(message);
-                    System.Console.WriteLine($"[COPY] Successfully copied {lineCount} lines to clipboard");
+                    Dispatcher.UIThread.Post(() => canvasUI.FlashCenterPanelCopyFeedback());
                     return true;
                 }
                 else
                 {
-                    System.Console.WriteLine("[COPY] Clipboard is null");
                     Notify("Clipboard not available");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"[COPY] Exception: {ex.Message}\n{ex.StackTrace}");
                 string errorMsg = $"Error: {ex.Message}";
                 Notify(errorMsg);
                 return false;

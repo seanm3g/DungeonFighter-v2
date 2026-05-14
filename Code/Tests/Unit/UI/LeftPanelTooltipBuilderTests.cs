@@ -59,9 +59,15 @@ namespace RPGGame.Tests.Unit.UI
                 "Speed tooltip shows AGI base and gear attribute input before equation",
                 ref run, ref passed, ref failed);
 
-            var ampLines = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "stat:amp", 50, 12);
-            TestBase.AssertTrue(ampLines.Any(l => l.Contains("per combo step", StringComparison.OrdinalIgnoreCase)),
+            var ampLines = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "stat:amp", 50, 24);
+            TestBase.AssertTrue(ampLines.Any(l => l.Contains("per combo step", StringComparison.OrdinalIgnoreCase) || l.Contains("Base per combo step", StringComparison.OrdinalIgnoreCase)),
                 "AMP tooltip describes per-step base multiplier",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ampLines.Any(l => l.Contains("Slot 1", StringComparison.Ordinal) && l.Contains('×')),
+                "AMP tooltip lists per-strip-slot multiplier (tier 1)",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ampLines.Any(l => l.Contains("Slot 2", StringComparison.Ordinal) && l.Contains('×')),
+                "AMP tooltip lists second strip slot",
                 ref run, ref passed, ref failed);
 
             var gearEmpty = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "gear:weapon", 40, 8);

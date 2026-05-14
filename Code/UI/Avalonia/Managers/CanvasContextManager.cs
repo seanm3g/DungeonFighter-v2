@@ -11,6 +11,7 @@ namespace RPGGame.UI.Avalonia.Managers
     {
         private Character? currentCharacter;
         private Enemy? currentEnemy;
+        private string? lastCombatEnemyNameForLogAlignment;
         private string? currentDungeonName;
         private string? currentRoomName;
         private List<string> dungeonContext = new List<string>();
@@ -34,6 +35,8 @@ namespace RPGGame.UI.Avalonia.Managers
         public void SetCurrentEnemy(Enemy enemy)
         {
             currentEnemy = enemy;
+            if (enemy != null && !string.IsNullOrEmpty(enemy.Name))
+                lastCombatEnemyNameForLogAlignment = enemy.Name;
         }
 
         public void ClearCurrentEnemy()
@@ -42,6 +45,15 @@ namespace RPGGame.UI.Avalonia.Managers
             // Note: Do NOT clear dungeonName and roomName here - location information should persist
             // even when there's no enemy, as the player is still in that dungeon/room.
             // Location should only be cleared when explicitly leaving the dungeon.
+            // Keep lastCombatEnemyNameForLogAlignment so the center combat log still right-aligns enemy lines after the fight.
+        }
+
+        public string? GetCombatLogEnemyAlignmentName() =>
+            currentEnemy?.Name ?? lastCombatEnemyNameForLogAlignment;
+
+        public void ClearCombatLogEnemyAlignmentSticky()
+        {
+            lastCombatEnemyNameForLogAlignment = null;
         }
 
         public string? GetDungeonName()

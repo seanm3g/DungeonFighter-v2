@@ -66,6 +66,10 @@ namespace RPGGame.Tests.Unit.UI.Spacing
             TestBase.AssertTrue(result.Contains("speed:") && result.Contains("amp:"),
                 "Formatted roll info should contain speed and amplifier information",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertTrue(result.EndsWith("1.5)", StringComparison.Ordinal) && !result.Contains("1.5 )", StringComparison.Ordinal),
+                "FormatRollInfo must not insert a space before the closing parenthesis",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

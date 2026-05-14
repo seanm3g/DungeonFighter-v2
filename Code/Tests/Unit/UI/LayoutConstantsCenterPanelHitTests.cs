@@ -34,6 +34,21 @@ namespace RPGGame.Tests.Unit.UI
                 "left panel column is not center panel content",
                 ref run, ref passed, ref failed);
 
+            double cw = 10;
+            double ch = 18;
+            double insideX = (LayoutConstants.CENTER_PANEL_X + 1) * cw + 0.5 * cw;
+            double insideY = (LayoutConstants.CENTER_PANEL_Y + 1) * ch + 0.5 * ch;
+            TestBase.AssertTrue(
+                LayoutConstants.ContainsCenterPanelPixelHit(insideX, insideY, cw, ch),
+                "pixel hit inside center panel matches grid interior",
+                ref run, ref passed, ref failed);
+
+            double leftX = (LayoutConstants.LEFT_PANEL_X + 1) * cw;
+            TestBase.AssertTrue(
+                !LayoutConstants.ContainsCenterPanelPixelHit(leftX, insideY, cw, ch),
+                "pixel hit over left panel is not center panel",
+                ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("LayoutConstantsCenterPanelHitTests", run, passed, failed);
         }
     }

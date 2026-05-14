@@ -46,6 +46,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             LootGeneratorTests.RunAllTests();
             Console.WriteLine();
+            RPGGame.Tests.Unit.World.RoomSearchConsumableTests.RunAllTests();
+            Console.WriteLine();
             LootItemSelectorTests.RunAllTests();
             Console.WriteLine();
             ItemGeneratorTests.RunAllTests();

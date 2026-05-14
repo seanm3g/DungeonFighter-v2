@@ -96,6 +96,7 @@ namespace RPGGame.UI.Avalonia.Display
                 contextManager,
                 buffer,
                 modeManager,
+                statsPanelStateManager,
                 stateManager);
             
             // Initialize extracted helpers
@@ -365,6 +366,7 @@ namespace RPGGame.UI.Avalonia.Display
         {
             bufferOperations.Clear();
             renderStateManager.Reset();
+            contextManager.ClearCombatLogEnemyAlignmentSticky();
             modeManager.Timing.ForceRender(() => renderCoordinator.PerformRender());
         }
         
@@ -376,6 +378,7 @@ namespace RPGGame.UI.Avalonia.Display
         {
             bufferOperations.Clear();
             renderStateManager.Reset();
+            contextManager.ClearCombatLogEnemyAlignmentSticky();
             // Don't trigger a render - let the menu screen handle its own rendering
         }
         

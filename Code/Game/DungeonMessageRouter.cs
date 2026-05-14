@@ -41,12 +41,14 @@ namespace RPGGame
         /// <param name="sourceCharacter">The character this combat event belongs to (optional, will be inferred if not provided)</param>
         /// <param name="displayBuffer">The display buffer to add the message to (if character is active)</param>
         /// <param name="narrativeManager">The narrative manager to log the message to (always, for character context tracking)</param>
+        /// <param name="centerPanelLineType">Message type for the center combat log (e.g. <see cref="UIMessageType.Environmental"/> for exploration flavor).</param>
         /// <returns>True if the message was displayed, false otherwise</returns>
         public bool RouteCombatEvent(
             string message,
             Character? sourceCharacter,
             Display.Dungeon.DungeonDisplayBuffer displayBuffer,
-            GameNarrativeManager narrativeManager)
+            GameNarrativeManager narrativeManager,
+            UIMessageType centerPanelLineType = UIMessageType.System)
         {
             // Allow empty strings (for blank lines) but filter out null or whitespace-only strings
             if (message == null)
@@ -59,7 +61,7 @@ namespace RPGGame
             // This consolidates all filtering logic (menu states, character matching)
             bool shouldUpdateUI = filterService.ShouldDisplayMessage(
                 messageOwner,
-                UIMessageType.System, // Combat events use System type
+                centerPanelLineType,
                 stateManager,
                 null, // No context manager
                 false); // No race condition check needed here
@@ -84,11 +86,11 @@ namespace RPGGame
                 {
                     if (messageRouter != null)
                     {
-                        messageRouter.RouteSystemMessage(message, UIMessageType.System, messageOwner);
+                        messageRouter.RouteSystemMessage(message, centerPanelLineType, messageOwner);
                     }
                     else if (uiManager != null)
                     {
-                        uiManager.WriteLine(message, UIMessageType.System);
+                        uiManager.WriteLine(message, centerPanelLineType);
                     }
                 }
             }
@@ -109,12 +111,14 @@ namespace RPGGame
         /// <param name="sourceCharacter">The character this combat event belongs to (optional, will be inferred if not provided)</param>
         /// <param name="displayBuffer">The display buffer to add the message to (if character is active)</param>
         /// <param name="narrativeManager">The narrative manager to log the message to (always, for character context tracking)</param>
+        /// <param name="centerPanelLineType">Message type for the center combat log.</param>
         /// <returns>True if the message was displayed, false otherwise</returns>
         public bool RouteCombatEvent(
             ColoredTextBuilder builder,
             Character? sourceCharacter,
             Display.Dungeon.DungeonDisplayBuffer displayBuffer,
-            GameNarrativeManager narrativeManager)
+            GameNarrativeManager narrativeManager,
+            UIMessageType centerPanelLineType = UIMessageType.System)
         {
             if (builder == null)
                 return false;
@@ -131,7 +135,7 @@ namespace RPGGame
             // This consolidates all filtering logic (menu states, character matching)
             bool shouldUpdateUI = filterService.ShouldDisplayMessage(
                 messageOwner,
-                UIMessageType.System, // Combat events use System type
+                centerPanelLineType,
                 stateManager,
                 null, // No context manager
                 false); // No race condition check needed here
@@ -150,7 +154,7 @@ namespace RPGGame
             // Add to UI using colored text directly (only if character is active)
             if (shouldUpdateUI && uiManager != null)
             {
-                uiManager.WriteLineColoredSegments(segments, UIMessageType.System);
+                uiManager.WriteLineColoredSegments(segments, centerPanelLineType);
             }
 
             return shouldUpdateUI;

@@ -333,12 +333,37 @@ namespace RPGGame
         {
             double baseAmp = c.GetComboAmplifier();
             var techBreakdown = BuildAttributeBreakdown(c, "TEC");
+            var combo = c.GetComboActions();
+            int slotCount = combo.Count > 0 ? combo.Count : Math.Max(1, ComboSequenceMaxHelper.GetEffectiveMax(c));
+
             addWrapped("AMP (combo growth)");
-            addWrapped($"Base multiplier per combo step: {baseAmp:F2}x (from TECH; matches panel).");
+            addWrapped($"Base per combo step (TECH): {baseAmp:F2}× — combo actions scale damage by Pow(base, zero-based strip index); matches stats panel.");
+            if (combo.Count > 0)
+                addWrapped("This strip — combo AMP when each slot resolves (non-combo actions stay 1.00×):");
+            else
+                addWrapped($"Strip empty — preview for {slotCount} slot(s) at your current max length (only combo actions scale this way):");
+
+            for (int i = 0; i < slotCount; i++)
+            {
+                Action? a = combo.Count > i ? combo[i] : null;
+                string slotLabel = $"Slot {i + 1}";
+                if (a != null)
+                {
+                    string name = string.IsNullOrWhiteSpace(a.Name) ? "(unnamed)" : a.Name.Trim();
+                    if (a.IsComboAction)
+                        addWrapped($"  {slotLabel} ({name}): {Math.Pow(baseAmp, i):F2}×");
+                    else
+                        addWrapped($"  {slotLabel} ({name}): 1.00× (not a combo action)");
+                }
+                else
+                    addWrapped($"  {slotLabel}: {Math.Pow(baseAmp, i):F2}×");
+            }
+
+            double queuedSheetAmpPct = c.PeekQueuedSheetAmpModPercentForDisplay();
+            if (queuedSheetAmpPct > 0.05)
+                addWrapped($"Queued sheet AMP_MOD on next hero damage swing: +{queuedSheetAmpPct:0.#}% (applies with other swing multipliers).");
+
             addWrapped(FormatAttributeInputSummary("TECH input", techBreakdown));
-            addWrapped("Damage on a given hit uses Pow(this base, strip slot index): first slot 0 → 1.0×, second 1 → baseline, etc. (order matches your sequence, not opener/finisher labels alone).");
-            if (c.GetComboActions().Count == 0)
-                addWrapped("No combo actions on the strip yet.");
         }
 
         private static void AppendArmor(Character c, List<string> result, Action<string> addWrapped, int maxLines)

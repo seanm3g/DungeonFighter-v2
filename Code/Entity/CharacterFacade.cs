@@ -83,30 +83,40 @@ namespace RPGGame
         // === STAT ACCESS ===
         public int Strength 
         { 
-            get => _character.Stats.GetEffectiveStrength(_character.Equipment.GetEquipmentStatBonus("STR", _character), _character.Equipment.GetModificationGodlikeBonus());
+            get => _character.Stats.GetEffectiveStrength(
+                _character.Equipment.GetEquipmentStatBonus("STR", _character) + _character.DungeonSearchBuffs.StrengthBonus,
+                _character.Equipment.GetModificationGodlikeBonus());
             set => _character.Stats.Strength = value;
         }
         public int Agility 
         { 
-            get => _character.Stats.GetEffectiveAgility(_character.Equipment.GetEquipmentStatBonus("AGI", _character));
+            get => _character.Stats.GetEffectiveAgility(
+                _character.Equipment.GetEquipmentStatBonus("AGI", _character) + _character.DungeonSearchBuffs.AgilityBonus);
             set => _character.Stats.Agility = value;
         }
         public int Technique 
         { 
-            get => _character.Stats.GetEffectiveTechnique(_character.Equipment.GetEquipmentStatBonus("TEC", _character));
+            get => _character.Stats.GetEffectiveTechnique(
+                _character.Equipment.GetEquipmentStatBonus("TEC", _character) + _character.DungeonSearchBuffs.TechniqueBonus);
             set => _character.Stats.Technique = value;
         }
         public int Intelligence 
         { 
-            get => _character.Stats.GetEffectiveIntelligence(_character.Equipment.GetEquipmentStatBonus("INT", _character));
+            get => _character.Stats.GetEffectiveIntelligence(
+                _character.Equipment.GetEquipmentStatBonus("INT", _character) + _character.DungeonSearchBuffs.IntelligenceBonus);
             set => _character.Stats.Intelligence = value;
         }
 
         // === EFFECTIVE STAT METHODS ===
-        public int GetEffectiveStrength() => _character.Stats.GetEffectiveStrength(_character.Equipment.GetEquipmentStatBonus("STR", _character), _character.Equipment.GetModificationGodlikeBonus());
-        public int GetEffectiveAgility() => _character.Stats.GetEffectiveAgility(_character.Equipment.GetEquipmentStatBonus("AGI", _character));
-        public int GetEffectiveTechnique() => _character.Stats.GetEffectiveTechnique(_character.Equipment.GetEquipmentStatBonus("TEC", _character));
-        public int GetEffectiveIntelligence() => _character.Stats.GetEffectiveIntelligence(_character.Equipment.GetEquipmentStatBonus("INT", _character));
+        public int GetEffectiveStrength() => _character.Stats.GetEffectiveStrength(
+            _character.Equipment.GetEquipmentStatBonus("STR", _character) + _character.DungeonSearchBuffs.StrengthBonus,
+            _character.Equipment.GetModificationGodlikeBonus());
+        public int GetEffectiveAgility() => _character.Stats.GetEffectiveAgility(
+            _character.Equipment.GetEquipmentStatBonus("AGI", _character) + _character.DungeonSearchBuffs.AgilityBonus);
+        public int GetEffectiveTechnique() => _character.Stats.GetEffectiveTechnique(
+            _character.Equipment.GetEquipmentStatBonus("TEC", _character) + _character.DungeonSearchBuffs.TechniqueBonus);
+        public int GetEffectiveIntelligence() => _character.Stats.GetEffectiveIntelligence(
+            _character.Equipment.GetEquipmentStatBonus("INT", _character) + _character.DungeonSearchBuffs.IntelligenceBonus);
 
         // === ACTION MANAGEMENT ===
         public List<Action> GetComboActions() => _character.Actions.GetComboActions();
@@ -191,6 +201,7 @@ namespace RPGGame
         public int ProcessPoison(double currentTime) => _character.ProcessPoison(currentTime);
         public int ProcessBurn(double currentTime) => _character.ProcessBurn(currentTime);
         public void ClearAllTempEffects() => _character.ClearAllTempEffects();
+        public void ClearDungeonSearchBuffs() => _character.ClearDungeonSearchBuffs();
         public bool UseReroll() => _character.Effects.UseReroll();
         public void ResetRerollUsage() => _character.Effects.ResetRerollUsage();
         public void ResetRerollCharges() => _character.Effects.ResetRerollCharges();

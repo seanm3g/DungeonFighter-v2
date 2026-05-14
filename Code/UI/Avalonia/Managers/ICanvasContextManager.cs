@@ -14,6 +14,17 @@ namespace RPGGame.UI.Avalonia.Managers
         Enemy? GetCurrentEnemy();
         void SetCurrentEnemy(Enemy enemy);
         void ClearCurrentEnemy();
+
+        /// <summary>
+        /// Display name used for combat-log right-alignment: live enemy name when in combat, otherwise the last
+        /// enemy name from <see cref="SetCurrentEnemy"/> until cleared (so post-fight lines keep alignment).
+        /// </summary>
+        string? GetCombatLogEnemyAlignmentName();
+
+        /// <summary>
+        /// Clears the sticky combat-log enemy name (e.g. when the center buffer is wiped or switching characters).
+        /// </summary>
+        void ClearCombatLogEnemyAlignmentSticky();
         
         string? GetDungeonName();
         void SetDungeonName(string? dungeonName);

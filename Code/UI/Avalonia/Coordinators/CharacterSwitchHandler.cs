@@ -64,7 +64,8 @@ namespace RPGGame.UI.Avalonia.Coordinators
                     // Clear enemy context to prevent old combat from showing
                     // This ensures the render system doesn't think combat is active for the new character
                     clearCurrentEnemy.Invoke();
-                    
+                    contextManager.ClearCombatLogEnemyAlignmentSticky();
+
                     // Clear dungeon context to prevent old character's enemy info from showing
                     // This ensures the dungeon context doesn't contain enemy info from the previous character
                     contextManager.ClearDungeonContext();

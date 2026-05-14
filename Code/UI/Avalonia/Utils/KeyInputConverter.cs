@@ -52,6 +52,7 @@ namespace RPGGame.UI.Avalonia.Utils
                 Key.Multiply => "*",
                 Key.Add => "+",
                 Key.Subtract => "-",
+                Key.Divide => "/",
                 Key.Back => "backspace",
                 Key.Delete => "delete",
                 Key.Left => "left",

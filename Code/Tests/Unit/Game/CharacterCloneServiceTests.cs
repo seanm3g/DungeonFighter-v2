@@ -20,6 +20,7 @@ namespace RPGGame.Tests.Unit.Game
 
             TestCloneNameProgression();
             TestCloneAfterDeathStripsEquippedGearAndRevives();
+            TestCloneAfterDeathPreservesLevelAndXp();
 
             TestBase.PrintSummary("CharacterCloneService Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -94,6 +95,22 @@ namespace RPGGame.Tests.Unit.Game
             TestBase.AssertTrue(!character.GetComboActions().Exists(a =>
                     string.Equals(a.Name, "PUNCH HARDER", StringComparison.OrdinalIgnoreCase)),
                 "Clone should not preserve pre-death action slots",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCloneAfterDeathPreservesLevelAndXp()
+        {
+            Console.WriteLine("\n--- Testing Clone Preserves Level And XP ---");
+
+            var character = new Character("Brin", 4);
+            character.Progression.XP = 321;
+            character.Equipment.Weapon = new WeaponItem("Rusty Sword", 1) { WeaponType = WeaponType.Sword };
+            CharacterSerializer.RebuildCharacterActions(character);
+
+            CharacterCloneService.CloneAfterDeath(character);
+
+            TestBase.AssertTrue(character.Level == 4 && character.Progression.XP == 321,
+                "Clone must keep the same level and XP toward the next level",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

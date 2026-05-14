@@ -6,7 +6,9 @@ using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.Avalonia.Renderers.Helpers;
 using RPGGame.UI.Avalonia.Renderers.Inventory;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Themes;
 
 namespace RPGGame.Tests.Unit.UI
 {
@@ -35,7 +37,9 @@ namespace RPGGame.Tests.Unit.UI
             TestItemComparisonHoverIds();
             TestInventoryItemScrollRange();
             TestInventoryNumpadShortcutHint();
+            TestInventoryViewSummaryHighlightColors();
             TestInventoryDisplaySortAndFilterUsesVisibleNumbers();
+            TestInventoryEquipSlotFilterBuildDisplayEntriesAndCycle();
             TestInventorySortedViewsGroupWeaponsByType();
             TestInventoryArmorComparisonBaselineColorsLowerSameSlotRed();
 
@@ -111,14 +115,121 @@ namespace RPGGame.Tests.Unit.UI
 
             string fullHint = InventoryScreenRenderer.GetNumpadShortcutHint(120);
             TestBase.AssertTrue(
-                fullHint.Contains("Numpad +") && fullHint.Contains("Numpad -") && fullHint.Contains("Numpad *"),
-                "inventory bottom shortcut hint calls out numpad sort, filter, and equip shortcuts",
+                fullHint.Contains("Numpad +") && fullHint.Contains("Numpad -") && fullHint.Contains("Numpad *") && fullHint.Contains("Numpad /"),
+                "inventory bottom shortcut hint calls out numpad sort, requirements filter, equip, and slot-cycle shortcuts",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             string compactHint = InventoryScreenRenderer.GetNumpadShortcutHint(40);
             TestBase.AssertTrue(
-                compactHint.Length <= 40 && compactHint.Contains("+ sort") && compactHint.Contains("- filter") && compactHint.Contains("* equip"),
+                compactHint.Length <= 40 && compactHint.Contains("+ sort") && compactHint.Contains("- reqs") && compactHint.Contains("* equip") && compactHint.Contains("/ slot"),
                 "inventory shortcut hint has a compact fallback for narrow panels",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestInventoryViewSummaryHighlightColors()
+        {
+            Console.WriteLine("\n--- Testing Inventory view summary sort/filter highlight ---");
+
+            var character = TestDataBuilders.Character().WithStats(10, 10, 10, 10).Build();
+            var emptyInventory = new System.Collections.Generic.List<Item>();
+            var dim = AsciiArtAssets.Colors.DarkGray;
+            var highlight = ColorPalette.Lime.GetColor();
+
+            var allDefault = InventoryScreenRenderer.BuildViewSummaryColoredSegments(
+                emptyInventory, character, InventoryItemSortMode.InventoryOrder, hideRequirementBlockedItems: false, inventoryEquipSlotFilter: null);
+            TestBase.AssertEqual(5, allDefault.Count, "view summary splits into five colored segments", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(allDefault[0].Color, dim) && ColorValidator.AreColorsEqual(allDefault[2].Color, dim),
+                "sort and filter clauses use dim color when sort is inventory order and filter shows all",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var raritySort = InventoryScreenRenderer.BuildViewSummaryColoredSegments(
+                emptyInventory, character, InventoryItemSortMode.Rarity, hideRequirementBlockedItems: false, inventoryEquipSlotFilter: null);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(raritySort[0].Color, highlight) && ColorValidator.AreColorsEqual(raritySort[2].Color, dim),
+                "non-default sort highlights only the sort clause",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var reqFilter = InventoryScreenRenderer.BuildViewSummaryColoredSegments(
+                emptyInventory, character, InventoryItemSortMode.InventoryOrder, hideRequirementBlockedItems: true, inventoryEquipSlotFilter: null);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(reqFilter[0].Color, dim) && ColorValidator.AreColorsEqual(reqFilter[2].Color, highlight),
+                "requirements filter on highlights only the filter clause",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var rareWeapon = TestDataBuilders.Weapon().WithName("Rare Blade").Build();
+            rareWeapon.Rarity = "Rare";
+            var invOne = new System.Collections.Generic.List<Item> { rareWeapon };
+            var bagFollowsFirstRow = InventoryScreenRenderer.BuildViewSummaryColoredSegments(
+                invOne, character, InventoryItemSortMode.InventoryOrder, hideRequirementBlockedItems: false, inventoryEquipSlotFilter: null);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(bagFollowsFirstRow[4].Color, ItemThemeProvider.GetRarityColor("Rare")),
+                "bag slot line uses first visible item rarity color when no slot filter",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var mythicHelm = TestDataBuilders.Armor().WithType(ItemType.Head).WithName("Mythic Hat").Build();
+            mythicHelm.Rarity = "Mythic";
+            var charWithHead = TestDataBuilders.Character().WithStats(10, 10, 10, 10).Build();
+            charWithHead.Equipment.Head = mythicHelm;
+            var feetOnly = TestDataBuilders.Armor().WithType(ItemType.Feet).WithName("Boots").Build();
+            var invFeetOnly = new System.Collections.Generic.List<Item> { feetOnly };
+            var headFilterUsesEquipped = InventoryScreenRenderer.BuildViewSummaryColoredSegments(
+                invFeetOnly,
+                charWithHead,
+                InventoryItemSortMode.InventoryOrder,
+                hideRequirementBlockedItems: false,
+                inventoryEquipSlotFilter: "head");
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(headFilterUsesEquipped[4].Color, ItemThemeProvider.GetRarityColor("Mythic")),
+                "bag slot line uses equipped item rarity for active slot filter when bag has no row for that slot",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var emptySlotFilterWeapon = InventoryScreenRenderer.BuildViewSummaryColoredSegments(
+                emptyInventory, character, InventoryItemSortMode.InventoryOrder, hideRequirementBlockedItems: false, inventoryEquipSlotFilter: "weapon");
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(emptySlotFilterWeapon[4].Color, highlight),
+                "bag slot line uses applied highlight when slot filter is on but no item can be associated",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestInventoryEquipSlotFilterBuildDisplayEntriesAndCycle()
+        {
+            Console.WriteLine("\n--- Testing Inventory equip-slot filter ---");
+
+            var state = new InventoryStateManager();
+            TestBase.AssertTrue(state.InventoryEquipSlotFilter == null, "slot filter starts cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            state.CycleInventoryEquipSlotFilter();
+            TestBase.AssertEqual("weapon", state.InventoryEquipSlotFilter, "first cycle step is weapon", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            state.CycleInventoryEquipSlotFilter();
+            TestBase.AssertEqual("head", state.InventoryEquipSlotFilter, "second cycle step is head", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            state.CycleInventoryEquipSlotFilter();
+            state.CycleInventoryEquipSlotFilter();
+            state.CycleInventoryEquipSlotFilter();
+            TestBase.AssertEqual("feet", state.InventoryEquipSlotFilter, "fifth cycle step is feet", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            state.CycleInventoryEquipSlotFilter();
+            TestBase.AssertTrue(state.InventoryEquipSlotFilter == null, "after feet the filter turns off", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            state.CycleInventoryEquipSlotFilter();
+            TestBase.AssertEqual("weapon", state.InventoryEquipSlotFilter, "cycle wraps from off back to weapon", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertEqual("Weapon", InventoryScreenRenderer.GetInventoryEquipSlotFilterDisplayName("weapon"), "display label for weapon slot", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var character = TestDataBuilders.Character().WithStats(10, 10, 10, 10).Build();
+            var headItem = TestDataBuilders.Armor().WithType(ItemType.Head).WithName("Helm").Build();
+            var feetItem = TestDataBuilders.Armor().WithType(ItemType.Feet).WithName("Boots").Build();
+            var weaponItem = TestDataBuilders.Weapon().WithName("Blade").Build();
+            var inventory = new System.Collections.Generic.List<Item> { feetItem, headItem, weaponItem };
+
+            var headOnly = InventoryScreenRenderer.BuildDisplayEntries(
+                inventory,
+                character,
+                InventoryItemSortMode.InventoryOrder,
+                hideRequirementBlockedItems: false,
+                inventoryEquipSlotFilter: "head");
+            TestBase.AssertEqual("1", string.Join(",", headOnly.Select(e => e.InventoryIndex.ToString())),
+                "head slot filter leaves only head armor rows",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("1", string.Join(",", headOnly.Select(e => e.DisplayNumber.ToString())),
+                "head slot filter renumbers the single visible row",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

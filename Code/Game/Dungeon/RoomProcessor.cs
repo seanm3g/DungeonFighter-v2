@@ -101,7 +101,7 @@ namespace RPGGame
                 {
                     var explorationMessageColored = KeywordColorSystem.Colorize(explorationResult.Message);
                     string explorationMessageMarkup = ColoredTextRenderer.RenderAsMarkup(explorationMessageColored);
-                    displayManager.AddCombatEvent(explorationMessageMarkup, stateManager.CurrentPlayer);
+                    displayManager.AddCombatEvent(explorationMessageMarkup, stateManager.CurrentPlayer, UIMessageType.Environmental);
                 }
                 
                 if (explorationResult.EnvironmentInfo != null)
@@ -109,7 +109,7 @@ namespace RPGGame
                     // Apply keyword coloring to environment info
                     var environmentInfoColored = KeywordColorSystem.Colorize(explorationResult.EnvironmentInfo);
                     string environmentInfoMarkup = ColoredTextRenderer.RenderAsMarkup(environmentInfoColored);
-                    displayManager.AddCombatEvent(environmentInfoMarkup, stateManager.CurrentPlayer);
+                    displayManager.AddCombatEvent(environmentInfoMarkup, stateManager.CurrentPlayer, UIMessageType.Environmental);
                 }
                 
                 // Handle environmental hazard
@@ -156,7 +156,7 @@ namespace RPGGame
                         hazardBuilder.Add(message, Colors.White);
                     }
                     
-                    displayManager.AddCombatEvent(hazardBuilder, stateManager.CurrentPlayer);
+                    displayManager.AddCombatEvent(hazardBuilder, stateManager.CurrentPlayer, UIMessageType.Environmental);
                     
                     if (hazard.SkipToCombat && hazard.Damage > 0)
                     {
@@ -195,7 +195,7 @@ namespace RPGGame
                         var safeMessageBuilder = new ColoredTextBuilder()
                             .Add("It appears you are safe... ", Colors.White)
                             .Add("for now.", ColorPalette.Red);
-                        displayManager.AddCombatEvent(safeMessageBuilder, stateManager.CurrentPlayer);
+                        displayManager.AddCombatEvent(safeMessageBuilder, stateManager.CurrentPlayer, UIMessageType.Environmental);
                         displayManager.AddCombatEvent("", stateManager.CurrentPlayer); // Blank line after safe message
                         // Re-render room entry to show the safe message
                         canvasUISafe.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
@@ -220,7 +220,7 @@ namespace RPGGame
                         var advantageMessage = advantageMessages[random.Next(advantageMessages.Length)];
                         var advantageBuilder = new ColoredTextBuilder()
                             .Add(advantageMessage, ColorPalette.Red);
-                        displayManager.AddCombatEvent(advantageBuilder, stateManager.CurrentPlayer);
+                        displayManager.AddCombatEvent(advantageBuilder, stateManager.CurrentPlayer, UIMessageType.Environmental);
                     }
                     else if (enemyGetsFirstAttack)
                     {
@@ -269,18 +269,21 @@ namespace RPGGame
                 // Preserve structured item-name colors when the search result includes loot.
                 var searchMessageColored = DungeonNarrativeColoredText.FormatSearchResult(searchResult);
                 string searchMessageMarkup = ColoredTextRenderer.RenderAsMarkup(searchMessageColored);
-                displayManager.AddCombatEvent(searchMessageMarkup, stateManager.CurrentPlayer);
+                displayManager.AddCombatEvent(searchMessageMarkup, stateManager.CurrentPlayer, UIMessageType.Environmental);
                 displayManager.AddCombatEvent("", stateManager.CurrentPlayer); // Blank line after search message
                 
-                // If loot found, add it to inventory
-                // Note: The search message already contains the loot information, so we don't need to display it again
+                // Room search finds food/potions only — consumed immediately (not added to inventory).
                 if (searchResult.FoundLoot && searchResult.LootItem != null)
                 {
                     foundLoot = true;
-                    stateManager.CurrentPlayer.AddToInventory(searchResult.LootItem);
-                    
-                    // Award XP for finding item during room search
                     Progression.XPRewardSystem.AwardItemFoundXP(stateManager.CurrentPlayer, searchResult.LootItem);
+                    if (SearchConsumableUseService.ApplyImmediately(stateManager.CurrentPlayer, searchResult.LootItem, out string consumeMsg)
+                        && !string.IsNullOrWhiteSpace(consumeMsg))
+                    {
+                        var consumeColored = KeywordColorSystem.Colorize(consumeMsg);
+                        string consumeMarkup = ColoredTextRenderer.RenderAsMarkup(consumeColored);
+                        displayManager.AddCombatEvent(consumeMarkup, stateManager.CurrentPlayer, UIMessageType.Environmental);
+                    }
                 }
                 
                 // Re-render and delay

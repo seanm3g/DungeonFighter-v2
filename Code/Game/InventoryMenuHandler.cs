@@ -147,7 +147,8 @@ namespace RPGGame
                         prompt,
                         stateTracker.ItemSelectionAction,
                         stateTracker.ItemSortMode,
-                        stateTracker.HideRequirementBlockedItems);
+                        stateTracker.HideRequirementBlockedItems,
+                        stateTracker.InventoryEquipSlotFilter);
                 }
                 else if (stateTracker.WaitingForSlotSelection)
                     canvasUI.RenderSlotSelectionPrompt(player);
@@ -157,7 +158,8 @@ namespace RPGGame
                         inv,
                         stateTracker.WaitingForMenuMutatingActionConfirmation ? stateTracker.PendingMutatingMenuChoice : null,
                         stateTracker.ItemSortMode,
-                        stateTracker.HideRequirementBlockedItems);
+                        stateTracker.HideRequirementBlockedItems,
+                        stateTracker.InventoryEquipSlotFilter);
             }
         }
 
@@ -259,6 +261,7 @@ namespace RPGGame
                 
                 // Get available rarities
                 var rarityGroups = stateManager.CurrentInventory
+                    .Where(item => item != null && item.Type != ItemType.Consumable)
                     .GroupBy(item => item.Rarity ?? "Common")
                     .Where(group => group.Count() >= 5)
                     .OrderBy(group => GetRarityOrder(group.Key))
@@ -396,7 +399,7 @@ namespace RPGGame
                     ShowGameLoopEvent?.Invoke();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-4, * (auto-equip), + (sort), - (filter), 0 (Return to game menu), or ESC to go back.");
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-4, * (auto-equip), + (sort), - (requirements filter), / (cycle slot filter), 0 (Return to game menu), or ESC to go back.");
                     break;
             }
         }
@@ -404,11 +407,22 @@ namespace RPGGame
         private bool TryHandleInventoryViewShortcut(string input)
         {
             string normalized = input.Trim();
-            if (normalized != "+" && normalized != "-")
+            if (normalized != "+" && normalized != "-" && normalized != "/")
                 return false;
 
-            if (!IsMainInventoryListVisible())
-                return true;
+            bool allowSlotCycle = CanCycleInventorySlotFilterShortcut();
+            bool allowSortAndReqFilter = IsMainInventoryListVisible();
+
+            if (normalized == "/")
+            {
+                if (!allowSlotCycle)
+                    return true;
+            }
+            else
+            {
+                if (!allowSortAndReqFilter)
+                    return true;
+            }
 
             if (customUIManager is CanvasUICoordinator canvasUI)
                 canvasUI.ResetInventoryItemScroll();
@@ -418,12 +432,20 @@ namespace RPGGame
                 var sortMode = stateTracker.CycleItemSortMode();
                 ShowMessageEvent?.Invoke($"Inventory sort: {GetInventorySortLabel(sortMode)}.");
             }
-            else
+            else if (normalized == "-")
             {
                 stateTracker.HideRequirementBlockedItems = !stateTracker.HideRequirementBlockedItems;
                 ShowMessageEvent?.Invoke(stateTracker.HideRequirementBlockedItems
                     ? "Inventory filter: hiding items with unmet requirements."
                     : "Inventory filter: showing all items.");
+            }
+            else
+            {
+                stateTracker.CycleInventoryEquipSlotFilter();
+                string? slot = stateTracker.InventoryEquipSlotFilter;
+                ShowMessageEvent?.Invoke(slot == null
+                    ? "Inventory bag slot filter: off (all equipment types visible)."
+                    : $"Inventory bag slot filter: {InventoryScreenRenderer.GetInventoryEquipSlotFilterDisplayName(slot)} only.");
             }
 
             RefreshInventoryScreen();
@@ -434,6 +456,19 @@ namespace RPGGame
         {
             return !stateTracker.InComboManagement
                 && !stateTracker.WaitingForItemSelection
+                && !stateTracker.WaitingForSlotSelection
+                && !stateTracker.WaitingForComparisonChoice
+                && !stateTracker.WaitingForRaritySelection
+                && !stateTracker.WaitingForTradeUpConfirmation
+                && !stateTracker.WaitingForMenuMutatingActionConfirmation;
+        }
+
+        /// <summary>
+        /// Numpad / may cycle the bag slot filter on the main inventory list and during equip/discard item pick (same filtered rows).
+        /// </summary>
+        private bool CanCycleInventorySlotFilterShortcut()
+        {
+            return !stateTracker.InComboManagement
                 && !stateTracker.WaitingForSlotSelection
                 && !stateTracker.WaitingForComparisonChoice
                 && !stateTracker.WaitingForRaritySelection
@@ -457,7 +492,8 @@ namespace RPGGame
                 inventory,
                 player,
                 stateTracker.ItemSortMode,
-                stateTracker.HideRequirementBlockedItems);
+                stateTracker.HideRequirementBlockedItems,
+                stateTracker.InventoryEquipSlotFilter);
 
             int selectableCount = Math.Min(visibleSelectionEntries.Count, ItemSelectionRenderer.MaxSelectableItems);
             if (visibleChoice > selectableCount)

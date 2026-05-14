@@ -22,6 +22,41 @@ namespace RPGGame.UI.ColorSystem
                 
             return string.Join("", segments.Select(s => s.Text));
         }
+
+        /// <summary>
+        /// Removes trailing whitespace-only segments and trims trailing spaces on the last segment.
+        /// Used before measuring/wrapping display rows so accidental trailing spaces do not leave a visible gap
+        /// (e.g. roll footer lines in the combat log).
+        /// </summary>
+        public static void TrimTrailingWhitespaceFromSegments(List<ColoredText>? segments)
+        {
+            if (segments == null || segments.Count == 0)
+                return;
+
+            for (int i = segments.Count - 1; i >= 0; i--)
+            {
+                var seg = segments[i];
+                if (seg == null || string.IsNullOrEmpty(seg.Text))
+                {
+                    segments.RemoveAt(i);
+                    continue;
+                }
+
+                string trimmed = seg.Text.TrimEnd();
+                if (trimmed.Length == 0)
+                {
+                    segments.RemoveAt(i);
+                    continue;
+                }
+
+                if (trimmed.Length != seg.Text.Length)
+                {
+                    segments[i] = new ColoredText(trimmed, seg.Color, seg.SourceTemplate, seg.ColorReadyForCanvas);
+                }
+
+                break;
+            }
+        }
         
         /// <summary>
         /// Renders colored text as template syntax markup string ({{pattern|text}} format)

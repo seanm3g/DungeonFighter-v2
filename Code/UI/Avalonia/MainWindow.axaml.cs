@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI;
@@ -23,6 +24,8 @@ namespace RPGGame.UI.Avalonia
         public MainWindow()
         {
             InitializeComponent();
+            // Tunnel so Ctrl/Cmd+C is handled before focused children; bubble KeyDown on the window often never runs when focus is on the canvas.
+            this.AddHandler(InputElement.KeyDownEvent, OnCombatLogCopyKeyDownTunnel, RoutingStrategies.Tunnel);
             this.KeyDown += OnKeyDown;
             this.KeyUp += OnKeyUp;
             
@@ -71,17 +74,7 @@ namespace RPGGame.UI.Avalonia
                     inputHandler = new MainWindowInputHandler(initializationHandler.Game);
                 }
 
-                // Combat log: Ctrl+C or Cmd+C copies plain text from the center display buffer (full log in buffer, including scrolled-out lines).
-                if (KeyInputConverter.IsCombatLogCopyChord(e.Key, e.KeyModifiers)
-                    && SettingsPanelOverlay?.IsVisible != true
-                    && TuningPanelOverlay?.IsVisible != true
-                    && initializationHandler.CanvasUIManager is CanvasUICoordinator canvasForCopy
-                    && canvasForCopy.IsCombatDisplayActive())
-                {
-                    e.Handled = true;
-                    await ClipboardHelper.CopyDisplayBufferToClipboard(canvasForCopy, this, null, UpdateStatus);
-                    return;
-                }
+                // Combat log copy is handled in OnCombatLogCopyKeyDownTunnel (tunneling) so it runs with canvas focus.
 
                 // Handle special keys first
                 if (e.Key == Key.H)
@@ -163,6 +156,22 @@ namespace RPGGame.UI.Avalonia
             // Handle key up events if needed
         }
 
+        private async void OnCombatLogCopyKeyDownTunnel(object? sender, KeyEventArgs e)
+        {
+            if (!KeyInputConverter.IsCombatLogCopyChord(e.Key, e.KeyModifiers))
+                return;
+            if (initializationHandler == null || !initializationHandler.IsInitialized || initializationHandler.Game == null)
+                return;
+            if (SettingsPanelOverlay?.IsVisible == true || TuningPanelOverlay?.IsVisible == true)
+                return;
+            if (initializationHandler.CanvasUIManager is not CanvasUICoordinator canvasForCopy)
+                return;
+            if (!canvasForCopy.IsCombatLogClipboardContext())
+                return;
+            e.Handled = true;
+            await ClipboardHelper.CopyDisplayBufferToClipboard(canvasForCopy, this, null, UpdateStatus);
+        }
+
         private void ToggleHelp()
         {
             // Toggle help display on canvas
@@ -190,9 +199,12 @@ namespace RPGGame.UI.Avalonia
         // Mouse event handlers - delegate to MouseInteractionHandler
         private async void OnCanvasPointerPressed(object? sender, PointerPressedEventArgs e)
         {
-            if (initializationHandler == null || !initializationHandler.IsInitialized || initializationHandler.MouseHandler == null) 
+            if (initializationHandler == null || !initializationHandler.IsInitialized)
                 return;
+            // Combat log copy does not require MouseInteractionHandler; avoid gating copy on mouse wiring.
             if (await TryHandleCombatLogRightClickCopy(e))
+                return;
+            if (initializationHandler.MouseHandler == null)
                 return;
             initializationHandler.MouseHandler.HandlePointerPressed(e);
         }
@@ -202,15 +214,25 @@ namespace RPGGame.UI.Avalonia
             if (initializationHandler?.CanvasUIManager is not CanvasUICoordinator canvasUI)
                 return false;
 
-            var point = e.GetCurrentPoint(GameCanvas);
-            var grid = ScreenToGrid(point.Position);
+            var grid = PointerToCanvasGrid(e);
+            Point localOnCanvas = e.GetPosition(GameCanvas);
+            double cw = GameCanvas.GetCharWidth();
+            double ch = GameCanvas.GetCharHeight();
             bool overlayOpen = SettingsPanelOverlay?.IsVisible == true || TuningPanelOverlay?.IsVisible == true;
+            var pointOnHitSurface = e.GetCurrentPoint(GameCanvasHitSurface);
+            var pointOnCanvas = e.GetCurrentPoint(GameCanvas);
+            bool isRightClick = pointOnHitSurface.Properties.IsRightButtonPressed
+                || pointOnCanvas.Properties.IsRightButtonPressed;
             if (!CombatLogCopyInput.ShouldCopyOnRightClick(
-                point.Properties.IsRightButtonPressed,
+                isRightClick,
                 overlayOpen,
-                canvasUI.IsCombatDisplayActive(),
+                canvasUI.IsCombatLogClipboardContext(),
                 grid.X,
-                grid.Y))
+                grid.Y,
+                localOnCanvas.X,
+                localOnCanvas.Y,
+                cw,
+                ch))
             {
                 return false;
             }
@@ -220,14 +242,23 @@ namespace RPGGame.UI.Avalonia
             return true;
         }
 
-        private (int X, int Y) ScreenToGrid(Point screenPosition)
+        /// <summary>
+        /// Maps a pointer position to character grid coordinates on the game canvas.
+        /// Uses the hit surface and canvas origin so letterboxing (canvas smaller than the border) does not skew the cell index.
+        /// </summary>
+        private (int X, int Y) PointerToCanvasGrid(PointerEventArgs e)
         {
             double charWidth = GameCanvas.GetCharWidth();
             double charHeight = GameCanvas.GetCharHeight();
             if (charWidth <= 0 || charHeight <= 0)
                 return (0, 0);
 
-            return ((int)(screenPosition.X / charWidth), (int)(screenPosition.Y / charHeight));
+            // Prefer pointer position in GameCanvas coordinates (Avalonia handles parent/letterbox transform).
+            // TranslatePoint(canvas origin → hit surface) can be null while the tree is updating and used to force (0,0), breaking hit-tests.
+            Point local = e.GetPosition(GameCanvas);
+            int gx = (int)Math.Floor(local.X / charWidth);
+            int gy = (int)Math.Floor(local.Y / charHeight);
+            return (gx, gy);
         }
 
         private void OnCanvasPointerMoved(object? sender, PointerEventArgs e)

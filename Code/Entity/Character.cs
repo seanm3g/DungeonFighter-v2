@@ -37,6 +37,9 @@ namespace RPGGame
         // Session statistics tracking
         public SessionStatistics SessionStats { get; private set; }
 
+        /// <summary>Potion buffs from room search that last for the current dungeon run only.</summary>
+        public DungeonSearchBuffState DungeonSearchBuffs { get; } = new();
+
         /// <summary>
         /// When true, the hero must see the Training Ground offer (or complete/skip it) before normal weapon selection.
         /// Cleared when the player skips the tutorial or completes the Training Ground run.
@@ -379,6 +382,10 @@ namespace RPGGame
             Stats.TempIntelligenceBonus = 0;
             Stats.TempStatBonusTurns = 0;
         }
+
+        /// <summary>Clears room-search potion bonuses for the current dungeon run.</summary>
+        public void ClearDungeonSearchBuffs() => DungeonSearchBuffs.Clear();
+
         public bool UseReroll() => Facade.UseReroll();
         public void ResetRerollUsage() => Facade.ResetRerollUsage();
         public void ResetRerollCharges() => Facade.ResetRerollCharges();

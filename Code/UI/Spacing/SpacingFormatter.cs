@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Media;
 using RPGGame.UI.ColorSystem;
 
@@ -49,8 +50,11 @@ namespace RPGGame.UI.Spacing
             }
             
             parts.Add(")");
-            
-            return SpacingRules.FormatWithSpacing(parts.ToArray());
+            // Do not join ")" with a leading space — FormatWithSpacing would produce "... 10.2s )".
+            if (parts.Count == 1)
+                return SpacingRules.NormalizeSpacing(parts[0]);
+            var head = parts.Take(parts.Count - 1).Select(SpacingRules.NormalizeSpacing).Where(s => !string.IsNullOrEmpty(s));
+            return string.Join(SpacingRules.SingleSpace, head) + parts[parts.Count - 1];
         }
         
         /// <summary>

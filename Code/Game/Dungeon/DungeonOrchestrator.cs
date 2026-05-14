@@ -85,6 +85,9 @@ namespace RPGGame
             // Set game state to Dungeon
             stateManager.TransitionToState(GameState.Dungeon);
             
+            if (stateManager.CurrentPlayer != null)
+                stateManager.CurrentPlayer.ClearDungeonSearchBuffs();
+
             // Reload actions from disk and rebuild character's action pool so updated Actions.json is used
             if (stateManager.CurrentPlayer != null)
             {
@@ -155,6 +158,7 @@ namespace RPGGame
                                         stateManager.CurrentPlayer.Heal(healthRestored);
                                     }
                                     stateManager.CurrentPlayer.ClearAllTempEffects();
+                                    stateManager.CurrentPlayer.ClearDungeonSearchBuffs();
                                 }
                                 
                                 if (customUIManager is CanvasUICoordinator canvasUIExit && stateManager.CurrentPlayer != null)
@@ -164,9 +168,9 @@ namespace RPGGame
                                     {
                                         string healingMarkup = ColoredTextRenderer.RenderAsMarkup(
                                             DungeonNarrativeColoredText.FormatHealingMessage(healthRestored));
-                                        displayManager.AddCombatEvent(healingMarkup, stateManager.CurrentPlayer);
+                                        displayManager.AddCombatEvent(healingMarkup, stateManager.CurrentPlayer, UIMessageType.Environmental);
                                     }
-                                    displayManager.AddCombatEvent("You leave the dungeon safely, but receive no rewards.", stateManager.CurrentPlayer);
+                                    displayManager.AddCombatEvent("You leave the dungeon safely, but receive no rewards.", stateManager.CurrentPlayer, UIMessageType.Environmental);
                                     if (stateManager.CurrentPlayer != null && stateManager.CurrentRoom != null)
                                     {
                                         canvasUIExit.RenderRoomEntry(
@@ -210,7 +214,10 @@ namespace RPGGame
                 var (xpGained, lootReceived, levelUpInfos, itemsFoundDuringRun, skipDungeonCompletionScreen) = await rewardManager.CompleteDungeon();
 
                 if (stateManager.CurrentPlayer != null)
+                {
                     stateManager.CurrentPlayer.ClearAllTempEffects();
+                    stateManager.CurrentPlayer.ClearDungeonSearchBuffs();
+                }
 
                 if (skipDungeonCompletionScreen)
                 {

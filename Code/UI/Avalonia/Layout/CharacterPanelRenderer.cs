@@ -181,22 +181,23 @@ namespace RPGGame.UI.Avalonia.Layout
                 y++;
 
                 string primaryStat = GetPrimaryStatForCharacter(character);
+                var primaryStatHighlight = PrimaryStatRowHighlightColors.ForCharacter(character);
 
                 int strRowY = y;
                 canvas.AddCharacterStat(x, y, "STR", character.GetEffectiveStrength(), 0,
-                    primaryStat == "Strength" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
+                    primaryStat == "Strength" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
                 y++;
                 int agiRowY = y;
                 canvas.AddCharacterStat(x, y, "AGI", character.GetEffectiveAgility(), 0,
-                    primaryStat == "Agility" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
+                    primaryStat == "Agility" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
                 y++;
                 int tecRowY = y;
                 canvas.AddCharacterStat(x, y, "TECH", character.GetEffectiveTechnique(), 0,
-                    primaryStat == "Technique" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
+                    primaryStat == "Technique" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
                 y++;
                 int intRowY = y;
                 canvas.AddCharacterStat(x, y, "INT", character.GetEffectiveIntelligence(), 0,
-                    primaryStat == "Intelligence" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
+                    primaryStat == "Intelligence" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
                 y++;
 
                 List<(int rowY, string idSuffix)>? expandedHoverTargets = interactionManager != null && stateManager != null
@@ -283,19 +284,38 @@ namespace RPGGame.UI.Avalonia.Layout
             if (thresholdsOpen)
             {
                 int critY = y;
-                y = DiceRollThresholdRowsRenderer.RenderRows(canvas, x, y, character, showThresholdChances);
-                int comboY = critY + 1;
-                int hitY = critY + 2;
-                int critMissY = critY + 3;
+                bool flashChances = stateManager != null && stateManager.IsThresholdsChancesFlashActive();
+                y = DiceRollThresholdRowsRenderer.RenderRows(
+                    canvas,
+                    x,
+                    y,
+                    character,
+                    showThresholdChances,
+                    flashChances,
+                    out var chanceHoverOrder);
 
                 if (interactionManager != null && stateManager != null)
                 {
-                    RegisterLeftPanelHoverRow(x, critY, headerClickWidth, 1, "thresh:crit");
-                    RegisterLeftPanelHoverRow(x, comboY, headerClickWidth, 1, "thresh:combo");
-                    RegisterLeftPanelHoverRow(x, hitY, headerClickWidth, 1, "thresh:hit");
-                    RegisterLeftPanelHoverRow(x, critMissY, headerClickWidth, 1, "thresh:critmiss");
-                    if (showThresholdChances)
-                        RegisterLeftPanelHoverRow(x, critY + 4, headerClickWidth, 1, "thresh:miss");
+                    if (showThresholdChances && chanceHoverOrder != null)
+                    {
+                        for (int i = 0; i < chanceHoverOrder.Length; i++)
+                            RegisterLeftPanelHoverRow(
+                                x,
+                                critY + i,
+                                headerClickWidth,
+                                1,
+                                ThresholdChanceLabelToHoverId(chanceHoverOrder[i].Label));
+                    }
+                    else
+                    {
+                        int comboY = critY + 1;
+                        int hitY = critY + 2;
+                        int critMissY = critY + 3;
+                        RegisterLeftPanelHoverRow(x, critY, headerClickWidth, 1, "thresh:crit");
+                        RegisterLeftPanelHoverRow(x, comboY, headerClickWidth, 1, "thresh:combo");
+                        RegisterLeftPanelHoverRow(x, hitY, headerClickWidth, 1, "thresh:hit");
+                        RegisterLeftPanelHoverRow(x, critMissY, headerClickWidth, 1, "thresh:critmiss");
+                    }
                 }
             }
             if (thresholdsOpen)
@@ -330,6 +350,17 @@ namespace RPGGame.UI.Avalonia.Layout
                 }
             }
         }
+
+        private static string ThresholdChanceLabelToHoverId(string label) =>
+            label switch
+            {
+                "Crit" => "thresh:crit",
+                "Combo" => "thresh:combo",
+                "Hit" => "thresh:hit",
+                "Miss" => "thresh:miss",
+                "Crit Miss" => "thresh:critmiss",
+                _ => "thresh:hit"
+            };
 
         private void RegisterLeftPanelHoverRow(int x, int rowY, int width, int height, string idSuffix)
         {

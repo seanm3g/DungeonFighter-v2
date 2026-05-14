@@ -45,6 +45,7 @@ namespace RPGGame.Actions.Execution
                     thresholdManager.AdjustComboThreshold(gearCharacter, eqCombo);
                 if (eqCrit != 0)
                     thresholdManager.AdjustCriticalHitThreshold(gearCharacter, eqCrit);
+                DungeonSearchBuffThresholdApplicator.Apply(gearCharacter, thresholdManager);
             }
 
             result.SelectedAction = forcedAction ?? ActionSelector.SelectActionByEntityType(source);

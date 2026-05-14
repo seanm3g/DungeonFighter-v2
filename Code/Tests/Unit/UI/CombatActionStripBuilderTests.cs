@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using RPGGame;
 using RPGGame.Data;
 using RPGGame.Tests;
+using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame.Tests.Unit.UI
 {
@@ -72,6 +73,23 @@ namespace RPGGame.Tests.Unit.UI
             var lowPanel = CombatActionStripBuilder.BuildPanelData(charLowDmg);
             TestBase.AssertTrue(lowPanel != null && lowPanel.Count >= 1 && Math.Abs(lowPanel[0].DamageBase - 10.0) < 0.001,
                 "BuildPanelData: 0.1 DamageMultiplier -> DamageBase 10%",
+                ref run, ref passed, ref failed);
+
+            // GetStripSwingDisplayPercents: base vs effective+combo amp on second strip slot
+            var twoForAmp = CreateCharacterWithTwoComboActions();
+            var pdAmp = CombatActionStripBuilder.BuildPanelData(twoForAmp);
+            var secondAction = twoForAmp.GetComboActions()[1];
+            ActionPanelInfo panel1 = pdAmp[1];
+            CombatActionStripBuilder.GetStripSwingDisplayPercents(in panel1, twoForAmp, secondAction, ActionStripDamageLineMode.BaseIntrinsic, out double baseDmgPct, out double baseSpdPct);
+            TestBase.AssertTrue(
+                Math.Abs(baseDmgPct - panel1.DamageBase) < 0.02 && Math.Abs(baseSpdPct - panel1.SpeedBase) < 0.02,
+                "GetStripSwingDisplayPercents BaseIntrinsic uses intrinsic damage and speed %",
+                ref run, ref passed, ref failed);
+            double ampSlot1 = ActionUtilities.CalculateDamageMultiplier(twoForAmp, secondAction);
+            CombatActionStripBuilder.GetStripSwingDisplayPercents(in panel1, twoForAmp, secondAction, ActionStripDamageLineMode.EffectiveWithComboAmp, out double effDmgPct, out _);
+            TestBase.AssertTrue(
+                Math.Abs(effDmgPct - panel1.DamageModified * ampSlot1) < 0.02 && ampSlot1 > 1.0001,
+                "GetStripSwingDisplayPercents EffectiveWithComboAmp multiplies slot damage % by combo amp (slot 1)",
                 ref run, ref passed, ref failed);
 
             // BuildPanelData: no modifiers -> DamageModified == DamageBase, SpeedModified == SpeedBase

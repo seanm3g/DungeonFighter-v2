@@ -164,6 +164,16 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertEqual(15, threshold,
                 "Combo threshold should be set correctly",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Combo is not capped by a lowered crit threshold (crit-eval vs attack total are independent).
+            manager.SetCriticalHitThreshold(actor, 12);
+            manager.SetComboThreshold(actor, 16);
+            TestBase.AssertEqual(16, manager.GetComboThreshold(actor),
+                "SetComboThreshold should allow combo above crit threshold value",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(12, manager.GetCriticalHitThreshold(actor),
+                "Crit threshold unchanged when setting combo",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestSetHitThreshold()

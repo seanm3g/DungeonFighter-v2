@@ -25,7 +25,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             characterCreationRenderer.RenderCharacterCreation(character, context);
             // No center hover tooltip: it ClearTextInArea's the narrative region; cards in the strip still show Dmg/Spd.
-            dungeonRenderer.RenderActionInfoStrip(character, drawHoverDetailOverlay: false);
+            dungeonRenderer.RenderActionInfoStrip(character, drawHoverDetailOverlay: false, damageLineMode: ResolveActionStripDamageLineMode(character));
             canvas.Refresh();
         }
 
@@ -35,7 +35,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 dungeonRenderer.RenderDungeonSelection(contentX, contentY, contentWidth, contentHeight, dungeons, customDungeonLevelEntryBuffer, currentRegionDisplayName);
             }, context, null, null, null, clearCanvas: false);
-            dungeonRenderer.RenderActionInfoStrip(player);
+            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
         }
 
@@ -51,7 +51,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 dungeonRenderer.RenderDungeonStart(contentX, contentY, contentWidth, contentHeight, dungeon, textManager, context.DungeonContext);
             }, context, null, context.DungeonName, null);
-            dungeonRenderer.RenderActionInfoStrip(player);
+            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
         }
 
@@ -78,7 +78,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                             var displayManager = canvasTextManager.DisplayManager;
                             var buffer = displayManager.Buffer;
                             var renderer = new DisplayRenderer(new ColoredTextWriter(canvas));
-                            renderer.Render(buffer, contentX, contentY, contentWidth, contentHeight, clearContent: true);
+                            renderer.Render(buffer, contentX, contentY, contentWidth, contentHeight, clearContent: true, combatEnemyNameForPrimaryLineRightAlign: contextManager.GetCombatLogEnemyAlignmentName(), combatHeroNameForLineAlignment: player?.Name);
                         }
                     },
                     context,
@@ -99,7 +99,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 PaintRoomEntryLayout();
             }
 
-            dungeonRenderer.RenderActionInfoStrip(player);
+            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
         }
 
@@ -146,7 +146,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                         null, null, currentEnemy, textManager, player, filteredDungeonContext);
                 }
             }, context, currentEnemy, context.DungeonName, context.RoomName, clearCanvas: shouldClear);
-            dungeonRenderer.RenderActionInfoStrip(player);
+            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
             if (shouldClear)
                 contextManager.MarkCombatRenderComplete();
@@ -165,7 +165,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 dungeonRenderer.RenderEnemyEncounter(contentX, contentY, contentWidth, contentHeight, enemy, textManager, context.DungeonContext);
             }, context, enemy, dungeonName, roomName, clearCanvas: false);
-            dungeonRenderer.RenderActionInfoStrip(player);
+            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
         }
 
@@ -183,7 +183,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 combatRenderer.RenderCombatResult(contentX, contentY, contentWidth, contentHeight, playerSurvived, enemy, battleNarrative);
             }, context, enemy, dungeonName, roomName);
-            dungeonRenderer.RenderActionInfoStrip(player);
+            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
         }
 
@@ -193,7 +193,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 dungeonRenderer.RenderRoomCompletion(contentX, contentY, contentWidth, contentHeight, room, player);
             }, context, null, dungeonName, null);
-            dungeonRenderer.RenderActionInfoStrip(player);
+            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
         }
 
@@ -213,7 +213,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     dungeonRenderer.RenderDungeonCompletion(contentX, contentY, contentWidth, contentHeight, buffer);
                 }
             }, context, null, context.DungeonName, null);
-            dungeonRenderer.RenderActionInfoStrip(player);
+            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
         }
 
@@ -237,7 +237,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     dungeonRenderer.RenderDeathScreen(contentX, contentY, contentWidth, contentHeight, buffer);
                 }
             }, context, null, context.DungeonName, null, clearCanvas: false);
-            dungeonRenderer.RenderActionInfoStrip(player);
+            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
         }
 
@@ -263,7 +263,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 context.DungeonName,
                 context.RoomName,
                 clearCanvas: false);
-            dungeonRenderer.RenderActionInfoStrip(player);
+            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
         }
 
@@ -275,7 +275,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(player, "CHARACTER INFO", (contentX, contentY, contentWidth, contentHeight) =>
             {
             }, context, null, null, null, clearCanvas: true);
-            dungeonRenderer.RenderActionInfoStrip(player);
+            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
         }
 
@@ -285,7 +285,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 menuRenderer.RenderGameMenu(contentX, contentY, contentWidth, contentHeight);
             }, context, null, null, null, clearCanvas: false);
-            dungeonRenderer.RenderActionInfoStrip(player);
+            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
         }
 
@@ -295,7 +295,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 regionTravelRenderer.RenderRegionTravel(contentX, contentY, contentWidth, contentHeight, player, destinations, routeResult);
             }, context, null, null, null, clearCanvas: false);
-            dungeonRenderer.RenderActionInfoStrip(player);
+            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
         }
     }
