@@ -1,0 +1,86 @@
+[
+  {
+    "displayName": "Vial of Iron Blood",
+    "internalKind": "PotionStrength",
+    "effect": "Strength",
+    "potency": "25%"
+  },
+  {
+    "displayName": "Elixir of Quicksilver",
+    "internalKind": "PotionAgility",
+    "effect": "Agility",
+    "potency": "25%"
+  },
+  {
+    "displayName": "Tincture of Fine Motion",
+    "internalKind": "PotionTechnique",
+    "effect": "Technique",
+    "potency": "25%"
+  },
+  {
+    "displayName": "Draught of Clear Thought",
+    "internalKind": "PotionIntelligence",
+    "effect": "Intelligence",
+    "potency": "25%"
+  },
+  {
+    "displayName": "Oil of True Aim",
+    "internalKind": "PotionHit",
+    "effect": "HIT",
+    "potency": "2"
+  },
+  {
+    "displayName": "Serum of Flow",
+    "internalKind": "PotionCombo",
+    "effect": "COMBO",
+    "potency": "3"
+  },
+  {
+    "displayName": "Essence of Razor's Edge",
+    "internalKind": "PotionCrit",
+    "effect": "CRIT",
+    "potency": "2"
+  },
+  {
+    "displayName": "Balm of Steady Hands",
+    "internalKind": "PotionCritMiss",
+    "effect": "CRIT MISS",
+    "potency": "1"
+  },
+  {
+    "displayName": "Waxed Apple",
+    "internalKind": "Food",
+    "effect": "heal",
+    "potency": "1"
+  },
+  {
+    "displayName": "Travel's Ration",
+    "internalKind": "Food",
+    "effect": "heal",
+    "potency": "3"
+  },
+  {
+    "displayName": "Salted Bread",
+    "internalKind": "Food",
+    "effect": "heal",
+    "potency": "5"
+  },
+  {
+    "displayName": "Camp Jerky",
+    "internalKind": "Food",
+    "effect": "heal",
+    "potency": "5%"
+  },
+  {
+    "displayName": "Smoked Cheese",
+    "internalKind": "Food",
+    "effect": "heal",
+    "potency": "10%"
+  },
+  {
+    "displayName": "Honeyed Sausage",
+    "internalKind": "Food",
+    "effect": "heal",
+    "potency": "25%"
+  }
+]

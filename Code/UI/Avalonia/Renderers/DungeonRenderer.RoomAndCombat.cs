@@ -27,14 +27,14 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the enemy encounter screen using the display buffer system.
         /// </summary>
-        public void RenderEnemyEncounter(int x, int y, int width, int height, Enemy enemy, ICanvasTextManager textManager, List<string>? dungeonContext = null)
+        public void RenderEnemyEncounter(int x, int y, int width, int height, Enemy enemy, ICanvasTextManager textManager, List<string>? dungeonContext = null, IReadOnlyList<string>? combatEnemyNamesForLogAlignment = null)
         {
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 var displayManager = canvasTextManager.DisplayManager;
                 var buffer = displayManager.Buffer;
                 var displayRenderer = new DisplayRenderer(textWriter);
-                displayRenderer.Render(buffer, x, y, width, height, clearContent: true, combatEnemyNameForPrimaryLineRightAlign: enemy?.Name, combatHeroNameForLineAlignment: null);
+                displayRenderer.Render(buffer, x, y, width, height, clearContent: true, combatEnemyNamesForPrimaryLineRightAlign: combatEnemyNamesForLogAlignment, combatHeroNameForLineAlignment: null);
             }
             else
             {
@@ -57,14 +57,14 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// Renders the complete combat screen by rendering the display buffer.
         /// Uses GetDisplayManagerForCharacter(player) so the correct character's buffer is shown.
         /// </summary>
-        public void RenderCombatScreen(int x, int y, int width, int height, Dungeon? dungeon, Environment? room, Enemy enemy, ICanvasTextManager textManager, Character? player = null, List<string>? dungeonContext = null)
+        public void RenderCombatScreen(int x, int y, int width, int height, Dungeon? dungeon, Environment? room, Enemy enemy, ICanvasTextManager textManager, Character? player = null, List<string>? dungeonContext = null, IReadOnlyList<string>? combatEnemyNamesForLogAlignment = null)
         {
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 var displayManager = canvasTextManager.GetDisplayManagerForCharacter(player);
                 var buffer = displayManager.Buffer;
                 var displayRenderer = new DisplayRenderer(textWriter);
-                displayRenderer.Render(buffer, x, y, width, height, clearContent: true, combatEnemyNameForPrimaryLineRightAlign: enemy?.Name, combatHeroNameForLineAlignment: player?.Name);
+                displayRenderer.Render(buffer, x, y, width, height, clearContent: true, combatEnemyNamesForPrimaryLineRightAlign: combatEnemyNamesForLogAlignment, combatHeroNameForLineAlignment: player?.Name);
             }
             else
             {

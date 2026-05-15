@@ -46,6 +46,10 @@ namespace RPGGame.Data
         [JsonPropertyName("statBonusesSheetUrl")]
         public string StatBonusesSheetUrl { get; set; } = "";
 
+        /// <summary>Published CSV URL for the CONSUMABLES tab (→ <c>Consumables.json</c>).</summary>
+        [JsonPropertyName("consumablesSheetUrl")]
+        public string ConsumablesSheetUrl { get; set; } = "";
+
         /// <summary>
         /// Loads configuration from file
         /// </summary>

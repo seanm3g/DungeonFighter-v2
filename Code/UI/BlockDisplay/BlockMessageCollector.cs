@@ -29,9 +29,6 @@ namespace RPGGame.UI.BlockDisplay
                 return 0.8;
             }
         }
-        /// <summary>
-        /// Collects all messages for an action block into a structured list
-        /// </summary>
         private static bool ColoredListEndsWithLineBreak(List<ColoredText> segments)
         {
             for (int i = segments.Count - 1; i >= 0; i--)
@@ -44,26 +41,37 @@ namespace RPGGame.UI.BlockDisplay
             return false;
         }
 
+        /// <summary>
+        /// Collects all messages for an action block into a structured list.
+        /// </summary>
+        /// <param name="blockType">When <see cref="TextSpacingSystem.BlockType.EnvironmentalAction"/>, lines use <see cref="UIMessageType.Environmental"/> so the center combat log center-aligns the block.</param>
         public static List<(List<ColoredText> segments, UIMessageType messageType)> CollectActionBlockMessages(
             List<ColoredText>? actionText,
             List<ColoredText>? rollInfo,
             List<List<ColoredText>>? statusEffects,
             List<ColoredText>? criticalMissNarrative,
-            List<List<ColoredText>>? narratives)
+            List<List<ColoredText>>? narratives,
+            TextSpacingSystem.BlockType blockType = TextSpacingSystem.BlockType.CombatAction)
         {
             var messageGroups = new List<(List<ColoredText> segments, UIMessageType messageType)>();
-            
+            bool environmentalBlock = blockType == TextSpacingSystem.BlockType.EnvironmentalAction;
+            UIMessageType actionLineType = environmentalBlock ? UIMessageType.Environmental : UIMessageType.Combat;
+            UIMessageType rollLineType = environmentalBlock ? UIMessageType.Environmental : UIMessageType.RollInfo;
+            UIMessageType narrativeLineType = environmentalBlock ? UIMessageType.Environmental : UIMessageType.System;
+            UIMessageType effectLineType = environmentalBlock ? UIMessageType.Environmental : UIMessageType.EffectMessage;
+            UIMessageType blankSpacerType = environmentalBlock ? UIMessageType.Environmental : UIMessageType.System;
+
             // Add action text
             if (actionText != null && actionText.Count > 0)
             {
-                messageGroups.Add((actionText, UIMessageType.Combat));
+                messageGroups.Add((actionText, actionLineType));
             }
             
             // Add roll info (subsequent line - darken by 20%)
             if (rollInfo != null && rollInfo.Count > 0)
             {
                 var darkenedRollInfo = DarkenColors(rollInfo);
-                messageGroups.Add((darkenedRollInfo, UIMessageType.RollInfo));
+                messageGroups.Add((darkenedRollInfo, rollLineType));
             }
             
             // Add critical miss narrative
@@ -72,7 +80,7 @@ namespace RPGGame.UI.BlockDisplay
             if (criticalMissNarrative != null && criticalMissNarrative.Count > 0)
             {
                 // Add blank line before narrative
-                messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
+                messageGroups.Add((new List<ColoredText>(), blankSpacerType));
                 
                 // Apply keyword coloring to narrative text
                 // Convert ColoredText to plain text, then apply keyword coloring
@@ -83,7 +91,7 @@ namespace RPGGame.UI.BlockDisplay
                 var darkenedNarrative = DarkenColors(keywordColoredNarrative);
                 
                 // Add the keyword-colored narrative
-                messageGroups.Add((darkenedNarrative, UIMessageType.System));
+                messageGroups.Add((darkenedNarrative, narrativeLineType));
                 
                 // Note: Blank line after narrative removed - TextSpacingSystem handles spacing between action blocks
             }
@@ -120,7 +128,7 @@ namespace RPGGame.UI.BlockDisplay
                 if (combinedStatusEffects.Count > 0)
                 {
                     var darkenedStatusEffects = DarkenColors(combinedStatusEffects);
-                    messageGroups.Add((darkenedStatusEffects, UIMessageType.EffectMessage));
+                    messageGroups.Add((darkenedStatusEffects, effectLineType));
                     // Note: Blank line after status effects removed - TextSpacingSystem handles spacing between action blocks
                 }
             }
@@ -135,7 +143,7 @@ namespace RPGGame.UI.BlockDisplay
                     if (narrative != null && narrative.Count > 0)
                     {
                         // Add blank line before narrative
-                        messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
+                        messageGroups.Add((new List<ColoredText>(), blankSpacerType));
                         
                         // Apply keyword coloring to narrative text
                         // Convert ColoredText to plain text, then apply keyword coloring
@@ -146,7 +154,7 @@ namespace RPGGame.UI.BlockDisplay
                         var darkenedNarrative = DarkenColors(keywordColoredNarrative);
                         
                         // Add the keyword-colored narrative
-                        messageGroups.Add((darkenedNarrative, UIMessageType.System));
+                        messageGroups.Add((darkenedNarrative, narrativeLineType));
                         
                         // Note: Blank line after narrative removed - TextSpacingSystem handles spacing between action blocks
                     }

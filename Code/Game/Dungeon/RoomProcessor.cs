@@ -92,7 +92,7 @@ namespace RPGGame
             
             if (explorationManager != null && stateManager.CurrentPlayer != null)
             {
-                var explorationResult = explorationManager.ExploreRoom(room, stateManager.CurrentPlayer, isLastRoom);
+                var explorationResult = explorationManager.ExploreRoom(room, stateManager.CurrentPlayer);
                 
                 // Apply keyword coloring to exploration message
                 // Skip for environmental hazards (displayed with proper formatting below) and SpotEnemyEarly (advantage message shown later)
@@ -256,12 +256,13 @@ namespace RPGGame
                 }
             }
             
-            // Post-combat search (happens FIRST, before room cleared message)
+            // Post-combat search (happens FIRST, before room cleared message). Skip on the final room:
+            // any consumable buff is dungeon-scoped and combat is over, so search would be pointless noise.
             bool foundLoot = false;
-            if (explorationManager != null && stateManager.CurrentPlayer != null && stateManager.CurrentDungeon != null)
+            if (!isLastRoom && explorationManager != null && stateManager.CurrentPlayer != null && stateManager.CurrentDungeon != null)
             {
                 var searchResult = explorationManager.SearchRoom(room, stateManager.CurrentPlayer, 
-                    stateManager.CurrentDungeon.MinLevel, isLastRoom);
+                    stateManager.CurrentDungeon.MinLevel);
                 
                 // Display search result with colors (roll number hidden, only flavor text shown)
                 displayManager.AddCombatEvent("", stateManager.CurrentPlayer); // Blank line before search message

@@ -22,7 +22,7 @@ namespace RPGGame
         /// Automatically explores room before combat (dice-based)
         /// Returns exploration outcome based on 1d20 roll
         /// </summary>
-        public ExplorationResult ExploreRoom(Environment room, Character player, bool isLastRoom = false)
+        public ExplorationResult ExploreRoom(Environment room, Character player)
         {
             int roll = Dice.Roll(20);
             
@@ -100,36 +100,10 @@ namespace RPGGame
         /// <summary>
         /// Automatically searches room after combat (dice-based).
         /// On a successful search roll, yields food or a dungeon potion (not equipment).
-        /// Last room still guarantees a consumable find.
         /// </summary>
-        public SearchResult SearchRoom(Environment room, Character player, int dungeonLevel, bool isLastRoom = false)
+        public SearchResult SearchRoom(Environment room, Character player, int dungeonLevel)
         {
-            // Last room: guaranteed loot
-            if (isLastRoom)
-            {
-                Item? loot = RoomSearchConsumableGenerator.Generate(random, player, dungeonLevel);
-                var foundMessages = new[]
-                {
-                    $"You thoroughly search the area and discover: {loot?.Name ?? "nothing"}",
-                    $"After a careful search, you find: {loot?.Name ?? "nothing"}",
-                    $"Your search reveals: {loot?.Name ?? "nothing"}",
-                    $"Hidden among the debris, you find: {loot?.Name ?? "nothing"}",
-                    $"A thorough examination uncovers: {loot?.Name ?? "nothing"}"
-                };
-                string message = loot != null 
-                    ? foundMessages[random.Next(foundMessages.Length)]
-                    : "You search thoroughly but find nothing of value.";
-                
-                return new SearchResult
-                {
-                    FoundLoot = loot != null,
-                    LootItem = loot,
-                    Roll = 20, // Roll 20 = guaranteed success
-                    Message = message
-                };
-            }
-            
-            // Regular rooms: 90% nothing, 10% loot (roll 19-20)
+            // 90% nothing, 10% loot (roll 19-20)
             int roll = Dice.Roll(20);
             
             if (roll <= 18)

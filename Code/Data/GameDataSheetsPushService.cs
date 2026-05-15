@@ -10,7 +10,7 @@ using RPGGame;
 
 namespace RPGGame.Data
 {
-    /// <summary>Pushes Actions plus optional WEAPONS / Prefix (Modifications.json + PrefixMaterialQuality.json when present) / ARMOR / SUFFIXES (StatBonuses) / ENEMIES / ENVIRONMENTS / DUNGEONS / CLASSES / CLASS ACTIONS tabs via Sheets API.</summary>
+    /// <summary>Pushes Actions plus optional WEAPONS / Prefix (Modifications.json + PrefixMaterialQuality.json when present) / ARMOR / SUFFIXES (StatBonuses) / CONSUMABLES (Consumables.json) / ENEMIES / ENVIRONMENTS / DUNGEONS / CLASSES / CLASS ACTIONS tabs via Sheets API.</summary>
     public static class GameDataSheetsPushService
     {
         public static async Task<GameDataSheetsPushResult> PushAllGameDataSheetsAsync(
@@ -28,7 +28,7 @@ namespace RPGGame.Data
                 {
                     cfg.Save(pushConfigPath);
                     result.AddLine(
-                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, Prefix (Modifications.json + PrefixMaterialQuality.json), ARMOR, SUFFIXES, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES, CLASS ACTIONS " +
+                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, Prefix (Modifications.json + PrefixMaterialQuality.json), ARMOR, SUFFIXES, CONSUMABLES, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES, CLASS ACTIONS " +
                         "(all optional tabs were blank). Edit the file if your sheet uses different tab titles.");
                 }
                 catch (Exception ex)
@@ -82,6 +82,22 @@ namespace RPGGame.Data
                 {
                     result.AddLine(
                         $"Note: could not save SheetsPushConfig after SUFFIXES default ({ex.Message}); push still uses that tab name for this run.");
+                }
+            }
+
+            if (cfg.ApplyDefaultConsumablesTabNameIfUnset())
+            {
+                try
+                {
+                    cfg.Save(pushConfigPath);
+                    result.AddLine(
+                        "Set default CONSUMABLES tab name in SheetsPushConfig.json (consumablesSheetTabName was blank). " +
+                        "Edit if your spreadsheet uses a different tab title.");
+                }
+                catch (Exception ex)
+                {
+                    result.AddLine(
+                        $"Note: could not save SheetsPushConfig after CONSUMABLES default ({ex.Message}); push still uses that tab name for this run.");
                 }
             }
 
@@ -179,6 +195,19 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    cfg.PushConsumablesTab,
+                    "CONSUMABLES",
+                    cfg.ConsumablesSheetTabName,
+                    GameConstants.ConsumablesJson,
+                    GameDataTabularSheetKind.Consumables,
+                    "Consumables.json",
+                    result,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            await PushOptionalJsonArrayTabAsync(
+                    service,
+                    cfg,
                     cfg.PushEnemiesTab,
                     "ENEMIES",
                     cfg.EnemiesSheetTabName,
@@ -238,6 +267,9 @@ namespace RPGGame.Data
 
             if (cfg.PushStatBonusesTab && !string.IsNullOrWhiteSpace(cfg.StatBonusesSheetTabName))
                 yield return cfg.StatBonusesSheetTabName.Trim();
+
+            if (cfg.PushConsumablesTab && !string.IsNullOrWhiteSpace(cfg.ConsumablesSheetTabName))
+                yield return cfg.ConsumablesSheetTabName.Trim();
 
             if (cfg.PushEnemiesTab && !string.IsNullOrWhiteSpace(cfg.EnemiesSheetTabName))
                 yield return cfg.EnemiesSheetTabName.Trim();

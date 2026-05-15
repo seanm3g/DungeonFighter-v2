@@ -86,6 +86,13 @@ namespace RPGGame.Config.TextDelay
                             ?? new ProgressiveMenuDelaysConfig();
                     }
 
+                    if (config.TryGetProperty("TravelRouteRollPacing", out var travelRouteRollPacing))
+                    {
+                        var loaded = JsonSerializer.Deserialize<TravelRouteRollPacingConfig>(travelRouteRollPacing.GetRawText());
+                        if (loaded != null)
+                            configData.TravelRouteRollPacing = loaded;
+                    }
+
                     // Load environmental line delay
                     if (config.TryGetProperty("EnvironmentalLineDelay", out var environmentalLineDelay))
                         configData.EnvironmentalLineDelay = environmentalLineDelay.GetInt32();
@@ -223,6 +230,14 @@ namespace RPGGame.Config.TextDelay
                     ProgressiveReductionRate = configData.ProgressiveMenuDelays.ProgressiveReductionRate,
                     ProgressiveThreshold = configData.ProgressiveMenuDelays.ProgressiveThreshold
                 };
+
+                saveData.TravelRouteRollPacing = new TravelRouteRollPacingConfig
+                {
+                    StepDelayBaseMs = configData.TravelRouteRollPacing.StepDelayBaseMs,
+                    StepExtraDelayMsPerPointBelow20 = configData.TravelRouteRollPacing.StepExtraDelayMsPerPointBelow20,
+                    SummaryBaseMinutes = configData.TravelRouteRollPacing.SummaryBaseMinutes,
+                    SummaryExtraMinutesPerPointBelow20 = configData.TravelRouteRollPacing.SummaryExtraMinutesPerPointBelow20
+                };
                 
                 // Add environmental line delay
                 saveData.EnvironmentalLineDelay = configData.EnvironmentalLineDelay;
@@ -259,6 +274,7 @@ namespace RPGGame.Config.TextDelay
             public int MessageDelayMs { get; set; } = 200;
             public int EnvironmentalLineDelay { get; set; } = 500;
             public ProgressiveMenuDelaysConfig ProgressiveMenuDelays { get; set; } = new ProgressiveMenuDelaysConfig();
+            public TravelRouteRollPacingConfig TravelRouteRollPacing { get; set; } = new TravelRouteRollPacingConfig();
             public bool EnableGuiDelays { get; set; } = true;
             public bool EnableConsoleDelays { get; set; } = true;
         }
@@ -273,6 +289,7 @@ namespace RPGGame.Config.TextDelay
             public CombatDelaysData CombatDelays { get; set; } = new CombatDelaysData();
             public int EnvironmentalLineDelay { get; set; } = 500;
             public ProgressiveMenuDelaysConfig ProgressiveMenuDelays { get; set; } = new ProgressiveMenuDelaysConfig();
+            public TravelRouteRollPacingConfig TravelRouteRollPacing { get; set; } = new TravelRouteRollPacingConfig();
             public bool EnableGuiDelays { get; set; } = true;
             public bool EnableConsoleDelays { get; set; } = true;
         }

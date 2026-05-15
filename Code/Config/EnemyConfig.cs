@@ -244,11 +244,36 @@ namespace RPGGame
 
 
     /// <summary>
+    /// Global scales applied to enemy level curves before <see cref="GlobalMultipliersConfig"/> (per-stat) multipliers.
+    /// Persisted under <c>TuningConfig.json</c> → <c>enemySystem.progressionScales</c>.
+    /// </summary>
+    public class EnemyProgressionScalesConfig
+    {
+        /// <summary>Multiplies level-1 (and explicit) base health contribution.</summary>
+        public double BaseHealthScale { get; set; } = 1.0;
+        /// <summary>Multiplies HP gained per level (explicit <c>healthGrowthPerLevel</c> or tuning default).</summary>
+        public double HealthGrowthScale { get; set; } = 1.0;
+        /// <summary>Multiplies STR/AGI/TEC/INT per-level growth after the 6-point budget normalization.</summary>
+        public double AttributeGrowthScale { get; set; } = 1.0;
+
+        public void EnsurePositiveScales()
+        {
+            if (BaseHealthScale <= 0)
+                BaseHealthScale = 1.0;
+            if (HealthGrowthScale <= 0)
+                HealthGrowthScale = 1.0;
+            if (AttributeGrowthScale <= 0)
+                AttributeGrowthScale = 1.0;
+        }
+    }
+
+    /// <summary>
     /// Unified enemy system configuration that consolidates all enemy-related tuning
     /// </summary>
     public class EnemySystemConfig
     {
         public GlobalMultipliersConfig GlobalMultipliers { get; set; } = new();
+        public EnemyProgressionScalesConfig ProgressionScales { get; set; } = new();
         public BaselineStatsConfig BaselineStats { get; set; } = new();
         public ScalingPerLevelConfig ScalingPerLevel { get; set; } = new();
         public Dictionary<string, ArchetypeMultipliersConfig> Archetypes { get; set; } = new();
@@ -259,6 +284,8 @@ namespace RPGGame
         {
             GlobalMultipliers ??= new GlobalMultipliersConfig();
             GlobalMultipliers.EnsurePositiveMultipliers();
+            ProgressionScales ??= new EnemyProgressionScalesConfig();
+            ProgressionScales.EnsurePositiveScales();
             BaselineStats ??= new BaselineStatsConfig();
             BaselineStats.EnsureValidNonEmptyBaseline();
             ScalingPerLevel ??= new ScalingPerLevelConfig();

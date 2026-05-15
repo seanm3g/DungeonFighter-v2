@@ -357,6 +357,18 @@ namespace RPGGame
             lastActingEntity = null;
             lastDoTAfflictedEntity = null;
         }
+
+        /// <summary>
+        /// Clears actor/DoT tracking used for consecutive-action spacing, but keeps <see cref="lastBlockType"/>.
+        /// Used when combat begins: <see cref="DungeonDisplayManager.StartEnemyEncounter"/> may already have
+        /// recorded <see cref="BlockType.EnemyAppearance"/> before <c>StartBattleNarrative</c> runs; a full
+        /// <see cref="Reset"/> there would drop the (EnemyAppearance → CombatAction) blank line before the first swing.
+        /// </summary>
+        public static void ResetActingEntityContext()
+        {
+            lastActingEntity = null;
+            lastDoTAfflictedEntity = null;
+        }
         
         /// <summary>
         /// Gets the last block type that was displayed (for debugging)

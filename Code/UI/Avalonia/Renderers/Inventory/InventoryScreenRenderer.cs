@@ -137,7 +137,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             currentLineCount += 2;
             var displayEntries = BuildDisplayEntries(inventory, character, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter);
             var viewSummarySegments = BuildViewSummaryColoredSegments(
-                inventory, character, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter, displayEntries);
+                inventory, character, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter);
             if (viewSummarySegments.Count > 0)
             {
                 textWriter.RenderSegments(viewSummarySegments, x + 2, y);
@@ -401,21 +401,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
         /// <summary>
         /// One-line inventory view options (sort / filter / bag slot). Sort and filter clauses use a light highlight color when that option is applied (non-default).
-        /// The bag-slot clause uses the rarity color of the equipped item for the active slot filter when possible, otherwise the first bag row after sort/filter; when the slot filter is on but nothing matches, the lime applied color is used.
+        /// When a bag-slot filter is active, the bag-slot clause uses the same lime applied color as sort/filter highlights so each slot-only filter reads the same; red if the piece in that equipped slot is blocked. With no slot filter (all equip slots), the clause uses the same neutral dim as inactive sort/filter clauses.
         /// </summary>
         public static List<ColoredText> BuildViewSummaryColoredSegments(
             IReadOnlyList<Item> inventory,
             Character character,
             InventoryItemSortMode sortMode,
             bool hideRequirementBlockedItems,
-            string? inventoryEquipSlotFilter,
-            IReadOnlyList<InventoryDisplayEntry>? displayEntries = null)
+            string? inventoryEquipSlotFilter)
         {
             Color dim = AsciiArtAssets.Colors.DarkGray;
             Color appliedHighlight = ColorPalette.Lime.GetColor();
-
-            var entries = displayEntries ?? BuildDisplayEntries(
-                inventory, character, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter);
 
             string sortLabel = sortMode switch
             {
@@ -444,7 +440,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             Color bagClauseColor = ResolveBagSlotSummaryColor(
                 character,
                 inventoryEquipSlotFilter,
-                entries,
                 slotFilterActive: !string.IsNullOrEmpty(inventoryEquipSlotFilter),
                 appliedHighlight,
                 dim);
@@ -459,35 +454,26 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             };
         }
 
-        /// <summary>Rarity color for the item associated with the bag-slot line (equipped piece for the active slot filter, else first bag row after sort/filter).</summary>
+        /// <summary>
+        /// Color for the bag-slot summary segment: with an active slot filter, lime (same as other applied options) unless the item in that equipped slot is requirement-blocked (red).
+        /// With no slot filter, neutral dim (same as inactive sort/filter), not first-row rarity.
+        /// </summary>
         internal static Color ResolveBagSlotSummaryColor(
             Character character,
             string? inventoryEquipSlotFilter,
-            IReadOnlyList<InventoryDisplayEntry> displayEntries,
             bool slotFilterActive,
             Color appliedHighlight,
             Color dim)
         {
-            Item? assoc = null;
-            if (!string.IsNullOrEmpty(inventoryEquipSlotFilter))
+            if (slotFilterActive && !string.IsNullOrEmpty(inventoryEquipSlotFilter))
             {
-                assoc = GetEquippedItemForInventorySlotFilter(character, inventoryEquipSlotFilter);
-                if (assoc == null && displayEntries.Count > 0)
-                    assoc = displayEntries[0].Item;
-            }
-            else if (displayEntries.Count > 0)
-            {
-                assoc = displayEntries[0].Item;
+                Item? equipped = GetEquippedItemForInventorySlotFilter(character, inventoryEquipSlotFilter);
+                if (equipped != null && ItemRendererHelper.IsEquipBlockedForCharacter(equipped, character))
+                    return AsciiArtAssets.Colors.Red;
+                return appliedHighlight;
             }
 
-            if (assoc != null)
-            {
-                return ItemRendererHelper.IsEquipBlockedForCharacter(assoc, character)
-                    ? AsciiArtAssets.Colors.Red
-                    : ItemThemeProvider.GetRarityColor(assoc.Rarity?.Trim() ?? "Common");
-            }
-
-            return slotFilterActive ? appliedHighlight : dim;
+            return dim;
         }
 
         private static Item? GetEquippedItemForInventorySlotFilter(Character character, string slotKey) => slotKey switch

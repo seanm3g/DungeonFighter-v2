@@ -201,7 +201,7 @@ namespace RPGGame
                     {
                         // Use empty list if rollInfo is null (DisplayActionBlock expects non-nullable rollInfo)
                         var rollInfoToDisplay = rollInfo ?? new List<UI.ColorSystem.ColoredText>();
-                        BlockDisplayManager.DisplayActionBlock(actionText, rollInfoToDisplay, statusEffects, null, null, null);
+                        BlockDisplayManager.DisplayActionBlock(actionText, rollInfoToDisplay, statusEffects, null, null, null, TextSpacingSystem.BlockType.EnvironmentalAction);
                     }
                     
                     // Update environment's action timing in the action speed system

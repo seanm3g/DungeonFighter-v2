@@ -30,6 +30,7 @@ namespace RPGGame.Tests.Unit.UI.Spacing
             TestDoTSpacingRules();
             TestRecordBlockDisplayed();
             TestReset();
+            TestResetActingEntityContextPreservesEncounterToCombatSpacing();
 
             TestBase.PrintSummary("TextSpacingSystem Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -169,6 +170,26 @@ namespace RPGGame.Tests.Unit.UI.Spacing
             
             TestBase.AssertTrue(true,
                 "Reset should complete without errors",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// StartEnemyEncounter records EnemyAppearance, then StartBattleNarrative calls BlockDisplayManager.ResetForNewBattle
+        /// which must not clear lastBlockType or the first combat line loses its leading blank line.
+        /// </summary>
+        private static void TestResetActingEntityContextPreservesEncounterToCombatSpacing()
+        {
+            Console.WriteLine("\n--- Testing ResetActingEntityContext preserves encounter → combat spacing ---");
+
+            TextSpacingSystem.Reset();
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.RoomInfo);
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyAppearance);
+
+            TextSpacingSystem.ResetActingEntityContext();
+
+            int beforeFirstHeroSwing = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.CombatAction, "Hero");
+            TestBase.AssertEqual(1, beforeFirstHeroSwing,
+                "after acting-entity reset, first combat line after encounter headline still gets one blank line",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

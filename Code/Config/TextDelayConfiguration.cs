@@ -27,6 +27,17 @@ namespace RPGGame.Config
     }
 
     /// <summary>
+    /// Per d20 roll pacing for region travel: each point below 20 adds extra delay and summary minutes.
+    /// </summary>
+    public class TravelRouteRollPacingConfig
+    {
+        public int StepDelayBaseMs { get; set; } = 750;
+        public int StepExtraDelayMsPerPointBelow20 { get; set; } = 100;
+        public int SummaryBaseMinutes { get; set; } = 4;
+        public int SummaryExtraMinutesPerPointBelow20 { get; set; } = 1;
+    }
+
+    /// <summary>
     /// Facade for unified text delay configuration system
     /// Loads all delay values from TextDelayConfig.json
     /// 
@@ -137,6 +148,33 @@ namespace RPGGame.Config
         {
             var configData = GetConfigData();
             return DelayCalculator.GetEnableConsoleDelays(configData);
+        }
+
+        /// <summary>
+        /// Pacing for each region-travel d20 step (reveal pause and summary minutes).
+        /// </summary>
+        public static TravelRouteRollPacingConfig GetTravelRouteRollPacing()
+        {
+            var configData = GetConfigData();
+            return configData.TravelRouteRollPacing;
+        }
+
+        /// <summary>
+        /// Sets region travel roll pacing and persists to TextDelayConfig.json.
+        /// </summary>
+        public static void SetTravelRouteRollPacing(TravelRouteRollPacingConfig config)
+        {
+            var configData = GetConfigData();
+            lock (_lockObject)
+            {
+                var next = config ?? new TravelRouteRollPacingConfig();
+                next.StepDelayBaseMs = Math.Max(0, next.StepDelayBaseMs);
+                next.StepExtraDelayMsPerPointBelow20 = Math.Max(0, next.StepExtraDelayMsPerPointBelow20);
+                next.SummaryBaseMinutes = Math.Max(0, next.SummaryBaseMinutes);
+                next.SummaryExtraMinutesPerPointBelow20 = Math.Max(0, next.SummaryExtraMinutesPerPointBelow20);
+                configData.TravelRouteRollPacing = next;
+                TextDelayLoader.SaveConfig(configData);
+            }
         }
 
         /// <summary>

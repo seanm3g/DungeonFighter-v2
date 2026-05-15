@@ -52,19 +52,22 @@ namespace RPGGame.Tests.Unit.World
         private static void TestTravelPacingMakesGoodRollsFaster()
         {
             TestBase.AssertTrue(
-                TravelPacing.GetDelayMs(TravelRollOutcome.Critical) < TravelPacing.GetDelayMs(TravelRollOutcome.Combo) &&
-                TravelPacing.GetDelayMs(TravelRollOutcome.Combo) < TravelPacing.GetDelayMs(TravelRollOutcome.Hit) &&
-                TravelPacing.GetDelayMs(TravelRollOutcome.Hit) < TravelPacing.GetDelayMs(TravelRollOutcome.Miss) &&
-                TravelPacing.GetDelayMs(TravelRollOutcome.Miss) < TravelPacing.GetDelayMs(TravelRollOutcome.CriticalMiss),
-                "Travel delays should get slower as roll outcomes get worse",
+                TravelPacing.GetStepDelayMsForRoll(20) < TravelPacing.GetStepDelayMsForRoll(19) &&
+                TravelPacing.GetStepDelayMsForRoll(19) < TravelPacing.GetStepDelayMsForRoll(10) &&
+                TravelPacing.GetStepDelayMsForRoll(10) < TravelPacing.GetStepDelayMsForRoll(1),
+                "Travel step delays should get longer as the d20 gets lower",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             TestBase.AssertTrue(
-                TravelPacing.GetTravelMinutes(TravelRollOutcome.Critical) < TravelPacing.GetTravelMinutes(TravelRollOutcome.Combo) &&
-                TravelPacing.GetTravelMinutes(TravelRollOutcome.Combo) < TravelPacing.GetTravelMinutes(TravelRollOutcome.Hit) &&
-                TravelPacing.GetTravelMinutes(TravelRollOutcome.Hit) < TravelPacing.GetTravelMinutes(TravelRollOutcome.Miss) &&
-                TravelPacing.GetTravelMinutes(TravelRollOutcome.Miss) < TravelPacing.GetTravelMinutes(TravelRollOutcome.CriticalMiss),
-                "Travel time should get longer as roll outcomes get worse",
+                TravelPacing.GetSummaryTravelMinutesForRoll(20) < TravelPacing.GetSummaryTravelMinutesForRoll(19) &&
+                TravelPacing.GetSummaryTravelMinutesForRoll(19) < TravelPacing.GetSummaryTravelMinutesForRoll(10) &&
+                TravelPacing.GetSummaryTravelMinutesForRoll(10) < TravelPacing.GetSummaryTravelMinutesForRoll(1),
+                "Travel summary minutes should grow as the d20 gets lower",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertTrue(
+                TravelPacing.GetStepDelayMsForRoll(14) < TravelPacing.GetStepDelayMsForRoll(13),
+                "Adjacent rolls should change step delay when extra ms per point is non-zero",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

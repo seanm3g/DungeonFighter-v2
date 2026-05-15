@@ -27,6 +27,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             "Items",
             "ItemGeneration",
             "Enemies",
+            "EnemyTuning",
             "BalanceTuning",
             "ActionInteractionLab",
             "About"
@@ -63,6 +64,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 ["Items"] = () => new ItemsSettingsPanel(),
                 ["ItemGeneration"] = () => new ItemGenerationSettingsPanel(),
                 ["Enemies"] = () => new EnemiesSettingsPanel(),
+                ["EnemyTuning"] = () => new EnemyTuningSettingsPanel(),
                 ["BalanceTuning"] = () => new BalanceTuningSettingsPanel(),
                 ["ActionInteractionLab"] = () => new ActionInteractionLabSettingsPanel(),
                 ["About"] = () => new AboutSettingsPanel()

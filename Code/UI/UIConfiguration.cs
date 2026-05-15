@@ -32,7 +32,12 @@ namespace RPGGame
         EffectMessage,
         DamageOverTime,
         RollInfo,
-        Encounter
+        Encounter,
+
+        /// <summary>
+        /// Post-dungeon victory / outcome lines appended to the center log: center-justified like the rest of the completion summary.
+        /// </summary>
+        OutcomeSummary
     }
 
     /// <summary>

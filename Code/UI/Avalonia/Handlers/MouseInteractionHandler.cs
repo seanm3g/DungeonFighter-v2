@@ -136,10 +136,18 @@ namespace RPGGame.UI.Avalonia.Handlers
             var releasePoint = e.GetCurrentPoint(gameCanvas);
             var grid = ScreenToGrid(releasePoint.Position);
             int displayCount = ActionInfoStripLayout.GetDisplayPanelCount(snapshot.Count);
-            if (!ActionInfoStripLayout.TryGetPanelIndex(grid.X, grid.Y, displayCount, out int toIdx) || toIdx == fromIdx)
+            if (!ActionInfoStripLayout.TryGetPanelIndex(grid.X, grid.Y, displayCount, out int toIdx))
                 return;
             if (toIdx >= snapshot.Count)
                 return;
+
+            // Press+release on the same panel without reordering: cycle intrinsic vs effective damage line
+            // (combat does this on press because strip drag is unavailable there).
+            if (toIdx == fromIdx)
+            {
+                TryCycleActionStripDamageLineMode(releasePoint.Position);
+                return;
+            }
 
             var player = GetCharacterForActionStrip();
             if (player != null && ComboReorderer.ApplyReorderMove(player, snapshot, fromIdx, toIdx))
@@ -557,13 +565,13 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
-        /// Left-click a filled action strip panel cycles intrinsic vs slot-modified damage with combo amp (all panels), when strip reorder drag is inactive.
+        /// Left-click a filled action strip panel cycles intrinsic vs slot-modified damage with combo amp (all panels).
+        /// When combo reorder is enabled (inventory, Action Lab), pointer press starts a reorder gesture; same-slot
+        /// <see cref="HandlePointerReleased"/> calls this so a click still toggles the strip numbers.
         /// </summary>
         private bool TryCycleActionStripDamageLineMode(Point position)
         {
             if (canvasUI == null || game?.StateManager == null)
-                return false;
-            if (CanReorderComboOnStrip())
                 return false;
 
             var stats = GetActiveStatsPanelState();

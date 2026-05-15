@@ -132,6 +132,7 @@
             <ListBoxItem Content="Items" Tag="Items"/>
             <ListBoxItem Content="Item Generation" Tag="ItemGeneration"/>
             <ListBoxItem Content="Enemies" Tag="Enemies"/>
+            <ListBoxItem Content="Enemy tuning" Tag="EnemyTuning"/>
             <ListBoxItem Content="Import" Tag="BalanceTuning"/>
             <ListBoxItem Content="Action Lab" Tag="ActionInteractionLab"/>
             <ListBoxItem Content="Testing" Tag="Testing"/>

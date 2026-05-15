@@ -3,6 +3,7 @@ namespace RPGGame
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using RPGGame.UI;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.ColorSystem;
 
@@ -46,9 +47,10 @@ namespace RPGGame
             // Display the menu
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
+                // Title lines center in the room-entry column so dividers and options align with narrative above.
                 foreach (var line in BuildExitChoiceMenuLines())
                 {
-                    canvasUI.WriteLineColoredSegments(line, UIMessageType.System);
+                    canvasUI.WriteLineColoredSegments(line, UIMessageType.Title);
                 }
                 
                 // Render the menu
@@ -74,12 +76,10 @@ namespace RPGGame
                 .Add(AsciiArtAssets.UIText.Divider, ColorPalette.Info);
 
             var option1Builder = new ColoredTextBuilder()
-                .Add("  ", ColorPalette.White)
                 .Add("1", ColorPalette.Success)
                 .Add(" - Stay and continue through the dungeon", ColorPalette.White);
             
             var option2Builder = new ColoredTextBuilder()
-                .Add("  ", ColorPalette.White)
                 .Add("2", ColorPalette.Warning)
                 .Add(" - Leave the dungeon", ColorPalette.White);
 

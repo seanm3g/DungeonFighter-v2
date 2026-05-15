@@ -1,23 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace RPGGame
 {
     /// <summary>
-    /// Generates food and dungeon potions for post-combat room search (replaces equipment loot rolls).
+    /// Generates food and dungeon potions for post-combat room search from <see cref="RoomSearchConsumableCatalog"/>
+    /// (<c>Consumables.json</c> / CONSUMABLES sheet).
     /// </summary>
     public static class RoomSearchConsumableGenerator
     {
-        private static readonly string[] FoodNamePrefixes =
-        {
-            "Traveler's", "Hearty", "Smoked", "Salted", "Honeyed", "Field", "Camp", "Waxed"
-        };
-
-        private static readonly string[] FoodNameSuffixes =
-        {
-            "Rations", "Jerky", "Bread", "Stew", "Cheese", "Biscuits", "Sausage", "Pie"
-        };
-
         public static Item Generate(Random random, Character player, int dungeonLevel)
         {
             if (random == null)
@@ -25,82 +17,101 @@ namespace RPGGame
             if (player == null)
                 throw new ArgumentNullException(nameof(player));
 
-            bool food = random.NextDouble() < 0.5;
-            if (food)
-                return CreateFood(random, dungeonLevel);
+            IReadOnlyList<RoomSearchConsumableDefinition> defs = RoomSearchConsumableCatalog.GetDefinitions();
+            if (defs.Count == 0)
+                throw new InvalidOperationException("Consumables catalog is empty.");
 
-            return CreatePotion(random, dungeonLevel);
+            RoomSearchConsumableDefinition def = defs[random.Next(defs.Count)];
+            return CreateItemFromDefinition(def, player, dungeonLevel);
         }
 
-        private static Item CreateFood(Random random, int dungeonLevel)
+        private static Item CreateItemFromDefinition(RoomSearchConsumableDefinition def, Character player, int dungeonLevel)
         {
             int tier = Math.Clamp(dungeonLevel, 1, 99);
-            // Varied heal: low floors modest, scales with dungeon depth, plus a small random band.
-            int heal = 6 + tier * 2 + random.Next(0, 7);
-            heal = Math.Clamp(heal, 5, 80);
+            string name = def.DisplayName;
 
-            string name = $"{FoodNamePrefixes[random.Next(FoodNamePrefixes.Length)]} {FoodNameSuffixes[random.Next(FoodNameSuffixes.Length)]}";
-            var item = new Item(ItemType.Consumable, name, tier, 0)
+            if (def.Kind == RoomSearchConsumableKind.Food)
+            {
+                int heal = ResolveFoodHeal(player, def.PotencyRaw);
+                return new Item(ItemType.Consumable, name, tier, 0)
+                {
+                    Level = tier,
+                    Rarity = "Common",
+                    RoomSearchConsumableKind = RoomSearchConsumableKind.Food,
+                    ConsumableHealAmount = heal,
+                    ConsumablePotionPotency = 0,
+                    Tags = new List<string> { "search_food", "consumable" }
+                };
+            }
+
+            int potency = ResolvePotionPotency(player, def.Kind, def.PotencyRaw);
+            string rarity = "Uncommon";
+            return new Item(ItemType.Consumable, name, tier, 0)
             {
                 Level = tier,
-                Rarity = "Common",
-                RoomSearchConsumableKind = RoomSearchConsumableKind.Food,
-                ConsumableHealAmount = heal,
-                ConsumablePotionPotency = 0,
-                Tags = new List<string> { "search_food", "consumable" }
+                Rarity = rarity,
+                RoomSearchConsumableKind = def.Kind,
+                ConsumableHealAmount = 0,
+                ConsumablePotionPotency = potency,
+                Tags = new List<string> { "search_potion", "consumable" }
             };
-            return item;
         }
 
-        private static Item CreatePotion(Random random, int dungeonLevel)
+        private static int ResolveFoodHeal(Character player, string potencyRaw)
         {
-            int tier = Math.Clamp(dungeonLevel, 1, 99);
-            var kinds = new[]
-            {
-                RoomSearchConsumableKind.PotionStrength,
-                RoomSearchConsumableKind.PotionAgility,
-                RoomSearchConsumableKind.PotionTechnique,
-                RoomSearchConsumableKind.PotionIntelligence,
-                RoomSearchConsumableKind.PotionHit,
-                RoomSearchConsumableKind.PotionCombo,
-                RoomSearchConsumableKind.PotionCrit,
-                RoomSearchConsumableKind.PotionCritMiss
-            };
-            var kind = kinds[random.Next(kinds.Length)];
+            if (!TryParsePotency(potencyRaw, out bool isPercent, out int magnitude))
+                return 1;
+            if (isPercent)
+                return Math.Max(1, (int)Math.Round(player.MaxHealth * (magnitude / 100.0)));
+            return Math.Max(1, magnitude);
+        }
 
-            int statPotency = 1 + tier / 8 + (random.NextDouble() < 0.25 ? 1 : 0);
-            statPotency = Math.Clamp(statPotency, 2, 6);
-
-            int thresholdPotency = 1 + (tier >= 10 ? 1 : 0) + (random.NextDouble() < 0.2 ? 1 : 0);
-            thresholdPotency = Math.Clamp(thresholdPotency, 1, 3);
+        private static int ResolvePotionPotency(Character player, RoomSearchConsumableKind kind, string potencyRaw)
+        {
+            if (!TryParsePotency(potencyRaw, out bool isPercent, out int magnitude))
+                return 1;
 
             bool isStat = kind is RoomSearchConsumableKind.PotionStrength or RoomSearchConsumableKind.PotionAgility
                 or RoomSearchConsumableKind.PotionTechnique or RoomSearchConsumableKind.PotionIntelligence;
 
-            string name = BuildPotionName(kind);
-            var item = new Item(ItemType.Consumable, name, tier, 0)
+            if (isStat)
             {
-                Level = tier,
-                Rarity = "Uncommon",
-                RoomSearchConsumableKind = kind,
-                ConsumableHealAmount = 0,
-                ConsumablePotionPotency = isStat ? statPotency : thresholdPotency,
-                Tags = new List<string> { "search_potion", "consumable" }
-            };
-            return item;
+                if (isPercent)
+                {
+                    int baseStat = kind switch
+                    {
+                        RoomSearchConsumableKind.PotionStrength => player.Stats.Strength,
+                        RoomSearchConsumableKind.PotionAgility => player.Stats.Agility,
+                        RoomSearchConsumableKind.PotionTechnique => player.Stats.Technique,
+                        RoomSearchConsumableKind.PotionIntelligence => player.Stats.Intelligence,
+                        _ => 1
+                    };
+                    return Math.Max(1, (int)Math.Round(baseStat * (magnitude / 100.0)));
+                }
+
+                return Math.Max(1, magnitude);
+            }
+
+            // Roll-threshold potions: sheet uses flat integers; if a % appears, use the numeric part as magnitude.
+            return Math.Max(1, magnitude);
         }
 
-        private static string BuildPotionName(RoomSearchConsumableKind kind) => kind switch
+        private static bool TryParsePotency(string? raw, out bool isPercent, out int magnitude)
         {
-            RoomSearchConsumableKind.PotionStrength => "Vial of Iron Blood",
-            RoomSearchConsumableKind.PotionAgility => "Elixir of Quicksilver",
-            RoomSearchConsumableKind.PotionTechnique => "Tincture of Fine Motion",
-            RoomSearchConsumableKind.PotionIntelligence => "Draught of Clear Thought",
-            RoomSearchConsumableKind.PotionHit => "Oil of True Aim",
-            RoomSearchConsumableKind.PotionCombo => "Serum of Flow",
-            RoomSearchConsumableKind.PotionCrit => "Essence of Razor's Edge",
-            RoomSearchConsumableKind.PotionCritMiss => "Balm of Steady Hands",
-            _ => "Mysterious Flask"
-        };
+            isPercent = false;
+            magnitude = 1;
+            if (string.IsNullOrWhiteSpace(raw))
+                return false;
+
+            raw = raw.Trim();
+            if (raw.EndsWith("%", StringComparison.Ordinal))
+            {
+                isPercent = true;
+                string n = raw[..^1].Trim();
+                return int.TryParse(n, NumberStyles.Integer, CultureInfo.InvariantCulture, out magnitude) && magnitude > 0;
+            }
+
+            return int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out magnitude) && magnitude > 0;
+        }
     }
 }

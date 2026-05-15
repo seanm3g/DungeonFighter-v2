@@ -41,8 +41,23 @@ namespace RPGGame.UI.Avalonia.Display
         public static bool[] ResolveRightAlignFlags(
             IReadOnlyList<List<ColoredText>> lines,
             string? enemyName,
+            string? heroName) =>
+            ResolveRightAlignFlags(
+                lines,
+                string.IsNullOrEmpty(enemyName) ? null : new[] { enemyName },
+                heroName);
+
+        /// <summary>
+        /// Same as the string overload, but matches the longest applicable enemy name when the log contains
+        /// multiple encounters (several distinct enemy names in one buffer).
+        /// </summary>
+        public static bool[] ResolveRightAlignFlags(
+            IReadOnlyList<List<ColoredText>> lines,
+            IReadOnlyList<string>? combatEnemyNamesForLogAlignment,
             string? heroName)
         {
+            IReadOnlyList<string> enemyNames = NormalizeEnemyNames(combatEnemyNamesForLogAlignment);
+
             var result = new bool[lines.Count];
             bool inEnemyContinuation = false;
 
@@ -65,14 +80,14 @@ namespace RPGGame.UI.Avalonia.Display
                 bool isIndented = plain.StartsWith(BlockMessageCollector.ActionBlockSubsequentIndent, StringComparison.Ordinal);
                 string trimmed = plain.TrimStart();
 
-                bool enemyPrimary = IsActorPrimaryLine(trimmed, enemyName, isIndented);
+                bool enemyPrimary = TryGetEnemyPrimaryMatch(trimmed, enemyNames, isIndented, out string? matchedEnemy);
                 bool heroPrimary = IsActorPrimaryLine(trimmed, heroName, isIndented);
 
-                if (enemyPrimary && heroPrimary && !string.IsNullOrEmpty(enemyName) && !string.IsNullOrEmpty(heroName))
+                if (enemyPrimary && heroPrimary && matchedEnemy != null && !string.IsNullOrEmpty(heroName))
                 {
-                    if (enemyName.Length > heroName.Length)
+                    if (matchedEnemy.Length > heroName.Length)
                         heroPrimary = false;
-                    else if (heroName.Length > enemyName.Length)
+                    else if (heroName.Length > matchedEnemy.Length)
                         enemyPrimary = false;
                     else
                         enemyPrimary = false;
@@ -101,6 +116,56 @@ namespace RPGGame.UI.Avalonia.Display
             }
 
             return result;
+        }
+
+        private static IReadOnlyList<string> NormalizeEnemyNames(IReadOnlyList<string>? combatEnemyNamesForLogAlignment)
+        {
+            if (combatEnemyNamesForLogAlignment == null || combatEnemyNamesForLogAlignment.Count == 0)
+                return Array.Empty<string>();
+
+            if (combatEnemyNamesForLogAlignment.Count == 1)
+                return string.IsNullOrEmpty(combatEnemyNamesForLogAlignment[0])
+                    ? Array.Empty<string>()
+                    : combatEnemyNamesForLogAlignment;
+
+            var copy = new List<string>();
+            foreach (var n in combatEnemyNamesForLogAlignment)
+            {
+                if (!string.IsNullOrEmpty(n))
+                    copy.Add(n);
+            }
+
+            if (copy.Count == 0)
+                return Array.Empty<string>();
+            if (copy.Count == 1)
+                return copy;
+
+            copy.Sort((a, b) => b.Length.CompareTo(a.Length));
+            return copy;
+        }
+
+        private static bool TryGetEnemyPrimaryMatch(
+            string trimmed,
+            IReadOnlyList<string> enemyNamesSortedLongestFirst,
+            bool isIndented,
+            out string? matchedName)
+        {
+            matchedName = null;
+            if (isIndented || enemyNamesSortedLongestFirst.Count == 0)
+                return false;
+
+            foreach (var name in enemyNamesSortedLongestFirst)
+            {
+                if (string.IsNullOrEmpty(name))
+                    continue;
+                if (trimmed.Length >= name.Length && trimmed.StartsWith(name, StringComparison.Ordinal))
+                {
+                    matchedName = name;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool IsActorPrimaryLine(string trimmed, string? name, bool isIndented)

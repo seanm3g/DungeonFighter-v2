@@ -7,7 +7,7 @@ using RPGGame;
 
 namespace RPGGame.Data
 {
-    /// <summary>Pulls Actions plus optional tabs from published CSV URLs in <see cref="SheetsConfig"/> (weapons, mods, armor, stat bonuses / suffixes, enemies, environments, dungeons, classes, class actions).</summary>
+    /// <summary>Pulls Actions plus optional tabs from published CSV URLs in <see cref="SheetsConfig"/> (weapons, mods, armor, stat bonuses / suffixes, consumables, enemies, environments, dungeons, classes, class actions).</summary>
     public static class GameDataSheetsPullService
     {
         public static async Task PullAllFromSheetsConfigAsync(
@@ -64,6 +64,16 @@ namespace RPGGame.Data
                     ?? GameConstants.GetGameDataFilePath(GameConstants.StatBonusesJson);
                 await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
                 ClearJsonCacheForGameDataFile(GameConstants.StatBonusesJson);
+            }
+
+            if (!string.IsNullOrWhiteSpace(sc.ConsumablesSheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.ConsumablesSheetUrl, cancellationToken).ConfigureAwait(false);
+                string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Consumables);
+                string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.ConsumablesJson)
+                    ?? GameConstants.GetGameDataFilePath(GameConstants.ConsumablesJson);
+                await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                ClearJsonCacheForGameDataFile(GameConstants.ConsumablesJson);
             }
 
             if (!string.IsNullOrWhiteSpace(sc.EnemiesSheetUrl))
@@ -143,6 +153,7 @@ namespace RPGGame.Data
                 LootGenerator.Initialize();
                 EnemyLoader.LoadEnemies(validate: false);
                 RoomLoader.LoadRooms();
+                RoomSearchConsumableCatalog.Reload();
             }
             catch (Exception ex)
             {

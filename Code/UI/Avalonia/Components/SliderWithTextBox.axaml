@@ -11,7 +11,6 @@
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0" Spacing="8">
             <TextBlock x:Name="LabelTextBlock" 
-                       Foreground="Black" 
                        FontSize="15"/>
             <Slider x:Name="ValueSlider" 
                     VerticalAlignment="Center"

@@ -227,10 +227,11 @@ namespace RPGGame.UI.Avalonia
         /// <summary>
         /// Starts a display batch transaction.
         /// </summary>
-        public DisplayBatchTransaction StartBatch(bool autoRender = true)
+        /// <param name="batchLineMessageType">Per-line message type for each row appended in the batch.</param>
+        public DisplayBatchTransaction StartBatch(bool autoRender = true, UIMessageType batchLineMessageType = UIMessageType.System)
         {
             if (textManager is CanvasTextManager ctm)
-                return ctm.StartBatch(autoRender);
+                return ctm.StartBatch(autoRender, batchLineMessageType);
             throw new System.InvalidOperationException("StartBatch requires CanvasTextManager.");
         }
 
@@ -295,15 +296,14 @@ namespace RPGGame.UI.Avalonia
             ctm.SwitchToCharacterDisplayManager(player);
             var dm = ctm.GetDisplayManagerForCharacter(player);
             dm.Buffer.Add(new List<ColoredText>());
-            int summaryWidth = Math.Max(1, LayoutConstants.CENTER_PANEL_WIDTH - 2);
             dm.Buffer.AddRange(DungeonCompletionRenderer.BuildCompletionSummaryLines(
                 dungeon,
                 player,
                 xpGained,
                 lootReceived,
                 levelUpInfos,
-                itemsFoundDuringRun,
-                summaryWidth));
+                itemsFoundDuringRun),
+                UIMessageType.OutcomeSummary);
         }
 
         /// <summary>
@@ -316,7 +316,7 @@ namespace RPGGame.UI.Avalonia
             ctm.SwitchToCharacterDisplayManager(player);
             var dm = ctm.GetDisplayManagerForCharacter(player);
             dm.Buffer.Add(new List<ColoredText>());
-            int summaryWidth = Math.Max(1, LayoutConstants.CENTER_PANEL_WIDTH - 2);
+            int summaryWidth = Math.Max(1, LayoutConstants.CenterPanelTextColumnWidth);
             dm.Buffer.AddRange(DeathScreenRenderer.BuildDeathSummaryLines(defeatSummary, summaryWidth));
         }
 

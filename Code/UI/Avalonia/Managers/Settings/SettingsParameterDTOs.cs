@@ -76,6 +76,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         public TextBox? DefaultPresetBaseDelayTextBox { get; set; }
         public TextBox? DefaultPresetMinDelayTextBox { get; set; }
         public TextBox? DefaultPresetMaxDelayTextBox { get; set; }
+        public TextBox? TravelStepDelayBaseMsTextBox { get; set; }
+        public TextBox? TravelStepExtraDelayMsPerPointTextBox { get; set; }
+        public TextBox? TravelSummaryBaseMinutesTextBox { get; set; }
+        public TextBox? TravelSummaryExtraMinutesPerPointTextBox { get; set; }
     }
 
     /// <summary>

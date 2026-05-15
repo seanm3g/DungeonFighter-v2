@@ -17,6 +17,7 @@ namespace RPGGame.Tests.Unit.UI
             TestStickySurvivesClearEnemy(ref run, ref passed, ref failed);
             TestStickyUpdatesOnNewEnemy(ref run, ref passed, ref failed);
             TestClearSticky(ref run, ref passed, ref failed);
+            TestAlignmentNamesAccumulateDistinctEnemies(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("CanvasContextCombatLogAlignment Tests", run, passed, failed);
         }
@@ -48,6 +49,17 @@ namespace RPGGame.Tests.Unit.UI
             ctx.ClearCurrentEnemy();
             ctx.ClearCombatLogEnemyAlignmentSticky();
             TestBase.AssertNull(ctx.GetCombatLogEnemyAlignmentName(), "sticky cleared", ref run, ref passed, ref failed);
+        }
+
+        private static void TestAlignmentNamesAccumulateDistinctEnemies(ref int run, ref int passed, ref int failed)
+        {
+            var ctx = new CanvasContextManager();
+            ctx.SetCurrentEnemy(new Enemy("Wight", 1, 50, 8, 6, 4, 4));
+            ctx.ClearCurrentEnemy();
+            ctx.SetCurrentEnemy(new Enemy("Wraith", 1, 50, 8, 6, 4, 4));
+            var names = ctx.GetCombatLogEnemyAlignmentNames();
+            TestBase.AssertTrue(names.Count == 2, "two distinct enemy names tracked", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(names[0].Length >= names[1].Length, "names sorted longest-first", ref run, ref passed, ref failed);
         }
     }
 }

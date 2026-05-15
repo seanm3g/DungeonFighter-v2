@@ -34,9 +34,9 @@ namespace RPGGame.UI.Avalonia.Display
         /// <param name="contentWidth">Width of content area</param>
         /// <param name="contentHeight">Height of content area</param>
         /// <param name="clearContent">Whether to clear the content area before rendering. Defaults to true.</param>
-        /// <param name="combatEnemyNameForPrimaryLineRightAlign">Active enemy display name: that actor's primary lines and following indented roll/stat lines are right-justified until a hero primary line or other non-indented line breaks the block.</param>
+        /// <param name="combatEnemyNamesForPrimaryLineRightAlign">Enemy display names for this log (longest-first list from context): primary lines starting with any of these names and their indented roll/stat follow-ups are right-justified until a hero primary line breaks the block.</param>
         /// <param name="combatHeroNameForLineAlignment">Hero display name (optional but recommended): primary lines starting with this name end the enemy continuation block and stay left-aligned.</param>
-        public void Render(DisplayBuffer buffer, int contentX, int contentY, int contentWidth, int contentHeight, bool clearContent = true, string? combatEnemyNameForPrimaryLineRightAlign = null, string? combatHeroNameForLineAlignment = null)
+        public void Render(DisplayBuffer buffer, int contentX, int contentY, int contentWidth, int contentHeight, bool clearContent = true, IReadOnlyList<string>? combatEnemyNamesForPrimaryLineRightAlign = null, string? combatHeroNameForLineAlignment = null)
         {
             var rows = buffer.GetLast(buffer.MaxLines);
             if (rows.Count == 0)
@@ -56,8 +56,9 @@ namespace RPGGame.UI.Avalonia.Display
             int availableWidth = contentWidth - 2;
 
             bool[]? rightAlignPerRow = null;
-            if (!string.IsNullOrEmpty(combatEnemyNameForPrimaryLineRightAlign) || !string.IsNullOrEmpty(combatHeroNameForLineAlignment))
-                rightAlignPerRow = CombatCenterPanelEnemyLineAlignment.ResolveRightAlignFlags(linesToRender, combatEnemyNameForPrimaryLineRightAlign, combatHeroNameForLineAlignment);
+            bool hasEnemyNames = combatEnemyNamesForPrimaryLineRightAlign != null && combatEnemyNamesForPrimaryLineRightAlign.Count > 0;
+            if (hasEnemyNames || !string.IsNullOrEmpty(combatHeroNameForLineAlignment))
+                rightAlignPerRow = CombatCenterPanelEnemyLineAlignment.ResolveRightAlignFlags(linesToRender, combatEnemyNamesForPrimaryLineRightAlign, combatHeroNameForLineAlignment);
 
             bool[] centerAlignPerRow = CombatCenterPanelContentAlignment.ResolveCenterAlignFlags(linesToRender, messageTypes);
             

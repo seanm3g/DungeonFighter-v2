@@ -73,7 +73,7 @@ namespace RPGGame.UI.Services
             // Special case: Allow System messages in Testing and Settings states (for test output display)
             // Settings state is used when running tests from the Settings panel
             if ((currentState == GameState.Testing || currentState == GameState.Settings) &&
-                (messageType == UIMessageType.System || messageType == UIMessageType.Environmental))
+                (messageType == UIMessageType.System || messageType == UIMessageType.Environmental || messageType == UIMessageType.Title))
             {
                 return true;
             }

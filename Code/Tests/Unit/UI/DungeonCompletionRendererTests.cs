@@ -24,7 +24,7 @@ namespace RPGGame.Tests.Unit.UI
             _testsFailed = 0;
 
             TestBuildCompletionSummaryLinesIncludesVictoryAndOmitsTopDetailRows();
-            TestBuildCompletionSummaryLinesCentersAndAlignsMetrics();
+            TestBuildCompletionSummaryLinesMetricColumnsAlign();
 
             TestBase.PrintSummary("DungeonCompletionRenderer Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -71,11 +71,10 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertFalse(foundHealthLine, "Summary should omit health detail row", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestBuildCompletionSummaryLinesCentersAndAlignsMetrics()
+        private static void TestBuildCompletionSummaryLinesMetricColumnsAlign()
         {
-            Console.WriteLine("--- Testing centered completion summary layout ---");
+            Console.WriteLine("--- Testing completion summary metric column layout (buffer) ---");
 
-            const int summaryWidth = 80;
             var dungeon = new Dungeon("Ancient Forest", 1, 5, "Forest");
             dungeon.Rooms.Add(new Environment("Room A", "Test", false, "Forest"));
             dungeon.Rooms.Add(new Environment("Room B", "Test", false, "Forest"));
@@ -92,15 +91,13 @@ namespace RPGGame.Tests.Unit.UI
                 450,
                 null,
                 new List<LevelUpInfo>(),
-                new List<Item>(),
-                summaryWidth);
+                new List<Item>());
 
             string headerPlain = ColoredTextRenderer.RenderAsPlainText(lines[0]);
-            int expectedHeaderPadding = (summaryWidth - headerPlain.TrimStart().Length) / 2;
             TestBase.AssertEqual(
-                expectedHeaderPadding,
+                0,
                 CountLeadingSpaces(headerPlain),
-                "Victory header should be centered within the summary width",
+                "Victory header buffer text has no leading padding (centering is applied at render time)",
                 ref _testsRun,
                 ref _testsPassed,
                 ref _testsFailed);
@@ -115,9 +112,11 @@ namespace RPGGame.Tests.Unit.UI
                 ref _testsPassed,
                 ref _testsFailed);
 
-            TestBase.AssertTrue(
-                FindPlainLine(lines, "Experience Gained:").StartsWith(" ", StringComparison.Ordinal),
-                "Reward row should receive centering padding",
+            string xpLine = FindPlainLine(lines, "Experience Gained:");
+            TestBase.AssertEqual(
+                0,
+                CountLeadingSpaces(xpLine),
+                "Experience row buffer text has no leading padding",
                 ref _testsRun,
                 ref _testsPassed,
                 ref _testsFailed);

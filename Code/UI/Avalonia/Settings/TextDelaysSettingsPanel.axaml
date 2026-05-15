@@ -93,6 +93,52 @@
                 </StackPanel>
             </Border>
             
+            <!-- Region travel: per d20 step pacing (also scales journey summary minutes) -->
+            <Border Background="White" 
+                    BorderBrush="#FF404040" 
+                    BorderThickness="1" 
+                    CornerRadius="6" 
+                    Padding="18">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="Region travel (per d20 roll)" 
+                               FontSize="18" 
+                               FontWeight="SemiBold" 
+                               Foreground="Black" 
+                               Margin="0,0,0,8"/>
+                    <TextBlock TextWrapping="Wrap" Foreground="Black" FontSize="14"
+                               Text="Each point below 20 on the route d20 adds extra pause before the next line and extra minutes in the trip summary. Natural 20 uses the base values only. Travel time multiplier (Travel settings) still scales both."/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="280"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="100"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Step pause base (natural 20, ms):" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBox x:Name="TravelStepDelayBaseMsTextBox" Grid.Row="0" Grid.Column="2" Width="90" Height="28" 
+                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Extra step pause per point below 20 (ms):" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBox x:Name="TravelStepExtraDelayMsPerPointTextBox" Grid.Row="1" Grid.Column="2" Width="90" Height="28" 
+                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Summary minutes base (natural 20):" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBox x:Name="TravelSummaryBaseMinutesTextBox" Grid.Row="2" Grid.Column="2" Width="90" Height="28" 
+                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Extra summary minutes per point below 20:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBox x:Name="TravelSummaryExtraMinutesPerPointTextBox" Grid.Row="3" Grid.Column="2" Width="90" Height="28" 
+                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+            
             <!-- Message Type Delays -->
             <Border Background="White" 
                     BorderBrush="#FF404040" 

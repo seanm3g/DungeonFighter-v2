@@ -49,6 +49,9 @@ namespace RPGGame.Tests.Unit.Data
             ArmorExtendedColumnsRoundTrip(ref run, ref pass, ref fail);
             ArmorWithTagsRoundTrip(ref run, ref pass, ref fail);
             ArmorCsvUtf8BomOnFirstHeaderImports(ref run, ref pass, ref fail);
+            ArmorSpreadsheetTemplateHeadersRoundTrip(ref run, ref pass, ref fail);
+            ConsumablesCsvHumanHeadersToCanonicalJson(ref run, ref pass, ref fail);
+            ConsumablesJsonPushCsvRoundTrip(ref run, ref pass, ref fail);
             TestBase.PrintSummary("JsonArraySheetConverter Tests", run, pass, fail);
         }
 
@@ -665,6 +668,45 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
             TestBase.AssertEqual("setPiece", t[0].GetString(), "tag0", ref run, ref pass, ref fail);
         }
 
+        private static void ArmorSpreadsheetTemplateHeadersRoundTrip(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(ArmorSpreadsheetTemplateHeadersRoundTrip));
+            string csv = """
+                slot,name,armor,tags,STRENGTH,AGILITY,TECHNIQUE,INTELLIGENCE,HIT,COMBO,CRIT,# OF ACTION SLOTS,# OF BONUS ACTIONS,tier,attributeRequirements,requirement value
+                head,Helm,2,,0,2,0,0,0,0,0,1,0,1,strength,5
+                """;
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Armor);
+            using (var a = JsonDocument.Parse(outJson))
+            {
+                var first = a.RootElement[0];
+                TestBase.AssertEqual("head", first.GetProperty("slot").GetString(), "slot", ref run, ref pass, ref fail);
+                TestBase.AssertEqual(2, first.GetProperty("agility").GetInt32(), "agility stat", ref run, ref pass, ref fail);
+                TestBase.AssertEqual(1, first.GetProperty("extraActionSlots").GetInt32(), "extraActionSlots", ref run, ref pass, ref fail);
+                TestBase.AssertEqual(0, first.GetProperty("minActionBonuses").GetInt32(), "minActionBonuses", ref run, ref pass, ref fail);
+                var reqs = first.GetProperty("attributeRequirements");
+                TestBase.AssertTrue(reqs.ValueKind == JsonValueKind.Object, "reqs object", ref run, ref pass, ref fail);
+                TestBase.AssertEqual(5, reqs.GetProperty("strength").GetInt32(), "str req", ref run, ref pass, ref fail);
+            }
+
+            const string roundJson = """
+                [{"slot":"feet","name":"Boot","armor":1,"tier":2,"tags":["rare"],"strength":0,"agility":0,"technique":0,"intelligence":0,"hit":0,"combo":0,"crit":0,"extraActionSlots":2,"extraActionSlotsMin":0,"extraActionSlotsMax":0,"minActionBonuses":1,"attackSpeed":0,"attributeRequirements":{"technique":3}}]
+                """;
+            var pushRows = JsonArraySheetConverter.BuildPushValueRows(roundJson, GameDataTabularSheetKind.Armor);
+            var hdr = pushRows[0].Select(x => x?.ToString() ?? "").ToArray();
+            TestBase.AssertEqual(JsonArraySheetConverter.ArmorCanonicalHeaders.Length + 3, hdr.Length,
+                "canonical + extraActionSlotsMin/Max/attackSpeed", ref run, ref pass, ref fail);
+            for (int i = 0; i < JsonArraySheetConverter.ArmorCanonicalHeaders.Length; i++)
+            {
+                TestBase.AssertEqual(JsonArraySheetConverter.ArmorCanonicalHeaders[i], hdr[i], "hdr " + i, ref run, ref pass, ref fail);
+            }
+
+            int attrIdx = Array.IndexOf(hdr, "attributeRequirements");
+            int reqIdx = Array.IndexOf(hdr, "requirement value");
+            TestBase.AssertTrue(attrIdx >= 0 && reqIdx >= 0, "requirement columns", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("TECHNIQUE", pushRows[1][attrIdx]?.ToString(), "pushed attr abbrev", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("3", pushRows[1][reqIdx]?.ToString(), "pushed req val", ref run, ref pass, ref fail);
+        }
+
         private static void ArmorCsvUtf8BomOnFirstHeaderImports(ref int run, ref int pass, ref int fail)
         {
             TestBase.SetCurrentTestName(nameof(ArmorCsvUtf8BomOnFirstHeaderImports));
@@ -689,6 +731,40 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
             TestBase.AssertTrue(pe.ValueKind == JsonValueKind.Array, "array", ref run, ref pass, ref fail);
             TestBase.AssertEqual("Skeleton", pe[0].GetString(), "e0", ref run, ref pass, ref fail);
             TestBase.AssertEqual("Wraith", pe[2].GetString(), "e2", ref run, ref pass, ref fail);
+        }
+
+        private static void ConsumablesCsvHumanHeadersToCanonicalJson(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(ConsumablesCsvHumanHeadersToCanonicalJson));
+            const string csv = """
+            Display name,Internal kind,Effect (dungeon-scoped until run ends),Typical potency*
+            Waxed Apple,Food,heal,1
+            """;
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Consumables);
+            using var a = JsonDocument.Parse(outJson);
+            var row = a.RootElement[0];
+            TestBase.AssertEqual("Waxed Apple", row.GetProperty("displayName").GetString(), "displayName", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Food", row.GetProperty("internalKind").GetString(), "internalKind", ref run, ref pass, ref fail);
+            var potency = row.GetProperty("potency");
+            bool potencyOk = potency.ValueKind == JsonValueKind.String && potency.GetString() == "1"
+                || potency.ValueKind == JsonValueKind.Number && potency.GetInt32() == 1;
+            TestBase.AssertTrue(potencyOk, "potency 1 as string or number", ref run, ref pass, ref fail);
+        }
+
+        private static void ConsumablesJsonPushCsvRoundTrip(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(ConsumablesJsonPushCsvRoundTrip));
+            const string json = """
+            [
+              {"displayName":"Waxed Apple","internalKind":"Food","effect":"heal","potency":"1"}
+            ]
+            """;
+            var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Consumables);
+            string csv = RowsToCsv(rows);
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Consumables);
+            using var a = JsonDocument.Parse(outJson);
+            TestBase.AssertEqual("Waxed Apple", a.RootElement[0].GetProperty("displayName").GetString(), "displayName", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Food", a.RootElement[0].GetProperty("internalKind").GetString(), "internalKind", ref run, ref pass, ref fail);
         }
 
         private static string RowsToCsv(System.Collections.Generic.List<System.Collections.Generic.IList<object>> rows)

@@ -67,6 +67,7 @@ namespace RPGGame.Tests.Unit.Config
             var sys = new EnemySystemConfig
             {
                 GlobalMultipliers = new GlobalMultipliersConfig { HealthMultiplier = 0, DamageMultiplier = 0 },
+                ProgressionScales = new EnemyProgressionScalesConfig { BaseHealthScale = 0, HealthGrowthScale = -1, AttributeGrowthScale = 0 },
                 BaselineStats = new BaselineStatsConfig { Health = 0, Strength = 0 },
                 LevelVariance = 0
             };
@@ -76,6 +77,15 @@ namespace RPGGame.Tests.Unit.Config
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(1.0, sys.GlobalMultipliers.DamageMultiplier,
                 "Damage multiplier should become 1.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1.0, sys.ProgressionScales.BaseHealthScale,
+                "Base health scale should become 1.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1.0, sys.ProgressionScales.HealthGrowthScale,
+                "Health growth scale should become 1.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1.0, sys.ProgressionScales.AttributeGrowthScale,
+                "Attribute growth scale should become 1.0",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(sys.BaselineStats.Health > 0,
                 "Baseline health should be repaired",

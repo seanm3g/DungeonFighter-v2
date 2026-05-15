@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.BlockDisplay;
 using RPGGame.Tests;
@@ -32,6 +33,7 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
             TestCollectActionBlockMessages_WithRollInfo();
             TestCollectActionBlockMessages_WithStatusEffects();
             TestCollectActionBlockMessages_EmptyInput();
+            TestCollectActionBlockMessages_EnvironmentalBlockUsesEnvironmentalLineTypes();
 
             TestBase.PrintSummary("BlockMessageCollector Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -98,6 +100,29 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
             
             TestBase.AssertNotNull(result,
                 "CollectActionBlockMessages should handle empty input",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCollectActionBlockMessages_EnvironmentalBlockUsesEnvironmentalLineTypes()
+        {
+            Console.WriteLine("\n--- Testing CollectActionBlockMessages - Environmental block line types ---");
+
+            var actionText = new List<ColoredText> { new ColoredText("The room releases spores!", Colors.White) };
+            var rollInfo = new List<ColoredText> { new ColoredText("(roll: 12)", Colors.Gray) };
+
+            var result = BlockMessageCollector.CollectActionBlockMessages(
+                actionText,
+                rollInfo,
+                null,
+                null,
+                null,
+                TextSpacingSystem.BlockType.EnvironmentalAction);
+
+            TestBase.AssertTrue(
+                result.Count >= 2
+                && result[0].messageType == UIMessageType.Environmental
+                && result[1].messageType == UIMessageType.Environmental,
+                "Environmental action block should tag action and roll lines as UIMessageType.Environmental",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

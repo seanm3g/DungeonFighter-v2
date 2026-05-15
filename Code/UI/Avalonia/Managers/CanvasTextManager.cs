@@ -215,9 +215,10 @@ namespace RPGGame.UI.Avalonia.Managers
         /// Messages are added to the buffer but render is only triggered when transaction completes
         /// </summary>
         /// <param name="autoRender">If true, automatically triggers render when transaction completes. If false, caller must call Render() explicitly.</param>
-        public DisplayBatchTransaction StartBatch(bool autoRender = true)
+        /// <param name="batchLineMessageType">Per-line <see cref="UIMessageType"/> stored for each batch row (default System).</param>
+        public DisplayBatchTransaction StartBatch(bool autoRender = true, UIMessageType batchLineMessageType = UIMessageType.System)
         {
-            return DisplayManager.StartBatch(autoRender);
+            return DisplayManager.StartBatch(autoRender, batchLineMessageType);
         }
         
         /// <summary>

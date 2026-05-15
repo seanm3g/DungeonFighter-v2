@@ -68,7 +68,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 controls.NarrativePresetMaxDelayTextBox,
                 controls.DefaultPresetBaseDelayTextBox,
                 controls.DefaultPresetMinDelayTextBox,
-                controls.DefaultPresetMaxDelayTextBox);
+                controls.DefaultPresetMaxDelayTextBox,
+                controls.TravelStepDelayBaseMsTextBox,
+                controls.TravelStepExtraDelayMsPerPointTextBox,
+                controls.TravelSummaryBaseMinutesTextBox,
+                controls.TravelSummaryExtraMinutesPerPointTextBox);
         }
 
         /// <summary>
@@ -107,7 +111,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             TextBox? narrativePresetMaxDelayTextBox,
             TextBox? defaultPresetBaseDelayTextBox,
             TextBox? defaultPresetMinDelayTextBox,
-            TextBox? defaultPresetMaxDelayTextBox)
+            TextBox? defaultPresetMaxDelayTextBox,
+            TextBox? travelStepDelayBaseMsTextBox,
+            TextBox? travelStepExtraDelayMsPerPointTextBox,
+            TextBox? travelSummaryBaseMinutesTextBox,
+            TextBox? travelSummaryExtraMinutesPerPointTextBox)
         {
             try
             {
@@ -144,6 +152,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 ApplyPresetToControls("Room", roomPresetBaseDelayTextBox, roomPresetMinDelayTextBox, roomPresetMaxDelayTextBox);
                 ApplyPresetToControls("Narrative", narrativePresetBaseDelayTextBox, narrativePresetMinDelayTextBox, narrativePresetMaxDelayTextBox);
                 ApplyPresetToControls("Default", defaultPresetBaseDelayTextBox, defaultPresetMinDelayTextBox, defaultPresetMaxDelayTextBox);
+
+                var travelPacing = TextDelayConfiguration.GetTravelRouteRollPacing();
+                SetTextBoxValue(travelStepDelayBaseMsTextBox, travelPacing.StepDelayBaseMs);
+                SetTextBoxValue(travelStepExtraDelayMsPerPointTextBox, travelPacing.StepExtraDelayMsPerPointBelow20);
+                SetTextBoxValue(travelSummaryBaseMinutesTextBox, travelPacing.SummaryBaseMinutes);
+                SetTextBoxValue(travelSummaryExtraMinutesPerPointTextBox, travelPacing.SummaryExtraMinutesPerPointBelow20);
             }
             catch (Exception ex)
             {
@@ -199,7 +213,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 controls.NarrativePresetMaxDelayTextBox,
                 controls.DefaultPresetBaseDelayTextBox,
                 controls.DefaultPresetMinDelayTextBox,
-                controls.DefaultPresetMaxDelayTextBox);
+                controls.DefaultPresetMaxDelayTextBox,
+                controls.TravelStepDelayBaseMsTextBox,
+                controls.TravelStepExtraDelayMsPerPointTextBox,
+                controls.TravelSummaryBaseMinutesTextBox,
+                controls.TravelSummaryExtraMinutesPerPointTextBox);
         }
 
         /// <summary>
@@ -238,7 +256,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             TextBox? narrativePresetMaxDelayTextBox,
             TextBox? defaultPresetBaseDelayTextBox,
             TextBox? defaultPresetMinDelayTextBox,
-            TextBox? defaultPresetMaxDelayTextBox)
+            TextBox? defaultPresetMaxDelayTextBox,
+            TextBox? travelStepDelayBaseMsTextBox,
+            TextBox? travelStepExtraDelayMsPerPointTextBox,
+            TextBox? travelSummaryBaseMinutesTextBox,
+            TextBox? travelSummaryExtraMinutesPerPointTextBox)
         {
             try
             {
@@ -285,6 +307,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 TrySetPreset("Narrative", narrativePresetBaseDelayTextBox, narrativePresetMinDelayTextBox, narrativePresetMaxDelayTextBox);
                 TrySetPreset("Default", defaultPresetBaseDelayTextBox, defaultPresetMinDelayTextBox, defaultPresetMaxDelayTextBox);
 
+                TrySetTravelRouteRollPacing(
+                    travelStepDelayBaseMsTextBox,
+                    travelStepExtraDelayMsPerPointTextBox,
+                    travelSummaryBaseMinutesTextBox,
+                    travelSummaryExtraMinutesPerPointTextBox);
+
                 TextDelayConfiguration.SaveCurrentConfigToFile();
             }
             catch (Exception ex)
@@ -309,6 +337,29 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             preset.MinDelayMs = minVal;
             preset.MaxDelayMs = maxVal;
             TextDelayConfiguration.SetChunkedTextRevealPreset(presetName, preset);
+        }
+
+        private static void TrySetTravelRouteRollPacing(
+            TextBox? stepBaseMs,
+            TextBox? stepExtraPerPoint,
+            TextBox? summaryBaseMinutes,
+            TextBox? summaryExtraPerPoint)
+        {
+            if (stepBaseMs == null || stepExtraPerPoint == null || summaryBaseMinutes == null || summaryExtraPerPoint == null)
+                return;
+            if (!int.TryParse(stepBaseMs.Text, out int b) ||
+                !int.TryParse(stepExtraPerPoint.Text, out int e) ||
+                !int.TryParse(summaryBaseMinutes.Text, out int sb) ||
+                !int.TryParse(summaryExtraPerPoint.Text, out int se))
+                return;
+
+            TextDelayConfiguration.SetTravelRouteRollPacing(new TravelRouteRollPacingConfig
+            {
+                StepDelayBaseMs = b,
+                StepExtraDelayMsPerPointBelow20 = e,
+                SummaryBaseMinutes = sb,
+                SummaryExtraMinutesPerPointBelow20 = se
+            });
         }
     }
 }

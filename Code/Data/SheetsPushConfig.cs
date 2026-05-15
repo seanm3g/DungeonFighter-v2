@@ -46,6 +46,9 @@ namespace RPGGame.Data
         [JsonPropertyName("statBonusesSheetTabName")]
         public string StatBonusesSheetTabName { get; set; } = "";
 
+        [JsonPropertyName("consumablesSheetTabName")]
+        public string ConsumablesSheetTabName { get; set; } = "";
+
         /// <summary>Path to the OAuth 2.0 Desktop client JSON from Google Cloud Console. Relative paths are resolved from the config file directory.</summary>
         [JsonPropertyName("oauthClientSecretsPath")]
         public string OAuthClientSecretsPath { get; set; } = "";
@@ -74,6 +77,9 @@ namespace RPGGame.Data
         [JsonPropertyName("pushStatBonusesTab")]
         public bool PushStatBonusesTab { get; set; } = true;
 
+        [JsonPropertyName("pushConsumablesTab")]
+        public bool PushConsumablesTab { get; set; } = true;
+
         [JsonPropertyName("pushEnemiesTab")]
         public bool PushEnemiesTab { get; set; } = true;
 
@@ -101,8 +107,10 @@ namespace RPGGame.Data
 
         public const string DefaultStatBonusesSheetTabName = "SUFFIXES";
 
+        public const string DefaultConsumablesSheetTabName = "CONSUMABLES";
+
         /// <summary>
-        /// When <b>all</b> optional tab names (weapons / modifications / armor / classes / class actions / enemies / environments / dungeons / stat bonuses) are blank, assigns the
+        /// When <b>all</b> optional tab names (weapons / modifications / armor / classes / class actions / enemies / environments / dungeons / stat bonuses / consumables) are blank, assigns the
         /// conventional names from <c>SheetsPushConfig.template.json</c> so a first push can populate those tabs.
         /// </summary>
         /// <returns>True if defaults were applied.</returns>
@@ -116,7 +124,8 @@ namespace RPGGame.Data
                 || !string.IsNullOrWhiteSpace(EnemiesSheetTabName)
                 || !string.IsNullOrWhiteSpace(EnvironmentsSheetTabName)
                 || !string.IsNullOrWhiteSpace(DungeonsSheetTabName)
-                || !string.IsNullOrWhiteSpace(StatBonusesSheetTabName))
+                || !string.IsNullOrWhiteSpace(StatBonusesSheetTabName)
+                || !string.IsNullOrWhiteSpace(ConsumablesSheetTabName))
                 return false;
 
             WeaponsSheetTabName = DefaultWeaponsSheetTabName;
@@ -128,6 +137,7 @@ namespace RPGGame.Data
             EnvironmentsSheetTabName = DefaultEnvironmentsSheetTabName;
             DungeonsSheetTabName = DefaultDungeonsSheetTabName;
             StatBonusesSheetTabName = DefaultStatBonusesSheetTabName;
+            ConsumablesSheetTabName = DefaultConsumablesSheetTabName;
             return true;
         }
 
@@ -172,6 +182,15 @@ namespace RPGGame.Data
             if (!string.IsNullOrWhiteSpace(StatBonusesSheetTabName))
                 return false;
             StatBonusesSheetTabName = DefaultStatBonusesSheetTabName;
+            return true;
+        }
+
+        /// <summary>Fills <see cref="ConsumablesSheetTabName"/> when still blank (configs created before CONSUMABLES push).</summary>
+        public bool ApplyDefaultConsumablesTabNameIfUnset()
+        {
+            if (!string.IsNullOrWhiteSpace(ConsumablesSheetTabName))
+                return false;
+            ConsumablesSheetTabName = DefaultConsumablesSheetTabName;
             return true;
         }
 
@@ -254,6 +273,8 @@ namespace RPGGame.Data
                     cfg.PushArmorTab = true;
                 if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushStatBonusesTab"))
                     cfg.PushStatBonusesTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushConsumablesTab"))
+                    cfg.PushConsumablesTab = true;
                 if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushEnemiesTab"))
                     cfg.PushEnemiesTab = true;
                 if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushEnvironmentsTab"))
@@ -290,6 +311,7 @@ namespace RPGGame.Data
             cfg.PushModificationsTab = true;
             cfg.PushArmorTab = true;
             cfg.PushStatBonusesTab = true;
+            cfg.PushConsumablesTab = true;
             cfg.PushEnemiesTab = true;
             cfg.PushEnvironmentsTab = true;
             cfg.PushDungeonsTab = true;

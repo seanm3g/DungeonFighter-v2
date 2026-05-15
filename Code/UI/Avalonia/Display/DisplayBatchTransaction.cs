@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia.Display
@@ -15,11 +16,13 @@ namespace RPGGame.UI.Avalonia.Display
         private readonly List<List<ColoredText>> lines;
         private bool disposed = false;
         private bool autoRender;
+        private readonly UIMessageType lineMessageType;
         
-        internal DisplayBatchTransaction(CenterPanelDisplayManager? displayManager, bool autoRender)
+        internal DisplayBatchTransaction(CenterPanelDisplayManager? displayManager, bool autoRender, UIMessageType lineMessageType = UIMessageType.System)
         {
             this.displayManager = displayManager;
             this.autoRender = autoRender;
+            this.lineMessageType = lineMessageType;
             this.lines = new List<List<ColoredText>>();
         }
         
@@ -60,7 +63,7 @@ namespace RPGGame.UI.Avalonia.Display
             
             if (lines.Count > 0 && displayManager != null)
             {
-                displayManager.AddMessages(lines);
+                displayManager.AddMessages(lines, lineMessageType);
                 
                 if (autoRender)
                 {

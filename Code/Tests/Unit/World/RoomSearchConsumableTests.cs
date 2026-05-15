@@ -49,19 +49,19 @@ namespace RPGGame.Tests.Unit.World
             var rng = new Random(7);
             var player = new Character("Healer", 1);
             bool sawFood = false;
-            for (int i = 0; i < 80; i++)
+            for (int i = 0; i < 200; i++)
             {
                 var item = RoomSearchConsumableGenerator.Generate(rng, player, dungeonLevel: 2);
                 if (item.RoomSearchConsumableKind == RoomSearchConsumableKind.Food)
                 {
                     sawFood = true;
-                    TestBase.AssertTrue(item.ConsumableHealAmount >= 5, "food heal lower bound", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                    TestBase.AssertTrue(item.ConsumableHealAmount <= 80, "food heal upper bound", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    TestBase.AssertTrue(item.ConsumableHealAmount >= 1, "food heal at least 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    TestBase.AssertTrue(item.ConsumableHealAmount <= player.MaxHealth, "food heal not above max HP", ref _testsRun, ref _testsPassed, ref _testsFailed);
                     break;
                 }
             }
 
-            TestBase.AssertTrue(sawFood, "expected at least one food in 80 rolls", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(sawFood, "expected at least one food in 200 rolls", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.ClearCurrentTestName();
         }
 

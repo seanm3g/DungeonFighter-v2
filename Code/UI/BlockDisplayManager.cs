@@ -98,7 +98,7 @@ namespace RPGGame
                 TextSpacingSystem.ApplySpacingBefore(blockType, currentEntity);
                 
                 // Collect all messages for this combat action block
-                var messageGroups = BlockMessageCollector.CollectActionBlockMessages(actionText, rollInfo, statusEffects, criticalMissNarrative, narratives);
+                var messageGroups = BlockMessageCollector.CollectActionBlockMessages(actionText, rollInfo, statusEffects, criticalMissNarrative, narratives, blockType);
                 
                 // Only render if we have messages to display
                 if (messageGroups != null && messageGroups.Count > 0)
@@ -175,7 +175,7 @@ namespace RPGGame
                 TextSpacingSystem.ApplySpacingBefore(blockType, currentEntity);
                 
                 // Collect all messages for this combat action block
-                var messageGroups = BlockMessageCollector.CollectActionBlockMessages(actionText, rollInfo, statusEffects, criticalMissNarrative, narratives);
+                var messageGroups = BlockMessageCollector.CollectActionBlockMessages(actionText, rollInfo, statusEffects, criticalMissNarrative, narratives, blockType);
                 
                 // Only render if we have messages to display
                 if (messageGroups != null && messageGroups.Count > 0)
@@ -347,7 +347,7 @@ namespace RPGGame
             // Delegate to the unified action block system for backward compatibility
             // Use empty list for rollInfo since DisplayActionBlock expects non-nullable rollInfo
             var emptyRollInfo = new List<ColoredText>();
-            DisplayActionBlock(environmentalText, emptyRollInfo, effects, null, null, null);
+            DisplayActionBlock(environmentalText, emptyRollInfo, effects, null, null, null, TextSpacingSystem.BlockType.EnvironmentalAction);
         }
         
         /// <summary>
@@ -356,7 +356,9 @@ namespace RPGGame
         public static void ResetForNewBattle()
         {
             lastActingEntity = null;
-            TextSpacingSystem.Reset();
+            // Preserve TextSpacingSystem lastBlockType so encounter headline → first combat action spacing survives
+            // CombatStateManager.StartBattleNarrative (after StartEnemyEncounter).
+            TextSpacingSystem.ResetActingEntityContext();
         }
         
     }

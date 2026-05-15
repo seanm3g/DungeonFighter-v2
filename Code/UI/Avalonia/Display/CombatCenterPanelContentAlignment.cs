@@ -6,7 +6,8 @@ using RPGGame.UI.ColorSystem;
 namespace RPGGame.UI.Avalonia.Display
 {
     /// <summary>
-    /// Center-panel combat log: center-justify environment, menu, title, and leveling lines within the content column.
+    /// Center-panel combat log: center-justify environment, menu, title, leveling, encounter headlines,
+    /// enemy-defeated summary, remaining-health lines, and post-dungeon outcome summaries within the content column.
     /// </summary>
     public static class CombatCenterPanelContentAlignment
     {
@@ -35,10 +36,18 @@ namespace RPGGame.UI.Avalonia.Display
         }
 
         /// <summary>
-        /// True when this row is a menu/title/environment message or matches level-up / dungeon header heuristics.
+        /// True when this row is a menu/title/environment message, post-dungeon outcome summary, or matches level-up / dungeon header heuristics.
         /// </summary>
         public static bool ShouldCenterLine(IReadOnlyList<ColoredText>? segments, UIMessageType messageType)
         {
+            if (messageType == UIMessageType.OutcomeSummary)
+            {
+                if (segments == null || segments.Count == 0)
+                    return false;
+                string outcomePlain = ColoredTextRenderer.RenderAsPlainText(segments);
+                return !string.IsNullOrWhiteSpace(outcomePlain);
+            }
+
             if (messageType == UIMessageType.Menu ||
                 messageType == UIMessageType.Title ||
                 messageType == UIMessageType.MainTitle ||
@@ -67,6 +76,8 @@ namespace RPGGame.UI.Avalonia.Display
                 return true;
             if (t.StartsWith("Gained ", StringComparison.OrdinalIgnoreCase) && t.Contains("class point", StringComparison.OrdinalIgnoreCase))
                 return true;
+            if (t.StartsWith("Gained ", StringComparison.OrdinalIgnoreCase) && t.Contains("action slot", StringComparison.OrdinalIgnoreCase))
+                return true;
             if (t.StartsWith("Stats increased:", StringComparison.OrdinalIgnoreCase))
                 return true;
             if (t.StartsWith("Current class:", StringComparison.OrdinalIgnoreCase))
@@ -92,6 +103,18 @@ namespace RPGGame.UI.Avalonia.Display
                 return true;
 
             if (t.StartsWith("It appears you are safe", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            // Enemy encounter headline from EnemyInfoBuilder: "A {name} appears." / "A {name} with {weapon} appears."
+            if (t.StartsWith("A ", StringComparison.Ordinal) && t.EndsWith(" appears.", StringComparison.Ordinal))
+                return true;
+
+            // Post-combat summary (EnemyEncounterHandler): "{Enemy} has been defeated!" — must center so it is not
+            // treated as an enemy primary combat line (which would right-align within the column).
+            if (t.Contains(" has been defeated!", StringComparison.Ordinal))
+                return true;
+
+            if (t.StartsWith("Remaining Health:", StringComparison.OrdinalIgnoreCase))
                 return true;
 
             if (t.Contains("🌍", StringComparison.Ordinal))

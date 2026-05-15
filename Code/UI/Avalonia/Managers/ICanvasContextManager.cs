@@ -22,6 +22,12 @@ namespace RPGGame.UI.Avalonia.Managers
         string? GetCombatLogEnemyAlignmentName();
 
         /// <summary>
+        /// Distinct enemy display names from <see cref="SetCurrentEnemy"/> in this session, sorted longest-first
+        /// for prefix matching when multiple enemies appear in one combat log.
+        /// </summary>
+        IReadOnlyList<string> GetCombatLogEnemyAlignmentNames();
+
+        /// <summary>
         /// Clears the sticky combat-log enemy name (e.g. when the center buffer is wiped or switching characters).
         /// </summary>
         void ClearCombatLogEnemyAlignmentSticky();

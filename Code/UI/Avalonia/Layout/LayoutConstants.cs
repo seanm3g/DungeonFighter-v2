@@ -92,6 +92,12 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>Height of the framed center panel (combat log); leaves room for the action-info strip above.</summary>
         public static int CENTER_PANEL_HEIGHT => _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT;
 
+        /// <summary>
+        /// Monospace width used for wrapped / center-aligned combat log text inside the framed center panel.
+        /// Matches <see cref="RPGGame.UI.Avalonia.Display.DisplayRenderer"/> (<c>innerRectWidth - 2</c> where inner width is <see cref="CENTER_PANEL_WIDTH"/> - 2).
+        /// </summary>
+        public static int CenterPanelTextColumnWidth => Math.Max(1, CENTER_PANEL_WIDTH - 4);
+
         // Action info strip - center column band for combo action cards and modifiers during combat (and related UI)
         public static int ACTION_INFO_X => CENTER_PANEL_X;
         public static int ACTION_INFO_WIDTH => CENTER_PANEL_WIDTH;

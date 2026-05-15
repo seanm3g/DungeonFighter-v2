@@ -181,7 +181,8 @@ namespace RPGGame.Data
                     sheetsConfig.EnvironmentsSheetUrl,
                     sheetsConfig.DungeonsSheetUrl,
                     sheetsConfig.ClassPresentationSheetUrl,
-                    sheetsConfig.ClassActionsSheetUrl
+                    sheetsConfig.ClassActionsSheetUrl,
+                    sheetsConfig.ConsumablesSheetUrl
                 };
 
                 foreach (string? u in candidates)

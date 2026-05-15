@@ -169,9 +169,10 @@ namespace RPGGame.UI.Avalonia.Display
         /// Messages are added to the buffer but render is only triggered when transaction completes
         /// </summary>
         /// <param name="autoRender">If true, automatically triggers render when transaction completes. If false, caller must call Render() explicitly.</param>
-        public DisplayBatchTransaction StartBatch(bool autoRender = true)
+        /// <param name="batchLineMessageType">Stored <see cref="UIMessageType"/> for every line in the batch (affects center-panel alignment and beat timing).</param>
+        public DisplayBatchTransaction StartBatch(bool autoRender = true, UIMessageType batchLineMessageType = UIMessageType.System)
         {
-            return new DisplayBatchTransaction(this, autoRender);
+            return new DisplayBatchTransaction(this, autoRender, batchLineMessageType);
         }
         
         /// <summary>
@@ -254,7 +255,15 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void AddMessages(IEnumerable<List<ColoredText>> segmentsList)
         {
-            AddMessages(segmentsList, null);
+            AddMessages(segmentsList, null, UIMessageType.System);
+        }
+
+        /// <summary>
+        /// Adds multiple structured lines using the same <see cref="UIMessageType"/> for each row (e.g. <see cref="UIMessageType.Title"/> for dungeon/room narrative blocks).
+        /// </summary>
+        public void AddMessages(IEnumerable<List<ColoredText>> segmentsList, UIMessageType lineMessageType)
+        {
+            AddMessages(segmentsList, null, lineMessageType);
         }
 
         /// <summary>
@@ -267,10 +276,18 @@ namespace RPGGame.UI.Avalonia.Display
         /// <param name="sourceCharacter">The character these messages belong to (for reference, not filtering)</param>
         public void AddMessages(IEnumerable<List<ColoredText>> segmentsList, Character? sourceCharacter)
         {
+            AddMessages(segmentsList, sourceCharacter, UIMessageType.System);
+        }
+
+        /// <summary>
+        /// Adds multiple structured ColoredText segment lists with an explicit per-line message type.
+        /// </summary>
+        public void AddMessages(IEnumerable<List<ColoredText>> segmentsList, Character? sourceCharacter, UIMessageType lineMessageType)
+        {
             // Only check menu states - don't filter by character
             // Messages are already routed to the correct per-character display manager
             // Only the active character's display manager will be rendered
-            if (bufferOperations.TryAddMessages(segmentsList))
+            if (bufferOperations.TryAddMessages(segmentsList, lineMessageType))
             {
                 TriggerRender();
             }
@@ -286,7 +303,7 @@ namespace RPGGame.UI.Avalonia.Display
         
         public void AddMessageBatch(IEnumerable<List<ColoredText>> segmentsList, int delayAfterBatchMs = 0)
         {
-            if (bufferOperations.TryAddMessages(segmentsList))
+            if (bufferOperations.TryAddMessages(segmentsList, UIMessageType.System))
             {
                 BatchOperationHelper.ScheduleRenderWithDelay(TriggerRender, delayAfterBatchMs);
             }
@@ -302,7 +319,7 @@ namespace RPGGame.UI.Avalonia.Display
         
         public async Task AddMessageBatchAsync(IEnumerable<List<ColoredText>> segmentsList, int delayAfterBatchMs = 0)
         {
-            if (bufferOperations.TryAddMessages(segmentsList))
+            if (bufferOperations.TryAddMessages(segmentsList, UIMessageType.System))
             {
                 await BatchOperationHelper.ScheduleRenderWithDelayAsync(TriggerRender, delayAfterBatchMs);
             }

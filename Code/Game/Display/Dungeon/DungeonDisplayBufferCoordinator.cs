@@ -54,7 +54,8 @@ namespace RPGGame.Display.Dungeon
             // Use batch transaction with specified autoRender setting
             // When autoRender=false, RenderRoomEntry() will handle the initial render
             // When autoRender=true, reactive system will handle rendering
-            using (var batch = coordinator.StartBatch(autoRender: autoRender))
+            // Narrative dungeon/room block: Title so every line (including description) center-aligns with headers.
+            using (var batch = coordinator.StartBatch(autoRender: autoRender, UIMessageType.Title))
             {
                 var dungeonHeader = displayBuffer.DungeonHeader;
                 if (includeDungeonHeader && dungeonHeader.Count > 0 && !dungeonHeaderAlreadyAdded)

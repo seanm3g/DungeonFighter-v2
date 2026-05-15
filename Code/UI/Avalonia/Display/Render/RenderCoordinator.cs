@@ -196,7 +196,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
                     bool labEnemyLevelHover = paintState == GameState.ActionInteractionLab && ActionInteractionLabSession.Current != null;
                     layoutManager.RenderLayout(
                         layoutCharacter,
-                        (x, y, w, h) => { renderer.Render(buffer, x, y, w, h, clearContent: true, combatEnemyNameForPrimaryLineRightAlign: contextManager.GetCombatLogEnemyAlignmentName(), combatHeroNameForLineAlignment: layoutCharacter?.Name); },
+                        (x, y, w, h) => { renderer.Render(buffer, x, y, w, h, clearContent: true, combatEnemyNamesForPrimaryLineRightAlign: contextManager.GetCombatLogEnemyAlignmentNames(), combatHeroNameForLineAlignment: layoutCharacter?.Name); },
                         title,
                         enemyToRender,
                         state.DungeonName,

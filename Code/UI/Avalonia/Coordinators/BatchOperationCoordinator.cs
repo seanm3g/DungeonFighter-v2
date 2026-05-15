@@ -34,8 +34,7 @@ namespace RPGGame.UI.Avalonia.Coordinators
             if (messageGroups == null || messageGroups.Count == 0)
                 return;
             
-            // Extract segments (ignore messageType for now - all go to same buffer)
-            // Empty segments are treated as blank lines for spacing
+            // Extract segments for validation / non-canvas fallback (empty lists are valid blank lines)
             var segmentsList = new List<List<ColoredText>>();
             foreach (var (segments, messageType) in messageGroups)
             {
@@ -65,8 +64,7 @@ namespace RPGGame.UI.Avalonia.Coordinators
             if (messageGroups == null || messageGroups.Count == 0)
                 return;
             
-            // Extract segments (ignore messageType for now - all go to same buffer)
-            // Empty segments are treated as blank lines for spacing
+            // Extract segments for validation / non-canvas fallback (empty lists are valid blank lines)
             var segmentsList = new List<List<ColoredText>>();
             foreach (var (segments, messageType) in messageGroups)
             {
@@ -88,15 +86,17 @@ namespace RPGGame.UI.Avalonia.Coordinators
                 
                 // Add messages one at a time with delays between them
                 // This creates a line-by-line reveal effect for action blocks
-                for (int i = 0; i < segmentsList.Count; i++)
+                for (int i = 0; i < messageGroups.Count; i++)
                 {
-                    var segment = segmentsList[i];
-                    
-                    // Add this single message
-                    targetDisplayManager.AddMessage(segment);
+                    var (segments, messageType) = messageGroups[i];
+                    if (segments == null)
+                        continue;
+
+                    // Add this single message (per-line type drives center-panel alignment and timing metadata)
+                    targetDisplayManager.AddMessage(segments, messageType);
                     
                     // Add delay between messages (but not after the last one - that's handled by delayAfterBatchMs)
-                    if (i < segmentsList.Count - 1)
+                    if (i < messageGroups.Count - 1)
                     {
                         // Use MessageDelayMs for delays between lines within an action block
                         await CombatDelayManager.DelayAfterMessageAsync();

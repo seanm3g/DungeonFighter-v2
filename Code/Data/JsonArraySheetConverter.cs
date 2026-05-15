@@ -21,7 +21,9 @@ namespace RPGGame.Data
         /// <summary><c>Dungeons.json</c> — dungeon definitions: theme, levels, <c>possibleEnemies</c> (sheet tab often named DUNGEONS).</summary>
         Dungeons,
         /// <summary><c>StatBonuses.json</c> — rolled item suffix names / stat lines (sheet tab often named SUFFIXES).</summary>
-        StatBonuses
+        StatBonuses,
+        /// <summary><c>Consumables.json</c> — room-search food and dungeon potions (sheet tab CONSUMABLES).</summary>
+        Consumables
     }
 
     public static class JsonArraySheetConverter
@@ -51,12 +53,17 @@ namespace RPGGame.Data
             "ATTRIBUTE REQUIREMENT", "REQUIREMENT VALUE"
         };
 
+        /// <summary>
+        /// ARMOR tab column order for <see cref="GameDataSheetsPushService"/> — matches the armor spreadsheet template
+        /// (<c>tags</c> after <c>armor</c>, ALL CAPS core stats, <c># OF ACTION SLOTS</c> / <c># OF BONUS ACTIONS</c>,
+        /// then <c>tier</c> and requirement columns). Extra JSON keys (e.g. <c>attackSpeed</c>, slot range columns) append after these.
+        /// </summary>
         public static readonly string[] ArmorCanonicalHeaders =
         {
-            "slot", "name", "armor", "tier",
-            "strength", "agility", "technique", "intelligence", "hit", "combo", "crit",
-            "extraActionSlots", "extraActionSlotsMin", "extraActionSlotsMax", "minActionBonuses",
-            "attributeRequirements", "tags"
+            "slot", "name", "armor", "tags",
+            "STRENGTH", "AGILITY", "TECHNIQUE", "INTELLIGENCE", "HIT", "COMBO", "CRIT",
+            "# OF ACTION SLOTS", "# OF BONUS ACTIONS",
+            "tier", "attributeRequirements", "requirement value"
         };
 
         /// <summary>
@@ -97,6 +104,15 @@ namespace RPGGame.Data
         public static readonly string[] StatBonusesCanonicalHeaders =
             { "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics", "Requirements" };
 
+        /// <summary>CONSUMABLES tab column order for <c>Consumables.json</c>.</summary>
+        public static readonly string[] ConsumablesCanonicalHeaders =
+            { "displayName", "internalKind", "effect", "potency" };
+
+        private static readonly HashSet<string> ConsumablesAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "displayName", "internalKind", "effect", "potency"
+        };
+
         private static readonly HashSet<string> StatBonusAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
         {
             "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics", "Requirements"
@@ -112,6 +128,7 @@ namespace RPGGame.Data
                 GameDataTabularSheetKind.Environments => EnvironmentsCanonicalHeaders,
                 GameDataTabularSheetKind.Dungeons => DungeonsCanonicalHeaders,
                 GameDataTabularSheetKind.StatBonuses => StatBonusesCanonicalHeaders,
+                GameDataTabularSheetKind.Consumables => ConsumablesCanonicalHeaders,
                 _ => Array.Empty<string>()
             };
 
@@ -208,6 +225,9 @@ namespace RPGGame.Data
         /// </summary>
         public static List<IList<object>> BuildPushValueRows(string jsonFileText, GameDataTabularSheetKind kind)
         {
+            if (kind == GameDataTabularSheetKind.Armor)
+                return BuildArmorPushValueRows(jsonFileText);
+
             if (kind == GameDataTabularSheetKind.Enemies)
                 return BuildEnemyPushValueRows(jsonFileText);
 
@@ -218,7 +238,8 @@ namespace RPGGame.Data
             var canonical = GetCanonicalHeaders(kind).ToList();
             var extraKeys = new SortedSet<string>(StringComparer.Ordinal);
             // SUFFIXES tab is fixed A–G; do not emit helper/junk JSON keys as extra columns.
-            if (kind != GameDataTabularSheetKind.StatBonuses)
+            // CONSUMABLES tab is fixed A–D.
+            if (kind != GameDataTabularSheetKind.StatBonuses && kind != GameDataTabularSheetKind.Consumables)
             {
                 foreach (var el in doc.RootElement.EnumerateArray())
                 {
@@ -265,6 +286,159 @@ namespace RPGGame.Data
             }
 
             return rows;
+        }
+
+        private static List<IList<object>> BuildArmorPushValueRows(string jsonFileText)
+        {
+            using var doc = JsonDocument.Parse(jsonFileText);
+            if (doc.RootElement.ValueKind != JsonValueKind.Array)
+                throw new InvalidOperationException("Expected a JSON array at the root.");
+
+            var canonical = ArmorCanonicalHeaders.ToList();
+            var handledJson = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "slot", "name", "armor", "tags", "strength", "agility", "technique", "intelligence",
+                "hit", "combo", "crit", "extraActionSlots", "extraActionSlotsMin", "extraActionSlotsMax",
+                "minActionBonuses", "tier", "attributeRequirements"
+            };
+
+            var extraKeys = new SortedSet<string>(StringComparer.Ordinal);
+            foreach (var el in doc.RootElement.EnumerateArray())
+            {
+                if (el.ValueKind != JsonValueKind.Object)
+                    continue;
+                foreach (var p in el.EnumerateObject())
+                {
+                    if (!handledJson.Contains(p.Name))
+                        extraKeys.Add(p.Name);
+                }
+            }
+
+            var headers = new List<string>(canonical);
+            headers.AddRange(extraKeys);
+
+            var rows = new List<IList<object>>();
+            rows.Add(headers.Select(h => (object)h).ToList());
+
+            foreach (var el in doc.RootElement.EnumerateArray())
+            {
+                if (el.ValueKind != JsonValueKind.Object)
+                    continue;
+                var row = new List<object>();
+                foreach (var h in headers)
+                    row.Add(GetArmorPushCellValue(el, h));
+                rows.Add(row);
+            }
+
+            return rows;
+        }
+
+        private static object GetArmorPushCellValue(JsonElement el, string header)
+        {
+            if (string.Equals(header, "attributeRequirements", StringComparison.Ordinal))
+            {
+                GetArmorAttributeRequirementCells(el, out string attrCol, out _);
+                return attrCol;
+            }
+
+            if (string.Equals(header, "requirement value", StringComparison.Ordinal))
+            {
+                GetArmorAttributeRequirementCells(el, out _, out string reqVal);
+                return reqVal;
+            }
+
+            string? jsonName = MapArmorSheetHeaderToJsonProperty(header);
+            if (jsonName != null && TryGetJsonPropertyCaseInsensitive(el, jsonName, out var mapped))
+                return JsonElementToCellString(mapped);
+
+            if (TryGetJsonPropertyCaseInsensitive(el, header, out var direct))
+                return JsonElementToCellString(direct);
+
+            return "";
+        }
+
+        private static string? MapArmorSheetHeaderToJsonProperty(string header) =>
+            header switch
+            {
+                "STRENGTH" => "strength",
+                "AGILITY" => "agility",
+                "TECHNIQUE" => "technique",
+                "INTELLIGENCE" => "intelligence",
+                "HIT" => "hit",
+                "COMBO" => "combo",
+                "CRIT" => "crit",
+                "# OF ACTION SLOTS" => "extraActionSlots",
+                "# OF BONUS ACTIONS" => "minActionBonuses",
+                "slot" => "slot",
+                "name" => "name",
+                "armor" => "armor",
+                "tags" => "tags",
+                "tier" => "tier",
+                _ => null
+            };
+
+        private static void GetArmorAttributeRequirementCells(JsonElement el, out string attrCol, out string reqValCol)
+        {
+            attrCol = "";
+            reqValCol = "";
+            if (!TryGetJsonPropertyCaseInsensitive(el, "attributeRequirements", out var ar) || ar.ValueKind == JsonValueKind.Null)
+                return;
+
+            if (ar.ValueKind == JsonValueKind.Object)
+            {
+                var props = ar.EnumerateObject().ToList();
+                if (props.Count == 1)
+                {
+                    var p = props[0];
+                    attrCol = ArmorRequirementKeyToSheetStatColumn(p.Name);
+                    reqValCol = p.Value.ValueKind == JsonValueKind.Number
+                        ? JsonElementToCellString(p.Value)
+                        : "";
+                }
+                else
+                    attrCol = ar.GetRawText();
+            }
+            else if (ar.ValueKind == JsonValueKind.String)
+            {
+                attrCol = ar.GetString() ?? "";
+                if (TryGetJsonPropertyCaseInsensitive(el, "requirement value", out var rv) &&
+                    rv.ValueKind is JsonValueKind.Number or JsonValueKind.String)
+                    reqValCol = JsonElementToCellString(rv);
+            }
+        }
+
+        private static string ArmorRequirementKeyToSheetStatColumn(string requirementPropertyName)
+        {
+            string canon = Item.CanonicalizeAttributeRequirementKey(requirementPropertyName);
+            return canon switch
+            {
+                "strength" => "STRENGTH",
+                "agility" => "AGILITY",
+                "technique" => "TECHNIQUE",
+                "intelligence" => "INTELLIGENCE",
+                "primary" => "PRIMARY",
+                "secondary" => "SECONDARY",
+                "neglected" => "NEGLECTED",
+                "weakness" => "WEAKNESS",
+                _ => string.IsNullOrEmpty(canon) ? "" : canon.ToUpperInvariant()
+            };
+        }
+
+        private static bool TryGetJsonPropertyCaseInsensitive(JsonElement el, string name, out JsonElement prop)
+        {
+            prop = default;
+            if (el.ValueKind != JsonValueKind.Object)
+                return false;
+            foreach (var p in el.EnumerateObject())
+            {
+                if (string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase))
+                {
+                    prop = p.Value;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>Renders a parsed Requirements object (<c>{strength:5,primary:15}</c>) back to the bracket cell form used by sheet authors.</summary>
@@ -444,6 +618,8 @@ namespace RPGGame.Data
                 int headerCount = headerRow.Length;
                 if (kind == GameDataTabularSheetKind.StatBonuses)
                     headerCount = Math.Min(headerCount, StatBonusesCanonicalHeaders.Length);
+                if (kind == GameDataTabularSheetKind.Consumables)
+                    headerCount = Math.Min(headerCount, ConsumablesCanonicalHeaders.Length);
                 for (int i = 0; i < headerCount; i++)
                 {
                     // Google / Excel CSV exports may prefix the file with U+FEFF, which lands on the first header cell.
@@ -476,6 +652,14 @@ namespace RPGGame.Data
                 else if (kind == GameDataTabularSheetKind.Modifications)
                 {
                     GameDataJsonNormalizer.NormalizeModificationsImportRow(obj);
+                }
+                else if (kind == GameDataTabularSheetKind.Armor)
+                {
+                    GameDataJsonNormalizer.NormalizeArmorDataRow(obj);
+                }
+                else if (kind == GameDataTabularSheetKind.Consumables)
+                {
+                    NormalizeConsumablesJsonArrayRow(obj);
                 }
 
                 arr.Add(obj);
@@ -621,7 +805,7 @@ namespace RPGGame.Data
             var o = new JsonSerializerOptions { WriteIndented = true };
             if (kind == GameDataTabularSheetKind.Weapons || kind == GameDataTabularSheetKind.Armor
                 || kind == GameDataTabularSheetKind.Enemies || kind == GameDataTabularSheetKind.Environments
-                || kind == GameDataTabularSheetKind.Dungeons)
+                || kind == GameDataTabularSheetKind.Dungeons || kind == GameDataTabularSheetKind.Consumables)
                 o.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             else
                 o.PropertyNamingPolicy = null; // Modifications, StatBonuses — PascalCase columns match JSON files
@@ -938,6 +1122,74 @@ namespace RPGGame.Data
                 if (!StatBonusAuthorizedJsonKeys.Contains(key))
                     obj.Remove(key);
             }
+        }
+
+        /// <summary>Maps human CONSUMABLES sheet headers to camelCase JSON keys and drops extra columns.</summary>
+        private static void NormalizeConsumablesJsonArrayRow(JsonObject obj)
+        {
+            MoveConsumableJsonKeyIfPresent(obj, "displayName", "Display name", "displayName", "name", "Name");
+            MoveConsumableJsonKeyIfPresent(obj, "internalKind", "Internal kind", "internalKind", "kind", "Kind");
+            MoveConsumableJsonKeyIfPresent(obj, "effect", "Effect (dungeon-scoped until run ends)", "Effect", "effect");
+            MoveConsumableJsonKeyIfPresent(obj, "potency", "Typical potency*", "Typical potency", "potency", "Typical Potency");
+
+            if (obj.TryGetPropertyValue("potency", out JsonNode? potNode) && potNode is JsonValue jv)
+            {
+                string formatted = FormatConsumablePotencyCell(jv);
+                if (formatted.Length > 0)
+                    obj["potency"] = JsonValue.Create(formatted);
+            }
+
+            foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+            {
+                if (!ConsumablesAuthorizedJsonKeys.Contains(key))
+                    obj.Remove(key);
+            }
+        }
+
+        private static void MoveConsumableJsonKeyIfPresent(JsonObject obj, string canonicalKey, params string[] sourceAliases)
+        {
+            if (obj.TryGetPropertyValue(canonicalKey, out JsonNode? existing) && existing != null)
+                return;
+
+            foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+            {
+                bool matchesAlias = false;
+                foreach (string alias in sourceAliases)
+                {
+                    if (string.Equals(key, alias, StringComparison.OrdinalIgnoreCase))
+                    {
+                        matchesAlias = true;
+                        break;
+                    }
+                }
+
+                if (!matchesAlias)
+                    continue;
+                if (!obj.TryGetPropertyValue(key, out JsonNode? val) || val is null)
+                    continue;
+                obj.Remove(key);
+                obj[canonicalKey] = val;
+                return;
+            }
+        }
+
+        private static string FormatConsumablePotencyCell(JsonValue jv)
+        {
+            if (jv.TryGetValue<string>(out string? s) && !string.IsNullOrWhiteSpace(s))
+                return s.Trim();
+            if (jv.TryGetValue<int>(out int i))
+                return i.ToString(CultureInfo.InvariantCulture);
+            if (jv.TryGetValue<long>(out long l))
+                return l.ToString(CultureInfo.InvariantCulture);
+            if (jv.TryGetValue<double>(out double d))
+            {
+                double r = Math.Round(d);
+                if (Math.Abs(d - r) < 1e-9)
+                    return ((long)r).ToString(CultureInfo.InvariantCulture);
+                return d.ToString("0.###", CultureInfo.InvariantCulture);
+            }
+
+            return "";
         }
 
         /// <summary>Maps common Google Sheets column titles to <c>StatBonuses.json</c> property names.</summary>

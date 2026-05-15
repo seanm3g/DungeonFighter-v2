@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using RPGGame.Config;
 
 namespace RPGGame
 {
@@ -123,25 +124,33 @@ namespace RPGGame
 
     public static class TravelPacing
     {
-        public static int GetDelayMs(TravelRollOutcome outcome) => outcome switch
-        {
-            TravelRollOutcome.Critical => 400,
-            TravelRollOutcome.Combo => 650,
-            TravelRollOutcome.Hit => 900,
-            TravelRollOutcome.Miss => 1300,
-            TravelRollOutcome.CriticalMiss => 1700,
-            _ => 900
-        };
+        private static int ClampD20(int roll) => roll < 1 ? 1 : (roll > 20 ? 20 : roll);
 
-        public static int GetTravelMinutes(TravelRollOutcome outcome) => outcome switch
+        /// <summary>
+        /// Pause before the next travel step is revealed; scales with the d20 (higher roll = shorter wait).
+        /// </summary>
+        public static int GetStepDelayMsForRoll(int roll)
         {
-            TravelRollOutcome.Critical => 2,
-            TravelRollOutcome.Combo => 4,
-            TravelRollOutcome.Hit => 6,
-            TravelRollOutcome.Miss => 10,
-            TravelRollOutcome.CriticalMiss => 14,
-            _ => 6
-        };
+            int r = ClampD20(roll);
+            int pointsBelow20 = 20 - r;
+            var pacing = TextDelayConfiguration.GetTravelRouteRollPacing();
+            int baseMs = Math.Max(0, pacing.StepDelayBaseMs);
+            int extraPer = Math.Max(0, pacing.StepExtraDelayMsPerPointBelow20);
+            return baseMs + pointsBelow20 * extraPer;
+        }
+
+        /// <summary>
+        /// In-world minutes contributed by this step for the journey summary; scales with the d20.
+        /// </summary>
+        public static int GetSummaryTravelMinutesForRoll(int roll)
+        {
+            int r = ClampD20(roll);
+            int pointsBelow20 = 20 - r;
+            var pacing = TextDelayConfiguration.GetTravelRouteRollPacing();
+            int baseMin = Math.Max(0, pacing.SummaryBaseMinutes);
+            int extraPer = Math.Max(0, pacing.SummaryExtraMinutesPerPointBelow20);
+            return baseMin + pointsBelow20 * extraPer;
+        }
 
         public static string FormatTravelTime(int totalMinutes)
         {
@@ -518,8 +527,8 @@ namespace RPGGame
             }
 
             double travelTimeScale = GameSettings.Instance.TravelTimeMultiplier;
-            int delayMs = Math.Max(0, (int)Math.Round(TravelPacing.GetDelayMs(outcome) * travelTimeScale));
-            int travelMinutes = Math.Max(0, (int)Math.Round(TravelPacing.GetTravelMinutes(outcome) * travelTimeScale));
+            int delayMs = Math.Max(0, (int)Math.Round(TravelPacing.GetStepDelayMsForRoll(roll) * travelTimeScale));
+            int travelMinutes = Math.Max(0, (int)Math.Round(TravelPacing.GetSummaryTravelMinutesForRoll(roll) * travelTimeScale));
 
             return new TravelStepResult
             {

@@ -53,6 +53,12 @@
     "ProgressiveReductionRate": 1,
     "ProgressiveThreshold": 20
   },
+  "TravelRouteRollPacing": {
+    "StepDelayBaseMs": 750,
+    "StepExtraDelayMsPerPointBelow20": 100,
+    "SummaryBaseMinutes": 4,
+    "SummaryExtraMinutesPerPointBelow20": 1
+  },
   "EnableGuiDelays": true,
   "EnableConsoleDelays": true
 }

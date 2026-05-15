@@ -38,15 +38,24 @@ namespace RPGGame
             var (growthStrength, growthAgility, growthTechnique, growthIntelligence) =
                 ComputeNormalizedAttributeGrowthPerLevel(enemyData.GrowthPerLevel);
 
-            double growthHealth = enemyData.HealthGrowthPerLevel ?? scaling.Health;
+            var prog = enemySystem.ProgressionScales ?? new EnemyProgressionScalesConfig();
+            prog.EnsurePositiveScales();
+
+            double growthStrengthS = growthStrength * prog.AttributeGrowthScale;
+            double growthAgilityS = growthAgility * prog.AttributeGrowthScale;
+            double growthTechniqueS = growthTechnique * prog.AttributeGrowthScale;
+            double growthIntelligenceS = growthIntelligence * prog.AttributeGrowthScale;
+
+            double growthHealth = (enemyData.HealthGrowthPerLevel ?? scaling.Health) * prog.HealthGrowthScale;
+            double baseHealthScaled = baseHealth * prog.BaseHealthScale;
 
             int lv = Math.Max(0, level - 1);
 
-            int levelScaledHealth = FloorToInt(baseHealth + lv * growthHealth);
-            int levelScaledStrength = FloorToInt(baseStrength + lv * growthStrength);
-            int levelScaledAgility = FloorToInt(baseAgility + lv * growthAgility);
-            int levelScaledTechnique = FloorToInt(baseTechnique + lv * growthTechnique);
-            int levelScaledIntelligence = FloorToInt(baseIntelligence + lv * growthIntelligence);
+            int levelScaledHealth = FloorToInt(baseHealthScaled + lv * growthHealth);
+            int levelScaledStrength = FloorToInt(baseStrength + lv * growthStrengthS);
+            int levelScaledAgility = FloorToInt(baseAgility + lv * growthAgilityS);
+            int levelScaledTechnique = FloorToInt(baseTechnique + lv * growthTechniqueS);
+            int levelScaledIntelligence = FloorToInt(baseIntelligence + lv * growthIntelligenceS);
             int levelScaledArmor = FloorToInt(baseArmor + lv * scaling.Armor);
 
             int finalHealth = Math.Max(1, FloorToInt(levelScaledHealth * global.HealthMultiplier));

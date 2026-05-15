@@ -2,14 +2,35 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Avalonia.Threading;
 
 namespace RPGGame.UI.Avalonia.Components
 {
     public partial class SliderWithTextBox : UserControl
     {
+        /// <summary>Label color; defaults to black for light strips (e.g. Difficulty panel). Set to a light brush on dark panels so Fluent theme cannot wash the label out.</summary>
+        public static readonly StyledProperty<IBrush?> LabelForegroundProperty =
+            AvaloniaProperty.Register<SliderWithTextBox, IBrush?>(nameof(LabelForeground), Brushes.Black);
+
+        /// <summary>When false, the built-in label row is hidden (use an external <see cref="TextBlock"/> for the caption).</summary>
+        public static readonly StyledProperty<bool> ShowLabelProperty =
+            AvaloniaProperty.Register<SliderWithTextBox, bool>(nameof(ShowLabel), true);
+
         public static readonly StyledProperty<string> LabelProperty =
             AvaloniaProperty.Register<SliderWithTextBox, string>(nameof(Label), "Label:");
+
+        public IBrush? LabelForeground
+        {
+            get => GetValue(LabelForegroundProperty);
+            set => SetValue(LabelForegroundProperty, value);
+        }
+
+        public bool ShowLabel
+        {
+            get => GetValue(ShowLabelProperty);
+            set => SetValue(ShowLabelProperty, value);
+        }
 
         public static readonly StyledProperty<double> MinimumProperty =
             AvaloniaProperty.Register<SliderWithTextBox, double>(nameof(Minimum), 0.0);
@@ -84,6 +105,9 @@ namespace RPGGame.UI.Avalonia.Components
         public SliderWithTextBox()
         {
             InitializeComponent();
+
+            LabelForegroundProperty.Changed.AddClassHandler<SliderWithTextBox>((o, _) => o.ApplyLabelForeground());
+            ShowLabelProperty.Changed.AddClassHandler<SliderWithTextBox>((o, _) => o.ApplyShowLabel());
             
             // Wait for controls to be loaded before setting up bindings
             this.Loaded += OnLoaded;
@@ -101,6 +125,22 @@ namespace RPGGame.UI.Avalonia.Components
                     }
                 }
             };
+        }
+
+        private void ApplyLabelForeground()
+        {
+            if (LabelTextBlock == null) return;
+            if (!ShowLabel)
+                return;
+            LabelTextBlock.Foreground = LabelForeground ?? Brushes.Black;
+        }
+
+        private void ApplyShowLabel()
+        {
+            if (LabelTextBlock == null) return;
+            LabelTextBlock.IsVisible = ShowLabel;
+            if (ShowLabel)
+                ApplyLabelForeground();
         }
         
         private void UpdateTextBoxFromValue(double value)
@@ -124,10 +164,20 @@ namespace RPGGame.UI.Avalonia.Components
         {
             _isLoaded = true;
             
-            // Bind label text
+            // Bind label text (skip when host draws its own caption — avoids theme fighting the inner TextBlock)
             if (LabelTextBlock != null)
             {
-                LabelTextBlock.Bind(TextBlock.TextProperty, this.GetObservable(LabelProperty));
+                LabelTextBlock.IsVisible = ShowLabel;
+                if (ShowLabel)
+                {
+                    LabelTextBlock.Bind(TextBlock.TextProperty, this.GetObservable(LabelProperty));
+                    ApplyLabelForeground();
+                    // Fluent can re-apply TextBlock brushes after Loaded; set again once layout has run.
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        ApplyLabelForeground();
+                    }, DispatcherPriority.Loaded);
+                }
             }
             
             // Bind slider properties

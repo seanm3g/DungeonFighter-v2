@@ -71,6 +71,8 @@ namespace RPGGame.Data
         /// <summary>Sheet exports use <c>null</c> for blank stat columns; coerce to <c>0</c> so <see cref="LootGenerator.ArmorData"/> integers deserialize.</summary>
         private static void NormalizeArmorRow(JsonObject o)
         {
+            RenameArmorSheetColumnKeysToCanonical(o);
+
             CoercePropertyToInt(o, "armor");
             CoercePropertyToInt(o, "tier");
             CoercePropertyToInt(o, "strength");
@@ -87,6 +89,74 @@ namespace RPGGame.Data
             CoercePropertyToInt(o, "requirement value");
             CoercePropertyToDouble(o, "attackSpeed");
             MergeSheetAbbrevAttributeRequirementsIfPresent(o);
+        }
+
+        /// <summary>
+        /// ARMOR tab authors often use ALL CAPS stat columns and labels like <c># OF ACTION SLOTS</c>; runtime JSON uses camelCase keys.
+        /// </summary>
+        private static void RenameArmorSheetColumnKeysToCanonical(JsonObject obj)
+        {
+            EnsureCanonicalArmorKey(obj, "slot", "SLOT");
+            EnsureCanonicalArmorKey(obj, "name", "NAME");
+            EnsureCanonicalArmorKey(obj, "armor", "ARMOR");
+            EnsureCanonicalArmorKey(obj, "tags", "TAGS");
+            EnsureCanonicalArmorKey(obj, "tier", "TIER");
+
+            EnsureCanonicalArmorKey(obj, "strength", "STRENGTH", "STR");
+            EnsureCanonicalArmorKey(obj, "agility", "AGILITY", "AGI");
+            EnsureCanonicalArmorKey(obj, "technique", "TECHNIQUE", "TEC", "TECH");
+            EnsureCanonicalArmorKey(obj, "intelligence", "INTELLIGENCE", "INT");
+            EnsureCanonicalArmorKey(obj, "hit", "HIT");
+            EnsureCanonicalArmorKey(obj, "combo", "COMBO");
+            EnsureCanonicalArmorKey(obj, "crit", "CRIT");
+
+            EnsureCanonicalArmorKey(obj, "extraActionSlots", "# OF ACTION SLOTS");
+            EnsureCanonicalArmorKey(obj, "minActionBonuses", "# OF BONUS ACTIONS");
+
+            EnsureCanonicalArmorKey(obj, "extraActionSlotsMin", "EXTRA ACTION SLOTS MIN");
+            EnsureCanonicalArmorKey(obj, "extraActionSlotsMax", "EXTRA ACTION SLOTS MAX");
+            EnsureCanonicalArmorKey(obj, "attackSpeed", "ATTACK SPEED", "ATTACKSPEED");
+            EnsureCanonicalArmorKey(obj, "attributeRequirements", "ATTRIBUTE REQUIREMENTS", "ATTRIBUTEREQUIREMENTS");
+        }
+
+        private static string CollapseInteriorSpaces(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s))
+                return "";
+            return string.Join(" ", s.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+        }
+
+        /// <summary>Moves the first matching alternate header (collapsed whitespace, case-insensitive) onto <paramref name="canonicalKey"/>.</summary>
+        private static void EnsureCanonicalArmorKey(JsonObject obj, string canonicalKey, params string[] collapsedAlternateHeaders)
+        {
+            if (obj.TryGetPropertyValue(canonicalKey, out _))
+            {
+                foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+                {
+                    if (string.Equals(key, canonicalKey, StringComparison.Ordinal))
+                        continue;
+                    string ck = CollapseInteriorSpaces(key);
+                    if (collapsedAlternateHeaders.Any(a => string.Equals(ck, a, StringComparison.OrdinalIgnoreCase)))
+                        obj.Remove(key);
+                }
+
+                return;
+            }
+
+            foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+            {
+                string ck = CollapseInteriorSpaces(key);
+                if (!collapsedAlternateHeaders.Any(a => string.Equals(ck, a, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+
+                if (!obj.TryGetPropertyValue(key, out var node))
+                    return;
+
+                obj.Remove(key);
+                if (node is not null)
+                    obj[canonicalKey] = node;
+                return;
+            }
         }
 
         /// <summary>

@@ -107,6 +107,7 @@ namespace RPGGame.UI.Avalonia
             panelHandlerRegistry.Register(new AppearancePanelHandler(settings, colorManager));
             panelHandlerRegistry.Register(new Managers.Settings.PanelHandlers.ClassesPanelHandler(ShowStatusMessage));
             panelHandlerRegistry.Register(new ItemGenerationPanelHandler(ShowStatusMessage));
+            panelHandlerRegistry.Register(new EnemyTuningPanelHandler(ShowStatusMessage));
             // Testing handler will be registered when canvasUI is available
             
             // Initialize save orchestrator (single panel resolution via GetPanelForCategory)
@@ -405,6 +406,7 @@ namespace RPGGame.UI.Avalonia
             if (panel is ItemsSettingsPanel) return "Items";
             if (panel is ItemGenerationSettingsPanel) return "ItemGeneration";
             if (panel is EnemiesSettingsPanel) return "Enemies";
+            if (panel is EnemyTuningSettingsPanel) return "EnemyTuning";
             if (panel is BalanceTuningSettingsPanel) return "BalanceTuning";
             if (panel is ActionInteractionLabSettingsPanel) return "ActionInteractionLab";
             if (panel is AboutSettingsPanel) return "About";

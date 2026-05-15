@@ -78,7 +78,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                             var displayManager = canvasTextManager.DisplayManager;
                             var buffer = displayManager.Buffer;
                             var renderer = new DisplayRenderer(new ColoredTextWriter(canvas));
-                            renderer.Render(buffer, contentX, contentY, contentWidth, contentHeight, clearContent: true, combatEnemyNameForPrimaryLineRightAlign: contextManager.GetCombatLogEnemyAlignmentName(), combatHeroNameForLineAlignment: player?.Name);
+                            renderer.Render(buffer, contentX, contentY, contentWidth, contentHeight, clearContent: true, combatEnemyNamesForPrimaryLineRightAlign: contextManager.GetCombatLogEnemyAlignmentNames(), combatHeroNameForLineAlignment: player?.Name);
                         }
                     },
                     context,
@@ -143,7 +143,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 if (currentEnemy != null)
                 {
                     dungeonRenderer.RenderCombatScreen(contentX, contentY, contentWidth, contentHeight,
-                        null, null, currentEnemy, textManager, player, filteredDungeonContext);
+                        null, null, currentEnemy, textManager, player, filteredDungeonContext,
+                        contextManager.GetCombatLogEnemyAlignmentNames());
                 }
             }, context, currentEnemy, context.DungeonName, context.RoomName, clearCanvas: shouldClear);
             dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
@@ -163,7 +164,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             RenderWithLayout(player, "COMBAT", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                dungeonRenderer.RenderEnemyEncounter(contentX, contentY, contentWidth, contentHeight, enemy, textManager, context.DungeonContext);
+                dungeonRenderer.RenderEnemyEncounter(contentX, contentY, contentWidth, contentHeight, enemy, textManager, context.DungeonContext, contextManager.GetCombatLogEnemyAlignmentNames());
             }, context, enemy, dungeonName, roomName, clearCanvas: false);
             dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();

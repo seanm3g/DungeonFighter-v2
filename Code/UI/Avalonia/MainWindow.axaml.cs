@@ -141,8 +141,13 @@ namespace RPGGame.UI.Avalonia
             };
             combatSpeedNotificationTimer.Stop();
             combatSpeedNotificationTimer.Tick -= HideCombatSpeedNotification;
-            combatSpeedNotificationTimer.Tick += HideCombatSpeedNotification;
-            combatSpeedNotificationTimer.Start();
+
+            // Keep the footer label visible while combat is accelerated; only 1x auto-dismisses.
+            if (DeveloperModeState.CombatSpeedMultiplier <= 1)
+            {
+                combatSpeedNotificationTimer.Tick += HideCombatSpeedNotification;
+                combatSpeedNotificationTimer.Start();
+            }
         }
 
         private void HideCombatSpeedNotification(object? sender, EventArgs e)

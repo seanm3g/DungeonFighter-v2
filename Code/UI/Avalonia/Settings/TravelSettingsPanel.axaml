@@ -19,7 +19,7 @@
                                FontWeight="SemiBold"
                                Foreground="#FFE8E8E8"
                                Margin="0,0,0,4"/>
-                    <TextBlock Text="Each trip rolls 4d4 once to decide how many travel events (d20 rolls) occur. Travel time multiplier scales the pause between each revealed step and the journey minutes shown in the summary. Use 0 for no wait between steps; 1 is default pacing."
+                    <TextBlock Text="Each trip rolls 4d4 once to decide how many travel events (d20 rolls) occur. Travel time multiplier scales the pause after each revealed step and the journey minutes in the summary. The per-roll pacing curve (base delay at natural 20 and extra per point below 20) is configured under Settings → Text Delays → Region travel (per d20 roll). Use 0 for no wait between steps; 1 is default pacing for the multiplier."
                                Foreground="#FFB0B0B0"
                                FontSize="14"
                                TextWrapping="Wrap"/>

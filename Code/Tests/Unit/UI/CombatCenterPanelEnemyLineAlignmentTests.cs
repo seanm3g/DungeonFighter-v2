@@ -20,6 +20,7 @@ namespace RPGGame.Tests.Unit.UI
             TestHeroLine(ref run, ref passed, ref failed);
             TestResolveEnemyRollRightAlignedAfterPrimary(ref run, ref passed, ref failed);
             TestResolveHeroRollStaysLeft(ref run, ref passed, ref failed);
+            TestResolveMultiEnemyEncounterNames(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("CombatCenterPanelEnemyLineAlignment Tests", run, passed, failed);
         }
@@ -106,6 +107,30 @@ namespace RPGGame.Tests.Unit.UI
             var flags = CombatCenterPanelEnemyLineAlignment.ResolveRightAlignFlags(lines, "Skeleton", "Roran Dawnblade");
             TestBase.AssertTrue(flags[0] && flags[1] && !flags[2] && !flags[3],
                 "after hero primary, hero indented line stays left",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void TestResolveMultiEnemyEncounterNames(ref int run, ref int passed, ref int failed)
+        {
+            var lines = new List<List<ColoredText>>
+            {
+                new List<ColoredText>
+                {
+                    new ColoredText("Wight", Colors.White),
+                    new ColoredText(" misses Hero", Colors.White)
+                },
+                new List<ColoredText> { new ColoredText(BlockMessageCollector.ActionBlockSubsequentIndent + "(roll: 5)", Colors.Gray) },
+                new List<ColoredText>
+                {
+                    new ColoredText("Wraith", Colors.White),
+                    new ColoredText(" hits Hero", Colors.White)
+                },
+                new List<ColoredText> { new ColoredText(BlockMessageCollector.ActionBlockSubsequentIndent + "(roll: 10)", Colors.Gray) }
+            };
+            IReadOnlyList<string> names = new[] { "Wraith", "Wight" };
+            var flags = CombatCenterPanelEnemyLineAlignment.ResolveRightAlignFlags(lines, names, "Hero");
+            TestBase.AssertTrue(flags[0] && flags[1] && flags[2] && flags[3],
+                "both enemy encounters right-align when multiple enemy names are supplied",
                 ref run, ref passed, ref failed);
         }
     }

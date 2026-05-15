@@ -150,6 +150,8 @@
                             <TextBox x:Name="ArmorTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
                             <TextBlock Text="SUFFIXES (item suffixes) → StatBonuses.json" FontSize="12" Foreground="#FF555555"/>
                             <TextBox x:Name="StatBonusesTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
+                            <TextBlock Text="CONSUMABLES → Consumables.json" FontSize="12" Foreground="#FF555555"/>
+                            <TextBox x:Name="ConsumablesTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
                             <TextBlock Text="ENEMIES → Enemies.json" FontSize="12" Foreground="#FF555555"/>
                             <TextBox x:Name="EnemiesTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
                             <TextBlock Text="ENVIRONMENTS → Rooms.json" FontSize="12" Foreground="#FF555555"/>
@@ -183,6 +185,7 @@
                                 <CheckBox x:Name="PushModificationsTabCheckBox" Content="PREFIX" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
                                 <CheckBox x:Name="PushArmorTabCheckBox" Content="ARMOR" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
                                 <CheckBox x:Name="PushStatBonusesTabCheckBox" Content="SUFFIXES" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
+                                <CheckBox x:Name="PushConsumablesTabCheckBox" Content="CONSUMABLES" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
                                 <CheckBox x:Name="PushEnemiesTabCheckBox" Content="ENEMIES" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
                                 <CheckBox x:Name="PushEnvironmentsTabCheckBox" Content="ENVIRONMENTS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
                                 <CheckBox x:Name="PushDungeonsTabCheckBox" Content="DUNGEONS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>

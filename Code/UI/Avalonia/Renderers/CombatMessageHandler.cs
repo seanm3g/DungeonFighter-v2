@@ -104,7 +104,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             int spacingBefore = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.RoomCleared);
             for (int i = 0; i < spacingBefore; i++)
             {
-                textManager.AddToDisplayBuffer("", UIMessageType.Combat);
+                textManager.AddToDisplayBuffer("", UIMessageType.Title);
             }
             
             var roomClearedSegments = new ColoredTextBuilder()
@@ -112,14 +112,14 @@ namespace RPGGame.UI.Avalonia.Renderers
                 .Build();
             if (textManager is CanvasTextManager canvasTextManager)
             {
-                canvasTextManager.DisplayManager.AddMessage(roomClearedSegments, UIMessageType.Combat);
+                canvasTextManager.DisplayManager.AddMessage(roomClearedSegments, UIMessageType.Title);
             }
             else
             {
-                textManager.AddToDisplayBuffer(AsciiArtAssets.UIText.RoomClearedMessage, UIMessageType.Combat);
+                textManager.AddToDisplayBuffer(AsciiArtAssets.UIText.RoomClearedMessage, UIMessageType.Title);
             }
             // Keep separation before follow-up prompts without drawing a second divider.
-            textManager.AddToDisplayBuffer("", UIMessageType.Combat);
+            textManager.AddToDisplayBuffer("", UIMessageType.Title);
             
             // Record that room cleared was displayed
             TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.RoomCleared);

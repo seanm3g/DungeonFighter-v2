@@ -25,6 +25,7 @@ namespace RPGGame.Tests.Unit.Entity
             TestPartialBaseAttributesFallsBackForOmittedStats();
             TestExplicitGrowthPerLevelFractional();
             TestExplicitHealthGrowthPerLevel();
+            TestProgressionScalesApplyToCurves();
 
             TestBase.PrintSummary("Enemy Attribute Growth Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -290,6 +291,44 @@ namespace RPGGame.Tests.Unit.Entity
             var stats = EnemyStatCalculator.CalculateStats(data, 10, enemySystem);
             // lv=9; floor(100 + 9*2.7)=floor(124.3)=124 — tuning scaling.Health must not apply when growth is explicit
             TestBase.AssertEqual(124, stats.Health, "Calculator HP at L10 with explicit growth", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestProgressionScalesApplyToCurves()
+        {
+            Console.WriteLine("\n--- enemySystem.progressionScales ---");
+
+            var enemySystem = new EnemySystemConfig
+            {
+                GlobalMultipliers = new GlobalMultipliersConfig { HealthMultiplier = 1.0, DamageMultiplier = 1.0, ArmorMultiplier = 1.0, SpeedMultiplier = 1.0 },
+                ProgressionScales = new EnemyProgressionScalesConfig
+                {
+                    BaseHealthScale = 2.0,
+                    HealthGrowthScale = 0.5,
+                    AttributeGrowthScale = 2.0
+                },
+                BaselineStats = new BaselineStatsConfig { Health = 50, Strength = 3, Agility = 3, Technique = 3, Intelligence = 3, Armor = 2 },
+                ScalingPerLevel = new ScalingPerLevelConfig { Health = 10, Attributes = 1, Armor = 1 },
+                Archetypes = new Dictionary<string, ArchetypeMultipliersConfig>
+                {
+                    ["Berserker"] = new ArchetypeMultipliersConfig { Health = 1, Strength = 1, Agility = 1, Technique = 1, Intelligence = 1, Armor = 1 }
+                }
+            };
+
+            var data = new EnemyData
+            {
+                Name = "ScaleTest",
+                Archetype = "Berserker",
+                BaseHealth = 100,
+                HealthGrowthPerLevel = 4,
+                BaseAttributes = new EnemyAttributeSet { Strength = 10, Agility = 10, Technique = 10, Intelligence = 10 },
+                GrowthPerLevel = new EnemyAttributeSet { Strength = 1, Agility = 1, Technique = 2, Intelligence = 2 }
+            };
+
+            var stats = EnemyStatCalculator.CalculateStats(data, 3, enemySystem);
+            // base 100*2=200, growth 4*0.5=2 per level, lv=2 -> 200+4=204
+            TestBase.AssertEqual(204, stats.Health, "HP respects base and growth scales", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // growth STR 1 -> *2 = 2/level; lv=2 -> 10+4=14
+            TestBase.AssertEqual(14, stats.Strength, "STR respects attribute growth scale", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

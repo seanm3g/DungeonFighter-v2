@@ -92,7 +92,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 controls.RoomPresetMinDelayTextBox != null && controls.RoomPresetMaxDelayTextBox != null &&
                 controls.NarrativePresetBaseDelayTextBox != null && controls.NarrativePresetMinDelayTextBox != null &&
                 controls.NarrativePresetMaxDelayTextBox != null && controls.DefaultPresetBaseDelayTextBox != null &&
-                controls.DefaultPresetMinDelayTextBox != null && controls.DefaultPresetMaxDelayTextBox != null;
+                controls.DefaultPresetMinDelayTextBox != null && controls.DefaultPresetMaxDelayTextBox != null &&
+                controls.TravelStepDelayBaseMsTextBox != null && controls.TravelStepExtraDelayMsPerPointTextBox != null &&
+                controls.TravelSummaryBaseMinutesTextBox != null && controls.TravelSummaryExtraMinutesPerPointTextBox != null;
         }
 
         private bool AreAnimationSettingsControlsValid(AnimationSettingsControls controls)

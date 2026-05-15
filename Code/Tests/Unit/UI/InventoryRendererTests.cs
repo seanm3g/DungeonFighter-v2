@@ -139,8 +139,10 @@ namespace RPGGame.Tests.Unit.UI
                 emptyInventory, character, InventoryItemSortMode.InventoryOrder, hideRequirementBlockedItems: false, inventoryEquipSlotFilter: null);
             TestBase.AssertEqual(5, allDefault.Count, "view summary splits into five colored segments", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(
-                ColorValidator.AreColorsEqual(allDefault[0].Color, dim) && ColorValidator.AreColorsEqual(allDefault[2].Color, dim),
-                "sort and filter clauses use dim color when sort is inventory order and filter shows all",
+                ColorValidator.AreColorsEqual(allDefault[0].Color, dim)
+                    && ColorValidator.AreColorsEqual(allDefault[2].Color, dim)
+                    && ColorValidator.AreColorsEqual(allDefault[4].Color, dim),
+                "sort, filter, and bag slot clauses use dim when sort is inventory order, filter shows all, and no slot filter",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var raritySort = InventoryScreenRenderer.BuildViewSummaryColoredSegments(
@@ -163,8 +165,8 @@ namespace RPGGame.Tests.Unit.UI
             var bagFollowsFirstRow = InventoryScreenRenderer.BuildViewSummaryColoredSegments(
                 invOne, character, InventoryItemSortMode.InventoryOrder, hideRequirementBlockedItems: false, inventoryEquipSlotFilter: null);
             TestBase.AssertTrue(
-                ColorValidator.AreColorsEqual(bagFollowsFirstRow[4].Color, ItemThemeProvider.GetRarityColor("Rare")),
-                "bag slot line uses first visible item rarity color when no slot filter",
+                ColorValidator.AreColorsEqual(bagFollowsFirstRow[4].Color, dim),
+                "bag slot line uses dim when no slot filter even if first row is rare",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var mythicHelm = TestDataBuilders.Armor().WithType(ItemType.Head).WithName("Mythic Hat").Build();
@@ -180,8 +182,8 @@ namespace RPGGame.Tests.Unit.UI
                 hideRequirementBlockedItems: false,
                 inventoryEquipSlotFilter: "head");
             TestBase.AssertTrue(
-                ColorValidator.AreColorsEqual(headFilterUsesEquipped[4].Color, ItemThemeProvider.GetRarityColor("Mythic")),
-                "bag slot line uses equipped item rarity for active slot filter when bag has no row for that slot",
+                ColorValidator.AreColorsEqual(headFilterUsesEquipped[4].Color, highlight),
+                "bag slot line uses applied highlight when a slot filter is active (consistent across slots)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var emptySlotFilterWeapon = InventoryScreenRenderer.BuildViewSummaryColoredSegments(

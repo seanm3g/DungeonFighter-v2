@@ -101,11 +101,19 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public bool TryAddMessages(IEnumerable<List<ColoredText>> segmentsList)
         {
+            return TryAddMessages(segmentsList, UIMessageType.System);
+        }
+
+        /// <summary>
+        /// Adds multiple structured ColoredText segment lists with a shared line <see cref="UIMessageType"/>.
+        /// </summary>
+        public bool TryAddMessages(IEnumerable<List<ColoredText>> segmentsList, UIMessageType lineMessageType)
+        {
             // Use MessageFilterService to check menu states consistently
             // Don't perform race condition check for batch operations (already routed to correct character)
             bool shouldAddMessages = filterService.ShouldDisplayMessage(
                 null, // No source character - use context manager instead
-                UIMessageType.System, // Default to System for batch operations
+                lineMessageType,
                 stateManager,
                 contextManager,
                 performRaceConditionCheck: false);
@@ -115,7 +123,7 @@ namespace RPGGame.UI.Avalonia.Display
                 return false;
             }
 
-            buffer.AddRange(segmentsList);
+            buffer.AddRange(segmentsList, lineMessageType);
             return true;
         }
 

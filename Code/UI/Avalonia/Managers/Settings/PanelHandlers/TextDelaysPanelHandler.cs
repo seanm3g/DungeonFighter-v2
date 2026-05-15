@@ -68,6 +68,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             WireUpCombatTimingTextBox(textDelaysPanel.ActionDelayMsTextBox ?? textDelaysPanel.FindControl<TextBox>("ActionDelayMsTextBox"), isActionDelay: true);
             WireUpCombatTimingTextBox(textDelaysPanel.MessageDelayMsTextBox ?? textDelaysPanel.FindControl<TextBox>("MessageDelayMsTextBox"), isActionDelay: false);
 
+            WireUpTravelRouteRollPacingTextBoxes(textDelaysPanel);
+
             // Wire up textboxes for message type delays
             WireUpTextDelayTextBox(textDelaysPanel.CombatDelayTextBox, UIMessageType.Combat);
             WireUpTextDelayTextBox(textDelaysPanel.SystemDelayTextBox, UIMessageType.System);
@@ -135,6 +137,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 var defaultPresetBaseDelayTextBox = textDelaysPanel.DefaultPresetBaseDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("DefaultPresetBaseDelayTextBox");
                 var defaultPresetMinDelayTextBox = textDelaysPanel.DefaultPresetMinDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("DefaultPresetMinDelayTextBox");
                 var defaultPresetMaxDelayTextBox = textDelaysPanel.DefaultPresetMaxDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("DefaultPresetMaxDelayTextBox");
+                var travelStepDelayBaseMsTextBox = textDelaysPanel.TravelStepDelayBaseMsTextBox ?? textDelaysPanel.FindControl<TextBox>("TravelStepDelayBaseMsTextBox");
+                var travelStepExtraDelayMsPerPointTextBox = textDelaysPanel.TravelStepExtraDelayMsPerPointTextBox ?? textDelaysPanel.FindControl<TextBox>("TravelStepExtraDelayMsPerPointTextBox");
+                var travelSummaryBaseMinutesTextBox = textDelaysPanel.TravelSummaryBaseMinutesTextBox ?? textDelaysPanel.FindControl<TextBox>("TravelSummaryBaseMinutesTextBox");
+                var travelSummaryExtraMinutesPerPointTextBox = textDelaysPanel.TravelSummaryExtraMinutesPerPointTextBox ?? textDelaysPanel.FindControl<TextBox>("TravelSummaryExtraMinutesPerPointTextBox");
 
                 var controls = BuildControls(
                     enableGuiDelaysCheckBox, enableConsoleDelaysCheckBox, actionDelayMsTextBox, messageDelayMsTextBox,
@@ -145,7 +151,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     dungeonPresetBaseDelayTextBox, dungeonPresetMinDelayTextBox, dungeonPresetMaxDelayTextBox,
                     roomPresetBaseDelayTextBox, roomPresetMinDelayTextBox, roomPresetMaxDelayTextBox,
                     narrativePresetBaseDelayTextBox, narrativePresetMinDelayTextBox, narrativePresetMaxDelayTextBox,
-                    defaultPresetBaseDelayTextBox, defaultPresetMinDelayTextBox, defaultPresetMaxDelayTextBox);
+                    defaultPresetBaseDelayTextBox, defaultPresetMinDelayTextBox, defaultPresetMaxDelayTextBox,
+                    travelStepDelayBaseMsTextBox, travelStepExtraDelayMsPerPointTextBox, travelSummaryBaseMinutesTextBox, travelSummaryExtraMinutesPerPointTextBox);
                 settingsManager.LoadTextDelaySettings(controls);
             }
             catch (Exception ex)
@@ -211,6 +218,55 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     textBox.Text = currentValue.ToString();
                 }
             };
+        }
+
+        private void WireUpTravelRouteRollPacingTextBoxes(TextDelaysSettingsPanel panel)
+        {
+            var stepBase = panel.TravelStepDelayBaseMsTextBox ?? panel.FindControl<TextBox>("TravelStepDelayBaseMsTextBox");
+            var stepExtra = panel.TravelStepExtraDelayMsPerPointTextBox ?? panel.FindControl<TextBox>("TravelStepExtraDelayMsPerPointTextBox");
+            var summaryBase = panel.TravelSummaryBaseMinutesTextBox ?? panel.FindControl<TextBox>("TravelSummaryBaseMinutesTextBox");
+            var summaryExtra = panel.TravelSummaryExtraMinutesPerPointTextBox ?? panel.FindControl<TextBox>("TravelSummaryExtraMinutesPerPointTextBox");
+
+            void hook(TextBox? tb)
+            {
+                if (tb == null) return;
+                tb.LostFocus += (s, e) => UpdateTravelRouteRollPacing(stepBase, stepExtra, summaryBase, summaryExtra);
+            }
+
+            hook(stepBase);
+            hook(stepExtra);
+            hook(summaryBase);
+            hook(summaryExtra);
+        }
+
+        private static void UpdateTravelRouteRollPacing(
+            TextBox? stepBase,
+            TextBox? stepExtra,
+            TextBox? summaryBase,
+            TextBox? summaryExtra)
+        {
+            if (stepBase == null || stepExtra == null || summaryBase == null || summaryExtra == null)
+                return;
+            if (!int.TryParse(stepBase.Text, out int b) ||
+                !int.TryParse(stepExtra.Text, out int e) ||
+                !int.TryParse(summaryBase.Text, out int sb) ||
+                !int.TryParse(summaryExtra.Text, out int se))
+                return;
+
+            try
+            {
+                RPGGame.Config.TextDelayConfiguration.SetTravelRouteRollPacing(new RPGGame.Config.TravelRouteRollPacingConfig
+                {
+                    StepDelayBaseMs = b,
+                    StepExtraDelayMsPerPointBelow20 = e,
+                    SummaryBaseMinutes = sb,
+                    SummaryExtraMinutesPerPointBelow20 = se
+                });
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"Error updating travel route roll pacing: {ex.Message}");
+            }
         }
 
         private void WireUpProgressiveMenuDelayTextBoxes(TextDelaysSettingsPanel panel)
@@ -362,6 +418,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 var defaultBase = textDelaysPanel.DefaultPresetBaseDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("DefaultPresetBaseDelayTextBox");
                 var defaultMin = textDelaysPanel.DefaultPresetMinDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("DefaultPresetMinDelayTextBox");
                 var defaultMax = textDelaysPanel.DefaultPresetMaxDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("DefaultPresetMaxDelayTextBox");
+                var travelStepBase = textDelaysPanel.TravelStepDelayBaseMsTextBox ?? textDelaysPanel.FindControl<TextBox>("TravelStepDelayBaseMsTextBox");
+                var travelStepExtra = textDelaysPanel.TravelStepExtraDelayMsPerPointTextBox ?? textDelaysPanel.FindControl<TextBox>("TravelStepExtraDelayMsPerPointTextBox");
+                var travelSummaryBase = textDelaysPanel.TravelSummaryBaseMinutesTextBox ?? textDelaysPanel.FindControl<TextBox>("TravelSummaryBaseMinutesTextBox");
+                var travelSummaryExtra = textDelaysPanel.TravelSummaryExtraMinutesPerPointTextBox ?? textDelaysPanel.FindControl<TextBox>("TravelSummaryExtraMinutesPerPointTextBox");
 
                 var controls = BuildControls(
                     enableGui, enableConsole, actionDelayMs, messageDelayMs,
@@ -370,7 +430,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     progressiveRate, progressiveThreshold,
                     combatBase, combatMin, combatMax, dungeonBase, dungeonMin, dungeonMax,
                     roomBase, roomMin, roomMax, narrativeBase, narrativeMin, narrativeMax,
-                    defaultBase, defaultMin, defaultMax);
+                    defaultBase, defaultMin, defaultMax,
+                    travelStepBase, travelStepExtra, travelSummaryBase, travelSummaryExtra);
                 settingsManager.SaveTextDelaySettings(controls);
             }
             catch (Exception ex)
@@ -388,7 +449,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             TextBox? dungeonBase, TextBox? dungeonMin, TextBox? dungeonMax,
             TextBox? roomBase, TextBox? roomMin, TextBox? roomMax,
             TextBox? narrativeBase, TextBox? narrativeMin, TextBox? narrativeMax,
-            TextBox? defaultBase, TextBox? defaultMin, TextBox? defaultMax)
+            TextBox? defaultBase, TextBox? defaultMin, TextBox? defaultMax,
+            TextBox? travelStepBase, TextBox? travelStepExtra, TextBox? travelSummaryBase, TextBox? travelSummaryExtra)
         {
             return new TextDelaySettingsControls
             {
@@ -424,7 +486,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 NarrativePresetMaxDelayTextBox = narrativeMax,
                 DefaultPresetBaseDelayTextBox = defaultBase,
                 DefaultPresetMinDelayTextBox = defaultMin,
-                DefaultPresetMaxDelayTextBox = defaultMax
+                DefaultPresetMaxDelayTextBox = defaultMax,
+                TravelStepDelayBaseMsTextBox = travelStepBase,
+                TravelStepExtraDelayMsPerPointTextBox = travelStepExtra,
+                TravelSummaryBaseMinutesTextBox = travelSummaryBase,
+                TravelSummaryExtraMinutesPerPointTextBox = travelSummaryExtra
             };
         }
     }
