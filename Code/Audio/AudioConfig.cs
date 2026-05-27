@@ -100,6 +100,17 @@ namespace RPGGame.Audio
             return Path.Combine(audioDir, "AudioConfig.json");
         }
 
+        /// <summary>
+        /// Canonicalizes relative cue paths to forward slashes for cross-platform JSON and playback.
+        /// Accepts legacy Windows <c>Music\track.wav</c> entries; <see cref="Path.Combine"/> resolves <c>/</c> on all OSes.
+        /// </summary>
+        internal static string NormalizeRelativeAssetPath(string relativeFile)
+        {
+            if (string.IsNullOrEmpty(relativeFile)) return string.Empty;
+            if (Path.IsPathRooted(relativeFile)) return relativeFile;
+            return relativeFile.Replace('\\', '/');
+        }
+
         /// <summary>Resolves an absolute path for a cue's <see cref="AudioCueBinding.File"/> (always rooted under GameData/Audio/).</summary>
         public static string ResolveAssetPath(string relativeFile)
         {
@@ -111,7 +122,8 @@ namespace RPGGame.Audio
             string audioDir = settingsDir != null
                 ? Path.Combine(settingsDir, "Audio")
                 : Path.Combine(GameConstants.GameDataDirectory, "Audio");
-            return Path.GetFullPath(Path.Combine(audioDir, relativeFile));
+            string normalized = NormalizeRelativeAssetPath(relativeFile);
+            return Path.GetFullPath(Path.Combine(audioDir, normalized));
         }
 
         /// <summary>
@@ -178,7 +190,7 @@ namespace RPGGame.Audio
             {
                 binding.Volume = Clamp01(binding.Volume);
                 if (binding.RateLimitMs is int ms && ms < 0) binding.RateLimitMs = 0;
-                binding.File ??= string.Empty;
+                binding.File = NormalizeRelativeAssetPath(binding.File ?? string.Empty);
             }
 
             EnsureDefaultStateMusicMappings();

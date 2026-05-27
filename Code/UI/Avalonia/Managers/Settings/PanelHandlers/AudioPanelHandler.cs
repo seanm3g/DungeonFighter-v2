@@ -297,6 +297,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 if (!string.IsNullOrEmpty(baseDir2) && chosen.StartsWith(baseDir2, StringComparison.OrdinalIgnoreCase))
                 {
                     string relative = chosen.Substring(baseDir2.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                    relative = AudioConfig.NormalizeRelativeAssetPath(relative);
                     binding.File = relative;
                     fileBox.Text = relative;
                 }

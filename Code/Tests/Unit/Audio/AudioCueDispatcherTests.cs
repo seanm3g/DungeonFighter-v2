@@ -45,6 +45,7 @@ namespace RPGGame.Tests.Unit.Audio
             TestAudioConfigSerialization(ref run, ref passed, ref failed);
             TestAudioConfigMusicCrossfadeDefaultAndClamp(ref run, ref passed, ref failed);
             TestAudioConfigComputeMusicStartOffset(ref run, ref passed, ref failed);
+            TestResolveAssetPathNormalizesBackslashes(ref run, ref passed, ref failed);
             TestGameLoopStateMusicDefaultWhenMissing(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("AudioCueDispatcher Tests", run, passed, failed);
@@ -667,6 +668,21 @@ namespace RPGGame.Tests.Unit.Audio
             cfg.ValidateAndFix();
             TestBase.AssertEqualEnum(AudioCue.Music_Combat, cfg.GetMusicCueForState(nameof(GameState.GameLoop)),
                 "ValidateAndFix does not replace an existing GameLoop mapping", ref run, ref passed, ref failed);
+        }
+
+        private static void TestResolveAssetPathNormalizesBackslashes(ref int run, ref int passed, ref int failed)
+        {
+            string fromWindowsConfig = AudioConfig.ResolveAssetPath("Music\\29th-synth MAIN MENU.wav");
+            TestBase.AssertTrue(
+                File.Exists(fromWindowsConfig),
+                "Windows-style backslashes in cue paths resolve to existing audio files",
+                ref run, ref passed, ref failed);
+
+            string fromForwardSlashes = AudioConfig.ResolveAssetPath("Music/29th-synth MAIN MENU.wav");
+            TestBase.AssertTrue(
+                string.Equals(fromWindowsConfig, fromForwardSlashes, StringComparison.OrdinalIgnoreCase),
+                "forward-slash and backslash relative paths resolve to the same file",
+                ref run, ref passed, ref failed);
         }
 
         private static void TestAudioConfigComputeMusicStartOffset(ref int run, ref int passed, ref int failed)

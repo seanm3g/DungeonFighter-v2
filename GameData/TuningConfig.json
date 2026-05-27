@@ -321,6 +321,11 @@
       "speedMultiplier": 1,
       "description": ""
     },
+    "progressionScales": {
+      "baseHealthScale": 1,
+      "healthGrowthScale": 1,
+      "attributeGrowthScale": 1
+    },
     "baselineStats": {
       "health": 50,
       "strength": 3,

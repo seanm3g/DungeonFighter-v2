@@ -2,7 +2,7 @@
   "masterVolume": 1,
   "musicVolume": 0.42264152,
   "sfxVolume": 0.5311321,
-  "masterEnabled": false,
+  "masterEnabled": true,
   "musicEnabled": true,
   "sfxEnabled": true,
   "musicCrossfadeMs": 10000,
@@ -10,22 +10,22 @@
   "musicTransitionCarryElapsed": true,
   "cueMap": {
     "Music_MainMenu": {
-      "file": "Music\\29th-synth MAIN MENU.wav",
+      "file": "Music/29th-synth MAIN MENU.wav",
       "volume": 0.37142858,
       "rateLimitMs": null
     },
     "Music_WeaponSelection": {
-      "file": "Music\\29th-synth bass.wav",
+      "file": "Music/29th-synth bass.wav",
       "volume": 1,
       "rateLimitMs": null
     },
     "Music_CharacterCreation": {
-      "file": "Music\\29th-synth menus.wav",
+      "file": "Music/29th-synth menus.wav",
       "volume": 1,
       "rateLimitMs": null
     },
     "Music_Inventory": {
-      "file": "Music\\29th-synth inventory.wav",
+      "file": "Music/29th-synth inventory.wav",
       "volume": 1,
       "rateLimitMs": null
     },
@@ -40,7 +40,7 @@
       "rateLimitMs": null
     },
     "Music_Combat": {
-      "file": "Music\\29th-synth harmony.wav",
+      "file": "Music/29th-synth harmony.wav",
       "volume": 1,
       "rateLimitMs": null
     },
@@ -60,7 +60,7 @@
       "rateLimitMs": null
     },
     "Menu_Select": {
-      "file": "SFX\\blipSelect.wav",
+      "file": "SFX/blipSelect.wav",
       "volume": 1,
       "rateLimitMs": null
     },
@@ -85,27 +85,27 @@
       "rateLimitMs": 60
     },
     "Combat_CriticalMiss": {
-      "file": "SFX\\crit miss2.wav",
+      "file": "SFX/crit miss2.wav",
       "volume": 1,
       "rateLimitMs": null
     },
     "Combat_Miss": {
-      "file": "SFX\\MISS.wav",
+      "file": "SFX/MISS.wav",
       "volume": 1,
       "rateLimitMs": null
     },
     "Combat_Hit": {
-      "file": "SFX\\hitHurt.wav",
+      "file": "SFX/hitHurt.wav",
       "volume": 1,
       "rateLimitMs": 80
     },
     "Combat_ComboComplete": {
-      "file": "SFX\\pickupCoin.wav",
+      "file": "SFX/pickupCoin.wav",
       "volume": 1,
       "rateLimitMs": null
     },
     "Combat_CriticalHit": {
-      "file": "SFX\\pickupCoin (1).wav",
+      "file": "SFX/pickupCoin (1).wav",
       "volume": 1,
       "rateLimitMs": null
     },
@@ -115,7 +115,7 @@
       "rateLimitMs": null
     },
     "Combat_HeroHurt": {
-      "file": "SFX\\hitHurt (1).wav",
+      "file": "SFX/hitHurt (1).wav",
       "volume": 1,
       "rateLimitMs": 80
     },
