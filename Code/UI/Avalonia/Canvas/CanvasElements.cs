@@ -67,6 +67,12 @@ namespace RPGGame.UI.Avalonia.Canvas
         public Color ForegroundColor { get; set; } = Colors.Green;
         public Color BackgroundColor { get; set; } = Colors.DarkGreen;
         public Color BorderColor { get; set; } = Colors.White;
+
+        /// <summary>Bar height as a multiple of one character row (default 1.0).</summary>
+        public double HeightScale { get; set; } = 1.0;
+
+        /// <summary>Vertical offset from <see cref="Y"/> as a multiple of one character row.</summary>
+        public double VerticalOffsetScale { get; set; } = 0.0;
         
         // Damage delta tracking for health bars
         public int? PreviousHealth { get; set; }
@@ -75,6 +81,30 @@ namespace RPGGame.UI.Avalonia.Canvas
 
         /// <summary>When non-null and valid, drawn inside the delta region instead of a flat yellow overlay.</summary>
         public System.Collections.Generic.IReadOnlyList<HealthBarDamageDeltaSegment>? DamageDeltaSegments { get; set; }
+    }
+
+    public class CanvasBarSegment
+    {
+        public int FaceCount { get; set; }
+        public Color Color { get; set; }
+    }
+
+    /// <summary>Multi-segment bar (e.g. d20 threshold outcomes) with internal divider lines.</summary>
+    public class CanvasSegmentedBar
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Width { get; set; }
+        public int TotalFaces { get; set; } = 20;
+        public Color BorderColor { get; set; } = Colors.White;
+        public Color DividerColor { get; set; } = Colors.Black;
+        public System.Collections.Generic.List<CanvasBarSegment> Segments { get; set; } = new();
+        /// <summary>Bar height as a multiple of one character row (default 1.0).</summary>
+        public double HeightScale { get; set; } = 1.0;
+        /// <summary>Vertical offset from <see cref="Y"/> as a multiple of one character row.</summary>
+        public double VerticalOffsetScale { get; set; } = 0.0;
+        /// <summary>Optional per-segment color override (segment index, base color) for pulse feedback.</summary>
+        public System.Func<int, Color, Color>? SegmentHighlight { get; set; }
     }
 }
 

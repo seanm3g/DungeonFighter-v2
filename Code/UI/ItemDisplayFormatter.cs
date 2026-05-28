@@ -49,33 +49,82 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Plain-language effect for a rolled modification (no affix name).
+        /// </summary>
+        public static string GetModificationEffectDescription(Modification modification)
+        {
+            if (modification == null)
+                return "";
+
+            string effect = (modification.Effect ?? "").Trim();
+            if (effect.Length == 0)
+                return $"value {modification.RolledValue:0.##}";
+
+            if (effect.Contains("armor", StringComparison.OrdinalIgnoreCase))
+                return $"+{(int)Math.Round(modification.RolledValue)} armor on this piece";
+
+            return effect switch
+            {
+                "damage" => $"+{modification.RolledValue:+0;-0;+0} weapon damage",
+                "speedMultiplier" => $"{(modification.RolledValue - 1.0) * 100:F0}% attack speed",
+                "rollBonus" => $"+{modification.RolledValue:F0} to attack rolls",
+                "damageMultiplier" => $"{(modification.RolledValue - 1.0) * 100:F0}% more damage",
+                "lifesteal" => $"{modification.RolledValue * 100:F1}% lifesteal",
+                "magicFind" => $"+{modification.RolledValue:F0} magic find",
+                "weaponBleed" => $"+{modification.RolledValue:F0} bleed on critical hit",
+                "weaponPoison" => $"+{modification.RolledValue:F0}% max HP poison on critical hit",
+                "weaponBurn" => $"+{modification.RolledValue:F0} burn on critical hit",
+                "bleedChance" => $"{modification.RolledValue * 100:F0}% bleed chance",
+                "poisonChance" => $"{modification.RolledValue * 100:F0}% poison chance",
+                "burnChance" => $"{modification.RolledValue * 100:F0}% burn chance",
+                "freezeChance" => $"{modification.RolledValue * 100:F0}% freeze chance",
+                "stunChance" => $"{modification.RolledValue * 100:F0}% stun chance",
+                "uniqueActionChance" => $"{modification.RolledValue * 100:F1}% unique action chance",
+                "godlike" => $"+{modification.RolledValue:F0} to rolls and +1 STR",
+                "autoSuccess" => "attacks always succeed",
+                "reroll" => $"reroll failed attacks (+{modification.RolledValue:F0} bonus)",
+                "durability" => $"+{modification.RolledValue:F0} durability",
+                "gearPrimaryStatMultiplier" => DescribeGearPrimaryStatMultiplier(modification.RolledValue),
+                "ARMOR" => $"+{(int)Math.Round(modification.RolledValue)} armor on this piece",
+                "COMBO" => $"+{(int)Math.Round(modification.RolledValue)} combo threshold",
+                "HIT" => $"+{(int)Math.Round(modification.RolledValue)} hit threshold",
+                "SPEED" => DescribeSpeedModification(modification.RolledValue),
+                "MULTI-HIT" => $"+{(int)Math.Round(modification.RolledValue)} extra hit(s) on attacks",
+                "STR" or "equipmentStr" => $"+{(int)Math.Round(modification.RolledValue)} Strength",
+                "AGI" or "equipmentAgi" => $"+{(int)Math.Round(modification.RolledValue)} Agility",
+                "TEC" or "equipmentTec" => $"+{(int)Math.Round(modification.RolledValue)} Technique",
+                "INT" or "equipmentInt" => $"+{(int)Math.Round(modification.RolledValue)} Intelligence",
+                _ => $"{effect} ({modification.RolledValue:0.##})"
+            };
+        }
+
+        private static string DescribeGearPrimaryStatMultiplier(double rolled)
+        {
+            if (rolled <= 0 || Math.Abs(rolled - 1.0) < 0.001)
+                return "normal quality (×1.00 primary stats)";
+            if (rolled > 1.0)
+                return $"{(rolled - 1.0) * 100:F0}% stronger damage, armor, and weapon speed";
+            return $"{(1.0 - rolled) * 100:F0}% weaker damage, armor, and weapon speed";
+        }
+
+        private static string DescribeSpeedModification(double rolled)
+        {
+            if (rolled <= 0)
+                return "no attack-speed change";
+            if (rolled < 1.0)
+                return $"{(1.0 - rolled) * 100:F0}% faster attacks (lower time multiplier)";
+            return $"{(rolled - 1.0) * 100:F0}% slower attacks";
+        }
+
+        /// <summary>
         /// Gets a descriptive text for a modification showing what the value does
         /// </summary>
         public static string GetModificationDisplayText(Modification modification)
         {
-            return modification.Effect switch
-            {
-                "damage" => $"{modification.Name} ({modification.RolledValue:+0;-0;+0} damage)",
-                "speedMultiplier" => $"{modification.Name} ({(modification.RolledValue - 1.0) * 100:F0}% faster)",
-                "rollBonus" => $"{modification.Name} (+{modification.RolledValue:F0} to rolls)",
-                "damageMultiplier" => $"{modification.Name} ({(modification.RolledValue - 1.0) * 100:F0}% more damage)",
-                "lifesteal" => $"{modification.Name} ({modification.RolledValue * 100:F1}% lifesteal)",
-                "magicFind" => $"{modification.Name} (+{modification.RolledValue:F0} magic find)",
-                "weaponBleed" => $"{modification.Name} (+{modification.RolledValue:F0} bleed on crit)",
-                "weaponPoison" => $"{modification.Name} (+{modification.RolledValue:F0}% poison on crit)",
-                "weaponBurn" => $"{modification.Name} (+{modification.RolledValue:F0} burn on crit)",
-                "bleedChance" => $"{modification.Name} ({modification.RolledValue * 100:F0}% bleed chance)",
-                "poisonChance" => $"{modification.Name} ({modification.RolledValue * 100:F0}% poison chance)",
-                "burnChance" => $"{modification.Name} ({modification.RolledValue * 100:F0}% burn chance)",
-                "freezeChance" => $"{modification.Name} ({modification.RolledValue * 100:F0}% freeze chance)",
-                "stunChance" => $"{modification.Name} ({modification.RolledValue * 100:F0}% stun chance)",
-                "uniqueActionChance" => $"{modification.Name} ({modification.RolledValue * 100:F1}% unique action chance)",
-                "godlike" => $"{modification.Name} (+{modification.RolledValue:F0} to rolls & +1 STR)",
-                "autoSuccess" => $"{modification.Name} (auto-success)",
-                "reroll" => $"{modification.Name} (reroll with +{modification.RolledValue:F0} bonus)",
-                "durability" => $"{modification.Name} (+{modification.RolledValue:F0} durability)",
-                _ => $"{modification.Name} ({modification.RolledValue:F1})"
-            };
+            if (modification == null)
+                return "";
+            string name = string.IsNullOrEmpty(modification.Name) ? "Modifier" : modification.Name;
+            return $"{name} — {GetModificationEffectDescription(modification)}";
         }
 
         /// <summary>

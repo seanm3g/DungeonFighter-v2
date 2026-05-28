@@ -7,6 +7,7 @@ namespace RPGGame.UI.Avalonia.Layout
     using RPGGame.Handlers.Inventory;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.Feedback;
     using RPGGame.UI.Avalonia.Managers;
     using RPGGame.UI.Avalonia.Renderers;
     using RPGGame.UI.Avalonia.Renderers.Inventory;
@@ -20,15 +21,18 @@ namespace RPGGame.UI.Avalonia.Layout
         private readonly GameCanvasControl canvas;
         private readonly ColoredTextWriter textWriter;
         private readonly ICanvasInteractionManager? interactionManager;
+        private readonly StatsPanelStateManager? stateManager;
 
         public RightPanelRenderer(
             GameCanvasControl canvas,
             ColoredTextWriter textWriter,
-            ICanvasInteractionManager? interactionManager = null)
+            ICanvasInteractionManager? interactionManager = null,
+            StatsPanelStateManager? stateManager = null)
         {
             this.canvas = canvas;
             this.textWriter = textWriter;
             this.interactionManager = interactionManager;
+            this.stateManager = stateManager;
         }
         
         /// <summary>
@@ -56,6 +60,7 @@ namespace RPGGame.UI.Avalonia.Layout
 
             canvas.ClearTextInArea(clearX, contentY, clearW, contentHeight);
             canvas.ClearProgressBarsInArea(clearX, contentY, clearW, contentHeight);
+            canvas.ClearSegmentedBarsInArea(clearX, contentY, clearW, contentHeight);
             int rpX = LayoutConstants.RIGHT_PANEL_X;
             int rpY = LayoutConstants.RIGHT_PANEL_Y;
             int rpW = LayoutConstants.RIGHT_PANEL_WIDTH;
@@ -287,11 +292,15 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (invEntry.InventoryIndex < 0 || invEntry.InventoryIndex >= character.Inventory.Count)
                     return;
 
-                tipLines = LeftPanelTooltipBuilder.BuildLines(
-                    character,
-                    LeftPanelHoverState.Prefix + "inv:" + invEntry.InventoryIndex,
-                    innerTextW,
-                    maxTooltipLines + 2);
+                string invHover = LeftPanelHoverState.Prefix + "inv:" + invEntry.InventoryIndex;
+                var coloredItemLines = LeftPanelTooltipBuilder.BuildColoredItemLines(character, invHover, maxTooltipLines + 2);
+                if (coloredItemLines.Count > 0)
+                {
+                    DrawPoolItemColoredTooltip(coloredItemLines, rowY, boxWFinal, innerLeft, innerTop, innerRight, maxTooltipLines);
+                    return;
+                }
+
+                tipLines = LeftPanelTooltipBuilder.BuildLines(character, invHover, innerTextW, maxTooltipLines + 2);
             }
             else
             {
@@ -330,6 +339,30 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddOverlayText(tx, ty, draw, AsciiArtAssets.Colors.White);
                 ty++;
             }
+        }
+
+        private void DrawPoolItemColoredTooltip(
+            List<List<ColoredText>> coloredLines,
+            int rowY,
+            int boxWFinal,
+            int innerLeft,
+            int innerTop,
+            int innerRight,
+            int maxTooltipLines)
+        {
+            int innerTextWDraw = Math.Max(4, boxWFinal - 2);
+            int contentRows = HoverTooltipColoredDrawing.CountDisplayRows(coloredLines, innerTextWDraw, maxTooltipLines);
+            int idealX = InventoryRightPanelLayout.GetPoolTooltipIdealBoxLeft(boxWFinal);
+            int boxX = InventoryRightPanelLayout.ClampPoolTooltipBoxLeft(idealX, boxWFinal);
+            int boxH = contentRows + 2;
+            int maxBoxBottom = LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT - 2;
+            int boxY = rowY + 1;
+            if (boxY + boxH - 1 > maxBoxBottom)
+                boxY = Math.Max(innerTop, maxBoxBottom - boxH + 1);
+
+            int innerRightInclusive = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
+            HoverTooltipDrawing.DrawFramedPanel(canvas, boxX, boxY, boxWFinal, boxH, innerLeft, innerTop, innerRightInclusive, maxBoxBottom);
+            HoverTooltipColoredDrawing.DrawColoredLines(canvas, boxX + 1, boxY + 1, coloredLines, innerTextWDraw, maxTooltipLines);
         }
         
         /// <summary>
@@ -395,21 +428,37 @@ namespace RPGGame.UI.Avalonia.Layout
                 }
                 y++;
 
-                // Health bar
-                // Clear the health bar and HP value area before redrawing to prevent text overlap
+                // Health bar + d20 threshold strip
                 int healthBarWidth = LayoutConstants.RIGHT_PANEL_WIDTH - 8;
                 int healthBarY = y;
-                int hpValueY = y + 1;
-                canvas.ClearProgressBarsInArea(x, healthBarY, healthBarWidth, 1);
+                int enemyBarAreaHeight = D20ThresholdBarRenderer.CombatBarAreaRowCount;
+                int thresholdBarY = healthBarY;
+                int hpValueY = healthBarY + enemyBarAreaHeight;
+                canvas.ClearProgressBarsInArea(x, healthBarY, healthBarWidth, enemyBarAreaHeight);
+                canvas.ClearSegmentedBarsInArea(x, healthBarY, healthBarWidth, enemyBarAreaHeight);
                 canvas.ClearTextInArea(x, hpValueY, healthBarWidth, 1);
                 
-                canvas.AddHealthBar(x, y, healthBarWidth, enemy.CurrentHealth, enemy.MaxHealth, 
-                    entityId: $"enemy_{enemy.Name}");
-                canvas.AddText(x, y + 1, $"{enemy.CurrentHealth}/{enemy.MaxHealth}", AsciiArtAssets.Colors.White);
+                canvas.AddHealthBar(
+                    x,
+                    healthBarY,
+                    healthBarWidth,
+                    enemy.CurrentHealth,
+                    enemy.MaxHealth,
+                    entityId: $"enemy_{enemy.Name}",
+                    heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale);
+                D20ThresholdBarRenderer.RenderBar(
+                    canvas,
+                    x,
+                    thresholdBarY,
+                    healthBarWidth,
+                    enemy,
+                    ThresholdBarPanel.Enemy,
+                    verticalOffsetScale: D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor);
+                canvas.AddText(x, hpValueY, $"{enemy.CurrentHealth}/{enemy.MaxHealth}", AsciiArtAssets.Colors.White);
                 y += 3;
 
                 int weaponDamage = (enemy.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
-                int totalDamage = enemy.GetEffectiveStrength() + weaponDamage;
+                int totalDamage = enemy.GetAttributeDamageBonus() + weaponDamage;
                 double queuedEnemyDmgPct = enemy.PeekQueuedSheetEnemyDamageModPercentForDisplay();
                 string dmgLine = $"DMG:  {totalDamage}";
                 if (queuedEnemyDmgPct > 0.05)
@@ -452,9 +501,13 @@ namespace RPGGame.UI.Avalonia.Layout
                 }
 
                 y += 1;
-                canvas.AddText(x, y, $"====  {UIConstants.Headers.Thresholds}  ====", AsciiArtAssets.Colors.Gold);
+                var thresholdsHudMode = stateManager?.ThresholdsHudMode ?? ThresholdsHudMode.Ladder;
+                bool showThresholdChances = thresholdsHudMode == ThresholdsHudMode.Chances;
+                string thresholdsHeaderLabel = showThresholdChances ? UIConstants.Headers.Chances : UIConstants.Headers.Thresholds;
+                canvas.AddText(x, y, $"====  {thresholdsHeaderLabel}  ====", AsciiArtAssets.Colors.Gold);
                 y += 2;
-                y = DiceRollThresholdRowsRenderer.RenderRows(canvas, x, y, enemy);
+                int barWidth = LayoutConstants.RIGHT_PANEL_WIDTH - 8;
+                y = ThresholdSectionRenderer.Render(canvas, x, y, barWidth, enemy, stateManager, ThresholdBarPanel.Enemy).NextY;
             }
             else
             {

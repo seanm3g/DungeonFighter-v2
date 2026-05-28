@@ -100,7 +100,7 @@ namespace RPGGame
             int weaponDamage = (player.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
             int equipmentDamageBonus = player.GetEquipmentDamageBonus();
             int modificationDamageBonus = player.GetModificationDamageBonus();
-            int damage = player.GetEffectiveStrength() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
+            int damage = player.GetAttributeDamageBonus() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
             double attackSpeed = player.GetTotalAttackSpeed();
             int armor = player.GetTotalArmor();
             
@@ -115,7 +115,7 @@ namespace RPGGame
             double secondsPerAttack = attackSpeed;
             double ampBasePerStep = player.GetComboAmplifier();
             int magicFind = player.GetMagicFind();
-            UIManager.WriteMenuLine($"Damage: {damage} (Strength: {player.GetEffectiveStrength()} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
+            UIManager.WriteMenuLine($"Damage: {damage} (Strength: {player.GetEffectiveStrength()} + Primary: {player.GetEffectivePrimaryAttributeValue()} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
             if (magicFind > 0)
             {
                 UIManager.WriteMenuLine($"Magic Find: +{magicFind} (affix rolls; not base item rarity)");

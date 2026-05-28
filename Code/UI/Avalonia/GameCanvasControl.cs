@@ -275,7 +275,8 @@ namespace RPGGame.UI.Avalonia
                 Bounds.Height,
                 elementManager.TextElements.ToList(),
                 elementManager.BoxElements.ToList(),
-                elementManager.ProgressBars.ToList());
+                elementManager.ProgressBars.ToList(),
+                elementManager.SegmentedBars.ToList());
         }
 
         // Public methods for adding elements
@@ -311,6 +312,14 @@ namespace RPGGame.UI.Avalonia
         public void ClearProgressBarsInArea(int startX, int startY, int width, int height)
         {
             elementManager.ClearProgressBarsInArea(startX, startY, width, height);
+        }
+
+        /// <summary>
+        /// Clears segmented bars within a specific rectangular area (inclusive).
+        /// </summary>
+        public void ClearSegmentedBarsInArea(int startX, int startY, int width, int height)
+        {
+            elementManager.ClearSegmentedBarsInArea(startX, startY, width, height);
         }
 
         /// <summary>
@@ -415,12 +424,36 @@ namespace RPGGame.UI.Avalonia
             elementBuilder.AddOverlayText(x, y, text, color);
         }
 
+        /// <summary>Appends overlay text at a cell when the color matches the existing overlay segment.</summary>
+        public void AppendOverlayText(int x, int y, string text, Color color)
+        {
+            elementBuilder.AppendOverlayText(x, y, text, color);
+        }
+
         /// <summary>
         /// Adds a progress bar to the canvas
         /// </summary>
         public void AddProgressBar(int x, int y, int width, double progress, Color foregroundColor, Color backgroundColor, Color borderColor)
         {
             elementBuilder.AddProgressBar(x, y, width, progress, foregroundColor, backgroundColor, borderColor);
+        }
+
+        /// <summary>
+        /// Adds a multi-segment bar (e.g. d20 threshold outcomes).
+        /// </summary>
+        public void AddSegmentedBar(
+            int x,
+            int y,
+            int width,
+            Layout.ThresholdDisplayFormatting.D20OutcomeSegment[] segments,
+            Color borderColor,
+            Color dividerColor,
+            int totalFaces = 20,
+            System.Func<int, Color, Color>? segmentHighlight = null,
+            double heightScale = 1.0,
+            double verticalOffsetScale = 0.0)
+        {
+            elementBuilder.AddSegmentedBar(x, y, width, segments, borderColor, dividerColor, totalFaces, segmentHighlight, heightScale, verticalOffsetScale);
         }
 
         /// <summary>
@@ -474,9 +507,19 @@ namespace RPGGame.UI.Avalonia
         /// <summary>
         /// Adds a health bar to the canvas with damage delta animation support
         /// </summary>
-        public void AddHealthBar(int x, int y, int width, int currentHealth, int maxHealth, Color healthColor = default, Color backgroundColor = default, string? entityId = null)
+        public void AddHealthBar(
+            int x,
+            int y,
+            int width,
+            int currentHealth,
+            int maxHealth,
+            Color healthColor = default,
+            Color backgroundColor = default,
+            string? entityId = null,
+            double heightScale = 1.0,
+            double verticalOffsetScale = 0.0)
         {
-            elementBuilder.AddHealthBar(x, y, width, currentHealth, maxHealth, healthColor, backgroundColor, entityId);
+            elementBuilder.AddHealthBar(x, y, width, currentHealth, maxHealth, healthColor, backgroundColor, entityId, heightScale, verticalOffsetScale);
             
             // Start animation timer if damage delta is active
             if (!string.IsNullOrEmpty(entityId))

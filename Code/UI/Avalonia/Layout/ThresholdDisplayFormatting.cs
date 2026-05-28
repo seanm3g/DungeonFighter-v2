@@ -44,6 +44,119 @@ namespace RPGGame.UI.Avalonia.Layout
             public int Percent { get; }
         }
 
+        public readonly struct D20OutcomeSegment
+        {
+            public D20OutcomeSegment(string label, int faceCount, Color color)
+            {
+                Label = label;
+                FaceCount = faceCount;
+                Percent = faceCount * 5;
+                Color = color;
+            }
+
+            public string Label { get; }
+            public int FaceCount { get; }
+            public int Percent { get; }
+            public Color Color { get; }
+        }
+
+        /// <summary>Palette for d20 threshold bar segments (Crit Miss → Crit, left to right).</summary>
+        public static class D20ThresholdBarColors
+        {
+            public static readonly Color CritMiss = Color.Parse("#C0392B");
+            public static readonly Color Miss = Color.Parse("#E07B54");
+            public static readonly Color Hit = Color.Parse("#5B8DB8");
+            public static readonly Color Combo = Color.Parse("#9B59B6");
+            public static readonly Color Crit = Color.Parse("#F0C040");
+        }
+
+        /// <summary>Bar segment color for a d20 outcome label (Crit Miss → Crit, left to right on the bar).</summary>
+        public static Color GetD20OutcomeColor(string label) =>
+            label switch
+            {
+                "Crit Miss" => D20ThresholdBarColors.CritMiss,
+                "Miss" => D20ThresholdBarColors.Miss,
+                "Hit" => D20ThresholdBarColors.Hit,
+                "Combo" => D20ThresholdBarColors.Combo,
+                "Crit" => D20ThresholdBarColors.Crit,
+                _ => Colors.Gray
+            };
+
+        /// <summary>
+        /// Builds left-to-right d20 bar segments (roll 1 → 20) using the same exclusive outcome priority as combat.
+        /// </summary>
+        public static D20OutcomeSegment[] BuildD20OutcomeSegments(
+            int critMinRoll,
+            int comboMinRoll,
+            int hitMinRoll,
+            int critMissMaxRoll)
+        {
+            var segments = new List<D20OutcomeSegment>(5);
+            string? currentLabel = null;
+            int currentFaceCount = 0;
+
+            for (int roll = 1; roll <= 20; roll++)
+            {
+                string label = ClassifyExclusiveD20Outcome(roll, critMinRoll, comboMinRoll, hitMinRoll, critMissMaxRoll);
+                if (label == currentLabel)
+                {
+                    currentFaceCount++;
+                    continue;
+                }
+
+                if (currentLabel != null)
+                    segments.Add(new D20OutcomeSegment(currentLabel, currentFaceCount, GetD20OutcomeColor(currentLabel)));
+
+                currentLabel = label;
+                currentFaceCount = 1;
+            }
+
+            if (currentLabel != null)
+                segments.Add(new D20OutcomeSegment(currentLabel, currentFaceCount, GetD20OutcomeColor(currentLabel)));
+
+            return segments.ToArray();
+        }
+
+        /// <summary>
+        /// Returns the left-to-right bar segment index (0-based) for a d20 roll using the same exclusive outcome priority as combat.
+        /// </summary>
+        public static int FindSegmentIndexForRoll(
+            int roll,
+            int critMinRoll,
+            int comboMinRoll,
+            int hitMinRoll,
+            int critMissMaxRoll)
+        {
+            roll = Math.Clamp(roll, 1, 20);
+            string label = ClassifyExclusiveD20Outcome(roll, critMinRoll, comboMinRoll, hitMinRoll, critMissMaxRoll);
+            var segments = BuildD20OutcomeSegments(critMinRoll, comboMinRoll, hitMinRoll, critMissMaxRoll);
+            for (int i = 0; i < segments.Length; i++)
+            {
+                if (segments[i].Label == label)
+                    return i;
+            }
+
+            return -1;
+        }
+
+        private static string ClassifyExclusiveD20Outcome(
+            int roll,
+            int critMinRoll,
+            int comboMinRoll,
+            int hitMinRoll,
+            int critMissMaxRoll)
+        {
+            if (roll >= critMinRoll)
+                return "Crit";
+            if (roll >= comboMinRoll)
+                return "Combo";
+            if (roll >= hitMinRoll)
+                return "Hit";
+            if (roll <= critMissMaxRoll)
+                return "Crit Miss";
+            return "Miss";
+        }
+
         public static Color GetValueColor(int current, int defaultValue)
         {
             if (current == defaultValue)

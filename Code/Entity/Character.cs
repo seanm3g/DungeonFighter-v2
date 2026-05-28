@@ -65,6 +65,11 @@ namespace RPGGame
             get => Health.MaxHealth; 
             set => Health.MaxHealth = value; 
         }
+        public int CurrentArmor
+        {
+            get => Health.CurrentArmor;
+            set => Health.CurrentArmor = value;
+        }
 
         // Turn system constants
         public const double DEFAULT_ACTION_LENGTH = 1.0; // Default action length defines one turn
@@ -110,6 +115,7 @@ namespace RPGGame
             
             Health.MaxHealth = baseHealth + (level - 1) * healthPerLevel;
             Health.CurrentHealth = Health.MaxHealth;
+            Health.RefreshRoomArmor();
 
             // Ensure actions are loaded from JSON before adding them
             // This ensures ActionLoader has initialized before we try to get actions
@@ -136,6 +142,8 @@ namespace RPGGame
         public void TakeDamage(int amount) => Health.TakeDamage(amount);
         public List<string> TakeDamageWithNotifications(int amount) => Health.TakeDamageWithNotifications(amount);
         public (int finalDamage, int shieldReduction, bool shieldUsed) CalculateDamageWithShield(int amount) => Health.CalculateDamageWithShield(amount);
+        public int GetMaxArmor() => Health.GetMaxArmor();
+        public void RefreshRoomArmor() => Health.RefreshRoomArmor();
         public void Heal(int amount) => Health.Heal(amount);
         public bool IsAlive => Health.IsAlive;
         public int GetEffectiveMaxHealth() => Health.GetEffectiveMaxHealth();
@@ -341,6 +349,8 @@ namespace RPGGame
         public int GetEffectiveAgility() => Facade.GetEffectiveAgility();
         public int GetEffectiveTechnique() => Facade.GetEffectiveTechnique();
         public int GetEffectiveIntelligence() => Facade.GetEffectiveIntelligence();
+        public int GetEffectivePrimaryAttributeValue() => Facade.GetEffectivePrimaryAttributeValue();
+        public int GetAttributeDamageBonus() => Facade.GetAttributeDamageBonus();
         public double CalculateTurnsFromActionLength(double actionLength) => Facade.CalculateTurnsFromActionLength(actionLength);
         public void RemoveItemActions() => Facade.RemoveItemActions();
         public void ApplyRollBonusesFromGear(Item gear) => Facade.ApplyRollBonusesFromGear(gear);

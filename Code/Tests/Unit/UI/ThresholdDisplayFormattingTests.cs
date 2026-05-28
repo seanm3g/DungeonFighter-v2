@@ -1,3 +1,4 @@
+using Avalonia.Media;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Layout;
@@ -29,6 +30,11 @@ namespace RPGGame.Tests.Unit.UI
             BuildChancePercentByLabelMapsLabels(ref run, ref passed, ref failed);
             D20ChancePercentFormatsWithinBounds(ref run, ref passed, ref failed);
             ChanceDeltaColorUsesSignedPercentDifference(ref run, ref passed, ref failed);
+            D20OutcomeSegmentsDefaultLayout(ref run, ref passed, ref failed);
+            D20OutcomeSegmentsSumToTwentyFaces(ref run, ref passed, ref failed);
+            D20OutcomeSegmentColorsMatchSpec(ref run, ref passed, ref failed);
+            D20OutcomeSegmentsShiftWithComboThreshold(ref run, ref passed, ref failed);
+            FindSegmentIndexForRollMatchesDefaultLayout(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ThresholdDisplayFormattingTests", run, passed, failed);
         }
@@ -262,6 +268,87 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(
                 ColorValidator.AreColorsEqual(ThresholdDisplayFormatting.GetChanceDeltaColor(25, 30), AsciiArtAssets.Colors.Red),
                 "negative chance percent delta uses red", ref run, ref passed, ref failed);
+        }
+
+        private static void D20OutcomeSegmentsDefaultLayout(ref int run, ref int passed, ref int failed)
+        {
+            var segments = ThresholdDisplayFormatting.BuildD20OutcomeSegments(20, 14, 6, 1);
+            TestBase.AssertEqual(5, segments.Length, "default thresholds yield five segments", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Crit Miss", segments[0].Label, "segment 1 label", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, segments[0].FaceCount, "segment 1 faces", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Miss", segments[1].Label, "segment 2 label", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(4, segments[1].FaceCount, "segment 2 faces", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Hit", segments[2].Label, "segment 3 label", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(8, segments[2].FaceCount, "segment 3 faces", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Combo", segments[3].Label, "segment 4 label", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(6, segments[3].FaceCount, "segment 4 faces", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Crit", segments[4].Label, "segment 5 label", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, segments[4].FaceCount, "segment 5 faces", ref run, ref passed, ref failed);
+        }
+
+        private static void D20OutcomeSegmentsSumToTwentyFaces(ref int run, ref int passed, ref int failed)
+        {
+            var segments = ThresholdDisplayFormatting.BuildD20OutcomeSegments(18, 12, 7, 2);
+            int sum = 0;
+            for (int i = 0; i < segments.Length; i++)
+                sum += segments[i].FaceCount;
+            TestBase.AssertEqual(20, sum, "segment face counts sum to d20", ref run, ref passed, ref failed);
+        }
+
+        private static void D20OutcomeSegmentColorsMatchSpec(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(
+                    ThresholdDisplayFormatting.GetD20OutcomeColor("Crit Miss"),
+                    ThresholdDisplayFormatting.D20ThresholdBarColors.CritMiss),
+                "Crit Miss uses #C0392B", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(
+                    ThresholdDisplayFormatting.GetD20OutcomeColor("Miss"),
+                    ThresholdDisplayFormatting.D20ThresholdBarColors.Miss),
+                "Miss uses #E07B54", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(
+                    ThresholdDisplayFormatting.GetD20OutcomeColor("Hit"),
+                    ThresholdDisplayFormatting.D20ThresholdBarColors.Hit),
+                "Hit uses #5B8DB8", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(
+                    ThresholdDisplayFormatting.GetD20OutcomeColor("Combo"),
+                    ThresholdDisplayFormatting.D20ThresholdBarColors.Combo),
+                "Combo uses #9B59B6", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                ColorValidator.AreColorsEqual(
+                    ThresholdDisplayFormatting.GetD20OutcomeColor("Crit"),
+                    ThresholdDisplayFormatting.D20ThresholdBarColors.Crit),
+                "Crit uses #F0C040", ref run, ref passed, ref failed);
+        }
+
+        private static void D20OutcomeSegmentsShiftWithComboThreshold(ref int run, ref int passed, ref int failed)
+        {
+            var segments = ThresholdDisplayFormatting.BuildD20OutcomeSegments(20, 10, 6, 1);
+            int comboFaces = 0;
+            for (int i = 0; i < segments.Length; i++)
+            {
+                if (segments[i].Label == "Combo")
+                    comboFaces = segments[i].FaceCount;
+            }
+            TestBase.AssertEqual(10, comboFaces, "lower combo threshold widens combo band to 10 faces", ref run, ref passed, ref failed);
+        }
+
+        private static void FindSegmentIndexForRollMatchesDefaultLayout(ref int run, ref int passed, ref int failed)
+        {
+            const int crit = 20, combo = 14, hit = 6, critMiss = 1;
+            TestBase.AssertEqual(0, ThresholdDisplayFormatting.FindSegmentIndexForRoll(1, crit, combo, hit, critMiss),
+                "roll 1 is crit miss segment", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, ThresholdDisplayFormatting.FindSegmentIndexForRoll(5, crit, combo, hit, critMiss),
+                "roll 5 is miss segment", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(2, ThresholdDisplayFormatting.FindSegmentIndexForRoll(10, crit, combo, hit, critMiss),
+                "roll 10 is hit segment", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(3, ThresholdDisplayFormatting.FindSegmentIndexForRoll(15, crit, combo, hit, critMiss),
+                "roll 15 is combo segment", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(4, ThresholdDisplayFormatting.FindSegmentIndexForRoll(20, crit, combo, hit, critMiss),
+                "roll 20 is crit segment", ref run, ref passed, ref failed);
         }
     }
 }

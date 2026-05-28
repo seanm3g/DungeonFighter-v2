@@ -70,18 +70,18 @@ namespace RPGGame.Combat.Calculators
         {
             // Get base damage from attacker
             int baseDamage = 0;
-            // Enemy must be checked before Character (Enemy : Character). Otherwise <see cref="Enemy.GetEffectiveStrength"/> is never used
-            // and direct-stat lab enemies (Strength 0, Damage > 0) contribute 0 base damage from the Character branch.
+            // Enemy must be checked before Character (Enemy : Character). Otherwise direct-stat lab enemies
+            // and attribute-based enemy damage paths are skipped.
             if (attacker is Enemy enemy)
             {
-                baseDamage = enemy.GetEffectiveStrength();
+                baseDamage = enemy.GetAttributeDamageBonus();
 
                 if (enemy.Weapon is WeaponItem weapon)
                     baseDamage += weapon.GetTotalDamage();
             }
             else if (attacker is Character character)
             {
-                baseDamage = character.GetEffectiveStrength();
+                baseDamage = character.GetAttributeDamageBonus();
 
                 // Add weapon damage if attacker has a weapon
                 if (character.Weapon is WeaponItem weapon)
@@ -224,16 +224,11 @@ namespace RPGGame.Combat.Calculators
                 totalDamage = (int)(totalDamage * tagModifier);
             }
 
-            // Get target's armor
+            // Get target's armor (enemies only — hero armor is a room pool absorbed in TakeDamage)
             int targetArmor = 0;
             if (target is Enemy targetEnemy)
             {
-                // For enemies, use the Armor property directly to avoid inheritance issues
                 targetArmor = targetEnemy.Armor;
-            }
-            else if (target is Character targetCharacter)
-            {
-                targetArmor = targetCharacter.GetTotalArmor();
             }
 
             // Calculate final damage after armor reduction
@@ -241,8 +236,16 @@ namespace RPGGame.Combat.Calculators
 
             int minimumDamage = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage); // Ensure at least 1
 
-            // Apply simple armor reduction (flat reduction)
-            finalDamage = Math.Max(minimumDamage, (int)totalDamage - targetArmor);
+            if (target is Character)
+            {
+                // Hero armor pool absorbs full damage in TakeDamage; no flat reduction here.
+                finalDamage = Math.Max(minimumDamage, (int)totalDamage);
+            }
+            else
+            {
+                // Apply simple armor reduction (flat reduction) for enemies
+                finalDamage = Math.Max(minimumDamage, (int)totalDamage - targetArmor);
+            }
 
             // Apply weakened effect if target is weakened
             if (target.IsWeakened && showWeakenedMessage)
@@ -270,16 +273,11 @@ namespace RPGGame.Combat.Calculators
         /// </summary>
         public static int ApplyDamageReduction(Actor target, int damage)
         {
-            // Get base armor reduction
+            // Get base armor reduction (enemies only — hero armor is a room pool)
             int armorReduction = 0;
             if (target is Enemy targetEnemy)
             {
-                // For enemies, use the Armor property directly to avoid inheritance issues
                 armorReduction = targetEnemy.Armor;
-            }
-            else if (target is Character targetCharacter)
-            {
-                armorReduction = targetCharacter.GetTotalArmor();
             }
 
             // Apply damage reduction from effects
@@ -290,7 +288,8 @@ namespace RPGGame.Combat.Calculators
             }
 
             // Apply simple armor reduction (flat reduction) with damage reduction multiplier
-            int finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)((damage - armorReduction) * damageReductionMultiplier));
+            int preMitigation = target is Character ? damage : damage - armorReduction;
+            int finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)(preMitigation * damageReductionMultiplier));
 
             return finalDamage;
         }

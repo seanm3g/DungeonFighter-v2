@@ -664,9 +664,10 @@ namespace RPGGame.UI.Avalonia.Handlers
                 {
                     if (element.Value.StartsWith(LeftPanelHoverState.Prefix + "thresh:", StringComparison.Ordinal))
                     {
-                        bool wasChances = statsPanelStateManager.ThresholdsShowChances;
+                        var previousMode = statsPanelStateManager.ThresholdsHudMode;
                         statsPanelStateManager.ToggleThresholdsDisplayMode();
-                        if (!wasChances && statsPanelStateManager.ThresholdsShowChances)
+                        if (previousMode == ThresholdsHudMode.Ladder &&
+                            statsPanelStateManager.ThresholdsHudMode == ThresholdsHudMode.Chances)
                         {
                             statsPanelStateManager.BeginThresholdsChancesModeFlash(TimeSpan.FromSeconds(1));
                             var endFlashTimer = new DispatcherTimer

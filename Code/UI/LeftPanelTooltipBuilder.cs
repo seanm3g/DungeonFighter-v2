@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+using Avalonia.Media;
 using RPGGame.Actions.RollModification;
-using RPGGame.Combat.Calculators;
 using RPGGame.Items.Helpers;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Layout;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -15,6 +14,60 @@ namespace RPGGame
     /// </summary>
     public static class LeftPanelTooltipBuilder
     {
+        /// <summary>
+        /// Colored tooltip lines for item hovers (gear slots and inventory indices). Empty when the hover key is not an item.
+        /// </summary>
+        public static List<List<ColoredText>> BuildColoredItemLines(Character? character, string fullHoverValue, int maxLines = 24)
+        {
+            if (character == null || maxLines < 1 ||
+                string.IsNullOrEmpty(fullHoverValue) ||
+                !fullHoverValue.StartsWith(LeftPanelHoverState.Prefix, StringComparison.Ordinal))
+                return new List<List<ColoredText>>();
+
+            string key = fullHoverValue.Substring(LeftPanelHoverState.Prefix.Length);
+            var statLines = StatTooltipFormatter.TryBuild(character, key, maxLines);
+            if (statLines != null && statLines.Count > 0)
+                return statLines;
+
+            return key switch
+            {
+                "gear:weapon" => BuildColoredGear(character, character.Weapon, "Weapon", maxLines),
+                "gear:head" => BuildColoredGear(character, character.Head, "Head", maxLines),
+                "gear:body" => BuildColoredGear(character, character.Body, "Body", maxLines),
+                "gear:legs" => BuildColoredGear(character, character.Legs, "Legs", maxLines),
+                "gear:feet" => BuildColoredGear(character, character.Feet, "Feet", maxLines),
+                string invKey when invKey.StartsWith("inv:", StringComparison.Ordinal) => BuildColoredInventory(character, invKey, maxLines),
+                _ => new List<List<ColoredText>>()
+            };
+        }
+
+        private static List<List<ColoredText>> BuildColoredGear(Character c, Item? item, string slot, int maxLines)
+        {
+            if (item == null)
+            {
+                var empty = new List<List<ColoredText>>();
+                var b = new ColoredTextBuilder();
+                b.Add($"{slot} slot", Colors.DarkGray);
+                empty.Add(b.Build());
+                empty.Add(new List<ColoredText>());
+                var b2 = new ColoredTextBuilder();
+                b2.Add("No item equipped.", Colors.Gray);
+                empty.Add(b2.Build());
+                return empty;
+            }
+            return ItemTooltipFormatter.BuildItemTooltipLines(c, item, slot, maxLines);
+        }
+
+        private static List<List<ColoredText>> BuildColoredInventory(Character c, string invKey, int maxLines)
+        {
+            if (invKey.Length <= 4 || !int.TryParse(invKey.AsSpan(4), out int idx))
+                return new List<List<ColoredText>>();
+            var inv = c.Inventory;
+            if (inv == null || idx < 0 || idx >= inv.Count)
+                return new List<List<ColoredText>>();
+            return ItemTooltipFormatter.BuildItemTooltipLines(c, inv[idx], "Inventory", maxLines);
+        }
+
         /// <summary>
         /// Builds lines for a full hover value including <see cref="UI.LeftPanelHoverState.Prefix"/>.
         /// </summary>
@@ -40,10 +93,10 @@ namespace RPGGame
                     AppendDamage(character, result, AddWrapped, maxLines);
                     break;
                 case "stat:speed":
-                    AppendSpeed(character, AddWrapped);
+                    AppendSpeed(character, result, AddWrapped, maxLines);
                     break;
                 case "stat:amp":
-                    AppendAmp(character, AddWrapped);
+                    AppendAmp(character, result, AddWrapped, maxLines);
                     break;
                 case "stat:armor":
                     AppendArmor(character, result, AddWrapped, maxLines);
@@ -216,6 +269,7 @@ namespace RPGGame
             addWrapped("Critical hit threshold (crit-eval roll)");
             addWrapped($"Current: {cur} (default {def}).");
             addWrapped("Compared to your underlying d20 total for this attack (accuracy and other roll bonuses do not make crits easier).");
+            AppendThresholdOutcomePercent(c, "Crit", addWrapped);
         }
 
         private static void AppendThresholdCombo(Character c, Action<string> addWrapped)
@@ -227,6 +281,7 @@ namespace RPGGame
             addWrapped("Combo threshold (d20 roll)");
             addWrapped($"Current: {cur} (default {def}).");
             addWrapped("Named combo-strip swings require meeting this on the modified die (panel ACC shifts hit and post-roll combo outcomes, not which strip action is chosen).");
+            AppendThresholdOutcomePercent(c, "Combo", addWrapped);
         }
 
         private static void AppendThresholdHit(Character c, Action<string> addWrapped)
@@ -238,6 +293,7 @@ namespace RPGGame
             addWrapped("Hit vs miss (d20 roll)");
             addWrapped($"Miss threshold uses the configured band; panel shows {hit + 1} as the hit line (current tuning {hit}).");
             addWrapped($"Reference default for miss band: {def}.");
+            AppendThresholdOutcomePercent(c, "Hit", addWrapped);
         }
 
         private static void AppendThresholdCritMiss(Character c, Action<string> addWrapped)
@@ -246,13 +302,34 @@ namespace RPGGame
             int cur = tm.GetCriticalMissThreshold(c);
             addWrapped("Critical miss threshold");
             addWrapped($"Current: {cur}. Uses the same crit-eval roll as critical hit (accuracy affects hit/combo only, not this band).");
+            AppendThresholdOutcomePercent(c, "Crit Miss", addWrapped);
         }
 
-        private static void AppendThresholdMiss(Character _, Action<string> addWrapped)
+        private static void AppendThresholdMiss(Character c, Action<string> addWrapped)
         {
-            addWrapped("Miss (chance view)");
+            addWrapped("Miss");
             addWrapped("Share of d20 outcomes that are not critical hit, combo, normal hit, or critical miss.");
-            addWrapped("Shown only in CHANCES mode; together with the four rows above it sums to 100%.");
+            AppendThresholdOutcomePercent(c, "Miss", addWrapped);
+        }
+
+        private static void AppendThresholdOutcomePercent(Character c, string label, Action<string> addWrapped)
+        {
+            var snapshot = DiceRollThresholdResolver.Resolve(c);
+            var chances = ThresholdDisplayFormatting.CalculateExclusiveD20OutcomeChances(
+                snapshot.EffectiveCrit,
+                snapshot.EffectiveCombo,
+                snapshot.EffectiveHit,
+                snapshot.EffectiveCritMiss);
+            int percent = label switch
+            {
+                "Crit" => chances.CritPercent,
+                "Combo" => chances.ComboPercent,
+                "Hit" => chances.HitPercent,
+                "Crit Miss" => chances.CritMissPercent,
+                "Miss" => chances.MissPercent,
+                _ => 0
+            };
+            addWrapped($"Outcome chance: {ThresholdDisplayFormatting.FormatD20ChancePercent(percent)}");
         }
 
         private static void AppendStatusLine(Character c, string key, Action<string> addWrapped)
@@ -269,223 +346,51 @@ namespace RPGGame
 
         private static void AppendDamage(Character c, List<string> result, Action<string> addWrapped, int maxLines)
         {
-            int weaponDamage = (c.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
-            int equipmentDamageBonus = c.GetEquipmentDamageBonus();
-            int modificationDamageBonus = c.GetModificationDamageBonus();
-            int strEff = c.GetEffectiveStrength();
-            int total = strEff + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
-
-            addWrapped("Damage (attack total)");
-            addWrapped($"Total: {total}");
-            addWrapped(FormatAttributeInputSummary("STR input", BuildAttributeBreakdown(c, "STR")));
-            addWrapped($"= effective STR ({strEff}) + weapon ({weaponDamage}) + equipment damage bonus ({equipmentDamageBonus}) + modification damage ({modificationDamageBonus}).");
-            addWrapped("Note: combat rolls and action multipliers change outgoing hits; this is the base total shown in the panel.");
+            AppendColoredStatTooltip(c, "stat:damage", result, addWrapped, maxLines);
         }
 
-        private static void AppendSpeed(Character c, Action<string> addWrapped)
-        {
-            double final = c.GetTotalAttackSpeed();
-            addWrapped("Attack time (seconds per attack)");
-            addWrapped($"Final: {final:F2}s (matches SpeedCalculator / panel).");
+        private static void AppendSpeed(Character c, List<string> result, Action<string> addWrapped, int maxLines) =>
+            AppendColoredStatTooltip(c, "stat:speed", result, addWrapped, maxLines);
 
-            var tuning = GameConfiguration.Instance;
-            double baseAttackTime = tuning.Combat.BaseAttackTime;
-            var agiBreakdown = BuildAttributeBreakdown(c, "AGI");
-            int agility = agiBreakdown.Effective;
-            int agilityMin = tuning.Combat.AgilityMin;
-            int agilityMax = tuning.Combat.AgilityMax;
-            agility = Math.Max(agilityMin, Math.Min(agilityMax, agility));
-            double minMul = tuning.Combat.AgilityMinSpeedMultiplier;
-            double maxMul = tuning.Combat.AgilityMaxSpeedMultiplier;
-            double agilityRange = agilityMax - agilityMin;
-            double normalizedProgress = agilityRange > 0 ? (agility - agilityMin) / agilityRange : 0.0;
-            double curvedProgress = Math.Sqrt(normalizedProgress);
-            double speedMultiplier = minMul + (maxMul - minMul) * curvedProgress;
-            double agilityAdjustedTime = baseAttackTime * speedMultiplier;
-
-            addWrapped(FormatAttributeInputSummary("AGI input", agiBreakdown, $"clamped {agility}"));
-            addWrapped($"1) Base time × AGI curve: {baseAttackTime:F3}s × {speedMultiplier:F3} (eff. AGI {agiBreakdown.Effective}, clamped {agility}) → {agilityAdjustedTime:F3}s.");
-            addWrapped("   AGI uses sqrt of normalized progress between tuning min/max agility; multipliers from tuning.");
-
-            double weaponTimeMul = 1.0;
-            if (c.Weapon is WeaponItem w)
-                weaponTimeMul = SpeedCalculator.GetWeaponAttackTimeMultiplier(w);
-            double weaponAdjustedTime = agilityAdjustedTime * weaponTimeMul;
-            addWrapped($"2) × weapon time multiplier ({weaponTimeMul:F2}; 1=baseline, >1 slower): → {weaponAdjustedTime:F3}s.");
-
-            double equipmentSpeedBonus = c.GetEquipmentAttackSpeedBonus();
-            double afterEquip = Math.Max(0.001, weaponAdjustedTime - equipmentSpeedBonus);
-            addWrapped($"3) − equipment attack-speed bonus ({equipmentSpeedBonus:F3}s): → {afterEquip:F3}s.");
-
-            if (c.SlowTurns > 0)
-                addWrapped($"4) Slow debuff × {c.SlowMultiplier:F3} ({c.SlowTurns} turn(s) left).");
-
-            double modSpeedMul = Math.Max(0.0001, c.GetModificationSpeedMultiplier());
-            addWrapped($"5) ÷ modification speed multiplier ({modSpeedMul:F4}).");
-
-            double minCap = Math.Max(0.01, tuning.Combat.MinimumAttackTime);
-            addWrapped($"6) Clamp to minimum ({minCap:F2}s).");
-
-            addWrapped($"Sanity check: reported final {final:F2}s.");
-        }
-
-        private static void AppendAmp(Character c, Action<string> addWrapped)
-        {
-            double baseAmp = c.GetComboAmplifier();
-            var techBreakdown = BuildAttributeBreakdown(c, "TEC");
-            var combo = c.GetComboActions();
-            int slotCount = combo.Count > 0 ? combo.Count : Math.Max(1, ComboSequenceMaxHelper.GetEffectiveMax(c));
-
-            addWrapped("AMP (combo growth)");
-            addWrapped($"Base per combo step (TECH): {baseAmp:F2}× — combo actions scale damage by Pow(base, zero-based strip index); matches stats panel.");
-            if (combo.Count > 0)
-                addWrapped("This strip — combo AMP when each slot resolves (non-combo actions stay 1.00×):");
-            else
-                addWrapped($"Strip empty — preview for {slotCount} slot(s) at your current max length (only combo actions scale this way):");
-
-            for (int i = 0; i < slotCount; i++)
-            {
-                Action? a = combo.Count > i ? combo[i] : null;
-                string slotLabel = $"Slot {i + 1}";
-                if (a != null)
-                {
-                    string name = string.IsNullOrWhiteSpace(a.Name) ? "(unnamed)" : a.Name.Trim();
-                    if (a.IsComboAction)
-                        addWrapped($"  {slotLabel} ({name}): {Math.Pow(baseAmp, i):F2}×");
-                    else
-                        addWrapped($"  {slotLabel} ({name}): 1.00× (not a combo action)");
-                }
-                else
-                    addWrapped($"  {slotLabel}: {Math.Pow(baseAmp, i):F2}×");
-            }
-
-            double queuedSheetAmpPct = c.PeekQueuedSheetAmpModPercentForDisplay();
-            if (queuedSheetAmpPct > 0.05)
-                addWrapped($"Queued sheet AMP_MOD on next hero damage swing: +{queuedSheetAmpPct:0.#}% (applies with other swing multipliers).");
-
-            addWrapped(FormatAttributeInputSummary("TECH input", techBreakdown));
-        }
+        private static void AppendAmp(Character c, List<string> result, Action<string> addWrapped, int maxLines) =>
+            AppendColoredStatTooltip(c, "stat:amp", result, addWrapped, maxLines);
 
         private static void AppendArmor(Character c, List<string> result, Action<string> addWrapped, int maxLines)
         {
-            int total = c.GetTotalArmor();
-            addWrapped("Armor");
-            addWrapped($"Total: {total}");
-            int h = c.Head is HeadItem hh ? hh.GetTotalArmor() : 0;
-            int b = c.Body is ChestItem ch ? ch.GetTotalArmor() : 0;
-            int lg = c.Legs is LegsItem li ? li.GetTotalArmor() : 0;
-            int f = c.Feet is FeetItem ft ? ft.GetTotalArmor() : 0;
-            addWrapped($"Head piece: {h}, Body: {b}, Legs: {lg}, Feet: {f} (each includes that item's armor stats/mods).");
-            addWrapped("Plus global Armor-type stat bonuses from all equipped items (EquipmentBonusCalculator).");
+            AppendColoredStatTooltip(c, "stat:armor", result, addWrapped, maxLines);
         }
 
         private static void AppendPrimaryStat(Character c, string code, string label, List<string> result, Action<string> addWrapped, int maxLines)
         {
-            var breakdown = BuildAttributeBreakdown(c, code);
-
-            addWrapped($"{label} ({code})");
-            addWrapped($"Effective: {breakdown.Effective}");
-            addWrapped($"Base value: {breakdown.BaseValue}.");
-            addWrapped($"Attribute-modified value: {breakdown.AttributeModifiedValue} (= base {breakdown.BaseValue} + temporary bonus {FormatSigned(breakdown.TempBonus)}" +
-                       (code == "STR" ? $" + godlike STR mod {FormatSigned(breakdown.GodlikeBonus)}" : "") +
-                       ").");
-            addWrapped($"Gear attribute add: {FormatSigned(breakdown.GearTotalBonus)} (flat/catalog/material {FormatSigned(breakdown.GearFlatBonus)}, suffix {FormatSigned(breakdown.GearSuffixBonus)}).");
-            addWrapped($"Equation: {FormatAttributeEquation(breakdown, includeGodlike: code == "STR")} = {breakdown.Effective}.");
+            string key = code switch
+            {
+                "STR" => "stat:str",
+                "AGI" => "stat:agi",
+                "TEC" => "stat:tec",
+                "INT" => "stat:int",
+                _ => ""
+            };
+            if (!string.IsNullOrEmpty(key))
+                AppendColoredStatTooltip(c, key, result, addWrapped, maxLines);
         }
 
-        private readonly struct AttributeBreakdown
+        private static void AppendColoredStatTooltip(Character c, string statKey, List<string> result, Action<string> addWrapped, int maxLines)
         {
-            public AttributeBreakdown(
-                int baseValue,
-                int tempBonus,
-                int godlikeBonus,
-                int attributeModifiedValue,
-                int gearFlatBonus,
-                int gearSuffixBonus,
-                int gearTotalBonus,
-                int effective)
+            var colored = StatTooltipFormatter.TryBuild(c, statKey, maxLines);
+            if (colored == null)
+                return;
+            foreach (var line in colored)
             {
-                BaseValue = baseValue;
-                TempBonus = tempBonus;
-                GodlikeBonus = godlikeBonus;
-                AttributeModifiedValue = attributeModifiedValue;
-                GearFlatBonus = gearFlatBonus;
-                GearSuffixBonus = gearSuffixBonus;
-                GearTotalBonus = gearTotalBonus;
-                Effective = effective;
+                if (result.Count >= maxLines)
+                    return;
+                if (line == null || line.Count == 0)
+                {
+                    result.Add("");
+                    continue;
+                }
+                addWrapped(ColoredTextRenderer.RenderAsPlainText(line));
             }
-
-            public int BaseValue { get; }
-            public int TempBonus { get; }
-            public int GodlikeBonus { get; }
-            public int AttributeModifiedValue { get; }
-            public int GearFlatBonus { get; }
-            public int GearSuffixBonus { get; }
-            public int GearTotalBonus { get; }
-            public int Effective { get; }
         }
-
-        private static AttributeBreakdown BuildAttributeBreakdown(Character c, string code)
-        {
-            var stats = c.Stats;
-            int baseVal = code switch
-            {
-                "STR" => stats.Strength,
-                "AGI" => stats.Agility,
-                "TEC" => stats.Technique,
-                "INT" => stats.Intelligence,
-                _ => 0
-            };
-            int temp = code switch
-            {
-                "STR" => stats.TempStrengthBonus,
-                "AGI" => stats.TempAgilityBonus,
-                "TEC" => stats.TempTechniqueBonus,
-                "INT" => stats.TempIntelligenceBonus,
-                _ => 0
-            };
-            int god = code == "STR" ? c.GetModificationGodlikeBonus() : 0;
-            int gearFlat = c.Equipment.GetFlatEquipmentStatExcludingSuffixes(code);
-            int gearTotal = c.Equipment.GetEquipmentStatBonus(code, c);
-            int gearSuffix = gearTotal - gearFlat;
-            int attributeModified = baseVal + temp + god;
-            int effective = code switch
-            {
-                "STR" => c.GetEffectiveStrength(),
-                "AGI" => c.GetEffectiveAgility(),
-                "TEC" => c.GetEffectiveTechnique(),
-                "INT" => c.GetEffectiveIntelligence(),
-                _ => attributeModified + gearTotal
-            };
-
-            return new AttributeBreakdown(baseVal, temp, god, attributeModified, gearFlat, gearSuffix, gearTotal, effective);
-        }
-
-        private static string FormatAttributeInputSummary(string label, AttributeBreakdown b, string? afterEffective = null)
-        {
-            string effectivePart = afterEffective == null
-                ? $"effective {b.Effective}"
-                : $"effective {b.Effective}, {afterEffective}";
-            return $"{label}: base {b.BaseValue}; attribute-modified {b.AttributeModifiedValue}; gear attributes {FormatSigned(b.GearTotalBonus)} (flat/catalog/material {FormatSigned(b.GearFlatBonus)}, suffix {FormatSigned(b.GearSuffixBonus)}) => {effectivePart}.";
-        }
-
-        private static string FormatAttributeEquation(AttributeBreakdown b, bool includeGodlike)
-        {
-            var pieces = new List<string>
-            {
-                b.BaseValue.ToString(CultureInfo.InvariantCulture),
-                FormatSigned(b.TempBonus)
-            };
-            if (includeGodlike)
-                pieces.Add(FormatSigned(b.GodlikeBonus));
-            pieces.Add(FormatSigned(b.GearTotalBonus));
-            return string.Join(" ", pieces);
-        }
-
-        private static string FormatSigned(int value) =>
-            value >= 0
-                ? "+" + value.ToString(CultureInfo.InvariantCulture)
-                : value.ToString(CultureInfo.InvariantCulture);
 
         private static void AppendMagFind(Character c, List<string> result, Action<string> addWrapped, int maxLines)
         {
@@ -504,130 +409,25 @@ namespace RPGGame
 
         private static void AppendGear(Character c, Item? item, string slot, List<string> result, Action<string> addWrapped, int maxLines)
         {
-            addWrapped($"{slot} slot");
             if (item == null)
             {
+                addWrapped($"{slot} slot");
                 addWrapped("No item equipped.");
                 return;
             }
 
-            addWrapped(string.IsNullOrEmpty(item.Name) ? "(unnamed)" : item.Name);
-            addWrapped($"Rarity: {item.Rarity}, tier {item.Tier}, level {item.Level}.");
-
-            string? reqSummary = item.GetAttributeRequirementsSummaryLine();
-            if (!string.IsNullOrEmpty(reqSummary))
-                addWrapped(reqSummary);
-
-            var resolvedGearActions = c.Equipment.GetGearActions(item);
-            if (resolvedGearActions != null && resolvedGearActions.Count > 0)
-                addWrapped("Actions: " + string.Join(", ", resolvedGearActions));
-
-            if (item is WeaponItem wi)
+            foreach (var coloredLine in ItemTooltipFormatter.BuildItemTooltipLines(c, item, slot, maxLines))
             {
-                addWrapped($"Weapon damage: {wi.FormatDamageBreakdownForDisplay()}.");
-                addWrapped($"Weapon BaseAttackSpeed (JSON): {wi.BaseAttackSpeed.ToString("F2", CultureInfo.InvariantCulture)} (used in attack-time formula).");
-                addWrapped($"Weapon type: {wi.WeaponType}.");
-            }
-            else if (item is HeadItem hh)
-                addWrapped($"Armor (piece): {hh.GetTotalArmor()}.");
-            else if (item is ChestItem ch)
-                addWrapped($"Armor (piece): {ch.GetTotalArmor()}.");
-            else if (item is LegsItem li)
-                addWrapped($"Armor (piece): {li.GetTotalArmor()}.");
-            else if (item is FeetItem ft)
-                addWrapped($"Armor (piece): {ft.GetTotalArmor()}.");
-
-            if (item.ExtraActionSlots > 0)
-            {
-                string slotWord = item.ExtraActionSlots == 1 ? "slot" : "slots";
-                addWrapped($"Adds {item.ExtraActionSlots} extra combo strip {slotWord} (longer attack sequence when equipped).");
-            }
-
-            if (item.StatBonuses != null && item.StatBonuses.Count > 0)
-            {
-                var parts = item.StatBonuses
-                    .SelectMany(sb => sb.EnumerateContributions().Select(c => $"{c.StatType}:{c.Value:0.##}"))
-                    .ToArray();
-                addWrapped("Stat bonuses: " + string.Join(", ", parts));
-            }
-
-            if (!string.IsNullOrEmpty(item.GearAction))
-            {
-                addWrapped($"Gear action: {item.GearAction}");
-                var action = ResolveGearAction(c, item.GearAction);
-                if (action != null)
+                if (result.Count >= maxLines)
+                    return;
+                if (coloredLine == null || coloredLine.Count == 0)
                 {
-                    addWrapped(ActionDisplayFormatter.GetActionStats(action).Trim());
-                    string mechanics = CombatActionStripBuilder.BuildActionMechanicalModSummary(c, action, -1);
-                    if (!string.IsNullOrWhiteSpace(mechanics))
-                        addWrapped(mechanics);
-                    int acc = ActionUtilities.CalculateRollBonus(c, action, consumeTempBonus: false);
-                    addWrapped($"Accuracy (roll bonus): {acc:+0;-0;0}");
+                    result.Add("");
+                    continue;
                 }
-                else
-                    addWrapped("(Action not found in current action pool.)");
-            }
-
-            if (item.ActionBonuses != null && item.ActionBonuses.Count > 0)
-            {
-                foreach (var ab in item.ActionBonuses)
-                {
-                    if (result.Count >= maxLines) return;
-                    string line = string.IsNullOrEmpty(ab.Name) ? "Action bonus" : ab.Name;
-                    if (!string.IsNullOrEmpty(ab.Description))
-                        line += ": " + ab.Description;
-                    addWrapped(line);
-                }
-            }
-
-            if (item.Modifications != null && item.Modifications.Count > 0)
-            {
-                foreach (var m in item.Modifications)
-                {
-                    if (result.Count >= maxLines) return;
-                    string mline = string.IsNullOrEmpty(m.Name) ? "Modification" : m.Name;
-                    if (!string.IsNullOrEmpty(m.Effect))
-                        mline += $" [{m.Effect}]";
-                    if (!string.IsNullOrEmpty(m.Description))
-                        mline += " — " + m.Description;
-                    mline += $" (value {m.RolledValue:0.##})";
-                    addWrapped(mline);
-                }
-            }
-
-            if (item.ArmorStatuses != null && item.ArmorStatuses.Count > 0)
-            {
-                foreach (var st in item.ArmorStatuses)
-                {
-                    if (result.Count >= maxLines) return;
-                    string s = string.IsNullOrEmpty(st.Name) ? "Armor status" : st.Name;
-                    if (!string.IsNullOrEmpty(st.Description))
-                        s += ": " + st.Description;
-                    addWrapped(s);
-                }
+                addWrapped(ColoredTextRenderer.RenderAsPlainText(coloredLine));
             }
         }
 
-        private static Action? ResolveGearAction(Character c, string gearActionName)
-        {
-            var combo = c.GetComboActions();
-            if (combo != null)
-            {
-                foreach (var a in combo)
-                {
-                    if (a != null && string.Equals(a.Name, gearActionName, StringComparison.OrdinalIgnoreCase))
-                        return a;
-                }
-            }
-
-            var pool = c.GetActionPool();
-            if (pool == null) return null;
-            foreach (var a in pool)
-            {
-                if (a != null && string.Equals(a.Name, gearActionName, StringComparison.OrdinalIgnoreCase))
-                    return a;
-            }
-            return null;
-        }
     }
 }

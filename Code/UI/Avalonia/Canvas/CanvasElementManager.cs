@@ -16,12 +16,14 @@ namespace RPGGame.UI.Avalonia.Canvas
         private readonly List<CanvasText> textElements;
         private readonly List<CanvasBox> boxElements;
         private readonly List<CanvasProgressBar> progressBars;
+        private readonly List<CanvasSegmentedBar> segmentedBars;
         
         public CanvasElementManager()
         {
             this.textElements = new List<CanvasText>();
             this.boxElements = new List<CanvasBox>();
             this.progressBars = new List<CanvasProgressBar>();
+            this.segmentedBars = new List<CanvasSegmentedBar>();
         }
         
         /// <summary>
@@ -38,6 +40,11 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// Gets all progress bar elements (mutable list for rendering)
         /// </summary>
         public List<CanvasProgressBar> ProgressBars => progressBars;
+
+        /// <summary>
+        /// Gets all segmented bar elements (mutable list for rendering)
+        /// </summary>
+        public List<CanvasSegmentedBar> SegmentedBars => segmentedBars;
         
         /// <summary>
         /// Clears all elements
@@ -47,6 +54,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             textElements.Clear();
             boxElements.Clear();
             progressBars.Clear();
+            segmentedBars.Clear();
         }
         
         /// <summary>
@@ -83,6 +91,18 @@ namespace RPGGame.UI.Avalonia.Canvas
             int endY = startY + height;
             progressBars.RemoveAll(bar => 
                 bar.X >= startX && bar.X < endX && 
+                bar.Y >= startY && bar.Y < endY);
+        }
+
+        /// <summary>
+        /// Clears segmented bars within a specific rectangular area (inclusive).
+        /// </summary>
+        public void ClearSegmentedBarsInArea(int startX, int startY, int width, int height)
+        {
+            int endX = startX + width;
+            int endY = startY + height;
+            segmentedBars.RemoveAll(bar =>
+                bar.X >= startX && bar.X < endX &&
                 bar.Y >= startY && bar.Y < endY);
         }
 
@@ -150,6 +170,18 @@ namespace RPGGame.UI.Avalonia.Canvas
                 IsOverlay = true
             });
         }
+
+        /// <summary>
+        /// Appends to overlay text at the same cell when color matches; otherwise replaces overlay text at that cell.
+        /// </summary>
+        public void AppendOverlayText(int x, int y, string text, Color color)
+        {
+            var existing = GetFirstText(t => t.X == x && t.Y == y && t.IsOverlay);
+            if (existing != null && existing.Color == color)
+                existing.Content += text;
+            else
+                AddOverlayText(x, y, text, color);
+        }
         
         /// <summary>
         /// Removes text elements matching a predicate
@@ -197,6 +229,14 @@ namespace RPGGame.UI.Avalonia.Canvas
         public void AddProgressBar(CanvasProgressBar progressBar)
         {
             progressBars.Add(progressBar);
+        }
+
+        /// <summary>
+        /// Adds a segmented bar element
+        /// </summary>
+        public void AddSegmentedBar(CanvasSegmentedBar segmentedBar)
+        {
+            segmentedBars.Add(segmentedBar);
         }
         
         /// <summary>

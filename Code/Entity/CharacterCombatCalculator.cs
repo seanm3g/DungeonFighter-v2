@@ -125,7 +125,7 @@ namespace RPGGame
             int weaponDamage = (character.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
             int equipmentDamageBonus = character.Equipment.GetEquipmentDamageBonus(character);
             int modificationDamageBonus = character.Equipment.GetModificationDamageBonus();
-            return character.GetEffectiveStrength() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
+            return character.GetAttributeDamageBonus() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
         }
 
         /// <summary>
@@ -200,7 +200,8 @@ namespace RPGGame
             double ampBasePerStep = GetComboAmplifier();
             int magicFind = GetMagicFind();
 
-            string stats = $"Damage: {damage} (STR: {character.GetEffectiveStrength()} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}";
+            int primaryAttr = character.GetEffectivePrimaryAttributeValue();
+            string stats = $"Damage: {damage} (STR: {character.GetEffectiveStrength()} + Primary: {primaryAttr} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}";
             
             if (magicFind > 0)
             {

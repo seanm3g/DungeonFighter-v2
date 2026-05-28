@@ -3,6 +3,16 @@ using System;
 namespace RPGGame.UI.Avalonia.Managers
 {
     /// <summary>
+    /// THRESHOLDS section display mode on the left/right combat panels.
+    /// The colored d20 bar lives under the health bar; this mode only controls ladder numbers vs CHANCES %.
+    /// </summary>
+    public enum ThresholdsHudMode
+    {
+        Ladder,
+        Chances
+    }
+
+    /// <summary>
     /// Manages HUD section collapse state (left HERO/STATS/GEAR and right panel sections)
     /// and stats area bounds for click/glow.
     /// </summary>
@@ -12,7 +22,7 @@ namespace RPGGame.UI.Avalonia.Managers
         private bool statsCollapsed;
         private bool gearCollapsed;
         private bool thresholdsCollapsed;
-        private bool thresholdsShowChances;
+        private ThresholdsHudMode thresholdsHudMode = ThresholdsHudMode.Ladder;
         private DateTimeOffset? thresholdsChancesFlashUntilUtc;
         private ActionStripDamageLineMode actionStripDamageLineMode = ActionStripDamageLineMode.EffectiveWithComboAmp;
         private int statsAreaX = -1;
@@ -48,17 +58,20 @@ namespace RPGGame.UI.Avalonia.Managers
             set => thresholdsCollapsed = value;
         }
 
-        /// <summary>When true, the section shows exclusive d20 outcome chances (Crit, Combo, Hit, Crit Miss, Miss) instead of ladder numbers; the panel header reads CHANCES.</summary>
-        public bool ThresholdsShowChances
+        /// <summary>Current thresholds section display mode (ladder numbers or CHANCES %).</summary>
+        public ThresholdsHudMode ThresholdsHudMode
         {
-            get => thresholdsShowChances;
+            get => thresholdsHudMode;
             set
             {
-                thresholdsShowChances = value;
-                if (!thresholdsShowChances)
+                thresholdsHudMode = value;
+                if (thresholdsHudMode != ThresholdsHudMode.Chances)
                     thresholdsChancesFlashUntilUtc = null;
             }
         }
+
+        /// <summary>True when the section shows exclusive d20 outcome chances instead of ladder numbers.</summary>
+        public bool ThresholdsShowChances => thresholdsHudMode == ThresholdsHudMode.Chances;
 
         public void ToggleHeroCollapsed() => heroCollapsed = !heroCollapsed;
         public void ToggleStatsCollapsed() => statsCollapsed = !statsCollapsed;
@@ -67,8 +80,10 @@ namespace RPGGame.UI.Avalonia.Managers
 
         public void ToggleThresholdsDisplayMode()
         {
-            thresholdsShowChances = !thresholdsShowChances;
-            if (!thresholdsShowChances)
+            thresholdsHudMode = thresholdsHudMode == ThresholdsHudMode.Ladder
+                ? ThresholdsHudMode.Chances
+                : ThresholdsHudMode.Ladder;
+            if (thresholdsHudMode != ThresholdsHudMode.Chances)
                 thresholdsChancesFlashUntilUtc = null;
         }
 

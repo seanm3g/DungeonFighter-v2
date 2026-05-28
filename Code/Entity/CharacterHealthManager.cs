@@ -32,6 +32,30 @@ namespace RPGGame
         }
         public int MaxHealth { get; set; }
 
+        /// <summary>Remaining room armor pool; absorbs incoming damage before health. Refreshes each room.</summary>
+        private int _currentArmor;
+        public int CurrentArmor
+        {
+            get => _currentArmor;
+            set => _currentArmor = Math.Max(0, Math.Min(value, GetMaxArmor()));
+        }
+
+        /// <summary>Maximum armor for the current room (equipment + temporary combat bonuses).</summary>
+        public int GetMaxArmor()
+        {
+            int max = character.GetTotalArmor();
+            if (character.FortifyArmorBonus is int fortifyBonus && fortifyBonus > 0)
+                max += fortifyBonus;
+            if (character.ArmorBreakReduction is int armorBreak && armorBreak > 0)
+                max = Math.Max(0, max - armorBreak);
+            if (character.ExposeArmorReduction is int expose && expose > 0)
+                max = Math.Max(0, max - expose);
+            return max;
+        }
+
+        /// <summary>Refills the room armor pool to <see cref="GetMaxArmor"/>.</summary>
+        public void RefreshRoomArmor() => CurrentArmor = GetMaxArmor();
+
         /// <summary>
         /// Makes the character take damage with shield and damage reduction calculations
         /// </summary>
@@ -50,6 +74,7 @@ namespace RPGGame
         {
             int originalAmount = amount;
             bool shieldUsed = false;
+            character.Effects.LastArmorAbsorbed = 0;
 
             // Apply shield damage reduction (50% reduction) if shield is active
             if (character.Effects.HasShield)
@@ -76,6 +101,24 @@ namespace RPGGame
             {
                 amount = (int)(amount * (1.0 - character.DamageReduction));
             }
+
+            if (amount < 0)
+            {
+                CurrentHealth = Math.Min(GetEffectiveMaxHealth(), CurrentHealth - amount);
+                return new List<string>();
+            }
+
+            // Armor pool absorbs damage linearly before health (refreshes each room).
+            int armorAbsorbed = 0;
+            if (amount > 0 && CurrentArmor > 0)
+            {
+                armorAbsorbed = Math.Min(amount, CurrentArmor);
+                CurrentArmor -= armorAbsorbed;
+                amount -= armorAbsorbed;
+            }
+
+            if (armorAbsorbed > 0)
+                character.Effects.LastArmorAbsorbed = armorAbsorbed;
 
             CurrentHealth = Math.Max(0, CurrentHealth - amount);
 
@@ -115,6 +158,9 @@ namespace RPGGame
             {
                 amount = (int)(amount * (1.0 - character.DamageReduction));
             }
+
+            if (amount > 0 && CurrentArmor > 0)
+                amount = Math.Max(0, amount - Math.Min(amount, CurrentArmor));
 
             return (amount, shieldReduction, shieldUsed);
         }

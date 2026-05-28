@@ -25,6 +25,8 @@ namespace RPGGame.Tests.Unit.Entity
             _testsFailed = 0;
 
             TestTakeDamage();
+            TestArmorPoolAbsorption();
+            TestRefreshRoomArmor();
             TestHeal();
             TestIsAlive();
             TestGetEffectiveMaxHealth();
@@ -55,6 +57,50 @@ namespace RPGGame.Tests.Unit.Entity
             TestBase.AssertTrue(character.CurrentHealth >= 0,
                 "Health should not go below 0",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestArmorPoolAbsorption()
+        {
+            Console.WriteLine("\n--- Testing ArmorPoolAbsorption ---");
+
+            var character = TestDataBuilders.Character()
+                .WithName("ArmoredPlayer")
+                .WithLevel(1)
+                .Build();
+
+            var chest = new ChestItem("TestChest", 1, 10);
+            character.EquipItem(chest, "body");
+            character.RefreshRoomArmor();
+
+            int initialHealth = character.CurrentHealth;
+            TestBase.AssertEqual(10, character.CurrentArmor, "Armor pool should match equipped armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            character.Health.TakeDamage(6);
+            TestBase.AssertEqual(4, character.CurrentArmor, "Armor should absorb damage linearly", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(initialHealth, character.CurrentHealth, "Health should be untouched while armor remains", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            character.Health.TakeDamage(10);
+            TestBase.AssertEqual(0, character.CurrentArmor, "Armor pool should be depleted", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(initialHealth - 6, character.CurrentHealth, "Overflow damage should hit health", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRefreshRoomArmor()
+        {
+            Console.WriteLine("\n--- Testing RefreshRoomArmor ---");
+
+            var character = TestDataBuilders.Character()
+                .WithName("ArmoredPlayer")
+                .WithLevel(1)
+                .Build();
+
+            var chest = new ChestItem("TestChest", 1, 8);
+            character.EquipItem(chest, "body");
+            character.RefreshRoomArmor();
+            character.Health.TakeDamage(8);
+            TestBase.AssertEqual(0, character.CurrentArmor, "Armor should be depleted after full absorption", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            character.RefreshRoomArmor();
+            TestBase.AssertEqual(8, character.CurrentArmor, "Armor should refill at room entry", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

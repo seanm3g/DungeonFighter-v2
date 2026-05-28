@@ -49,6 +49,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                 canvasUIManager = new CanvasUICoordinator(gameCanvas);
 
                 HeroActionStripFeedback.SetRequestInvalidate(() => gameCanvas.Refresh());
+                ThresholdBarFeedback.SetRequestInvalidate(() => gameCanvas.Refresh());
 
                 // Set the close action for the UI manager
                 if (canvasUIManager is CanvasUICoordinator canvasUI)

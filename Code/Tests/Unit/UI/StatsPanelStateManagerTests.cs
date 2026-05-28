@@ -68,21 +68,44 @@ namespace RPGGame.Tests.Unit.UI
         private static void TestToggleThresholdsDisplayMode(ref int run, ref int passed, ref int failed)
         {
             var m = new StatsPanelStateManager();
-            TestBase.AssertFalse(m.ThresholdsShowChances, "ThresholdsShowChances defaults to numbers", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(
+                (int)ThresholdsHudMode.Ladder,
+                (int)m.ThresholdsHudMode,
+                "ThresholdsHudMode defaults to Ladder",
+                ref run, ref passed, ref failed);
+            TestBase.AssertFalse(m.ThresholdsShowChances, "default ladder mode is not CHANCES", ref run, ref passed, ref failed);
             m.ToggleThresholdsDisplayMode();
-            TestBase.AssertTrue(m.ThresholdsShowChances, "ToggleThresholdsDisplayMode enables chance view", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(
+                (int)ThresholdsHudMode.Chances,
+                (int)m.ThresholdsHudMode,
+                "toggle enables CHANCES view",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(m.ThresholdsShowChances, "CHANCES mode sets ThresholdsShowChances", ref run, ref passed, ref failed);
             m.ToggleThresholdsDisplayMode();
-            TestBase.AssertFalse(m.ThresholdsShowChances, "ToggleThresholdsDisplayMode returns to number view", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(
+                (int)ThresholdsHudMode.Ladder,
+                (int)m.ThresholdsHudMode,
+                "second toggle returns to ladder view",
+                ref run, ref passed, ref failed);
         }
 
         private static void TestChancesFlashClearsWhenLeavingChancesView(ref int run, ref int passed, ref int failed)
         {
             var m = new StatsPanelStateManager();
             m.ToggleThresholdsDisplayMode();
+            TestBase.AssertEqual(
+                (int)ThresholdsHudMode.Chances,
+                (int)m.ThresholdsHudMode,
+                "sanity: in CHANCES mode",
+                ref run, ref passed, ref failed);
             m.BeginThresholdsChancesModeFlash(TimeSpan.FromHours(1));
             TestBase.AssertTrue(m.IsThresholdsChancesFlashActive(), "BeginThresholdsChancesModeFlash activates until expiry", ref run, ref passed, ref failed);
             m.ToggleThresholdsDisplayMode();
-            TestBase.AssertFalse(m.ThresholdsShowChances, "sanity: back to ladder", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(
+                (int)ThresholdsHudMode.Ladder,
+                (int)m.ThresholdsHudMode,
+                "sanity: back to ladder",
+                ref run, ref passed, ref failed);
             TestBase.AssertFalse(m.IsThresholdsChancesFlashActive(), "leaving CHANCES view clears flash timer", ref run, ref passed, ref failed);
         }
 

@@ -30,6 +30,7 @@ namespace RPGGame
         public int SlowTurns { get => _state.SlowTurns; set => _state.SlowTurns = value; }
         public bool HasShield { get => _state.HasShield; set => _state.HasShield = value; }
         public int LastShieldReduction { get => _state.LastShieldReduction; set => _state.LastShieldReduction = value; }
+        public int LastArmorAbsorbed { get => _state.LastArmorAbsorbed; set => _state.LastArmorAbsorbed = value; }
         public double LengthReduction { get => _state.LengthReduction; set => _state.LengthReduction = value; }
         public int LengthReductionTurns { get => _state.LengthReductionTurns; set => _state.LengthReductionTurns = value; }
         public double ComboAmplifierMultiplier { get => _state.ComboAmplifierMultiplier; set => _state.ComboAmplifierMultiplier = value; }

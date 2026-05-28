@@ -42,6 +42,7 @@ namespace RPGGame
         public int SlowTurns { get; set; }
         public bool HasShield { get; set; }
         public int LastShieldReduction { get; set; }
+        public int LastArmorAbsorbed { get; set; }
         public double LengthReduction { get; set; }
         public int LengthReductionTurns { get; set; }
         public double ComboAmplifierMultiplier { get; set; } = 1.0;
@@ -68,7 +69,7 @@ namespace RPGGame
         public void ClearRollAndShield()
         {
             TempRollBonus = 0; TempRollBonusTurns = 0; EnemyRollPenalty = 0; EnemyRollPenaltyTurns = 0;
-            SlowMultiplier = 1.0; SlowTurns = 0; HasShield = false; LastShieldReduction = 0;
+            SlowMultiplier = 1.0; SlowTurns = 0; HasShield = false; LastShieldReduction = 0; LastArmorAbsorbed = 0;
             LengthReduction = 0.0; LengthReductionTurns = 0; ComboAmplifierMultiplier = 1.0; ComboAmplifierTurns = 0;
         }
         #endregion

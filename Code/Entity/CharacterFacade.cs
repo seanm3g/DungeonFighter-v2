@@ -118,6 +118,34 @@ namespace RPGGame
         public int GetEffectiveIntelligence() => _character.Stats.GetEffectiveIntelligence(
             _character.Equipment.GetEquipmentStatBonus("INT", _character) + _character.DungeonSearchBuffs.IntelligenceBonus);
 
+        /// <summary>
+        /// Effective value of the character's primary attribute (highest effective stat;
+        /// ties prefer STR, then AGI, then TECH, then INT).
+        /// </summary>
+        public int GetEffectivePrimaryAttributeValue()
+        {
+            string primaryCode = DynamicAttributeCategoryResolver.GetRankedAttributeCodes(_character)[0];
+            return primaryCode switch
+            {
+                DynamicAttributeCategoryResolver.CodeStrength => GetEffectiveStrength(),
+                DynamicAttributeCategoryResolver.CodeAgility => GetEffectiveAgility(),
+                DynamicAttributeCategoryResolver.CodeTechnique => GetEffectiveTechnique(),
+                DynamicAttributeCategoryResolver.CodeIntelligence => GetEffectiveIntelligence(),
+                _ => 0
+            };
+        }
+
+        /// <summary>
+        /// Attribute contribution to base damage: effective STR plus effective primary attribute.
+        /// Direct-stat lab enemies use their Damage field only (no double-count).
+        /// </summary>
+        public int GetAttributeDamageBonus()
+        {
+            if (_character is Enemy enemy && enemy.UsesDirectCombatStats())
+                return GetEffectiveStrength();
+            return GetEffectiveStrength() + GetEffectivePrimaryAttributeValue();
+        }
+
         // === ACTION MANAGEMENT ===
         public List<Action> GetComboActions() => _character.Actions.GetComboActions();
         public List<Action> GetActionPool() => _character.Actions.GetActionPool(_character);

@@ -22,11 +22,11 @@ namespace RPGGame.Tests.Unit.UI
 
             var dmg = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "stat:damage", 50, 20);
             TestBase.AssertTrue(dmg.Count > 0, "damage tooltip has lines", ref run, ref passed, ref failed);
-            TestBase.AssertTrue(dmg.Any(l => l.Contains("Total:", StringComparison.Ordinal)),
-                "damage mentions Total",
+            TestBase.AssertTrue(dmg.Any(l => l.Contains("Attack total", StringComparison.Ordinal)),
+                "damage mentions attack total",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(dmg.Any(l => l.Contains("STR", StringComparison.OrdinalIgnoreCase) || l.Contains("effective", StringComparison.OrdinalIgnoreCase)),
-                "damage mentions breakdown",
+            TestBase.AssertTrue(dmg.Any(l => l.Contains("Components", StringComparison.Ordinal)),
+                "damage mentions components section",
                 ref run, ref passed, ref failed);
 
             var strLines = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "stat:str", 50, 12);
@@ -44,24 +44,36 @@ namespace RPGGame.Tests.Unit.UI
             c.EquipItem(agileHelm, "head");
 
             var agiLines = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "stat:agi", 80, 20);
-            TestBase.AssertTrue(agiLines.Any(l => l.Contains("Base value: 10", StringComparison.Ordinal)),
+            TestBase.AssertTrue(agiLines.Any(l => l.Contains("Base", StringComparison.Ordinal) && l.Contains("10", StringComparison.Ordinal)),
                 "AGI tooltip shows base value",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(agiLines.Any(l => l.Contains("Attribute-modified value: 12", StringComparison.Ordinal)),
-                "AGI tooltip shows attribute-modified value before gear",
+            TestBase.AssertTrue(agiLines.Any(l => l.Contains("After character mods", StringComparison.Ordinal) && l.Contains("12", StringComparison.Ordinal)),
+                "AGI tooltip shows value after character mods",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(agiLines.Any(l => l.Contains("Gear attribute add:", StringComparison.Ordinal) && l.Contains("flat/catalog/material +4", StringComparison.Ordinal) && l.Contains("suffix +1", StringComparison.Ordinal)),
-                "AGI tooltip splits gear attribute add into flat and suffix pieces",
+            TestBase.AssertTrue(agiLines.Any(l => l.Contains("Gear", StringComparison.Ordinal) && l.Contains("+5", StringComparison.Ordinal)),
+                "AGI tooltip shows gear section when bonuses present",
                 ref run, ref passed, ref failed);
 
             var speedLines = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "stat:speed", 90, 30);
-            TestBase.AssertTrue(speedLines.Any(l => l.Contains("AGI input: base 10", StringComparison.Ordinal) && l.Contains("gear attributes +5", StringComparison.Ordinal)),
-                "Speed tooltip shows AGI base and gear attribute input before equation",
+            TestBase.AssertTrue(speedLines.Any(l => l.Contains("Attack time", StringComparison.Ordinal) && l.Contains("Final", StringComparison.Ordinal)),
+                "Speed tooltip title and final",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(speedLines.Any(l => l.Contains("AGI (feeds speed)", StringComparison.Ordinal) && l.Contains("Calculation", StringComparison.Ordinal)),
+                "Speed tooltip structured sections",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(speedLines.Any(l => l.Contains("Base", StringComparison.Ordinal) && l.Contains("10", StringComparison.Ordinal)),
+                "Speed tooltip shows AGI base in attribute section",
                 ref run, ref passed, ref failed);
 
             var ampLines = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "stat:amp", 50, 24);
-            TestBase.AssertTrue(ampLines.Any(l => l.Contains("per combo step", StringComparison.OrdinalIgnoreCase) || l.Contains("Base per combo step", StringComparison.OrdinalIgnoreCase)),
+            TestBase.AssertTrue(ampLines.Any(l => l.Contains("Base per combo step", StringComparison.Ordinal)),
                 "AMP tooltip describes per-step base multiplier",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ampLines.Any(l => l.Contains("Scaling:", StringComparison.Ordinal) && l.Contains("Combo 4", StringComparison.Ordinal)),
+                "AMP tooltip scaling example through combo 4",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ampLines.Any(l => l.Contains("TECH (feeds AMP)", StringComparison.Ordinal)),
+                "AMP tooltip TECH section",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(ampLines.Any(l => l.Contains("Slot 1", StringComparison.Ordinal) && l.Contains('×')),
                 "AMP tooltip lists per-strip-slot multiplier (tier 1)",
@@ -104,7 +116,7 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(invTip.Any(l => l.Contains("Spare", StringComparison.Ordinal)),
                 "bag item tooltip",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(invTip.Any(l => l.StartsWith("Actions:", StringComparison.Ordinal)),
+            TestBase.AssertTrue(invTip.Any(l => l.Contains("Grants:", StringComparison.Ordinal) || l.StartsWith("Actions:", StringComparison.Ordinal)),
                 "bag item tooltip lists resolved gear actions",
                 ref run, ref passed, ref failed);
             int inventoryNameIndex = invTip.FindIndex(l => l.Contains("Spare", StringComparison.Ordinal));

@@ -4,6 +4,7 @@ using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Events;
 using RPGGame.Diagnostics;
 using RPGGame.UI.Avalonia.Feedback;
+using RPGGame.UI.Avalonia.Layout;
 using RPGGame.Utils;
 using RPGGame.Data;
 using System;
@@ -108,6 +109,8 @@ namespace RPGGame.Actions.Execution
                 return result;
             }
 
+            TriggerThresholdBarFeedback(source, result);
+
             Character? heroForStripFeedback = null;
             int? stripIndexForFeedback = null;
             if (source is Character heroStrip && heroStrip is not Enemy)
@@ -169,6 +172,22 @@ namespace RPGGame.Actions.Execution
                 int duration = nextDuration > 0 ? nextDuration : 999;
                 nextAttackStatCharacter.ApplyStatBonus(newBonus, statType, duration);
             }
+        }
+
+        private static void TriggerThresholdBarFeedback(Actor source, ActionExecutionResult result)
+        {
+            var thresholdManager = RollModificationManager.GetThresholdManager();
+            int segmentIndex = ThresholdDisplayFormatting.FindSegmentIndexForRoll(
+                result.BaseRoll,
+                thresholdManager.GetCriticalHitThreshold(source),
+                thresholdManager.GetComboThreshold(source),
+                thresholdManager.GetHitThreshold(source) + 1,
+                thresholdManager.GetCriticalMissThreshold(source));
+            if (segmentIndex < 0)
+                return;
+
+            var panel = source is Enemy ? ThresholdBarPanel.Enemy : ThresholdBarPanel.Hero;
+            ThresholdBarFeedback.Trigger(panel, segmentIndex);
         }
     }
 }

@@ -32,13 +32,15 @@ namespace RPGGame.UI.Avalonia.Canvas
             double boundsHeight,
             List<CanvasText> textElements,
             List<CanvasBox> boxElements,
-            List<CanvasProgressBar> progressBars)
+            List<CanvasProgressBar> progressBars,
+            List<CanvasSegmentedBar> segmentedBars)
         {
             // Clear the canvas
             context.FillRectangle(Brushes.Black, new Rect(0, 0, boundsWidth, boundsHeight));
             
             RenderBoxes(context, boxElements, overlayPass: false);
             RenderProgressBars(context, progressBars);
+            RenderSegmentedBars(context, segmentedBars);
             RenderText(context, textElements, overlayPass: false);
             RenderBoxes(context, boxElements, overlayPass: true);
             RenderText(context, textElements, overlayPass: true);
@@ -93,9 +95,9 @@ namespace RPGGame.UI.Avalonia.Canvas
             double charHeight = coordinateConverter.GetCharHeight();
             
             double x = progressBar.X * charWidth;
-            double y = progressBar.Y * charHeight;
+            double y = progressBar.Y * charHeight + (progressBar.VerticalOffsetScale * charHeight);
             double width = progressBar.Width * charWidth;
-            double height = charHeight;
+            double height = charHeight * progressBar.HeightScale;
 
             // Background
             context.FillRectangle(new SolidColorBrush(progressBar.BackgroundColor), new Rect(x, y, width, height));
@@ -193,6 +195,49 @@ namespace RPGGame.UI.Avalonia.Canvas
             // Border
             const double barPenThickness = 1;
             var pen = new Pen(new SolidColorBrush(progressBar.BorderColor), barPenThickness);
+            context.DrawRectangle(null, pen, InsetRectForStroke(x, y, width, height, barPenThickness));
+        }
+
+        private void RenderSegmentedBars(DrawingContext context, List<CanvasSegmentedBar> segmentedBars)
+        {
+            foreach (var bar in segmentedBars)
+                RenderSegmentedBar(context, bar);
+        }
+
+        private void RenderSegmentedBar(DrawingContext context, CanvasSegmentedBar bar)
+        {
+            double charWidth = coordinateConverter.GetCharWidth();
+            double charHeight = coordinateConverter.GetCharHeight();
+
+            double x = bar.X * charWidth;
+            double y = bar.Y * charHeight + (bar.VerticalOffsetScale * charHeight);
+            double width = bar.Width * charWidth;
+            double height = charHeight * bar.HeightScale;
+            int totalFaces = bar.TotalFaces > 0 ? bar.TotalFaces : 20;
+            double faceWidth = width / totalFaces;
+
+            double cursorX = x;
+            for (int i = 0; i < bar.Segments.Count; i++)
+            {
+                var segment = bar.Segments[i];
+                if (segment.FaceCount <= 0)
+                    continue;
+
+                var segmentColor = bar.SegmentHighlight?.Invoke(i, segment.Color) ?? segment.Color;
+                double segWidth = faceWidth * segment.FaceCount;
+                context.FillRectangle(new SolidColorBrush(segmentColor), new Rect(cursorX, y, segWidth, height));
+
+                if (i < bar.Segments.Count - 1)
+                {
+                    double dividerX = cursorX + segWidth;
+                    context.FillRectangle(new SolidColorBrush(bar.DividerColor), new Rect(dividerX, y, 1, height));
+                }
+
+                cursorX += segWidth;
+            }
+
+            const double barPenThickness = 1;
+            var pen = new Pen(new SolidColorBrush(bar.BorderColor), barPenThickness);
             context.DrawRectangle(null, pen, InsetRectForStroke(x, y, width, height, barPenThickness));
         }
 

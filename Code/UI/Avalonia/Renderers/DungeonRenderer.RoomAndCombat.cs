@@ -6,6 +6,7 @@ using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.ColorSystem;
 using System;
 using System.Collections.Generic;
 
@@ -223,13 +224,20 @@ namespace RPGGame.UI.Avalonia.Renderers
             int rpSeq = RightPanelActionHoverState.HoveredSequenceIndex;
 
             List<string>? tipLines = null;
+            List<List<ColoredText>>? coloredItemLines = null;
             int? anchorCenterX = null;
             bool leftPanelTooltipActive = false;
 
             if (LeftPanelHoverState.IsActive)
             {
-                tipLines = LeftPanelTooltipBuilder.BuildLines(player, LeftPanelHoverState.Value, innerTextW, maxTooltipLines + 2);
-                leftPanelTooltipActive = tipLines.Count > 0;
+                coloredItemLines = LeftPanelTooltipBuilder.BuildColoredItemLines(player, LeftPanelHoverState.Value, maxTooltipLines + 2);
+                if (coloredItemLines.Count > 0)
+                    leftPanelTooltipActive = true;
+                else
+                {
+                    tipLines = LeftPanelTooltipBuilder.BuildLines(player, LeftPanelHoverState.Value, innerTextW, maxTooltipLines + 2);
+                    leftPanelTooltipActive = tipLines.Count > 0;
+                }
             }
 
             if (tipLines == null || tipLines.Count == 0)
@@ -258,13 +266,14 @@ namespace RPGGame.UI.Avalonia.Renderers
                 }
             }
 
-            if (tipLines == null || tipLines.Count == 0)
+            bool hasColoredItemTooltip = coloredItemLines != null && coloredItemLines.Count > 0;
+            if (!hasColoredItemTooltip && (tipLines == null || tipLines.Count == 0))
             {
                 HoverTooltipDrawing.ClearInnerCenterPanelTooltipOverlay(canvas);
                 return;
             }
 
-            if (tipLines.Count > maxTooltipLines)
+            if (!hasColoredItemTooltip && tipLines != null && tipLines.Count > maxTooltipLines)
                 tipLines = tipLines.GetRange(0, maxTooltipLines);
 
             int boxWFinal = Math.Min(52, innerW);
@@ -285,7 +294,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             int boxX = Math.Max(innerLeft, Math.Min(idealX, innerRight - boxWFinal + 1));
             int innerTextWDraw = Math.Max(4, boxWFinal - 2);
 
-            int boxH = tipLines.Count + 2;
+            int contentRows = hasColoredItemTooltip
+                ? HoverTooltipColoredDrawing.CountDisplayRows(coloredItemLines!, innerTextWDraw, maxTooltipLines)
+                : tipLines!.Count;
+            int boxH = contentRows + 2;
             int maxBoxBottom = LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT - 2;
             int boxY = innerTop;
             if (boxY + boxH - 1 > maxBoxBottom)
@@ -296,11 +308,18 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             int tx = boxX + 1;
             int ty = boxY + 1;
-            foreach (var line in tipLines)
+            if (hasColoredItemTooltip)
             {
-                string draw = line.Length > innerTextWDraw ? line.Substring(0, innerTextWDraw - 3) + "..." : line;
-                canvas.AddOverlayText(tx, ty, draw, AsciiArtAssets.Colors.White);
-                ty++;
+                HoverTooltipColoredDrawing.DrawColoredLines(canvas, tx, ty, coloredItemLines!, innerTextWDraw, maxTooltipLines);
+            }
+            else
+            {
+                foreach (var line in tipLines!)
+                {
+                    string draw = line.Length > innerTextWDraw ? line.Substring(0, innerTextWDraw - 3) + "..." : line;
+                    canvas.AddOverlayText(tx, ty, draw, AsciiArtAssets.Colors.White);
+                    ty++;
+                }
             }
         }
     }

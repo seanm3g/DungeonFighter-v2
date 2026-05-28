@@ -81,6 +81,7 @@ namespace RPGGame
             {
                 stateManager.CurrentPlayer.ClearAllTempEffects();
                 RollModificationManager.GetThresholdManager().ResetThresholds(stateManager.CurrentPlayer);
+                stateManager.CurrentPlayer.RefreshRoomArmor();
                 // New room: combo strip and routing always start from the opener (matches new-enemy encounter reset)
                 stateManager.CurrentPlayer.ResetCombo();
             }

@@ -20,7 +20,8 @@ namespace RPGGame.Combat.Formatting
             int targetDefense, 
             double actualSpeed, 
             double? comboAmplifier = null, 
-            Action? action = null)
+            Action? action = null,
+            bool targetUsesArmorPool = false)
         {
             var builder = new ColoredTextBuilder();
             builder.Add("     (", Colors.Gray);
@@ -47,7 +48,10 @@ namespace RPGGame.Combat.Formatting
             // Attack vs Defense
             if (rawDamage > 0 || targetDefense > 0)
             {
-                AddAttackVsArmor(builder, rawDamage, targetDefense);
+                if (targetUsesArmorPool)
+                    AddAttackWithArmorPool(builder, rawDamage, targetDefense);
+                else
+                    AddAttackVsArmor(builder, rawDamage, targetDefense);
             }
             
             // Speed information

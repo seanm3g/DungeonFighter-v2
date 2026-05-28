@@ -30,6 +30,7 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestCalculateRawDamage();
             TestDirectStatEnemyRawDamageUsesDamageField();
+            TestAttributeDamageIncludesStrengthAndPrimary();
             TestCalculateDamage();
             TestDamageReflectsStatChangesWithoutStaleCache();
             TestCacheInvalidation();
@@ -103,8 +104,42 @@ namespace RPGGame.Tests.Unit.Combat
 
             int raw = DamageCalculator.CalculateRawDamage(labDummy, action, 1.0, 1.0, roll: 0);
             TestBase.AssertTrue(
-                raw >= 40,
-                $"Direct-stat enemy raw damage should use Damage field (>= 40), got {raw}",
+                raw >= 40 && raw < 80,
+                $"Direct-stat enemy raw damage should use Damage field once (>= 40 and < 80), got {raw}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>Base damage includes effective STR plus the highest effective attribute (primary).</summary>
+        private static void TestAttributeDamageIncludesStrengthAndPrimary()
+        {
+            Console.WriteLine("\n--- Testing STR + primary attribute damage ---");
+
+            var agilityPrimary = TestDataBuilders.Character()
+                .WithName("AgiPrimary")
+                .WithStats(5, 20, 5, 5)
+                .Build();
+            var weapon = new WeaponItem("TestSword", 1, 0);
+            agilityPrimary.EquipItem(weapon, "weapon");
+
+            var equalStats = TestDataBuilders.Character()
+                .WithName("EqualStats")
+                .WithStats(10, 10, 10, 10)
+                .Build();
+            equalStats.EquipItem(new WeaponItem("TestSword2", 1, 0), "weapon");
+
+            var action = TestDataBuilders.CreateMockAction("JAB");
+            action.DamageMultiplier = 1.0;
+
+            int agiPrimaryRaw = DamageCalculator.CalculateRawDamage(agilityPrimary, action, 1.0, 1.0, roll: 0);
+            TestBase.AssertTrue(
+                agiPrimaryRaw >= 25,
+                $"AGI-primary attacker should get STR (5) + primary AGI (20) = 25 base, got {agiPrimaryRaw}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            int equalRaw = DamageCalculator.CalculateRawDamage(equalStats, action, 1.0, 1.0, roll: 0);
+            TestBase.AssertTrue(
+                equalRaw >= 20,
+                $"Equal stats tie-break to STR: STR (10) + primary STR (10) = 20 base, got {equalRaw}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
