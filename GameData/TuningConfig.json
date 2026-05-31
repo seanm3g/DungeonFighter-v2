@@ -1,6 +1,6 @@
 {
   "character": {
-    "playerBaseHealth": 100,
+    "playerBaseHealth": 250,
     "healthPerLevel": 3,
     "enemyHealthPerLevel": 0
   },
@@ -315,7 +315,7 @@
   },
   "enemySystem": {
     "globalMultipliers": {
-      "healthMultiplier": 1,
+      "healthMultiplier": 0.5,
       "damageMultiplier": 1,
       "armorMultiplier": 1,
       "speedMultiplier": 1,

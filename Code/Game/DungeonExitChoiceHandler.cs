@@ -85,6 +85,7 @@ namespace RPGGame
 
             return new List<List<ColoredText>>
             {
+                new ColoredTextBuilder().Build(),
                 separatorBuilder.Build(),
                 option1Builder.Build(),
                 option2Builder.Build(),

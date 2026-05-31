@@ -12,7 +12,7 @@
   "ShowDetailedStats": false,
   "EnableSoundEffects": true,
   "TravelTimeMultiplier": 1,
-  "EnemyHealthMultiplier": 1,
+  "EnemyHealthMultiplier": 0.5,
   "EnemyDamageMultiplier": 1,
   "PlayerHealthMultiplier": 1,
   "PlayerDamageMultiplier": 1,

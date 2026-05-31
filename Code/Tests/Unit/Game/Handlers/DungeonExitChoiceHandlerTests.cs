@@ -76,23 +76,26 @@ namespace RPGGame.Tests.Unit.Game.Handlers
 
             var lines = DungeonExitChoiceHandler.BuildExitChoiceMenuLines();
 
-            TestBase.AssertEqual(5, lines.Count,
-                "Exit choice menu should contain top divider, two options, blank line, and bottom divider",
+            TestBase.AssertEqual(6, lines.Count,
+                "Exit choice menu should contain blank line, top divider, two options, blank line, and bottom divider",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, GetPlainText(lines[0]),
+            TestBase.AssertEqual("", GetPlainText(lines[0]),
+                "Exit choice menu should keep a blank line before the top divider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, GetPlainText(lines[1]),
                 "Exit choice menu should draw a divider above option 1",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(GetPlainText(lines[1]).Contains("1 - Stay and continue through the dungeon"),
+            TestBase.AssertTrue(GetPlainText(lines[2]).Contains("1 - Stay and continue through the dungeon"),
                 "Exit choice menu should draw continue option after top divider",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(GetPlainText(lines[2]).Contains("2 - Leave the dungeon"),
+            TestBase.AssertTrue(GetPlainText(lines[3]).Contains("2 - Leave the dungeon"),
                 "Exit choice menu should draw leave option after continue option",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("", GetPlainText(lines[3]),
+            TestBase.AssertEqual("", GetPlainText(lines[4]),
                 "Exit choice menu should keep a blank line before the bottom divider",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, GetPlainText(lines[4]),
+            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, GetPlainText(lines[5]),
                 "Exit choice menu should draw a divider below both options",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
