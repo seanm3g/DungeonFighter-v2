@@ -31,7 +31,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestFormatDamageDisplaySeparated();
             TestFormatDamageDisplayColored();
             TestRollInfoShowsQueuedSheetAmpInAmpLine();
-            TestRollInfoShowsSheetAmpStackedOnTechniqueAmp();
+            TestRollInfoShowsSheetAmpStackedOnIntelligenceAmp();
             TestFormatMissMessageColored();
             TestFormatNonAttackActionColored();
             TestFormatHealthMilestoneColored();
@@ -115,23 +115,23 @@ namespace RPGGame.Tests.Unit.Combat
             string rendered = ColoredTextRenderer.RenderAsMarkup(rollInfo);
             TestBase.AssertTrue(
                 rendered.Contains("1.10x", StringComparison.Ordinal),
-                "Colored roll info should show effective amp (1.10x) when ConsumedAmpModPercent is 10% and TECH amp is 1.0",
+                "Colored roll info should show effective amp (1.10x) when ConsumedAmpModPercent is 10% and INT amp is 1.0",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var (_, rollInfoPlain) = CombatResults.FormatDamageDisplaySeparated(
                 attacker, target, 12, 10, action, 1.0, 1.0, 0, 12);
             TestBase.AssertTrue(
                 rollInfoPlain.Contains("1.10x", StringComparison.Ordinal),
-                "Separated roll info should show effective amp (1.10x) when ConsumedAmpModPercent is 10% and TECH amp is 1.0",
+                "Separated roll info should show effective amp (1.10x) when ConsumedAmpModPercent is 10% and INT amp is 1.0",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        /// <summary>Sheet AMP_MOD stacks on technique baseline when combo slot mult is 1.0 (e.g. opener).</summary>
-        private static void TestRollInfoShowsSheetAmpStackedOnTechniqueAmp()
+        /// <summary>Sheet AMP_MOD stacks on intelligence baseline when combo slot mult is 1.0 (e.g. opener).</summary>
+        private static void TestRollInfoShowsSheetAmpStackedOnIntelligenceAmp()
         {
-            Console.WriteLine("\n--- Testing roll info stacks sheet AMP on technique amp ---");
+            Console.WriteLine("\n--- Testing roll info stacks sheet AMP on intelligence amp ---");
 
-            var attacker = TestDataBuilders.Character().WithName("Hero").WithStats(3, 3, 12, 3).Build();
+            var attacker = TestDataBuilders.Character().WithName("Hero").WithStats(3, 3, 3, 12).Build();
             attacker.Effects.ConsumedAmpModPercent = 10;
             var target = TestDataBuilders.Enemy().WithName("Goblin").Build();
             var action = TestDataBuilders.CreateMockAction("JAB");
@@ -145,7 +145,7 @@ namespace RPGGame.Tests.Unit.Combat
             string rendered = ColoredTextRenderer.RenderAsMarkup(rollInfo);
             TestBase.AssertTrue(
                 rendered.Contains(expectedLabel, StringComparison.Ordinal),
-                $"Colored roll info should show stacked amp {expectedLabel} (technique x sheet), got: {rendered}",
+                $"Colored roll info should show stacked amp {expectedLabel} (intelligence x sheet), got: {rendered}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

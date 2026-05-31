@@ -167,7 +167,8 @@ namespace RPGGame.UI.Avalonia.Canvas
             int totalFaces = 20,
             System.Func<int, Color, Color>? segmentHighlight = null,
             double heightScale = 1.0,
-            double verticalOffsetScale = 0.0)
+            double verticalOffsetScale = 0.0,
+            System.Func<int?>? rollMarkerRoll = null)
         {
             var bar = new CanvasSegmentedBar
             {
@@ -179,7 +180,8 @@ namespace RPGGame.UI.Avalonia.Canvas
                 DividerColor = dividerColor,
                 SegmentHighlight = segmentHighlight,
                 HeightScale = heightScale,
-                VerticalOffsetScale = verticalOffsetScale
+                VerticalOffsetScale = verticalOffsetScale,
+                RollMarkerRoll = rollMarkerRoll
             };
             for (int i = 0; i < segments.Length; i++)
             {
@@ -300,7 +302,9 @@ namespace RPGGame.UI.Avalonia.Canvas
             if (healthColor == default) healthColor = Colors.Red;
             if (backgroundColor == default) backgroundColor = Colors.DarkRed;
             
-            double progress = (double)currentHealth / maxHealth;
+            double progress = maxHealth > 0
+                ? Math.Clamp((double)currentHealth / maxHealth, 0.0, 1.0)
+                : 0.0;
             
             // Get previous health if entity ID is provided
             int? previousHealth = null;

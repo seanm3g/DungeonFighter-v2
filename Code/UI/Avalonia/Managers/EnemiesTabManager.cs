@@ -69,15 +69,35 @@ namespace RPGGame.UI.Avalonia.Managers
             loadedEnemies = dataService.LoadEnemies();
 
             rows = new ObservableCollection<EnemySettingsRowViewModel>();
+            var skippedWithoutName = 0;
             for (var i = 0; i < loadedEnemies.Count; i++)
             {
                 var e = loadedEnemies[i];
+                if (string.IsNullOrWhiteSpace(e.Name))
+                {
+                    skippedWithoutName++;
+                    continue;
+                }
+
                 var tagList = GameDataTagHelper.NormalizeDistinct(e.Tags);
                 rows.Add(new EnemySettingsRowViewModel(
                     sourceIndex: i,
                     name: e.Name,
                     archetype: e.Archetype,
                     tagsCommaSeparated: tagList.Count == 0 ? "" : string.Join(", ", tagList)));
+            }
+
+            if (rows.Count == 0 && loadedEnemies.Count > 0)
+            {
+                showStatusMessage?.Invoke(
+                    "Enemies.json loaded but no enemy names were found. The file may be a raw spreadsheet export — re-pull from the ENEMIES sheet or restore canonical JSON.",
+                    false);
+            }
+            else if (skippedWithoutName > 0)
+            {
+                showStatusMessage?.Invoke(
+                    $"Skipped {skippedWithoutName} Enemies.json row(s) without a name.",
+                    false);
             }
         }
 

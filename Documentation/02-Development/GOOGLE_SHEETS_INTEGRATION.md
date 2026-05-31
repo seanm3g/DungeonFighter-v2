@@ -70,8 +70,8 @@ Pull maps columns **by header name** (case-insensitive), not by fixed column ind
 **Settings → Balance Tuning (Import):**
 
 - **Actions** URL and an expander **Other game data (CSV URLs)** for the four optional tabs.
-- **Resync from Google Sheets** — runs pull for every non-empty URL in `SheetsConfig.json` (and reloads actions if the actions URL was used).
-- **Push game data to Google Sheets** — pushes actions plus every configured optional tab (see `SheetsPushConfig` tab names).
+- **PULL from Google Sheets** — pulls only tabs that are **checked** and have a URL in `SheetsConfig.json` (per-tab flags in `SheetsPushConfig.json`: `pushActionsTab`, `pushWeaponsTab`, …).
+- **Push game data to Google Sheets** — pushes only **checked** tabs (same flags; unchecked tabs are not cleared or written).
 
 Always back up your sheet or JSON before push; Sheets has no automatic undo.
 

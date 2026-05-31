@@ -226,10 +226,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 if (statusTextBlock != null)
                     statusTextBlock.Text = "Pulling…";
 
-                await GameDataSheetsPullService.PullAllFromSheetsConfigAsync().ConfigureAwait(true);
+                var tabFilter = ReadTabFilterFromPanel(panel);
+                await GameDataSheetsPullService.PullAllFromSheetsConfigAsync(tabSelection: tabFilter).ConfigureAwait(true);
 
                 sheetsRunner.AppendOutput("✓ Pull steps completed (loot, enemies, rooms reloaded for this session).\n");
-                if (!string.IsNullOrWhiteSpace(cfg.ActionsSheetUrl))
+                if (tabFilter.PushActionsTab && !string.IsNullOrWhiteSpace(cfg.ActionsSheetUrl))
                 {
                     // Must clear JsonLoader cache for Actions.json; LoadActions() alone would keep stale data after a pull.
                     ActionLoader.ReloadActions();
@@ -352,18 +353,30 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 return;
 
             var pushCfg = SheetsPushConfig.Load(path);
-            pushCfg.PushActionsTab = ReadPushCheckbox(panel, "PushActionsTabCheckBox", defaultIfNull: true);
-            pushCfg.PushWeaponsTab = ReadPushCheckbox(panel, "PushWeaponsTabCheckBox", defaultIfNull: true);
-            pushCfg.PushModificationsTab = ReadPushCheckbox(panel, "PushModificationsTabCheckBox", defaultIfNull: true);
-            pushCfg.PushArmorTab = ReadPushCheckbox(panel, "PushArmorTabCheckBox", defaultIfNull: true);
-            pushCfg.PushStatBonusesTab = ReadPushCheckbox(panel, "PushStatBonusesTabCheckBox", defaultIfNull: true);
-            pushCfg.PushConsumablesTab = ReadPushCheckbox(panel, "PushConsumablesTabCheckBox", defaultIfNull: true);
-            pushCfg.PushEnemiesTab = ReadPushCheckbox(panel, "PushEnemiesTabCheckBox", defaultIfNull: true);
-            pushCfg.PushEnvironmentsTab = ReadPushCheckbox(panel, "PushEnvironmentsTabCheckBox", defaultIfNull: true);
-            pushCfg.PushDungeonsTab = ReadPushCheckbox(panel, "PushDungeonsTabCheckBox", defaultIfNull: true);
-            pushCfg.PushClassPresentationTab = ReadPushCheckbox(panel, "PushClassPresentationTabCheckBox", defaultIfNull: true);
-            pushCfg.PushClassActionsTab = ReadPushCheckbox(panel, "PushClassActionsTabCheckBox", defaultIfNull: true);
+            ApplyTabFilterFromPanel(panel, pushCfg);
             pushCfg.Save(path);
+        }
+
+        private static SheetsPushConfig ReadTabFilterFromPanel(BalanceTuningSettingsPanel panel)
+        {
+            var filter = new SheetsPushConfig();
+            ApplyTabFilterFromPanel(panel, filter);
+            return filter;
+        }
+
+        private static void ApplyTabFilterFromPanel(BalanceTuningSettingsPanel panel, SheetsPushConfig target)
+        {
+            target.PushActionsTab = ReadPushCheckbox(panel, "PushActionsTabCheckBox", defaultIfNull: true);
+            target.PushWeaponsTab = ReadPushCheckbox(panel, "PushWeaponsTabCheckBox", defaultIfNull: true);
+            target.PushModificationsTab = ReadPushCheckbox(panel, "PushModificationsTabCheckBox", defaultIfNull: true);
+            target.PushArmorTab = ReadPushCheckbox(panel, "PushArmorTabCheckBox", defaultIfNull: true);
+            target.PushStatBonusesTab = ReadPushCheckbox(panel, "PushStatBonusesTabCheckBox", defaultIfNull: true);
+            target.PushConsumablesTab = ReadPushCheckbox(panel, "PushConsumablesTabCheckBox", defaultIfNull: true);
+            target.PushEnemiesTab = ReadPushCheckbox(panel, "PushEnemiesTabCheckBox", defaultIfNull: true);
+            target.PushEnvironmentsTab = ReadPushCheckbox(panel, "PushEnvironmentsTabCheckBox", defaultIfNull: true);
+            target.PushDungeonsTab = ReadPushCheckbox(panel, "PushDungeonsTabCheckBox", defaultIfNull: true);
+            target.PushClassPresentationTab = ReadPushCheckbox(panel, "PushClassPresentationTabCheckBox", defaultIfNull: true);
+            target.PushClassActionsTab = ReadPushCheckbox(panel, "PushClassActionsTabCheckBox", defaultIfNull: true);
         }
 
         private static void SetPushCheckbox(BalanceTuningSettingsPanel panel, string checkBoxName, bool isChecked)

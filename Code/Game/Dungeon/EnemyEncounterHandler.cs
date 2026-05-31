@@ -282,7 +282,8 @@ namespace RPGGame
             var surpriseBuilder = new ColoredTextBuilder()
                 .AddRange(DungeonNarrativeColoredText.FormatEnemySurpriseMessage(surpriseMessage));
 
-            displayManager.AddCombatEvent(surpriseBuilder, player);
+            displayManager.AddCombatEvent("", player);
+            displayManager.AddCombatEvent(surpriseBuilder, player, UIMessageType.Environmental);
             displayManager.AddCombatEvent("", player);
         }
         

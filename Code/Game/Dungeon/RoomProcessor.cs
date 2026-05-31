@@ -304,7 +304,10 @@ namespace RPGGame
             }
 
             if (stateManager.CurrentPlayer != null)
+            {
                 stateManager.CurrentPlayer.ClearAllTempEffects();
+                stateManager.CurrentPlayer.RefreshRoomArmor();
+            }
             
             return true; // Player survived the room
         }

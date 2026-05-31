@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
+using RPGGame.Tuning;
 using RPGGame.Utils;
 
 namespace RPGGame.Editors
@@ -71,7 +72,7 @@ namespace RPGGame.Editors
                 new EditableVariable("Attributes.PlayerAttributesPerLevel", () => GameConfiguration.Instance.Attributes.PlayerAttributesPerLevel, v => GameConfiguration.Instance.Attributes.PlayerAttributesPerLevel = Convert.ToInt32(v), "Attributes gained per level"),
                 new EditableVariable("Attributes.EnemyAttributesPerLevel", () => GameConfiguration.Instance.Attributes.EnemyAttributesPerLevel, v => GameConfiguration.Instance.Attributes.EnemyAttributesPerLevel = Convert.ToInt32(v), "Enemy attributes per level"),
                 new EditableVariable("Attributes.EnemyPrimaryAttributeBonus", () => GameConfiguration.Instance.Attributes.EnemyPrimaryAttributeBonus, v => GameConfiguration.Instance.Attributes.EnemyPrimaryAttributeBonus = Convert.ToInt32(v), "Enemy primary attribute bonus"),
-                new EditableVariable("Attributes.IntelligenceRollBonusPer", () => GameConfiguration.Instance.Attributes.IntelligenceRollBonusPer, v => GameConfiguration.Instance.Attributes.IntelligenceRollBonusPer = Convert.ToInt32(v), "Intelligence roll bonus per 10 points"),
+                new EditableVariable("Attributes.IntelligenceRollBonusPer", () => GameConfiguration.Instance.Attributes.IntelligenceRollBonusPer, v => GameConfiguration.Instance.Attributes.IntelligenceRollBonusPer = Convert.ToInt32(v), "Legacy flat INT roll bonus (unused; TECH milestones shift thresholds)"),
             };
             variablesByCategory["Character"] = characterVars;
 
@@ -206,10 +207,10 @@ namespace RPGGame.Editors
             // Combo System
             var comboVars = new List<EditableVariable>
             {
-                new EditableVariable("ComboSystem.ComboAmplifierAtTech5", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierAtTech5, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierAtTech5 = Convert.ToDouble(v), "Legacy; current TECH AMP uses 1 + 0.5*log10(TECH+1)"),
-                new EditableVariable("ComboSystem.ComboAmplifierMax", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierMax, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierMax = Convert.ToDouble(v), "Legacy; current TECH AMP has no configured max"),
-                new EditableVariable("ComboSystem.ComboAmplifierMaxTech", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierMaxTech, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierMaxTech = Convert.ToInt32(v), "Legacy; current TECH AMP has no max-tech breakpoint"),
-                new EditableVariable("ComboSystem.ComboAmplifierCurveExponent", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierCurveExponent, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierCurveExponent = Convert.ToDouble(v), "Legacy; current TECH AMP uses a fixed logarithmic curve"),
+                new EditableVariable("ComboSystem.ComboAmplifierAtTech5", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierAtTech5, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierAtTech5 = Convert.ToDouble(v), "Legacy; current INT AMP uses 1 + 0.5*log10(INT+1)"),
+                new EditableVariable("ComboSystem.ComboAmplifierMax", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierMax, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierMax = Convert.ToDouble(v), "Legacy; current INT AMP has no configured max"),
+                new EditableVariable("ComboSystem.ComboAmplifierMaxTech", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierMaxTech, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierMaxTech = Convert.ToInt32(v), "Legacy; current INT AMP has no max-stat breakpoint"),
+                new EditableVariable("ComboSystem.ComboAmplifierCurveExponent", () => GameConfiguration.Instance.ComboSystem.ComboAmplifierCurveExponent, v => GameConfiguration.Instance.ComboSystem.ComboAmplifierCurveExponent = Convert.ToDouble(v), "Legacy; current INT AMP uses a fixed logarithmic curve"),
             };
             variablesByCategory["Combo"] = comboVars;
 
@@ -258,6 +259,35 @@ namespace RPGGame.Editors
         public EditableVariable? GetVariable(string name)
         {
             return GetVariables().FirstOrDefault(v => v.Name == name);
+        }
+
+        /// <summary>
+        /// Writes current in-memory tuning and game settings to disk without resetting the configuration singleton.
+        /// Called when a single variable is committed in the variable editor UI.
+        /// </summary>
+        public bool PersistCurrentValues()
+        {
+            try
+            {
+                bool configSaved = GameConfiguration.Instance.SaveToFile();
+                gameSettings.SaveSettings();
+                return configSaved;
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"VariableEditor: Error persisting values: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Applies tuning to the running player (when present) and persists to disk after a variable edit is committed.
+        /// </summary>
+        public void ApplyAndPersistAfterEdit(Character? player)
+        {
+            if (player != null)
+                PlayerTuningApplier.ApplyToCurrentPlayer(player);
+            PersistCurrentValues();
         }
 
         /// <summary>

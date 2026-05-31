@@ -23,6 +23,7 @@ namespace RPGGame.Tests.Unit.Editors
             _testsFailed = 0;
 
             TestGameVariableBindingUsesLiveConfigurationInstance();
+            TestApplyAndPersistAfterEdit_UpdatesCurrentPlayerMaxHealth();
 
             TestBase.PrintSummary("VariableEditor Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -46,6 +47,29 @@ namespace RPGGame.Tests.Unit.Editors
             finally
             {
                 cfg.Combat.CriticalHitThreshold = saved;
+            }
+        }
+
+        private static void TestApplyAndPersistAfterEdit_UpdatesCurrentPlayerMaxHealth()
+        {
+            Console.WriteLine("--- ApplyAndPersistAfterEdit updates current player max health ---");
+            var cfg = GameConfiguration.Instance;
+            int savedBase = cfg.Character.PlayerBaseHealth;
+            try
+            {
+                cfg.Character.PlayerBaseHealth = 60;
+                var character = new Character("PersistTest", level: 1);
+                TestBase.AssertEqual(60, character.MaxHealth, "baseline max health is 60", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                cfg.Character.PlayerBaseHealth = 100;
+                var editor = new VariableEditor();
+                editor.ApplyAndPersistAfterEdit(character);
+
+                TestBase.AssertEqual(100, character.MaxHealth, "player max health updated after apply", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.Character.PlayerBaseHealth = savedBase;
             }
         }
     }

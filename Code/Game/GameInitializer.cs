@@ -203,11 +203,14 @@ namespace RPGGame
                 }
             }
             
+            ClearStarterEquipRequirements(starterWeapon);
+
             if (!player.TryEquipItem(starterWeapon, "weapon", out _, out var starterWeaponFail))
             {
                 DebugLogger.LogFormat("GameInitializer",
                     "CRITICAL: Starter weapon '{0}' could not be equipped: {1}",
                     starterWeapon.Name, starterWeaponFail ?? "unknown reason");
+                player.AddToInventory(starterWeapon);
             }
 
             var bonusLoot = LootGenerator.GenerateNewGameBonusLoot(player);
@@ -226,6 +229,7 @@ namespace RPGGame
             {
                 foreach (var armorItem in catalogStarterArmor)
                 {
+                    ClearStarterEquipRequirements(armorItem);
                     string slot = StarterCatalogItems.GetEquipmentSlotKey(armorItem);
                     if (!player.TryEquipItem(armorItem, slot, out _, out var catalogArmorFail))
                     {
@@ -344,6 +348,16 @@ namespace RPGGame
                 .ToList();
 
             return weaponActions;
+        }
+
+        /// <summary>
+        /// New-game starter gear must always be equippable at level 1. Catalog rows may list attribute gates
+        /// for loot drops, but those gates must not block the weapon/armor the player just chose.
+        /// </summary>
+        internal static void ClearStarterEquipRequirements(Item item)
+        {
+            item.AttributeRequirements = new AttributeRequirements();
+            item.CatalogAttributeRequirements = new AttributeRequirements();
         }
 
         /// <summary>

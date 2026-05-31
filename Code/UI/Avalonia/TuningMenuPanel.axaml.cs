@@ -5,6 +5,7 @@ using Avalonia.Media;
 using Avalonia.Layout;
 using Avalonia.Input;
 using Avalonia.Threading;
+using RPGGame;
 using RPGGame.Editors;
 using RPGGame.UI.Avalonia.Builders;
 using RPGGame.UI.Avalonia.Validators;
@@ -23,6 +24,7 @@ namespace RPGGame.UI.Avalonia
         private Dictionary<string, TextBlock> valueChangeIndicators = new Dictionary<string, TextBlock>();
         private Dictionary<string, string> categoryDisplayToName = new Dictionary<string, string>();
         private ChangeIndicatorManager changeIndicatorManager = new ChangeIndicatorManager();
+        private Func<Character?>? getCurrentPlayer;
         
         public event EventHandler<string>? CategorySelected;
         public event EventHandler? BackRequested;
@@ -37,11 +39,17 @@ namespace RPGGame.UI.Avalonia
             SaveButton.Click += OnSaveButtonClick;
         }
         
-        public void Initialize(VariableEditor editor)
+        public void Initialize(VariableEditor editor, Func<Character?>? currentPlayerProvider = null)
         {
             variableEditor = editor;
+            getCurrentPlayer = currentPlayerProvider;
             LoadCategories();
             ResetToCategoryView();
+        }
+
+        public void SetCurrentPlayerProvider(Func<Character?>? currentPlayerProvider)
+        {
+            getCurrentPlayer = currentPlayerProvider;
         }
         
         public void ResetToCategoryView()
@@ -73,6 +81,8 @@ namespace RPGGame.UI.Avalonia
         
         private void OnCategorySelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
+            FlushPendingEdits();
+
             if (CategoryListBox.SelectedItem is string displayText && 
                 categoryDisplayToName.TryGetValue(displayText, out var categoryName))
             {
@@ -170,7 +180,7 @@ namespace RPGGame.UI.Avalonia
             
             var info = new TextBlock
             {
-                Text = $"{variableCount} parameters available • Changes are applied immediately",
+                Text = $"{variableCount} parameters available • Each value applies to the game when you leave the field",
                 FontSize = 13,
                 Foreground = new SolidColorBrush(Color.FromRgb(180, 180, 180))
             };
@@ -200,13 +210,13 @@ namespace RPGGame.UI.Avalonia
             
             if (success)
             {
-                // Update change indicator
+                variableEditor.ApplyAndPersistAfterEdit(getCurrentPlayer?.Invoke());
+
                 if (valueChangeIndicators.TryGetValue(variable.Name, out var indicator))
                 {
                     UpdateChangeIndicator(variable, textBox, indicator);
                 }
                 
-                // Update original value after successful save
                 var newValue = variable.GetValue();
                 if (newValue != null)
                 {
@@ -222,18 +232,25 @@ namespace RPGGame.UI.Avalonia
         
         private void OnSaveButtonClick(object? sender, RoutedEventArgs e)
         {
-            // Validate all text boxes before saving
+            // Defer one UI tick so focus leaves the active text box (LostFocus) before flush/save.
+            Dispatcher.UIThread.Post(() =>
+            {
+                FlushPendingEdits();
+                SaveRequested?.Invoke(this, EventArgs.Empty);
+            }, DispatcherPriority.Loaded);
+        }
+
+        /// <summary>Commits all visible variable text boxes to in-memory configuration.</summary>
+        public void FlushPendingEdits()
+        {
+            if (variableEditor == null) return;
+
             foreach (var kvp in variableTextBoxes)
             {
-                var textBox = kvp.Value;
-                if (textBox.IsFocused)
-                {
-                    textBox.Focusable = false;
-                    textBox.Focusable = true;
-                }
+                var variable = variableEditor.GetVariable(kvp.Key);
+                if (variable != null)
+                    ValidateAndUpdateVariable(variable, kvp.Value);
             }
-            
-            SaveRequested?.Invoke(this, EventArgs.Empty);
         }
         
         public void ShowStatusMessage(string message, bool isError = false)

@@ -3,7 +3,7 @@ using System;
 namespace RPGGame
 {
     /// <summary>
-    /// Effective max combo sequence length from <see cref="LootSystemConfig"/> plus class-tier upgrades and all equipped gear:
+    /// Effective max combo sequence length from <see cref="LootSystemConfig"/> plus class-tier upgrades, Wizard (Wand) weapon bonus, and all equipped gear:
     /// catalog <see cref="Item.ExtraActionSlots"/> and affix <c>ExtraActionSlots</c> lines (see <see cref="EquipmentBonusCalculator.GetStatBonus"/>).
     /// </summary>
     public static class ComboSequenceMaxHelper

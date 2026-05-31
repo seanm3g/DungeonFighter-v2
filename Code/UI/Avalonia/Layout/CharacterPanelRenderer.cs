@@ -116,8 +116,8 @@ namespace RPGGame.UI.Avalonia.Layout
                         healthBarWidth,
                         character.CurrentArmor,
                         maxArmor,
-                        AsciiArtAssets.Colors.Cyan,
                         AsciiArtAssets.Colors.DarkBlue,
+                        AsciiArtAssets.Colors.White,
                         entityId: $"player_{character.Name}_armor",
                         heightScale: D20ThresholdBarRenderer.CombatArmorHeightScale);
                 }
@@ -252,7 +252,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x, y, ampCore, AsciiArtAssets.Colors.White);
                 y++;
                 int armorRowY = y;
-                canvas.AddCharacterStat(x, y, "Armor", character.GetMaxArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Cyan);
+                canvas.AddCharacterStat(x, y, "Armor", character.GetMaxArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.DarkBlue);
                 y++;
                 y++;
 

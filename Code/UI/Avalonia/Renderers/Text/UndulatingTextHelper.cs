@@ -3,14 +3,17 @@ using Avalonia.Media;
 using RPGGame.Data;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.TextAnimation;
 
 namespace RPGGame.UI.Avalonia.Renderers.Text
 {
     /// <summary>
-    /// Character-wise brightness / undulation used by dungeon selection, display log, and completion UI.
+    /// Character-wise layered text animation used by dungeon selection, display log, and completion UI.
     /// </summary>
     public static class UndulatingTextHelper
     {
+        public const string DisplayLogShimmerPreset = "displayLogShimmer";
+
         public static int GetElementRandomOffset(int lineOffset)
         {
             int hash = (lineOffset * 7919 + 12345) % 101;
@@ -40,11 +43,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
             int charPos = 0;
             if (segments == null)
                 return animated;
-            foreach (var segment in segments)
-            {
-                string t = segment.Text ?? "";
-                AppendAnimatedChars(t, segment.Color, animated, ref charPos, lineY, segment.SourceTemplate);
-            }
+
+            AppendComposedFromSegments(DisplayLogShimmerPreset, segments, animated, ref charPos, lineY);
             return animated;
         }
 
@@ -58,35 +58,39 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
             BaseAnimationState? animationState = null)
         {
             var state = animationState ?? DungeonSelectionAnimationState.Instance;
-            bool shouldUndulate;
-            if (string.IsNullOrEmpty(sourceTemplate))
-                shouldUndulate = true;
-            else
-            {
-                var templateData = ColorTemplateLoader.GetTemplate(sourceTemplate);
-                shouldUndulate = templateData != null && templateData.Undulate;
-            }
-
             int elementOffset = GetElementRandomOffset(lineOffset);
-            foreach (char c in text ?? "")
-            {
-                int adjustedPosition = startCharPosition + elementOffset;
-                float brightnessAdjustment = state.GetBrightnessAt(adjustedPosition, lineOffset);
-                double brightnessFactor = 1.0 + (brightnessAdjustment / 100.0) * 2.0;
-                brightnessFactor = System.Math.Max(0.3, System.Math.Min(2.0, brightnessFactor));
-                if (shouldUndulate)
-                {
-                    double undulationBrightness = state.GetUndulationBrightnessAt(adjustedPosition, lineOffset);
-                    brightnessFactor += undulationBrightness * 3.0;
-                    brightnessFactor = System.Math.Max(0.3, System.Math.Min(2.0, brightnessFactor));
-                }
 
-                Color adjustedColor = AdjustColorBrightness(baseColor, brightnessFactor);
-                adjustedColor = ColorValidator.ClampAnimatedTextBrightness(
-                    adjustedColor, state.AnimatedTextBrightnessMin, state.AnimatedTextBrightnessMax);
-                result.Add(new ColoredText(c.ToString(), adjustedColor, sourceTemplate, colorReadyForCanvas: true));
-                startCharPosition++;
-            }
+            TextAnimationCompositor.AppendComposed(
+                DisplayLogShimmerPreset,
+                text,
+                baseColor,
+                result,
+                ref startCharPosition,
+                lineOffset,
+                sourceTemplate,
+                state,
+                elementOffset);
+        }
+
+        public static void AppendComposedFromSegments(
+            string presetName,
+            IReadOnlyList<ColoredText> segments,
+            List<ColoredText> result,
+            ref int startCharPosition,
+            int lineOffset,
+            BaseAnimationState? animationState = null)
+        {
+            var state = animationState ?? DungeonSelectionAnimationState.Instance;
+            int elementOffset = GetElementRandomOffset(lineOffset);
+
+            TextAnimationCompositor.AppendComposedFromSegments(
+                presetName,
+                segments,
+                result,
+                ref startCharPosition,
+                lineOffset,
+                state,
+                elementOffset);
         }
     }
 }

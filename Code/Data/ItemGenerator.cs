@@ -463,7 +463,8 @@ namespace RPGGame
         {
             var availableBonuses = new List<object>();
             availableBonuses.AddRange(statBonuses);
-            availableBonuses.AddRange(actionBonuses);
+            availableBonuses.AddRange(actionBonuses
+                .Where(ab => Data.GameDataTagHelper.IsGrantableOnHeroGearByName(ab.Name)));
             availableBonuses.AddRange(modifications);
 
             int bonusCount = RandomUtility.Next(0, Math.Min(maxBonuses + 1, availableBonuses.Count + 1));

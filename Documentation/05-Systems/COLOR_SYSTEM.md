@@ -8,6 +8,7 @@ DungeonFighter-v2 implements a comprehensive Caves of Qud-inspired color system 
 2. **Color Templates** - Pre-defined color patterns (fiery, icy, crystalline, etc.)
 3. **Color Parser** - Markup language parser for `&X` and `{{template|text}}` syntax
 4. **Color Layer System** - Brightness/saturation adjustment based on event significance
+5. **Layered Text Animation** - JSON preset compositor for animated canvas text ([TEXT_ANIMATION_LAYERS.md](TEXT_ANIMATION_LAYERS.md))
 5. **Keyword Color System** - Automatic coloring of keywords based on groups
 
 ## Architecture

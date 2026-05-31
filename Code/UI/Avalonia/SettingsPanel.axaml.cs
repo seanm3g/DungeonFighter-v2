@@ -104,6 +104,7 @@ namespace RPGGame.UI.Avalonia
             panelHandlerRegistry.Register(new TravelPanelHandler());
             panelHandlerRegistry.Register(new AudioPanelHandler());
             panelHandlerRegistry.Register(new TextDelaysPanelHandler(settingsManager));
+            panelHandlerRegistry.Register(new TextAnimationPresetsPanelHandler(ShowStatusMessage));
             panelHandlerRegistry.Register(new AppearancePanelHandler(settings, colorManager));
             panelHandlerRegistry.Register(new Managers.Settings.PanelHandlers.ClassesPanelHandler(ShowStatusMessage));
             panelHandlerRegistry.Register(new ItemGenerationPanelHandler(ShowStatusMessage));
@@ -195,6 +196,7 @@ namespace RPGGame.UI.Avalonia
             GameConfiguration.Instance.Reload();
             // Actions tab uses ActionEditor + ActionLoader; mirror disk after external reloads (e.g. spreadsheet resync).
             actionsTabManager?.ReloadFromDisk();
+            gameVariablesTabManager?.RefreshFromConfiguration();
             enemiesTabManager?.RefreshFromFileIfLoaded();
             itemsTabManager?.RefreshFromFileIfLoaded();
             itemModifiersTabManager?.RefreshFromFileIfLoaded();
@@ -221,7 +223,10 @@ namespace RPGGame.UI.Avalonia
             // Apply to the panel actually visible so file values show on what the user sees
             UserControl? target = ContentScrollViewer.IsVisible ? ContentArea.Content as UserControl
                 : TestingContentArea.IsVisible ? TestingContentArea.Content as UserControl
-                : ActionsContentArea.Content as UserControl;
+                : ActionsContentArea.IsVisible ? ActionsContentArea.Content as UserControl
+                : TextAnimationContentArea.IsVisible ? TextAnimationContentArea.Content as UserControl
+                : ItemGenerationContentArea.IsVisible ? ItemGenerationContentArea.Content as UserControl
+                : null;
             if (target == null && loadedPanels.TryGetValue(categoryTag, out var cached))
                 target = cached;
             if (target != null)
@@ -251,6 +256,11 @@ namespace RPGGame.UI.Avalonia
             BackButton.Click += (s, e) => onBack?.Invoke();
         }
         
+        private void ScheduleInputColorRefresh()
+        {
+            Dispatcher.UIThread.Post(() => colorManager?.ApplyColors(), DispatcherPriority.Loaded);
+        }
+
         private void LoadCategoryPanel(string categoryTag)
         {
             // Special handling for Testing panel - use separate content area without ScrollViewer
@@ -263,6 +273,7 @@ namespace RPGGame.UI.Avalonia
                     TestingContentArea.IsVisible = true;
                     ContentScrollViewer.IsVisible = false;
                     ActionsContentArea.IsVisible = false;
+                    ScheduleInputColorRefresh();
                     return;
                 }
                 
@@ -278,6 +289,7 @@ namespace RPGGame.UI.Avalonia
                 Dispatcher.UIThread.Post(() =>
                 {
                     InitializePanelHandlers(categoryTag, testingPanel);
+                    ScheduleInputColorRefresh();
                 }, DispatcherPriority.Background);
                 return;
             }
@@ -291,6 +303,7 @@ namespace RPGGame.UI.Avalonia
                     ActionsContentArea.IsVisible = true;
                     ContentScrollViewer.IsVisible = false;
                     TestingContentArea.IsVisible = false;
+                    ScheduleInputColorRefresh();
                     return;
                 }
                 
@@ -304,6 +317,39 @@ namespace RPGGame.UI.Avalonia
                 Dispatcher.UIThread.Post(() =>
                 {
                     InitializePanelHandlers(categoryTag, actionsPanel);
+                    ScheduleInputColorRefresh();
+                }, DispatcherPriority.Background);
+                return;
+            }
+
+            // Text Animation — pinned live preview; only the form scrolls.
+            if (categoryTag == "TextAnimation")
+            {
+                if (loadedPanels.ContainsKey(categoryTag))
+                {
+                    TextAnimationContentArea.Content = loadedPanels[categoryTag];
+                    TextAnimationContentArea.IsVisible = true;
+                    ContentScrollViewer.IsVisible = false;
+                    TestingContentArea.IsVisible = false;
+                    ActionsContentArea.IsVisible = false;
+                    ItemGenerationContentArea.IsVisible = false;
+                    ScheduleInputColorRefresh();
+                    return;
+                }
+
+                var textAnimPanel = new TextAnimationPresetsSettingsPanel();
+                loadedPanels[categoryTag] = textAnimPanel;
+                TextAnimationContentArea.Content = textAnimPanel;
+                TextAnimationContentArea.IsVisible = true;
+                ContentScrollViewer.IsVisible = false;
+                TestingContentArea.IsVisible = false;
+                ActionsContentArea.IsVisible = false;
+                ItemGenerationContentArea.IsVisible = false;
+
+                Dispatcher.UIThread.Post(() =>
+                {
+                    InitializePanelHandlers(categoryTag, textAnimPanel);
+                    ScheduleInputColorRefresh();
                 }, DispatcherPriority.Background);
                 return;
             }
@@ -319,6 +365,8 @@ namespace RPGGame.UI.Avalonia
                     ContentScrollViewer.IsVisible = false;
                     TestingContentArea.IsVisible = false;
                     ActionsContentArea.IsVisible = false;
+                    TextAnimationContentArea.IsVisible = false;
+                    ScheduleInputColorRefresh();
                     return;
                 }
 
@@ -329,10 +377,12 @@ namespace RPGGame.UI.Avalonia
                 ContentScrollViewer.IsVisible = false;
                 TestingContentArea.IsVisible = false;
                 ActionsContentArea.IsVisible = false;
+                TextAnimationContentArea.IsVisible = false;
 
                 Dispatcher.UIThread.Post(() =>
                 {
                     InitializePanelHandlers(categoryTag, itemGenPanel);
+                    ScheduleInputColorRefresh();
                 }, DispatcherPriority.Background);
                 return;
             }
@@ -341,6 +391,7 @@ namespace RPGGame.UI.Avalonia
             TestingContentArea.IsVisible = false;
             ActionsContentArea.IsVisible = false;
             ItemGenerationContentArea.IsVisible = false;
+            TextAnimationContentArea.IsVisible = false;
             ContentScrollViewer.IsVisible = true;
             
             // Check if panel is already loaded (e.g. user switched away and back)
@@ -348,7 +399,7 @@ namespace RPGGame.UI.Avalonia
             {
                 var cachedPanel = loadedPanels[categoryTag];
                 ContentArea.Content = cachedPanel;
-                // Do not call LoadSettings here: leave UI as-is so we never overwrite user edits or post-save state when switching tabs.
+                ScheduleInputColorRefresh();
                 return;
             }
             
@@ -357,8 +408,12 @@ namespace RPGGame.UI.Avalonia
             if (panel != null)
             {
                 loadedPanels[categoryTag] = panel;
-                InitializePanelHandlers(categoryTag, panel);
                 ContentArea.Content = panel;
+                Dispatcher.UIThread.Post(() =>
+                {
+                    InitializePanelHandlers(categoryTag, panel);
+                    ScheduleInputColorRefresh();
+                }, DispatcherPriority.Loaded);
             }
         }
         
@@ -397,6 +452,7 @@ namespace RPGGame.UI.Avalonia
             if (panel is ClassesSettingsPanel) return "Classes";
             if (panel is GameVariablesSettingsPanel) return "GameVariables";
             if (panel is TextDelaysSettingsPanel) return "TextDelays";
+            if (panel is TextAnimationPresetsSettingsPanel) return "TextAnimation";
             if (panel is AppearanceSettingsPanel) return "Appearance";
             if (panel is TestingSettingsPanel) return "Testing";
             if (panel is ActionsSettingsPanel) return "Actions";
@@ -428,6 +484,7 @@ namespace RPGGame.UI.Avalonia
             gameCoordinator = game;
             canvasUI = ui;
             gameStateManager = stateManager;
+            gameVariablesTabManager?.SetGameStateManager(stateManager);
             
             if (canvasUI == null)
             {
@@ -479,6 +536,7 @@ namespace RPGGame.UI.Avalonia
             UserControl? displayed = ContentScrollViewer.IsVisible ? ContentArea.Content as UserControl
                 : TestingContentArea.IsVisible ? TestingContentArea.Content as UserControl
                 : ActionsContentArea.IsVisible ? ActionsContentArea.Content as UserControl
+                : TextAnimationContentArea.IsVisible ? TextAnimationContentArea.Content as UserControl
                 : ItemGenerationContentArea.IsVisible ? ItemGenerationContentArea.Content as UserControl
                 : null;
             Dispatcher.UIThread.Post(() =>

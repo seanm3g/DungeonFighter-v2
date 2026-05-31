@@ -126,7 +126,8 @@ namespace RPGGame
             DamageCalculator.InvalidateCache(_character);
         }
 
-        private int GetHealthIncreaseForLevelStep()
+        /// <summary>Health added for one level-up step; used when re-applying tuning to an existing character.</summary>
+        public int GetHealthIncreaseForLevelStep()
         {
             var tuning = GameConfiguration.Instance;
 

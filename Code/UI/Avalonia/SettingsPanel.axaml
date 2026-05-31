@@ -126,6 +126,7 @@
             <ListBoxItem Content="Actions" Tag="Actions"/>
             <ListBoxItem Content="Status Effects" Tag="StatusEffects"/>
             <ListBoxItem Content="Text Delays" Tag="TextDelays"/>
+            <ListBoxItem Content="Text Animation" Tag="TextAnimation"/>
             <ListBoxItem Content="Appearance" Tag="Appearance"/>
             <ListBoxItem Content="Item prefixes" Tag="ItemPrefixes"/>
             <ListBoxItem Content="Item suffixes" Tag="ItemSuffixes"/>
@@ -177,6 +178,14 @@
                        VerticalAlignment="Stretch"
                        IsVisible="False">
             <!-- Item Generation panel will be displayed here without parent ScrollViewer -->
+        </ContentControl>
+
+        <!-- Text Animation panel — pinned live preview; form scrolls independently -->
+        <ContentControl x:Name="TextAnimationContentArea"
+                       Grid.Column="2" Grid.Row="1"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch"
+                       IsVisible="False">
         </ContentControl>
         
         <!-- Action Buttons -->

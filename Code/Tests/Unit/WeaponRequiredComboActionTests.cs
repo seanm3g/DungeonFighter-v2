@@ -19,6 +19,7 @@ namespace RPGGame.Tests.Unit
             Console.WriteLine("=== WeaponRequiredComboAction Tests ===\n");
 
             TestCannotRemoveLastRequiredBasicForSword();
+            TestWandRequiredBasicIsMagicMissileNotCast();
             TestRestoreComboReInjectsRequiredBasic();
             TestCanRemoveRequiredBasicAfterClassTier();
             TestRestoreComboDoesNotReInjectRequiredBasicAfterClassTier();
@@ -55,6 +56,39 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(
                 character.GetComboActions().Any(a => string.Equals(a.Name, "STRIKE", StringComparison.OrdinalIgnoreCase)),
                 "STRIKE should remain in sequence",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestWandRequiredBasicIsMagicMissileNotCast()
+        {
+            Console.WriteLine("\n--- TestWandRequiredBasicIsMagicMissileNotCast ---");
+            ActionLoader.LoadActions();
+
+            var required = WeaponRequiredComboAction.TryGetRequiredBasicActionName(WeaponType.Wand);
+            TestBase.AssertTrue(
+                string.Equals(required, "MAGIC MISSILE", StringComparison.OrdinalIgnoreCase),
+                $"Wand required basic should be MAGIC MISSILE, got '{required}'",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var magicMissile = ActionLoader.GetAction("MAGIC MISSILE");
+            var cast = ActionLoader.GetAction("CAST");
+            if (magicMissile == null || cast == null)
+            {
+                TestBase.AssertTrue(true, "TestWandRequiredBasicIsMagicMissileNotCast skipped (missing action data)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            var character = TestDataBuilders.Character().WithName("WeaponReqWand").Build();
+            var wand = TestDataBuilders.Weapon().WithWeaponType(WeaponType.Wand).Build();
+            character.EquipItem(wand, "weapon");
+
+            TestBase.AssertTrue(
+                WeaponRequiredComboAction.IsRequiredBasicForEquippedWeapon(character, magicMissile),
+                "MAGIC MISSILE should be required for equipped Wand",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(
+                WeaponRequiredComboAction.IsRequiredBasicForEquippedWeapon(character, cast),
+                "CAST should not be required when MAGIC MISSILE is the Wand basic",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

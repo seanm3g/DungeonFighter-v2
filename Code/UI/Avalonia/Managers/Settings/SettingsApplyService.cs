@@ -1,4 +1,5 @@
 using RPGGame;
+using RPGGame.Tuning;
 using RPGGame.UI.Avalonia.Managers;
 using System;
 
@@ -19,8 +20,13 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         public static void ApplyAfterSave(SettingsSaveResult result, GameStateManager? gameStateManager)
         {
             if (!result.Success) return;
-            if (result.ActionsSaved && gameStateManager?.CurrentPlayer != null)
-                ActionsTabManager.RefreshCurrentPlayerActionPool(gameStateManager.CurrentPlayer);
+            var player = gameStateManager?.CurrentPlayer;
+            if (player != null)
+            {
+                if (result.ActionsSaved)
+                    ActionsTabManager.RefreshCurrentPlayerActionPool(player);
+                PlayerTuningApplier.ApplyToCurrentPlayer(player);
+            }
             // TextDelaysSaved: TextDelayConfiguration was updated during save; consumers read from it directly. No reload needed.
         }
     }

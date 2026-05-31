@@ -1,12 +1,13 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
 using RPGGame.Config;
+using RPGGame.UI.Avalonia.Settings;
 using System.Linq;
 
 namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
@@ -36,15 +37,19 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
                 try
                 {
                     var s = GameSettings.Instance;
-                    var textColor = SettingsColorManager.ParseColor(s.TextBoxTextColor);
-                    var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBackgroundColor));
+                    var backgroundColor = SettingsColorManager.ParseColor(s.TextBoxBackgroundColor);
+                    var textColor = SettingsColorManager.EnsureContrastingTextColor(
+                        SettingsColorManager.ParseColor(s.TextBoxTextColor),
+                        backgroundColor);
+                    var darkBackground = new SolidColorBrush(backgroundColor);
                     var hoverBackground = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxHoverBackgroundColor));
                     var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxFocusBorderColor));
                     var defaultBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBorderColor));
 
                     // Find all TextBoxes in settings panels
                     var textBoxes = settingsPanel.GetLogicalDescendants().OfType<TextBox>()
-                        .Where(tb => tb.Name != "PanelBackgroundTextBox" &&
+                        .Where(tb => !IsTextAnimationPanelTextBox(tb) &&
+                                    tb.Name != "PanelBackgroundTextBox" &&
                                     tb.Name != "PanelBorderTextBox" &&
                                     tb.Name != "PanelTextTextBox" &&
                                     tb.Name != "SettingsBackgroundTextBox" &&
@@ -64,39 +69,22 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
 
                     foreach (var textBox in textBoxes)
                     {
-                        // Check if this is a settings TextBox (has dark background or is in a settings panel)
-                        var bg = textBox.Background as SolidColorBrush;
-                        var expectedBgColor = SettingsColorManager.ParseColor(s.TextBoxBackgroundColor);
-                        bool isSettingsTextBox = bg != null && (bg.Color.R == expectedBgColor.R && bg.Color.G == expectedBgColor.G && bg.Color.B == expectedBgColor.B);
-                        
-                        // Also check if background is white (which means it needs fixing)
-                        bool needsFixing = bg != null && bg.Color.R == 255 && bg.Color.G == 255 && bg.Color.B == 255;
-                        
-                        // Also apply to any TextBox in the settings panel (to catch newly created ones)
-                        bool isInSettingsPanel = textBox.GetLogicalAncestors().OfType<SettingsPanel>().Any();
-                        
-                        if (isSettingsTextBox || needsFixing || isInSettingsPanel)
-                        {
-                            // Set background to dark gray immediately
-                            textBox.Background = darkBackground;
-                            // Set text color from setting
-                            textBox.Foreground = new SolidColorBrush(textColor);
-                            // Set selection colors for visible text selection
-                            textBox.SelectionBrush = blueBorder;
-                            textBox.SelectionForegroundBrush = new SolidColorBrush(Colors.White);
-                            
-                            // Remove existing event handlers to avoid duplicates
-                            textBox.GotFocus -= TextBox_GotFocus;
-                            textBox.LostFocus -= TextBox_LostFocus;
-                            textBox.PointerEntered -= TextBox_PointerEntered;
-                            textBox.PointerExited -= TextBox_PointerExited;
-                            
-                            // Add event handlers to maintain dark background
-                            textBox.GotFocus += TextBox_GotFocus;
-                            textBox.LostFocus += TextBox_LostFocus;
-                            textBox.PointerEntered += TextBox_PointerEntered;
-                            textBox.PointerExited += TextBox_PointerExited;
-                        }
+                        textBox.Background = darkBackground;
+                        textBox.Foreground = new SolidColorBrush(textColor);
+                        textBox.BorderBrush = defaultBorder;
+                        textBox.SelectionBrush = blueBorder;
+                        textBox.SelectionForegroundBrush = new SolidColorBrush(Colors.White);
+                        textBox.InvalidateVisual();
+
+                        textBox.GotFocus -= TextBox_GotFocus;
+                        textBox.LostFocus -= TextBox_LostFocus;
+                        textBox.PointerEntered -= TextBox_PointerEntered;
+                        textBox.PointerExited -= TextBox_PointerExited;
+
+                        textBox.GotFocus += TextBox_GotFocus;
+                        textBox.LostFocus += TextBox_LostFocus;
+                        textBox.PointerEntered += TextBox_PointerEntered;
+                        textBox.PointerExited += TextBox_PointerExited;
                     }
                 }
                 catch (System.Exception ex)
@@ -106,13 +94,33 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
             }, DispatcherPriority.Loaded);
         }
         
+        private static bool IsTextAnimationPanelTextBox(TextBox textBox)
+        {
+            for (var node = textBox as ILogical; node != null; node = node.LogicalParent)
+            {
+                if (node is TextAnimationPresetsSettingsPanel)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static Color ResolveTextBoxColors(out Color backgroundColor)
+        {
+            var s = GameSettings.Instance;
+            backgroundColor = SettingsColorManager.ParseColor(s.TextBoxBackgroundColor);
+            return SettingsColorManager.EnsureContrastingTextColor(
+                SettingsColorManager.ParseColor(s.TextBoxTextColor),
+                backgroundColor);
+        }
+
         private void TextBox_GotFocus(object? sender, RoutedEventArgs e)
         {
             if (sender is TextBox textBox)
             {
                 var s = GameSettings.Instance;
-                var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBackgroundColor));
-                var textColor = SettingsColorManager.ParseColor(s.TextBoxTextColor);
+                var textColor = ResolveTextBoxColors(out var backgroundColor);
+                var darkBackground = new SolidColorBrush(backgroundColor);
                 var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxFocusBorderColor));
                 
                 textBox.Background = darkBackground;
@@ -128,8 +136,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
             if (sender is TextBox textBox)
             {
                 var s = GameSettings.Instance;
-                var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBackgroundColor));
-                var textColor = SettingsColorManager.ParseColor(s.TextBoxTextColor);
+                var textColor = ResolveTextBoxColors(out var backgroundColor);
+                var darkBackground = new SolidColorBrush(backgroundColor);
                 var defaultBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBorderColor));
                 var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxFocusBorderColor));
                 
@@ -146,9 +154,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
             if (sender is TextBox textBox)
             {
                 var s = GameSettings.Instance;
-                // On hover, use slightly lighter background but still dark
+                var textColor = ResolveTextBoxColors(out _);
                 var hoverBackground = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxHoverBackgroundColor));
-                var textColor = SettingsColorManager.ParseColor(s.TextBoxTextColor);
                 var defaultBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBorderColor));
                 var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxFocusBorderColor));
                 
@@ -161,7 +168,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
                 }
                 else
                 {
-                    // If focused, maintain focus styling
                     var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBackgroundColor));
                     textBox.Background = darkBackground;
                     textBox.Foreground = new SolidColorBrush(textColor);
@@ -177,8 +183,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
             if (sender is TextBox textBox)
             {
                 var s = GameSettings.Instance;
-                var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBackgroundColor));
-                var textColor = SettingsColorManager.ParseColor(s.TextBoxTextColor);
+                var textColor = ResolveTextBoxColors(out var backgroundColor);
+                var darkBackground = new SolidColorBrush(backgroundColor);
                 var defaultBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBorderColor));
                 var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxFocusBorderColor));
                 

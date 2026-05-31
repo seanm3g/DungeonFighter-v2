@@ -213,6 +213,8 @@ namespace RPGGame
                     bool saved = variableEditor.SaveChanges();
                     if (saved)
                     {
+                        if (stateManager.CurrentPlayer != null)
+                            RPGGame.Tuning.PlayerTuningApplier.ApplyToCurrentPlayer(stateManager.CurrentPlayer);
                         ScrollDebugLogger.Log("VariableEditorHandler: Changes saved successfully");
                         canvasUI.RenderVariableEditor(null, false, "Changes saved successfully!");
                     }

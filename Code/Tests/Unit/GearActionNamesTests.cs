@@ -24,12 +24,17 @@ namespace RPGGame.Tests.Unit
             TestResolve_MatchesGearActionManager();
             TestWeaponWithGearActionOnly_IncludesRequiredBasicName();
             TestResolveWeaponType_IncludesRequiredBasicName();
+            TestResolveWeaponType_WandIncludesMagicMissileNotCastFallbackOnly();
             TestBaseWeaponItemType_ResolvesRequiredBasicName();
             TestWeaponFallback_EveryResolvedNameLoadsIntoPool();
             TestEquipBaseWeaponItemType_LoadsRequiredBasicIntoPool();
             TestRebuildCharacterActions_PoolContainsResolvedWeaponNames();
             TestArmorStatBonusWithoutAction_DoesNotCreateRandomAction();
             TestArmorExplicitGearAction_NotDuplicatedWhenSpecialMods();
+            TestExplicitEnvironmentActionBonus_ExcludedFromResolve();
+            TestExplicitEnvironmentActionBonus_NotLoadedIntoPool();
+            TestWandCharmRequiredBasicAppearsInActionPool();
+            TestResolveActionName_MagicMissileAlias();
 
             TestBase.PrintSummary("GearActionNames Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -108,6 +113,37 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(
                 names.Any(n => string.Equals(n, "STRIKE", StringComparison.OrdinalIgnoreCase)),
                 $"Sword weapon-type preview should include STRIKE; names: [{string.Join(", ", names)}]",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestResolveWeaponType_WandIncludesMagicMissileNotCastFallbackOnly()
+        {
+            Console.WriteLine("\n--- TestResolveWeaponType_WandIncludesMagicMissileNotCastFallbackOnly ---");
+
+            try
+            {
+                ActionLoader.LoadActions();
+            }
+            catch
+            {
+                TestBase.AssertTrue(true, "Skip: ActionLoader unavailable", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            if (ActionLoader.GetAction("MAGIC MISSILE") == null)
+            {
+                TestBase.AssertTrue(true, "Skip: no MAGIC MISSILE in action data", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            var names = GearActionNames.ResolveWeaponType(WeaponType.Wand);
+            TestBase.AssertTrue(
+                names.Any(n => string.Equals(n, "MAGIC MISSILE", StringComparison.OrdinalIgnoreCase)),
+                $"Wand weapon-type preview should include MAGIC MISSILE; names: [{string.Join(", ", names)}]",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(
+                string.Equals(WeaponRequiredComboAction.TryGetRequiredBasicActionName(WeaponType.Wand), "CAST", StringComparison.OrdinalIgnoreCase),
+                "Wand required basic should not resolve to CAST when MAGIC MISSILE is tagged in data",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -291,6 +327,153 @@ namespace RPGGame.Tests.Unit
             int tight = names.Count(n => string.Equals(n, "Tight Combo", StringComparison.OrdinalIgnoreCase));
             TestBase.AssertTrue(tight == 1,
                 $"Armor GearAction + affixes: one 'Tight Combo' in Resolve (found {tight}; names: [{string.Join(", ", names)}])",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestExplicitEnvironmentActionBonus_ExcludedFromResolve()
+        {
+            Console.WriteLine("\n--- TestExplicitEnvironmentActionBonus_ExcludedFromResolve ---");
+
+            try
+            {
+                ActionLoader.LoadActions();
+            }
+            catch
+            {
+                TestBase.AssertTrue(true, "Skip: ActionLoader unavailable", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            if (ActionLoader.GetAction("GRAVEYARD RISING") == null)
+            {
+                TestBase.AssertTrue(true, "Skip: no GRAVEYARD RISING in action data", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            var legs = new LegsItem("ShinguardsTest")
+            {
+                ActionBonuses = { new ActionBonus { Name = "GRAVEYARD RISING" } }
+            };
+
+            var names = GearActionNames.Resolve(legs);
+            TestBase.AssertTrue(
+                !names.Any(n => string.Equals(n, "GRAVEYARD RISING", StringComparison.OrdinalIgnoreCase)),
+                $"Environment action bonus should be excluded from Resolve; names: [{string.Join(", ", names)}]",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestExplicitEnvironmentActionBonus_NotLoadedIntoPool()
+        {
+            Console.WriteLine("\n--- TestExplicitEnvironmentActionBonus_NotLoadedIntoPool ---");
+
+            try
+            {
+                ActionLoader.LoadActions();
+            }
+            catch
+            {
+                TestBase.AssertTrue(true, "Skip: ActionLoader unavailable", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            if (ActionLoader.GetAction("GRAVEYARD RISING") == null)
+            {
+                TestBase.AssertTrue(true, "Skip: no GRAVEYARD RISING in action data", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            var character = TestDataBuilders.Character().WithName("EnvAffixPool").Build();
+            var legs = new LegsItem("ShinguardsPoolTest")
+            {
+                ActionBonuses = { new ActionBonus { Name = "GRAVEYARD RISING" } }
+            };
+
+            var mgr = new GearActionManager();
+            mgr.AddArmorActions(character, legs);
+
+            bool inPool = character.ActionPool.Any(e =>
+                string.Equals(e.action.Name, "GRAVEYARD RISING", StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertTrue(!inPool,
+                "GRAVEYARD RISING from explicit ActionBonuses must not load into hero action pool",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Regression: wand required basic name must match loaded action data so gear pool shows MAGIC MISSILE.
+        /// </summary>
+        private static void TestWandCharmRequiredBasicAppearsInActionPool()
+        {
+            Console.WriteLine("\n--- TestWandCharmRequiredBasicAppearsInActionPool ---");
+
+            try
+            {
+                ActionLoader.LoadActions();
+            }
+            catch
+            {
+                TestBase.AssertTrue(true, "Skip: ActionLoader unavailable", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            if (ActionLoader.GetAction("MAGIC MISSILE") == null)
+            {
+                TestBase.AssertTrue(false,
+                    "MAGIC MISSILE must exist in action data for Wand weapons",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            var character = TestDataBuilders.Character().WithName("WandCharmPool").Build();
+            var charm = new WeaponItem
+            {
+                Name = "Charm",
+                WeaponType = WeaponType.Wand,
+                GearAction = null,
+                ActionBonuses = { }
+            };
+            character.EquipItem(charm, "weapon");
+            CharacterSerializer.RebuildCharacterActions(character);
+
+            TestBase.AssertTrue(
+                character.GetActionPool().Any(a =>
+                    string.Equals(a.Name, "MAGIC MISSILE", StringComparison.OrdinalIgnoreCase)),
+                "Equipped Wand (Charm) should grant MAGIC MISSILE in the action pool",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestResolveActionName_MagicMissileAlias()
+        {
+            Console.WriteLine("\n--- TestResolveActionName_MagicMissileAlias ---");
+
+            try
+            {
+                ActionLoader.LoadActions();
+            }
+            catch
+            {
+                TestBase.AssertTrue(true, "Skip: ActionLoader unavailable", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            TestBase.AssertTrue(
+                ActionLoader.GetAction("MAGIC MISSILE") != null,
+                "GetAction('MAGIC MISSILE') should load the wand basic from action data",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var resolvedFromTypo = ActionLoader.ResolveActionName("MAGIC MISSLE") ?? "";
+            TestBase.AssertTrue(
+                ActionLoader.HasAction(resolvedFromTypo),
+                $"ResolveActionName('MAGIC MISSLE') should map to a loaded action key, got '{resolvedFromTypo}'",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var wandNames = GearActionNames.Resolve(new WeaponItem
+            {
+                Name = "Charm",
+                WeaponType = WeaponType.Wand
+            });
+            TestBase.AssertTrue(
+                wandNames.Any(n => ActionLoader.HasAction(n)),
+                $"GearActionNames.Resolve for Wand should return loadable action names; got [{string.Join(", ", wandNames)}]",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

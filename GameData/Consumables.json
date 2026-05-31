@@ -36,7 +36,7 @@
     "potency": "3"
   },
   {
-    "displayName": "Essence of Razor's Edge",
+    "displayName": "Essence of Razor\u0027s Edge",
     "internalKind": "PotionCrit",
     "effect": "CRIT",
     "potency": "2"
@@ -54,7 +54,7 @@
     "potency": "1"
   },
   {
-    "displayName": "Travel's Ration",
+    "displayName": "Travel\u0027s Ration",
     "internalKind": "Food",
     "effect": "heal",
     "potency": "3"
@@ -82,5 +82,12 @@
     "internalKind": "Food",
     "effect": "heal",
     "potency": "25%"
-  }
+  },
+  {},
+  {},
+  {},
+  {},
+  {},
+  {},
+  {}
 ]

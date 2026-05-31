@@ -451,9 +451,10 @@ namespace RPGGame.UI.Avalonia
             int totalFaces = 20,
             System.Func<int, Color, Color>? segmentHighlight = null,
             double heightScale = 1.0,
-            double verticalOffsetScale = 0.0)
+            double verticalOffsetScale = 0.0,
+            System.Func<int?>? rollMarkerRoll = null)
         {
-            elementBuilder.AddSegmentedBar(x, y, width, segments, borderColor, dividerColor, totalFaces, segmentHighlight, heightScale, verticalOffsetScale);
+            elementBuilder.AddSegmentedBar(x, y, width, segments, borderColor, dividerColor, totalFaces, segmentHighlight, heightScale, verticalOffsetScale, rollMarkerRoll);
         }
 
         /// <summary>

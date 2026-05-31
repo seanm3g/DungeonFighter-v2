@@ -41,6 +41,7 @@ namespace RPGGame.Tests.Unit.Data
             EnemiesTwoRowHeaderMergedCategoryBandImports(ref run, ref pass, ref fail);
             EnemiesActionsQuotedCommaListNormalizes(ref run, ref pass, ref fail);
             EnemiesPushOmitsLegacyRootStatExtraColumns(ref run, ref pass, ref fail);
+            EnemiesNewSheetLayoutImport(ref run, ref pass, ref fail);
             EnvironmentsRoundTrip(ref run, ref pass, ref fail);
             EnvironmentsWithEnemiesRoundTrip(ref run, ref pass, ref fail);
             DungeonsRoundTrip(ref run, ref pass, ref fail);
@@ -405,6 +406,8 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
             string cat = string.Join(",", rows[0].Select(o => o?.ToString() ?? ""));
             string hdr = string.Join(",", rows[1].Select(o => o?.ToString() ?? ""));
             TestBase.AssertTrue(cat.Contains("base attributes", StringComparison.OrdinalIgnoreCase), "category base", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(cat.Contains("HEALTH", StringComparison.OrdinalIgnoreCase), "category HEALTH", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(hdr.Contains("region", StringComparison.Ordinal), "region col", ref run, ref pass, ref fail);
             TestBase.AssertTrue(hdr.Contains("baseHealth", StringComparison.Ordinal), "baseHealth col", ref run, ref pass, ref fail);
             TestBase.AssertTrue(!hdr.Contains("overrides.", StringComparison.Ordinal), "no dotted overrides in row2", ref run, ref pass, ref fail);
             var csv = RowsToCsv(rows);
@@ -568,6 +571,29 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
             var shortHeaders = rows[1].Select(o => o?.ToString() ?? "").ToList();
             TestBase.AssertEqual(JsonArraySheetConverter.EnemiesCanonicalHeaders.Length, shortHeaders.Count,
                 "no trailing legacy root columns", ref run, ref pass, ref fail);
+        }
+
+        /// <summary>New ENEMIES layout: Region-first row-2 headers, HEALTH band, mixed casing.</summary>
+        private static void EnemiesNewSheetLayoutImport(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(EnemiesNewSheetLayoutImport));
+            const string csv = """
+            ,,,,,,base attributes,,,,growth,,,,HEALTH,,,,,
+            Region,Biome,Location,Rarity,Name,tags,Archetype,Strength,agility,technique,Intelligence,strength,agility,technique,Intelligence,baseHealth,healthGrowthPerLevel,actions,isLiving,description,colorOverride
+            forest,Forest,,Common,Goblin,goblin,Assassin,3,4,5,6,0.1,0.2,0.3,0.4,40,2.35,"[""JAB"",""TAUNT""]",true,A quick goblin,
+            """;
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Enemies);
+            using var a = JsonDocument.Parse(outJson);
+            var first = a.RootElement[0];
+            TestBase.AssertEqual("forest", first.GetProperty("region").GetString(), "region", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Forest", first.GetProperty("biome").GetString(), "biome", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Common", first.GetProperty("rarity").GetString(), "rarity", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Goblin", first.GetProperty("name").GetString(), "name", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(40, first.GetProperty("baseHealth").GetInt32(), "baseHealth", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(2.35, first.GetProperty("healthGrowthPerLevel").GetDouble(), "healthGrowthPerLevel", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(3, first.GetProperty("baseAttributes").GetProperty("strength").GetInt32(), "ba.str", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(0.4, first.GetProperty("growthPerLevel").GetProperty("intelligence").GetDouble(), "gp.int", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("JAB", first.GetProperty("actions")[0].GetString(), "action0", ref run, ref pass, ref fail);
         }
 
 

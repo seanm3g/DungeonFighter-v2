@@ -5,6 +5,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Input;
 using Avalonia.Threading;
+using RPGGame;
 using RPGGame.Editors;
 using RPGGame.UI.Avalonia.Builders;
 using RPGGame.UI.Avalonia.Validators;
@@ -30,10 +31,16 @@ namespace RPGGame.UI.Avalonia.Managers
         private ListBox? categoryListBox;
         private Panel? variablesPanel;
         private Action<string, bool>? showStatusMessage;
+        private GameStateManager? gameStateManager;
 
         public GameVariablesTabManager()
         {
             variableEditor = new VariableEditor();
+        }
+
+        public void SetGameStateManager(GameStateManager? stateManager)
+        {
+            gameStateManager = stateManager;
         }
 
         public void Initialize(ListBox categoryListBox, Panel variablesPanel, Action<string, bool> showStatusMessage)
@@ -71,6 +78,8 @@ namespace RPGGame.UI.Avalonia.Managers
 
         private void OnGameVariableCategorySelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
+            FlushPendingEdits();
+
             if (categoryListBox?.SelectedItem is string displayText && 
                 gameVariableCategoryDisplayToName.TryGetValue(displayText, out var categoryName))
             {
@@ -162,7 +171,7 @@ namespace RPGGame.UI.Avalonia.Managers
             
             var info = new TextBlock
             {
-                Text = $"{variableCount} parameters available • Changes are applied immediately",
+                Text = $"{variableCount} parameters available • Each value applies to the game when you leave the field",
                 FontSize = 13,
                 Foreground = new SolidColorBrush(Color.FromRgb(180, 180, 180))
             };
@@ -192,6 +201,8 @@ namespace RPGGame.UI.Avalonia.Managers
             
             if (success)
             {
+                variableEditor.ApplyAndPersistAfterEdit(gameStateManager?.CurrentPlayer);
+
                 if (gameVariableChangeIndicators.TryGetValue(variable.Name, out var indicator))
                 {
                     UpdateGameVariableChangeIndicator(variable, textBox, indicator);
@@ -205,6 +216,25 @@ namespace RPGGame.UI.Avalonia.Managers
             }
         }
 
+        /// <summary>Commits all visible variable text boxes to in-memory configuration.</summary>
+        public void FlushPendingEdits()
+        {
+            if (variableEditor == null) return;
+
+            foreach (var kvp in gameVariableTextBoxes)
+            {
+                var variable = variableEditor.GetVariable(kvp.Key);
+                if (variable != null)
+                    ValidateAndUpdateGameVariable(variable, kvp.Value);
+            }
+        }
+
+        /// <summary>Reloads the current category's controls from <see cref="GameConfiguration"/> after disk reload.</summary>
+        public void RefreshFromConfiguration()
+        {
+            RefreshGameVariableValues();
+        }
+
         /// <summary>Save game variables to file. Optionally pass the currently displayed panel (when category is GameVariables) so the orchestrator can pass the visible panel for future flush/validation.</summary>
         public void SaveGameVariables(UserControl? displayedPanel = null)
         {
@@ -212,23 +242,7 @@ namespace RPGGame.UI.Avalonia.Managers
             
             try
             {
-                // Ensure any focused text box commits its value
-                foreach (var kvp in gameVariableTextBoxes)
-                {
-                    var textBox = kvp.Value;
-                    if (textBox.IsFocused)
-                    {
-                        // Force the text box to lose focus so any pending changes are committed
-                        textBox.Focusable = false;
-                        textBox.Focusable = true;
-                        // Trigger validation to ensure the value is updated in memory
-                        var variable = variableEditor.GetVariables().FirstOrDefault(v => v.Name == kvp.Key);
-                        if (variable != null)
-                        {
-                            ValidateAndUpdateGameVariable(variable, textBox);
-                        }
-                    }
-                }
+                FlushPendingEdits();
                 
                 // Save all changes to file and reload GameConfiguration singleton
                 bool saved = variableEditor.SaveChanges();

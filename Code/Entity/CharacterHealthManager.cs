@@ -36,7 +36,11 @@ namespace RPGGame
         private int _currentArmor;
         public int CurrentArmor
         {
-            get => _currentArmor;
+            get
+            {
+                EnsureCurrentArmorWithinMax();
+                return _currentArmor;
+            }
             set => _currentArmor = Math.Max(0, Math.Min(value, GetMaxArmor()));
         }
 
@@ -55,6 +59,14 @@ namespace RPGGame
 
         /// <summary>Refills the room armor pool to <see cref="GetMaxArmor"/>.</summary>
         public void RefreshRoomArmor() => CurrentArmor = GetMaxArmor();
+
+        /// <summary>Clamps stored armor when max armor drops (equipment change, effect expiry).</summary>
+        public void EnsureCurrentArmorWithinMax()
+        {
+            int max = GetMaxArmor();
+            if (_currentArmor > max)
+                _currentArmor = max;
+        }
 
         /// <summary>
         /// Makes the character take damage with shield and damage reduction calculations

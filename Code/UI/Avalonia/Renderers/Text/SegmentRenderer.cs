@@ -6,6 +6,7 @@ using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers.SegmentRenderers;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.TextAnimation;
 
 namespace RPGGame.UI.Avalonia.Renderers.Text
 {
@@ -90,30 +91,19 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
                 
                 if (isCriticalSegment)
                 {
-                    // Render character-by-character with undulation animation for CRITICAL segment only
-                    foreach (char c in segment.Text)
+                    var baseColor = ColorConverter.ConvertSegmentToCanvasColor(segment);
+                    var critSegment = new ColoredText(segment.Text, baseColor, segment.SourceTemplate);
+                    var animated = TextAnimationCompositor.Compose(
+                        "critLine",
+                        baseSegments: new List<ColoredText> { critSegment },
+                        charStartIndex: charPosition,
+                        lineOffset: y,
+                        animationState: critAnimationState,
+                        elementOffset: elementOffset);
+
+                    foreach (var animatedChar in animated)
                     {
-                        var baseColor = ColorConverter.ConvertSegmentToCanvasColor(segment);
-                        
-                        // Add element offset to position to make this element's animation unique
-                        int adjustedPosition = charPosition + elementOffset;
-                        
-                        // Use position-based undulation to create a wave effect across the text
-                        // This creates a more pronounced undulation effect
-                        double undulationBrightness = critAnimationState.GetUndulationBrightnessAt(adjustedPosition, y);
-                        
-                        // Increase undulation amplitude for more pronounced effect
-                        double brightnessFactor = 1.0 + undulationBrightness * 5.0; // Increased from 3.0 to 5.0
-                        brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
-                        
-                        // Apply brightness adjustment to color
-                        Color animatedColor = ColorValidator.ScaleBrightnessHsv(baseColor, brightnessFactor);
-                        animatedColor = ColorValidator.ClampAnimatedTextBrightness(
-                            animatedColor, critAnimationState.AnimatedTextBrightnessMin, critAnimationState.AnimatedTextBrightnessMax);
-                        
-                        // Render single character
-                        canvas.AddText(currentX, y, c.ToString(), animatedColor);
-                        
+                        canvas.AddText(currentX, y, animatedChar.Text, animatedChar.Color);
                         currentX++;
                         charPosition++;
                     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -33,13 +34,13 @@ namespace RPGGame
             // For weapons, use weapon-type-based selection
             if (item is WeaponItem weapon)
             {
-                return SelectWeaponAction(weapon.WeaponType.ToString());
+                return GrantableActionName(SelectWeaponAction(weapon.WeaponType.ToString()));
             }
 
             // For armor (Head, Chest, Legs, Feet items), use armor action pool
             if (item is HeadItem or ChestItem or LegsItem or FeetItem)
             {
-                return SelectArmorAction();
+                return GrantableActionName(SelectArmorAction());
             }
 
             return null;
@@ -201,6 +202,8 @@ namespace RPGGame
                 if (actionData.WeaponTypes != null && 
                     actionData.WeaponTypes.Any(wt => wt.Equals(weaponTypeName, StringComparison.OrdinalIgnoreCase)))
                 {
+                    if (!GameDataTagHelper.IsGrantableOnHeroGear(actionData.Tags))
+                        continue;
                     weaponActions.Add(actionData.Name);
                 }
             }
@@ -217,8 +220,8 @@ namespace RPGGame
                                     action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
                                     action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
                                     !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
-                                    !action.Tags.Any(tag => tag.Equals("enemy", StringComparison.OrdinalIgnoreCase)) &&
-                                    !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
+                                    !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)) &&
+                                    GameDataTagHelper.IsGrantableOnHeroGear(action.Tags))
                     .Select(action => action.Name)
                     .ToList();
             }
@@ -258,13 +261,19 @@ namespace RPGGame
                 .Where(action => action.Tags != null &&
                                 action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
                                 !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
-                                !action.Tags.Any(tag => tag.Equals("enemy", StringComparison.OrdinalIgnoreCase)) &&
-                                !action.Tags.Any(tag => tag.Equals("environment", StringComparison.OrdinalIgnoreCase)) &&
-                                !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
+                                !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)) &&
+                                GameDataTagHelper.IsGrantableOnHeroGear(action.Tags))
                 .Select(action => action.Name)
                 .ToList();
 
             return weaponActions;
+        }
+
+        private static string? GrantableActionName(string? actionName)
+        {
+            if (string.IsNullOrEmpty(actionName))
+                return null;
+            return GameDataTagHelper.IsGrantableOnHeroGearByName(actionName) ? actionName : null;
         }
 
         /// <summary>

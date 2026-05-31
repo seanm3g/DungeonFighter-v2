@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Threading;
 using RPGGame.Editors;
+using RPGGame.Tuning;
 using RPGGame.Utils;
 using System;
 
@@ -40,7 +41,11 @@ namespace RPGGame.UI.Avalonia.Handlers
                     ScrollDebugLogger.Log("TuningPanelManager.ShowTuningMenuPanel: Initializing panel");
                     if (variableEditor != null)
                     {
-                        tuningMenuPanel?.Initialize(variableEditor);
+                        tuningMenuPanel?.Initialize(variableEditor, () => game?.CurrentPlayer);
+                    }
+                    else
+                    {
+                        tuningMenuPanel?.SetCurrentPlayerProvider(() => game?.CurrentPlayer);
                     }
                     ScrollDebugLogger.Log($"TuningPanelManager.ShowTuningMenuPanel: Setting overlay visible, current IsVisible={tuningPanelOverlay?.IsVisible}");
                     
@@ -112,6 +117,7 @@ namespace RPGGame.UI.Avalonia.Handlers
         {
             if (game != null && tuningMenuPanel != null)
             {
+                tuningMenuPanel.FlushPendingEdits();
                 tuningMenuPanel.ShowStatusMessage("Saving changes...", isError: false);
                 
                 // Trigger save via game input
@@ -119,6 +125,10 @@ namespace RPGGame.UI.Avalonia.Handlers
                 
                 // Refresh the panel to show updated values
                 tuningMenuPanel.RefreshVariableValues();
+
+                var player = game.CurrentPlayer;
+                if (player != null)
+                    PlayerTuningApplier.ApplyToCurrentPlayer(player);
             }
         }
     }

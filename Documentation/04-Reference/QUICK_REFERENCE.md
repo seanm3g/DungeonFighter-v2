@@ -145,7 +145,8 @@ Essential information for rapid development and problem-solving.
 - **Combo Threshold**: 14-20 (triggers combo mode)
 - **Basic Attack**: 6-13 (normal attacks)
 - **Miss Threshold**: 1-5 (failed attacks)
-- **Combo Amplifier**: 1.05x base, scales with Technique
+- **Combo Amplifier**: 1.05x base, scales with Intelligence (`1 + 0.5 * log10(INT + 1)`)
+- **Roll threshold milestones**: effective Technique shifts HIT/COMBO/CRIT bands
 
 ### Enemy Scaling
 - **Health Scaling**: +3 per level

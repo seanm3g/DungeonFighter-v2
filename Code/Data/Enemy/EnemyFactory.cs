@@ -50,6 +50,8 @@ namespace RPGGame
                     colorOverrideProperty.SetValue(enemy, data.ColorOverride);
             }
 
+            EnemyRarityRewardHelper.ApplyToEnemy(enemy, data.Rarity);
+
             return enemy;
         }
 

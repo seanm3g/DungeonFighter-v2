@@ -3,6 +3,7 @@ using RPGGame.Data;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.TextAnimation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -135,43 +136,17 @@ namespace RPGGame.UI.Avalonia.Renderers
                     // Generate a small random offset for this animated element based on line position
                     // This makes each animated element look different from others
                     int elementOffset = GetElementRandomOffset(y);
-                    
-                    // Dungeon names should always animate (undulation effect)
-                    // This creates the shimmering/wave effect across the dungeon name text
-                    bool shouldUndulate = true;
-                    
-                    // Apply animation effects to dungeon name character-by-character
+
                     int charPosition = $"[{i + 1}] ".Length;
-                    foreach (var templateSegment in templateSegments)
-                    {
-                        foreach (char c in templateSegment.Text)
-                        {
-                            // Add element offset to position to make this element's animation unique
-                            int adjustedPosition = charPosition + elementOffset;
-                            
-                            // Get brightness mask adjustment from centralized state
-                            float brightnessAdjustment = animationState.GetBrightnessAt(adjustedPosition, y);
-                            double brightnessFactor = 1.0 + (brightnessAdjustment / 100.0) * 2.0;
-                            brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
-                            
-                            // Get position-based undulation brightness (creates sine wave across text)
-                            // Only apply if the template has undulation enabled
-                            if (shouldUndulate)
-                            {
-                                double undulationBrightness = animationState.GetUndulationBrightnessAt(adjustedPosition, y);
-                                brightnessFactor += undulationBrightness * 3.0;
-                                brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
-                            }
-                            
-                            // Apply brightness adjustments to color
-                            Color adjustedColor = ColorValidator.ScaleBrightnessHsv(templateSegment.Color, brightnessFactor);
-                            adjustedColor = ColorValidator.ClampAnimatedTextBrightness(
-                                adjustedColor, animationState.AnimatedTextBrightnessMin, animationState.AnimatedTextBrightnessMax);
-                            segments.Add(new ColoredText(c.ToString(), adjustedColor, templateSegment.SourceTemplate, colorReadyForCanvas: true));
-                            
-                            charPosition++;
-                        }
-                    }
+                    var animatedName = TextAnimationCompositor.Compose(
+                        "dungeonSelection",
+                        baseSegments: templateSegments,
+                        charStartIndex: charPosition,
+                        lineOffset: y,
+                        animationState: animationState,
+                        elementOffset: elementOffset);
+                    segments.AddRange(animatedName);
+                    charPosition += animatedName.Count;
                     
                     // Add level info (no animation)
                     string levelSuffix = dungeon.Name == RPGGame.GameConstants.DungeonCustomLevelMenuName

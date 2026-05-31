@@ -72,7 +72,7 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(ampLines.Any(l => l.Contains("Scaling:", StringComparison.Ordinal) && l.Contains("Combo 4", StringComparison.Ordinal)),
                 "AMP tooltip scaling example through combo 4",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(ampLines.Any(l => l.Contains("TECH (feeds AMP)", StringComparison.Ordinal)),
+            TestBase.AssertTrue(ampLines.Any(l => l.Contains("INT (feeds AMP)", StringComparison.Ordinal)),
                 "AMP tooltip TECH section",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(ampLines.Any(l => l.Contains("Slot 1", StringComparison.Ordinal) && l.Contains('×')),

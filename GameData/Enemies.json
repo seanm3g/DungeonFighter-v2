@@ -1,7 +1,15 @@
 [
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Goblin",
+    "tags": [
+      "tested"
+    ],
     "archetype": "Assassin",
+    "baseHealth": 36.55,
     "healthGrowthPerLevel": 2.35,
     "actions": [
       "JAB",
@@ -9,24 +17,27 @@
     ],
     "isLiving": true,
     "description": "A quick and cunning creature that strikes from the shadows",
-    "tags": [
-      "tested"
-    ],
     "baseAttributes": {
-      "strength": 0.18,
-      "agility": 0.22,
-      "technique": 3,
-      "intelligence": 2
+      "strength": 5,
+      "agility": 3,
+      "technique": 1,
+      "intelligence": 3
     },
     "growthPerLevel": {
-      "technique": 0.2,
-      "intelligence": 0.12,
-      "baseHealth": 18.275
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Spider",
     "archetype": "Assassin",
+    "baseHealth": 12.5,
     "healthGrowthPerLevel": 1.65,
     "actions": [
       "WEB STRIKE",
@@ -35,20 +46,26 @@
     "isLiving": true,
     "description": "A large forest spider with venomous fangs - extremely fast, fragile",
     "baseAttributes": {
-      "strength": 0.12,
-      "agility": 0.32,
-      "technique": 3,
-      "intelligence": 1
+      "strength": 3,
+      "agility": 4,
+      "technique": 2,
+      "intelligence": 3
     },
     "growthPerLevel": {
-      "technique": 0.28,
-      "intelligence": 0.14,
-      "baseHealth": 6.25
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Wolf",
     "archetype": "Berserker",
+    "baseHealth": 66.7,
     "healthGrowthPerLevel": 3.1,
     "actions": [
       "BITE",
@@ -57,20 +74,26 @@
     "isLiving": true,
     "description": "A swift predator that hunts in packs - balanced attacker",
     "baseAttributes": {
-      "strength": 0.22,
-      "agility": 0.22,
-      "technique": 2,
-      "intelligence": 2
+      "strength": 4,
+      "agility": 1,
+      "technique": 4,
+      "intelligence": 3
     },
     "growthPerLevel": {
-      "technique": 0.18,
-      "intelligence": 0.12,
-      "baseHealth": 33.35
+      "strength": 2.3,
+      "agility": 2.3,
+      "technique": 0.8,
+      "intelligence": 0.5
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Fire Elemental",
-    "archetype": "Mage",
+    "archetype": "Acrobat",
+    "baseHealth": 28.5,
     "healthGrowthPerLevel": 2.25,
     "actions": [
       "FIRE BOLT",
@@ -79,20 +102,26 @@
     "isLiving": false,
     "description": "A being of pure flame with magical powers - high damage caster",
     "baseAttributes": {
-      "strength": 0.1,
-      "agility": 0.15,
-      "technique": 4,
-      "intelligence": 4
+      "strength": 3,
+      "agility": 4,
+      "technique": 3,
+      "intelligence": 2
     },
     "growthPerLevel": {
-      "technique": 0.22,
-      "intelligence": 0.28,
-      "baseHealth": 14.25
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Lava Golem",
     "archetype": "Brute",
+    "baseHealth": 98,
     "healthGrowthPerLevel": 4.3,
     "actions": [
       "MAGMA FIST",
@@ -101,20 +130,26 @@
     "isLiving": false,
     "description": "A massive construct of molten rock and metal - slow tank with high damage",
     "baseAttributes": {
-      "strength": 0.28,
-      "agility": 0.08,
-      "technique": 2,
-      "intelligence": 1
+      "strength": 3,
+      "agility": 2,
+      "technique": 4,
+      "intelligence": 3
     },
     "growthPerLevel": {
-      "technique": 0.14,
-      "intelligence": 0.1,
-      "baseHealth": 49
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Bat",
     "archetype": "Assassin",
+    "baseHealth": 8,
     "healthGrowthPerLevel": 1.35,
     "actions": [
       "BAT SWARM",
@@ -123,20 +158,26 @@
     "isLiving": true,
     "description": "A flying bat that attacks in swarms - ultra-fast but very fragile",
     "baseAttributes": {
-      "strength": 0.08,
-      "agility": 0.35,
-      "technique": 2,
-      "intelligence": 1
+      "strength": 3,
+      "agility": 2,
+      "technique": 3,
+      "intelligence": 4
     },
     "growthPerLevel": {
-      "technique": 0.18,
-      "intelligence": 0.1,
-      "baseHealth": 4
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Skeleton",
-    "archetype": "Guardian",
+    "archetype": "Berserker",
+    "baseHealth": 40.5,
     "healthGrowthPerLevel": 2.75,
     "actions": [
       "BONE STRIKE",
@@ -145,20 +186,26 @@
     "isLiving": false,
     "description": "An undead warrior with bony armor - protected but fragile bones",
     "baseAttributes": {
-      "strength": 0.16,
-      "agility": 0.12,
-      "technique": 3,
-      "intelligence": 2
+      "strength": 3,
+      "agility": 0,
+      "technique": 4,
+      "intelligence": 5
     },
     "growthPerLevel": {
-      "technique": 0.15,
-      "intelligence": 0.1,
-      "baseHealth": 20.25
+      "strength": 2.3,
+      "agility": 2.3,
+      "technique": 0.8,
+      "intelligence": 0.5
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Zombie",
     "archetype": "Brute",
+    "baseHealth": 60.5,
     "healthGrowthPerLevel": 3.15,
     "actions": [
       "CLAW",
@@ -167,20 +214,26 @@
     "isLiving": false,
     "description": "A shambling undead - durable but slow and decaying",
     "baseAttributes": {
-      "strength": 0.22,
-      "agility": 0.08,
-      "technique": 1,
-      "intelligence": 1
+      "strength": 3,
+      "agility": 1,
+      "technique": 4,
+      "intelligence": 4
     },
     "growthPerLevel": {
-      "technique": 0.12,
-      "intelligence": 0.06,
-      "baseHealth": 60.5
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Wraith",
-    "archetype": "Mage",
+    "archetype": "Assassin",
+    "baseHealth": 21.45,
     "healthGrowthPerLevel": 2.05,
     "actions": [
       "SOUL DRAIN",
@@ -189,20 +242,26 @@
     "isLiving": false,
     "description": "A spectral being with powerful magic - fast magical caster",
     "baseAttributes": {
-      "strength": 0.08,
-      "agility": 0.2,
-      "technique": 3,
-      "intelligence": 4
+      "strength": 0,
+      "agility": 3,
+      "technique": 7,
+      "intelligence": 2
     },
     "growthPerLevel": {
-      "technique": 0.2,
-      "intelligence": 0.28,
-      "baseHealth": 10.725
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Bear",
     "archetype": "Berserker",
+    "baseHealth": 78.75,
     "healthGrowthPerLevel": 3.45,
     "actions": [
       "SLAM",
@@ -211,20 +270,26 @@
     "isLiving": true,
     "description": "A powerful forest predator - heavy hitter with high health",
     "baseAttributes": {
-      "strength": 0.26,
-      "agility": 0.12,
-      "technique": 2,
+      "strength": 4,
+      "agility": 2,
+      "technique": 4,
       "intelligence": 2
     },
     "growthPerLevel": {
-      "technique": 0.14,
-      "intelligence": 0.1,
-      "baseHealth": 39.375
+      "strength": 2.3,
+      "agility": 2.3,
+      "technique": 0.8,
+      "intelligence": 0.5
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Treant",
     "archetype": "Brute",
+    "baseHealth": 91.8,
     "healthGrowthPerLevel": 4.1,
     "actions": [
       "SLAM",
@@ -233,20 +298,26 @@
     "isLiving": false,
     "description": "An ancient tree spirit - slow but heavily armored",
     "baseAttributes": {
-      "strength": 0.22,
-      "agility": 0.06,
-      "technique": 2,
-      "intelligence": 2
+      "strength": 0,
+      "agility": 3,
+      "technique": 4,
+      "intelligence": 5
     },
     "growthPerLevel": {
-      "technique": 0.12,
-      "intelligence": 0.1,
-      "baseHealth": 45.9
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Boar",
     "archetype": "Berserker",
+    "baseHealth": 60.5,
     "healthGrowthPerLevel": 3.05,
     "actions": [
       "JAB",
@@ -255,20 +326,26 @@
     "isLiving": true,
     "description": "A fierce woodland beast that charges and gores",
     "baseAttributes": {
-      "strength": 0.24,
-      "agility": 0.18,
+      "strength": 2,
+      "agility": 5,
       "technique": 2,
-      "intelligence": 1
+      "intelligence": 3
     },
     "growthPerLevel": {
-      "technique": 0.15,
-      "intelligence": 0.08,
-      "baseHealth": 30.25
+      "strength": 2.3,
+      "agility": 2.3,
+      "technique": 0.8,
+      "intelligence": 0.5
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Salamander",
     "archetype": "Assassin",
+    "baseHealth": 24.5,
     "healthGrowthPerLevel": 2.15,
     "actions": [
       "CHEAP SHOT",
@@ -277,20 +354,26 @@
     "isLiving": true,
     "description": "A fire-dwelling lizard that strikes from the heat haze",
     "baseAttributes": {
-      "strength": 0.12,
-      "agility": 0.28,
+      "strength": 1,
+      "agility": 2,
       "technique": 3,
-      "intelligence": 2
+      "intelligence": 6
     },
     "growthPerLevel": {
-      "technique": 0.2,
-      "intelligence": 0.16,
-      "baseHealth": 12.25
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Ember Spirit",
-    "archetype": "Mage",
+    "archetype": "Sage",
+    "baseHealth": 18,
     "healthGrowthPerLevel": 1.85,
     "actions": [
       "CRITICAL ATTACK",
@@ -299,20 +382,26 @@
     "isLiving": false,
     "description": "A wisp of living flame - bursts of magical damage",
     "baseAttributes": {
-      "strength": 0.06,
-      "agility": 0.18,
-      "technique": 4,
-      "intelligence": 4
+      "strength": 4,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 2
     },
     "growthPerLevel": {
-      "technique": 0.22,
-      "intelligence": 0.3,
-      "baseHealth": 9
+      "strength": 0.6,
+      "agility": 0.9,
+      "technique": 1.3,
+      "intelligence": 3.2
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Magma Beast",
     "archetype": "Brute",
+    "baseHealth": 84.5,
     "healthGrowthPerLevel": 4,
     "actions": [
       "SLAM"
@@ -320,20 +409,26 @@
     "isLiving": false,
     "description": "A creature of molten rock - devastating heavy attacks",
     "baseAttributes": {
-      "strength": 0.27,
-      "agility": 0.07,
-      "technique": 2,
-      "intelligence": 1
+      "strength": 3,
+      "agility": 1,
+      "technique": 5,
+      "intelligence": 3
     },
     "growthPerLevel": {
-      "technique": 0.13,
-      "intelligence": 0.09,
-      "baseHealth": 42.25
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Ghoul",
     "archetype": "Assassin",
+    "baseHealth": 32,
     "healthGrowthPerLevel": 2.55,
     "actions": [
       "CHEAP SHOT",
@@ -342,20 +437,26 @@
     "isLiving": false,
     "description": "A ravenous undead that lunges from the shadows",
     "baseAttributes": {
-      "strength": 0.18,
-      "agility": 0.26,
-      "technique": 2,
-      "intelligence": 2
+      "strength": 0,
+      "agility": 4,
+      "technique": 4,
+      "intelligence": 4
     },
     "growthPerLevel": {
-      "technique": 0.22,
-      "intelligence": 0.12,
-      "baseHealth": 16
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Lich",
-    "archetype": "Mage",
+    "archetype": "Artificer",
+    "baseHealth": 40.5,
     "healthGrowthPerLevel": 2.85,
     "actions": [
       "CRITICAL ATTACK",
@@ -364,20 +465,26 @@
     "isLiving": false,
     "description": "An undead spellcaster with potent magical strikes",
     "baseAttributes": {
-      "strength": 0.12,
-      "agility": 0.14,
-      "technique": 4,
-      "intelligence": 5
+      "strength": 2,
+      "agility": 4,
+      "technique": 3,
+      "intelligence": 3
     },
     "growthPerLevel": {
-      "technique": 0.24,
-      "intelligence": 0.32,
-      "baseHealth": 20.25
+      "strength": 0.5,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 2.3
     }
   },
   {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Wight",
-    "archetype": "Guardian",
+    "archetype": "Trickster",
+    "baseHealth": 50,
     "healthGrowthPerLevel": 2.9,
     "actions": [
       "SLAM",
@@ -386,15 +493,2932 @@
     "isLiving": false,
     "description": "A spectral guardian of the crypt - tough and controlling",
     "baseAttributes": {
-      "strength": 0.18,
-      "agility": 0.15,
+      "strength": 5,
+      "agility": 5,
+      "technique": 1,
+      "intelligence": 1
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Desert",
+    "location": "Dune",
+    "rarity": "uncommon",
+    "name": "Sandstorm Flanker",
+    "archetype": "Berserker",
+    "baseHealth": 20,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Sand Dash",
+      "Desert Veil"
+    ],
+    "description": "A desert raider that cuts in from the blinding sand \u2014 fast strikes from the edge of vision",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 4,
+      "technique": 0,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 2.3,
+      "technique": 0.8,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Desert",
+    "location": "Dune",
+    "rarity": "uncommon",
+    "name": "Sand Serpent",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Burrow Strike",
+      "Sand Spray"
+    ],
+    "description": "A buried serpent that erupts from the dunes \u2014 ambushes with venomous precision",
+    "baseAttributes": {
+      "strength": 5,
+      "agility": 0,
+      "technique": 3,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Desert",
+    "location": "Dune",
+    "rarity": "Rare",
+    "name": "Dune Roller",
+    "archetype": "Acrobat",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Rolling Charge",
+      "Sand Armor"
+    ],
+    "description": "A armored desert dweller that curls and rolls at high speed \u2014 hits hard on impact",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 5,
+      "technique": 2,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Desert",
+    "location": "Glass Plains",
+    "rarity": "uncommon",
+    "name": "Sun Lance Scorpion",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Solar Sting",
+      "Heat Wave"
+    ],
+    "description": "A scorpion whose tail gleams like a spear in the sun \u2014 precise, poisonous strikes",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 0,
+      "technique": 5,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Desert",
+    "location": "Glass Plains",
+    "rarity": "uncommon",
+    "name": "Glare Stalker",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Blinding Flash",
+      "Precision Shot"
+    ],
+    "description": "A hunter that uses reflected sunlight to blind prey before closing in",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 1,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Desert",
+    "location": "Glass Plains",
+    "rarity": "Rare",
+    "name": "Glass Shard Golem",
+    "archetype": "Duelist",
+    "baseHealth": 25,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Crystal Barrage",
+      "Shatter"
+    ],
+    "description": "A construct of fused desert glass \u2014 sharp, brittle, and deadly up close",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 7,
+      "technique": 1,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 1.1,
+      "agility": 1.4,
+      "technique": 2.9,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Desert",
+    "location": "Oasis",
+    "rarity": "uncommon",
+    "name": "Mirage Hunter",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Illusion Strike",
+      "Vanish"
+    ],
+    "description": "A predator that hunts by false shapes in the heat haze \u2014 strikes where you aren\u0027t looking",
+    "baseAttributes": {
+      "strength": 7,
+      "agility": 3,
+      "technique": 1,
+      "intelligence": 1
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Desert",
+    "location": "Oasis",
+    "rarity": "uncommon",
+    "name": "Shadow Wraith",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Phase Shift",
+      "Soul Drain"
+    ],
+    "description": "A shade born of desert noon \u2014 phases through light and drains the unwary",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 4,
+      "technique": 1,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Desert",
+    "location": "Oasis",
+    "rarity": "Rare",
+    "name": "Restorative Leech",
+    "archetype": "Sage",
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Vitality Leech",
+      "Sap Drain"
+    ],
+    "description": "A parasitic desert leech that feeds and mends itself \u2014 sustains through stolen life",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 2,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.6,
+      "agility": 0.9,
+      "technique": 1.3,
+      "intelligence": 3.2
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Pyramids",
+    "location": "Grand Corridor",
+    "rarity": "uncommon",
+    "name": "Stone Colossus",
+    "archetype": "Brute",
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Titan Fist",
+      "Ground Pound"
+    ],
+    "description": "A towering statue of carved sandstone \u2014 slow, massive, and nearly immovable",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 1,
+      "technique": 3,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Pyramids",
+    "location": "Grand Corridor",
+    "rarity": "uncommon",
+    "name": "Poison Dart Sentinel",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Toxic Dart",
+      "Venom Volley"
+    ],
+    "description": "A tomb guardian that fires venomous darts from stillness \u2014 patient and precise",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 2,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Pyramids",
+    "location": "Grand Corridor",
+    "rarity": "Rare",
+    "name": "Sun Priest",
+    "archetype": "Sage",
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Solar Blessing",
+      "Sunbeam"
+    ],
+    "description": "A desert cleric who channels solar wrath \u2014 casts with burning conviction",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 3,
+      "technique": 4,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.6,
+      "agility": 0.9,
+      "technique": 1.3,
+      "intelligence": 3.2
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Pyramids",
+    "location": "Tomb Entrance",
+    "rarity": "uncommon",
+    "name": "Guardian Scarab",
+    "archetype": "Knight",
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Shell Defense",
+      "Mandible Crush"
+    ],
+    "description": "A sacred beetle grown to impossible size \u2014 armored and fiercely territorial",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 4,
+      "technique": 2,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Pyramids",
+    "location": "Tomb Entrance",
+    "rarity": "uncommon",
+    "name": "Tomb Creeper",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Ambush",
+      "Sand Blind"
+    ],
+    "description": "A corpse-thief that crawls through burial passages \u2014 strikes from tight darkness",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 4,
+      "technique": 2,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Pyramids",
+    "location": "Tomb Entrance",
+    "rarity": "Rare",
+    "name": "Sarcopha Gus",
+    "archetype": "Brute",
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Entomb",
+      "Mummy\u0027s Grasp"
+    ],
+    "description": "An undead bound to a cracked sarcophagus \u2014 shambling, heavy, and hard to put down",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 2,
+      "technique": 5,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Pyramids",
+    "location": "Burial Chamber",
+    "rarity": "uncommon",
+    "name": "Burial Lich",
+    "archetype": "Sage",
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Raise Dead",
+      "Death Bolt"
+    ],
+    "description": "An ancient necromancer of the tombs \u2014 commands death with cold intelligence",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 1,
+      "technique": 2,
+      "intelligence": 7
+    },
+    "growthPerLevel": {
+      "strength": 0.6,
+      "agility": 0.9,
+      "technique": 1.3,
+      "intelligence": 3.2
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Pyramids",
+    "location": "Burial Chamber",
+    "rarity": "uncommon",
+    "name": "Mummy",
+    "archetype": "Brute",
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Crush",
+      "Binding Slam"
+    ],
+    "description": "A wrapped undead preserved by desert rites \u2014 durable and relentless",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 4,
+      "technique": 0,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Pyramids",
+    "location": "Burial Chamber",
+    "rarity": "Rare",
+    "name": "Ancestor\u0027s Shade",
+    "archetype": "Sage",
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Spectral Touch",
+      "Ancient Curse"
+    ],
+    "description": "The lingering spirit of a forgotten dynasty \u2014 strikes with the weight of old grudges",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 1,
+      "technique": 2,
+      "intelligence": 6
+    },
+    "growthPerLevel": {
+      "strength": 0.6,
+      "agility": 0.9,
+      "technique": 1.3,
+      "intelligence": 3.2
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Mountains",
+    "location": "Cliffs Edge",
+    "rarity": "uncommon",
+    "name": "Hawk",
+    "archetype": "Acrobat",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Talon Strike",
+      "Keen Eye"
+    ],
+    "description": "A desert raptor that dives from above \u2014 swift aerial strikes",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 8,
+      "technique": 3,
+      "intelligence": 0
+    },
+    "growthPerLevel": {
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Mountains",
+    "location": "Cliffs Edge",
+    "rarity": "uncommon",
+    "name": "Rock Lobber",
+    "archetype": "Brute",
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Boulder Hurl",
+      "Stone Barrage"
+    ],
+    "description": "A brute that hurls sun-baked stones from a distance \u2014 simple, crushing force",
+    "baseAttributes": {
+      "strength": 0,
+      "agility": 7,
+      "technique": 3,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Mountains",
+    "location": "Cliffs Edge",
+    "rarity": "Rare",
+    "name": "Edge Stalker",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Cliff Drop",
+      "Ledge Grab"
+    ],
+    "description": "A blade-wielding hunter that circles the rim of sight \u2014 waits for an opening",
+    "baseAttributes": {
+      "strength": 5,
+      "agility": 4,
+      "technique": 1,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Mountains",
+    "location": "Abandoned Campsite",
+    "rarity": "uncommon",
+    "name": "Scavenger Rat",
+    "archetype": "Acrobat",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Quick Bite",
+      "Disease Spread"
+    ],
+    "description": "A gnawing vermin of the wastes \u2014 quick, dirty, and opportunistic",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 2,
+      "technique": 6,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Mountains",
+    "location": "Abandoned Campsite",
+    "rarity": "uncommon",
+    "name": "Toxic Drinker",
+    "archetype": "Artificer",
+    "baseHealth": 18,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Bile Splash",
+      "Corrupted Gulp"
+    ],
+    "description": "A mutated desert dweller that drinks poison to fuel its attacks",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 2,
+      "technique": 4,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Mountains",
+    "location": "Abandoned Campsite",
+    "rarity": "Rare",
+    "name": "Deserter Shade",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Last Stand Break",
+      "Phantom Strike"
+    ],
+    "description": "The ghost of a soldier who fled into the dunes \u2014 elusive and bitter",
+    "baseAttributes": {
+      "strength": 5,
+      "agility": 5,
+      "technique": 1,
+      "intelligence": 1
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Mountains",
+    "location": "The Summit",
+    "rarity": "uncommon",
+    "name": "Storm Caller",
+    "archetype": "Sage",
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Lightning Strike",
+      "Thunder Clap"
+    ],
+    "description": "A mountain mystic who summons thunder and wind \u2014 casts from afar",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.6,
+      "agility": 0.9,
+      "technique": 1.3,
+      "intelligence": 3.2
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Mountains",
+    "location": "The Summit",
+    "rarity": "uncommon",
+    "name": "Altitude Wraith",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Dive Bomb",
+      "Wind Gust"
+    ],
+    "description": "A thin-air specter that haunts high passes \u2014 cold, fast, and disorienting",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 1,
+      "technique": 4,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Air",
+    "biome": "Mountains",
+    "location": "The Summit",
+    "rarity": "Rare",
+    "name": "Summit Titan",
+    "archetype": "Brute",
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Peak Slam",
+      "Mountain\u0027s Fury"
+    ],
+    "description": "A giant of stone and ice at the mountain peak \u2014 slow but overwhelming",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 2,
+      "technique": 2,
+      "intelligence": 6
+    },
+    "growthPerLevel": {
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Ashen land",
+    "location": "Smoldering Ridge",
+    "rarity": "uncommon",
+    "name": "Cinder Hound",
+    "archetype": "Berserker",
+    "baseHealth": 20,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Scorching Bite",
+      "Ember lunge"
+    ],
+    "description": "A fire-scorched hound that hunts in bursts of speed and fury",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 2,
+      "technique": 2,
+      "intelligence": 6
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 2.3,
+      "technique": 0.8,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Ashen land",
+    "location": "Smoldering Ridge",
+    "rarity": "uncommon",
+    "name": "Magma Creeper",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Tremor Burst",
+      "Molten Ooze"
+    ],
+    "description": "A lava-dwelling predator that crawls through fissures \u2014 ambushes from below",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 0,
+      "technique": 4,
+      "intelligence": 7
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Ashen land",
+    "location": "Smoldering Ridge",
+    "rarity": "Rare",
+    "name": "Ashwing Harpy",
+    "archetype": "Acrobat",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Cinder Shriek",
+      "Gust Talon"
+    ],
+    "description": "A winged scavenger of volcanic skies \u2014 fast, shrieking dives",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Ashen land",
+    "location": "Smokey Cave",
+    "rarity": "uncommon",
+    "name": "Soot Golem",
+    "archetype": "Knight",
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Coal Shell",
+      "Soot Pummel"
+    ],
+    "description": "A construct of compressed ash and cinders \u2014 armored and smothering",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 4,
+      "technique": 2,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Ashen land",
+    "location": "Smokey Cave",
+    "rarity": "uncommon",
+    "name": "Cave Ember Toad",
+    "archetype": "Brute",
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Ember Spit",
+      "Tongue Lash"
+    ],
+    "description": "A bloated toad swollen with inner heat \u2014 lurks and lunges from cave pools",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 8,
+      "technique": 1,
+      "intelligence": 0
+    },
+    "growthPerLevel": {
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Ashen land",
+    "location": "Smokey Cave",
+    "rarity": "Rare",
+    "name": "Smog Lurker",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Smog Step",
+      "Murky Ambush"
+    ],
+    "description": "A predator hidden in volcanic fumes \u2014 strikes when visibility fails",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 4,
+      "technique": 3,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Ashen land",
+    "location": "Blackened Forest",
+    "rarity": "uncommon",
+    "name": "Charwood Stalker",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Predator\u0027s Focus",
+      "Smoldering Strike"
+    ],
+    "description": "A burned forest hunter that moves through blackened trunks \u2014 patient ambusher",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 3,
+      "technique": 2,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Ashen land",
+    "location": "Blackened Forest",
+    "rarity": "uncommon",
+    "name": "Scorched Treant",
+    "archetype": "Brute",
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Bark Fortify",
+      "Root Slam"
+    ],
+    "description": "A fire-blackened tree spirit \u2014 slow, thick-barked, and heavy-hitting",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 4,
       "technique": 3,
       "intelligence": 3
     },
     "growthPerLevel": {
-      "technique": 0.2,
-      "intelligence": 0.14,
-      "baseHealth": 25
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Ashen land",
+    "location": "Blackened Forest",
+    "rarity": "Rare",
+    "name": "Reignited Wisp",
+    "archetype": "Sage",
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Reignite",
+      "Flicker Dash"
+    ],
+    "description": "A flame spirit that flares back to life \u2014 bursts of magical fire",
+    "baseAttributes": {
+      "strength": 6,
+      "agility": 3,
+      "technique": 0,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.6,
+      "agility": 0.9,
+      "technique": 1.3,
+      "intelligence": 3.2
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Fire Temple",
+    "location": "Lava Moat Bridge",
+    "rarity": "uncommon",
+    "name": "Bridge Warden",
+    "archetype": "Knight",
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Molten Chain",
+      "Guard Stance"
+    ],
+    "description": "A lava-bridge guardian in scorched armor \u2014 holds the line with discipline",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 2,
+      "technique": 7,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Fire Temple",
+    "location": "Lava Moat Bridge",
+    "rarity": "uncommon",
+    "name": "Lava Spitter",
+    "archetype": "Sage",
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Searing Focus",
+      "Lava Glob"
+    ],
+    "description": "A creature that spews molten rock from a distance \u2014 ranged elemental attacker",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.6,
+      "agility": 0.9,
+      "technique": 1.3,
+      "intelligence": 3.2
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Fire Temple",
+    "location": "Lava Moat Bridge",
+    "rarity": "Rare",
+    "name": "Flame Drifter",
+    "archetype": "Acrobat",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Sear The Gap",
+      "Drift Strike"
+    ],
+    "description": "A wandering fire spirit that darts through heat currents \u2014 mobile and evasive",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 0,
+      "technique": 6,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Fire Temple",
+    "location": "Torched Great Hall",
+    "rarity": "uncommon",
+    "name": "Temple Knight",
+    "archetype": "Knight",
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Iron Vow",
+      "Shield Bash"
+    ],
+    "description": "A zealot knight sworn to the flame temple \u2014 armored, trained, unyielding",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 2,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Fire Temple",
+    "location": "Torched Great Hall",
+    "rarity": "uncommon",
+    "name": "Pilar Watcher",
+    "archetype": "Knight",
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Stone Gaze",
+      "Rubble Toss"
+    ],
+    "description": "A sentinel posted beside temple pillars \u2014 still, alert, and heavily guarded",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Fire Temple",
+    "location": "Torched Great Hall",
+    "rarity": "Rare",
+    "name": "Torch Wraith",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Soul Skewer",
+      "Wall of Ash"
+    ],
+    "description": "A ghost bound to eternal flame \u2014 deceptive strikes from flickering light",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 3,
+      "technique": 4,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Fire Temple",
+    "location": "Throne Room",
+    "rarity": "uncommon",
+    "name": "Royal Flame Guard",
+    "archetype": "Knight",
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Flame Salute",
+      "Blazing Advance"
+    ],
+    "description": "An elite temple defender in ceremonial armor \u2014 disciplined and resilient",
+    "baseAttributes": {
+      "strength": 5,
+      "agility": 2,
+      "technique": 1,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Fire Temple",
+    "location": "Throne Room",
+    "rarity": "uncommon",
+    "name": "Seal Caster",
+    "archetype": "Artificer",
+    "baseHealth": 18,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Branding Seal",
+      "Arcane Ward"
+    ],
+    "description": "A mage who binds enemies with fiery sigils \u2014 technical, controlling magic",
+    "baseAttributes": {
+      "strength": 5,
+      "agility": 5,
+      "technique": 2,
+      "intelligence": 0
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Fire Temple",
+    "location": "Throne Room",
+    "rarity": "Rare",
+    "name": "Throne Effigy",
+    "archetype": "Knight",
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Crumbling Curse",
+      "hollow Grasp"
+    ],
+    "description": "A stone guardian carved to sit before a molten throne \u2014 immovable sentinel",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 4,
+      "technique": 2,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Lava Cave",
+    "location": "Lava Spring",
+    "rarity": "uncommon",
+    "name": "Blood Feeder",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Expose Vein",
+      "Draining Bite"
+    ],
+    "description": "A parasite that drains life from open wounds \u2014 predatory and precise",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Lava Cave",
+    "location": "Lava Spring",
+    "rarity": "uncommon",
+    "name": "Vent Spore",
+    "archetype": "Artificer",
+    "baseHealth": 18,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Toxic Focus",
+      "Spore Burst"
+    ],
+    "description": "A fungal spore creature born from volcanic vents \u2014 spreads harm through contact",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 2,
+      "technique": 3,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Lava Cave",
+    "location": "Lava Spring",
+    "rarity": "Rare",
+    "name": "Crystal Leech",
+    "archetype": "Artificer",
+    "baseHealth": 18,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Leech Grip",
+      "Crystal barb"
+    ],
+    "description": "A glassy parasite that latches to heated crystal \u2014 drains and hardens",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 2,
+      "technique": 5,
+      "intelligence": 1
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Lava Cave",
+    "location": "Slag Archipelago",
+    "rarity": "uncommon",
+    "name": "Slag Tortoise",
+    "archetype": "Brute",
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Molten Shell",
+      "Shell Ram"
+    ],
+    "description": "A turtle shelled in cooled slag \u2014 slow, dense, and extremely tough",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Lava Cave",
+    "location": "Slag Archipelago",
+    "rarity": "uncommon",
+    "name": "Island Drifter",
+    "archetype": "Acrobat",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Magma Kiss",
+      "Slag Drift"
+    ],
+    "description": "A creature carried by thermal winds between lava isles \u2014 fast and hard to pin down",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 5,
+      "technique": 0,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Lava Cave",
+    "location": "Slag Archipelago",
+    "rarity": "Rare",
+    "name": "Molten Crab",
+    "archetype": "Knight",
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Magma Carapace",
+      "Boiling Snap"
+    ],
+    "description": "A crab with a shell of hardened magma \u2014 armored and snapping",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 4,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Lava Cave",
+    "location": "Amber City",
+    "rarity": "uncommon",
+    "name": "Amber Sentinel",
+    "archetype": "Knight",
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Amber Casing",
+      "Petrify Sweep"
+    ],
+    "description": "A guardian encased in ancient amber \u2014 preserved, patient, and hard to crack",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 1,
+      "technique": 3,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Lava Cave",
+    "location": "Amber City",
+    "rarity": "uncommon",
+    "name": "Overflow Imp",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Lava Douse",
+      "Molten Pounce"
+    ],
+    "description": "A mischievous spirit of excess heat and pressure \u2014 chaotic and evasive",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 2,
+      "technique": 4,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Fire",
+    "biome": "Lava Cave",
+    "location": "Amber City",
+    "rarity": "Rare",
+    "name": "Amber Trapper",
+    "archetype": "Artificer",
+    "baseHealth": 18,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Amber Ooze",
+      "Resin Snare"
+    ],
+    "description": "A predator that lures prey into sticky amber pools \u2014 traps with cunning",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 4,
+      "technique": 3,
+      "intelligence": 1
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Den",
+    "location": "Cave Entrance",
+    "rarity": "uncommon",
+    "name": "Territorial Hound",
+    "archetype": "Berserker",
+    "baseHealth": 20,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Guard Bite",
+      "Boundary Mark"
+    ],
+    "description": "A fierce hound that defends its hunting ground \u2014 aggressive pack striker",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 3,
+      "technique": 0,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 2.3,
+      "technique": 0.8,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Den",
+    "location": "Cave Entrance",
+    "rarity": "uncommon",
+    "name": "Alpha Wolf",
+    "archetype": "Berserker",
+    "baseHealth": 20,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Leader\u0027s Fang",
+      "Rally Pack"
+    ],
+    "description": "The lead wolf of a border pack \u2014 fast, commanding, and relentless",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 2,
+      "technique": 3,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 2.3,
+      "technique": 0.8,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Den",
+    "location": "Cave Entrance",
+    "rarity": "Rare",
+    "name": "Bone Spreader",
+    "archetype": "Sage",
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Skeletal Burst",
+      "Marrow Drain"
+    ],
+    "description": "A necromantic scavenger that scatters cursed bones \u2014 spreads decay and dark magic",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 4,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.6,
+      "agility": 0.9,
+      "technique": 1.3,
+      "intelligence": 3.2
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Den",
+    "location": "Offering Mound",
+    "rarity": "uncommon",
+    "name": "Tribute Beast",
+    "archetype": "Brute",
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Sacrificial Strike",
+      "Offering"
+    ],
+    "description": "A bound creature left as offering to old powers \u2014 heavy, savage, and enduring",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Den",
+    "location": "Offering Mound",
+    "rarity": "uncommon",
+    "name": "Cursed Bear",
+    "archetype": "Brute",
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Hex Maul",
+      "Dark Roar"
+    ],
+    "description": "A bear twisted by forest hexes \u2014 powerful, brutal, and hard to fell",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 2,
+      "technique": 4,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Den",
+    "location": "Offering Mound",
+    "rarity": "Rare",
+    "name": "Mound Warden",
+    "archetype": "Knight",
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Earth Shield",
+      "Tremor"
+    ],
+    "description": "A guardian of ancient burial mounds \u2014 armored and territorial",
+    "baseAttributes": {
+      "strength": 5,
+      "agility": 3,
+      "technique": 4,
+      "intelligence": 0
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Den",
+    "location": "Vigil Circle",
+    "rarity": "uncommon",
+    "name": "Moon Blessed",
+    "archetype": "Sage",
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Celestial Strike",
+      "Night\u0027s Grace"
+    ],
+    "description": "A forest spirit touched by moonlight \u2014 heals and harms with sacred power",
+    "baseAttributes": {
+      "strength": 6,
+      "agility": 0,
+      "technique": 1,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 0.6,
+      "agility": 0.9,
+      "technique": 1.3,
+      "intelligence": 3.2
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Den",
+    "location": "Vigil Circle",
+    "rarity": "uncommon",
+    "name": "Echo Stalker",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Sound Strike",
+      "Sonic Pulse"
+    ],
+    "description": "A hunter that strikes from reflected sound \u2014 deceptive and hard to track",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 4,
+      "technique": 3,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Den",
+    "location": "Vigil Circle",
+    "rarity": "Rare",
+    "name": "Vigil Alpha",
+    "archetype": "Warlord",
+    "baseHealth": 28,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Pack Leader\u0027s Call",
+      "Dominant Bite"
+    ],
+    "description": "The commander of a night watch pack \u2014 leads with strength and cunning",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 1,
+      "technique": 1,
+      "intelligence": 6
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.5,
+      "technique": 0.8,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Laybrinth",
+    "location": "Hedge Corridor",
+    "rarity": "uncommon",
+    "name": "Guile Sprite",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Trick Shot",
+      "Misdirect"
+    ],
+    "description": "A tiny fey spirit of trickery \u2014 fast, mischievous, and unpredictable",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 0,
+      "technique": 3,
+      "intelligence": 8
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Laybrinth",
+    "location": "Hedge Corridor",
+    "rarity": "uncommon",
+    "name": "Hedge Hound",
+    "archetype": "Berserker",
+    "baseHealth": 20,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Thorn Bite",
+      "Bush Ambush"
+    ],
+    "description": "A lean hound that hunts along maze hedges \u2014 quick flanking predator",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 2,
+      "technique": 4,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 2.3,
+      "technique": 0.8,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Laybrinth",
+    "location": "Hedge Corridor",
+    "rarity": "Rare",
+    "name": "Dead End Mimic",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Trap Door",
+      "Wall Shift"
+    ],
+    "description": "A shapeshifter that waits at false exits \u2014 lures victims into ambush",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 4,
+      "technique": 1,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Laybrinth",
+    "location": "Endless Maze",
+    "rarity": "uncommon",
+    "name": "Maze Runner",
+    "archetype": "Acrobat",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Pathfind",
+      "Confuse Trail"
+    ],
+    "description": "A creature born to sprint endless corridors \u2014 blinding speed, low endurance",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 4,
+      "technique": 1,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Laybrinth",
+    "location": "Endless Maze",
+    "rarity": "uncommon",
+    "name": "Loop Shade",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Circular Strike",
+      "Endless Cycle"
+    ],
+    "description": "A spirit trapped in repeating paths \u2014 disorients and strikes from nowhere",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 2,
+      "technique": 6,
+      "intelligence": 0
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Laybrinth",
+    "location": "Endless Maze",
+    "rarity": "Rare",
+    "name": "Instinct Eater",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Reflex Drain",
+      "Primal Fear"
+    ],
+    "description": "A horror that feeds on prey\u2019s fear and reflex \u2014 preys on hesitation",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 3,
+      "technique": 5,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Laybrinth",
+    "location": "The Room of Two Mirrors",
+    "rarity": "uncommon",
+    "name": "Duplicate",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Perfect Copy",
+      "Twin Strike"
+    ],
+    "description": "A mirror-image foe that copies your movements \u2014 unsettling and elusive",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 0,
+      "technique": 4,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Laybrinth",
+    "location": "The Room of Two Mirrors",
+    "rarity": "uncommon",
+    "name": "Shattered Reflection",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Broken Mirror",
+      "Fragment"
+    ],
+    "description": "A broken mirror spirit that attacks through fractured images",
+    "baseAttributes": {
+      "strength": 5,
+      "agility": 2,
+      "technique": 4,
+      "intelligence": 1
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Laybrinth",
+    "location": "The Room of Two Mirrors",
+    "rarity": "Rare",
+    "name": "The Other",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Identity Theft",
+      "Confusion"
+    ],
+    "description": "A doppelganger that wears your own face \u2014 psychological and deadly",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 2,
+      "technique": 5,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Dense Brush",
+    "location": "Thicket",
+    "rarity": "uncommon",
+    "name": "Thorn Boar",
+    "archetype": "Brute",
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Spiked Charge",
+      "Bramble Hide"
+    ],
+    "description": "A bristling boar wrapped in thorny hide \u2014 charges with brutal force",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 3,
+      "technique": 1,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Dense Brush",
+    "location": "Thicket",
+    "rarity": "uncommon",
+    "name": "Root Sprite",
+    "archetype": "Acrobat",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Nature\u0027s Touch",
+      "Vine Whip"
+    ],
+    "description": "A small woodland spirit tied to living roots \u2014 nimble and evasive",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 3,
+      "technique": 0,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Dense Brush",
+    "location": "Thicket",
+    "rarity": "Rare",
+    "name": "Rattlesnake",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Venom Bite",
+      "Rattle Warning"
+    ],
+    "description": "A coiled viper that strikes without warning \u2014 venomous and precise",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 2,
+      "technique": 3,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Dense Brush",
+    "location": "Wildflower Valley",
+    "rarity": "uncommon",
+    "name": "Nectar Drone",
+    "archetype": "Acrobat",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Sweet Sting",
+      "Collect"
+    ],
+    "description": "A oversized pollinator driven to frenzy \u2014 fast, swarming attacks",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 3,
+      "technique": 6,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Dense Brush",
+    "location": "Wildflower Valley",
+    "rarity": "uncommon",
+    "name": "Pollen Wraith",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Allergen Cloud",
+      "Pollinate"
+    ],
+    "description": "A drifting spirit of choking pollen \u2014 obscures sight and saps strength",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 1,
+      "technique": 2,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Dense Brush",
+    "location": "Wildflower Valley",
+    "rarity": "Rare",
+    "name": "Valley Prowler",
+    "archetype": "Berserker",
+    "baseHealth": 20,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Gorge Strike",
+      "Echo Call"
+    ],
+    "description": "A lowland predator that hunts at dusk \u2014 swift and aggressive",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 1,
+      "technique": 7,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 2.3,
+      "technique": 0.8,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Dense Brush",
+    "location": "Overgrown Ruin",
+    "rarity": "uncommon",
+    "name": "Living Wall Crawler",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Wall Slam",
+      "Climb"
+    ],
+    "description": "A vine-creature that scales vertical stone \u2014 ambushes from above",
+    "baseAttributes": {
+      "strength": 5,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 1
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Dense Brush",
+    "location": "Overgrown Ruin",
+    "rarity": "uncommon",
+    "name": "Animated Vine",
+    "archetype": "Duelist",
+    "baseHealth": 25,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Whip Strike",
+      "Grow"
+    ],
+    "description": "A writhing plant lash given hostile will \u2014 whips with disciplined force",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 1,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 1.1,
+      "agility": 1.4,
+      "technique": 2.9,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Forest",
+    "biome": "Dense Brush",
+    "location": "Overgrown Ruin",
+    "rarity": "Rare",
+    "name": "Ruin Wraith",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Decay Touch",
+      "Crumble"
+    ],
+    "description": "A ghost of a fallen settlement \u2014 lingers in broken halls",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 4,
+      "technique": 2,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Mirror Pond",
+    "location": "Reed Shallows",
+    "rarity": "uncommon",
+    "name": "Reed Stalker",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Reed Skewer",
+      "Predator\u0027s Eye"
+    ],
+    "description": "A hunter that moves unseen through tall reeds \u2014 silent, precise strikes",
+    "baseAttributes": {
+      "strength": 0,
+      "agility": 6,
+      "technique": 3,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Mirror Pond",
+    "location": "Reed Shallows",
+    "rarity": "uncommon",
+    "name": "Mosquito Swarm",
+    "archetype": "Acrobat",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Freeding Frenzy",
+      "Swarm Dive"
+    ],
+    "description": "A cloud of blood-hungry insects \u2014 overwhelming speed, fragile individually",
+    "baseAttributes": {
+      "strength": 6,
+      "agility": 3,
+      "technique": 0,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Mirror Pond",
+    "location": "Reed Shallows",
+    "rarity": "Rare",
+    "name": "Mud Lurker",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Mud Shell",
+      "Mire Slam"
+    ],
+    "description": "A bog predator that rises from thick mud \u2014 ambushes from below",
+    "baseAttributes": {
+      "strength": 0,
+      "agility": 4,
+      "technique": 4,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Mirror Pond",
+    "location": "Tidal Hollow",
+    "rarity": "uncommon",
+    "name": "Current Rider",
+    "archetype": "Acrobat",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Tidal Crash",
+      "Wave Slam"
+    ],
+    "description": "A spirit that surfs river currents \u2014 fast, fluid, and evasive",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 3,
+      "technique": 5,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Mirror Pond",
+    "location": "Tidal Hollow",
+    "rarity": "uncommon",
+    "name": "Slick Eel",
+    "archetype": "Acrobat",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Static Thrash",
+      "Mud Roll"
+    ],
+    "description": "A slippery river eel that strikes in flashes \u2014 agile and hard to catch",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 1,
+      "technique": 3,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Mirror Pond",
+    "location": "Tidal Hollow",
+    "rarity": "Rare",
+    "name": "Hollow Drifter",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Spore Drift",
+      "Surge"
+    ],
+    "description": "A empty-souled wanderer of misty hollows \u2014 elusive and unsettling",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 1,
+      "technique": 2,
+      "intelligence": 7
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Mirror Pond",
+    "location": "Fog Shelf",
+    "rarity": "uncommon",
+    "name": "Fog Mimic",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Mist Strike",
+      "False Form"
+    ],
+    "description": "A shapeshifter hidden in river fog \u2014 lures prey into false safety",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 1,
+      "technique": 5,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Mirror Pond",
+    "location": "Fog Shelf",
+    "rarity": "uncommon",
+    "name": "Cold Creeper",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Chilling Grasp",
+      "Frost Crawl"
+    ],
+    "description": "A chill-loving predator of damp caves \u2014 slow approach, sudden strike",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 4,
+      "technique": 4,
+      "intelligence": 1
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Mirror Pond",
+    "location": "Fog Shelf",
+    "rarity": "Rare",
+    "name": "Shelf Specter",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Veil Shatter",
+      "Phantom Lunge"
+    ],
+    "description": "A ghost that haunts narrow cave ledges \u2014 strikes from cramped angles",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 4,
+      "technique": 2,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Spring",
+    "location": "Grotto",
+    "rarity": "uncommon",
+    "name": "Glow Mite",
+    "archetype": "Acrobat",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Blinding Swarm",
+      "Biolumiscent Flash"
+    ],
+    "description": "A bioluminescent cave insect \u2014 small, quick, and distracting",
+    "baseAttributes": {
+      "strength": 5,
+      "agility": 3,
+      "technique": 1,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Spring",
+    "location": "Grotto",
+    "rarity": "uncommon",
+    "name": "Frost Creeper",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Cold Seep",
+      "Frozen Burst"
+    ],
+    "description": "A ice-cloaked cave stalker \u2014 patient ambusher in the cold dark",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 6,
+      "technique": 1,
+      "intelligence": 1
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Spring",
+    "location": "Grotto",
+    "rarity": "Rare",
+    "name": "Cave Lurcher",
+    "archetype": "Brute",
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Lurch Strike",
+      "Cavern Thrash"
+    ],
+    "description": "A heavy cave beast that lurches from darkness \u2014 slow, crushing blows",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 4,
+      "technique": 4,
+      "intelligence": 2
+    },
+    "growthPerLevel": {
+      "strength": 3.5,
+      "agility": 0.7,
+      "technique": 1.1,
+      "intelligence": 0.7
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Spring",
+    "location": "Chronicle Basin",
+    "rarity": "uncommon",
+    "name": "Chronicle Watcher",
+    "archetype": "Sage",
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Calcified Gaze",
+      "Basin Surge"
+    ],
+    "description": "A lore-keeper spirit that guards ancient records \u2014 wise, magical, and vigilant",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 3,
+      "technique": 4,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.6,
+      "agility": 0.9,
+      "technique": 1.3,
+      "intelligence": 3.2
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Spring",
+    "location": "Chronicle Basin",
+    "rarity": "uncommon",
+    "name": "Sinkhole Lurker",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Stone Carapace",
+      "Pit Pull"
+    ],
+    "description": "A predator that waits beneath unstable ground \u2014 pulls prey down to strike",
+    "baseAttributes": {
+      "strength": 4,
+      "agility": 3,
+      "technique": 2,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Spring",
+    "location": "Chronicle Basin",
+    "rarity": "Rare",
+    "name": "Ink Stalker",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Predator\u0027s Focus",
+      "Tentacle Snap"
+    ],
+    "description": "A shadowy hunter that moves through dark water \u2014 precise, ink-cloud ambushes",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 2,
+      "technique": 4,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Spring",
+    "location": "Blue Vent Basin",
+    "rarity": "uncommon",
+    "name": "Vent Sprite",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Vent Focus",
+      "Steam Dash"
+    ],
+    "description": "A playful but dangerous spirit of cave vents \u2014 mischievous and evasive",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 2,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Spring",
+    "location": "Blue Vent Basin",
+    "rarity": "uncommon",
+    "name": "Lion Fish",
+    "archetype": "Assassin",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Venom Spine",
+      "Splash"
+    ],
+    "description": "A venomous spined fish \u2014 beautiful, slow, and painfully precise",
+    "baseAttributes": {
+      "strength": 0,
+      "agility": 2,
+      "technique": 5,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Spring",
+    "location": "Blue Vent Basin",
+    "rarity": "Rare",
+    "name": "Mist Phantom",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Veil Shatter",
+      "Phantom Surge"
+    ],
+    "description": "A formless spirit of deep mist \u2014 drifts through attacks and confuses foes",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 3,
+      "technique": 2,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Water Temple",
+    "location": "Flooded Forecourt",
+    "rarity": "uncommon",
+    "name": "Fourecourt Guard",
+    "archetype": "Knight",
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Tidal Bulwark",
+      "Shield Bash"
+    ],
+    "description": "A disciplined guard of an flooded court \u2014 armored sentinel of the depths",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 0,
+      "technique": 4,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Water Temple",
+    "location": "Flooded Forecourt",
+    "rarity": "uncommon",
+    "name": "Depth Drainer",
+    "archetype": "Sage",
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Deep Drain",
+      "Abyssal pull"
+    ],
+    "description": "A abyssal creature that saps life from the deep \u2014 magical life drain",
+    "baseAttributes": {
+      "strength": 5,
+      "agility": 1,
+      "technique": 5,
+      "intelligence": 1
+    },
+    "growthPerLevel": {
+      "strength": 0.6,
+      "agility": 0.9,
+      "technique": 1.3,
+      "intelligence": 3.2
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Water Temple",
+    "location": "Flooded Forecourt",
+    "rarity": "Rare",
+    "name": "Tide Sentinel",
+    "archetype": "Knight",
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Food Etch",
+      "Tidal Sweep"
+    ],
+    "description": "A armored watcher of tidal passages \u2014 holds ground against the current",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 0,
+      "technique": 4,
+      "intelligence": 5
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Water Temple",
+    "location": "Aqueduct Nave",
+    "rarity": "uncommon",
+    "name": "Pressure Monk",
+    "archetype": "Duelist",
+    "baseHealth": 25,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Inner Current",
+      "Pressurized Strike"
+    ],
+    "description": "A ascetic trained in crushing depth \u2014 martial discipline under extreme force",
+    "baseAttributes": {
+      "strength": 0,
+      "agility": 4,
+      "technique": 5,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 1.1,
+      "agility": 1.4,
+      "technique": 2.9,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Water Temple",
+    "location": "Aqueduct Nave",
+    "rarity": "uncommon",
+    "name": "Cascade Rider",
+    "archetype": "Acrobat",
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Torrent Slam",
+      "Rapid Current"
+    ],
+    "description": "A rider of falling water and rapids \u2014 fast, fluid, and relentless",
+    "baseAttributes": {
+      "strength": 5,
+      "agility": 1,
+      "technique": 6,
+      "intelligence": 0
+    },
+    "growthPerLevel": {
+      "strength": 0.9,
+      "agility": 3.2,
+      "technique": 1.3,
+      "intelligence": 0.6
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Water Temple",
+    "location": "Aqueduct Nave",
+    "rarity": "Rare",
+    "name": "Aqueduct Warden",
+    "archetype": "Knight",
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Stone Bracing",
+      "Channel Slam"
+    ],
+    "description": "A guardian of ancient water channels \u2014 armored and immovable",
+    "baseAttributes": {
+      "strength": 3,
+      "agility": 2,
+      "technique": 4,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.8,
+      "technique": 2.3,
+      "intelligence": 0.5
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Water Temple",
+    "location": "The Drowned Throne",
+    "rarity": "uncommon",
+    "name": "Still Gazer",
+    "archetype": "Sage",
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Toxic Gaze",
+      "Still Waters"
+    ],
+    "description": "A meditative watcher of unmoving pools \u2014 reads foes and strikes with intent",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 2,
+      "technique": 5,
+      "intelligence": 4
+    },
+    "growthPerLevel": {
+      "strength": 0.6,
+      "agility": 0.9,
+      "technique": 1.3,
+      "intelligence": 3.2
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Water Temple",
+    "location": "The Drowned Throne",
+    "rarity": "uncommon",
+    "name": "Undertow Shade",
+    "archetype": "Trickster",
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Current Break",
+      "Shadow Surge"
+    ],
+    "description": "A ghost dragged beneath the current \u2014 pulls and strikes from below",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 2,
+      "technique": 5,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.3,
+      "technique": 1,
+      "intelligence": 2.3
+    }
+  },
+  {
+    "region": "Water",
+    "biome": "Water Temple",
+    "location": "The Drowned Throne",
+    "rarity": "Rare",
+    "name": "Throne Revenant",
+    "archetype": "Warlord",
+    "baseHealth": 28,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Sunken Curse",
+      "Drowned Wrath"
+    ],
+    "description": "An undead monarch risen from a sunken throne \u2014 commands death with royal fury",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 4,
+      "technique": 3,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 2.3,
+      "agility": 0.5,
+      "technique": 0.8,
+      "intelligence": 2.3
     }
   }
 ]

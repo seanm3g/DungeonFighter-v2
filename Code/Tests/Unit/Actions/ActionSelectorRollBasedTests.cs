@@ -15,7 +15,7 @@ namespace RPGGame.Tests.Unit.Actions
     /// - Natural 20: Combo-slot action when available
     /// - Otherwise: combo when modified d20 (sheet die mods only; not stat roll bonuses) &gt;= effective threshold
     ///   (COMBO-type threshold adjustments and peeked queued ACCURACY apply, matching combat execution)
-    /// - With no INT/bonus (tests use INT 0): raw d20 1-13 normal, 14+ combo
+    /// - With no TECH milestones (tests use TECH 0): raw d20 1-13 normal, 14+ combo
     /// </summary>
     public static class ActionSelectorRollBasedTests
     {
@@ -39,8 +39,8 @@ namespace RPGGame.Tests.Unit.Actions
 
             TestBaseRollThresholds();
             TestQueuedAccuracyLowersComboPathSelectionGate();
-            TestIntRollBonusDoesNotBypassComboDieGate();
-            TestRoll13WithIntBonusStaysNormal();
+            TestTechniqueMilestonesDoNotBypassComboDieGate();
+            TestRoll13WithLowTechniqueStaysNormal();
             TestNatural20();
             TestPeekPendingThresholdHudShiftsFromFifo();
             TestEdgeCases();
@@ -56,13 +56,13 @@ namespace RPGGame.Tests.Unit.Actions
         #region Base Roll Threshold Tests
 
         /// <summary>
-        /// Tests that raw d20 thresholds determine action type when preview bonuses are zero (INT 0).
+        /// Tests that raw d20 thresholds determine action type when preview bonuses are zero (TECH below milestones).
         /// </summary>
         private static void TestBaseRollThresholds()
         {
             Console.WriteLine("--- Testing Base Roll Thresholds ---");
 
-            var character = CreateTestCharacterWithBothActionTypes(intelligence: 0);
+            var character = CreateTestCharacterWithBothActionTypes();
 
             // Test roll 12 - should be normal attack (below combo threshold of 14)
             Dice.SetTestRoll(12);
@@ -117,7 +117,7 @@ namespace RPGGame.Tests.Unit.Actions
         {
             Console.WriteLine("\n--- Testing queued ACCURACY lowers combo-path selection gate ---");
 
-            var character = CreateTestCharacterWithBothActionTypes(intelligence: 0);
+            var character = CreateTestCharacterWithBothActionTypes();
             character.Effects.ClearPendingActionBonuses();
             character.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
             {
@@ -137,18 +137,18 @@ namespace RPGGame.Tests.Unit.Actions
 
         #endregion
 
-        #region Combo die gate (INT does not bypass)
+        #region Combo die gate (TECH milestones do not bypass)
 
         /// <summary>
-        /// INT milestone bonuses shift thresholds, but combo-strip vs normal selection still uses the modified d20 gate only
+        /// TECH milestone bonuses shift thresholds, but combo-strip vs normal selection still uses the modified d20 gate only
         /// (stat roll bonuses do not turn d20 12–13 into a named combo swing).
         /// </summary>
-        private static void TestIntRollBonusDoesNotBypassComboDieGate()
+        private static void TestTechniqueMilestonesDoNotBypassComboDieGate()
         {
-            Console.WriteLine("\n--- Testing INT roll bonus does not bypass combo d20 gate ---");
+            Console.WriteLine("\n--- Testing TECH milestones do not bypass combo d20 gate ---");
 
-            // Keep INT below the first milestone so the baseline combo threshold remains unchanged.
-            var char12 = CreateTestCharacterWithBothActionTypes(intelligence: 0);
+            // Keep TECH below the first milestone so the baseline combo threshold remains unchanged.
+            var char12 = CreateTestCharacterWithBothActionTypes(technique: 0);
             Dice.SetTestRoll(12);
             ActionSelector.ClearStoredRolls();
             var a12 = ActionSelector.SelectActionBasedOnRoll(char12);
@@ -156,7 +156,7 @@ namespace RPGGame.Tests.Unit.Actions
                 "d20 12 should still be normal (die below 14)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            var char13 = CreateTestCharacterWithBothActionTypes(intelligence: 0);
+            var char13 = CreateTestCharacterWithBothActionTypes(technique: 0);
             Dice.SetTestRoll(13);
             ActionSelector.ClearStoredRolls();
             var a13 = ActionSelector.SelectActionBasedOnRoll(char13);
@@ -173,14 +173,14 @@ namespace RPGGame.Tests.Unit.Actions
         }
 
         /// <summary>
-        /// d20 13 with INT-derived roll bonus still uses unnamed normal: combo path requires 14+ on the die.
+        /// d20 13 with TECH-derived threshold shifts still uses unnamed normal: combo path requires 14+ on the die.
         /// </summary>
-        private static void TestRoll13WithIntBonusStaysNormal()
+        private static void TestRoll13WithLowTechniqueStaysNormal()
         {
-            Console.WriteLine("\n--- Testing Roll 13 + INT Bonus stays normal ---");
+            Console.WriteLine("\n--- Testing Roll 13 + low TECH stays normal ---");
 
-            // INT below the first milestone: should not influence combo selection.
-            var character = CreateTestCharacterWithBothActionTypes(intelligence: 0);
+            // TECH below the first milestone: should not influence combo selection.
+            var character = CreateTestCharacterWithBothActionTypes(technique: 0);
             Dice.SetTestRoll(13);
             ActionSelector.ClearStoredRolls();
             var action = ActionSelector.SelectActionBasedOnRoll(character);
@@ -200,7 +200,7 @@ namespace RPGGame.Tests.Unit.Actions
         {
             Console.WriteLine("\n--- Testing Natural 20 ---");
 
-            var character = CreateTestCharacterWithBothActionTypes(intelligence: 0);
+            var character = CreateTestCharacterWithBothActionTypes();
 
             Dice.SetTestRoll(20);
             ActionSelector.ClearStoredRolls();
@@ -225,7 +225,7 @@ namespace RPGGame.Tests.Unit.Actions
         {
             Console.WriteLine("\n--- Testing Edge Cases ---");
 
-            var character = CreateTestCharacterWithBothActionTypes(intelligence: 0);
+            var character = CreateTestCharacterWithBothActionTypes();
 
             // Test roll 1 - should be normal (or null if it's a fail)
             Dice.SetTestRoll(1);
@@ -317,7 +317,7 @@ namespace RPGGame.Tests.Unit.Actions
         {
             Console.WriteLine("\n--- Testing Roll Boundaries (13 vs 14) ---");
 
-            var character = CreateTestCharacterWithBothActionTypes(intelligence: 0);
+            var character = CreateTestCharacterWithBothActionTypes();
 
             // Test roll 13 - last value before combo threshold (no roll bonus)
             Dice.SetTestRoll(13);
@@ -401,12 +401,12 @@ namespace RPGGame.Tests.Unit.Actions
         /// <summary>
         /// Creates a test character with both combo and normal actions available
         /// </summary>
-        private static Character CreateTestCharacterWithBothActionTypes(int intelligence = 0)
+        private static Character CreateTestCharacterWithBothActionTypes(int technique = 0, int intelligence = 0)
         {
             var character = TestDataBuilders.Character()
                 .WithName("TestHero")
                 .WithLevel(1)
-                .WithStats(10, 10, 10, intelligence)
+                .WithStats(10, 10, technique, intelligence)
                 .Build();
 
             // Add a normal (non-combo) action

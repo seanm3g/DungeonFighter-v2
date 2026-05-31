@@ -31,6 +31,11 @@ namespace RPGGame
         public List<string> LinkedDungeonThemes { get; set; } = new();
 
         /// <summary>
+        /// Default settlement type (Rural, Town, or City) for spawn tier weights when the room location is generic.
+        /// </summary>
+        public string SettlementType { get; set; } = "";
+
+        /// <summary>
         /// Non-empty theme pool for loot and journey rolls; falls back to <see cref="Theme"/> or default dungeon theme.
         /// </summary>
         public IReadOnlyList<string> ResolveLinkedDungeonThemePool()

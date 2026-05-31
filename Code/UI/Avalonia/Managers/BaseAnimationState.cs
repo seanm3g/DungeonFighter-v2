@@ -211,6 +211,14 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             LoadConfiguration();
         }
+
+        /// <summary>
+        /// Applies animation parameters directly (e.g. settings panel live preview before save).
+        /// </summary>
+        public void ApplyConfig(DungeonSelectionAnimationConfig animConfig)
+        {
+            ApplyDungeonSelectionAnimationConfig(animConfig);
+        }
     }
 }
 

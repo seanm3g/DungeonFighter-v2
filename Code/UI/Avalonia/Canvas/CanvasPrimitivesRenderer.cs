@@ -239,6 +239,41 @@ namespace RPGGame.UI.Avalonia.Canvas
             const double barPenThickness = 1;
             var pen = new Pen(new SolidColorBrush(bar.BorderColor), barPenThickness);
             context.DrawRectangle(null, pen, InsetRectForStroke(x, y, width, height, barPenThickness));
+
+            int? rollMarker = bar.RollMarkerRoll?.Invoke();
+            if (rollMarker.HasValue && rollMarker.Value >= 1 && rollMarker.Value <= totalFaces)
+                RenderRollCaret(context, x, y, width, height, totalFaces, rollMarker.Value);
+        }
+
+        /// <summary>Upward-pointing pixel caret centered on the rolled d20 face, just below the bar.</summary>
+        private static void RenderRollCaret(
+            DrawingContext context,
+            double barLeftX,
+            double barTopY,
+            double barWidthPx,
+            double barHeightPx,
+            int totalFaces,
+            int roll)
+        {
+            double faceWidth = barWidthPx / totalFaces;
+            double centerX = barLeftX + (roll - 0.5) * faceWidth;
+            double tipY = barTopY + barHeightPx;
+            double caretHeight = System.Math.Clamp(barHeightPx * 0.85, 3, 6);
+            double halfWidth = System.Math.Clamp(faceWidth * 0.22, 2, 4);
+
+            var geometry = new StreamGeometry();
+            using (var figure = geometry.Open())
+            {
+                figure.BeginFigure(new Point(centerX, tipY), true);
+                figure.LineTo(new Point(centerX - halfWidth, tipY + caretHeight));
+                figure.LineTo(new Point(centerX + halfWidth, tipY + caretHeight));
+                figure.EndFigure(true);
+            }
+
+            context.DrawGeometry(
+                new SolidColorBrush(AsciiArtAssets.Colors.Gold),
+                null,
+                geometry);
         }
 
         /// <summary>

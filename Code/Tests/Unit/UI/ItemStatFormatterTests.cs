@@ -46,6 +46,7 @@ namespace RPGGame.Tests.Unit.UI
             TestFeetStatsIncludeZeroActionSlots();
             TestFeetStatsIncludePositiveActionSlots();
             TestNonFeetStatsOmitZeroActionSlots();
+            TestWandWeaponShowsClassActionSlotBonus();
             TestActionSlotHigherThanBaselineGreen();
 
             TestBase.PrintSummary("ItemStatFormatter Tests", _testsRun, _testsPassed, _testsFailed);
@@ -315,6 +316,17 @@ namespace RPGGame.Tests.Unit.UI
             var stats = ItemStatFormatter.GetItemStats(chest, hero);
             var ok = !stats.Any(s => s.StartsWith("Action slots:", StringComparison.Ordinal));
             if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: zero-slot non-feet gear should not add an action-slot row"); }
+        }
+
+        private static void TestWandWeaponShowsClassActionSlotBonus()
+        {
+            _testsRun++;
+            Console.WriteLine("\n--- TestWandWeaponShowsClassActionSlotBonus ---");
+            var hero = new Character("Stats", 1);
+            var wand = new WeaponItem("Stick", tier: 1, baseDamage: 5, baseAttackSpeed: 0.5, WeaponType.Wand);
+            var stats = ItemStatFormatter.GetItemStats(wand, hero);
+            var ok = stats.Contains("Action slots: +1");
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: Wand weapons should show +1 class action slot"); }
         }
 
         private static void TestActionSlotHigherThanBaselineGreen()

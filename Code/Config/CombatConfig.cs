@@ -169,22 +169,22 @@ namespace RPGGame
     /// </summary>
     public class ComboSystemConfig
     {
-        /// <summary>Legacy tuning field; the current amplifier curve is the fixed designer log formula in <see cref="ComboAmplifierFromTechnique"/>.</summary>
+        /// <summary>Legacy tuning field; the current amplifier curve is the fixed designer log formula in <see cref="ComboAmplifierFromIntelligence"/>.</summary>
         public double ComboAmplifierAtTech5 { get; set; }
 
-        /// <summary>Legacy tuning field retained for old configs; current TECH AMP no longer clamps to a configured maximum.</summary>
+        /// <summary>Legacy tuning field retained for old configs; current INT AMP no longer clamps to a configured maximum.</summary>
         public double ComboAmplifierMax { get; set; }
 
-        /// <summary>Legacy tuning field retained for old configs; current TECH AMP has no configured max-tech breakpoint.</summary>
+        /// <summary>Legacy tuning field retained for old configs; current INT AMP has no configured max-stat breakpoint.</summary>
         public int ComboAmplifierMaxTech { get; set; }
 
         /// <summary>
-        /// Legacy tuning field retained for old configs; current TECH AMP uses a fixed logarithmic curve.
+        /// Legacy tuning field retained for old configs; current INT AMP uses a fixed logarithmic curve.
         /// </summary>
         public double ComboAmplifierCurveExponent { get; set; }
 
         /// <summary>
-        /// Repairs legacy tuning values for older configs. The current TECH AMP formula does not read these fields,
+        /// Repairs legacy tuning values for older configs. The current INT AMP formula does not read these fields,
         /// but settings and saved tuning profiles may still display them.
         /// </summary>
         public void EnsureValidComboAmplifierDefaults()
@@ -197,13 +197,13 @@ namespace RPGGame
     }
 
     /// <summary>
-    /// Maps Technique to base combo amplifier using the designer formula <c>1 + 0.5 * log10(TECH + 1)</c>.
+    /// Maps Intelligence to base combo amplifier using the designer formula <c>1 + 0.5 * log10(INT + 1)</c>.
     /// </summary>
-    public static class ComboAmplifierFromTechnique
+    public static class ComboAmplifierFromIntelligence
     {
-        public static double Compute(int technique, ComboSystemConfig combo)
+        public static double Compute(int intelligence, ComboSystemConfig combo)
         {
-            int clamped = Math.Max(0, technique);
+            int clamped = Math.Max(0, intelligence);
             return 1.0 + 0.5 * Math.Log10(clamped + 1.0);
         }
     }

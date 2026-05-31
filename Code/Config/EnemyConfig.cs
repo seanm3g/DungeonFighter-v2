@@ -267,6 +267,151 @@ namespace RPGGame
         }
     }
 
+    /// <summary>Percent chance for each spawn tier (should sum to 100).</summary>
+    public class EnemySpawnTierWeightsConfig
+    {
+        public int CommonPercent { get; set; } = 50;
+        public int UncommonBiomePercent { get; set; } = 10;
+        public int UncommonRegionPercent { get; set; } = 15;
+        public int UncommonLocationPercent { get; set; } = 15;
+        public int RareLocationPercent { get; set; } = 5;
+        public int AnywherePercent { get; set; } = 5;
+
+        public int TotalPercent =>
+            CommonPercent + UncommonBiomePercent + UncommonRegionPercent +
+            UncommonLocationPercent + RareLocationPercent + AnywherePercent;
+
+        public static EnemySpawnTierWeightsConfig CreateDefaults() => new();
+
+        public void EnsureSanitized()
+        {
+            CommonPercent = Math.Clamp(CommonPercent, 0, 100);
+            UncommonBiomePercent = Math.Clamp(UncommonBiomePercent, 0, 100);
+            UncommonRegionPercent = Math.Clamp(UncommonRegionPercent, 0, 100);
+            UncommonLocationPercent = Math.Clamp(UncommonLocationPercent, 0, 100);
+            RareLocationPercent = Math.Clamp(RareLocationPercent, 0, 100);
+            AnywherePercent = Math.Clamp(AnywherePercent, 0, 100);
+
+            int sum = TotalPercent;
+            if (sum <= 0)
+            {
+                var defaults = CreateDefaults();
+                CommonPercent = defaults.CommonPercent;
+                UncommonBiomePercent = defaults.UncommonBiomePercent;
+                UncommonRegionPercent = defaults.UncommonRegionPercent;
+                UncommonLocationPercent = defaults.UncommonLocationPercent;
+                RareLocationPercent = defaults.RareLocationPercent;
+                AnywherePercent = defaults.AnywherePercent;
+                return;
+            }
+
+            if (sum == 100)
+                return;
+
+            NormalizeProportionally();
+        }
+
+        private void NormalizeProportionally()
+        {
+            int[] raw =
+            {
+                CommonPercent,
+                UncommonBiomePercent,
+                UncommonRegionPercent,
+                UncommonLocationPercent,
+                RareLocationPercent,
+                AnywherePercent
+            };
+
+            int sum = raw.Sum();
+            if (sum <= 0)
+                return;
+
+            int[] normalized = new int[6];
+            int allocated = 0;
+            for (int i = 0; i < raw.Length - 1; i++)
+            {
+                normalized[i] = (int)Math.Round(raw[i] * 100.0 / sum);
+                allocated += normalized[i];
+            }
+
+            normalized[^1] = Math.Max(0, 100 - allocated);
+
+            CommonPercent = normalized[0];
+            UncommonBiomePercent = normalized[1];
+            UncommonRegionPercent = normalized[2];
+            UncommonLocationPercent = normalized[3];
+            RareLocationPercent = normalized[4];
+            AnywherePercent = normalized[5];
+        }
+    }
+
+    /// <summary>Spawn tier weights keyed by settlement density (Rural / Town / City).</summary>
+    public class EnemySpawnTierWeightsBySettlementConfig
+    {
+        public EnemySpawnTierWeightsConfig Rural { get; set; } = EnemySpawnTierWeightsConfig.CreateDefaults();
+        public EnemySpawnTierWeightsConfig Town { get; set; } = EnemySpawnTierWeightsConfig.CreateDefaults();
+        public EnemySpawnTierWeightsConfig City { get; set; } = EnemySpawnTierWeightsConfig.CreateDefaults();
+
+        public EnemySpawnTierWeightsConfig Get(SettlementType settlementType) => settlementType switch
+        {
+            SettlementType.Town => Town ??= EnemySpawnTierWeightsConfig.CreateDefaults(),
+            SettlementType.City => City ??= EnemySpawnTierWeightsConfig.CreateDefaults(),
+            _ => Rural ??= EnemySpawnTierWeightsConfig.CreateDefaults()
+        };
+
+        public void EnsureFromLegacy(EnemySpawnTierWeightsConfig? legacy)
+        {
+            Rural ??= EnemySpawnTierWeightsConfig.CreateDefaults();
+            Town ??= EnemySpawnTierWeightsConfig.CreateDefaults();
+            City ??= EnemySpawnTierWeightsConfig.CreateDefaults();
+
+            if (legacy == null || !LegacyDiffersFromDefaults(legacy))
+                return;
+
+            if (ProfilesMatchDefaults(Rural) && ProfilesMatchDefaults(Town) && ProfilesMatchDefaults(City))
+            {
+                Rural = Clone(legacy);
+                Town = Clone(legacy);
+                City = Clone(legacy);
+            }
+        }
+
+        public void EnsureSanitized()
+        {
+            Rural ??= EnemySpawnTierWeightsConfig.CreateDefaults();
+            Town ??= EnemySpawnTierWeightsConfig.CreateDefaults();
+            City ??= EnemySpawnTierWeightsConfig.CreateDefaults();
+            Rural.EnsureSanitized();
+            Town.EnsureSanitized();
+            City.EnsureSanitized();
+        }
+
+        private static bool LegacyDiffersFromDefaults(EnemySpawnTierWeightsConfig legacy)
+        {
+            var defaults = EnemySpawnTierWeightsConfig.CreateDefaults();
+            return legacy.CommonPercent != defaults.CommonPercent
+                   || legacy.UncommonBiomePercent != defaults.UncommonBiomePercent
+                   || legacy.UncommonRegionPercent != defaults.UncommonRegionPercent
+                   || legacy.UncommonLocationPercent != defaults.UncommonLocationPercent
+                   || legacy.RareLocationPercent != defaults.RareLocationPercent
+                   || legacy.AnywherePercent != defaults.AnywherePercent;
+        }
+
+        private static bool ProfilesMatchDefaults(EnemySpawnTierWeightsConfig profile) =>
+            !LegacyDiffersFromDefaults(profile);
+
+        private static EnemySpawnTierWeightsConfig Clone(EnemySpawnTierWeightsConfig source) => new()
+        {
+            CommonPercent = source.CommonPercent,
+            UncommonBiomePercent = source.UncommonBiomePercent,
+            UncommonRegionPercent = source.UncommonRegionPercent,
+            UncommonLocationPercent = source.UncommonLocationPercent,
+            RareLocationPercent = source.RareLocationPercent,
+            AnywherePercent = source.AnywherePercent
+        };
+    }
+
     /// <summary>
     /// Unified enemy system configuration that consolidates all enemy-related tuning
     /// </summary>
@@ -280,12 +425,39 @@ namespace RPGGame
         public int LevelVariance { get; set; } = 1;
         public string Description { get; set; } = "";
 
+        /// <summary>Gold/XP multipliers by enemy rarity name (e.g. Rare → 1.5).</summary>
+        public Dictionary<string, double> RarityRewardMultipliers { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>Extra magic-find fraction when rolling loot from a defeated enemy of that rarity.</summary>
+        public Dictionary<string, double> RarityLootMagicFindBonus { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>Percent weights for tiered enemy spawn rolls (legacy single profile; mirrors Rural on save).</summary>
+        public EnemySpawnTierWeightsConfig SpawnTierWeights { get; set; } = new();
+
+        /// <summary>Spawn tier weights per settlement type (Rural / Town / City).</summary>
+        public EnemySpawnTierWeightsBySettlementConfig SpawnTierWeightsBySettlement { get; set; } = new();
+
+        /// <summary>Optional location name → Rural/Town/City overrides for spawn tier weight selection.</summary>
+        public Dictionary<string, string> LocationSettlementOverrides { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+        public EnemySpawnTierWeightsConfig GetSpawnTierWeights(SettlementType settlementType)
+        {
+            SpawnTierWeightsBySettlement ??= new EnemySpawnTierWeightsBySettlementConfig();
+            return SpawnTierWeightsBySettlement.Get(settlementType);
+        }
+
         public void EnsureSanitizedDefaults()
         {
             GlobalMultipliers ??= new GlobalMultipliersConfig();
             GlobalMultipliers.EnsurePositiveMultipliers();
             ProgressionScales ??= new EnemyProgressionScalesConfig();
             ProgressionScales.EnsurePositiveScales();
+            SpawnTierWeights ??= new EnemySpawnTierWeightsConfig();
+            SpawnTierWeightsBySettlement ??= new EnemySpawnTierWeightsBySettlementConfig();
+            SpawnTierWeightsBySettlement.EnsureFromLegacy(SpawnTierWeights);
+            SpawnTierWeightsBySettlement.EnsureSanitized();
+            SpawnTierWeights = CloneSpawnWeights(SpawnTierWeightsBySettlement.Rural);
+            LocationSettlementOverrides ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             BaselineStats ??= new BaselineStatsConfig();
             BaselineStats.EnsureValidNonEmptyBaseline();
             ScalingPerLevel ??= new ScalingPerLevelConfig();
@@ -293,6 +465,16 @@ namespace RPGGame
             if (LevelVariance <= 0)
                 LevelVariance = 1;
         }
+
+        private static EnemySpawnTierWeightsConfig CloneSpawnWeights(EnemySpawnTierWeightsConfig source) => new()
+        {
+            CommonPercent = source.CommonPercent,
+            UncommonBiomePercent = source.UncommonBiomePercent,
+            UncommonRegionPercent = source.UncommonRegionPercent,
+            UncommonLocationPercent = source.UncommonLocationPercent,
+            RareLocationPercent = source.RareLocationPercent,
+            AnywherePercent = source.AnywherePercent
+        };
     }
 
     /// <summary>

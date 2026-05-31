@@ -187,7 +187,7 @@ namespace RPGGame.Actions.Execution
                 return;
 
             var panel = source is Enemy ? ThresholdBarPanel.Enemy : ThresholdBarPanel.Hero;
-            ThresholdBarFeedback.Trigger(panel, segmentIndex);
+            ThresholdBarFeedback.Trigger(panel, segmentIndex, result.BaseRoll);
         }
     }
 }

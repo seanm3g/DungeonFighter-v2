@@ -48,6 +48,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         public static bool UsesActionsContentArea(string categoryTag) =>
             string.Equals(categoryTag, "Actions", StringComparison.OrdinalIgnoreCase);
 
+        /// <summary>Whether this category uses the Text Animation content area (pinned preview).</summary>
+        public static bool UsesTextAnimationContentArea(string categoryTag) =>
+            string.Equals(categoryTag, "TextAnimation", StringComparison.OrdinalIgnoreCase);
+
         private static readonly Dictionary<string, Func<UserControl>> PanelFactories =
             new Dictionary<string, Func<UserControl>>(StringComparer.OrdinalIgnoreCase)
             {
@@ -58,6 +62,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 ["GameVariables"] = () => new GameVariablesSettingsPanel(),
                 ["StatusEffects"] = () => new StatusEffectsSettingsPanel(),
                 ["TextDelays"] = () => new TextDelaysSettingsPanel(),
+                ["TextAnimation"] = () => new TextAnimationPresetsSettingsPanel(),
                 ["Appearance"] = () => new AppearanceSettingsPanel(),
                 ["ItemPrefixes"] = () => new ItemModifiersSettingsPanel(),
                 ["ItemSuffixes"] = () => new ItemSuffixesSettingsPanel(),

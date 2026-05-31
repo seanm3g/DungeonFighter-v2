@@ -171,11 +171,11 @@
                             <SolidColorBrush x:Key="CheckBoxForegroundCheckedPressed" Color="#FF1A1A1A"/>
                         </Border.Resources>
                         <StackPanel Spacing="8">
-                            <TextBlock Text="OAuth push — include spreadsheet tab"
+                            <TextBlock Text="Include spreadsheet tabs (Pull and Push)"
                                        FontSize="13"
                                        FontWeight="SemiBold"
                                        Foreground="Black"/>
-                            <TextBlock Text="Unchecked tabs are not cleared or written when you use Push (SheetsPushConfig.json). Pull is unchanged."
+                            <TextBlock Text="Only checked tabs are pulled from published CSV URLs or pushed via OAuth. Unchecked tabs are left unchanged on disk and on the sheet. Selections are saved to SheetsPushConfig.json when that file exists."
                                        FontSize="11"
                                        Foreground="#FF555555"
                                        TextWrapping="Wrap"/>

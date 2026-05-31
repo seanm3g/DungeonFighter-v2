@@ -2,7 +2,6 @@
   {
     "Description": "armor",
     "mechanics": "[armor:1]",
-    "Name": "of Protection",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -16,7 +15,6 @@
   {
     "Description": "max health",
     "mechanics": "[health regen:10]",
-    "Name": "of Vitality",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -30,7 +28,6 @@
   {
     "Description": "attack speed",
     "mechanics": "[speed:5]",
-    "Name": "of fleeting",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -44,7 +41,6 @@
   {
     "Description": "base damage",
     "mechanics": "[base damage:3]",
-    "Name": "of Power",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -58,7 +54,6 @@
   {
     "Description": "weapon damage",
     "mechanics": "[weapon damage:5]",
-    "Name": "of killing",
     "Mechanics": [
       {
         "StatType": "weapon damage",
@@ -72,7 +67,6 @@
   {
     "Description": "health regen",
     "mechanics": "[health regen:2]",
-    "Name": "of Rejuvination",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -86,7 +80,6 @@
   {
     "Description": "5% int",
     "mechanics": "[intelligence:2]",
-    "Name": "of Intelligence",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -100,7 +93,6 @@
   {
     "Description": "5% strength",
     "mechanics": "[strength:2]",
-    "Name": "of Strength",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -114,7 +106,6 @@
   {
     "Description": "% agility",
     "mechanics": "[agility:2]",
-    "Name": "of Agility",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -128,7 +119,6 @@
   {
     "Description": "5% technique",
     "mechanics": "[technique:2]",
-    "Name": "of Technique",
     "Mechanics": [
       {
         "StatType": "TEC",
@@ -142,7 +132,6 @@
   {
     "Description": "1 to hit",
     "mechanics": "[hit:1]",
-    "Name": "of Accuracy",
     "Mechanics": [
       {
         "StatType": "hit",
@@ -156,7 +145,6 @@
   {
     "Description": "1 to combo",
     "mechanics": "[combo:1]",
-    "Name": "of Precision",
     "Mechanics": [
       {
         "StatType": "combo",
@@ -170,7 +158,6 @@
   {
     "Description": "1 to crit",
     "mechanics": "[crit:1]",
-    "Name": "of ferosity",
     "Mechanics": [
       {
         "StatType": "crit",
@@ -183,7 +170,6 @@
   },
   {
     "mechanics": "[armor:5,max health:15]",
-    "Name": "of the Tortoise",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -200,7 +186,6 @@
   },
   {
     "mechanics": "[armor:5,speed:10]",
-    "Name": "of the Crab",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -217,7 +202,6 @@
   },
   {
     "mechanics": "[armor:5,base damage:4]",
-    "Name": "of the Rhinoceros",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -234,7 +218,6 @@
   },
   {
     "mechanics": "[armor:4,weapon damage:4]",
-    "Name": "of the Scarab Beetle",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -251,7 +234,6 @@
   },
   {
     "mechanics": "[armor:5,health regen:3]",
-    "Name": "of the Pangolin",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -268,7 +250,6 @@
   },
   {
     "mechanics": "[armor:4,strength:3]",
-    "Name": "of the Auroch",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -285,7 +266,6 @@
   },
   {
     "mechanics": "[armor:4,agility:3]",
-    "Name": "of the Fiddler Crab",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -302,7 +282,6 @@
   },
   {
     "mechanics": "[armor:4,intelligence:3]",
-    "Name": "of the Nautilus",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -319,7 +298,6 @@
   },
   {
     "mechanics": "[armor:4,technique:3]",
-    "Name": "of the Trilobite",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -336,7 +314,6 @@
   },
   {
     "mechanics": "[armor:4,accuracy:3]",
-    "Name": "of the Armadillo",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -353,7 +330,6 @@
   },
   {
     "mechanics": "[armor:4,hit:3]",
-    "Name": "of the Lobster",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -370,7 +346,6 @@
   },
   {
     "mechanics": "[armor:4,combo:3]",
-    "Name": "of the Mantis Shrimp",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -387,7 +362,6 @@
   },
   {
     "mechanics": "[armor:4,crit:3]",
-    "Name": "of the Stonefish",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -404,7 +378,6 @@
   },
   {
     "mechanics": "[armor:4,magic find:3]",
-    "Name": "of the Abalone",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -421,7 +394,6 @@
   },
   {
     "mechanics": "[armor:4,# of action slots:1]",
-    "Name": "of the Cuttlefish",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -438,7 +410,6 @@
   },
   {
     "mechanics": "[max health:15,speed:10]",
-    "Name": "of the Bison",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -455,7 +426,6 @@
   },
   {
     "mechanics": "[max health:15,base damage:4]",
-    "Name": "of the Elephant",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -472,7 +442,6 @@
   },
   {
     "mechanics": "[max health:15,weapon damage:4]",
-    "Name": "of the Cape Buffalo",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -489,7 +458,6 @@
   },
   {
     "mechanics": "[max health:12,health regen:4]",
-    "Name": "of the Toad",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -506,7 +474,6 @@
   },
   {
     "mechanics": "[max health:15,strength:3]",
-    "Name": "of the Gorilla",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -523,7 +490,6 @@
   },
   {
     "mechanics": "[max health:15,agility:3]",
-    "Name": "of the Hippopotamus",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -540,7 +506,6 @@
   },
   {
     "mechanics": "[max health:15,intelligence:3]",
-    "Name": "of the Sperm Whale",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -557,7 +522,6 @@
   },
   {
     "mechanics": "[max health:15,technique:3]",
-    "Name": "of the Golem",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -574,7 +538,6 @@
   },
   {
     "mechanics": "[max health:15,accuracy:3]",
-    "Name": "of the Moose",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -591,7 +554,6 @@
   },
   {
     "mechanics": "[max health:15,hit:3]",
-    "Name": "of the Elk",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -608,7 +570,6 @@
   },
   {
     "mechanics": "[max health:12,combo:3]",
-    "Name": "of the Python",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -625,7 +586,6 @@
   },
   {
     "mechanics": "[max health:12,crit:3]",
-    "Name": "of the Crocodile",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -642,7 +602,6 @@
   },
   {
     "mechanics": "[max health:15,magic find:3]",
-    "Name": "of the Kirin",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -659,7 +618,6 @@
   },
   {
     "mechanics": "[max health:12,# of action slots:1]",
-    "Name": "of the Giant Squid",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -676,7 +634,6 @@
   },
   {
     "mechanics": "[speed:12,base damage:4]",
-    "Name": "of the Cheetah",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -693,7 +650,6 @@
   },
   {
     "mechanics": "[speed:12,weapon damage:4]",
-    "Name": "of the Peregrine Falcon",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -710,7 +666,6 @@
   },
   {
     "mechanics": "[speed:12,health regen:3]",
-    "Name": "of the Hummingbird",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -727,7 +682,6 @@
   },
   {
     "mechanics": "[speed:10,strength:3]",
-    "Name": "of the Cobra",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -744,7 +698,6 @@
   },
   {
     "mechanics": "[speed:10,agility:3]",
-    "Name": "of the Mongoose",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -761,7 +714,6 @@
   },
   {
     "mechanics": "[speed:12,intelligence:3]",
-    "Name": "of the Swift",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -778,7 +730,6 @@
   },
   {
     "mechanics": "[speed:12,technique:3]",
-    "Name": "of the Dragonfly",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -795,7 +746,6 @@
   },
   {
     "mechanics": "[speed:12,accuracy:3]",
-    "Name": "of the Osprey",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -812,7 +762,6 @@
   },
   {
     "mechanics": "[speed:12,hit:3]",
-    "Name": "of the Kingfisher",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -829,7 +778,6 @@
   },
   {
     "mechanics": "[speed:10,combo:3]",
-    "Name": "of the Marten",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -846,7 +794,6 @@
   },
   {
     "mechanics": "[speed:12,crit:3]",
-    "Name": "of the Sparrowhawk",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -863,7 +810,6 @@
   },
   {
     "mechanics": "[speed:10,magic find:3]",
-    "Name": "of the Firefly",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -880,7 +826,6 @@
   },
   {
     "mechanics": "[speed:10,# of action slots:1]",
-    "Name": "of the Squid",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -897,7 +842,6 @@
   },
   {
     "mechanics": "[base damage:5,weapon damage:4]",
-    "Name": "of the Wolverine",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -914,7 +858,6 @@
   },
   {
     "mechanics": "[base damage:4,health regen:3]",
-    "Name": "of the Water Buffalo",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -931,7 +874,6 @@
   },
   {
     "mechanics": "[base damage:5,strength:3]",
-    "Name": "of the Grizzly Bear",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -948,7 +890,6 @@
   },
   {
     "mechanics": "[base damage:5,agility:3]",
-    "Name": "of the Jaguar",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -965,7 +906,6 @@
   },
   {
     "mechanics": "[base damage:4,intelligence:3]",
-    "Name": "of the Hyena",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -982,7 +922,6 @@
   },
   {
     "mechanics": "[base damage:4,technique:3]",
-    "Name": "of the Mantis",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -999,7 +938,6 @@
   },
   {
     "mechanics": "[base damage:5,accuracy:3]",
-    "Name": "of the Lynx",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -1016,7 +954,6 @@
   },
   {
     "mechanics": "[base damage:4,hit:3]",
-    "Name": "of the Boar",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -1033,7 +970,6 @@
   },
   {
     "mechanics": "[base damage:4,combo:3]",
-    "Name": "of the Badger",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -1050,7 +986,6 @@
   },
   {
     "mechanics": "[base damage:5,crit:3]",
-    "Name": "of the Saltwater Crocodile",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -1067,7 +1002,6 @@
   },
   {
     "mechanics": "[base damage:5,magic find:3]",
-    "Name": "of the Basilisk",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -1084,7 +1018,6 @@
   },
   {
     "mechanics": "[base damage:5,# of action slots:1]",
-    "Name": "of the Kraken",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -1101,7 +1034,6 @@
   },
   {
     "mechanics": "[weapon damage:4,health regen:3]",
-    "Name": "of the Wolf",
     "Mechanics": [
       {
         "StatType": "weapon damage",
@@ -1118,7 +1050,6 @@
   },
   {
     "mechanics": "[weapon damage:5,strength:3]",
-    "Name": "of the Dire Wolf",
     "Mechanics": [
       {
         "StatType": "weapon damage",
@@ -1135,7 +1066,6 @@
   },
   {
     "mechanics": "[weapon damage:5,agility:3]",
-    "Name": "of the Panther",
     "Mechanics": [
       {
         "StatType": "weapon damage",
@@ -1152,7 +1082,6 @@
   },
   {
     "mechanics": "[weapon damage:4,intelligence:3]",
-    "Name": "of the Raven",
     "Mechanics": [
       {
         "StatType": "weapon damage",
@@ -1169,7 +1098,6 @@
   },
   {
     "mechanics": "[weapon damage:4,technique:3]",
-    "Name": "of the Sawfish",
     "Mechanics": [
       {
         "StatType": "weapon damage",
@@ -1186,7 +1114,6 @@
   },
   {
     "mechanics": "[weapon damage:5,accuracy:3]",
-    "Name": "of the Golden Eagle",
     "Mechanics": [
       {
         "StatType": "weapon damage",
@@ -1203,7 +1130,6 @@
   },
   {
     "mechanics": "[weapon damage:5,hit:3]",
-    "Name": "of the Viper",
     "Mechanics": [
       {
         "StatType": "weapon damage",
@@ -1220,7 +1146,6 @@
   },
   {
     "mechanics": "[weapon damage:4,combo:3]",
-    "Name": "of the Piranha",
     "Mechanics": [
       {
         "StatType": "weapon damage",
@@ -1237,7 +1162,6 @@
   },
   {
     "mechanics": "[weapon damage:5,crit:3]",
-    "Name": "of the Tiger",
     "Mechanics": [
       {
         "StatType": "weapon damage",
@@ -1254,7 +1178,6 @@
   },
   {
     "mechanics": "[weapon damage:5,magic find:3]",
-    "Name": "of the Thunderbird",
     "Mechanics": [
       {
         "StatType": "weapon damage",
@@ -1271,7 +1194,6 @@
   },
   {
     "mechanics": "[weapon damage:4,# of action slots:1]",
-    "Name": "of the Octopus",
     "Mechanics": [
       {
         "StatType": "weapon damage",
@@ -1288,7 +1210,6 @@
   },
   {
     "mechanics": "[health regen:4,strength:3]",
-    "Name": "of the Ox",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1305,7 +1226,6 @@
   },
   {
     "mechanics": "[health regen:3,agility:3]",
-    "Name": "of the Deer",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1322,7 +1242,6 @@
   },
   {
     "mechanics": "[health regen:3,intelligence:3]",
-    "Name": "of the Crane",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1339,7 +1258,6 @@
   },
   {
     "mechanics": "[health regen:3,technique:3]",
-    "Name": "of the Horseshoe Crab",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1356,7 +1274,6 @@
   },
   {
     "mechanics": "[health regen:3,accuracy:3]",
-    "Name": "of the Heron",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1373,7 +1290,6 @@
   },
   {
     "mechanics": "[health regen:4,hit:3]",
-    "Name": "of the Salamander",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1390,7 +1306,6 @@
   },
   {
     "mechanics": "[health regen:5,combo:3]",
-    "Name": "of the Hydra",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1407,7 +1322,6 @@
   },
   {
     "mechanics": "[health regen:3,crit:3]",
-    "Name": "of the Tasmanian Devil",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1424,7 +1338,6 @@
   },
   {
     "mechanics": "[health regen:5,magic find:3]",
-    "Name": "of the Phoenix",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1441,7 +1354,6 @@
   },
   {
     "mechanics": "[health regen:4,# of action slots:1]",
-    "Name": "of the Starfish",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1458,7 +1370,6 @@
   },
   {
     "mechanics": "[strength:4,agility:3]",
-    "Name": "of the Lion",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -1475,7 +1386,6 @@
   },
   {
     "mechanics": "[strength:3,intelligence:3]",
-    "Name": "of the Orangutan",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -1492,7 +1402,6 @@
   },
   {
     "mechanics": "[strength:4,technique:3]",
-    "Name": "of the Mammoth",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -1509,7 +1418,6 @@
   },
   {
     "mechanics": "[strength:3,accuracy:3]",
-    "Name": "of the Stallion",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -1526,7 +1434,6 @@
   },
   {
     "mechanics": "[strength:4,hit:3]",
-    "Name": "of the Ram",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -1543,7 +1450,6 @@
   },
   {
     "mechanics": "[strength:4,combo:3]",
-    "Name": "of the Kodiak Bear",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -1560,7 +1466,6 @@
   },
   {
     "mechanics": "[strength:4,crit:3]",
-    "Name": "of the Cave Bear",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -1577,7 +1482,6 @@
   },
   {
     "mechanics": "[strength:3,magic find:4]",
-    "Name": "of the Jade Serpent",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -1594,7 +1498,6 @@
   },
   {
     "mechanics": "[strength:3,# of action slots:1]",
-    "Name": "of the Mule",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -1611,7 +1514,6 @@
   },
   {
     "mechanics": "[agility:3,intelligence:3]",
-    "Name": "of the Fox",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -1628,7 +1530,6 @@
   },
   {
     "mechanics": "[agility:3,technique:3]",
-    "Name": "of the Ferret",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -1645,7 +1546,6 @@
   },
   {
     "mechanics": "[agility:4,accuracy:3]",
-    "Name": "of the Pronghorn",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -1662,7 +1562,6 @@
   },
   {
     "mechanics": "[agility:4,hit:3]",
-    "Name": "of the Caracal",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -1679,7 +1578,6 @@
   },
   {
     "mechanics": "[agility:3,combo:3]",
-    "Name": "of the Otter",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -1696,7 +1594,6 @@
   },
   {
     "mechanics": "[agility:4,crit:3]",
-    "Name": "of the Weasel",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -1713,7 +1610,6 @@
   },
   {
     "mechanics": "[agility:3,magic find:4]",
-    "Name": "of the Kitsune",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -1730,7 +1626,6 @@
   },
   {
     "mechanics": "[agility:3,# of action slots:1]",
-    "Name": "of the Gecko",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -1747,7 +1642,6 @@
   },
   {
     "mechanics": "[intelligence:3,technique:3]",
-    "Name": "of the Jackdaw",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -1764,7 +1658,6 @@
   },
   {
     "mechanics": "[intelligence:4,accuracy:3]",
-    "Name": "of the Owl",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -1781,7 +1674,6 @@
   },
   {
     "mechanics": "[intelligence:3,hit:3]",
-    "Name": "of the Hawk",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -1798,7 +1690,6 @@
   },
   {
     "mechanics": "[intelligence:3,combo:3]",
-    "Name": "of the Jay",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -1815,7 +1706,6 @@
   },
   {
     "mechanics": "[intelligence:4,crit:3]",
-    "Name": "of the Dragon",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -1832,7 +1722,6 @@
   },
   {
     "mechanics": "[intelligence:3,magic find:4]",
-    "Name": "of the Magpie",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -1849,7 +1738,6 @@
   },
   {
     "mechanics": "[intelligence:3,# of action slots:1]",
-    "Name": "of the Spider",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -1866,7 +1754,6 @@
   },
   {
     "mechanics": "[technique:3,accuracy:4]",
-    "Name": "of the Bloodhound",
     "Mechanics": [
       {
         "StatType": "TEC",
@@ -1883,7 +1770,6 @@
   },
   {
     "mechanics": "[technique:3,hit:3]",
-    "Name": "of the Kestrel",
     "Mechanics": [
       {
         "StatType": "TEC",
@@ -1900,7 +1786,6 @@
   },
   {
     "mechanics": "[technique:3,combo:3]",
-    "Name": "of the Scorpion",
     "Mechanics": [
       {
         "StatType": "TEC",
@@ -1917,7 +1802,6 @@
   },
   {
     "mechanics": "[technique:3,crit:3]",
-    "Name": "of the Pistol Shrimp",
     "Mechanics": [
       {
         "StatType": "TEC",
@@ -1934,7 +1818,6 @@
   },
   {
     "mechanics": "[technique:3,magic find:4]",
-    "Name": "of the Sphinx",
     "Mechanics": [
       {
         "StatType": "TEC",
@@ -1951,7 +1834,6 @@
   },
   {
     "mechanics": "[technique:4,# of action slots:1]",
-    "Name": "of the Clockwork Beetle",
     "Mechanics": [
       {
         "StatType": "TEC",
@@ -1968,7 +1850,6 @@
   },
   {
     "mechanics": "[accuracy:4,hit:3]",
-    "Name": "of the Snow Leopard",
     "Mechanics": [
       {
         "StatType": "accuracy",
@@ -1985,7 +1866,6 @@
   },
   {
     "mechanics": "[accuracy:3,combo:3]",
-    "Name": "of the Praying Mantis",
     "Mechanics": [
       {
         "StatType": "accuracy",
@@ -2002,7 +1882,6 @@
   },
   {
     "mechanics": "[accuracy:4,crit:3]",
-    "Name": "of the Fer-de-Lance",
     "Mechanics": [
       {
         "StatType": "accuracy",
@@ -2019,7 +1898,6 @@
   },
   {
     "mechanics": "[accuracy:3,magic find:4]",
-    "Name": "of the Ibis",
     "Mechanics": [
       {
         "StatType": "accuracy",
@@ -2036,7 +1914,6 @@
   },
   {
     "mechanics": "[accuracy:3,# of action slots:1]",
-    "Name": "of the Ant",
     "Mechanics": [
       {
         "StatType": "accuracy",
@@ -2053,7 +1930,6 @@
   },
   {
     "mechanics": "[hit:3,combo:3]",
-    "Name": "of the Swallow",
     "Mechanics": [
       {
         "StatType": "hit",
@@ -2070,7 +1946,6 @@
   },
   {
     "mechanics": "[hit:3,crit:3]",
-    "Name": "of the Shrike",
     "Mechanics": [
       {
         "StatType": "hit",
@@ -2087,7 +1962,6 @@
   },
   {
     "mechanics": "[hit:3,magic find:3]",
-    "Name": "of the Rook",
     "Mechanics": [
       {
         "StatType": "hit",
@@ -2104,7 +1978,6 @@
   },
   {
     "mechanics": "[hit:3,# of action slots:1]",
-    "Name": "of the Millipede",
     "Mechanics": [
       {
         "StatType": "hit",
@@ -2121,7 +1994,6 @@
   },
   {
     "mechanics": "[combo:3,crit:4]",
-    "Name": "of the Velociraptor",
     "Mechanics": [
       {
         "StatType": "combo",
@@ -2138,7 +2010,6 @@
   },
   {
     "mechanics": "[combo:3,magic find:3]",
-    "Name": "of the Damselfly",
     "Mechanics": [
       {
         "StatType": "combo",
@@ -2155,7 +2026,6 @@
   },
   {
     "mechanics": "[combo:3,# of action slots:1]",
-    "Name": "of the Monkey",
     "Mechanics": [
       {
         "StatType": "combo",
@@ -2172,7 +2042,6 @@
   },
   {
     "mechanics": "[crit:3,magic find:3]",
-    "Name": "of the Nighthawk",
     "Mechanics": [
       {
         "StatType": "crit",
@@ -2189,7 +2058,6 @@
   },
   {
     "mechanics": "[crit:3,# of action slots:1]",
-    "Name": "of the Sicklebill",
     "Mechanics": [
       {
         "StatType": "crit",
@@ -2206,7 +2074,6 @@
   },
   {
     "mechanics": "[magic find:4,# of action slots:1]",
-    "Name": "of the Corvid",
     "Mechanics": [
       {
         "StatType": "MagicFind",
@@ -2224,7 +2091,6 @@
   {
     "Description": "Once misplaced, now bound \u2014 carries the memory of being sought",
     "mechanics": "[strength:3,agility:3,magic find:4]",
-    "Name": "lost and found again",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -2246,7 +2112,6 @@
   {
     "Description": "Stripped of pretense by long use \u2014 nothing left but purpose",
     "mechanics": "[base damage:5,weapon damage:4,health regen:2]",
-    "Name": "worn to the bone",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -2268,7 +2133,6 @@
   {
     "Description": "Ownerless and untamed \u2014 refuses to serve any single master",
     "mechanics": "[agility:4,crit:3,magic find:3]",
-    "Name": "claimed by none",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -2290,7 +2154,6 @@
   {
     "Description": "Heavy with obligation \u2014 the weight of family carried into battle",
     "mechanics": "[max health:12,strength:3]",
-    "Name": "burden of kin",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -2308,7 +2171,6 @@
   {
     "Description": "Promised to the next in line \u2014 its power strains toward the future",
     "mechanics": "[strength:4,intelligence:3,magic find:3]",
-    "Name": "owed to heir",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -2330,7 +2192,6 @@
   {
     "Description": "given up",
     "mechanics": "[strength:-5,agility:-5,technique:-5]",
-    "Name": "lost of will",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -2352,7 +2213,6 @@
   {
     "Description": "Held through dreamless sleep \u2014 crosses the boundary between rest and readiness",
     "mechanics": "[max health:10,health regen:4,accuracy:3]",
-    "Name": "carried til waking",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -2374,7 +2234,6 @@
   {
     "Description": "Its true name spoken only at night \u2014 bound to shadow and silver",
     "mechanics": "[agility:4,intelligence:3,crit:3]",
-    "Name": "dipped in moonlight",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -2396,7 +2255,6 @@
   {
     "Description": "Concealed beneath layers \u2014 its power known only to the wearer",
     "mechanics": "[armor:4,agility:3,magic find:3]",
-    "Name": "hidden beneath",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -2417,7 +2275,6 @@
   },
   {
     "mechanics": "[agility:4,combo:4,crit:3]",
-    "Name": "danced in daylight",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -2439,7 +2296,6 @@
   {
     "Description": "The moment before release \u2014 coiled potential, never quite still",
     "mechanics": "[speed:10,accuracy:4,crit:3]",
-    "Name": "held in breath",
     "Mechanics": [
       {
         "StatType": "speed",
@@ -2461,7 +2317,6 @@
   {
     "Description": "Seasoned by countless battles \u2014 the red has seeped in and stayed",
     "mechanics": "[base damage:5,weapon damage:4,crit:4]",
-    "Name": "bathed in blood",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -2483,7 +2338,6 @@
   {
     "Description": "Its deeds go unrecorded \u2014 what it has done, none can say",
     "mechanics": "[intelligence:4,technique:3,magic find:4]",
-    "Name": "hushed in secret",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -2505,7 +2359,6 @@
   {
     "Description": "Gone so long the world forgot it \u2014 returned changed and strange",
     "mechanics": "[max health:10,magic find:5]",
-    "Name": "absent for long",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -2523,7 +2376,6 @@
   {
     "Description": "Weathered past the point of breaking \u2014 only the true remains",
     "mechanics": "[armor:4,max health:10,health regen:3]",
-    "Name": "rusted by Dew",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -2545,7 +2397,6 @@
   {
     "Description": "Mended with love and quiet ferocity \u2014 nothing may break what she kept whole",
     "mechanics": "[max health:12,health regen:5]",
-    "Name": "stitched by a mother",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -2563,7 +2414,6 @@
   {
     "Description": "Bears the name of a provider \u2014 strength passed through blood and word",
     "mechanics": "[strength:5,base damage:4,hit:3]",
-    "Name": "named after a father",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -2585,7 +2435,6 @@
   {
     "Description": "Seen through young eyes as magnificent \u2014 and perhaps it truly is",
     "mechanics": "[magic find:5,max health:10,combo:3]",
-    "Name": "worshipped by a child",
     "Mechanics": [
       {
         "StatType": "MagicFind",
@@ -2607,7 +2456,6 @@
   {
     "Description": "Repaired with careful hands and quiet loyalty \u2014 holds together under any strain",
     "mechanics": "[armor:4,health regen:4]",
-    "Name": "mended by a sister",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -2625,7 +2473,6 @@
   {
     "Description": "Borne in another\u0027s shadow, faithful and uncomplaining",
     "mechanics": "[strength:4,max health:10,hit:3]",
-    "Name": "carried by a brother",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -2647,7 +2494,6 @@
   {
     "Description": "Held through doubt and silence \u2014 belief made tangible",
     "mechanics": "[magic find:5,intelligence:4,combo:3]",
-    "Name": "kept in faith",
     "Mechanics": [
       {
         "StatType": "MagicFind",
@@ -2669,7 +2515,6 @@
   {
     "Description": "The last gift of the fallen \u2014 its power drawn from a final act of will",
     "mechanics": "[base damage:5,weapon damage:5,strength:3]",
-    "Name": "given by dying hands",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -2691,7 +2536,6 @@
   {
     "Description": "Aged beyond expectation \u2014 time has only made it more itself",
     "mechanics": "[all:2,magic find:3]",
-    "Name": "kissed by time",
     "Mechanics": [
       {
         "StatType": "ALL",
@@ -2709,7 +2553,6 @@
   {
     "Description": "Adored so completely that the love became part of the material",
     "mechanics": "[max health:12,magic find:4,combo:3]",
-    "Name": "cherished by lovers",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -2731,7 +2574,6 @@
   {
     "Description": "Lost from memory, then suddenly vivid \u2014 its return feels fated",
     "mechanics": "[intelligence:4,magic find:5,accuracy:3]",
-    "Name": "forgotten and remembered",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -2753,7 +2595,6 @@
   {
     "Description": "The storm kept its secret \u2014 found only when the weather finally broke",
     "mechanics": "[agility:4,armor:4]",
-    "Name": "hidden by rain",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -2771,7 +2612,6 @@
   {
     "Description": "Wagered and lost, wagered and won \u2014 every victory feels borrowed",
     "mechanics": "[magic find:5,crit:4]",
-    "Name": "gambled by debt",
     "Mechanics": [
       {
         "StatType": "MagicFind",
@@ -2789,7 +2629,6 @@
   {
     "Description": "Nearly lost so many times its luck has hardened into something useful",
     "mechanics": "[magic find:4,agility:3,# of action slots:1]",
-    "Name": "remembered by the careless",
     "Mechanics": [
       {
         "StatType": "MagicFind",
@@ -2811,7 +2650,6 @@
   {
     "Description": "Balanced on the threshold \u2014 between breaking and becoming",
     "mechanics": "[base damage:4,weapon damage:4,crit:4]",
-    "Name": "cradled on edge",
     "Mechanics": [
       {
         "StatType": "base damage",
@@ -2833,7 +2671,6 @@
   {
     "Description": "The weight of a wrong never set right \u2014 carried forward as fuel",
     "mechanics": "[strength:4,base damage:5,hit:3]",
-    "Name": "bound by shame",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -2854,7 +2691,6 @@
   },
   {
     "mechanics": "[all:5]",
-    "Name": "of gods",
     "Mechanics": [
       {
         "StatType": "ALL",

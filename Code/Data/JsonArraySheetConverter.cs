@@ -67,17 +67,17 @@ namespace RPGGame.Data
         };
 
         /// <summary>
-        /// Column order for ENEMIES tab — nested stats are one column each (<c>baseAttributes.strength</c>, …).
-        /// Push writes two header rows: category band (<c>base attributes</c>, <c>growth</c>) then short names.
+        /// Column order for ENEMIES tab (A–U) — placement columns, nested stats, HEALTH band, then combat metadata.
+        /// Push writes two header rows: category band (<c>base attributes</c>, <c>growth</c>, <c>HEALTH</c>) then short names.
         /// Import accepts that layout or a legacy single row of dotted headers; legacy <c>overrides.*</c> columns are promoted into HP fields and dropped.
         /// </summary>
         public static readonly string[] EnemiesCanonicalHeaders =
         {
-            "name", "archetype",
+            "region", "biome", "location", "rarity", "name", "tags", "archetype",
             "baseAttributes.strength", "baseAttributes.agility", "baseAttributes.technique", "baseAttributes.intelligence",
             "growthPerLevel.strength", "growthPerLevel.agility", "growthPerLevel.technique", "growthPerLevel.intelligence",
             "baseHealth", "healthGrowthPerLevel",
-            "actions", "isLiving", "description", "colorOverride", "tags"
+            "actions", "isLiving", "description", "colorOverride"
         };
 
         private static readonly string[] EnemyNestedObjectNames = { "baseAttributes", "growthPerLevel" };
@@ -92,6 +92,8 @@ namespace RPGGame.Data
         public const string EnemySheetCategoryBaseAttributes = "base attributes";
 
         public const string EnemySheetCategoryGrowth = "growth";
+
+        public const string EnemySheetCategoryHealth = "HEALTH";
 
         public static readonly string[] EnvironmentsCanonicalHeaders =
             { "name", "description", "theme", "isHostile", "actions", "enemies" };
@@ -523,12 +525,11 @@ namespace RPGGame.Data
         {
             if (canonicalHeader.StartsWith("baseAttributes.", StringComparison.Ordinal))
                 return EnemySheetCategoryBaseAttributes;
-            if (string.Equals(canonicalHeader, "baseHealth", StringComparison.Ordinal))
-                return EnemySheetCategoryBaseAttributes;
             if (canonicalHeader.StartsWith("growthPerLevel.", StringComparison.Ordinal))
                 return EnemySheetCategoryGrowth;
-            if (string.Equals(canonicalHeader, "healthGrowthPerLevel", StringComparison.Ordinal))
-                return EnemySheetCategoryGrowth;
+            if (string.Equals(canonicalHeader, "baseHealth", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(canonicalHeader, "healthGrowthPerLevel", StringComparison.OrdinalIgnoreCase))
+                return EnemySheetCategoryHealth;
             return "";
         }
 
@@ -711,20 +712,29 @@ namespace RPGGame.Data
         }
 
         /// <summary>
-        /// True when row 0 is the category band (blank over <c>name</c>, repeated group labels) and row 1 is short column names
-        /// (starts with <c>name</c>), not a data row.
+        /// True when row 0 is the category band (blank over general columns, repeated group labels) and row 1 is short column names
+        /// (contains <c>name</c> somewhere), not a data row.
         /// </summary>
         private static bool EnemySheetTwoRowHeaderFormat(string[] row0, string[] row1)
         {
             if (row1.Length == 0)
                 return false;
-            if (!string.Equals(row1[0]?.Trim(), "name", StringComparison.OrdinalIgnoreCase))
-                return false;
-            if (row0.Length > 0 && !string.IsNullOrWhiteSpace(row0[0]))
+            if (!EnemySheetRowContainsNameHeader(row1))
                 return false;
             if (!EnemySheetRowLooksLikeCategoryBand(row0) || EnemySheetRowHasDottedStatKeys(row0))
                 return false;
             return true;
+        }
+
+        private static bool EnemySheetRowContainsNameHeader(string[] row)
+        {
+            foreach (var cell in row)
+            {
+                if (string.Equals(cell?.Trim(), "name", StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
         }
 
         private static bool EnemySheetRowLooksLikeCategoryBand(string[] row)
@@ -736,7 +746,8 @@ namespace RPGGame.Data
                     continue;
                 if (string.Equals(t, EnemySheetCategoryOverrides, StringComparison.OrdinalIgnoreCase)
                     || string.Equals(t, EnemySheetCategoryBaseAttributes, StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(t, EnemySheetCategoryGrowth, StringComparison.OrdinalIgnoreCase))
+                    || string.Equals(t, EnemySheetCategoryGrowth, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(t, EnemySheetCategoryHealth, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
 
@@ -767,7 +778,7 @@ namespace RPGGame.Data
             // Sheet row-0 blanks reuse the last category label (Excel merges). Columns after growthPerLevel.*
             // (actions, isLiving, …) have blank row-0 but must not inherit "growth" or actions land in growthPerLevel.actions.
             if (EnemyImportSubHeaderIsRootEnemyColumn(subHeader))
-                return subHeader;
+                return NormalizeEnemyRootHeader(subHeader);
 
             if (category.Length == 0)
                 return subHeader;
@@ -779,26 +790,57 @@ namespace RPGGame.Data
             {
                 if (string.Equals(subHeader, "baseHealth", StringComparison.OrdinalIgnoreCase))
                     return "baseHealth";
-                return "baseAttributes." + subHeader;
+                return "baseAttributes." + NormalizeEnemyStatLeafHeader(subHeader);
             }
 
             if (string.Equals(category, EnemySheetCategoryGrowth, StringComparison.OrdinalIgnoreCase))
             {
                 if (string.Equals(subHeader, "healthGrowthPerLevel", StringComparison.OrdinalIgnoreCase))
                     return "healthGrowthPerLevel";
-                return "growthPerLevel." + subHeader;
+                return "growthPerLevel." + NormalizeEnemyStatLeafHeader(subHeader);
             }
 
-            return subHeader;
+            if (string.Equals(category, EnemySheetCategoryHealth, StringComparison.OrdinalIgnoreCase))
+            {
+                if (string.Equals(subHeader, "baseHealth", StringComparison.OrdinalIgnoreCase))
+                    return "baseHealth";
+                if (string.Equals(subHeader, "healthGrowthPerLevel", StringComparison.OrdinalIgnoreCase))
+                    return "healthGrowthPerLevel";
+            }
+
+            return NormalizeEnemyRootHeader(subHeader);
         }
+
+        private static string NormalizeEnemyStatLeafHeader(string subHeader) =>
+            subHeader.Trim().ToLowerInvariant();
+
+        private static string NormalizeEnemyRootHeader(string subHeader)
+        {
+            string t = subHeader.Trim();
+            return EnemyRootHeaderCanonicalNames.TryGetValue(t, out var canon) ? canon : t;
+        }
+
+        private static readonly Dictionary<string, string> EnemyRootHeaderCanonicalNames =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["region"] = "region",
+                ["biome"] = "biome",
+                ["location"] = "location",
+                ["rarity"] = "rarity",
+                ["name"] = "name",
+                ["tags"] = "tags",
+                ["archetype"] = "archetype",
+                ["actions"] = "actions",
+                ["isLiving"] = "isLiving",
+                ["description"] = "description",
+                ["colorOverride"] = "colorOverride",
+                ["baseHealth"] = "baseHealth",
+                ["healthGrowthPerLevel"] = "healthGrowthPerLevel"
+            };
 
         /// <summary>Short headers on ENEMIES row-1 that are top-level JSON fields, not growth/baseAttributes sub-keys.</summary>
         private static bool EnemyImportSubHeaderIsRootEnemyColumn(string subHeader) =>
-            string.Equals(subHeader, "actions", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(subHeader, "isLiving", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(subHeader, "description", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(subHeader, "colorOverride", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(subHeader, "tags", StringComparison.OrdinalIgnoreCase);
+            EnemyRootHeaderCanonicalNames.ContainsKey(subHeader.Trim());
 
         private static JsonSerializerOptions GetSerializerOptions(GameDataTabularSheetKind kind)
         {
@@ -947,8 +989,89 @@ namespace RPGGame.Data
         /// </summary>
         private static void NormalizeEnemyJsonArrayRow(JsonObject obj)
         {
+            CanonicalizeEnemyImportRowKeys(obj);
+            PromoteMisplacedEnemyHealthFields(obj);
+            StripEnemyLegacyRootStatsWhenNestedPresent(obj);
             NormalizeEnemyActionsFromSheet(obj);
             NormalizeEnemyTagsFromSheet(obj);
+        }
+
+        /// <summary>Moves HP keys mistakenly nested under <c>growthPerLevel</c> / <c>baseAttributes</c> to root (legacy sheet bands).</summary>
+        private static void PromoteMisplacedEnemyHealthFields(JsonObject obj)
+        {
+            static void Hoist(JsonObject root, JsonObject nested, string nestedKey, string rootKey)
+            {
+                if (!nested.TryGetPropertyValue(nestedKey, out var val) || val is null || IsJsonNodeNullOrMissing(val))
+                    return;
+                if (!root.ContainsKey(rootKey))
+                    root[rootKey] = val.DeepClone();
+                nested.Remove(nestedKey);
+            }
+
+            if (obj.TryGetPropertyValue("growthPerLevel", out var gpNode) && gpNode is JsonObject gp)
+            {
+                Hoist(obj, gp, "baseHealth", "baseHealth");
+                Hoist(obj, gp, "healthGrowthPerLevel", "healthGrowthPerLevel");
+            }
+
+            if (obj.TryGetPropertyValue("baseAttributes", out var baNode) && baNode is JsonObject ba)
+                Hoist(obj, ba, "baseHealth", "baseHealth");
+        }
+
+        /// <summary>Drops mistaken root <c>strength</c>/<c>agility</c>/… when nested stat objects were already merged.</summary>
+        private static void StripEnemyLegacyRootStatsWhenNestedPresent(JsonObject obj)
+        {
+            bool hasBase = obj.ContainsKey("baseAttributes");
+            bool hasGrowth = obj.ContainsKey("growthPerLevel");
+            if (!hasBase && !hasGrowth)
+                return;
+
+            foreach (string stat in EnemyLegacyRootStatPropertyNames)
+                obj.Remove(stat);
+        }
+
+        /// <summary>Maps mixed-case sheet headers to lowercase camelCase JSON keys before nested merge.</summary>
+        private static void CanonicalizeEnemyImportRowKeys(JsonObject obj)
+        {
+            var renames = new List<(string oldKey, string newKey)>();
+            foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+            {
+                int dot = key.IndexOf('.', StringComparison.Ordinal);
+                if (dot > 0)
+                {
+                    string prefix = key[..dot];
+                    string suffix = key[(dot + 1)..];
+                    string canonPrefix = prefix.Equals("baseAttributes", StringComparison.OrdinalIgnoreCase)
+                        ? "baseAttributes"
+                        : prefix.Equals("growthPerLevel", StringComparison.OrdinalIgnoreCase)
+                            ? "growthPerLevel"
+                            : prefix.Equals("overrides", StringComparison.OrdinalIgnoreCase)
+                                ? "overrides"
+                                : prefix;
+                    string canonKey = canonPrefix + "." + suffix.Trim().ToLowerInvariant();
+                    if (!string.Equals(key, canonKey, StringComparison.Ordinal))
+                        renames.Add((key, canonKey));
+                    continue;
+                }
+
+                string canonRoot = NormalizeEnemyRootHeader(key);
+                if (!string.Equals(key, canonRoot, StringComparison.Ordinal))
+                    renames.Add((key, canonRoot));
+            }
+
+            foreach (var (oldKey, newKey) in renames)
+            {
+                if (!obj.TryGetPropertyValue(oldKey, out var val))
+                    continue;
+                if (obj.ContainsKey(newKey))
+                    obj.Remove(oldKey);
+                else
+                {
+                    obj.Remove(oldKey);
+                    if (val is not null)
+                        obj[newKey] = val;
+                }
+            }
         }
 
         /// <summary>

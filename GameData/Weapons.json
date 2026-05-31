@@ -3,12 +3,12 @@
     "type": "Wand",
     "name": "Bead",
     "baseDamage": 4,
-    "attackSpeed": 1.04,
+    "attackSpeed": 1.12,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "intelligence": 9
+      "intelligence": 15
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -18,13 +18,13 @@
   {
     "type": "Dagger",
     "name": "Blade",
-    "baseDamage": 3,
-    "attackSpeed": 0.61,
+    "baseDamage": 4,
+    "attackSpeed": 0.73,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 30
+      "technique": 18
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -34,13 +34,13 @@
   {
     "type": "Mace",
     "name": "Bludgeon",
-    "baseDamage": 4,
-    "attackSpeed": 1.34,
+    "baseDamage": 3,
+    "attackSpeed": 1.07,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "strength": 8
+      "strength": 15
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -51,11 +51,13 @@
     "type": "Sword",
     "name": "Branch",
     "baseDamage": 2,
-    "attackSpeed": 0.99,
+    "attackSpeed": 1.18,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "agility": 5
+    },
     "tags": [
       "starter"
     ],
@@ -67,12 +69,12 @@
     "type": "Wand",
     "name": "Charm",
     "baseDamage": 4,
-    "attackSpeed": 1.09,
+    "attackSpeed": 1,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "intelligence": 12
+      "intelligence": 6
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -83,12 +85,12 @@
     "type": "Sword",
     "name": "Chopoper",
     "baseDamage": 3,
-    "attackSpeed": 1.06,
+    "attackSpeed": 1.1,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 10
+      "agility": 14
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -103,7 +105,9 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 5
+    },
     "tags": null,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
@@ -113,7 +117,7 @@
     "type": "Sword",
     "name": "Cleaver",
     "baseDamage": 3,
-    "attackSpeed": 0.89,
+    "attackSpeed": 1.07,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
@@ -128,8 +132,40 @@
   {
     "type": "Mace",
     "name": "Clonker",
-    "baseDamage": 4,
-    "attackSpeed": 1.17,
+    "baseDamage": 5,
+    "attackSpeed": 1.27,
+    "damageBonusMin": 1,
+    "damageBonusMax": 4,
+    "tier": 1,
+    "attributeRequirements": {
+      "strength": 11
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Club",
+    "baseDamage": 3,
+    "attackSpeed": 1.3,
+    "damageBonusMin": 1,
+    "damageBonusMax": 4,
+    "tier": 1,
+    "attributeRequirements": {
+      "strength": 5
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Cudgel",
+    "baseDamage": 5,
+    "attackSpeed": 1.28,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
@@ -142,44 +178,16 @@
     "extraActionSlotsMax": 0
   },
   {
-    "type": "Mace",
-    "name": "Club",
+    "type": "Sword",
+    "name": "Cutter",
     "baseDamage": 3,
-    "attackSpeed": 1.18,
-    "damageBonusMin": 1,
-    "damageBonusMax": 4,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Cudgel",
-    "baseDamage": 5,
-    "attackSpeed": 1.17,
+    "attackSpeed": 1.14,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "strength": 7
+      "agility": 5
     },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Sword",
-    "name": "Cutter",
-    "baseDamage": 2,
-    "attackSpeed": 0.95,
-    "damageBonusMin": 1,
-    "damageBonusMax": 4,
-    "tier": 1,
-    "attributeRequirements": null,
     "tags": null,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
@@ -188,8 +196,8 @@
   {
     "type": "Dagger",
     "name": "Fang",
-    "baseDamage": 3,
-    "attackSpeed": 0.68,
+    "baseDamage": 2,
+    "attackSpeed": 0.61,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
@@ -204,12 +212,14 @@
   {
     "type": "Wand",
     "name": "Grimoire",
-    "baseDamage": 3,
-    "attackSpeed": 1.19,
+    "baseDamage": 2,
+    "attackSpeed": 0.9,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "intelligence": 5
+    },
     "tags": null,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
@@ -218,13 +228,13 @@
   {
     "type": "Wand",
     "name": "Gylgh",
-    "baseDamage": 5,
-    "attackSpeed": 1.05,
+    "baseDamage": 4,
+    "attackSpeed": 0.82,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "intelligence": 12
+      "intelligence": 11
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -235,11 +245,13 @@
     "type": "Dagger",
     "name": "Knife",
     "baseDamage": 2,
-    "attackSpeed": 0.8,
+    "attackSpeed": 0.89,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 5
+    },
     "tags": null,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
@@ -249,101 +261,7 @@
     "type": "Mace",
     "name": "Knob",
     "baseDamage": 3,
-    "attackSpeed": 1.29,
-    "damageBonusMin": 1,
-    "damageBonusMax": 4,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Log",
-    "baseDamage": 3,
-    "attackSpeed": 1.37,
-    "damageBonusMin": 1,
-    "damageBonusMax": 4,
-    "tier": 1,
-    "attributeRequirements": null,
-    "tags": [
-      "starter"
-    ],
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Sword",
-    "name": "Long Edge",
-    "baseDamage": 4,
-    "attackSpeed": 0.94,
-    "damageBonusMin": 1,
-    "damageBonusMax": 4,
-    "tier": 1,
-    "attributeRequirements": {
-      "agility": 14
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Lump",
-    "baseDamage": 5,
-    "attackSpeed": 1.19,
-    "damageBonusMin": 1,
-    "damageBonusMax": 4,
-    "tier": 1,
-    "attributeRequirements": {
-      "strength": 6
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Mace",
-    "baseDamage": 9,
-    "attackSpeed": 1.36,
-    "damageBonusMin": 2,
-    "damageBonusMax": 4,
-    "tier": 2,
-    "attributeRequirements": {
-      "strength": 16
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Sword",
-    "name": "Machete",
-    "baseDamage": 4,
-    "attackSpeed": 0.97,
-    "damageBonusMin": 1,
-    "damageBonusMax": 4,
-    "tier": 1,
-    "attributeRequirements": {
-      "agility": 13
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Mallet",
-    "baseDamage": 3,
-    "attackSpeed": 1.08,
+    "attackSpeed": 1.1,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
@@ -356,15 +274,113 @@
     "extraActionSlotsMax": 0
   },
   {
-    "type": "Sword",
-    "name": "One Armed Scissor",
-    "baseDamage": 4,
-    "attackSpeed": 1.07,
+    "type": "Mace",
+    "name": "Log",
+    "baseDamage": 3,
+    "attackSpeed": 1.35,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 11
+      "strength": 5
+    },
+    "tags": [
+      "starter"
+    ],
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Sword",
+    "name": "Long Edge",
+    "baseDamage": 4,
+    "attackSpeed": 0.83,
+    "damageBonusMin": 1,
+    "damageBonusMax": 4,
+    "tier": 1,
+    "attributeRequirements": {
+      "agility": 7
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Lump",
+    "baseDamage": 5,
+    "attackSpeed": 1.18,
+    "damageBonusMin": 1,
+    "damageBonusMax": 4,
+    "tier": 1,
+    "attributeRequirements": {
+      "strength": 11
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Mace",
+    "baseDamage": 7,
+    "attackSpeed": 1.07,
+    "damageBonusMin": 2,
+    "damageBonusMax": 4,
+    "tier": 2,
+    "attributeRequirements": {
+      "strength": 23
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Sword",
+    "name": "Machete",
+    "baseDamage": 4,
+    "attackSpeed": 0.96,
+    "damageBonusMin": 1,
+    "damageBonusMax": 4,
+    "tier": 1,
+    "attributeRequirements": {
+      "agility": 12
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Mallet",
+    "baseDamage": 4,
+    "attackSpeed": 1.11,
+    "damageBonusMin": 1,
+    "damageBonusMax": 4,
+    "tier": 1,
+    "attributeRequirements": {
+      "strength": 10
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Sword",
+    "name": "One Armed Scissor",
+    "baseDamage": 3,
+    "attackSpeed": 0.96,
+    "damageBonusMin": 1,
+    "damageBonusMax": 4,
+    "tier": 1,
+    "attributeRequirements": {
+      "agility": 14
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -375,12 +391,12 @@
     "type": "Dagger",
     "name": "Peeler",
     "baseDamage": 2,
-    "attackSpeed": 0.77,
+    "attackSpeed": 0.76,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 12
+      "technique": 7
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -391,12 +407,12 @@
     "type": "Dagger",
     "name": "Pick",
     "baseDamage": 3,
-    "attackSpeed": 0.81,
+    "attackSpeed": 0.61,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 8
+      "technique": 9
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -406,13 +422,13 @@
   {
     "type": "Mace",
     "name": "Pounder",
-    "baseDamage": 5,
-    "attackSpeed": 1.08,
+    "baseDamage": 6,
+    "attackSpeed": 1.24,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "strength": 9
+      "strength": 13
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -423,12 +439,12 @@
     "type": "Wand",
     "name": "Prong",
     "baseDamage": 3,
-    "attackSpeed": 0.86,
+    "attackSpeed": 0.83,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "intelligence": 8
+      "intelligence": 11
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -439,12 +455,12 @@
     "type": "Dagger",
     "name": "Razor",
     "baseDamage": 2,
-    "attackSpeed": 0.83,
+    "attackSpeed": 0.66,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 9
+      "technique": 12
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -459,7 +475,9 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "intelligence": 5
+    },
     "tags": null,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
@@ -468,13 +486,13 @@
   {
     "type": "Wand",
     "name": "Rune",
-    "baseDamage": 4,
-    "attackSpeed": 0.89,
+    "baseDamage": 5,
+    "attackSpeed": 1.18,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "intelligence": 10
+      "intelligence": 7
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -485,12 +503,12 @@
     "type": "Wand",
     "name": "Shard",
     "baseDamage": 3,
-    "attackSpeed": 1.08,
+    "attackSpeed": 1.02,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "intelligence": 14
+      "intelligence": 5
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -500,13 +518,13 @@
   {
     "type": "Dagger",
     "name": "Spike",
-    "baseDamage": 4,
-    "attackSpeed": 0.92,
+    "baseDamage": 5,
+    "attackSpeed": 0.96,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 6
+      "technique": 14
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -516,13 +534,13 @@
   {
     "type": "Dagger",
     "name": "Splinter",
-    "baseDamage": 2,
-    "attackSpeed": 0.68,
+    "baseDamage": 3,
+    "attackSpeed": 0.99,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 9
+      "technique": 10
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -533,11 +551,13 @@
     "type": "Wand",
     "name": "Staff",
     "baseDamage": 2,
-    "attackSpeed": 0.91,
+    "attackSpeed": 0.92,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "intelligence": 5
+    },
     "tags": null,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
@@ -547,11 +567,13 @@
     "type": "Wand",
     "name": "Stick",
     "baseDamage": 2,
-    "attackSpeed": 0.85,
+    "attackSpeed": 1.14,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "intelligence": 5
+    },
     "tags": [
       "starter"
     ],
@@ -563,11 +585,13 @@
     "type": "Wand",
     "name": "Stick",
     "baseDamage": 2,
-    "attackSpeed": 0.85,
+    "attackSpeed": 1.14,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "intelligence": 5
+    },
     "tags": [
       "starter"
     ],
@@ -578,13 +602,13 @@
   {
     "type": "Sword",
     "name": "Sword",
-    "baseDamage": 3,
-    "attackSpeed": 0.88,
+    "baseDamage": 4,
+    "attackSpeed": 1.14,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 11
+      "agility": 14
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -595,11 +619,13 @@
     "type": "Dagger",
     "name": "Thorn",
     "baseDamage": 2,
-    "attackSpeed": 0.76,
+    "attackSpeed": 0.82,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 5
+    },
     "tags": null,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
@@ -609,11 +635,13 @@
     "type": "Dagger",
     "name": "Twig",
     "baseDamage": 2,
-    "attackSpeed": 0.95,
+    "attackSpeed": 0.8,
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 5
+    },
     "tags": [
       "starter"
     ],
@@ -624,13 +652,13 @@
   {
     "type": "Mace",
     "name": "Basher",
-    "baseDamage": 5,
-    "attackSpeed": 1.02,
+    "baseDamage": 6,
+    "attackSpeed": 1.22,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 14
+      "strength": 10
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -640,13 +668,13 @@
   {
     "type": "Dagger",
     "name": "Blade",
-    "baseDamage": 3,
-    "attackSpeed": 0.61,
+    "baseDamage": 4,
+    "attackSpeed": 0.73,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 30
+      "technique": 18
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -656,13 +684,13 @@
   {
     "type": "Mace",
     "name": "Breaker",
-    "baseDamage": 8,
-    "attackSpeed": 1.05,
+    "baseDamage": 10,
+    "attackSpeed": 1.31,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 16
+      "strength": 24
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -672,13 +700,13 @@
   {
     "type": "Sword",
     "name": "Broadsword",
-    "baseDamage": 6,
-    "attackSpeed": 0.98,
+    "baseDamage": 7,
+    "attackSpeed": 1.17,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 24
+      "agility": 26
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -688,24 +716,8 @@
   {
     "type": "Mace",
     "name": "Cracker",
-    "baseDamage": 6,
-    "attackSpeed": 1.32,
-    "damageBonusMin": 2,
-    "damageBonusMax": 4,
-    "tier": 2,
-    "attributeRequirements": {
-      "strength": 21
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Crusher",
-    "baseDamage": 4,
-    "attackSpeed": 1.09,
+    "baseDamage": 5,
+    "attackSpeed": 1.27,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
@@ -718,15 +730,31 @@
     "extraActionSlotsMax": 0
   },
   {
-    "type": "Sword",
-    "name": "Cutlass",
-    "baseDamage": 6,
-    "attackSpeed": 0.8,
+    "type": "Mace",
+    "name": "Crusher",
+    "baseDamage": 4,
+    "attackSpeed": 1.2,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 25
+      "strength": 14
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Sword",
+    "name": "Cutlass",
+    "baseDamage": 6,
+    "attackSpeed": 0.87,
+    "damageBonusMin": 2,
+    "damageBonusMax": 4,
+    "tier": 2,
+    "attributeRequirements": {
+      "agility": 12
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -736,13 +764,13 @@
   {
     "type": "Dagger",
     "name": "Dagger",
-    "baseDamage": 3,
-    "attackSpeed": 0.62,
+    "baseDamage": 4,
+    "attackSpeed": 0.94,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 24
+      "technique": 11
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -752,13 +780,13 @@
   {
     "type": "Dagger",
     "name": "Dirk",
-    "baseDamage": 7,
-    "attackSpeed": 0.89,
+    "baseDamage": 8,
+    "attackSpeed": 0.98,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 15
+      "technique": 17
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -768,13 +796,13 @@
   {
     "type": "Wand",
     "name": "Essence",
-    "baseDamage": 14,
-    "attackSpeed": 0.98,
+    "baseDamage": 15,
+    "attackSpeed": 1.02,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 59
+      "intelligence": 52
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -784,13 +812,13 @@
   {
     "type": "Sword",
     "name": "Falchion",
-    "baseDamage": 5,
-    "attackSpeed": 0.81,
+    "baseDamage": 6,
+    "attackSpeed": 1.04,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 25
+      "agility": 24
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -800,13 +828,13 @@
   {
     "type": "Sword",
     "name": "Fine Saber",
-    "baseDamage": 5,
-    "attackSpeed": 1.18,
+    "baseDamage": 4,
+    "attackSpeed": 0.9,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 15
+      "agility": 14
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -816,13 +844,13 @@
   {
     "type": "Mace",
     "name": "Flail",
-    "baseDamage": 9,
-    "attackSpeed": 1.35,
+    "baseDamage": 8,
+    "attackSpeed": 1.1,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 29
+      "strength": 28
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -832,13 +860,13 @@
   {
     "type": "Sword",
     "name": "Glaive",
-    "baseDamage": 4,
-    "attackSpeed": 0.87,
+    "baseDamage": 5,
+    "attackSpeed": 0.96,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 23
+      "agility": 27
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -849,12 +877,12 @@
     "type": "Dagger",
     "name": "Gutter",
     "baseDamage": 7,
-    "attackSpeed": 0.99,
+    "attackSpeed": 0.89,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 23
+      "technique": 20
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -864,13 +892,13 @@
   {
     "type": "Mace",
     "name": "Hammer",
-    "baseDamage": 10,
-    "attackSpeed": 1.19,
+    "baseDamage": 12,
+    "attackSpeed": 1.4,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 12
+      "strength": 25
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -881,55 +909,7 @@
     "type": "Dagger",
     "name": "Hook",
     "baseDamage": 3,
-    "attackSpeed": 0.8,
-    "damageBonusMin": 2,
-    "damageBonusMax": 4,
-    "tier": 2,
-    "attributeRequirements": {
-      "technique": 10
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Wand",
-    "name": "Idol",
-    "baseDamage": 9,
-    "attackSpeed": 1.12,
-    "damageBonusMin": 2,
-    "damageBonusMax": 4,
-    "tier": 2,
-    "attributeRequirements": {
-      "intelligence": 25
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Knocker",
-    "baseDamage": 6,
-    "attackSpeed": 1.11,
-    "damageBonusMin": 2,
-    "damageBonusMax": 4,
-    "tier": 2,
-    "attributeRequirements": {
-      "strength": 23
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Dagger",
-    "name": "Kris",
-    "baseDamage": 5,
-    "attackSpeed": 0.88,
+    "attackSpeed": 0.86,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
@@ -943,14 +923,62 @@
   },
   {
     "type": "Wand",
-    "name": "Lens",
-    "baseDamage": 7,
-    "attackSpeed": 1.09,
+    "name": "Idol",
+    "baseDamage": 8,
+    "attackSpeed": 0.92,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 12
+      "intelligence": 18
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Knocker",
+    "baseDamage": 7,
+    "attackSpeed": 1.2,
+    "damageBonusMin": 2,
+    "damageBonusMax": 4,
+    "tier": 2,
+    "attributeRequirements": {
+      "strength": 18
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Dagger",
+    "name": "Kris",
+    "baseDamage": 5,
+    "attackSpeed": 0.85,
+    "damageBonusMin": 2,
+    "damageBonusMax": 4,
+    "tier": 2,
+    "attributeRequirements": {
+      "technique": 25
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Wand",
+    "name": "Lens",
+    "baseDamage": 6,
+    "attackSpeed": 0.91,
+    "damageBonusMin": 2,
+    "damageBonusMax": 4,
+    "tier": 2,
+    "attributeRequirements": {
+      "intelligence": 15
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -960,13 +988,13 @@
   {
     "type": "Sword",
     "name": "Longsword",
-    "baseDamage": 5,
-    "attackSpeed": 1.09,
+    "baseDamage": 4,
+    "attackSpeed": 0.82,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 11
+      "agility": 15
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -976,13 +1004,13 @@
   {
     "type": "Mace",
     "name": "Mace",
-    "baseDamage": 9,
-    "attackSpeed": 1.36,
+    "baseDamage": 7,
+    "attackSpeed": 1.07,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 16
+      "strength": 23
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -993,7 +1021,7 @@
     "type": "Dagger",
     "name": "Needle",
     "baseDamage": 4,
-    "attackSpeed": 0.84,
+    "attackSpeed": 0.97,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
@@ -1008,13 +1036,13 @@
   {
     "type": "Wand",
     "name": "Orb",
-    "baseDamage": 5,
-    "attackSpeed": 0.87,
+    "baseDamage": 6,
+    "attackSpeed": 1.08,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 26
+      "intelligence": 19
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1025,12 +1053,12 @@
     "type": "Dagger",
     "name": "Point",
     "baseDamage": 3,
-    "attackSpeed": 0.98,
+    "attackSpeed": 0.92,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 22
+      "technique": 30
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1040,13 +1068,13 @@
   {
     "type": "Sword",
     "name": "Scimitar",
-    "baseDamage": 6,
-    "attackSpeed": 0.86,
+    "baseDamage": 8,
+    "attackSpeed": 1.11,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 22
+      "agility": 15
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1056,13 +1084,13 @@
   {
     "type": "Dagger",
     "name": "Shiv",
-    "baseDamage": 7,
-    "attackSpeed": 1,
+    "baseDamage": 5,
+    "attackSpeed": 0.68,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 28
+      "technique": 21
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1072,13 +1100,13 @@
   {
     "type": "Sword",
     "name": "Shortsword",
-    "baseDamage": 4,
-    "attackSpeed": 1.08,
+    "baseDamage": 3,
+    "attackSpeed": 0.87,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 16
+      "agility": 23
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1088,13 +1116,13 @@
   {
     "type": "Wand",
     "name": "Sigil",
-    "baseDamage": 9,
-    "attackSpeed": 1.15,
+    "baseDamage": 8,
+    "attackSpeed": 1.09,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 11
+      "intelligence": 19
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1104,13 +1132,13 @@
   {
     "type": "Sword",
     "name": "Slasher",
-    "baseDamage": 4,
-    "attackSpeed": 1.05,
+    "baseDamage": 3,
+    "attackSpeed": 0.82,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 20
+      "agility": 26
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1120,13 +1148,13 @@
   {
     "type": "Sword",
     "name": "Slicer",
-    "baseDamage": 8,
-    "attackSpeed": 1,
+    "baseDamage": 10,
+    "attackSpeed": 1.16,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 20
+      "agility": 14
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1136,8 +1164,8 @@
   {
     "type": "Dagger",
     "name": "Stiletto",
-    "baseDamage": 5,
-    "attackSpeed": 0.75,
+    "baseDamage": 4,
+    "attackSpeed": 0.7,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
@@ -1153,39 +1181,7 @@
     "type": "Mace",
     "name": "Striker",
     "baseDamage": 6,
-    "attackSpeed": 1.17,
-    "damageBonusMin": 2,
-    "damageBonusMax": 4,
-    "tier": 2,
-    "attributeRequirements": {
-      "strength": 14
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Wand",
-    "name": "Tailsman",
-    "baseDamage": 5,
-    "attackSpeed": 0.99,
-    "damageBonusMin": 2,
-    "damageBonusMax": 4,
-    "tier": 2,
-    "attributeRequirements": {
-      "intelligence": 13
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Thumper",
-    "baseDamage": 5,
-    "attackSpeed": 1.34,
+    "attackSpeed": 1.25,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
@@ -1199,14 +1195,30 @@
   },
   {
     "type": "Wand",
-    "name": "Tome",
-    "baseDamage": 6,
-    "attackSpeed": 0.88,
+    "name": "Tailsman",
+    "baseDamage": 5,
+    "attackSpeed": 1.04,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 24
+      "intelligence": 18
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Thumper",
+    "baseDamage": 4,
+    "attackSpeed": 1.03,
+    "damageBonusMin": 2,
+    "damageBonusMax": 4,
+    "tier": 2,
+    "attributeRequirements": {
+      "strength": 19
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1216,13 +1228,29 @@
   {
     "type": "Wand",
     "name": "Tome",
-    "baseDamage": 6,
-    "attackSpeed": 0.88,
+    "baseDamage": 7,
+    "attackSpeed": 0.97,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 24
+      "intelligence": 10
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Wand",
+    "name": "Tome",
+    "baseDamage": 7,
+    "attackSpeed": 0.97,
+    "damageBonusMin": 2,
+    "damageBonusMax": 4,
+    "tier": 2,
+    "attributeRequirements": {
+      "intelligence": 10
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1232,13 +1260,13 @@
   {
     "type": "Wand",
     "name": "Totem",
-    "baseDamage": 4,
-    "attackSpeed": 0.83,
+    "baseDamage": 5,
+    "attackSpeed": 1.1,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 12
+      "intelligence": 13
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1249,12 +1277,12 @@
     "type": "Wand",
     "name": "Trinket",
     "baseDamage": 5,
-    "attackSpeed": 1.17,
+    "attackSpeed": 1.08,
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 26
+      "intelligence": 15
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1264,13 +1292,13 @@
   {
     "type": "Dagger",
     "name": "Barbed Hook",
-    "baseDamage": 9,
-    "attackSpeed": 0.68,
+    "baseDamage": 13,
+    "attackSpeed": 0.99,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 55
+      "technique": 62
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1280,8 +1308,8 @@
   {
     "type": "Sword",
     "name": "Bastard Sword",
-    "baseDamage": 6,
-    "attackSpeed": 1.03,
+    "baseDamage": 5,
+    "attackSpeed": 0.82,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
@@ -1296,13 +1324,13 @@
   {
     "type": "Mace",
     "name": "Battle Flail",
-    "baseDamage": 8,
-    "attackSpeed": 1.17,
+    "baseDamage": 7,
+    "attackSpeed": 1.04,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 59
+      "strength": 55
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1312,13 +1340,13 @@
   {
     "type": "Wand",
     "name": "Candle",
-    "baseDamage": 9,
-    "attackSpeed": 0.82,
+    "baseDamage": 12,
+    "attackSpeed": 1.09,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 37
+      "intelligence": 53
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1329,12 +1357,12 @@
     "type": "Sword",
     "name": "Claymore",
     "baseDamage": 11,
-    "attackSpeed": 0.84,
+    "attackSpeed": 0.81,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 39
+      "agility": 57
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1344,13 +1372,13 @@
   {
     "type": "Wand",
     "name": "Crystal",
-    "baseDamage": 6,
-    "attackSpeed": 0.84,
+    "baseDamage": 8,
+    "attackSpeed": 1.16,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 39
+      "intelligence": 65
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1360,13 +1388,13 @@
   {
     "type": "Dagger",
     "name": "Dark Blade",
-    "baseDamage": 5,
-    "attackSpeed": 0.73,
+    "baseDamage": 4,
+    "attackSpeed": 0.61,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 46
+      "technique": 47
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1376,13 +1404,13 @@
   {
     "type": "Sword",
     "name": "Demonblade",
-    "baseDamage": 8,
-    "attackSpeed": 0.91,
+    "baseDamage": 9,
+    "attackSpeed": 0.98,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 46
+      "agility": 35
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1392,13 +1420,13 @@
   {
     "type": "Dagger",
     "name": "Dire Fang",
-    "baseDamage": 11,
-    "attackSpeed": 0.91,
+    "baseDamage": 10,
+    "attackSpeed": 0.8,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 58
+      "technique": 60
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1408,13 +1436,13 @@
   {
     "type": "Sword",
     "name": "Divine Cutlass",
-    "baseDamage": 10,
-    "attackSpeed": 0.92,
+    "baseDamage": 13,
+    "attackSpeed": 1.2,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 43
+      "agility": 56
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1424,8 +1452,8 @@
   {
     "type": "Mace",
     "name": "Doomhammer",
-    "baseDamage": 11,
-    "attackSpeed": 1.08,
+    "baseDamage": 10,
+    "attackSpeed": 1.02,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
@@ -1440,13 +1468,13 @@
   {
     "type": "Dagger",
     "name": "Duskrift Dagger",
-    "baseDamage": 11,
+    "baseDamage": 10,
     "attackSpeed": 0.71,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 60
+      "technique": 44
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1462,7 +1490,7 @@
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 56
+      "intelligence": 50
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1472,13 +1500,13 @@
   {
     "type": "Dagger",
     "name": "Elvin Dirk",
-    "baseDamage": 9,
-    "attackSpeed": 0.85,
+    "baseDamage": 7,
+    "attackSpeed": 0.64,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 35
+      "technique": 43
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1488,13 +1516,13 @@
   {
     "type": "Sword",
     "name": "Elvin Glaive",
-    "baseDamage": 7,
-    "attackSpeed": 0.81,
+    "baseDamage": 9,
+    "attackSpeed": 1.06,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 62
+      "agility": 46
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1504,13 +1532,13 @@
   {
     "type": "Wand",
     "name": "Essence",
-    "baseDamage": 14,
-    "attackSpeed": 0.98,
+    "baseDamage": 15,
+    "attackSpeed": 1.02,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 59
+      "intelligence": 52
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1526,7 +1554,7 @@
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 46
+      "intelligence": 51
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1536,8 +1564,8 @@
   {
     "type": "Dagger",
     "name": "Ghost Kris",
-    "baseDamage": 7,
-    "attackSpeed": 0.91,
+    "baseDamage": 6,
+    "attackSpeed": 0.76,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
@@ -1553,12 +1581,12 @@
     "type": "Sword",
     "name": "Greatsword",
     "baseDamage": 15,
-    "attackSpeed": 1.02,
+    "attackSpeed": 1.05,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 37
+      "agility": 60
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1568,24 +1596,8 @@
   {
     "type": "Dagger",
     "name": "Guilded Gutter",
-    "baseDamage": 6,
-    "attackSpeed": 0.64,
-    "damageBonusMin": 3,
-    "damageBonusMax": 9,
-    "tier": 3,
-    "attributeRequirements": {
-      "technique": 62
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Dagger",
-    "name": "Hardened Shiv",
-    "baseDamage": 6,
-    "attackSpeed": 0.65,
+    "baseDamage": 8,
+    "attackSpeed": 0.77,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
@@ -1598,15 +1610,31 @@
     "extraActionSlotsMax": 0
   },
   {
-    "type": "Mace",
-    "name": "Headcracker",
-    "baseDamage": 9,
-    "attackSpeed": 1.08,
+    "type": "Dagger",
+    "name": "Hardened Shiv",
+    "baseDamage": 6,
+    "attackSpeed": 0.7,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 53
+      "technique": 52
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Headcracker",
+    "baseDamage": 9,
+    "attackSpeed": 1.13,
+    "damageBonusMin": 3,
+    "damageBonusMax": 9,
+    "tier": 3,
+    "attributeRequirements": {
+      "strength": 41
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1616,13 +1644,13 @@
   {
     "type": "Mace",
     "name": "Maul",
-    "baseDamage": 15,
-    "attackSpeed": 1.11,
+    "baseDamage": 17,
+    "attackSpeed": 1.24,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 64
+      "strength": 57
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1632,13 +1660,13 @@
   {
     "type": "Mace",
     "name": "Morningstar",
-    "baseDamage": 9,
-    "attackSpeed": 1.13,
+    "baseDamage": 8,
+    "attackSpeed": 1.1,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 58
+      "strength": 63
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1648,13 +1676,13 @@
   {
     "type": "Wand",
     "name": "Prism",
-    "baseDamage": 9,
-    "attackSpeed": 0.88,
+    "baseDamage": 10,
+    "attackSpeed": 0.99,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 43
+      "intelligence": 60
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1665,12 +1693,12 @@
     "type": "Sword",
     "name": "Rapier",
     "baseDamage": 6,
-    "attackSpeed": 0.82,
+    "attackSpeed": 0.85,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 62
+      "agility": 44
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1680,8 +1708,120 @@
   {
     "type": "Mace",
     "name": "Reckoner",
-    "baseDamage": 15,
-    "attackSpeed": 1.23,
+    "baseDamage": 14,
+    "attackSpeed": 1.11,
+    "damageBonusMin": 3,
+    "damageBonusMax": 9,
+    "tier": 3,
+    "attributeRequirements": {
+      "strength": 57
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Wand",
+    "name": "Relic",
+    "baseDamage": 7,
+    "attackSpeed": 0.94,
+    "damageBonusMin": 3,
+    "damageBonusMax": 9,
+    "tier": 3,
+    "attributeRequirements": {
+      "intelligence": 36
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Sword",
+    "name": "Rune Slicer",
+    "baseDamage": 10,
+    "attackSpeed": 0.82,
+    "damageBonusMin": 3,
+    "damageBonusMax": 9,
+    "tier": 3,
+    "attributeRequirements": {
+      "agility": 57
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Dagger",
+    "name": "Shadow Dagger",
+    "baseDamage": 5,
+    "attackSpeed": 0.88,
+    "damageBonusMin": 3,
+    "damageBonusMax": 9,
+    "tier": 3,
+    "attributeRequirements": {
+      "technique": 55
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Dagger",
+    "name": "Silver Stiletto",
+    "baseDamage": 5,
+    "attackSpeed": 0.64,
+    "damageBonusMin": 3,
+    "damageBonusMax": 9,
+    "tier": 3,
+    "attributeRequirements": {
+      "technique": 49
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Wand",
+    "name": "Skull",
+    "baseDamage": 9,
+    "attackSpeed": 1.07,
+    "damageBonusMin": 3,
+    "damageBonusMax": 9,
+    "tier": 3,
+    "attributeRequirements": {
+      "intelligence": 54
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Skullcrusher",
+    "baseDamage": 12,
+    "attackSpeed": 1.1,
+    "damageBonusMin": 3,
+    "damageBonusMax": 9,
+    "tier": 3,
+    "attributeRequirements": {
+      "strength": 65
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Smasher",
+    "baseDamage": 11,
+    "attackSpeed": 1.24,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
@@ -1694,127 +1834,15 @@
     "extraActionSlotsMax": 0
   },
   {
-    "type": "Wand",
-    "name": "Relic",
-    "baseDamage": 7,
-    "attackSpeed": 0.98,
-    "damageBonusMin": 3,
-    "damageBonusMax": 9,
-    "tier": 3,
-    "attributeRequirements": {
-      "intelligence": 51
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Sword",
-    "name": "Rune Slicer",
-    "baseDamage": 11,
-    "attackSpeed": 0.89,
-    "damageBonusMin": 3,
-    "damageBonusMax": 9,
-    "tier": 3,
-    "attributeRequirements": {
-      "agility": 62
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Dagger",
-    "name": "Shadow Dagger",
-    "baseDamage": 4,
-    "attackSpeed": 0.69,
-    "damageBonusMin": 3,
-    "damageBonusMax": 9,
-    "tier": 3,
-    "attributeRequirements": {
-      "technique": 45
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Dagger",
-    "name": "Silver Stiletto",
-    "baseDamage": 6,
-    "attackSpeed": 0.7,
-    "damageBonusMin": 3,
-    "damageBonusMax": 9,
-    "tier": 3,
-    "attributeRequirements": {
-      "technique": 57
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Wand",
-    "name": "Skull",
-    "baseDamage": 7,
-    "attackSpeed": 0.82,
-    "damageBonusMin": 3,
-    "damageBonusMax": 9,
-    "tier": 3,
-    "attributeRequirements": {
-      "intelligence": 55
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Skullcrusher",
-    "baseDamage": 14,
-    "attackSpeed": 1.23,
-    "damageBonusMin": 3,
-    "damageBonusMax": 9,
-    "tier": 3,
-    "attributeRequirements": {
-      "strength": 39
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Smasher",
-    "baseDamage": 13,
-    "attackSpeed": 1.4,
-    "damageBonusMin": 3,
-    "damageBonusMax": 9,
-    "tier": 3,
-    "attributeRequirements": {
-      "strength": 43
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
     "type": "Sword",
     "name": "Soul Render",
-    "baseDamage": 8,
-    "attackSpeed": 0.8,
+    "baseDamage": 10,
+    "attackSpeed": 1.03,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 64
+      "agility": 54
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1824,13 +1852,13 @@
   {
     "type": "Wand",
     "name": "Spirit Compass",
-    "baseDamage": 15,
-    "attackSpeed": 1.13,
+    "baseDamage": 13,
+    "attackSpeed": 0.97,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 42
+      "intelligence": 54
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1840,8 +1868,8 @@
   {
     "type": "Mace",
     "name": "Tombstone",
-    "baseDamage": 16,
-    "attackSpeed": 1.09,
+    "baseDamage": 19,
+    "attackSpeed": 1.29,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
@@ -1856,13 +1884,13 @@
   {
     "type": "Wand",
     "name": "Vessel",
-    "baseDamage": 10,
-    "attackSpeed": 1.09,
+    "baseDamage": 9,
+    "attackSpeed": 0.93,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 58
+      "intelligence": 60
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1873,12 +1901,12 @@
     "type": "Sword",
     "name": "Warblade",
     "baseDamage": 7,
-    "attackSpeed": 0.96,
+    "attackSpeed": 1,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 55
+      "agility": 61
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1889,12 +1917,12 @@
     "type": "Mace",
     "name": "Warclub",
     "baseDamage": 8,
-    "attackSpeed": 1.2,
+    "attackSpeed": 1.21,
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 49
+      "strength": 62
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1904,13 +1932,13 @@
   {
     "type": "Wand",
     "name": "Altar",
-    "baseDamage": 16,
-    "attackSpeed": 0.89,
+    "baseDamage": 21,
+    "attackSpeed": 1.2,
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 95
+      "intelligence": 64
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1920,13 +1948,13 @@
   {
     "type": "Mace",
     "name": "Annihilator",
-    "baseDamage": 29,
-    "attackSpeed": 1.35,
+    "baseDamage": 23,
+    "attackSpeed": 1.06,
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
     "attributeRequirements": {
-      "strength": 79
+      "strength": 67
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1936,13 +1964,13 @@
   {
     "type": "Wand",
     "name": "Artifact",
-    "baseDamage": 12,
-    "attackSpeed": 1.1,
+    "baseDamage": 9,
+    "attackSpeed": 0.83,
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 67
+      "intelligence": 59
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1952,13 +1980,13 @@
   {
     "type": "Dagger",
     "name": "Ashblaze Knife",
-    "baseDamage": 20,
-    "attackSpeed": 0.82,
+    "baseDamage": 17,
+    "attackSpeed": 0.71,
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 67
+      "technique": 64
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -1969,327 +1997,7 @@
     "type": "Wand",
     "name": "Binding",
     "baseDamage": 13,
-    "attackSpeed": 0.85,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 78
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Wand",
-    "name": "Catalyst",
-    "baseDamage": 15,
-    "attackSpeed": 0.93,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 71
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Dagger",
-    "name": "Dawnrift Stiletto",
-    "baseDamage": 11,
-    "attackSpeed": 0.68,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "technique": 72
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Wand",
-    "name": "Demon Seed",
-    "baseDamage": 19,
-    "attackSpeed": 0.82,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 62
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Desolator",
-    "baseDamage": 24,
-    "attackSpeed": 1.01,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "strength": 62
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Sword",
-    "name": "Destroyer",
-    "baseDamage": 18,
-    "attackSpeed": 1.11,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "agility": 74
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Devastator",
-    "baseDamage": 14,
-    "attackSpeed": 1.27,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "strength": 80
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Doomfall",
-    "baseDamage": 26,
-    "attackSpeed": 1.01,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "strength": 90
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Dagger",
-    "name": "Embervenom",
-    "baseDamage": 11,
-    "attackSpeed": 0.81,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "technique": 95
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Sword",
-    "name": "Executioner",
-    "baseDamage": 20,
-    "attackSpeed": 1.03,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "agility": 79
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Sword",
-    "name": "Flayer",
-    "baseDamage": 13,
-    "attackSpeed": 0.89,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "agility": 88
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Sword",
-    "name": "Foil",
-    "baseDamage": 14,
-    "attackSpeed": 0.81,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "agility": 59
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Wand",
-    "name": "Ghost Cradle",
-    "baseDamage": 10,
-    "attackSpeed": 0.86,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 78
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Sword",
-    "name": "Halbred",
-    "baseDamage": 14,
-    "attackSpeed": 1.05,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "agility": 73
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Sword",
-    "name": "Hell Reaper",
-    "baseDamage": 27,
-    "attackSpeed": 1.15,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "agility": 91
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Dagger",
-    "name": "Hellbound Dirk",
-    "baseDamage": 19,
-    "attackSpeed": 0.99,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "technique": 85
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Dagger",
-    "name": "Hellstring",
-    "baseDamage": 8,
-    "attackSpeed": 0.65,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "technique": 56
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Judgement",
-    "baseDamage": 17,
-    "attackSpeed": 1.08,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "strength": 76
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Sword",
-    "name": "Kukri",
-    "baseDamage": 24,
-    "attackSpeed": 0.91,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "agility": 93
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Obliterator",
-    "baseDamage": 13,
-    "attackSpeed": 1.1,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "strength": 81
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Wand",
-    "name": "Pocket Monolith",
-    "baseDamage": 21,
-    "attackSpeed": 0.96,
+    "attackSpeed": 0.88,
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
@@ -2302,47 +2010,15 @@
     "extraActionSlotsMax": 0
   },
   {
-    "type": "Mace",
-    "name": "Pulverizer",
-    "baseDamage": 26,
-    "attackSpeed": 1.33,
+    "type": "Wand",
+    "name": "Catalyst",
+    "baseDamage": 18,
+    "attackSpeed": 1.09,
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
     "attributeRequirements": {
-      "strength": 72
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Sword",
-    "name": "Ravager",
-    "baseDamage": 23,
-    "attackSpeed": 1.08,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "agility": 85
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Sword",
-    "name": "Ravager",
-    "baseDamage": 23,
-    "attackSpeed": 1.08,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "agility": 85
+      "intelligence": 90
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2351,14 +2027,14 @@
   },
   {
     "type": "Dagger",
-    "name": "Ruinblade",
-    "baseDamage": 22,
-    "attackSpeed": 0.83,
+    "name": "Dawnrift Stiletto",
+    "baseDamage": 10,
+    "attackSpeed": 0.65,
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 94
+      "technique": 78
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2367,14 +2043,14 @@
   },
   {
     "type": "Wand",
-    "name": "Sanctum Rod",
-    "baseDamage": 20,
-    "attackSpeed": 1.04,
+    "name": "Demon Seed",
+    "baseDamage": 28,
+    "attackSpeed": 1.17,
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 78
+      "intelligence": 58
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2382,15 +2058,15 @@
     "extraActionSlotsMax": 0
   },
   {
-    "type": "Wand",
-    "name": "Scroll",
-    "baseDamage": 15,
-    "attackSpeed": 1.1,
+    "type": "Mace",
+    "name": "Desolator",
+    "baseDamage": 25,
+    "attackSpeed": 1.06,
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 60
+      "strength": 56
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2399,9 +2075,73 @@
   },
   {
     "type": "Sword",
-    "name": "Scythe",
-    "baseDamage": 12,
-    "attackSpeed": 0.97,
+    "name": "Destroyer",
+    "baseDamage": 15,
+    "attackSpeed": 0.94,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "agility": 91
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Devastator",
+    "baseDamage": 14,
+    "attackSpeed": 1.29,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "strength": 74
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Doomfall",
+    "baseDamage": 34,
+    "attackSpeed": 1.29,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "strength": 61
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Dagger",
+    "name": "Embervenom",
+    "baseDamage": 8,
+    "attackSpeed": 0.62,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "technique": 63
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Sword",
+    "name": "Executioner",
+    "baseDamage": 20,
+    "attackSpeed": 1,
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
@@ -2414,10 +2154,122 @@
     "extraActionSlotsMax": 0
   },
   {
+    "type": "Sword",
+    "name": "Flayer",
+    "baseDamage": 16,
+    "attackSpeed": 1.09,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "agility": 68
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Sword",
+    "name": "Foil",
+    "baseDamage": 17,
+    "attackSpeed": 0.96,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "agility": 70
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Wand",
+    "name": "Ghost Cradle",
+    "baseDamage": 12,
+    "attackSpeed": 1,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "intelligence": 65
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Sword",
+    "name": "Halbred",
+    "baseDamage": 12,
+    "attackSpeed": 0.88,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "agility": 93
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Sword",
+    "name": "Hell Reaper",
+    "baseDamage": 21,
+    "attackSpeed": 0.9,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "agility": 88
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Dagger",
+    "name": "Hellbound Dirk",
+    "baseDamage": 18,
+    "attackSpeed": 0.91,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "technique": 57
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Dagger",
+    "name": "Hellstring",
+    "baseDamage": 11,
+    "attackSpeed": 0.89,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "technique": 91
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
     "type": "Mace",
-    "name": "Shatter",
-    "baseDamage": 15,
-    "attackSpeed": 1.1,
+    "name": "Judgement",
+    "baseDamage": 17,
+    "attackSpeed": 1.05,
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
@@ -2430,205 +2282,13 @@
     "extraActionSlotsMax": 0
   },
   {
-    "type": "Wand",
-    "name": "Shunken Head",
-    "baseDamage": 30,
-    "attackSpeed": 1.15,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 66
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Dagger",
-    "name": "Sorrows Kris",
-    "baseDamage": 20,
-    "attackSpeed": 0.94,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "technique": 58
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Dagger",
-    "name": "Soulpiercer",
-    "baseDamage": 9,
-    "attackSpeed": 0.78,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "technique": 91
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
     "type": "Sword",
-    "name": "Splitter",
-    "baseDamage": 11,
-    "attackSpeed": 1,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "agility": 89
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Dagger",
-    "name": "Stormshard Fang",
-    "baseDamage": 14,
-    "attackSpeed": 0.97,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "technique": 66
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Mace",
-    "name": "Verdict",
-    "baseDamage": 17,
-    "attackSpeed": 1.13,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "strength": 87
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Dagger",
-    "name": "Void Dagger",
-    "baseDamage": 12,
-    "attackSpeed": 0.66,
-    "damageBonusMin": 4,
-    "damageBonusMax": 16,
-    "tier": 4,
-    "attributeRequirements": {
-      "technique": 83
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Dagger",
-    "name": "Archon Dirk",
-    "baseDamage": 31,
-    "attackSpeed": 0.82,
-    "damageBonusMin": 5,
-    "damageBonusMax": 25,
-    "tier": 5,
-    "attributeRequirements": {
-      "technique": 91
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Wand",
-    "name": "Axiom",
-    "baseDamage": 23,
-    "attackSpeed": 0.82,
-    "damageBonusMin": 5,
-    "damageBonusMax": 25,
-    "tier": 5,
-    "attributeRequirements": {
-      "intelligence": 107
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Wand",
-    "name": "Cauldron",
-    "baseDamage": 34,
-    "attackSpeed": 0.99,
-    "damageBonusMin": 5,
-    "damageBonusMax": 25,
-    "tier": 5,
-    "attributeRequirements": {
-      "intelligence": 77
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Wand",
-    "name": "Convergence",
-    "baseDamage": 35,
-    "attackSpeed": 1.12,
-    "damageBonusMin": 5,
-    "damageBonusMax": 25,
-    "tier": 5,
-    "attributeRequirements": {
-      "intelligence": 107
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Wand",
-    "name": "Covenant",
+    "name": "Kukri",
     "baseDamage": 29,
-    "attackSpeed": 1.12,
-    "damageBonusMin": 5,
-    "damageBonusMax": 25,
-    "tier": 5,
-    "attributeRequirements": {
-      "intelligence": 121
-    },
-    "tags": null,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0
-  },
-  {
-    "type": "Sword",
-    "name": "Crystal Stiletto",
-    "baseDamage": 33,
-    "attackSpeed": 1.14,
-    "damageBonusMin": 5,
-    "damageBonusMax": 25,
-    "tier": 5,
+    "attackSpeed": 1.11,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
     "attributeRequirements": {
       "agility": 87
     },
@@ -2638,15 +2298,383 @@
     "extraActionSlotsMax": 0
   },
   {
+    "type": "Mace",
+    "name": "Obliterator",
+    "baseDamage": 16,
+    "attackSpeed": 1.3,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "strength": 77
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
     "type": "Wand",
-    "name": "Death Lantern",
-    "baseDamage": 38,
-    "attackSpeed": 1,
+    "name": "Pocket Monolith",
+    "baseDamage": 26,
+    "attackSpeed": 1.19,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "intelligence": 68
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Pulverizer",
+    "baseDamage": 25,
+    "attackSpeed": 1.27,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "strength": 60
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Sword",
+    "name": "Ravager",
+    "baseDamage": 19,
+    "attackSpeed": 0.88,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "agility": 80
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Sword",
+    "name": "Ravager",
+    "baseDamage": 19,
+    "attackSpeed": 0.88,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "agility": 80
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Dagger",
+    "name": "Ruinblade",
+    "baseDamage": 25,
+    "attackSpeed": 0.97,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "technique": 92
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Wand",
+    "name": "Sanctum Rod",
+    "baseDamage": 23,
+    "attackSpeed": 1.19,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "intelligence": 56
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Wand",
+    "name": "Scroll",
+    "baseDamage": 12,
+    "attackSpeed": 0.87,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "intelligence": 91
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Sword",
+    "name": "Scythe",
+    "baseDamage": 11,
+    "attackSpeed": 0.94,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "agility": 60
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Shatter",
+    "baseDamage": 15,
+    "attackSpeed": 1.09,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "strength": 62
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Wand",
+    "name": "Shunken Head",
+    "baseDamage": 30,
+    "attackSpeed": 1.14,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "intelligence": 94
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Dagger",
+    "name": "Sorrows Kris",
+    "baseDamage": 18,
+    "attackSpeed": 0.83,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "technique": 91
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Dagger",
+    "name": "Soulpiercer",
+    "baseDamage": 7,
+    "attackSpeed": 0.66,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "technique": 87
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Sword",
+    "name": "Splitter",
+    "baseDamage": 12,
+    "attackSpeed": 1.07,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "agility": 69
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Dagger",
+    "name": "Stormshard Fang",
+    "baseDamage": 10,
+    "attackSpeed": 0.69,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "technique": 72
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Mace",
+    "name": "Verdict",
+    "baseDamage": 19,
+    "attackSpeed": 1.29,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "strength": 61
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Dagger",
+    "name": "Void Dagger",
+    "baseDamage": 14,
+    "attackSpeed": 0.76,
+    "damageBonusMin": 4,
+    "damageBonusMax": 16,
+    "tier": 4,
+    "attributeRequirements": {
+      "technique": 89
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Dagger",
+    "name": "Archon Dirk",
+    "baseDamage": 25,
+    "attackSpeed": 0.67,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 105
+      "technique": 89
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Wand",
+    "name": "Axiom",
+    "baseDamage": 25,
+    "attackSpeed": 0.88,
+    "damageBonusMin": 5,
+    "damageBonusMax": 25,
+    "tier": 5,
+    "attributeRequirements": {
+      "intelligence": 124
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Wand",
+    "name": "Cauldron",
+    "baseDamage": 37,
+    "attackSpeed": 1.08,
+    "damageBonusMin": 5,
+    "damageBonusMax": 25,
+    "tier": 5,
+    "attributeRequirements": {
+      "intelligence": 76
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Wand",
+    "name": "Convergence",
+    "baseDamage": 33,
+    "attackSpeed": 1.04,
+    "damageBonusMin": 5,
+    "damageBonusMax": 25,
+    "tier": 5,
+    "attributeRequirements": {
+      "intelligence": 97
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Wand",
+    "name": "Covenant",
+    "baseDamage": 30,
+    "attackSpeed": 1.16,
+    "damageBonusMin": 5,
+    "damageBonusMax": 25,
+    "tier": 5,
+    "attributeRequirements": {
+      "intelligence": 123
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Sword",
+    "name": "Crystal Stiletto",
+    "baseDamage": 23,
+    "attackSpeed": 0.81,
+    "damageBonusMin": 5,
+    "damageBonusMax": 25,
+    "tier": 5,
+    "attributeRequirements": {
+      "agility": 120
+    },
+    "tags": null,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0
+  },
+  {
+    "type": "Wand",
+    "name": "Death Lantern",
+    "baseDamage": 41,
+    "attackSpeed": 1.08,
+    "damageBonusMin": 5,
+    "damageBonusMax": 25,
+    "tier": 5,
+    "attributeRequirements": {
+      "intelligence": 98
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2657,12 +2685,12 @@
     "type": "Dagger",
     "name": "Demonpiercer",
     "baseDamage": 13,
-    "attackSpeed": 0.66,
+    "attackSpeed": 0.64,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 96
+      "technique": 99
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2672,13 +2700,13 @@
   {
     "type": "Dagger",
     "name": "Devil Blade",
-    "baseDamage": 32,
-    "attackSpeed": 0.7,
+    "baseDamage": 33,
+    "attackSpeed": 0.72,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 76
+      "technique": 114
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2688,13 +2716,13 @@
   {
     "type": "Wand",
     "name": "Devil Tome",
-    "baseDamage": 24,
-    "attackSpeed": 1.1,
+    "baseDamage": 23,
+    "attackSpeed": 1.08,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 105
+      "intelligence": 101
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2704,13 +2732,13 @@
   {
     "type": "Sword",
     "name": "Dominion",
-    "baseDamage": 45,
-    "attackSpeed": 1.17,
+    "baseDamage": 33,
+    "attackSpeed": 0.86,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 102
+      "agility": 80
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2720,13 +2748,13 @@
   {
     "type": "Sword",
     "name": "Dominion",
-    "baseDamage": 45,
-    "attackSpeed": 1.17,
+    "baseDamage": 33,
+    "attackSpeed": 0.86,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 102
+      "agility": 80
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2737,12 +2765,12 @@
     "type": "Sword",
     "name": "Doomstrike",
     "baseDamage": 25,
-    "attackSpeed": 0.96,
+    "attackSpeed": 0.97,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 82
+      "agility": 110
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2752,13 +2780,13 @@
   {
     "type": "Dagger",
     "name": "Duskrift Stiletto",
-    "baseDamage": 19,
-    "attackSpeed": 0.66,
+    "baseDamage": 26,
+    "attackSpeed": 0.92,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 123
+      "technique": 115
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2768,13 +2796,13 @@
   {
     "type": "Mace",
     "name": "Epoch",
-    "baseDamage": 26,
-    "attackSpeed": 1.01,
+    "baseDamage": 32,
+    "attackSpeed": 1.21,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 110
+      "strength": 101
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2784,13 +2812,13 @@
   {
     "type": "Dagger",
     "name": "Epochal Sting",
-    "baseDamage": 25,
-    "attackSpeed": 0.73,
+    "baseDamage": 30,
+    "attackSpeed": 0.87,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 119
+      "technique": 113
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2800,13 +2828,13 @@
   {
     "type": "Sword",
     "name": "Eternal Blade",
-    "baseDamage": 35,
-    "attackSpeed": 1.02,
+    "baseDamage": 40,
+    "attackSpeed": 1.16,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 122
+      "agility": 121
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2822,7 +2850,7 @@
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 118
+      "technique": 123
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2832,13 +2860,13 @@
   {
     "type": "Dagger",
     "name": "Eternity\u0027S Shiv",
-    "baseDamage": 22,
-    "attackSpeed": 0.83,
+    "baseDamage": 20,
+    "attackSpeed": 0.78,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 124
+      "technique": 107
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2848,13 +2876,13 @@
   {
     "type": "Sword",
     "name": "Fatebringer",
-    "baseDamage": 33,
-    "attackSpeed": 1.05,
+    "baseDamage": 35,
+    "attackSpeed": 1.12,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 116
+      "agility": 79
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2865,12 +2893,12 @@
     "type": "Wand",
     "name": "Floating Obelisk",
     "baseDamage": 21,
-    "attackSpeed": 1.09,
+    "attackSpeed": 1.07,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 98
+      "intelligence": 123
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2880,13 +2908,13 @@
   {
     "type": "Wand",
     "name": "Ghost Pillar",
-    "baseDamage": 22,
-    "attackSpeed": 0.92,
+    "baseDamage": 26,
+    "attackSpeed": 1.11,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 90
+      "intelligence": 103
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2896,13 +2924,13 @@
   {
     "type": "Sword",
     "name": "Ghost Sword",
-    "baseDamage": 41,
-    "attackSpeed": 0.89,
+    "baseDamage": 53,
+    "attackSpeed": 1.15,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 84
+      "agility": 110
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2912,13 +2940,13 @@
   {
     "type": "Mace",
     "name": "Godfall",
-    "baseDamage": 29,
-    "attackSpeed": 1.23,
+    "baseDamage": 25,
+    "attackSpeed": 1.05,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 109
+      "strength": 103
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2928,13 +2956,13 @@
   {
     "type": "Dagger",
     "name": "Godsbane Fang",
-    "baseDamage": 19,
-    "attackSpeed": 0.87,
+    "baseDamage": 21,
+    "attackSpeed": 0.96,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 106
+      "technique": 103
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2944,13 +2972,13 @@
   {
     "type": "Dagger",
     "name": "Hellsong Kris",
-    "baseDamage": 18,
-    "attackSpeed": 0.76,
+    "baseDamage": 23,
+    "attackSpeed": 0.99,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 122
+      "technique": 114
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2960,13 +2988,13 @@
   {
     "type": "Mace",
     "name": "Oblivion",
-    "baseDamage": 42,
-    "attackSpeed": 1.09,
+    "baseDamage": 49,
+    "attackSpeed": 1.27,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 95
+      "strength": 91
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2976,13 +3004,13 @@
   {
     "type": "Sword",
     "name": "Oblivion Sword",
-    "baseDamage": 47,
-    "attackSpeed": 1.13,
+    "baseDamage": 40,
+    "attackSpeed": 0.95,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 80
+      "agility": 109
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -2992,13 +3020,13 @@
   {
     "type": "Dagger",
     "name": "Oblivions Prick",
-    "baseDamage": 27,
-    "attackSpeed": 0.86,
+    "baseDamage": 21,
+    "attackSpeed": 0.65,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 115
+      "technique": 100
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -3008,13 +3036,13 @@
   {
     "type": "Mace",
     "name": "Reckoning",
-    "baseDamage": 38,
-    "attackSpeed": 1.21,
+    "baseDamage": 43,
+    "attackSpeed": 1.37,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 98
+      "strength": 118
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -3024,13 +3052,13 @@
   {
     "type": "Mace",
     "name": "Ruination",
-    "baseDamage": 26,
-    "attackSpeed": 1.19,
+    "baseDamage": 27,
+    "attackSpeed": 1.24,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 107
+      "strength": 76
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -3040,13 +3068,13 @@
   {
     "type": "Sword",
     "name": "Soulreaver",
-    "baseDamage": 16,
-    "attackSpeed": 0.82,
+    "baseDamage": 17,
+    "attackSpeed": 0.85,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 93
+      "agility": 77
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -3056,13 +3084,13 @@
   {
     "type": "Mace",
     "name": "Sunderking",
-    "baseDamage": 51,
-    "attackSpeed": 1.21,
+    "baseDamage": 45,
+    "attackSpeed": 1.07,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 81
+      "strength": 106
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -3072,13 +3100,13 @@
   {
     "type": "Mace",
     "name": "Terminus",
-    "baseDamage": 37,
-    "attackSpeed": 1.3,
+    "baseDamage": 40,
+    "attackSpeed": 1.39,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 85
+      "strength": 124
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -3088,13 +3116,13 @@
   {
     "type": "Sword",
     "name": "Twinblade",
-    "baseDamage": 19,
-    "attackSpeed": 0.86,
+    "baseDamage": 23,
+    "attackSpeed": 1.06,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 89
+      "agility": 76
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -3104,13 +3132,13 @@
   {
     "type": "Wand",
     "name": "Vial Of Darkness",
-    "baseDamage": 49,
-    "attackSpeed": 1.16,
+    "baseDamage": 43,
+    "attackSpeed": 1.03,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 97
+      "intelligence": 77
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -3120,13 +3148,13 @@
   {
     "type": "Wand",
     "name": "Void Tome",
-    "baseDamage": 49,
-    "attackSpeed": 1.07,
+    "baseDamage": 47,
+    "attackSpeed": 1.02,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 98
+      "intelligence": 91
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -3136,13 +3164,13 @@
   {
     "type": "Mace",
     "name": "Warhammer",
-    "baseDamage": 59,
-    "attackSpeed": 1.27,
+    "baseDamage": 61,
+    "attackSpeed": 1.31,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 89
+      "strength": 88
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -3152,13 +3180,13 @@
   {
     "type": "Sword",
     "name": "Worldcleave",
-    "baseDamage": 20,
-    "attackSpeed": 0.84,
+    "baseDamage": 24,
+    "attackSpeed": 1.02,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 106
+      "agility": 88
     },
     "tags": null,
     "extraActionSlots": 0,
@@ -3168,13 +3196,13 @@
   {
     "type": "Mace",
     "name": "Worldender",
-    "baseDamage": 27,
-    "attackSpeed": 1.39,
+    "baseDamage": 22,
+    "attackSpeed": 1.13,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 119
+      "strength": 120
     },
     "tags": null,
     "extraActionSlots": 0,

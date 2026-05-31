@@ -69,8 +69,8 @@ namespace RPGGame.UI.Avalonia.Layout
             int defaultCrit = config.Combat.CriticalHitThreshold > 0 ? config.Combat.CriticalHitThreshold : 20;
 
             var pendingHud = actor is Character chHud ? ActionSelector.PeekPendingThresholdHudShifts(chHud) : default;
-            var intSteps = actor is Character chInt
-                ? IntelligenceMilestoneThresholdBonuses.GetSteps(chInt.GetEffectiveIntelligence())
+            var techMilestoneSteps = actor is Character chTec
+                ? TechniqueMilestoneThresholdBonuses.GetSteps(chTec.GetEffectiveTechnique())
                 : default;
 
             int eqHit = 0, eqCombo = 0, eqCrit = 0;
@@ -81,9 +81,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 eqCrit = chEq.Equipment.GetEquipmentStatBonus("CRIT", chEq);
             }
 
-            int comboRowShift = pendingHud.SharedAccuracy + pendingHud.ComboDelta + intSteps.ComboSteps + eqCombo;
-            int hitRowShift = pendingHud.SharedAccuracy + pendingHud.HitDelta + intSteps.HitSteps + eqHit;
-            int critRowShift = pendingHud.CritDelta + intSteps.CritSteps + eqCrit;
+            int comboRowShift = pendingHud.SharedAccuracy + pendingHud.ComboDelta + techMilestoneSteps.ComboSteps + eqCombo;
+            int hitRowShift = pendingHud.SharedAccuracy + pendingHud.HitDelta + techMilestoneSteps.HitSteps + eqHit;
+            int critRowShift = pendingHud.CritDelta + techMilestoneSteps.CritSteps + eqCrit;
             int critMissRowShift = -pendingHud.CritMissDelta;
 
             int effectiveCrit = ResolveEffectiveThreshold(crit, critRowShift);

@@ -18,7 +18,7 @@ namespace RPGGame
             { WeaponType.Sword, "STRIKE" },
             { WeaponType.Dagger, "STAB" },
             { WeaponType.Mace, "SLAM" },
-            { WeaponType.Wand, "CAST" },
+            { WeaponType.Wand, "MAGIC MISSILE" },
         };
 
         /// <summary>
@@ -39,7 +39,12 @@ namespace RPGGame
                     return data.Name;
             }
 
-            return FallbackBasicByType.TryGetValue(weaponType, out var fb) ? fb : null;
+            if (!FallbackBasicByType.TryGetValue(weaponType, out var fallback))
+                return null;
+
+            ActionLoader.LoadActions();
+            var resolved = ActionLoader.ResolveActionName(fallback);
+            return string.IsNullOrEmpty(resolved) ? fallback : resolved;
         }
 
         /// <summary>

@@ -57,7 +57,7 @@ namespace RPGGame.Tests.Runners
                 ChainPositionBonusTests.RunAllTests();
                 Console.WriteLine();
 
-                IntelligenceMilestoneThresholdBonusesTests.RunAllTests();
+                TechniqueMilestoneThresholdBonusesTests.RunAllTests();
                 Console.WriteLine();
 
                 // Run UI builder tests

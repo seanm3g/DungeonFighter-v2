@@ -51,9 +51,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 stats.Add($"Armor: +{feetItem.GetTotalArmor()}");
             }
 
-            if (item is FeetItem || item.ExtraActionSlots > 0)
+            int actionSlotDisplayTotal = GetActionSlotDisplayTotal(item);
+            if (item is FeetItem || actionSlotDisplayTotal > 0)
             {
-                stats.Add($"Action slots: +{Math.Max(0, item.ExtraActionSlots)}");
+                stats.Add($"Action slots: +{actionSlotDisplayTotal}");
             }
             
             if (item.StatBonuses.Count > 0)
@@ -262,8 +263,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             if (item == null)
                 return false;
 
-            slots = Math.Max(0, item.ExtraActionSlots);
+            slots = GetActionSlotDisplayTotal(item);
             return item is FeetItem || slots > 0;
+        }
+
+        private static int GetActionSlotDisplayTotal(Item item)
+        {
+            int slots = Math.Max(0, item.ExtraActionSlots);
+            if (item is WeaponItem weapon)
+                slots += ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(weapon.WeaponType);
+            return slots;
         }
     }
 }

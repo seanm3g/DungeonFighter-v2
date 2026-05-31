@@ -11,7 +11,7 @@
     "strength": 0,
     "agility": 5,
     "technique": 0,
-    "intelligence": 2,
+    "intelligence": 1,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -19,7 +19,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "feet",
@@ -27,12 +27,12 @@
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 12
+      "technique": 11
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 1,
+    "technique": 3,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
@@ -54,7 +54,7 @@
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 3,
+    "technique": 2,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -68,21 +68,21 @@
   {
     "slot": "legs",
     "name": "breeches",
-    "armor": 4,
+    "armor": 11,
     "tier": 1,
     "attributeRequirements": {
       "agility": 5
     },
     "tags": null,
     "strength": 0,
-    "agility": 2,
+    "agility": 3,
     "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -93,12 +93,12 @@
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 13
+      "technique": 12
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 3,
+    "technique": 2,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -121,7 +121,7 @@
     "strength": 0,
     "agility": 0,
     "technique": 0,
-    "intelligence": 2,
+    "intelligence": 3,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -129,18 +129,18 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "chest",
     "name": "Coat",
-    "armor": 6,
+    "armor": 15,
     "tier": 1,
     "attributeRequirements": {
       "strength": 9
     },
     "tags": null,
-    "strength": 1,
+    "strength": 3,
     "agility": 0,
     "technique": 0,
     "intelligence": 5,
@@ -156,10 +156,10 @@
   {
     "slot": "chest",
     "name": "Corselet",
-    "armor": 10,
+    "armor": 23,
     "tier": 1,
     "attributeRequirements": {
-      "strength": 11
+      "strength": 15
     },
     "tags": null,
     "strength": 2,
@@ -181,13 +181,13 @@
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "intelligence": 14
+      "intelligence": 13
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
-    "intelligence": 1,
+    "intelligence": 2,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -195,18 +195,18 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "chest",
     "name": "Curiass",
-    "armor": 9,
+    "armor": 21,
     "tier": 1,
     "attributeRequirements": {
       "strength": 13
     },
     "tags": null,
-    "strength": 3,
+    "strength": 2,
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
@@ -222,37 +222,15 @@
   {
     "slot": "chest",
     "name": "Duelist Coat",
-    "armor": 7,
+    "armor": 17,
     "tier": 1,
     "attributeRequirements": {
-      "strength": 10
+      "strength": 15
     },
     "tags": null,
-    "strength": 2,
+    "strength": 3,
     "agility": 0,
     "technique": 5,
-    "intelligence": 0,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "attackSpeed": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
-  },
-  {
-    "slot": "legs",
-    "name": "Frayed Breeches",
-    "armor": 4,
-    "tier": 2,
-    "attributeRequirements": {
-      "agility": 13
-    },
-    "tags": null,
-    "strength": 0,
-    "agility": 6,
-    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -269,12 +247,12 @@
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 8
+      "technique": 6
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
-    "technique": 1,
+    "technique": 2,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -286,18 +264,40 @@
     "minActionBonuses": 0
   },
   {
+    "slot": "legs",
+    "name": "Handed Down Breeches",
+    "armor": 23,
+    "tier": 1,
+    "attributeRequirements": {
+      "agility": 12
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 3,
+    "technique": 0,
+    "intelligence": 0,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 1,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0
+  },
+  {
     "slot": "head",
     "name": "Hat",
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "intelligence": 7
+      "intelligence": 5
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
-    "intelligence": 3,
+    "intelligence": 2,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -305,7 +305,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "feet",
@@ -313,7 +313,7 @@
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 8
+      "technique": 15
     },
     "tags": null,
     "strength": 0,
@@ -341,7 +341,7 @@
     "strength": 0,
     "agility": 0,
     "technique": 0,
-    "intelligence": 2,
+    "intelligence": 1,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -349,12 +349,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "chest",
     "name": "Jerkin",
-    "armor": 4,
+    "armor": 11,
     "tier": 1,
     "attributeRequirements": {
       "strength": 5
@@ -376,7 +376,7 @@
   {
     "slot": "legs",
     "name": "leggings",
-    "armor": 3,
+    "armor": 9,
     "tier": 1,
     "attributeRequirements": {
       "agility": 5
@@ -390,7 +390,7 @@
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -428,7 +428,7 @@
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 2,
+    "technique": 3,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
@@ -445,13 +445,13 @@
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "intelligence": 8
+      "intelligence": 14
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
-    "intelligence": 1,
+    "intelligence": 3,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -459,15 +459,15 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "chest",
     "name": "Sentinel Vest",
-    "armor": 5,
+    "armor": 13,
     "tier": 1,
     "attributeRequirements": {
-      "strength": 7
+      "strength": 14
     },
     "tags": null,
     "strength": 2,
@@ -486,21 +486,21 @@
   {
     "slot": "legs",
     "name": "shinguards",
-    "armor": 1,
+    "armor": 5,
     "tier": 1,
     "attributeRequirements": {
       "agility": 5
     },
     "tags": null,
     "strength": 0,
-    "agility": 1,
+    "agility": 2,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -508,13 +508,13 @@
   {
     "slot": "chest",
     "name": "Shirt",
-    "armor": 1,
+    "armor": 5,
     "tier": 1,
     "attributeRequirements": {
       "strength": 5
     },
     "tags": null,
-    "strength": 1,
+    "strength": 2,
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
@@ -538,7 +538,7 @@
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 2,
+    "technique": 1,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -555,7 +555,7 @@
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "intelligence": 6
+      "intelligence": 13
     },
     "tags": null,
     "strength": 0,
@@ -569,7 +569,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "feet",
@@ -577,12 +577,12 @@
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 12
+      "technique": 8
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
-    "technique": 2,
+    "technique": 3,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -596,21 +596,21 @@
   {
     "slot": "legs",
     "name": "Squire\u0027s Greaves",
-    "armor": 7,
+    "armor": 17,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 7
+      "agility": 9
     },
     "tags": null,
     "strength": 0,
-    "agility": 1,
+    "agility": 2,
     "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -618,13 +618,13 @@
   {
     "slot": "chest",
     "name": "Surcoat",
-    "armor": 8,
+    "armor": 19,
     "tier": 1,
     "attributeRequirements": {
-      "strength": 6
+      "strength": 11
     },
     "tags": null,
-    "strength": 1,
+    "strength": 2,
     "agility": 5,
     "technique": 0,
     "intelligence": 0,
@@ -640,21 +640,21 @@
   {
     "slot": "legs",
     "name": "tassets",
-    "armor": 6,
+    "armor": 15,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 7
+      "agility": 15
     },
     "tags": null,
     "strength": 5,
-    "agility": 2,
+    "agility": 3,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -662,10 +662,10 @@
   {
     "slot": "legs",
     "name": "Tattered Wraps",
-    "armor": 9,
+    "armor": 21,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 10
+      "agility": 6
     },
     "tags": null,
     "strength": 0,
@@ -676,7 +676,7 @@
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -684,13 +684,13 @@
   {
     "slot": "chest",
     "name": "Thick Wrap",
-    "armor": 3,
+    "armor": 9,
     "tier": 1,
     "attributeRequirements": {
       "strength": 5
     },
     "tags": null,
-    "strength": 1,
+    "strength": 2,
     "agility": 0,
     "technique": 0,
     "intelligence": 5,
@@ -715,7 +715,7 @@
     "strength": 0,
     "agility": 0,
     "technique": 0,
-    "intelligence": 2,
+    "intelligence": 1,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -723,7 +723,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "feet",
@@ -731,12 +731,12 @@
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 10
+      "technique": 12
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
-    "technique": 1,
+    "technique": 2,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -750,21 +750,21 @@
   {
     "slot": "legs",
     "name": "trousers",
-    "armor": 5,
+    "armor": 13,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 13
+      "agility": 11
     },
     "tags": null,
     "strength": 0,
-    "agility": 1,
+    "agility": 3,
     "technique": 0,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -781,7 +781,7 @@
     "strength": 5,
     "agility": 0,
     "technique": 0,
-    "intelligence": 2,
+    "intelligence": 1,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -789,12 +789,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "chest",
     "name": "Vest",
-    "armor": 2,
+    "armor": 7,
     "tier": 1,
     "attributeRequirements": {
       "strength": 5
@@ -816,10 +816,10 @@
   {
     "slot": "legs",
     "name": "Villager\u0027s Tassets",
-    "armor": 8,
+    "armor": 19,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 10
+      "agility": 6
     },
     "tags": null,
     "strength": 0,
@@ -830,7 +830,7 @@
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -855,19 +855,41 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "legs",
     "name": "wraps",
-    "armor": 2,
+    "armor": 7,
     "tier": 1,
     "attributeRequirements": {
       "agility": 5
     },
     "tags": null,
     "strength": 0,
-    "agility": 1,
+    "agility": 2,
+    "technique": 0,
+    "intelligence": 0,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 1,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0
+  },
+  {
+    "slot": "chest",
+    "name": "Breastplate",
+    "armor": 20,
+    "tier": 2,
+    "attributeRequirements": {
+      "strength": 27
+    },
+    "tags": null,
+    "strength": 4,
+    "agility": 0,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
@@ -880,9 +902,31 @@
     "minActionBonuses": 0
   },
   {
+    "slot": "head",
+    "name": "Chainhood",
+    "armor": 0,
+    "tier": 2,
+    "attributeRequirements": {
+      "intelligence": 29
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 0,
+    "technique": 0,
+    "intelligence": 3,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 1
+  },
+  {
     "slot": "chest",
-    "name": "Breastplate",
-    "armor": 4,
+    "name": "Chainmail",
+    "armor": 22,
     "tier": 2,
     "attributeRequirements": {
       "strength": 18
@@ -902,61 +946,17 @@
     "minActionBonuses": 0
   },
   {
-    "slot": "head",
-    "name": "Chainhood",
-    "armor": 0,
-    "tier": 2,
-    "attributeRequirements": {
-      "intelligence": 26
-    },
-    "tags": null,
-    "strength": 0,
-    "agility": 0,
-    "technique": 0,
-    "intelligence": 3,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "attackSpeed": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
-  },
-  {
-    "slot": "chest",
-    "name": "Chainmail",
-    "armor": 5,
-    "tier": 2,
-    "attributeRequirements": {
-      "strength": 24
-    },
-    "tags": null,
-    "strength": 6,
-    "agility": 0,
-    "technique": 0,
-    "intelligence": 0,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "attackSpeed": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
-  },
-  {
     "slot": "feet",
     "name": "Chausses",
     "armor": 1,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 17
+      "technique": 20
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
-    "technique": 2,
+    "technique": 4,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -973,13 +973,13 @@
     "armor": 0,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 22
+      "intelligence": 29
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
-    "intelligence": 5,
+    "intelligence": 3,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -987,7 +987,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "feet",
@@ -995,7 +995,7 @@
     "armor": 1,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 23
+      "technique": 26
     },
     "tags": null,
     "strength": 0,
@@ -1014,13 +1014,13 @@
   {
     "slot": "chest",
     "name": "Defender Cuirass",
-    "armor": 10,
+    "armor": 32,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 10
+      "strength": 11
     },
     "tags": null,
-    "strength": 4,
+    "strength": 3,
     "agility": 0,
     "technique": 5,
     "intelligence": 0,
@@ -1036,13 +1036,13 @@
   {
     "slot": "chest",
     "name": "Demi-Plate",
-    "armor": 9,
+    "armor": 30,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 12
+      "strength": 26
     },
     "tags": null,
-    "strength": 2,
+    "strength": 5,
     "agility": 0,
     "technique": 0,
     "intelligence": 5,
@@ -1061,7 +1061,7 @@
     "armor": 1,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 28
+      "technique": 21
     },
     "tags": null,
     "strength": 0,
@@ -1083,13 +1083,13 @@
     "armor": 0,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 15
+      "intelligence": 20
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
-    "intelligence": 4,
+    "intelligence": 3,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -1097,26 +1097,26 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "legs",
     "name": "Frayed Breeches",
-    "armor": 4,
+    "armor": 20,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 13
+      "agility": 21
     },
     "tags": null,
     "strength": 0,
-    "agility": 6,
+    "agility": 5,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -1127,12 +1127,12 @@
     "armor": 1,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 13
+      "technique": 17
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 6,
+    "technique": 4,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
@@ -1146,13 +1146,13 @@
   {
     "slot": "chest",
     "name": "Half-Plate",
-    "armor": 11,
+    "armor": 34,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 21
+      "strength": 24
     },
     "tags": null,
-    "strength": 4,
+    "strength": 3,
     "agility": 5,
     "technique": 0,
     "intelligence": 0,
@@ -1168,21 +1168,21 @@
   {
     "slot": "legs",
     "name": "Hardened Breeches",
-    "armor": 9,
+    "armor": 30,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 22
+      "agility": 14
     },
     "tags": null,
     "strength": 5,
-    "agility": 3,
+    "agility": 5,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -1193,7 +1193,7 @@
     "armor": 0,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 21
+      "intelligence": 10
     },
     "tags": null,
     "strength": 0,
@@ -1207,7 +1207,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "feet",
@@ -1215,12 +1215,12 @@
     "armor": 1,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 26
+      "technique": 21
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 6,
+    "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -1237,7 +1237,7 @@
     "armor": 0,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 21
+      "intelligence": 11
     },
     "tags": null,
     "strength": 0,
@@ -1251,26 +1251,26 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "legs",
     "name": "Knee Guards",
-    "armor": 12,
+    "armor": 36,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 12
+      "agility": 20
     },
     "tags": null,
     "strength": 0,
-    "agility": 4,
+    "agility": 5,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -1281,12 +1281,12 @@
     "armor": 1,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 26
+      "technique": 19
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
-    "technique": 4,
+    "technique": 3,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -1309,7 +1309,7 @@
     "strength": 0,
     "agility": 5,
     "technique": 0,
-    "intelligence": 4,
+    "intelligence": 3,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -1317,26 +1317,26 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "legs",
     "name": "Patched Trousers",
-    "armor": 5,
+    "armor": 22,
     "tier": 2,
     "attributeRequirements": {
       "agility": 18
     },
     "tags": null,
     "strength": 0,
-    "agility": 5,
+    "agility": 4,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -1347,12 +1347,12 @@
     "armor": 1,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 28
+      "technique": 14
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 3,
+    "technique": 4,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -1369,13 +1369,13 @@
     "armor": 0,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 19
+      "intelligence": 28
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
-    "intelligence": 4,
+    "intelligence": 6,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -1383,7 +1383,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 1
   },
   {
     "slot": "feet",
@@ -1391,12 +1391,12 @@
     "armor": 1,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 13
+      "technique": 19
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 4,
+    "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -1410,10 +1410,10 @@
   {
     "slot": "legs",
     "name": "Ranger\u0027s Breeches",
-    "armor": 11,
+    "armor": 34,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 20
+      "agility": 27
     },
     "tags": null,
     "strength": 0,
@@ -1424,7 +1424,7 @@
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -1432,21 +1432,21 @@
   {
     "slot": "legs",
     "name": "Reinforced Breeches",
-    "armor": 7,
+    "armor": 26,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 22
+      "agility": 21
     },
     "tags": null,
     "strength": 0,
-    "agility": 3,
+    "agility": 4,
     "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -1454,13 +1454,13 @@
   {
     "slot": "chest",
     "name": "Rover Jacket",
-    "armor": 6,
+    "armor": 24,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 24
+      "strength": 26
     },
     "tags": null,
-    "strength": 3,
+    "strength": 5,
     "agility": 0,
     "technique": 0,
     "intelligence": 5,
@@ -1476,21 +1476,21 @@
   {
     "slot": "legs",
     "name": "Scout\u0027s Breeches",
-    "armor": 10,
+    "armor": 32,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 25
+      "agility": 20
     },
     "tags": null,
     "strength": 0,
-    "agility": 3,
+    "agility": 5,
     "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -1501,12 +1501,12 @@
     "armor": 1,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 20
+      "technique": 21
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
-    "technique": 6,
+    "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -1523,12 +1523,12 @@
     "armor": 1,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 26
+      "technique": 12
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
-    "technique": 4,
+    "technique": 3,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -1542,21 +1542,21 @@
   {
     "slot": "legs",
     "name": "Simple Breeches",
-    "armor": 6,
+    "armor": 24,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 22
+      "agility": 17
     },
     "tags": null,
     "strength": 5,
-    "agility": 6,
+    "agility": 2,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -1564,13 +1564,13 @@
   {
     "slot": "chest",
     "name": "Stalker\u0027s Mantle",
-    "armor": 8,
+    "armor": 28,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 13
+      "strength": 17
     },
     "tags": null,
-    "strength": 4,
+    "strength": 3,
     "agility": 5,
     "technique": 0,
     "intelligence": 0,
@@ -1586,21 +1586,21 @@
   {
     "slot": "legs",
     "name": "Strider\u0027s Wraps",
-    "armor": 13,
+    "armor": 38,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 20
+      "agility": 11
     },
     "tags": null,
     "strength": 0,
-    "agility": 6,
+    "agility": 4,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -1608,13 +1608,13 @@
   {
     "slot": "chest",
     "name": "Studded Vest",
-    "armor": 7,
+    "armor": 26,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 29
+      "strength": 11
     },
     "tags": null,
-    "strength": 5,
+    "strength": 4,
     "agility": 0,
     "technique": 5,
     "intelligence": 0,
@@ -1630,120 +1630,10 @@
   {
     "slot": "chest",
     "name": "Tabard",
-    "armor": 12,
+    "armor": 36,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 27
-    },
-    "tags": null,
-    "strength": 3,
-    "agility": 0,
-    "technique": 0,
-    "intelligence": 0,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "attackSpeed": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
-  },
-  {
-    "slot": "legs",
-    "name": "Traveler\u0027s Breeches",
-    "armor": 8,
-    "tier": 2,
-    "attributeRequirements": {
-      "agility": 25
-    },
-    "tags": null,
-    "strength": 0,
-    "agility": 3,
-    "technique": 0,
-    "intelligence": 5,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "attackSpeed": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
-  },
-  {
-    "slot": "head",
-    "name": "Visored Cap",
-    "armor": 0,
-    "tier": 2,
-    "attributeRequirements": {
-      "intelligence": 21
-    },
-    "tags": null,
-    "strength": 0,
-    "agility": 0,
-    "technique": 5,
-    "intelligence": 6,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "attackSpeed": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
-  },
-  {
-    "slot": "head",
-    "name": "Visored Helm",
-    "armor": 1,
-    "tier": 3,
-    "attributeRequirements": {
-      "intelligence": 41
-    },
-    "tags": null,
-    "strength": 0,
-    "agility": 5,
-    "technique": 0,
-    "intelligence": 10,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "attackSpeed": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
-  },
-  {
-    "slot": "head",
-    "name": "War Cap",
-    "armor": 0,
-    "tier": 2,
-    "attributeRequirements": {
-      "intelligence": 27
-    },
-    "tags": null,
-    "strength": 5,
-    "agility": 0,
-    "technique": 0,
-    "intelligence": 3,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "attackSpeed": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
-  },
-  {
-    "slot": "chest",
-    "name": "War Coat",
-    "armor": 13,
-    "tier": 2,
-    "attributeRequirements": {
-      "strength": 20
+      "strength": 25
     },
     "tags": null,
     "strength": 2,
@@ -1760,15 +1650,125 @@
     "minActionBonuses": 0
   },
   {
-    "slot": "chest",
-    "name": "Aegis",
-    "armor": 12,
-    "tier": 3,
+    "slot": "legs",
+    "name": "Traveler\u0027s Breeches",
+    "armor": 28,
+    "tier": 2,
     "attributeRequirements": {
-      "strength": 38
+      "agility": 30
     },
     "tags": null,
-    "strength": 6,
+    "strength": 0,
+    "agility": 4,
+    "technique": 0,
+    "intelligence": 5,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 2,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0
+  },
+  {
+    "slot": "head",
+    "name": "Visored Cap",
+    "armor": 0,
+    "tier": 2,
+    "attributeRequirements": {
+      "intelligence": 18
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 0,
+    "technique": 5,
+    "intelligence": 4,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 1
+  },
+  {
+    "slot": "head",
+    "name": "Visored Helm",
+    "armor": 1,
+    "tier": 3,
+    "attributeRequirements": {
+      "intelligence": 63
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 5,
+    "technique": 0,
+    "intelligence": 7,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 2
+  },
+  {
+    "slot": "head",
+    "name": "War Cap",
+    "armor": 0,
+    "tier": 2,
+    "attributeRequirements": {
+      "intelligence": 23
+    },
+    "tags": null,
+    "strength": 5,
+    "agility": 0,
+    "technique": 0,
+    "intelligence": 4,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 1
+  },
+  {
+    "slot": "chest",
+    "name": "War Coat",
+    "armor": 38,
+    "tier": 2,
+    "attributeRequirements": {
+      "strength": 22
+    },
+    "tags": null,
+    "strength": 4,
+    "agility": 0,
+    "technique": 0,
+    "intelligence": 0,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0
+  },
+  {
+    "slot": "chest",
+    "name": "Aegis",
+    "armor": 42,
+    "tier": 3,
+    "attributeRequirements": {
+      "strength": 65
+    },
+    "tags": null,
+    "strength": 8,
     "agility": 0,
     "technique": 5,
     "intelligence": 0,
@@ -1784,13 +1784,13 @@
   {
     "slot": "chest",
     "name": "Bastion Armor",
-    "armor": 10,
+    "armor": 38,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 41
+      "strength": 60
     },
     "tags": null,
-    "strength": 5,
+    "strength": 9,
     "agility": 5,
     "technique": 0,
     "intelligence": 0,
@@ -1806,21 +1806,21 @@
   {
     "slot": "legs",
     "name": "Battle Greaves",
-    "armor": 12,
+    "armor": 42,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 44
+      "agility": 48
     },
     "tags": null,
     "strength": 0,
-    "agility": 8,
+    "agility": 6,
     "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -1828,13 +1828,13 @@
   {
     "slot": "chest",
     "name": "Bulwark",
-    "armor": 13,
+    "armor": 44,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 58
+      "strength": 51
     },
     "tags": null,
-    "strength": 8,
+    "strength": 6,
     "agility": 5,
     "technique": 0,
     "intelligence": 0,
@@ -1853,12 +1853,12 @@
     "armor": 2,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 47
+      "technique": 46
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
-    "technique": 5,
+    "technique": 7,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -1875,13 +1875,13 @@
     "armor": 1,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 62
+      "intelligence": 53
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
-    "intelligence": 6,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -1889,26 +1889,26 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "legs",
     "name": "Footman\u0027s Greaves",
-    "armor": 8,
+    "armor": 34,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 58
+      "agility": 56
     },
     "tags": null,
     "strength": 5,
-    "agility": 10,
+    "agility": 9,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -1919,13 +1919,13 @@
     "armor": 1,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 37
+      "intelligence": 64
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
-    "intelligence": 9,
+    "intelligence": 10,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -1933,18 +1933,18 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "chest",
     "name": "Full Plate",
-    "armor": 11,
+    "armor": 40,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 52
+      "strength": 36
     },
     "tags": null,
-    "strength": 8,
+    "strength": 6,
     "agility": 0,
     "technique": 0,
     "intelligence": 5,
@@ -1963,7 +1963,7 @@
     "armor": 1,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 47
+      "intelligence": 61
     },
     "tags": null,
     "strength": 0,
@@ -1977,26 +1977,26 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "legs",
     "name": "Heavy Greaves",
-    "armor": 13,
+    "armor": 44,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 39
+      "agility": 38
     },
     "tags": null,
     "strength": 0,
-    "agility": 6,
+    "agility": 9,
     "technique": 0,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2007,13 +2007,13 @@
     "armor": 1,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 65
+      "intelligence": 52
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
-    "intelligence": 5,
+    "intelligence": 7,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2021,7 +2021,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "head",
@@ -2029,13 +2029,13 @@
     "armor": 1,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 44
+      "intelligence": 54
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
-    "intelligence": 8,
+    "intelligence": 9,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2043,7 +2043,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "feet",
@@ -2051,12 +2051,12 @@
     "armor": 2,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 56
+      "technique": 58
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 8,
+    "technique": 6,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
@@ -2070,13 +2070,13 @@
   {
     "slot": "chest",
     "name": "Ironwall",
-    "armor": 15,
+    "armor": 48,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 51
+      "strength": 45
     },
     "tags": null,
-    "strength": 8,
+    "strength": 6,
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
@@ -2092,13 +2092,13 @@
   {
     "slot": "chest",
     "name": "Ironwall",
-    "armor": 15,
+    "armor": 48,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 51
+      "strength": 45
     },
     "tags": null,
-    "strength": 8,
+    "strength": 6,
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
@@ -2114,21 +2114,21 @@
   {
     "slot": "legs",
     "name": "Linked Greaves",
-    "armor": 9,
+    "armor": 36,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 43
+      "agility": 63
     },
     "tags": null,
     "strength": 0,
-    "agility": 7,
+    "agility": 6,
     "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2139,12 +2139,12 @@
     "armor": 2,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 45
+      "technique": 57
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
-    "technique": 6,
+    "technique": 7,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2180,13 +2180,13 @@
   {
     "slot": "chest",
     "name": "Pauldron",
-    "armor": 8,
+    "armor": 34,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 60
+      "strength": 44
     },
     "tags": null,
-    "strength": 7,
+    "strength": 9,
     "agility": 0,
     "technique": 0,
     "intelligence": 5,
@@ -2202,13 +2202,13 @@
   {
     "slot": "chest",
     "name": "Phalaanx",
-    "armor": 14,
+    "armor": 46,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 52
+      "strength": 50
     },
     "tags": null,
-    "strength": 6,
+    "strength": 7,
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
@@ -2227,12 +2227,12 @@
     "armor": 2,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 65
+      "technique": 57
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 6,
+    "technique": 9,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2246,21 +2246,21 @@
   {
     "slot": "legs",
     "name": "Plated Greaves",
-    "armor": 10,
+    "armor": 38,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 46
+      "agility": 63
     },
     "tags": null,
     "strength": 0,
-    "agility": 8,
+    "agility": 5,
     "technique": 0,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2268,21 +2268,21 @@
   {
     "slot": "legs",
     "name": "Plated Greaves",
-    "armor": 10,
+    "armor": 38,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 46
+      "agility": 63
     },
     "tags": null,
     "strength": 0,
-    "agility": 8,
+    "agility": 5,
     "technique": 0,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2290,10 +2290,10 @@
   {
     "slot": "legs",
     "name": "Reinforced Greaves",
-    "armor": 14,
+    "armor": 46,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 43
+      "agility": 65
     },
     "tags": null,
     "strength": 0,
@@ -2304,7 +2304,7 @@
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2312,21 +2312,21 @@
   {
     "slot": "legs",
     "name": "Riveted Breeches",
-    "armor": 6,
+    "armor": 30,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 41
+      "agility": 46
     },
     "tags": null,
     "strength": 0,
-    "agility": 7,
+    "agility": 8,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2337,13 +2337,13 @@
     "armor": 1,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 41
+      "intelligence": 65
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
-    "intelligence": 7,
+    "intelligence": 9,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2351,18 +2351,18 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "chest",
     "name": "Skirmisher Coat",
-    "armor": 7,
+    "armor": 32,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 48
+      "strength": 35
     },
     "tags": null,
-    "strength": 9,
+    "strength": 6,
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
@@ -2378,21 +2378,21 @@
   {
     "slot": "legs",
     "name": "Soldier\u0027s Breeches",
-    "armor": 7,
+    "armor": 32,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 48
+      "agility": 44
     },
     "tags": null,
     "strength": 0,
-    "agility": 5,
+    "agility": 6,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2400,13 +2400,13 @@
   {
     "slot": "chest",
     "name": "Spaulder",
-    "armor": 9,
+    "armor": 36,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 53
+      "strength": 56
     },
     "tags": null,
-    "strength": 10,
+    "strength": 6,
     "agility": 0,
     "technique": 5,
     "intelligence": 0,
@@ -2422,21 +2422,21 @@
   {
     "slot": "legs",
     "name": "Stompers",
-    "armor": 15,
+    "armor": 48,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 53
+      "agility": 49
     },
     "tags": null,
     "strength": 0,
-    "agility": 6,
+    "agility": 8,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2444,21 +2444,21 @@
   {
     "slot": "legs",
     "name": "Stompers",
-    "armor": 15,
+    "armor": 48,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 53
+      "agility": 49
     },
     "tags": null,
     "strength": 0,
-    "agility": 6,
+    "agility": 8,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2469,7 +2469,7 @@
     "armor": 2,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 62
+      "technique": 55
     },
     "tags": null,
     "strength": 0,
@@ -2491,13 +2491,13 @@
     "armor": 1,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 44
+      "intelligence": 64
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
-    "intelligence": 10,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2505,7 +2505,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "feet",
@@ -2513,12 +2513,12 @@
     "armor": 2,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 61
+      "technique": 39
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
-    "technique": 10,
+    "technique": 9,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2535,13 +2535,13 @@
     "armor": 1,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 39
+      "intelligence": 35
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
-    "intelligence": 8,
+    "intelligence": 6,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2549,7 +2549,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "head",
@@ -2557,13 +2557,13 @@
     "armor": 1,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 41
+      "intelligence": 63
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
-    "intelligence": 10,
+    "intelligence": 7,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2571,26 +2571,26 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "legs",
     "name": "War Greaves",
-    "armor": 11,
+    "armor": 40,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 57
+      "agility": 40
     },
     "tags": null,
     "strength": 5,
-    "agility": 9,
+    "agility": 10,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2601,12 +2601,12 @@
     "armor": 2,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 37
+      "technique": 38
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 6,
+    "technique": 7,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2623,13 +2623,13 @@
     "armor": 1,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 61
+      "intelligence": 55
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
-    "intelligence": 8,
+    "intelligence": 6,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2637,18 +2637,18 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "chest",
     "name": "Adamantine Chestplate",
-    "armor": 8,
+    "armor": 40,
     "tier": 4,
     "attributeRequirements": {
-      "strength": 85
+      "strength": 77
     },
     "tags": null,
-    "strength": 9,
+    "strength": 12,
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
@@ -2664,13 +2664,13 @@
   {
     "slot": "chest",
     "name": "Banded Mail",
-    "armor": 9,
+    "armor": 42,
     "tier": 4,
     "attributeRequirements": {
-      "strength": 94
+      "strength": 60
     },
     "tags": null,
-    "strength": 10,
+    "strength": 6,
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
@@ -2689,12 +2689,12 @@
     "armor": 2,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 59
+      "technique": 58
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
-    "technique": 13,
+    "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2711,12 +2711,12 @@
     "armor": 2,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 82
+      "technique": 56
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 9,
+    "technique": 7,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2730,10 +2730,10 @@
   {
     "slot": "legs",
     "name": "Bulwark Greaves",
-    "armor": 12,
+    "armor": 48,
     "tier": 4,
     "attributeRequirements": {
-      "agility": 79
+      "agility": 66
     },
     "tags": null,
     "strength": 0,
@@ -2744,7 +2744,7 @@
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2752,21 +2752,21 @@
   {
     "slot": "legs",
     "name": "Champion\u0027s Greaves",
-    "armor": 15,
+    "armor": 54,
     "tier": 4,
     "attributeRequirements": {
-      "agility": 83
+      "agility": 75
     },
     "tags": null,
     "strength": 0,
-    "agility": 7,
+    "agility": 12,
     "technique": 0,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2774,35 +2774,13 @@
   {
     "slot": "legs",
     "name": "Crusader\u0027s Greaves",
-    "armor": 16,
+    "armor": 56,
     "tier": 4,
     "attributeRequirements": {
-      "agility": 75
+      "agility": 80
     },
     "tags": null,
     "strength": 0,
-    "agility": 15,
-    "technique": 0,
-    "intelligence": 0,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "attackSpeed": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
-  },
-  {
-    "slot": "legs",
-    "name": "Defender\u0027s Greaves",
-    "armor": 13,
-    "tier": 4,
-    "attributeRequirements": {
-      "agility": 94
-    },
-    "tags": null,
-    "strength": 5,
     "agility": 13,
     "technique": 0,
     "intelligence": 0,
@@ -2810,7 +2788,29 @@
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 4,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0
+  },
+  {
+    "slot": "legs",
+    "name": "Defender\u0027s Greaves",
+    "armor": 50,
+    "tier": 4,
+    "attributeRequirements": {
+      "agility": 62
+    },
+    "tags": null,
+    "strength": 5,
+    "agility": 8,
+    "technique": 0,
+    "intelligence": 0,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2827,7 +2827,7 @@
     "strength": 0,
     "agility": 0,
     "technique": 0,
-    "intelligence": 5,
+    "intelligence": 11,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2835,7 +2835,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "feet",
@@ -2843,12 +2843,12 @@
     "armor": 2,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 61
+      "technique": 85
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 8,
+    "technique": 10,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2865,13 +2865,13 @@
     "armor": 1,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 58
+      "intelligence": 83
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
-    "intelligence": 12,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2879,18 +2879,18 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "chest",
     "name": "Fortress",
-    "armor": 16,
+    "armor": 56,
     "tier": 4,
     "attributeRequirements": {
-      "strength": 83
+      "strength": 71
     },
     "tags": null,
-    "strength": 5,
+    "strength": 12,
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
@@ -2906,21 +2906,21 @@
   {
     "slot": "legs",
     "name": "Fortress Greaves",
-    "armor": 9,
+    "armor": 42,
     "tier": 4,
     "attributeRequirements": {
-      "agility": 56
+      "agility": 93
     },
     "tags": null,
     "strength": 0,
-    "agility": 6,
+    "agility": 9,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2931,13 +2931,13 @@
     "armor": 1,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 84
+      "intelligence": 76
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
-    "intelligence": 7,
+    "intelligence": 14,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2945,26 +2945,26 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "legs",
     "name": "Guardian Greaves",
-    "armor": 11,
+    "armor": 46,
     "tier": 4,
     "attributeRequirements": {
-      "agility": 95
+      "agility": 67
     },
     "tags": null,
     "strength": 0,
-    "agility": 11,
+    "agility": 14,
     "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -2975,13 +2975,13 @@
     "armor": 1,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 95
+      "intelligence": 77
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
-    "intelligence": 10,
+    "intelligence": 14,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2989,18 +2989,18 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "chest",
     "name": "Ironclad",
-    "armor": 17,
+    "armor": 58,
     "tier": 4,
     "attributeRequirements": {
-      "strength": 95
+      "strength": 85
     },
     "tags": null,
-    "strength": 9,
+    "strength": 13,
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
@@ -3019,12 +3019,12 @@
     "armor": 2,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 77
+      "technique": 79
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 11,
+    "technique": 9,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3041,12 +3041,12 @@
     "armor": 2,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 77
+      "technique": 91
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
-    "technique": 6,
+    "technique": 12,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3060,21 +3060,21 @@
   {
     "slot": "legs",
     "name": "Knight\u0027s Greaves",
-    "armor": 17,
+    "armor": 58,
     "tier": 4,
     "attributeRequirements": {
-      "agility": 67
+      "agility": 77
     },
     "tags": null,
     "strength": 0,
-    "agility": 10,
+    "agility": 9,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -3085,12 +3085,12 @@
     "armor": 2,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 71
+      "technique": 64
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
-    "technique": 13,
+    "technique": 15,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3107,29 +3107,7 @@
     "armor": 1,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 76
-    },
-    "tags": null,
-    "strength": 0,
-    "agility": 0,
-    "technique": 0,
-    "intelligence": 9,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "attackSpeed": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
-  },
-  {
-    "slot": "head",
-    "name": "Mask",
-    "armor": 1,
-    "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 92
+      "intelligence": 90
     },
     "tags": null,
     "strength": 0,
@@ -3143,18 +3121,40 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
+  },
+  {
+    "slot": "head",
+    "name": "Mask",
+    "armor": 1,
+    "tier": 4,
+    "attributeRequirements": {
+      "intelligence": 70
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 0,
+    "technique": 0,
+    "intelligence": 11,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 2
   },
   {
     "slot": "chest",
     "name": "Mithril Chestplate",
-    "armor": 13,
+    "armor": 50,
     "tier": 4,
     "attributeRequirements": {
-      "strength": 83
+      "strength": 80
     },
     "tags": null,
-    "strength": 14,
+    "strength": 12,
     "agility": 0,
     "technique": 0,
     "intelligence": 5,
@@ -3173,12 +3173,12 @@
     "armor": 2,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 91
+      "technique": 85
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
-    "technique": 14,
+    "technique": 10,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3192,13 +3192,13 @@
   {
     "slot": "chest",
     "name": "Ring Mail",
-    "armor": 14,
+    "armor": 52,
     "tier": 4,
     "attributeRequirements": {
-      "strength": 95
+      "strength": 69
     },
     "tags": null,
-    "strength": 12,
+    "strength": 7,
     "agility": 0,
     "technique": 5,
     "intelligence": 0,
@@ -3214,13 +3214,13 @@
   {
     "slot": "chest",
     "name": "Scale Mail",
-    "armor": 15,
+    "armor": 54,
     "tier": 4,
     "attributeRequirements": {
-      "strength": 75
+      "strength": 57
     },
     "tags": null,
-    "strength": 9,
+    "strength": 7,
     "agility": 5,
     "technique": 0,
     "intelligence": 0,
@@ -3236,21 +3236,21 @@
   {
     "slot": "legs",
     "name": "Sentinel Greaves",
-    "armor": 10,
+    "armor": 44,
     "tier": 4,
     "attributeRequirements": {
-      "agility": 84
+      "agility": 57
     },
     "tags": null,
     "strength": 5,
-    "agility": 11,
+    "agility": 8,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -3261,12 +3261,12 @@
     "armor": 2,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 92
+      "technique": 57
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 9,
+    "technique": 10,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
@@ -3283,12 +3283,12 @@
     "armor": 2,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 58
+      "technique": 73
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 14,
+    "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3305,13 +3305,13 @@
     "armor": 1,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 69
+      "intelligence": 74
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
-    "intelligence": 6,
+    "intelligence": 13,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3319,18 +3319,18 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "chest",
     "name": "Splint Mail",
-    "armor": 10,
+    "armor": 44,
     "tier": 4,
     "attributeRequirements": {
-      "strength": 90
+      "strength": 80
     },
     "tags": null,
-    "strength": 9,
+    "strength": 10,
     "agility": 0,
     "technique": 0,
     "intelligence": 5,
@@ -3346,13 +3346,13 @@
   {
     "slot": "chest",
     "name": "Stormwall",
-    "armor": 11,
+    "armor": 46,
     "tier": 4,
     "attributeRequirements": {
-      "strength": 93
+      "strength": 69
     },
     "tags": null,
-    "strength": 15,
+    "strength": 6,
     "agility": 0,
     "technique": 5,
     "intelligence": 0,
@@ -3368,10 +3368,10 @@
   {
     "slot": "chest",
     "name": "Vanguard Plate",
-    "armor": 12,
+    "armor": 48,
     "tier": 4,
     "attributeRequirements": {
-      "strength": 64
+      "strength": 66
     },
     "tags": null,
     "strength": 9,
@@ -3393,13 +3393,13 @@
     "armor": 1,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 82
+      "intelligence": 76
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
-    "intelligence": 15,
+    "intelligence": 12,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3407,7 +3407,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "head",
@@ -3415,13 +3415,13 @@
     "armor": 1,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 82
+      "intelligence": 76
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
-    "intelligence": 15,
+    "intelligence": 12,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3429,26 +3429,26 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "legs",
     "name": "Warden\u0027s Greaves",
-    "armor": 14,
+    "armor": 52,
     "tier": 4,
     "attributeRequirements": {
-      "agility": 64
+      "agility": 81
     },
     "tags": null,
     "strength": 0,
-    "agility": 5,
+    "agility": 11,
     "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -3456,21 +3456,21 @@
   {
     "slot": "legs",
     "name": "Warplate Greaves",
-    "armor": 8,
+    "armor": 40,
     "tier": 4,
     "attributeRequirements": {
-      "agility": 59
+      "agility": 87
     },
     "tags": null,
     "strength": 0,
-    "agility": 9,
+    "agility": 8,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -3481,12 +3481,12 @@
     "armor": 2,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 64
+      "technique": 55
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 14,
+    "technique": 9,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
@@ -3503,13 +3503,13 @@
     "armor": 1,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 61
+      "intelligence": 66
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
-    "intelligence": 11,
+    "intelligence": 15,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3517,26 +3517,26 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 2
   },
   {
     "slot": "legs",
     "name": "Absolute Greaves",
-    "armor": 19,
+    "armor": 68,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 99
+      "agility": 95
     },
     "tags": null,
     "strength": 0,
-    "agility": 9,
+    "agility": 6,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -3547,12 +3547,12 @@
     "armor": 3,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 87
+      "technique": 92
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
-    "technique": 24,
+    "technique": 19,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3566,13 +3566,13 @@
   {
     "slot": "chest",
     "name": "Champion",
-    "armor": 18,
+    "armor": 66,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 55
+      "strength": 88
     },
     "tags": null,
-    "strength": 8,
+    "strength": 23,
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
@@ -3588,13 +3588,13 @@
   {
     "slot": "chest",
     "name": "Citadel",
-    "armor": 14,
+    "armor": 58,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 94
+      "strength": 71
     },
     "tags": null,
-    "strength": 22,
+    "strength": 24,
     "agility": 5,
     "technique": 0,
     "intelligence": 0,
@@ -3610,13 +3610,13 @@
   {
     "slot": "chest",
     "name": "Colossus",
-    "armor": 15,
+    "armor": 60,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 79
+      "strength": 72
     },
     "tags": null,
-    "strength": 12,
+    "strength": 7,
     "agility": 0,
     "technique": 0,
     "intelligence": 5,
@@ -3632,10 +3632,10 @@
   {
     "slot": "legs",
     "name": "Conqueror\u0027s Greaves",
-    "armor": 12,
+    "armor": 54,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 83
+      "agility": 76
     },
     "tags": null,
     "strength": 5,
@@ -3646,7 +3646,7 @@
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -3657,13 +3657,13 @@
     "armor": 2,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 85
+      "intelligence": 82
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
-    "intelligence": 22,
+    "intelligence": 10,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3671,18 +3671,18 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 3
   },
   {
     "slot": "chest",
     "name": "Crusader",
-    "armor": 17,
+    "armor": 64,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 88
+      "strength": 97
     },
     "tags": null,
-    "strength": 13,
+    "strength": 8,
     "agility": 5,
     "technique": 0,
     "intelligence": 0,
@@ -3701,13 +3701,13 @@
     "armor": 2,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 84
+      "intelligence": 79
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
-    "intelligence": 13,
+    "intelligence": 10,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3715,18 +3715,18 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 3
   },
   {
     "slot": "chest",
     "name": "Dragon Scale Armor",
-    "armor": 10,
+    "armor": 50,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 58
+      "strength": 76
     },
     "tags": null,
-    "strength": 16,
+    "strength": 24,
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
@@ -3745,12 +3745,12 @@
     "armor": 3,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 102
+      "technique": 82
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 7,
+    "technique": 9,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3767,13 +3767,13 @@
     "armor": 2,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 96
+      "intelligence": 95
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
-    "intelligence": 23,
+    "intelligence": 6,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3781,26 +3781,26 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 3
   },
   {
     "slot": "legs",
     "name": "Eternal Greaves",
-    "armor": 17,
+    "armor": 64,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 59
+      "agility": 71
     },
     "tags": null,
     "strength": 0,
-    "agility": 21,
+    "agility": 19,
     "technique": 0,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -3808,21 +3808,21 @@
   {
     "slot": "legs",
     "name": "Full Greaves",
-    "armor": 11,
+    "armor": 52,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 63
+      "agility": 82
     },
     "tags": null,
     "strength": 0,
-    "agility": 13,
+    "agility": 7,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -3830,13 +3830,13 @@
   {
     "slot": "chest",
     "name": "Full Plate Armor",
-    "armor": 11,
+    "armor": 52,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 89
+      "strength": 74
     },
     "tags": null,
-    "strength": 13,
+    "strength": 24,
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
@@ -3855,12 +3855,12 @@
     "armor": 3,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 94
+      "technique": 77
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 24,
+    "technique": 22,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3877,7 +3877,7 @@
     "armor": 2,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 93
+      "intelligence": 76
     },
     "tags": null,
     "strength": 0,
@@ -3891,26 +3891,26 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 3
   },
   {
     "slot": "legs",
     "name": "Godplate Greaves",
-    "armor": 18,
+    "armor": 66,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 93
+      "agility": 105
     },
     "tags": null,
     "strength": 0,
-    "agility": 19,
+    "agility": 15,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -3921,12 +3921,12 @@
     "armor": 3,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 76
+      "technique": 85
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
-    "technique": 24,
+    "technique": 19,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3943,13 +3943,13 @@
     "armor": 2,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 85
+      "intelligence": 99
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
-    "intelligence": 21,
+    "intelligence": 6,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3957,7 +3957,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 3
   },
   {
     "slot": "head",
@@ -3965,13 +3965,13 @@
     "armor": 2,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 89
+      "intelligence": 90
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
-    "intelligence": 22,
+    "intelligence": 24,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3979,7 +3979,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 3
   },
   {
     "slot": "head",
@@ -3987,13 +3987,13 @@
     "armor": 2,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 88
+      "intelligence": 70
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
-    "intelligence": 10,
+    "intelligence": 17,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -4001,26 +4001,26 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 3
   },
   {
     "slot": "legs",
     "name": "Overlord\u0027s Greaves",
-    "armor": 16,
+    "armor": 62,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 73
+      "agility": 68
     },
     "tags": null,
     "strength": 0,
-    "agility": 19,
+    "agility": 12,
     "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -4031,12 +4031,12 @@
     "armor": 3,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 75
+      "technique": 100
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 17,
+    "technique": 25,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
@@ -4053,13 +4053,13 @@
     "armor": 2,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 93
+      "intelligence": 92
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
-    "intelligence": 14,
+    "intelligence": 21,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -4067,18 +4067,18 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 3
   },
   {
     "slot": "chest",
     "name": "Plated Mail",
-    "armor": 12,
+    "armor": 54,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 68
+      "strength": 66
     },
     "tags": null,
-    "strength": 9,
+    "strength": 6,
     "agility": 0,
     "technique": 0,
     "intelligence": 5,
@@ -4097,13 +4097,13 @@
     "armor": 2,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 85
+      "intelligence": 86
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
-    "intelligence": 20,
+    "intelligence": 18,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -4111,18 +4111,18 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 3
   },
   {
     "slot": "chest",
     "name": "Protector",
-    "armor": 16,
+    "armor": 62,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 105
+      "strength": 103
     },
     "tags": null,
-    "strength": 19,
+    "strength": 13,
     "agility": 0,
     "technique": 5,
     "intelligence": 0,
@@ -4138,21 +4138,21 @@
   {
     "slot": "legs",
     "name": "Siege Plates",
-    "armor": 10,
+    "armor": 50,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 103
+      "agility": 79
     },
     "tags": null,
     "strength": 0,
-    "agility": 15,
+    "agility": 20,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -4163,12 +4163,12 @@
     "armor": 3,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 58
+      "technique": 68
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 19,
+    "technique": 13,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
@@ -4185,13 +4185,13 @@
     "armor": 2,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 78
+      "intelligence": 57
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
-    "intelligence": 19,
+    "intelligence": 9,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -4199,7 +4199,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "minActionBonuses": 0
+    "minActionBonuses": 3
   },
   {
     "slot": "feet",
@@ -4207,12 +4207,12 @@
     "armor": 3,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 73
+      "technique": 67
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 24,
+    "technique": 20,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4226,21 +4226,21 @@
   {
     "slot": "legs",
     "name": "Sovereign Greaves",
-    "armor": 13,
+    "armor": 56,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 60
+      "agility": 88
     },
     "tags": null,
     "strength": 0,
-    "agility": 12,
+    "agility": 8,
     "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -4248,13 +4248,13 @@
   {
     "slot": "chest",
     "name": "Sovereign Plate",
-    "armor": 19,
+    "armor": 68,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 57
+      "strength": 66
     },
     "tags": null,
-    "strength": 12,
+    "strength": 16,
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
@@ -4270,21 +4270,21 @@
   {
     "slot": "legs",
     "name": "Titan\u0027s Greaves",
-    "armor": 14,
+    "armor": 58,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 96
+      "agility": 93
     },
     "tags": null,
     "strength": 0,
-    "agility": 14,
+    "agility": 7,
     "technique": 0,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -4292,13 +4292,13 @@
   {
     "slot": "chest",
     "name": "Vanguard",
-    "armor": 13,
+    "armor": 56,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 71
+      "strength": 69
     },
     "tags": null,
-    "strength": 24,
+    "strength": 21,
     "agility": 0,
     "technique": 5,
     "intelligence": 0,
@@ -4314,21 +4314,21 @@
   {
     "slot": "legs",
     "name": "Warlord\u0027s Greaves",
-    "armor": 15,
+    "armor": 60,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 68
+      "agility": 104
     },
     "tags": null,
     "strength": 5,
-    "agility": 22,
+    "agility": 8,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
     "attackSpeed": 0,
-    "extraActionSlots": 0,
+    "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0
@@ -4339,12 +4339,12 @@
     "armor": 3,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 63
+      "technique": 94
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
-    "technique": 14,
+    "technique": 17,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4361,12 +4361,12 @@
     "armor": 3,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 58
+      "technique": 75
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 21,
+    "technique": 10,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4383,12 +4383,12 @@
     "armor": 3,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 92
+      "technique": 78
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
-    "technique": 16,
+    "technique": 17,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,

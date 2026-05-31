@@ -203,6 +203,23 @@ namespace RPGGame.Data
             return true;
         }
 
+        /// <summary>
+        /// Loads per-tab include flags from <c>SheetsPushConfig.json</c> when present; otherwise all tabs are enabled (legacy pull/push behavior).
+        /// </summary>
+        public static SheetsPushConfig LoadTabFilterOrAllEnabled(string? configPath = null)
+        {
+            configPath ??= GameConstants.TryGetExistingGameDataFilePath("SheetsPushConfig.json")
+                ?? GameConstants.GetGameDataFilePath("SheetsPushConfig.json");
+            if (!File.Exists(configPath))
+            {
+                var all = new SheetsPushConfig();
+                EnableAllPushTabs(all);
+                return all;
+            }
+
+            return Load(configPath);
+        }
+
         public static SheetsPushConfig Load(string? configPath = null)
         {
             configPath ??= GameConstants.GetGameDataFilePath("SheetsPushConfig.json");

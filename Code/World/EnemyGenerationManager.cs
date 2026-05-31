@@ -53,7 +53,13 @@ namespace RPGGame
         /// <summary>
         /// Generates enemies for this environment based on room level.
         /// </summary>
-        public void GenerateEnemies(int roomLevel, List<string>? possibleEnemies = null, int? minLevel = null, int? maxLevel = null)
+        public void GenerateEnemies(
+            int roomLevel,
+            List<string>? possibleEnemies = null,
+            int? minLevel = null,
+            int? maxLevel = null,
+            EnemySpawnContext? spawnContext = null,
+            TravelRegion? resolvedRegion = null)
         {
             if (!isHostile)
                 return;
@@ -65,7 +71,7 @@ namespace RPGGame
             var jsonEnemies = LoadEnemyDataFromJson();
             if (jsonEnemies != null && jsonEnemies.Count > 0)
             {
-                GenerateEnemiesFromJson(roomLevel, enemyCount, jsonEnemies, possibleEnemies, minLevel, maxLevel);
+                GenerateEnemiesFromJson(roomLevel, enemyCount, jsonEnemies, possibleEnemies, minLevel, maxLevel, spawnContext, resolvedRegion);
                 return;
             }
 
@@ -147,12 +153,20 @@ namespace RPGGame
             return null;
         }
 
-        private void GenerateEnemiesFromJson(int roomLevel, int enemyCount, List<EnemyData> enemyData, List<string>? possibleEnemies = null, int? minLevel = null, int? maxLevel = null)
+        private void GenerateEnemiesFromJson(
+            int roomLevel,
+            int enemyCount,
+            List<EnemyData> enemyData,
+            List<string>? possibleEnemies = null,
+            int? minLevel = null,
+            int? maxLevel = null,
+            EnemySpawnContext? spawnContext = null,
+            TravelRegion? resolvedRegion = null)
         {
             var tuning = GameConfiguration.Instance;
 
             if (roomEnemySpawnPool is { Count: > 0 }
-                && TryGenerateFromRoomEnemyPool(roomLevel, enemyCount, enemyData, minLevel, maxLevel))
+                && TryGenerateFromRoomEnemyPool(roomLevel, enemyCount, enemyData, minLevel, maxLevel, spawnContext, resolvedRegion))
                 return;
 
             // Filter enemies by possible enemies list first, then by theme
@@ -183,10 +197,13 @@ namespace RPGGame
                 return;
             }
 
+            var spawnCtx = spawnContext ?? new EnemySpawnContext(null, theme, null);
+
             for (int i = 0; i < enemyCount; i++)
             {
                 int enemyLevel = CalculateEnemyLevel(roomLevel, tuning.EnemySystem.LevelVariance, minLevel, maxLevel);
-                var enemyTemplate = availableEnemies[random.Next(availableEnemies.Count)];
+                var enemyTemplate = EnemySpawnFilter.PickByTieredSpawnRoll(
+                    availableEnemies, spawnCtx, resolvedRegion, random);
 
                 var enemy = EnemyLoader.CreateEnemy(enemyTemplate.Name, enemyLevel);
                 if (enemy != null)
@@ -217,7 +234,14 @@ namespace RPGGame
         /// <summary>
         /// Spawns from <see cref="RoomData.Enemies"/> when present and at least one name matches <paramref name="enemyData"/>.
         /// </summary>
-        private bool TryGenerateFromRoomEnemyPool(int roomLevel, int enemyCount, List<EnemyData> enemyData, int? minLevel, int? maxLevel)
+        private bool TryGenerateFromRoomEnemyPool(
+            int roomLevel,
+            int enemyCount,
+            List<EnemyData> enemyData,
+            int? minLevel,
+            int? maxLevel,
+            EnemySpawnContext? spawnContext = null,
+            TravelRegion? resolvedRegion = null)
         {
             var byName = enemyData
                 .GroupBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
@@ -236,11 +260,15 @@ namespace RPGGame
             if (weighted.Count == 0)
                 return false;
 
+            var spawnCtx = spawnContext ?? new EnemySpawnContext(null, theme, null);
+            var roomCandidates = weighted.Select(w => w.data).ToList();
+
             var tuning = GameConfiguration.Instance;
             for (int i = 0; i < enemyCount; i++)
             {
                 int enemyLevel = CalculateEnemyLevel(roomLevel, tuning.EnemySystem.LevelVariance, minLevel, maxLevel);
-                var enemyTemplate = PickWeightedEnemyTemplate(weighted);
+                var enemyTemplate = EnemySpawnFilter.PickByTieredSpawnRoll(
+                    roomCandidates, spawnCtx, resolvedRegion, random);
 
                 var enemy = EnemyLoader.CreateEnemy(enemyTemplate.Name, enemyLevel);
                 if (enemy != null)
@@ -268,26 +296,6 @@ namespace RPGGame
             }
 
             return true;
-        }
-
-        private EnemyData PickWeightedEnemyTemplate(List<(EnemyData data, double weight)> items)
-        {
-            double total = items.Sum(x => x.weight > 0 ? x.weight : 0);
-            if (total <= 0)
-                return items[random.Next(items.Count)].data;
-
-            double r = random.NextDouble() * total;
-            double acc = 0;
-            foreach (var (data, weight) in items)
-            {
-                if (weight <= 0)
-                    continue;
-                acc += weight;
-                if (r < acc)
-                    return data;
-            }
-
-            return items[^1].data;
         }
 
         /// <summary>

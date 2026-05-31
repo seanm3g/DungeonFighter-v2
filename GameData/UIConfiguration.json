@@ -66,5 +66,189 @@
       "waveLength": 5,
       "updateIntervalMs": 100
     }
+  },
+  "textAnimationPresets": {
+    "pathIntro": {
+      "inheritBaseFromSegments": false,
+      "clampBrightness": null,
+      "layers": [
+        {
+          "type": "baseColor",
+          "source": {
+            "inherit": false,
+            "solid": "#FFF4DC",
+            "template": null
+          },
+          "gradient": null,
+          "mask": null,
+          "hsvAdjust": null,
+          "directGradient": false,
+          "skipWhenTemplateUndulateDisabled": false
+        },
+        {
+          "type": "colorOverlay",
+          "source": null,
+          "gradient": [
+            "#FFF4DC",
+            "#E2F1FF"
+          ],
+          "mask": {
+            "type": "sineWave",
+            "animationState": null,
+            "phaseDivisorMs": 320,
+            "characterPhaseOffset": 0.36,
+            "amplitude": 3,
+            "constantValue": 1
+          },
+          "hsvAdjust": null,
+          "directGradient": true,
+          "skipWhenTemplateUndulateDisabled": false
+        }
+      ]
+    },
+    "dungeonSelection": {
+      "inheritBaseFromSegments": true,
+      "clampBrightness": {
+        "min": 150,
+        "max": 255
+      },
+      "layers": [
+        {
+          "type": "baseColor",
+          "source": {
+            "inherit": true,
+            "solid": null,
+            "template": null
+          },
+          "gradient": null,
+          "mask": null,
+          "hsvAdjust": null,
+          "directGradient": false,
+          "skipWhenTemplateUndulateDisabled": false
+        },
+        {
+          "type": "hsvAdjust",
+          "source": null,
+          "gradient": null,
+          "mask": {
+            "type": "undulation",
+            "animationState": "dungeonSelection",
+            "phaseDivisorMs": 320,
+            "characterPhaseOffset": 0.36,
+            "amplitude": 3,
+            "constantValue": 1
+          },
+          "hsvAdjust": {
+            "brightnessScale": {
+              "min": 0.3,
+              "max": 2,
+              "fromMaskIntensity": false,
+              "amplitude": 3,
+              "combineUndulationAndMask": true
+            },
+            "hueShift": null,
+            "saturationScale": null
+          },
+          "directGradient": false,
+          "skipWhenTemplateUndulateDisabled": false
+        }
+      ]
+    },
+    "critLine": {
+      "inheritBaseFromSegments": true,
+      "clampBrightness": {
+        "min": 150,
+        "max": 255
+      },
+      "layers": [
+        {
+          "type": "baseColor",
+          "source": {
+            "inherit": true,
+            "solid": null,
+            "template": null
+          },
+          "gradient": null,
+          "mask": null,
+          "hsvAdjust": null,
+          "directGradient": false,
+          "skipWhenTemplateUndulateDisabled": false
+        },
+        {
+          "type": "hsvAdjust",
+          "source": null,
+          "gradient": null,
+          "mask": {
+            "type": "undulation",
+            "animationState": "crit",
+            "phaseDivisorMs": 320,
+            "characterPhaseOffset": 0.36,
+            "amplitude": 5,
+            "constantValue": 1
+          },
+          "hsvAdjust": {
+            "brightnessScale": {
+              "min": 0.3,
+              "max": 2,
+              "fromMaskIntensity": false,
+              "amplitude": 5,
+              "combineUndulationAndMask": false
+            },
+            "hueShift": null,
+            "saturationScale": null
+          },
+          "directGradient": false,
+          "skipWhenTemplateUndulateDisabled": false
+        }
+      ]
+    },
+    "displayLogShimmer": {
+      "inheritBaseFromSegments": true,
+      "clampBrightness": {
+        "min": 150,
+        "max": 255
+      },
+      "layers": [
+        {
+          "type": "baseColor",
+          "source": {
+            "inherit": true,
+            "solid": null,
+            "template": null
+          },
+          "gradient": null,
+          "mask": null,
+          "hsvAdjust": null,
+          "directGradient": false,
+          "skipWhenTemplateUndulateDisabled": false
+        },
+        {
+          "type": "hsvAdjust",
+          "source": null,
+          "gradient": null,
+          "mask": {
+            "type": "undulation",
+            "animationState": "dungeonSelection",
+            "phaseDivisorMs": 320,
+            "characterPhaseOffset": 0.36,
+            "amplitude": 3,
+            "constantValue": 1
+          },
+          "hsvAdjust": {
+            "brightnessScale": {
+              "min": 0.3,
+              "max": 2,
+              "fromMaskIntensity": false,
+              "amplitude": 3,
+              "combineUndulationAndMask": true
+            },
+            "hueShift": null,
+            "saturationScale": null
+          },
+          "directGradient": false,
+          "skipWhenTemplateUndulateDisabled": true
+        }
+      ]
+    }
   }
 }

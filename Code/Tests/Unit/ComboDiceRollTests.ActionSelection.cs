@@ -95,7 +95,7 @@ namespace RPGGame.Tests.Unit
             character.Actions.AddToCombo(comboAction);
             
             // Add roll bonus via gear or stats
-            character.Stats.Technique = 20; // High TECH gives roll bonus
+            character.Stats.Intelligence = 20; // High INT feeds combo AMP (not roll bonus)
             
             ActionSelector.ClearStoredRolls();
             var action = ActionSelector.SelectActionByEntityType(character);

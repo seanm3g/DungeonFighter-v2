@@ -119,21 +119,21 @@ namespace RPGGame.Tests.Unit.Game
             EnemyEncounterHandler.AddEnemySurpriseCombatEvent(manager, player, new FixedRandom(0));
 
             var log = manager.CombatLog;
-            TestBase.AssertEqual(2, log.Count,
-                "Enemy surprise should add the colored warning and one trailing blank only",
+            TestBase.AssertEqual(3, log.Count,
+                "Enemy surprise should add a leading blank, the colored warning, and one trailing blank",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(!string.IsNullOrWhiteSpace(log[0]),
-                "Enemy surprise should not start with a leading blank line",
+            TestBase.AssertEqual("", log[0],
+                "Enemy surprise should start with a leading blank line after enemy appears",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("You've been surprised! The enemy will strike first!",
-                ColoredTextRenderer.RenderAsPlainText(ColoredTextParser.Parse(log[0])),
+                ColoredTextRenderer.RenderAsPlainText(ColoredTextParser.Parse(log[1])),
                 "Enemy surprise plain text should match the selected message",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("", log[1],
+            TestBase.AssertEqual("", log[2],
                 "Enemy surprise should keep one trailing blank before combat actions",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            var coloredSegments = ColoredTextParser.Parse(log[0])
+            var coloredSegments = ColoredTextParser.Parse(log[1])
                 .Where(segment => !string.IsNullOrWhiteSpace(segment.Text))
                 .ToList();
             TestBase.AssertTrue(coloredSegments.Count > 0 &&

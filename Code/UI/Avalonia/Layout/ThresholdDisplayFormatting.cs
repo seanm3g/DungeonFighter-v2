@@ -118,6 +118,18 @@ namespace RPGGame.UI.Avalonia.Layout
         }
 
         /// <summary>
+        /// Character-column offset from the bar's left edge to the center of a d20 face (1-based roll).
+        /// Matches segmented-bar face geometry: width * (roll - 0.5) / totalFaces.
+        /// </summary>
+        public static double GetRollFaceCenterCharOffset(int roll, int barWidth, int totalFaces = 20)
+        {
+            if (barWidth <= 0 || totalFaces <= 0)
+                return 0;
+            roll = Math.Clamp(roll, 1, totalFaces);
+            return (roll - 0.5) * barWidth / (double)totalFaces;
+        }
+
+        /// <summary>
         /// Returns the left-to-right bar segment index (0-based) for a d20 roll using the same exclusive outcome priority as combat.
         /// </summary>
         public static int FindSegmentIndexForRoll(

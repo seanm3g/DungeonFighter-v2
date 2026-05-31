@@ -253,11 +253,14 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             
             // Action bonuses
-            if (item.ActionBonuses.Count > 0)
+            var grantableActionBonuses = item.ActionBonuses
+                .Where(b => Data.GameDataTagHelper.IsGrantableOnHeroGearByName(b.Name))
+                .ToList();
+            if (grantableActionBonuses.Count > 0)
             {
                 var actionsBuilder = new ColoredTextBuilder();
                 actionsBuilder.Add("Actions: ", labelColor);
-                actionsBuilder.Add(string.Join(", ", item.ActionBonuses.Select(b => $"{b.Name} +{b.Weight}")), valueColor);
+                actionsBuilder.Add(string.Join(", ", grantableActionBonuses.Select(b => $"{b.Name} +{b.Weight}")), valueColor);
                 textWriter.RenderSegments(actionsBuilder.Build(), x, currentY);
                 currentY++;
                 lineCount++;

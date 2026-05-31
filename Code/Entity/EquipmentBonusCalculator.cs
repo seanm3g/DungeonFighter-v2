@@ -409,6 +409,12 @@ namespace RPGGame
                     totalBonus += MaterialStatBonus(modification, statType);
             }
 
+            if (string.Equals(statType, "ExtraActionSlots", StringComparison.OrdinalIgnoreCase))
+            {
+                totalBonus += ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(
+                    slots.Weapon is WeaponItem weapon ? weapon.WeaponType : null);
+            }
+
             return totalBonus;
         }
 

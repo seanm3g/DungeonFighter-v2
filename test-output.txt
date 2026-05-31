@@ -1,7 +1,1453 @@
 ﻿
-═══════════════════════════════════════════════════════
-  Compile Time: 285.97 seconds (285967 ms) ago
-  Launch Time: 0.43 seconds (432 ms)
-  Mode: GUI
-═══════════════════════════════════════════════════════
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+  Since main assembly file write: 38.09 s (38090 ms)
+  Launch Time: 0.00 seconds (0 ms)
+  Mode: TEST
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
 
+==========================================
+  COMPREHENSIVE GAME TEST SUITE
+==========================================
+
+=== PHASE 1: CORE MECHANICS ===
+
+=== Action System Tests ===
+
+--- Testing Action Loading ---
+  Γ£ô Actions should be loaded, got 528 actions
+  Γ£ô JAB action should be loadable
+  Γ£ô JAB action should have correct name
+  Γ£ô HasAction should return true for JAB
+  Γ£ô HasAction should return false for nonexistent action
+  Γ£ô GetAllActionNames should return actions, got 528
+
+--- Testing Action Properties ---
+  Γ£ô JAB: Name should not be empty
+  Γ£ô JAB: DamageMultiplier should be non-negative
+  Γ£ô JAB: Length should be positive
+  Γ£ô JAB: Cooldown should be non-negative
+  Γ£ô JAB: Description should not be null
+  Γ£ô PUNCH HARD: Name should not be empty
+  Γ£ô PUNCH HARD: DamageMultiplier should be non-negative
+  Γ£ô PUNCH HARD: Length should be positive
+  Γ£ô PUNCH HARD: Cooldown should be non-negative
+  Γ£ô PUNCH HARD: Description should not be null
+  Γ£ô PUNCH HARDER: Name should not be empty
+  Γ£ô PUNCH HARDER: DamageMultiplier should be non-negative
+  Γ£ô PUNCH HARDER: Length should be positive
+  Γ£ô PUNCH HARDER: Cooldown should be non-negative
+  Γ£ô PUNCH HARDER: Description should not be null
+  Γ£ô PUNCH HARDEST: Name should not be empty
+  Γ£ô PUNCH HARDEST: DamageMultiplier should be non-negative
+  Γ£ô PUNCH HARDEST: Length should be positive
+  Γ£ô PUNCH HARDEST: Cooldown should be non-negative
+  Γ£ô PUNCH HARDEST: Description should not be null
+  Γ£ô TAUNT: Name should not be empty
+  Γ£ô TAUNT: DamageMultiplier should be non-negative
+  Γ£ô TAUNT: Length should be positive
+  Γ£ô TAUNT: Cooldown should be non-negative
+  Γ£ô TAUNT: Description should not be null
+  Γ£ô CONCENTRATE: Name should not be empty
+  Γ£ô CONCENTRATE: DamageMultiplier should be non-negative
+  Γ£ô CONCENTRATE: Length should be positive
+  Γ£ô CONCENTRATE: Cooldown should be non-negative
+  Γ£ô CONCENTRATE: Description should not be null
+  Γ£ô STUN: Name should not be empty
+  Γ£ô STUN: DamageMultiplier should be non-negative
+  Γ£ô STUN: Length should be positive
+  Γ£ô STUN: Cooldown should be non-negative
+  Γ£ô STUN: Description should not be null
+  Γ£ô CRITICAL ATTACK: Name should not be empty
+  Γ£ô CRITICAL ATTACK: DamageMultiplier should be non-negative
+  Γ£ô CRITICAL ATTACK: Length should be positive
+  Γ£ô CRITICAL ATTACK: Cooldown should be non-negative
+  Γ£ô CRITICAL ATTACK: Description should not be null
+  Γ£ô FLURRY: Name should not be empty
+  Γ£ô FLURRY: DamageMultiplier should be non-negative
+  Γ£ô FLURRY: Length should be positive
+  Γ£ô FLURRY: Cooldown should be non-negative
+  Γ£ô FLURRY: Description should not be null
+  Γ£ô MOMENTUM BASH: Name should not be empty
+  Γ£ô MOMENTUM BASH: DamageMultiplier should be non-negative
+  Γ£ô MOMENTUM BASH: Length should be positive
+  Γ£ô MOMENTUM BASH: Cooldown should be non-negative
+  Γ£ô MOMENTUM BASH: Description should not be null
+  Γ£ô PUNCH HARD should have 1.0x damage multiplier
+
+--- Testing Action Types ---
+  Γ£ô JAB: ActionType should be valid enum value
+  Γ£ô PUNCH HARD: ActionType should be valid enum value
+  Γ£ô PUNCH HARDER: ActionType should be valid enum value
+  Γ£ô PUNCH HARDEST: ActionType should be valid enum value
+  Γ£ô TAUNT: ActionType should be valid enum value
+  Γ£ô CONCENTRATE: ActionType should be valid enum value
+  Γ£ô STUN: ActionType should be valid enum value
+  Γ£ô CRITICAL ATTACK: ActionType should be valid enum value
+  Γ£ô FLURRY: ActionType should be valid enum value
+  Γ£ô MOMENTUM BASH: ActionType should be valid enum value
+  Γ£ô READ BOOK: ActionType should be valid enum value
+  Γ£ô CHEAP SHOT: ActionType should be valid enum value
+  Γ£ô BERZERK: ActionType should be valid enum value
+  Γ£ô GRUNT: ActionType should be valid enum value
+  Γ£ô DISARM: ActionType should be valid enum value
+  Γ£ô ONE SHOT: ActionType should be valid enum value
+  Γ£ô DRUNKEN BRAWLER: ActionType should be valid enum value
+  Γ£ô STIM PACK: ActionType should be valid enum value
+  Γ£ô ANIME CHARGE-UP: ActionType should be valid enum value
+  Γ£ô OVERKILL: ActionType should be valid enum value
+  Γ£ô DANCE: ActionType should be valid enum value
+  Γ£ô A CARD THAT GETS WORSE OVER TIME: ActionType should be valid enum value
+  Γ£ô BULK DAY: ActionType should be valid enum value
+  Γ£ô CHUG ENERGY DRINK: ActionType should be valid enum value
+  Γ£ô TRUE STRIKE: ActionType should be valid enum value
+  Γ£ô SECOND WIND: ActionType should be valid enum value
+  Γ£ô QUICK REFLEXES: ActionType should be valid enum value
+  Γ£ô DEJA VU: ActionType should be valid enum value
+  Γ£ô POWER OVERWHELMING: ActionType should be valid enum value
+  Γ£ô ANY DAY NOW: ActionType should be valid enum value
+  Γ£ô I AM INVINCIBLE: ActionType should be valid enum value
+  Γ£ô AVENGE: ActionType should be valid enum value
+  Γ£ô FOLLOW THROUGH: ActionType should be valid enum value
+  Γ£ô OPENING VOLLEY: ActionType should be valid enum value
+  Γ£ô WEINING LIGHT: ActionType should be valid enum value
+  Γ£ô MIRROR FLEXING: ActionType should be valid enum value
+  Γ£ô ROGUES GAMBIT: ActionType should be valid enum value
+  Γ£ô POISON TIP: ActionType should be valid enum value
+  Γ£ô HAYMAKER: ActionType should be valid enum value
+  Γ£ô FRENZY: ActionType should be valid enum value
+  Γ£ô BLOOD KNIFE: ActionType should be valid enum value
+  Γ£ô HOLY HEALY: ActionType should be valid enum value
+  Γ£ô BLOODY SUNDAY: ActionType should be valid enum value
+  Γ£ô 24/7/365: ActionType should be valid enum value
+  Γ£ô PRETTY BOY SWAG: ActionType should be valid enum value
+  Γ£ô OPENING CUT: ActionType should be valid enum value
+  Γ£ô RAZOR MARGIN: ActionType should be valid enum value
+  Γ£ô FOCUSED BREATHING: ActionType should be valid enum value
+  Γ£ô ADRENAL SURGE: ActionType should be valid enum value
+  Γ£ô TENSION HOLD: ActionType should be valid enum value
+  Γ£ô LATE BLOOM: ActionType should be valid enum value
+  Γ£ô MEASURED PATIENCE: ActionType should be valid enum value
+  Γ£ô MEASURED ADVANCE: ActionType should be valid enum value
+  Γ£ô GLASS STRIKE: ActionType should be valid enum value
+  Γ£ô STATIC ODDS: ActionType should be valid enum value
+  Γ£ô LUCKY CHARM: ActionType should be valid enum value
+  Γ£ô SWIFT: ActionType should be valid enum value
+  Γ£ô EXHAUSTING RHYTHM: ActionType should be valid enum value
+  Γ£ô WINDED STATE: ActionType should be valid enum value
+  Γ£ô OVERHAND SMASH: ActionType should be valid enum value
+  Γ£ô HOLD TEMPO: ActionType should be valid enum value
+  Γ£ô BACKSTEP SLASH: ActionType should be valid enum value
+  Γ£ô CRUSHING FOLLOW-THROUGH: ActionType should be valid enum value
+  Γ£ô ALL IN: ActionType should be valid enum value
+  Γ£ô FINAL REP: ActionType should be valid enum value
+  Γ£ô HOLLOW ADVANCE: ActionType should be valid enum value
+  Γ£ô SLAPBACK ECHO: ActionType should be valid enum value
+  Γ£ô PERFECT LINE: ActionType should be valid enum value
+  Γ£ô OL' FAITHFUL: ActionType should be valid enum value
+  Γ£ô CONTROLLED BURST: ActionType should be valid enum value
+  Γ£ô PHANTOM FOLLOW-UP: ActionType should be valid enum value
+  Γ£ô FINAL PUSH: ActionType should be valid enum value
+  Γ£ô RISING PRESSURE: ActionType should be valid enum value
+  Γ£ô TEMPO SHIFT: ActionType should be valid enum value
+  Γ£ô GUARANTEED HIT: ActionType should be valid enum value
+  Γ£ô OVERCOMMIT: ActionType should be valid enum value
+  Γ£ô CALM BEFORE STORM: ActionType should be valid enum value
+  Γ£ô CALCULATED RISK: ActionType should be valid enum value
+  Γ£ô AMPLIFY ACCURACY: ActionType should be valid enum value
+  Γ£ô GROUNDHOGS DAY: ActionType should be valid enum value
+  Γ£ô DOMAIN EXPANSION: ActionType should be valid enum value
+  Γ£ô EARLY BIRD GETS THE WORM: ActionType should be valid enum value
+  Γ£ô SLAM: ActionType should be valid enum value
+  Γ£ô STRIKE: ActionType should be valid enum value
+  Γ£ô STAB: ActionType should be valid enum value
+  Γ£ô MAGIC MISSLE: ActionType should be valid enum value
+  Γ£ô CAST: ActionType should be valid enum value
+  Γ£ô RAGE: ActionType should be valid enum value
+  Γ£ô MOMENTUM: ActionType should be valid enum value
+  Γ£ô SQUAT: ActionType should be valid enum value
+  Γ£ô SLASH: ActionType should be valid enum value
+  Γ£ô HACK: ActionType should be valid enum value
+  Γ£ô JUKE: ActionType should be valid enum value
+  Γ£ô POUND: ActionType should be valid enum value
+  Γ£ô SLEIGHT OF HAND: ActionType should be valid enum value
+  Γ£ô HONE: ActionType should be valid enum value
+  Γ£ô CHANNEL: ActionType should be valid enum value
+  Γ£ô INVOKE: ActionType should be valid enum value
+  Γ£ô READ: ActionType should be valid enum value
+  Γ£ô INTELECTUAL DEBATE: ActionType should be valid enum value
+  Γ£ô HUNKER DOWN: ActionType should be valid enum value
+  Γ£ô WIDE SWING: ActionType should be valid enum value
+  Γ£ô Commitment Cleaver: ActionType should be valid enum value
+  Γ£ô Stance of Crescendo: ActionType should be valid enum value
+  Γ£ô Windup Flurry Mark: ActionType should be valid enum value
+  Γ£ô Quick Razors: ActionType should be valid enum value
+  Γ£ô Feather Chain: ActionType should be valid enum value
+  Γ£ô Rakeload: ActionType should be valid enum value
+  Γ£ô Reset Step: ActionType should be valid enum value
+  Γ£ô Compression Strike: ActionType should be valid enum value
+  Γ£ô Scatter Focus: ActionType should be valid enum value
+  Γ£ô Singletap Recovery: ActionType should be valid enum value
+  Γ£ô Collapse Cut: ActionType should be valid enum value
+  Γ£ô Tight Spiral: ActionType should be valid enum value
+  Γ£ô Lumbering Smash: ActionType should be valid enum value
+  Γ£ô Charging Menace: ActionType should be valid enum value
+  Γ£ô Delayed Shredder: ActionType should be valid enum value
+  Γ£ô Harrier Poke: ActionType should be valid enum value
+  Γ£ô Taunting Feint: ActionType should be valid enum value
+  Γ£ô Swarm Posture: ActionType should be valid enum value
+  Γ£ô Cooldown Rush: ActionType should be valid enum value
+  Γ£ô Finishing Protocol: ActionType should be valid enum value
+  Γ£ô Scatter Burst: ActionType should be valid enum value
+  Γ£ô Repositioning Skitter: ActionType should be valid enum value
+  Γ£ô Coalesce Slam: ActionType should be valid enum value
+  Γ£ô Focused Predator: ActionType should be valid enum value
+  Γ£ô Initiative Theft: ActionType should be valid enum value
+  Γ£ô Overextended Strike: ActionType should be valid enum value
+  Γ£ô Shatter Plate: ActionType should be valid enum value
+  Γ£ô Feint Opening: ActionType should be valid enum value
+  Γ£ô Momentum Hijack: ActionType should be valid enum value
+  Γ£ô Stalled Rhythm: ActionType should be valid enum value
+  Γ£ô Chainloaded: ActionType should be valid enum value
+  Γ£ô Tight Combo: ActionType should be valid enum value
+  Γ£ô Sprint Harmony: ActionType should be valid enum value
+  Γ£ô Lane Clear: ActionType should be valid enum value
+  Γ£ô Heavy Commit: ActionType should be valid enum value
+  Γ£ô Anchor Duel: ActionType should be valid enum value
+  Γ£ô Blitzer's Mark: ActionType should be valid enum value
+  Γ£ô Outpace Shell: ActionType should be valid enum value
+  Γ£ô Winded Rush: ActionType should be valid enum value
+  Γ£ô Cautious Brake: ActionType should be valid enum value
+  Γ£ô Flow State: ActionType should be valid enum value
+  Γ£ô Tempo Lock: ActionType should be valid enum value
+  Γ£ô Late Block: ActionType should be valid enum value
+  Γ£ô Fatigue Spiral: ActionType should be valid enum value
+  Γ£ô Flurry Haste: ActionType should be valid enum value
+  Γ£ô Cut the Chain: ActionType should be valid enum value
+  Γ£ô Trapped Feet: ActionType should be valid enum value
+  Γ£ô Grounded Guard: ActionType should be valid enum value
+  Γ£ô Power Rush: ActionType should be valid enum value
+  Γ£ô Crushing Hold: ActionType should be valid enum value
+  Γ£ô Glancing Blow: ActionType should be valid enum value
+  Γ£ô Soft Tap: ActionType should be valid enum value
+  Γ£ô Arms Race Cut: ActionType should be valid enum value
+  Γ£ô Sundering Edge: ActionType should be valid enum value
+  Γ£ô Opening Gift: ActionType should be valid enum value
+  Γ£ô Pulled Strikes: ActionType should be valid enum value
+  Γ£ô Heavy Crescendo: ActionType should be valid enum value
+  Γ£ô Shatter Focus: ActionType should be valid enum value
+  Γ£ô Tickling Jab: ActionType should be valid enum value
+  Γ£ô Muffled Exchange: ActionType should be valid enum value
+  Γ£ô Cleaving Tempest: ActionType should be valid enum value
+  Γ£ô Finisher's Law: ActionType should be valid enum value
+  Γ£ô Chip Scatter: ActionType should be valid enum value
+  Γ£ô Softened Hail: ActionType should be valid enum value
+  Γ£ô Crescendo Sprint: ActionType should be valid enum value
+  Γ£ô Dominant Line: ActionType should be valid enum value
+  Γ£ô Lost Bridge: ActionType should be valid enum value
+  Γ£ô Quiet Measure: ActionType should be valid enum value
+  Γ£ô Amp to Steel: ActionType should be valid enum value
+  Γ£ô Overwhelming Theme: ActionType should be valid enum value
+  Γ£ô Burnt Fuse: ActionType should be valid enum value
+  Γ£ô Flattened Verse: ActionType should be valid enum value
+  Γ£ô Dueling Anthems: ActionType should be valid enum value
+  Γ£ô Steal the Chorus: ActionType should be valid enum value
+  Γ£ô Broken Streak: ActionType should be valid enum value
+  Γ£ô Suppressed Duel: ActionType should be valid enum value
+  Γ£ô Chorus of Cuts: ActionType should be valid enum value
+  Γ£ô Precision Crescendo: ActionType should be valid enum value
+  Γ£ô Fumbled Bridge: ActionType should be valid enum value
+  Γ£ô Muted Finale: ActionType should be valid enum value
+  Γ£ô Flurry Sprint: ActionType should be valid enum value
+  Γ£ô Tanglefoot Flurry: ActionType should be valid enum value
+  Γ£ô Short Chain: ActionType should be valid enum value
+  Γ£ô Collapsed Tempo: ActionType should be valid enum value
+  Γ£ô Many Cuts, Deep Answer: ActionType should be valid enum value
+  Γ£ô Shred Armor: ActionType should be valid enum value
+  Γ£ô Single Bite: ActionType should be valid enum value
+  Γ£ô Quiet Rake: ActionType should be valid enum value
+  Γ£ô Volume Crescendo: ActionType should be valid enum value
+  Γ£ô Shred the Song: ActionType should be valid enum value
+  Γ£ô Tight Rope: ActionType should be valid enum value
+  Γ£ô Sparse Line: ActionType should be valid enum value
+  Γ£ô Twin Storms: ActionType should be valid enum value
+  Γ£ô Overwhelming Tide: ActionType should be valid enum value
+  Γ£ô Controlled Pace: ActionType should be valid enum value
+  Γ£ô Sparse Exchange: ActionType should be valid enum value
+  Γ£ô WEB STRIKE: ActionType should be valid enum value
+  Γ£ô POISON BITE: ActionType should be valid enum value
+  Γ£ô BITE: ActionType should be valid enum value
+  Γ£ô HOWL: ActionType should be valid enum value
+  Γ£ô FIRE BOLT: ActionType should be valid enum value
+  Γ£ô IGNITE: ActionType should be valid enum value
+  Γ£ô MAGMA FIST: ActionType should be valid enum value
+  Γ£ô ERUPTION: ActionType should be valid enum value
+  Γ£ô BAT SWARM: ActionType should be valid enum value
+  Γ£ô QUICK STRIKE: ActionType should be valid enum value
+  Γ£ô BONE STRIKE: ActionType should be valid enum value
+  Γ£ô RATTLE: ActionType should be valid enum value
+  Γ£ô CLAW: ActionType should be valid enum value
+  Γ£ô GROAN: ActionType should be valid enum value
+  Γ£ô SOUL DRAIN: ActionType should be valid enum value
+  Γ£ô PHASE: ActionType should be valid enum value
+  Γ£ô Doubletime Gambit: ActionType should be valid enum value
+  Γ£ô Gluefoot Exchange: ActionType should be valid enum value
+  Γ£ô Blood Moon Strike: ActionType should be valid enum value
+  Γ£ô Pacifying Ward: ActionType should be valid enum value
+  Γ£ô Duel of Crescendos: ActionType should be valid enum value
+  Γ£ô Suppress Sigil: ActionType should be valid enum value
+  Γ£ô Storm of Blades: ActionType should be valid enum value
+  Γ£ô Clean Exchange: ActionType should be valid enum value
+  Γ£ô FOREST BRANCH: ActionType should be valid enum value
+  Γ£ô FOREST VINES: ActionType should be valid enum value
+  Γ£ô LAVA SPLASH: ActionType should be valid enum value
+  Γ£ô LAVA STEAM: ActionType should be valid enum value
+  Γ£ô CRYPT NECROTIC: ActionType should be valid enum value
+  Γ£ô CRYPT BONESHARDS: ActionType should be valid enum value
+  Γ£ô CAVERN CAVEIN: ActionType should be valid enum value
+  Γ£ô CAVERN STALACTITE: ActionType should be valid enum value
+  Γ£ô SWAMP MIASMA: ActionType should be valid enum value
+  Γ£ô SWAMP BOGSINK: ActionType should be valid enum value
+  Γ£ô DESERT SANDSTORM: ActionType should be valid enum value
+  Γ£ô DESERT HEATWAVE: ActionType should be valid enum value
+  Γ£ô ICE SHARDS: ActionType should be valid enum value
+  Γ£ô ICE BLIZZARD: ActionType should be valid enum value
+  Γ£ô RUINS CURSE: ActionType should be valid enum value
+  Γ£ô RUINS PILLAR: ActionType should be valid enum value
+  Γ£ô CASTLE PORTCULLIS: ActionType should be valid enum value
+  Γ£ô CASTLE ARROWS: ActionType should be valid enum value
+  Γ£ô GRAVEYARD MIST: ActionType should be valid enum value
+  Γ£ô GRAVEYARD RISING: ActionType should be valid enum value
+  Γ£ô TREASURE TRAP: ActionType should be valid enum value
+  Γ£ô TREASURE DUST: ActionType should be valid enum value
+  Γ£ô TREASURE COLLAPSE: ActionType should be valid enum value
+  Γ£ô GUARD ALARM: ActionType should be valid enum value
+  Γ£ô GUARD POST: ActionType should be valid enum value
+  Γ£ô GUARD BARRICADE: ActionType should be valid enum value
+  Γ£ô TRAP SPIKE: ActionType should be valid enum value
+  Γ£ô TRAP POISON: ActionType should be valid enum value
+  Γ£ô TRAP PIT: ActionType should be valid enum value
+  Γ£ô TRAP NET: ActionType should be valid enum value
+  Γ£ô BOSS SPIKES: ActionType should be valid enum value
+  Γ£ô BOSS CURSE: ActionType should be valid enum value
+  Γ£ô BOSS COLLAPSE: ActionType should be valid enum value
+  Γ£ô PUZZLE FAILURE: ActionType should be valid enum value
+  Γ£ô PUZZLE RUNES: ActionType should be valid enum value
+  Γ£ô PUZZLE MECHANICAL: ActionType should be valid enum value
+  Γ£ô REST PEACEFUL: ActionType should be valid enum value
+  Γ£ô REST HEALING: ActionType should be valid enum value
+  Γ£ô STORAGE CRATES: ActionType should be valid enum value
+  Γ£ô STORAGE DUST: ActionType should be valid enum value
+  Γ£ô STORAGE SHELF: ActionType should be valid enum value
+  Γ£ô LIBRARY BOOKS: ActionType should be valid enum value
+  Γ£ô LIBRARY KNOWLEDGE: ActionType should be valid enum value
+  Γ£ô LIBRARY DUST: ActionType should be valid enum value
+  Γ£ô LIBRARY TOME: ActionType should be valid enum value
+  Γ£ô ARMORY WEAPONS: ActionType should be valid enum value
+  Γ£ô ARMORY RACK: ActionType should be valid enum value
+  Γ£ô ARMORY DEBRIS: ActionType should be valid enum value
+  Γ£ô ARMORY CLATTER: ActionType should be valid enum value
+  Γ£ô KITCHEN POT: ActionType should be valid enum value
+  Γ£ô KITCHEN FIRE: ActionType should be valid enum value
+  Γ£ô KITCHEN POTS: ActionType should be valid enum value
+  Γ£ô KITCHEN STEAM: ActionType should be valid enum value
+  Γ£ô DINING CHANDELIER: ActionType should be valid enum value
+  Γ£ô DINING TABLE: ActionType should be valid enum value
+  Γ£ô DINING FOOD: ActionType should be valid enum value
+  Γ£ô DINING WINE: ActionType should be valid enum value
+  Γ£ô CHAMBER ECHO: ActionType should be valid enum value
+  Γ£ô CHAMBER CURSE: ActionType should be valid enum value
+  Γ£ô CHAMBER COLLAPSE: ActionType should be valid enum value
+  Γ£ô HALL ECHO: ActionType should be valid enum value
+  Γ£ô HALL TAPESTRY: ActionType should be valid enum value
+  Γ£ô HALL DUST: ActionType should be valid enum value
+  Γ£ô VAULT LOCK: ActionType should be valid enum value
+  Γ£ô VAULT COLLAPSE: ActionType should be valid enum value
+  Γ£ô VAULT WARD: ActionType should be valid enum value
+  Γ£ô SANCTUM WRATH: ActionType should be valid enum value
+  Γ£ô SANCTUM FLAMES: ActionType should be valid enum value
+  Γ£ô SANCTUM LIGHT: ActionType should be valid enum value
+  Γ£ô GROTTO CAVEIN: ActionType should be valid enum value
+  Γ£ô GROTTO STALACTITE: ActionType should be valid enum value
+  Γ£ô GROTTO POOL: ActionType should be valid enum value
+  Γ£ô CATACOMB BONESHARDS: ActionType should be valid enum value
+  Γ£ô CATACOMB NECROTIC: ActionType should be valid enum value
+  Γ£ô CATACOMB TOMB: ActionType should be valid enum value
+  Γ£ô SHRINE GROUND: ActionType should be valid enum value
+  Γ£ô SHRINE RETRIBUTION: ActionType should be valid enum value
+  Γ£ô SHRINE WATER: ActionType should be valid enum value
+  Γ£ô LABORATORY CHEMICAL: ActionType should be valid enum value
+  Γ£ô LABORATORY EXPLOSION: ActionType should be valid enum value
+  Γ£ô LABORATORY EQUIPMENT: ActionType should be valid enum value
+  Γ£ô LABORATORY FUMES: ActionType should be valid enum value
+  Γ£ô OBSERVATORY TELESCOPE: ActionType should be valid enum value
+  Γ£ô OBSERVATORY STELLAR: ActionType should be valid enum value
+  Γ£ô OBSERVATORY DUST: ActionType should be valid enum value
+  Γ£ô THRONE COLLAPSE: ActionType should be valid enum value
+  Γ£ô THRONE CURSE: ActionType should be valid enum value
+  Γ£ô THRONE JEWELS: ActionType should be valid enum value
+  Γ£ô THRONE GUARD: ActionType should be valid enum value
+  Γ£ô GENERIC COLLAPSE: ActionType should be valid enum value
+  Γ£ô GENERIC DUST: ActionType should be valid enum value
+  Γ£ô GENERIC TRAP: ActionType should be valid enum value
+  Γ£ô ARCANE ECHO: ActionType should be valid enum value
+  Γ£ô Sand Dash: ActionType should be valid enum value
+  Γ£ô Burrow Strike: ActionType should be valid enum value
+  Γ£ô Rolling Charge: ActionType should be valid enum value
+  Γ£ô Solar Sting: ActionType should be valid enum value
+  Γ£ô Blinding Flash: ActionType should be valid enum value
+  Γ£ô Crystal Barrage: ActionType should be valid enum value
+  Γ£ô Illusion Strike: ActionType should be valid enum value
+  Γ£ô Phase Shift: ActionType should be valid enum value
+  Γ£ô Vitality Leech: ActionType should be valid enum value
+  Γ£ô Titan Fist: ActionType should be valid enum value
+  Γ£ô Toxic Dart: ActionType should be valid enum value
+  Γ£ô Solar Blessing: ActionType should be valid enum value
+  Γ£ô Shell Defense: ActionType should be valid enum value
+  Γ£ô Ambush: ActionType should be valid enum value
+  Γ£ô Entomb: ActionType should be valid enum value
+  Γ£ô Raise Dead: ActionType should be valid enum value
+  Γ£ô Crush: ActionType should be valid enum value
+  Γ£ô Spectral Touch: ActionType should be valid enum value
+  Γ£ô Talon Strike: ActionType should be valid enum value
+  Γ£ô Boulder Hurl: ActionType should be valid enum value
+  Γ£ô Cliff Drop: ActionType should be valid enum value
+  Γ£ô Quick Bite: ActionType should be valid enum value
+  Γ£ô Bile Splash: ActionType should be valid enum value
+  Γ£ô Last Stand Break: ActionType should be valid enum value
+  Γ£ô Lightning Strike: ActionType should be valid enum value
+  Γ£ô Dive Bomb: ActionType should be valid enum value
+  Γ£ô Peak Slam: ActionType should be valid enum value
+  Γ£ô Scorching Bite: ActionType should be valid enum value
+  Γ£ô Tremor Burst: ActionType should be valid enum value
+  Γ£ô Cinder Shriek: ActionType should be valid enum value
+  Γ£ô Coal Shell: ActionType should be valid enum value
+  Γ£ô Ember Spit: ActionType should be valid enum value
+  Γ£ô Smog Step: ActionType should be valid enum value
+  Γ£ô Predator's Focus: ActionType should be valid enum value
+  Γ£ô Bark Fortify: ActionType should be valid enum value
+  Γ£ô Reignite: ActionType should be valid enum value
+  Γ£ô Molten Chain: ActionType should be valid enum value
+  Γ£ô Searing Focus: ActionType should be valid enum value
+  Γ£ô Sear The Gap: ActionType should be valid enum value
+  Γ£ô Iron Vow: ActionType should be valid enum value
+  Γ£ô Stone Gaze: ActionType should be valid enum value
+  Γ£ô Soul Skewer: ActionType should be valid enum value
+  Γ£ô Flame Salute: ActionType should be valid enum value
+  Γ£ô Branding Seal: ActionType should be valid enum value
+  Γ£ô Crumbling Curse: ActionType should be valid enum value
+  Γ£ô Expose Vein: ActionType should be valid enum value
+  Γ£ô Toxic Focus: ActionType should be valid enum value
+  Γ£ô Leech Grip: ActionType should be valid enum value
+  Γ£ô Molten Shell: ActionType should be valid enum value
+  Γ£ô Magma Kiss: ActionType should be valid enum value
+  Γ£ô Magma Carapace: ActionType should be valid enum value
+  Γ£ô Amber Casing: ActionType should be valid enum value
+  Γ£ô Lava Douse: ActionType should be valid enum value
+  Γ£ô Amber Ooze: ActionType should be valid enum value
+  Γ£ô Guard Bite: ActionType should be valid enum value
+  Γ£ô Leader's Fang: ActionType should be valid enum value
+  Γ£ô Skeletal Burst: ActionType should be valid enum value
+  Γ£ô Sacrificial Strike: ActionType should be valid enum value
+  Γ£ô Hex Maul: ActionType should be valid enum value
+  Γ£ô Earth Shield: ActionType should be valid enum value
+  Γ£ô Celestial Strike: ActionType should be valid enum value
+  Γ£ô Sound Strike: ActionType should be valid enum value
+  Γ£ô Pack Leader's Call: ActionType should be valid enum value
+  Γ£ô Trick Shot: ActionType should be valid enum value
+  Γ£ô Thorn Bite: ActionType should be valid enum value
+  Γ£ô Trap Door: ActionType should be valid enum value
+  Γ£ô Pathfind: ActionType should be valid enum value
+  Γ£ô Circular Strike: ActionType should be valid enum value
+  Γ£ô Reflex Drain: ActionType should be valid enum value
+  Γ£ô Perfect Copy: ActionType should be valid enum value
+  Γ£ô Broken Mirror: ActionType should be valid enum value
+  Γ£ô Identity Theft: ActionType should be valid enum value
+  Γ£ô Spiked Charge: ActionType should be valid enum value
+  Γ£ô Nature's Touch: ActionType should be valid enum value
+  Γ£ô Venom Bite: ActionType should be valid enum value
+  Γ£ô Sweet Sting: ActionType should be valid enum value
+  Γ£ô Allergen Cloud: ActionType should be valid enum value
+  Γ£ô Gorge Strike: ActionType should be valid enum value
+  Γ£ô Wall Slam: ActionType should be valid enum value
+  Γ£ô Whip Strike: ActionType should be valid enum value
+  Γ£ô Decay Touch: ActionType should be valid enum value
+  Γ£ô Reed Skewer: ActionType should be valid enum value
+  Γ£ô Freeding Frenzy: ActionType should be valid enum value
+  Γ£ô Mud Shell: ActionType should be valid enum value
+  Γ£ô Tidal Crash: ActionType should be valid enum value
+  Γ£ô Static Thrash: ActionType should be valid enum value
+  Γ£ô Spore Drift: ActionType should be valid enum value
+  Γ£ô Mist Strike: ActionType should be valid enum value
+  Γ£ô Chilling Grasp: ActionType should be valid enum value
+  Γ£ô Veil Shatter: ActionType should be valid enum value
+  Γ£ô Blinding Swarm: ActionType should be valid enum value
+  Γ£ô Cold Seep: ActionType should be valid enum value
+  Γ£ô Lurch Strike: ActionType should be valid enum value
+  Γ£ô Calcified Gaze: ActionType should be valid enum value
+  Γ£ô Stone Carapace: ActionType should be valid enum value
+  Γ£ô Vent Focus: ActionType should be valid enum value
+  Γ£ô Venom Spine: ActionType should be valid enum value
+  Γ£ô Tidal Bulwark: ActionType should be valid enum value
+  Γ£ô Deep Drain: ActionType should be valid enum value
+  Γ£ô Food Etch: ActionType should be valid enum value
+  Γ£ô Inner Current: ActionType should be valid enum value
+  Γ£ô Torrent Slam: ActionType should be valid enum value
+  Γ£ô Stone Bracing: ActionType should be valid enum value
+  Γ£ô Toxic Gaze: ActionType should be valid enum value
+  Γ£ô Current Break: ActionType should be valid enum value
+  Γ£ô Sunken Curse: ActionType should be valid enum value
+  Γ£ô Desert Veil: ActionType should be valid enum value
+  Γ£ô Sand Spray: ActionType should be valid enum value
+  Γ£ô Sand Armor: ActionType should be valid enum value
+  Γ£ô Heat Wave: ActionType should be valid enum value
+  Γ£ô Precision Shot: ActionType should be valid enum value
+  Γ£ô Shatter: ActionType should be valid enum value
+  Γ£ô Vanish: ActionType should be valid enum value
+  Γ£ô Soul Drain: ActionType should be valid enum value
+  Γ£ô Sap Drain: ActionType should be valid enum value
+  Γ£ô Ground Pound: ActionType should be valid enum value
+  Γ£ô Venom Volley: ActionType should be valid enum value
+  Γ£ô Sunbeam: ActionType should be valid enum value
+  Γ£ô Mandible Crush: ActionType should be valid enum value
+  Γ£ô Sand Blind: ActionType should be valid enum value
+  Γ£ô Mummy's Grasp: ActionType should be valid enum value
+  Γ£ô Death Bolt: ActionType should be valid enum value
+  Γ£ô Binding Slam: ActionType should be valid enum value
+  Γ£ô Ancient Curse: ActionType should be valid enum value
+  Γ£ô Keen Eye: ActionType should be valid enum value
+  Γ£ô Stone Barrage: ActionType should be valid enum value
+  Γ£ô Ledge Grab: ActionType should be valid enum value
+  Γ£ô Disease Spread: ActionType should be valid enum value
+  Γ£ô Corrupted Gulp: ActionType should be valid enum value
+  Γ£ô Phantom Strike: ActionType should be valid enum value
+  Γ£ô Thunder Clap: ActionType should be valid enum value
+  Γ£ô Wind Gust: ActionType should be valid enum value
+  Γ£ô Mountain's Fury: ActionType should be valid enum value
+  Γ£ô Ember lunge: ActionType should be valid enum value
+  Γ£ô Molten Ooze: ActionType should be valid enum value
+  Γ£ô Gust Talon: ActionType should be valid enum value
+  Γ£ô Soot Pummel: ActionType should be valid enum value
+  Γ£ô Tongue Lash: ActionType should be valid enum value
+  Γ£ô Murky Ambush: ActionType should be valid enum value
+  Γ£ô Smoldering Strike: ActionType should be valid enum value
+  Γ£ô Root Slam: ActionType should be valid enum value
+  Γ£ô Flicker Dash: ActionType should be valid enum value
+  Γ£ô Guard Stance: ActionType should be valid enum value
+  Γ£ô Lava Glob: ActionType should be valid enum value
+  Γ£ô Drift Strike: ActionType should be valid enum value
+  Γ£ô Shield Bash: ActionType should be valid enum value
+  Γ£ô Rubble Toss: ActionType should be valid enum value
+  Γ£ô Wall of Ash: ActionType should be valid enum value
+  Γ£ô Blazing Advance: ActionType should be valid enum value
+  Γ£ô Arcane Ward: ActionType should be valid enum value
+  Γ£ô hollow Grasp: ActionType should be valid enum value
+  Γ£ô Draining Bite: ActionType should be valid enum value
+  Γ£ô Spore Burst: ActionType should be valid enum value
+  Γ£ô Crystal barb: ActionType should be valid enum value
+  Γ£ô Shell Ram: ActionType should be valid enum value
+  Γ£ô Slag Drift: ActionType should be valid enum value
+  Γ£ô Boiling Snap: ActionType should be valid enum value
+  Γ£ô Petrify Sweep: ActionType should be valid enum value
+  Γ£ô Molten Pounce: ActionType should be valid enum value
+  Γ£ô Resin Snare: ActionType should be valid enum value
+  Γ£ô Boundary Mark: ActionType should be valid enum value
+  Γ£ô Rally Pack: ActionType should be valid enum value
+  Γ£ô Marrow Drain: ActionType should be valid enum value
+  Γ£ô Offering: ActionType should be valid enum value
+  Γ£ô Dark Roar: ActionType should be valid enum value
+  Γ£ô Tremor: ActionType should be valid enum value
+  Γ£ô Night's Grace: ActionType should be valid enum value
+  Γ£ô Sonic Pulse: ActionType should be valid enum value
+  Γ£ô Dominant Bite: ActionType should be valid enum value
+  Γ£ô Misdirect: ActionType should be valid enum value
+  Γ£ô Bush Ambush: ActionType should be valid enum value
+  Γ£ô Wall Shift: ActionType should be valid enum value
+  Γ£ô Confuse Trail: ActionType should be valid enum value
+  Γ£ô Endless Cycle: ActionType should be valid enum value
+  Γ£ô Primal Fear: ActionType should be valid enum value
+  Γ£ô Twin Strike: ActionType should be valid enum value
+  Γ£ô Fragment: ActionType should be valid enum value
+  Γ£ô Confusion: ActionType should be valid enum value
+  Γ£ô Bramble Hide: ActionType should be valid enum value
+  Γ£ô Vine Whip: ActionType should be valid enum value
+  Γ£ô Rattle Warning: ActionType should be valid enum value
+  Γ£ô Collect: ActionType should be valid enum value
+  Γ£ô Pollinate: ActionType should be valid enum value
+  Γ£ô Echo Call: ActionType should be valid enum value
+  Γ£ô Climb: ActionType should be valid enum value
+  Γ£ô Grow: ActionType should be valid enum value
+  Γ£ô Crumble: ActionType should be valid enum value
+  Γ£ô Predator's Eye: ActionType should be valid enum value
+  Γ£ô Swarm Dive: ActionType should be valid enum value
+  Γ£ô Mire Slam: ActionType should be valid enum value
+  Γ£ô Wave Slam: ActionType should be valid enum value
+  Γ£ô Mud Roll: ActionType should be valid enum value
+  Γ£ô Surge: ActionType should be valid enum value
+  Γ£ô False Form: ActionType should be valid enum value
+  Γ£ô Frost Crawl: ActionType should be valid enum value
+  Γ£ô Phantom Lunge: ActionType should be valid enum value
+  Γ£ô Biolumiscent Flash: ActionType should be valid enum value
+  Γ£ô Frozen Burst: ActionType should be valid enum value
+  Γ£ô Cavern Thrash: ActionType should be valid enum value
+  Γ£ô Basin Surge: ActionType should be valid enum value
+  Γ£ô Pit Pull: ActionType should be valid enum value
+  Γ£ô Tentacle Snap: ActionType should be valid enum value
+  Γ£ô Steam Dash: ActionType should be valid enum value
+  Γ£ô Splash: ActionType should be valid enum value
+  Γ£ô Phantom Surge: ActionType should be valid enum value
+  Γ£ô Abyssal pull: ActionType should be valid enum value
+  Γ£ô Tidal Sweep: ActionType should be valid enum value
+  Γ£ô Pressurized Strike: ActionType should be valid enum value
+  Γ£ô Rapid Current: ActionType should be valid enum value
+  Γ£ô Channel Slam: ActionType should be valid enum value
+  Γ£ô Still Waters: ActionType should be valid enum value
+  Γ£ô Shadow Surge: ActionType should be valid enum value
+  Γ£ô Drowned Wrath: ActionType should be valid enum value
+  Γ£ô Should have Attack type actions
+  Γ£ô Should have at least one Attack action, found 424
+
+--- Testing Target Types ---
+  Γ£ô JAB: TargetType should be valid enum value
+  Γ£ô PUNCH HARD: TargetType should be valid enum value
+  Γ£ô PUNCH HARDER: TargetType should be valid enum value
+  Γ£ô PUNCH HARDEST: TargetType should be valid enum value
+  Γ£ô TAUNT: TargetType should be valid enum value
+  Γ£ô CONCENTRATE: TargetType should be valid enum value
+  Γ£ô STUN: TargetType should be valid enum value
+  Γ£ô CRITICAL ATTACK: TargetType should be valid enum value
+  Γ£ô FLURRY: TargetType should be valid enum value
+  Γ£ô MOMENTUM BASH: TargetType should be valid enum value
+  Γ£ô READ BOOK: TargetType should be valid enum value
+  Γ£ô CHEAP SHOT: TargetType should be valid enum value
+  Γ£ô BERZERK: TargetType should be valid enum value
+  Γ£ô GRUNT: TargetType should be valid enum value
+  Γ£ô DISARM: TargetType should be valid enum value
+  Γ£ô ONE SHOT: TargetType should be valid enum value
+  Γ£ô DRUNKEN BRAWLER: TargetType should be valid enum value
+  Γ£ô STIM PACK: TargetType should be valid enum value
+  Γ£ô ANIME CHARGE-UP: TargetType should be valid enum value
+  Γ£ô OVERKILL: TargetType should be valid enum value
+  Γ£ô DANCE: TargetType should be valid enum value
+  Γ£ô A CARD THAT GETS WORSE OVER TIME: TargetType should be valid enum value
+  Γ£ô BULK DAY: TargetType should be valid enum value
+  Γ£ô CHUG ENERGY DRINK: TargetType should be valid enum value
+  Γ£ô TRUE STRIKE: TargetType should be valid enum value
+  Γ£ô SECOND WIND: TargetType should be valid enum value
+  Γ£ô QUICK REFLEXES: TargetType should be valid enum value
+  Γ£ô DEJA VU: TargetType should be valid enum value
+  Γ£ô POWER OVERWHELMING: TargetType should be valid enum value
+  Γ£ô ANY DAY NOW: TargetType should be valid enum value
+  Γ£ô I AM INVINCIBLE: TargetType should be valid enum value
+  Γ£ô AVENGE: TargetType should be valid enum value
+  Γ£ô FOLLOW THROUGH: TargetType should be valid enum value
+  Γ£ô OPENING VOLLEY: TargetType should be valid enum value
+  Γ£ô WEINING LIGHT: TargetType should be valid enum value
+  Γ£ô MIRROR FLEXING: TargetType should be valid enum value
+  Γ£ô ROGUES GAMBIT: TargetType should be valid enum value
+  Γ£ô POISON TIP: TargetType should be valid enum value
+  Γ£ô HAYMAKER: TargetType should be valid enum value
+  Γ£ô FRENZY: TargetType should be valid enum value
+  Γ£ô BLOOD KNIFE: TargetType should be valid enum value
+  Γ£ô HOLY HEALY: TargetType should be valid enum value
+  Γ£ô BLOODY SUNDAY: TargetType should be valid enum value
+  Γ£ô 24/7/365: TargetType should be valid enum value
+  Γ£ô PRETTY BOY SWAG: TargetType should be valid enum value
+  Γ£ô OPENING CUT: TargetType should be valid enum value
+  Γ£ô RAZOR MARGIN: TargetType should be valid enum value
+  Γ£ô FOCUSED BREATHING: TargetType should be valid enum value
+  Γ£ô ADRENAL SURGE: TargetType should be valid enum value
+  Γ£ô TENSION HOLD: TargetType should be valid enum value
+  Γ£ô LATE BLOOM: TargetType should be valid enum value
+  Γ£ô MEASURED PATIENCE: TargetType should be valid enum value
+  Γ£ô MEASURED ADVANCE: TargetType should be valid enum value
+  Γ£ô GLASS STRIKE: TargetType should be valid enum value
+  Γ£ô STATIC ODDS: TargetType should be valid enum value
+  Γ£ô LUCKY CHARM: TargetType should be valid enum value
+  Γ£ô SWIFT: TargetType should be valid enum value
+  Γ£ô EXHAUSTING RHYTHM: TargetType should be valid enum value
+  Γ£ô WINDED STATE: TargetType should be valid enum value
+  Γ£ô OVERHAND SMASH: TargetType should be valid enum value
+  Γ£ô HOLD TEMPO: TargetType should be valid enum value
+  Γ£ô BACKSTEP SLASH: TargetType should be valid enum value
+  Γ£ô CRUSHING FOLLOW-THROUGH: TargetType should be valid enum value
+  Γ£ô ALL IN: TargetType should be valid enum value
+  Γ£ô FINAL REP: TargetType should be valid enum value
+  Γ£ô HOLLOW ADVANCE: TargetType should be valid enum value
+  Γ£ô SLAPBACK ECHO: TargetType should be valid enum value
+  Γ£ô PERFECT LINE: TargetType should be valid enum value
+  Γ£ô OL' FAITHFUL: TargetType should be valid enum value
+  Γ£ô CONTROLLED BURST: TargetType should be valid enum value
+  Γ£ô PHANTOM FOLLOW-UP: TargetType should be valid enum value
+  Γ£ô FINAL PUSH: TargetType should be valid enum value
+  Γ£ô RISING PRESSURE: TargetType should be valid enum value
+  Γ£ô TEMPO SHIFT: TargetType should be valid enum value
+  Γ£ô GUARANTEED HIT: TargetType should be valid enum value
+  Γ£ô OVERCOMMIT: TargetType should be valid enum value
+  Γ£ô CALM BEFORE STORM: TargetType should be valid enum value
+  Γ£ô CALCULATED RISK: TargetType should be valid enum value
+  Γ£ô AMPLIFY ACCURACY: TargetType should be valid enum value
+  Γ£ô GROUNDHOGS DAY: TargetType should be valid enum value
+  Γ£ô DOMAIN EXPANSION: TargetType should be valid enum value
+  Γ£ô EARLY BIRD GETS THE WORM: TargetType should be valid enum value
+  Γ£ô SLAM: TargetType should be valid enum value
+  Γ£ô STRIKE: TargetType should be valid enum value
+  Γ£ô STAB: TargetType should be valid enum value
+  Γ£ô MAGIC MISSLE: TargetType should be valid enum value
+  Γ£ô CAST: TargetType should be valid enum value
+  Γ£ô RAGE: TargetType should be valid enum value
+  Γ£ô MOMENTUM: TargetType should be valid enum value
+  Γ£ô SQUAT: TargetType should be valid enum value
+  Γ£ô SLASH: TargetType should be valid enum value
+  Γ£ô HACK: TargetType should be valid enum value
+  Γ£ô JUKE: TargetType should be valid enum value
+  Γ£ô POUND: TargetType should be valid enum value
+  Γ£ô SLEIGHT OF HAND: TargetType should be valid enum value
+  Γ£ô HONE: TargetType should be valid enum value
+  Γ£ô CHANNEL: TargetType should be valid enum value
+  Γ£ô INVOKE: TargetType should be valid enum value
+  Γ£ô READ: TargetType should be valid enum value
+  Γ£ô INTELECTUAL DEBATE: TargetType should be valid enum value
+  Γ£ô HUNKER DOWN: TargetType should be valid enum value
+  Γ£ô WIDE SWING: TargetType should be valid enum value
+  Γ£ô Commitment Cleaver: TargetType should be valid enum value
+  Γ£ô Stance of Crescendo: TargetType should be valid enum value
+  Γ£ô Windup Flurry Mark: TargetType should be valid enum value
+  Γ£ô Quick Razors: TargetType should be valid enum value
+  Γ£ô Feather Chain: TargetType should be valid enum value
+  Γ£ô Rakeload: TargetType should be valid enum value
+  Γ£ô Reset Step: TargetType should be valid enum value
+  Γ£ô Compression Strike: TargetType should be valid enum value
+  Γ£ô Scatter Focus: TargetType should be valid enum value
+  Γ£ô Singletap Recovery: TargetType should be valid enum value
+  Γ£ô Collapse Cut: TargetType should be valid enum value
+  Γ£ô Tight Spiral: TargetType should be valid enum value
+  Γ£ô Lumbering Smash: TargetType should be valid enum value
+  Γ£ô Charging Menace: TargetType should be valid enum value
+  Γ£ô Delayed Shredder: TargetType should be valid enum value
+  Γ£ô Harrier Poke: TargetType should be valid enum value
+  Γ£ô Taunting Feint: TargetType should be valid enum value
+  Γ£ô Swarm Posture: TargetType should be valid enum value
+  Γ£ô Cooldown Rush: TargetType should be valid enum value
+  Γ£ô Finishing Protocol: TargetType should be valid enum value
+  Γ£ô Scatter Burst: TargetType should be valid enum value
+  Γ£ô Repositioning Skitter: TargetType should be valid enum value
+  Γ£ô Coalesce Slam: TargetType should be valid enum value
+  Γ£ô Focused Predator: TargetType should be valid enum value
+  Γ£ô Initiative Theft: TargetType should be valid enum value
+  Γ£ô Overextended Strike: TargetType should be valid enum value
+  Γ£ô Shatter Plate: TargetType should be valid enum value
+  Γ£ô Feint Opening: TargetType should be valid enum value
+  Γ£ô Momentum Hijack: TargetType should be valid enum value
+  Γ£ô Stalled Rhythm: TargetType should be valid enum value
+  Γ£ô Chainloaded: TargetType should be valid enum value
+  Γ£ô Tight Combo: TargetType should be valid enum value
+  Γ£ô Sprint Harmony: TargetType should be valid enum value
+  Γ£ô Lane Clear: TargetType should be valid enum value
+  Γ£ô Heavy Commit: TargetType should be valid enum value
+  Γ£ô Anchor Duel: TargetType should be valid enum value
+  Γ£ô Blitzer's Mark: TargetType should be valid enum value
+  Γ£ô Outpace Shell: TargetType should be valid enum value
+  Γ£ô Winded Rush: TargetType should be valid enum value
+  Γ£ô Cautious Brake: TargetType should be valid enum value
+  Γ£ô Flow State: TargetType should be valid enum value
+  Γ£ô Tempo Lock: TargetType should be valid enum value
+  Γ£ô Late Block: TargetType should be valid enum value
+  Γ£ô Fatigue Spiral: TargetType should be valid enum value
+  Γ£ô Flurry Haste: TargetType should be valid enum value
+  Γ£ô Cut the Chain: TargetType should be valid enum value
+  Γ£ô Trapped Feet: TargetType should be valid enum value
+  Γ£ô Grounded Guard: TargetType should be valid enum value
+  Γ£ô Power Rush: TargetType should be valid enum value
+  Γ£ô Crushing Hold: TargetType should be valid enum value
+  Γ£ô Glancing Blow: TargetType should be valid enum value
+  Γ£ô Soft Tap: TargetType should be valid enum value
+  Γ£ô Arms Race Cut: TargetType should be valid enum value
+  Γ£ô Sundering Edge: TargetType should be valid enum value
+  Γ£ô Opening Gift: TargetType should be valid enum value
+  Γ£ô Pulled Strikes: TargetType should be valid enum value
+  Γ£ô Heavy Crescendo: TargetType should be valid enum value
+  Γ£ô Shatter Focus: TargetType should be valid enum value
+  Γ£ô Tickling Jab: TargetType should be valid enum value
+  Γ£ô Muffled Exchange: TargetType should be valid enum value
+  Γ£ô Cleaving Tempest: TargetType should be valid enum value
+  Γ£ô Finisher's Law: TargetType should be valid enum value
+  Γ£ô Chip Scatter: TargetType should be valid enum value
+  Γ£ô Softened Hail: TargetType should be valid enum value
+  Γ£ô Crescendo Sprint: TargetType should be valid enum value
+  Γ£ô Dominant Line: TargetType should be valid enum value
+  Γ£ô Lost Bridge: TargetType should be valid enum value
+  Γ£ô Quiet Measure: TargetType should be valid enum value
+  Γ£ô Amp to Steel: TargetType should be valid enum value
+  Γ£ô Overwhelming Theme: TargetType should be valid enum value
+  Γ£ô Burnt Fuse: TargetType should be valid enum value
+  Γ£ô Flattened Verse: TargetType should be valid enum value
+  Γ£ô Dueling Anthems: TargetType should be valid enum value
+  Γ£ô Steal the Chorus: TargetType should be valid enum value
+  Γ£ô Broken Streak: TargetType should be valid enum value
+  Γ£ô Suppressed Duel: TargetType should be valid enum value
+  Γ£ô Chorus of Cuts: TargetType should be valid enum value
+  Γ£ô Precision Crescendo: TargetType should be valid enum value
+  Γ£ô Fumbled Bridge: TargetType should be valid enum value
+  Γ£ô Muted Finale: TargetType should be valid enum value
+  Γ£ô Flurry Sprint: TargetType should be valid enum value
+  Γ£ô Tanglefoot Flurry: TargetType should be valid enum value
+  Γ£ô Short Chain: TargetType should be valid enum value
+  Γ£ô Collapsed Tempo: TargetType should be valid enum value
+  Γ£ô Many Cuts, Deep Answer: TargetType should be valid enum value
+  Γ£ô Shred Armor: TargetType should be valid enum value
+  Γ£ô Single Bite: TargetType should be valid enum value
+  Γ£ô Quiet Rake: TargetType should be valid enum value
+  Γ£ô Volume Crescendo: TargetType should be valid enum value
+  Γ£ô Shred the Song: TargetType should be valid enum value
+  Γ£ô Tight Rope: TargetType should be valid enum value
+  Γ£ô Sparse Line: TargetType should be valid enum value
+  Γ£ô Twin Storms: TargetType should be valid enum value
+  Γ£ô Overwhelming Tide: TargetType should be valid enum value
+  Γ£ô Controlled Pace: TargetType should be valid enum value
+  Γ£ô Sparse Exchange: TargetType should be valid enum value
+  Γ£ô WEB STRIKE: TargetType should be valid enum value
+  Γ£ô POISON BITE: TargetType should be valid enum value
+  Γ£ô BITE: TargetType should be valid enum value
+  Γ£ô HOWL: TargetType should be valid enum value
+  Γ£ô FIRE BOLT: TargetType should be valid enum value
+  Γ£ô IGNITE: TargetType should be valid enum value
+  Γ£ô MAGMA FIST: TargetType should be valid enum value
+  Γ£ô ERUPTION: TargetType should be valid enum value
+  Γ£ô BAT SWARM: TargetType should be valid enum value
+  Γ£ô QUICK STRIKE: TargetType should be valid enum value
+  Γ£ô BONE STRIKE: TargetType should be valid enum value
+  Γ£ô RATTLE: TargetType should be valid enum value
+  Γ£ô CLAW: TargetType should be valid enum value
+  Γ£ô GROAN: TargetType should be valid enum value
+  Γ£ô SOUL DRAIN: TargetType should be valid enum value
+  Γ£ô PHASE: TargetType should be valid enum value
+  Γ£ô Doubletime Gambit: TargetType should be valid enum value
+  Γ£ô Gluefoot Exchange: TargetType should be valid enum value
+  Γ£ô Blood Moon Strike: TargetType should be valid enum value
+  Γ£ô Pacifying Ward: TargetType should be valid enum value
+  Γ£ô Duel of Crescendos: TargetType should be valid enum value
+  Γ£ô Suppress Sigil: TargetType should be valid enum value
+  Γ£ô Storm of Blades: TargetType should be valid enum value
+  Γ£ô Clean Exchange: TargetType should be valid enum value
+  Γ£ô FOREST BRANCH: TargetType should be valid enum value
+  Γ£ô FOREST VINES: TargetType should be valid enum value
+  Γ£ô LAVA SPLASH: TargetType should be valid enum value
+  Γ£ô LAVA STEAM: TargetType should be valid enum value
+  Γ£ô CRYPT NECROTIC: TargetType should be valid enum value
+  Γ£ô CRYPT BONESHARDS: TargetType should be valid enum value
+  Γ£ô CAVERN CAVEIN: TargetType should be valid enum value
+  Γ£ô CAVERN STALACTITE: TargetType should be valid enum value
+  Γ£ô SWAMP MIASMA: TargetType should be valid enum value
+  Γ£ô SWAMP BOGSINK: TargetType should be valid enum value
+  Γ£ô DESERT SANDSTORM: TargetType should be valid enum value
+  Γ£ô DESERT HEATWAVE: TargetType should be valid enum value
+  Γ£ô ICE SHARDS: TargetType should be valid enum value
+  Γ£ô ICE BLIZZARD: TargetType should be valid enum value
+  Γ£ô RUINS CURSE: TargetType should be valid enum value
+  Γ£ô RUINS PILLAR: TargetType should be valid enum value
+  Γ£ô CASTLE PORTCULLIS: TargetType should be valid enum value
+  Γ£ô CASTLE ARROWS: TargetType should be valid enum value
+  Γ£ô GRAVEYARD MIST: TargetType should be valid enum value
+  Γ£ô GRAVEYARD RISING: TargetType should be valid enum value
+  Γ£ô TREASURE TRAP: TargetType should be valid enum value
+  Γ£ô TREASURE DUST: TargetType should be valid enum value
+  Γ£ô TREASURE COLLAPSE: TargetType should be valid enum value
+  Γ£ô GUARD ALARM: TargetType should be valid enum value
+  Γ£ô GUARD POST: TargetType should be valid enum value
+  Γ£ô GUARD BARRICADE: TargetType should be valid enum value
+  Γ£ô TRAP SPIKE: TargetType should be valid enum value
+  Γ£ô TRAP POISON: TargetType should be valid enum value
+  Γ£ô TRAP PIT: TargetType should be valid enum value
+  Γ£ô TRAP NET: TargetType should be valid enum value
+  Γ£ô BOSS SPIKES: TargetType should be valid enum value
+  Γ£ô BOSS CURSE: TargetType should be valid enum value
+  Γ£ô BOSS COLLAPSE: TargetType should be valid enum value
+  Γ£ô PUZZLE FAILURE: TargetType should be valid enum value
+  Γ£ô PUZZLE RUNES: TargetType should be valid enum value
+  Γ£ô PUZZLE MECHANICAL: TargetType should be valid enum value
+  Γ£ô REST PEACEFUL: TargetType should be valid enum value
+  Γ£ô REST HEALING: TargetType should be valid enum value
+  Γ£ô STORAGE CRATES: TargetType should be valid enum value
+  Γ£ô STORAGE DUST: TargetType should be valid enum value
+  Γ£ô STORAGE SHELF: TargetType should be valid enum value
+  Γ£ô LIBRARY BOOKS: TargetType should be valid enum value
+  Γ£ô LIBRARY KNOWLEDGE: TargetType should be valid enum value
+  Γ£ô LIBRARY DUST: TargetType should be valid enum value
+  Γ£ô LIBRARY TOME: TargetType should be valid enum value
+  Γ£ô ARMORY WEAPONS: TargetType should be valid enum value
+  Γ£ô ARMORY RACK: TargetType should be valid enum value
+  Γ£ô ARMORY DEBRIS: TargetType should be valid enum value
+  Γ£ô ARMORY CLATTER: TargetType should be valid enum value
+  Γ£ô KITCHEN POT: TargetType should be valid enum value
+  Γ£ô KITCHEN FIRE: TargetType should be valid enum value
+  Γ£ô KITCHEN POTS: TargetType should be valid enum value
+  Γ£ô KITCHEN STEAM: TargetType should be valid enum value
+  Γ£ô DINING CHANDELIER: TargetType should be valid enum value
+  Γ£ô DINING TABLE: TargetType should be valid enum value
+  Γ£ô DINING FOOD: TargetType should be valid enum value
+  Γ£ô DINING WINE: TargetType should be valid enum value
+  Γ£ô CHAMBER ECHO: TargetType should be valid enum value
+  Γ£ô CHAMBER CURSE: TargetType should be valid enum value
+  Γ£ô CHAMBER COLLAPSE: TargetType should be valid enum value
+  Γ£ô HALL ECHO: TargetType should be valid enum value
+  Γ£ô HALL TAPESTRY: TargetType should be valid enum value
+  Γ£ô HALL DUST: TargetType should be valid enum value
+  Γ£ô VAULT LOCK: TargetType should be valid enum value
+  Γ£ô VAULT COLLAPSE: TargetType should be valid enum value
+  Γ£ô VAULT WARD: TargetType should be valid enum value
+  Γ£ô SANCTUM WRATH: TargetType should be valid enum value
+  Γ£ô SANCTUM FLAMES: TargetType should be valid enum value
+  Γ£ô SANCTUM LIGHT: TargetType should be valid enum value
+  Γ£ô GROTTO CAVEIN: TargetType should be valid enum value
+  Γ£ô GROTTO STALACTITE: TargetType should be valid enum value
+  Γ£ô GROTTO POOL: TargetType should be valid enum value
+  Γ£ô CATACOMB BONESHARDS: TargetType should be valid enum value
+  Γ£ô CATACOMB NECROTIC: TargetType should be valid enum value
+  Γ£ô CATACOMB TOMB: TargetType should be valid enum value
+  Γ£ô SHRINE GROUND: TargetType should be valid enum value
+  Γ£ô SHRINE RETRIBUTION: TargetType should be valid enum value
+  Γ£ô SHRINE WATER: TargetType should be valid enum value
+  Γ£ô LABORATORY CHEMICAL: TargetType should be valid enum value
+  Γ£ô LABORATORY EXPLOSION: TargetType should be valid enum value
+  Γ£ô LABORATORY EQUIPMENT: TargetType should be valid enum value
+  Γ£ô LABORATORY FUMES: TargetType should be valid enum value
+  Γ£ô OBSERVATORY TELESCOPE: TargetType should be valid enum value
+  Γ£ô OBSERVATORY STELLAR: TargetType should be valid enum value
+  Γ£ô OBSERVATORY DUST: TargetType should be valid enum value
+  Γ£ô THRONE COLLAPSE: TargetType should be valid enum value
+  Γ£ô THRONE CURSE: TargetType should be valid enum value
+  Γ£ô THRONE JEWELS: TargetType should be valid enum value
+  Γ£ô THRONE GUARD: TargetType should be valid enum value
+  Γ£ô GENERIC COLLAPSE: TargetType should be valid enum value
+  Γ£ô GENERIC DUST: TargetType should be valid enum value
+  Γ£ô GENERIC TRAP: TargetType should be valid enum value
+  Γ£ô ARCANE ECHO: TargetType should be valid enum value
+  Γ£ô Sand Dash: TargetType should be valid enum value
+  Γ£ô Burrow Strike: TargetType should be valid enum value
+  Γ£ô Rolling Charge: TargetType should be valid enum value
+  Γ£ô Solar Sting: TargetType should be valid enum value
+  Γ£ô Blinding Flash: TargetType should be valid enum value
+  Γ£ô Crystal Barrage: TargetType should be valid enum value
+  Γ£ô Illusion Strike: TargetType should be valid enum value
+  Γ£ô Phase Shift: TargetType should be valid enum value
+  Γ£ô Vitality Leech: TargetType should be valid enum value
+  Γ£ô Titan Fist: TargetType should be valid enum value
+  Γ£ô Toxic Dart: TargetType should be valid enum value
+  Γ£ô Solar Blessing: TargetType should be valid enum value
+  Γ£ô Shell Defense: TargetType should be valid enum value
+  Γ£ô Ambush: TargetType should be valid enum value
+  Γ£ô Entomb: TargetType should be valid enum value
+  Γ£ô Raise Dead: TargetType should be valid enum value
+  Γ£ô Crush: TargetType should be valid enum value
+  Γ£ô Spectral Touch: TargetType should be valid enum value
+  Γ£ô Talon Strike: TargetType should be valid enum value
+  Γ£ô Boulder Hurl: TargetType should be valid enum value
+  Γ£ô Cliff Drop: TargetType should be valid enum value
+  Γ£ô Quick Bite: TargetType should be valid enum value
+  Γ£ô Bile Splash: TargetType should be valid enum value
+  Γ£ô Last Stand Break: TargetType should be valid enum value
+  Γ£ô Lightning Strike: TargetType should be valid enum value
+  Γ£ô Dive Bomb: TargetType should be valid enum value
+  Γ£ô Peak Slam: TargetType should be valid enum value
+  Γ£ô Scorching Bite: TargetType should be valid enum value
+  Γ£ô Tremor Burst: TargetType should be valid enum value
+  Γ£ô Cinder Shriek: TargetType should be valid enum value
+  Γ£ô Coal Shell: TargetType should be valid enum value
+  Γ£ô Ember Spit: TargetType should be valid enum value
+  Γ£ô Smog Step: TargetType should be valid enum value
+  Γ£ô Predator's Focus: TargetType should be valid enum value
+  Γ£ô Bark Fortify: TargetType should be valid enum value
+  Γ£ô Reignite: TargetType should be valid enum value
+  Γ£ô Molten Chain: TargetType should be valid enum value
+  Γ£ô Searing Focus: TargetType should be valid enum value
+  Γ£ô Sear The Gap: TargetType should be valid enum value
+  Γ£ô Iron Vow: TargetType should be valid enum value
+  Γ£ô Stone Gaze: TargetType should be valid enum value
+  Γ£ô Soul Skewer: TargetType should be valid enum value
+  Γ£ô Flame Salute: TargetType should be valid enum value
+  Γ£ô Branding Seal: TargetType should be valid enum value
+  Γ£ô Crumbling Curse: TargetType should be valid enum value
+  Γ£ô Expose Vein: TargetType should be valid enum value
+  Γ£ô Toxic Focus: TargetType should be valid enum value
+  Γ£ô Leech Grip: TargetType should be valid enum value
+  Γ£ô Molten Shell: TargetType should be valid enum value
+  Γ£ô Magma Kiss: TargetType should be valid enum value
+  Γ£ô Magma Carapace: TargetType should be valid enum value
+  Γ£ô Amber Casing: TargetType should be valid enum value
+  Γ£ô Lava Douse: TargetType should be valid enum value
+  Γ£ô Amber Ooze: TargetType should be valid enum value
+  Γ£ô Guard Bite: TargetType should be valid enum value
+  Γ£ô Leader's Fang: TargetType should be valid enum value
+  Γ£ô Skeletal Burst: TargetType should be valid enum value
+  Γ£ô Sacrificial Strike: TargetType should be valid enum value
+  Γ£ô Hex Maul: TargetType should be valid enum value
+  Γ£ô Earth Shield: TargetType should be valid enum value
+  Γ£ô Celestial Strike: TargetType should be valid enum value
+  Γ£ô Sound Strike: TargetType should be valid enum value
+  Γ£ô Pack Leader's Call: TargetType should be valid enum value
+  Γ£ô Trick Shot: TargetType should be valid enum value
+  Γ£ô Thorn Bite: TargetType should be valid enum value
+  Γ£ô Trap Door: TargetType should be valid enum value
+  Γ£ô Pathfind: TargetType should be valid enum value
+  Γ£ô Circular Strike: TargetType should be valid enum value
+  Γ£ô Reflex Drain: TargetType should be valid enum value
+  Γ£ô Perfect Copy: TargetType should be valid enum value
+  Γ£ô Broken Mirror: TargetType should be valid enum value
+  Γ£ô Identity Theft: TargetType should be valid enum value
+  Γ£ô Spiked Charge: TargetType should be valid enum value
+  Γ£ô Nature's Touch: TargetType should be valid enum value
+  Γ£ô Venom Bite: TargetType should be valid enum value
+  Γ£ô Sweet Sting: TargetType should be valid enum value
+  Γ£ô Allergen Cloud: TargetType should be valid enum value
+  Γ£ô Gorge Strike: TargetType should be valid enum value
+  Γ£ô Wall Slam: TargetType should be valid enum value
+  Γ£ô Whip Strike: TargetType should be valid enum value
+  Γ£ô Decay Touch: TargetType should be valid enum value
+  Γ£ô Reed Skewer: TargetType should be valid enum value
+  Γ£ô Freeding Frenzy: TargetType should be valid enum value
+  Γ£ô Mud Shell: TargetType should be valid enum value
+  Γ£ô Tidal Crash: TargetType should be valid enum value
+  Γ£ô Static Thrash: TargetType should be valid enum value
+  Γ£ô Spore Drift: TargetType should be valid enum value
+  Γ£ô Mist Strike: TargetType should be valid enum value
+  Γ£ô Chilling Grasp: TargetType should be valid enum value
+  Γ£ô Veil Shatter: TargetType should be valid enum value
+  Γ£ô Blinding Swarm: TargetType should be valid enum value
+  Γ£ô Cold Seep: TargetType should be valid enum value
+  Γ£ô Lurch Strike: TargetType should be valid enum value
+  Γ£ô Calcified Gaze: TargetType should be valid enum value
+  Γ£ô Stone Carapace: TargetType should be valid enum value
+  Γ£ô Vent Focus: TargetType should be valid enum value
+  Γ£ô Venom Spine: TargetType should be valid enum value
+  Γ£ô Tidal Bulwark: TargetType should be valid enum value
+  Γ£ô Deep Drain: TargetType should be valid enum value
+  Γ£ô Food Etch: TargetType should be valid enum value
+  Γ£ô Inner Current: TargetType should be valid enum value
+  Γ£ô Torrent Slam: TargetType should be valid enum value
+  Γ£ô Stone Bracing: TargetType should be valid enum value
+  Γ£ô Toxic Gaze: TargetType should be valid enum value
+  Γ£ô Current Break: TargetType should be valid enum value
+  Γ£ô Sunken Curse: TargetType should be valid enum value
+  Γ£ô Desert Veil: TargetType should be valid enum value
+  Γ£ô Sand Spray: TargetType should be valid enum value
+  Γ£ô Sand Armor: TargetType should be valid enum value
+  Γ£ô Heat Wave: TargetType should be valid enum value
+  Γ£ô Precision Shot: TargetType should be valid enum value
+  Γ£ô Shatter: TargetType should be valid enum value
+  Γ£ô Vanish: TargetType should be valid enum value
+  Γ£ô Soul Drain: TargetType should be valid enum value
+  Γ£ô Sap Drain: TargetType should be valid enum value
+  Γ£ô Ground Pound: TargetType should be valid enum value
+  Γ£ô Venom Volley: TargetType should be valid enum value
+  Γ£ô Sunbeam: TargetType should be valid enum value
+  Γ£ô Mandible Crush: TargetType should be valid enum value
+  Γ£ô Sand Blind: TargetType should be valid enum value
+  Γ£ô Mummy's Grasp: TargetType should be valid enum value
+  Γ£ô Death Bolt: TargetType should be valid enum value
+  Γ£ô Binding Slam: TargetType should be valid enum value
+  Γ£ô Ancient Curse: TargetType should be valid enum value
+  Γ£ô Keen Eye: TargetType should be valid enum value
+  Γ£ô Stone Barrage: TargetType should be valid enum value
+  Γ£ô Ledge Grab: TargetType should be valid enum value
+  Γ£ô Disease Spread: TargetType should be valid enum value
+  Γ£ô Corrupted Gulp: TargetType should be valid enum value
+  Γ£ô Phantom Strike: TargetType should be valid enum value
+  Γ£ô Thunder Clap: TargetType should be valid enum value
+  Γ£ô Wind Gust: TargetType should be valid enum value
+  Γ£ô Mountain's Fury: TargetType should be valid enum value
+  Γ£ô Ember lunge: TargetType should be valid enum value
+  Γ£ô Molten Ooze: TargetType should be valid enum value
+  Γ£ô Gust Talon: TargetType should be valid enum value
+  Γ£ô Soot Pummel: TargetType should be valid enum value
+  Γ£ô Tongue Lash: TargetType should be valid enum value
+  Γ£ô Murky Ambush: TargetType should be valid enum value
+  Γ£ô Smoldering Strike: TargetType should be valid enum value
+  Γ£ô Root Slam: TargetType should be valid enum value
+  Γ£ô Flicker Dash: TargetType should be valid enum value
+  Γ£ô Guard Stance: TargetType should be valid enum value
+  Γ£ô Lava Glob: TargetType should be valid enum value
+  Γ£ô Drift Strike: TargetType should be valid enum value
+  Γ£ô Shield Bash: TargetType should be valid enum value
+  Γ£ô Rubble Toss: TargetType should be valid enum value
+  Γ£ô Wall of Ash: TargetType should be valid enum value
+  Γ£ô Blazing Advance: TargetType should be valid enum value
+  Γ£ô Arcane Ward: TargetType should be valid enum value
+  Γ£ô hollow Grasp: TargetType should be valid enum value
+  Γ£ô Draining Bite: TargetType should be valid enum value
+  Γ£ô Spore Burst: TargetType should be valid enum value
+  Γ£ô Crystal barb: TargetType should be valid enum value
+  Γ£ô Shell Ram: TargetType should be valid enum value
+  Γ£ô Slag Drift: TargetType should be valid enum value
+  Γ£ô Boiling Snap: TargetType should be valid enum value
+  Γ£ô Petrify Sweep: TargetType should be valid enum value
+  Γ£ô Molten Pounce: TargetType should be valid enum value
+  Γ£ô Resin Snare: TargetType should be valid enum value
+  Γ£ô Boundary Mark: TargetType should be valid enum value
+  Γ£ô Rally Pack: TargetType should be valid enum value
+  Γ£ô Marrow Drain: TargetType should be valid enum value
+  Γ£ô Offering: TargetType should be valid enum value
+  Γ£ô Dark Roar: TargetType should be valid enum value
+  Γ£ô Tremor: TargetType should be valid enum value
+  Γ£ô Night's Grace: TargetType should be valid enum value
+  Γ£ô Sonic Pulse: TargetType should be valid enum value
+  Γ£ô Dominant Bite: TargetType should be valid enum value
+  Γ£ô Misdirect: TargetType should be valid enum value
+  Γ£ô Bush Ambush: TargetType should be valid enum value
+  Γ£ô Wall Shift: TargetType should be valid enum value
+  Γ£ô Confuse Trail: TargetType should be valid enum value
+  Γ£ô Endless Cycle: TargetType should be valid enum value
+  Γ£ô Primal Fear: TargetType should be valid enum value
+  Γ£ô Twin Strike: TargetType should be valid enum value
+  Γ£ô Fragment: TargetType should be valid enum value
+  Γ£ô Confusion: TargetType should be valid enum value
+  Γ£ô Bramble Hide: TargetType should be valid enum value
+  Γ£ô Vine Whip: TargetType should be valid enum value
+  Γ£ô Rattle Warning: TargetType should be valid enum value
+  Γ£ô Collect: TargetType should be valid enum value
+  Γ£ô Pollinate: TargetType should be valid enum value
+  Γ£ô Echo Call: TargetType should be valid enum value
+  Γ£ô Climb: TargetType should be valid enum value
+  Γ£ô Grow: TargetType should be valid enum value
+  Γ£ô Crumble: TargetType should be valid enum value
+  Γ£ô Predator's Eye: TargetType should be valid enum value
+  Γ£ô Swarm Dive: TargetType should be valid enum value
+  Γ£ô Mire Slam: TargetType should be valid enum value
+  Γ£ô Wave Slam: TargetType should be valid enum value
+  Γ£ô Mud Roll: TargetType should be valid enum value
+  Γ£ô Surge: TargetType should be valid enum value
+  Γ£ô False Form: TargetType should be valid enum value
+  Γ£ô Frost Crawl: TargetType should be valid enum value
+  Γ£ô Phantom Lunge: TargetType should be valid enum value
+  Γ£ô Biolumiscent Flash: TargetType should be valid enum value
+  Γ£ô Frozen Burst: TargetType should be valid enum value
+  Γ£ô Cavern Thrash: TargetType should be valid enum value
+  Γ£ô Basin Surge: TargetType should be valid enum value
+  Γ£ô Pit Pull: TargetType should be valid enum value
+  Γ£ô Tentacle Snap: TargetType should be valid enum value
+  Γ£ô Steam Dash: TargetType should be valid enum value
+  Γ£ô Splash: TargetType should be valid enum value
+  Γ£ô Phantom Surge: TargetType should be valid enum value
+  Γ£ô Abyssal pull: TargetType should be valid enum value
+  Γ£ô Tidal Sweep: TargetType should be valid enum value
+  Γ£ô Pressurized Strike: TargetType should be valid enum value
+  Γ£ô Rapid Current: TargetType should be valid enum value
+  Γ£ô Channel Slam: TargetType should be valid enum value
+  Γ£ô Still Waters: TargetType should be valid enum value
+  Γ£ô Shadow Surge: TargetType should be valid enum value
+  Γ£ô Drowned Wrath: TargetType should be valid enum value
+  Γ£ô Should have SingleTarget actions
+
+--- Testing Action Execution ---
+  Γ£ô Selected action should be from character's action pool
+  Γ£ô Enemy selected action should be from enemy's action pool
+
+--- Testing Action Validation ---
+  Γ£ô Null action should be null
+  Γ£ô Invalid action name should return null
+  Γ£ô Empty action name should return false
+  Γ£ô GetActions should return valid actions only, got 2
+
+--- Testing Action Cooldown ---
+  Γ£ô JAB: Cooldown should be non-negative
+  Γ£ô JAB: CurrentCooldown should be non-negative
+  Γ£ô JAB: CurrentCooldown should be settable
+  Γ£ô PUNCH HARD: Cooldown should be non-negative
+  Γ£ô PUNCH HARD: CurrentCooldown should be non-negative
+  Γ£ô PUNCH HARD: CurrentCooldown should be settable
+  Γ£ô PUNCH HARDER: Cooldown should be non-negative
+  Γ£ô PUNCH HARDER: CurrentCooldown should be non-negative
+  Γ£ô PUNCH HARDER: CurrentCooldown should be settable
+  Γ£ô PUNCH HARDEST: Cooldown should be non-negative
+  Γ£ô PUNCH HARDEST: CurrentCooldown should be non-negative
+  Γ£ô PUNCH HARDEST: CurrentCooldown should be settable
+  Γ£ô TAUNT: Cooldown should be non-negative
+  Γ£ô TAUNT: CurrentCooldown should be non-negative
+  Γ£ô TAUNT: CurrentCooldown should be settable
+
+--- Testing Action Availability ---
+  Γ£ô Character action pool should not be null
+  Γ£ô Character action pool should have non-negative count, got 0
+  Γ£ô Action selection should return null when pool is empty
+
+=== Action System Tests Summary ===
+Total Tests: 1140
+Passed: 1140
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== Action Execution Flow Tests ===
+
+--- Testing Action Selection Logic ---
+  Γ£ô Character action selection should return action from pool
+  Γ£ù FAILED: Enemy action selection should return action from pool
+  Γ£ô Stunned character should not select action
+
+--- Testing Action Execution Flow ---
+
+--- Testing Action Cooldown Management ---
+  Γ£ô Action should start with 0 cooldown
+  Γ£ô Action cooldown should be settable
+  Γ£ô Action cooldown should not be negative
+
+--- Testing Action Availability Checks ---
+  Γ£ô Action pool should not be null
+
+--- Testing Forced Action Execution ---
+  Γ£ô Forced action should be creatable
+  Γ£ô Forced action should have correct name
+
+--- Testing Action Roll Generation ---
+  Γ£ô Action roll should be between 1-20, got 20
+
+--- Testing Action Roll Modifications ---
+  Γ£ô Modified roll should be valid, got 10
+
+--- ActionExecutionFlow.Execute smoke ---
+  Γ£ô Execute should return ActionExecutionResult
+
+--- Deferred sheet accuracy: hero + enemy next roll on hit only ---
+  Γ£ô Controlled high roll should hit
+  Γ£ô Hero deferred RollBonus should queue ACCURACY FIFO for next attack (peek first layer)
+  Γ£ô Two ACCURACY FIFO layers when ComboBonusDuration is 2
+  Γ£ô Enemy should receive RollPenalty for next roll(s) from EnemyRollBonus -5
+  Γ£ô Enemy RollPenalty attack count follows ComboBonusDuration when RollBonusDuration unset
+  Γ£ô Low roll should miss with default thresholds
+  Γ£ô Miss should not queue hero ACCURACY
+  Γ£ô Miss should not apply enemy roll penalty
+
+--- Enemy roll penalty: one application per attack when duration is 1 ---
+  Γ£ô Enemy should have roll penalty 5 after deferred hit
+  Γ£ô Duration 1 ΓåÆ one attack roll of penalty
+  Γ£ô After one enemy attack, roll penalty should clear
+  Γ£ô Attack counter should be zero
+
+--- Deferred sheet accuracy scales with multihit on hit ---
+  Γ£ô Controlled high roll should hit
+  Γ£ô 2-hit action with deferred RollBonus -1 should queue ACCURACY -2 for next attack
+  Γ£ô Enemy RollPenalty should scale with multihit: -2 per hit ├ù 2 = 4
+
+--- FIFO ACCURACY: thresholds shift, modified d20 unchanged ---
+  Γ£ô Modified base roll should stay 15 (ACCURACY is not subtracted from the d20)
+  Γ£ô Roll 15 should still hit when hit threshold is raised 5ΓåÆ10 (same as old 10 vs 5)
+
+--- ComboBonus lowers combo threshold for resolution ---
+  Γ£ô Controlled roll should hit under default thresholds
+  Γ£ô With ComboBonus=3, roll 11 should qualify as combo (threshold lowered by 3)
+
+--- Enemy sheet DAMAGE_MOD: single application, no sticky Consumed* ---
+  Γ£ô Hero bank action should hit
+  Γ£ô Enemy should have ~+10% DAMAGE_MOD queued for next swing
+  Γ£ô Enemy FIFO sheet DAMAGE_MOD layer should be consumed on that attack roll
+  Γ£ô Buffed damage should be at least baseline (strict > may fail on tiny totals + armor rounding)
+  Γ£ô Second enemy jab (no new bank) should match baseline ΓÇö ConsumedDamageMod must not persist
+
+--- Deferred sheet accuracy: enemy attacker queues ACCURACY FIFO on hit ---
+  Γ£ô Enemy taunt-like swing should hit
+  Γ£ô Enemy deferred RollBonus should queue ACCURACY FIFO for the enemy's next attack rolls
+
+--- Enemy combo pick: stale ThresholdManager must not gate selection ---
+  Γ£ô Natural 8 should hit default hit band
+  Γ£ô Roll 8 after artificial low combo threshold pollution should still pick unnamed normal (reset before selection)
+
+--- Strip flash: combo-complete classification ---
+  Γ£ô Single-slot combo hit is gold flash
+  Γ£ô Combo action hit (last slot) is gold flash
+  Γ£ô Combo action hit (first slot) is gold flash
+  Γ£ô Miss never combo-complete
+  Γ£ô Non-combo action does not qualify
+  Γ£ô Tagged finisher is gold flash (combo action hit)
+
+=== Action Execution Flow Tests Summary ===
+Total Tests: 46
+Passed: 45
+Failed: 1
+Success Rate: 97.8%
+
+Γ¥î 1 test(s) failed
+
+=== Action Sequence Tests ===
+
+--- Testing Action Sequence Ordering ---
+  Γ£ô Should have 3 actions in combo sequence
+  Γ£ô First action should be Action1
+  Γ£ô Second action should be Action2
+  Γ£ô Third action should be Action3
+
+--- Testing ComboStep-Based Action Selection ---
+  Γ£ô ComboStep 0 should select Action1
+  Γ£ô ComboStep 1 should select Action2
+  Γ£ô ComboStep 2 should select Action3
+  Γ£ô ComboStep 3 should wrap to Action1
+
+--- Testing Action Sequence With Multiple Actions ---
+  Γ£ô Should have 5 actions in combo sequence
+  Γ£ô ComboStep 0 should select Action1
+  Γ£ô ComboStep 1 should select Action2
+  Γ£ô ComboStep 2 should select Action3
+  Γ£ô ComboStep 3 should select Action4
+  Γ£ô ComboStep 4 should select Action5
+
+--- Testing ComboStep Advancement On Success ---
+  Γ£ô Should start at ComboStep 0
+  Γ£ô ComboStep should advance or stay at 0 after successful roll
+
+--- Testing ComboStep Advancement With Roll 14+ ---
+  Γ£ô ComboStep should be valid after roll 14
+  Γ£ô ComboStep should be valid after roll 15
+  Γ£ô ComboStep should be valid after roll 20
+
+--- Testing ComboStep Advancement With Natural 20 ---
+  Γ£ô ComboStep should advance with natural 20
+
+--- Testing ComboStep Stays At 0 On Low Roll ---
+  Γ£ô ComboStep should stay at 0 or advance based on roll logic
+
+--- Testing ComboStep Reset On Low Roll ---
+  Γ£ô Should be at ComboStep 1
+  Γ£ô ComboStep should reset to 0 on low roll after step 1
+
+--- Testing ComboStep Reset On Miss ---
+  Γ£ô Should be at ComboStep 2
+  Γ£ô ComboStep should reset to 0 on miss
+
+--- Testing ComboStep Reset After Step 1 ---
+  Γ£ô ComboStep should reset to 0 after step 1 with low roll
+
+--- Testing ComboStep Reset After Step 2+ ---
+  Γ£ô Should be at ComboStep 2
+  Γ£ô ComboStep should reset to 0 after step 2+ with low roll
+
+--- Testing Inventory Reordering Resets ComboStep ---
+  Γ£ô Should be at ComboStep 2 before reorder
+  Γ£ô ComboStep should reset to 0 after inventory reordering
+
+--- Testing Inventory Reordering Affects Sequence ---
+  Γ£ô Original first action should be Action1
+  Γ£ô After reorder, first action should be Action3
+  Γ£ô After reorder, second action should be Action2
+  Γ£ô After reorder, third action should be Action1
+
+--- Testing Inventory Reordering Maintains Action Order ---
+  Γ£ô Should have 4 actions before reorder
+  Γ£ô Should still have 4 actions after reorder
+  Γ£ô Action1 should still be in combo after reorder
+  Γ£ô Action2 should still be in combo after reorder
+  Γ£ô Action3 should still be in combo after reorder
+  Γ£ô Action4 should still be in combo after reorder
+
+--- Testing Action Selection With Dice Rolls ---
+  Γ£ô Character should have combo actions available
+  Γ£ô Character should have at least 2 actions in pool, got 2
+
+--- Testing Combo Action Selection With ComboStep ---
+  Γ£ô ComboStep 0 should select correct action
+  Γ£ô ComboStep 1 should select correct action
+  Γ£ô ComboStep 2 should select correct action
+
+--- Testing Normal Action Selection On Low Roll ---
+  Γ£ô Character should have combo actions
+  Γ£ô Character should have normal (non-combo) actions in pool
+
+--- Testing Full Sequence Flow With Success ---
+  Γ£ô Step 0 should select Action1
+  Γ£ô Should have selected action at step 1
+  Γ£ô Should have selected action at step 2
+
+--- Testing Full Sequence Flow With Failure ---
+  Γ£ô ComboStep should reset to 0 on failure
+  Γ£ô After reset, should select Action1 again
+
+--- Testing Sequence Reset And Restart ---
+  Γ£ô Should be at step 1
+  Γ£ô ComboStep should be 0 after reset
+  Γ£ô After reset, should select first action
+
+--- Testing combo strip index vs intelligence ---
+  Γ£ô Effective INT >= threshold follows ComboStep
+  Γ£ô INT below threshold uses deterministic salt for strip index
+  Γ£ô INT below threshold follows ComboStep when salt is null (aligned with strip highlight)
+  Γ£ô INT 9 uses low-INT combo path (router ignored on advance)
+
+--- Testing single combo slot + low INT does not use invalid 1d1 ---
+  Γ£ô Single combo strip resolves to index 0 without rolling 1d1
+
+--- Testing low INT ignores combo routing on step advance ---
+  Γ£ô INT >= threshold: JumpToSlot 3 from slot 0 sets ComboStep to strip index 2
+  Γ£ô INT below threshold: advance is linear next slot (1), not jump target (2)
+
+--- Testing pending bonus slot from selected action ---
+  Γ£ô Slot follows selected combo action despite ComboStep 0
+
+=== Action Sequence Tests Summary ===
+Total Tests: 63
+Passed: 63
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+  Γ£ô GetActionRoll returns SetStoredActionRoll value
+  Γ£ô LabStep D20
+  Γ£ô LabStep name
+  Γ£ô Lab session exists for default d20
+  Γ£ô Lab starts with fixed d20 mode (not random)
+  Γ£ô Lab default SelectedD20 is 16
+  Γ£ô ResolveD20ForNextStep uses default SelectedD20
+Battle ends in a stalemate. LabDefaultD20 dealt 0 damage, Charwood Stalker dealt 0 damage.Warning: Enemy 'Sun Priest' has invalid archetype 'Sage'. Using default Berserker archetype.
+  Γ£ô Begin sets loader enemy type
+  Γ£ô Snapshot enemy type is from catalog
+  Γ£ô Begin uses level 1 loader enemy
+  Γ£ô Selected type in sorted list
+  Γ£ô Enemy scroll offset clamped
+  Γ£ô Selected enemy row is in visible scroll window
+Battle ends in a stalemate. LabRandFoe dealt 0 damage, Sun Priest dealt 0 damage.  Γ£ô Lab for ResolveD20
+  Γ£ô Fixed mode uses SelectedD20
+Battle ends in a stalemate. LabResolveD20 dealt 0 damage, Rattlesnake dealt 0 damage.Warning: Enemy 'Guile Sprite' has invalid archetype 'Trickster'. Using default Berserker archetype.
+  Γ£ô Lab session exists
+  Γ£ô DisplayStateCoordinator treats LabPlayer as active in lab state
+Battle ends in a stalemate. LabDisplayActive dealt 0 damage, Guile Sprite dealt 0 damage.  Γ£ô SetLabEnemyFromLoader sets enemy name
+  Γ£ô SetLabEnemyFromLoader sets valid enemy
+Battle ends in a stalemate. LabEnemySwap dealt 0 damage, Spider dealt 0 damage.Warning: Enemy 'Island Drifter' has invalid archetype 'Acrobat'. Using default Berserker archetype.
+  Γ£ô Lab with context started
+Battle ends in a stalemate. LabCtxRestore dealt 0 damage, Island Drifter dealt 0 damage.  Γ£ô Context character restored after EndSession
+  Γ£ô Dungeon name restored
+  Γ£ô Room name restored
+  Γ£ô LabCatalogSelectionAddsActionToCombo GetAction
+  Γ£ù FAILED: LabCatalogSelectionAddsActionToCombo increases combo count
+Battle ends in a stalemate. LabComboCatalog dealt 0 damage, Alpha Wolf dealt 0 damage.  Γ£ô LabRemoveFromComboShrinksSequence GetAction
+  Γ£ô LabRemoveFromComboShrinksSequence has entry
+  Γ£ù FAILED: LabRemoveFromComboShrinksSequence removes one (Expected: 0, Actual: 1)
+Battle ends in a stalemate. LabComboRemove dealt 0 damage, Sandstorm Flanker dealt 0 damage.  Γ£ô Enemy ComboStep 0 selects first combo action
+  Γ£ù FAILED: Enemy ComboStep 1 selects second combo action
+Warning: Enemy 'Glass Shard Golem' has invalid archetype 'Duelist'. Using default Berserker archetype.
+  Γ£ô LabEnemyUsesPlayerComboStripForAmplification GetAction
+  Γ£ô Lab enemy has empty combo strip for amp test
+  Γ£ô Lab enemy amp should use player strip length (expect 1.3010, got 1.3010)
+Battle ends in a stalemate. LabAmpStrip dealt 0 damage, Glass Shard Golem dealt 0 damage.  Γ£ô Test enemy has empty combo strip
+
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+  Execution Time: 1.07 seconds (1068 ms)
+  Mode: TEST
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+dotnet : Unhandled exception. System.ArgumentOutOfRangeException: Index was out of range. Must be non-negative and 
+less than the size of the collection. (Parameter 'index')
+At C:\Users\Seanye\AppData\Local\Temp\ps-script-d27359c0-d404-4972-9816-b4b33e31144d.ps1:79 char:63
++ ... r-v2\Code"; dotnet run -c Debug --no-build -- --run-tests 2>&1 | Out- ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Unhandled excep...ameter 'index'):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   at System.Collections.Generic.List`1.get_Item(Int32 index)
+   at RPGGame.Tests.Unit.ActionInteractionLabTests.ActionLabCatalogSync_EnemyNextUsesPlayerStrip(Int32& run, Int32& 
+passed, Int32& failed) in D:\Code Projects\github 
+projects\DungeonFighter-v2\Code\Tests\Unit\ActionInteractionLabTests.cs:line 1063
+   at RPGGame.Tests.Unit.ActionInteractionLabTests.RunAllTests() in D:\Code Projects\github 
+projects\DungeonFighter-v2\Code\Tests\Unit\ActionInteractionLabTests.cs:line 42
+   at RPGGame.Tests.Runners.ComprehensiveTestRunner.RunAllTests() in D:\Code Projects\github 
+projects\DungeonFighter-v2\Code\Tests\Runners\ComprehensiveTestRunner.cs:line 42
+   at RPGGame.Program.Main(String[] args) in D:\Code Projects\github 
+projects\DungeonFighter-v2\Code\Game\Program.cs:line 81
+   at RPGGame.Program.<Main>(String[] args)

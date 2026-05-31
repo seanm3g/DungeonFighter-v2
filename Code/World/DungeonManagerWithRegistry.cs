@@ -112,7 +112,8 @@ namespace RPGGame
                     dungeonLevel,
                     dungeonData.theme,
                     dungeonData.possibleEnemies,
-                    dungeonData.colorOverride
+                    dungeonData.colorOverride,
+                    player.CurrentRegionId
                 ));
             }
             
@@ -128,7 +129,8 @@ namespace RPGGame
                 Math.Max(RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL, playerLevel),
                 customTemplate.theme,
                 customTemplate.possibleEnemies,
-                customTemplate.colorOverride));
+                customTemplate.colorOverride,
+                player.CurrentRegionId));
         }
 
 

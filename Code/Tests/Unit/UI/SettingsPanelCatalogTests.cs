@@ -21,6 +21,7 @@ namespace RPGGame.Tests.Unit.UI
             ActionInteractionLab_Is_Main_Content_And_Creates_Panel();
             ItemPrefixes_And_Suffixes_Are_Main_Content_And_Create_Panels();
             AudioPanel_Is_Main_Content_And_Tag_Resolves();
+            TextAnimation_Uses_Dedicated_Content_Area_And_Creates_Panel();
 
             TestBase.PrintSummary("SettingsPanelCatalog Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -80,6 +81,29 @@ namespace RPGGame.Tests.Unit.UI
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("Audio", SettingsPanel.GetCategoryTagForPanel(panel),
                 "AudioSettingsPanel should resolve to the Audio category tag",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TextAnimation_Uses_Dedicated_Content_Area_And_Creates_Panel()
+        {
+            Console.WriteLine("--- TextAnimation category ---");
+
+            TestBase.AssertTrue(
+                SettingsPanelCatalog.UsesTextAnimationContentArea("TextAnimation"),
+                "TextAnimation should use dedicated content area with pinned preview",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(
+                SettingsPanelCatalog.MainContentCategories.Contains("TextAnimation"),
+                "TextAnimation should not use the main ContentScrollViewer",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var panel = SettingsPanelCatalog.CreatePanel("TextAnimation");
+            TestBase.AssertTrue(
+                panel is TextAnimationPresetsSettingsPanel,
+                "CreatePanel(TextAnimation) should return TextAnimationPresetsSettingsPanel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("TextAnimation", SettingsPanel.GetCategoryTagForPanel(panel),
+                "TextAnimationPresetsSettingsPanel should resolve to TextAnimation tag",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

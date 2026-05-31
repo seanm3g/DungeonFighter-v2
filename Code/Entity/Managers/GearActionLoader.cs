@@ -37,15 +37,16 @@ namespace RPGGame.Entity.Managers
                 
                 // Ensure actions are loaded (GetAction will load if needed, but we ensure it here)
                 ActionLoader.LoadActions();
-                
-                var action = ActionLoader.GetAction(actionName);
+
+                var resolvedName = ActionLoader.ResolveActionName(actionName) ?? actionName;
+                var action = ActionLoader.GetAction(resolvedName);
                 if (action != null)
                 {
                     // Mark gear actions as combo actions so they can be used in combo sequences
                     // GetActionPool() returns all actions, but marking as combo actions allows them to be added to combo sequences
                     action.IsComboAction = true;
                     DebugLogger.LogFormat("GearActionLoader", 
-                        "Marked gear action '{0}' as combo action", actionName);
+                        "Marked gear action '{0}' as combo action", resolvedName);
                     
                     // Verify ActionPool is not null before adding
                     if (entity.ActionPool == null)
@@ -62,22 +63,22 @@ namespace RPGGame.Entity.Managers
                     int poolSizeAfter = entity.ActionPool.Count;
                     
                     // Verify action was actually added
-                    bool actionExists = entity.ActionPool.Any(a => a.action.Name == actionName);
+                    bool actionExists = entity.ActionPool.Any(a => string.Equals(a.action.Name, action.Name, StringComparison.OrdinalIgnoreCase));
                     
                     DebugLogger.LogFormat("GearActionLoader", 
                         "Successfully loaded and added gear action '{0}' to entity '{1}' action pool (pool size before: {2}, after: {3}, action exists: {4}, isComboAction: {5})", 
-                        actionName, entity?.Name ?? "null", poolSizeBefore, poolSizeAfter, actionExists, action.IsComboAction);
+                        resolvedName, entity?.Name ?? "null", poolSizeBefore, poolSizeAfter, actionExists, action.IsComboAction);
                     
                     if (!actionExists)
                     {
                         DebugLogger.LogFormat("GearActionLoader", 
-                            "ERROR: Action '{0}' was not found in ActionPool after AddAction call", actionName);
+                            "ERROR: Action '{0}' was not found in ActionPool after AddAction call", resolvedName);
                     }
                 }
                 else
                 {
                     DebugLogger.LogFormat("GearActionLoader", 
-                        "WARNING: Action '{0}' not found in Actions.json - cannot add to action pool", actionName);
+                        "WARNING: Action '{0}' not found in Actions.json - cannot add to action pool", resolvedName);
                 }
             }
             catch (Exception ex)

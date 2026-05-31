@@ -28,12 +28,12 @@ namespace RPGGame.Actions.Execution
             if (target != null)
                 thresholdManager.ResetThresholds(target);
 
-            if (source is Character intMilestoneCharacter)
+            if (source is Character techMilestoneCharacter)
             {
-                IntelligenceMilestoneThresholdBonuses.Apply(thresholdManager, intMilestoneCharacter);
+                TechniqueMilestoneThresholdBonuses.Apply(thresholdManager, techMilestoneCharacter);
             }
 
-            // Catalog + suffix + prefix (Swift/HIT, etc.) dice stats: literal threshold shifts, same sign as INT milestones / FIFO HIT.
+            // Catalog + suffix + prefix (Swift/HIT, etc.) dice stats: literal threshold shifts, same sign as TECH milestones / FIFO HIT.
             if (source is Character gearCharacter && gearCharacter is not Enemy)
             {
                 int eqHit = gearCharacter.Equipment.GetEquipmentStatBonus("HIT", gearCharacter);

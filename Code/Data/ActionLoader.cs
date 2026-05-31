@@ -12,6 +12,8 @@ namespace RPGGame
         /// <summary>Serializes access to <see cref="_actions"/> and <see cref="CreateAction"/> mapping (shared <see cref="ActionData"/> is mutated during map).</summary>
         private static readonly object ActionsLock = new object();
         private static Dictionary<string, ActionData>? _actions;
+        /// <summary>Legacy or misspelled action names mapped to the loaded canonical key.</summary>
+        private static Dictionary<string, string>? _actionNameAliases;
         private static bool _wasSpreadsheetFormat;
         private static List<Data.SpreadsheetActionJson>? _originalSpreadsheetActions;
         /// <summary>Path of the Actions.json file that was actually loaded. Used so editors save to the same file.</summary>
@@ -42,6 +44,7 @@ namespace RPGGame
                     try { JsonLoader.ClearCacheForFile(Path.GetFullPath(pathToClear)); } catch { }
                 }
                 _actions = null;
+                _actionNameAliases = null;
                 LoadActions();
                 ActionsReloaded?.Invoke();
             }
@@ -107,6 +110,7 @@ namespace RPGGame
                         }
                     }
 
+                    RegisterActionNameAliases();
                     DebugLogger.LogFormat("ActionLoader", "Loaded {0} actions from JSON", _actions.Count);
                 }
                 else
@@ -249,6 +253,52 @@ namespace RPGGame
             }
         }
 
+        /// <summary>
+        /// Maps a requested action name to the key present in loaded action data (handles legacy typos/aliases).
+        /// </summary>
+        public static string? ResolveActionName(string? actionName)
+        {
+            if (string.IsNullOrWhiteSpace(actionName))
+                return actionName;
+
+            lock (ActionsLock)
+            {
+                if (_actions == null)
+                    LoadActions();
+
+                return ResolveActionNameCore(actionName);
+            }
+        }
+
+        /// <summary>Caller must hold <see cref="ActionsLock"/>.</summary>
+        private static string? ResolveActionNameCore(string? actionName)
+        {
+            if (string.IsNullOrWhiteSpace(actionName))
+                return actionName;
+
+            if (_actions != null && _actions.ContainsKey(actionName))
+                return actionName;
+
+            if (_actionNameAliases != null)
+            {
+                if (_actionNameAliases.TryGetValue(actionName, out var canonical) &&
+                    _actions != null &&
+                    _actions.ContainsKey(canonical))
+                    return canonical;
+
+                // Canonical name requested (e.g. MAGIC MISSILE) but only the legacy key exists (MAGIC MISSLE).
+                foreach (var kv in _actionNameAliases)
+                {
+                    if (string.Equals(kv.Value, actionName, StringComparison.OrdinalIgnoreCase) &&
+                        _actions != null &&
+                        _actions.ContainsKey(kv.Key))
+                        return kv.Key;
+                }
+            }
+
+            return actionName;
+        }
+
         public static Action? GetAction(string actionName)
         {
             lock (ActionsLock)
@@ -256,7 +306,9 @@ namespace RPGGame
                 if (_actions == null)
                     LoadActions();
 
-                if (_actions != null && _actions.TryGetValue(actionName, out var actionData))
+                var resolvedName = ResolveActionNameCore(actionName);
+                if (_actions != null && !string.IsNullOrEmpty(resolvedName) &&
+                    _actions.TryGetValue(resolvedName, out var actionData))
                     return ActionDataToActionMapper.CreateAction(actionData);
 
                 return null;
@@ -273,12 +325,31 @@ namespace RPGGame
                 if (_actions == null)
                     LoadActions();
 
-                if (_actions != null && !string.IsNullOrEmpty(actionName) &&
-                    _actions.TryGetValue(actionName, out var data))
+                var resolvedName = ResolveActionNameCore(actionName);
+                if (_actions != null && !string.IsNullOrEmpty(resolvedName) &&
+                    _actions.TryGetValue(resolvedName, out var data))
                     return data;
 
                 return null;
             }
+        }
+
+        private static void RegisterActionNameAliases()
+        {
+            _actionNameAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "MAGIC MISSLE", "MAGIC MISSILE" },
+            };
+
+            if (_actions == null)
+                return;
+
+            var stale = _actionNameAliases
+                .Where(kv => !_actions.ContainsKey(kv.Value))
+                .Select(kv => kv.Key)
+                .ToList();
+            foreach (var key in stale)
+                _actionNameAliases.Remove(key);
         }
 
         public static List<Action> GetActions(params string[] actionNames)
@@ -302,7 +373,9 @@ namespace RPGGame
                 if (_actions == null)
                     LoadActions();
 
-                return _actions?.ContainsKey(actionName) ?? false;
+                var resolvedName = ResolveActionNameCore(actionName);
+                return !string.IsNullOrEmpty(resolvedName) &&
+                       (_actions?.ContainsKey(resolvedName) ?? false);
             }
         }
 

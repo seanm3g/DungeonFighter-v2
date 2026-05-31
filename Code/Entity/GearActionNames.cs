@@ -39,7 +39,7 @@ namespace RPGGame
             if (isWeapon)
                 EnsureRequiredWeaponBasicInActionNames(weaponType, actions);
 
-            return StripEnvironmentTaggedActionNames(actions);
+            return CanonicalizeLoadedActionNames(StripNonHeroGearActionNames(actions));
         }
 
         /// <summary>
@@ -68,9 +68,9 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Drops action names that resolve to <c>environment</c>-tagged definitions so gear never grants room hazards.
+        /// Drops <c>environment</c> and <c>enemy</c> actions so hero gear never grants room hazards or enemy-only moves.
         /// </summary>
-        private static List<string> StripEnvironmentTaggedActionNames(List<string> names)
+        private static List<string> StripNonHeroGearActionNames(List<string> names)
         {
             if (names.Count == 0)
                 return names;
@@ -80,12 +80,35 @@ namespace RPGGame
             {
                 if (string.IsNullOrEmpty(n))
                     continue;
-                var ad = ActionLoader.GetActionData(n);
-                if (ad != null && GameDataTagHelper.HasEnvironmentTag(ad.Tags))
+                if (!GameDataTagHelper.IsGrantableOnHeroGearByName(n))
                     continue;
                 kept.Add(n);
             }
             return kept;
+        }
+
+        /// <summary>
+        /// Aligns resolved gear action names with keys in loaded action data so inventory previews and pool loading match.
+        /// </summary>
+        private static List<string> CanonicalizeLoadedActionNames(List<string> names)
+        {
+            if (names.Count == 0)
+                return names;
+
+            ActionLoader.LoadActions();
+            var canonical = new List<string>(names.Count);
+            foreach (var n in names)
+            {
+                if (string.IsNullOrEmpty(n))
+                    continue;
+                var resolved = ActionLoader.ResolveActionName(n);
+                if (!string.IsNullOrEmpty(resolved) && ActionLoader.HasAction(resolved))
+                    canonical.Add(resolved);
+                else
+                    canonical.Add(n);
+            }
+
+            return canonical;
         }
 
         /// <summary>
@@ -119,7 +142,7 @@ namespace RPGGame
         {
             var actions = GetWeaponTypeActionNames(weaponType);
             EnsureRequiredWeaponBasicInActionNames(weaponType, actions);
-            return StripEnvironmentTaggedActionNames(actions);
+            return StripNonHeroGearActionNames(actions);
         }
 
         private static List<string> GetWeaponTypeActionNames(WeaponType weaponType)
@@ -134,9 +157,7 @@ namespace RPGGame
                 if (actionData.WeaponTypes != null &&
                     actionData.WeaponTypes.Any(wt => wt.Equals(weaponTypeName, StringComparison.OrdinalIgnoreCase)))
                 {
-                    if (actionData.Tags != null &&
-                        (actionData.Tags.Any(t => t.Equals("enemy", StringComparison.OrdinalIgnoreCase)) ||
-                         actionData.Tags.Any(t => t.Equals("environment", StringComparison.OrdinalIgnoreCase))))
+                    if (!GameDataTagHelper.IsGrantableOnHeroGear(actionData.Tags))
                         continue;
                     weaponActions.Add(actionData.Name);
                 }
@@ -151,8 +172,7 @@ namespace RPGGame
                                      action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
                                      !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
                                      !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)) &&
-                                     !action.Tags.Any(tag => tag.Equals("enemy", StringComparison.OrdinalIgnoreCase)) &&
-                                     !action.Tags.Any(tag => tag.Equals("environment", StringComparison.OrdinalIgnoreCase)))
+                                     GameDataTagHelper.IsGrantableOnHeroGear(action.Tags))
                     .Select(action => action.Name)
                     .ToList();
             }

@@ -149,8 +149,8 @@ namespace RPGGame.Tests.Unit
                 $"Enemy intelligence bonus should be non-negative, got {enemyIntBonus}", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            TestBase.AssertEqual(0, charIntBonus, "Character INT roll bonus should be 0 (threshold-based INT system)", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0, enemyIntBonus, "Enemy INT roll bonus should be 0 (threshold-based INT system)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, charIntBonus, "Character INT roll bonus should be 0 (threshold-based TECH system)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, enemyIntBonus, "Enemy INT roll bonus should be 0 (threshold-based TECH system)", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestCombinedRollBonusCalculations()

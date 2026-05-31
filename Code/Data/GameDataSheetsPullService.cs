@@ -12,16 +12,18 @@ namespace RPGGame.Data
     {
         public static async Task PullAllFromSheetsConfigAsync(
             string? sheetsConfigPath = null,
+            SheetsPushConfig? tabSelection = null,
             CancellationToken cancellationToken = default)
         {
             sheetsConfigPath ??= GameConstants.TryGetExistingGameDataFilePath("SheetsConfig.json")
                 ?? GameConstants.GetGameDataFilePath("SheetsConfig.json");
             var sc = SheetsConfig.Load(sheetsConfigPath);
+            var tabFlags = tabSelection ?? SheetsPushConfig.LoadTabFilterOrAllEnabled();
 
-            if (!string.IsNullOrWhiteSpace(sc.ActionsSheetUrl))
+            if (tabFlags.PushActionsTab && !string.IsNullOrWhiteSpace(sc.ActionsSheetUrl))
                 await ActionUpdateService.UpdateFromGoogleSheetsAsync(sc.ActionsSheetUrl, null).ConfigureAwait(false);
 
-            if (!string.IsNullOrWhiteSpace(sc.WeaponsSheetUrl))
+            if (tabFlags.PushWeaponsTab && !string.IsNullOrWhiteSpace(sc.WeaponsSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.WeaponsSheetUrl, cancellationToken).ConfigureAwait(false);
                 string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Weapons);
@@ -31,7 +33,7 @@ namespace RPGGame.Data
                 ClearJsonCacheForGameDataFile(GameConstants.WeaponsJson);
             }
 
-            if (!string.IsNullOrWhiteSpace(sc.ModificationsSheetUrl))
+            if (tabFlags.PushModificationsTab && !string.IsNullOrWhiteSpace(sc.ModificationsSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.ModificationsSheetUrl, cancellationToken).ConfigureAwait(false);
                 string merged = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Modifications);
@@ -46,7 +48,7 @@ namespace RPGGame.Data
                 ClearJsonCacheForGameDataFile(GameConstants.PrefixMaterialQualityJson);
             }
 
-            if (!string.IsNullOrWhiteSpace(sc.ArmorSheetUrl))
+            if (tabFlags.PushArmorTab && !string.IsNullOrWhiteSpace(sc.ArmorSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.ArmorSheetUrl, cancellationToken).ConfigureAwait(false);
                 string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Armor);
@@ -56,7 +58,7 @@ namespace RPGGame.Data
                 ClearJsonCacheForGameDataFile(GameConstants.ArmorJson);
             }
 
-            if (!string.IsNullOrWhiteSpace(sc.StatBonusesSheetUrl))
+            if (tabFlags.PushStatBonusesTab && !string.IsNullOrWhiteSpace(sc.StatBonusesSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.StatBonusesSheetUrl, cancellationToken).ConfigureAwait(false);
                 string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.StatBonuses);
@@ -66,7 +68,7 @@ namespace RPGGame.Data
                 ClearJsonCacheForGameDataFile(GameConstants.StatBonusesJson);
             }
 
-            if (!string.IsNullOrWhiteSpace(sc.ConsumablesSheetUrl))
+            if (tabFlags.PushConsumablesTab && !string.IsNullOrWhiteSpace(sc.ConsumablesSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.ConsumablesSheetUrl, cancellationToken).ConfigureAwait(false);
                 string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Consumables);
@@ -76,7 +78,7 @@ namespace RPGGame.Data
                 ClearJsonCacheForGameDataFile(GameConstants.ConsumablesJson);
             }
 
-            if (!string.IsNullOrWhiteSpace(sc.EnemiesSheetUrl))
+            if (tabFlags.PushEnemiesTab && !string.IsNullOrWhiteSpace(sc.EnemiesSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.EnemiesSheetUrl, cancellationToken).ConfigureAwait(false);
                 string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Enemies);
@@ -86,7 +88,7 @@ namespace RPGGame.Data
                 ClearJsonCacheForGameDataFile(GameConstants.EnemiesJson);
             }
 
-            if (!string.IsNullOrWhiteSpace(sc.EnvironmentsSheetUrl))
+            if (tabFlags.PushEnvironmentsTab && !string.IsNullOrWhiteSpace(sc.EnvironmentsSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.EnvironmentsSheetUrl, cancellationToken).ConfigureAwait(false);
                 string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Environments);
@@ -96,7 +98,7 @@ namespace RPGGame.Data
                 ClearJsonCacheForGameDataFile(GameConstants.RoomsJson);
             }
 
-            if (!string.IsNullOrWhiteSpace(sc.DungeonsSheetUrl))
+            if (tabFlags.PushDungeonsTab && !string.IsNullOrWhiteSpace(sc.DungeonsSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.DungeonsSheetUrl, cancellationToken).ConfigureAwait(false);
                 string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Dungeons);
@@ -106,7 +108,7 @@ namespace RPGGame.Data
                 ClearJsonCacheForGameDataFile(GameConstants.DungeonsJson);
             }
 
-            if (!string.IsNullOrWhiteSpace(sc.ClassPresentationSheetUrl))
+            if (tabFlags.PushClassPresentationTab && !string.IsNullOrWhiteSpace(sc.ClassPresentationSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.ClassPresentationSheetUrl, cancellationToken).ConfigureAwait(false);
                 string tuningPath = GameConfiguration.GetTuningConfigFilePathForWrite();
@@ -114,7 +116,7 @@ namespace RPGGame.Data
                 GameConfiguration.ResetInstance();
             }
 
-            if (!string.IsNullOrWhiteSpace(sc.ClassActionsSheetUrl))
+            if (tabFlags.PushClassActionsTab && !string.IsNullOrWhiteSpace(sc.ClassActionsSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.ClassActionsSheetUrl, cancellationToken).ConfigureAwait(false);
                 var pres = ClassActionsSheetConverter.LoadClassPresentationForImport();

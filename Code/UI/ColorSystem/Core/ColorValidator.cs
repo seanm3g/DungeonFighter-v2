@@ -187,6 +187,49 @@ namespace RPGGame.UI.ColorSystem
             double v2 = Math.Clamp(V, vmin, vmax);
             return HsvToColor(H, S, v2);
         }
+
+        /// <summary>Rotates hue by <paramref name="deltaDegrees"/> (scaled 0–1 via mask in compositor).</summary>
+        public static Color AdjustHueHsv(Color color, double deltaDegrees)
+        {
+            var (H, S, V) = RgbToHsv(color.R, color.G, color.B);
+            double h2 = H + deltaDegrees;
+            while (h2 < 0) h2 += 360;
+            while (h2 >= 360) h2 -= 360;
+            return HsvToColor(h2, S, V);
+        }
+
+        /// <summary>
+        /// Hue shift for accent layers: raises saturation when the base is near-grayscale so the shift
+        /// is visible on pale path-intro text (pure HSV hue rotation is invisible at S≈0).
+        /// </summary>
+        public static Color AdjustAccentHueHsv(Color color, double deltaDegrees, double maskAlpha, double minSaturation = 0.32)
+        {
+            var (H, S, V) = RgbToHsv(color.R, color.G, color.B);
+            double s2 = Math.Max(S, minSaturation * Math.Clamp(maskAlpha, 0.0, 1.0));
+            double h2 = H + deltaDegrees;
+            while (h2 < 0) h2 += 360;
+            while (h2 >= 360) h2 -= 360;
+            return HsvToColor(h2, s2, V);
+        }
+
+        /// <summary>Scales HSV saturation by <paramref name="factor"/> (clamped 0–2).</summary>
+        public static Color ScaleSaturationHsv(Color color, double factor)
+        {
+            factor = Math.Clamp(factor, 0.0, 2.0);
+            var (H, S, V) = RgbToHsv(color.R, color.G, color.B);
+            double s2 = Math.Clamp(S * factor, 0, 1);
+            return HsvToColor(H, s2, V);
+        }
+
+        /// <summary>Linear RGB blend; <paramref name="t"/> in [0,1].</summary>
+        public static Color LerpRgb(Color start, Color end, double t)
+        {
+            t = Math.Clamp(t, 0.0, 1.0);
+            return Color.FromRgb(
+                (byte)Math.Round(start.R + (end.R - start.R) * t),
+                (byte)Math.Round(start.G + (end.G - start.G) * t),
+                (byte)Math.Round(start.B + (end.B - start.B) * t));
+        }
     }
 }
 

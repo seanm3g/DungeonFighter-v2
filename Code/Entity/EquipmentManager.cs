@@ -37,6 +37,7 @@ namespace RPGGame
 
             int newMaxHealth = _character.GetEffectiveMaxHealth();
             _character.Health.AdjustHealthForMaxHealthChange(oldMaxHealth, newMaxHealth);
+            _character.RefreshRoomArmor();
 
             UpdateActionsAfterGearChange(replacedItem, item, slot);
 
@@ -75,6 +76,7 @@ namespace RPGGame
             // Check if max health changed and adjust current health accordingly
             int newMaxHealth = _character.GetEffectiveMaxHealth();
             _character.Health.AdjustHealthForMaxHealthChange(oldMaxHealth, newMaxHealth);
+            _character.RefreshRoomArmor();
             
             // Remove roll bonuses from the unequipped item
             if (unequippedItem != null)

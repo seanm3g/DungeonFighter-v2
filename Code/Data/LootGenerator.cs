@@ -128,12 +128,13 @@ namespace RPGGame
             Character? player = null,
             bool guaranteedLoot = false,
             string? dungeonTheme = null,
-            string? enemyArchetype = null)
+            string? enemyArchetype = null,
+            double bonusMagicFind = 0)
         {
             var tuning = GameConfiguration.Instance;
             
             // Calculate loot chance based on tuning config
-            double lootChance = CalculateLootChance(playerLevel, player, guaranteedLoot, tuning);
+            double lootChance = CalculateLootChance(playerLevel, player, guaranteedLoot, tuning, bonusMagicFind);
             
             // Roll for loot chance (skip if guaranteed loot)
             if (!guaranteedLoot)
@@ -233,7 +234,8 @@ namespace RPGGame
             ApplyItemScaling(item, tuning);
 
             // ROLL 6: Rarity (determines number of bonuses) — MF does not alter base rarity roll
-            var rarity = RarityProcessor.RollRarity(0.0, playerLevel);
+            double lootMf = Math.Clamp(bonusMagicFind, 0, 1);
+            var rarity = RarityProcessor.RollRarity(lootMf, playerLevel);
             item.Rarity = rarity.Name?.Trim() ?? "Common";
             RarityProcessor.ApplyRarityScaling(item, rarity);
 
@@ -366,7 +368,7 @@ namespace RPGGame
         /// <summary>
         /// Calculates the loot drop chance based on player level, magic find, and guaranteed flag
         /// </summary>
-        private static double CalculateLootChance(int playerLevel, Character? player, bool guaranteedLoot, GameConfiguration tuning)
+        private static double CalculateLootChance(int playerLevel, Character? player, bool guaranteedLoot, GameConfiguration tuning, double bonusMagicFind = 0)
         {
             if (guaranteedLoot)
             {
@@ -379,7 +381,7 @@ namespace RPGGame
                 double lootChance = tuning.LootSystem.BaseDropChance + (playerLevel * tuning.LootSystem.DropChancePerLevel);
                 
                 // Apply magic find modifier to loot chance
-                double magicFind = player?.GetMagicFind() ?? 0.0;
+                double magicFind = (player?.GetMagicFind() ?? 0.0) + Math.Max(0, bonusMagicFind);
                 lootChance += magicFind * tuning.LootSystem.MagicFindEffectiveness;
                 
                 return Math.Min(lootChance, tuning.LootSystem.MaxDropChance);

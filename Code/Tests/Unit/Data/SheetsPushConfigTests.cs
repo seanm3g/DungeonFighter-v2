@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit.Data
             TestApplyMissingPushTabDefaultsLegacyJsonAllTrue(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyMissingPushTabDefaultsPartialKeys(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyMissingPushTabDefaultsExplicitFalsePreserved(ref testsRun, ref testsPassed, ref testsFailed);
+            TestLoadTabFilterOrAllEnabled(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("SheetsPushConfig Tests", testsRun, testsPassed, testsFailed);
         }
@@ -256,6 +257,43 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(cfg.PushClassActionsTab, "missing pushClassActionsTab → true", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertTrue(cfg.PushConsumablesTab, "missing pushConsumablesTab → true", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertTrue(!cfg.PushEnemiesTab, "explicit pushEnemiesTab false preserved", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestLoadTabFilterOrAllEnabled(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestLoadTabFilterOrAllEnabled));
+            string missingPath = Path.Combine(Path.GetTempPath(), "GameData", "SheetsPushConfig-missing-" + Guid.NewGuid().ToString("N") + ".json");
+            var allEnabled = SheetsPushConfig.LoadTabFilterOrAllEnabled(missingPath);
+            TestBase.AssertTrue(
+                allEnabled.PushActionsTab && allEnabled.PushWeaponsTab && allEnabled.PushArmorTab && allEnabled.PushEnemiesTab,
+                "missing config → all tabs enabled",
+                ref testsRun, ref testsPassed, ref testsFailed);
+
+            string dir = Path.Combine(Path.GetTempPath(), "GameData", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(dir);
+            string configPath = Path.Combine(dir, "SheetsPushConfig.json");
+            try
+            {
+                File.WriteAllText(configPath, """
+                {
+                  "spreadsheetId": "abc",
+                  "actionsSheetTabName": "ACTIONS",
+                  "oauthClientSecretsPath": "s.json",
+                  "pushActionsTab": false,
+                  "pushArmorTab": true,
+                  "pushEnemiesTab": false
+                }
+                """);
+                var fromFile = SheetsPushConfig.LoadTabFilterOrAllEnabled(configPath);
+                TestBase.AssertTrue(!fromFile.PushActionsTab, "pushActionsTab false from file", ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertTrue(fromFile.PushArmorTab, "pushArmorTab true from file", ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertTrue(fromFile.PushWeaponsTab, "missing pushWeaponsTab → true", ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertTrue(!fromFile.PushEnemiesTab, "pushEnemiesTab false from file", ref testsRun, ref testsPassed, ref testsFailed);
+            }
+            finally
+            {
+                try { File.Delete(configPath); Directory.Delete(dir); } catch { /* best effort */ }
+            }
         }
 
         private static void TestApplyMissingPushTabDefaultsExplicitFalsePreserved(ref int testsRun, ref int testsPassed, ref int testsFailed)

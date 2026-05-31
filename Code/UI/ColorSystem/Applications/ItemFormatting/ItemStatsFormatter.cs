@@ -96,19 +96,22 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
             }
             
             // Action bonuses
-            if (item.ActionBonuses.Count > 0)
+            var grantableActionBonuses = item.ActionBonuses
+                .Where(ab => Data.GameDataTagHelper.IsGrantableOnHeroGearByName(ab.Name))
+                .ToList();
+            if (grantableActionBonuses.Count > 0)
             {
                 var actionsLine = new ColoredTextBuilder();
                 actionsLine.Add("  Actions: ", ColorPalette.Info);
                 
-                for (int i = 0; i < item.ActionBonuses.Count; i++)
+                for (int i = 0; i < grantableActionBonuses.Count; i++)
                 {
-                    var bonus = item.ActionBonuses[i];
+                    var bonus = grantableActionBonuses[i];
                     actionsLine.Add(bonus.Name, ColorPalette.Success);
                     actionsLine.Add(" +", Colors.White);
                     actionsLine.Add(bonus.Weight.ToString(), ColorPalette.Warning);
                     
-                    if (i < item.ActionBonuses.Count - 1)
+                    if (i < grantableActionBonuses.Count - 1)
                     {
                         actionsLine.Add(", ", Colors.Gray);
                     }

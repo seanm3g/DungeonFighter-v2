@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -316,7 +317,8 @@ namespace RPGGame
 
         public void ApplyActionBonuses(Item item, int count, LootContext? context = null)
         {
-            if (_dataCache.ActionBonuses == null || _dataCache.ActionBonuses.Count == 0)
+            var heroGearPool = GetHeroGearActionBonusPool();
+            if (heroGearPool.Count == 0)
                 return;
 
             for (int i = 0; i < count; i++)
@@ -324,9 +326,10 @@ namespace RPGGame
                 if (_actionSelector != null && context != null)
                 {
                     var contextualAction = _actionSelector.SelectAction(context, item);
-                    if (!string.IsNullOrEmpty(contextualAction))
+                    if (!string.IsNullOrEmpty(contextualAction) &&
+                        GameDataTagHelper.IsGrantableOnHeroGearByName(contextualAction))
                     {
-                        var actionBonus = _dataCache.ActionBonuses.FirstOrDefault(
+                        var actionBonus = heroGearPool.FirstOrDefault(
                             a => a.Name.Equals(contextualAction, StringComparison.OrdinalIgnoreCase));
                         if (actionBonus != null)
                         {
@@ -336,7 +339,7 @@ namespace RPGGame
                     }
                 }
 
-                var actionBonuses = _dataCache.ActionBonuses;
+                var actionBonuses = heroGearPool;
                 if (actionBonuses.Count == 0) continue;
                 int totalWeight = actionBonuses.Sum(a => Math.Max(1, a.Weight));
                 int roll = _random.Next(totalWeight);
@@ -352,6 +355,15 @@ namespace RPGGame
                 else
                     item.ActionBonuses.Add(actionBonuses[actionBonuses.Count - 1]);
             }
+        }
+
+        private List<ActionBonus> GetHeroGearActionBonusPool()
+        {
+            if (_dataCache.ActionBonuses == null || _dataCache.ActionBonuses.Count == 0)
+                return new List<ActionBonus>();
+            return _dataCache.ActionBonuses
+                .Where(ab => !string.IsNullOrEmpty(ab.Name) && GameDataTagHelper.IsGrantableOnHeroGearByName(ab.Name))
+                .ToList();
         }
 
         private Modification? RollOneCategory(ModificationPrefixCategory category, Item item, LootContext? context, int diceBonus)

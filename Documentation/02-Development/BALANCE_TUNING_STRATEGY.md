@@ -27,8 +27,8 @@ When balance is significantly off-target (<50% accuracy), make **MAJOR changes**
 #### **Individual Rates**:
 - `StrengthPerPoint`: Controls enemy damage output
 - `AgilityPerPoint`: Controls enemy attack speed
-- `TechniquePerPoint`: Controls enemy combo amplification
-- `IntelligencePerPoint`: Controls enemy roll bonuses
+- `TechniquePerPoint`: Legacy enemy tuning label (hero TECH → roll threshold milestones)
+- `IntelligencePerPoint`: Legacy enemy tuning label (hero/enemy INT → combo amplification)
 - `HealthPerPoint`: Controls enemy survivability
 - `ArmorPerPoint`: Controls enemy damage reduction
 

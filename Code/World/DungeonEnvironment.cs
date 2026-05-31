@@ -71,9 +71,15 @@ namespace RPGGame
         /// <summary>
         /// Generates enemies for this environment. Delegates to EnemyGenerationManager.
         /// </summary>
-        public void GenerateEnemies(int roomLevel, List<string>? possibleEnemies = null, int? minLevel = null, int? maxLevel = null)
+        public void GenerateEnemies(
+            int roomLevel,
+            List<string>? possibleEnemies = null,
+            int? minLevel = null,
+            int? maxLevel = null,
+            EnemySpawnContext? spawnContext = null,
+            TravelRegion? resolvedRegion = null)
         {
-            enemyGenerator.GenerateEnemies(roomLevel, possibleEnemies, minLevel, maxLevel);
+            enemyGenerator.GenerateEnemies(roomLevel, possibleEnemies, minLevel, maxLevel, spawnContext, resolvedRegion);
         }
 
         /// <summary>

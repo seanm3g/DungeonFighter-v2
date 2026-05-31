@@ -115,6 +115,35 @@ namespace RPGGame.UI.Avalonia.Managers
                 return false;
             }
         }
+
+        /// <summary>
+        /// Picks a readable text color when configured foreground/background are too similar (e.g. black on black).
+        /// </summary>
+        public static Color EnsureContrastingTextColor(Color textColor, Color backgroundColor)
+        {
+            double textLuminance = GetRelativeLuminance(textColor);
+            double bgLuminance = GetRelativeLuminance(backgroundColor);
+            double contrast = (Math.Max(textLuminance, bgLuminance) + 0.05) / (Math.Min(textLuminance, bgLuminance) + 0.05);
+
+            if (contrast >= 4.5)
+                return textColor;
+
+            return bgLuminance < 0.35 ? Colors.White : Colors.Black;
+        }
+
+        private static double GetRelativeLuminance(Color color)
+        {
+            static double Channel(byte c)
+            {
+                double s = c / 255.0;
+                return s <= 0.03928 ? s / 12.92 : Math.Pow((s + 0.055) / 1.055, 2.4);
+            }
+
+            double r = Channel(color.R);
+            double g = Channel(color.G);
+            double b = Channel(color.B);
+            return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        }
     }
 }
 

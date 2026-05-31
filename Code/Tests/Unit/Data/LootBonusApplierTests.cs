@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
+using RPGGame.Data;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Data
@@ -35,6 +36,7 @@ namespace RPGGame.Tests.Unit.Data
             TestApplyStatBonusesEnforcesUniqueAffixRarity();
             TestApplyPrefixSlotsUsesAffixTierPools();
             TestApplyActionBonuses();
+            TestApplyActionBonuses_ExcludesEnvironmentAndEnemyFromPool();
             TestApplyModifications();
             TestTuningAffixOverridesRarityTable();
             TestPerItemTypeAffixOverridesPerRarityForHeadOnly();
@@ -238,6 +240,43 @@ namespace RPGGame.Tests.Unit.Data
             {
                 TestBase.AssertTrue(false,
                     $"ApplyActionBonuses should not throw: {ex.Message}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestApplyActionBonuses_ExcludesEnvironmentAndEnemyFromPool()
+        {
+            Console.WriteLine("\n--- Testing ApplyActionBonuses excludes environment/enemy ---");
+
+            try
+            {
+                ActionLoader.LoadActions();
+                var cache = LootDataCache.Load();
+
+                bool cacheHasGraveyard = cache.ActionBonuses.Any(ab =>
+                    string.Equals(ab.Name, "GRAVEYARD RISING", StringComparison.OrdinalIgnoreCase));
+                TestBase.AssertTrue(!cacheHasGraveyard,
+                    "Loot action bonus cache should not list GRAVEYARD RISING",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var applier = new LootBonusApplier(cache, new Random(42));
+                for (int trial = 0; trial < 25; trial++)
+                {
+                    var item = TestDataBuilders.Item().WithName($"AffixTrial{trial}").WithTier(1).Build();
+                    applier.ApplyActionBonuses(item, 2);
+                    foreach (var ab in item.ActionBonuses)
+                    {
+                        TestBase.AssertTrue(
+                            GameDataTagHelper.IsGrantableOnHeroGearByName(ab.Name),
+                            $"Rolled action bonus '{ab.Name}' must be grantable on hero gear",
+                            ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TestBase.AssertTrue(false,
+                    $"ApplyActionBonuses environment/enemy exclusion test: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }

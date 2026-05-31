@@ -70,6 +70,10 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             EnemyLoaderTests.RunAllTests();
             Console.WriteLine();
+            EnemySpawnFilterTests.RunAllTests();
+            Console.WriteLine();
+            EnemyRarityRewardTests.RunAllTests();
+            Console.WriteLine();
             RoomLoaderTests.RunAllTests();
             Console.WriteLine();
             ColorConfigurationLoaderTests.RunAllTests();

@@ -21,6 +21,8 @@ namespace RPGGame.Tests.Unit.Data
             HasTagFalseWhenMissing(ref run, ref pass, ref fail);
             HasEnemyTagCaseInsensitive(ref run, ref pass, ref fail);
             HasEnemyTagFalseWhenMissing(ref run, ref pass, ref fail);
+            IsGrantableOnHeroGearRejectsEnvironmentAndEnemy(ref run, ref pass, ref fail);
+            IsGrantableOnHeroGearByNameRejectsGraveyardRising(ref run, ref pass, ref fail);
 
             TestBase.PrintSummary("GameDataTagHelper Tests", run, pass, fail);
         }
@@ -150,6 +152,48 @@ namespace RPGGame.Tests.Unit.Data
             {
                 fail++;
                 Console.WriteLine("FAIL HasEnemyTagFalseWhenMissing");
+            }
+        }
+
+        private static void IsGrantableOnHeroGearRejectsEnvironmentAndEnemy(ref int run, ref int pass, ref int fail)
+        {
+            run++;
+            if (!GameDataTagHelper.IsGrantableOnHeroGear(new[] { "environment" }) &&
+                !GameDataTagHelper.IsGrantableOnHeroGear(new[] { "enemy" }) &&
+                GameDataTagHelper.IsGrantableOnHeroGear(new[] { "weapon", "attack" }))
+                pass++;
+            else
+            {
+                fail++;
+                Console.WriteLine("FAIL IsGrantableOnHeroGearRejectsEnvironmentAndEnemy");
+            }
+        }
+
+        private static void IsGrantableOnHeroGearByNameRejectsGraveyardRising(ref int run, ref int pass, ref int fail)
+        {
+            run++;
+            try
+            {
+                ActionLoader.LoadActions();
+            }
+            catch
+            {
+                pass++;
+                return;
+            }
+
+            if (ActionLoader.GetAction("GRAVEYARD RISING") == null)
+            {
+                pass++;
+                return;
+            }
+
+            if (!GameDataTagHelper.IsGrantableOnHeroGearByName("GRAVEYARD RISING"))
+                pass++;
+            else
+            {
+                fail++;
+                Console.WriteLine("FAIL IsGrantableOnHeroGearByNameRejectsGraveyardRising");
             }
         }
     }

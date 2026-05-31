@@ -158,6 +158,7 @@ namespace RPGGame
                                         stateManager.CurrentPlayer.Heal(healthRestored);
                                     }
                                     stateManager.CurrentPlayer.ClearAllTempEffects();
+                                    stateManager.CurrentPlayer.RefreshRoomArmor();
                                     stateManager.CurrentPlayer.ClearDungeonSearchBuffs();
                                 }
                                 

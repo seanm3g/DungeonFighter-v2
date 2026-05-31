@@ -182,8 +182,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 // Weapon stats from the same pipeline as InitializeNewGame (starter-tagged menu rows + tuning)
                 string damageText = $"Damage: {preview.GetTotalDamage()}";
                 string speedText = $"Speed: {preview.GetTotalAttackSpeed():F2}×";
+                int actionSlots = ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(preview.WeaponType);
+                string actionSlotText = actionSlots > 0 ? $"Action slots: +{actionSlots}" : "";
                 string separatorChar = "│";
-                string stats = $"  {damageText}  {separatorChar}  {speedText}";
+                string stats = actionSlots > 0
+                    ? $"  {damageText}  {separatorChar}  {speedText}  {separatorChar}  {actionSlotText}"
+                    : $"  {damageText}  {separatorChar}  {speedText}";
                 int statsX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, stats.Length);
                 
                 // Color-code stats - render each part separately
@@ -194,6 +198,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 canvas.AddText(damageStart, currentY, damageText, AsciiArtAssets.Colors.Green);
                 canvas.AddText(separatorPos, currentY, separatorChar, AsciiArtAssets.Colors.Gray);
                 canvas.AddText(speedStart, currentY, speedText, AsciiArtAssets.Colors.Blue);
+                if (actionSlots > 0)
+                {
+                    int secondSeparatorPos = statsX + stats.LastIndexOf(separatorChar);
+                    int actionSlotStart = secondSeparatorPos + separatorChar.Length + 2;
+                    canvas.AddText(secondSeparatorPos, currentY, separatorChar, AsciiArtAssets.Colors.Gray);
+                    canvas.AddText(actionSlotStart, currentY, actionSlotText, AsciiArtAssets.Colors.Cyan);
+                }
                 currentY += 2;
             }
             

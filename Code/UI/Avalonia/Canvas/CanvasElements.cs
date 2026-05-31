@@ -105,6 +105,8 @@ namespace RPGGame.UI.Avalonia.Canvas
         public double VerticalOffsetScale { get; set; } = 0.0;
         /// <summary>Optional per-segment color override (segment index, base color) for pulse feedback.</summary>
         public System.Func<int, Color, Color>? SegmentHighlight { get; set; }
+        /// <summary>When set, returns the d20 face (1–20) to mark with a pixel caret under the bar.</summary>
+        public System.Func<int?>? RollMarkerRoll { get; set; }
     }
 }
 

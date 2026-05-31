@@ -17,6 +17,7 @@ namespace RPGGame.Tests.Unit.Entity
 
             TestEffectiveMaxBasePlusEquippedExtraSlots();
             TestEffectiveMaxIncludesClassUpgradeSlots();
+            TestEffectiveMaxWandWeaponGrantsOneSlot();
             TestTrimRemovesNonRequiredWhenOverCap();
 
             TestBase.PrintSummary("ComboSequenceMaxHelper Tests", _testsRun, _testsPassed, _testsFailed);
@@ -102,6 +103,37 @@ namespace RPGGame.Tests.Unit.Entity
             {
                 cfg.LootSystem = backupLoot;
                 cfg.ClassPresentation = backupClassPresentation;
+            }
+        }
+
+        private static void TestEffectiveMaxWandWeaponGrantsOneSlot()
+        {
+            Console.WriteLine("\n--- Testing GetEffectiveMax Wand weapon grants +1 slot ---");
+            var cfg = GameConfiguration.Instance;
+            var backupLoot = cfg.LootSystem;
+            try
+            {
+                cfg.LootSystem = new LootSystemConfig
+                {
+                    ComboSequenceBaseMax = 2,
+                    ComboSequenceAbsoluteMax = 8
+                };
+
+                var c = TestDataBuilders.Character().WithName("WandSlotTest").Build();
+                TestBase.AssertEqual(2, ComboSequenceMaxHelper.GetEffectiveMax(c),
+                    "no weapon", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                c.Equipment.Weapon = new WeaponItem("Stick", 1, 5, 0.5, WeaponType.Wand);
+                TestBase.AssertEqual(3, ComboSequenceMaxHelper.GetEffectiveMax(c),
+                    "Wand equipped adds one slot", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                c.Equipment.Weapon = new WeaponItem("Sword", 1, 5, 0.5, WeaponType.Sword);
+                TestBase.AssertEqual(2, ComboSequenceMaxHelper.GetEffectiveMax(c),
+                    "non-Wand weapon does not add class slot", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.LootSystem = backupLoot;
             }
         }
 

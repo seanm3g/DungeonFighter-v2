@@ -18,13 +18,13 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets the base combo amplifier based on Technique stat
+        /// Gets the base combo amplifier based on effective Intelligence stat
         /// </summary>
         /// <returns>Base combo amplifier value</returns>
         public double GetComboAmplifier()
         {
             var tuning = GameConfiguration.Instance;
-            return ComboAmplifierFromTechnique.Compute(character.Technique, tuning.ComboSystem);
+            return ComboAmplifierFromIntelligence.Compute(character.GetEffectiveIntelligence(), tuning.ComboSystem);
         }
 
         /// <summary>
@@ -111,8 +111,8 @@ namespace RPGGame
         /// <returns>Intelligence roll bonus</returns>
         public int GetIntelligenceRollBonus()
         {
-            // INT no longer adds to roll totals. It now shifts HIT/COMBO/CRIT thresholds via
-            // IntelligenceMilestoneThresholdBonuses (applied per attack after threshold reset).
+            // INT no longer adds to roll totals. TECH shifts HIT/COMBO/CRIT thresholds via
+            // TechniqueMilestoneThresholdBonuses (applied per attack after threshold reset).
             return 0;
         }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using RPGGame.UI.TextAnimation;
 
 namespace RPGGame
 {
@@ -115,6 +116,12 @@ namespace RPGGame
         /// All parameters can be adjusted in UIConfiguration.json
         /// </summary>
         public DungeonSelectionAnimationConfig DungeonSelectionAnimation { get; set; } = new DungeonSelectionAnimationConfig();
+
+        /// <summary>
+        /// Named layered text animation presets (base color + stackable overlay / HSV layers).
+        /// </summary>
+        public Dictionary<string, TextAnimationPresetConfig> TextAnimationPresets { get; set; } =
+            new Dictionary<string, TextAnimationPresetConfig>();
         
         /// <summary>
         /// Loads configuration from a JSON file

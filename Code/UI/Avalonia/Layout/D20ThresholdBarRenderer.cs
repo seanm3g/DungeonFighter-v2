@@ -11,7 +11,7 @@ namespace RPGGame.UI.Avalonia.Layout
     public static class D20ThresholdBarRenderer
     {
         public const double CombatHealthHeightScale = 1.0;
-        public const double CombatArmorHeightScale = 0.5;
+        public const double CombatArmorHeightScale = 0.25;
         public const double CombatStripHeightScale = 0.5;
 
         /// <summary>Grid rows cleared for the combat bar block (health 1.0 + threshold 0.5).</summary>
@@ -51,7 +51,9 @@ namespace RPGGame.UI.Avalonia.Layout
                         ? highlight
                         : baseColor,
                 heightScale: heightScale,
-                verticalOffsetScale: verticalOffsetScale);
+                verticalOffsetScale: verticalOffsetScale,
+                rollMarkerRoll: () =>
+                    ThresholdBarFeedback.TryGetRollMarker(panel, out int roll) ? roll : null);
             return segments;
         }
 

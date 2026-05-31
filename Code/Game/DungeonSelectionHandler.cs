@@ -236,7 +236,7 @@ namespace RPGGame
             }
 
             string runName = $"{template.Theme} (level {level})";
-            var dungeon = new Dungeon(runName, level, level, template.Theme, template.PossibleEnemies, template.ColorOverride);
+            var dungeon = new Dungeon(runName, level, level, template.Theme, template.PossibleEnemies, template.ColorOverride, template.SpawnRegionId);
             stateManager.SetCurrentDungeon(dungeon);
             await BeginCurrentDungeonRunAsync();
         }

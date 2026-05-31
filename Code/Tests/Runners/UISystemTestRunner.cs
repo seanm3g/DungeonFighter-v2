@@ -114,6 +114,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             PreWeaponPathIntroRendererTests.RunAllTests();
             Console.WriteLine();
+            TextAnimationCompositorTests.RunAllTests();
+            Console.WriteLine();
             TitleScreenAsciiSpacingTests.RunAllTests();
             Console.WriteLine();
             

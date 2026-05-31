@@ -27,7 +27,8 @@ namespace RPGGame.Tests.Unit.Entity
             TestTakeDamage();
             TestArmorPoolAbsorption();
             TestRefreshRoomArmor();
-            TestHeal();
+            TestArmorClampsWhenMaxDecreases();
+            TestEquipRefreshesArmorToFull();
             TestIsAlive();
             TestGetEffectiveMaxHealth();
             TestGetHealthPercentage();
@@ -101,6 +102,45 @@ namespace RPGGame.Tests.Unit.Entity
 
             character.RefreshRoomArmor();
             TestBase.AssertEqual(8, character.CurrentArmor, "Armor should refill at room entry", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestArmorClampsWhenMaxDecreases()
+        {
+            Console.WriteLine("\n--- Testing ArmorClampsWhenMaxDecreases ---");
+
+            var character = TestDataBuilders.Character()
+                .WithName("ArmoredPlayer")
+                .WithLevel(1)
+                .Build();
+
+            var chest = new ChestItem("HeavyChest", 1, 10);
+            character.EquipItem(chest, "body");
+            character.RefreshRoomArmor();
+            TestBase.AssertEqual(10, character.CurrentArmor, "Armor should start at max", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            character.UnequipItem("body");
+            TestBase.AssertEqual(0, character.GetMaxArmor(), "Unequipping armor should drop max to 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, character.CurrentArmor, "Current armor should match max after unequip refresh", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEquipRefreshesArmorToFull()
+        {
+            Console.WriteLine("\n--- Testing EquipRefreshesArmorToFull ---");
+
+            var character = TestDataBuilders.Character()
+                .WithName("ArmoredPlayer")
+                .WithLevel(1)
+                .Build();
+
+            var chest = new ChestItem("TestChest", 1, 6);
+            character.EquipItem(chest, "body");
+            character.RefreshRoomArmor();
+            character.Health.TakeDamage(4);
+            TestBase.AssertEqual(2, character.CurrentArmor, "Armor should be partially depleted", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var upgradedChest = new ChestItem("BetterChest", 1, 8);
+            character.EquipItem(upgradedChest, "body");
+            TestBase.AssertEqual(8, character.CurrentArmor, "Equipping armor should restore armor to full", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

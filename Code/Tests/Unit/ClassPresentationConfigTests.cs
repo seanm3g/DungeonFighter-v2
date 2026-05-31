@@ -12,6 +12,7 @@ namespace RPGGame.Tests.Unit
             MigratesLegacyThreeThresholds(ref run, ref passed, ref failed);
             FormatRankedTitleUsesTiers(ref run, ref passed, ref failed);
             AttributeDuoCoreNameUsesConfig(ref run, ref passed, ref failed);
+            WandWeaponComboSlotBonus(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ClassPresentationConfigTests", run, passed, failed);
         }
@@ -52,6 +53,16 @@ namespace RPGGame.Tests.Unit
         {
             var cfg = new ClassPresentationConfig { AttributeDuoMaceSword = "Skullsplitter" }.EnsureNormalized();
             TestBase.AssertEqual("Skullsplitter", cfg.GetAttributeDuoCoreName(WeaponType.Mace, WeaponType.Sword), "config duo core", ref run, ref passed, ref failed);
+        }
+
+        private static void WandWeaponComboSlotBonus(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.AssertEqual(1, ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(WeaponType.Wand),
+                "Wand grants one intrinsic combo slot", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(WeaponType.Sword),
+                "Non-Wand weapons grant no class combo slot", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(null),
+                "No weapon grants no class combo slot", ref run, ref passed, ref failed);
         }
 
     }

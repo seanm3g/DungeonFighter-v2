@@ -1,0 +1,546 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="900"
+
+             x:Class="RPGGame.UI.Avalonia.Settings.TextAnimationPresetsSettingsPanel"
+
+             Background="Transparent">
+
+    <UserControl.Styles>
+
+        <Style Selector="Border#TextAnimationFormSurface TextBlock">
+
+            <Setter Property="Foreground" Value="Black"/>
+
+        </Style>
+
+        <Style Selector="Border#TextAnimationFormSurface CheckBox">
+
+            <Setter Property="Foreground" Value="Black"/>
+
+        </Style>
+
+        <!-- Form inputs: light fields on white surface so values are always readable. -->
+
+        <Style Selector="Border#TextAnimationFormSurface TextBox">
+
+            <Setter Property="Background" Value="#FFF0F0F0"/>
+
+            <Setter Property="Foreground" Value="#FF1A1A1A"/>
+
+            <Setter Property="BorderBrush" Value="#FF888888"/>
+
+            <Setter Property="CaretBrush" Value="#FF1A1A1A"/>
+
+            <Setter Property="SelectionBrush" Value="#FF0078D4"/>
+
+            <Setter Property="SelectionForegroundBrush" Value="White"/>
+
+            <Setter Property="Padding" Value="6,4"/>
+
+        </Style>
+
+        <Style Selector="Border#TextAnimationFormSurface TextBox:focus">
+
+            <Setter Property="BorderBrush" Value="#FF0078D4"/>
+
+        </Style>
+
+        <Style Selector="Border#TextAnimationFormSurface TextBox:pointerover">
+
+            <Setter Property="Background" Value="#FFE8E8E8"/>
+
+        </Style>
+
+        <Style Selector="Border#TextAnimationFormSurface TextBox /template/ Border#PART_BorderElement">
+
+            <Setter Property="Background" Value="#FFF0F0F0"/>
+
+        </Style>
+
+        <Style Selector="Border#TextAnimationFormSurface TextBox:focus /template/ Border#PART_BorderElement">
+
+            <Setter Property="Background" Value="#FFF0F0F0"/>
+
+        </Style>
+
+        <Style Selector="Border#TextAnimationFormSurface TextBox:pointerover /template/ Border#PART_BorderElement">
+
+            <Setter Property="Background" Value="#FFE8E8E8"/>
+
+        </Style>
+
+        <!-- Preview glyphs: never inherit theme foreground; compositor sets per-character color. -->
+
+        <Style Selector="TextBlock.TextAnimationPreviewGlyph">
+
+            <Setter Property="FontFamily" Value="Courier New, Consolas, monospace"/>
+
+            <Setter Property="FontSize" Value="18"/>
+
+        </Style>
+
+        <!-- ComboBoxes: light fields on white surface (matches TextBox styling above). -->
+
+        <Style Selector="Border#TextAnimationFormSurface ComboBox">
+
+            <Setter Property="Background" Value="#FFF0F0F0"/>
+
+            <Setter Property="Foreground" Value="#FF1A1A1A"/>
+
+            <Setter Property="BorderBrush" Value="#FF888888"/>
+
+            <Setter Property="PlaceholderForeground" Value="#FF666666"/>
+
+            <Setter Property="Padding" Value="6,4"/>
+
+            <Setter Property="MinHeight" Value="28"/>
+
+        </Style>
+
+        <Style Selector="Border#TextAnimationFormSurface ComboBox:focus">
+
+            <Setter Property="BorderBrush" Value="#FF0078D4"/>
+
+        </Style>
+
+        <Style Selector="Border#TextAnimationFormSurface ComboBox:pointerover">
+
+            <Setter Property="Background" Value="#FFE8E8E8"/>
+
+        </Style>
+
+        <Style Selector="Border#TextAnimationFormSurface ComboBox /template/ ContentPresenter">
+
+            <Setter Property="Foreground" Value="#FF1A1A1A"/>
+
+        </Style>
+
+        <Style Selector="Border#TextAnimationFormSurface ComboBox /template/ TextBlock">
+
+            <Setter Property="Foreground" Value="#FF1A1A1A"/>
+
+        </Style>
+
+        <Style Selector="Border#TextAnimationFormSurface ComboBox /template/ Border#PART_BorderElement">
+
+            <Setter Property="Background" Value="#FFF0F0F0"/>
+
+        </Style>
+
+        <Style Selector="Border#TextAnimationFormSurface ComboBox:focus /template/ Border#PART_BorderElement">
+
+            <Setter Property="Background" Value="#FFF0F0F0"/>
+
+        </Style>
+
+        <Style Selector="Border#TextAnimationFormSurface ComboBox:pointerover /template/ Border#PART_BorderElement">
+
+            <Setter Property="Background" Value="#FFE8E8E8"/>
+
+        </Style>
+
+        <!-- Popup renders outside the form border; keep dropdown list readable. -->
+
+        <Style Selector="ComboBoxItem">
+
+            <Setter Property="Background" Value="White"/>
+
+            <Setter Property="Foreground" Value="#FF1A1A1A"/>
+
+            <Setter Property="Padding" Value="8,6"/>
+
+        </Style>
+
+        <Style Selector="ComboBoxItem TextBlock">
+
+            <Setter Property="Foreground" Value="#FF1A1A1A"/>
+
+        </Style>
+
+        <Style Selector="ComboBoxItem:pointerover">
+
+            <Setter Property="Background" Value="#FFE8F4FD"/>
+
+            <Setter Property="Foreground" Value="#FF1A1A1A"/>
+
+        </Style>
+
+        <Style Selector="ComboBoxItem:pointerover TextBlock">
+
+            <Setter Property="Foreground" Value="#FF1A1A1A"/>
+
+        </Style>
+
+        <Style Selector="ComboBoxItem:selected">
+
+            <Setter Property="Background" Value="#FF0078D4"/>
+
+            <Setter Property="Foreground" Value="White"/>
+
+        </Style>
+
+        <Style Selector="ComboBoxItem:selected TextBlock">
+
+            <Setter Property="Foreground" Value="White"/>
+
+        </Style>
+
+        <Style Selector="ComboBox /template/ Popup#PART_Popup Border">
+
+            <Setter Property="Background" Value="White"/>
+
+            <Setter Property="BorderBrush" Value="#FF888888"/>
+
+        </Style>
+
+    </UserControl.Styles>
+
+
+
+    <Grid RowDefinitions="Auto,*" Margin="0">
+
+        <!-- Pinned live preview (does not scroll with the form) -->
+
+        <Border Grid.Row="0"
+
+                x:Name="TextAnimationPreviewChrome"
+
+                Background="#FF2A2A2A"
+
+                BorderBrush="#FF555555"
+
+                BorderThickness="0,0,0,1"
+
+                Padding="20,16,20,12">
+
+            <StackPanel Spacing="8">
+
+                <TextBlock Text="Live preview" FontWeight="SemiBold" Foreground="White"/>
+
+                <Border Background="#FF000000"
+
+                        BorderBrush="#FF555555"
+
+                        BorderThickness="1"
+
+                        CornerRadius="4"
+
+                        Padding="16"
+
+                        MinHeight="56">
+
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+
+                        <StackPanel x:Name="PreviewCharacterHost"
+
+                                    Orientation="Horizontal"
+
+                                    Spacing="0"/>
+
+                    </ScrollViewer>
+
+                </Border>
+
+                <TextBlock x:Name="AccentLayerStatusTextBlock"
+
+                           FontSize="12"
+
+                           Foreground="#FFCCCCCC"
+
+                           TextWrapping="Wrap"
+
+                           IsVisible="False"/>
+
+            </StackPanel>
+
+        </Border>
+
+
+
+        <ScrollViewer Grid.Row="1"
+
+                      VerticalScrollBarVisibility="Auto"
+
+                      HorizontalScrollBarVisibility="Disabled">
+
+            <Border x:Name="TextAnimationFormSurface"
+
+                    Background="White"
+
+                    BorderBrush="#FF404040"
+
+                    BorderThickness="0"
+
+                    CornerRadius="0"
+
+                    Padding="20"
+
+                    Margin="0">
+
+                <StackPanel Spacing="14">
+
+                    <TextBlock Text="Text Animation Layers"
+
+                               FontSize="24"
+
+                               FontWeight="Bold"
+
+                               Foreground="Black"
+
+                               Margin="0,0,0,4"/>
+
+                    <TextBlock FontSize="13"
+
+                               Foreground="#FF555555"
+
+                               TextWrapping="Wrap"
+
+                               Text="Preview layered text animations and tune preset parameters. Changes preview live; use the main Save button to write UIConfiguration.json."/>
+
+
+
+                    <Grid ColumnDefinitions="120,*" RowDefinitions="Auto,Auto,Auto" Margin="0,4,0,0">
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Preset" VerticalAlignment="Center"/>
+
+                        <ComboBox x:Name="PresetComboBox" Grid.Row="0" Grid.Column="1" MinWidth="240"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Sample text" VerticalAlignment="Center" Margin="0,8,0,0"/>
+
+                        <TextBox x:Name="SampleTextTextBox"
+
+                                 Grid.Row="1" Grid.Column="1"
+
+                                 Margin="0,8,0,0"
+
+                                 Height="28"
+
+                                 Watermark="Type sample text for the preview…"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Preview template" VerticalAlignment="Center" Margin="0,8,0,0"/>
+
+                        <ComboBox x:Name="PreviewTemplateComboBox"
+
+                                  Grid.Row="2" Grid.Column="1"
+
+                                  Margin="0,8,0,0"
+
+                                  MinWidth="240"/>
+
+                    </Grid>
+
+
+
+                    <TextBlock x:Name="LayerSummaryTextBlock"
+
+                               FontFamily="Consolas, Courier New, monospace"
+
+                               FontSize="12"
+
+                               Foreground="#FF444444"
+
+                               TextWrapping="Wrap"/>
+
+
+
+                    <!-- Path intro controls -->
+
+                    <StackPanel x:Name="PathIntroControls" Spacing="8" IsVisible="False">
+
+                        <TextBlock Text="Color overlay (path intro)" FontWeight="SemiBold"/>
+
+                        <Grid ColumnDefinitions="140,*,40" RowDefinitions="Auto,Auto,Auto,Auto">
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Gradient start" VerticalAlignment="Center"/>
+
+                            <TextBox x:Name="GradientStartTextBox" Grid.Row="0" Grid.Column="1" Height="28" Margin="0,0,8,6" Watermark="#FFF4DC"/>
+
+                            <Border x:Name="GradientStartPreview" Grid.Row="0" Grid.Column="2" Width="32" Height="28" BorderBrush="#FF888888" BorderThickness="1" Margin="0,0,0,6" ToolTip.Tip="Gradient start color"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Gradient end" VerticalAlignment="Center"/>
+
+                            <TextBox x:Name="GradientEndTextBox" Grid.Row="1" Grid.Column="1" Height="28" Margin="0,0,8,6" Watermark="#E2F1FF"/>
+
+                            <Border x:Name="GradientEndPreview" Grid.Row="1" Grid.Column="2" Width="32" Height="28" BorderBrush="#FF888888" BorderThickness="1" Margin="0,0,0,6" ToolTip.Tip="Gradient end color"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Phase speed (ms)" VerticalAlignment="Center"/>
+
+                            <TextBox x:Name="PhaseDivisorMsTextBox" Grid.Row="2" Grid.Column="1" Height="28" Margin="0,0,8,6" Watermark="320"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Char phase offset" VerticalAlignment="Center"/>
+
+                            <TextBox x:Name="CharacterPhaseOffsetTextBox" Grid.Row="3" Grid.Column="1" Height="28" Margin="0,0,8,0" Watermark="0.36"/>
+
+                        </Grid>
+
+                    </StackPanel>
+
+
+
+                    <!-- HSV shimmer controls -->
+
+                    <StackPanel x:Name="HsvControls" Spacing="8" IsVisible="False">
+
+                        <TextBlock Text="HSV shimmer layers" FontWeight="SemiBold"/>
+
+                        <Grid ColumnDefinitions="160,*,80" RowDefinitions="Auto,Auto,Auto">
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Undulation amplitude" VerticalAlignment="Center"/>
+
+                            <Slider x:Name="HsvAmplitudeSlider" Grid.Row="0" Grid.Column="1"
+
+                                    Minimum="0.5" Maximum="8" TickFrequency="0.5" IsSnapToTickEnabled="True" Margin="0,0,8,8"/>
+
+                            <TextBox x:Name="HsvAmplitudeTextBox" Grid.Row="0" Grid.Column="2" Height="28" Margin="0,0,0,8" Watermark="3.0"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Clamp min (0–255)" VerticalAlignment="Center"/>
+
+                            <TextBox x:Name="ClampMinTextBox" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Height="28" Margin="0,0,0,8" Watermark="150"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Clamp max (0–255)" VerticalAlignment="Center"/>
+
+                            <TextBox x:Name="ClampMaxTextBox" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Height="28" Watermark="255"/>
+
+                        </Grid>
+
+                    </StackPanel>
+
+
+
+                    <!-- Optional accent HSV layer (stacked on top) -->
+
+                    <StackPanel x:Name="AccentHsvControls" Spacing="8" Margin="0,4,0,0">
+
+                        <TextBlock Text="Accent HSV layer (optional stack on top)" FontWeight="SemiBold"/>
+
+                        <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
+
+                                   Text="Adds or updates a top hsvAdjust layer masked by a sine wave. Hue 0° and saturation 1.0× remove the accent layer. Sliders and text boxes stay in sync when you press Enter or leave the field. Phase and char offset update the preview live while typing. Saturation scale is capped at 2.0× in the compositor."/>
+
+                        <Grid ColumnDefinitions="160,*,80,40" RowDefinitions="Auto,Auto,Auto,Auto">
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Hue shift (°)" VerticalAlignment="Center"/>
+
+                            <Slider x:Name="AccentHueShiftSlider" Grid.Row="0" Grid.Column="1"
+
+                                    Minimum="-180" Maximum="180" TickFrequency="5" Margin="0,0,8,8"/>
+
+                            <TextBox x:Name="AccentHueShiftTextBox" Grid.Row="0" Grid.Column="2" Height="28" Margin="0,0,8,8" Watermark="0"/>
+
+                            <Border x:Name="AccentHuePreview" Grid.Row="0" Grid.Column="3" Width="32" Height="28"
+
+                                    Background="#FFFFB454" BorderBrush="#FF888888" BorderThickness="1" Margin="0,0,0,8"
+
+                                    ToolTip.Tip="Sample with current hue shift (full mask)"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Saturation scale" VerticalAlignment="Center"/>
+
+                            <Slider x:Name="AccentSaturationSlider" Grid.Row="1" Grid.Column="1"
+
+                                    Minimum="0.5" Maximum="2.0" TickFrequency="0.1" Margin="0,0,8,8"/>
+
+                            <TextBox x:Name="AccentSaturationTextBox" Grid.Row="1" Grid.Column="2" Height="28" Margin="0,0,8,8" Watermark="1.00"/>
+
+                            <Border x:Name="AccentSaturationPreview" Grid.Row="1" Grid.Column="3" Width="32" Height="28"
+
+                                    Background="#FFFFB454" BorderBrush="#FF888888" BorderThickness="1" Margin="0,0,0,8"
+
+                                    ToolTip.Tip="Sample with current saturation scale (full mask)"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Accent phase (ms)" VerticalAlignment="Center"/>
+
+                            <TextBox x:Name="AccentPhaseDivisorMsTextBox" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Height="28" Margin="0,0,0,8" Watermark="500"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Accent char offset" VerticalAlignment="Center"/>
+
+                            <TextBox x:Name="AccentCharacterPhaseOffsetTextBox" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Height="28" Watermark="0.20"/>
+
+                        </Grid>
+
+                    </StackPanel>
+
+
+
+                    <Border Height="1" Background="#FFE0E0E0" Margin="0,8,0,8"/>
+
+
+
+                    <!-- Global animation timing -->
+
+                    <TextBlock Text="Global animation timing" FontWeight="SemiBold"/>
+
+                    <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
+
+                               Text="Shared clock for undulation and brightness mask (dungeonSelectionAnimation in UIConfiguration.json)."/>
+
+                    <CheckBox x:Name="BrightnessMaskEnabledCheckBox" Content="Brightness mask enabled" Margin="0,4,0,0"/>
+
+                    <Grid ColumnDefinitions="180,*,80" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" Margin="0,4,0,0">
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Mask intensity" VerticalAlignment="Center"/>
+
+                        <Slider x:Name="BrightnessMaskIntensitySlider" Grid.Row="0" Grid.Column="1"
+
+                                Minimum="0" Maximum="100" TickFrequency="1" Margin="0,0,8,6"/>
+
+                        <TextBox x:Name="BrightnessMaskIntensityTextBox" Grid.Row="0" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="10"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Mask wave length" VerticalAlignment="Center"/>
+
+                        <Slider x:Name="BrightnessMaskWaveLengthSlider" Grid.Row="1" Grid.Column="1"
+
+                                Minimum="1" Maximum="20" TickFrequency="0.5" Margin="0,0,8,6"/>
+
+                        <TextBox x:Name="BrightnessMaskWaveLengthTextBox" Grid.Row="1" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="5"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Mask update (ms)" VerticalAlignment="Center"/>
+
+                        <TextBox x:Name="BrightnessMaskUpdateIntervalTextBox" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Height="28" Margin="0,0,0,6" Watermark="100"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Undulation speed" VerticalAlignment="Center"/>
+
+                        <Slider x:Name="UndulationSpeedSlider" Grid.Row="3" Grid.Column="1"
+
+                                Minimum="-0.2" Maximum="0.2" TickFrequency="0.005" Margin="0,0,8,6"/>
+
+                        <TextBox x:Name="UndulationSpeedTextBox" Grid.Row="3" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="-0.050"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Undulation wave length" VerticalAlignment="Center"/>
+
+                        <Slider x:Name="UndulationWaveLengthSlider" Grid.Row="4" Grid.Column="1"
+
+                                Minimum="1" Maximum="20" TickFrequency="0.5" Margin="0,0,8,6"/>
+
+                        <TextBox x:Name="UndulationWaveLengthTextBox" Grid.Row="4" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="4"/>
+
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Undulation interval (ms)" VerticalAlignment="Center"/>
+
+                        <TextBox x:Name="UndulationIntervalTextBox" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Height="28" Margin="0,0,0,6" Watermark="50"/>
+
+                    </Grid>
+
+
+
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+
+                        <Button x:Name="ResetPresetButton" Content="Reset preset to defaults" Padding="12,6"/>
+
+                    </StackPanel>
+
+                </StackPanel>
+
+            </Border>
+
+        </ScrollViewer>
+
+    </Grid>
+
+</UserControl>
+

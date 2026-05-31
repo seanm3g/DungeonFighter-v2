@@ -16,6 +16,13 @@ namespace RPGGame
             WeaponType.Wand
         };
 
+        /// <summary>Extra combo strip slots granted while a Wizard-path (Wand) weapon is equipped.</summary>
+        public const int WandEquippedComboSlotBonus = 1;
+
+        /// <summary>Class-weapon intrinsic combo strip slots (independent of item affixes and tier upgrades).</summary>
+        public static int GetEquippedWeaponComboSlotBonus(WeaponType? weaponType) =>
+            weaponType == WeaponType.Wand ? WandEquippedComboSlotBonus : 0;
+
         public string DefaultNoPointsClassName { get; set; } = "Fighter";
 
         /// <summary>Shown for weapon-path ranked titles from 1 point up to (but not including) <see cref="TierThresholds"/>[0]; fixed in code.</summary>

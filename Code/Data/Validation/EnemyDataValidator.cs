@@ -12,6 +12,7 @@ namespace RPGGame.Data.Validation
     {
         private const string FileName = "Enemies.json";
         private HashSet<string>? _validActionNames;
+        private HashSet<string>? _validRarityNames;
 
         public ValidationResult Validate()
         {
@@ -21,6 +22,8 @@ namespace RPGGame.Data.Validation
             _validActionNames = new HashSet<string>(
                 ActionLoader.GetAllActionNames(), 
                 StringComparer.OrdinalIgnoreCase);
+
+            _validRarityNames = LoadValidRarityNames();
 
             var enemies = EnemyLoader.GetAllEnemyData();
 
@@ -97,6 +100,14 @@ namespace RPGGame.Data.Validation
             if (enemy.HealthGrowthPerLevel.HasValue)
                 ValidateNonNegative(result, entityName, "healthGrowthPerLevel", enemy.HealthGrowthPerLevel.Value);
 
+            if (!string.IsNullOrWhiteSpace(enemy.Rarity)
+                && _validRarityNames != null
+                && !_validRarityNames.Contains(enemy.Rarity.Trim()))
+            {
+                result.AddWarning(FileName, entityName, "rarity",
+                    $"Unknown rarity '{enemy.Rarity}'. Valid rarities: {string.Join(", ", _validRarityNames.OrderBy(r => r))}");
+            }
+
             // Action reference validation
             if (enemy.Actions != null && enemy.Actions.Count > 0)
             {
@@ -139,6 +150,29 @@ namespace RPGGame.Data.Validation
         {
             if (value.HasValue && value.Value < 0)
                 result.AddError(FileName, entityName, fieldName, $"{fieldName} must be >= 0 (was {value.Value})");
+        }
+
+        private static HashSet<string> LoadValidRarityNames()
+        {
+            try
+            {
+                string? filePath = JsonLoader.FindGameDataFile("RarityTable.json");
+                if (filePath == null || !System.IO.File.Exists(filePath))
+                    return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Common" };
+
+                string json = System.IO.File.ReadAllText(filePath);
+                var rows = System.Text.Json.JsonSerializer.Deserialize<List<RarityData>>(json);
+                if (rows == null || rows.Count == 0)
+                    return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Common" };
+
+                return new HashSet<string>(
+                    rows.Select(r => r.Name?.Trim() ?? "").Where(n => n.Length > 0),
+                    StringComparer.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Common" };
+            }
         }
 
     }

@@ -1,9 +1,7 @@
 [
   {
-    "name": "Entrance",
+    "Location": "Entrance",
     "description": "A large, imposing entrance to the dungeon. The air is thick with anticipation.",
-    "theme": "Generic",
-    "isHostile": false,
     "actions": [
       {
         "name": "Magical Barrier",
@@ -12,10 +10,8 @@
     ]
   },
   {
-    "name": "Treasure Room",
+    "Location": "Treasure Room",
     "description": "A room filled with glittering gold and precious artifacts. But is it too good to be true?",
-    "theme": "Generic",
-    "isHostile": true,
     "actions": [
       {
         "name": "Treasure Guardian",
@@ -28,10 +24,8 @@
     ]
   },
   {
-    "name": "Guard Post",
+    "Location": "Guard Post",
     "description": "A well-fortified position, manned by vigilant guards.",
-    "theme": "Generic",
-    "isHostile": true,
     "actions": [
       {
         "name": "Trap Spring",
@@ -44,10 +38,8 @@
     ]
   },
   {
-    "name": "Trap Room",
+    "Location": "Trap Room",
     "description": "The floor is suspiciously clean, and the walls have strange markings.",
-    "theme": "Generic",
-    "isHostile": true,
     "actions": [
       {
         "name": "Trap Spring",
@@ -60,10 +52,8 @@
     ]
   },
   {
-    "name": "Puzzle Chamber",
+    "Location": "Puzzle Chamber",
     "description": "Ancient mechanisms and cryptic symbols cover the walls.",
-    "theme": "Generic",
-    "isHostile": false,
     "actions": [
       {
         "name": "Ancient Curse",
@@ -76,10 +66,8 @@
     ]
   },
   {
-    "name": "Rest Area",
+    "Location": "Rest Area",
     "description": "A surprisingly peaceful area, with comfortable furnishings.",
-    "theme": "Generic",
-    "isHostile": false,
     "actions": [
       {
         "name": "Magical Barrier",
@@ -92,10 +80,8 @@
     ]
   },
   {
-    "name": "Storage Room",
+    "Location": "Storage Room",
     "description": "Shelves and crates line the walls, filled with supplies.",
-    "theme": "Generic",
-    "isHostile": false,
     "actions": [
       {
         "name": "Magical Barrier",
@@ -108,10 +94,8 @@
     ]
   },
   {
-    "name": "Library",
+    "Location": "Library",
     "description": "Rows of ancient tomes and scrolls fill this room.",
-    "theme": "Generic",
-    "isHostile": false,
     "actions": [
       {
         "name": "Ancient Curse",
@@ -124,10 +108,8 @@
     ]
   },
   {
-    "name": "Armory",
+    "Location": "Armory",
     "description": "Weapons and armor are displayed on racks and stands.",
-    "theme": "Generic",
-    "isHostile": false,
     "actions": [
       {
         "name": "Treasure Guardian",
@@ -140,10 +122,8 @@
     ]
   },
   {
-    "name": "Kitchen",
+    "Location": "Kitchen",
     "description": "A large cooking area, with pots and pans hanging from the ceiling.",
-    "theme": "Generic",
-    "isHostile": false,
     "actions": [
       {
         "name": "Poisonous Gas",
@@ -156,10 +136,8 @@
     ]
   },
   {
-    "name": "Dining Hall",
+    "Location": "Dining Hall",
     "description": "A long table set for a feast, though the food looks... questionable.",
-    "theme": "Generic",
-    "isHostile": false,
     "actions": [
       {
         "name": "Poisonous Gas",
@@ -172,10 +150,8 @@
     ]
   },
   {
-    "name": "Boss Chamber",
+    "Location": "Boss Chamber",
     "description": "A grand chamber, clearly the domain of a powerful being. The walls are adorned with trophies of past conquests.",
-    "theme": "Generic",
-    "isHostile": true,
     "actions": [
       {
         "name": "Boss Rage",
@@ -188,10 +164,8 @@
     ]
   },
   {
-    "name": "Forest Clearing",
+    "Location": "Forest Clearing",
     "description": "A peaceful clearing in the woods, dappled with sunlight.",
-    "theme": "Forest",
-    "isHostile": false,
     "actions": [
       {
         "name": "Forest Spirits",
@@ -204,10 +178,8 @@
     ]
   },
   {
-    "name": "Lava Chamber",
+    "Location": "Lava Chamber",
     "description": "Molten rock flows through channels in the floor, creating an oppressive heat.",
-    "theme": "Lava",
-    "isHostile": true,
     "actions": [
       {
         "name": "Lava Surge",
@@ -220,10 +192,8 @@
     ]
   },
   {
-    "name": "Crypt Passage",
+    "Location": "Crypt Passage",
     "description": "Ancient stone walls lined with burial niches, the air thick with dust and decay.",
-    "theme": "Crypt",
-    "isHostile": true,
     "actions": [
       {
         "name": "Rising Dead",
@@ -236,10 +206,8 @@
     ]
   },
   {
-    "name": "Wolf Den",
+    "Location": "Wolf Den",
     "description": "A natural cave where wolves have made their home. Bones and fur litter the ground.",
-    "theme": "Forest",
-    "isHostile": true,
     "actions": [
       {
         "name": "Falling Branch",
@@ -252,10 +220,8 @@
     ]
   },
   {
-    "name": "Ancient Grove",
+    "Location": "Ancient Grove",
     "description": "Massive trees tower overhead, their branches forming a natural cathedral.",
-    "theme": "Forest",
-    "isHostile": false,
     "actions": [
       {
         "name": "Forest Spirits",
@@ -268,10 +234,8 @@
     ]
   },
   {
-    "name": "Bear Cave",
+    "Location": "Bear Cave",
     "description": "A deep cave entrance with claw marks on the walls and the smell of wild animals.",
-    "theme": "Forest",
-    "isHostile": true,
     "actions": [
       {
         "name": "Falling Branch",
@@ -288,10 +252,8 @@
     ]
   },
   {
-    "name": "Magma Pool",
+    "Location": "Magma Pool",
     "description": "A bubbling pool of molten rock with steam rising from its surface.",
-    "theme": "Lava",
-    "isHostile": true,
     "actions": [
       {
         "name": "Lava Splash",
@@ -304,10 +266,8 @@
     ]
   },
   {
-    "name": "Volcanic Vent",
+    "Location": "Volcanic Vent",
     "description": "A narrow passage where superheated gases escape from deep underground.",
-    "theme": "Lava",
-    "isHostile": true,
     "actions": [
       {
         "name": "Steam Burst",
@@ -320,10 +280,8 @@
     ]
   },
   {
-    "name": "Burial Chamber",
+    "Location": "Burial Chamber",
     "description": "A solemn chamber filled with ornate sarcophagi and funerary offerings.",
-    "theme": "Crypt",
-    "isHostile": true,
     "actions": [
       {
         "name": "Curse of the Crypt",
@@ -336,10 +294,8 @@
     ]
   },
   {
-    "name": "Tomb of the Forgotten",
+    "Location": "Tomb of the Forgotten",
     "description": "A forgotten tomb where the walls are covered in ancient hieroglyphs.",
-    "theme": "Crypt",
-    "isHostile": false,
     "actions": [
       {
         "name": "Skeleton Hand",
@@ -352,10 +308,8 @@
     ]
   },
   {
-    "name": "Crystal Garden",
+    "Location": "Crystal Garden",
     "description": "A beautiful chamber where crystals grow in intricate formations.",
-    "theme": "Crystal",
-    "isHostile": false,
     "actions": [
       {
         "name": "Crystal Shards",
@@ -372,10 +326,8 @@
     ]
   },
   {
-    "name": "Geode Chamber",
+    "Location": "Geode Chamber",
     "description": "A massive geode has been cracked open, revealing its crystalline interior.",
-    "theme": "Crystal",
-    "isHostile": true,
     "actions": [
       {
         "name": "Crystal Shards",
@@ -388,10 +340,8 @@
     ]
   },
   {
-    "name": "Sacred Altar",
+    "Location": "Sacred Altar",
     "description": "An ancient altar where the faithful once gathered for worship.",
-    "theme": "Temple",
-    "isHostile": false,
     "actions": [
       {
         "name": "Divine Wrath",
@@ -408,10 +358,8 @@
     ]
   },
   {
-    "name": "Frozen Cavern",
+    "Location": "Frozen Cavern",
     "description": "Ice crystals hang from the ceiling like chandeliers, and your breath forms clouds in the frigid air.",
-    "theme": "Ice",
-    "isHostile": true,
     "actions": [
       {
         "name": "Ice Shards",
@@ -424,10 +372,8 @@
     ]
   },
   {
-    "name": "Glacial Chamber",
+    "Location": "Glacial Chamber",
     "description": "A vast chamber carved from solid ice, with frozen waterfalls cascading down the walls.",
-    "theme": "Ice",
-    "isHostile": false,
     "actions": [
       {
         "name": "Frost Aura",
@@ -440,10 +386,8 @@
     ]
   },
   {
-    "name": "Frozen Lake",
+    "Location": "Frozen Lake",
     "description": "A perfectly still lake frozen solid, with strange shapes visible beneath the ice.",
-    "theme": "Ice",
-    "isHostile": true,
     "actions": [
       {
         "name": "Cracking Ice",
@@ -456,10 +400,8 @@
     ]
   },
   {
-    "name": "Shadow Realm",
+    "Location": "Shadow Realm",
     "description": "Darkness seems to have substance here, swirling and moving with malevolent intent.",
-    "theme": "Shadow",
-    "isHostile": true,
     "actions": [
       {
         "name": "Shadow Grasp",
@@ -472,10 +414,8 @@
     ]
   },
   {
-    "name": "Umbra Sanctum",
+    "Location": "Umbra Sanctum",
     "description": "A sacred space where shadows gather, pulsing with otherworldly energy.",
-    "theme": "Shadow",
-    "isHostile": false,
     "actions": [
       {
         "name": "Shadow Veil",
@@ -488,10 +428,8 @@
     ]
   },
   {
-    "name": "Void Chamber",
+    "Location": "Void Chamber",
     "description": "An empty space where light itself seems to be consumed by the surrounding darkness.",
-    "theme": "Shadow",
-    "isHostile": true,
     "actions": [
       {
         "name": "Void Touch",
@@ -504,10 +442,8 @@
     ]
   },
   {
-    "name": "Steam Engine Room",
+    "Location": "Steam Engine Room",
     "description": "Massive gears and pistons churn endlessly, filling the air with the sound of industry.",
-    "theme": "Steampunk",
-    "isHostile": true,
     "actions": [
       {
         "name": "Steam Blast",
@@ -520,10 +456,8 @@
     ]
   },
   {
-    "name": "Clockwork Laboratory",
+    "Location": "Clockwork Laboratory",
     "description": "Brass instruments and mechanical contraptions line the walls, ticking in perfect harmony.",
-    "theme": "Steampunk",
-    "isHostile": false,
     "actions": [
       {
         "name": "Mechanical Whir",
@@ -536,10 +470,8 @@
     ]
   },
   {
-    "name": "Cog Chamber",
+    "Location": "Cog Chamber",
     "description": "Enormous interlocking gears create a maze of moving metal, each turn revealing new dangers.",
-    "theme": "Steampunk",
-    "isHostile": true,
     "actions": [
       {
         "name": "Gear Trap",
@@ -552,10 +484,8 @@
     ]
   },
   {
-    "name": "Bog Clearing",
+    "Location": "Bog Clearing",
     "description": "A small dry patch in the endless swamp, surrounded by murky water and twisted trees.",
-    "theme": "Swamp",
-    "isHostile": true,
     "actions": [
       {
         "name": "Poisonous Gas",
@@ -568,10 +498,8 @@
     ]
   },
   {
-    "name": "Marsh Sanctuary",
+    "Location": "Marsh Sanctuary",
     "description": "An ancient stone circle rises from the swamp, offering a moment of peace in the mire.",
-    "theme": "Swamp",
-    "isHostile": false,
     "actions": [
       {
         "name": "Marsh Spirits",
@@ -584,10 +512,8 @@
     ]
   },
   {
-    "name": "Toxic Pool",
+    "Location": "Toxic Pool",
     "description": "A bubbling pool of greenish liquid emits noxious fumes that make your eyes water.",
-    "theme": "Swamp",
-    "isHostile": true,
     "actions": [
       {
         "name": "Poisonous Gas",
@@ -600,10 +526,8 @@
     ]
   },
   {
-    "name": "Star Chamber",
+    "Location": "Star Chamber",
     "description": "The ceiling is a map of the cosmos, with stars that actually twinkle and move.",
-    "theme": "Astral",
-    "isHostile": true,
     "actions": [
       {
         "name": "Cosmic Ray",
@@ -616,10 +540,8 @@
     ]
   },
   {
-    "name": "Nebula Observatory",
+    "Location": "Nebula Observatory",
     "description": "Astronomical instruments point toward swirling clouds of cosmic dust and energy.",
-    "theme": "Astral",
-    "isHostile": false,
     "actions": [
       {
         "name": "Stellar Alignment",
@@ -632,10 +554,8 @@
     ]
   },
   {
-    "name": "Galaxy Vault",
+    "Location": "Galaxy Vault",
     "description": "A chamber where entire galaxies seem to swirl in miniature, their light casting dancing shadows.",
-    "theme": "Astral",
-    "isHostile": true,
     "actions": [
       {
         "name": "Gravity Well",
@@ -648,10 +568,8 @@
     ]
   },
   {
-    "name": "Deep Tunnel",
+    "Location": "Deep Tunnel",
     "description": "A narrow passage carved through solid rock, with the sound of dripping water echoing endlessly.",
-    "theme": "Underground",
-    "isHostile": true,
     "actions": [
       {
         "name": "Cave-in",
@@ -664,10 +582,8 @@
     ]
   },
   {
-    "name": "Subterranean Hall",
+    "Location": "Subterranean Hall",
     "description": "A vast underground chamber with stone pillars supporting the weight of the earth above.",
-    "theme": "Underground",
-    "isHostile": false,
     "actions": [
       {
         "name": "Echoing Silence",
@@ -680,10 +596,8 @@
     ]
   },
   {
-    "name": "Mining Shaft",
+    "Location": "Mining Shaft",
     "description": "Abandoned tools and carts litter the ground, evidence of long-forgotten industry.",
-    "theme": "Underground",
-    "isHostile": true,
     "actions": [
       {
         "name": "Rockfall",
@@ -696,10 +610,8 @@
     ]
   },
   {
-    "name": "Thunder Hall",
+    "Location": "Thunder Hall",
     "description": "Lightning crackles through the air, illuminating the chamber with brilliant flashes.",
-    "theme": "Storm",
-    "isHostile": true,
     "actions": [
       {
         "name": "Lightning Strike",
@@ -712,10 +624,8 @@
     ]
   },
   {
-    "name": "Tempest Chamber",
+    "Location": "Tempest Chamber",
     "description": "Winds howl through the room, carrying the scent of rain and ozone.",
-    "theme": "Storm",
-    "isHostile": false,
     "actions": [
       {
         "name": "Storm\u0027s Eye",
@@ -728,10 +638,8 @@
     ]
   },
   {
-    "name": "Hurricane Vault",
+    "Location": "Hurricane Vault",
     "description": "A circular chamber where winds spiral upward, creating a vortex of air and debris.",
-    "theme": "Storm",
-    "isHostile": true,
     "actions": [
       {
         "name": "Wind Gust",
@@ -744,10 +652,8 @@
     ]
   },
   {
-    "name": "Sacred Grove",
+    "Location": "Sacred Grove",
     "description": "Ancient trees form a natural cathedral, their branches intertwining overhead.",
-    "theme": "Nature",
-    "isHostile": false,
     "actions": [
       {
         "name": "Nature\u0027s Blessing",
@@ -760,10 +666,8 @@
     ]
   },
   {
-    "name": "Wildflower Meadow",
+    "Location": "Wildflower Meadow",
     "description": "A carpet of colorful flowers stretches as far as the eye can see, filling the air with sweet perfume.",
-    "theme": "Nature",
-    "isHostile": true,
     "actions": [
       {
         "name": "Pollen Cloud",
@@ -776,10 +680,8 @@
     ]
   },
   {
-    "name": "Natural Spring",
+    "Location": "Natural Spring",
     "description": "Crystal-clear water bubbles from the earth, surrounded by lush vegetation.",
-    "theme": "Nature",
-    "isHostile": false,
     "actions": [
       {
         "name": "Healing Waters",
@@ -792,10 +694,8 @@
     ]
   },
   {
-    "name": "Spell Chamber",
+    "Location": "Spell Chamber",
     "description": "Arcane symbols glow on the walls, and the air crackles with magical energy.",
-    "theme": "Arcane",
-    "isHostile": true,
     "actions": [
       {
         "name": "Arcane Discharge",
@@ -808,10 +708,8 @@
     ]
   },
   {
-    "name": "Wizard\u0027s Study",
+    "Location": "Wizard\u0027s Study",
     "description": "Books float in mid-air, and magical instruments hum with contained power.",
-    "theme": "Arcane",
-    "isHostile": false,
     "actions": [
       {
         "name": "Ancient Curse",
@@ -824,10 +722,8 @@
     ]
   },
   {
-    "name": "Magic Vault",
+    "Location": "Magic Vault",
     "description": "Contained spells and magical artifacts line the walls, their power barely contained.",
-    "theme": "Arcane",
-    "isHostile": true,
     "actions": [
       {
         "name": "Arcane Discharge",
@@ -840,10 +736,8 @@
     ]
   },
   {
-    "name": "Sand Dune",
+    "Location": "Sand Dune",
     "description": "Endless waves of sand stretch in all directions, shifting with the hot desert winds.",
-    "theme": "Desert",
-    "isHostile": true,
     "actions": [
       {
         "name": "Sandstorm",
@@ -856,10 +750,8 @@
     ]
   },
   {
-    "name": "Oasis",
+    "Location": "Oasis",
     "description": "A small pool of clear water surrounded by palm trees offers respite from the desert heat.",
-    "theme": "Desert",
-    "isHostile": false,
     "actions": [
       {
         "name": "Desert Blessing",
@@ -872,10 +764,8 @@
     ]
   },
   {
-    "name": "Mirage Chamber",
+    "Location": "Mirage Chamber",
     "description": "The walls seem to shimmer and shift, making it difficult to determine what\u0027s real.",
-    "theme": "Desert",
-    "isHostile": true,
     "actions": [
       {
         "name": "Heat Mirage",
@@ -888,10 +778,8 @@
     ]
   },
   {
-    "name": "Magma Chamber",
+    "Location": "Magma Chamber",
     "description": "Molten rock bubbles and churns in a vast underground lake of fire.",
-    "theme": "Volcano",
-    "isHostile": true,
     "actions": [
       {
         "name": "Lava Surge",
@@ -904,10 +792,8 @@
     ]
   },
   {
-    "name": "Volcanic Vent",
+    "Location": "Volcanic Vent",
     "description": "Superheated gases escape through cracks in the rock, creating an oppressive atmosphere.",
-    "theme": "Volcano",
-    "isHostile": true,
     "actions": [
       {
         "name": "Steam Burst",
@@ -920,10 +806,8 @@
     ]
   },
   {
-    "name": "Fire Chamber",
+    "Location": "Fire Chamber",
     "description": "The walls glow red-hot, and the air shimmers with intense heat.",
-    "theme": "Volcano",
-    "isHostile": true,
     "actions": [
       {
         "name": "Lava Splash",
@@ -936,10 +820,8 @@
     ]
   },
   {
-    "name": "Crumbling Hall",
+    "Location": "Crumbling Hall",
     "description": "Broken pillars and fallen stones litter the floor of this once-grand chamber.",
-    "theme": "Ruins",
-    "isHostile": true,
     "actions": [
       {
         "name": "Falling Debris",
@@ -952,10 +834,8 @@
     ]
   },
   {
-    "name": "Lost Shrine",
+    "Location": "Lost Shrine",
     "description": "A weathered altar stands among the ruins, still radiating ancient power.",
-    "theme": "Ruins",
-    "isHostile": false,
     "actions": [
       {
         "name": "Ruins Blessing",
@@ -968,10 +848,8 @@
     ]
   },
   {
-    "name": "Decayed Chamber",
+    "Location": "Decayed Chamber",
     "description": "Time has taken its toll on this room, leaving only fragments of its former glory.",
-    "theme": "Ruins",
-    "isHostile": true,
     "actions": [
       {
         "name": "Falling Debris",
@@ -984,10 +862,8 @@
     ]
   },
   {
-    "name": "Underwater Cavern",
+    "Location": "Underwater Cavern",
     "description": "Coral formations and sea creatures create a beautiful underwater landscape.",
-    "theme": "Ocean",
-    "isHostile": true,
     "actions": [
       {
         "name": "Tidal Wave",
@@ -1000,10 +876,8 @@
     ]
   },
   {
-    "name": "Coral Garden",
+    "Location": "Coral Garden",
     "description": "Vibrant coral formations create a natural underwater garden of incredible beauty.",
-    "theme": "Ocean",
-    "isHostile": false,
     "actions": [
       {
         "name": "Ocean Blessing",
@@ -1016,10 +890,8 @@
     ]
   },
   {
-    "name": "Abyssal Depths",
+    "Location": "Abyssal Depths",
     "description": "The crushing pressure of the deep ocean creates an otherworldly atmosphere.",
-    "theme": "Ocean",
-    "isHostile": true,
     "actions": [
       {
         "name": "Tidal Wave",
@@ -1032,10 +904,8 @@
     ]
   },
   {
-    "name": "Peak Summit",
+    "Location": "Peak Summit",
     "description": "The highest point offers a breathtaking view, but the thin air makes breathing difficult.",
-    "theme": "Mountain",
-    "isHostile": true,
     "actions": [
       {
         "name": "Avalanche",
@@ -1048,10 +918,8 @@
     ]
   },
   {
-    "name": "Alpine Meadow",
+    "Location": "Alpine Meadow",
     "description": "A peaceful clearing high in the mountains, surrounded by snow-capped peaks.",
-    "theme": "Mountain",
-    "isHostile": false,
     "actions": [
       {
         "name": "Mountain Blessing",
@@ -1064,10 +932,8 @@
     ]
   },
   {
-    "name": "Rocky Outcrop",
+    "Location": "Rocky Outcrop",
     "description": "Jagged rocks and boulders create a treacherous landscape of stone and shadow.",
-    "theme": "Mountain",
-    "isHostile": true,
     "actions": [
       {
         "name": "Rockfall",
@@ -1080,10 +946,8 @@
     ]
   },
   {
-    "name": "Time Chamber",
+    "Location": "Time Chamber",
     "description": "The very fabric of time seems unstable here, with moments from past and future overlapping.",
-    "theme": "Temporal",
-    "isHostile": true,
     "actions": [
       {
         "name": "Time Distortion",
@@ -1096,10 +960,8 @@
     ]
   },
   {
-    "name": "Chronos Sanctum",
+    "Location": "Chronos Sanctum",
     "description": "Ancient clocks and hourglasses mark the passage of time in this sacred space.",
-    "theme": "Temporal",
-    "isHostile": false,
     "actions": [
       {
         "name": "Time Blessing",
@@ -1112,10 +974,8 @@
     ]
   },
   {
-    "name": "Echo Chamber",
+    "Location": "Echo Chamber",
     "description": "Sounds from the past echo through this chamber, creating a haunting symphony of memories.",
-    "theme": "Temporal",
-    "isHostile": true,
     "actions": [
       {
         "name": "Temporal Rift",
@@ -1128,10 +988,8 @@
     ]
   },
   {
-    "name": "Dreamscape",
+    "Location": "Dreamscape",
     "description": "Reality bends and shifts in this realm where dreams and nightmares take physical form.",
-    "theme": "Dream",
-    "isHostile": true,
     "actions": [
       {
         "name": "Nightmare",
@@ -1144,10 +1002,8 @@
     ]
   },
   {
-    "name": "Lucid Chamber",
+    "Location": "Lucid Chamber",
     "description": "A space where consciousness and dreams merge, offering clarity in the chaos.",
-    "theme": "Dream",
-    "isHostile": false,
     "actions": [
       {
         "name": "Dream Blessing",
@@ -1160,10 +1016,8 @@
     ]
   },
   {
-    "name": "Subconscious Hall",
+    "Location": "Subconscious Hall",
     "description": "The deepest recesses of the mind manifest as a twisting maze of thoughts and memories.",
-    "theme": "Dream",
-    "isHostile": true,
     "actions": [
       {
         "name": "Nightmare",
@@ -1176,10 +1030,8 @@
     ]
   },
   {
-    "name": "Void Chamber",
+    "Location": "Void Chamber",
     "description": "An empty space where nothing exists, not even the concept of existence itself.",
-    "theme": "Void",
-    "isHostile": true,
     "actions": [
       {
         "name": "Void Touch",
@@ -1192,10 +1044,8 @@
     ]
   },
   {
-    "name": "Emptiness Hall",
+    "Location": "Emptiness Hall",
     "description": "A vast chamber where the absence of everything creates a profound sense of peace.",
-    "theme": "Void",
-    "isHostile": false,
     "actions": [
       {
         "name": "Void Blessing",
@@ -1208,10 +1058,8 @@
     ]
   },
   {
-    "name": "Nothingness Room",
+    "Location": "Nothingness Room",
     "description": "A space that defies description, where the very concept of \u0027room\u0027 seems inadequate.",
-    "theme": "Void",
-    "isHostile": true,
     "actions": [
       {
         "name": "Nullification",
@@ -1224,10 +1072,8 @@
     ]
   },
   {
-    "name": "Dimension Rift",
+    "Location": "Dimension Rift",
     "description": "Reality tears apart at the seams, revealing glimpses of other worlds beyond.",
-    "theme": "Dimensional",
-    "isHostile": true,
     "actions": [
       {
         "name": "Reality Tear",
@@ -1240,10 +1086,8 @@
     ]
   },
   {
-    "name": "Multiverse Hall",
+    "Location": "Multiverse Hall",
     "description": "Infinite versions of this room exist simultaneously, each slightly different from the others.",
-    "theme": "Dimensional",
-    "isHostile": false,
     "actions": [
       {
         "name": "Dimensional Blessing",
@@ -1256,10 +1100,8 @@
     ]
   },
   {
-    "name": "Quantum Chamber",
+    "Location": "Quantum Chamber",
     "description": "The laws of physics break down here, creating impossible geometries and paradoxical spaces.",
-    "theme": "Dimensional",
-    "isHostile": true,
     "actions": [
       {
         "name": "Reality Tear",
@@ -1272,10 +1114,8 @@
     ]
   },
   {
-    "name": "Heavenly Chamber",
+    "Location": "Heavenly Chamber",
     "description": "Divine light fills this sacred space, radiating peace and overwhelming power.",
-    "theme": "Divine",
-    "isHostile": true,
     "actions": [
       {
         "name": "Divine Wrath",
@@ -1288,10 +1128,8 @@
     ]
   },
   {
-    "name": "Celestial Sanctum",
+    "Location": "Celestial Sanctum",
     "description": "A place where mortals can commune with the divine, surrounded by angelic choirs.",
-    "theme": "Divine",
-    "isHostile": false,
     "actions": [
       {
         "name": "Divine Blessing",
@@ -1304,10 +1142,8 @@
     ]
   },
   {
-    "name": "Eternal Hall",
+    "Location": "Eternal Hall",
     "description": "Time has no meaning in this hallowed space, where the divine presence is eternal.",
-    "theme": "Divine",
-    "isHostile": true,
     "actions": [
       {
         "name": "Divine Wrath",

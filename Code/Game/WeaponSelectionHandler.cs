@@ -116,19 +116,29 @@ namespace RPGGame
 
             if (int.TryParse(input?.Trim() ?? "", out int weaponChoice) && weaponChoice >= 1 && weaponChoice <= maxChoice && maxChoice > 0)
             {
-                // Initialize character with weapon choice
-                initializationManager.InitializeNewCharacter(stateManager.CurrentPlayer, weaponChoice);
-                
+                var player = stateManager.CurrentPlayer;
+                if (!initializationManager.InitializeNewCharacter(player, weaponChoice))
+                {
+                    ShowMessageEvent?.Invoke("Could not initialize your character with that weapon. Please try again.");
+                    return;
+                }
+
+                if (player.Weapon == null)
+                {
+                    ShowMessageEvent?.Invoke("Your starter weapon could not be equipped. Please try again or restart.");
+                    return;
+                }
+
                 // Ensure character is set in UI coordinator for persistent display
                 if (customUIManager is CanvasUICoordinator canvasUI)
                 {
-                    canvasUI.SetCharacter(stateManager.CurrentPlayer);
+                    canvasUI.SetCharacter(player);
                 }
-                
-                ShowMessageEvent?.Invoke($"You selected weapon {weaponChoice}. A random armor piece was added to your inventory.");
-                
+
+                ShowMessageEvent?.Invoke($"You selected {player.Weapon.Name}. A random armor piece was added to your inventory.");
+
                 var screenCoordinator = new GameScreenCoordinator(stateManager);
-                screenCoordinator.ShowCharacterCreation(stateManager.CurrentPlayer);
+                screenCoordinator.ShowCharacterCreation(player);
             }
             else
             {

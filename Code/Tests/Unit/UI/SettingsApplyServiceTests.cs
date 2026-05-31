@@ -29,6 +29,7 @@ namespace RPGGame.Tests.Unit.UI
             TestApplyAfterSave_WhenGameStateManagerNull_DoesNotThrow();
             TestApplyAfterSave_WhenCurrentPlayerNull_DoesNotThrow();
             TestApplyAfterSave_WhenActionsSaved_ResetsPlayerComboStep();
+            TestApplyAfterSave_AppliesTuningHealthToCurrentPlayer();
 
             TestBase.PrintSummary("SettingsApplyService Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -116,6 +117,31 @@ namespace RPGGame.Tests.Unit.UI
             catch (Exception ex)
             {
                 TestBase.AssertTrue(false, $"ApplyAfterSave with ActionsSaved threw: {ex.Message}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestApplyAfterSave_AppliesTuningHealthToCurrentPlayer()
+        {
+            Console.WriteLine("--- ApplyAfterSave applies tuning health to current player ---");
+            var cfg = GameConfiguration.Instance;
+            int savedBase = cfg.Character.PlayerBaseHealth;
+            try
+            {
+                cfg.Character.PlayerBaseHealth = 60;
+                var stateManager = new GameStateManager();
+                var character = new Character("HealthApplyTest", 1);
+                stateManager.SetCurrentPlayer(character);
+                TestBase.AssertEqual(60, character.MaxHealth, "baseline max health is 60", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                cfg.Character.PlayerBaseHealth = 100;
+                var result = new SettingsSaveResult(true, false, false);
+                SettingsApplyService.ApplyAfterSave(result, stateManager);
+
+                TestBase.AssertEqual(100, character.MaxHealth, "max health updated after ApplyAfterSave", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.Character.PlayerBaseHealth = savedBase;
             }
         }
     }

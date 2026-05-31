@@ -29,9 +29,11 @@ namespace RPGGame.Tests.Unit.Game
             TestConstructor();
             TestLoadStartingGear();
             TestInitializeNewGame_EquipsWeaponBonusLootNoExtraArmorSlots();
+            TestInitializeNewGame_EquipsStarterWeaponDespiteCatalogAttributeGates();
             TestCatalogStarterKeepsWeaponsJsonBaseDamage();
             TestLegacySlotPathUsesStartingGearDamage();
             TestCreateStarterWeaponForMenuIndex_UsesCatalogRow();
+            TestStarterWandGrantsExtraActionSlot();
 
             TestBase.PrintSummary("GameInitializer Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -106,6 +108,30 @@ namespace RPGGame.Tests.Unit.Game
             var bonus = player.Inventory[0];
             TestBase.AssertTrue(bonus is not WeaponItem,
                 "New game bonus inventory item must not be a weapon",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestInitializeNewGame_EquipsStarterWeaponDespiteCatalogAttributeGates()
+        {
+            Console.WriteLine("\n--- Testing InitializeNewGame equips starter weapon despite catalog attribute gates ---");
+
+            _ = GameConfiguration.Instance;
+
+            var preview = GameInitializer.CreateStarterWeaponForMenuIndex(1);
+            TestBase.AssertTrue(preview.AttributeRequirements.HasRequirements,
+                "Starter catalog weapon should normally carry attribute requirements from Weapons.json",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var player = new Character("GateBypassTest", 1);
+            var initializer = new GameInitializer();
+            var dungeons = new List<Dungeon>();
+            initializer.InitializeNewGame(player, dungeons, weaponChoice: 1);
+
+            TestBase.AssertNotNull(player.Weapon,
+                "Starter weapon must equip even when base stats are below catalog requirement values",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(player.Inventory.All(i => i is not WeaponItem),
+                "Equipped starter weapon should not remain only in inventory",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -192,6 +218,57 @@ namespace RPGGame.Tests.Unit.Game
                 Math.Abs(preview.BaseAttackSpeed - daggerRow.AttackSpeed) < 0.0001,
                 "Starter preview should keep Weapons.json attack speed (no StartingGear override)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestStarterWandGrantsExtraActionSlot()
+        {
+            Console.WriteLine("\n--- Testing starter Wand grants +1 action slot when equipped ---");
+
+            var cfg = GameConfiguration.Instance;
+            var backupLoot = cfg.LootSystem;
+            try
+            {
+                cfg.LootSystem = new LootSystemConfig
+                {
+                    ComboSequenceBaseMax = 2,
+                    ComboSequenceAbsoluteMax = 8
+                };
+
+                var menuRows = StarterCatalogItems.ResolveStarterWeaponMenuCatalogRows();
+                int wandMenuIndex = -1;
+                for (int i = 0; i < menuRows.Count; i++)
+                {
+                    if (Enum.TryParse(menuRows[i].Type?.Trim(), ignoreCase: true, out WeaponType wt) && wt == WeaponType.Wand)
+                    {
+                        wandMenuIndex = i + 1;
+                        break;
+                    }
+                }
+
+                TestBase.AssertTrue(wandMenuIndex >= 1,
+                    "Starter weapon menu should include a Wand row (e.g. Stick)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                if (wandMenuIndex < 1)
+                    return;
+
+                var starterWand = GameInitializer.CreateStarterWeaponForMenuIndex(wandMenuIndex);
+                TestBase.AssertTrue(starterWand.WeaponType == WeaponType.Wand,
+                    "Starter wizard menu row should be a Wand",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var player = new Character("WandStarter", 1);
+                TestBase.AssertTrue(player.TryEquipItem(starterWand, "weapon", out _, out _),
+                    "Starter wand should equip",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                TestBase.AssertEqual(3, ComboSequenceMaxHelper.GetEffectiveMax(player),
+                    "Equipped starter Wand should grant base 2 + 1 class slot = 3",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.LootSystem = backupLoot;
+            }
         }
 
         #endregion

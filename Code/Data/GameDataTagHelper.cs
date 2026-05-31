@@ -40,6 +40,33 @@ namespace RPGGame.Data
             return HasTag(tags, "enemy");
         }
 
+        /// <summary>
+        /// True when an action may be granted on hero equipment (loot affixes, gear action pool, combo).
+        /// Excludes <c>environment</c> (room hazards) and <c>enemy</c> (enemy-only) tags.
+        /// </summary>
+        public static bool IsGrantableOnHeroGear(IEnumerable<string>? tags)
+        {
+            return !HasEnvironmentTag(tags) && !HasEnemyTag(tags);
+        }
+
+        /// <summary>Resolves action tags from loaded game data and applies <see cref="IsGrantableOnHeroGear"/>.</summary>
+        public static bool IsGrantableOnHeroGearByName(string? actionName)
+        {
+            if (string.IsNullOrWhiteSpace(actionName))
+                return false;
+
+            ActionLoader.LoadActions();
+            var actionData = ActionLoader.GetActionData(actionName);
+            if (actionData != null)
+                return IsGrantableOnHeroGear(actionData.Tags);
+
+            var action = ActionLoader.GetAction(actionName);
+            if (action != null)
+                return IsGrantableOnHeroGear(action.Tags);
+
+            return true;
+        }
+
         /// <summary>Split comma/semicolon/pipe cell or settings text into normalized tags (empty if none).</summary>
         public static List<string> ParseCommaSeparatedTags(string? s)
         {

@@ -12,6 +12,7 @@
         public EnemyArchetype Archetype { get; private set; }
         public EnemyAttackProfile AttackProfile { get; private set; }
         public ColorOverride? ColorOverride { get; private set; }
+        public string Rarity { get; private set; } = "Common";
         
         // DPS-based system properties
         public double TargetDPS { get; private set; }
@@ -79,6 +80,16 @@
 
             ActionPool.Clear();
             AddDefaultActions();
+        }
+
+        /// <summary>Applies rarity tier label and scales gold/XP rewards.</summary>
+        public void ApplyRarityScaling(string rarityName, double rewardMultiplier)
+        {
+            Rarity = string.IsNullOrWhiteSpace(rarityName) ? "Common" : rarityName.Trim();
+            if (rewardMultiplier <= 0)
+                rewardMultiplier = 1.0;
+            GoldReward = Math.Max(0, (int)Math.Round(GoldReward * rewardMultiplier));
+            XPReward = Math.Max(1, (int)Math.Round(XPReward * rewardMultiplier));
         }
 
         // New constructor for direct stat system
@@ -203,18 +214,18 @@
         /// </summary>
         public new int GetIntelligenceRollBonus()
         {
-            // INT no longer adds to roll totals. It now shifts HIT/COMBO/CRIT thresholds via
-            // IntelligenceMilestoneThresholdBonuses (applied per attack after threshold reset).
+            // INT no longer adds to roll totals. TECH shifts HIT/COMBO/CRIT thresholds via
+            // TechniqueMilestoneThresholdBonuses (applied per attack after threshold reset).
             return 0;
         }
 
         /// <summary>
-        /// Gets combo amplification for enemies (same as heroes: based on Technique)
+        /// Gets combo amplification for enemies (same as heroes: based on Intelligence)
         /// </summary>
         public new double GetComboAmplifier()
         {
             var tuning = GameConfiguration.Instance;
-            return ComboAmplifierFromTechnique.Compute(Technique, tuning.ComboSystem);
+            return ComboAmplifierFromIntelligence.Compute(Intelligence, tuning.ComboSystem);
         }
 
         /// <summary>HUD: sheet <c>DAMAGE_MOD</c> (percent points) queued on this enemy for their next attack.</summary>

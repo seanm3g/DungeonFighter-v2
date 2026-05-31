@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -147,12 +148,15 @@ namespace RPGGame
             var actionDataList = ActionLoader.GetAllActionData();
             if (actionDataList != null && actionDataList.Count > 0)
             {
-                ActionBonuses = actionDataList.Select(a => new ActionBonus
-                {
-                    Name = a.Name,
-                    Description = a.Description,
-                    Weight = RarityToWeight(a.Rarity)
-                }).ToList();
+                ActionBonuses = actionDataList
+                    .Where(a => GameDataTagHelper.IsGrantableOnHeroGear(a.Tags))
+                    .Select(a => new ActionBonus
+                    {
+                        Name = a.Name,
+                        Description = a.Description,
+                        Weight = RarityToWeight(a.Rarity)
+                    })
+                    .ToList();
             }
             else
             {

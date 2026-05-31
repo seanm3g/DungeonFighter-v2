@@ -14,10 +14,14 @@ namespace RPGGame.UI.Avalonia.Feedback
 
     /// <summary>
     /// Pulses the selected d20 threshold bar segment after a combat roll resolves.
-    /// Uses the same on/off timing as hero action strip feedback.
+    /// Segment highlight uses the same on/off half-period as hero action strip success feedback;
+    /// the roll caret stays visible for the full <see cref="FeedbackDurationMs"/> window.
     /// </summary>
     public static class ThresholdBarFeedback
     {
+        /// <summary>Total time segment pulse and roll caret remain visible after a combat roll.</summary>
+        internal const int FeedbackDurationMs = 3000;
+
         private static readonly TimeSpan TimerInterval = TimeSpan.FromMilliseconds(16);
 
         private static System.Action? _requestInvalidate;
@@ -25,6 +29,7 @@ namespace RPGGame.UI.Avalonia.Feedback
 
         private static ThresholdBarPanel _panel;
         private static int _segmentIndex = -1;
+        private static int _roll = -1;
         private static DateTimeOffset _pulseSequenceEndAt;
         private static DateTimeOffset _pulseSequenceStartAt;
         private static int _pulseHalfPeriodMs = 150;
@@ -37,8 +42,8 @@ namespace RPGGame.UI.Avalonia.Feedback
 
         public static void SetRequestInvalidate(System.Action? invalidate) => _requestInvalidate = invalidate;
 
-        /// <summary>Starts or refreshes a blink on the given bar segment.</summary>
-        public static void Trigger(ThresholdBarPanel panel, int segmentIndex)
+        /// <summary>Starts or refreshes a blink on the given bar segment and roll caret.</summary>
+        public static void Trigger(ThresholdBarPanel panel, int segmentIndex, int roll)
         {
             if (segmentIndex < 0)
                 return;
@@ -50,11 +55,12 @@ namespace RPGGame.UI.Avalonia.Feedback
 
                 _panel = panel;
                 _segmentIndex = segmentIndex;
+                _roll = roll >= 1 && roll <= 20 ? roll : -1;
                 var t = Now();
                 _pulseActive = true;
                 _pulseSequenceStartAt = t;
                 _pulseHalfPeriodMs = Math.Max(50, gs.ActionStripSuccessFlashPulseHalfPeriodMs);
-                _pulseSequenceEndAt = t.AddMilliseconds(gs.ActionStripMissFlashDurationMs);
+                _pulseSequenceEndAt = t.AddMilliseconds(FeedbackDurationMs);
 
                 EnsureTimerStarted();
                 _requestInvalidate?.Invoke();
@@ -97,6 +103,27 @@ namespace RPGGame.UI.Avalonia.Feedback
             return true;
         }
 
+        /// <summary>
+        /// When active, returns the base d20 roll (1–20) for a pixel caret under the threshold bar.
+        /// Visible for the full flash window (not only the segment pulse on-phase).
+        /// </summary>
+        public static bool TryGetRollMarker(ThresholdBarPanel panel, out int roll)
+        {
+            roll = -1;
+            if (!_pulseActive || _roll < 1 || panel != _panel)
+                return false;
+
+            var t = Now();
+            if (t >= _pulseSequenceEndAt)
+            {
+                ClearFlashState();
+                return false;
+            }
+
+            roll = _roll;
+            return true;
+        }
+
         internal static void ResetForTests()
         {
             ClearFlashState();
@@ -107,6 +134,7 @@ namespace RPGGame.UI.Avalonia.Feedback
         private static void ClearFlashState()
         {
             _segmentIndex = -1;
+            _roll = -1;
             _pulseActive = false;
         }
 

@@ -97,22 +97,32 @@ namespace RPGGame
                 }
             }
 
-            if (!string.IsNullOrEmpty(item.GearAction) && lines.Count < maxLines)
+            if (!string.IsNullOrEmpty(item.GearAction) &&
+                Data.GameDataTagHelper.IsGrantableOnHeroGearByName(item.GearAction) &&
+                lines.Count < maxLines)
             {
                 AddLine(lines, LabelValueLine("", "Gear action", item.GearAction, ColorPalette.Info, Colors.White));
             }
 
-            if (item.ExtraActionSlots > 0 && lines.Count < maxLines)
+            int comboSlotDisplayTotal = item.ExtraActionSlots;
+            if (item is WeaponItem weaponItem)
+                comboSlotDisplayTotal += ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(weaponItem.WeaponType);
+
+            if (comboSlotDisplayTotal > 0 && lines.Count < maxLines)
             {
-                string slotWord = item.ExtraActionSlots == 1 ? "slot" : "slots";
-                AddLine(lines, LabelValueLine("", "Combo strip", $"+{item.ExtraActionSlots} {slotWord}", ColorPalette.Info, ColorPalette.Success.GetColor()));
+                string slotWord = comboSlotDisplayTotal == 1 ? "slot" : "slots";
+                AddLine(lines, LabelValueLine("", "Combo strip", $"+{comboSlotDisplayTotal} {slotWord}", ColorPalette.Info, ColorPalette.Success.GetColor()));
             }
 
-            if (item.ActionBonuses != null && item.ActionBonuses.Count > 0 && lines.Count < maxLines)
+            var actionBonusesToShow = item.ActionBonuses?
+                .Where(ab => Data.GameDataTagHelper.IsGrantableOnHeroGearByName(ab.Name))
+                .ToList();
+
+            if (actionBonusesToShow != null && actionBonusesToShow.Count > 0 && lines.Count < maxLines)
             {
                 AddBlank(lines);
                 AddLine(lines, SectionHeader("Action bonuses"));
-                foreach (var ab in item.ActionBonuses)
+                foreach (var ab in actionBonusesToShow)
                 {
                     if (lines.Count >= maxLines) break;
                     var b = new ColoredTextBuilder();

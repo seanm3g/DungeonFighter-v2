@@ -40,6 +40,22 @@ namespace RPGGame
 
     public class EnemyData
     {
+        /// <summary>Optional region filter for spawn placement (empty = any). Matches region id, display name, or theme.</summary>
+        [JsonPropertyName("region")]
+        public string? Region { get; set; }
+
+        /// <summary>Optional biome filter for spawn placement (empty = any). Matches dungeon theme.</summary>
+        [JsonPropertyName("biome")]
+        public string? Biome { get; set; }
+
+        /// <summary>Optional location filter for spawn placement (empty = any). Matches room/environment name.</summary>
+        [JsonPropertyName("location")]
+        public string? Location { get; set; }
+
+        /// <summary>Spawn rarity tier; defaults to Common when blank. Affects spawn weight and reward scaling.</summary>
+        [JsonPropertyName("rarity")]
+        public string? Rarity { get; set; }
+
         [JsonPropertyName("name")]
         public string Name { get; set; } = "";
         [JsonPropertyName("archetype")]
@@ -171,6 +187,8 @@ namespace RPGGame
                         {
                             if (!string.IsNullOrEmpty(enemy.Name))
                             {
+                                if (_enemies.ContainsKey(enemy.Name))
+                                    UIManager.WriteSystemLine($"Warning: Duplicate enemy name '{enemy.Name}' in Enemies.json; later row overwrites earlier.");
                                 _enemies[enemy.Name] = enemy;
                             }
                             else

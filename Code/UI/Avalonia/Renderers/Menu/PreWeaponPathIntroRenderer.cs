@@ -4,6 +4,7 @@ using Avalonia.Media;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.TextAnimation;
 
 namespace RPGGame.UI.Avalonia.Renderers.Menu
 {
@@ -17,7 +18,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         internal static readonly Color WarmWhite = Color.FromRgb(255, 244, 220);
         internal static readonly Color CoolWhite = Color.FromRgb(226, 241, 255);
 
-        private const double CharacterPhaseOffset = 0.36;
         private const double PhaseMillisecondsDivisor = 320.0;
 
         private readonly ICanvasTextManager textManager;
@@ -39,32 +39,28 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
 
         internal static List<ColoredText> BuildQuestLineSegments(double phase)
         {
-            var segments = new List<ColoredText>(QuestLine.Length);
-            for (int i = 0; i < QuestLine.Length; i++)
-            {
-                segments.Add(new ColoredText(
-                    QuestLine[i].ToString(),
-                    GetShimmerColorForCharacter(i, phase),
-                    sourceTemplate: null,
-                    colorReadyForCanvas: true));
-            }
-
-            return segments;
+            return TextAnimationCompositor.Compose(
+                "pathIntro",
+                plainText: QuestLine,
+                phaseOverride: phase);
         }
 
         internal static Color GetShimmerColorForCharacter(int characterIndex, double phase)
         {
-            double t = (Math.Sin(phase + characterIndex * CharacterPhaseOffset) + 1.0) / 2.0;
-            return Interpolate(WarmWhite, CoolWhite, t);
+            if (characterIndex < 0 || characterIndex >= QuestLine.Length)
+                return WarmWhite;
+
+            var segments = TextAnimationCompositor.Compose(
+                "pathIntro",
+                plainText: QuestLine[characterIndex].ToString(),
+                charStartIndex: characterIndex,
+                phaseOverride: phase);
+            return segments.Count > 0 ? segments[0].Color : WarmWhite;
         }
 
         internal static Color Interpolate(Color start, Color end, double t)
         {
-            t = Math.Clamp(t, 0.0, 1.0);
-            return Color.FromRgb(
-                (byte)Math.Round(start.R + (end.R - start.R) * t),
-                (byte)Math.Round(start.G + (end.G - start.G) * t),
-                (byte)Math.Round(start.B + (end.B - start.B) * t));
+            return ColorValidator.LerpRgb(start, end, t);
         }
 
         private static double GetCurrentPhase()

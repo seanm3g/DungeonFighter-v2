@@ -168,9 +168,9 @@ namespace RPGGame.Tests.Unit.Config
                 "Zero ComboAmplifierMaxTech should use Utils.GameConstants default",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            double ampMid = ComboAmplifierFromTechnique.Compute(10, zeroed);
+            double ampMid = ComboAmplifierFromIntelligence.Compute(10, zeroed);
             TestBase.AssertTrue(ampMid > 1.01,
-                $"TECH 10 should yield amp above 1.0 from the logarithmic formula, got {ampMid}",
+                $"INT 10 should yield amp above 1.0 from the logarithmic formula, got {ampMid}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

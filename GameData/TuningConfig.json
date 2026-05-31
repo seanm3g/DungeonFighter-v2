@@ -1,6 +1,6 @@
 {
   "character": {
-    "playerBaseHealth": 60,
+    "playerBaseHealth": 100,
     "healthPerLevel": 3,
     "enemyHealthPerLevel": 0
   },
@@ -342,7 +342,48 @@
     },
     "archetypes": {},
     "levelVariance": 1,
-    "description": ""
+    "description": "",
+    "rarityRewardMultipliers": {},
+    "rarityLootMagicFindBonus": {},
+    "spawnTierWeights": {
+      "commonPercent": 50,
+      "uncommonBiomePercent": 10,
+      "uncommonRegionPercent": 15,
+      "uncommonLocationPercent": 15,
+      "rareLocationPercent": 5,
+      "anywherePercent": 5,
+      "totalPercent": 100
+    },
+    "spawnTierWeightsBySettlement": {
+      "rural": {
+        "commonPercent": 50,
+        "uncommonBiomePercent": 10,
+        "uncommonRegionPercent": 15,
+        "uncommonLocationPercent": 15,
+        "rareLocationPercent": 5,
+        "anywherePercent": 5,
+        "totalPercent": 100
+      },
+      "town": {
+        "commonPercent": 50,
+        "uncommonBiomePercent": 10,
+        "uncommonRegionPercent": 15,
+        "uncommonLocationPercent": 15,
+        "rareLocationPercent": 5,
+        "anywherePercent": 5,
+        "totalPercent": 100
+      },
+      "city": {
+        "commonPercent": 50,
+        "uncommonBiomePercent": 10,
+        "uncommonRegionPercent": 15,
+        "uncommonLocationPercent": 15,
+        "rareLocationPercent": 5,
+        "anywherePercent": 5,
+        "totalPercent": 100
+      }
+    },
+    "locationSettlementOverrides": {}
   },
   "itemScaling": {
     "startingWeaponDamage": {},
@@ -402,7 +443,7 @@
     "magicFindScaling": {
       "common": {
         "perPointMultiplier": 0,
-        "description": "Unused for base rarity; magic find applies to affix rolls in LootBonusApplier"
+        "description": ""
       },
       "uncommon": {
         "perPointMultiplier": 0,
@@ -458,7 +499,7 @@
         "description": ""
       }
     },
-    "magicFindDistributionAlpha": 0
+    "magicFindDistributionAlpha": 0.5
   },
   "equipmentScaling": {
     "weaponDamagePerTier": 3,
@@ -1018,8 +1059,8 @@
   },
   "dungeonScaling": {
     "roomCountBase": 2,
-    "roomCountPerLevel": 0.5,
-    "enemyCountPerRoom": 2,
+    "roomCountPerLevel": 0.2,
+    "enemyCountPerRoom": 1,
     "bossRoomChance": 0.1,
     "trapRoomChance": 0.2,
     "treasureRoomChance": 0.15,

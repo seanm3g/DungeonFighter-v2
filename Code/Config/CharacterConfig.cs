@@ -38,7 +38,7 @@ namespace RPGGame
 
         /// <summary>
         /// When <see cref="IntelligenceRollBonusPer"/> is omitted or zero in tuning JSON, roll bonus from INT is disabled.
-        /// Restores the standard scale (+1 accuracy per N INT, same as <see cref="Enemy.GetIntelligenceRollBonus"/>).
+        /// Legacy flat roll bonus per INT (unused; TECH milestone thresholds handle roll bands).
         /// </summary>
         public void EnsureValidIntelligenceRollBonusDefaults()
         {

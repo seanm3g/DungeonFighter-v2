@@ -35,6 +35,7 @@ namespace RPGGame.Tests.Unit.UI
             D20OutcomeSegmentColorsMatchSpec(ref run, ref passed, ref failed);
             D20OutcomeSegmentsShiftWithComboThreshold(ref run, ref passed, ref failed);
             FindSegmentIndexForRollMatchesDefaultLayout(ref run, ref passed, ref failed);
+            RollFaceCenterCharOffsetMatchesBarGeometry(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ThresholdDisplayFormattingTests", run, passed, failed);
         }
@@ -349,6 +350,23 @@ namespace RPGGame.Tests.Unit.UI
                 "roll 15 is combo segment", ref run, ref passed, ref failed);
             TestBase.AssertEqual(4, ThresholdDisplayFormatting.FindSegmentIndexForRoll(20, crit, combo, hit, critMiss),
                 "roll 20 is crit segment", ref run, ref passed, ref failed);
+        }
+
+        private static void RollFaceCenterCharOffsetMatchesBarGeometry(ref int run, ref int passed, ref int failed)
+        {
+            const int heroBarWidth = 28;
+            TestBase.AssertTrue(
+                System.Math.Abs(0.7 - ThresholdDisplayFormatting.GetRollFaceCenterCharOffset(1, heroBarWidth)) < 0.001,
+                "roll 1 center on 28-col bar",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                System.Math.Abs(13.3 - ThresholdDisplayFormatting.GetRollFaceCenterCharOffset(10, heroBarWidth)) < 0.001,
+                "roll 10 center on 28-col bar",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                System.Math.Abs(27.3 - ThresholdDisplayFormatting.GetRollFaceCenterCharOffset(20, heroBarWidth)) < 0.001,
+                "roll 20 center on 28-col bar",
+                ref run, ref passed, ref failed);
         }
     }
 }
