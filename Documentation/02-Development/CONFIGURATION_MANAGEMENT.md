@@ -3,6 +3,18 @@
 ## Overview
 The Configuration Management System provides a unified, type-safe way to load, save, and manage all game configurations. Implemented in October 2025 as part of the refactoring initiative.
 
+## Config patch profiles
+
+Player-specific **active patch selection** lives in gitignored `GameData/PatchProfile.json`. Shared patch **files** live under:
+
+| Folder | Content |
+|--------|---------|
+| `GameData/Patches/GameSettings/` | Gameplay / UI preferences (`GameSettings` JSON) |
+| `GameData/Patches/Audio/` | Music + SFX config (`AudioConfig` JSON) |
+| `GameData/Patches/Balance/` | Balance tuning (`GameConfiguration` / former `TuningConfig.json`) |
+
+Loaders: `PatchProfileService`, wired from `GameSettings`, `AudioConfig`, and `GameConfiguration`. Settings → **Patches** switches active patches; **Save** prompts **Update patch** or **Save as new patch**.
+
 ## Architecture
 
 ### ConfigurationManager

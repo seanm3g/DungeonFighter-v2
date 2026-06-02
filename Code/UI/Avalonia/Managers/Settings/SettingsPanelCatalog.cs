@@ -15,6 +15,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         public static readonly IReadOnlySet<string> MainContentCategories = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "Gameplay",
+            "Patches",
             "Travel",
             "Audio",
             "Classes",
@@ -56,6 +57,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             new Dictionary<string, Func<UserControl>>(StringComparer.OrdinalIgnoreCase)
             {
                 ["Gameplay"] = () => new GameplaySettingsPanel(),
+                ["Patches"] = () => new PatchesSettingsPanel(),
                 ["Travel"] = () => new TravelSettingsPanel(),
                 ["Audio"] = () => new AudioSettingsPanel(),
                 ["Classes"] = () => new ClassesSettingsPanel(),

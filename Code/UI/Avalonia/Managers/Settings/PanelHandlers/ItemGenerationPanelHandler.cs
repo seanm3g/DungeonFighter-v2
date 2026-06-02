@@ -135,9 +135,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             cfg.LootSystem ??= new LootSystemConfig();
             cfg.LootSystem.ComboSequenceBaseMax = baseMax;
             cfg.LootSystem.ComboSequenceAbsoluteMax = absMax;
-
-            if (!cfg.SaveToFile())
-                showStatusMessage?.Invoke("Failed to save TuningConfig.json (item affix / loot).", false);
         }
 
         private static Dictionary<string, Dictionary<string, ItemAffixPerRarityEntry>> CloneScratch(

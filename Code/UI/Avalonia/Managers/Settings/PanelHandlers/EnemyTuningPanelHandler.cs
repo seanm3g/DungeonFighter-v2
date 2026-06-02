@@ -89,10 +89,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             {
                 PushFromPanelToConfig(p);
                 GameConfiguration.Instance.EnemySystem?.EnsureSanitizedDefaults();
-                if (!GameConfiguration.Instance.SaveToFile())
-                    throw new InvalidOperationException("SaveToFile returned false.");
                 LoadSettings(p);
-                showStatusMessage?.Invoke("Enemy tuning saved to TuningConfig.json.", true);
+                showStatusMessage?.Invoke("Enemy tuning updated (save settings to write balance patch).", true);
             }
             catch (Exception ex)
             {

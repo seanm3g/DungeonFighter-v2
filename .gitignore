@@ -433,6 +433,12 @@ GameData/character_save_dead.json
 GameData/character_*_save.json
 GameData/character_*_dead.json
 GameData/gamesettings.json
+GameData/Audio/AudioConfig.json
+GameData/TuningConfig.json
+GameData/PatchProfile.json
+Code/gamesettings.json
+Code/gamesettings.json.bak
+Code/GameData/build_execution_metrics.json
 GameData/SheetsPushConfig.json
 GameData/secrets/
 GameData/SheetsOAuthToken/

@@ -1,5 +1,6 @@
 using System;
 using RPGGame;
+using RPGGame.Tests.Unit.Config;
 using RPGGame.Tests.Unit.Data;
 using RPGGame.Tests.Unit.Data.Validation;
 
@@ -26,6 +27,8 @@ namespace RPGGame.Tests.Runners
             SpreadsheetActionDataSheetRowSerializerTests.RunAllTests();
             Console.WriteLine();
             SheetsPushConfigTests.RunAllTests();
+            Console.WriteLine();
+            PatchProfileServiceTests.RunAllTests();
             Console.WriteLine();
             SheetsPushUtilitiesTests.RunAllTests();
             Console.WriteLine();

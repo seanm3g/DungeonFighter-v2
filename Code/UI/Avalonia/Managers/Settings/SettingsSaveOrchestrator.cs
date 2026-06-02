@@ -1,11 +1,14 @@
 using Avalonia.Controls;
 using RPGGame;
+using RPGGame.Audio;
 using RPGGame.Config;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.Helpers;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Settings;
 using RPGGame.Utils;
 using System;
+using System.Threading.Tasks;
 
 namespace RPGGame.UI.Avalonia.Managers.Settings
 {
@@ -33,8 +36,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
 
         /// <summary>Category tags that use ISettingsPanelHandler for save. Add new handler-based panels here so the orchestrator saves them without code change.</summary>
         /// <remarks>
-        /// ItemGeneration must run before Classes: ClassesPanelHandler calls <see cref="GameConfiguration.SaveToFile"/>;
-        /// combo caps live in TextBoxes until ItemGeneration applies them — if Classes ran first, TuningConfig would be written with stale <c>lootSystem</c> when the user saved from another tab without ItemGeneration running after.
+        /// ItemGeneration must run before Classes: ClassesPanelHandler updates in-memory balance;
+        /// combo caps live in TextBoxes until ItemGeneration applies them — if Classes ran first, balance patch would be written with stale <c>lootSystem</c> when the user saved from another tab without ItemGeneration running after.
         /// </remarks>
         private static readonly string[] HandlerSaveCategoryTags = { "Travel", "TextDelays", "TextAnimation", "Appearance", "BalanceTuning", "ItemGeneration", "EnemyTuning", "Classes", "Audio" };
 
@@ -62,18 +65,23 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             this.getPanelForCategory = getPanelForCategory ?? ((_, __) => null);
         }
 
-        /// <summary>Save settings. Persists all loaded panels; when not on a given tab, values are read from the cached panel for that type. Pass the panel currently visible so we read from what the user sees when it applies. Returns a result so the caller can run post-save apply (e.g. SettingsApplyService.ApplyAfterSave).</summary>
-        public SettingsSaveResult SaveSettings(UserControl? currentlyDisplayedPanel = null)
+        private static readonly string[] BalanceHandlerTags = { "ItemGeneration", "EnemyTuning", "Classes" };
+
+        /// <summary>Save settings with patch dialogs. Pass the panel currently visible when it applies.</summary>
+        public async Task<SettingsSaveResult> SaveSettingsAsync(UserControl? currentlyDisplayedPanel = null, Window? dialogOwner = null)
         {
             if (settingsManager == null) return new SettingsSaveResult(false);
+
+            dialogOwner = WindowOwnerResolver.ResolveUsableOwnerWindow(dialogOwner);
 
             try
             {
                 bool savedSuccessfully = false;
                 bool actionsSaved = false;
                 bool textDelaysSaved = false;
+                bool audioNeedsPatchSave = false;
+                bool balanceNeedsPatchSave = false;
 
-                // Always save Game Variables first (they can be edited from any panel). Pass displayed panel when it is GameVariables so the tab manager can use it for flush/validation if needed.
                 try
                 {
                     var gameVariablesPanel = getPanelForCategory("GameVariables", currentlyDisplayedPanel);
@@ -84,7 +92,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     ScrollDebugLogger.Log($"SettingsPanel: Error saving game variables: {ex.Message}");
                 }
 
-                // Gameplay: use handler if panel is loaded, otherwise persist in-memory settings only
                 var gameplayPanel = getPanelForCategory("Gameplay", currentlyDisplayedPanel) as GameplaySettingsPanel;
                 var gameplayHandler = panelHandlerRegistry?.GetHandler("Gameplay");
                 if (SettingsPanel.GetCategoryTagForPanel(currentlyDisplayedPanel) == "Gameplay" && gameplayPanel == null)
@@ -105,11 +112,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 }
                 else
                 {
-                    // Gameplay panel not loaded: in-memory settings used; single persist at end of save
                     savedSuccessfully = true;
                 }
 
-                // Handler-based panels: delegate to handlers when panel is loaded (single resolution; list is table-driven)
                 foreach (var tag in HandlerSaveCategoryTags)
                 {
                     var panel = getPanelForCategory(tag, currentlyDisplayedPanel);
@@ -120,6 +125,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     {
                         handler.SaveSettings(panel);
                         if (tag == "TextDelays") textDelaysSaved = true;
+                        if (string.Equals(tag, "Audio", StringComparison.OrdinalIgnoreCase)) audioNeedsPatchSave = true;
+                        if (Array.IndexOf(BalanceHandlerTags, tag) >= 0) balanceNeedsPatchSave = true;
                     }
                     catch (Exception ex)
                     {
@@ -127,42 +134,22 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     }
                 }
 
-                // Save item modifier rarities if panel is loaded
                 if (itemModifiersTabManager != null)
                 {
-                    try
-                    {
-                        itemModifiersTabManager.SaveModifierRarities();
-                    }
-                    catch (Exception ex)
-                    {
-                        ScrollDebugLogger.Log($"SettingsPanel: Error saving item modifier rarities: {ex.Message}");
-                    }
+                    try { itemModifiersTabManager.SaveModifierRarities(); }
+                    catch (Exception ex) { ScrollDebugLogger.Log($"SettingsPanel: Error saving item modifier rarities: {ex.Message}"); }
                 }
 
                 if (itemSuffixesTabManager != null)
                 {
-                    try
-                    {
-                        itemSuffixesTabManager.SaveSuffixes();
-                    }
-                    catch (Exception ex)
-                    {
-                        ScrollDebugLogger.Log($"SettingsPanel: Error saving item suffixes: {ex.Message}");
-                    }
+                    try { itemSuffixesTabManager.SaveSuffixes(); }
+                    catch (Exception ex) { ScrollDebugLogger.Log($"SettingsPanel: Error saving item suffixes: {ex.Message}"); }
                 }
 
-                // Save items if panel is loaded
                 if (itemsTabManager != null)
                 {
-                    try
-                    {
-                        itemsTabManager.SaveItems();
-                    }
-                    catch (Exception ex)
-                    {
-                        ScrollDebugLogger.Log($"SettingsPanel: Error saving items: {ex.Message}");
-                    }
+                    try { itemsTabManager.SaveItems(); }
+                    catch (Exception ex) { ScrollDebugLogger.Log($"SettingsPanel: Error saving items: {ex.Message}"); }
                 }
 
                 if (enemiesTabManager != null)
@@ -172,13 +159,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                         if (getPanelForCategory("Enemies", currentlyDisplayedPanel) is EnemiesSettingsPanel)
                             enemiesTabManager.SaveEnemies();
                     }
-                    catch (Exception ex)
-                    {
-                        ScrollDebugLogger.Log($"SettingsPanel: Error saving enemies: {ex.Message}");
-                    }
+                    catch (Exception ex) { ScrollDebugLogger.Log($"SettingsPanel: Error saving enemies: {ex.Message}"); }
                 }
 
-                // Save actions when the Actions panel exists; pass that panel so Default/Starting is read from it (single resolution)
                 var actionsPanelForFlush = getPanelForCategory("Actions", currentlyDisplayedPanel) as ActionsSettingsPanel;
                 if (actionsTabManager != null && actionsPanelForFlush != null)
                 {
@@ -187,18 +170,33 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                         actionsTabManager.FlushCurrentActionAndSaveToFile(actionsPanelForFlush);
                         actionsSaved = true;
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) { ScrollDebugLogger.Log($"SettingsPanel: Error saving actions: {ex.Message}"); }
+                }
+
+                if (balanceNeedsPatchSave)
+                {
+                    if (!await PatchSaveCoordinator.SaveBalanceAsync(dialogOwner, GameConfiguration.Instance))
                     {
-                        ScrollDebugLogger.Log($"SettingsPanel: Error saving actions: {ex.Message}");
+                        showStatusMessage?.Invoke("Balance patch save cancelled.", false);
+                        return new SettingsSaveResult(false);
                     }
                 }
 
-                // Single persist of GameSettings after all handlers have updated in-memory state
+                if (audioNeedsPatchSave)
+                {
+                    if (!await PatchSaveCoordinator.SaveAudioAsync(dialogOwner, AudioConfig.Instance))
+                    {
+                        showStatusMessage?.Invoke("Audio patch save cancelled.", false);
+                        return new SettingsSaveResult(false);
+                    }
+                    AudioBootstrap.ApplyConfigToEngine();
+                }
+
                 var settings = GameSettings.Instance;
                 settings.ValidateAndFix();
-                if (!settings.SaveSettings())
+                if (!await PatchSaveCoordinator.SaveGameSettingsAsync(dialogOwner, settings))
                 {
-                    showStatusMessage?.Invoke("Error: Failed to save settings to file.", false);
+                    showStatusMessage?.Invoke("Game settings patch save cancelled.", false);
                     return new SettingsSaveResult(false);
                 }
                 savedSuccessfully = true;

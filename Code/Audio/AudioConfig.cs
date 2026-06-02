@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using RPGGame.Config;
 using RPGGame.Utils;
 
 namespace RPGGame.Audio
@@ -90,14 +91,27 @@ namespace RPGGame.Audio
             }
         }
 
-        /// <summary>Resolves the <c>GameData/Audio/AudioConfig.json</c> path using the same logic as other game data files.</summary>
+        private static string? _cachedConfigFilePath;
+
+        /// <summary>Clears cached patch path so the next load/save resolves the active audio patch.</summary>
+        public static void InvalidatePatchPathCache()
+        {
+            lock (_instanceLock)
+            {
+                _cachedConfigFilePath = null;
+            }
+        }
+
+        /// <summary>Resolves the active audio patch JSON path.</summary>
         public static string GetConfigFilePath()
         {
-            string? settingsDir = GameConstants.GetSettingsDirectory();
-            string audioDir = settingsDir != null
-                ? Path.Combine(settingsDir, "Audio")
-                : Path.Combine(GameConstants.GameDataDirectory, "Audio");
-            return Path.Combine(audioDir, "AudioConfig.json");
+            if (_cachedConfigFilePath != null)
+                return _cachedConfigFilePath;
+            lock (_instanceLock)
+            {
+                _cachedConfigFilePath ??= PatchProfileService.GetActivePatchFilePath(PatchCategory.Audio);
+                return _cachedConfigFilePath;
+            }
         }
 
         /// <summary>

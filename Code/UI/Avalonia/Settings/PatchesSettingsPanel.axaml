@@ -1,0 +1,57 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="RPGGame.UI.Avalonia.Settings.PatchesSettingsPanel"
+             Background="Transparent">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="20" Margin="20">
+            <Border Background="#FF252525"
+                    BorderBrush="#FF404040"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="18">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Config patches"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="#FFE8E8E8"/>
+                    <TextBlock Text="Patch files live under GameData/Patches/ and can be committed to GitHub. Your active selections are stored locally in PatchProfile.json (gitignored), so git pull never overrides which patch you use. After pulling new patches, pick them here and click Apply."
+                               Foreground="#FFB0B0B0"
+                               FontSize="14"
+                               TextWrapping="Wrap"/>
+
+                    <Grid ColumnDefinitions="180,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,8,0,0">
+                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" Text="Game settings"/>
+                        <ComboBox x:Name="GameSettingsPatchCombo" Grid.Row="0" Grid.Column="1" MinWidth="280" HorizontalAlignment="Left"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" Text="Audio / music" Margin="0,8,0,0"/>
+                        <ComboBox x:Name="AudioPatchCombo" Grid.Row="1" Grid.Column="1" MinWidth="280" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" Text="Balance" Margin="0,8,0,0"/>
+                        <ComboBox x:Name="BalancePatchCombo" Grid.Row="2" Grid.Column="1" MinWidth="280" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+
+                        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="0,16,0,0">
+                            <ComboBox x:Name="PatchIoCategoryCombo" MinWidth="140" SelectedIndex="0">
+                                <ComboBoxItem Content="Game settings"/>
+                                <ComboBoxItem Content="Audio / music"/>
+                                <ComboBoxItem Content="Balance"/>
+                            </ComboBox>
+                            <Button x:Name="ImportPatchButton" Content="Import patch…" MinWidth="110"/>
+                            <Button x:Name="ExportPatchButton" Content="Export patch…" MinWidth="110"/>
+                            <Button x:Name="RefreshPatchesButton" Content="Refresh list" MinWidth="110"/>
+                            <Button x:Name="ApplyPatchesButton" Content="Apply selection" MinWidth="130"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock x:Name="ActivePathsTextBlock"
+                               Foreground="#FF909090"
+                               FontSize="12"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

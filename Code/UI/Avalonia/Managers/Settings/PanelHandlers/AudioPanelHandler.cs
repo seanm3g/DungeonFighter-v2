@@ -98,7 +98,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (masterMute != null)
                 config.MasterEnabled = !(masterMute.IsChecked ?? false);
 
-            config.Save();
+            // Orchestrator persists the active audio patch after Update / Save As dialog.
             AudioBootstrap.ApplyConfigToEngine();
         }
 

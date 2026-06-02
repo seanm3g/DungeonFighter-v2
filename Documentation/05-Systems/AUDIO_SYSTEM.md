@@ -11,7 +11,7 @@ Code/Audio/
 ├── IAudioEngine.cs          # Backend abstraction
 ├── NullAudioEngine.cs       # No-op backend (tests / headless)
 ├── SoundFlowAudioEngine.cs  # Production backend (MiniAudioEngine + 2 mixers)
-├── AudioConfig.cs           # POCO; load/save GameData/Audio/AudioConfig.json
+├── AudioConfig.cs           # POCO; load/save active patch under GameData/Patches/Audio/
 ├── AudioCueDispatcher.cs    # Subscribes to CombatEventBus; resolves cue->file
 ├── MusicController.cs       # Subscribes to GameStateManager.StateChanged
 ├── AudioCues.cs             # Static facade: AudioCues.Trigger(cue)
@@ -77,9 +77,15 @@ Fired by one-line `AudioCues.Trigger(...)` calls at these sites:
 | `Dungeon_Enter`          | `DungeonDisplayManager.StartDungeon`                                    |
 | `Dungeon_RoomClear`      | `DungeonRunnerManager` room cleared path                                |
 
-## `AudioConfig.json` schema
+## Config patches (audio)
 
-Lives at [GameData/Audio/AudioConfig.json](../../GameData/Audio/AudioConfig.json). Default file ships with empty `file` entries; the game runs silently until you populate them from the **Settings → Audio** tab.
+Audio settings are stored as **patches** under `GameData/Patches/Audio/*.json` (committed to GitHub). Your **active** patch name is stored locally in gitignored `GameData/PatchProfile.json`, so git pull does not change which patch you hear. After pulling new patches, open **Settings → Patches** and select one, or stay on your own patch.
+
+Sound **assets** (`.wav` / `.mp3`) remain under `GameData/Audio/`. Paths inside a patch are still relative to that folder.
+
+## `AudioConfig` patch schema
+
+Each audio patch uses the same JSON shape as before (example below). The default patch is `GameData/Patches/Audio/default.json`.
 
 ```json
 {

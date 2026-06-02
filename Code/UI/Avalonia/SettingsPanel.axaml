@@ -119,6 +119,7 @@
                      Foreground="White"
                      SelectionMode="Single">
             <ListBoxItem Content="Gameplay" Tag="Gameplay"/>
+            <ListBoxItem Content="Patches" Tag="Patches"/>
             <ListBoxItem Content="Travel" Tag="Travel"/>
             <ListBoxItem Content="Audio" Tag="Audio"/>
             <ListBoxItem Content="Classes" Tag="Classes"/>

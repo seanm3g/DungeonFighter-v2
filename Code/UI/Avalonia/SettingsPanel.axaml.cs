@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.UI.Avalonia.Helpers;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Managers.Settings;
 using RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers;
@@ -101,6 +102,7 @@ namespace RPGGame.UI.Avalonia
             // Initialize panel handler registry
             panelHandlerRegistry = new PanelHandlerRegistry();
             panelHandlerRegistry.Register(new GameplayPanelHandler(settings, settingsManager, ShowStatusMessage));
+            panelHandlerRegistry.Register(new PatchesPanelHandler(ShowStatusMessage));
             panelHandlerRegistry.Register(new TravelPanelHandler());
             panelHandlerRegistry.Register(new AudioPanelHandler());
             panelHandlerRegistry.Register(new TextDelaysPanelHandler(settingsManager));
@@ -251,7 +253,7 @@ namespace RPGGame.UI.Avalonia
             }
             
             // Wire up action buttons
-            SaveButton.Click += (s, e) => SaveSettings();
+            SaveButton.Click += async (_, _) => await SaveSettingsAsync();
             ResetButton.Click += (s, e) => ResetSettings();
             BackButton.Click += (s, e) => onBack?.Invoke();
         }
@@ -447,6 +449,7 @@ namespace RPGGame.UI.Avalonia
         {
             if (panel == null) return null;
             if (panel is GameplaySettingsPanel) return "Gameplay";
+            if (panel is PatchesSettingsPanel) return "Patches";
             if (panel is TravelSettingsPanel) return "Travel";
             if (panel is AudioSettingsPanel) return "Audio";
             if (panel is ClassesSettingsPanel) return "Classes";
@@ -530,21 +533,22 @@ namespace RPGGame.UI.Avalonia
             }
         }
         
-        private void SaveSettings()
+        private async System.Threading.Tasks.Task SaveSettingsAsync()
         {
-            // Defer save by one UI tick so focus leaves the current control first (LostFocus fires) and form values are committed before we flush/save (fixes Actions tab revert when editing then clicking Save).
             UserControl? displayed = ContentScrollViewer.IsVisible ? ContentArea.Content as UserControl
                 : TestingContentArea.IsVisible ? TestingContentArea.Content as UserControl
                 : ActionsContentArea.IsVisible ? ActionsContentArea.Content as UserControl
                 : TextAnimationContentArea.IsVisible ? TextAnimationContentArea.Content as UserControl
                 : ItemGenerationContentArea.IsVisible ? ItemGenerationContentArea.Content as UserControl
                 : null;
-            Dispatcher.UIThread.Post(() =>
-            {
-                var result = saveOrchestrator?.SaveSettings(displayed) ?? default;
-                if (result.Success)
-                    SettingsApplyService.ApplyAfterSave(result, gameStateManager);
-            }, DispatcherPriority.Loaded);
+
+            await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Loaded);
+            var owner = WindowOwnerResolver.ResolveUsableOwnerWindow(TopLevel.GetTopLevel(this) as Window);
+            var result = saveOrchestrator != null
+                ? await saveOrchestrator.SaveSettingsAsync(displayed, owner)
+                : default;
+            if (result.Success)
+                SettingsApplyService.ApplyAfterSave(result, gameStateManager);
         }
         
         private void ResetSettings()

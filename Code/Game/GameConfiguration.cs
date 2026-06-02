@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using RPGGame.Config;
 
 namespace RPGGame
 {
@@ -114,71 +115,34 @@ namespace RPGGame
             yield return Path.Combine("..", "..", "GameData", "TuningConfig.json");
         }
 
-        /// <summary>Resolves an existing tuning file (absolute path). Caches so Save writes the same file Load reads.</summary>
-        private static string? ResolveTuningConfigPathForRead()
+        /// <summary>Resolves the active balance patch file (absolute path). Caches so Save writes the same file Load reads.</summary>
+        private static string ResolveTuningConfigPathForRead()
         {
             if (_cachedTuningConfigPath != null && File.Exists(_cachedTuningConfigPath))
                 return _cachedTuningConfigPath;
-            foreach (string rel in TuningConfigPathCandidates())
-            {
-                try
-                {
-                    string full = Path.GetFullPath(rel);
-                    if (File.Exists(full))
-                    {
-                        _cachedTuningConfigPath = full;
-                        return full;
-                    }
-                }
-                catch
-                {
-                    // ignore invalid path
-                }
-            }
-            return null;
+
+            PatchProfileService.EnsureBootstrapped();
+            string patchPath = PatchProfileService.GetActivePatchFilePath(PatchCategory.Balance);
+            _cachedTuningConfigPath = Path.GetFullPath(patchPath);
+            return _cachedTuningConfigPath;
         }
 
-        /// <summary>Path to write when no tuning file exists yet; prefers repo-root GameData next to project when cwd is Code/.</summary>
+        /// <summary>Path to write the active balance patch (creates patch folder if needed).</summary>
         private static string ResolveTuningConfigPathForCreate()
         {
-            string currentDir = Directory.GetCurrentDirectory();
-            string[] createOrder =
-            {
-                Path.Combine(currentDir, "..", "GameData", "TuningConfig.json"),
-                Path.Combine(currentDir, "GameData", "TuningConfig.json"),
-                Path.Combine("GameData", "TuningConfig.json")
-            };
-            foreach (string rel in createOrder)
-            {
-                try
-                {
-                    string full = Path.GetFullPath(rel);
-                    string? dir = Path.GetDirectoryName(full);
-                    if (dir != null && !Directory.Exists(dir))
-                        Directory.CreateDirectory(dir);
-                    _cachedTuningConfigPath = full;
-                    return full;
-                }
-                catch
-                {
-                    // try next
-                }
-            }
-            string fallback = Path.GetFullPath(Path.Combine("GameData", "TuningConfig.json"));
-            string? d2 = Path.GetDirectoryName(fallback);
-            if (d2 != null && !Directory.Exists(d2))
-                Directory.CreateDirectory(d2);
-            _cachedTuningConfigPath = fallback;
-            return fallback;
+            PatchProfileService.EnsureBootstrapped();
+            string patchPath = PatchProfileService.GetActivePatchFilePath(PatchCategory.Balance);
+            _cachedTuningConfigPath = Path.GetFullPath(patchPath);
+            return _cachedTuningConfigPath;
         }
 
         private void LoadFromFile()
         {
             try
             {
-                string? configPath = ResolveTuningConfigPathForRead();
-                
-                if (configPath != null)
+                string configPath = ResolveTuningConfigPathForRead();
+
+                if (File.Exists(configPath))
                 {
                     string jsonContent = File.ReadAllText(configPath);
                     var config = JsonSerializer.Deserialize<GameConfiguration>(jsonContent, new JsonSerializerOptions
@@ -251,7 +215,7 @@ namespace RPGGame
                 }
                 else
                 {
-                    UIManager.WriteSystemLine($"Warning: TuningConfig.json not found, using default values. Tried paths: {string.Join(", ", TuningConfigPathCandidates())}");
+                    UIManager.WriteSystemLine($"Warning: balance patch not found at {ResolveTuningConfigPathForRead()}, using default values.");
                 }
             }
             catch (Exception ex)
@@ -378,23 +342,18 @@ namespace RPGGame
             }
         }
 
-        /// <summary>Absolute path to an existing <c>TuningConfig.json</c> (same discovery as load), or null.</summary>
+        /// <summary>Absolute path to the active balance patch file, or null if missing.</summary>
         public static string? TryGetExistingTuningConfigFilePath()
         {
-            foreach (string rel in TuningConfigPathCandidates())
+            try
             {
-                try
-                {
-                    string full = Path.GetFullPath(rel);
-                    if (File.Exists(full))
-                        return full;
-                }
-                catch
-                {
-                    // ignore
-                }
+                string path = ResolveTuningConfigPathForRead();
+                return File.Exists(path) ? path : null;
             }
-            return null;
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>Path to use when writing tuning JSON (existing file, or create path).</summary>

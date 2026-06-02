@@ -117,9 +117,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             {
                 var cfg = ReadFromPanel(p).EnsureNormalized();
                 GameConfiguration.Instance.ClassPresentation = cfg;
-                if (!GameConfiguration.Instance.SaveToFile())
-                    throw new InvalidOperationException("SaveToFile returned false.");
-                showStatusMessage?.Invoke("Class presentation saved to TuningConfig.json.", true);
+                showStatusMessage?.Invoke("Class presentation updated (save settings to write balance patch).", true);
             }
             catch (Exception ex)
             {

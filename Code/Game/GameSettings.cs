@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using RPGGame.Config;
 
 namespace RPGGame
 {
@@ -75,8 +76,17 @@ namespace RPGGame
         private static string? _settingsFilePathCached;
         private static readonly object _settingsFilePathLock = new object();
 
+        /// <summary>Clears cached patch path so the next load/save resolves the active game-settings patch.</summary>
+        public static void InvalidatePatchPathCache()
+        {
+            lock (_settingsFilePathLock)
+            {
+                _settingsFilePathCached = null;
+            }
+        }
+
         /// <summary>
-        /// Resolves the settings file path once and caches it. Uses GameConstants and normalizes to full path so save and load always use the same canonical file.
+        /// Resolves the active game-settings patch path once and caches it.
         /// </summary>
         private static string GetSettingsFilePath()
         {
@@ -86,12 +96,7 @@ namespace RPGGame
             {
                 if (_settingsFilePathCached != null)
                     return _settingsFilePathCached;
-                string path;
-                string? settingsDir = GameConstants.GetSettingsDirectory();
-                if (settingsDir != null)
-                    path = Path.Combine(settingsDir, GameConstants.GameSettingsJson);
-                else
-                    path = GameConstants.GetGameDataFilePath(GameConstants.GameSettingsJson);
+                string path = PatchProfileService.GetActivePatchFilePath(PatchCategory.GameSettings);
                 try
                 {
                     _settingsFilePathCached = Path.GetFullPath(path);
