@@ -194,7 +194,7 @@ namespace RPGGame.Tests.Unit.World
                 attackSpeed: GameConstants.TrainingDummyBaseAttackSpeedSeconds,
                 PrimaryAttribute.Strength,
                 isLiving: true,
-                EnemyArchetype.Guardian,
+                EnemyArchetype.Knight,
                 useDirectStats: true);
 
             TestBase.AssertTrue(script.TryConsumeForActor(hero, out var firstBeat) && firstBeat != null,

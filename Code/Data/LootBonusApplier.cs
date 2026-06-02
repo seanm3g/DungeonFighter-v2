@@ -70,10 +70,12 @@ namespace RPGGame
                 ApplyStatBonuses(item, statSuffixes);
                 ApplyActionBonuses(item, actionBonuses, context);
                 ApplyPrefixSlots(item, prefixSlots, context);
+                SyncMaterialPrefixTags(item);
 
                 item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
                 AdjustRarityBasedOnBonuses(item, rarity);
                 ResolveRerollAdjectiveIfPresent(item, context);
+                SyncMaterialPrefixTags(item);
                 AdjustRarityBasedOnBonuses(item, rarity);
                 item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
             }
@@ -169,6 +171,22 @@ namespace RPGGame
                 item.Modifications.Add(replacement);
 
             item.RecomputeAttributeRequirementsIncludingModifications();
+        }
+
+        private static void SyncMaterialPrefixTags(Item item)
+        {
+            var tags = GameDataTagHelper.NormalizeDistinct(item.Tags);
+            foreach (var mod in item.Modifications)
+            {
+                if (mod == null || mod.GetPrefixCategory() != ModificationPrefixCategory.Material)
+                    continue;
+                if (string.IsNullOrWhiteSpace(mod.Name))
+                    continue;
+                var materialTag = mod.Name.Trim().ToLowerInvariant();
+                if (!GameDataTagHelper.HasTag(tags, materialTag))
+                    tags.Add(materialTag);
+            }
+            item.Tags = tags;
         }
 
         private void AdjustRarityBasedOnBonuses(Item item, RarityData currentRarity)

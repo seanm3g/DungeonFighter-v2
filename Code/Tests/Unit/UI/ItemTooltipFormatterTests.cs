@@ -38,6 +38,24 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(flat.Contains("Affixes", StringComparison.Ordinal),
                 "tooltip has affixes section",
                 ref run, ref passed, ref failed);
+            TestBase.AssertTrue(flat.Contains("Stats", StringComparison.Ordinal),
+                "tooltip has stats section",
+                ref run, ref passed, ref failed);
+
+            var sandals = new FeetItem("Sandals", 1, 0)
+            {
+                BaseTechnique = 3,
+                BaseIntelligence = 5,
+                Rarity = "Common"
+            };
+            var sandalLines = ItemTooltipFormatter.BuildItemTooltipLines(hero, sandals, "Inventory", 30);
+            string sandalFlat = string.Join("\n", sandalLines.Select(ColoredTextRenderer.RenderAsPlainText));
+            TestBase.AssertTrue(sandalFlat.Contains("Technique", StringComparison.Ordinal) && sandalFlat.Contains("+3", StringComparison.Ordinal),
+                "tooltip lists catalog Technique",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(sandalFlat.Contains("Intelligence", StringComparison.Ordinal) && sandalFlat.Contains("+5", StringComparison.Ordinal),
+                "tooltip lists catalog Intelligence",
+                ref run, ref passed, ref failed);
             TestBase.AssertTrue(flat.Contains("+1 armor on this piece", StringComparison.Ordinal),
                 "ARMOR affix explains effect",
                 ref run, ref passed, ref failed);

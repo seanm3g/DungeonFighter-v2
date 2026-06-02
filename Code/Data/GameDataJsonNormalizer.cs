@@ -89,6 +89,7 @@ namespace RPGGame.Data
             CoercePropertyToInt(o, "requirement value");
             CoercePropertyToDouble(o, "attackSpeed");
             MergeSheetAbbrevAttributeRequirementsIfPresent(o);
+            JsonArraySheetConverter.NormalizeTagsFromSheet(o);
         }
 
         /// <summary>

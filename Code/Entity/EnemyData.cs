@@ -16,11 +16,16 @@ namespace RPGGame
     /// </summary>
     public enum EnemyArchetype
     {
-        Berserker,    // High damage - aggressive fighters
-        Guardian,     // High armor - protective tanks
-        Brute,        // High health - heavy hitters
-        Assassin,     // High attack speed - quick strikers
-        Mage          // High intelligence - magical casters
+        Knight,
+        Assassin,
+        Berserker,
+        Acrobat,
+        Brute,
+        Warlord,
+        Sage,
+        Duelist,
+        Artificer,
+        Trickster
     }
 
     /// <summary>

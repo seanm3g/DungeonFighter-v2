@@ -5,6 +5,7 @@
         xmlns:local="clr-namespace:RPGGame.UI.Avalonia"
         mc:Ignorable="d" d:DesignWidth="1728" d:DesignHeight="972"
         x:Class="RPGGame.UI.Avalonia.SettingsWindow"
+        Icon="/UI/Avalonia/Assets/df_icon.ico"
         Title="Game Settings - DungeonFighter v2"
         Background="#FF1A1A1A"
         Width="1728" Height="972" MinWidth="1400" MinHeight="800" 

@@ -34,11 +34,16 @@ namespace RPGGame
 
             return archetype switch
             {
-                EnemyArchetype.Berserker => config.ArchetypeConfigs.GetValueOrDefault("Berserker") ?? GetDefaultConfig(),
+                EnemyArchetype.Knight => config.ArchetypeConfigs.GetValueOrDefault("Knight") ?? GetDefaultConfig(),
                 EnemyArchetype.Assassin => config.ArchetypeConfigs.GetValueOrDefault("Assassin") ?? GetDefaultConfig(),
+                EnemyArchetype.Berserker => config.ArchetypeConfigs.GetValueOrDefault("Berserker") ?? GetDefaultConfig(),
+                EnemyArchetype.Acrobat => config.ArchetypeConfigs.GetValueOrDefault("Acrobat") ?? GetDefaultConfig(),
                 EnemyArchetype.Brute => config.ArchetypeConfigs.GetValueOrDefault("Brute") ?? GetDefaultConfig(),
-                EnemyArchetype.Guardian => config.ArchetypeConfigs.GetValueOrDefault("Guardian") ?? GetDefaultConfig(),
-                EnemyArchetype.Mage => config.ArchetypeConfigs.GetValueOrDefault("Mage") ?? GetDefaultConfig(),
+                EnemyArchetype.Warlord => config.ArchetypeConfigs.GetValueOrDefault("Warlord") ?? GetDefaultConfig(),
+                EnemyArchetype.Sage => config.ArchetypeConfigs.GetValueOrDefault("Sage") ?? GetDefaultConfig(),
+                EnemyArchetype.Duelist => config.ArchetypeConfigs.GetValueOrDefault("Duelist") ?? GetDefaultConfig(),
+                EnemyArchetype.Artificer => config.ArchetypeConfigs.GetValueOrDefault("Artificer") ?? GetDefaultConfig(),
+                EnemyArchetype.Trickster => config.ArchetypeConfigs.GetValueOrDefault("Trickster") ?? GetDefaultConfig(),
                 _ => GetDefaultConfig()
             };
         }

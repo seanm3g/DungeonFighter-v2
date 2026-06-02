@@ -85,14 +85,8 @@ namespace RPGGame.Data.Validation
 
             if (enemy.Tags != null)
             {
-                foreach (var t in enemy.Tags)
-                {
-                    if (string.IsNullOrWhiteSpace(t))
-                    {
-                        result.AddWarning(FileName, entityName, "tags", "tags list contains an empty entry");
-                        break;
-                    }
-                }
+                foreach (var message in GameDataTagHelper.ValidateRegistryTags(RPGGame.World.Tags.TagEntityScope.Enemy, enemy.Tags))
+                    result.AddWarning(FileName, entityName, "tags", message);
             }
 
             if (enemy.BaseHealth.HasValue)

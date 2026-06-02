@@ -57,14 +57,8 @@ namespace RPGGame.Data.Validation
 
             if (weapon.Tags != null)
             {
-                foreach (var t in weapon.Tags)
-                {
-                    if (string.IsNullOrWhiteSpace(t))
-                    {
-                        result.AddWarning(FileName, entityName, "tags", "tags list contains an empty entry");
-                        break;
-                    }
-                }
+                foreach (var message in GameDataTagHelper.ValidateRegistryTags(RPGGame.World.Tags.TagEntityScope.Item, weapon.Tags))
+                    result.AddWarning(FileName, entityName, "tags", message);
             }
 
             // Range checks

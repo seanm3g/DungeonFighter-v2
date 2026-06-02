@@ -96,7 +96,8 @@ namespace RPGGame.Data.Validation
 
             public static readonly HashSet<string> ValidArchetypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "Assassin", "Berserker", "Tank", "Caster", "Support", "Brute", "Guardian"
+                "Knight", "Assassin", "Berserker", "Acrobat", "Brute",
+                "Warlord", "Sage", "Duelist", "Artificer", "Trickster"
             };
         }
 

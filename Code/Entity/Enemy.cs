@@ -1,4 +1,8 @@
-﻿namespace RPGGame
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace RPGGame
 {
     // Enemy data classes moved to EnemyData.cs
 
@@ -13,6 +17,24 @@
         public EnemyAttackProfile AttackProfile { get; private set; }
         public ColorOverride? ColorOverride { get; private set; }
         public string Rarity { get; private set; } = "Common";
+
+        /// <summary>Match/flavor tags from <see cref="EnemyData.Tags"/> plus derived substance tags.</summary>
+        public IReadOnlyList<string> Tags => _tags;
+
+        private readonly List<string> _tags = new List<string>();
+
+        internal void SetTags(IEnumerable<string>? tags)
+        {
+            _tags.Clear();
+            if (tags == null)
+                return;
+            foreach (var tag in tags)
+            {
+                if (!string.IsNullOrWhiteSpace(tag) &&
+                    !_tags.Any(t => string.Equals(t, tag.Trim(), StringComparison.OrdinalIgnoreCase)))
+                    _tags.Add(tag.Trim());
+            }
+        }
         
         // DPS-based system properties
         public double TargetDPS { get; private set; }

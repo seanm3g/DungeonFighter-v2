@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Text.Json;
 using RPGGame.Tests;
+using RPGGame.World.Tags;
 
 namespace RPGGame.Tests.Unit.Data
 {
@@ -35,6 +36,7 @@ namespace RPGGame.Tests.Unit.Data
             TestEnemyBaseAttributesDifferBetweenTemplates();
             TestEnemyTemplatesHaveDamagingActions();
             TestEnemyJsonActionStringsAreActionIds();
+            TestAllEnemyArchetypesSpawn();
 
             TestBase.PrintSummary("EnemyLoader Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -182,7 +184,7 @@ namespace RPGGame.Tests.Unit.Data
 
             var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-            var arrayJson = """{"name":"X","archetype":"Mage","actions":[],"tags":["a","b"],"isLiving":true,"description":""}""";
+            var arrayJson = """{"name":"X","archetype":"Sage","actions":[],"tags":["a","b"],"isLiving":true,"description":""}""";
             var fromArray = JsonSerializer.Deserialize<EnemyData>(arrayJson, opts);
             TestBase.AssertNotNull(fromArray, "Deserialize with tags array", ref _testsRun, ref _testsPassed, ref _testsFailed);
             if (fromArray?.Tags != null)
@@ -192,7 +194,7 @@ namespace RPGGame.Tests.Unit.Data
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
 
-            var stringJson = """{"name":"Y","archetype":"Mage","actions":[],"tags":"undead,boss","isLiving":true,"description":""}""";
+            var stringJson = """{"name":"Y","archetype":"Sage","actions":[],"tags":"undead,boss","isLiving":true,"description":""}""";
             var fromString = JsonSerializer.Deserialize<EnemyData>(stringJson, opts);
             TestBase.AssertNotNull(fromString, "Deserialize with tags string", ref _testsRun, ref _testsPassed, ref _testsFailed);
             if (fromString?.Tags != null)
@@ -202,7 +204,7 @@ namespace RPGGame.Tests.Unit.Data
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
 
-            var nullTagsJson = """{"name":"Z","archetype":"Mage","actions":[],"tags":null,"isLiving":true,"description":""}""";
+            var nullTagsJson = """{"name":"Z","archetype":"Sage","actions":[],"tags":null,"isLiving":true,"description":""}""";
             var fromNull = JsonSerializer.Deserialize<EnemyData>(nullTagsJson, opts);
             TestBase.AssertNotNull(fromNull, "Deserialize with tags null", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertNull(fromNull!.Tags, "tags null in JSON -> null property", ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -277,6 +279,32 @@ namespace RPGGame.Tests.Unit.Data
                         $"Enemy '{enemy.Name}' actions entry must contain a letter or digit (got '{raw}')",
                         ref _testsRun, ref _testsPassed, ref _testsFailed);
                 }
+            }
+        }
+
+        private static void TestAllEnemyArchetypesSpawn()
+        {
+            Console.WriteLine("\n--- All 10 enemy archetypes spawn without fallback ---");
+
+            foreach (var archetype in TagDefinitions.ValidEnemyArchetypes)
+            {
+                var data = new EnemyData
+                {
+                    Name = $"Test {archetype}",
+                    Archetype = archetype,
+                    Actions = new System.Collections.Generic.List<string>(),
+                    IsLiving = true,
+                    Description = "test",
+                    BaseHealth = 50
+                };
+                var enemy = EnemyDataFactory.CreateEnemyFromData(data, level: 5);
+                TestBase.AssertNotNull(enemy, $"Create {archetype}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                if (enemy == null)
+                    continue;
+                TestBase.AssertTrue(TagDefinitions.TryParseEnemyArchetype(archetype, out var expected) && enemy.Archetype == expected,
+                    $"Archetype {archetype} preserved on entity",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(enemy.Tags.Count > 0, $"{archetype} has runtime tags", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.World.Tags;
 
 namespace RPGGame.Data
 {
@@ -77,5 +78,10 @@ namespace RPGGame.Data
                 .Where(p => !string.IsNullOrWhiteSpace(p));
             return NormalizeDistinct(parts);
         }
+
+        public static bool IsKnownRegistryTag(string? tag) => TagDefinitions.IsKnownTag(tag);
+
+        public static List<string> ValidateRegistryTags(TagEntityScope scope, IEnumerable<string>? tags) =>
+            TagDefinitions.ValidateTagList(scope, tags);
     }
 }

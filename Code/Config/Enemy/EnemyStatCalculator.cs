@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using RPGGame.World.Tags;
 
 namespace RPGGame
 {
@@ -150,20 +151,10 @@ namespace RPGGame
             return stats.OrderByDescending(s => s.Item1).First().Item2;
         }
 
-        private static EnemyArchetype ConvertStringToEnemyArchetype(string archetype)
-        {
-            return archetype.ToLower() switch
-            {
-                "berserker" => EnemyArchetype.Berserker,
-                "guardian" => EnemyArchetype.Guardian,
-                "assassin" => EnemyArchetype.Assassin,
-                "brute" => EnemyArchetype.Brute,
-                "mage" => EnemyArchetype.Mage,
-                "ranger" => EnemyArchetype.Assassin,
-                "tank" => EnemyArchetype.Guardian,
-                _ => EnemyArchetype.Berserker
-            };
-        }
+        private static EnemyArchetype ConvertStringToEnemyArchetype(string archetype) =>
+            TagDefinitions.TryParseEnemyArchetype(archetype, out var parsed)
+                ? parsed
+                : EnemyArchetype.Berserker;
     }
 
     /// <summary>

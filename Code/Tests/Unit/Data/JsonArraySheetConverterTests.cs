@@ -42,6 +42,7 @@ namespace RPGGame.Tests.Unit.Data
             EnemiesActionsQuotedCommaListNormalizes(ref run, ref pass, ref fail);
             EnemiesPushOmitsLegacyRootStatExtraColumns(ref run, ref pass, ref fail);
             EnemiesNewSheetLayoutImport(ref run, ref pass, ref fail);
+            EnemiesArchetypeCanonicalization(ref run, ref pass, ref fail);
             EnvironmentsRoundTrip(ref run, ref pass, ref fail);
             EnvironmentsWithEnemiesRoundTrip(ref run, ref pass, ref fail);
             DungeonsRoundTrip(ref run, ref pass, ref fail);
@@ -139,6 +140,8 @@ namespace RPGGame.Tests.Unit.Data
             """;
             var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Weapons);
             var csv = RowsToCsv(rows);
+            TestBase.AssertTrue(csv.Contains("magical, starter") || csv.Contains("magical,starter"),
+                "tags pushed as comma-separated cell", ref run, ref pass, ref fail);
             string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Weapons);
             using var a = JsonDocument.Parse(outJson);
             var t = a.RootElement[0].GetProperty("tags");
@@ -423,10 +426,12 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
         {
             TestBase.SetCurrentTestName(nameof(EnemiesWithTagsRoundTrip));
             const string json = """
-            [{"name":"BossImp","archetype":"Mage","baseHealth":50,"actions":["BOLT"],"isLiving":true,"description":"x","tags":["boss","demon"]}]
+            [{"name":"BossImp","archetype":"Sage","baseHealth":50,"actions":["BOLT"],"isLiving":true,"description":"x","tags":["boss","demon"]}]
             """;
             var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
             var csv = RowsToCsv(rows);
+            TestBase.AssertTrue(csv.Contains("boss, demon") || csv.Contains("boss,demon"),
+                "tags pushed as comma-separated cell", ref run, ref pass, ref fail);
             string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Enemies);
             using var a = JsonDocument.Parse(outJson);
             var t = a.RootElement[0].GetProperty("tags");
@@ -596,6 +601,19 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
             TestBase.AssertEqual("JAB", first.GetProperty("actions")[0].GetString(), "action0", ref run, ref pass, ref fail);
         }
 
+        private static void EnemiesArchetypeCanonicalization(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(EnemiesArchetypeCanonicalization));
+            const string json = """
+            [{"name":"Sage Mob","archetype":"sage","baseHealth":40,"actions":["J"],"isLiving":true,"description":"d"}]
+            """;
+            var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
+            var csv = RowsToCsv(rows);
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Enemies);
+            using var doc = JsonDocument.Parse(outJson);
+            TestBase.AssertEqual("Sage", doc.RootElement[0].GetProperty("archetype").GetString(), "archetype title case", ref run, ref pass, ref fail);
+        }
+
 
         private static void EnvironmentsRoundTrip(ref int run, ref int pass, ref int fail)
         {
@@ -687,11 +705,13 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
             """;
             var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Armor);
             var csv = RowsToCsv(rows);
+            TestBase.AssertTrue(csv.Contains("setpiece, magical") || csv.Contains("setpiece,magical"),
+                "tags pushed as comma-separated cell", ref run, ref pass, ref fail);
             string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Armor);
             using var a = JsonDocument.Parse(outJson);
             var t = a.RootElement[0].GetProperty("tags");
             TestBase.AssertTrue(t.ValueKind == JsonValueKind.Array, "tags array", ref run, ref pass, ref fail);
-            TestBase.AssertEqual("setPiece", t[0].GetString(), "tag0", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("setpiece", t[0].GetString(), "tag0", ref run, ref pass, ref fail);
         }
 
         private static void ArmorSpreadsheetTemplateHeadersRoundTrip(ref int run, ref int pass, ref int fail)

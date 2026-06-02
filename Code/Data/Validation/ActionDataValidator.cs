@@ -231,6 +231,15 @@ namespace RPGGame.Data.Validation
                 result.AddWarning(FileName, entityName, "conditionalDamageMultiplier", 
                     $"conditionalDamageMultiplier {action.ConditionalDamageMultiplier} is outside typical range (0.1 to 10.0)");
             }
+
+            if (action.Tags != null && action.Tags.Count > 0)
+            {
+                foreach (var message in GameDataTagHelper.ValidateRegistryTags(RPGGame.World.Tags.TagEntityScope.Action, action.Tags))
+                    result.AddWarning(FileName, entityName, "tags", message);
+
+                if (GameDataTagHelper.HasEnvironmentTag(action.Tags) && GameDataTagHelper.HasTag(action.Tags, "weapon"))
+                    result.AddWarning(FileName, entityName, "tags", "Action has both environment and weapon pool tags.");
+            }
         }
 
         private void ValidateRange(ValidationResult result, string entityName, string fieldName, double value, double min, double max)

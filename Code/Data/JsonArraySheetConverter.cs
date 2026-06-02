@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using RPGGame;
+using RPGGame.World.Tags;
 
 namespace RPGGame.Data
 {
@@ -282,6 +283,13 @@ namespace RPGGame.Data
                         continue;
                     }
 
+                    if (string.Equals(h, "tags", StringComparison.OrdinalIgnoreCase)
+                        && prop.ValueKind == JsonValueKind.Array)
+                    {
+                        row.Add(FormatTagsArrayForSheetCell(prop));
+                        continue;
+                    }
+
                     row.Add(JsonElementToCellString(prop));
                 }
                 rows.Add(row);
@@ -351,10 +359,18 @@ namespace RPGGame.Data
 
             string? jsonName = MapArmorSheetHeaderToJsonProperty(header);
             if (jsonName != null && TryGetJsonPropertyCaseInsensitive(el, jsonName, out var mapped))
+            {
+                if (string.Equals(jsonName, "tags", StringComparison.OrdinalIgnoreCase) && mapped.ValueKind == JsonValueKind.Array)
+                    return FormatTagsArrayForSheetCell(mapped);
                 return JsonElementToCellString(mapped);
+            }
 
             if (TryGetJsonPropertyCaseInsensitive(el, header, out var direct))
+            {
+                if (string.Equals(header, "tags", StringComparison.OrdinalIgnoreCase) && direct.ValueKind == JsonValueKind.Array)
+                    return FormatTagsArrayForSheetCell(direct);
                 return JsonElementToCellString(direct);
+            }
 
             return "";
         }
@@ -579,7 +595,32 @@ namespace RPGGame.Data
 
             if (!el.TryGetProperty(header, out var prop))
                 return "";
+            if (string.Equals(header, "tags", StringComparison.OrdinalIgnoreCase))
+                return FormatTagsArrayForSheetCell(prop);
             return JsonElementToCellString(prop);
+        }
+
+        /// <summary>Sheet-friendly tag list: comma-separated, lowercase (pull accepts this via <see cref="NormalizeTagsFromSheet"/>).</summary>
+        internal static string FormatTagsArrayForSheetCell(JsonElement el)
+        {
+            if (el.ValueKind != JsonValueKind.Array)
+                return JsonElementToCellString(el);
+
+            var raw = new List<string>();
+            foreach (var item in el.EnumerateArray())
+            {
+                if (item.ValueKind == JsonValueKind.String)
+                {
+                    var s = item.GetString()?.Trim();
+                    if (!string.IsNullOrEmpty(s))
+                        raw.Add(s);
+                }
+            }
+
+            var normalized = GameDataTagHelper.NormalizeDistinct(raw);
+            if (normalized.Count == 0)
+                return "";
+            return string.Join(", ", normalized.Select(t => t.ToLowerInvariant()));
         }
 
         private static bool TryGetPropertyPath(JsonElement el, string dottedPath, out JsonElement found)
@@ -657,6 +698,7 @@ namespace RPGGame.Data
                 else if (kind == GameDataTabularSheetKind.Armor)
                 {
                     GameDataJsonNormalizer.NormalizeArmorDataRow(obj);
+                    NormalizeTagsFromSheet(obj);
                 }
                 else if (kind == GameDataTabularSheetKind.Consumables)
                 {
@@ -993,7 +1035,27 @@ namespace RPGGame.Data
             PromoteMisplacedEnemyHealthFields(obj);
             StripEnemyLegacyRootStatsWhenNestedPresent(obj);
             NormalizeEnemyActionsFromSheet(obj);
-            NormalizeEnemyTagsFromSheet(obj);
+            NormalizeTagsFromSheet(obj);
+            NormalizeEnemyArchetypeFromSheet(obj);
+        }
+
+        private static void NormalizeEnemyArchetypeFromSheet(JsonObject obj)
+        {
+            if (!obj.TryGetPropertyValue("archetype", out var node) || node == null)
+                return;
+
+            var raw = node.GetValue<string>()?.Trim();
+            if (string.IsNullOrEmpty(raw))
+            {
+                obj.Remove("archetype");
+                return;
+            }
+
+            var canonical = TagDefinitions.CanonicalizeEnemyArchetype(raw);
+            if (canonical != null && TagDefinitions.IsValidEnemyArchetype(canonical))
+                obj["archetype"] = canonical;
+            else
+                obj["archetype"] = raw;
         }
 
         /// <summary>Moves HP keys mistakenly nested under <c>growthPerLevel</c> / <c>baseAttributes</c> to root (legacy sheet bands).</summary>
@@ -1118,9 +1180,9 @@ namespace RPGGame.Data
 
         /// <summary>
         /// Sheet <c>tags</c> may be a JSON array, a single token, or comma / semicolon / pipe lists (same as in-game settings).
-        /// Coerce to a canonical lowercase <c>tags</c> JSON array so <see cref="EnemyData.Tags"/> deserializes reliably.
+        /// Coerce to a canonical lowercase <c>tags</c> JSON array for reliable catalog deserialization.
         /// </summary>
-        private static void NormalizeEnemyTagsFromSheet(JsonObject obj)
+        internal static void NormalizeTagsFromSheet(JsonObject obj)
         {
             string? tagsKey = null;
             foreach (var key in obj.Select(kvp => kvp.Key).ToList())
@@ -1723,6 +1785,7 @@ namespace RPGGame.Data
             CanonicalizeWeaponField(obj, "baseDamage", preferWholeNumber: true);
             CanonicalizeWeaponField(obj, "attackSpeed", preferWholeNumber: false);
             NormalizeWeaponDamageBonusRange(obj);
+            NormalizeTagsFromSheet(obj);
         }
 
         /// <summary>When a row uses a human-readable header instead of JSON camelCase, move its value onto <paramref name="canonicalKey"/>.</summary>

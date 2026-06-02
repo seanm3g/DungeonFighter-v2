@@ -72,7 +72,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Creates a guardian enemy (high armor, protective)
+        /// Creates a knight enemy (high armor, protective)
         /// </summary>
         public static Enemy CreateGuardian(string name, int level)
         {
@@ -82,13 +82,13 @@ namespace RPGGame
                 .WithMaxHealth(70 + (level * 12))
                 .WithStats(6 + level, 4 + level, 8 + level, 6 + level)
                 .WithPrimaryAttribute(PrimaryAttribute.Technique)
-                .WithArchetype(EnemyArchetype.Guardian)
+                .WithArchetype(EnemyArchetype.Knight)
                 .WithArmor(level * 3)
                 .Build();
         }
 
         /// <summary>
-        /// Creates a mage enemy (high intelligence, magical)
+        /// Creates a sage enemy (high intelligence, magical)
         /// </summary>
         public static Enemy CreateMage(string name, int level)
         {
@@ -98,7 +98,7 @@ namespace RPGGame
                 .WithMaxHealth(45 + (level * 9))
                 .WithStats(2 + level, 4 + level, 4 + level, 12 + level)
                 .WithPrimaryAttribute(PrimaryAttribute.Intelligence)
-                .WithArchetype(EnemyArchetype.Mage)
+                .WithArchetype(EnemyArchetype.Sage)
                 .WithArmor(level)
                 .Build();
         }

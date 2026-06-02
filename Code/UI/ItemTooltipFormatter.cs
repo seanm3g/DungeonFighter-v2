@@ -42,18 +42,17 @@ namespace RPGGame
             }
             if (maxLines <= lines.Count) return Trim(lines, maxLines);
 
-            var statRows = ItemStatFormatter.GetItemStats(item, character ?? new Character("?", 1));
-            if (statRows.Count > 0)
+            var contributions = ItemStatFormatter.GetStatContributions(item);
+            if (contributions.Count > 0)
             {
                 AddBlank(lines);
                 AddLine(lines, SectionHeader("Stats"));
-                foreach (var stat in statRows)
+                foreach (var contribution in contributions)
                 {
                     if (lines.Count >= maxLines) break;
-                    var segments = ItemStatFormatter.FormatStatLine(stat, item);
+                    var segments = ItemStatFormatter.FormatContributionLine(contribution, item);
                     if (equipBlocked)
                         segments = RecolorAll(segments, ColorPalette.Error.GetColor());
-                    TrimLeadingIndent(segments);
                     AddLine(lines, segments);
                 }
             }
@@ -62,7 +61,13 @@ namespace RPGGame
             {
                 string? armorBreakdown = BuildArmorBreakdownLine(item);
                 if (!string.IsNullOrEmpty(armorBreakdown))
-                    AddLine(lines, LabelValueLine("  ", "Armor total", armorBreakdown, ColorPalette.Info, Colors.White));
+                {
+                    var armorDetail = new ColoredTextBuilder();
+                    armorDetail.Add("  ", Colors.Gray);
+                    armorDetail.Add("Armor breakdown: ", ColorPalette.Info);
+                    ItemBuffHighlightFormatting.AppendHighlightedDescription(armorDetail, armorBreakdown);
+                    AddLine(lines, armorDetail.Build());
+                }
             }
 
             if (item.Modifications != null && item.Modifications.Count > 0 && lines.Count < maxLines)
@@ -73,17 +78,6 @@ namespace RPGGame
                 {
                     if (lines.Count >= maxLines) break;
                     AddLine(lines, BuildModificationLine(item, mod));
-                }
-            }
-
-            if (item.StatBonuses != null && item.StatBonuses.Count > 0 && lines.Count < maxLines)
-            {
-                AddBlank(lines);
-                AddLine(lines, SectionHeader("Stat bonuses"));
-                foreach (var bonus in item.StatBonuses)
-                {
-                    if (lines.Count >= maxLines) break;
-                    AddLine(lines, BuildStatBonusLine(bonus));
                 }
             }
 
@@ -102,16 +96,6 @@ namespace RPGGame
                 lines.Count < maxLines)
             {
                 AddLine(lines, LabelValueLine("", "Gear action", item.GearAction, ColorPalette.Info, Colors.White));
-            }
-
-            int comboSlotDisplayTotal = item.ExtraActionSlots;
-            if (item is WeaponItem weaponItem)
-                comboSlotDisplayTotal += ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(weaponItem.WeaponType);
-
-            if (comboSlotDisplayTotal > 0 && lines.Count < maxLines)
-            {
-                string slotWord = comboSlotDisplayTotal == 1 ? "slot" : "slots";
-                AddLine(lines, LabelValueLine("", "Combo strip", $"+{comboSlotDisplayTotal} {slotWord}", ColorPalette.Info, ColorPalette.Success.GetColor()));
             }
 
             var actionBonusesToShow = item.ActionBonuses?
@@ -196,33 +180,14 @@ namespace RPGGame
             b.Add("  ", Colors.Gray);
             b.AddRange(ItemStatsFormatter.FormatModification(mod, item.Rarity ?? "Common"));
             b.Add(" — ", Colors.DarkGray);
-            b.Add(ItemDisplayFormatter.GetModificationEffectDescription(mod), Colors.White);
+            string effect = ItemDisplayFormatter.GetModificationEffectDescription(mod);
+            bool debuff = string.Equals(mod.Effect, "gearPrimaryStatMultiplier", StringComparison.OrdinalIgnoreCase) &&
+                            mod.RolledValue > 0 && mod.RolledValue < 1.0;
+            ItemBuffHighlightFormatting.AppendHighlightedDescription(b, effect, debuff);
             if (!string.IsNullOrEmpty(mod.Description))
             {
                 b.Add(" · ", Colors.DarkGray);
                 b.Add(mod.Description, Colors.Gray);
-            }
-            return b.Build();
-        }
-
-        private static List<ColoredText> BuildStatBonusLine(StatBonus bonus)
-        {
-            var b = new ColoredTextBuilder();
-            b.Add("  ", Colors.Gray);
-            if (!string.IsNullOrEmpty(bonus.Name))
-            {
-                b.AddRange(ItemDisplayColoredText.FormatStatBonus(bonus));
-                b.Add(": ", Colors.DarkGray);
-            }
-            bool first = true;
-            foreach (var (contribType, contribValue) in bonus.EnumerateContributions())
-            {
-                if (!first)
-                    b.Add(", ", Colors.Gray);
-                first = false;
-                var sign = contribValue >= 0 ? "+" : "";
-                b.Add($"{sign}{contribValue:0.##} ", contribValue >= 0 ? ColorPalette.Success.GetColor() : ColorPalette.Error.GetColor());
-                b.Add(contribType, Colors.White);
             }
             return b.Build();
         }

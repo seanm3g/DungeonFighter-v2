@@ -486,11 +486,12 @@ Actions and entities can have tags for matching and filtering:
 |----------|------|-------------|---------|
 | `tags` | string[] | List of tags for the action | ["FIRE", "WIZARD", "EPIC"] |
 
-**Common Tags**:
-- **Elements**: FIRE, WATER, ICE, EARTH, AIR, LIGHTNING
-- **Classes**: WIZARD, WARRIOR, ROGUE, BARBARIAN
-- **Rarities**: COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, MYTHIC, TRANSCENDENT
-- **Weapons**: SWORD, MACE, DAGGER, WAND
+**Common Tags** (see [TAG_REGISTRY.md](TAG_REGISTRY.md) for full list):
+- **Elements:** FIRE, EARTH, WATER, AIR
+- **Classes:** WIZARD, WARRIOR, ROGUE, BARBARIAN
+- **Rarities:** COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, MYTHIC
+- **Weapons:** SWORD, MACE, DAGGER, WAND
+- **Pool gates:** environment, enemy, weapon, class, unique, starter, modtrade
 - **Scaling**: comboScaling, comboStepScaling, comboAmplificationScaling
 
 Tags can be used for:

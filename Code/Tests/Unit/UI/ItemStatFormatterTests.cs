@@ -49,6 +49,9 @@ namespace RPGGame.Tests.Unit.UI
             TestWandWeaponShowsClassActionSlotBonus();
             TestActionSlotHigherThanBaselineGreen();
 
+            TestCatalogAttributesCollected();
+            TestContributionLineHighlightsValue();
+
             TestBase.PrintSummary("ItemStatFormatter Tests", _testsRun, _testsPassed, _testsFailed);
         }
 
@@ -327,6 +330,43 @@ namespace RPGGame.Tests.Unit.UI
             var stats = ItemStatFormatter.GetItemStats(wand, hero);
             var ok = stats.Contains("Action slots: +1");
             if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: Wand weapons should show +1 class action slot"); }
+        }
+
+        private static void TestCatalogAttributesCollected()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestCatalogAttributesCollected ---");
+            var feet = new FeetItem("Moccassins", 1, 0)
+            {
+                BaseAgility = 5,
+                BaseTechnique = 1
+            };
+            var contribs = ItemStatContributionCollector.Collect(feet);
+            bool hasAgi = contribs.Exists(c =>
+                c.Label == "Agility" && c.ValueText == "+5" && c.SourceTag == "Item base");
+            bool hasTec = contribs.Exists(c => c.Label == "Technique" && c.ValueText == "+1");
+            if (hasAgi && hasTec) _testsPassed++;
+            else
+            {
+                _testsFailed++;
+                Console.WriteLine("  FAIL: catalog STR/AGI/TEC should appear in contributions");
+            }
+        }
+
+        private static void TestContributionLineHighlightsValue()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestContributionLineHighlightsValue ---");
+            var c = new ItemStatContribution("Damage", "42");
+            var segments = ItemStatFormatter.FormatContributionLine(c);
+            var valueSeg = segments.LastOrDefault(s => s.Text == "42");
+            var highlight = ExpectedPaletteColor(ColorPalette.Highlight);
+            if (valueSeg != null && valueSeg.Color == highlight) _testsPassed++;
+            else
+            {
+                _testsFailed++;
+                Console.WriteLine("  FAIL: contribution value should use Highlight color");
+            }
         }
 
         private static void TestActionSlotHigherThanBaselineGreen()

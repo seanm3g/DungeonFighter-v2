@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Data;
+using RPGGame.World.Tags;
 
 namespace RPGGame
 {
@@ -7,15 +10,12 @@ namespace RPGGame
     /// </summary>
     public static class EnemyDataFactory
     {
-        /// <summary>
-        /// Creates an enemy from enemy data
-        /// </summary>
         public static Enemy? CreateEnemyFromData(EnemyData data, int level)
         {
             var tuning = GameConfiguration.Instance;
 
             if (!string.IsNullOrEmpty(data.Archetype) && tuning.EnemySystem != null &&
-                IsValidArchetype(data.Archetype))
+                TagDefinitions.IsValidEnemyArchetype(data.Archetype))
             {
                 return CreateEnemyWithNewSystem(data, level, tuning);
             }
@@ -28,7 +28,7 @@ namespace RPGGame
         private static Enemy CreateEnemyWithNewSystem(EnemyData data, int level, GameConfiguration tuning)
         {
             var stats = EnemyStatCalculator.CalculateStats(data, level, tuning.EnemySystem);
-            var enemyArchetype = ConvertStringToEnemyArchetype(data.Archetype);
+            TagDefinitions.TryParseEnemyArchetype(data.Archetype, out var enemyArchetype);
 
             var enemy = new Enemy(
                 data.Name,
@@ -43,6 +43,8 @@ namespace RPGGame
                 data.IsLiving,
                 enemyArchetype);
 
+            enemy.SetTags(BuildRuntimeTags(data));
+
             if (data.ColorOverride != null)
             {
                 var colorOverrideProperty = typeof(Enemy).GetProperty("ColorOverride", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
@@ -55,30 +57,13 @@ namespace RPGGame
             return enemy;
         }
 
-        private static bool IsValidArchetype(string archetypeString)
+        internal static List<string> BuildRuntimeTags(EnemyData data)
         {
-            return archetypeString.ToLower() switch
-            {
-                "berserker" => true,
-                "guardian" => true,
-                "assassin" => true,
-                "brute" => true,
-                "mage" => true,
-                _ => false
-            };
-        }
-
-        private static EnemyArchetype ConvertStringToEnemyArchetype(string archetypeString)
-        {
-            return archetypeString.ToLower() switch
-            {
-                "berserker" => EnemyArchetype.Berserker,
-                "guardian" => EnemyArchetype.Guardian,
-                "assassin" => EnemyArchetype.Assassin,
-                "brute" => EnemyArchetype.Brute,
-                "mage" => EnemyArchetype.Mage,
-                _ => EnemyArchetype.Berserker
-            };
+            var tags = GameDataTagHelper.NormalizeDistinct(data.Tags);
+            var substance = data.IsLiving ? "living" : "undead";
+            if (!GameDataTagHelper.HasTag(tags, substance))
+                tags.Add(substance);
+            return tags;
         }
     }
 }

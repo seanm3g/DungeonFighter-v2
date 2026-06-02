@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>DF</AssemblyName>
+    <ApplicationIcon>UI\Avalonia\Assets\df_icon.ico</ApplicationIcon>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <DefaultItemExcludes>$(DefaultItemExcludes);StandaloneColorDemo/**;ColorSystemTest/**</DefaultItemExcludes>
@@ -19,6 +20,10 @@
     <AvaloniaUseCompiledBindingsByDefault Condition="'$(Configuration)' == 'Release'">true</AvaloniaUseCompiledBindingsByDefault>
     <AvaloniaUseCompiledBindingsByDefault Condition="'$(Configuration)' == 'Debug'">false</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="UI\Avalonia\Assets\df_icon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.2.7" />

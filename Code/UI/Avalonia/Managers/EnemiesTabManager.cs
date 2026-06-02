@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using RPGGame;
 using RPGGame.Data;
+using RPGGame.World.Tags;
 using RPGGame.UI.Avalonia.Settings;
 using System;
 using System.Collections.Generic;
@@ -124,6 +125,8 @@ namespace RPGGame.UI.Avalonia.Managers
                         continue;
                     var parsed = GameDataTagHelper.ParseCommaSeparatedTags(row.Tags);
                     loadedEnemies[row.SourceIndex].Tags = parsed.Count == 0 ? null : parsed;
+                    foreach (var warning in GameDataTagHelper.ValidateRegistryTags(TagEntityScope.Enemy, parsed))
+                        showStatusMessage?.Invoke($"Tag warning ({row.Name}): {warning}", false);
                 }
 
                 dataService.SaveEnemies(loadedEnemies);

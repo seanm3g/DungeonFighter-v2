@@ -46,7 +46,7 @@ namespace RPGGame
                     attackSpeed: GameConstants.TrainingDummyBaseAttackSpeedSeconds,
                     PrimaryAttribute.Strength,
                     isLiving: true,
-                    EnemyArchetype.Guardian,
+                    EnemyArchetype.Knight,
                     useDirectStats: true);
                 room.GetEnemies().Add(dummy);
                 Rooms.Add(room);

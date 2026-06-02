@@ -366,7 +366,7 @@ namespace RPGGame
             else if (maxStat == technique)
                 return EnemyArchetype.Berserker;
             else
-                return EnemyArchetype.Guardian;
+                return EnemyArchetype.Sage;
         }
 
     }

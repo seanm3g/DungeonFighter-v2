@@ -52,6 +52,33 @@ Unchanged: **two-row** header block (context + labels), then data rows. Push cle
 
 Pull maps columns **by header name** (case-insensitive), not by fixed column index.
 
+### ENEMIES
+
+Two-row header (category band + short names), then data rows. Canonical columns **A–U**:
+
+| Col | Field | Notes |
+|-----|-------|-------|
+| A–D | `region`, `biome`, `location`, `rarity` | Spawn placement |
+| E | `name` | Enemy name |
+| F | `tags` | Comma-separated registry tags, e.g. `undead, boss, minion` — **not** a JSON array. See [TAG_REGISTRY.md](../05-Systems/TAG_REGISTRY.md). Pull also accepts semicolon/pipe separators. |
+| G | `archetype` | One of **10** values: Knight, Assassin, Berserker, Acrobat, Brute, Warlord, Sage, Duelist, Artificer, Trickster |
+| H–K | base attributes | `strength`, `agility`, `technique`, `intelligence` |
+| L–O | growth per level | same four stats (sum normalized to 6/level in game) |
+| P–Q | HEALTH | `baseHealth`, `healthGrowthPerLevel` |
+| R–U | `actions`, `isLiving`, `description`, `colorOverride` | |
+
+**Authoring flow:** edit **Archetype** and **tags** on the ENEMIES tab → **PULL** → `Enemies.json` updates (archetype Title Case normalized on import). **Push** writes local `Enemies.json` back to the sheet (enable **Push ENEMIES** in Balance Tuning).
+
+The full 59-tag vocabulary is defined in code (`TagDefinitions.cs`), not as a separate sheet tab. Valid values are documented in [TAG_REGISTRY.md](../05-Systems/TAG_REGISTRY.md).
+
+### ACTIONS — TAGS column
+
+Optional **TAGS** cell: comma/semicolon list of extra tokens (pool gates like `environment`, `enemy`, `weapon`, elements, etc.). Category and rarity are merged into runtime tags separately on import.
+
+### WEAPONS / ARMOR — tags
+
+Optional `tags` column: comma-separated registry tags on push (e.g. `undead, boss`); pull also accepts JSON arrays or semicolon/pipe lists. Material prefix names (Bone, Steel, …) live on the **Prefix** tab and map to material tags at loot time.
+
 ### CLASSES (`classPresentation`)
 
 **Push (current):** two columns, **one property per row** (easy to read in Sheets):

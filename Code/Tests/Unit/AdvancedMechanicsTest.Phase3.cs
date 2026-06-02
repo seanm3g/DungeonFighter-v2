@@ -2,6 +2,7 @@ using System;
 using RPGGame;
 using RPGGame.World.Tags;
 using RPGGame.Entity.Actions.ComboRouting;
+using RPGGame.Tests.Unit.World;
 
 namespace RPGGame.Tests.Unit
 {
@@ -23,6 +24,7 @@ namespace RPGGame.Tests.Unit
             _testsFailed = 0;
             
             TestTagRegistry();
+            TagDefinitionsTests.RunAll(ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestTagMatcher();
             TestTagAggregator();
             TestTagModifier();

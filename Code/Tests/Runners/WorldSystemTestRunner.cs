@@ -27,6 +27,10 @@ namespace RPGGame.Tests.Runners
             EnvironmentTests.RunAllTests();
             Console.WriteLine();
             RoomGeneratorTests.RunAllTests();
+            Console.WriteLine();
+            int run = 0, pass = 0, fail = 0;
+            TagDefinitionsTests.RunAll(ref run, ref pass, ref fail);
+            Console.WriteLine($"TagDefinitions: {pass}/{run} passed\n");
         }
     }
 }
