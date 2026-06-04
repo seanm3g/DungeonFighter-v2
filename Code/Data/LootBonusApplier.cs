@@ -379,8 +379,9 @@ namespace RPGGame
         {
             if (_dataCache.ActionBonuses == null || _dataCache.ActionBonuses.Count == 0)
                 return new List<ActionBonus>();
+            // LootDataCache.LoadActionBonuses already excludes environment/enemy-tagged actions.
             return _dataCache.ActionBonuses
-                .Where(ab => !string.IsNullOrEmpty(ab.Name) && GameDataTagHelper.IsGrantableOnHeroGearByName(ab.Name))
+                .Where(ab => !string.IsNullOrEmpty(ab.Name))
                 .ToList();
         }
 

@@ -104,8 +104,7 @@ namespace RPGGame
                 var resolved = ActionLoader.ResolveActionName(n);
                 if (!string.IsNullOrEmpty(resolved) && ActionLoader.HasAction(resolved))
                     canonical.Add(resolved);
-                else
-                    canonical.Add(n);
+                // Omit names that cannot be loaded so inventory previews match the action pool.
             }
 
             return canonical;

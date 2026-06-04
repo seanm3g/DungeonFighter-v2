@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit.Data
             TestGetAction();
             TestGetActions();
             TestHasAction();
+            TestMagicMissileAliasResolution();
             TestGetAllActionNames();
             TestGetAllActions();
             TestActionProperties();
@@ -158,6 +159,27 @@ namespace RPGGame.Tests.Unit.Data
             var mixedActions = ActionLoader.GetActions("JAB", "NONEXISTENT", "PUNCH HARD");
             TestBase.AssertTrue(mixedActions.Count >= 1,
                 $"GetActions should return at least one existing action, got {mixedActions.Count}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestMagicMissileAliasResolution()
+        {
+            Console.WriteLine("\n--- Testing MAGIC MISSILE alias resolution ---");
+
+            ActionLoader.ReloadActions();
+
+            TestBase.AssertTrue(ActionLoader.HasAction("MAGIC MISSILE"),
+                "HasAction('MAGIC MISSILE') should be true",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var fromCanonical = ActionLoader.GetAction("MAGIC MISSILE");
+            TestBase.AssertTrue(fromCanonical != null,
+                "GetAction('MAGIC MISSILE') should load the wand basic",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var resolvedTypo = ActionLoader.ResolveActionName("MAGIC MISSLE") ?? "";
+            TestBase.AssertTrue(ActionLoader.HasAction(resolvedTypo),
+                $"ResolveActionName('MAGIC MISSLE') should map to a loaded key, got '{resolvedTypo}'",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

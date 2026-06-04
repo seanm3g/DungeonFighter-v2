@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace RPGGame.UI.Avalonia.Settings
 {
@@ -15,6 +16,8 @@ namespace RPGGame.UI.Avalonia.Settings
     {
         private readonly ObservableCollection<ItemGeneratedRowViewModel> rows = new();
         private bool _generatedListVisible = true;
+        private bool _refreshingLootPreviews;
+        private bool _generateInProgress;
 
         public ItemGenerationSettingsPanel()
         {
@@ -91,7 +94,7 @@ namespace RPGGame.UI.Avalonia.Settings
             var fixedM = this.FindControl<TextBox>("FixedChanceMythic");
 
             if (generateButton != null)
-                generateButton.Click += (_, __) => Generate();
+                generateButton.Click += async (_, __) => await GenerateAsync();
             if (clearButton != null)
                 clearButton.Click += (_, __) => Clear();
             if (list != null)
@@ -179,6 +182,22 @@ namespace RPGGame.UI.Avalonia.Settings
         /// Tier lines: <see cref="LootTierCalculator.GetTierRollPreview"/> at loot level (hero vs dungeon 1), matching <see cref="LootGenerator"/>; lab caveat when Tier is Any.
         /// </summary>
         private void RefreshHeroLevelLootPreviews()
+        {
+            if (_refreshingLootPreviews)
+                return;
+
+            _refreshingLootPreviews = true;
+            try
+            {
+                RefreshHeroLevelLootPreviewsCore();
+            }
+            finally
+            {
+                _refreshingLootPreviews = false;
+            }
+        }
+
+        private void RefreshHeroLevelLootPreviewsCore()
         {
             TryApplyBaseRatioToFixedChanceBoxes();
 
@@ -290,30 +309,55 @@ namespace RPGGame.UI.Avalonia.Settings
             }
         }
 
-        private void Generate()
+        private async Task GenerateAsync()
         {
-            int heroLevel = ReadHeroLevel();
-            int dungeonDelta = ReadDungeonDelta();
-            int dungeonLevel = DungeonLevelMath.ResolveEffectiveDungeonLevel(heroLevel, dungeonDelta);
+            if (_generateInProgress)
+                return;
 
-            var spec = new ItemGenerationSpec
+            var generateButton = this.FindControl<Button>("GenerateButton");
+            _generateInProgress = true;
+            if (generateButton != null)
+                generateButton.IsEnabled = false;
+
+            try
             {
-                ItemType = ReadItemType(),
-                Rarity = ReadRarity(),
-                Tier = ReadTier(),
-                WeaponType = ReadWeaponType(),
-                ArmorSlot = ReadArmorSlot(),
-                PlayerLevel = heroLevel,
-                DungeonLevel = dungeonLevel,
-                FixedRarityChancesPercent = ReadFixedRarityChancesPercent(),
-                // New seed each run; a fixed seed makes every batch identical (Random(spec.Seed) in the lab service).
-                Seed = Random.Shared.Next()
-            };
+                int heroLevel = ReadHeroLevel();
+                int dungeonDelta = ReadDungeonDelta();
+                int dungeonLevel = DungeonLevelMath.ResolveEffectiveDungeonLevel(heroLevel, dungeonDelta);
 
-            int count = ReadCount();
-            var batch = ItemGenerationLabService.GenerateBatch(spec, count);
-            var sorted = ItemGenerationLabService.SortBestToWorst(batch);
+                var spec = new ItemGenerationSpec
+                {
+                    ItemType = ReadItemType(),
+                    Rarity = ReadRarity(),
+                    Tier = ReadTier(),
+                    WeaponType = ReadWeaponType(),
+                    ArmorSlot = ReadArmorSlot(),
+                    PlayerLevel = heroLevel,
+                    DungeonLevel = dungeonLevel,
+                    FixedRarityChancesPercent = ReadFixedRarityChancesPercent(),
+                    // New seed each run; a fixed seed makes every batch identical (Random(spec.Seed) in the lab service).
+                    Seed = Random.Shared.Next()
+                };
 
+                int count = ReadCount();
+                var (batch, sorted) = await Task.Run(() =>
+                {
+                    var generated = ItemGenerationLabService.GenerateBatch(spec, count);
+                    return (generated, ItemGenerationLabService.SortBestToWorst(generated));
+                }).ConfigureAwait(true);
+
+                ApplyGeneratedBatch(batch, sorted);
+            }
+            finally
+            {
+                _generateInProgress = false;
+                if (generateButton != null)
+                    generateButton.IsEnabled = true;
+            }
+        }
+
+        private void ApplyGeneratedBatch(IReadOnlyList<ItemGeneratedRow> batch, IReadOnlyList<ItemGeneratedRow> sorted)
+        {
             rows.Clear();
             int idx = 1;
             foreach (var row in sorted)
@@ -497,7 +541,10 @@ namespace RPGGame.UI.Avalonia.Settings
                 var tb = this.FindControl<TextBox>(name);
                 if (tb == null) return;
                 if (!map.TryGetValue(key, out double v)) return;
-                tb.Text = v.ToString("0.##", CultureInfo.InvariantCulture);
+                string next = v.ToString("0.##", CultureInfo.InvariantCulture);
+                if (string.Equals(tb.Text, next, StringComparison.Ordinal))
+                    return;
+                tb.Text = next;
             }
 
             set("FixedChanceCommon", "Common");

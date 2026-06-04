@@ -3,7 +3,7 @@
   "musicVolume": 0.42264152,
   "sfxVolume": 0.5311321,
   "masterEnabled": true,
-  "musicEnabled": false,
+  "musicEnabled": true,
   "sfxEnabled": true,
   "musicCrossfadeMs": 10000,
   "musicTransitionSyncBpm": 0,

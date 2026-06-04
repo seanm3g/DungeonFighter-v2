@@ -74,17 +74,24 @@ namespace RPGGame.UI.Avalonia.Layout
                 : default;
 
             int eqHit = 0, eqCombo = 0, eqCrit = 0;
+            int dungeonHit = 0, dungeonCombo = 0, dungeonCrit = 0, dungeonCritMiss = 0;
             if (actor is Character chEq && chEq is not Enemy)
             {
                 eqHit = chEq.Equipment.GetEquipmentStatBonus("HIT", chEq);
                 eqCombo = chEq.Equipment.GetEquipmentStatBonus("COMBO", chEq);
                 eqCrit = chEq.Equipment.GetEquipmentStatBonus("CRIT", chEq);
+                var dungeonBuffs = chEq.DungeonSearchBuffs;
+                dungeonHit = dungeonBuffs.HitThresholdAdjustment;
+                dungeonCombo = dungeonBuffs.ComboThresholdAdjustment;
+                dungeonCrit = dungeonBuffs.CritThresholdAdjustment;
+                dungeonCritMiss = dungeonBuffs.CritMissThresholdAdjustment;
             }
 
-            int comboRowShift = pendingHud.SharedAccuracy + pendingHud.ComboDelta + techMilestoneSteps.ComboSteps + eqCombo;
-            int hitRowShift = pendingHud.SharedAccuracy + pendingHud.HitDelta + techMilestoneSteps.HitSteps + eqHit;
-            int critRowShift = pendingHud.CritDelta + techMilestoneSteps.CritSteps + eqCrit;
-            int critMissRowShift = -pendingHud.CritMissDelta;
+            int comboRowShift = pendingHud.SharedAccuracy + pendingHud.ComboDelta + techMilestoneSteps.ComboSteps + eqCombo + dungeonCombo;
+            int hitRowShift = pendingHud.SharedAccuracy + pendingHud.HitDelta + techMilestoneSteps.HitSteps + eqHit + dungeonHit;
+            int critRowShift = pendingHud.CritDelta + techMilestoneSteps.CritSteps + eqCrit + dungeonCrit;
+            // Crit-miss potions store the same delta passed to AdjustCriticalMissThreshold (add, not subtract).
+            int critMissRowShift = -pendingHud.CritMissDelta - dungeonCritMiss;
 
             int effectiveCrit = ResolveEffectiveThreshold(crit, critRowShift);
             int effectiveCombo = ResolveEffectiveThreshold(combo, comboRowShift);

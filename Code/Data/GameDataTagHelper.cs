@@ -56,7 +56,7 @@ namespace RPGGame.Data
             if (string.IsNullOrWhiteSpace(actionName))
                 return false;
 
-            ActionLoader.LoadActions();
+            // Use GetActionData (loads once) — not LoadActions(), which re-reads Actions.json every call.
             var actionData = ActionLoader.GetActionData(actionName);
             if (actionData != null)
                 return IsGrantableOnHeroGear(actionData.Tags);

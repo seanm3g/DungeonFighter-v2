@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using RPGGame;
 using RPGGame.Tests;
@@ -30,6 +31,7 @@ namespace RPGGame.Tests.Unit.Data
             TestFixedRarityChancesOverridesAnyAndIgnoresLevelGates();
             TestBaseRatioBuildsGeometricRarityPercents();
             TestGeneratedRowDetailsIncludesExtraComboStripSlots();
+            TestGenerateBatch100CompletesQuickly();
 
             TestBase.PrintSummary("ItemGenerationLabService Tests", _run, _pass, _fail);
             TestBase.ClearCurrentTestName();
@@ -286,6 +288,34 @@ namespace RPGGame.Tests.Unit.Data
                 vm.DetailsText.Contains("combo strip", StringComparison.OrdinalIgnoreCase) &&
                 vm.DetailsText.Contains('2'),
                 "item generation details mention extra combo strip slots when FeetItem.ExtraActionSlots > 0",
+                ref _run, ref _pass, ref _fail);
+        }
+
+        /// <summary>
+        /// Regression: batch generation must not re-read Actions.json per affix check (UI freeze on Generate).
+        /// </summary>
+        private static void TestGenerateBatch100CompletesQuickly()
+        {
+            TestBase.SetCurrentTestName(nameof(TestGenerateBatch100CompletesQuickly));
+
+            var spec = new ItemGenerationSpec
+            {
+                ItemType = ItemGenerationItemType.Both,
+                Rarity = "Any",
+                PlayerLevel = 10,
+                DungeonLevel = 10,
+                FixedRarityChancesPercent = RarityChanceMath.BuildGeometricRarityChancesPercent(8),
+                Seed = 4242
+            };
+
+            var sw = Stopwatch.StartNew();
+            var rows = ItemGenerationLabService.GenerateBatch(spec, 100);
+            sw.Stop();
+
+            TestBase.AssertTrue(rows.Count > 0, "batch produced items", ref _run, ref _pass, ref _fail);
+            TestBase.AssertTrue(
+                sw.ElapsedMilliseconds < 15_000,
+                $"GenerateBatch(100) should finish quickly (got {sw.ElapsedMilliseconds}ms)",
                 ref _run, ref _pass, ref _fail);
         }
     }

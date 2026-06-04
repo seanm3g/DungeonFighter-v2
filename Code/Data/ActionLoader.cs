@@ -344,8 +344,10 @@ namespace RPGGame
             if (_actions == null)
                 return;
 
+            // Keep aliases when either the canonical value or the legacy key exists in loaded data
+            // (e.g. data key "MAGIC MISSLE" with canonical "MAGIC MISSILE" must stay for reverse lookup).
             var stale = _actionNameAliases
-                .Where(kv => !_actions.ContainsKey(kv.Value))
+                .Where(kv => !_actions.ContainsKey(kv.Value) && !_actions.ContainsKey(kv.Key))
                 .Select(kv => kv.Key)
                 .ToList();
             foreach (var key in stale)

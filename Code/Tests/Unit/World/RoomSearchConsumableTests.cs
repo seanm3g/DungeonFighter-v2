@@ -1,5 +1,6 @@
 using System;
 using RPGGame.Tests;
+using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.Tests.Unit.World
 {
@@ -22,6 +23,7 @@ namespace RPGGame.Tests.Unit.World
             TestGeneratorProducesConsumableOnly();
             TestFoodHealPositive();
             TestPotionApplyImmediatelyBuffsStats();
+            TestComboPotionReflectedInThresholdHud();
 
             TestBase.PrintSummary("RoomSearchConsumable Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -82,6 +84,33 @@ namespace RPGGame.Tests.Unit.World
             TestBase.AssertTrue(ok, "apply should succeed: " + msg, ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(player.GetEffectiveStrength() >= strBefore + 3, "STR buff applied", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(player.DungeonSearchBuffs.StrengthBonus >= 3, "buff state recorded", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.ClearCurrentTestName();
+        }
+
+        private static void TestComboPotionReflectedInThresholdHud()
+        {
+            Console.WriteLine("\n--- Testing combo potion shows in threshold HUD ---");
+            TestBase.SetCurrentTestName(nameof(TestComboPotionReflectedInThresholdHud));
+            var player = new Character("FlowDrinker", 5);
+            player.DungeonSearchBuffs.Clear();
+            var item = new Item(ItemType.Consumable, "Serum of Flow", 3, 0)
+            {
+                RoomSearchConsumableKind = RoomSearchConsumableKind.PotionCombo,
+                ConsumablePotionPotency = 3,
+                ConsumableHealAmount = 0
+            };
+            bool ok = SearchConsumableUseService.ApplyImmediately(player, item, out string msg);
+            TestBase.AssertTrue(ok, "apply should succeed: " + msg, ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(3, player.DungeonSearchBuffs.ComboThresholdAdjustment,
+                "combo threshold buff stored", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var snapshot = DiceRollThresholdResolver.Resolve(player);
+            int defaultCombo = GameConfiguration.Instance.RollSystem.ComboThreshold.Min > 0
+                ? GameConfiguration.Instance.RollSystem.ComboThreshold.Min
+                : 14;
+            TestBase.AssertEqual(defaultCombo - 3, snapshot.EffectiveCombo,
+                "HUD combo threshold should include dungeon potion (+3 easier)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.ClearCurrentTestName();
         }
     }

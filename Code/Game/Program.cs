@@ -82,6 +82,14 @@ namespace RPGGame
                     return;
                 }
 
+                if (args.Length > 0 && args[0] == "--run-data-tests")
+                {
+                    executionMode = "TEST";
+                    BuildExecutionMetrics.RecordLaunchTime("TEST");
+                    RPGGame.Tests.Runners.DataSystemTestRunner.RunAllTests();
+                    return;
+                }
+
                 // Check if test mode is requested (battle comparison)
                 if (args.Length > 0 && args[0] == "TEST")
                 {
