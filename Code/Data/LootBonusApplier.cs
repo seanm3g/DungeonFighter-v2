@@ -178,10 +178,24 @@ namespace RPGGame
             var tags = GameDataTagHelper.NormalizeDistinct(item.Tags);
             foreach (var mod in item.Modifications)
             {
-                if (mod == null || mod.GetPrefixCategory() != ModificationPrefixCategory.Material)
+                if (mod == null)
                     continue;
-                if (string.IsNullOrWhiteSpace(mod.Name))
+
+                if (mod.Tags != null)
+                {
+                    foreach (var raw in mod.Tags)
+                    {
+                        if (string.IsNullOrWhiteSpace(raw))
+                            continue;
+                        var tag = raw.Trim();
+                        if (!GameDataTagHelper.HasTag(tags, tag))
+                            tags.Add(tag);
+                    }
+                }
+
+                if (mod.GetPrefixCategory() != ModificationPrefixCategory.Material || string.IsNullOrWhiteSpace(mod.Name))
                     continue;
+
                 var materialTag = mod.Name.Trim().ToLowerInvariant();
                 if (!GameDataTagHelper.HasTag(tags, materialTag))
                     tags.Add(materialTag);

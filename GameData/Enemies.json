@@ -62,6 +62,7 @@
     "tags": [
       "living",
       "minion",
+      "large",
       "tiny"
     ]
   },
@@ -224,7 +225,8 @@
       "intelligence": 0.5
     },
     "tags": [
-      "undead"
+      "undead",
+      "frail"
     ]
   },
   {
@@ -350,7 +352,8 @@
     },
     "tags": [
       "plant",
-      "giant"
+      "giant",
+      "bulky"
     ]
   },
   {
@@ -446,7 +449,8 @@
     "tags": [
       "elemental",
       "fire",
-      "minion"
+      "minion",
+      "frail"
     ]
   },
   {
@@ -669,7 +673,8 @@
     "tags": [
       "living",
       "earth",
-      "boss"
+      "boss",
+      "bulky"
     ]
   },
   {
@@ -767,7 +772,8 @@
       "elemental",
       "earth",
       "boss",
-      "giant"
+      "giant",
+      "frail"
     ]
   },
   {
@@ -927,6 +933,7 @@
     },
     "tags": [
       "undead",
+      "large",
       "has_hands"
     ]
   },
@@ -993,7 +1000,8 @@
       "living",
       "earth",
       "giant",
-      "tiny"
+      "tiny",
+      "bulky"
     ]
   },
   {
@@ -1208,7 +1216,9 @@
     },
     "tags": [
       "living",
-      "earth"
+      "earth",
+      "large",
+      "bulky"
     ]
   },
   {
@@ -1393,7 +1403,8 @@
     },
     "tags": [
       "undead",
-      "air"
+      "air",
+      "frail"
     ]
   },
   {
@@ -1554,7 +1565,8 @@
       "elemental",
       "fire",
       "earth",
-      "giant"
+      "giant",
+      "bulky"
     ]
   },
   {
@@ -1681,7 +1693,8 @@
     "tags": [
       "plant",
       "fire",
-      "giant"
+      "giant",
+      "bulky"
     ]
   },
   {
@@ -1713,7 +1726,8 @@
     "tags": [
       "elemental",
       "fire",
-      "tiny"
+      "tiny",
+      "frail"
     ]
   },
   {
@@ -1844,6 +1858,8 @@
       "living",
       "fire",
       "earth",
+      "large",
+      "bulky",
       "has_hands"
     ]
   },
@@ -1875,7 +1891,8 @@
     },
     "tags": [
       "living",
-      "earth"
+      "earth",
+      "large"
     ]
   },
   {
@@ -1940,6 +1957,7 @@
       "fire",
       "earth",
       "boss",
+      "large",
       "has_hands"
     ]
   },
@@ -2005,7 +2023,8 @@
       "elemental",
       "fire",
       "earth",
-      "boss"
+      "boss",
+      "large"
     ]
   },
   {
@@ -2131,7 +2150,8 @@
     },
     "tags": [
       "living",
-      "earth"
+      "earth",
+      "bulky"
     ]
   },
   {
@@ -2195,7 +2215,8 @@
     "tags": [
       "elemental",
       "fire",
-      "earth"
+      "earth",
+      "bulky"
     ]
   },
   {
@@ -2227,6 +2248,7 @@
     "tags": [
       "living",
       "earth",
+      "large",
       "has_hands"
     ]
   },
@@ -2477,6 +2499,7 @@
       "earth",
       "boss",
       "giant",
+      "bulky",
       "has_hands"
     ]
   },
@@ -3212,7 +3235,8 @@
       "intelligence": 0.5
     },
     "tags": [
-      "living"
+      "living",
+      "bulky"
     ]
   },
   {
@@ -3699,6 +3723,8 @@
     },
     "tags": [
       "living",
+      "large",
+      "bulky",
       "has_hands"
     ]
   },
@@ -3760,6 +3786,8 @@
     },
     "tags": [
       "living",
+      "large",
+      "bulky",
       "has_hands"
     ]
   },
@@ -3852,6 +3880,7 @@
     "tags": [
       "living",
       "giant",
+      "bulky",
       "has_hands"
     ]
   },

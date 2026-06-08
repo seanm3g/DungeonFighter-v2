@@ -19,14 +19,14 @@ namespace RPGGame.Data
         private static readonly char[] InvisibleSheetChars =
             { '\u200B', '\u200C', '\u200D', '\uFEFF', '\u2060', '\u180E' };
 
-        /// <summary>First 0-based column index reserved for on-sheet formulas on the Actions tab (column E).</summary>
-        public const int ActionsSheetPreservedFormulaFirstZeroBased = 4;
+        /// <summary>0-based column index reserved for on-sheet formulas on the Actions tab (column F — e.g. e(V)).</summary>
+        public const int ActionsSheetPreservedFormulaColumnZeroBased = 5;
 
-        /// <summary>Last 0-based column index reserved for on-sheet formulas on the Actions tab (column F).</summary>
-        public const int ActionsSheetPreservedFormulaLastZeroBased = 5;
+        /// <summary>First 0-based column index written after the preserved formula column (column G).</summary>
+        public const int ActionsSheetPushDataResumeColumnZeroBased = ActionsSheetPreservedFormulaColumnZeroBased + 1;
 
-        /// <summary>First 0-based column index written after the preserved E–F block (column G).</summary>
-        public const int ActionsSheetPushDataResumeColumnZeroBased = ActionsSheetPreservedFormulaLastZeroBased + 1;
+        /// <summary>Last column included in the left push block (column E — TAGS).</summary>
+        public const int ActionsSheetPushLeftBlockLastZeroBased = ActionsSheetPreservedFormulaColumnZeroBased - 1;
 
         /// <summary>Converts a 0-based column index to A1 column letters (0 → A, 4 → E, 25 → Z, 26 → AA).</summary>
         public static string ColumnIndexToA1Letters(int zeroBasedColumnIndex)
@@ -46,13 +46,15 @@ namespace RPGGame.Data
         }
 
         /// <summary>
-        /// Splits a full action row into A–D and G+ value lists, omitting columns E–F (<see cref="ActionsSheetPreservedFormulaFirstZeroBased"/>–<see cref="ActionsSheetPreservedFormulaLastZeroBased"/>).
+        /// Splits a full action row into A–E and G+ value lists, omitting column F (<see cref="ActionsSheetPreservedFormulaColumnZeroBased"/>) so sheet formulas there are preserved.
+        /// Column E (TAGS) is included in the left block.
         /// </summary>
         public static (List<object> ColumnsAD, List<object> ColumnsGPlus) SplitActionPushRowPreservingColumnsEF(IList<object> fullRow)
         {
             int n = fullRow.Count;
-            var ad = new List<object>(4);
-            for (int i = 0; i < Math.Min(4, n); i++)
+            int leftCount = ActionsSheetPushLeftBlockLastZeroBased + 1;
+            var ad = new List<object>(leftCount);
+            for (int i = 0; i < Math.Min(leftCount, n); i++)
                 ad.Add(NormalizeCellValueForUpload(fullRow[i]));
 
             int resume = ActionsSheetPushDataResumeColumnZeroBased;

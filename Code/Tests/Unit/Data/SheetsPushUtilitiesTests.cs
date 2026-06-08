@@ -46,15 +46,15 @@ namespace RPGGame.Tests.Unit.Data
         private static void TestSplitActionPushRowPreservingColumnsEF(ref int testsRun, ref int testsPassed, ref int testsFailed)
         {
             TestBase.SetCurrentTestName(nameof(TestSplitActionPushRowPreservingColumnsEF));
-            var full = new List<object> { "a", "b", "c", "d", "E_FORMULA", "F_FORMULA", "g", "h" };
+            var full = new List<object> { "a", "b", "c", "d", "environment, earth", "F_FORMULA", "g", "h" };
             var (ad, gPlus) = SheetsPushUtilities.SplitActionPushRowPreservingColumnsEF(full);
             TestBase.AssertTrue(
-                Enumerable.SequenceEqual(new[] { "a", "b", "c", "d" }, ad.Cast<string>()),
-                "A–D preserved in order",
+                Enumerable.SequenceEqual(new[] { "a", "b", "c", "d", "environment, earth" }, ad.Cast<string>()),
+                "A–E preserved in order (TAGS in E)",
                 ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertTrue(
                 Enumerable.SequenceEqual(new[] { "g", "h" }, gPlus.Cast<string>()),
-                "columns E–F omitted; G+ values",
+                "column F omitted; G+ values",
                 ref testsRun, ref testsPassed, ref testsFailed);
         }
     }

@@ -45,13 +45,15 @@ namespace RPGGame.Data
         };
 
         /// <summary>
-        /// PREFIX tab columns A–I: dice tier, name/description/effect, rolled magnitude, category, optional stat gate.
+        /// PREFIX tab columns A–N: dice tier, name/description/effect, rolled magnitude, category, optional stat gate,
+        /// legacy <c>ATTRIBUTE REQUREMENT</c> typo column, min/max/rolled, and registry <c>tags</c>.
         /// Legacy JSON may still use <c>MinValue</c>/<c>MaxValue</c>; sheet <c>value</c> maps to both on import.
         /// </summary>
         public static readonly string[] ModificationsCanonicalHeaders =
         {
             "DiceResult", "ItemRank", "Name", "Description", "Effect", "value", "prefixCategory",
-            "ATTRIBUTE REQUIREMENT", "REQUIREMENT VALUE"
+            "ATTRIBUTE REQUIREMENT", "REQUIREMENT VALUE",
+            "ATTRIBUTE REQUREMENT", "MaxValue", "MinValue", "RolledValue", "tags"
         };
 
         /// <summary>
@@ -97,7 +99,7 @@ namespace RPGGame.Data
         public const string EnemySheetCategoryHealth = "HEALTH";
 
         public static readonly string[] EnvironmentsCanonicalHeaders =
-            { "name", "description", "theme", "isHostile", "actions", "enemies" };
+            { "region", "biome", "location", "tags", "description", "actions", "enemies" };
 
         /// <summary>Column order for DUNGEONS tab — matches <c>Dungeons.json</c> / runtime dungeon records.</summary>
         public static readonly string[] DungeonsCanonicalHeaders =
@@ -234,6 +236,12 @@ namespace RPGGame.Data
             if (kind == GameDataTabularSheetKind.Enemies)
                 return BuildEnemyPushValueRows(jsonFileText);
 
+            if (kind == GameDataTabularSheetKind.Environments)
+                return BuildEnvironmentPushValueRows(jsonFileText);
+
+            if (kind == GameDataTabularSheetKind.Dungeons)
+                return BuildDungeonsPushValueRows(jsonFileText);
+
             using var doc = JsonDocument.Parse(jsonFileText);
             if (doc.RootElement.ValueKind != JsonValueKind.Array)
                 throw new InvalidOperationException("Expected a JSON array at the root.");
@@ -269,14 +277,14 @@ namespace RPGGame.Data
                 var row = new List<object>();
                 foreach (var h in headers)
                 {
-                    if (!el.TryGetProperty(h, out var prop))
+                    if (!TryGetJsonPropertyCaseInsensitive(el, h, out var prop))
                     {
                         row.Add("");
                         continue;
                     }
 
                     if (kind == GameDataTabularSheetKind.StatBonuses
-                        && string.Equals(h, "Requirements", StringComparison.Ordinal)
+                        && string.Equals(h, "Requirements", StringComparison.OrdinalIgnoreCase)
                         && prop.ValueKind == JsonValueKind.Object)
                     {
                         row.Add(FormatStatBonusRequirementsForSheetCell(prop));
@@ -490,6 +498,164 @@ namespace RPGGame.Data
             return parts.Count == 0 ? "" : "[" + string.Join(",", parts) + "]";
         }
 
+        private static List<IList<object>> BuildEnvironmentPushValueRows(string jsonFileText)
+        {
+            using var doc = JsonDocument.Parse(jsonFileText);
+            if (doc.RootElement.ValueKind != JsonValueKind.Array)
+                throw new InvalidOperationException("Expected a JSON array at the root.");
+
+            var headers = EnvironmentsCanonicalHeaders.ToList();
+            var rows = new List<IList<object>>();
+            rows.Add(headers.Select(h => (object)h).ToList());
+
+            foreach (var el in doc.RootElement.EnumerateArray())
+            {
+                if (el.ValueKind != JsonValueKind.Object)
+                    continue;
+                var row = new List<object>();
+                foreach (var h in headers)
+                    row.Add(GetEnvironmentPushCell(el, h));
+                rows.Add(row);
+            }
+
+            return rows;
+        }
+
+        private static string GetEnvironmentPushCell(JsonElement el, string header)
+        {
+            return header switch
+            {
+                "region" => GetEnvironmentStringProperty(el, "region"),
+                "biome" => GetEnvironmentBiomeCell(el),
+                "location" => GetEnvironmentLocationCell(el),
+                "tags" => TryGetJsonPropertyCaseInsensitive(el, "tags", out var tags)
+                    ? FormatTagsArrayForSheetCell(tags)
+                    : "",
+                "description" => GetEnvironmentStringProperty(el, "description"),
+                "actions" => TryGetJsonPropertyCaseInsensitive(el, "actions", out var actions)
+                    ? FormatEnvironmentWeightedListForSheetCell(actions)
+                    : "",
+                "enemies" => TryGetJsonPropertyCaseInsensitive(el, "enemies", out var enemies)
+                    ? FormatEnvironmentWeightedListForSheetCell(enemies)
+                    : "",
+                _ => ""
+            };
+        }
+
+        private static string GetEnvironmentLocationCell(JsonElement el)
+        {
+            if (TryGetJsonPropertyCaseInsensitive(el, "location", out var loc))
+                return JsonStringToCell(loc);
+            if (TryGetJsonPropertyCaseInsensitive(el, "name", out var name))
+                return JsonStringToCell(name);
+            return "";
+        }
+
+        private static string GetEnvironmentBiomeCell(JsonElement el)
+        {
+            if (TryGetJsonPropertyCaseInsensitive(el, "biome", out var biome))
+                return JsonStringToCell(biome);
+            if (TryGetJsonPropertyCaseInsensitive(el, "theme", out var theme))
+                return JsonStringToCell(theme);
+            return "";
+        }
+
+        private static string GetEnvironmentStringProperty(JsonElement el, string name) =>
+            TryGetJsonPropertyCaseInsensitive(el, name, out var prop) ? JsonStringToCell(prop) : "";
+
+        /// <summary>Sheet-friendly: <c>Action A|Action B</c> or <c>Wolf:0.7|Spider:0.3</c> when weights differ from 1.</summary>
+        internal static string FormatEnvironmentWeightedListForSheetCell(JsonElement el)
+        {
+            if (el.ValueKind == JsonValueKind.String)
+                return JsonStringToCell(el);
+
+            if (el.ValueKind != JsonValueKind.Array)
+                return JsonElementToCellString(el);
+
+            var entries = new List<(string name, double weight)>();
+            foreach (var item in el.EnumerateArray())
+            {
+                if (item.ValueKind == JsonValueKind.String)
+                {
+                    var s = item.GetString()?.Trim();
+                    if (!string.IsNullOrEmpty(s))
+                        entries.Add((s, 1.0));
+                    continue;
+                }
+
+                if (item.ValueKind != JsonValueKind.Object)
+                    continue;
+
+                if (!TryGetJsonPropertyCaseInsensitive(item, "name", out var nameEl))
+                    continue;
+
+                var name = nameEl.GetString()?.Trim();
+                if (string.IsNullOrEmpty(name))
+                    continue;
+
+                double weight = 1.0;
+                if (TryGetJsonPropertyCaseInsensitive(item, "weight", out var wEl) && wEl.ValueKind == JsonValueKind.Number)
+                    weight = wEl.GetDouble();
+
+                entries.Add((name, weight));
+            }
+
+            if (entries.Count == 0)
+                return "";
+
+            bool useWeights = entries.Any(e => Math.Abs(e.weight - 1.0) > 0.0001);
+            if (!useWeights)
+                return string.Join("|", entries.Select(e => e.name));
+
+            return string.Join("|", entries.Select(e =>
+                Math.Abs(e.weight - 1.0) <= 0.0001
+                    ? e.name
+                    : $"{e.name}:{e.weight.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
+        }
+
+        private static List<IList<object>> BuildDungeonsPushValueRows(string jsonFileText)
+        {
+            using var doc = JsonDocument.Parse(jsonFileText);
+            if (doc.RootElement.ValueKind != JsonValueKind.Array)
+                throw new InvalidOperationException("Expected a JSON array at the root.");
+
+            var headers = DungeonsCanonicalHeaders.ToList();
+            var rows = new List<IList<object>>();
+            rows.Add(headers.Select(h => (object)h).ToList());
+
+            foreach (var el in doc.RootElement.EnumerateArray())
+            {
+                if (el.ValueKind != JsonValueKind.Object)
+                    continue;
+                var row = new List<object>();
+                foreach (var h in headers)
+                    row.Add(GetDungeonsPushCell(el, h));
+                rows.Add(row);
+            }
+
+            return rows;
+        }
+
+        private static string GetDungeonsPushCell(JsonElement el, string header) =>
+            header switch
+            {
+                "name" => GetEnvironmentStringProperty(el, "name"),
+                "theme" => GetEnvironmentStringProperty(el, "theme"),
+                "minLevel" => TryGetJsonPropertyCaseInsensitive(el, "minLevel", out var min)
+                    ? JsonElementToCellString(min)
+                    : "",
+                "maxLevel" => TryGetJsonPropertyCaseInsensitive(el, "maxLevel", out var max)
+                    ? JsonElementToCellString(max)
+                    : "",
+                "possibleEnemies" => TryGetJsonPropertyCaseInsensitive(el, "possibleEnemies", out var pe)
+                    ? FormatPipeDelimitedStringArrayForSheetCell(pe)
+                    : "",
+                "colorOverride" => TryGetJsonPropertyCaseInsensitive(el, "colorOverride", out var color)
+                    ? JsonElementToCellString(color)
+                    : "",
+                _ => ""
+            };
+
         private static List<IList<object>> BuildEnemyPushValueRows(string jsonFileText)
         {
             using var doc = JsonDocument.Parse(jsonFileText);
@@ -568,36 +734,60 @@ namespace RPGGame.Data
         {
             if (header.StartsWith("baseAttributes.", StringComparison.Ordinal))
             {
-                if (TryGetPropertyPath(el, header, out var nested))
+                if (TryGetPropertyPathCaseInsensitive(el, header, out var nested))
                     return JsonElementToCellString(nested);
                 string leaf = header["baseAttributes.".Length..];
-                if (el.TryGetProperty(leaf, out var rootStat))
+                if (TryGetJsonPropertyCaseInsensitive(el, leaf, out var rootStat))
                     return JsonElementToCellString(rootStat);
                 return "";
             }
 
             if (header.StartsWith("growthPerLevel.", StringComparison.Ordinal))
             {
-                if (TryGetPropertyPath(el, header, out var nestedG))
+                if (TryGetPropertyPathCaseInsensitive(el, header, out var nestedG))
                     return JsonElementToCellString(nestedG);
                 string leafG = header["growthPerLevel.".Length..];
-                if (el.TryGetProperty(leafG, out var rootG))
+                if (TryGetJsonPropertyCaseInsensitive(el, leafG, out var rootG))
                     return JsonElementToCellString(rootG);
                 return "";
             }
 
             if (header.Contains('.', StringComparison.Ordinal))
             {
-                if (TryGetPropertyPath(el, header, out var at))
+                if (TryGetPropertyPathCaseInsensitive(el, header, out var at))
                     return JsonElementToCellString(at);
                 return "";
             }
 
-            if (!el.TryGetProperty(header, out var prop))
+            if (!TryGetJsonPropertyCaseInsensitive(el, header, out var prop))
                 return "";
             if (string.Equals(header, "tags", StringComparison.OrdinalIgnoreCase))
                 return FormatTagsArrayForSheetCell(prop);
+            if (string.Equals(header, "actions", StringComparison.OrdinalIgnoreCase))
+                return FormatPipeDelimitedStringArrayForSheetCell(prop);
             return JsonElementToCellString(prop);
+        }
+
+        /// <summary>Sheet-friendly plain string list: <c>A|B|C</c> (pull accepts this via pipe normalization).</summary>
+        internal static string FormatPipeDelimitedStringArrayForSheetCell(JsonElement el)
+        {
+            if (el.ValueKind == JsonValueKind.String)
+                return JsonStringToCell(el);
+
+            if (el.ValueKind != JsonValueKind.Array)
+                return JsonElementToCellString(el);
+
+            var parts = new List<string>();
+            foreach (var item in el.EnumerateArray())
+            {
+                if (item.ValueKind != JsonValueKind.String)
+                    continue;
+                var s = item.GetString()?.Trim();
+                if (!string.IsNullOrEmpty(s))
+                    parts.Add(s);
+            }
+
+            return parts.Count == 0 ? "" : string.Join("|", parts);
         }
 
         /// <summary>Sheet-friendly tag list: comma-separated, lowercase (pull accepts this via <see cref="NormalizeTagsFromSheet"/>).</summary>
@@ -623,7 +813,10 @@ namespace RPGGame.Data
             return string.Join(", ", normalized.Select(t => t.ToLowerInvariant()));
         }
 
-        private static bool TryGetPropertyPath(JsonElement el, string dottedPath, out JsonElement found)
+        private static bool TryGetPropertyPath(JsonElement el, string dottedPath, out JsonElement found) =>
+            TryGetPropertyPathCaseInsensitive(el, dottedPath, out found);
+
+        private static bool TryGetPropertyPathCaseInsensitive(JsonElement el, string dottedPath, out JsonElement found)
         {
             found = default;
             var parts = dottedPath.Split('.');
@@ -632,7 +825,7 @@ namespace RPGGame.Data
             JsonElement cur = el;
             foreach (var part in parts)
             {
-                if (cur.ValueKind != JsonValueKind.Object || !cur.TryGetProperty(part, out cur))
+                if (cur.ValueKind != JsonValueKind.Object || !TryGetJsonPropertyCaseInsensitive(cur, part, out cur))
                     return false;
             }
 
@@ -703,6 +896,10 @@ namespace RPGGame.Data
                 else if (kind == GameDataTabularSheetKind.Consumables)
                 {
                     NormalizeConsumablesJsonArrayRow(obj);
+                }
+                else if (kind == GameDataTabularSheetKind.Environments)
+                {
+                    NormalizeEnvironmentJsonArrayRow(obj);
                 }
 
                 arr.Add(obj);
@@ -1182,6 +1379,142 @@ namespace RPGGame.Data
         /// Sheet <c>tags</c> may be a JSON array, a single token, or comma / semicolon / pipe lists (same as in-game settings).
         /// Coerce to a canonical lowercase <c>tags</c> JSON array for reliable catalog deserialization.
         /// </summary>
+        private static void NormalizeEnvironmentJsonArrayRow(JsonObject obj)
+        {
+            CanonicalizeEnvironmentImportRowKeys(obj);
+            NormalizeTagsFromSheet(obj);
+            NormalizeEnvironmentWeightedListFromSheet(obj, "actions");
+            NormalizeEnvironmentWeightedListFromSheet(obj, "enemies");
+        }
+
+        private static void CanonicalizeEnvironmentImportRowKeys(JsonObject obj)
+        {
+            var renames = new List<(string oldKey, string newKey)>();
+            foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+            {
+                if (!EnvironmentRootHeaderCanonicalNames.TryGetValue(key.Trim(), out var canon))
+                    continue;
+                if (!string.Equals(key, canon, StringComparison.Ordinal))
+                    renames.Add((key, canon));
+            }
+
+            foreach (var (oldKey, newKey) in renames)
+            {
+                if (!obj.TryGetPropertyValue(oldKey, out var val))
+                    continue;
+                if (obj.ContainsKey(newKey))
+                    obj.Remove(oldKey);
+                else
+                {
+                    obj.Remove(oldKey);
+                    if (val is not null)
+                        obj[newKey] = val;
+                }
+            }
+
+            // Legacy Rooms.json used "Location" PascalCase without other fields.
+            if (obj.TryGetPropertyValue("Location", out var locNode) && locNode is not null
+                && !obj.ContainsKey("location"))
+            {
+                obj["location"] = locNode.DeepClone();
+                obj.Remove("Location");
+            }
+
+            if (obj.TryGetPropertyValue("name", out var nameNode) && nameNode is not null
+                && !obj.ContainsKey("location"))
+            {
+                obj["location"] = nameNode.DeepClone();
+            }
+        }
+
+        private static readonly Dictionary<string, string> EnvironmentRootHeaderCanonicalNames =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["region"] = "region",
+                ["biome"] = "biome",
+                ["location"] = "location",
+                ["tags"] = "tags",
+                ["description"] = "description",
+                ["actions"] = "actions",
+                ["enemies"] = "enemies",
+                ["name"] = "location",
+                ["theme"] = "biome"
+            };
+
+        /// <summary>
+        /// Coerces sheet <c>actions</c> / <c>enemies</c> cells into <c>{ name, weight }</c> JSON arrays.
+        /// </summary>
+        private static void NormalizeEnvironmentWeightedListFromSheet(JsonObject obj, string property)
+        {
+            if (!obj.TryGetPropertyValue(property, out var node) || node is null || IsJsonNodeNullOrMissing(node))
+                return;
+
+            if (node is JsonArray arr)
+            {
+                var normalized = new JsonArray();
+                foreach (var item in arr)
+                {
+                    if (item is JsonObject o && o.TryGetPropertyValue("name", out _))
+                    {
+                        normalized.Add(item.DeepClone());
+                        continue;
+                    }
+
+                    if (item is JsonValue jv && jv.TryGetValue<string>(out var s) && !string.IsNullOrWhiteSpace(s))
+                        normalized.Add(BuildWeightedEntry(s.Trim(), 1.0));
+                }
+
+                if (normalized.Count > 0)
+                    obj[property] = normalized;
+                return;
+            }
+
+            if (node is not JsonValue strVal || !strVal.TryGetValue<string>(out var cell) || string.IsNullOrWhiteSpace(cell))
+                return;
+
+            var parts = SplitEnvironmentSheetList(cell);
+            if (parts.Length == 0)
+                return;
+
+            var outArr = new JsonArray();
+            foreach (var part in parts)
+            {
+                var (name, weight) = ParseEnvironmentWeightedToken(part);
+                if (!string.IsNullOrWhiteSpace(name))
+                    outArr.Add(BuildWeightedEntry(name, weight));
+            }
+
+            obj[property] = outArr;
+        }
+
+        private static string[] SplitEnvironmentSheetList(string cell)
+        {
+            var s = cell.Trim();
+            char[] splitChars = s.Contains('|', StringComparison.Ordinal)
+                ? new[] { '|' }
+                : new[] { ',', '\n', '\r', ';' };
+            return s.Split(splitChars, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(p => p.Trim().Trim('"'))
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .ToArray();
+        }
+
+        private static (string name, double weight) ParseEnvironmentWeightedToken(string token)
+        {
+            int colon = token.IndexOf(':');
+            if (colon > 0 && colon < token.Length - 1
+                && double.TryParse(token[(colon + 1)..].Trim(), System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out var w))
+            {
+                return (token[..colon].Trim(), w);
+            }
+
+            return (token, 1.0);
+        }
+
+        private static JsonObject BuildWeightedEntry(string name, double weight) =>
+            new JsonObject { ["name"] = name, ["weight"] = weight };
+
         internal static void NormalizeTagsFromSheet(JsonObject obj)
         {
             string? tagsKey = null;

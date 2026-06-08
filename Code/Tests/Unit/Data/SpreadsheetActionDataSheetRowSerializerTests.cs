@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit.Data
             TestHeroBaseStats_PrefixedHeroModColumnLabels(ref testsRun, ref testsPassed, ref testsFailed);
             TestEnemyAndHeroBaseStats_SeparateNextActionMods(ref testsRun, ref testsPassed, ref testsFailed);
             TestTagsColumn_IngestsAndConverts(ref testsRun, ref testsPassed, ref testsFailed);
+            TestTagsColumn_PushLayoutColumnE(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("SpreadsheetActionDataSheetRowSerializer Tests", testsRun, testsPassed, testsFailed);
         }
@@ -296,6 +297,31 @@ namespace RPGGame.Tests.Unit.Data
                 "converted action has tag tokens from TAGS column", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertTrue(tags != null && tags.Contains("attack", StringComparer.OrdinalIgnoreCase),
                 "category still merged into tags", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        /// <summary>Matches ACTIONS tab layout: TAGS in column E, formula column F skipped on push.</summary>
+        private static void TestTagsColumn_PushLayoutColumnE(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestTagsColumn_PushLayoutColumnE));
+            var labelRow = new[] { "ACTION", "DESCRIPTION", "RARITY", "CATEGORY", "TAGS", "e(V)", "DPS(%)" };
+            var (header, _) = SpreadsheetActionParser.BuildHeaderFromSheetRows(new List<string[]> { labelRow });
+            TestBase.AssertTrue(header != null, "header parsed", ref testsRun, ref testsPassed, ref testsFailed);
+            if (header == null) return;
+
+            var data = new SpreadsheetActionData
+            {
+                Action = "BOSS COLLAPSE",
+                Description = "collapse",
+                Category = "ENVIRONMENT",
+                Tags = "environment, earth, exposed",
+                DPS = "65%"
+            };
+            var row = SpreadsheetActionDataSheetRowSerializer.ToRow(data, header);
+            TestBase.AssertEqual("environment, earth, exposed", row[4], "TAGS in column E", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var (left, right) = SheetsPushUtilities.SplitActionPushRowPreservingColumnsEF(row);
+            TestBase.AssertEqual("environment, earth, exposed", left[4]?.ToString(), "push left block includes TAGS", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("65%", right[0]?.ToString(), "DPS resumes at G", ref testsRun, ref testsPassed, ref testsFailed);
         }
     }
 }

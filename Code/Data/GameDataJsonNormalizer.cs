@@ -375,6 +375,7 @@ namespace RPGGame.Data
             CoercePropertyToDouble(o, "MinValue");
             CoercePropertyToDouble(o, "MaxValue");
             CoercePropertyToDouble(o, "RolledValue");
+            JsonArraySheetConverter.NormalizeTagsFromSheet(o);
         }
 
         /// <summary>
@@ -383,7 +384,8 @@ namespace RPGGame.Data
         /// </summary>
         private static void MergeModificationSheetColumnsAttributeRequirement(JsonObject o)
         {
-            JsonNode? abbrevNode = FindPropertyIgnoreCase(o, "ATTRIBUTE REQUIREMENT");
+            JsonNode? abbrevNode = FindPropertyIgnoreCase(o, "ATTRIBUTE REQUIREMENT")
+                ?? FindPropertyIgnoreCase(o, "ATTRIBUTE REQUREMENT");
             if (abbrevNode is not JsonValue jv || !jv.TryGetValue<string>(out var abbrevRaw) ||
                 string.IsNullOrWhiteSpace(abbrevRaw))
                 return;
@@ -395,6 +397,7 @@ namespace RPGGame.Data
             int reqVal = CoerceInt(reqNode);
             string statKey = MapSheetStatAbbrevToRequirementKey(abbrevRaw.Trim());
             RemovePropertyIgnoreCase(o, "ATTRIBUTE REQUIREMENT");
+            RemovePropertyIgnoreCase(o, "ATTRIBUTE REQUREMENT");
             RemovePropertyIgnoreCase(o, "REQUIREMENT VALUE");
 
             JsonNode? existing = FindPropertyIgnoreCase(o, "attributeRequirements");

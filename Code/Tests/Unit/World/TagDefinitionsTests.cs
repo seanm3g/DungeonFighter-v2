@@ -17,6 +17,8 @@ namespace RPGGame.Tests.Unit.World
             TestKnownTagCount(ref _run, ref _pass, ref _fail);
             TestEnemyArchetypes(ref _run, ref _pass, ref _fail);
             TestValidateEnemyTags(ref _run, ref _pass, ref _fail);
+            TestCreatureAttributeTags(ref _run, ref _pass, ref _fail);
+            TestClassPathTagsOnItems(ref _run, ref _pass, ref _fail);
             TestElementTags(ref _run, ref _pass, ref _fail);
             TestRegistrySeeded(ref _run, ref _pass, ref _fail);
 
@@ -28,7 +30,7 @@ namespace RPGGame.Tests.Unit.World
         private static void TestKnownTagCount(ref int run, ref int pass, ref int fail)
         {
             TestBase.SetCurrentTestName(nameof(TestKnownTagCount));
-            TestBase.AssertEqual(59, TagDefinitions.AllRegistryTags.Count(), "59 registry tags", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(58, TagDefinitions.AllRegistryTags.Count(), "58 registry tags", ref run, ref pass, ref fail);
         }
 
         private static void TestEnemyArchetypes(ref int run, ref int pass, ref int fail)
@@ -47,9 +49,32 @@ namespace RPGGame.Tests.Unit.World
         {
             TestBase.SetCurrentTestName(nameof(TestValidateEnemyTags));
             var warnings = TagDefinitions.ValidateTagList(TagEntityScope.Enemy, new[] { "undead", "trickster" });
-            TestBase.AssertTrue(warnings.Any(w => w.Contains("hero subclass")), "subclass on enemy warns", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(warnings.Any(w => w.Contains("Unknown tag")),
+                "subclass name in tags warns as unknown", ref run, ref pass, ref fail);
             TestBase.AssertTrue(TagDefinitions.ValidateTagList(TagEntityScope.Enemy, new[] { "not_a_tag" }).Count > 0,
                 "unknown tag warns", ref run, ref pass, ref fail);
+        }
+
+        private static void TestCreatureAttributeTags(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(TestCreatureAttributeTags));
+            TestBase.AssertTrue(TagDefinitions.IsKnownTag("large"), "large known", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(TagDefinitions.IsKnownTag("young"), "young known", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(TagDefinitions.IsKnownTag("bulky"), "bulky known", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(TagDefinitions.IsKnownTag("frail"), "frail known", ref run, ref pass, ref fail);
+            TestBase.AssertFalse(TagDefinitions.IsAllowedOn(TagEntityScope.Item, "large"),
+                "large not on items", ref run, ref pass, ref fail);
+            TestBase.AssertFalse(TagDefinitions.IsAllowedOn(TagEntityScope.Environment, "young"),
+                "young not on environments", ref run, ref pass, ref fail);
+        }
+
+        private static void TestClassPathTagsOnItems(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(TestClassPathTagsOnItems));
+            TestBase.AssertTrue(TagDefinitions.IsAllowedOn(TagEntityScope.Item, "warrior"),
+                "warrior allowed on catalog weapons", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(TagDefinitions.ValidateTagList(TagEntityScope.Item, new[] { "sword", "warrior" }).Count == 0,
+                "weapon catalog base tags validate on items", ref run, ref pass, ref fail);
         }
 
         private static void TestElementTags(ref int run, ref int pass, ref int fail)

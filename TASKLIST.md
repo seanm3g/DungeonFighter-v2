@@ -4,7 +4,7 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
-- [x] **Systems / Tag registry implementation:** Canonical 59-tag vocabulary in `TagDefinitions.cs`; `TagRegistry` seeded from definitions; 10 enemy archetypes (Knight, Assassin, Berserker, Acrobat, Brute, Warlord, Sage, Duelist, Artificer, Trickster) validated on ENEMIES sheet pull and at runtime; `Enemy.Tags` + material prefix → `Item.Tags`; `TagDamageCalculator` uses fire/earth/water/air cycle. Docs: `Documentation/05-Systems/TAG_REGISTRY.md`. Tests: `TagDefinitionsTests`, `EnemyLoaderTests`, `JsonArraySheetConverterTests`.
+- [x] **Systems / Tag registry implementation:** Canonical 58-tag vocabulary in `TagDefinitions.cs` (removed hero subclass tags; creature attrs: giant, large, young, tiny, bulky, frail, has_hands); `TagRegistry` seeded from definitions; 10 enemy archetypes on `archetype` field; `Enemy.Tags` via sheet + `apply-enemy-tags.py`; `RoomData.tags` → `Environment.Tags` (ENVIRONMENTS sheet column + theme fallback); material prefix → `Item.Tags`. Docs: `Documentation/05-Systems/TAG_REGISTRY.md`. Tests: `TagDefinitionsTests`, `EnvironmentTests` (theme fallback), `EnemyLoaderTests`.
 
 - [x] **UI / Left panel — AMP hover shows per-slot tiers:** Hovering **AMP** in STATS lists the combo-AMP damage multiplier for each strip slot (`Pow(TECH baseline, index)` for combo actions; non-combo slots show 1.00×). Empty strip previews up to the hero’s current max sequence length. Scope: `LeftPanelTooltipBuilder`, `LeftPanelTooltipBuilderTests`; docs: `OVERVIEW.md`. Verification: `dotnet build` on `Code/Code.csproj` and `LeftPanelTooltipBuilderTests` pass.
 

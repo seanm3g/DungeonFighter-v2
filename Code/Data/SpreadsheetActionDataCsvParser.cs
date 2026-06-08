@@ -34,7 +34,7 @@ namespace RPGGame.Data
             data.Rarity = header.GetValue(columns, null, "RARITY");
             data.Category = header.GetValue(columns, null, "CATEGORY");
             data.DPS = header.GetValue(columns, null, "DPS(%)");
-            // Explicit TAGS cell (comma/semicolon list). Row-2 label-driven; not fixed to column E (E–F may be sheet formulas on push).
+            // Explicit TAGS cell (comma/semicolon list). Row-2 label-driven; usually column E (column F may be a sheet formula on push).
             data.Tags = FirstNonEmpty(
                 header.GetValue(columns, null, "TAGS"),
                 header.GetValue(columns, null, "TAG"));

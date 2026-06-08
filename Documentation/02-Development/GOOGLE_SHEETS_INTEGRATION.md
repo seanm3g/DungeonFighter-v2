@@ -65,15 +65,35 @@ Two-row header (category band + short names), then data rows. Canonical columns 
 | H–K | base attributes | `strength`, `agility`, `technique`, `intelligence` |
 | L–O | growth per level | same four stats (sum normalized to 6/level in game) |
 | P–Q | HEALTH | `baseHealth`, `healthGrowthPerLevel` |
-| R–U | `actions`, `isLiving`, `description`, `colorOverride` | |
+| R–U | `actions`, `isLiving`, `description`, `colorOverride` | `actions`: pipe list (`JAB\|TAUNT`), not a JSON array |
 
-**Authoring flow:** edit **Archetype** and **tags** on the ENEMIES tab → **PULL** → `Enemies.json` updates (archetype Title Case normalized on import). **Push** writes local `Enemies.json` back to the sheet (enable **Push ENEMIES** in Balance Tuning).
+**Authoring flow:** edit **Archetype** and **tags** on the ENEMIES tab → **PULL** → `Enemies.json` updates (archetype Title Case normalized on import). **Push** writes local `Enemies.json` back to the sheet (enable **Push ENEMIES** in Balance Tuning). Push exports `tags` comma-separated and `actions` pipe-separated.
 
-The full 59-tag vocabulary is defined in code (`TagDefinitions.cs`), not as a separate sheet tab. Valid values are documented in [TAG_REGISTRY.md](../05-Systems/TAG_REGISTRY.md).
+The full 58-tag vocabulary is defined in code (`TagDefinitions.cs`), not as a separate sheet tab. Valid values are documented in [TAG_REGISTRY.md](../05-Systems/TAG_REGISTRY.md).
+
+### ENVIRONMENTS
+
+Single header row; columns **A–G** (pull → `GameData/Rooms.json`):
+
+| Col | Field | Notes |
+|-----|-------|-------|
+| A | `region` | Travel region id (same vocabulary as ENEMIES **region**) |
+| B | `biome` | Dungeon theme match (`Forest`, `Lava`, `Crypt`, …). **Leave blank** = room can appear in **any** theme |
+| C | `location` | Room display name and catalog key |
+| D | `tags` | Comma-separated environment tags (`fire`, `scorched`, …) — see [TAG_REGISTRY.md](../05-Systems/TAG_REGISTRY.md) |
+| E | `description` | Room flavor text |
+| F | `actions` | Environmental hazard actions: `Action A\|Action B` or `Action:0.8\|Other:0.2` |
+| G | `enemies` | Optional weighted spawn pool: `Enemy A\|Enemy B` or `Enemy:1.0` |
+
+Runtime: `RoomData` → `Environment` with `Environment.Tags`. Legacy JSON keys `Location`, `name`, `theme` are normalized on import/load and on **push** (mapped to `location` / `biome`; `actions` / `enemies` export as pipe cells, `tags` as comma-separated).
+
+### DUNGEONS
+
+Single header row; columns match `Dungeons.json`: `name`, `theme`, `minLevel`, `maxLevel`, `possibleEnemies`, `colorOverride`. **Push** exports `possibleEnemies` as a pipe list (`Goblin|Wolf|Spider`), not a JSON array. Pull accepts pipe lists or JSON arrays.
 
 ### ACTIONS — TAGS column
 
-Optional **TAGS** cell: comma/semicolon list of extra tokens (pool gates like `environment`, `enemy`, `weapon`, elements, etc.). Category and rarity are merged into runtime tags separately on import.
+Optional **TAGS** cell (column **E** on the standard layout): comma/semicolon list of extra tokens (pool gates like `environment`, `enemy`, `weapon`, elements, etc.). Category and rarity are merged into runtime tags separately on import. **Push** writes TAGS from `Actions.json`; column **F** (e.g. `e(V)` formulas) is left unchanged.
 
 ### WEAPONS / ARMOR — tags
 

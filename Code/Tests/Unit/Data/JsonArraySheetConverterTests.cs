@@ -19,6 +19,8 @@ namespace RPGGame.Tests.Unit.Data
             WeaponsWithTagsRoundTrip(ref run, ref pass, ref fail);
             WeaponsImportMapsTypoMinBonusHeaders(ref run, ref pass, ref fail);
             ModificationsRoundTrip(ref run, ref pass, ref fail);
+            ModificationsPushIncludesTagsColumn(ref run, ref pass, ref fail);
+            ModificationsCsvImportTagsColumn(ref run, ref pass, ref fail);
             ModificationsCsvImportValueAndAttributeRequirementColumns(ref run, ref pass, ref fail);
             MergeJsonRootArraysCoreThenExtra(ref run, ref pass, ref fail);
             SplitModificationsMergedJsonMaterialQualityToSecondFile(ref run, ref pass, ref fail);
@@ -43,9 +45,13 @@ namespace RPGGame.Tests.Unit.Data
             EnemiesPushOmitsLegacyRootStatExtraColumns(ref run, ref pass, ref fail);
             EnemiesNewSheetLayoutImport(ref run, ref pass, ref fail);
             EnemiesArchetypeCanonicalization(ref run, ref pass, ref fail);
+            EnemiesActionsPipePushFormat(ref run, ref pass, ref fail);
             EnvironmentsRoundTrip(ref run, ref pass, ref fail);
+            EnvironmentsLegacyLocationPush(ref run, ref pass, ref fail);
+            EnvironmentsSheetColumnsPull(ref run, ref pass, ref fail);
             EnvironmentsWithEnemiesRoundTrip(ref run, ref pass, ref fail);
             DungeonsRoundTrip(ref run, ref pass, ref fail);
+            DungeonsPossibleEnemiesPipePushFormat(ref run, ref pass, ref fail);
             DungeonsPossibleEnemiesPipeDelimitedNormalized(ref run, ref pass, ref fail);
             ArmorRoundTrip(ref run, ref pass, ref fail);
             ArmorExtendedColumnsRoundTrip(ref run, ref pass, ref fail);
@@ -162,6 +168,33 @@ namespace RPGGame.Tests.Unit.Data
             using var a = JsonDocument.Parse(outJson);
             TestBase.AssertEqual("Worn", a.RootElement[0].GetProperty("Name").GetString(), "Name", ref run, ref pass, ref fail);
             TestBase.AssertEqual(-3, a.RootElement[0].GetProperty("MinValue").GetDouble(), "Min", ref run, ref pass, ref fail);
+        }
+
+        private static void ModificationsPushIncludesTagsColumn(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(ModificationsPushIncludesTagsColumn));
+            const string json = """
+            [{"DiceResult":0,"ItemRank":"Common","Name":"Bone","prefixCategory":"MATERIAL","MinValue":2,"MaxValue":2,"tags":["bone","barbarian"]}]
+            """;
+            var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Modifications);
+            var headers = rows[0].Select(c => c?.ToString() ?? "").ToList();
+            TestBase.AssertTrue(headers.Contains("tags"), "push headers include tags", ref run, ref pass, ref fail);
+            int tagsIx = headers.FindIndex(h => string.Equals(h, "tags", StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertEqual("bone, barbarian", rows[1][tagsIx]?.ToString(), "tags cell", ref run, ref pass, ref fail);
+        }
+
+        private static void ModificationsCsvImportTagsColumn(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(ModificationsCsvImportTagsColumn));
+            const string csv = """
+            DiceResult,ItemRank,Name,Description,Effect,value,prefixCategory,ATTRIBUTE REQUIREMENT,REQUIREMENT VALUE,ATTRIBUTE REQUREMENT,MaxValue,MinValue,RolledValue,tags
+            0,Common,flaming,,BURN,10,ADJECTIVE,,,,10,10,0,fire
+            """;
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Modifications);
+            using var doc = JsonDocument.Parse(outJson);
+            var tags = doc.RootElement[0].GetProperty("tags");
+            TestBase.AssertEqual(1, tags.GetArrayLength(), "one tag", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("fire", tags[0].GetString(), "fire tag", ref run, ref pass, ref fail);
         }
 
         /// <summary>PREFIX sheet A–I: <c>value</c> maps to Min/Max; <c>ATTRIBUTE REQUIREMENT</c> + <c>REQUIREMENT VALUE</c> → <c>attributeRequirements</c>.</summary>
@@ -601,6 +634,17 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
             TestBase.AssertEqual("JAB", first.GetProperty("actions")[0].GetString(), "action0", ref run, ref pass, ref fail);
         }
 
+        private static void EnemiesActionsPipePushFormat(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(EnemiesActionsPipePushFormat));
+            const string json = """
+            [{"name":"Goblin","archetype":"Assassin","baseHealth":40,"actions":["JAB","TAUNT"],"isLiving":true,"description":"A goblin"}]
+            """;
+            var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
+            int actionsIdx = Array.IndexOf(JsonArraySheetConverter.EnemiesCanonicalHeaders, "actions");
+            TestBase.AssertEqual("JAB|TAUNT", rows[2][actionsIdx]?.ToString(), "actions pipe cell", ref run, ref pass, ref fail);
+        }
+
         private static void EnemiesArchetypeCanonicalization(ref int run, ref int pass, ref int fail)
         {
             TestBase.SetCurrentTestName(nameof(EnemiesArchetypeCanonicalization));
@@ -619,22 +663,53 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
         {
             TestBase.SetCurrentTestName(nameof(EnvironmentsRoundTrip));
             const string json = """
-            [{"name":"Entrance","description":"Big door.","theme":"Generic","isHostile":false,"actions":[{"name":"Magical Barrier","weight":1}]}]
+            [{"region":"north","biome":"Forest","location":"Entrance","tags":["overgrown"],"description":"Big door.","actions":[{"name":"Magical Barrier","weight":1}]}]
             """;
             var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Environments);
+            TestBase.AssertEqual(7, rows[0].Count, "seven canonical columns only", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("region", rows[0][0]?.ToString(), "header region", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Magical Barrier", rows[1][5]?.ToString(), "actions pipe cell", ref run, ref pass, ref fail);
             var csv = RowsToCsv(rows);
             string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Environments);
             using var a = JsonDocument.Parse(outJson);
             var first = a.RootElement[0];
-            TestBase.AssertEqual("Entrance", first.GetProperty("name").GetString(), "name", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Entrance", first.GetProperty("location").GetString(), "location", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Forest", first.GetProperty("biome").GetString(), "biome", ref run, ref pass, ref fail);
             TestBase.AssertEqual("Magical Barrier", first.GetProperty("actions")[0].GetProperty("name").GetString(), "action name", ref run, ref pass, ref fail);
+        }
+
+        private static void EnvironmentsLegacyLocationPush(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(EnvironmentsLegacyLocationPush));
+            const string json = """
+            [{"Location":"Entrance","description":"Big door.","actions":[{"name":"Magical Barrier","weight":1},{"name":"Trap Spring","weight":0.2}]}]
+            """;
+            var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Environments);
+            TestBase.AssertEqual(7, rows[0].Count, "no extra Location column", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Entrance", rows[1][2]?.ToString(), "legacy Location -> location column", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Magical Barrier:1|Trap Spring:0.2", rows[1][5]?.ToString(), "weighted actions cell", ref run, ref pass, ref fail);
+        }
+
+        private static void EnvironmentsSheetColumnsPull(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(EnvironmentsSheetColumnsPull));
+            const string csv = """
+            Region,Biome,Location,Tags,description,actions,enemies
+            north,Forest,Entrance,"fire, scorched",Big door.,Magical Barrier|Trap Spring,
+            """;
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Environments);
+            using var doc = JsonDocument.Parse(outJson);
+            var first = doc.RootElement[0];
+            TestBase.AssertEqual("Entrance", first.GetProperty("location").GetString(), "location from sheet", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("fire", first.GetProperty("tags")[0].GetString(), "tag0", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Trap Spring", first.GetProperty("actions")[1].GetProperty("name").GetString(), "action1", ref run, ref pass, ref fail);
         }
 
         private static void EnvironmentsWithEnemiesRoundTrip(ref int run, ref int pass, ref int fail)
         {
             TestBase.SetCurrentTestName(nameof(EnvironmentsWithEnemiesRoundTrip));
             const string json = """
-            [{"name":"Wolf Den","description":"Den.","theme":"Forest","isHostile":true,"actions":[{"name":"Trap Spring","weight":1}],"enemies":[{"name":"Wolf","weight":0.7},{"name":"Spider","weight":0.3}]}]
+            [{"region":"","biome":"Forest","location":"Wolf Den","description":"Den.","actions":[{"name":"Trap Spring","weight":1}],"enemies":[{"name":"Wolf","weight":0.7},{"name":"Spider","weight":0.3}]}]
             """;
             var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Environments);
             var csv = RowsToCsv(rows);
@@ -644,6 +719,20 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
             TestBase.AssertTrue(enemies.ValueKind == JsonValueKind.Array, "enemies array", ref run, ref pass, ref fail);
             TestBase.AssertEqual("Wolf", enemies[0].GetProperty("name").GetString(), "enemy0", ref run, ref pass, ref fail);
             TestBase.AssertEqual(0.7, enemies[0].GetProperty("weight").GetDouble(), "w0", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Wolf:0.7|Spider:0.3", rows[1][6]?.ToString(), "weighted enemies push cell", ref run, ref pass, ref fail);
+        }
+
+        private static void DungeonsPossibleEnemiesPipePushFormat(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(DungeonsPossibleEnemiesPipePushFormat));
+            const string json = """
+            [{"name":"Ancient Forest","theme":"Forest","minLevel":1,"maxLevel":10,"possibleEnemies":["Goblin","Wolf"]}]
+            """;
+            var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Dungeons);
+            TestBase.AssertEqual(JsonArraySheetConverter.DungeonsCanonicalHeaders.Length, rows[0].Count,
+                "six canonical columns only", ref run, ref pass, ref fail);
+            int peIdx = Array.IndexOf(JsonArraySheetConverter.DungeonsCanonicalHeaders, "possibleEnemies");
+            TestBase.AssertEqual("Goblin|Wolf", rows[1][peIdx]?.ToString(), "possibleEnemies pipe cell", ref run, ref pass, ref fail);
         }
 
         private static void DungeonsRoundTrip(ref int run, ref int pass, ref int fail)

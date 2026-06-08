@@ -47,6 +47,23 @@ AIR_RE = re.compile(
 )
 
 GIANT_RE = re.compile(r"\b(titan|colossus|golem|warden|mound|bear|treant|scarab)\b", re.I)
+LARGE_RE = re.compile(
+    r"\b(ogre|bear|knight|hulk|hulking|big|large|massive|brute|guard|sentinel|"
+    r"minotaur|hydra|dragon|wyrm)\b",
+    re.I,
+)
+YOUNG_RE = re.compile(
+    r"\b(young|juvenile|fledgling|hatchling|cub|whelp|spawn)\b",
+    re.I,
+)
+BULKY_RE = re.compile(
+    r"\b(brute|tortoise|crab|mound|stocky|bulky|thick|armored|shell)\b",
+    re.I,
+)
+FRAIL_RE = re.compile(
+    r"\b(wisp|skeleton|glass|thin|brittle|frail|shard|bony|gaunt)\b",
+    re.I,
+)
 TINY_RE = re.compile(
     r"\b(bat\b|imp\b|wisp|sprite|leech|rat\b|spider|drone|creeper|scorpion|"
     r"serpent|toad|scarab)\b",
@@ -100,7 +117,11 @@ TAG_ORDER = [
     "boss",
     "minion",
     "giant",
+    "large",
+    "young",
     "tiny",
+    "bulky",
+    "frail",
     "has_hands",
 ]
 
@@ -167,8 +188,25 @@ def infer_tags(enemy: dict) -> list[str]:
     ):
         tags.append("giant")
 
+    has_giant = "giant" in tags
+
+    if not has_giant and (
+        LARGE_RE.search(name_l)
+        or (LARGE_RE.search(text) and rarity in ("rare", "uncommon", "common"))
+    ):
+        tags.append("large")
+
+    if YOUNG_RE.search(text):
+        tags.append("young")
+
     if TINY_RE.search(name_l):
         tags.append("tiny")
+
+    if BULKY_RE.search(text):
+        tags.append("bulky")
+
+    if FRAIL_RE.search(text):
+        tags.append("frail")
 
     if HANDS_NAME_RE.search(name_l):
         tags.append("has_hands")

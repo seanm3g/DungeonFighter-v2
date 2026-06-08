@@ -33,16 +33,8 @@ namespace RPGGame.World.Tags
             "Warlord", "Sage", "Duelist", "Artificer", "Trickster"
         };
 
-        public static readonly IReadOnlyList<string> HeroSubclassTags = new[]
-        {
-            "trickster", "warlord", "duelist", "artificer", "acrobat"
-        };
-
         private static readonly HashSet<string> ValidEnemyArchetypeSet =
             new(ValidEnemyArchetypes, StringComparer.OrdinalIgnoreCase);
-
-        private static readonly HashSet<string> HeroSubclassTagSet =
-            new(HeroSubclassTags, StringComparer.OrdinalIgnoreCase);
 
         private static readonly Dictionary<string, TagDefinition> Catalog =
             BuildCatalog();
@@ -94,9 +86,6 @@ namespace RPGGame.World.Tags
             return (def.Scope & scope) != 0;
         }
 
-        public static bool IsHeroSubclassTag(string? tag) =>
-            !string.IsNullOrWhiteSpace(tag) && HeroSubclassTagSet.Contains(tag.Trim());
-
         /// <summary>Returns human-readable validation messages (warnings).</summary>
         public static List<string> ValidateTagList(TagEntityScope scope, IEnumerable<string>? tags)
         {
@@ -121,9 +110,6 @@ namespace RPGGame.World.Tags
 
                 if (!IsAllowedOn(scope, tag))
                     messages.Add($"Tag '{tag}' is not allowed on this entity type.");
-
-                if (scope == TagEntityScope.Enemy && IsHeroSubclassTag(tag))
-                    messages.Add($"Tag '{tag}' is a hero subclass tag; use the archetype field on enemies instead.");
             }
 
             return messages;
@@ -164,7 +150,7 @@ namespace RPGGame.World.Tags
             foreach (var t in new[] { "environment", "enemy", "weapon", "class", "unique", "starter", "modtrade" })
                 Add(t, TagLayer.PoolGate, TagEntityScope.Action | TagEntityScope.Item);
             foreach (var t in new[] { "warrior", "barbarian", "rogue", "wizard" })
-                Add(t, TagLayer.PoolGate, TagEntityScope.Action | TagEntityScope.Hero);
+                Add(t, TagLayer.PoolGate, TagEntityScope.Action | TagEntityScope.Hero | TagEntityScope.Item);
             foreach (var t in new[] { "sword", "mace", "dagger", "wand" })
                 Add(t, TagLayer.PoolGate, TagEntityScope.Action | TagEntityScope.Item);
             foreach (var t in new[] { "common", "uncommon", "rare", "epic", "legendary", "mythic" })
@@ -176,12 +162,10 @@ namespace RPGGame.World.Tags
                 Add(t, TagLayer.Match, TagEntityScope.Environment | TagEntityScope.Action | TagEntityScope.Enemy);
             foreach (var t in new[] { "living", "undead", "plant", "elemental", "celestial" })
                 Add(t, TagLayer.Match, TagEntityScope.Enemy | TagEntityScope.Item);
-            foreach (var t in new[] { "giant", "tiny", "has_hands" })
+            foreach (var t in new[] { "giant", "large", "young", "tiny", "bulky", "frail", "has_hands" })
                 Add(t, TagLayer.Match, TagEntityScope.Enemy);
             foreach (var t in new[] { "boss", "minion" })
                 Add(t, TagLayer.Match, TagEntityScope.Enemy);
-            foreach (var t in HeroSubclassTags)
-                Add(t, TagLayer.Match, TagEntityScope.Hero | TagEntityScope.Action);
             foreach (var t in new[]
                      {
                          "bone", "bronze", "glass", "willow", "steel", "gold", "obsidian", "silver",

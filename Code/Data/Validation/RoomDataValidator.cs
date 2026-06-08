@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.World.Tags;
 
 namespace RPGGame.Data.Validation
 {
@@ -46,20 +47,19 @@ namespace RPGGame.Data.Validation
 
         private void ValidateRoom(RoomData room, ValidationResult result)
         {
-            var entityName = string.IsNullOrEmpty(room.Name) ? "<unnamed>" : room.Name;
+            var entityName = string.IsNullOrEmpty(room.GetLocationKey()) ? "<unnamed>" : room.GetLocationKey();
 
-            // Required fields
-            if (string.IsNullOrEmpty(room.Name))
+            if (string.IsNullOrEmpty(room.GetLocationKey()))
             {
-                result.AddError(FileName, entityName, "name", "Room name is required");
+                result.AddError(FileName, entityName, "location", "Location is required");
             }
 
-            // Theme validation (optional but should be valid if provided)
-            if (!string.IsNullOrEmpty(room.Theme) && 
-                !ValidationRules.Dungeons.ValidThemes.Contains(room.Theme))
+            var biome = room.GetBiomeForThemeMatch();
+            if (!string.IsNullOrEmpty(biome) &&
+                !ValidationRules.Dungeons.ValidThemes.Contains(biome))
             {
-                result.AddWarning(FileName, entityName, "theme", 
-                    $"Unknown theme '{room.Theme}'. Valid themes: {string.Join(", ", ValidationRules.Dungeons.ValidThemes)}");
+                result.AddWarning(FileName, entityName, "biome",
+                    $"Unknown biome '{biome}'. Valid dungeon themes: {string.Join(", ", ValidationRules.Dungeons.ValidThemes)}");
             }
 
             // Action reference validation
@@ -84,6 +84,12 @@ namespace RPGGame.Data.Validation
                             $"Action '{actionData.Name}' has negative weight ({actionData.Weight}). Weights should be positive.");
                     }
                 }
+            }
+
+            if (room.Tags != null && room.Tags.Count > 0)
+            {
+                foreach (var message in GameDataTagHelper.ValidateRegistryTags(TagEntityScope.Environment, room.Tags))
+                    result.AddWarning(FileName, entityName, "tags", message);
             }
 
             if (room.Enemies != null && room.Enemies.Count > 0)

@@ -10,7 +10,10 @@
     "attributeRequirements": {
       "intelligence": 15
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -26,7 +29,10 @@
     "attributeRequirements": {
       "technique": 18
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -42,7 +48,10 @@
     "attributeRequirements": {
       "strength": 15
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -59,6 +68,8 @@
       "agility": 5
     },
     "tags": [
+      "sword",
+      "warrior",
       "starter"
     ],
     "extraActionSlots": 0,
@@ -76,7 +87,10 @@
     "attributeRequirements": {
       "intelligence": 6
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -92,7 +106,10 @@
     "attributeRequirements": {
       "agility": 14
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -108,7 +125,10 @@
     "attributeRequirements": {
       "technique": 5
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -124,7 +144,10 @@
     "attributeRequirements": {
       "agility": 9
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -140,7 +163,10 @@
     "attributeRequirements": {
       "strength": 11
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -156,7 +182,10 @@
     "attributeRequirements": {
       "strength": 5
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -172,7 +201,10 @@
     "attributeRequirements": {
       "strength": 12
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -188,7 +220,10 @@
     "attributeRequirements": {
       "agility": 5
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -204,7 +239,10 @@
     "attributeRequirements": {
       "technique": 10
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -220,7 +258,10 @@
     "attributeRequirements": {
       "intelligence": 5
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -236,7 +277,10 @@
     "attributeRequirements": {
       "intelligence": 11
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -252,7 +296,10 @@
     "attributeRequirements": {
       "technique": 5
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -268,7 +315,10 @@
     "attributeRequirements": {
       "strength": 5
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -285,6 +335,8 @@
       "strength": 5
     },
     "tags": [
+      "mace",
+      "barbarian",
       "starter"
     ],
     "extraActionSlots": 0,
@@ -302,7 +354,10 @@
     "attributeRequirements": {
       "agility": 7
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -318,7 +373,10 @@
     "attributeRequirements": {
       "strength": 11
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -334,7 +392,10 @@
     "attributeRequirements": {
       "strength": 23
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -350,7 +411,10 @@
     "attributeRequirements": {
       "agility": 12
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -366,7 +430,10 @@
     "attributeRequirements": {
       "strength": 10
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -382,7 +449,10 @@
     "attributeRequirements": {
       "agility": 14
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -398,7 +468,10 @@
     "attributeRequirements": {
       "technique": 7
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -414,7 +487,10 @@
     "attributeRequirements": {
       "technique": 9
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -430,7 +506,10 @@
     "attributeRequirements": {
       "strength": 13
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -446,7 +525,10 @@
     "attributeRequirements": {
       "intelligence": 11
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -462,7 +544,10 @@
     "attributeRequirements": {
       "technique": 12
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -478,7 +563,10 @@
     "attributeRequirements": {
       "intelligence": 5
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -494,7 +582,10 @@
     "attributeRequirements": {
       "intelligence": 7
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -510,7 +601,10 @@
     "attributeRequirements": {
       "intelligence": 5
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -526,7 +620,10 @@
     "attributeRequirements": {
       "technique": 14
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -542,7 +639,10 @@
     "attributeRequirements": {
       "technique": 10
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -558,7 +658,10 @@
     "attributeRequirements": {
       "intelligence": 5
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -575,6 +678,8 @@
       "intelligence": 5
     },
     "tags": [
+      "wand",
+      "wizard",
       "starter"
     ],
     "extraActionSlots": 0,
@@ -593,7 +698,8 @@
       "intelligence": 5
     },
     "tags": [
-      "starter"
+      "wand",
+      "wizard"
     ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
@@ -610,7 +716,10 @@
     "attributeRequirements": {
       "agility": 14
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -626,7 +735,10 @@
     "attributeRequirements": {
       "technique": 5
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -643,6 +755,8 @@
       "technique": 5
     },
     "tags": [
+      "dagger",
+      "rogue",
       "starter"
     ],
     "extraActionSlots": 0,
@@ -660,7 +774,10 @@
     "attributeRequirements": {
       "strength": 10
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -676,7 +793,10 @@
     "attributeRequirements": {
       "technique": 18
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -692,7 +812,10 @@
     "attributeRequirements": {
       "strength": 24
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -708,7 +831,10 @@
     "attributeRequirements": {
       "agility": 26
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -724,7 +850,10 @@
     "attributeRequirements": {
       "strength": 13
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -740,7 +869,10 @@
     "attributeRequirements": {
       "strength": 14
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -756,7 +888,10 @@
     "attributeRequirements": {
       "agility": 12
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -772,7 +907,10 @@
     "attributeRequirements": {
       "technique": 11
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -788,7 +926,10 @@
     "attributeRequirements": {
       "technique": 17
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -804,7 +945,10 @@
     "attributeRequirements": {
       "intelligence": 52
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -820,7 +964,10 @@
     "attributeRequirements": {
       "agility": 24
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -836,7 +983,10 @@
     "attributeRequirements": {
       "agility": 14
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -852,7 +1002,10 @@
     "attributeRequirements": {
       "strength": 28
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -868,7 +1021,10 @@
     "attributeRequirements": {
       "agility": 27
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -884,7 +1040,10 @@
     "attributeRequirements": {
       "technique": 20
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -900,7 +1059,10 @@
     "attributeRequirements": {
       "strength": 25
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -916,7 +1078,10 @@
     "attributeRequirements": {
       "technique": 19
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -932,7 +1097,10 @@
     "attributeRequirements": {
       "intelligence": 18
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -948,7 +1116,10 @@
     "attributeRequirements": {
       "strength": 18
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -964,7 +1135,10 @@
     "attributeRequirements": {
       "technique": 25
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -980,7 +1154,10 @@
     "attributeRequirements": {
       "intelligence": 15
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -996,7 +1173,10 @@
     "attributeRequirements": {
       "agility": 15
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1012,7 +1192,10 @@
     "attributeRequirements": {
       "strength": 23
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1028,7 +1211,10 @@
     "attributeRequirements": {
       "technique": 19
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1044,7 +1230,10 @@
     "attributeRequirements": {
       "intelligence": 19
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1060,7 +1249,10 @@
     "attributeRequirements": {
       "technique": 30
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1076,7 +1268,10 @@
     "attributeRequirements": {
       "agility": 15
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1092,7 +1287,10 @@
     "attributeRequirements": {
       "technique": 21
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1108,7 +1306,10 @@
     "attributeRequirements": {
       "agility": 23
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1124,7 +1325,10 @@
     "attributeRequirements": {
       "intelligence": 19
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1140,7 +1344,10 @@
     "attributeRequirements": {
       "agility": 26
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1156,7 +1363,10 @@
     "attributeRequirements": {
       "agility": 14
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1172,7 +1382,10 @@
     "attributeRequirements": {
       "technique": 30
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1188,7 +1401,10 @@
     "attributeRequirements": {
       "strength": 28
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1204,7 +1420,10 @@
     "attributeRequirements": {
       "intelligence": 18
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1220,7 +1439,10 @@
     "attributeRequirements": {
       "strength": 19
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1236,7 +1458,10 @@
     "attributeRequirements": {
       "intelligence": 10
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1252,7 +1477,10 @@
     "attributeRequirements": {
       "intelligence": 10
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1268,7 +1496,10 @@
     "attributeRequirements": {
       "intelligence": 13
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1284,7 +1515,10 @@
     "attributeRequirements": {
       "intelligence": 15
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1300,7 +1534,10 @@
     "attributeRequirements": {
       "technique": 62
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1316,7 +1553,10 @@
     "attributeRequirements": {
       "agility": 57
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1332,7 +1572,10 @@
     "attributeRequirements": {
       "strength": 55
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1348,7 +1591,10 @@
     "attributeRequirements": {
       "intelligence": 53
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1364,7 +1610,10 @@
     "attributeRequirements": {
       "agility": 57
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1380,7 +1629,10 @@
     "attributeRequirements": {
       "intelligence": 65
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1396,7 +1648,10 @@
     "attributeRequirements": {
       "technique": 47
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1412,7 +1667,10 @@
     "attributeRequirements": {
       "agility": 35
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1428,7 +1686,10 @@
     "attributeRequirements": {
       "technique": 60
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1444,7 +1705,10 @@
     "attributeRequirements": {
       "agility": 56
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1460,7 +1724,10 @@
     "attributeRequirements": {
       "strength": 50
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1476,7 +1743,10 @@
     "attributeRequirements": {
       "technique": 44
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1492,7 +1762,10 @@
     "attributeRequirements": {
       "intelligence": 50
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1508,7 +1781,10 @@
     "attributeRequirements": {
       "technique": 43
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1524,7 +1800,10 @@
     "attributeRequirements": {
       "agility": 46
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1540,7 +1819,10 @@
     "attributeRequirements": {
       "intelligence": 52
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1556,7 +1838,10 @@
     "attributeRequirements": {
       "intelligence": 51
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1572,7 +1857,10 @@
     "attributeRequirements": {
       "technique": 37
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1588,7 +1876,10 @@
     "attributeRequirements": {
       "agility": 60
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1604,7 +1895,10 @@
     "attributeRequirements": {
       "technique": 61
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1620,7 +1914,10 @@
     "attributeRequirements": {
       "technique": 52
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1636,7 +1933,10 @@
     "attributeRequirements": {
       "strength": 41
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1652,7 +1952,10 @@
     "attributeRequirements": {
       "strength": 57
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1668,7 +1971,10 @@
     "attributeRequirements": {
       "strength": 63
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1684,7 +1990,10 @@
     "attributeRequirements": {
       "intelligence": 60
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1700,7 +2009,10 @@
     "attributeRequirements": {
       "agility": 44
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1716,7 +2028,10 @@
     "attributeRequirements": {
       "strength": 57
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1732,7 +2047,10 @@
     "attributeRequirements": {
       "intelligence": 36
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1748,7 +2066,10 @@
     "attributeRequirements": {
       "agility": 57
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1764,7 +2085,10 @@
     "attributeRequirements": {
       "technique": 55
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1780,7 +2104,10 @@
     "attributeRequirements": {
       "technique": 49
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1796,7 +2123,10 @@
     "attributeRequirements": {
       "intelligence": 54
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1812,7 +2142,10 @@
     "attributeRequirements": {
       "strength": 65
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1828,7 +2161,10 @@
     "attributeRequirements": {
       "strength": 46
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1844,7 +2180,10 @@
     "attributeRequirements": {
       "agility": 54
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1860,7 +2199,10 @@
     "attributeRequirements": {
       "intelligence": 54
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1876,7 +2218,10 @@
     "attributeRequirements": {
       "strength": 39
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1892,7 +2237,10 @@
     "attributeRequirements": {
       "intelligence": 60
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1908,7 +2256,10 @@
     "attributeRequirements": {
       "agility": 61
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1924,7 +2275,10 @@
     "attributeRequirements": {
       "strength": 62
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1940,7 +2294,10 @@
     "attributeRequirements": {
       "intelligence": 64
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1956,7 +2313,10 @@
     "attributeRequirements": {
       "strength": 67
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1972,7 +2332,10 @@
     "attributeRequirements": {
       "intelligence": 59
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -1988,7 +2351,10 @@
     "attributeRequirements": {
       "technique": 64
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2004,7 +2370,10 @@
     "attributeRequirements": {
       "intelligence": 69
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2020,7 +2389,10 @@
     "attributeRequirements": {
       "intelligence": 90
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2036,7 +2408,10 @@
     "attributeRequirements": {
       "technique": 78
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2052,7 +2427,10 @@
     "attributeRequirements": {
       "intelligence": 58
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2068,7 +2446,10 @@
     "attributeRequirements": {
       "strength": 56
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2084,7 +2465,10 @@
     "attributeRequirements": {
       "agility": 91
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2100,7 +2484,10 @@
     "attributeRequirements": {
       "strength": 74
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2116,7 +2503,10 @@
     "attributeRequirements": {
       "strength": 61
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2132,7 +2522,10 @@
     "attributeRequirements": {
       "technique": 63
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2148,7 +2541,10 @@
     "attributeRequirements": {
       "agility": 82
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2164,7 +2560,10 @@
     "attributeRequirements": {
       "agility": 68
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2180,7 +2579,10 @@
     "attributeRequirements": {
       "agility": 70
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2196,7 +2598,10 @@
     "attributeRequirements": {
       "intelligence": 65
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2212,7 +2617,10 @@
     "attributeRequirements": {
       "agility": 93
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2228,7 +2636,10 @@
     "attributeRequirements": {
       "agility": 88
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2244,7 +2655,10 @@
     "attributeRequirements": {
       "technique": 57
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2260,7 +2674,10 @@
     "attributeRequirements": {
       "technique": 91
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2276,7 +2693,10 @@
     "attributeRequirements": {
       "strength": 90
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2292,7 +2712,10 @@
     "attributeRequirements": {
       "agility": 87
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2308,7 +2731,10 @@
     "attributeRequirements": {
       "strength": 77
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2324,7 +2750,10 @@
     "attributeRequirements": {
       "intelligence": 68
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2340,7 +2769,10 @@
     "attributeRequirements": {
       "strength": 60
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2356,7 +2788,10 @@
     "attributeRequirements": {
       "agility": 80
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2372,7 +2807,10 @@
     "attributeRequirements": {
       "agility": 80
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2388,7 +2826,10 @@
     "attributeRequirements": {
       "technique": 92
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2404,7 +2845,10 @@
     "attributeRequirements": {
       "intelligence": 56
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2420,7 +2864,10 @@
     "attributeRequirements": {
       "intelligence": 91
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2436,7 +2883,10 @@
     "attributeRequirements": {
       "agility": 60
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2452,7 +2902,10 @@
     "attributeRequirements": {
       "strength": 62
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2468,7 +2921,10 @@
     "attributeRequirements": {
       "intelligence": 94
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2484,7 +2940,10 @@
     "attributeRequirements": {
       "technique": 91
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2500,7 +2959,10 @@
     "attributeRequirements": {
       "technique": 87
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2516,7 +2978,10 @@
     "attributeRequirements": {
       "agility": 69
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2532,7 +2997,10 @@
     "attributeRequirements": {
       "technique": 72
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2548,7 +3016,10 @@
     "attributeRequirements": {
       "strength": 61
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2564,7 +3035,10 @@
     "attributeRequirements": {
       "technique": 89
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2580,7 +3054,10 @@
     "attributeRequirements": {
       "technique": 89
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2596,7 +3073,10 @@
     "attributeRequirements": {
       "intelligence": 124
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2612,7 +3092,10 @@
     "attributeRequirements": {
       "intelligence": 76
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2628,7 +3111,10 @@
     "attributeRequirements": {
       "intelligence": 97
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2644,7 +3130,10 @@
     "attributeRequirements": {
       "intelligence": 123
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2660,7 +3149,10 @@
     "attributeRequirements": {
       "agility": 120
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2676,7 +3168,10 @@
     "attributeRequirements": {
       "intelligence": 98
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2692,7 +3187,10 @@
     "attributeRequirements": {
       "technique": 99
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2708,7 +3206,10 @@
     "attributeRequirements": {
       "technique": 114
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2724,7 +3225,10 @@
     "attributeRequirements": {
       "intelligence": 101
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2740,7 +3244,10 @@
     "attributeRequirements": {
       "agility": 80
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2756,7 +3263,10 @@
     "attributeRequirements": {
       "agility": 80
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2772,7 +3282,10 @@
     "attributeRequirements": {
       "agility": 110
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2788,7 +3301,10 @@
     "attributeRequirements": {
       "technique": 115
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2804,7 +3320,10 @@
     "attributeRequirements": {
       "strength": 101
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2820,7 +3339,10 @@
     "attributeRequirements": {
       "technique": 113
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2836,7 +3358,10 @@
     "attributeRequirements": {
       "agility": 121
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2852,14 +3377,17 @@
     "attributeRequirements": {
       "technique": 123
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
   },
   {
     "type": "Dagger",
-    "name": "Eternity\u0027S Shiv",
+    "name": "Eternity'S Shiv",
     "baseDamage": 20,
     "attackSpeed": 0.78,
     "damageBonusMin": 5,
@@ -2868,7 +3396,10 @@
     "attributeRequirements": {
       "technique": 107
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2884,7 +3415,10 @@
     "attributeRequirements": {
       "agility": 79
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2900,7 +3434,10 @@
     "attributeRequirements": {
       "intelligence": 123
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2916,7 +3453,10 @@
     "attributeRequirements": {
       "intelligence": 103
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2932,7 +3472,10 @@
     "attributeRequirements": {
       "agility": 110
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2948,7 +3491,10 @@
     "attributeRequirements": {
       "strength": 103
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2964,7 +3510,10 @@
     "attributeRequirements": {
       "technique": 103
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2980,7 +3529,10 @@
     "attributeRequirements": {
       "technique": 114
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -2996,7 +3548,10 @@
     "attributeRequirements": {
       "strength": 91
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -3012,7 +3567,10 @@
     "attributeRequirements": {
       "agility": 109
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -3028,7 +3586,10 @@
     "attributeRequirements": {
       "technique": 100
     },
-    "tags": null,
+    "tags": [
+      "dagger",
+      "rogue"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -3044,7 +3605,10 @@
     "attributeRequirements": {
       "strength": 118
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -3060,7 +3624,10 @@
     "attributeRequirements": {
       "strength": 76
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -3076,7 +3643,10 @@
     "attributeRequirements": {
       "agility": 77
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -3092,7 +3662,10 @@
     "attributeRequirements": {
       "strength": 106
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -3108,7 +3681,10 @@
     "attributeRequirements": {
       "strength": 124
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -3124,7 +3700,10 @@
     "attributeRequirements": {
       "agility": 76
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -3140,7 +3719,10 @@
     "attributeRequirements": {
       "intelligence": 77
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -3156,7 +3738,10 @@
     "attributeRequirements": {
       "intelligence": 91
     },
-    "tags": null,
+    "tags": [
+      "wand",
+      "wizard"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -3172,7 +3757,10 @@
     "attributeRequirements": {
       "strength": 88
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -3188,7 +3776,10 @@
     "attributeRequirements": {
       "agility": 88
     },
-    "tags": null,
+    "tags": [
+      "sword",
+      "warrior"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0
@@ -3204,7 +3795,10 @@
     "attributeRequirements": {
       "strength": 120
     },
-    "tags": null,
+    "tags": [
+      "mace",
+      "barbarian"
+    ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0

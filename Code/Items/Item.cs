@@ -171,6 +171,10 @@ namespace RPGGame
         /// <summary>Optional equip gates from this prefix alone; merged into <see cref="Item.AttributeRequirements"/> when loot/lab builds the item.</summary>
         [JsonPropertyName("attributeRequirements")]
         public AttributeRequirements AttributeRequirements { get; set; } = new AttributeRequirements();
+
+        /// <summary>Optional registry tags (material, class path, element, …) copied onto <see cref="Item.Tags"/> at loot time.</summary>
+        [JsonPropertyName("tags")]
+        public List<string>? Tags { get; set; }
     }
 
     public class ArmorStatus

@@ -2,7 +2,7 @@
   {
     "ItemRank": "Common",
     "Name": "Broken",
-    "Description": "Affects the base stats of an item \u002B/-",
+    "Description": "Affects the base stats of an item +/-",
     "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
     "DiceResult": 0,
@@ -13,7 +13,7 @@
   {
     "ItemRank": "Common",
     "Name": "Battle Scarred",
-    "Description": "Affects the base stats of an item \u002B/-",
+    "Description": "Affects the base stats of an item +/-",
     "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
     "DiceResult": 0,
@@ -24,7 +24,7 @@
   {
     "ItemRank": "Common",
     "Name": "Worn",
-    "Description": "Affects the base stats of an item \u002B/-",
+    "Description": "Affects the base stats of an item +/-",
     "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
     "DiceResult": 0,
@@ -35,7 +35,7 @@
   {
     "ItemRank": "Uncommon",
     "Name": "Second Hand",
-    "Description": "Affects the base stats of an item \u002B/-",
+    "Description": "Affects the base stats of an item +/-",
     "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
     "DiceResult": 0,
@@ -46,7 +46,7 @@
   {
     "ItemRank": "Uncommon",
     "Name": "Preowned",
-    "Description": "Affects the base stats of an item \u002B/-",
+    "Description": "Affects the base stats of an item +/-",
     "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
     "DiceResult": 0,
@@ -57,7 +57,7 @@
   {
     "ItemRank": "Rare",
     "Name": "Like New",
-    "Description": "Affects the base stats of an item \u002B/-",
+    "Description": "Affects the base stats of an item +/-",
     "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
     "DiceResult": 0,
@@ -68,7 +68,7 @@
   {
     "ItemRank": "Rare",
     "Name": "New",
-    "Description": "Affects the base stats of an item \u002B/-",
+    "Description": "Affects the base stats of an item +/-",
     "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
     "DiceResult": 0,
@@ -79,7 +79,7 @@
   {
     "ItemRank": "Epic",
     "Name": "Perfect",
-    "Description": "Affects the base stats of an item \u002B/-",
+    "Description": "Affects the base stats of an item +/-",
     "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
     "DiceResult": 0,
@@ -90,7 +90,7 @@
   {
     "ItemRank": "Legendary",
     "Name": "Masterwork",
-    "Description": "Affects the base stats of an item \u002B/-",
+    "Description": "Affects the base stats of an item +/-",
     "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
     "DiceResult": 0,
@@ -101,7 +101,7 @@
   {
     "ItemRank": "Legendary",
     "Name": "Heirloom",
-    "Description": "Affects the base stats of an item \u002B/-",
+    "Description": "Affects the base stats of an item +/-",
     "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
     "DiceResult": 0,
@@ -112,7 +112,7 @@
   {
     "ItemRank": "Mythic",
     "Name": "Cosmic",
-    "Description": "Affects the base stats of an item \u002B/-",
+    "Description": "Affects the base stats of an item +/-",
     "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
     "DiceResult": 0,
@@ -131,7 +131,11 @@
     "DiceResult": 0,
     "MinValue": 2,
     "MaxValue": 2,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "bone",
+      "barbarian"
+    ]
   },
   {
     "ItemRank": "Common",
@@ -144,7 +148,11 @@
     "DiceResult": 0,
     "MinValue": 2,
     "MaxValue": 2,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "bronze",
+      "warrior"
+    ]
   },
   {
     "ItemRank": "Common",
@@ -157,7 +165,11 @@
     "DiceResult": 0,
     "MinValue": 2,
     "MaxValue": 2,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "glass",
+      "rogue"
+    ]
   },
   {
     "ItemRank": "Common",
@@ -170,7 +182,11 @@
     "DiceResult": 0,
     "MinValue": 2,
     "MaxValue": 2,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "willow",
+      "wizard"
+    ]
   },
   {
     "ItemRank": "Uncommon",
@@ -183,7 +199,11 @@
     "DiceResult": 0,
     "MinValue": 3,
     "MaxValue": 3,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "steel",
+      "barbarian"
+    ]
   },
   {
     "ItemRank": "Uncommon",
@@ -196,7 +216,11 @@
     "DiceResult": 0,
     "MinValue": 3,
     "MaxValue": 3,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "gold",
+      "warrior"
+    ]
   },
   {
     "ItemRank": "Uncommon",
@@ -209,7 +233,11 @@
     "DiceResult": 0,
     "MinValue": 3,
     "MaxValue": 3,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "obsidian",
+      "rogue"
+    ]
   },
   {
     "ItemRank": "Uncommon",
@@ -222,7 +250,11 @@
     "DiceResult": 0,
     "MinValue": 3,
     "MaxValue": 3,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "silver",
+      "wizard"
+    ]
   },
   {
     "ItemRank": "Rare",
@@ -235,7 +267,11 @@
     "DiceResult": 0,
     "MinValue": 4,
     "MaxValue": 4,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "damascus",
+      "barbarian"
+    ]
   },
   {
     "ItemRank": "Rare",
@@ -248,7 +284,11 @@
     "DiceResult": 0,
     "MinValue": 4,
     "MaxValue": 4,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "mithril",
+      "warrior"
+    ]
   },
   {
     "ItemRank": "Rare",
@@ -261,7 +301,11 @@
     "DiceResult": 0,
     "MinValue": 4,
     "MaxValue": 4,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "shadow",
+      "rogue"
+    ]
   },
   {
     "ItemRank": "Rare",
@@ -274,7 +318,11 @@
     "DiceResult": 0,
     "MinValue": 4,
     "MaxValue": 4,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "crystal",
+      "wizard"
+    ]
   },
   {
     "ItemRank": "Common",
@@ -284,7 +332,10 @@
     "DiceResult": 0,
     "MinValue": 0,
     "MaxValue": 0,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "stone"
+    ]
   },
   {
     "ItemRank": "Uncommon",
@@ -294,7 +345,10 @@
     "DiceResult": 0,
     "MinValue": 0,
     "MaxValue": 0,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "unknown"
+    ]
   },
   {
     "ItemRank": "Rare",
@@ -304,7 +358,10 @@
     "DiceResult": 0,
     "MinValue": 0,
     "MaxValue": 0,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "strange"
+    ]
   },
   {
     "ItemRank": "Epic",
@@ -314,6 +371,9 @@
     "DiceResult": 0,
     "MinValue": 0,
     "MaxValue": 0,
-    "RolledValue": 0
+    "RolledValue": 0,
+    "tags": [
+      "celestial"
+    ]
   }
 ]

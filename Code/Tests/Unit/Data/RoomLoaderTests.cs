@@ -29,6 +29,7 @@ namespace RPGGame.Tests.Unit.Data
             TestHasRoom();
             TestGetAllRoomNames();
             TestGetAllRoomData();
+            TestBiomeMatching();
 
             TestBase.PrintSummary("RoomLoader Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -164,6 +165,35 @@ namespace RPGGame.Tests.Unit.Data
                             ref _testsRun, ref _testsPassed, ref _testsFailed);
                     }
                 }
+            }
+        }
+
+        private static void TestBiomeMatching()
+        {
+            Console.WriteLine("\n--- Testing biome matching (blank = anywhere) ---");
+
+            var anywhere = new RoomData { Location = "Generic Hall", Biome = "" };
+            var forestOnly = new RoomData { Location = "Deep Woods", Biome = "Forest" };
+
+            TestBase.AssertTrue(anywhere.MatchesDungeonTheme("Forest"),
+                "blank biome matches Forest", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(anywhere.MatchesDungeonTheme("Lava"),
+                "blank biome matches Lava", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(forestOnly.MatchesDungeonTheme("Lava"),
+                "Forest biome does not match Lava", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(forestOnly.MatchesDungeonTheme("Forest"),
+                "Forest biome matches Forest", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            RoomLoader.LoadRooms();
+            var entrance = RoomLoader.GetRoomData("Entrance");
+            if (entrance != null && entrance.HasUniversalBiome)
+            {
+                var inForest = RoomLoader.GetRoomsByTheme("Forest");
+                var inLava = RoomLoader.GetRoomsByTheme("Lava");
+                TestBase.AssertTrue(inForest.Contains("Entrance", StringComparer.OrdinalIgnoreCase),
+                    "universal room in Forest pool", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(inLava.Contains("Entrance", StringComparer.OrdinalIgnoreCase),
+                    "universal room in Lava pool", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
 

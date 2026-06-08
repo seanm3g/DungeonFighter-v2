@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.World
@@ -27,6 +28,7 @@ namespace RPGGame.Tests.Unit.World
 
             TestEnvironmentCreation();
             TestEnvironmentProperties();
+            TestEnvironmentThemeTagFallback();
             TestGenerateEnemies();
             TestGetEnemies();
             TestHasLivingEnemies();
@@ -82,6 +84,21 @@ namespace RPGGame.Tests.Unit.World
 
             TestBase.AssertNotNull(environment.ActionPool,
                 "Environment action pool should be initialized",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEnvironmentThemeTagFallback()
+        {
+            Console.WriteLine("\n--- Testing Environment theme tag fallback ---");
+
+            var environment = new Environment("Lava Pit", "Hot room", true, "Lava");
+            RoomLoader.ApplyEnvironmentTags(environment, null, "Lava");
+
+            TestBase.AssertTrue(environment.Tags.Contains("fire", StringComparer.OrdinalIgnoreCase),
+                "Lava theme fallback includes fire",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(environment.Tags.Contains("scorched", StringComparer.OrdinalIgnoreCase),
+                "Lava theme fallback includes scorched",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

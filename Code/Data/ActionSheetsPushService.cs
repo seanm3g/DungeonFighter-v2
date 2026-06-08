@@ -138,9 +138,9 @@ namespace RPGGame.Data
             if (bodyRows.Count == 0)
                 throw new InvalidOperationException("No valid action rows to push (every row failed IsValid).");
 
-            // Columns E–F are reserved for on-sheet formulas; do not clear or overwrite them (see SheetsPushUtilities).
+            // Column F is reserved for on-sheet formulas (e.g. e(V)); TAGS in column E is pushed with A–D.
             int lastDataRowOneBased = firstDataRowOneBased + bodyRows.Count - 1;
-            string clearLeft = $"{sheet}!A{firstDataRowOneBased}:D5000";
+            string clearLeft = $"{sheet}!A{firstDataRowOneBased}:E5000";
             string clearRight = $"{sheet}!G{firstDataRowOneBased}:ZZ5000";
             await service.Spreadsheets.Values
                 .BatchClear(
@@ -160,7 +160,8 @@ namespace RPGGame.Data
                 maxWidth = Math.Max(maxWidth, row.Count);
             }
 
-            string leftEndLetter = SheetsPushUtilities.ColumnIndexToA1Letters(Math.Min(3, Math.Max(0, maxWidth - 1)));
+            int leftEndIndex = Math.Min(SheetsPushUtilities.ActionsSheetPushLeftBlockLastZeroBased, Math.Max(0, maxWidth - 1));
+            string leftEndLetter = SheetsPushUtilities.ColumnIndexToA1Letters(leftEndIndex);
             string leftRange = $"{sheet}!A{firstDataRowOneBased}:{leftEndLetter}{lastDataRowOneBased}";
 
             var batchData = new List<ValueRange>
@@ -173,7 +174,7 @@ namespace RPGGame.Data
                 }
             };
 
-            if (maxWidth > SheetsPushUtilities.ActionsSheetPreservedFormulaLastZeroBased + 1)
+            if (maxWidth > SheetsPushUtilities.ActionsSheetPushDataResumeColumnZeroBased)
             {
                 int rightEndIndex = maxWidth - 1;
                 string rightEndLetter = SheetsPushUtilities.ColumnIndexToA1Letters(rightEndIndex);
@@ -202,7 +203,7 @@ namespace RPGGame.Data
             int? updatedCells = batchResponse?.TotalUpdatedCells;
             Console.WriteLine(
                 $"Sheets push: wrote {bodyRows.Count} action row(s) to tab {cfg.ActionsSheetTabName} starting at row {firstDataRowOneBased} " +
-                $"(columns E–F left unchanged for sheet formulas; API reports TotalUpdatedRows={updated}, TotalUpdatedCells={updatedCells}).");
+                $"(column F left unchanged for sheet formulas; TAGS column E included; API reports TotalUpdatedRows={updated}, TotalUpdatedCells={updatedCells}).");
 
             return new ActionSheetsPushOutcome(bodyRows.Count, firstDataRowOneBased, updated, updatedCells);
         }

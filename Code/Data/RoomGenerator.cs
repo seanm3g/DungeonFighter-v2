@@ -52,6 +52,7 @@ namespace RPGGame
                 
                 // Apply room-specific effects
                 ApplyRoomEffects(environment, dungeonTheme, roomType, playerLevel);
+                RoomLoader.ApplyEnvironmentTags(environment, null, dungeonTheme);
                 
                 return environment;
             }

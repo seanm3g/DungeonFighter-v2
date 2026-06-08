@@ -22,6 +22,24 @@ namespace RPGGame
         public string Theme { get; private set; }
         public string RoomType { get; private set; }
 
+        /// <summary>Match tags from room data or theme fallback (elements, environment states).</summary>
+        public IReadOnlyList<string> Tags => _tags;
+
+        private readonly List<string> _tags = new List<string>();
+
+        internal void SetTags(IEnumerable<string>? tags)
+        {
+            _tags.Clear();
+            if (tags == null)
+                return;
+            foreach (var tag in tags)
+            {
+                if (!string.IsNullOrWhiteSpace(tag) &&
+                    !_tags.Any(t => string.Equals(t, tag.Trim(), StringComparison.OrdinalIgnoreCase)))
+                    _tags.Add(tag.Trim());
+            }
+        }
+
         // Backward compatibility properties for passive effects
         public PassiveEffectType PassiveEffectType
         {

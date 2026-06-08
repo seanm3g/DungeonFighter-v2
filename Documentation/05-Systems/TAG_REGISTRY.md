@@ -1,6 +1,6 @@
 # Tag Registry
 
-Authoritative tag vocabulary for actions, items, enemies, and (future) environment/hero matching.
+Authoritative tag vocabulary for actions, items, enemies, and environment matching.
 
 ## Layers
 
@@ -20,14 +20,13 @@ Comparison is **case-insensitive**. Canonical registry lives in `Code/World/Tags
 - **Weapon types:** `sword`, `mace`, `dagger`, `wand`
 - **Action rarity (field dup):** `common`, `uncommon`, `rare`, `epic`, `legendary`, `mythic`
 
-## Layer 2 — Match / flavor (38)
+## Layer 2 — Match / flavor (37)
 
 - **Elements:** `fire`, `earth`, `water`, `air` (only these four; not ice/lightning)
 - **Environment states:** `scorched`, `flooded`, `overgrown`, `exposed`
 - **Life / substance:** `living`, `undead`, `plant`, `elemental`, `celestial`
-- **Creature attributes:** `giant`, `tiny`, `has_hands`
+- **Creature attributes (enemy only):** `giant`, `large`, `young`, `tiny`, `bulky`, `frail`, `has_hands`
 - **Encounter role:** `boss`, `minion`
-- **Hero subclasses (hero only):** `trickster`, `warlord`, `duelist`, `artificer`, `acrobat`
 - **Materials (prefix names):** `bone`, `bronze`, `glass`, `willow`, `steel`, `gold`, `obsidian`, `silver`, `damascus`, `mithril`, `shadow`, `crystal`, `stone`, `unknown`, `strange`
 
 Material tags are copied onto `Item.Tags` when a Material prefix is rolled at loot time.
@@ -40,7 +39,7 @@ Material tags are copied onto `Item.Tags` when a Material prefix is rolled at lo
 | Warlord | Sage | Duelist | Artificer | Trickster |
 
 - Heroes **never** have an `archetype` field.
-- Same spellings as hero subclass **tags** on enemies belong in **`archetype`**, not in the freeform `tags` array.
+- Use **`archetype`** for Trickster/Warlord/etc. on enemies — not the freeform `tags` array.
 
 ## ENEMIES sheet columns (canonical)
 
@@ -48,12 +47,17 @@ Material tags are copied onto `Item.Tags` when a Material prefix is rolled at lo
 
 Import normalizes archetype to Title Case and validates against the 10-name allowlist.
 
+## ENVIRONMENTS sheet (→ `Rooms.json`)
+
+Columns: `region`, `biome`, `location`, `tags`, `description`, `actions`, `enemies`. Optional **`tags`**: comma-separated **element** and **environment state** tags only, e.g. `fire, scorched` or `water, flooded`. Creature attributes (`giant`, `young`, …) are not valid on environments. **`biome`** restricts which dungeon themes can roll that room; **blank biome** = eligible in any theme.
+
 ## Runtime wiring
 
 - **Loot pools:** `GameDataTagHelper.IsGrantableOnHeroGear` excludes `environment` / `enemy`
 - **Enemy spawn:** `EnemyDataFactory` copies `EnemyData.Tags` to `Enemy.Tags` and adds `living`/`undead`
+- **Rooms:** `RoomData.tags` → `Environment.Tags` at room creation; procedural rooms may get theme fallback tags when empty
 - **Combat:** `TagDamageCalculator` uses fire→earth→water→air weakness cycle and reads hero tags via `TagAggregator` or enemy `Tags`
-- **Validation:** `EnemyDataValidator`, `ActionDataValidator`, weapon/armor validators warn on unknown tags
+- **Validation:** `EnemyDataValidator`, `RoomDataValidator`, `ActionDataValidator`, weapon/armor validators warn on unknown tags
 
 ## Naming collisions
 

@@ -595,7 +595,7 @@
   },
   {
     "slot": "legs",
-    "name": "Squire\u0027s Greaves",
+    "name": "Squire's Greaves",
     "armor": 17,
     "tier": 1,
     "attributeRequirements": {
@@ -815,7 +815,7 @@
   },
   {
     "slot": "legs",
-    "name": "Villager\u0027s Tassets",
+    "name": "Villager's Tassets",
     "armor": 19,
     "tier": 1,
     "attributeRequirements": {
@@ -1387,7 +1387,7 @@
   },
   {
     "slot": "feet",
-    "name": "Ranger\u0027s Boots",
+    "name": "Ranger's Boots",
     "armor": 1,
     "tier": 2,
     "attributeRequirements": {
@@ -1409,7 +1409,7 @@
   },
   {
     "slot": "legs",
-    "name": "Ranger\u0027s Breeches",
+    "name": "Ranger's Breeches",
     "armor": 34,
     "tier": 2,
     "attributeRequirements": {
@@ -1475,7 +1475,7 @@
   },
   {
     "slot": "legs",
-    "name": "Scout\u0027s Breeches",
+    "name": "Scout's Breeches",
     "armor": 32,
     "tier": 2,
     "attributeRequirements": {
@@ -1563,7 +1563,7 @@
   },
   {
     "slot": "chest",
-    "name": "Stalker\u0027s Mantle",
+    "name": "Stalker's Mantle",
     "armor": 28,
     "tier": 2,
     "attributeRequirements": {
@@ -1585,7 +1585,7 @@
   },
   {
     "slot": "legs",
-    "name": "Strider\u0027s Wraps",
+    "name": "Strider's Wraps",
     "armor": 38,
     "tier": 2,
     "attributeRequirements": {
@@ -1651,7 +1651,7 @@
   },
   {
     "slot": "legs",
-    "name": "Traveler\u0027s Breeches",
+    "name": "Traveler's Breeches",
     "armor": 28,
     "tier": 2,
     "attributeRequirements": {
@@ -1893,7 +1893,7 @@
   },
   {
     "slot": "legs",
-    "name": "Footman\u0027s Greaves",
+    "name": "Footman's Greaves",
     "armor": 34,
     "tier": 3,
     "attributeRequirements": {
@@ -2377,7 +2377,7 @@
   },
   {
     "slot": "legs",
-    "name": "Soldier\u0027s Breeches",
+    "name": "Soldier's Breeches",
     "armor": 32,
     "tier": 3,
     "attributeRequirements": {
@@ -2751,7 +2751,7 @@
   },
   {
     "slot": "legs",
-    "name": "Champion\u0027s Greaves",
+    "name": "Champion's Greaves",
     "armor": 54,
     "tier": 4,
     "attributeRequirements": {
@@ -2773,7 +2773,7 @@
   },
   {
     "slot": "legs",
-    "name": "Crusader\u0027s Greaves",
+    "name": "Crusader's Greaves",
     "armor": 56,
     "tier": 4,
     "attributeRequirements": {
@@ -2795,7 +2795,7 @@
   },
   {
     "slot": "legs",
-    "name": "Defender\u0027s Greaves",
+    "name": "Defender's Greaves",
     "armor": 50,
     "tier": 4,
     "attributeRequirements": {
@@ -3059,7 +3059,7 @@
   },
   {
     "slot": "legs",
-    "name": "Knight\u0027s Greaves",
+    "name": "Knight's Greaves",
     "armor": 58,
     "tier": 4,
     "attributeRequirements": {
@@ -3433,7 +3433,7 @@
   },
   {
     "slot": "legs",
-    "name": "Warden\u0027s Greaves",
+    "name": "Warden's Greaves",
     "armor": 52,
     "tier": 4,
     "attributeRequirements": {
@@ -3631,7 +3631,7 @@
   },
   {
     "slot": "legs",
-    "name": "Conqueror\u0027s Greaves",
+    "name": "Conqueror's Greaves",
     "armor": 54,
     "tier": 5,
     "attributeRequirements": {
@@ -4005,7 +4005,7 @@
   },
   {
     "slot": "legs",
-    "name": "Overlord\u0027s Greaves",
+    "name": "Overlord's Greaves",
     "armor": 62,
     "tier": 5,
     "attributeRequirements": {
@@ -4269,7 +4269,7 @@
   },
   {
     "slot": "legs",
-    "name": "Titan\u0027s Greaves",
+    "name": "Titan's Greaves",
     "armor": 58,
     "tier": 5,
     "attributeRequirements": {
@@ -4313,7 +4313,7 @@
   },
   {
     "slot": "legs",
-    "name": "Warlord\u0027s Greaves",
+    "name": "Warlord's Greaves",
     "armor": 60,
     "tier": 5,
     "attributeRequirements": {
