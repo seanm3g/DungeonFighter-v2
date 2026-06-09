@@ -30,6 +30,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             PatchProfileServiceTests.RunAllTests();
             Console.WriteLine();
+            GeneralSettingsStoreTests.RunAllTests();
+            Console.WriteLine();
             SheetsPushUtilitiesTests.RunAllTests();
             Console.WriteLine();
             JsonArraySheetConverterTests.RunAllTests();

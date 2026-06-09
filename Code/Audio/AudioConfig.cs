@@ -22,12 +22,19 @@ namespace RPGGame.Audio
     }
 
     /// <summary>
-    /// Mutable audio configuration persisted to <c>GameData/Audio/AudioConfig.json</c>.
+    /// Committable portion of an audio patch: cue file bindings and state→music triggers.
+    /// Bus volume/mute/crossfade live in gitignored <see cref="GeneralSettingsStore"/>.
     /// </summary>
-    /// <remarks>
-    /// The Audio settings tab edits this file. <see cref="AudioCueDispatcher"/> and
-    /// <see cref="MusicController"/> read from it via the singleton <see cref="Instance"/>.
-    /// </remarks>
+    public sealed class AudioPatchContent
+    {
+        [JsonPropertyName("cueMap")] public Dictionary<string, AudioCueBinding> CueMap { get; set; } = new();
+        [JsonPropertyName("stateMusicMap")] public Dictionary<string, string> StateMusicMap { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Mutable audio configuration. Runtime singleton merges committable patch bindings with
+    /// player-local bus preferences from <see cref="GeneralSettingsStore"/>.
+    /// </summary>
     public sealed class AudioConfig
     {
         [JsonPropertyName("masterVolume")] public float MasterVolume { get; set; } = 1.0f;
@@ -158,6 +165,9 @@ namespace RPGGame.Audio
 
         private static AudioConfig LoadFromFile()
         {
+            GeneralSettingsStore.EnsureBootstrapped();
+            var cfg = new AudioConfig();
+
             string path = GetConfigFilePath();
             try
             {
@@ -166,25 +176,36 @@ namespace RPGGame.Audio
                     string json = File.ReadAllText(path);
                     if (!string.IsNullOrWhiteSpace(json))
                     {
-                        var cfg = JsonSerializer.Deserialize<AudioConfig>(json);
-                        if (cfg != null)
+                        var patch = JsonSerializer.Deserialize<AudioPatchContent>(json);
+                        if (patch != null)
                         {
-                            ApplyLegacyMusicTransitionCarryDefault(json, cfg);
-                            cfg.ValidateAndFix();
-                            cfg.EnsureDefaultEntriesForAllCues();
-                            return cfg;
+                            cfg.CueMap = patch.CueMap ?? new Dictionary<string, AudioCueBinding>();
+                            cfg.StateMusicMap = patch.StateMusicMap ?? new Dictionary<string, string>();
+                        }
+                        else
+                        {
+                            // Legacy full AudioConfig patch (includes bus volume keys).
+                            var legacy = JsonSerializer.Deserialize<AudioConfig>(json);
+                            if (legacy != null)
+                            {
+                                ApplyLegacyMusicTransitionCarryDefault(json, legacy);
+                                cfg.CueMap = legacy.CueMap ?? new Dictionary<string, AudioCueBinding>();
+                                cfg.StateMusicMap = legacy.StateMusicMap ?? new Dictionary<string, string>();
+                            }
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorHandler.LogError(ex, "AudioConfig.LoadFromFile", "Could not load AudioConfig.json; using defaults");
+                ErrorHandler.LogError(ex, "AudioConfig.LoadFromFile", "Could not load audio patch; using defaults");
             }
-            var fallback = new AudioConfig();
-            fallback.ValidateAndFix();
-            fallback.EnsureDefaultEntriesForAllCues();
-            return fallback;
+
+            var prefs = GeneralSettingsStore.Load().AudioPreferences;
+            GeneralSettingsStore.ApplyAudioPreferences(cfg, prefs);
+            cfg.ValidateAndFix();
+            cfg.EnsureDefaultEntriesForAllCues();
+            return cfg;
         }
 
         /// <summary>Clamps volume values into 0..1 (and other invariants) so a corrupt file cannot crash playback.</summary>
@@ -245,8 +266,17 @@ namespace RPGGame.Audio
             }
         }
 
-        /// <summary>Persists the current config to <c>GameData/Audio/AudioConfig.json</c>.</summary>
+        /// <summary>Persists cue bindings to the active audio patch and bus prefs to general settings.</summary>
         public bool Save()
+        {
+            ValidateAndFix();
+            bool patchOk = SavePatchBindings();
+            bool prefsOk = SaveAudioPreferences();
+            return patchOk && prefsOk;
+        }
+
+        /// <summary>Saves only committable cue/state bindings to the active audio patch.</summary>
+        public bool SavePatchBindings()
         {
             ValidateAndFix();
             string path = GetConfigFilePath();
@@ -255,13 +285,37 @@ namespace RPGGame.Audio
                 string? dir = Path.GetDirectoryName(path);
                 if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
                     Directory.CreateDirectory(dir);
-                string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+
+                var patch = new AudioPatchContent
+                {
+                    CueMap = CueMap,
+                    StateMusicMap = StateMusicMap
+                };
+                string json = JsonSerializer.Serialize(patch, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(path, json);
                 return true;
             }
             catch (Exception ex)
             {
-                ErrorHandler.LogError(ex, "AudioConfig.Save", "Could not save AudioConfig.json");
+                ErrorHandler.LogError(ex, "AudioConfig.SavePatchBindings", "Could not save audio patch bindings");
+                return false;
+            }
+        }
+
+        /// <summary>Saves bus volume/mute/crossfade to gitignored general settings.</summary>
+        public bool SaveAudioPreferences()
+        {
+            ValidateAndFix();
+            try
+            {
+                var doc = GeneralSettingsStore.Load();
+                var prefs = GeneralSettingsStore.ExtractAudioPreferences(this);
+                GeneralSettingsStore.Save(doc.GameSettings, prefs);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.LogError(ex, "AudioConfig.SaveAudioPreferences", "Could not save audio preferences");
                 return false;
             }
         }

@@ -18,26 +18,24 @@
                                FontSize="18"
                                FontWeight="SemiBold"
                                Foreground="#FFE8E8E8"/>
-                    <TextBlock Text="Patch files live under GameData/Patches/ and can be committed to GitHub. Your active selections are stored locally in PatchProfile.json (gitignored), so git pull never overrides which patch you use. After pulling new patches, pick them here and click Apply."
+                    <TextBlock Text="General settings (gameplay, UI, volume) are stored locally in GeneralSettings.json and never uploaded. The default audio patch (cue file bindings and state→music triggers) updates from GitHub on pull; named audio patches stay local."
                                Foreground="#FFB0B0B0"
                                FontSize="14"
                                TextWrapping="Wrap"/>
 
                     <Grid ColumnDefinitions="180,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,8,0,0">
-                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" Text="Game settings"/>
-                        <ComboBox x:Name="GameSettingsPatchCombo" Grid.Row="0" Grid.Column="1" MinWidth="280" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" Text="General settings"/>
+                        <TextBlock x:Name="GameSettingsPatchLabel" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Foreground="#FF909090" Text="local only"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" Text="Audio / music" Margin="0,8,0,0"/>
                         <ComboBox x:Name="AudioPatchCombo" Grid.Row="1" Grid.Column="1" MinWidth="280" HorizontalAlignment="Left" Margin="0,8,0,0"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" Text="Balance" Margin="0,8,0,0"/>
-                        <ComboBox x:Name="BalancePatchCombo" Grid.Row="2" Grid.Column="1" MinWidth="280" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+                        <TextBlock x:Name="BalancePatchLabel" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Foreground="#FF909090" Text="default (updates from GitHub)" Margin="0,8,0,0"/>
 
                         <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="0,16,0,0">
                             <ComboBox x:Name="PatchIoCategoryCombo" MinWidth="140" SelectedIndex="0">
-                                <ComboBoxItem Content="Game settings"/>
                                 <ComboBoxItem Content="Audio / music"/>
-                                <ComboBoxItem Content="Balance"/>
                             </ComboBox>
                             <Button x:Name="ImportPatchButton" Content="Import patch…" MinWidth="110"/>
                             <Button x:Name="ExportPatchButton" Content="Export patch…" MinWidth="110"/>

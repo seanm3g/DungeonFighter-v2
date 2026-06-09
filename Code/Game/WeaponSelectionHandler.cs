@@ -119,7 +119,10 @@ namespace RPGGame
                 var player = stateManager.CurrentPlayer;
                 if (!initializationManager.InitializeNewCharacter(player, weaponChoice))
                 {
-                    ShowMessageEvent?.Invoke("Could not initialize your character with that weapon. Please try again.");
+                    string detail = initializationManager.LastInitializationError?.Trim() ?? "";
+                    ShowMessageEvent?.Invoke(string.IsNullOrEmpty(detail)
+                        ? "Could not initialize your character with that weapon. Please try again."
+                        : $"Could not initialize your character with that weapon: {detail}");
                     return;
                 }
 

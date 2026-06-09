@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using RPGGame.Config;
 
 namespace RPGGame
 {
@@ -79,7 +80,14 @@ namespace RPGGame
                 return 0;
 
             int speed = Math.Max(1, CombatSpeedMultiplier);
-            return Math.Max(1, (int)Math.Ceiling(delayMs / (double)speed));
+            int scaled = Math.Max(1, (int)Math.Ceiling(delayMs / (double)speed));
+
+            if (PreWeaponTrainingFlow.IsTutorialCombatSlowPacingActive)
+            {
+                scaled = (int)Math.Ceiling(scaled * TextDelayConfiguration.GetTutorialCombatDelayMultiplier());
+            }
+
+            return scaled;
         }
     }
 }

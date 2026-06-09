@@ -33,6 +33,8 @@ namespace RPGGame
                 string jsonPath = FileManager.GetGameDataFilePath("Dungeons.json");
                 string jsonContent = File.ReadAllText(jsonPath);
                 allDungeons = JsonSerializer.Deserialize<List<DungeonData>>(jsonContent) ?? new List<DungeonData>();
+                if (allDungeons.Count == 0)
+                    allDungeons = CreateFallbackDungeons();
                 return allDungeons;
             }
             catch (Exception ex)
@@ -81,6 +83,8 @@ namespace RPGGame
                 .ToList();
             if (regionDungeons.Count == 0)
                 regionDungeons = allDungeons.ToList();
+            if (regionDungeons.Count == 0)
+                regionDungeons = CreateFallbackDungeons();
 
             // One entry per slot: cycle a shuffled theme pool so the three picks usually show different themes
             // when the pool has more than one theme and matching dungeon rows exist.
@@ -94,9 +98,17 @@ namespace RPGGame
                     .ToList();
                 if (candidates.Count == 0)
                     candidates = regionDungeons;
+                if (candidates.Count == 0)
+                    continue;
                 selectedDungeons.Add(candidates[random.Next(candidates.Count)]);
             }
             
+            if (selectedDungeons.Count == 0)
+            {
+                foreach (var fallback in CreateFallbackDungeons().Take(3))
+                    selectedDungeons.Add(fallback);
+            }
+
             // Create Dungeon objects with appropriate level scaling
             // First dungeon: player level - 1 (easier)
             // Second dungeon: player level (current difficulty)

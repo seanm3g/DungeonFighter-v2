@@ -47,6 +47,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         public CheckBox? EnableConsoleDelaysCheckBox { get; set; }
         public TextBox? ActionDelayMsTextBox { get; set; }
         public TextBox? MessageDelayMsTextBox { get; set; }
+        public TextBox? TutorialCombatDelayMultiplierTextBox { get; set; }
         public TextBox? CombatDelayTextBox { get; set; }
         public TextBox? SystemDelayTextBox { get; set; }
         public TextBox? MenuDelayTextBox { get; set; }

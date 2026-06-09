@@ -1,5 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using RPGGame;
+using RPGGame.Entity.Services;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Game
@@ -27,7 +29,9 @@ namespace RPGGame.Tests.Unit.Game
 
             TestConstructor();
             TestInitializeNewCharacter();
+            TestInitializeNewCharacter_AfterTrainingGroundRebuild();
             TestInitializeNewCharacter_NullCharacter();
+            TestInitializeNewCharacter_RecordsErrorMessage();
             TestLoadSavedCharacterAsync();
 
             TestBase.PrintSummary("GameInitializationManager Tests", _testsRun, _testsPassed, _testsFailed);
@@ -63,6 +67,27 @@ namespace RPGGame.Tests.Unit.Game
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        private static void TestInitializeNewCharacter_AfterTrainingGroundRebuild()
+        {
+            Console.WriteLine("\n--- Testing InitializeNewCharacter after Training Ground rebuild ---");
+
+            _ = GameConfiguration.Instance;
+
+            var manager = new GameInitializationManager();
+            var character = new Character("TrainingGrad", 1);
+            ActionLoader.ReloadActions();
+            CharacterSerializer.RebuildCharacterActions(character);
+
+            bool result = manager.InitializeNewCharacter(character, 1);
+
+            TestBase.AssertTrue(result,
+                "InitializeNewCharacter should succeed after pre-weapon Training Ground action rebuild",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertNotNull(character.Weapon,
+                "Post-training character should equip a starter weapon",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         private static void TestInitializeNewCharacter_NullCharacter()
         {
             Console.WriteLine("\n--- Testing InitializeNewCharacter - Null Character ---");
@@ -73,6 +98,21 @@ namespace RPGGame.Tests.Unit.Game
             
             TestBase.AssertFalse(result,
                 "InitializeNewCharacter should return false for null character",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestInitializeNewCharacter_RecordsErrorMessage()
+        {
+            Console.WriteLine("\n--- Testing InitializeNewCharacter records error message ---");
+
+            var manager = new GameInitializationManager();
+            bool result = manager.InitializeNewCharacter(null!, 1);
+
+            TestBase.AssertFalse(result,
+                "InitializeNewCharacter should return false for null character",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!string.IsNullOrWhiteSpace(manager.LastInitializationError),
+                "LastInitializationError should describe the failure",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

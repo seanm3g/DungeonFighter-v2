@@ -323,8 +323,17 @@ namespace RPGGame
                 }
             }
 
-            // Generate dungeons for the new game
-            GenerateDungeons(player, availableDungeons);
+            // Generate dungeons for the new game (weapon setup must succeed even if this step fails)
+            try
+            {
+                GenerateDungeons(player, availableDungeons);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.LogFormat("GameInitializer",
+                    "WARNING: Could not generate starting dungeons for '{0}': {1}",
+                    player.Name, ex.Message);
+            }
         }
 
         /// <summary>

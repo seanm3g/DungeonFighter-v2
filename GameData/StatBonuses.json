@@ -1,7 +1,7 @@
 [
   {
+    "Name": "of Protection",
     "Description": "armor",
-    "mechanics": "[armor:1]",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -13,8 +13,8 @@
     "Rarity": "Common"
   },
   {
+    "Name": "of Vitality",
     "Description": "max health",
-    "mechanics": "[health regen:10]",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -26,47 +26,47 @@
     "Rarity": "Common"
   },
   {
+    "Name": "of fleeting",
     "Description": "attack speed",
-    "mechanics": "[speed:5]",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 5
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 5,
     "Rarity": "Common"
   },
   {
+    "Name": "of Power",
     "Description": "base damage",
-    "mechanics": "[base damage:3]",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 3
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 3,
     "Rarity": "Common"
   },
   {
+    "Name": "of killing",
     "Description": "weapon damage",
-    "mechanics": "[weapon damage:5]",
     "Mechanics": [
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 5
       }
     ],
-    "StatType": "weapon damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Common"
   },
   {
+    "Name": "of Rejuvination",
     "Description": "health regen",
-    "mechanics": "[health regen:2]",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -78,8 +78,8 @@
     "Rarity": "Common"
   },
   {
+    "Name": "of Intelligence",
     "Description": "5% int",
-    "mechanics": "[intelligence:2]",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -91,8 +91,8 @@
     "Rarity": "Common"
   },
   {
+    "Name": "of Strength",
     "Description": "5% strength",
-    "mechanics": "[strength:2]",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -104,8 +104,8 @@
     "Rarity": "Common"
   },
   {
+    "Name": "of Agility",
     "Description": "% agility",
-    "mechanics": "[agility:2]",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -117,8 +117,8 @@
     "Rarity": "Common"
   },
   {
+    "Name": "of Technique",
     "Description": "5% technique",
-    "mechanics": "[technique:2]",
     "Mechanics": [
       {
         "StatType": "TEC",
@@ -130,46 +130,46 @@
     "Rarity": "Common"
   },
   {
+    "Name": "of Accuracy",
     "Description": "1 to hit",
-    "mechanics": "[hit:1]",
     "Mechanics": [
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 1
       }
     ],
-    "StatType": "hit",
+    "StatType": "HIT",
     "Value": 1,
     "Rarity": "Common"
   },
   {
+    "Name": "of Precision",
     "Description": "1 to combo",
-    "mechanics": "[combo:1]",
     "Mechanics": [
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 1
       }
     ],
-    "StatType": "combo",
+    "StatType": "COMBO",
     "Value": 1,
     "Rarity": "Common"
   },
   {
+    "Name": "of ferosity",
     "Description": "1 to crit",
-    "mechanics": "[crit:1]",
     "Mechanics": [
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 1
       }
     ],
-    "StatType": "crit",
+    "StatType": "CRIT",
     "Value": 1,
     "Rarity": "Common"
   },
   {
-    "mechanics": "[armor:5,max health:15]",
+    "Name": "of the Tortoise",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -185,14 +185,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[armor:5,speed:10]",
+    "Name": "of the Crab",
     "Mechanics": [
       {
         "StatType": "Armor",
         "Value": 5
       },
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 10
       }
     ],
@@ -201,14 +201,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[armor:5,base damage:4]",
+    "Name": "of the Rhinoceros",
     "Mechanics": [
       {
         "StatType": "Armor",
         "Value": 5
       },
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 4
       }
     ],
@@ -217,14 +217,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[armor:4,weapon damage:4]",
+    "Name": "of the Scarab Beetle",
     "Mechanics": [
       {
         "StatType": "Armor",
         "Value": 4
       },
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 4
       }
     ],
@@ -233,7 +233,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[armor:5,health regen:3]",
+    "Name": "of the Pangolin",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -249,7 +249,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[armor:4,strength:3]",
+    "Name": "of the Auroch",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -265,7 +265,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[armor:4,agility:3]",
+    "Name": "of the Fiddler Crab",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -281,7 +281,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[armor:4,intelligence:3]",
+    "Name": "of the Nautilus",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -297,7 +297,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[armor:4,technique:3]",
+    "Name": "of the Trilobite",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -313,14 +313,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[armor:4,accuracy:3]",
+    "Name": "of the Armadillo",
     "Mechanics": [
       {
         "StatType": "Armor",
         "Value": 4
       },
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 3
       }
     ],
@@ -329,14 +329,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[armor:4,hit:3]",
+    "Name": "of the Lobster",
     "Mechanics": [
       {
         "StatType": "Armor",
         "Value": 4
       },
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       }
     ],
@@ -345,14 +345,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[armor:4,combo:3]",
+    "Name": "of the Mantis Shrimp",
     "Mechanics": [
       {
         "StatType": "Armor",
         "Value": 4
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
@@ -361,14 +361,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[armor:4,crit:3]",
+    "Name": "of the Stonefish",
     "Mechanics": [
       {
         "StatType": "Armor",
         "Value": 4
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
@@ -377,7 +377,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[armor:4,magic find:3]",
+    "Name": "of the Abalone",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -393,7 +393,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[armor:4,# of action slots:1]",
+    "Name": "of the Cuttlefish",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -409,14 +409,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[max health:15,speed:10]",
+    "Name": "of the Bison",
     "Mechanics": [
       {
         "StatType": "Health",
         "Value": 15
       },
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 10
       }
     ],
@@ -425,14 +425,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[max health:15,base damage:4]",
+    "Name": "of the Elephant",
     "Mechanics": [
       {
         "StatType": "Health",
         "Value": 15
       },
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 4
       }
     ],
@@ -441,14 +441,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[max health:15,weapon damage:4]",
+    "Name": "of the Cape Buffalo",
     "Mechanics": [
       {
         "StatType": "Health",
         "Value": 15
       },
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 4
       }
     ],
@@ -457,7 +457,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[max health:12,health regen:4]",
+    "Name": "of the Toad",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -473,7 +473,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[max health:15,strength:3]",
+    "Name": "of the Gorilla",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -489,7 +489,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[max health:15,agility:3]",
+    "Name": "of the Hippopotamus",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -505,7 +505,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[max health:15,intelligence:3]",
+    "Name": "of the Sperm Whale",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -521,7 +521,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[max health:15,technique:3]",
+    "Name": "of the Golem",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -537,14 +537,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[max health:15,accuracy:3]",
+    "Name": "of the Moose",
     "Mechanics": [
       {
         "StatType": "Health",
         "Value": 15
       },
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 3
       }
     ],
@@ -553,14 +553,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[max health:15,hit:3]",
+    "Name": "of the Elk",
     "Mechanics": [
       {
         "StatType": "Health",
         "Value": 15
       },
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       }
     ],
@@ -569,14 +569,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[max health:12,combo:3]",
+    "Name": "of the Python",
     "Mechanics": [
       {
         "StatType": "Health",
         "Value": 12
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
@@ -585,14 +585,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[max health:12,crit:3]",
+    "Name": "of the Crocodile",
     "Mechanics": [
       {
         "StatType": "Health",
         "Value": 12
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
@@ -601,7 +601,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[max health:15,magic find:3]",
+    "Name": "of the Kirin",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -617,7 +617,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[max health:12,# of action slots:1]",
+    "Name": "of the Giant Squid",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -633,42 +633,42 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[speed:12,base damage:4]",
+    "Name": "of the Cheetah",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 12
       },
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 4
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 12,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[speed:12,weapon damage:4]",
+    "Name": "of the Peregrine Falcon",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 12
       },
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 4
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 12,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[speed:12,health regen:3]",
+    "Name": "of the Hummingbird",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 12
       },
       {
@@ -676,15 +676,15 @@
         "Value": 3
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 12,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[speed:10,strength:3]",
+    "Name": "of the Cobra",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 10
       },
       {
@@ -692,15 +692,15 @@
         "Value": 3
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 10,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[speed:10,agility:3]",
+    "Name": "of the Mongoose",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 10
       },
       {
@@ -708,15 +708,15 @@
         "Value": 3
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 10,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[speed:12,intelligence:3]",
+    "Name": "of the Swift",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 12
       },
       {
@@ -724,15 +724,15 @@
         "Value": 3
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 12,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[speed:12,technique:3]",
+    "Name": "of the Dragonfly",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 12
       },
       {
@@ -740,79 +740,79 @@
         "Value": 3
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 12,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[speed:12,accuracy:3]",
+    "Name": "of the Osprey",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 12
       },
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 3
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 12,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[speed:12,hit:3]",
+    "Name": "of the Kingfisher",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 12
       },
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 12,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[speed:10,combo:3]",
+    "Name": "of the Marten",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 10
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 10,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[speed:12,crit:3]",
+    "Name": "of the Sparrowhawk",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 12
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 12,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[speed:10,magic find:3]",
+    "Name": "of the Firefly",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 10
       },
       {
@@ -820,15 +820,15 @@
         "Value": 3
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 10,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[speed:10,# of action slots:1]",
+    "Name": "of the Squid",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 10
       },
       {
@@ -836,31 +836,31 @@
         "Value": 1
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 10,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[base damage:5,weapon damage:4]",
+    "Name": "of the Wolverine",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 4
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[base damage:4,health regen:3]",
+    "Name": "of the Water Buffalo",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
@@ -868,15 +868,15 @@
         "Value": 3
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 4,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[base damage:5,strength:3]",
+    "Name": "of the Grizzly Bear",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
@@ -884,15 +884,15 @@
         "Value": 3
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[base damage:5,agility:3]",
+    "Name": "of the Jaguar",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
@@ -900,15 +900,15 @@
         "Value": 3
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[base damage:4,intelligence:3]",
+    "Name": "of the Hyena",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
@@ -916,15 +916,15 @@
         "Value": 3
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 4,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[base damage:4,technique:3]",
+    "Name": "of the Mantis",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
@@ -932,79 +932,79 @@
         "Value": 3
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 4,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[base damage:5,accuracy:3]",
+    "Name": "of the Lynx",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 3
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[base damage:4,hit:3]",
+    "Name": "of the Boar",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 4,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[base damage:4,combo:3]",
+    "Name": "of the Badger",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 4,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[base damage:5,crit:3]",
+    "Name": "of the Saltwater Crocodile",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[base damage:5,magic find:3]",
+    "Name": "of the Basilisk",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
@@ -1012,15 +1012,15 @@
         "Value": 3
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[base damage:5,# of action slots:1]",
+    "Name": "of the Kraken",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
@@ -1028,15 +1028,15 @@
         "Value": 1
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[weapon damage:4,health regen:3]",
+    "Name": "of the Wolf",
     "Mechanics": [
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
@@ -1044,15 +1044,15 @@
         "Value": 3
       }
     ],
-    "StatType": "weapon damage",
+    "StatType": "Damage",
     "Value": 4,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[weapon damage:5,strength:3]",
+    "Name": "of the Dire Wolf",
     "Mechanics": [
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
@@ -1060,15 +1060,15 @@
         "Value": 3
       }
     ],
-    "StatType": "weapon damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[weapon damage:5,agility:3]",
+    "Name": "of the Panther",
     "Mechanics": [
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
@@ -1076,15 +1076,15 @@
         "Value": 3
       }
     ],
-    "StatType": "weapon damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[weapon damage:4,intelligence:3]",
+    "Name": "of the Raven",
     "Mechanics": [
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
@@ -1092,15 +1092,15 @@
         "Value": 3
       }
     ],
-    "StatType": "weapon damage",
+    "StatType": "Damage",
     "Value": 4,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[weapon damage:4,technique:3]",
+    "Name": "of the Sawfish",
     "Mechanics": [
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
@@ -1108,79 +1108,79 @@
         "Value": 3
       }
     ],
-    "StatType": "weapon damage",
+    "StatType": "Damage",
     "Value": 4,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[weapon damage:5,accuracy:3]",
+    "Name": "of the Golden Eagle",
     "Mechanics": [
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 3
       }
     ],
-    "StatType": "weapon damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[weapon damage:5,hit:3]",
+    "Name": "of the Viper",
     "Mechanics": [
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       }
     ],
-    "StatType": "weapon damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[weapon damage:4,combo:3]",
+    "Name": "of the Piranha",
     "Mechanics": [
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
-    "StatType": "weapon damage",
+    "StatType": "Damage",
     "Value": 4,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[weapon damage:5,crit:3]",
+    "Name": "of the Tiger",
     "Mechanics": [
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
-    "StatType": "weapon damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[weapon damage:5,magic find:3]",
+    "Name": "of the Thunderbird",
     "Mechanics": [
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
@@ -1188,15 +1188,15 @@
         "Value": 3
       }
     ],
-    "StatType": "weapon damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[weapon damage:4,# of action slots:1]",
+    "Name": "of the Octopus",
     "Mechanics": [
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
@@ -1204,12 +1204,12 @@
         "Value": 1
       }
     ],
-    "StatType": "weapon damage",
+    "StatType": "Damage",
     "Value": 4,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[health regen:4,strength:3]",
+    "Name": "of the Ox",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1225,7 +1225,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[health regen:3,agility:3]",
+    "Name": "of the Deer",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1241,7 +1241,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[health regen:3,intelligence:3]",
+    "Name": "of the Crane",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1257,7 +1257,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[health regen:3,technique:3]",
+    "Name": "of the Horseshoe Crab",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1273,14 +1273,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[health regen:3,accuracy:3]",
+    "Name": "of the Heron",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
         "Value": 3
       },
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 3
       }
     ],
@@ -1289,14 +1289,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[health regen:4,hit:3]",
+    "Name": "of the Salamander",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
         "Value": 4
       },
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       }
     ],
@@ -1305,14 +1305,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[health regen:5,combo:3]",
+    "Name": "of the Hydra",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
         "Value": 5
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
@@ -1321,14 +1321,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[health regen:3,crit:3]",
+    "Name": "of the Tasmanian Devil",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
         "Value": 3
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
@@ -1337,7 +1337,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[health regen:5,magic find:3]",
+    "Name": "of the Phoenix",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1353,7 +1353,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[health regen:4,# of action slots:1]",
+    "Name": "of the Starfish",
     "Mechanics": [
       {
         "StatType": "HealthRegen",
@@ -1369,7 +1369,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[strength:4,agility:3]",
+    "Name": "of the Lion",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -1385,7 +1385,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[strength:3,intelligence:3]",
+    "Name": "of the Orangutan",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -1401,7 +1401,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[strength:4,technique:3]",
+    "Name": "of the Mammoth",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -1417,14 +1417,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[strength:3,accuracy:3]",
+    "Name": "of the Stallion",
     "Mechanics": [
       {
         "StatType": "STR",
         "Value": 3
       },
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 3
       }
     ],
@@ -1433,14 +1433,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[strength:4,hit:3]",
+    "Name": "of the Ram",
     "Mechanics": [
       {
         "StatType": "STR",
         "Value": 4
       },
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       }
     ],
@@ -1449,14 +1449,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[strength:4,combo:3]",
+    "Name": "of the Kodiak Bear",
     "Mechanics": [
       {
         "StatType": "STR",
         "Value": 4
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
@@ -1465,14 +1465,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[strength:4,crit:3]",
+    "Name": "of the Cave Bear",
     "Mechanics": [
       {
         "StatType": "STR",
         "Value": 4
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
@@ -1481,7 +1481,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[strength:3,magic find:4]",
+    "Name": "of the Jade Serpent",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -1497,7 +1497,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[strength:3,# of action slots:1]",
+    "Name": "of the Mule",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -1513,7 +1513,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[agility:3,intelligence:3]",
+    "Name": "of the Fox",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -1529,7 +1529,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[agility:3,technique:3]",
+    "Name": "of the Ferret",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -1545,14 +1545,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[agility:4,accuracy:3]",
+    "Name": "of the Pronghorn",
     "Mechanics": [
       {
         "StatType": "AGI",
         "Value": 4
       },
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 3
       }
     ],
@@ -1561,14 +1561,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[agility:4,hit:3]",
+    "Name": "of the Caracal",
     "Mechanics": [
       {
         "StatType": "AGI",
         "Value": 4
       },
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       }
     ],
@@ -1577,14 +1577,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[agility:3,combo:3]",
+    "Name": "of the Otter",
     "Mechanics": [
       {
         "StatType": "AGI",
         "Value": 3
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
@@ -1593,14 +1593,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[agility:4,crit:3]",
+    "Name": "of the Weasel",
     "Mechanics": [
       {
         "StatType": "AGI",
         "Value": 4
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
@@ -1609,7 +1609,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[agility:3,magic find:4]",
+    "Name": "of the Kitsune",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -1625,7 +1625,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[agility:3,# of action slots:1]",
+    "Name": "of the Gecko",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -1641,7 +1641,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[intelligence:3,technique:3]",
+    "Name": "of the Jackdaw",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -1657,14 +1657,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[intelligence:4,accuracy:3]",
+    "Name": "of the Owl",
     "Mechanics": [
       {
         "StatType": "INT",
         "Value": 4
       },
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 3
       }
     ],
@@ -1673,14 +1673,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[intelligence:3,hit:3]",
+    "Name": "of the Hawk",
     "Mechanics": [
       {
         "StatType": "INT",
         "Value": 3
       },
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       }
     ],
@@ -1689,14 +1689,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[intelligence:3,combo:3]",
+    "Name": "of the Jay",
     "Mechanics": [
       {
         "StatType": "INT",
         "Value": 3
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
@@ -1705,14 +1705,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[intelligence:4,crit:3]",
+    "Name": "of the Dragon",
     "Mechanics": [
       {
         "StatType": "INT",
         "Value": 4
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
@@ -1721,7 +1721,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[intelligence:3,magic find:4]",
+    "Name": "of the Magpie",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -1737,7 +1737,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[intelligence:3,# of action slots:1]",
+    "Name": "of the Spider",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -1753,14 +1753,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[technique:3,accuracy:4]",
+    "Name": "of the Bloodhound",
     "Mechanics": [
       {
         "StatType": "TEC",
         "Value": 3
       },
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 4
       }
     ],
@@ -1769,14 +1769,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[technique:3,hit:3]",
+    "Name": "of the Kestrel",
     "Mechanics": [
       {
         "StatType": "TEC",
         "Value": 3
       },
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       }
     ],
@@ -1785,14 +1785,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[technique:3,combo:3]",
+    "Name": "of the Scorpion",
     "Mechanics": [
       {
         "StatType": "TEC",
         "Value": 3
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
@@ -1801,14 +1801,14 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[technique:3,crit:3]",
+    "Name": "of the Pistol Shrimp",
     "Mechanics": [
       {
         "StatType": "TEC",
         "Value": 3
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
@@ -1817,7 +1817,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[technique:3,magic find:4]",
+    "Name": "of the Sphinx",
     "Mechanics": [
       {
         "StatType": "TEC",
@@ -1833,7 +1833,7 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[technique:4,# of action slots:1]",
+    "Name": "of the Clockwork Beetle",
     "Mechanics": [
       {
         "StatType": "TEC",
@@ -1849,58 +1849,58 @@
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[accuracy:4,hit:3]",
+    "Name": "of the Snow Leopard",
     "Mechanics": [
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 4
       },
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       }
     ],
-    "StatType": "accuracy",
+    "StatType": "ACCURACY",
     "Value": 4,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[accuracy:3,combo:3]",
+    "Name": "of the Praying Mantis",
     "Mechanics": [
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 3
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
-    "StatType": "accuracy",
+    "StatType": "ACCURACY",
     "Value": 3,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[accuracy:4,crit:3]",
+    "Name": "of the Fer-de-Lance",
     "Mechanics": [
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 4
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
-    "StatType": "accuracy",
+    "StatType": "ACCURACY",
     "Value": 4,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[accuracy:3,magic find:4]",
+    "Name": "of the Ibis",
     "Mechanics": [
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 3
       },
       {
@@ -1908,15 +1908,15 @@
         "Value": 4
       }
     ],
-    "StatType": "accuracy",
+    "StatType": "ACCURACY",
     "Value": 3,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[accuracy:3,# of action slots:1]",
+    "Name": "of the Ant",
     "Mechanics": [
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 3
       },
       {
@@ -1924,47 +1924,47 @@
         "Value": 1
       }
     ],
-    "StatType": "accuracy",
+    "StatType": "ACCURACY",
     "Value": 3,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[hit:3,combo:3]",
+    "Name": "of the Swallow",
     "Mechanics": [
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
-    "StatType": "hit",
+    "StatType": "HIT",
     "Value": 3,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[hit:3,crit:3]",
+    "Name": "of the Shrike",
     "Mechanics": [
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
-    "StatType": "hit",
+    "StatType": "HIT",
     "Value": 3,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[hit:3,magic find:3]",
+    "Name": "of the Rook",
     "Mechanics": [
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       },
       {
@@ -1972,15 +1972,15 @@
         "Value": 3
       }
     ],
-    "StatType": "hit",
+    "StatType": "HIT",
     "Value": 3,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[hit:3,# of action slots:1]",
+    "Name": "of the Millipede",
     "Mechanics": [
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       },
       {
@@ -1988,31 +1988,31 @@
         "Value": 1
       }
     ],
-    "StatType": "hit",
+    "StatType": "HIT",
     "Value": 3,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[combo:3,crit:4]",
+    "Name": "of the Velociraptor",
     "Mechanics": [
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 4
       }
     ],
-    "StatType": "combo",
+    "StatType": "COMBO",
     "Value": 3,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[combo:3,magic find:3]",
+    "Name": "of the Damselfly",
     "Mechanics": [
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       },
       {
@@ -2020,15 +2020,15 @@
         "Value": 3
       }
     ],
-    "StatType": "combo",
+    "StatType": "COMBO",
     "Value": 3,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[combo:3,# of action slots:1]",
+    "Name": "of the Monkey",
     "Mechanics": [
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       },
       {
@@ -2036,15 +2036,15 @@
         "Value": 1
       }
     ],
-    "StatType": "combo",
+    "StatType": "COMBO",
     "Value": 3,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[crit:3,magic find:3]",
+    "Name": "of the Nighthawk",
     "Mechanics": [
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       },
       {
@@ -2052,15 +2052,15 @@
         "Value": 3
       }
     ],
-    "StatType": "crit",
+    "StatType": "CRIT",
     "Value": 3,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[crit:3,# of action slots:1]",
+    "Name": "of the Sicklebill",
     "Mechanics": [
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       },
       {
@@ -2068,12 +2068,12 @@
         "Value": 1
       }
     ],
-    "StatType": "crit",
+    "StatType": "CRIT",
     "Value": 3,
     "Rarity": "Uncommon"
   },
   {
-    "mechanics": "[magic find:4,# of action slots:1]",
+    "Name": "of the Corvid",
     "Mechanics": [
       {
         "StatType": "MagicFind",
@@ -2089,8 +2089,8 @@
     "Rarity": "Uncommon"
   },
   {
+    "Name": "lost and found again",
     "Description": "Once misplaced, now bound \u2014 carries the memory of being sought",
-    "mechanics": "[strength:3,agility:3,magic find:4]",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -2110,15 +2110,15 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "worn to the bone",
     "Description": "Stripped of pretense by long use \u2014 nothing left but purpose",
-    "mechanics": "[base damage:5,weapon damage:4,health regen:2]",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
@@ -2126,20 +2126,20 @@
         "Value": 2
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Rare"
   },
   {
+    "Name": "claimed by none",
     "Description": "Ownerless and untamed \u2014 refuses to serve any single master",
-    "mechanics": "[agility:4,crit:3,magic find:3]",
     "Mechanics": [
       {
         "StatType": "AGI",
         "Value": 4
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       },
       {
@@ -2152,8 +2152,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "burden of kin",
     "Description": "Heavy with obligation \u2014 the weight of family carried into battle",
-    "mechanics": "[max health:12,strength:3]",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -2169,8 +2169,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "owed to heir",
     "Description": "Promised to the next in line \u2014 its power strains toward the future",
-    "mechanics": "[strength:4,intelligence:3,magic find:3]",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -2190,8 +2190,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "lost of will",
     "Description": "given up",
-    "mechanics": "[strength:-5,agility:-5,technique:-5]",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -2211,8 +2211,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "carried til waking",
     "Description": "Held through dreamless sleep \u2014 crosses the boundary between rest and readiness",
-    "mechanics": "[max health:10,health regen:4,accuracy:3]",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -2223,7 +2223,7 @@
         "Value": 4
       },
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 3
       }
     ],
@@ -2232,8 +2232,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "dipped in moonlight",
     "Description": "Its true name spoken only at night \u2014 bound to shadow and silver",
-    "mechanics": "[agility:4,intelligence:3,crit:3]",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -2244,7 +2244,7 @@
         "Value": 3
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
@@ -2253,8 +2253,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "hidden beneath",
     "Description": "Concealed beneath layers \u2014 its power known only to the wearer",
-    "mechanics": "[armor:4,agility:3,magic find:3]",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -2274,18 +2274,18 @@
     "Rarity": "Rare"
   },
   {
-    "mechanics": "[agility:4,combo:4,crit:3]",
+    "Name": "danced in daylight",
     "Mechanics": [
       {
         "StatType": "AGI",
         "Value": 4
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 4
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
@@ -2294,50 +2294,50 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "held in breath",
     "Description": "The moment before release \u2014 coiled potential, never quite still",
-    "mechanics": "[speed:10,accuracy:4,crit:3]",
     "Mechanics": [
       {
-        "StatType": "speed",
+        "StatType": "AttackSpeed",
         "Value": 10
       },
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 4
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 3
       }
     ],
-    "StatType": "speed",
+    "StatType": "AttackSpeed",
     "Value": 10,
     "Rarity": "Rare"
   },
   {
+    "Name": "bathed in blood",
     "Description": "Seasoned by countless battles \u2014 the red has seeped in and stayed",
-    "mechanics": "[base damage:5,weapon damage:4,crit:4]",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 4
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Rare"
   },
   {
+    "Name": "hushed in secret",
     "Description": "Its deeds go unrecorded \u2014 what it has done, none can say",
-    "mechanics": "[intelligence:4,technique:3,magic find:4]",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -2357,8 +2357,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "absent for long",
     "Description": "Gone so long the world forgot it \u2014 returned changed and strange",
-    "mechanics": "[max health:10,magic find:5]",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -2374,8 +2374,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "rusted by Dew",
     "Description": "Weathered past the point of breaking \u2014 only the true remains",
-    "mechanics": "[armor:4,max health:10,health regen:3]",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -2395,8 +2395,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "stitched by a mother",
     "Description": "Mended with love and quiet ferocity \u2014 nothing may break what she kept whole",
-    "mechanics": "[max health:12,health regen:5]",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -2412,19 +2412,19 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "named after a father",
     "Description": "Bears the name of a provider \u2014 strength passed through blood and word",
-    "mechanics": "[strength:5,base damage:4,hit:3]",
     "Mechanics": [
       {
         "StatType": "STR",
         "Value": 5
       },
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       }
     ],
@@ -2433,8 +2433,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "worshipped by a child",
     "Description": "Seen through young eyes as magnificent \u2014 and perhaps it truly is",
-    "mechanics": "[magic find:5,max health:10,combo:3]",
     "Mechanics": [
       {
         "StatType": "MagicFind",
@@ -2445,7 +2445,7 @@
         "Value": 10
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
@@ -2454,8 +2454,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "mended by a sister",
     "Description": "Repaired with careful hands and quiet loyalty \u2014 holds together under any strain",
-    "mechanics": "[armor:4,health regen:4]",
     "Mechanics": [
       {
         "StatType": "Armor",
@@ -2471,8 +2471,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "carried by a brother",
     "Description": "Borne in another\u0027s shadow, faithful and uncomplaining",
-    "mechanics": "[strength:4,max health:10,hit:3]",
     "Mechanics": [
       {
         "StatType": "STR",
@@ -2483,7 +2483,7 @@
         "Value": 10
       },
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       }
     ],
@@ -2492,8 +2492,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "kept in faith",
     "Description": "Held through doubt and silence \u2014 belief made tangible",
-    "mechanics": "[magic find:5,intelligence:4,combo:3]",
     "Mechanics": [
       {
         "StatType": "MagicFind",
@@ -2504,7 +2504,7 @@
         "Value": 4
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
@@ -2513,15 +2513,15 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "given by dying hands",
     "Description": "The last gift of the fallen \u2014 its power drawn from a final act of will",
-    "mechanics": "[base damage:5,weapon damage:5,strength:3]",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
@@ -2529,13 +2529,13 @@
         "Value": 3
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 5,
     "Rarity": "Rare"
   },
   {
+    "Name": "kissed by time",
     "Description": "Aged beyond expectation \u2014 time has only made it more itself",
-    "mechanics": "[all:2,magic find:3]",
     "Mechanics": [
       {
         "StatType": "ALL",
@@ -2551,8 +2551,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "cherished by lovers",
     "Description": "Adored so completely that the love became part of the material",
-    "mechanics": "[max health:12,magic find:4,combo:3]",
     "Mechanics": [
       {
         "StatType": "Health",
@@ -2563,7 +2563,7 @@
         "Value": 4
       },
       {
-        "StatType": "combo",
+        "StatType": "COMBO",
         "Value": 3
       }
     ],
@@ -2572,8 +2572,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "forgotten and remembered",
     "Description": "Lost from memory, then suddenly vivid \u2014 its return feels fated",
-    "mechanics": "[intelligence:4,magic find:5,accuracy:3]",
     "Mechanics": [
       {
         "StatType": "INT",
@@ -2584,7 +2584,7 @@
         "Value": 5
       },
       {
-        "StatType": "accuracy",
+        "StatType": "ACCURACY",
         "Value": 3
       }
     ],
@@ -2593,8 +2593,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "hidden by rain",
     "Description": "The storm kept its secret \u2014 found only when the weather finally broke",
-    "mechanics": "[agility:4,armor:4]",
     "Mechanics": [
       {
         "StatType": "AGI",
@@ -2610,15 +2610,15 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "gambled by debt",
     "Description": "Wagered and lost, wagered and won \u2014 every victory feels borrowed",
-    "mechanics": "[magic find:5,crit:4]",
     "Mechanics": [
       {
         "StatType": "MagicFind",
         "Value": 5
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 4
       }
     ],
@@ -2627,8 +2627,8 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "remembered by the careless",
     "Description": "Nearly lost so many times its luck has hardened into something useful",
-    "mechanics": "[magic find:4,agility:3,# of action slots:1]",
     "Mechanics": [
       {
         "StatType": "MagicFind",
@@ -2648,40 +2648,40 @@
     "Rarity": "Rare"
   },
   {
+    "Name": "cradled on edge",
     "Description": "Balanced on the threshold \u2014 between breaking and becoming",
-    "mechanics": "[base damage:4,weapon damage:4,crit:4]",
     "Mechanics": [
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
-        "StatType": "weapon damage",
+        "StatType": "Damage",
         "Value": 4
       },
       {
-        "StatType": "crit",
+        "StatType": "CRIT",
         "Value": 4
       }
     ],
-    "StatType": "base damage",
+    "StatType": "Damage",
     "Value": 4,
     "Rarity": "Rare"
   },
   {
+    "Name": "bound by shame",
     "Description": "The weight of a wrong never set right \u2014 carried forward as fuel",
-    "mechanics": "[strength:4,base damage:5,hit:3]",
     "Mechanics": [
       {
         "StatType": "STR",
         "Value": 4
       },
       {
-        "StatType": "base damage",
+        "StatType": "Damage",
         "Value": 5
       },
       {
-        "StatType": "hit",
+        "StatType": "HIT",
         "Value": 3
       }
     ],
@@ -2690,7 +2690,7 @@
     "Rarity": "Rare"
   },
   {
-    "mechanics": "[all:5]",
+    "Name": "of gods",
     "Mechanics": [
       {
         "StatType": "ALL",

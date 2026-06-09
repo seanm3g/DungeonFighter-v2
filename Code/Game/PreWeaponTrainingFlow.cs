@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 
 namespace RPGGame
 {
@@ -7,6 +8,17 @@ namespace RPGGame
     /// </summary>
     public static class PreWeaponTrainingFlow
     {
+        private static int _tutorialCombatSlowPacingActive;
+
+        /// <summary>True while the pre-weapon Training Ground dungeon is running with tutorial combat pacing.</summary>
+        public static bool IsTutorialCombatSlowPacingActive =>
+            Volatile.Read(ref _tutorialCombatSlowPacingActive) != 0;
+
+        /// <summary>
+        /// Enables or disables slower tutorial combat log pacing for the Training Ground run.
+        /// </summary>
+        public static void SetTutorialCombatSlowPacing(bool active) =>
+            Volatile.Write(ref _tutorialCombatSlowPacingActive, active ? 1 : 0);
         public static bool IsTrainingGroundDungeonName(string? dungeonName) =>
             string.Equals(dungeonName, GameConstants.TrainingGroundDungeonName, StringComparison.OrdinalIgnoreCase);
 

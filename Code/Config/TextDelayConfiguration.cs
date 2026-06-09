@@ -115,6 +115,17 @@ namespace RPGGame.Config
         }
 
         /// <summary>
+        /// Multiplier applied to combat log delays during the pre-weapon Training Ground tutorial (2 = twice as long as default).
+        /// </summary>
+        public static double GetTutorialCombatDelayMultiplier()
+        {
+            var configData = GetConfigData();
+            return configData.TutorialCombatDelayMultiplier > 0
+                ? configData.TutorialCombatDelayMultiplier
+                : RPGGame.GameConstants.TutorialCombatDelayMultiplier;
+        }
+
+        /// <summary>
         /// Gets the environmental line delay (delay between lines in environmental actions)
         /// </summary>
         public static int GetEnvironmentalLineDelay()
@@ -225,6 +236,19 @@ namespace RPGGame.Config
             lock (_lockObject)
             {
                 configData.MessageDelayMs = delayMs;
+                TextDelayLoader.SaveConfig(configData);
+            }
+        }
+
+        /// <summary>
+        /// Sets the Training Ground tutorial combat delay multiplier and saves to config.
+        /// </summary>
+        public static void SetTutorialCombatDelayMultiplier(double multiplier)
+        {
+            var configData = GetConfigData();
+            lock (_lockObject)
+            {
+                configData.TutorialCombatDelayMultiplier = Math.Clamp(multiplier, 0.1, 10.0);
                 TextDelayLoader.SaveConfig(configData);
             }
         }

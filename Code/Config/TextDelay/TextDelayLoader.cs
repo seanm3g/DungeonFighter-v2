@@ -77,6 +77,8 @@ namespace RPGGame.Config.TextDelay
                             configData.ActionDelayMs = actionDelay.GetInt32();
                         if (combatDelays.TryGetProperty("MessageDelayMs", out var messageDelay))
                             configData.MessageDelayMs = messageDelay.GetInt32();
+                        if (combatDelays.TryGetProperty("TutorialCombatDelayMultiplier", out var tutorialCombatDelayMultiplier))
+                            configData.TutorialCombatDelayMultiplier = tutorialCombatDelayMultiplier.GetDouble();
                     }
 
                     // Load progressive menu delays
@@ -125,6 +127,11 @@ namespace RPGGame.Config.TextDelay
             if (configData.EnvironmentalLineDelay == 0)
             {
                 configData.EnvironmentalLineDelay = 500;
+            }
+
+            if (configData.TutorialCombatDelayMultiplier <= 0)
+            {
+                configData.TutorialCombatDelayMultiplier = RPGGame.GameConstants.TutorialCombatDelayMultiplier;
             }
 
             // Default message type delays
@@ -220,7 +227,8 @@ namespace RPGGame.Config.TextDelay
                 saveData.CombatDelays = new CombatDelaysData
                 {
                     ActionDelayMs = configData.ActionDelayMs,
-                    MessageDelayMs = configData.MessageDelayMs
+                    MessageDelayMs = configData.MessageDelayMs,
+                    TutorialCombatDelayMultiplier = configData.TutorialCombatDelayMultiplier
                 };
                 
                 // Copy progressive menu delays
@@ -272,6 +280,7 @@ namespace RPGGame.Config.TextDelay
             public Dictionary<string, ChunkedTextRevealPreset> ChunkedTextRevealPresets { get; set; } = new Dictionary<string, ChunkedTextRevealPreset>();
             public int ActionDelayMs { get; set; } = 3000;
             public int MessageDelayMs { get; set; } = 200;
+            public double TutorialCombatDelayMultiplier { get; set; } = RPGGame.GameConstants.TutorialCombatDelayMultiplier;
             public int EnvironmentalLineDelay { get; set; } = 500;
             public ProgressiveMenuDelaysConfig ProgressiveMenuDelays { get; set; } = new ProgressiveMenuDelaysConfig();
             public TravelRouteRollPacingConfig TravelRouteRollPacing { get; set; } = new TravelRouteRollPacingConfig();
@@ -301,6 +310,7 @@ namespace RPGGame.Config.TextDelay
         {
             public int ActionDelayMs { get; set; }
             public int MessageDelayMs { get; set; }
+            public double TutorialCombatDelayMultiplier { get; set; } = RPGGame.GameConstants.TutorialCombatDelayMultiplier;
         }
     }
 }

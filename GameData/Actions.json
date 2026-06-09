@@ -2579,18 +2579,6 @@
     "tags": "enemy, exposed"
   },
   {
-    "action": "SOUL DRAIN",
-    "description": "Enemy ability: SOUL DRAIN",
-    "category": "ENEMY",
-    "dps": "86%",
-    "numberOfHits": "1",
-    "damage": "120%",
-    "speed": "1.40",
-    "weaken": "1",
-    "target": "ENEMY",
-    "tags": "enemy, exposed"
-  },
-  {
     "action": "PHASE",
     "description": "Enemy ability: PHASE",
     "category": "ENEMY",

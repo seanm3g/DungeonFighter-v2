@@ -5,20 +5,7 @@
     "location": "General",
     "rarity": "common",
     "name": "Goblin",
-    "tags": [
-      "living",
-      "minion",
-      "has_hands"
-    ],
     "archetype": "Assassin",
-    "baseHealth": 36.55,
-    "healthGrowthPerLevel": 2.35,
-    "actions": [
-      "JAB",
-      "TAUNT"
-    ],
-    "isLiving": true,
-    "description": "A quick and cunning creature that strikes from the shadows",
     "baseAttributes": {
       "strength": 5,
       "agility": 3,
@@ -30,7 +17,20 @@
       "agility": 2.3,
       "technique": 2.3,
       "intelligence": 0.5
-    }
+    },
+    "baseHealth": 36.55,
+    "healthGrowthPerLevel": 2.35,
+    "actions": [
+      "JAB",
+      "TAUNT"
+    ],
+    "isLiving": true,
+    "description": "A quick and cunning creature that strikes from the shadows",
+    "tags": [
+      "living",
+      "minion",
+      "has_hands"
+    ]
   },
   {
     "region": "n/a",
@@ -39,14 +39,6 @@
     "rarity": "common",
     "name": "Spider",
     "archetype": "Assassin",
-    "baseHealth": 12.5,
-    "healthGrowthPerLevel": 1.65,
-    "actions": [
-      "WEB STRIKE",
-      "POISON BITE"
-    ],
-    "isLiving": true,
-    "description": "A large forest spider with venomous fangs - extremely fast, fragile",
     "baseAttributes": {
       "strength": 3,
       "agility": 4,
@@ -59,6 +51,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 12.5,
+    "healthGrowthPerLevel": 1.65,
+    "actions": [
+      "WEB STRIKE",
+      "POISON BITE"
+    ],
+    "isLiving": true,
+    "description": "A large forest spider with venomous fangs - extremely fast, fragile",
     "tags": [
       "living",
       "minion",
@@ -73,14 +73,6 @@
     "rarity": "common",
     "name": "Wolf",
     "archetype": "Berserker",
-    "baseHealth": 66.7,
-    "healthGrowthPerLevel": 3.1,
-    "actions": [
-      "BITE",
-      "HOWL"
-    ],
-    "isLiving": true,
-    "description": "A swift predator that hunts in packs - balanced attacker",
     "baseAttributes": {
       "strength": 4,
       "agility": 1,
@@ -93,6 +85,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
+    "baseHealth": 66.7,
+    "healthGrowthPerLevel": 3.1,
+    "actions": [
+      "BITE",
+      "HOWL"
+    ],
+    "isLiving": true,
+    "description": "A swift predator that hunts in packs - balanced attacker",
     "tags": [
       "living"
     ]
@@ -104,14 +104,6 @@
     "rarity": "common",
     "name": "Fire Elemental",
     "archetype": "Acrobat",
-    "baseHealth": 28.5,
-    "healthGrowthPerLevel": 2.25,
-    "actions": [
-      "FIRE BOLT",
-      "IGNITE"
-    ],
-    "isLiving": false,
-    "description": "A being of pure flame with magical powers - high damage caster",
     "baseAttributes": {
       "strength": 3,
       "agility": 4,
@@ -124,6 +116,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 28.5,
+    "healthGrowthPerLevel": 2.25,
+    "actions": [
+      "FIRE BOLT",
+      "IGNITE"
+    ],
+    "isLiving": false,
+    "description": "A being of pure flame with magical powers - high damage caster",
     "tags": [
       "elemental",
       "fire"
@@ -136,14 +136,6 @@
     "rarity": "common",
     "name": "Lava Golem",
     "archetype": "Brute",
-    "baseHealth": 98,
-    "healthGrowthPerLevel": 4.3,
-    "actions": [
-      "MAGMA FIST",
-      "ERUPTION"
-    ],
-    "isLiving": false,
-    "description": "A massive construct of molten rock and metal - slow tank with high damage",
     "baseAttributes": {
       "strength": 3,
       "agility": 2,
@@ -156,6 +148,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 98,
+    "healthGrowthPerLevel": 4.3,
+    "actions": [
+      "MAGMA FIST",
+      "ERUPTION"
+    ],
+    "isLiving": false,
+    "description": "A massive construct of molten rock and metal - slow tank with high damage",
     "tags": [
       "elemental",
       "fire",
@@ -170,14 +170,6 @@
     "rarity": "common",
     "name": "Bat",
     "archetype": "Assassin",
-    "baseHealth": 8,
-    "healthGrowthPerLevel": 1.35,
-    "actions": [
-      "BAT SWARM",
-      "QUICK STRIKE"
-    ],
-    "isLiving": true,
-    "description": "A flying bat that attacks in swarms - ultra-fast but very fragile",
     "baseAttributes": {
       "strength": 3,
       "agility": 2,
@@ -190,6 +182,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 8,
+    "healthGrowthPerLevel": 1.35,
+    "actions": [
+      "BAT SWARM",
+      "QUICK STRIKE"
+    ],
+    "isLiving": true,
+    "description": "A flying bat that attacks in swarms - ultra-fast but very fragile",
     "tags": [
       "living",
       "air",
@@ -204,14 +204,6 @@
     "rarity": "common",
     "name": "Skeleton",
     "archetype": "Berserker",
-    "baseHealth": 40.5,
-    "healthGrowthPerLevel": 2.75,
-    "actions": [
-      "BONE STRIKE",
-      "RATTLE"
-    ],
-    "isLiving": false,
-    "description": "An undead warrior with bony armor - protected but fragile bones",
     "baseAttributes": {
       "strength": 3,
       "agility": 0,
@@ -224,6 +216,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
+    "baseHealth": 40.5,
+    "healthGrowthPerLevel": 2.75,
+    "actions": [
+      "BONE STRIKE",
+      "RATTLE"
+    ],
+    "isLiving": false,
+    "description": "An undead warrior with bony armor - protected but fragile bones",
     "tags": [
       "undead",
       "frail"
@@ -236,14 +236,6 @@
     "rarity": "common",
     "name": "Zombie",
     "archetype": "Brute",
-    "baseHealth": 60.5,
-    "healthGrowthPerLevel": 3.15,
-    "actions": [
-      "CLAW",
-      "GROAN"
-    ],
-    "isLiving": false,
-    "description": "A shambling undead - durable but slow and decaying",
     "baseAttributes": {
       "strength": 3,
       "agility": 1,
@@ -256,6 +248,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 60.5,
+    "healthGrowthPerLevel": 3.15,
+    "actions": [
+      "CLAW",
+      "GROAN"
+    ],
+    "isLiving": false,
+    "description": "A shambling undead - durable but slow and decaying",
     "tags": [
       "undead"
     ]
@@ -267,14 +267,6 @@
     "rarity": "common",
     "name": "Wraith",
     "archetype": "Assassin",
-    "baseHealth": 21.45,
-    "healthGrowthPerLevel": 2.05,
-    "actions": [
-      "SOUL DRAIN",
-      "PHASE"
-    ],
-    "isLiving": false,
-    "description": "A spectral being with powerful magic - fast magical caster",
     "baseAttributes": {
       "strength": 0,
       "agility": 3,
@@ -287,6 +279,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 21.45,
+    "healthGrowthPerLevel": 2.05,
+    "actions": [
+      "Soul Drain",
+      "PHASE"
+    ],
+    "isLiving": false,
+    "description": "A spectral being with powerful magic - fast magical caster",
     "tags": [
       "undead"
     ]
@@ -298,14 +298,6 @@
     "rarity": "common",
     "name": "Bear",
     "archetype": "Berserker",
-    "baseHealth": 78.75,
-    "healthGrowthPerLevel": 3.45,
-    "actions": [
-      "SLAM",
-      "GRUNT"
-    ],
-    "isLiving": true,
-    "description": "A powerful forest predator - heavy hitter with high health",
     "baseAttributes": {
       "strength": 4,
       "agility": 2,
@@ -318,6 +310,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
+    "baseHealth": 78.75,
+    "healthGrowthPerLevel": 3.45,
+    "actions": [
+      "SLAM",
+      "GRUNT"
+    ],
+    "isLiving": true,
+    "description": "A powerful forest predator - heavy hitter with high health",
     "tags": [
       "living",
       "giant"
@@ -330,14 +330,6 @@
     "rarity": "common",
     "name": "Treant",
     "archetype": "Brute",
-    "baseHealth": 91.8,
-    "healthGrowthPerLevel": 4.1,
-    "actions": [
-      "SLAM",
-      "PUNCH HARD"
-    ],
-    "isLiving": false,
-    "description": "An ancient tree spirit - slow but heavily armored",
     "baseAttributes": {
       "strength": 0,
       "agility": 3,
@@ -350,6 +342,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 91.8,
+    "healthGrowthPerLevel": 4.1,
+    "actions": [
+      "SLAM",
+      "PUNCH HARD"
+    ],
+    "isLiving": false,
+    "description": "An ancient tree spirit - slow but heavily armored",
     "tags": [
       "plant",
       "giant",
@@ -363,14 +363,6 @@
     "rarity": "common",
     "name": "Boar",
     "archetype": "Berserker",
-    "baseHealth": 60.5,
-    "healthGrowthPerLevel": 3.05,
-    "actions": [
-      "JAB",
-      "PUNCH HARD"
-    ],
-    "isLiving": true,
-    "description": "A fierce woodland beast that charges and gores",
     "baseAttributes": {
       "strength": 2,
       "agility": 5,
@@ -383,6 +375,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
+    "baseHealth": 60.5,
+    "healthGrowthPerLevel": 3.05,
+    "actions": [
+      "JAB",
+      "PUNCH HARD"
+    ],
+    "isLiving": true,
+    "description": "A fierce woodland beast that charges and gores",
     "tags": [
       "living"
     ]
@@ -394,14 +394,6 @@
     "rarity": "common",
     "name": "Salamander",
     "archetype": "Assassin",
-    "baseHealth": 24.5,
-    "healthGrowthPerLevel": 2.15,
-    "actions": [
-      "CHEAP SHOT",
-      "JAB"
-    ],
-    "isLiving": true,
-    "description": "A fire-dwelling lizard that strikes from the heat haze",
     "baseAttributes": {
       "strength": 1,
       "agility": 2,
@@ -414,6 +406,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 24.5,
+    "healthGrowthPerLevel": 2.15,
+    "actions": [
+      "CHEAP SHOT",
+      "JAB"
+    ],
+    "isLiving": true,
+    "description": "A fire-dwelling lizard that strikes from the heat haze",
     "tags": [
       "living",
       "fire"
@@ -426,14 +426,6 @@
     "rarity": "common",
     "name": "Ember Spirit",
     "archetype": "Sage",
-    "baseHealth": 18,
-    "healthGrowthPerLevel": 1.85,
-    "actions": [
-      "CRITICAL ATTACK",
-      "FLURRY"
-    ],
-    "isLiving": false,
-    "description": "A wisp of living flame - bursts of magical damage",
     "baseAttributes": {
       "strength": 4,
       "agility": 3,
@@ -446,6 +438,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
+    "baseHealth": 18,
+    "healthGrowthPerLevel": 1.85,
+    "actions": [
+      "CRITICAL ATTACK",
+      "FLURRY"
+    ],
+    "isLiving": false,
+    "description": "A wisp of living flame - bursts of magical damage",
     "tags": [
       "elemental",
       "fire",
@@ -460,13 +460,6 @@
     "rarity": "common",
     "name": "Magma Beast",
     "archetype": "Brute",
-    "baseHealth": 84.5,
-    "healthGrowthPerLevel": 4,
-    "actions": [
-      "SLAM"
-    ],
-    "isLiving": false,
-    "description": "A creature of molten rock - devastating heavy attacks",
     "baseAttributes": {
       "strength": 3,
       "agility": 1,
@@ -479,6 +472,13 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 84.5,
+    "healthGrowthPerLevel": 4,
+    "actions": [
+      "SLAM"
+    ],
+    "isLiving": false,
+    "description": "A creature of molten rock - devastating heavy attacks",
     "tags": [
       "elemental",
       "fire",
@@ -492,14 +492,6 @@
     "rarity": "common",
     "name": "Ghoul",
     "archetype": "Assassin",
-    "baseHealth": 32,
-    "healthGrowthPerLevel": 2.55,
-    "actions": [
-      "CHEAP SHOT",
-      "JAB"
-    ],
-    "isLiving": false,
-    "description": "A ravenous undead that lunges from the shadows",
     "baseAttributes": {
       "strength": 0,
       "agility": 4,
@@ -512,6 +504,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 32,
+    "healthGrowthPerLevel": 2.55,
+    "actions": [
+      "CHEAP SHOT",
+      "JAB"
+    ],
+    "isLiving": false,
+    "description": "A ravenous undead that lunges from the shadows",
     "tags": [
       "undead"
     ]
@@ -523,14 +523,6 @@
     "rarity": "common",
     "name": "Lich",
     "archetype": "Artificer",
-    "baseHealth": 40.5,
-    "healthGrowthPerLevel": 2.85,
-    "actions": [
-      "CRITICAL ATTACK",
-      "STUN"
-    ],
-    "isLiving": false,
-    "description": "An undead spellcaster with potent magical strikes",
     "baseAttributes": {
       "strength": 2,
       "agility": 4,
@@ -543,6 +535,14 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
+    "baseHealth": 40.5,
+    "healthGrowthPerLevel": 2.85,
+    "actions": [
+      "CRITICAL ATTACK",
+      "STUN"
+    ],
+    "isLiving": false,
+    "description": "An undead spellcaster with potent magical strikes",
     "tags": [
       "undead",
       "has_hands"
@@ -555,14 +555,6 @@
     "rarity": "common",
     "name": "Wight",
     "archetype": "Trickster",
-    "baseHealth": 50,
-    "healthGrowthPerLevel": 2.9,
-    "actions": [
-      "SLAM",
-      "TAUNT"
-    ],
-    "isLiving": false,
-    "description": "A spectral guardian of the crypt - tough and controlling",
     "baseAttributes": {
       "strength": 5,
       "agility": 5,
@@ -575,6 +567,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 50,
+    "healthGrowthPerLevel": 2.9,
+    "actions": [
+      "SLAM",
+      "TAUNT"
+    ],
+    "isLiving": false,
+    "description": "A spectral guardian of the crypt - tough and controlling",
     "tags": [
       "undead"
     ]
@@ -586,13 +586,6 @@
     "rarity": "uncommon",
     "name": "Sandstorm Flanker",
     "archetype": "Berserker",
-    "baseHealth": 20,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Sand Dash",
-      "Desert Veil"
-    ],
-    "description": "A desert raider that cuts in from the blinding sand — fast strikes from the edge of vision",
     "baseAttributes": {
       "strength": 4,
       "agility": 4,
@@ -605,6 +598,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
+    "baseHealth": 20,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Sand Dash",
+      "Desert Veil"
+    ],
+    "isLiving": true,
+    "description": "A desert raider that cuts in from the blinding sand \u2014 fast strikes from the edge of vision",
     "tags": [
       "living",
       "earth",
@@ -619,13 +620,6 @@
     "rarity": "uncommon",
     "name": "Sand Serpent",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Burrow Strike",
-      "Sand Spray"
-    ],
-    "description": "A buried serpent that erupts from the dunes — ambushes with venomous precision",
     "baseAttributes": {
       "strength": 5,
       "agility": 0,
@@ -638,6 +632,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Burrow Strike",
+      "Sand Spray"
+    ],
+    "isLiving": true,
+    "description": "A buried serpent that erupts from the dunes \u2014 ambushes with venomous precision",
     "tags": [
       "living",
       "earth",
@@ -651,13 +653,6 @@
     "rarity": "Rare",
     "name": "Dune Roller",
     "archetype": "Acrobat",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Rolling Charge",
-      "Sand Armor"
-    ],
-    "description": "A armored desert dweller that curls and rolls at high speed — hits hard on impact",
     "baseAttributes": {
       "strength": 2,
       "agility": 5,
@@ -670,6 +665,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Rolling Charge",
+      "Sand Armor"
+    ],
+    "isLiving": true,
+    "description": "A armored desert dweller that curls and rolls at high speed \u2014 hits hard on impact",
     "tags": [
       "living",
       "earth",
@@ -684,13 +687,6 @@
     "rarity": "uncommon",
     "name": "Sun Lance Scorpion",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Solar Sting",
-      "Heat Wave"
-    ],
-    "description": "A scorpion whose tail gleams like a spear in the sun — precise, poisonous strikes",
     "baseAttributes": {
       "strength": 4,
       "agility": 0,
@@ -703,6 +699,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Solar Sting",
+      "Heat Wave"
+    ],
+    "isLiving": true,
+    "description": "A scorpion whose tail gleams like a spear in the sun \u2014 precise, poisonous strikes",
     "tags": [
       "living",
       "fire",
@@ -717,13 +721,6 @@
     "rarity": "uncommon",
     "name": "Glare Stalker",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Blinding Flash",
-      "Precision Shot"
-    ],
-    "description": "A hunter that uses reflected sunlight to blind prey before closing in",
     "baseAttributes": {
       "strength": 3,
       "agility": 3,
@@ -736,6 +733,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Blinding Flash",
+      "Precision Shot"
+    ],
+    "isLiving": true,
+    "description": "A hunter that uses reflected sunlight to blind prey before closing in",
     "tags": [
       "living",
       "air",
@@ -749,13 +754,6 @@
     "rarity": "Rare",
     "name": "Glass Shard Golem",
     "archetype": "Duelist",
-    "baseHealth": 25,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Crystal Barrage",
-      "Shatter"
-    ],
-    "description": "A construct of fused desert glass — sharp, brittle, and deadly up close",
     "baseAttributes": {
       "strength": 1,
       "agility": 7,
@@ -768,6 +766,14 @@
       "technique": 2.9,
       "intelligence": 0.6
     },
+    "baseHealth": 25,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Crystal Barrage",
+      "Shatter"
+    ],
+    "isLiving": true,
+    "description": "A construct of fused desert glass \u2014 sharp, brittle, and deadly up close",
     "tags": [
       "elemental",
       "earth",
@@ -783,13 +789,6 @@
     "rarity": "uncommon",
     "name": "Mirage Hunter",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Illusion Strike",
-      "Vanish"
-    ],
-    "description": "A predator that hunts by false shapes in the heat haze — strikes where you aren't looking",
     "baseAttributes": {
       "strength": 7,
       "agility": 3,
@@ -802,6 +801,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Illusion Strike",
+      "Vanish"
+    ],
+    "isLiving": true,
+    "description": "A predator that hunts by false shapes in the heat haze \u2014 strikes where you aren\u0027t looking",
     "tags": [
       "living",
       "fire",
@@ -816,13 +823,6 @@
     "rarity": "uncommon",
     "name": "Shadow Wraith",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Phase Shift",
-      "Soul Drain"
-    ],
-    "description": "A shade born of desert noon — phases through light and drains the unwary",
     "baseAttributes": {
       "strength": 4,
       "agility": 4,
@@ -835,6 +835,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Phase Shift",
+      "Soul Drain"
+    ],
+    "isLiving": true,
+    "description": "A shade born of desert noon \u2014 phases through light and drains the unwary",
     "tags": [
       "undead",
       "air"
@@ -847,13 +855,6 @@
     "rarity": "Rare",
     "name": "Restorative Leech",
     "archetype": "Sage",
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Vitality Leech",
-      "Sap Drain"
-    ],
-    "description": "A parasitic desert leech that feeds and mends itself — sustains through stolen life",
     "baseAttributes": {
       "strength": 3,
       "agility": 3,
@@ -866,6 +867,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Vitality Leech",
+      "Sap Drain"
+    ],
+    "isLiving": true,
+    "description": "A parasitic desert leech that feeds and mends itself \u2014 sustains through stolen life",
     "tags": [
       "living",
       "water",
@@ -879,13 +888,6 @@
     "rarity": "uncommon",
     "name": "Stone Colossus",
     "archetype": "Brute",
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Titan Fist",
-      "Ground Pound"
-    ],
-    "description": "A towering statue of carved sandstone — slow, massive, and nearly immovable",
     "baseAttributes": {
       "strength": 4,
       "agility": 1,
@@ -898,6 +900,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Titan Fist",
+      "Ground Pound"
+    ],
+    "isLiving": true,
+    "description": "A towering statue of carved sandstone \u2014 slow, massive, and nearly immovable",
     "tags": [
       "living",
       "earth",
@@ -912,13 +922,6 @@
     "rarity": "uncommon",
     "name": "Poison Dart Sentinel",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Toxic Dart",
-      "Venom Volley"
-    ],
-    "description": "A tomb guardian that fires venomous darts from stillness — patient and precise",
     "baseAttributes": {
       "strength": 3,
       "agility": 3,
@@ -931,6 +934,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Toxic Dart",
+      "Venom Volley"
+    ],
+    "isLiving": true,
+    "description": "A tomb guardian that fires venomous darts from stillness \u2014 patient and precise",
     "tags": [
       "undead",
       "large",
@@ -944,13 +955,6 @@
     "rarity": "Rare",
     "name": "Sun Priest",
     "archetype": "Sage",
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Solar Blessing",
-      "Sunbeam"
-    ],
-    "description": "A desert cleric who channels solar wrath — casts with burning conviction",
     "baseAttributes": {
       "strength": 1,
       "agility": 3,
@@ -963,6 +967,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Solar Blessing",
+      "Sunbeam"
+    ],
+    "isLiving": true,
+    "description": "A desert cleric who channels solar wrath \u2014 casts with burning conviction",
     "tags": [
       "celestial",
       "fire",
@@ -977,13 +989,6 @@
     "rarity": "uncommon",
     "name": "Guardian Scarab",
     "archetype": "Knight",
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Shell Defense",
-      "Mandible Crush"
-    ],
-    "description": "A sacred beetle grown to impossible size — armored and fiercely territorial",
     "baseAttributes": {
       "strength": 1,
       "agility": 4,
@@ -996,6 +1001,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Shell Defense",
+      "Mandible Crush"
+    ],
+    "isLiving": true,
+    "description": "A sacred beetle grown to impossible size \u2014 armored and fiercely territorial",
     "tags": [
       "living",
       "earth",
@@ -1011,13 +1024,6 @@
     "rarity": "uncommon",
     "name": "Tomb Creeper",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Ambush",
-      "Sand Blind"
-    ],
-    "description": "A corpse-thief that crawls through burial passages — strikes from tight darkness",
     "baseAttributes": {
       "strength": 4,
       "agility": 4,
@@ -1030,6 +1036,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Ambush",
+      "Sand Blind"
+    ],
+    "isLiving": true,
+    "description": "A corpse-thief that crawls through burial passages \u2014 strikes from tight darkness",
     "tags": [
       "undead",
       "tiny"
@@ -1042,13 +1056,6 @@
     "rarity": "Rare",
     "name": "Sarcopha Gus",
     "archetype": "Brute",
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Entomb",
-      "Mummy's Grasp"
-    ],
-    "description": "An undead bound to a cracked sarcophagus — shambling, heavy, and hard to put down",
     "baseAttributes": {
       "strength": 1,
       "agility": 2,
@@ -1061,6 +1068,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Entomb",
+      "Mummy\u0027s Grasp"
+    ],
+    "isLiving": true,
+    "description": "An undead bound to a cracked sarcophagus \u2014 shambling, heavy, and hard to put down",
     "tags": [
       "undead"
     ]
@@ -1072,13 +1087,6 @@
     "rarity": "uncommon",
     "name": "Burial Lich",
     "archetype": "Sage",
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Raise Dead",
-      "Death Bolt"
-    ],
-    "description": "An ancient necromancer of the tombs — commands death with cold intelligence",
     "baseAttributes": {
       "strength": 2,
       "agility": 1,
@@ -1091,6 +1099,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Raise Dead",
+      "Death Bolt"
+    ],
+    "isLiving": true,
+    "description": "An ancient necromancer of the tombs \u2014 commands death with cold intelligence",
     "tags": [
       "undead",
       "boss",
@@ -1104,13 +1120,6 @@
     "rarity": "uncommon",
     "name": "Mummy",
     "archetype": "Brute",
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Crush",
-      "Binding Slam"
-    ],
-    "description": "A wrapped undead preserved by desert rites — durable and relentless",
     "baseAttributes": {
       "strength": 4,
       "agility": 4,
@@ -1123,6 +1132,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Crush",
+      "Binding Slam"
+    ],
+    "isLiving": true,
+    "description": "A wrapped undead preserved by desert rites \u2014 durable and relentless",
     "tags": [
       "undead"
     ]
@@ -1132,15 +1149,8 @@
     "biome": "Pyramids",
     "location": "Burial Chamber",
     "rarity": "Rare",
-    "name": "Ancestor's Shade",
+    "name": "Ancestor\u0027s Shade",
     "archetype": "Sage",
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Spectral Touch",
-      "Ancient Curse"
-    ],
-    "description": "The lingering spirit of a forgotten dynasty — strikes with the weight of old grudges",
     "baseAttributes": {
       "strength": 3,
       "agility": 1,
@@ -1153,6 +1163,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Spectral Touch",
+      "Ancient Curse"
+    ],
+    "isLiving": true,
+    "description": "The lingering spirit of a forgotten dynasty \u2014 strikes with the weight of old grudges",
     "tags": [
       "undead"
     ]
@@ -1164,13 +1182,6 @@
     "rarity": "uncommon",
     "name": "Hawk",
     "archetype": "Acrobat",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Talon Strike",
-      "Keen Eye"
-    ],
-    "description": "A desert raptor that dives from above — swift aerial strikes",
     "baseAttributes": {
       "strength": 1,
       "agility": 8,
@@ -1183,6 +1194,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Talon Strike",
+      "Keen Eye"
+    ],
+    "isLiving": true,
+    "description": "A desert raptor that dives from above \u2014 swift aerial strikes",
     "tags": [
       "living",
       "air"
@@ -1195,13 +1214,6 @@
     "rarity": "uncommon",
     "name": "Rock Lobber",
     "archetype": "Brute",
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Boulder Hurl",
-      "Stone Barrage"
-    ],
-    "description": "A brute that hurls sun-baked stones from a distance — simple, crushing force",
     "baseAttributes": {
       "strength": 0,
       "agility": 7,
@@ -1214,6 +1226,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Boulder Hurl",
+      "Stone Barrage"
+    ],
+    "isLiving": true,
+    "description": "A brute that hurls sun-baked stones from a distance \u2014 simple, crushing force",
     "tags": [
       "living",
       "earth",
@@ -1228,13 +1248,6 @@
     "rarity": "Rare",
     "name": "Edge Stalker",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Cliff Drop",
-      "Ledge Grab"
-    ],
-    "description": "A blade-wielding hunter that circles the rim of sight — waits for an opening",
     "baseAttributes": {
       "strength": 5,
       "agility": 4,
@@ -1247,6 +1260,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Cliff Drop",
+      "Ledge Grab"
+    ],
+    "isLiving": true,
+    "description": "A blade-wielding hunter that circles the rim of sight \u2014 waits for an opening",
     "tags": [
       "living",
       "has_hands"
@@ -1259,13 +1280,6 @@
     "rarity": "uncommon",
     "name": "Scavenger Rat",
     "archetype": "Acrobat",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Quick Bite",
-      "Disease Spread"
-    ],
-    "description": "A gnawing vermin of the wastes — quick, dirty, and opportunistic",
     "baseAttributes": {
       "strength": 1,
       "agility": 2,
@@ -1278,6 +1292,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Quick Bite",
+      "Disease Spread"
+    ],
+    "isLiving": true,
+    "description": "A gnawing vermin of the wastes \u2014 quick, dirty, and opportunistic",
     "tags": [
       "living",
       "minion",
@@ -1291,13 +1313,6 @@
     "rarity": "uncommon",
     "name": "Toxic Drinker",
     "archetype": "Artificer",
-    "baseHealth": 18,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Bile Splash",
-      "Corrupted Gulp"
-    ],
-    "description": "A mutated desert dweller that drinks poison to fuel its attacks",
     "baseAttributes": {
       "strength": 2,
       "agility": 2,
@@ -1310,6 +1325,14 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
+    "baseHealth": 18,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Bile Splash",
+      "Corrupted Gulp"
+    ],
+    "isLiving": true,
+    "description": "A mutated desert dweller that drinks poison to fuel its attacks",
     "tags": [
       "living"
     ]
@@ -1321,13 +1344,6 @@
     "rarity": "Rare",
     "name": "Deserter Shade",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Last Stand Break",
-      "Phantom Strike"
-    ],
-    "description": "The ghost of a soldier who fled into the dunes — elusive and bitter",
     "baseAttributes": {
       "strength": 5,
       "agility": 5,
@@ -1340,6 +1356,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Last Stand Break",
+      "Phantom Strike"
+    ],
+    "isLiving": true,
+    "description": "The ghost of a soldier who fled into the dunes \u2014 elusive and bitter",
     "tags": [
       "undead"
     ]
@@ -1351,13 +1375,6 @@
     "rarity": "uncommon",
     "name": "Storm Caller",
     "archetype": "Sage",
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Lightning Strike",
-      "Thunder Clap"
-    ],
-    "description": "A mountain mystic who summons thunder and wind — casts from afar",
     "baseAttributes": {
       "strength": 4,
       "agility": 3,
@@ -1370,6 +1387,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Lightning Strike",
+      "Thunder Clap"
+    ],
+    "isLiving": true,
+    "description": "A mountain mystic who summons thunder and wind \u2014 casts from afar",
     "tags": [
       "living",
       "air"
@@ -1382,13 +1407,6 @@
     "rarity": "uncommon",
     "name": "Altitude Wraith",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Dive Bomb",
-      "Wind Gust"
-    ],
-    "description": "A thin-air specter that haunts high passes — cold, fast, and disorienting",
     "baseAttributes": {
       "strength": 3,
       "agility": 1,
@@ -1401,6 +1419,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Dive Bomb",
+      "Wind Gust"
+    ],
+    "isLiving": true,
+    "description": "A thin-air specter that haunts high passes \u2014 cold, fast, and disorienting",
     "tags": [
       "undead",
       "air",
@@ -1414,13 +1440,6 @@
     "rarity": "Rare",
     "name": "Summit Titan",
     "archetype": "Brute",
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Peak Slam",
-      "Mountain's Fury"
-    ],
-    "description": "A giant of stone and ice at the mountain peak — slow but overwhelming",
     "baseAttributes": {
       "strength": 2,
       "agility": 2,
@@ -1433,6 +1452,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Peak Slam",
+      "Mountain\u0027s Fury"
+    ],
+    "isLiving": true,
+    "description": "A giant of stone and ice at the mountain peak \u2014 slow but overwhelming",
     "tags": [
       "living",
       "earth",
@@ -1447,13 +1474,6 @@
     "rarity": "uncommon",
     "name": "Cinder Hound",
     "archetype": "Berserker",
-    "baseHealth": 20,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Scorching Bite",
-      "Ember lunge"
-    ],
-    "description": "A fire-scorched hound that hunts in bursts of speed and fury",
     "baseAttributes": {
       "strength": 2,
       "agility": 2,
@@ -1466,6 +1486,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
+    "baseHealth": 20,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Scorching Bite",
+      "Ember lunge"
+    ],
+    "isLiving": true,
+    "description": "A fire-scorched hound that hunts in bursts of speed and fury",
     "tags": [
       "living",
       "fire"
@@ -1478,13 +1506,6 @@
     "rarity": "uncommon",
     "name": "Magma Creeper",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Tremor Burst",
-      "Molten Ooze"
-    ],
-    "description": "A lava-dwelling predator that crawls through fissures — ambushes from below",
     "baseAttributes": {
       "strength": 1,
       "agility": 0,
@@ -1497,6 +1518,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Tremor Burst",
+      "Molten Ooze"
+    ],
+    "isLiving": true,
+    "description": "A lava-dwelling predator that crawls through fissures \u2014 ambushes from below",
     "tags": [
       "elemental",
       "fire",
@@ -1510,13 +1539,6 @@
     "rarity": "Rare",
     "name": "Ashwing Harpy",
     "archetype": "Acrobat",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Cinder Shriek",
-      "Gust Talon"
-    ],
-    "description": "A winged scavenger of volcanic skies — fast, shrieking dives",
     "baseAttributes": {
       "strength": 2,
       "agility": 3,
@@ -1529,6 +1551,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Cinder Shriek",
+      "Gust Talon"
+    ],
+    "isLiving": true,
+    "description": "A winged scavenger of volcanic skies \u2014 fast, shrieking dives",
     "tags": [
       "living",
       "fire",
@@ -1542,13 +1572,6 @@
     "rarity": "uncommon",
     "name": "Soot Golem",
     "archetype": "Knight",
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Coal Shell",
-      "Soot Pummel"
-    ],
-    "description": "A construct of compressed ash and cinders — armored and smothering",
     "baseAttributes": {
       "strength": 2,
       "agility": 4,
@@ -1561,6 +1584,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Coal Shell",
+      "Soot Pummel"
+    ],
+    "isLiving": true,
+    "description": "A construct of compressed ash and cinders \u2014 armored and smothering",
     "tags": [
       "elemental",
       "fire",
@@ -1576,13 +1607,6 @@
     "rarity": "uncommon",
     "name": "Cave Ember Toad",
     "archetype": "Brute",
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Ember Spit",
-      "Tongue Lash"
-    ],
-    "description": "A bloated toad swollen with inner heat — lurks and lunges from cave pools",
     "baseAttributes": {
       "strength": 3,
       "agility": 8,
@@ -1595,6 +1619,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Ember Spit",
+      "Tongue Lash"
+    ],
+    "isLiving": true,
+    "description": "A bloated toad swollen with inner heat \u2014 lurks and lunges from cave pools",
     "tags": [
       "elemental",
       "fire",
@@ -1608,13 +1640,6 @@
     "rarity": "Rare",
     "name": "Smog Lurker",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Smog Step",
-      "Murky Ambush"
-    ],
-    "description": "A predator hidden in volcanic fumes — strikes when visibility fails",
     "baseAttributes": {
       "strength": 1,
       "agility": 4,
@@ -1627,6 +1652,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Smog Step",
+      "Murky Ambush"
+    ],
+    "isLiving": true,
+    "description": "A predator hidden in volcanic fumes \u2014 strikes when visibility fails",
     "tags": [
       "living",
       "fire"
@@ -1639,13 +1672,6 @@
     "rarity": "uncommon",
     "name": "Charwood Stalker",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Predator's Focus",
-      "Smoldering Strike"
-    ],
-    "description": "A burned forest hunter that moves through blackened trunks — patient ambusher",
     "baseAttributes": {
       "strength": 2,
       "agility": 3,
@@ -1658,6 +1684,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Predator\u0027s Focus",
+      "Smoldering Strike"
+    ],
+    "isLiving": true,
+    "description": "A burned forest hunter that moves through blackened trunks \u2014 patient ambusher",
     "tags": [
       "plant",
       "fire",
@@ -1671,13 +1705,6 @@
     "rarity": "uncommon",
     "name": "Scorched Treant",
     "archetype": "Brute",
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Bark Fortify",
-      "Root Slam"
-    ],
-    "description": "A fire-blackened tree spirit — slow, thick-barked, and heavy-hitting",
     "baseAttributes": {
       "strength": 2,
       "agility": 4,
@@ -1690,6 +1717,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Bark Fortify",
+      "Root Slam"
+    ],
+    "isLiving": true,
+    "description": "A fire-blackened tree spirit \u2014 slow, thick-barked, and heavy-hitting",
     "tags": [
       "plant",
       "fire",
@@ -1704,13 +1739,6 @@
     "rarity": "Rare",
     "name": "Reignited Wisp",
     "archetype": "Sage",
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Reignite",
-      "Flicker Dash"
-    ],
-    "description": "A flame spirit that flares back to life — bursts of magical fire",
     "baseAttributes": {
       "strength": 6,
       "agility": 3,
@@ -1723,6 +1751,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Reignite",
+      "Flicker Dash"
+    ],
+    "isLiving": true,
+    "description": "A flame spirit that flares back to life \u2014 bursts of magical fire",
     "tags": [
       "elemental",
       "fire",
@@ -1737,13 +1773,6 @@
     "rarity": "uncommon",
     "name": "Bridge Warden",
     "archetype": "Knight",
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Molten Chain",
-      "Guard Stance"
-    ],
-    "description": "A lava-bridge guardian in scorched armor — holds the line with discipline",
     "baseAttributes": {
       "strength": 1,
       "agility": 2,
@@ -1756,6 +1785,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Molten Chain",
+      "Guard Stance"
+    ],
+    "isLiving": true,
+    "description": "A lava-bridge guardian in scorched armor \u2014 holds the line with discipline",
     "tags": [
       "living",
       "fire",
@@ -1772,13 +1809,6 @@
     "rarity": "uncommon",
     "name": "Lava Spitter",
     "archetype": "Sage",
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Searing Focus",
-      "Lava Glob"
-    ],
-    "description": "A creature that spews molten rock from a distance — ranged elemental attacker",
     "baseAttributes": {
       "strength": 4,
       "agility": 3,
@@ -1791,6 +1821,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Searing Focus",
+      "Lava Glob"
+    ],
+    "isLiving": true,
+    "description": "A creature that spews molten rock from a distance \u2014 ranged elemental attacker",
     "tags": [
       "elemental",
       "fire",
@@ -1804,13 +1842,6 @@
     "rarity": "Rare",
     "name": "Flame Drifter",
     "archetype": "Acrobat",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Sear The Gap",
-      "Drift Strike"
-    ],
-    "description": "A wandering fire spirit that darts through heat currents — mobile and evasive",
     "baseAttributes": {
       "strength": 1,
       "agility": 0,
@@ -1823,6 +1854,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Sear The Gap",
+      "Drift Strike"
+    ],
+    "isLiving": true,
+    "description": "A wandering fire spirit that darts through heat currents \u2014 mobile and evasive",
     "tags": [
       "elemental",
       "fire"
@@ -1835,13 +1874,6 @@
     "rarity": "uncommon",
     "name": "Temple Knight",
     "archetype": "Knight",
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Iron Vow",
-      "Shield Bash"
-    ],
-    "description": "A zealot knight sworn to the flame temple — armored, trained, unyielding",
     "baseAttributes": {
       "strength": 3,
       "agility": 3,
@@ -1854,6 +1886,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Iron Vow",
+      "Shield Bash"
+    ],
+    "isLiving": true,
+    "description": "A zealot knight sworn to the flame temple \u2014 armored, trained, unyielding",
     "tags": [
       "living",
       "fire",
@@ -1870,13 +1910,6 @@
     "rarity": "uncommon",
     "name": "Pilar Watcher",
     "archetype": "Knight",
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Stone Gaze",
-      "Rubble Toss"
-    ],
-    "description": "A sentinel posted beside temple pillars — still, alert, and heavily guarded",
     "baseAttributes": {
       "strength": 3,
       "agility": 3,
@@ -1889,6 +1922,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Stone Gaze",
+      "Rubble Toss"
+    ],
+    "isLiving": true,
+    "description": "A sentinel posted beside temple pillars \u2014 still, alert, and heavily guarded",
     "tags": [
       "living",
       "earth",
@@ -1902,13 +1943,6 @@
     "rarity": "Rare",
     "name": "Torch Wraith",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Soul Skewer",
-      "Wall of Ash"
-    ],
-    "description": "A ghost bound to eternal flame — deceptive strikes from flickering light",
     "baseAttributes": {
       "strength": 1,
       "agility": 3,
@@ -1921,6 +1955,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Soul Skewer",
+      "Wall of Ash"
+    ],
+    "isLiving": true,
+    "description": "A ghost bound to eternal flame \u2014 deceptive strikes from flickering light",
     "tags": [
       "undead",
       "fire"
@@ -1933,13 +1975,6 @@
     "rarity": "uncommon",
     "name": "Royal Flame Guard",
     "archetype": "Knight",
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Flame Salute",
-      "Blazing Advance"
-    ],
-    "description": "An elite temple defender in ceremonial armor — disciplined and resilient",
     "baseAttributes": {
       "strength": 5,
       "agility": 2,
@@ -1952,6 +1987,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Flame Salute",
+      "Blazing Advance"
+    ],
+    "isLiving": true,
+    "description": "An elite temple defender in ceremonial armor \u2014 disciplined and resilient",
     "tags": [
       "living",
       "fire",
@@ -1968,13 +2011,6 @@
     "rarity": "uncommon",
     "name": "Seal Caster",
     "archetype": "Artificer",
-    "baseHealth": 18,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Branding Seal",
-      "Arcane Ward"
-    ],
-    "description": "A mage who binds enemies with fiery sigils — technical, controlling magic",
     "baseAttributes": {
       "strength": 5,
       "agility": 5,
@@ -1987,6 +2023,14 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
+    "baseHealth": 18,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Branding Seal",
+      "Arcane Ward"
+    ],
+    "isLiving": true,
+    "description": "A mage who binds enemies with fiery sigils \u2014 technical, controlling magic",
     "tags": [
       "living",
       "earth",
@@ -2000,13 +2044,6 @@
     "rarity": "Rare",
     "name": "Throne Effigy",
     "archetype": "Knight",
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Crumbling Curse",
-      "hollow Grasp"
-    ],
-    "description": "A stone guardian carved to sit before a molten throne — immovable sentinel",
     "baseAttributes": {
       "strength": 4,
       "agility": 4,
@@ -2019,6 +2056,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Crumbling Curse",
+      "hollow Grasp"
+    ],
+    "isLiving": true,
+    "description": "A stone guardian carved to sit before a molten throne \u2014 immovable sentinel",
     "tags": [
       "elemental",
       "fire",
@@ -2034,13 +2079,6 @@
     "rarity": "uncommon",
     "name": "Blood Feeder",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Expose Vein",
-      "Draining Bite"
-    ],
-    "description": "A parasite that drains life from open wounds — predatory and precise",
     "baseAttributes": {
       "strength": 3,
       "agility": 3,
@@ -2053,6 +2091,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Expose Vein",
+      "Draining Bite"
+    ],
+    "isLiving": true,
+    "description": "A parasite that drains life from open wounds \u2014 predatory and precise",
     "tags": [
       "living"
     ]
@@ -2064,13 +2110,6 @@
     "rarity": "uncommon",
     "name": "Vent Spore",
     "archetype": "Artificer",
-    "baseHealth": 18,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Toxic Focus",
-      "Spore Burst"
-    ],
-    "description": "A fungal spore creature born from volcanic vents — spreads harm through contact",
     "baseAttributes": {
       "strength": 2,
       "agility": 2,
@@ -2083,6 +2122,14 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
+    "baseHealth": 18,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Toxic Focus",
+      "Spore Burst"
+    ],
+    "isLiving": true,
+    "description": "A fungal spore creature born from volcanic vents \u2014 spreads harm through contact",
     "tags": [
       "plant",
       "fire",
@@ -2096,13 +2143,6 @@
     "rarity": "Rare",
     "name": "Crystal Leech",
     "archetype": "Artificer",
-    "baseHealth": 18,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Leech Grip",
-      "Crystal barb"
-    ],
-    "description": "A glassy parasite that latches to heated crystal — drains and hardens",
     "baseAttributes": {
       "strength": 4,
       "agility": 2,
@@ -2115,6 +2155,14 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
+    "baseHealth": 18,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Leech Grip",
+      "Crystal barb"
+    ],
+    "isLiving": true,
+    "description": "A glassy parasite that latches to heated crystal \u2014 drains and hardens",
     "tags": [
       "elemental",
       "earth",
@@ -2129,13 +2177,6 @@
     "rarity": "uncommon",
     "name": "Slag Tortoise",
     "archetype": "Brute",
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Molten Shell",
-      "Shell Ram"
-    ],
-    "description": "A turtle shelled in cooled slag — slow, dense, and extremely tough",
     "baseAttributes": {
       "strength": 1,
       "agility": 3,
@@ -2148,6 +2189,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Molten Shell",
+      "Shell Ram"
+    ],
+    "isLiving": true,
+    "description": "A turtle shelled in cooled slag \u2014 slow, dense, and extremely tough",
     "tags": [
       "living",
       "earth",
@@ -2161,13 +2210,6 @@
     "rarity": "uncommon",
     "name": "Island Drifter",
     "archetype": "Acrobat",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Magma Kiss",
-      "Slag Drift"
-    ],
-    "description": "A creature carried by thermal winds between lava isles — fast and hard to pin down",
     "baseAttributes": {
       "strength": 2,
       "agility": 5,
@@ -2180,6 +2222,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Magma Kiss",
+      "Slag Drift"
+    ],
+    "isLiving": true,
+    "description": "A creature carried by thermal winds between lava isles \u2014 fast and hard to pin down",
     "tags": [
       "living",
       "fire",
@@ -2193,13 +2243,6 @@
     "rarity": "Rare",
     "name": "Molten Crab",
     "archetype": "Knight",
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Magma Carapace",
-      "Boiling Snap"
-    ],
-    "description": "A crab with a shell of hardened magma — armored and snapping",
     "baseAttributes": {
       "strength": 3,
       "agility": 3,
@@ -2212,6 +2255,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Magma Carapace",
+      "Boiling Snap"
+    ],
+    "isLiving": true,
+    "description": "A crab with a shell of hardened magma \u2014 armored and snapping",
     "tags": [
       "elemental",
       "fire",
@@ -2226,13 +2277,6 @@
     "rarity": "uncommon",
     "name": "Amber Sentinel",
     "archetype": "Knight",
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Amber Casing",
-      "Petrify Sweep"
-    ],
-    "description": "A guardian encased in ancient amber — preserved, patient, and hard to crack",
     "baseAttributes": {
       "strength": 3,
       "agility": 1,
@@ -2245,6 +2289,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Amber Casing",
+      "Petrify Sweep"
+    ],
+    "isLiving": true,
+    "description": "A guardian encased in ancient amber \u2014 preserved, patient, and hard to crack",
     "tags": [
       "living",
       "earth",
@@ -2259,13 +2311,6 @@
     "rarity": "uncommon",
     "name": "Overflow Imp",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Lava Douse",
-      "Molten Pounce"
-    ],
-    "description": "A mischievous spirit of excess heat and pressure — chaotic and evasive",
     "baseAttributes": {
       "strength": 3,
       "agility": 2,
@@ -2278,6 +2323,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Lava Douse",
+      "Molten Pounce"
+    ],
+    "isLiving": true,
+    "description": "A mischievous spirit of excess heat and pressure \u2014 chaotic and evasive",
     "tags": [
       "elemental",
       "fire",
@@ -2293,13 +2346,6 @@
     "rarity": "Rare",
     "name": "Amber Trapper",
     "archetype": "Artificer",
-    "baseHealth": 18,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Amber Ooze",
-      "Resin Snare"
-    ],
-    "description": "A predator that lures prey into sticky amber pools — traps with cunning",
     "baseAttributes": {
       "strength": 4,
       "agility": 4,
@@ -2312,6 +2358,14 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
+    "baseHealth": 18,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Amber Ooze",
+      "Resin Snare"
+    ],
+    "isLiving": true,
+    "description": "A predator that lures prey into sticky amber pools \u2014 traps with cunning",
     "tags": [
       "living",
       "earth"
@@ -2324,13 +2378,6 @@
     "rarity": "uncommon",
     "name": "Territorial Hound",
     "archetype": "Berserker",
-    "baseHealth": 20,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Guard Bite",
-      "Boundary Mark"
-    ],
-    "description": "A fierce hound that defends its hunting ground — aggressive pack striker",
     "baseAttributes": {
       "strength": 4,
       "agility": 3,
@@ -2343,6 +2390,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
+    "baseHealth": 20,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Guard Bite",
+      "Boundary Mark"
+    ],
+    "isLiving": true,
+    "description": "A fierce hound that defends its hunting ground \u2014 aggressive pack striker",
     "tags": [
       "living"
     ]
@@ -2354,13 +2409,6 @@
     "rarity": "uncommon",
     "name": "Alpha Wolf",
     "archetype": "Berserker",
-    "baseHealth": 20,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Leader's Fang",
-      "Rally Pack"
-    ],
-    "description": "The lead wolf of a border pack — fast, commanding, and relentless",
     "baseAttributes": {
       "strength": 2,
       "agility": 2,
@@ -2373,6 +2421,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
+    "baseHealth": 20,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Leader\u0027s Fang",
+      "Rally Pack"
+    ],
+    "isLiving": true,
+    "description": "The lead wolf of a border pack \u2014 fast, commanding, and relentless",
     "tags": [
       "living"
     ]
@@ -2384,13 +2440,6 @@
     "rarity": "Rare",
     "name": "Bone Spreader",
     "archetype": "Sage",
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Skeletal Burst",
-      "Marrow Drain"
-    ],
-    "description": "A necromantic scavenger that scatters cursed bones — spreads decay and dark magic",
     "baseAttributes": {
       "strength": 3,
       "agility": 3,
@@ -2403,6 +2452,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Skeletal Burst",
+      "Marrow Drain"
+    ],
+    "isLiving": true,
+    "description": "A necromantic scavenger that scatters cursed bones \u2014 spreads decay and dark magic",
     "tags": [
       "undead"
     ]
@@ -2414,13 +2471,6 @@
     "rarity": "uncommon",
     "name": "Tribute Beast",
     "archetype": "Brute",
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Sacrificial Strike",
-      "Offering"
-    ],
-    "description": "A bound creature left as offering to old powers — heavy, savage, and enduring",
     "baseAttributes": {
       "strength": 3,
       "agility": 3,
@@ -2433,6 +2483,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Sacrificial Strike",
+      "Offering"
+    ],
+    "isLiving": true,
+    "description": "A bound creature left as offering to old powers \u2014 heavy, savage, and enduring",
     "tags": [
       "living"
     ]
@@ -2444,13 +2502,6 @@
     "rarity": "uncommon",
     "name": "Cursed Bear",
     "archetype": "Brute",
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Hex Maul",
-      "Dark Roar"
-    ],
-    "description": "A bear twisted by forest hexes — powerful, brutal, and hard to fell",
     "baseAttributes": {
       "strength": 1,
       "agility": 2,
@@ -2463,6 +2514,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Hex Maul",
+      "Dark Roar"
+    ],
+    "isLiving": true,
+    "description": "A bear twisted by forest hexes \u2014 powerful, brutal, and hard to fell",
     "tags": [
       "living",
       "giant"
@@ -2475,13 +2534,6 @@
     "rarity": "Rare",
     "name": "Mound Warden",
     "archetype": "Knight",
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Earth Shield",
-      "Tremor"
-    ],
-    "description": "A guardian of ancient burial mounds — armored and territorial",
     "baseAttributes": {
       "strength": 5,
       "agility": 3,
@@ -2494,6 +2546,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Earth Shield",
+      "Tremor"
+    ],
+    "isLiving": true,
+    "description": "A guardian of ancient burial mounds \u2014 armored and territorial",
     "tags": [
       "undead",
       "earth",
@@ -2510,13 +2570,6 @@
     "rarity": "uncommon",
     "name": "Moon Blessed",
     "archetype": "Sage",
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Celestial Strike",
-      "Night's Grace"
-    ],
-    "description": "A forest spirit touched by moonlight — heals and harms with sacred power",
     "baseAttributes": {
       "strength": 6,
       "agility": 0,
@@ -2529,6 +2582,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Celestial Strike",
+      "Night\u0027s Grace"
+    ],
+    "isLiving": true,
+    "description": "A forest spirit touched by moonlight \u2014 heals and harms with sacred power",
     "tags": [
       "elemental",
       "boss"
@@ -2541,13 +2602,6 @@
     "rarity": "uncommon",
     "name": "Echo Stalker",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Sound Strike",
-      "Sonic Pulse"
-    ],
-    "description": "A hunter that strikes from reflected sound — deceptive and hard to track",
     "baseAttributes": {
       "strength": 1,
       "agility": 4,
@@ -2560,6 +2614,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Sound Strike",
+      "Sonic Pulse"
+    ],
+    "isLiving": true,
+    "description": "A hunter that strikes from reflected sound \u2014 deceptive and hard to track",
     "tags": [
       "living",
       "has_hands"
@@ -2572,13 +2634,6 @@
     "rarity": "Rare",
     "name": "Vigil Alpha",
     "archetype": "Warlord",
-    "baseHealth": 28,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Pack Leader's Call",
-      "Dominant Bite"
-    ],
-    "description": "The commander of a night watch pack — leads with strength and cunning",
     "baseAttributes": {
       "strength": 4,
       "agility": 1,
@@ -2591,6 +2646,14 @@
       "technique": 0.8,
       "intelligence": 2.3
     },
+    "baseHealth": 28,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Pack Leader\u0027s Call",
+      "Dominant Bite"
+    ],
+    "isLiving": true,
+    "description": "The commander of a night watch pack \u2014 leads with strength and cunning",
     "tags": [
       "living",
       "boss"
@@ -2603,13 +2666,6 @@
     "rarity": "uncommon",
     "name": "Guile Sprite",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Trick Shot",
-      "Misdirect"
-    ],
-    "description": "A tiny fey spirit of trickery — fast, mischievous, and unpredictable",
     "baseAttributes": {
       "strength": 1,
       "agility": 0,
@@ -2622,6 +2678,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Trick Shot",
+      "Misdirect"
+    ],
+    "isLiving": true,
+    "description": "A tiny fey spirit of trickery \u2014 fast, mischievous, and unpredictable",
     "tags": [
       "elemental",
       "minion",
@@ -2635,13 +2699,6 @@
     "rarity": "uncommon",
     "name": "Hedge Hound",
     "archetype": "Berserker",
-    "baseHealth": 20,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Thorn Bite",
-      "Bush Ambush"
-    ],
-    "description": "A lean hound that hunts along maze hedges — quick flanking predator",
     "baseAttributes": {
       "strength": 4,
       "agility": 2,
@@ -2654,6 +2711,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
+    "baseHealth": 20,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Thorn Bite",
+      "Bush Ambush"
+    ],
+    "isLiving": true,
+    "description": "A lean hound that hunts along maze hedges \u2014 quick flanking predator",
     "tags": [
       "living"
     ]
@@ -2665,13 +2730,6 @@
     "rarity": "Rare",
     "name": "Dead End Mimic",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Trap Door",
-      "Wall Shift"
-    ],
-    "description": "A shapeshifter that waits at false exits — lures victims into ambush",
     "baseAttributes": {
       "strength": 2,
       "agility": 4,
@@ -2684,6 +2742,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Trap Door",
+      "Wall Shift"
+    ],
+    "isLiving": true,
+    "description": "A shapeshifter that waits at false exits \u2014 lures victims into ambush",
     "tags": [
       "living",
       "has_hands"
@@ -2696,13 +2762,6 @@
     "rarity": "uncommon",
     "name": "Maze Runner",
     "archetype": "Acrobat",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Pathfind",
-      "Confuse Trail"
-    ],
-    "description": "A creature born to sprint endless corridors — blinding speed, low endurance",
     "baseAttributes": {
       "strength": 4,
       "agility": 4,
@@ -2715,6 +2774,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Pathfind",
+      "Confuse Trail"
+    ],
+    "isLiving": true,
+    "description": "A creature born to sprint endless corridors \u2014 blinding speed, low endurance",
     "tags": [
       "living",
       "has_hands"
@@ -2727,13 +2794,6 @@
     "rarity": "uncommon",
     "name": "Loop Shade",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Circular Strike",
-      "Endless Cycle"
-    ],
-    "description": "A spirit trapped in repeating paths — disorients and strikes from nowhere",
     "baseAttributes": {
       "strength": 4,
       "agility": 2,
@@ -2746,6 +2806,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Circular Strike",
+      "Endless Cycle"
+    ],
+    "isLiving": true,
+    "description": "A spirit trapped in repeating paths \u2014 disorients and strikes from nowhere",
     "tags": [
       "undead"
     ]
@@ -2757,13 +2825,6 @@
     "rarity": "Rare",
     "name": "Instinct Eater",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Reflex Drain",
-      "Primal Fear"
-    ],
-    "description": "A horror that feeds on prey’s fear and reflex — preys on hesitation",
     "baseAttributes": {
       "strength": 2,
       "agility": 3,
@@ -2776,6 +2837,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Reflex Drain",
+      "Primal Fear"
+    ],
+    "isLiving": true,
+    "description": "A horror that feeds on prey\u2019s fear and reflex \u2014 preys on hesitation",
     "tags": [
       "living"
     ]
@@ -2787,13 +2856,6 @@
     "rarity": "uncommon",
     "name": "Duplicate",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Perfect Copy",
-      "Twin Strike"
-    ],
-    "description": "A mirror-image foe that copies your movements — unsettling and elusive",
     "baseAttributes": {
       "strength": 4,
       "agility": 0,
@@ -2806,6 +2868,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Perfect Copy",
+      "Twin Strike"
+    ],
+    "isLiving": true,
+    "description": "A mirror-image foe that copies your movements \u2014 unsettling and elusive",
     "tags": [
       "living",
       "has_hands"
@@ -2818,13 +2888,6 @@
     "rarity": "uncommon",
     "name": "Shattered Reflection",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Broken Mirror",
-      "Fragment"
-    ],
-    "description": "A broken mirror spirit that attacks through fractured images",
     "baseAttributes": {
       "strength": 5,
       "agility": 2,
@@ -2837,6 +2900,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Broken Mirror",
+      "Fragment"
+    ],
+    "isLiving": true,
+    "description": "A broken mirror spirit that attacks through fractured images",
     "tags": [
       "elemental"
     ]
@@ -2848,13 +2919,6 @@
     "rarity": "Rare",
     "name": "The Other",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Identity Theft",
-      "Confusion"
-    ],
-    "description": "A doppelganger that wears your own face — psychological and deadly",
     "baseAttributes": {
       "strength": 2,
       "agility": 2,
@@ -2867,6 +2931,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Identity Theft",
+      "Confusion"
+    ],
+    "isLiving": true,
+    "description": "A doppelganger that wears your own face \u2014 psychological and deadly",
     "tags": [
       "living",
       "boss"
@@ -2879,13 +2951,6 @@
     "rarity": "uncommon",
     "name": "Thorn Boar",
     "archetype": "Brute",
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Spiked Charge",
-      "Bramble Hide"
-    ],
-    "description": "A bristling boar wrapped in thorny hide — charges with brutal force",
     "baseAttributes": {
       "strength": 4,
       "agility": 3,
@@ -2898,6 +2963,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Spiked Charge",
+      "Bramble Hide"
+    ],
+    "isLiving": true,
+    "description": "A bristling boar wrapped in thorny hide \u2014 charges with brutal force",
     "tags": [
       "plant"
     ]
@@ -2909,13 +2982,6 @@
     "rarity": "uncommon",
     "name": "Root Sprite",
     "archetype": "Acrobat",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Nature's Touch",
-      "Vine Whip"
-    ],
-    "description": "A small woodland spirit tied to living roots — nimble and evasive",
     "baseAttributes": {
       "strength": 4,
       "agility": 3,
@@ -2928,6 +2994,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Nature\u0027s Touch",
+      "Vine Whip"
+    ],
+    "isLiving": true,
+    "description": "A small woodland spirit tied to living roots \u2014 nimble and evasive",
     "tags": [
       "plant",
       "minion",
@@ -2941,13 +3015,6 @@
     "rarity": "Rare",
     "name": "Rattlesnake",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Venom Bite",
-      "Rattle Warning"
-    ],
-    "description": "A coiled viper that strikes without warning — venomous and precise",
     "baseAttributes": {
       "strength": 4,
       "agility": 2,
@@ -2960,6 +3027,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Venom Bite",
+      "Rattle Warning"
+    ],
+    "isLiving": true,
+    "description": "A coiled viper that strikes without warning \u2014 venomous and precise",
     "tags": [
       "living"
     ]
@@ -2971,13 +3046,6 @@
     "rarity": "uncommon",
     "name": "Nectar Drone",
     "archetype": "Acrobat",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Sweet Sting",
-      "Collect"
-    ],
-    "description": "A oversized pollinator driven to frenzy — fast, swarming attacks",
     "baseAttributes": {
       "strength": 1,
       "agility": 3,
@@ -2990,6 +3058,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Sweet Sting",
+      "Collect"
+    ],
+    "isLiving": true,
+    "description": "A oversized pollinator driven to frenzy \u2014 fast, swarming attacks",
     "tags": [
       "plant",
       "minion",
@@ -3003,13 +3079,6 @@
     "rarity": "uncommon",
     "name": "Pollen Wraith",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Allergen Cloud",
-      "Pollinate"
-    ],
-    "description": "A drifting spirit of choking pollen — obscures sight and saps strength",
     "baseAttributes": {
       "strength": 4,
       "agility": 1,
@@ -3022,6 +3091,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Allergen Cloud",
+      "Pollinate"
+    ],
+    "isLiving": true,
+    "description": "A drifting spirit of choking pollen \u2014 obscures sight and saps strength",
     "tags": [
       "undead"
     ]
@@ -3033,13 +3110,6 @@
     "rarity": "Rare",
     "name": "Valley Prowler",
     "archetype": "Berserker",
-    "baseHealth": 20,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Gorge Strike",
-      "Echo Call"
-    ],
-    "description": "A lowland predator that hunts at dusk — swift and aggressive",
     "baseAttributes": {
       "strength": 2,
       "agility": 1,
@@ -3052,6 +3122,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
+    "baseHealth": 20,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Gorge Strike",
+      "Echo Call"
+    ],
+    "isLiving": true,
+    "description": "A lowland predator that hunts at dusk \u2014 swift and aggressive",
     "tags": [
       "living"
     ]
@@ -3063,13 +3141,6 @@
     "rarity": "uncommon",
     "name": "Living Wall Crawler",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Wall Slam",
-      "Climb"
-    ],
-    "description": "A vine-creature that scales vertical stone — ambushes from above",
     "baseAttributes": {
       "strength": 5,
       "agility": 3,
@@ -3082,6 +3153,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Wall Slam",
+      "Climb"
+    ],
+    "isLiving": true,
+    "description": "A vine-creature that scales vertical stone \u2014 ambushes from above",
     "tags": [
       "plant",
       "earth"
@@ -3094,13 +3173,6 @@
     "rarity": "uncommon",
     "name": "Animated Vine",
     "archetype": "Duelist",
-    "baseHealth": 25,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Whip Strike",
-      "Grow"
-    ],
-    "description": "A writhing plant lash given hostile will — whips with disciplined force",
     "baseAttributes": {
       "strength": 3,
       "agility": 3,
@@ -3113,6 +3185,14 @@
       "technique": 2.9,
       "intelligence": 0.6
     },
+    "baseHealth": 25,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Whip Strike",
+      "Grow"
+    ],
+    "isLiving": true,
+    "description": "A writhing plant lash given hostile will \u2014 whips with disciplined force",
     "tags": [
       "plant"
     ]
@@ -3124,13 +3204,6 @@
     "rarity": "Rare",
     "name": "Ruin Wraith",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Decay Touch",
-      "Crumble"
-    ],
-    "description": "A ghost of a fallen settlement — lingers in broken halls",
     "baseAttributes": {
       "strength": 3,
       "agility": 4,
@@ -3143,6 +3216,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Decay Touch",
+      "Crumble"
+    ],
+    "isLiving": true,
+    "description": "A ghost of a fallen settlement \u2014 lingers in broken halls",
     "tags": [
       "undead"
     ]
@@ -3154,13 +3235,6 @@
     "rarity": "uncommon",
     "name": "Reed Stalker",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Reed Skewer",
-      "Predator's Eye"
-    ],
-    "description": "A hunter that moves unseen through tall reeds — silent, precise strikes",
     "baseAttributes": {
       "strength": 0,
       "agility": 6,
@@ -3173,6 +3247,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Reed Skewer",
+      "Predator\u0027s Eye"
+    ],
+    "isLiving": true,
+    "description": "A hunter that moves unseen through tall reeds \u2014 silent, precise strikes",
     "tags": [
       "plant",
       "has_hands"
@@ -3185,13 +3267,6 @@
     "rarity": "uncommon",
     "name": "Mosquito Swarm",
     "archetype": "Acrobat",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Freeding Frenzy",
-      "Swarm Dive"
-    ],
-    "description": "A cloud of blood-hungry insects — overwhelming speed, fragile individually",
     "baseAttributes": {
       "strength": 6,
       "agility": 3,
@@ -3204,6 +3279,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Freeding Frenzy",
+      "Swarm Dive"
+    ],
+    "isLiving": true,
+    "description": "A cloud of blood-hungry insects \u2014 overwhelming speed, fragile individually",
     "tags": [
       "living"
     ]
@@ -3215,13 +3298,6 @@
     "rarity": "Rare",
     "name": "Mud Lurker",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Mud Shell",
-      "Mire Slam"
-    ],
-    "description": "A bog predator that rises from thick mud — ambushes from below",
     "baseAttributes": {
       "strength": 0,
       "agility": 4,
@@ -3234,6 +3310,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Mud Shell",
+      "Mire Slam"
+    ],
+    "isLiving": true,
+    "description": "A bog predator that rises from thick mud \u2014 ambushes from below",
     "tags": [
       "living",
       "bulky"
@@ -3246,13 +3330,6 @@
     "rarity": "uncommon",
     "name": "Current Rider",
     "archetype": "Acrobat",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Tidal Crash",
-      "Wave Slam"
-    ],
-    "description": "A spirit that surfs river currents — fast, fluid, and evasive",
     "baseAttributes": {
       "strength": 2,
       "agility": 3,
@@ -3265,6 +3342,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Tidal Crash",
+      "Wave Slam"
+    ],
+    "isLiving": true,
+    "description": "A spirit that surfs river currents \u2014 fast, fluid, and evasive",
     "tags": [
       "elemental"
     ]
@@ -3276,13 +3361,6 @@
     "rarity": "uncommon",
     "name": "Slick Eel",
     "archetype": "Acrobat",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Static Thrash",
-      "Mud Roll"
-    ],
-    "description": "A slippery river eel that strikes in flashes — agile and hard to catch",
     "baseAttributes": {
       "strength": 4,
       "agility": 1,
@@ -3295,6 +3373,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Static Thrash",
+      "Mud Roll"
+    ],
+    "isLiving": true,
+    "description": "A slippery river eel that strikes in flashes \u2014 agile and hard to catch",
     "tags": [
       "living"
     ]
@@ -3306,13 +3392,6 @@
     "rarity": "Rare",
     "name": "Hollow Drifter",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Spore Drift",
-      "Surge"
-    ],
-    "description": "A empty-souled wanderer of misty hollows — elusive and unsettling",
     "baseAttributes": {
       "strength": 2,
       "agility": 1,
@@ -3325,6 +3404,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Spore Drift",
+      "Surge"
+    ],
+    "isLiving": true,
+    "description": "A empty-souled wanderer of misty hollows \u2014 elusive and unsettling",
     "tags": [
       "living"
     ]
@@ -3336,13 +3423,6 @@
     "rarity": "uncommon",
     "name": "Fog Mimic",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Mist Strike",
-      "False Form"
-    ],
-    "description": "A shapeshifter hidden in river fog — lures prey into false safety",
     "baseAttributes": {
       "strength": 2,
       "agility": 1,
@@ -3355,6 +3435,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Mist Strike",
+      "False Form"
+    ],
+    "isLiving": true,
+    "description": "A shapeshifter hidden in river fog \u2014 lures prey into false safety",
     "tags": [
       "living",
       "has_hands"
@@ -3367,13 +3455,6 @@
     "rarity": "uncommon",
     "name": "Cold Creeper",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Chilling Grasp",
-      "Frost Crawl"
-    ],
-    "description": "A chill-loving predator of damp caves — slow approach, sudden strike",
     "baseAttributes": {
       "strength": 3,
       "agility": 4,
@@ -3386,6 +3467,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Chilling Grasp",
+      "Frost Crawl"
+    ],
+    "isLiving": true,
+    "description": "A chill-loving predator of damp caves \u2014 slow approach, sudden strike",
     "tags": [
       "living",
       "tiny"
@@ -3398,13 +3487,6 @@
     "rarity": "Rare",
     "name": "Shelf Specter",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Veil Shatter",
-      "Phantom Lunge"
-    ],
-    "description": "A ghost that haunts narrow cave ledges — strikes from cramped angles",
     "baseAttributes": {
       "strength": 4,
       "agility": 4,
@@ -3417,6 +3499,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Veil Shatter",
+      "Phantom Lunge"
+    ],
+    "isLiving": true,
+    "description": "A ghost that haunts narrow cave ledges \u2014 strikes from cramped angles",
     "tags": [
       "living"
     ]
@@ -3428,13 +3518,6 @@
     "rarity": "uncommon",
     "name": "Glow Mite",
     "archetype": "Acrobat",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Blinding Swarm",
-      "Biolumiscent Flash"
-    ],
-    "description": "A bioluminescent cave insect — small, quick, and distracting",
     "baseAttributes": {
       "strength": 5,
       "agility": 3,
@@ -3447,6 +3530,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Blinding Swarm",
+      "Biolumiscent Flash"
+    ],
+    "isLiving": true,
+    "description": "A bioluminescent cave insect \u2014 small, quick, and distracting",
     "tags": [
       "living"
     ]
@@ -3458,13 +3549,6 @@
     "rarity": "uncommon",
     "name": "Frost Creeper",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Cold Seep",
-      "Frozen Burst"
-    ],
-    "description": "A ice-cloaked cave stalker — patient ambusher in the cold dark",
     "baseAttributes": {
       "strength": 4,
       "agility": 6,
@@ -3477,6 +3561,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Cold Seep",
+      "Frozen Burst"
+    ],
+    "isLiving": true,
+    "description": "A ice-cloaked cave stalker \u2014 patient ambusher in the cold dark",
     "tags": [
       "living",
       "tiny"
@@ -3489,13 +3581,6 @@
     "rarity": "Rare",
     "name": "Cave Lurcher",
     "archetype": "Brute",
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Lurch Strike",
-      "Cavern Thrash"
-    ],
-    "description": "A heavy cave beast that lurches from darkness — slow, crushing blows",
     "baseAttributes": {
       "strength": 2,
       "agility": 4,
@@ -3508,6 +3593,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
+    "baseHealth": 38,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Lurch Strike",
+      "Cavern Thrash"
+    ],
+    "isLiving": true,
+    "description": "A heavy cave beast that lurches from darkness \u2014 slow, crushing blows",
     "tags": [
       "living"
     ]
@@ -3519,13 +3612,6 @@
     "rarity": "uncommon",
     "name": "Chronicle Watcher",
     "archetype": "Sage",
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Calcified Gaze",
-      "Basin Surge"
-    ],
-    "description": "A lore-keeper spirit that guards ancient records — wise, magical, and vigilant",
     "baseAttributes": {
       "strength": 2,
       "agility": 3,
@@ -3538,6 +3624,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Calcified Gaze",
+      "Basin Surge"
+    ],
+    "isLiving": true,
+    "description": "A lore-keeper spirit that guards ancient records \u2014 wise, magical, and vigilant",
     "tags": [
       "elemental"
     ]
@@ -3549,13 +3643,6 @@
     "rarity": "uncommon",
     "name": "Sinkhole Lurker",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Stone Carapace",
-      "Pit Pull"
-    ],
-    "description": "A predator that waits beneath unstable ground — pulls prey down to strike",
     "baseAttributes": {
       "strength": 4,
       "agility": 3,
@@ -3568,6 +3655,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Stone Carapace",
+      "Pit Pull"
+    ],
+    "isLiving": true,
+    "description": "A predator that waits beneath unstable ground \u2014 pulls prey down to strike",
     "tags": [
       "living"
     ]
@@ -3579,13 +3674,6 @@
     "rarity": "Rare",
     "name": "Ink Stalker",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Predator's Focus",
-      "Tentacle Snap"
-    ],
-    "description": "A shadowy hunter that moves through dark water — precise, ink-cloud ambushes",
     "baseAttributes": {
       "strength": 3,
       "agility": 2,
@@ -3598,6 +3686,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Predator\u0027s Focus",
+      "Tentacle Snap"
+    ],
+    "isLiving": true,
+    "description": "A shadowy hunter that moves through dark water \u2014 precise, ink-cloud ambushes",
     "tags": [
       "living",
       "has_hands"
@@ -3610,13 +3706,6 @@
     "rarity": "uncommon",
     "name": "Vent Sprite",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Vent Focus",
-      "Steam Dash"
-    ],
-    "description": "A playful but dangerous spirit of cave vents — mischievous and evasive",
     "baseAttributes": {
       "strength": 3,
       "agility": 3,
@@ -3629,6 +3718,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Vent Focus",
+      "Steam Dash"
+    ],
+    "isLiving": true,
+    "description": "A playful but dangerous spirit of cave vents \u2014 mischievous and evasive",
     "tags": [
       "elemental",
       "minion",
@@ -3642,13 +3739,6 @@
     "rarity": "uncommon",
     "name": "Lion Fish",
     "archetype": "Assassin",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Venom Spine",
-      "Splash"
-    ],
-    "description": "A venomous spined fish — beautiful, slow, and painfully precise",
     "baseAttributes": {
       "strength": 0,
       "agility": 2,
@@ -3661,6 +3751,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Venom Spine",
+      "Splash"
+    ],
+    "isLiving": true,
+    "description": "A venomous spined fish \u2014 beautiful, slow, and painfully precise",
     "tags": [
       "living"
     ]
@@ -3672,13 +3770,6 @@
     "rarity": "Rare",
     "name": "Mist Phantom",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Veil Shatter",
-      "Phantom Surge"
-    ],
-    "description": "A formless spirit of deep mist — drifts through attacks and confuses foes",
     "baseAttributes": {
       "strength": 3,
       "agility": 3,
@@ -3691,6 +3782,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Veil Shatter",
+      "Phantom Surge"
+    ],
+    "isLiving": true,
+    "description": "A formless spirit of deep mist \u2014 drifts through attacks and confuses foes",
     "tags": [
       "elemental"
     ]
@@ -3702,13 +3801,6 @@
     "rarity": "uncommon",
     "name": "Fourecourt Guard",
     "archetype": "Knight",
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Tidal Bulwark",
-      "Shield Bash"
-    ],
-    "description": "A disciplined guard of an flooded court — armored sentinel of the depths",
     "baseAttributes": {
       "strength": 3,
       "agility": 0,
@@ -3721,6 +3813,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Tidal Bulwark",
+      "Shield Bash"
+    ],
+    "isLiving": true,
+    "description": "A disciplined guard of an flooded court \u2014 armored sentinel of the depths",
     "tags": [
       "living",
       "large",
@@ -3735,13 +3835,6 @@
     "rarity": "uncommon",
     "name": "Depth Drainer",
     "archetype": "Sage",
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Deep Drain",
-      "Abyssal pull"
-    ],
-    "description": "A abyssal creature that saps life from the deep — magical life drain",
     "baseAttributes": {
       "strength": 5,
       "agility": 1,
@@ -3754,6 +3847,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Deep Drain",
+      "Abyssal pull"
+    ],
+    "isLiving": true,
+    "description": "A abyssal creature that saps life from the deep \u2014 magical life drain",
     "tags": [
       "living"
     ]
@@ -3765,13 +3866,6 @@
     "rarity": "Rare",
     "name": "Tide Sentinel",
     "archetype": "Knight",
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Food Etch",
-      "Tidal Sweep"
-    ],
-    "description": "A armored watcher of tidal passages — holds ground against the current",
     "baseAttributes": {
       "strength": 3,
       "agility": 0,
@@ -3784,6 +3878,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Food Etch",
+      "Tidal Sweep"
+    ],
+    "isLiving": true,
+    "description": "A armored watcher of tidal passages \u2014 holds ground against the current",
     "tags": [
       "living",
       "large",
@@ -3798,13 +3900,6 @@
     "rarity": "uncommon",
     "name": "Pressure Monk",
     "archetype": "Duelist",
-    "baseHealth": 25,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Inner Current",
-      "Pressurized Strike"
-    ],
-    "description": "A ascetic trained in crushing depth — martial discipline under extreme force",
     "baseAttributes": {
       "strength": 0,
       "agility": 4,
@@ -3817,6 +3912,14 @@
       "technique": 2.9,
       "intelligence": 0.6
     },
+    "baseHealth": 25,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Inner Current",
+      "Pressurized Strike"
+    ],
+    "isLiving": true,
+    "description": "A ascetic trained in crushing depth \u2014 martial discipline under extreme force",
     "tags": [
       "living"
     ]
@@ -3828,13 +3931,6 @@
     "rarity": "uncommon",
     "name": "Cascade Rider",
     "archetype": "Acrobat",
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Torrent Slam",
-      "Rapid Current"
-    ],
-    "description": "A rider of falling water and rapids — fast, fluid, and relentless",
     "baseAttributes": {
       "strength": 5,
       "agility": 1,
@@ -3847,6 +3943,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
+    "baseHealth": 14,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Torrent Slam",
+      "Rapid Current"
+    ],
+    "isLiving": true,
+    "description": "A rider of falling water and rapids \u2014 fast, fluid, and relentless",
     "tags": [
       "living"
     ]
@@ -3858,13 +3962,6 @@
     "rarity": "Rare",
     "name": "Aqueduct Warden",
     "archetype": "Knight",
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Stone Bracing",
-      "Channel Slam"
-    ],
-    "description": "A guardian of ancient water channels — armored and immovable",
     "baseAttributes": {
       "strength": 3,
       "agility": 2,
@@ -3877,6 +3974,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
+    "baseHealth": 33,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Stone Bracing",
+      "Channel Slam"
+    ],
+    "isLiving": true,
+    "description": "A guardian of ancient water channels \u2014 armored and immovable",
     "tags": [
       "living",
       "giant",
@@ -3891,13 +3996,6 @@
     "rarity": "uncommon",
     "name": "Still Gazer",
     "archetype": "Sage",
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Toxic Gaze",
-      "Still Waters"
-    ],
-    "description": "A meditative watcher of unmoving pools — reads foes and strikes with intent",
     "baseAttributes": {
       "strength": 1,
       "agility": 2,
@@ -3910,6 +4008,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
+    "baseHealth": 15,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Toxic Gaze",
+      "Still Waters"
+    ],
+    "isLiving": true,
+    "description": "A meditative watcher of unmoving pools \u2014 reads foes and strikes with intent",
     "tags": [
       "living"
     ]
@@ -3921,13 +4027,6 @@
     "rarity": "uncommon",
     "name": "Undertow Shade",
     "archetype": "Trickster",
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Current Break",
-      "Shadow Surge"
-    ],
-    "description": "A ghost dragged beneath the current — pulls and strikes from below",
     "baseAttributes": {
       "strength": 2,
       "agility": 2,
@@ -3940,6 +4039,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
+    "baseHealth": 13,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Current Break",
+      "Shadow Surge"
+    ],
+    "isLiving": true,
+    "description": "A ghost dragged beneath the current \u2014 pulls and strikes from below",
     "tags": [
       "undead"
     ]
@@ -3951,13 +4058,6 @@
     "rarity": "Rare",
     "name": "Throne Revenant",
     "archetype": "Warlord",
-    "baseHealth": 28,
-    "healthGrowthPerLevel": 3,
-    "actions": [
-      "Sunken Curse",
-      "Drowned Wrath"
-    ],
-    "description": "An undead monarch risen from a sunken throne — commands death with royal fury",
     "baseAttributes": {
       "strength": 2,
       "agility": 4,
@@ -3970,6 +4070,14 @@
       "technique": 0.8,
       "intelligence": 2.3
     },
+    "baseHealth": 28,
+    "healthGrowthPerLevel": 3,
+    "actions": [
+      "Sunken Curse",
+      "Drowned Wrath"
+    ],
+    "isLiving": true,
+    "description": "An undead monarch risen from a sunken throne \u2014 commands death with royal fury",
     "tags": [
       "undead",
       "earth"

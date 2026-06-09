@@ -76,7 +76,7 @@ namespace RPGGame
                 if (filePath == null || !File.Exists(filePath))
                 {
                     ErrorHandler.LogWarning($"No actions JSON file found at canonical path. Path used: {filePath ?? "(null)"}", "ActionLoader");
-                    _actions = new Dictionary<string, ActionData>();
+                    _actions = new Dictionary<string, ActionData>(StringComparer.OrdinalIgnoreCase);
                     _wasSpreadsheetFormat = false;
                     _originalSpreadsheetActions = null;
                     // Keep canonical path so first save creates the file there
@@ -89,7 +89,7 @@ namespace RPGGame
                 
                 // Detect format and load accordingly (use normalized path so cache key matches save path)
                 var actionList = LoadActionsFromFile(_loadedActionsFilePath);
-                _actions = new Dictionary<string, ActionData>();
+                _actions = new Dictionary<string, ActionData>(StringComparer.OrdinalIgnoreCase);
                 
                 if (actionList.Count > 0)
                 {
@@ -102,6 +102,12 @@ namespace RPGGame
                         action.NormalizeTags();
                         if (!string.IsNullOrEmpty(action.Name))
                         {
+                            if (_actions.ContainsKey(action.Name))
+                            {
+                                ErrorHandler.LogWarning(
+                                    $"Duplicate action name '{action.Name}' in Actions.json; keeping the last row.",
+                                    "ActionLoader");
+                            }
                             _actions[action.Name] = action;
                         }
                         else
@@ -125,7 +131,7 @@ namespace RPGGame
                 }
             }, "ActionLoader.LoadActions", () => 
             {
-                _actions = new Dictionary<string, ActionData>();
+                _actions = new Dictionary<string, ActionData>(StringComparer.OrdinalIgnoreCase);
                 _wasSpreadsheetFormat = false;
                 _originalSpreadsheetActions = null;
                 _loadedActionsFilePath = null;
@@ -339,6 +345,7 @@ namespace RPGGame
             _actionNameAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 { "MAGIC MISSLE", "MAGIC MISSILE" },
+                { "SOUL DRAIN", "Soul Drain" },
             };
 
             if (_actions == null)

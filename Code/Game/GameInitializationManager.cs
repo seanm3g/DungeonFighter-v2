@@ -23,6 +23,9 @@ namespace RPGGame
     {
         private GameInitializer gameInitializer;
 
+        /// <summary>Populated when <see cref="InitializeNewCharacter"/> returns false.</summary>
+        public string? LastInitializationError { get; private set; }
+
         public GameInitializationManager()
         {
             gameInitializer = new GameInitializer();
@@ -37,10 +40,12 @@ namespace RPGGame
         /// <returns>True if initialization successful, false otherwise.</returns>
         public bool InitializeNewCharacter(Character character, int weaponChoice = 0)
         {
+            LastInitializationError = null;
             try
             {
                 if (character == null)
                 {
+                    LastInitializationError = "Character reference is null.";
                     UIManager.WriteSystemLine("Cannot initialize character: null reference");
                     return false;
                 }
@@ -51,7 +56,9 @@ namespace RPGGame
             }
             catch (Exception ex)
             {
+                LastInitializationError = ex.Message;
                 UIManager.WriteSystemLine($"Error initializing character: {ex.Message}");
+                DebugLogger.Log("GameInitializationManager", $"InitializeNewCharacter failed: {ex}");
                 return false;
             }
         }

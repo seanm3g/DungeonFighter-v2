@@ -17,11 +17,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
     /// Wires up the Audio settings panel and persists <see cref="AudioConfig"/> on save.
     /// </summary>
     /// <remarks>
-    /// Volume / mute changes are applied live to the audio engine (no need to click Save for the
-    /// player to hear the new volume). File bindings, state→music dropdowns, and rate-limit edits
-    /// take effect immediately too because <see cref="AudioCueDispatcher"/> reads the singleton
-    /// <see cref="AudioConfig.Instance"/> at every trigger. Save persists the in-memory config to
-    /// <c>GameData/Audio/AudioConfig.json</c>.
+    /// Volume / mute changes are applied live to the audio engine. Bus prefs save to gitignored
+    /// <c>GeneralSettings.json</c>; cue bindings save to the active audio patch.
     /// </remarks>
     public class AudioPanelHandler : ISettingsPanelHandler
     {

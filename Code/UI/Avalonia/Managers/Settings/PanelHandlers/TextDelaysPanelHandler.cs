@@ -67,6 +67,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             // Wire up combat timing (action block delay, message delay between lines)
             WireUpCombatTimingTextBox(textDelaysPanel.ActionDelayMsTextBox ?? textDelaysPanel.FindControl<TextBox>("ActionDelayMsTextBox"), isActionDelay: true);
             WireUpCombatTimingTextBox(textDelaysPanel.MessageDelayMsTextBox ?? textDelaysPanel.FindControl<TextBox>("MessageDelayMsTextBox"), isActionDelay: false);
+            WireUpTutorialCombatDelayMultiplierTextBox(
+                textDelaysPanel.TutorialCombatDelayMultiplierTextBox ?? textDelaysPanel.FindControl<TextBox>("TutorialCombatDelayMultiplierTextBox"));
 
             WireUpTravelRouteRollPacingTextBoxes(textDelaysPanel);
 
@@ -106,6 +108,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 var enableConsoleDelaysCheckBox = textDelaysPanel.EnableConsoleDelaysCheckBox ?? textDelaysPanel.FindControl<CheckBox>("EnableConsoleDelaysCheckBox");
                 var actionDelayMsTextBox = textDelaysPanel.ActionDelayMsTextBox ?? textDelaysPanel.FindControl<TextBox>("ActionDelayMsTextBox");
                 var messageDelayMsTextBox = textDelaysPanel.MessageDelayMsTextBox ?? textDelaysPanel.FindControl<TextBox>("MessageDelayMsTextBox");
+                var tutorialCombatDelayMultiplierTextBox = textDelaysPanel.TutorialCombatDelayMultiplierTextBox ?? textDelaysPanel.FindControl<TextBox>("TutorialCombatDelayMultiplierTextBox");
 
                 // Find all text boxes using FindControl for reliability
                 var combatDelayTextBox = textDelaysPanel.CombatDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("CombatDelayTextBox");
@@ -144,6 +147,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
                 var controls = BuildControls(
                     enableGuiDelaysCheckBox, enableConsoleDelaysCheckBox, actionDelayMsTextBox, messageDelayMsTextBox,
+                    tutorialCombatDelayMultiplierTextBox,
                     combatDelayTextBox, systemDelayTextBox, menuDelayTextBox, titleDelayTextBox, mainTitleDelayTextBox,
                     environmentalDelayTextBox, effectMessageDelayTextBox, damageOverTimeDelayTextBox, encounterDelayTextBox,
                     rollInfoDelayTextBox, environmentalLineDelayTextBox, baseMenuDelayTextBox, progressiveReductionRateTextBox,
@@ -159,6 +163,32 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             {
                 ScrollDebugLogger.Log($"SettingsPanel: Error loading text delay settings: {ex.Message}");
             }
+        }
+
+        private void WireUpTutorialCombatDelayMultiplierTextBox(TextBox? textBox)
+        {
+            if (textBox == null) return;
+
+            textBox.LostFocus += (s, e) =>
+            {
+                if (double.TryParse(textBox.Text, out double value) && value > 0)
+                {
+                    try
+                    {
+                        RPGGame.Config.TextDelayConfiguration.SetTutorialCombatDelayMultiplier(value);
+                        textBox.Text = RPGGame.Config.TextDelayConfiguration.GetTutorialCombatDelayMultiplier().ToString("F1");
+                    }
+                    catch (Exception ex)
+                    {
+                        ScrollDebugLogger.Log($"Error updating tutorial combat delay multiplier: {ex.Message}");
+                        textBox.Text = RPGGame.Config.TextDelayConfiguration.GetTutorialCombatDelayMultiplier().ToString("F1");
+                    }
+                }
+                else
+                {
+                    textBox.Text = RPGGame.Config.TextDelayConfiguration.GetTutorialCombatDelayMultiplier().ToString("F1");
+                }
+            };
         }
 
         private void WireUpTextDelayTextBox(TextBox? textBox, UIMessageType messageType)
@@ -389,6 +419,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 var enableConsole = textDelaysPanel.EnableConsoleDelaysCheckBox ?? textDelaysPanel.FindControl<CheckBox>("EnableConsoleDelaysCheckBox");
                 var actionDelayMs = textDelaysPanel.ActionDelayMsTextBox ?? textDelaysPanel.FindControl<TextBox>("ActionDelayMsTextBox");
                 var messageDelayMs = textDelaysPanel.MessageDelayMsTextBox ?? textDelaysPanel.FindControl<TextBox>("MessageDelayMsTextBox");
+                var tutorialCombatDelayMultiplier = textDelaysPanel.TutorialCombatDelayMultiplierTextBox ?? textDelaysPanel.FindControl<TextBox>("TutorialCombatDelayMultiplierTextBox");
                 var combat = textDelaysPanel.CombatDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("CombatDelayTextBox");
                 var system = textDelaysPanel.SystemDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("SystemDelayTextBox");
                 var menu = textDelaysPanel.MenuDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("MenuDelayTextBox");
@@ -425,6 +456,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
                 var controls = BuildControls(
                     enableGui, enableConsole, actionDelayMs, messageDelayMs,
+                    tutorialCombatDelayMultiplier,
                     combat, system, menu, title, mainTitle, environmental, effectMessage,
                     damageOverTime, encounter, rollInfo, environmentalLine, baseMenu,
                     progressiveRate, progressiveThreshold,
@@ -442,6 +474,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
         private static TextDelaySettingsControls BuildControls(
             CheckBox? enableGui, CheckBox? enableConsole, TextBox? actionDelayMs, TextBox? messageDelayMs,
+            TextBox? tutorialCombatDelayMultiplier,
             TextBox? combat, TextBox? system, TextBox? menu, TextBox? title, TextBox? mainTitle,
             TextBox? environmental, TextBox? effectMessage, TextBox? damageOverTime, TextBox? encounter,
             TextBox? rollInfo, TextBox? environmentalLine, TextBox? baseMenu, TextBox? progressiveRate, TextBox? progressiveThreshold,
@@ -458,6 +491,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 EnableConsoleDelaysCheckBox = enableConsole,
                 ActionDelayMsTextBox = actionDelayMs,
                 MessageDelayMsTextBox = messageDelayMs,
+                TutorialCombatDelayMultiplierTextBox = tutorialCombatDelayMultiplier,
                 CombatDelayTextBox = combat,
                 SystemDelayTextBox = system,
                 MenuDelayTextBox = menu,

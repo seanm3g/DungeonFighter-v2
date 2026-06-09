@@ -436,6 +436,15 @@ GameData/gamesettings.json
 GameData/Audio/AudioConfig.json
 GameData/TuningConfig.json
 GameData/PatchProfile.json
+# Player-local general settings (game prefs + audio bus volume/mute)
+GameData/GeneralSettings.json
+# Game settings template only in repo
+GameData/Patches/GameSettings/*
+!GameData/Patches/GameSettings/default.template.json
+# Audio patches: repo default cue bindings tracked; named/local variants ignored
+GameData/Patches/Audio/*
+!GameData/Patches/Audio/default.json
+GameData/Patches/**/*.bak
 Code/gamesettings.json
 Code/gamesettings.json.bak
 Code/GameData/build_execution_metrics.json

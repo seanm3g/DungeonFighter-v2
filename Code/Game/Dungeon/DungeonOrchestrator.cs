@@ -119,6 +119,12 @@ namespace RPGGame
                 return;
             }
             displayManager.StartDungeon(stateManager.CurrentDungeon, stateManager.CurrentPlayer);
+
+            bool tutorialCombatSlowPacing = PreWeaponTrainingFlow.IsPreWeaponTrainingDungeon(
+                stateManager,
+                stateManager.CurrentDungeon.Name);
+            if (tutorialCombatSlowPacing)
+                PreWeaponTrainingFlow.SetTutorialCombatSlowPacing(true);
             
             // Process all rooms
             try
@@ -239,6 +245,11 @@ namespace RPGGame
             {
                 DungeonErrorHandler.HandleException(ex, customUIManager);
                 throw;
+            }
+            finally
+            {
+                if (tutorialCombatSlowPacing)
+                    PreWeaponTrainingFlow.SetTutorialCombatSlowPacing(false);
             }
         }
     }

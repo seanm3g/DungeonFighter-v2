@@ -118,7 +118,8 @@ namespace RPGGame.Data
             "displayName", "internalKind", "effect", "potency"
         };
 
-        private static readonly HashSet<string> StatBonusAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
+        /// <summary>Exact JSON keys on <see cref="StatBonus"/> — ordinal match so a raw sheet <c>mechanics</c> bracket string is not kept beside parsed <c>Mechanics</c>.</summary>
+        private static readonly HashSet<string> StatBonusAuthorizedJsonKeys = new(StringComparer.Ordinal)
         {
             "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics", "Requirements"
         };
@@ -851,14 +852,15 @@ namespace RPGGame.Data
 
                 var obj = new JsonObject();
                 int headerCount = headerRow.Length;
-                if (kind == GameDataTabularSheetKind.StatBonuses)
-                    headerCount = Math.Min(headerCount, StatBonusesCanonicalHeaders.Length);
                 if (kind == GameDataTabularSheetKind.Consumables)
                     headerCount = Math.Min(headerCount, ConsumablesCanonicalHeaders.Length);
                 for (int i = 0; i < headerCount; i++)
                 {
                     // Google / Excel CSV exports may prefix the file with U+FEFF, which lands on the first header cell.
                     string header = (headerRow[i] ?? "").Trim().TrimStart('\uFEFF');
+                    // Live SUFFIXES tab: column A holds affix names ("of Protection") but often has a blank header cell.
+                    if (kind == GameDataTabularSheetKind.StatBonuses && header.Length == 0 && i == 0)
+                        header = "Name";
                     if (header.Length == 0)
                         continue;
                     string cell = i < cells.Length ? cells[i] ?? "" : "";
@@ -1632,7 +1634,7 @@ namespace RPGGame.Data
             RemoveStatBonusUnknownJsonKeys(obj);
         }
 
-        /// <summary>After import normalization, drops any property not stored on <see cref="StatBonus"/> (sheet columns H+).</summary>
+        /// <summary>After import normalization, drops helper/junk sheet columns (e.g. <c>tags</c>, split mechanic cols) not stored on <see cref="StatBonus"/>.</summary>
         internal static void RemoveStatBonusUnknownJsonKeys(JsonObject obj)
         {
             foreach (var key in obj.Select(kvp => kvp.Key).ToList())
@@ -2070,7 +2072,12 @@ namespace RPGGame.Data
                 "MAXATTACKSPEED" => "AttackSpeed",
                 "ATTACK SPEED" => "AttackSpeed",
                 "ATTACKSPEED" => "AttackSpeed",
+                "SPEED" => "AttackSpeed",
                 "DAMAGE" => "Damage",
+                "BASE DAMAGE" => "Damage",
+                "BASEDAMAGE" => "Damage",
+                "WEAPON DAMAGE" => "Damage",
+                "WEAPONDAMAGE" => "Damage",
                 "HEALTH REGEN" => "HealthRegen",
                 "HEALTHREGEN" => "HealthRegen",
                 "ROLL" => "RollBonus",
@@ -2078,6 +2085,10 @@ namespace RPGGame.Data
                 "ROLL BONUS" => "RollBonus",
                 "MAGICFIND" => "MagicFind",
                 "MAGIC FIND" => "MagicFind",
+                "HIT" => "HIT",
+                "COMBO" => "COMBO",
+                "CRIT" => "CRIT",
+                "ACCURACY" => "ACCURACY",
                 "STR" or "STRENGTH" => "STR",
                 "AGI" or "AGILITY" => "AGI",
                 "TEC" or "TECHNIQUE" => "TEC",

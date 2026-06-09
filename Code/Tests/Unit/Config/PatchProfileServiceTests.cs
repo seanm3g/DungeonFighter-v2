@@ -15,8 +15,10 @@ namespace RPGGame.Tests.Unit.Config
             int testsRun = 0, testsPassed = 0, testsFailed = 0;
 
             TestListAndActivePatch(ref testsRun, ref testsPassed, ref testsFailed);
+            TestSharedCategoriesAlwaysUseDefault(ref testsRun, ref testsPassed, ref testsFailed);
             TestSanitizePatchName(ref testsRun, ref testsPassed, ref testsFailed);
             TestCreateAndSwitchPatch(ref testsRun, ref testsPassed, ref testsFailed);
+            TestAudioDefaultSeededFromTemplate(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("PatchProfileService Tests", testsRun, testsPassed, testsFailed);
         }
@@ -37,8 +39,65 @@ namespace RPGGame.Tests.Unit.Config
                 TestBase.AssertTrue(names.Contains("alpha"), "lists committed patch", ref testsRun, ref testsPassed, ref testsFailed);
 
                 string active = PatchProfileService.GetActivePatchFilePath(PatchCategory.GameSettings);
-                TestBase.AssertTrue(active.EndsWith("default.json", StringComparison.OrdinalIgnoreCase)
-                    || active.EndsWith("alpha.json", StringComparison.OrdinalIgnoreCase), "resolves active patch path", ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertTrue(active.EndsWith("default.json", StringComparison.OrdinalIgnoreCase),
+                    "game settings always resolve to default patch path", ref testsRun, ref testsPassed, ref testsFailed);
+            }
+            finally
+            {
+                try { Directory.Delete(root, true); } catch { }
+            }
+        }
+
+        private static void TestSharedCategoriesAlwaysUseDefault(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestSharedCategoriesAlwaysUseDefault));
+            string root = CreateTempGameDataRoot();
+            try
+            {
+                PatchProfileServiceTestHooks.OverrideGameDataRoot(root);
+
+                string customGs = Path.Combine(root, "Patches", "GameSettings", "custom.json");
+                Directory.CreateDirectory(Path.GetDirectoryName(customGs)!);
+                File.WriteAllText(customGs, "{}");
+
+                var profile = PatchProfileService.LoadProfile();
+                profile.ActiveGameSettingsPatch = "custom";
+                profile.ActiveBalancePatch = "custom";
+                PatchProfileService.SaveProfile(profile);
+
+                string gsActive = PatchProfileService.GetActivePatchFilePath(PatchCategory.GameSettings);
+                TestBase.AssertTrue(gsActive.EndsWith("default.json", StringComparison.OrdinalIgnoreCase),
+                    "game settings always use repo default patch", ref testsRun, ref testsPassed, ref testsFailed);
+
+                bool threw = false;
+                try { PatchProfileService.SetActivePatch(PatchCategory.GameSettings, "custom"); }
+                catch (InvalidOperationException) { threw = true; }
+                TestBase.AssertTrue(threw, "cannot switch game settings patch locally", ref testsRun, ref testsPassed, ref testsFailed);
+            }
+            finally
+            {
+                try { Directory.Delete(root, true); } catch { }
+            }
+        }
+
+        private static void TestAudioDefaultSeededFromTemplate(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestAudioDefaultSeededFromTemplate));
+            string root = CreateTempGameDataRoot();
+            try
+            {
+                PatchProfileServiceTestHooks.OverrideGameDataRoot(root);
+
+                string templateDir = Path.Combine(root, "Patches", "Audio");
+                Directory.CreateDirectory(templateDir);
+                File.WriteAllText(Path.Combine(templateDir, "default.template.json"),
+                    "{\"masterVolume\":0.25,\"cueMap\":{\"Menu_Select\":{\"file\":\"SFX/test.wav\",\"volume\":1.0}},\"stateMusicMap\":{\"MainMenu\":\"Menu_Select\"}}");
+
+                string active = PatchProfileService.GetActivePatchFilePath(PatchCategory.Audio);
+                TestBase.AssertTrue(File.Exists(active), "creates local default audio patch", ref testsRun, ref testsPassed, ref testsFailed);
+                string content = File.ReadAllText(active);
+                TestBase.AssertTrue(content.Contains("SFX/test.wav"), "seeds cue bindings from template", ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertFalse(content.Contains("masterVolume"), "strips bus volume from seeded patch", ref testsRun, ref testsPassed, ref testsFailed);
             }
             finally
             {

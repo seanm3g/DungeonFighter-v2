@@ -29,6 +29,14 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             }
         }
 
+        private static void SetTextBoxValue(TextBox? textBox, double value, string format = "F1")
+        {
+            if (textBox != null)
+            {
+                textBox.Text = value.ToString(format);
+            }
+        }
+
         /// <summary>
         /// Loads text delay settings from TextDelayConfiguration into UI controls using DTO.
         /// </summary>
@@ -40,6 +48,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 controls.EnableConsoleDelaysCheckBox,
                 controls.ActionDelayMsTextBox,
                 controls.MessageDelayMsTextBox,
+                controls.TutorialCombatDelayMultiplierTextBox,
                 controls.CombatDelayTextBox,
                 controls.SystemDelayTextBox,
                 controls.MenuDelayTextBox,
@@ -83,6 +92,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             CheckBox? enableConsoleDelaysCheckBox,
             TextBox? actionDelayMsTextBox,
             TextBox? messageDelayMsTextBox,
+            TextBox? tutorialCombatDelayMultiplierTextBox,
             TextBox? combatDelayTextBox,
             TextBox? systemDelayTextBox,
             TextBox? menuDelayTextBox,
@@ -128,6 +138,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
 
                 SetTextBoxValue(actionDelayMsTextBox, TextDelayConfiguration.GetActionDelayMs());
                 SetTextBoxValue(messageDelayMsTextBox, TextDelayConfiguration.GetMessageDelayMs());
+                SetTextBoxValue(tutorialCombatDelayMultiplierTextBox, TextDelayConfiguration.GetTutorialCombatDelayMultiplier());
 
                 SetTextBoxValue(combatDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Combat));
                 SetTextBoxValue(systemDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.System));
@@ -185,6 +196,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 controls.EnableConsoleDelaysCheckBox,
                 controls.ActionDelayMsTextBox,
                 controls.MessageDelayMsTextBox,
+                controls.TutorialCombatDelayMultiplierTextBox,
                 controls.CombatDelayTextBox,
                 controls.SystemDelayTextBox,
                 controls.MenuDelayTextBox,
@@ -228,6 +240,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             CheckBox? enableConsoleDelaysCheckBox,
             TextBox? actionDelayMsTextBox,
             TextBox? messageDelayMsTextBox,
+            TextBox? tutorialCombatDelayMultiplierTextBox,
             TextBox? combatDelayTextBox,
             TextBox? systemDelayTextBox,
             TextBox? menuDelayTextBox,
@@ -273,6 +286,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     TextDelayConfiguration.SetActionDelayMs(actionDelayMs);
                 if (messageDelayMsTextBox != null && int.TryParse(messageDelayMsTextBox.Text, out int messageDelayMs))
                     TextDelayConfiguration.SetMessageDelayMs(messageDelayMs);
+
+                if (tutorialCombatDelayMultiplierTextBox != null &&
+                    double.TryParse(tutorialCombatDelayMultiplierTextBox.Text, out double tutorialCombatDelayMultiplier))
+                {
+                    TextDelayConfiguration.SetTutorialCombatDelayMultiplier(tutorialCombatDelayMultiplier);
+                }
 
                 TrySetMessageTypeDelay(combatDelayTextBox, UIMessageType.Combat);
                 TrySetMessageTypeDelay(systemDelayTextBox, UIMessageType.System);

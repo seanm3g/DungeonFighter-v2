@@ -103,6 +103,26 @@
           "hsvAdjust": null,
           "directGradient": true,
           "skipWhenTemplateUndulateDisabled": false
+        },
+        {
+          "type": "hsvAdjust",
+          "source": null,
+          "gradient": null,
+          "mask": {
+            "type": "sineWave",
+            "animationState": null,
+            "phaseDivisorMs": 500,
+            "characterPhaseOffset": 0.2,
+            "amplitude": 3,
+            "constantValue": 1
+          },
+          "hsvAdjust": {
+            "brightnessScale": null,
+            "hueShift": -180,
+            "saturationScale": 0.35176991150442477
+          },
+          "directGradient": false,
+          "skipWhenTemplateUndulateDisabled": false
         }
       ]
     },

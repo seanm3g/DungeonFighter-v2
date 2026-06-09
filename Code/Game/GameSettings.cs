@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Text.Json;
 using RPGGame.Config;
 
 namespace RPGGame
@@ -76,18 +75,17 @@ namespace RPGGame
         private static string? _settingsFilePathCached;
         private static readonly object _settingsFilePathLock = new object();
 
-        /// <summary>Clears cached patch path so the next load/save resolves the active game-settings patch.</summary>
+        /// <summary>Clears cached general-settings path so the next load/save re-resolves.</summary>
         public static void InvalidatePatchPathCache()
         {
             lock (_settingsFilePathLock)
             {
                 _settingsFilePathCached = null;
             }
+            GeneralSettingsStore.InvalidateCache();
         }
 
-        /// <summary>
-        /// Resolves the active game-settings patch path once and caches it.
-        /// </summary>
+        /// <summary>Resolves the gitignored general-settings file path once and caches it.</summary>
         private static string GetSettingsFilePath()
         {
             if (_settingsFilePathCached != null)
@@ -96,7 +94,8 @@ namespace RPGGame
             {
                 if (_settingsFilePathCached != null)
                     return _settingsFilePathCached;
-                string path = PatchProfileService.GetActivePatchFilePath(PatchCategory.GameSettings);
+                GeneralSettingsStore.EnsureBootstrapped();
+                string path = GeneralSettingsStore.GetFilePath();
                 try
                 {
                     _settingsFilePathCached = Path.GetFullPath(path);
@@ -115,7 +114,7 @@ namespace RPGGame
             }
         }
 
-        /// <summary>Returns the path used for loading and saving settings (for display in UI). Resolves and caches on first use.</summary>
+        /// <summary>Returns the path used for loading and saving settings (for display in UI).</summary>
         public static string GetSettingsFilePathForDisplay() => GetSettingsFilePath();
         
         public static GameSettings Instance
@@ -161,49 +160,22 @@ namespace RPGGame
             catch { }
             try
             {
-                if (File.Exists(settingsFilePath))
-                {
-                    string json = File.ReadAllText(settingsFilePath);
-                    if (string.IsNullOrEmpty(json))
-                    {
-                        return new GameSettings();
-                    }
-                    var settings = JsonSerializer.Deserialize<GameSettings>(json);
-                    if (settings != null)
-                    {
-                        // Validate loaded settings and fix any invalid values
-                        settings.ValidateAndFix();
-                        try
-                        {
-                            string logPath = GameConstants.GetGameDataFilePath("settings_persistence.log");
-                            File.AppendAllText(logPath, $"{DateTime.UtcNow:o} LoadSettings deserialized FastCombat={settings.FastCombat}\n");
-                        }
-                        catch { }
-                        return settings;
-                    }
-                }
-            }
-            catch (JsonException ex)
-            {
-                // Corrupted JSON file - backup and create new
-                ErrorHandler.LogError(ex, "GameSettings.LoadSettings", "Settings file is corrupted");
+                var doc = GeneralSettingsStore.Load();
+                var settings = doc.GameSettings;
+                settings.ValidateAndFix();
                 try
                 {
-                    string backupPath = settingsFilePath + ".corrupted." + DateTime.Now.ToString("yyyyMMddHHmmss");
-                    if (File.Exists(settingsFilePath))
-                    {
-                        File.Copy(settingsFilePath, backupPath, true);
-                        File.Delete(settingsFilePath);
-                    }
+                    string logPath = GameConstants.GetGameDataFilePath("settings_persistence.log");
+                    File.AppendAllText(logPath, $"{DateTime.UtcNow:o} LoadSettings deserialized FastCombat={settings.FastCombat}\n");
                 }
-                catch { /* Ignore backup errors */ }
+                catch { }
+                return settings;
             }
             catch (Exception ex)
             {
-                ErrorHandler.LogError(ex, "GameSettings.LoadSettings", "Could not load settings file");
+                ErrorHandler.LogError(ex, "GameSettings.LoadSettings", "Could not load general settings");
             }
-            
-            // Return default settings if file doesn't exist or is invalid
+
             return new GameSettings();
         }
         
@@ -251,21 +223,9 @@ namespace RPGGame
             catch { }
             bool result = ErrorHandler.TrySaveJson(() =>
             {
-                // Write to temporary file first, then replace (atomic operation)
-                string tempPath = settingsFilePath + ".tmp";
-                string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(tempPath, json);
-
-                // Replace original file atomically
-                if (File.Exists(settingsFilePath))
-                {
-                    File.Replace(tempPath, settingsFilePath, settingsFilePath + ".bak");
-                }
-                else
-                {
-                    File.Move(tempPath, settingsFilePath);
-                }
-            }, "GameSettings.json");
+                var doc = GeneralSettingsStore.Load();
+                GeneralSettingsStore.Save(this, doc.AudioPreferences);
+            }, "GeneralSettings.json");
             try
             {
                 string logPath = GameConstants.GetGameDataFilePath("settings_persistence.log");

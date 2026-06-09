@@ -32,6 +32,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
         private TextAnimationPresetsSettingsPanel? boundPanel;
         private UserControl? wiredPanel;
 
+        private const double AccentSaturationMin = 0.0;
+        private const double AccentSaturationMax = 1.5;
+
         public string PanelType => "TextAnimation";
 
         public TextAnimationPresetsPanelHandler(Action<string, bool>? showStatusMessage)
@@ -508,6 +511,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 panel.AccentHueShiftSliderControl.Value = hue;
             if (panel.AccentHueShiftTextBoxControl != null)
                 panel.AccentHueShiftTextBoxControl.Text = ((int)Math.Round(hue)).ToString();
+            sat = Math.Clamp(sat, AccentSaturationMin, AccentSaturationMax);
             if (panel.AccentSaturationSliderControl != null)
                 panel.AccentSaturationSliderControl.Value = sat;
             if (panel.AccentSaturationTextBoxControl != null)
@@ -642,7 +646,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (!double.TryParse(panel.AccentSaturationTextBoxControl?.Text, out double sat))
                 return;
 
-            sat = Math.Clamp(sat, 0.5, 2.0);
+            sat = Math.Clamp(sat, AccentSaturationMin, AccentSaturationMax);
             suppressUiEvents = true;
             try
             {
@@ -685,7 +689,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 return;
 
             double hue = Math.Clamp(panel.AccentHueShiftSliderControl?.Value ?? 0, -180, 180);
-            double sat = Math.Clamp(panel.AccentSaturationSliderControl?.Value ?? 1.0, 0.5, 2.0);
+            double sat = Math.Clamp(panel.AccentSaturationSliderControl?.Value ?? 1.0, AccentSaturationMin, AccentSaturationMax);
             double phaseMs = ReadAccentPhaseMs(panel);
             double charOffset = ReadAccentCharacterPhaseOffset(panel);
 
@@ -925,7 +929,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
         private static void UpdateAccentSwatches(TextAnimationPresetsSettingsPanel panel)
         {
             double hue = Math.Clamp(panel.AccentHueShiftSliderControl?.Value ?? 0, -180, 180);
-            double sat = Math.Clamp(panel.AccentSaturationSliderControl?.Value ?? 1.0, 0.5, 2.0);
+            double sat = Math.Clamp(panel.AccentSaturationSliderControl?.Value ?? 1.0, AccentSaturationMin, AccentSaturationMax);
             var sample = Color.FromRgb(255, 180, 80);
             Color hueOnly = ColorValidator.AdjustAccentHueHsv(sample, hue, maskAlpha: 1.0);
             Color hueAndSat = ColorValidator.ScaleSaturationHsv(hueOnly, sat);

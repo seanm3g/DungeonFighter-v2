@@ -127,6 +127,9 @@ namespace RPGGame
 
         /// <summary>Direct-stat dummy: <see cref="Enemy.GetTotalAttackSpeed"/> seconds baseline (scaled by action length in combat).</summary>
         public const double TrainingDummyBaseAttackSpeedSeconds = 8.0;
+
+        /// <summary>Pre-weapon Training Ground: multiply normal combat log delays by this factor (2 = twice as long as default pacing).</summary>
+        public const double TutorialCombatDelayMultiplier = 2.0;
         
         // Combat Constants
         public const double DefaultNarrativeBalance = 0.5;

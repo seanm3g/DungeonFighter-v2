@@ -230,7 +230,10 @@ namespace RPGGame
             // Small % chance to bypass so any category can appear
             if (weaponActions.Count > 0 && _random.NextDouble() >= CategoryBypassChance)
             {
-                var nameToData = allActionData.Where(a => !string.IsNullOrEmpty(a.Name)).ToDictionary(a => a.Name, a => a, StringComparer.OrdinalIgnoreCase);
+                var nameToData = allActionData
+                    .Where(a => !string.IsNullOrEmpty(a.Name))
+                    .GroupBy(a => a.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
                 var filtered = weaponActions.Where(name =>
                 {
                     if (!nameToData.TryGetValue(name, out var data)) return true;

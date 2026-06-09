@@ -1,13 +1,13 @@
 {
   "MessageTypeDelays": {
     "Combat": 50,
-    "System": 50,
-    "Menu": 25,
+    "System": 1,
+    "Menu": 1,
     "Title": 200,
-    "MainTitle": 300,
-    "Environmental": 75,
+    "MainTitle": 50,
+    "Environmental": 250,
     "EffectMessage": 30,
-    "DamageOverTime": 30,
+    "DamageOverTime": 150,
     "Encounter": 50,
     "RollInfo": 5
   },
@@ -45,7 +45,8 @@
   },
   "CombatDelays": {
     "ActionDelayMs": 3000,
-    "MessageDelayMs": 250
+    "MessageDelayMs": 250,
+    "TutorialCombatDelayMultiplier": 1.5
   },
   "EnvironmentalLineDelay": 500,
   "ProgressiveMenuDelays": {
@@ -54,7 +55,7 @@
     "ProgressiveThreshold": 20
   },
   "TravelRouteRollPacing": {
-    "StepDelayBaseMs": 750,
+    "StepDelayBaseMs": 1500,
     "StepExtraDelayMsPerPointBelow20": 100,
     "SummaryBaseMinutes": 4,
     "SummaryExtraMinutesPerPointBelow20": 1

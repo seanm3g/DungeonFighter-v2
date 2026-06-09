@@ -16,29 +16,31 @@ namespace RPGGame.Config
     /// </summary>
     public static class PatchSaveCoordinator
     {
-        public static async Task<bool> SaveGameSettingsAsync(Window? owner, GameSettings settings)
+        public static Task<bool> SaveGameSettingsAsync(Window? owner, GameSettings settings)
         {
-            var profile = PatchProfileService.LoadProfile();
-            string active = profile.GetActivePatchName(PatchCategory.GameSettings);
-            var choice = await PatchSaveDialog.ShowAsync(owner, PatchCategory.GameSettings, active);
-            if (choice == PatchSaveChoice.Cancelled)
-                return false;
-
             settings.ValidateAndFix();
-            string json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-            return await PersistAsync(owner, PatchCategory.GameSettings, active, json, choice);
+            var doc = GeneralSettingsStore.Load();
+            GeneralSettingsStore.Save(settings, doc.AudioPreferences);
+            return Task.FromResult(true);
         }
 
         public static async Task<bool> SaveAudioAsync(Window? owner, AudioConfig config)
         {
+            config.ValidateAndFix();
+            config.SaveAudioPreferences();
+
             var profile = PatchProfileService.LoadProfile();
             string active = profile.GetActivePatchName(PatchCategory.Audio);
             var choice = await PatchSaveDialog.ShowAsync(owner, PatchCategory.Audio, active);
             if (choice == PatchSaveChoice.Cancelled)
                 return false;
 
-            config.ValidateAndFix();
-            string json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
+            var patch = new AudioPatchContent
+            {
+                CueMap = config.CueMap,
+                StateMusicMap = config.StateMusicMap
+            };
+            string json = JsonSerializer.Serialize(patch, new JsonSerializerOptions { WriteIndented = true });
             return await PersistAsync(owner, PatchCategory.Audio, active, json, choice);
         }
 

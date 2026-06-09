@@ -79,13 +79,36 @@ Fired by one-line `AudioCues.Trigger(...)` calls at these sites:
 
 ## Config patches (audio)
 
-Audio settings are stored as **patches** under `GameData/Patches/Audio/*.json` (committed to GitHub). Your **active** patch name is stored locally in gitignored `GameData/PatchProfile.json`, so git pull does not change which patch you hear. After pulling new patches, open **Settings → Patches** and select one, or stay on your own patch.
+**Bus volume/mute/crossfade** are general settings in gitignored `GameData/GeneralSettings.json` (`audioPreferences` section). They stay on the `AudioConfig` type and Settings → Audio UI at runtime — only persistence is split.
+
+**Cue file bindings and state→music triggers** are **audio patches** under `GameData/Patches/Audio/`. The repo `default.json` patch is tracked and updates on git pull; named patches (e.g. custom cue sets) are gitignored. Active patch name is in gitignored `GameData/PatchProfile.json`.
+
+Balance tuning remains in tracked `GameData/Patches/Balance/default.json`.
+
+If no local `default.json` audio patch exists, the game seeds from `default.template.json` (legacy) or creates an empty patch; tracked repo `default.json` supplies canonical cue bindings.
 
 Sound **assets** (`.wav` / `.mp3`) remain under `GameData/Audio/`. Paths inside a patch are still relative to that folder.
 
-## `AudioConfig` patch schema
+## Audio patch schema (committable portion)
 
-Each audio patch uses the same JSON shape as before (example below). The default patch is `GameData/Patches/Audio/default.json`.
+Each audio patch file stores cue bindings only. Bus prefs are **not** stored in patch files.
+
+```json
+{
+  "cueMap": {
+    "Menu_Select": { "file": "SFX/menu_select.wav", "volume": 0.8 },
+    "Combat_Hit":  { "file": "SFX/combat_hit.wav",  "volume": 1.0, "rateLimitMs": 80 }
+  },
+  "stateMusicMap": {
+    "MainMenu": "Music_MainMenu",
+    "Combat":   "Music_Combat"
+  }
+}
+```
+
+## General settings audio preferences
+
+Bus-level fields in `GeneralSettings.json` → `audioPreferences`:
 
 ```json
 {
@@ -96,14 +119,8 @@ Each audio patch uses the same JSON shape as before (example below). The default
   "musicEnabled": true,
   "sfxEnabled": true,
   "musicCrossfadeMs": 1000,
-  "cueMap": {
-    "Menu_Select": { "file": "SFX/menu_select.wav", "volume": 0.8 },
-    "Combat_Hit":  { "file": "SFX/combat_hit.wav",  "volume": 1.0, "rateLimitMs": 80 }
-  },
-  "stateMusicMap": {
-    "MainMenu": "Music_MainMenu",
-    "Combat":   "Music_Combat"
-  }
+  "musicTransitionSyncBpm": 0,
+  "musicTransitionCarryElapsed": true
 }
 ```
 

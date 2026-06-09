@@ -19,6 +19,9 @@
     <!-- Conditional Compiled Bindings (faster Debug builds, optimized Release builds) -->
     <AvaloniaUseCompiledBindingsByDefault Condition="'$(Configuration)' == 'Release'">true</AvaloniaUseCompiledBindingsByDefault>
     <AvaloniaUseCompiledBindingsByDefault Condition="'$(Configuration)' == 'Debug'">false</AvaloniaUseCompiledBindingsByDefault>
+
+    <!-- dist/DF.exe single-file publish: Avalonia/SkiaSharp need native libs extracted at startup -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>

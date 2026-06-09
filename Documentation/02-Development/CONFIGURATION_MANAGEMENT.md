@@ -5,15 +5,20 @@ The Configuration Management System provides a unified, type-safe way to load, s
 
 ## Config patch profiles
 
-Player-specific **active patch selection** lives in gitignored `GameData/PatchProfile.json`. Shared patch **files** live under:
+Player-local **general settings** (gameplay/UI preferences plus audio bus volume/mute/crossfade) live in gitignored `GameData/GeneralSettings.json`. Active **audio patch** selection (cue file bindings and state→music triggers) lives in gitignored `GameData/PatchProfile.json`.
 
-| Folder | Content |
-|--------|---------|
-| `GameData/Patches/GameSettings/` | Gameplay / UI preferences (`GameSettings` JSON) |
-| `GameData/Patches/Audio/` | Music + SFX config (`AudioConfig` JSON) |
-| `GameData/Patches/Balance/` | Balance tuning (`GameConfiguration` / former `TuningConfig.json`) |
+| Location | Content | Git |
+|----------|---------|-----|
+| `GameData/GeneralSettings.json` | `gameSettings` + `audioPreferences` (bus volume/mute) | **Gitignored** — player-local |
+| `GameData/Patches/GameSettings/default.template.json` | Seed defaults for first-run general settings | Tracked |
+| `GameData/Patches/Audio/default.json` | Default cue bindings (`cueMap`, `stateMusicMap`) | Tracked — updates on pull |
+| `GameData/Patches/Audio/*.json` (non-default) | Named local audio patch variants | **Gitignored** |
+| `GameData/Patches/Balance/default.json` | Balance tuning (`GameConfiguration`) | Tracked — updates on pull |
+| `GameData/TextDelayConfig.json` | Text delay presets | Tracked — updates on pull |
 
-Loaders: `PatchProfileService`, wired from `GameSettings`, `AudioConfig`, and `GameConfiguration`. Settings → **Patches** switches active patches; **Save** prompts **Update patch** or **Save as new patch**.
+Runtime still uses `GameSettings` and `AudioConfig` singletons; `GeneralSettingsStore` and `PatchProfileService` merge persisted files on load.
+
+Loaders: `GeneralSettingsStore`, `PatchProfileService`, wired from `GameSettings`, `AudioConfig`, and `GameConfiguration`. Settings → **Patches** switches active audio patches; **Save** on audio prompts **Update patch** or **Save as new patch** for cue bindings only (bus prefs always save to general settings).
 
 ## Architecture
 

@@ -21,6 +21,7 @@ namespace RPGGame.Tests.Unit.UI
 
             TestCombatSpeedLadder();
             TestDelayScaling();
+            TestTutorialCombatSlowPacing();
             TestCenterPanelTintChangesWithCombatSpeed();
 
             TestBase.PrintSummary("DeveloperModeState Tests", _testsRun, _testsPassed, _testsFailed);
@@ -88,6 +89,37 @@ namespace RPGGame.Tests.Unit.UI
             }
             finally
             {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                DeveloperModeState.SetCombatSpeedMultiplier(prevSpeed);
+            }
+        }
+
+        private static void TestTutorialCombatSlowPacing()
+        {
+            Console.WriteLine("--- Tutorial combat pacing doubles default delay length ---");
+
+            int prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            bool prevTutorialPacing = PreWeaponTrainingFlow.IsTutorialCombatSlowPacingActive;
+            try
+            {
+                DeveloperModeState.SetCombatLogInstant(false);
+                DeveloperModeState.SetCombatSpeedMultiplier(1);
+                PreWeaponTrainingFlow.SetTutorialCombatSlowPacing(false);
+
+                TestBase.AssertEqual(3000, DeveloperModeState.ScaleDelayMs(3000),
+                    "default combat action delay stays at 3000 ms at 1x speed",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                PreWeaponTrainingFlow.SetTutorialCombatSlowPacing(true);
+
+                TestBase.AssertEqual(6000, DeveloperModeState.ScaleDelayMs(3000),
+                    "tutorial combat pacing doubles the default action delay",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                PreWeaponTrainingFlow.SetTutorialCombatSlowPacing(prevTutorialPacing);
                 DeveloperModeState.SetCombatLogInstant(prevInstant);
                 DeveloperModeState.SetCombatSpeedMultiplier(prevSpeed);
             }

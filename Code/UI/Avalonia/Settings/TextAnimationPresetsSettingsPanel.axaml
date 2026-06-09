@@ -422,7 +422,7 @@
 
                         <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
 
-                                   Text="Adds or updates a top hsvAdjust layer masked by a sine wave. Hue 0° and saturation 1.0× remove the accent layer. Sliders and text boxes stay in sync when you press Enter or leave the field. Phase and char offset update the preview live while typing. Saturation scale is capped at 2.0× in the compositor."/>
+                                   Text="Adds or updates a top hsvAdjust layer masked by a sine wave. Hue 0° and saturation 1.0× remove the accent layer. Sliders and text boxes stay in sync when you press Enter or leave the field. Phase and char offset update the preview live while typing. Saturation scale range is 0–1.5×."/>
 
                         <Grid ColumnDefinitions="160,*,80,40" RowDefinitions="Auto,Auto,Auto,Auto">
 
@@ -444,7 +444,7 @@
 
                             <Slider x:Name="AccentSaturationSlider" Grid.Row="1" Grid.Column="1"
 
-                                    Minimum="0.5" Maximum="2.0" TickFrequency="0.1" Margin="0,0,8,8"/>
+                                    Minimum="0" Maximum="1.5" TickFrequency="0.1" Margin="0,0,8,8"/>
 
                             <TextBox x:Name="AccentSaturationTextBox" Grid.Row="1" Grid.Column="2" Height="28" Margin="0,0,8,8" Watermark="1.00"/>
 

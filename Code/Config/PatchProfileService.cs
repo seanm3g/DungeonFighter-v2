@@ -83,6 +83,9 @@ namespace RPGGame.Config
                 MigrateLegacyIfNeeded(PatchCategory.Audio, LegacyAudioPaths(), PatchProfile.DefaultPatchName);
                 MigrateLegacyIfNeeded(PatchCategory.Balance, LegacyBalancePaths(), PatchProfile.DefaultPatchName);
 
+                EnsureTrackedAudioDefaultPatchExists();
+                GeneralSettingsStore.EnsureBootstrapped();
+
                 _bootstrapDone = true;
             }
         }
@@ -138,6 +141,9 @@ namespace RPGGame.Config
 
         public static void SetActivePatch(PatchCategory category, string patchName)
         {
+            if (!PatchProfile.IsPlayerLocalCategory(category))
+                throw new InvalidOperationException($"{GetCategoryDisplayName(category)} always uses the repo default patch and cannot be switched locally.");
+
             string sanitized = SanitizePatchName(patchName);
             if (!PatchExists(category, sanitized))
                 throw new FileNotFoundException($"Patch '{sanitized}' was not found for {GetCategoryDisplayName(category)}.", GetPatchFilePath(category, sanitized));
@@ -174,18 +180,38 @@ namespace RPGGame.Config
             if (File.Exists(path))
                 return path;
 
+            if (category == PatchCategory.Audio)
+            {
+                EnsureAudioDefaultPatchExists();
+                if (File.Exists(path))
+                    return path;
+            }
+
             string defaultPath = GetPatchFilePath(category, PatchProfile.DefaultPatchName);
             if (File.Exists(defaultPath))
             {
-                profile.SetActivePatchName(category, PatchProfile.DefaultPatchName);
-                SaveProfile(profile);
+                if (PatchProfile.IsPlayerLocalCategory(category))
+                {
+                    profile.SetActivePatchName(category, PatchProfile.DefaultPatchName);
+                    SaveProfile(profile);
+                }
                 return defaultPath;
             }
 
             Directory.CreateDirectory(GetCategoryFolder(category));
+            if (category == PatchCategory.Audio)
+            {
+                EnsureAudioDefaultPatchExists();
+                if (File.Exists(defaultPath))
+                    return defaultPath;
+            }
+
             File.WriteAllText(defaultPath, "{}");
-            profile.SetActivePatchName(category, PatchProfile.DefaultPatchName);
-            SaveProfile(profile);
+            if (PatchProfile.IsPlayerLocalCategory(category))
+            {
+                profile.SetActivePatchName(category, PatchProfile.DefaultPatchName);
+                SaveProfile(profile);
+            }
             return defaultPath;
         }
 
@@ -227,7 +253,7 @@ namespace RPGGame.Config
         public static void CreatePatch(PatchCategory category, string patchName, string jsonContent, bool switchActive)
         {
             WritePatchContent(category, patchName, jsonContent, overwrite: false);
-            if (switchActive)
+            if (switchActive && PatchProfile.IsPlayerLocalCategory(category))
                 SetActivePatch(category, patchName);
         }
 
@@ -293,10 +319,12 @@ namespace RPGGame.Config
             switch (category)
             {
                 case PatchCategory.GameSettings:
+                    GeneralSettingsStore.InvalidateCache();
                     GameSettings.InvalidatePatchPathCache();
                     GameSettings.ReloadFromFile();
                     break;
                 case PatchCategory.Audio:
+                    GeneralSettingsStore.InvalidateCache();
                     AudioConfig.InvalidatePatchPathCache();
                     AudioConfig.ReloadFromFile();
                     break;
@@ -308,6 +336,7 @@ namespace RPGGame.Config
 
         public static void InvalidateAllRuntimeCaches()
         {
+            GeneralSettingsStore.InvalidateCache();
             GameSettings.InvalidatePatchPathCache();
             AudioConfig.InvalidatePatchPathCache();
             GameConfiguration.ResetInstance();
@@ -329,12 +358,88 @@ namespace RPGGame.Config
 
         private static void NormalizeProfile(PatchProfile profile)
         {
-            if (string.IsNullOrWhiteSpace(profile.ActiveGameSettingsPatch))
-                profile.ActiveGameSettingsPatch = PatchProfile.DefaultPatchName;
             if (string.IsNullOrWhiteSpace(profile.ActiveAudioPatch))
                 profile.ActiveAudioPatch = PatchProfile.DefaultPatchName;
-            if (string.IsNullOrWhiteSpace(profile.ActiveBalancePatch))
-                profile.ActiveBalancePatch = PatchProfile.DefaultPatchName;
+        }
+
+        private static void EnsureAudioDefaultPatchExists() =>
+            EnsureTrackedAudioDefaultPatchExists();
+
+        /// <summary>Ensures the repo-tracked default audio patch exists (cue bindings only).</summary>
+        private static void EnsureTrackedAudioDefaultPatchExists()
+        {
+            string defaultPath = GetPatchFilePath(PatchCategory.Audio, PatchProfile.DefaultPatchName);
+            if (File.Exists(defaultPath))
+                return;
+
+            string? dir = Path.GetDirectoryName(defaultPath);
+            if (!string.IsNullOrEmpty(dir))
+                Directory.CreateDirectory(dir);
+
+            if (TrySeedAudioDefaultFromLegacyTemplate(defaultPath))
+                return;
+
+            File.WriteAllText(defaultPath, "{\"cueMap\":{},\"stateMusicMap\":{}}");
+        }
+
+        private static bool TrySeedAudioDefaultFromLegacyTemplate(string destinationPath)
+        {
+            string? templatePath = TryResolveAudioTemplatePath();
+            if (templatePath == null || !File.Exists(templatePath))
+                return false;
+
+            try
+            {
+                string json = File.ReadAllText(templatePath);
+                using var doc = JsonDocument.Parse(json);
+                if (doc.RootElement.ValueKind != JsonValueKind.Object)
+                    return false;
+
+                var patchOnly = new Dictionary<string, object?>();
+                if (doc.RootElement.TryGetProperty("cueMap", out var cueMap))
+                    patchOnly["cueMap"] = JsonSerializer.Deserialize<object>(cueMap.GetRawText());
+                else
+                    patchOnly["cueMap"] = new Dictionary<string, object>();
+
+                if (doc.RootElement.TryGetProperty("stateMusicMap", out var stateMap))
+                    patchOnly["stateMusicMap"] = JsonSerializer.Deserialize<object>(stateMap.GetRawText());
+                else
+                    patchOnly["stateMusicMap"] = new Dictionary<string, object>();
+
+                string stripped = JsonSerializer.Serialize(patchOnly, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(destinationPath, stripped);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static string? TryResolveAudioTemplatePath()
+        {
+            string relative = Path.Combine("Patches", "Audio", "default.template.json");
+            string fromRoot = Path.Combine(GetGameDataRoot(), relative);
+            if (File.Exists(fromRoot))
+                return fromRoot;
+
+            string? fromSettings = GameConstants.TryGetExistingGameDataFilePath(relative);
+            if (!string.IsNullOrEmpty(fromSettings))
+                return fromSettings;
+
+            string cwd = Directory.GetCurrentDirectory();
+            foreach (string dir in new[] { cwd, Path.Combine(cwd, "Code") })
+            {
+                try
+                {
+                    string candidate = Path.Combine(dir, GameConstants.GameDataDirectory, relative);
+                    if (File.Exists(candidate))
+                        return candidate;
+                }
+                catch { /* try next */ }
+            }
+
+            return null;
         }
 
         private static void MigrateLegacyIfNeeded(PatchCategory category, IEnumerable<string> legacyCandidates, string defaultPatchName)

@@ -193,6 +193,10 @@ namespace RPGGame.Tests.Unit
                 // Verify action delay is greater than message delay (logical relationship)
                 AssertTrue(actionDelay > messageDelay, 
                     "Action delay should be greater than message delay");
+
+                var tutorialMultiplier = TextDelayConfiguration.GetTutorialCombatDelayMultiplier();
+                AssertTrue(Math.Abs(tutorialMultiplier - 2.0) < 0.001,
+                    $"Tutorial combat delay multiplier should be 2.0 (got {tutorialMultiplier})");
             }
             catch (Exception ex)
             {

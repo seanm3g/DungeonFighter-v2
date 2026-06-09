@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit.Data
             StatBonusesRequirementsBracketImport(ref run, ref pass, ref fail);
             StatBonusesRequirementsImportFromStatRequirementHeader(ref run, ref pass, ref fail);
             StatBonusesRequirementsRoundTripPushKeepsBracketCell(ref run, ref pass, ref fail);
+            StatBonusesLiveSheetLayoutCsvImport(ref run, ref pass, ref fail);
             GameDataJsonNormalizerRepairsSheetExports(ref run, ref pass, ref fail);
             EnemiesRoundTrip(ref run, ref pass, ref fail);
             EnemiesWithTagsRoundTrip(ref run, ref pass, ref fail);
@@ -396,6 +397,35 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
                 "bracket includes strength:5", ref run, ref pass, ref fail);
             TestBase.AssertTrue(cell.Contains("primary:15", StringComparison.Ordinal),
                 "bracket includes primary:15", ref run, ref pass, ref fail);
+        }
+
+        /// <summary>Matches the live SUFFIXES tab: blank column-A header for affix names, lowercase headers, trailing stat requirement.</summary>
+        private static void StatBonusesLiveSheetLayoutCsvImport(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(StatBonusesLiveSheetLayoutCsvImport));
+            const string csv = """
+            ,tags,rarity,Description,stat type,mechanics,Mechanic 1,Mechaniv 1 value,Mechanc 2,Mechanic 2 values,Mechanic 3,Mechanic 3 values,stat requirement
+            of Protection,,Common,armor,,[armor:1],armor,1,,,,,#N/A
+            of fleeting,,Common,attack speed,,[speed:5],speed,5,,,,,#N/A
+            """;
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.StatBonuses);
+            using var a = JsonDocument.Parse(outJson);
+            TestBase.AssertEqual(2, a.RootElement.GetArrayLength(), "two suffix rows", ref run, ref pass, ref fail);
+
+            var first = a.RootElement[0];
+            TestBase.AssertEqual("of Protection", first.GetProperty("Name").GetString(), "blank header col A → Name", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Common", first.GetProperty("Rarity").GetString(), "rarity", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("armor", first.GetProperty("Description").GetString(), "description", ref run, ref pass, ref fail);
+            TestBase.AssertFalse(first.TryGetProperty("mechanics", out _), "raw mechanics string dropped", ref run, ref pass, ref fail);
+            TestBase.AssertFalse(first.TryGetProperty("tags", out _), "tags helper column dropped", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(first.TryGetProperty("Mechanics", out var mech) && mech.ValueKind == JsonValueKind.Array,
+                "Mechanics array", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Armor", mech[0].GetProperty("StatType").GetString(), "armor mechanic normalized", ref run, ref pass, ref fail);
+
+            var second = a.RootElement[1];
+            TestBase.AssertEqual("of fleeting", second.GetProperty("Name").GetString(), "second row name", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("AttackSpeed", second.GetProperty("Mechanics")[0].GetProperty("StatType").GetString(),
+                "speed→AttackSpeed", ref run, ref pass, ref fail);
         }
 
         private static void GameDataJsonNormalizerRepairsSheetExports(ref int run, ref int pass, ref int fail)
