@@ -12,6 +12,16 @@ namespace RPGGame.UI.ColorSystem
     /// </summary>
     public static class ColoredTextMerger
     {
+        private static ColoredText WithText(ColoredText segment, string text) =>
+            new ColoredText(text, segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas);
+
+        private static ColoredText MergeText(ColoredText left, ColoredText right, string combinedText) =>
+            new ColoredText(
+                combinedText,
+                left.Color,
+                left.SourceTemplate ?? right.SourceTemplate,
+                left.ColorReadyForCanvas && right.ColorReadyForCanvas);
+
         /// <summary>
         /// Merges adjacent segments with the same color and normalizes spaces.
         /// This is the primary merging method used throughout the color system.
@@ -49,7 +59,7 @@ namespace RPGGame.UI.ColorSystem
                 if (currentSegment == null)
                 {
                     // First segment - normalize and store
-                    currentSegment = new ColoredText(normalizedText, segment.Color);
+                    currentSegment = WithText(segment, normalizedText);
                 }
                 else if (ColorValidator.AreColorsEqual(currentSegment.Color, segment.Color))
                 {
@@ -60,16 +70,14 @@ namespace RPGGame.UI.ColorSystem
                         // If either segment is whitespace-only, don't merge - keep them separate
                         // This ensures spaces in multi-word names are preserved
                         merged.Add(currentSegment);
-                        currentSegment = new ColoredText(normalizedText, segment.Color);
+                        currentSegment = WithText(segment, normalizedText);
                     }
                     else
                     {
                         // Both are non-whitespace - merge with current segment
                         // PRESERVE all spacing - don't normalize boundary spaces as this breaks test cases
                         // that intentionally use multiple spaces or specific spacing
-                        string currentText = currentSegment.Text;
-                        currentText = currentText + normalizedText;
-                        currentSegment = new ColoredText(currentText, currentSegment.Color);
+                        currentSegment = MergeText(currentSegment, segment, currentSegment.Text + normalizedText);
                     }
                 }
                 else
@@ -124,11 +132,11 @@ namespace RPGGame.UI.ColorSystem
                     // Add finalized segment (only if it has content)
                     if (currentText.Length > 0)
                     {
-                        merged.Add(new ColoredText(currentText, currentSegment.Color));
+                        merged.Add(WithText(currentSegment, currentText));
                     }
                     
                     // Start new segment
-                    currentSegment = new ColoredText(normalizedText, segment.Color);
+                    currentSegment = WithText(segment, normalizedText);
                 }
             }
             
@@ -146,7 +154,7 @@ namespace RPGGame.UI.ColorSystem
                     if (lastIsWhitespace && currentIsWhitespace && ColorValidator.AreColorsEqual(lastMerged.Color, currentSegment.Color))
                     {
                         // Both are whitespace - merge into one
-                        merged[merged.Count - 1] = new ColoredText(" ", lastMerged.Color);
+                        merged[merged.Count - 1] = WithText(lastMerged, " ");
                     }
                     else
                     {
@@ -195,7 +203,7 @@ namespace RPGGame.UI.ColorSystem
                     if (!isSpaceSegment)
                     {
                         // Start with a non-space segment
-                        current = new ColoredText(segment.Text, segment.Color);
+                        current = WithText(segment, segment.Text);
                     }
                     else
                     {
@@ -215,13 +223,13 @@ namespace RPGGame.UI.ColorSystem
                 {
                     // Same color and both are non-space segments - merge them
                     // Note: Space segments are handled above, so we know both are non-space here
-                    current = new ColoredText(current.Text + segment.Text, current.Color);
+                    current = MergeText(current, segment, current.Text + segment.Text);
                 }
                 else
                 {
                     // Different color - finalize current segment and start new one
                     merged.Add(current);
-                    current = new ColoredText(segment.Text, segment.Color);
+                    current = WithText(segment, segment.Text);
                 }
             }
             

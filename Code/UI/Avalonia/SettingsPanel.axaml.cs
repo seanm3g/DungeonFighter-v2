@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
@@ -57,8 +58,10 @@ namespace RPGGame.UI.Avalonia
         {
             InitializeComponent();
             settings = GameSettings.Instance;
+            PopulateSidebar();
             InitializeManagers();
             SetupNavigation();
+            ContentScrollViewer.SizeChanged += (_, _) => ConstrainMainScrollContentWidth();
             
             // Apply colors after panel is loaded
             this.Loaded += (s, e) =>
@@ -66,9 +69,27 @@ namespace RPGGame.UI.Avalonia
                 Dispatcher.UIThread.Post(() =>
                 {
                     colorManager?.ApplyColors();
+                    ConstrainMainScrollContentWidth();
                 }, DispatcherPriority.Loaded);
             };
             this.Unloaded += (_, _) => actionsTabManager?.DetachFromActionLoaderEvents();
+        }
+
+        /// <summary>
+        /// ScrollViewer gives children unbounded horizontal measure; star-sized columns push
+        /// trailing controls (slider text boxes, spawn % fields) off the right edge.
+        /// </summary>
+        private void ConstrainMainScrollContentWidth()
+        {
+            double viewportWidth = ContentScrollViewer.Viewport.Width;
+            if (viewportWidth <= 0)
+                return;
+
+            if (ContentArea.Content is Control mainPanel)
+            {
+                mainPanel.MaxWidth = viewportWidth;
+                mainPanel.HorizontalAlignment = HorizontalAlignment.Stretch;
+            }
         }
         
         private void InitializeManagers()
@@ -105,12 +126,14 @@ namespace RPGGame.UI.Avalonia
             panelHandlerRegistry.Register(new PatchesPanelHandler(ShowStatusMessage));
             panelHandlerRegistry.Register(new TravelPanelHandler());
             panelHandlerRegistry.Register(new AudioPanelHandler());
-            panelHandlerRegistry.Register(new TextDelaysPanelHandler(settingsManager));
-            panelHandlerRegistry.Register(new TextAnimationPresetsPanelHandler(ShowStatusMessage));
+            var textDelaysHandler = new TextDelaysPanelHandler(settingsManager);
+            var textAnimationHandler = new TextAnimationPresetsPanelHandler(ShowStatusMessage);
+            panelHandlerRegistry.Register(new TextAndAnimationPanelHandler(textDelaysHandler, textAnimationHandler));
             panelHandlerRegistry.Register(new AppearancePanelHandler(settings, colorManager));
             panelHandlerRegistry.Register(new Managers.Settings.PanelHandlers.ClassesPanelHandler(ShowStatusMessage));
             panelHandlerRegistry.Register(new ItemGenerationPanelHandler(ShowStatusMessage));
             panelHandlerRegistry.Register(new EnemyTuningPanelHandler(ShowStatusMessage));
+            panelHandlerRegistry.Register(new Managers.Settings.PanelHandlers.CombatTuningPanelHandler(ShowStatusMessage));
             // Testing handler will be registered when canvasUI is available
             
             // Initialize save orchestrator (single panel resolution via GetPanelForCategory)
@@ -163,15 +186,16 @@ namespace RPGGame.UI.Avalonia
                                 ctx.StatusEffectsTabManager.Initialize(listBox, formPanel, createButton, deleteButton, ctx.ShowStatusMessage);
                         }, DispatcherPriority.Loaded);
                 },
-                ["ItemPrefixes"] = (panel, ctx) =>
+                ["ItemAffixes"] = (panel, ctx) =>
                 {
-                    if (panel is ItemModifiersSettingsPanel modPanel && ctx.ItemModifiersTabManager != null)
-                        Dispatcher.UIThread.Post(() => ctx.ItemModifiersTabManager.Initialize(modPanel), DispatcherPriority.Loaded);
-                },
-                ["ItemSuffixes"] = (panel, ctx) =>
-                {
-                    if (panel is ItemSuffixesSettingsPanel sufPanel && ctx.ItemSuffixesTabManager != null)
-                        Dispatcher.UIThread.Post(() => ctx.ItemSuffixesTabManager.Initialize(sufPanel), DispatcherPriority.Loaded);
+                    if (panel is ItemAffixesSettingsPanel affixesPanel && ctx.ItemModifiersTabManager != null && ctx.ItemSuffixesTabManager != null)
+                    {
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            ctx.ItemModifiersTabManager.Initialize(affixesPanel.PrefixesPanel);
+                            ctx.ItemSuffixesTabManager.Initialize(affixesPanel.SuffixesPanel);
+                        }, DispatcherPriority.Loaded);
+                    }
                 },
                 ["Items"] = (panel, ctx) =>
                 {
@@ -240,17 +264,25 @@ namespace RPGGame.UI.Avalonia
             // Handle category selection
             CategoryListBox.SelectionChanged += (s, e) =>
             {
-                if (CategoryListBox.SelectedItem is ListBoxItem selectedItem && selectedItem.Tag is string categoryTag)
+                if (CategoryListBox.SelectedItem is ListBoxItem selectedItem)
                 {
-                    LoadCategoryPanel(categoryTag);
+                    if (IsSidebarHeader(selectedItem))
+                    {
+                        int idx = CategoryListBox.SelectedIndex;
+                        int next = idx + 1 < CategoryListBox.ItemCount ? idx + 1 : idx - 1;
+                        if (next >= 0 && next < CategoryListBox.ItemCount)
+                            CategoryListBox.SelectedIndex = next;
+                        return;
+                    }
+
+                    if (selectedItem.Tag is string categoryTag)
+                        LoadCategoryPanel(categoryTag);
                 }
             };
             
-            // Select first category by default
+            // Select first panel (skip group headers)
             if (CategoryListBox.ItemCount > 0)
-            {
-                CategoryListBox.SelectedIndex = 0;
-            }
+                CategoryListBox.SelectedIndex = FindFirstSelectableSidebarIndex(CategoryListBox);
             
             // Wire up action buttons
             SaveButton.Click += async (_, _) => await SaveSettingsAsync();
@@ -263,159 +295,106 @@ namespace RPGGame.UI.Avalonia
             Dispatcher.UIThread.Post(() => colorManager?.ApplyColors(), DispatcherPriority.Loaded);
         }
 
+        private void PopulateSidebar()
+        {
+            CategoryListBox.Items.Clear();
+            string? currentGroup = null;
+
+            foreach (var descriptor in SettingsPanelCatalog.GetPanelsForSidebar())
+            {
+                if (descriptor.SidebarGroup != currentGroup)
+                {
+                    currentGroup = descriptor.SidebarGroup;
+                    var groupDef = Array.Find(SettingsSidebarGroups.OrderedGroups, g => g.Id == currentGroup);
+                    if (groupDef != null && !string.IsNullOrEmpty(groupDef.DisplayLabel))
+                    {
+                        CategoryListBox.Items.Add(new ListBoxItem
+                        {
+                            Content = groupDef.DisplayLabel,
+                            Tag = SettingsSidebarGroups.HeaderTag,
+                            IsHitTestVisible = false,
+                            Focusable = false,
+                            Classes = { "settings-sidebar-group-header" }
+                        });
+                    }
+                }
+
+                CategoryListBox.Items.Add(new ListBoxItem
+                {
+                    Content = descriptor.DisplayName,
+                    Tag = descriptor.Tag,
+                    Classes = { "settings-sidebar-panel-item" }
+                });
+            }
+        }
+
+        private static int FindFirstSelectableSidebarIndex(ListBox listBox)
+        {
+            for (int i = 0; i < listBox.ItemCount; i++)
+            {
+                if (listBox.Items[i] is ListBoxItem item &&
+                    item.Tag is string tag &&
+                    tag != SettingsSidebarGroups.HeaderTag)
+                    return i;
+            }
+            return 0;
+        }
+
+        private static bool IsSidebarHeader(ListBoxItem? item) =>
+            item?.Tag is string tag && tag == SettingsSidebarGroups.HeaderTag;
+
         private void LoadCategoryPanel(string categoryTag)
         {
-            // Special handling for Testing panel - use separate content area without ScrollViewer
-            if (categoryTag == "Testing")
-            {
-                // Check if panel is already loaded
-                if (loadedPanels.ContainsKey(categoryTag))
-                {
-                    TestingContentArea.Content = loadedPanels[categoryTag];
-                    TestingContentArea.IsVisible = true;
-                    ContentScrollViewer.IsVisible = false;
-                    ActionsContentArea.IsVisible = false;
-                    ScheduleInputColorRefresh();
-                    return;
-                }
-                
-                // Create Testing panel
-                var testingPanel = new TestingSettingsPanel();
-                loadedPanels[categoryTag] = testingPanel;
-                TestingContentArea.Content = testingPanel;
-                TestingContentArea.IsVisible = true;
-                ContentScrollViewer.IsVisible = false;
-                ActionsContentArea.IsVisible = false;
-                
-                // Initialize panel-specific handlers after a short delay
-                Dispatcher.UIThread.Post(() =>
-                {
-                    InitializePanelHandlers(categoryTag, testingPanel);
-                    ScheduleInputColorRefresh();
-                }, DispatcherPriority.Background);
-                return;
-            }
-            
-            // Actions panel - use separate content area so list and form scroll independently
-            if (categoryTag == "Actions")
-            {
-                if (loadedPanels.ContainsKey(categoryTag))
-                {
-                    ActionsContentArea.Content = loadedPanels[categoryTag];
-                    ActionsContentArea.IsVisible = true;
-                    ContentScrollViewer.IsVisible = false;
-                    TestingContentArea.IsVisible = false;
-                    ScheduleInputColorRefresh();
-                    return;
-                }
-                
-                var actionsPanel = new ActionsSettingsPanel();
-                loadedPanels[categoryTag] = actionsPanel;
-                ActionsContentArea.Content = actionsPanel;
-                ActionsContentArea.IsVisible = true;
-                ContentScrollViewer.IsVisible = false;
-                TestingContentArea.IsVisible = false;
-                
-                Dispatcher.UIThread.Post(() =>
-                {
-                    InitializePanelHandlers(categoryTag, actionsPanel);
-                    ScheduleInputColorRefresh();
-                }, DispatcherPriority.Background);
-                return;
-            }
+            var contentArea = SettingsPanelCatalog.GetContentArea(categoryTag);
 
-            // Text Animation — pinned live preview; only the form scrolls.
-            if (categoryTag == "TextAnimation")
-            {
-                if (loadedPanels.ContainsKey(categoryTag))
-                {
-                    TextAnimationContentArea.Content = loadedPanels[categoryTag];
-                    TextAnimationContentArea.IsVisible = true;
-                    ContentScrollViewer.IsVisible = false;
-                    TestingContentArea.IsVisible = false;
-                    ActionsContentArea.IsVisible = false;
-                    ItemGenerationContentArea.IsVisible = false;
-                    ScheduleInputColorRefresh();
-                    return;
-                }
-
-                var textAnimPanel = new TextAnimationPresetsSettingsPanel();
-                loadedPanels[categoryTag] = textAnimPanel;
-                TextAnimationContentArea.Content = textAnimPanel;
-                TextAnimationContentArea.IsVisible = true;
-                ContentScrollViewer.IsVisible = false;
-                TestingContentArea.IsVisible = false;
-                ActionsContentArea.IsVisible = false;
-                ItemGenerationContentArea.IsVisible = false;
-
-                Dispatcher.UIThread.Post(() =>
-                {
-                    InitializePanelHandlers(categoryTag, textAnimPanel);
-                    ScheduleInputColorRefresh();
-                }, DispatcherPriority.Background);
-                return;
-            }
-
-            // Item Generation panel - use separate content area so the generated list scrolls
-            // while the "Selected Item" details remain visible (avoid parent ScrollViewer measuring with infinite height).
-            if (categoryTag == "ItemGeneration")
-            {
-                if (loadedPanels.ContainsKey(categoryTag))
-                {
-                    ItemGenerationContentArea.Content = loadedPanels[categoryTag];
-                    ItemGenerationContentArea.IsVisible = true;
-                    ContentScrollViewer.IsVisible = false;
-                    TestingContentArea.IsVisible = false;
-                    ActionsContentArea.IsVisible = false;
-                    TextAnimationContentArea.IsVisible = false;
-                    ScheduleInputColorRefresh();
-                    return;
-                }
-
-                var itemGenPanel = new ItemGenerationSettingsPanel();
-                loadedPanels[categoryTag] = itemGenPanel;
-                ItemGenerationContentArea.Content = itemGenPanel;
-                ItemGenerationContentArea.IsVisible = true;
-                ContentScrollViewer.IsVisible = false;
-                TestingContentArea.IsVisible = false;
-                ActionsContentArea.IsVisible = false;
-                TextAnimationContentArea.IsVisible = false;
-
-                Dispatcher.UIThread.Post(() =>
-                {
-                    InitializePanelHandlers(categoryTag, itemGenPanel);
-                    ScheduleInputColorRefresh();
-                }, DispatcherPriority.Background);
-                return;
-            }
-            
-            // For all other panels, use the regular content area with ScrollViewer
-            TestingContentArea.IsVisible = false;
-            ActionsContentArea.IsVisible = false;
-            ItemGenerationContentArea.IsVisible = false;
-            TextAnimationContentArea.IsVisible = false;
-            ContentScrollViewer.IsVisible = true;
-            
-            // Check if panel is already loaded (e.g. user switched away and back)
             if (loadedPanels.ContainsKey(categoryTag))
             {
-                var cachedPanel = loadedPanels[categoryTag];
-                ContentArea.Content = cachedPanel;
+                var cached = loadedPanels[categoryTag];
+                ShowPanelInContentArea(contentArea, cached);
+                panelHandlerRegistry?.GetHandler(categoryTag)?.LoadSettings(cached);
                 ScheduleInputColorRefresh();
                 return;
             }
-            
-            // Create panel on-demand (lazy loading) from catalog
-            UserControl? panel = SettingsPanelCatalog.CreatePanel(categoryTag);
-            if (panel != null)
+
+            var panel = SettingsPanelCatalog.CreatePanel(categoryTag);
+            if (panel == null) return;
+
+            loadedPanels[categoryTag] = panel;
+            ShowPanelInContentArea(contentArea, panel);
+
+            Dispatcher.UIThread.Post(() =>
             {
-                loadedPanels[categoryTag] = panel;
-                ContentArea.Content = panel;
-                Dispatcher.UIThread.Post(() =>
-                {
-                    InitializePanelHandlers(categoryTag, panel);
-                    ScheduleInputColorRefresh();
-                }, DispatcherPriority.Loaded);
+                InitializePanelHandlers(categoryTag, panel);
+                ScheduleInputColorRefresh();
+            }, contentArea == SettingsContentArea.MainScroll ? DispatcherPriority.Loaded : DispatcherPriority.Background);
+        }
+
+        private void ShowPanelInContentArea(SettingsContentArea contentArea, UserControl panel)
+        {
+            ContentScrollViewer.IsVisible = contentArea == SettingsContentArea.MainScroll;
+            ActionsContentArea.IsVisible = contentArea == SettingsContentArea.Actions;
+            TestingContentArea.IsVisible = contentArea == SettingsContentArea.Testing;
+            TextAnimationContentArea.IsVisible = contentArea == SettingsContentArea.TextAnimation;
+            ItemGenerationContentArea.IsVisible = contentArea == SettingsContentArea.ItemGeneration;
+
+            switch (contentArea)
+            {
+                case SettingsContentArea.Actions:
+                    ActionsContentArea.Content = panel;
+                    break;
+                case SettingsContentArea.Testing:
+                    TestingContentArea.Content = panel;
+                    break;
+                case SettingsContentArea.TextAnimation:
+                    TextAnimationContentArea.Content = panel;
+                    break;
+                case SettingsContentArea.ItemGeneration:
+                    ItemGenerationContentArea.Content = panel;
+                    break;
+                default:
+                    ContentArea.Content = panel;
+                    ConstrainMainScrollContentWidth();
+                    break;
             }
         }
         
@@ -445,32 +424,8 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>Returns the category tag for a panel type (e.g. GameplaySettingsPanel -> "Gameplay"). Used by GetPanelForCategory.</summary>
-        internal static string? GetCategoryTagForPanel(UserControl? panel)
-        {
-            if (panel == null) return null;
-            if (panel is GameplaySettingsPanel) return "Gameplay";
-            if (panel is PatchesSettingsPanel) return "Patches";
-            if (panel is TravelSettingsPanel) return "Travel";
-            if (panel is AudioSettingsPanel) return "Audio";
-            if (panel is ClassesSettingsPanel) return "Classes";
-            if (panel is GameVariablesSettingsPanel) return "GameVariables";
-            if (panel is TextDelaysSettingsPanel) return "TextDelays";
-            if (panel is TextAnimationPresetsSettingsPanel) return "TextAnimation";
-            if (panel is AppearanceSettingsPanel) return "Appearance";
-            if (panel is TestingSettingsPanel) return "Testing";
-            if (panel is ActionsSettingsPanel) return "Actions";
-            if (panel is StatusEffectsSettingsPanel) return "StatusEffects";
-            if (panel is ItemModifiersSettingsPanel) return "ItemPrefixes";
-            if (panel is ItemSuffixesSettingsPanel) return "ItemSuffixes";
-            if (panel is ItemsSettingsPanel) return "Items";
-            if (panel is ItemGenerationSettingsPanel) return "ItemGeneration";
-            if (panel is EnemiesSettingsPanel) return "Enemies";
-            if (panel is EnemyTuningSettingsPanel) return "EnemyTuning";
-            if (panel is BalanceTuningSettingsPanel) return "BalanceTuning";
-            if (panel is ActionInteractionLabSettingsPanel) return "ActionInteractionLab";
-            if (panel is AboutSettingsPanel) return "About";
-            return null;
-        }
+        internal static string? GetCategoryTagForPanel(UserControl? panel) =>
+            SettingsPanelCatalog.GetTagForPanel(panel);
 
         public void SetBackCallback(System.Action callback)
         {
@@ -518,9 +473,6 @@ namespace RPGGame.UI.Avalonia
 
             if (panelHandlerRegistry != null && !panelHandlerRegistry.HasHandler("BalanceTuning"))
                 panelHandlerRegistry.Register(new BalanceTuningPanelHandler(canvasUI, () => RefreshSettingsFromFile()));
-
-            if (panelHandlerRegistry != null && !panelHandlerRegistry.HasHandler("ActionInteractionLab"))
-                panelHandlerRegistry.Register(new ActionInteractionLabPanelHandler(canvasUI));
             
             // Set state manager on GameplayPanelHandler so it can clear in-memory player when clearing saved characters
             if (panelHandlerRegistry != null && stateManager != null)

@@ -42,7 +42,6 @@ namespace RPGGame
                 EnemyArchetype.Warlord => config.ArchetypeConfigs.GetValueOrDefault("Warlord") ?? GetDefaultConfig(),
                 EnemyArchetype.Sage => config.ArchetypeConfigs.GetValueOrDefault("Sage") ?? GetDefaultConfig(),
                 EnemyArchetype.Duelist => config.ArchetypeConfigs.GetValueOrDefault("Duelist") ?? GetDefaultConfig(),
-                EnemyArchetype.Artificer => config.ArchetypeConfigs.GetValueOrDefault("Artificer") ?? GetDefaultConfig(),
                 EnemyArchetype.Trickster => config.ArchetypeConfigs.GetValueOrDefault("Trickster") ?? GetDefaultConfig(),
                 _ => GetDefaultConfig()
             };

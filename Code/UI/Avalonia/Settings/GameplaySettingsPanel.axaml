@@ -4,93 +4,80 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:components="clr-namespace:RPGGame.UI.Avalonia.Components"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
-             x:Class="RPGGame.UI.Avalonia.Settings.GameplaySettingsPanel"
-             Background="Transparent">
+             x:Class="RPGGame.UI.Avalonia.Settings.GameplaySettingsPanel" Classes="settings-ui" Background="Transparent">
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                  HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="20" Margin="20">
             <!-- Gameplay Settings -->
-            <Border Background="#FF252525" 
-                    BorderBrush="#FF404040" 
-                    BorderThickness="1" 
-                    CornerRadius="6" 
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="15">
                     <TextBlock Text="Gameplay Settings" 
-                               FontSize="18" 
-                               FontWeight="SemiBold" 
-                               Foreground="#FFE8E8E8" 
+                               Classes="settings-section-header" 
                                Margin="0,0,0,8"/>
                     <CheckBox x:Name="ShowIndividualActionMessagesCheckBox" 
                               Content="Show Individual Action Messages" 
-                              Foreground="#FFE8E8E8"
+                              Classes="settings-field-label"
                               FontSize="15"
                               IsChecked="False"/>
                     <CheckBox x:Name="FastCombatCheckBox" 
                               Content="Legacy Fast Combat (use Page Up/Page Down for runtime speed)"
-                              Foreground="#FFE8E8E8"
+                              Classes="settings-field-label"
                               FontSize="15"
                               IsChecked="False"/>
                     <CheckBox x:Name="EnableTextDisplayDelaysCheckBox" 
                               Content="Enable Text Display Delays" 
-                              Foreground="#FFE8E8E8"
+                              Classes="settings-field-label"
                               FontSize="15"
                               IsChecked="True"/>
                     <CheckBox x:Name="ShowDetailedStatsCheckBox" 
                               Content="Show Detailed Stats" 
-                              Foreground="#FFE8E8E8"
+                              Classes="settings-field-label"
                               FontSize="15"
                               IsChecked="False"/>
                     <CheckBox x:Name="ShowHealthBarsCheckBox" 
                               Content="Show Health Bars" 
-                              Foreground="#FFE8E8E8"
+                              Classes="settings-field-label"
                               FontSize="15"
                               IsChecked="True"/>
                     <CheckBox x:Name="ShowDamageNumbersCheckBox" 
                               Content="Show Damage Numbers" 
-                              Foreground="#FFE8E8E8"
+                              Classes="settings-field-label"
                               FontSize="15"
                               IsChecked="True"/>
                     <CheckBox x:Name="ShowComboProgressCheckBox" 
                               Content="Show Combo Progress" 
-                              Foreground="#FFE8E8E8"
+                              Classes="settings-field-label"
                               FontSize="15"
                               IsChecked="True"/>
 
                     <TextBlock Text="Combo strip — hit/miss border feedback (milliseconds)"
-                               Foreground="#FFB0B0B0"
+                               Classes="settings-muted"
                                FontSize="13"
                                TextWrapping="Wrap"
                                Margin="0,8,0,0"/>
                     <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" Margin="0,4,0,0">
-                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" FontSize="14" Text="Miss (red) duration" Margin="0,0,12,8"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" FontSize="14" Text="Miss (red) duration" Margin="0,0,12,8"/>
                         <TextBox x:Name="ActionStripMissFlashMsTextBox" Grid.Row="0" Grid.Column="1" Width="120" HorizontalAlignment="Left" Margin="0,0,0,8" Watermark="ms"/>
-                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" FontSize="14" Text="Hit / combo pulse total" Margin="0,0,12,8"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" FontSize="14" Text="Hit / combo pulse total" Margin="0,0,12,8"/>
                         <TextBox x:Name="ActionStripSuccessFlashMsTextBox" Grid.Row="1" Grid.Column="1" Width="120" HorizontalAlignment="Left" Margin="0,0,0,8" Watermark="ms"/>
-                        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" FontSize="14" Text="Hit pulse half-blink" Margin="0,0,12,0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" FontSize="14" Text="Hit pulse half-blink" Margin="0,0,12,0"/>
                         <TextBox x:Name="ActionStripSuccessPulseHalfMsTextBox" Grid.Row="2" Grid.Column="1" Width="120" HorizontalAlignment="Left" Watermark="ms"/>
                     </Grid>
                     <TextBlock Text="Miss pulses red; a normal hit pulses green; completing a multi-step combo (last slot or finisher) pulses gold. Each uses on/off half-blinks; miss uses miss duration, hits use success total."
-                               Foreground="#FF909090"
+                               Classes="settings-muted"
                                FontSize="12"
                                TextWrapping="Wrap"/>
                 </StackPanel>
-            </Border>
+            </StackPanel>
             
             <!-- Save Management -->
-            <Border Background="#FF252525" 
-                    BorderBrush="#FF404040" 
-                    BorderThickness="1" 
-                    CornerRadius="6" 
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="15">
                     <TextBlock Text="Save Management" 
-                               FontSize="18" 
-                               FontWeight="SemiBold" 
-                               Foreground="#FFE8E8E8" 
+                               Classes="settings-section-header" 
                                Margin="0,0,0,8"/>
                     <TextBlock Text="Clear all saved characters. This action cannot be undone." 
-                               Foreground="#FFE8E8E8"
+                               Classes="settings-field-label"
                                FontSize="14"
                                TextWrapping="Wrap"
                                Margin="0,0,0,10"/>
@@ -101,12 +88,11 @@
                             FontSize="15"
                             FontWeight="SemiBold"
                             Background="#FFDC3545"
-                            Foreground="White"
                             BorderThickness="0"
                             CornerRadius="4"
                             HorizontalAlignment="Left"/>
                 </StackPanel>
-            </Border>
+            </StackPanel>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

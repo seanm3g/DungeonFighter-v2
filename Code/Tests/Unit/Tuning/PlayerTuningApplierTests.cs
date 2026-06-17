@@ -20,6 +20,7 @@ namespace RPGGame.Tests.Unit.Tuning
 
             TestComputeMaxHealthFromTuning_UsesPlayerBaseHealthAtLevel1();
             TestApplyToCurrentPlayer_UpdatesMaxHealthAfterTuningChange();
+            TestApplyToCurrentPlayer_UpdatesBaseAttributes();
 
             TestBase.PrintSummary("PlayerTuningApplier Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -61,6 +62,27 @@ namespace RPGGame.Tests.Unit.Tuning
             finally
             {
                 cfg.Character.PlayerBaseHealth = savedBase;
+            }
+        }
+
+        private static void TestApplyToCurrentPlayer_UpdatesBaseAttributes()
+        {
+            Console.WriteLine("--- ApplyToCurrentPlayer updates base attributes from tuning ---");
+            var cfg = GameConfiguration.Instance;
+            var saved = cfg.Attributes.PlayerBaseAttributes.Strength;
+            try
+            {
+                cfg.Attributes.PlayerBaseAttributes.Strength = 7;
+                var character = new Character("TestHero", level: 1);
+                character.Strength = 3;
+
+                cfg.Attributes.PlayerBaseAttributes.Strength = 12;
+                PlayerTuningApplier.ApplyToCurrentPlayer(character);
+                TestBase.AssertEqual(12, character.Strength, "strength reapplied from tuning", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.Attributes.PlayerBaseAttributes.Strength = saved;
             }
         }
     }

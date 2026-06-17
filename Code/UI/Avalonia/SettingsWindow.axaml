@@ -5,55 +5,13 @@
         xmlns:local="clr-namespace:RPGGame.UI.Avalonia"
         mc:Ignorable="d" d:DesignWidth="1728" d:DesignHeight="972"
         x:Class="RPGGame.UI.Avalonia.SettingsWindow"
+        Classes="settings-ui"
         Icon="/UI/Avalonia/Assets/df_icon.ico"
         Title="Game Settings - DungeonFighter v2"
-        Background="#FF1A1A1A"
-        Width="1728" Height="972" MinWidth="1400" MinHeight="800" 
+        Background="{DynamicResource SettingsBackground}"
+        Width="1728" Height="972" MinWidth="1400" MinHeight="800"
         WindowStartupLocation="CenterScreen"
         ShowInTaskbar="True"
         CanResize="True">
-    <Window.Styles>
-        <!-- Aggressive style overrides to force dark background on TextBox -->
-        <!-- Target the TextBox and its internal template parts -->
-        <Style Selector="TextBox">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FF555555"/>
-            <Setter Property="SelectionBrush" Value="#FF0078D4"/>
-            <Setter Property="SelectionForegroundBrush" Value="White"/>
-        </Style>
-        <Style Selector="TextBox:focus">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FF0078D4"/>
-        </Style>
-        <Style Selector="TextBox:pointerover">
-            <Setter Property="Background" Value="#FF353535"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FF555555"/>
-        </Style>
-        <Style Selector="TextBox:pointerover:focus">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FF0078D4"/>
-        </Style>
-        <!-- Target the internal border element that might have white background -->
-        <Style Selector="TextBox /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-        </Style>
-        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-        </Style>
-        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="#FF353535"/>
-        </Style>
-        <Style Selector="TextBox:pointerover:focus /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-        </Style>
-    </Window.Styles>
-    <Grid Background="#FF1A1A1A" x:Name="MainGrid">
-        <!-- SettingsPanel will be added dynamically after window is shown to prevent blocking layout pass -->
-        <!-- Using ContentControl to defer panel creation until after Show() completes -->
-    </Grid>
+    <Grid Background="{DynamicResource SettingsBackground}" x:Name="MainGrid"/>
 </Window>
-

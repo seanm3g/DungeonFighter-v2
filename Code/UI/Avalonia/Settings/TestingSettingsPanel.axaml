@@ -3,19 +3,44 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
-             x:Class="RPGGame.UI.Avalonia.Settings.TestingSettingsPanel"
-             Background="Transparent"
+             x:Class="RPGGame.UI.Avalonia.Settings.TestingSettingsPanel" Classes="settings-ui" Background="Transparent"
              VerticalAlignment="Stretch"
              HorizontalAlignment="Stretch">
     <Grid Margin="20" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+
+        <!-- Action Lab -->
+        <StackPanel Grid.Row="0" Spacing="12" Margin="0,0,0,16" VerticalAlignment="Top">
+            <TextBlock Text="ACTION LAB"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       Foreground="#FFD700"
+                       Margin="0,0,0,5"/>
+            <TextBlock Text="Sandbox combat with catalog enemies and gear. Changes here do not affect your saved character until you apply lab gear from the lab UI."
+                       Classes="settings-muted"
+                       FontSize="13"
+                       TextWrapping="Wrap"
+                       MaxWidth="900"/>
+            <Button x:Name="ActionInteractionLabButton"
+                    Content="Open Action Lab"
+                    Width="280"
+                    Height="40"
+                    Background="#FF6B2C"
+                    Foreground="White"
+                    BorderThickness="0"
+                    CornerRadius="4"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    HorizontalAlignment="Left"/>
+        </StackPanel>
         
         <!-- Game mechanics & reliability - single section -->
-        <StackPanel Grid.Row="0" Spacing="15" Margin="0,0,0,20" VerticalAlignment="Top">
+        <StackPanel Grid.Row="1" Spacing="15" Margin="0,0,0,20" VerticalAlignment="Top">
             <StackPanel Spacing="8">
                 <TextBlock Text="GAME MECHANICS &amp; RELIABILITY" 
                           FontSize="16" 
@@ -24,42 +49,42 @@
                           Margin="0,0,0,5"/>
                 <StackPanel Orientation="Horizontal" Spacing="10">
                     <Button x:Name="TestDiceRollsButton" Content="Dice &amp; rolls" Width="120" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            Background="#FF555555" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                     <Button x:Name="TestCombatButton" Content="Combat" Width="100" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            Background="#FF555555" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                     <Button x:Name="TestStatusEffectsButton" Content="Status effects" Width="130" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            Background="#FF555555" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                     <Button x:Name="TestMultiHitButton" Content="Multi-hit" Width="90" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            Background="#FF555555" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                     <Button x:Name="TestComboButton" Content="Combo" Width="90" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            Background="#FF555555" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                     <Button x:Name="TestActionMechanicsButton" Content="Action mechanics" Width="150" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            Background="#FF555555" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
                     <Button x:Name="TestProgressionButton" Content="Progression (XP / level)" Width="200" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            Background="#FF555555" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                     <Button x:Name="TestDungeonRewardsButton" Content="Dungeon &amp; rewards" Width="180" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            Background="#FF555555" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                     <Button x:Name="TestSaveLoadButton" Content="Save/Load" Width="110" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            Background="#FF555555" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                     <Button x:Name="TestGameplayFlowButton" Content="Gameplay flow" Width="140" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            Background="#FF555555" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                     <Button x:Name="TestAllMechanicsButton" Content="Run all mechanics" Width="160" Height="35"
-                            Background="#FF0078D4" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            Background="#FF0078D4" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                     <Button x:Name="TestClearOutputButton" Content="Clear" Width="80" Height="35"
-                            Background="#FF404040" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            Background="#FF404040" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                 </StackPanel>
                 <!-- Scripts subsection: buttons for each script in Scripts folder -->
@@ -80,7 +105,7 @@
         </StackPanel>
         
         <!-- Test Output -->
-        <ScrollViewer Grid.Row="1"
+        <ScrollViewer Grid.Row="2"
                      VerticalScrollBarVisibility="Auto"
                      HorizontalScrollBarVisibility="Disabled"
                      VerticalAlignment="Stretch"
@@ -91,9 +116,7 @@
                      IsHitTestVisible="False"
                      TextWrapping="Wrap"
                      Background="#FF1A1A1A"
-                     Foreground="White"
                      BorderThickness="1"
-                     BorderBrush="#FF555555"
                      Padding="10"
                      FontFamily="Consolas"
                      FontSize="12"
@@ -102,10 +125,9 @@
         </ScrollViewer>
         
         <!-- Status -->
-        <StackPanel Grid.Row="2" Spacing="10" Margin="0,10,0,0" VerticalAlignment="Bottom">
+        <StackPanel Grid.Row="3" Spacing="10" Margin="0,10,0,0" VerticalAlignment="Bottom">
             <TextBlock x:Name="TestOutputProgressText"
                        Text="Ready"
-                       Foreground="White"
                        FontSize="14"/>
         </StackPanel>
     </Grid>

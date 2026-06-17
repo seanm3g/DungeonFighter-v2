@@ -1,7 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using Avalonia.Media;
+using RPGGame.UI.Avalonia.Resources;
 using System.Collections.Generic;
 
 namespace RPGGame.UI.Avalonia.Components
@@ -29,9 +29,9 @@ namespace RPGGame.UI.Avalonia.Components
             {
                 Content = content,
                 IsChecked = isChecked,
-                Foreground = new SolidColorBrush(Colors.Black),
                 FontSize = 15
             };
+            SettingsInputApplier.ApplyCheckBox(checkBox);
             
             checkBoxes.Add(checkBox);
             CheckBoxContainer.Children.Add(checkBox);

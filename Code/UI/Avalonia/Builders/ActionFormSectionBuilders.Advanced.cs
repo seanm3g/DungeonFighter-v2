@@ -5,6 +5,7 @@ using Avalonia.Media;
 using Avalonia.Input;
 using RPGGame;
 using RPGGame.Editors;
+using RPGGame.UI.Avalonia.Resources;
 using System;
 using System.Collections.Generic;
 
@@ -119,9 +120,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 ItemsSource = ActionFormOptions.StatBonusTypeDropdownOptions,
                 SelectedItem = entry.Type,
                 FontSize = 14,
-                Background = new SolidColorBrush(Color.FromRgb(26, 26, 26)),
-                Foreground = new SolidColorBrush(Colors.White),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                Background = SettingsThemeBrushes.InputBackground, Foreground = SettingsThemeBrushes.TextPrimary, BorderBrush = SettingsThemeBrushes.InputBorder
             };
             typeCombo.SelectionChanged += (s, e) =>
             {
@@ -183,9 +182,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 ItemsSource = ActionFormOptions.ChainPositionBonusTargetOptions,
                 SelectedItem = string.IsNullOrEmpty(entry.ModifiesParam) ? ActionFormOptions.ChainPositionBonusTargetOptions[0] : entry.ModifiesParam,
                 FontSize = 13,
-                Background = new SolidColorBrush(Color.FromRgb(26, 26, 26)),
-                Foreground = new SolidColorBrush(Colors.White),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                Background = SettingsThemeBrushes.InputBackground, Foreground = SettingsThemeBrushes.TextPrimary, BorderBrush = SettingsThemeBrushes.InputBorder
             };
             paramCombo.SelectionChanged += (s, e) =>
             {
@@ -200,9 +197,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 ItemsSource = ActionFormOptions.ChainPositionValueKindOptions,
                 SelectedItem = string.IsNullOrEmpty(entry.ValueKind) ? "#" : entry.ValueKind,
                 FontSize = 13,
-                Background = new SolidColorBrush(Color.FromRgb(26, 26, 26)),
-                Foreground = new SolidColorBrush(Colors.White),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                Background = SettingsThemeBrushes.InputBackground, Foreground = SettingsThemeBrushes.TextPrimary, BorderBrush = SettingsThemeBrushes.InputBorder
             };
             kindCombo.SelectionChanged += (s, e) =>
             {
@@ -217,9 +212,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 ItemsSource = ActionFormOptions.ChainPositionBasisOptions,
                 SelectedItem = string.IsNullOrEmpty(entry.PositionBasis) ? ActionFormOptions.ChainPositionBasisOptions[0] : entry.PositionBasis,
                 FontSize = 12,
-                Background = new SolidColorBrush(Color.FromRgb(26, 26, 26)),
-                Foreground = new SolidColorBrush(Colors.White),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                Background = SettingsThemeBrushes.InputBackground, Foreground = SettingsThemeBrushes.TextPrimary, BorderBrush = SettingsThemeBrushes.InputBorder
             };
             basisCombo.SelectionChanged += (s, e) =>
             {

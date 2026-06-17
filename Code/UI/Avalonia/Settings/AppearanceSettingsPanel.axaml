@@ -4,35 +4,28 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:settings="clr-namespace:RPGGame.UI.Avalonia.Settings"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
-             x:Class="RPGGame.UI.Avalonia.Settings.AppearanceSettingsPanel"
-             Background="Transparent">
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                 HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Spacing="12" Margin="20">
-            
-            <!-- UI Colors Section -->
-            <Expander Header="UI Colors (Settings Panel)"
-                     IsExpanded="True"
-                     Margin="0,0,0,8">
-                <Border Background="White" 
-                        BorderBrush="#FF404040" 
-                        BorderThickness="1" 
-                        CornerRadius="6" 
-                        Padding="14"
-                        Margin="8,8,0,8">
-                    <StackPanel Spacing="12">
+             x:Class="RPGGame.UI.Avalonia.Settings.AppearanceSettingsPanel" Classes="settings-ui" Background="Transparent">
+    <TabControl x:Name="AppearanceTabControl">
+        <TabItem Header="Settings UI">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="12" Margin="20">
+                    <TextBlock Text="Colors for the settings window chrome (sidebar, title, buttons, and inputs)."
+                               Classes="settings-muted"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,4"/>
                         <!-- Panel Colors -->
                         <StackPanel Spacing="8">
                             <TextBlock Text="Panel Colors" 
                                        FontSize="17" 
                                        FontWeight="SemiBold" 
-                                       Foreground="Black" 
+                                       Classes="settings-field-label" 
                                        Margin="0,0,0,6"/>
                             <UniformGrid Columns="3" Rows="1">
                                 <!-- Panel Background -->
                                 <StackPanel Spacing="5" Margin="0,0,12,0">
                                     <TextBlock Text="Panel Background:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -43,9 +36,6 @@
                                         <TextBox x:Name="PanelBackgroundTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -57,7 +47,6 @@
                                                 Width="55"
                                                 Height="28"
                                                 Background="White"
-                                                BorderBrush="#FF555555"
                                                 BorderThickness="1"
                                                 VerticalAlignment="Center"/>
                                     </Grid>
@@ -66,7 +55,7 @@
                                 <!-- Panel Border -->
                                 <StackPanel Spacing="5" Margin="0,0,12,0">
                                     <TextBlock Text="Panel Border:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -77,9 +66,6 @@
                                         <TextBox x:Name="PanelBorderTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -100,7 +86,7 @@
                                 <!-- Panel Text -->
                                 <StackPanel Spacing="5">
                                     <TextBlock Text="Panel Text:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -111,9 +97,6 @@
                                         <TextBox x:Name="PanelTextTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -125,11 +108,10 @@
                                                 Width="55"
                                                 Height="28"
                                                 Background="Black"
-                                                BorderBrush="#FF555555"
                                                 BorderThickness="1"
                                                 VerticalAlignment="Center">
                                             <TextBlock Text="Aa" 
-                                                       Foreground="Black"
+                                                       Classes="settings-field-label"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        FontSize="14"
@@ -148,13 +130,13 @@
                             <TextBlock Text="Settings Window Colors" 
                                        FontSize="17" 
                                        FontWeight="SemiBold" 
-                                       Foreground="Black" 
+                                       Classes="settings-field-label" 
                                        Margin="0,0,0,6"/>
                             <UniformGrid Columns="2" Rows="1">
                                 <!-- Window Background -->
                                 <StackPanel Spacing="5" Margin="0,0,12,0">
                                     <TextBlock Text="Window Background:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -165,9 +147,6 @@
                                         <TextBox x:Name="SettingsBackgroundTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -179,7 +158,6 @@
                                                 Width="55"
                                                 Height="28"
                                                 Background="#FF1A1A1A"
-                                                BorderBrush="#FF555555"
                                                 BorderThickness="1"
                                                 VerticalAlignment="Center"/>
                                     </Grid>
@@ -188,7 +166,7 @@
                                 <!-- Title Color -->
                                 <StackPanel Spacing="5">
                                     <TextBlock Text="Title Color:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -199,9 +177,6 @@
                                         <TextBox x:Name="SettingsTitleTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -213,7 +188,6 @@
                                                 Width="55"
                                                 Height="28"
                                                 Background="Transparent"
-                                                BorderBrush="#FF555555"
                                                 BorderThickness="1"
                                                 VerticalAlignment="Center">
                                             <TextBlock Text="Title" 
@@ -236,13 +210,13 @@
                             <TextBlock Text="Navigation List Colors" 
                                        FontSize="17" 
                                        FontWeight="SemiBold" 
-                                       Foreground="Black" 
+                                       Classes="settings-field-label" 
                                        Margin="0,0,0,6"/>
                             <UniformGrid Columns="3" Rows="1">
                                 <!-- Selected Text -->
                                 <StackPanel Spacing="5" Margin="0,0,12,0">
                                     <TextBlock Text="Selected Text:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -253,9 +227,6 @@
                                         <TextBox x:Name="ListBoxSelectedTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -267,7 +238,6 @@
                                                 Width="55"
                                                 Height="28"
                                                 Background="Transparent"
-                                                BorderBrush="#FF555555"
                                                 BorderThickness="1"
                                                 VerticalAlignment="Center">
                                             <TextBlock Text="Selected" 
@@ -283,7 +253,7 @@
                                 <!-- Selected Background -->
                                 <StackPanel Spacing="5" Margin="0,0,12,0">
                                     <TextBlock Text="Selected Background:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -294,9 +264,6 @@
                                         <TextBox x:Name="ListBoxSelectedBackgroundTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -307,8 +274,6 @@
                                                 Grid.Column="1"
                                                 Width="55"
                                                 Height="28"
-                                                Background="#FF2A2A2A"
-                                                BorderBrush="#FF555555"
                                                 BorderThickness="1"
                                                 VerticalAlignment="Center"/>
                                     </Grid>
@@ -317,7 +282,7 @@
                                 <!-- Hover Background -->
                                 <StackPanel Spacing="5">
                                     <TextBlock Text="Hover Background:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -328,9 +293,6 @@
                                         <TextBox x:Name="ListBoxHoverBackgroundTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -342,7 +304,6 @@
                                                 Width="55"
                                                 Height="28"
                                                 Background="#FF353535"
-                                                BorderBrush="#FF555555"
                                                 BorderThickness="1"
                                                 VerticalAlignment="Center"/>
                                     </Grid>
@@ -358,13 +319,13 @@
                             <TextBlock Text="Text Input Colors" 
                                        FontSize="17" 
                                        FontWeight="SemiBold" 
-                                       Foreground="Black" 
+                                       Classes="settings-field-label" 
                                        Margin="0,0,0,6"/>
                             <UniformGrid Columns="3" Rows="2">
                                 <!-- Text Color -->
                                 <StackPanel Spacing="5" Margin="0,0,12,10">
                                     <TextBlock Text="Text Color:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -375,9 +336,6 @@
                                         <TextBox x:Name="TextBoxTextColorTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -391,7 +349,6 @@
                                                 Width="55"
                                                 Height="28"
                                                 Background="Transparent"
-                                                BorderBrush="#FF555555"
                                                 BorderThickness="1"
                                                 VerticalAlignment="Center">
                                             <TextBlock Text="Aa" 
@@ -407,7 +364,7 @@
                                 <!-- Background -->
                                 <StackPanel Spacing="5" Margin="0,0,12,10">
                                     <TextBlock Text="Background:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -418,9 +375,6 @@
                                         <TextBox x:Name="TextBoxBackgroundTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -431,8 +385,6 @@
                                                 Grid.Column="1"
                                                 Width="55"
                                                 Height="28"
-                                                Background="#FF2A2A2A"
-                                                BorderBrush="#FF555555"
                                                 BorderThickness="1"
                                                 VerticalAlignment="Center"/>
                                     </Grid>
@@ -441,7 +393,7 @@
                                 <!-- Hover Background -->
                                 <StackPanel Spacing="5" Margin="0,0,0,10">
                                     <TextBlock Text="Hover Background:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -452,9 +404,6 @@
                                         <TextBox x:Name="TextBoxHoverBackgroundTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -466,7 +415,6 @@
                                                 Width="55"
                                                 Height="28"
                                                 Background="#FF353535"
-                                                BorderBrush="#FF555555"
                                                 BorderThickness="1"
                                                 VerticalAlignment="Center"/>
                                     </Grid>
@@ -475,7 +423,7 @@
                                 <!-- Border Color -->
                                 <StackPanel Spacing="5" Margin="0,0,12,0">
                                     <TextBlock Text="Border Color:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -486,9 +434,6 @@
                                         <TextBox x:Name="TextBoxBorderTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -500,7 +445,6 @@
                                                 Width="55"
                                                 Height="28"
                                                 Background="Transparent"
-                                                BorderBrush="#FF555555"
                                                 BorderThickness="2"
                                                 VerticalAlignment="Center"/>
                                     </Grid>
@@ -509,7 +453,7 @@
                                 <!-- Focus Border -->
                                 <StackPanel Spacing="5" Margin="0,0,12,0">
                                     <TextBlock Text="Focus Border:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -520,9 +464,6 @@
                                         <TextBox x:Name="TextBoxFocusBorderTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -553,13 +494,13 @@
                             <TextBlock Text="Button Colors" 
                                        FontSize="17" 
                                        FontWeight="SemiBold" 
-                                       Foreground="Black" 
+                                       Classes="settings-field-label" 
                                        Margin="0,0,0,6"/>
                             <UniformGrid Columns="3" Rows="1">
                                 <!-- Primary Button -->
                                 <StackPanel Spacing="5" Margin="0,0,12,0">
                                     <TextBlock Text="Primary Button:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -570,9 +511,6 @@
                                         <TextBox x:Name="ButtonPrimaryTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -584,7 +522,6 @@
                                                 Width="55"
                                                 Height="28"
                                                 Background="#FF0078D4"
-                                                BorderBrush="#FF555555"
                                                 BorderThickness="1"
                                                 VerticalAlignment="Center"/>
                                     </Grid>
@@ -593,7 +530,7 @@
                                 <!-- Secondary Button -->
                                 <StackPanel Spacing="5" Margin="0,0,12,0">
                                     <TextBlock Text="Secondary Button:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -604,9 +541,6 @@
                                         <TextBox x:Name="ButtonSecondaryTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -618,7 +552,6 @@
                                                 Width="55"
                                                 Height="28"
                                                 Background="#FF555555"
-                                                BorderBrush="#FF555555"
                                                 BorderThickness="1"
                                                 VerticalAlignment="Center"/>
                                     </Grid>
@@ -627,7 +560,7 @@
                                 <!-- Back Button -->
                                 <StackPanel Spacing="5">
                                     <TextBlock Text="Back Button:" 
-                                               Foreground="Black" 
+                                               Classes="settings-field-label" 
                                                FontSize="14"
                                                Margin="0,0,0,4"/>
                                     <Grid>
@@ -638,9 +571,6 @@
                                         <TextBox x:Name="ButtonBackTextBox" 
                                                  Grid.Column="0"
                                                  Height="28"
-                                                 Background="#FF2A2A2A"
-                                                 Foreground="White"
-                                                 BorderBrush="#FF555555"
                                                  BorderThickness="1"
                                                  Padding="6,4"
                                                  FontSize="14"
@@ -652,58 +582,49 @@
                                                 Width="55"
                                                 Height="28"
                                                 Background="#FF404040"
-                                                BorderBrush="#FF555555"
                                                 BorderThickness="1"
                                                 VerticalAlignment="Center"/>
                                     </Grid>
                                 </StackPanel>
                             </UniformGrid>
                         </StackPanel>
-                    </StackPanel>
-                </Border>
-            </Expander>
-            
-            <!-- Game Text Colors Section (Color Codes) -->
-            <Expander Header="Game Text Colors (Color Codes)"
-                     IsExpanded="False"
-                     Margin="0,0,0,8">
-                <settings:ColorCodesSettingsPanel Margin="8,8,0,8"/>
-            </Expander>
-            
-            <!-- Color Templates Section -->
-            <Expander Header="Color Templates"
-                     IsExpanded="False"
-                     Margin="0,0,0,8">
-                <settings:ColorTemplatesSettingsPanel Margin="8,8,0,8"/>
-            </Expander>
-            
-            <!-- Keyword Colors Section -->
-            <Expander Header="Keyword Colors"
-                     IsExpanded="False"
-                     Margin="0,0,0,8">
-                <settings:KeywordGroupsSettingsPanel Margin="8,8,0,8"/>
-            </Expander>
-            
-            <!-- Combat Text Appearance Section -->
-            <Expander Header="Combat Text Appearance"
-                     IsExpanded="False"
-                     Margin="0,0,0,8">
-                <Border Background="White" 
-                        BorderBrush="#FF404040" 
-                        BorderThickness="1" 
-                        CornerRadius="6" 
-                        Padding="14"
-                        Margin="8,8,0,8">
-                    <StackPanel Spacing="12">
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+
+        <TabItem Header="Color Codes">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Disabled">
+                <settings:ColorCodesSettingsPanel Margin="20"/>
+            </ScrollViewer>
+        </TabItem>
+
+        <TabItem Header="Templates">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Disabled">
+                <settings:ColorTemplatesSettingsPanel Margin="20"/>
+            </ScrollViewer>
+        </TabItem>
+
+        <TabItem Header="Keywords">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Disabled">
+                <settings:KeywordGroupsSettingsPanel Margin="20"/>
+            </ScrollViewer>
+        </TabItem>
+
+        <TabItem Header="Combat Text">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="12" Margin="20">
                         <StackPanel Spacing="8">
                             <TextBlock Text="Subsequent Line Darkening" 
                                        FontSize="17" 
                                        FontWeight="SemiBold" 
-                                       Foreground="Black" 
+                                       Classes="settings-field-label" 
                                        Margin="0,0,0,6"/>
                             <TextBlock Text="Controls how much darker subsequent lines (roll info, status effects) appear compared to the primary action line. Lower values = darker, higher values = brighter. Default: 0.8 (20% darker)" 
-                                       FontSize="12" 
-                                       Foreground="#FF666666" 
+                                       Classes="settings-muted"
                                        TextWrapping="Wrap"
                                        Margin="0,0,0,12"/>
                             <Grid>
@@ -724,9 +645,6 @@
                                 <TextBox x:Name="SubsequentLineDarkeningTextBox"
                                          Grid.Column="1"
                                          Height="28"
-                                         Background="#FF2A2A2A"
-                                         Foreground="White"
-                                         BorderBrush="#FF555555"
                                          BorderThickness="1"
                                          Padding="6,4"
                                          FontSize="14"
@@ -735,8 +653,7 @@
                                          Text="0.8"/>
                                 <TextBlock Grid.Column="2"
                                            Text="(0.0-1.0)"
-                                           FontSize="12"
-                                           Foreground="#FF666666"
+                                           Classes="settings-muted"
                                            VerticalAlignment="Center"/>
                             </Grid>
                         </StackPanel>
@@ -747,7 +664,7 @@
                             <TextBlock Text="Animated text brightness (canvas)"
                                        FontSize="17"
                                        FontWeight="SemiBold"
-                                       Foreground="Black"
+                                       Classes="settings-field-label"
                                        Margin="0,0,0,6"/>
                             <TextBlock Text="Bounds HSV Value (0–255 scale, V = max RGB / 255) for shimmering / undulating canvas text — hue and saturation stay the same; only Value is raised or capped. Higher minimum = brighter floor for dark letters; lower maximum = dimmer peaks."
                                        FontSize="12"
@@ -758,7 +675,7 @@
                                 <TextBlock Grid.Row="0" Grid.Column="0"
                                            Text="Minimum:"
                                            VerticalAlignment="Center"
-                                           Foreground="Black"
+                                           Classes="settings-field-label"
                                            FontSize="14"
                                            Margin="0,0,14,10"/>
                                 <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*,100,50">
@@ -774,9 +691,6 @@
                                     <TextBox x:Name="AnimatedTextBrightnessMinTextBox"
                                              Grid.Column="1"
                                              Height="28"
-                                             Background="#FF2A2A2A"
-                                             Foreground="White"
-                                             BorderBrush="#FF555555"
                                              BorderThickness="1"
                                              Padding="6,4"
                                              FontSize="14"
@@ -792,7 +706,7 @@
                                 <TextBlock Grid.Row="1" Grid.Column="0"
                                            Text="Maximum:"
                                            VerticalAlignment="Center"
-                                           Foreground="Black"
+                                           Classes="settings-field-label"
                                            FontSize="14"
                                            Margin="0,0,14,0"/>
                                 <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*,100,50">
@@ -808,9 +722,6 @@
                                     <TextBox x:Name="AnimatedTextBrightnessMaxTextBox"
                                              Grid.Column="1"
                                              Height="28"
-                                             Background="#FF2A2A2A"
-                                             Foreground="White"
-                                             BorderBrush="#FF555555"
                                              BorderThickness="1"
                                              Padding="6,4"
                                              FontSize="14"
@@ -825,10 +736,8 @@
                                 </Grid>
                             </Grid>
                         </StackPanel>
-                    </StackPanel>
-                </Border>
-            </Expander>
-            
-        </StackPanel>
-    </ScrollViewer>
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+    </TabControl>
 </UserControl>

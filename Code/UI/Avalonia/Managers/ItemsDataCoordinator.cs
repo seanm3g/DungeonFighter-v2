@@ -98,7 +98,10 @@ namespace RPGGame.UI.Avalonia.Managers
             var weapons = new ObservableCollection<ItemViewModel>();
             var originalWeapons = new Dictionary<string, WeaponData>();
 
-            foreach (var weapon in weaponsData.OrderBy(w => w.Tier).ThenBy(w => w.Name))
+            foreach (var weapon in weaponsData
+                         .OrderBy(w => JsonArraySheetConverter.GetWeaponTypeSortRank(w.Type))
+                         .ThenBy(w => w.Tier)
+                         .ThenBy(w => w.Name, StringComparer.OrdinalIgnoreCase))
             {
                 // Store original weapon data
                 originalWeapons[weapon.Name] = weapon;
@@ -135,7 +138,10 @@ namespace RPGGame.UI.Avalonia.Managers
             var armor = new ObservableCollection<ItemViewModel>();
             var originalArmor = new Dictionary<string, ArmorData>();
 
-            foreach (var armorItem in armorData.OrderBy(a => a.Tier).ThenBy(a => a.Name))
+            foreach (var armorItem in armorData
+                         .OrderBy(a => JsonArraySheetConverter.GetArmorSlotSortRank(a.Slot))
+                         .ThenBy(a => a.Tier)
+                         .ThenBy(a => a.Name, StringComparer.OrdinalIgnoreCase))
             {
                 // Store original armor data
                 originalArmor[armorItem.Name] = armorItem;

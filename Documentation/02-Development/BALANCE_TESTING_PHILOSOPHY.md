@@ -278,6 +278,7 @@ Always compare results:
 
 ### Available Tools
 
+- **Settings → Combat tuning**: Layered sliders (duration, win rate, roll feel, combo, goals) wired to `TuningConfig.json` / `GameSettings`, plus in-panel quick simulation (win rate, turns, CV, quality score)
 - **Balance Tuning Console**: Real-time variable adjustment
 - **Matchup Analyzer**: Comprehensive weapon vs enemy analysis
 - **Balance Validator**: Automated validation checks

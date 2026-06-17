@@ -5,6 +5,7 @@ using Avalonia.Media;
 using Avalonia.Input;
 using RPGGame;
 using RPGGame.Editors;
+using RPGGame.UI.Avalonia.Resources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 Text = "Per [accumulation]: modify [param] by [value]. E.g. +5 Damage for each Hits landed.",
                 FontSize = 12,
-                Foreground = new SolidColorBrush(Color.FromRgb(180, 180, 200)),
+                Foreground = SettingsThemeBrushes.TextMuted,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 8)
             });
@@ -72,9 +73,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 ItemsSource = ActionFormOptions.AccumulationTypeOptions.Select(x => x.Label).ToList(),
                 SelectedItem = ActionFormOptions.AccumulationTypeOptions.FirstOrDefault(x => string.Equals(x.Type, entry.Type, StringComparison.OrdinalIgnoreCase)).Label ?? entry.Type,
                 FontSize = 14,
-                Background = new SolidColorBrush(Color.FromRgb(26, 26, 26)),
-                Foreground = new SolidColorBrush(Colors.White),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                Background = SettingsThemeBrushes.InputBackground, Foreground = SettingsThemeBrushes.TextPrimary, BorderBrush = SettingsThemeBrushes.InputBorder
             };
             typeCombo.SelectionChanged += (s, e) =>
             {
@@ -93,9 +92,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 ItemsSource = ActionFormOptions.AccumulationModifiesOptions,
                 SelectedItem = string.IsNullOrEmpty(entry.ModifiesParam) || Array.IndexOf(ActionFormOptions.AccumulationModifiesOptions, entry.ModifiesParam) < 0 ? "Damage" : entry.ModifiesParam,
                 FontSize = 14,
-                Background = new SolidColorBrush(Color.FromRgb(26, 26, 26)),
-                Foreground = new SolidColorBrush(Colors.White),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                Background = SettingsThemeBrushes.InputBackground, Foreground = SettingsThemeBrushes.TextPrimary, BorderBrush = SettingsThemeBrushes.InputBorder
             };
             modifiesCombo.SelectionChanged += (s, e) =>
             {
@@ -126,9 +123,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 ItemsSource = ActionFormOptions.ThresholdValueKindOptions,
                 SelectedItem = string.IsNullOrEmpty(entry.ValueKind) ? "#" : (Array.IndexOf(ActionFormOptions.ThresholdValueKindOptions, entry.ValueKind) >= 0 ? entry.ValueKind : "#"),
                 FontSize = 14,
-                Background = new SolidColorBrush(Color.FromRgb(26, 26, 26)),
-                Foreground = new SolidColorBrush(Colors.White),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                Background = SettingsThemeBrushes.InputBackground, Foreground = SettingsThemeBrushes.TextPrimary, BorderBrush = SettingsThemeBrushes.InputBorder
             };
             valueKindCombo.SelectionChanged += (s, e) =>
             {

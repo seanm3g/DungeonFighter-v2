@@ -92,6 +92,12 @@ namespace RPGGame.Data.Validation
                     result.AddWarning(FileName, entityName, "tags", message);
             }
 
+            if (room.UnstableThresholdMod != 0 && room.UnstableThresholdMod is not (4 or -2 or 2 or 0))
+            {
+                result.AddWarning(FileName, entityName, "unstableThresholdMod",
+                    $"Unstable threshold mod '{room.UnstableThresholdMod}' is non-standard (expected 4, -2, 2, or 0).");
+            }
+
             if (room.Enemies != null && room.Enemies.Count > 0)
             {
                 foreach (var enemyEntry in room.Enemies)

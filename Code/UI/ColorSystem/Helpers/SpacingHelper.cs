@@ -9,6 +9,16 @@ namespace RPGGame.UI.ColorSystem.Helpers
     /// </summary>
     internal static class SpacingHelper
     {
+        private static ColoredText WithText(ColoredText segment, string text) =>
+            new ColoredText(text, segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas);
+
+        private static ColoredText MergeText(ColoredText left, ColoredText right, string combinedText) =>
+            new ColoredText(
+                combinedText,
+                left.Color,
+                left.SourceTemplate ?? right.SourceTemplate,
+                left.ColorReadyForCanvas && right.ColorReadyForCanvas);
+
         /// <summary>
         /// Processes segments with spacing and merging logic.
         /// Preserves internal spaces in text segments (e.g., "═══ ENTERING DUNGEON ═══" stays intact).
@@ -77,7 +87,7 @@ namespace RPGGame.UI.ColorSystem.Helpers
                             result.Add(currentSegment);
                             result.Add(new ColoredText(CombatLogSpacingManager.SingleSpace, Colors.White));
                             previousWasSpace = true;
-                            currentSegment = new ColoredText(processedText, segment.Color);
+                            currentSegment = WithText(segment, processedText);
                             continue;
                         }
                     }
@@ -90,14 +100,14 @@ namespace RPGGame.UI.ColorSystem.Helpers
                     // Whitespace-only segment - add it separately
                     if (currentSegment != null)
                         result.Add(currentSegment);
-                    result.Add(new ColoredText(processedText, segment.Color));
+                    result.Add(WithText(segment, processedText));
                     currentSegment = null;
                     previousWasSpace = true;
                 }
                 else if (currentSegment == null)
                 {
                     // First non-whitespace segment
-                    currentSegment = new ColoredText(processedText, segment.Color);
+                    currentSegment = WithText(segment, processedText);
                     previousWasSpace = false;
                 }
                 else if (ColorValidator.AreColorsEqual(currentSegment.Color, segment.Color))
@@ -112,7 +122,7 @@ namespace RPGGame.UI.ColorSystem.Helpers
                     if (currentEndsWithSpace || nextStartsWithSpace)
                     {
                         // One or both segments already have whitespace - just concatenate
-                        currentSegment = new ColoredText(currentSegment.Text + processedText, currentSegment.Color);
+                        currentSegment = MergeText(currentSegment, segment, currentSegment.Text + processedText);
                     }
                     else
                     {
@@ -121,11 +131,14 @@ namespace RPGGame.UI.ColorSystem.Helpers
                         bool needsSpaceBetween = CombatLogSpacingManager.ShouldAddSpaceBetween(currentSegment.Text, processedText, checkWordBoundary: true);
                         if (needsSpaceBetween)
                         {
-                            currentSegment = new ColoredText(currentSegment.Text + CombatLogSpacingManager.SingleSpace + processedText, currentSegment.Color);
+                            currentSegment = MergeText(
+                                currentSegment,
+                                segment,
+                                currentSegment.Text + CombatLogSpacingManager.SingleSpace + processedText);
                         }
                         else
                         {
-                            currentSegment = new ColoredText(currentSegment.Text + processedText, currentSegment.Color);
+                            currentSegment = MergeText(currentSegment, segment, currentSegment.Text + processedText);
                         }
                     }
                     previousWasSpace = false;
@@ -138,7 +151,7 @@ namespace RPGGame.UI.ColorSystem.Helpers
                     bool currentEndsWithWhitespace = currentSegment.Text.Length > 0 && 
                                                      char.IsWhiteSpace(currentSegment.Text[currentSegment.Text.Length - 1]);
                     result.Add(currentSegment);
-                    currentSegment = new ColoredText(processedText, segment.Color);
+                    currentSegment = WithText(segment, processedText);
                     // Set previousWasSpace based on whether current segment ended with whitespace
                     previousWasSpace = currentEndsWithWhitespace;
                 }

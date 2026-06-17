@@ -210,7 +210,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                             ActionLabEncounterSimulator.RunBatchAsync(snapshot, n, Random.Shared, maxDegreeOfParallelism: dop))
                         .ConfigureAwait(true);
                     session.RecordEncounterSimulationTurns(report);
-                    string body = ActionLabEncounterSimulator.FormatReportText(report, snapshot);
+                    string body = ActionLabEncounterReportFormatter.FormatReportText(report, snapshot);
                     // End busy state before the modal so the footer does not still show "Running…" behind it.
                     session.SetEncounterSimulationRunning(false);
                     canvasUI.RenderCombat(session.LabPlayer, session.LabEnemy, new List<string>());

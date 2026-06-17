@@ -109,10 +109,38 @@ namespace RPGGame
         /// </summary>
         public string? SelectArmorAction()
         {
+            var tagBased = GetTagBasedItemActions();
+            if (tagBased.Count > 0)
+                return tagBased[_random.Next(tagBased.Count)];
+
             if (_tables.ArmorActions.Count == 0)
                 return null;
 
             return SelectByWeight(_tables.ArmorActions);
+        }
+
+        private List<string> GetTagBasedItemActions()
+        {
+            return ActionLoader.GetAllActionData()
+                .Where(a => a.Tags != null &&
+                            GameDataTagHelper.HasItemPoolTag(a.Tags) &&
+                            GameDataTagHelper.IsGrantableOnHeroGear(a.Tags) &&
+                            !a.Tags.Any(t => string.Equals(t, "unique", StringComparison.OrdinalIgnoreCase)))
+                .Select(a => a.Name)
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .ToList();
+        }
+
+        private List<string> GetTagBasedClassActions()
+        {
+            return ActionLoader.GetAllActionData()
+                .Where(a => a.Tags != null &&
+                            GameDataTagHelper.HasActionPoolTag(a.Tags) &&
+                            GameDataTagHelper.IsGrantableOnHeroGear(a.Tags) &&
+                            !a.Tags.Any(t => string.Equals(t, "unique", StringComparison.OrdinalIgnoreCase)))
+                .Select(a => a.Name)
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .ToList();
         }
 
         /// <summary>
@@ -131,6 +159,13 @@ namespace RPGGame
 
             // Include armor actions
             allActions.AddRange(_tables.ArmorActions);
+
+            // Include generic action-pool tagged actions
+            foreach (var name in GetTagBasedClassActions())
+            {
+                if (!allActions.Any(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase)))
+                    allActions.Add(new ActionTableEntry { Name = name, Weight = 5 });
+            }
 
             if (allActions.Count > 0)
             {

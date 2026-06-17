@@ -11,70 +11,29 @@ ROOT = Path(__file__).resolve().parents[1]
 ACTIONS_PATH = ROOT / "GameData" / "Actions.json"
 CLASS_ACTIONS_PATH = ROOT / "GameData" / "ClassActions.json"
 
-VALID_TAGS = frozenset(
-    {
-        "environment",
-        "enemy",
-        "weapon",
-        "class",
-        "unique",
-        "starter",
-        "modtrade",
-        "warrior",
-        "barbarian",
-        "rogue",
-        "wizard",
-        "sword",
-        "mace",
-        "dagger",
-        "wand",
-        "common",
-        "uncommon",
-        "rare",
-        "epic",
-        "legendary",
-        "mythic",
-        "fire",
-        "earth",
-        "water",
-        "air",
-        "scorched",
-        "flooded",
-        "overgrown",
-        "exposed",
-    }
-)
+VALID_TAGS = frozenset({
+    "environment", "enemy", "weapon", "class", "item", "action", "unique", "starter", "modtrade",
+    "warrior", "barbarian", "rogue", "wizard",
+    "sword", "mace", "dagger", "wand",
+    "common", "uncommon", "rare", "epic", "legendary", "mythic",
+    "fire", "earth", "water", "air",
+    "scorched", "flooded", "overgrown", "exposed",
+    "required", "opener", "finisher",
+    "swift", "bludgeon", "focus", "insight",
+    "confidence", "footwork", "target", "aim",
+    "weapon_basic",
+})
 
 TAG_ORDER = [
-    "environment",
-    "enemy",
-    "weapon",
-    "class",
-    "modtrade",
-    "unique",
-    "starter",
-    "warrior",
-    "barbarian",
-    "rogue",
-    "wizard",
-    "sword",
-    "mace",
-    "dagger",
-    "wand",
-    "common",
-    "uncommon",
-    "rare",
-    "epic",
-    "legendary",
-    "mythic",
-    "fire",
-    "earth",
-    "water",
-    "air",
-    "scorched",
-    "flooded",
-    "overgrown",
-    "exposed",
+    "environment", "enemy", "weapon", "class", "item", "action", "modtrade", "unique", "starter",
+    "required", "opener", "finisher",
+    "warrior", "barbarian", "rogue", "wizard",
+    "sword", "mace", "dagger", "wand",
+    "common", "uncommon", "rare", "epic", "legendary", "mythic",
+    "swift", "bludgeon", "focus", "insight",
+    "confidence", "footwork", "target", "aim",
+    "fire", "earth", "water", "air",
+    "scorched", "flooded", "overgrown", "exposed",
 ]
 
 CLASS_BY_CATEGORY = {
@@ -84,7 +43,6 @@ CLASS_BY_CATEGORY = {
     "WIZARD": "wizard",
 }
 
-# ClassActions.json classKey values that map to hero class pool tags (not weapon-path tier names).
 PRIMARY_CLASS_KEYS = frozenset({"barbarian", "warrior", "rogue", "wizard"})
 
 WEAPON_TYPE_BY_ACTION = {
@@ -92,6 +50,7 @@ WEAPON_TYPE_BY_ACTION = {
     "STAB": "dagger",
     "SLAM": "mace",
     "MAGIC MISSILE": "wand",
+    "CAST": "wand",
 }
 
 ENV_PREFIX_TAGS: dict[str, list[str]] = {
@@ -103,71 +62,15 @@ ENV_PREFIX_TAGS: dict[str, list[str]] = {
     "DESERT": ["earth", "scorched"],
     "ICE": ["water", "exposed"],
     "RUINS": ["exposed"],
-    "CASTLE": ["earth", "exposed"],
-    "GRAVEYARD": ["exposed"],
-    "TREASURE": ["earth", "exposed"],
-    "GUARD": ["earth", "exposed"],
-    "TRAP": ["earth", "exposed"],
-    "BOSS": ["earth", "exposed"],
-    "ARMORY": ["earth", "exposed"],
-    "KITCHEN": ["earth", "exposed"],
-    "DINING": ["earth", "exposed"],
-    "LIBRARY": ["earth", "exposed"],
-    "STORAGE": ["earth", "exposed"],
-    "REST": ["earth", "exposed"],
-    "PUZZLE": ["earth", "exposed"],
-    "CHAMBER": ["earth", "exposed"],
-    "HALL": ["earth", "exposed"],
-    "VAULT": ["earth", "exposed"],
-    "SHRINE": ["exposed"],
-    "SANCTUM": ["exposed"],
-    "THRONE": ["earth", "exposed"],
-    "CATACOMB": ["exposed"],
-    "GROTTO": ["earth", "exposed"],
-    "OBSERVATORY": ["air", "exposed"],
-    "LABORATORY": ["earth", "exposed"],
-    "GENERIC": ["exposed"],
 }
 
-FIRE_RE = re.compile(
-    r"\b(fire|lava|magma|flame|burn|ignite|ember|ash|scorch|heat|solar|pyre|"
-    r"volcanic|torch|sacred flame|meteor|hellfire|inferno|cinder)\b",
-    re.I,
-)
-EARTH_RE = re.compile(
-    r"\b(stone|rock|sand|dune|cave|cavern|crypt|tomb|burial|bone|earth|"
-    r"crystal|geode|gear|clockwork|pillar|stalactite|rockfall|avalanche|"
-    r"quake|mud|spike|portcullis|barricade|collapse|debris|ruin|castle|"
-    r"armory|trap|guard|treasure|kitchen|dining|library|storage|mace|slam)\b",
-    re.I,
-)
-WATER_RE = re.compile(
-    r"\b(water|ice|frost|frozen|blizzard|glacial|ocean|tidal|coral|abyssal|"
-    r"swamp|bog|marsh|flood|miasma|quicksand|bogsink|spring|leech|drown|"
-    r"poison pool|toxic pool|healing waters)\b",
-    re.I,
-)
-AIR_RE = re.compile(
-    r"\b(wind|storm|thunder|lightning|tempest|hurricane|cosmic|stellar|"
-    r"nebula|galaxy|gravity|mirage|bat swarm|sandstorm|gust|howl|zephyr|"
-    r"divine|celestial|heavenly|void|shadow|arcane|magic missile|wand)\b",
-    re.I,
-)
-SCORCHED_RE = re.compile(r"\b(scorch|desert|dune|heatwave|lava|magma|volcanic|ash)\b", re.I)
-FLOODED_RE = re.compile(r"\b(swamp|bog|marsh|flood|underwater|ocean|miasma|quicksand|bogsink)\b", re.I)
-OVERGROWN_RE = re.compile(
-    r"\b(forest|grove|vine|thorn|branch|meadow|wildflower|nature|pollen|canopy)\b",
-    re.I,
-)
-EXPOSED_RE = re.compile(
-    r"\b(crypt|tomb|shadow|void|darkness|ruin|exposed|curse|necrotic|"
-    r"ancient|magical barrier|puzzle|chamber|sanctum)\b",
-    re.I,
-)
+FIRE_RE = re.compile(r"\b(fire|lava|magma|flame|burn|scorch|ember|ash)\b", re.I)
+EARTH_RE = re.compile(r"\b(stone|rock|sand|earth|cave|crypt|mace|slam)\b", re.I)
+WATER_RE = re.compile(r"\b(water|ice|swamp|flood|miasma)\b", re.I)
+AIR_RE = re.compile(r"\b(wind|storm|arcane|magic|wand)\b", re.I)
 
 
 def load_class_action_map() -> dict[str, set[str]]:
-    """Action name -> primary class tags (warrior/rogue/wizard/barbarian) from class deck rules."""
     data = json.loads(CLASS_ACTIONS_PATH.read_text(encoding="utf-8"))
     out: dict[str, set[str]] = {}
     for rule in data.get("rules", []):
@@ -213,14 +116,6 @@ def infer_match_tags(text: str) -> list[str]:
         tags.append("water")
     if AIR_RE.search(text):
         tags.append("air")
-    if SCORCHED_RE.search(text):
-        tags.append("scorched")
-    if FLOODED_RE.search(text):
-        tags.append("flooded")
-    if OVERGROWN_RE.search(text):
-        tags.append("overgrown")
-    if EXPOSED_RE.search(text) or not tags:
-        tags.append("exposed")
     return tags
 
 
@@ -231,17 +126,32 @@ def env_prefix_tags(action_name: str) -> list[str]:
     return list(ENV_PREFIX_TAGS.get(prefix, []))
 
 
-def status_effect_hints(action: dict) -> list[str]:
-    hints: list[str] = []
-    if action.get("burn"):
-        hints.append("fire")
-    if action.get("poison"):
-        hints.append("water")
-    if action.get("bleed"):
-        hints.append("earth")
-    if action.get("slow") and "ice" not in hints:
-        hints.append("water")
-    return hints
+def infer_structured_tags(action: dict) -> list[str]:
+    tags: list[str] = []
+    if str(action.get("opener", "")).strip().lower() in ("true", "1", "yes"):
+        tags.append("opener")
+    if str(action.get("finisher", "")).strip().lower() in ("true", "1", "yes"):
+        tags.append("finisher")
+    if "weapon_basic" in parse_tags_field(action.get("tags")):
+        tags.append("required")
+    if action.get("speedMod"):
+        tags.append("swift")
+    if action.get("damageMod"):
+        tags.append("bludgeon")
+    if action.get("ampMod"):
+        tags.append("focus")
+    if action.get("heroAccuracy") or action.get("focus"):
+        tags.append("insight")
+    for field, tag in (
+        ("heroHit", "footwork"),
+        ("heroCombo", "target"),
+        ("heroCrit", "aim"),
+        ("heroCritMiss", "confidence"),
+    ):
+        val = action.get(field)
+        if val not in (None, "", "0", 0):
+            tags.append(tag)
+    return tags
 
 
 def infer_tags(action: dict, class_map: dict[str, set[str]]) -> list[str]:
@@ -253,53 +163,46 @@ def infer_tags(action: dict, class_map: dict[str, set[str]]) -> list[str]:
 
     existing = parse_tags_field(action.get("tags"))
     tags: list[str] = []
-    for preserved in ("unique", "starter"):
+    for preserved in ("unique", "starter", "modtrade", "required", "opener", "finisher"):
         if preserved in existing:
             tags.append(preserved)
 
     if category == "ENVIRONMENT":
-        if "environment" not in tags:
-            tags.append("environment")
+        tags.append("environment")
         tags.extend(env_prefix_tags(name))
         tags.extend(infer_match_tags(text))
     elif category == "ENEMY":
-        if "enemy" not in tags:
-            tags.append("enemy")
-        tags.extend(status_effect_hints(action))
+        tags.append("enemy")
         tags.extend(infer_match_tags(text))
     elif category == "ModTrade":
-        if "modtrade" not in tags:
-            tags.append("modtrade")
+        tags.append("modtrade")
     elif category == "WEAPON":
-        if "weapon" not in tags:
-            tags.append("weapon")
+        tags.append("weapon")
         weapon_type = WEAPON_TYPE_BY_ACTION.get(name.upper())
         if weapon_type:
             tags.append(weapon_type)
     elif category in CLASS_BY_CATEGORY:
-        if "class" not in tags:
-            tags.append("class")
-        class_tag = CLASS_BY_CATEGORY[category]
-        if class_tag not in tags:
-            tags.append(class_tag)
+        tags.append("class")
+        tags.append("action")
+        tags.append(CLASS_BY_CATEGORY[category])
+    elif category == "ARMOR" or category == "ITEM":
+        tags.append("item")
+        tags.append("action")
     else:
         class_keys = class_map.get(name, set())
         if class_keys:
-            if "class" not in tags:
-                tags.append("class")
+            tags.append("class")
+            tags.append("action")
             tags.extend(sorted(class_keys))
-        elif category == "" and rarity in VALID_TAGS:
-            if "class" not in tags:
-                tags.append("class")
-            if rarity not in tags:
-                tags.append(rarity)
         elif category == "":
-            if "class" not in tags:
-                tags.append("class")
+            tags.append("action")
 
-    if rarity and rarity in VALID_TAGS and rarity not in tags and category not in CLASS_BY_CATEGORY:
+    tags.extend(infer_structured_tags(action))
+
+    if rarity and rarity in VALID_TAGS and rarity not in tags:
         tags.append(rarity)
 
+    tags.extend(infer_match_tags(text))
     return ordered_unique(tags)
 
 

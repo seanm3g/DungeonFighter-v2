@@ -4,8 +4,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia;
 using RPGGame.Editors;
-using System;
-using System.Collections.Generic;
+using RPGGame.UI.Avalonia.Resources;
 
 namespace RPGGame.UI.Avalonia.Builders
 {
@@ -26,9 +25,7 @@ namespace RPGGame.UI.Avalonia.Builders
             var container = new Border
             {
                 Background = Brushes.Transparent,
-                BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85)),
-                BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(2),
+                BorderThickness = new Thickness(0),
                 Padding = new Thickness(4, 2),
                 Margin = new Thickness(0, 0, 0, 1)
             };
@@ -47,7 +44,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 Text = variable.Name,
                 FontSize = 16,
                 FontWeight = FontWeight.Bold,
-                Foreground = Brushes.White,
+                Foreground = SettingsThemeBrushes.TextPrimary,
                 Margin = new Thickness(0, 0, 0, 2)
             };
             Grid.SetColumn(nameText, 0);
@@ -60,7 +57,7 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 Text = variable.Description,
                 FontSize = 14,
-                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                Foreground = SettingsThemeBrushes.TextMuted,
                 Margin = new Thickness(0, 0, 0, 4),
                 TextWrapping = TextWrapping.Wrap
             };
@@ -74,7 +71,7 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 Text = "Value:",
                 FontSize = 15,
-                Foreground = Brushes.White,
+                Foreground = SettingsThemeBrushes.TextPrimary,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(0, 0, 4, 0)
             };
@@ -87,15 +84,13 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 Text = variable.GetValue()?.ToString() ?? "",
                 FontSize = 14,
-                Background = Brushes.White,
-                Foreground = Brushes.Black,
-                BorderBrush = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
                 BorderThickness = new Thickness(1),
                 Padding = new Thickness(4, 2),
                 VerticalAlignment = VerticalAlignment.Center,
                 Height = 26,
                 Watermark = "Enter value..."
             };
+            SettingsInputApplier.ApplyTextBox(valueTextBox);
             
             // Set appropriate input type
             var valueType = variable.GetValueType();

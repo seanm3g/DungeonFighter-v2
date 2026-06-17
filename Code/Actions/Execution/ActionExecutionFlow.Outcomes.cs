@@ -1,6 +1,7 @@
 using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.Actions.RollModification;
+using RPGGame.Combat;
 using RPGGame.Combat.Events;
 using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.Utils;
@@ -204,6 +205,9 @@ namespace RPGGame.Actions.Execution
                 enemyModSource.Effects.AddModifierBonusesFromAction(selected, nextSlotForEnemyAbility, useEnemySpreadsheetMods: true);
             }
             CombatEffectsSimplified.ApplyStatusEffects(selected, source, target, result.StatusEffectMessages, hitEvent);
+
+            if (source is Character mechanicHero && mechanicHero is not Enemy)
+                ActionMechanicTagProcessor.QueueNextActionBonuses(mechanicHero, selected);
 
             if (selected.Name == "FOLLOW THROUGH" && source is Character followThroughCharacter && !(followThroughCharacter is Enemy))
             {

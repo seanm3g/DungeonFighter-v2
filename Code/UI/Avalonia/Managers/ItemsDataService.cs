@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using RPGGame;
+using RPGGame.Data;
 
 namespace RPGGame.UI.Avalonia.Managers
 {
@@ -64,6 +66,12 @@ namespace RPGGame.UI.Avalonia.Managers
                 string? filePath = JsonLoader.FindGameDataFile("Weapons.json");
                 if (filePath != null)
                 {
+                    weapons = weapons
+                        .OrderBy(w => JsonArraySheetConverter.GetWeaponTypeSortRank(w.Type))
+                        .ThenBy(w => w.Tier)
+                        .ThenBy(w => w.Name, StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+
                     // Use camelCase to match original format
                     var options = new JsonSerializerOptions
                     {
@@ -96,6 +104,12 @@ namespace RPGGame.UI.Avalonia.Managers
                 string? filePath = JsonLoader.FindGameDataFile("Armor.json");
                 if (filePath != null)
                 {
+                    armor = armor
+                        .OrderBy(a => JsonArraySheetConverter.GetArmorSlotSortRank(a.Slot))
+                        .ThenBy(a => a.Tier)
+                        .ThenBy(a => a.Name, StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+
                     // Use camelCase to match original format
                     var options = new JsonSerializerOptions
                     {

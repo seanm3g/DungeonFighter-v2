@@ -167,7 +167,7 @@ namespace RPGGame.BattleStatistics
                             {
                                 ScrollDebugLogger.Log($"WeaponTestRunner: Battle {i + 1}/{battlesPerCombination} starting: {weaponType} vs {enemyType}");
 
-                                var battleResult = await BattleExecutor.RunSingleBattleWithWeapon(weaponType, enemyType, playerLevel, enemyLevel, i);
+                                var battleResult = await BattleExecutor.RunSingleBattleWithWeapon(weaponType, enemyType, playerLevel, enemyLevel, i).ConfigureAwait(false);
 
                                 var battleDuration = (DateTime.Now - battleStartTime).TotalSeconds;
                                 completedBattles++;

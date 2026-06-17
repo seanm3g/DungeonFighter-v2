@@ -32,28 +32,53 @@ SettingsPanel (UI)
 - **File**: `Code/UI/Avalonia/SettingsPanel.axaml` / `SettingsPanel.axaml.cs`
 - **Responsibility**: Main UI container with category list and content areas
 - **Content areas**: Main (ContentScrollViewer), Testing, Actions (separate areas for layout)
-- **Panel creation**: Uses `SettingsPanelCatalog.CreatePanel(categoryTag)` for main-area panels; explicit branches for Testing and Actions
+- **Panel creation**: `SettingsPanelCatalog.CreatePanel(categoryTag)`; content host chosen from descriptor `ContentArea`
 - **Panel resolution**: `GetPanelForCategory(categoryTag, currentlyDisplayed)` returns the displayed panel if it matches the tag, else the cached panel from `loadedPanels`. Passed to the orchestrator as `GetPanelForCategoryResolver` so save uses a single resolution path.
 - **Initializers**: Table-driven `panelInitializers` (category → action) and `PanelInitializerContext` replace the long switch in `InitializePanelHandlers`; adding a new tab is "add to catalog + add initializer."
 - **Save flow**: Resolves currently displayed panel, calls `SettingsSaveOrchestrator.SaveSettings(displayed)`, then `SettingsApplyService.ApplyAfterSave(result, gameStateManager)` when save succeeds. No duplicate "apply to game" on window close.
 
 #### 2. SettingsPanelCatalog
 - **File**: `Code/UI/Avalonia/Managers/Settings/SettingsPanelCatalog.cs`
-- **Responsibility**: Single mapping from category tag to panel type for the main content area
-- **Categories**: Gameplay, GameVariables, StatusEffects, TextDelays, Appearance, ItemModifiers, Items, BalanceTuning, About
-- **Testing and Actions** use different content areas and are not created via the catalog
+- **Responsibility**: Single registry: sidebar labels, panel factories, content-area routing, save metadata, sidebar grouping
+- **Descriptors**: `SettingsPanelDescriptor` entries in `AllPanels` (Tag, DisplayName, Factory, `SettingsContentArea`, PanelType, UsesHandler, UsesTabManager, SavesViaHandler, **SidebarGroup**, **Order**)
+- **Sidebar groups**: `SettingsSidebarGroups` — Player Settings, Developer Settings, Balance & Tuning, Testing, About (About has no header)
+- **Content areas**: `MainScroll`, `Actions`, `Testing`, `ItemGeneration` — `LoadCategoryPanel` routes by descriptor
+- **Handler save order**: `HandlerSaveCategoryTags` (ItemGeneration before Classes for balance patch consistency)
+- **Reverse lookup**: `GetTagForPanel(UserControl)` via descriptor `PanelType`
+- **Sidebar order**: `GetPanelsForSidebar()` sorts by group then `Order`
+
+#### Sidebar groups (18 entries)
+
+| Group | Panels |
+|-------|--------|
+| **Player Settings** | Gameplay, Travel, Audio, Text & Animation, Appearance |
+| **Developer Settings** | Game Variables, Actions, Status Effects, Enemies, Items, Item Affixes, Patches, Spreadsheet Import |
+| **Balance & Tuning** | Combat Tuning, Enemy Tuning, Classes, Item Generation |
+| **Testing** | Testing (includes Action Lab launcher) |
+| **About** | About (ungrouped at bottom) |
+
+**Consolidated panels:**
+- `TextAndAnimation` — tab container for Text Delays + Text Animation presets (`TextAndAnimationPanelHandler` delegates to child handlers)
+- `ItemAffixes` — tab container for Item Prefixes + Item Suffixes (`ItemModifiersTabManager` + `ItemSuffixesTabManager`)
+
+**Removed / deprecated:** `DifficultySettingsPanel`, `BattleStatisticsSettingsPanel` (orphan stubs deleted); `ActionInteractionLab` sidebar entry merged into Testing.
+
+#### Settings UI theme
+- **Theme file**: `Code/UI/Avalonia/Resources/SettingsTheme.axaml` (scoped with `settings-ui` class)
+- **Components**: `SettingsPanelRoot`, `SettingsSection`, `SettingsFieldRow`, `SliderWithTextBox`
+- **Guide**: `Documentation/05-Systems/SETTINGS_UI_GUIDE.md`
 
 #### 3. Panel handlers and registry
 - **Interface**: `ISettingsPanelHandler` — `PanelType`, `WireUp(panel)`, `LoadSettings(panel)`, `SaveSettings(panel)`
 - **Registry**: `PanelHandlerRegistry` — register and resolve handler by category tag
-- **Handlers**: GameplayPanelHandler, TextDelaysPanelHandler, AppearancePanelHandler, TestingPanelHandler (no-op save)
+- **Handlers**: GameplayPanelHandler, TextAndAnimationPanelHandler, AppearancePanelHandler, TestingPanelHandler (includes Action Lab), TravelPanelHandler, AudioPanelHandler, CombatTuningPanelHandler, EnemyTuningPanelHandler, etc.
 - **Use**: Orchestrator calls `handler.SaveSettings(panel)` when a panel is loaded; SettingsPanel uses handlers for load and wire-up
 - **Panel load contract**: Load from settings once when the panel is wired (e.g. call `LoadSettings` once from `WireUp`, with a single deferred post if needed for FindControl). Do **not** subscribe to `Loaded` to re-run `LoadSettings`, because `Loaded` can fire again on layout/focus (e.g. when the user clicks Save), which would overwrite user edits or post-save state with stale values. All handlers follow this load-once behavior.
 
 #### 4. SettingsSaveOrchestrator (Persistence coordination)
 - **File**: `Code/UI/Avalonia/Managers/Settings/SettingsSaveOrchestrator.cs`
 - **Responsibility**: Save all loaded panels in a defined order; delegate to handlers or tab managers. Uses a single **panel resolver** (`GetPanelForCategoryResolver`) so "displayed or cached" is resolved in one place (SettingsPanel.GetPanelForCategory).
-- **Save order**: Game Variables → Gameplay (handler or in-memory) → handler categories from `HandlerSaveCategoryTags` (TextDelays, Appearance, Testing) → ItemModifiers → Items → Actions
+- **Save order**: Game Variables → Gameplay (handler) → handler categories from `HandlerSaveCategoryTags` (`Travel`, `TextAndAnimation`, `Appearance`, `BalanceTuning`, `ItemGeneration`, `EnemyTuning`, `CombatTuning`, `Classes`, `Audio`) → ItemModifiers + ItemSuffixes tab managers → Items → Enemies (if loaded) → Actions flush → balance/audio patch dialogs → GameSettings patch
 - **Returns**: `SettingsSaveResult` (Success, ActionsSaved, TextDelaysSaved) so the panel can run post-save apply
 - **Table-driven**: Handler-based categories are in `HandlerSaveCategoryTags`; add a new handler-based panel by registering the handler and adding its tag to that list.
 
@@ -91,8 +116,8 @@ User clicks Save
   → SettingsSaveOrchestrator.SaveSettings(displayedPanel)
       → GameVariablesTabManager.SaveGameVariables()
       → Gameplay: handler.SaveSettings(panel) or settings.SaveSettings()
-      → TextDelays / Appearance / Testing: handler.SaveSettings(panel)
-      → ItemModifiersTabManager, ItemsTabManager
+      → TextAndAnimation / Appearance / balance handlers: handler.SaveSettings(panel)
+      → ItemModifiersTabManager, ItemSuffixesTabManager, ItemsTabManager
       → ActionsTabManager.FlushCurrentActionAndSaveToFile(panel)
   → Returns SettingsSaveResult
   → If result.Success: SettingsApplyService.ApplyAfterSave(result, gameStateManager)
@@ -110,17 +135,27 @@ User clicks Save
 
 ### Panel types and ownership
 
-| Category     | Handler / manager           | Load/Save owner        |
-|-------------|-----------------------------|------------------------|
-| Gameplay    | GameplayPanelHandler        | Handler                |
-| TextDelays  | TextDelaysPanelHandler      | Handler                |
-| Appearance  | AppearancePanelHandler      | Handler                |
-| Testing     | TestingPanelHandler         | Handler (save no-op)   |
-| GameVariables | —                         | GameVariablesTabManager |
-| Actions     | —                           | ActionsTabManager      |
-| ItemModifiers | —                         | ItemModifiersTabManager |
-| Items       | —                           | ItemsTabManager        |
-| StatusEffects, BalanceTuning, About | — | No persist or panel-specific |
+| Category | Group | Handler / manager | Load/Save owner |
+|----------|-------|-------------------|-----------------|
+| Gameplay | Player | GameplayPanelHandler | Handler |
+| Travel | Player | TravelPanelHandler | Handler |
+| Audio | Player | AudioPanelHandler | Handler (audio patch) |
+| TextAndAnimation | Player | TextAndAnimationPanelHandler | Handler (delays + animation presets) |
+| Appearance | Player | AppearancePanelHandler | Handler |
+| GameVariables | Developer | GameVariablesTabManager | Tab manager |
+| Actions | Developer | ActionsTabManager | Tab manager |
+| StatusEffects | Developer | StatusEffectsTabManager | Per-effect save in form |
+| Enemies | Developer | EnemiesTabManager | Tab manager |
+| Items | Developer | ItemsTabManager | Tab manager |
+| ItemAffixes | Developer | ItemModifiersTabManager + ItemSuffixesTabManager | Tab managers |
+| Patches | Developer | PatchesPanelHandler | Apply button (immediate) |
+| BalanceTuning | Developer | BalanceTuningPanelHandler | Handler + sheets |
+| CombatTuning | Balance | CombatTuningPanelHandler | Handler (balance patch) |
+| EnemyTuning | Balance | EnemyTuningPanelHandler | Handler (balance patch) |
+| Classes | Balance | ClassesPanelHandler | Handler (balance patch) |
+| ItemGeneration | Balance | ItemGenerationPanelHandler | Handler (balance patch) |
+| Testing | Testing | TestingPanelHandler | Handler (save no-op; Action Lab wired here) |
+| About | About | — | Read-only |
 
 ### Error handling
 
@@ -143,11 +178,11 @@ Each editable control in a settings panel must be included in that panel's save 
 | Panel | Handler / manager | Persistence | Verified |
 |-------|-------------------|-------------|----------|
 | Gameplay | GameplayPanelHandler: 7 checkboxes | GameSettings | handler.SaveSettings |
-| TextDelays | TextDelaysPanelHandler: checkboxes, all delay TextBoxes, presets | TextDelayConfiguration | BuildControls + SaveTextDelaySettings |
+| TextAndAnimation | TextAndAnimationPanelHandler → TextDelaysPanelHandler + TextAnimationPresetsPanelHandler | TextDelayConfiguration + UIConfiguration | Handler chain |
 | Appearance | AppearancePanelHandler: all color TextBoxes, SubsequentLineDarkening | GameSettings + UIConfiguration.json | SaveSettings + SaveSubsequentLineDarkening |
 | GameVariables | GameVariablesTabManager (VariableEditor) | GameConfiguration | SaveGameVariables |
 | Actions | ActionsTabManager | Actions.json | FlushCurrentActionAndSaveToFile(panel) |
-| ItemModifiers | ItemModifiersTabManager | Modifications.json | SaveModifierRarities |
+| ItemAffixes | ItemModifiersTabManager + ItemSuffixesTabManager | Modifications.json + suffixes data | SaveModifierRarities + SaveSuffixes |
 | Items | ItemsTabManager | Items data files | SaveItems |
 
 When adding a new control, ensure the handler or tab manager's save path includes it.
@@ -159,7 +194,7 @@ When adding a new control, ensure the handler or tab manager's save path include
 3. **Single apply point**: Post-save apply (e.g. action pool refresh) is only in `SettingsApplyService.ApplyAfterSave` when the user clicks Save; duplicate refresh on SettingsWindow close removed.
 4. **Table-driven handler save**: Orchestrator uses `HandlerSaveCategoryTags` for handler-based panels; add a tag to extend without new branches.
 5. **Table-driven initializers**: `panelInitializers` and `PanelInitializerContext` replace the long switch in `InitializePanelHandlers`; new tab = catalog entry + initializer entry.
-6. **Documentation**: This file describes the open contract, single save pipeline (with panel resolution), and single apply point.
+6. **Documentation**: This file describes the open contract, single save pipeline (with panel resolution), grouped sidebar, and single apply point.
 
 ## Future enhancements
 

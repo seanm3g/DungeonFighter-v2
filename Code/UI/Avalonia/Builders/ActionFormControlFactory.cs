@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
 using RPGGame.Editors;
+using RPGGame.UI.Avalonia.Resources;
 using System;
 using System.Collections.Generic;
 
@@ -27,7 +28,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 Text = title,
                 FontSize = 16,
                 FontWeight = FontWeight.SemiBold,
-                Foreground = new SolidColorBrush(Color.FromRgb(255, 215, 0)),
+                Foreground = SettingsThemeBrushes.TextTitle,
                 Margin = new Thickness(0, 0, 0, 10)
             };
             var contentStack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
@@ -36,12 +37,10 @@ namespace RPGGame.UI.Avalonia.Builders
             main.Children.Add(contentStack);
             var section = new Border
             {
-                Background = new SolidColorBrush(Color.FromRgb(40, 40, 60)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(100, 100, 150)),
-                BorderThickness = new Thickness(2),
-                CornerRadius = new CornerRadius(5),
-                Padding = new Thickness(15),
-                Margin = new Thickness(0, 0, 0, 15),
+                Background = SettingsThemeBrushes.Background,
+                BorderThickness = new Thickness(0),
+                Padding = new Thickness(0, 0, 0, 8),
+                Margin = new Thickness(0, 0, 0, 16),
                 Child = main
             };
             return (section, contentStack);
@@ -57,7 +56,7 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 Text = label + ":",
                 FontSize = 15,
-                Foreground = new SolidColorBrush(Colors.White),
+                Foreground = SettingsThemeBrushes.TextPrimary,
                 VerticalAlignment = VerticalAlignment.Center
             };
             Grid.SetColumn(labelBlock, 0);
@@ -70,11 +69,9 @@ namespace RPGGame.UI.Avalonia.Builders
                 {
                     ItemsSource = options,
                     SelectedItem = value,
-                    FontSize = 14,
-                    Background = new SolidColorBrush(Color.FromRgb(26, 26, 26)),
-                    Foreground = new SolidColorBrush(Colors.White),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                    FontSize = 14
                 };
+                SettingsInputApplier.ApplyComboBox(comboBox);
                 comboBox.SelectionChanged += (s, e) =>
                 {
                     if (comboBox.SelectedItem is string selected) setter(selected);
@@ -89,11 +86,9 @@ namespace RPGGame.UI.Avalonia.Builders
                     FontSize = 14,
                     TextWrapping = TextWrapping.Wrap,
                     AcceptsReturn = true,
-                    MinHeight = 80,
-                    Background = new SolidColorBrush(Colors.White),
-                    Foreground = new SolidColorBrush(Colors.Black),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                    MinHeight = 80
                 };
+                SettingsInputApplier.ApplyTextBox(textBox);
                 textBox.LostFocus += (s, e) => setter(textBox.Text ?? "");
                 if (onTextChanged != null)
                     textBox.TextChanged += (s, e) => onTextChanged(textBox.Text ?? "");
@@ -104,11 +99,9 @@ namespace RPGGame.UI.Avalonia.Builders
                 var textBox = new TextBox
                 {
                     Text = value,
-                    FontSize = 14,
-                    Background = new SolidColorBrush(Colors.White),
-                    Foreground = new SolidColorBrush(Colors.Black),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                    FontSize = 14
                 };
+                SettingsInputApplier.ApplyTextBox(textBox);
                 if (!string.IsNullOrEmpty(watermark))
                     textBox.Watermark = watermark;
                 textBox.LostFocus += (s, e) => setter(textBox.Text ?? "");
@@ -125,7 +118,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 {
                     Text = description,
                     FontSize = 12,
-                    Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                    Foreground = SettingsThemeBrushes.TextMuted,
                     TextWrapping = TextWrapping.Wrap,
                     Margin = new Thickness(0, 2, 0, 0)
                 });
@@ -152,7 +145,7 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 Text = label + ":",
                 FontSize = 15,
-                Foreground = new SolidColorBrush(Colors.White),
+                Foreground = SettingsThemeBrushes.TextPrimary,
                 VerticalAlignment = VerticalAlignment.Center
             };
             Grid.SetColumn(labelBlock, 0);

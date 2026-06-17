@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using RPGGame;
+using RPGGame.UI.Avalonia.Resources;
 using System;
 using System.Collections.Generic;
 
@@ -54,14 +55,14 @@ namespace RPGGame.UI.Avalonia.Builders
                 {
                     Text = effectName,
                     Watermark = "Enter status effect name (e.g., Bleed, Burn, Stun)",
-                    Background = new SolidColorBrush(Color.FromRgb(40, 40, 40)),
+                    Background = SettingsThemeBrushes.InputBackground,
                     Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255)),
                     BorderBrush = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
                     Padding = new Thickness(8),
                     Margin = new Thickness(0, 5)
                 };
                 formControls["Name"] = nameField;
-                nameStack.Children.Add(new TextBlock { Text = "Name:", Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)), Margin = new Thickness(0, 0, 0, 3) });
+                nameStack.Children.Add(new TextBlock { Text = "Name:", Foreground = SettingsThemeBrushes.TextMuted, Margin = new Thickness(0, 0, 0, 3) });
                 nameStack.Children.Add(nameField);
             }
             else
@@ -71,7 +72,7 @@ namespace RPGGame.UI.Avalonia.Builders
                     Text = $"Name: {effectName}",
                     FontSize = 14,
                     FontWeight = FontWeight.SemiBold,
-                    Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                    Foreground = SettingsThemeBrushes.TextMuted,
                     Margin = new Thickness(0, 0, 0, 15)
                 };
                 formPanel.Children.Add(nameDisplay);
@@ -114,7 +115,7 @@ namespace RPGGame.UI.Avalonia.Builders
             var labelBlock = new TextBlock
             {
                 Text = label + ":",
-                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                Foreground = SettingsThemeBrushes.TextMuted,
                 Margin = new Thickness(0, 0, 0, 3)
             };
             parent.Children.Add(labelBlock);
@@ -122,7 +123,7 @@ namespace RPGGame.UI.Avalonia.Builders
             var textBox = new TextBox
             {
                 Text = value,
-                Background = new SolidColorBrush(Color.FromRgb(40, 40, 40)),
+                Background = SettingsThemeBrushes.InputBackground,
                 Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255)),
                 BorderBrush = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
                 Padding = new Thickness(8),

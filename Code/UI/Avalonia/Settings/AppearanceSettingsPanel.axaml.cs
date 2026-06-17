@@ -4,10 +4,8 @@ using Avalonia.Markup.Xaml;
 namespace RPGGame.UI.Avalonia.Settings
 {
     /// <summary>
-    /// Main appearance settings panel that composes three specialized panels:
-    /// - ColorCodesSettingsPanel: Manages color codes
-    /// - ColorTemplatesSettingsPanel: Manages color templates
-    /// - KeywordGroupsSettingsPanel: Manages keyword groups
+    /// Appearance settings with tabbed sections: Settings UI chrome, color codes,
+    /// templates, keywords, and combat text appearance.
     /// </summary>
     public partial class AppearanceSettingsPanel : UserControl
     {

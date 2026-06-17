@@ -8,6 +8,7 @@ using Avalonia.Threading;
 using RPGGame;
 using RPGGame.Editors;
 using RPGGame.UI.Avalonia.Builders;
+using RPGGame.UI.Avalonia.Resources;
 using RPGGame.UI.Avalonia.Validators;
 using System;
 using System.Collections.Generic;
@@ -150,22 +151,20 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             var header = new Border
             {
-                Background = new SolidColorBrush(Color.FromRgb(40, 40, 60)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(100, 100, 150)),
-                BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(2),
-                Padding = new Thickness(4, 3),
-                Margin = new Thickness(0, 0, 0, 2)
+                Background = Brushes.Transparent,
+                BorderThickness = new Thickness(0),
+                Padding = new Thickness(0, 0, 0, 8),
+                Margin = new Thickness(0, 0, 0, 8)
             };
             
-            var stack = new StackPanel { Spacing = 2 };
+            var stack = new StackPanel { Spacing = 4 };
             
             var title = new TextBlock
             {
-                Text = $"📊 {category} Parameters",
+                Text = $"{category} Parameters",
                 FontSize = 18,
                 FontWeight = FontWeight.Bold,
-                Foreground = new SolidColorBrush(Color.FromRgb(255, 215, 0))
+                Foreground = SettingsThemeBrushes.TextTitle
             };
             stack.Children.Add(title);
             
@@ -173,7 +172,7 @@ namespace RPGGame.UI.Avalonia.Managers
             {
                 Text = $"{variableCount} parameters available • Each value applies to the game when you leave the field",
                 FontSize = 13,
-                Foreground = new SolidColorBrush(Color.FromRgb(180, 180, 180))
+                Foreground = SettingsThemeBrushes.TextMuted
             };
             stack.Children.Add(info);
             
@@ -276,7 +275,7 @@ namespace RPGGame.UI.Avalonia.Managers
                 {
                     var currentValue = variable.GetValue();
                     textBox.Text = currentValue?.ToString() ?? "";
-                    textBox.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                    SettingsInputApplier.ApplyTextBox(textBox);
                     
                     if (currentValue != null)
                     {

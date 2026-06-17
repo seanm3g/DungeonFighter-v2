@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="200"
-        x:Class="RPGGame.UI.Avalonia.Settings.ConfirmationDialog"
+        x:Class="RPGGame.UI.Avalonia.Settings.ConfirmationDialog" Classes="settings-ui"
         Title="Confirm Action"
         Width="500" Height="200"
         WindowStartupLocation="CenterOwner"
@@ -27,7 +27,6 @@
                    Grid.Row="1"
                    Text="Are you sure?"
                    FontSize="16"
-                   Foreground="White"
                    TextWrapping="Wrap"
                    VerticalAlignment="Center"/>
         
@@ -43,7 +42,6 @@
                     FontSize="15"
                     FontWeight="SemiBold"
                     Background="#FF0078D4"
-                    Foreground="White"
                     BorderThickness="0"
                     CornerRadius="4"/>
             <Button x:Name="NoButton"
@@ -53,7 +51,6 @@
                     FontSize="15"
                     FontWeight="SemiBold"
                     Background="#FF555555"
-                    Foreground="White"
                     BorderThickness="0"
                     CornerRadius="4"/>
         </StackPanel>

@@ -4,42 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:settings="clr-namespace:RPGGame.UI.Avalonia.Settings"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
-             x:Class="RPGGame.UI.Avalonia.Settings.ItemModifiersSettingsPanel"
-             Background="Transparent">
-    <UserControl.Styles>
-        <!-- ComboBox dropdown item styles for better readability -->
-        <Style Selector="ComboBoxItem">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="8,6"/>
-            <Setter Property="FontSize" Value="13"/>
-        </Style>
-        <Style Selector="ComboBoxItem:pointerover">
-            <Setter Property="Background" Value="#FF3A3A3A"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="ComboBoxItem:selected">
-            <Setter Property="Background" Value="#FF4A4A4A"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="ComboBoxItem:selected:pointerover">
-            <Setter Property="Background" Value="#FF5A5A5A"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <!-- Style the popup background -->
-        <Style Selector="ComboBox /template/ Popup#PART_Popup Border">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-        </Style>
-    </UserControl.Styles>
+             x:Class="RPGGame.UI.Avalonia.Settings.ItemModifiersSettingsPanel" Classes="settings-ui" Background="Transparent">
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                  HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="20" Margin="20">
             <!-- Header -->
-            <Border Background="White" 
-                    BorderBrush="#FF404040" 
-                    BorderThickness="1" 
-                    CornerRadius="6" 
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="10">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -48,9 +18,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Spacing="10">
                             <TextBlock Text="Item prefixes" 
-                                       FontSize="20" 
-                                       FontWeight="Bold" 
-                                       Foreground="Black" 
+                                       Classes="settings-panel-title" 
                                        Margin="0,0,0,8"/>
                             <TextBlock FontSize="14" 
                                        Foreground="#FF666666" 
@@ -66,7 +34,6 @@
                                     Width="120"
                                     Height="35"
                                     Background="#FF4CAF50"
-                                    Foreground="White"
                                     BorderThickness="0"
                                     CornerRadius="3"
                                     FontSize="13"
@@ -76,7 +43,6 @@
                                     Width="120"
                                     Height="35"
                                     Background="#FF2196F3"
-                                    Foreground="White"
                                     BorderThickness="0"
                                     CornerRadius="3"
                                     FontSize="13"
@@ -87,7 +53,6 @@
                                     Width="120"
                                     Height="35"
                                     Background="#FFF44336"
-                                    Foreground="White"
                                     BorderThickness="0"
                                     CornerRadius="3"
                                     FontSize="13"
@@ -96,23 +61,15 @@
                         </StackPanel>
                     </Grid>
                 </StackPanel>
-            </Border>
+            </StackPanel>
 
             <!-- Modifiers by Rarity -->
             <ItemsControl x:Name="RarityGroupsItemsControl">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="settings:RarityGroupViewModel">
-                        <Border Background="White" 
-                                BorderBrush="#FF404040" 
-                                BorderThickness="1" 
-                                CornerRadius="6" 
-                                Padding="18"
-                                Margin="0,0,0,15">
-                            <StackPanel Spacing="12">
+                        <StackPanel Spacing="12" Margin="0,0,0,15">
                                 <TextBlock Text="{Binding RarityName}" 
-                                           FontSize="18" 
-                                           FontWeight="SemiBold" 
-                                           Foreground="Black" 
+                                           Classes="settings-section-header" 
                                            Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding Modifiers}">
                                     <ItemsControl.ItemTemplate>
@@ -136,7 +93,7 @@
                                                                Text="{Binding Name}" 
                                                                FontSize="14" 
                                                                FontWeight="SemiBold"
-                                                               Foreground="Black"
+                                                               Classes="settings-field-label"
                                                                VerticalAlignment="Center"
                                                                Margin="0,0,10,0"
                                                                MinWidth="120"/>
@@ -150,22 +107,19 @@
                                                     <TextBlock Grid.Column="2"
                                                                Text="Rarity:" 
                                                                FontSize="13" 
-                                                               Foreground="Black"
+                                                               Classes="settings-field-label"
                                                                VerticalAlignment="Center"
                                                                Margin="0,0,8,0"/>
                                                     <ComboBox Grid.Column="3"
                                                               SelectedItem="{Binding SelectedRarity, Mode=TwoWay}"
                                                               ItemsSource="{Binding AvailableRarities}"
-                                                              Background="#FF2A2A2A"
-                                                              Foreground="White"
-                                                              BorderBrush="#FF555555"
                                                               BorderThickness="1"
                                                               Padding="6,4"
                                                               FontSize="13"
                                                               VerticalAlignment="Center">
                                                         <ComboBox.ItemTemplate>
                                                             <DataTemplate>
-                                                                <TextBlock Text="{Binding}" Foreground="White" FontSize="13"/>
+                                                                <TextBlock Text="{Binding}" FontSize="13"/>
                                                             </DataTemplate>
                                                         </ComboBox.ItemTemplate>
                                                     </ComboBox>
@@ -175,7 +129,6 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </StackPanel>
-                        </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

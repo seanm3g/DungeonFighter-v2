@@ -24,6 +24,7 @@ namespace RPGGame.UI.Avalonia
         public MainWindow()
         {
             InitializeComponent();
+            Opened += OnMainWindowOpened;
             // Tunnel so Ctrl/Cmd+C is handled before focused children; bubble KeyDown on the window often never runs when focus is on the canvas.
             this.AddHandler(InputElement.KeyDownEvent, OnCombatLogCopyKeyDownTunnel, RoutingStrategies.Tunnel);
             this.KeyDown += OnKeyDown;
@@ -40,6 +41,12 @@ namespace RPGGame.UI.Avalonia
             
             // Initialize the game and UI
             InitializeGame();
+        }
+
+        private void OnMainWindowOpened(object? sender, EventArgs e)
+        {
+            Opened -= OnMainWindowOpened;
+            BuildExecutionMetrics.RecordLaunchTime("GUI");
         }
         
         private void InitializeGame()

@@ -1,3 +1,4 @@
+using System;
 using RPGGame.Combat.Calculators;
 
 namespace RPGGame.Tuning
@@ -11,6 +12,8 @@ namespace RPGGame.Tuning
         {
             if (player == null) return;
             ApplyMaxHealthFromTuning(player);
+            ApplyBaseAttributesFromTuning(player);
+            DamageCalculator.InvalidateCache(player);
         }
 
         private static void ApplyMaxHealthFromTuning(Character player)
@@ -22,7 +25,19 @@ namespace RPGGame.Tuning
 
             player.MaxHealth = computedMax;
             player.Health.AdjustHealthForMaxHealthChange(oldEffective, player.GetEffectiveMaxHealth());
-            DamageCalculator.InvalidateCache(player);
+        }
+
+        /// <summary>
+        /// Reapplies player base attributes from tuning config so in-combat damage reflects slider changes.
+        /// Equipment and temporary bonuses remain on top of these bases.
+        /// </summary>
+        private static void ApplyBaseAttributesFromTuning(Character player)
+        {
+            var attrs = GameConfiguration.Instance.Attributes.PlayerBaseAttributes;
+            player.Strength = Math.Max(0, attrs.Strength);
+            player.Agility = Math.Max(0, attrs.Agility);
+            player.Technique = Math.Max(0, attrs.Technique);
+            player.Intelligence = Math.Max(0, attrs.Intelligence);
         }
 
         /// <summary>

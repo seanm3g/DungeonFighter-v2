@@ -4,85 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1728" d:DesignHeight="972"
              x:Class="RPGGame.UI.Avalonia.SettingsPanel"
-             Background="#FF1A1A1A"
+             Classes="settings-ui"
+             Background="{DynamicResource SettingsBackground}"
              HorizontalAlignment="Stretch"
              VerticalAlignment="Stretch">
-    <UserControl.Styles>
-        <!-- Aggressive style overrides to force dark background on TextBox -->
-        <!-- Target the TextBox and its internal template parts -->
-        <Style Selector="TextBox">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FF555555"/>
-            <Setter Property="SelectionBrush" Value="#FF0078D4"/>
-            <Setter Property="SelectionForegroundBrush" Value="White"/>
-        </Style>
-        <Style Selector="TextBox:focus">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FF0078D4"/>
-        </Style>
-        <Style Selector="TextBox:pointerover">
-            <Setter Property="Background" Value="#FF353535"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FF555555"/>
-        </Style>
-        <Style Selector="TextBox:pointerover:focus">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FF0078D4"/>
-        </Style>
-        <!-- Target the internal border element that might have white background -->
-        <Style Selector="TextBox /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-        </Style>
-        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-        </Style>
-        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="#FF353535"/>
-        </Style>
-        <Style Selector="TextBox:pointerover:focus /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-        </Style>
-        <!-- ListBox item styles: each row has its own background so text is legible -->
-        <Style Selector="ListBox#CategoryListBox ListBoxItem">
-            <Setter Property="Background" Value="#FF484848"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="15,12"/>
-            <Setter Property="Margin" Value="0,3"/>
-            <Setter Property="CornerRadius" Value="4"/>
-        </Style>
-        <Style Selector="ListBox#CategoryListBox ListBoxItem ContentPresenter">
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="ListBox#CategoryListBox ListBoxItem:selected">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background" Value="#FF2F65B2"/>
-        </Style>
-        <Style Selector="ListBox#CategoryListBox ListBoxItem:selected ContentPresenter">
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="ListBox#CategoryListBox ListBoxItem:pointerover">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background" Value="#FF5A5A5A"/>
-        </Style>
-        <Style Selector="ListBox#CategoryListBox ListBoxItem:pointerover ContentPresenter">
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <!-- Force white text for string content (TextBlock) inside list items so theme does not override -->
-        <Style Selector="ListBox#CategoryListBox ListBoxItem TextBlock">
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="ListBox#CategoryListBox ListBoxItem:selected TextBlock">
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="ListBox#CategoryListBox ListBoxItem:pointerover TextBlock">
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-    </UserControl.Styles>
     <Grid Margin="20"
           HorizontalAlignment="Stretch"
           VerticalAlignment="Stretch">
@@ -96,100 +21,60 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
-        <!-- Title -->
-        <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0"
-                   Text="GAME SETTINGS" 
-                   FontSize="32" 
-                   FontWeight="Bold" 
-                   Foreground="#FFD700" 
-                   HorizontalAlignment="Center" 
+
+        <TextBlock x:Name="TitleTextBlock"
+                   Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0"
+                   Text="GAME SETTINGS"
+                   Classes="settings-title"
+                   HorizontalAlignment="Center"
                    Margin="0,0,0,20"/>
-        
-        <!-- Category Navigation Sidebar - panel and each row have visible background -->
+
         <Border Grid.Column="0" Grid.Row="1"
-                Background="#FF404040"
+                Background="{DynamicResource SettingsSidebarBackground}"
                 CornerRadius="6"
                 Padding="10,14"
-                BorderBrush="#FF606060"
+                BorderBrush="{DynamicResource SettingsSidebarBorder}"
                 BorderThickness="1">
             <ListBox x:Name="CategoryListBox"
                      Background="Transparent"
                      BorderThickness="0"
                      Foreground="White"
-                     SelectionMode="Single">
-            <ListBoxItem Content="Gameplay" Tag="Gameplay"/>
-            <ListBoxItem Content="Patches" Tag="Patches"/>
-            <ListBoxItem Content="Travel" Tag="Travel"/>
-            <ListBoxItem Content="Audio" Tag="Audio"/>
-            <ListBoxItem Content="Classes" Tag="Classes"/>
-            <ListBoxItem Content="Game Variables" Tag="GameVariables"/>
-            <ListBoxItem Content="Actions" Tag="Actions"/>
-            <ListBoxItem Content="Status Effects" Tag="StatusEffects"/>
-            <ListBoxItem Content="Text Delays" Tag="TextDelays"/>
-            <ListBoxItem Content="Text Animation" Tag="TextAnimation"/>
-            <ListBoxItem Content="Appearance" Tag="Appearance"/>
-            <ListBoxItem Content="Item prefixes" Tag="ItemPrefixes"/>
-            <ListBoxItem Content="Item suffixes" Tag="ItemSuffixes"/>
-            <ListBoxItem Content="Items" Tag="Items"/>
-            <ListBoxItem Content="Item Generation" Tag="ItemGeneration"/>
-            <ListBoxItem Content="Enemies" Tag="Enemies"/>
-            <ListBoxItem Content="Enemy tuning" Tag="EnemyTuning"/>
-            <ListBoxItem Content="Import" Tag="BalanceTuning"/>
-            <ListBoxItem Content="Action Lab" Tag="ActionInteractionLab"/>
-            <ListBoxItem Content="Testing" Tag="Testing"/>
-            <ListBoxItem Content="About" Tag="About"/>
-            </ListBox>
+                     SelectionMode="Single"/>
         </Border>
-        
-        <!-- Content Area with ScrollViewer for regular panels -->
+
         <ScrollViewer x:Name="ContentScrollViewer"
                      Grid.Column="2" Grid.Row="1"
                      VerticalScrollBarVisibility="Auto"
                      HorizontalScrollBarVisibility="Disabled">
             <ContentControl x:Name="ContentArea"
                            HorizontalAlignment="Stretch"
-                           VerticalAlignment="Stretch">
-                <!-- Selected category panel will be displayed here -->
-            </ContentControl>
+                           VerticalAlignment="Stretch"/>
         </ScrollViewer>
-        
-        <!-- Actions panel without parent ScrollViewer (list and form scroll independently) -->
+
         <ContentControl x:Name="ActionsContentArea"
                        Grid.Column="2" Grid.Row="1"
                        HorizontalAlignment="Stretch"
                        VerticalAlignment="Stretch"
-                       IsVisible="False">
-            <!-- Actions panel will be displayed here -->
-        </ContentControl>
-        
-        <!-- Content Area without ScrollViewer for Testing panel (handles its own scrolling) -->
+                       IsVisible="False"/>
+
         <ContentControl x:Name="TestingContentArea"
                        Grid.Column="2" Grid.Row="1"
                        HorizontalAlignment="Stretch"
                        VerticalAlignment="Stretch"
-                       IsVisible="False">
-            <!-- Testing panel will be displayed here without parent ScrollViewer -->
-        </ContentControl>
+                       IsVisible="False"/>
 
-        <!-- Content Area without parent ScrollViewer for Item Generation (needs fixed Selected Item panel) -->
         <ContentControl x:Name="ItemGenerationContentArea"
                        Grid.Column="2" Grid.Row="1"
                        HorizontalAlignment="Stretch"
                        VerticalAlignment="Stretch"
-                       IsVisible="False">
-            <!-- Item Generation panel will be displayed here without parent ScrollViewer -->
-        </ContentControl>
+                       IsVisible="False"/>
 
-        <!-- Text Animation panel — pinned live preview; form scrolls independently -->
         <ContentControl x:Name="TextAnimationContentArea"
                        Grid.Column="2" Grid.Row="1"
                        HorizontalAlignment="Stretch"
                        VerticalAlignment="Stretch"
-                       IsVisible="False">
-        </ContentControl>
-        
-        <!-- Action Buttons -->
+                       IsVisible="False"/>
+
         <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"

@@ -176,7 +176,7 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(!double.IsNaN(report.StdDevTurns) && report.StdDevTurns >= 0, "StdDevTurns valid", ref run, ref passed, ref failed);
             TestBase.AssertTrue(report.MedianPlayerDamage >= 0, "MedianPlayerDamage non-negative", ref run, ref passed, ref failed);
             TestBase.AssertTrue(report.SimulationWallElapsed > TimeSpan.Zero, "batch records simulation wall time", ref run, ref passed, ref failed);
-            string text = ActionLabEncounterSimulator.FormatReportText(report, snapshot);
+            string text = ActionLabEncounterReportFormatter.FormatReportText(report, snapshot);
             TestBase.AssertTrue(text.Contains("Forced catalog action:", StringComparison.Ordinal), "report has setup header", ref run, ref passed, ref failed);
             TestBase.AssertTrue(text.Contains("Player combo chains", StringComparison.Ordinal), "report includes combo chain section", ref run, ref passed, ref failed);
             TestBase.AssertTrue(text.Contains("Mean longest chain per encounter:", StringComparison.Ordinal), "report includes mean longest combo chain", ref run, ref passed, ref failed);

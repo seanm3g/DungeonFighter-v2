@@ -7,7 +7,7 @@
     "damage": "33%",
     "speed": "0.50",
     "target": "ENEMY",
-    "tags": "class, warrior, rogue, wizard"
+    "tags": "class, action, warrior, rogue, wizard"
   },
   {
     "action": "PUNCH HARD",
@@ -16,7 +16,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "class, barbarian"
+    "tags": "class, action, barbarian"
   },
   {
     "action": "PUNCH HARDER",
@@ -27,7 +27,7 @@
     "speed": "1.00",
     "heroCrit": "1",
     "target": "ENEMY",
-    "tags": "class, barbarian"
+    "tags": "class, action, barbarian, aim"
   },
   {
     "action": "PUNCH HARDEST",
@@ -38,7 +38,7 @@
     "speed": "1.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "class, barbarian"
+    "tags": "class, action, barbarian"
   },
   {
     "action": "TAUNT",
@@ -51,7 +51,7 @@
     "enemySTR": "-1",
     "enemyAGI": "1",
     "target": "ENEMY",
-    "tags": "class, warrior, rogue, wizard"
+    "tags": "class, action, warrior, rogue, wizard, insight"
   },
   {
     "action": "CONCENTRATE",
@@ -64,7 +64,7 @@
     "cadence": "ATTACK",
     "heroAccuracy": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, insight"
   },
   {
     "action": "STUN",
@@ -75,7 +75,7 @@
     "speed": "1.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "CRITICAL ATTACK",
@@ -86,7 +86,7 @@
     "speed": "2.00",
     "heroCrit": "10",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, aim"
   },
   {
     "action": "FLURRY",
@@ -99,7 +99,7 @@
     "cadence": "ACTION",
     "heroAGI": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "MOMENTUM BASH",
@@ -113,7 +113,7 @@
     "heroSTR": "1",
     "heroTECH": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "READ BOOK",
@@ -126,7 +126,7 @@
     "cadence": "DUNGEON",
     "heroINT": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "CHEAP SHOT",
@@ -139,7 +139,7 @@
     "cadence": "ATTACK",
     "heroAccuracy": "-1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, insight"
   },
   {
     "action": "BERZERK",
@@ -150,7 +150,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "class, barbarian"
+    "tags": "class, action, barbarian"
   },
   {
     "action": "GRUNT",
@@ -164,7 +164,7 @@
     "heroAccuracy": "1",
     "heroSTR": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, insight"
   },
   {
     "action": "DISARM",
@@ -177,7 +177,7 @@
     "cadence": "ATTACK",
     "enemyHit": "-3",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "ONE SHOT",
@@ -190,7 +190,7 @@
     "duration": "3",
     "cadence": "Action",
     "target": "ENEMY",
-    "tags": "class, common"
+    "tags": "action, common"
   },
   {
     "action": "DRUNKEN BRAWLER",
@@ -205,7 +205,7 @@
     "heroAccuracy": "-5",
     "enemyAccuracy": "-5",
     "target": "ENEMY",
-    "tags": "class, uncommon"
+    "tags": "action, uncommon, insight"
   },
   {
     "action": "STIM PACK",
@@ -221,7 +221,7 @@
     "heroCombo": "2",
     "heroCrit": "1",
     "target": "ENEMY",
-    "tags": "class, rare"
+    "tags": "action, rare, footwork, target, aim"
   },
   {
     "action": "ANIME CHARGE-UP",
@@ -234,7 +234,7 @@
     "cadence": "FIGHT",
     "heroAccuracy": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, insight"
   },
   {
     "action": "OVERKILL",
@@ -246,7 +246,7 @@
     "duration": "1",
     "cadence": "ATTACK",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "DANCE",
@@ -260,7 +260,7 @@
     "opener": "true",
     "heroAGI": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, opener"
   },
   {
     "action": "A CARD THAT GETS WORSE OVER TIME",
@@ -269,7 +269,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "BULK DAY",
@@ -282,7 +282,7 @@
     "cadence": "ACTION",
     "damageMod": "50",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, bludgeon"
   },
   {
     "action": "CHUG ENERGY DRINK",
@@ -294,7 +294,7 @@
     "duration": "3",
     "cadence": "ATTACK",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "TRUE STRIKE",
@@ -307,7 +307,7 @@
     "cadence": "ATTACK",
     "heroAccuracy": "10",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, insight"
   },
   {
     "action": "SECOND WIND",
@@ -318,7 +318,7 @@
     "speed": "2.00",
     "heroHeal": "5",
     "target": "SELF",
-    "tags": "class"
+    "tags": "action, air"
   },
   {
     "action": "QUICK REFLEXES",
@@ -331,7 +331,7 @@
     "cadence": "ACTION",
     "enemyAccuracy": "-5",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "DEJA VU",
@@ -341,7 +341,7 @@
     "damage": "100%",
     "speed": "2.00",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "POWER OVERWHELMING",
@@ -351,7 +351,7 @@
     "damage": "100%",
     "speed": "2.00",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "ANY DAY NOW",
@@ -363,7 +363,7 @@
     "duration": "1",
     "cadence": "CHAIN",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "I AM INVINCIBLE",
@@ -375,7 +375,7 @@
     "duration": "1",
     "cadence": "DUNGEON",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "AVENGE",
@@ -388,7 +388,7 @@
     "cadence": "Action",
     "enemyAccuracy": "20",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "FOLLOW THROUGH",
@@ -400,7 +400,7 @@
     "duration": "1",
     "cadence": "ACTION",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "OPENING VOLLEY",
@@ -413,7 +413,7 @@
     "cadence": "ATTACK",
     "opener": "true",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, opener"
   },
   {
     "action": "WEINING LIGHT",
@@ -425,7 +425,7 @@
     "duration": "1",
     "cadence": "FIGHT",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "MIRROR FLEXING",
@@ -435,7 +435,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "ROGUES GAMBIT",
@@ -445,7 +445,7 @@
     "damage": "25%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "POISON TIP",
@@ -458,7 +458,7 @@
     "cadence": "FIGHT",
     "poison": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "HAYMAKER",
@@ -471,7 +471,7 @@
     "cadence": "ACTION",
     "heroAccuracy": "-14",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, insight"
   },
   {
     "action": "FRENZY",
@@ -486,7 +486,7 @@
     "heroHit": "3",
     "heroCombo": "-2",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, finisher, footwork, target"
   },
   {
     "action": "BLOOD KNIFE",
@@ -500,7 +500,7 @@
     "selfDamage": "1",
     "heroHeal": "25",
     "target": "SELF",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "HOLY HEALY",
@@ -511,7 +511,7 @@
     "speed": "0.50",
     "heroHeal": "25",
     "target": "SELF",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "BLOODY SUNDAY",
@@ -524,7 +524,7 @@
     "cadence": "FIGHT",
     "finisher": "true",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, finisher"
   },
   {
     "action": "24/7/365",
@@ -534,7 +534,7 @@
     "damage": "100%",
     "speed": "3.00",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "PRETTY BOY SWAG",
@@ -548,7 +548,7 @@
     "heroCrit": "5",
     "heroSTR": "3",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, aim"
   },
   {
     "action": "OPENING CUT",
@@ -562,7 +562,7 @@
     "opener": "true",
     "heroHit": "2",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, opener, footwork"
   },
   {
     "action": "RAZOR MARGIN",
@@ -577,7 +577,7 @@
     "heroCrit": "2",
     "enemyHit": "2",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, footwork, aim"
   },
   {
     "action": "FOCUSED BREATHING",
@@ -591,7 +591,7 @@
     "heroAccuracy": "1",
     "heroSTR": "0.30",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, insight"
   },
   {
     "action": "ADRENAL SURGE",
@@ -605,7 +605,7 @@
     "speedMod": "20",
     "selfDamage": "ON CRIT, ON MISS",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, swift"
   },
   {
     "action": "TENSION HOLD",
@@ -618,7 +618,7 @@
     "cadence": "FIGHT",
     "heroCombo": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, target"
   },
   {
     "action": "LATE BLOOM",
@@ -629,7 +629,7 @@
     "speed": "1.50",
     "finisher": "true",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, finisher"
   },
   {
     "action": "MEASURED PATIENCE",
@@ -643,7 +643,7 @@
     "heroHit": "2",
     "heroCrit": "-1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, footwork, aim"
   },
   {
     "action": "MEASURED ADVANCE",
@@ -656,7 +656,7 @@
     "cadence": "ACTION",
     "heroCombo": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, target"
   },
   {
     "action": "GLASS STRIKE",
@@ -668,7 +668,7 @@
     "duration": "1",
     "cadence": "FIGHT",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "STATIC ODDS",
@@ -680,7 +680,7 @@
     "duration": "1",
     "cadence": "ACTION",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "LUCKY CHARM",
@@ -693,7 +693,7 @@
     "cadence": "ATTACK",
     "heroAccuracy": "14",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, insight"
   },
   {
     "action": "SWIFT",
@@ -705,7 +705,7 @@
     "duration": "1",
     "cadence": "COMBO",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "EXHAUSTING RHYTHM",
@@ -717,7 +717,7 @@
     "duration": "1",
     "cadence": "FIGHT",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "WINDED STATE",
@@ -729,7 +729,7 @@
     "duration": "1",
     "cadence": "FIGHT",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "OVERHAND SMASH",
@@ -742,7 +742,7 @@
     "heroCrit": "2",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, footwork, aim"
   },
   {
     "action": "HOLD TEMPO",
@@ -754,7 +754,7 @@
     "duration": "1",
     "cadence": "CHAIN",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "BACKSTEP SLASH",
@@ -767,7 +767,7 @@
     "cadence": "ACTION",
     "heroHit": "2",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, footwork"
   },
   {
     "action": "CRUSHING FOLLOW-THROUGH",
@@ -779,7 +779,7 @@
     "duration": "1",
     "cadence": "ACTION",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "ALL IN",
@@ -791,7 +791,7 @@
     "heroHit": "-8",
     "heroCrit": "6",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, footwork, aim"
   },
   {
     "action": "FINAL REP",
@@ -805,7 +805,7 @@
     "finisher": "true",
     "heroAccuracy": "3",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, finisher, insight"
   },
   {
     "action": "HOLLOW ADVANCE",
@@ -817,7 +817,7 @@
     "heroCombo": "1",
     "jumpRelative": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, target"
   },
   {
     "action": "SLAPBACK ECHO",
@@ -827,7 +827,7 @@
     "damage": "50%",
     "speed": "0.80",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "PERFECT LINE",
@@ -841,7 +841,7 @@
     "heroCombo": "4",
     "jumpRelative": "4",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, target"
   },
   {
     "action": "OL' FAITHFUL",
@@ -853,7 +853,7 @@
     "heroHit": "9",
     "heroCombo": "-6",
     "target": "ENEMY",
-    "tags": "class, barbarian"
+    "tags": "class, action, barbarian, footwork, target"
   },
   {
     "action": "CONTROLLED BURST",
@@ -867,7 +867,7 @@
     "heroHit": "1",
     "heroCrit": "-1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, footwork, aim"
   },
   {
     "action": "PHANTOM FOLLOW-UP",
@@ -878,7 +878,7 @@
     "speed": "0.50",
     "heroCombo": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, target"
   },
   {
     "action": "FINAL PUSH",
@@ -890,7 +890,7 @@
     "finisher": "true",
     "consume": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, finisher"
   },
   {
     "action": "RISING PRESSURE",
@@ -902,7 +902,7 @@
     "duration": "1",
     "cadence": "COMBO",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "TEMPO SHIFT",
@@ -912,7 +912,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "GUARANTEED HIT",
@@ -925,7 +925,7 @@
     "cadence": "ATTACK",
     "heroHit": "5",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, footwork"
   },
   {
     "action": "OVERCOMMIT",
@@ -935,7 +935,7 @@
     "damage": "500%",
     "speed": "3.00",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "CALM BEFORE STORM",
@@ -947,7 +947,7 @@
     "duration": "1",
     "cadence": "ACTION",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, air"
   },
   {
     "action": "CALCULATED RISK",
@@ -961,7 +961,7 @@
     "heroHit": "-2",
     "heroCrit": "2",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, footwork, aim"
   },
   {
     "action": "AMPLIFY ACCURACY",
@@ -973,7 +973,7 @@
     "cadence": "ACTION",
     "enemyAccuracy": "20",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "GROUNDHOGS DAY",
@@ -984,7 +984,7 @@
     "heroSTR": "3",
     "heroHeal": "100%",
     "target": "SELF",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "DOMAIN EXPANSION",
@@ -997,7 +997,7 @@
     "finisher": "true",
     "heroCombo": "14",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, finisher, target"
   },
   {
     "action": "EARLY BIRD GETS THE WORM",
@@ -1010,7 +1010,7 @@
     "cadence": "ACTION",
     "consume": "1",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "SLAM",
@@ -1021,7 +1021,7 @@
     "damage": "150%",
     "speed": "1.25",
     "target": "ENEMY",
-    "tags": "weapon, mace"
+    "tags": "weapon, mace, earth"
   },
   {
     "action": "STRIKE",
@@ -1052,7 +1052,7 @@
     "speed": "2.50",
     "heroCombo": "1",
     "target": "ENEMY",
-    "tags": "weapon, wand"
+    "tags": "weapon, wand, target, air"
   },
   {
     "action": "CAST",
@@ -1064,7 +1064,7 @@
     "cadence": "Action",
     "heroAccuracy": "20",
     "target": "ENEMY",
-    "tags": "class, wizard"
+    "tags": "class, action, wizard, insight"
   },
   {
     "action": "RAGE",
@@ -1077,7 +1077,7 @@
     "heroCrit": "4",
     "damageMod": "50",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, bludgeon, aim"
   },
   {
     "action": "MOMENTUM",
@@ -1087,7 +1087,7 @@
     "speed": "2.00",
     "finisher": "true",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, finisher"
   },
   {
     "action": "SQUAT",
@@ -1098,7 +1098,7 @@
     "speed": "1.00",
     "heroSTR": "1",
     "target": "ENEMY",
-    "tags": "class, barbarian"
+    "tags": "class, action, barbarian"
   },
   {
     "action": "SLASH",
@@ -1110,7 +1110,7 @@
     "duration": "3",
     "cadence": "ATTACK",
     "target": "ENEMY",
-    "tags": "class, warrior"
+    "tags": "class, action, warrior"
   },
   {
     "action": "HACK",
@@ -1120,7 +1120,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "class, warrior"
+    "tags": "class, action, warrior"
   },
   {
     "action": "JUKE",
@@ -1131,7 +1131,7 @@
     "speed": "1.00",
     "heroAGI": "1",
     "target": "ENEMY",
-    "tags": "class, warrior"
+    "tags": "class, action, warrior"
   },
   {
     "action": "POUND",
@@ -1145,7 +1145,7 @@
     "heroCrit": "2",
     "damageMod": "50",
     "target": "ENEMY",
-    "tags": "class, rogue"
+    "tags": "class, action, rogue, bludgeon, aim"
   },
   {
     "action": "SLEIGHT OF HAND",
@@ -1155,7 +1155,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "class, rogue"
+    "tags": "class, action, rogue"
   },
   {
     "action": "HONE",
@@ -1166,7 +1166,7 @@
     "speed": "1.00",
     "heroTECH": "1",
     "target": "ENEMY",
-    "tags": "class, rogue"
+    "tags": "class, action, rogue"
   },
   {
     "action": "CHANNEL",
@@ -1180,7 +1180,7 @@
     "cadence": "ATTACK",
     "heroCombo": "2",
     "target": "ENEMY",
-    "tags": "class, wizard"
+    "tags": "class, action, wizard, target"
   },
   {
     "action": "INVOKE",
@@ -1190,7 +1190,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "class, wizard"
+    "tags": "class, action, wizard"
   },
   {
     "action": "READ",
@@ -1201,7 +1201,7 @@
     "speed": "1.00",
     "heroINT": "1",
     "target": "ENEMY",
-    "tags": "class, wizard"
+    "tags": "class, action, wizard"
   },
   {
     "action": "INTELECTUAL DEBATE",
@@ -1211,7 +1211,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "HUNKER DOWN",
@@ -1221,7 +1221,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action"
   },
   {
     "action": "WIDE SWING",
@@ -1235,7 +1235,7 @@
     "speedMod": "-40",
     "multiHitMod": "2",
     "target": "ENEMY",
-    "tags": "class"
+    "tags": "action, swift"
   },
   {
     "action": "Commitment Cleaver",
@@ -1248,7 +1248,7 @@
     "speedMod": "-20",
     "damageMod": "25",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift, bludgeon"
   },
   {
     "action": "Stance of Crescendo",
@@ -1261,7 +1261,7 @@
     "speedMod": "-10",
     "ampMod": "15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift, focus"
   },
   {
     "action": "Windup Flurry Mark",
@@ -1274,7 +1274,7 @@
     "speedMod": "-15",
     "multiHitMod": "1",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift, air"
   },
   {
     "action": "Quick Razors",
@@ -1287,7 +1287,7 @@
     "speedMod": "20",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift, bludgeon"
   },
   {
     "action": "Feather Chain",
@@ -1300,7 +1300,7 @@
     "damageMod": "-10",
     "ampMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon, focus"
   },
   {
     "action": "Rakeload",
@@ -1313,7 +1313,7 @@
     "damageMod": "-10",
     "multiHitMod": "2",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Reset Step",
@@ -1326,7 +1326,7 @@
     "speedMod": "20",
     "ampMod": "-15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift, focus"
   },
   {
     "action": "Compression Strike",
@@ -1339,7 +1339,7 @@
     "damageMod": "25",
     "ampMod": "-15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon, focus"
   },
   {
     "action": "Scatter Focus",
@@ -1352,7 +1352,7 @@
     "multiHitMod": "2",
     "ampMod": "-8",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Singletap Recovery",
@@ -1365,7 +1365,7 @@
     "speedMod": "15",
     "multiHitMod": "-1",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Collapse Cut",
@@ -1378,7 +1378,7 @@
     "damageMod": "35",
     "multiHitMod": "-2",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Tight Spiral",
@@ -1391,7 +1391,7 @@
     "multiHitMod": "-1",
     "ampMod": "15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Lumbering Smash",
@@ -1518,7 +1518,7 @@
     "damage": "79%",
     "speed": "1.12",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, earth"
   },
   {
     "action": "Focused Predator",
@@ -1542,7 +1542,7 @@
     "speedMod": "20",
     "enemySpeedMod": "-20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Overextended Strike",
@@ -1555,7 +1555,7 @@
     "speedMod": "-20",
     "enemySpeedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Shatter Plate",
@@ -1567,7 +1567,7 @@
     "speed": "1.00",
     "damageMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Feint Opening",
@@ -1579,7 +1579,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Momentum Hijack",
@@ -1591,7 +1591,7 @@
     "speed": "1.00",
     "ampMod": "15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Stalled Rhythm",
@@ -1603,7 +1603,7 @@
     "speed": "1.00",
     "ampMod": "-8",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Chainloaded",
@@ -1640,7 +1640,7 @@
     "speedMod": "10",
     "enemySpeedMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Lane Clear",
@@ -1653,7 +1653,7 @@
     "speedMod": "20",
     "enemySpeedMod": "-20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Heavy Commit",
@@ -1666,7 +1666,7 @@
     "speedMod": "-20",
     "enemySpeedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Anchor Duel",
@@ -1679,7 +1679,7 @@
     "speedMod": "-10",
     "enemySpeedMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Blitzer's Mark",
@@ -1691,7 +1691,7 @@
     "speed": "1.00",
     "speedMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Outpace Shell",
@@ -1703,7 +1703,7 @@
     "speed": "1.00",
     "speedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Winded Rush",
@@ -1715,7 +1715,7 @@
     "speed": "1.00",
     "speedMod": "-20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Cautious Brake",
@@ -1727,7 +1727,7 @@
     "speed": "1.00",
     "speedMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Flow State",
@@ -1739,7 +1739,7 @@
     "speed": "1.00",
     "speedMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Tempo Lock",
@@ -1751,7 +1751,7 @@
     "speed": "1.00",
     "speedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Late Block",
@@ -1763,7 +1763,7 @@
     "speed": "1.00",
     "speedMod": "-20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Fatigue Spiral",
@@ -1775,7 +1775,7 @@
     "speed": "1.00",
     "speedMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Flurry Haste",
@@ -1787,7 +1787,7 @@
     "speed": "1.00",
     "speedMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Cut the Chain",
@@ -1799,7 +1799,7 @@
     "speed": "1.00",
     "speedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Trapped Feet",
@@ -1811,7 +1811,7 @@
     "speed": "1.00",
     "speedMod": "-20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Grounded Guard",
@@ -1823,7 +1823,7 @@
     "speed": "1.00",
     "speedMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Power Rush",
@@ -1836,7 +1836,7 @@
     "damageMod": "20",
     "enemySpeedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Crushing Hold",
@@ -1849,7 +1849,7 @@
     "damageMod": "20",
     "enemySpeedMod": "-20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Glancing Blow",
@@ -1862,7 +1862,7 @@
     "damageMod": "-10",
     "enemySpeedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Soft Tap",
@@ -1875,7 +1875,7 @@
     "damageMod": "-10",
     "enemySpeedMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Arms Race Cut",
@@ -1887,7 +1887,7 @@
     "speed": "1.00",
     "damageMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Sundering Edge",
@@ -1899,7 +1899,7 @@
     "speed": "1.00",
     "damageMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Opening Gift",
@@ -1911,7 +1911,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Pulled Strikes",
@@ -1923,7 +1923,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Heavy Crescendo",
@@ -1935,7 +1935,7 @@
     "speed": "1.00",
     "damageMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Shatter Focus",
@@ -1947,7 +1947,7 @@
     "speed": "1.00",
     "damageMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Tickling Jab",
@@ -1959,7 +1959,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Muffled Exchange",
@@ -1971,7 +1971,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Cleaving Tempest",
@@ -1983,7 +1983,7 @@
     "speed": "1.00",
     "damageMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Finisher's Law",
@@ -1995,7 +1995,7 @@
     "speed": "1.00",
     "damageMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Chip Scatter",
@@ -2007,7 +2007,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Softened Hail",
@@ -2019,7 +2019,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Crescendo Sprint",
@@ -2032,7 +2032,7 @@
     "ampMod": "10",
     "enemySpeedMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Dominant Line",
@@ -2045,7 +2045,7 @@
     "ampMod": "15",
     "enemySpeedMod": "-20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Lost Bridge",
@@ -2058,7 +2058,7 @@
     "ampMod": "-10",
     "enemySpeedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Quiet Measure",
@@ -2071,7 +2071,7 @@
     "ampMod": "-10",
     "enemySpeedMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Amp to Steel",
@@ -2083,7 +2083,7 @@
     "speed": "1.00",
     "ampMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Overwhelming Theme",
@@ -2095,7 +2095,7 @@
     "speed": "1.00",
     "ampMod": "15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Burnt Fuse",
@@ -2107,7 +2107,7 @@
     "speed": "1.00",
     "ampMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Flattened Verse",
@@ -2119,7 +2119,7 @@
     "speed": "1.00",
     "ampMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Dueling Anthems",
@@ -2131,7 +2131,7 @@
     "speed": "1.00",
     "ampMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Steal the Chorus",
@@ -2143,7 +2143,7 @@
     "speed": "1.00",
     "ampMod": "15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Broken Streak",
@@ -2155,7 +2155,7 @@
     "speed": "1.00",
     "ampMod": "-8",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Suppressed Duel",
@@ -2167,7 +2167,7 @@
     "speed": "1.00",
     "ampMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Chorus of Cuts",
@@ -2179,7 +2179,7 @@
     "speed": "1.00",
     "ampMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Precision Crescendo",
@@ -2191,7 +2191,7 @@
     "speed": "1.00",
     "ampMod": "15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Fumbled Bridge",
@@ -2203,7 +2203,7 @@
     "speed": "1.00",
     "ampMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Muted Finale",
@@ -2215,7 +2215,7 @@
     "speed": "1.00",
     "ampMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Flurry Sprint",
@@ -2423,7 +2423,7 @@
     "speed": "1.00",
     "slow": "1",
     "target": "ENEMY",
-    "tags": "enemy, water, exposed"
+    "tags": "enemy"
   },
   {
     "action": "POISON BITE",
@@ -2435,7 +2435,7 @@
     "speed": "0.90",
     "poison": "1",
     "target": "ENEMY",
-    "tags": "enemy, water, exposed"
+    "tags": "enemy"
   },
   {
     "action": "BITE",
@@ -2446,7 +2446,7 @@
     "damage": "100%",
     "speed": "0.80",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "HOWL",
@@ -2458,7 +2458,7 @@
     "speed": "0.50",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "enemy, air"
+    "tags": "enemy"
   },
   {
     "action": "FIRE BOLT",
@@ -2482,7 +2482,7 @@
     "speed": "1.00",
     "burn": "1",
     "target": "ENEMY",
-    "tags": "enemy, fire"
+    "tags": "enemy"
   },
   {
     "action": "MAGMA FIST",
@@ -2493,7 +2493,7 @@
     "damage": "130%",
     "speed": "1.30",
     "target": "ENEMY",
-    "tags": "enemy, fire, scorched"
+    "tags": "enemy, fire"
   },
   {
     "action": "ERUPTION",
@@ -2505,7 +2505,7 @@
     "speed": "1.80",
     "burn": "1",
     "target": "ENEMY",
-    "tags": "enemy, fire, exposed"
+    "tags": "enemy"
   },
   {
     "action": "BAT SWARM",
@@ -2517,7 +2517,7 @@
     "speed": "0.70",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "enemy, earth, air"
+    "tags": "enemy"
   },
   {
     "action": "QUICK STRIKE",
@@ -2528,7 +2528,7 @@
     "damage": "85%",
     "speed": "0.60",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "BONE STRIKE",
@@ -2540,7 +2540,7 @@
     "speed": "1.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "enemy, earth"
+    "tags": "enemy"
   },
   {
     "action": "RATTLE",
@@ -2552,7 +2552,7 @@
     "speed": "0.40",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "CLAW",
@@ -2564,7 +2564,7 @@
     "speed": "1.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "enemy, earth, exposed"
+    "tags": "enemy"
   },
   {
     "action": "GROAN",
@@ -2576,7 +2576,7 @@
     "speed": "0.50",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "PHASE",
@@ -2587,7 +2587,7 @@
     "damage": "50%",
     "speed": "0.40",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Doubletime Gambit",
@@ -2600,7 +2600,7 @@
     "speedMod": "10",
     "enemySpeedMod": "10",
     "target": "ENEMY",
-    "tags": "environment, exposed"
+    "tags": "environment, swift"
   },
   {
     "action": "Gluefoot Exchange",
@@ -2613,7 +2613,7 @@
     "speedMod": "-10",
     "enemySpeedMod": "-10",
     "target": "ENEMY",
-    "tags": "environment, earth, air"
+    "tags": "environment, swift"
   },
   {
     "action": "Blood Moon Strike",
@@ -2625,7 +2625,7 @@
     "speed": "1.00",
     "damageMod": "10",
     "target": "ENEMY",
-    "tags": "environment, exposed"
+    "tags": "environment, bludgeon"
   },
   {
     "action": "Pacifying Ward",
@@ -2637,7 +2637,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "environment, exposed"
+    "tags": "environment, bludgeon"
   },
   {
     "action": "Duel of Crescendos",
@@ -2649,7 +2649,7 @@
     "speed": "1.00",
     "ampMod": "10",
     "target": "ENEMY",
-    "tags": "environment, exposed"
+    "tags": "environment, focus"
   },
   {
     "action": "Suppress Sigil",
@@ -2661,7 +2661,7 @@
     "speed": "1.00",
     "ampMod": "-10",
     "target": "ENEMY",
-    "tags": "environment, exposed"
+    "tags": "environment, focus"
   },
   {
     "action": "Storm of Blades",
@@ -2685,7 +2685,7 @@
     "speed": "1.00",
     "multiHitMod": "-1",
     "target": "ENEMY",
-    "tags": "environment, exposed"
+    "tags": "environment"
   },
   {
     "action": "FOREST BRANCH",
@@ -2819,7 +2819,7 @@
     "speed": "3.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, air, scorched"
+    "tags": "environment, earth, scorched"
   },
   {
     "action": "DESERT HEATWAVE",
@@ -2831,7 +2831,7 @@
     "speed": "2.50",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, fire, earth, scorched"
+    "tags": "environment, earth, scorched"
   },
   {
     "action": "ICE SHARDS",
@@ -2867,7 +2867,7 @@
     "speed": "3.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, exposed"
+    "tags": "environment, air, exposed"
   },
   {
     "action": "RUINS PILLAR",
@@ -2879,7 +2879,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment, exposed"
   },
   {
     "action": "CASTLE PORTCULLIS",
@@ -2891,7 +2891,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "CASTLE ARROWS",
@@ -2903,7 +2903,7 @@
     "speed": "2.50",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, fire, earth, exposed"
+    "tags": "environment, fire"
   },
   {
     "action": "GRAVEYARD MIST",
@@ -2916,7 +2916,7 @@
     "poison": "1",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, exposed"
+    "tags": "environment"
   },
   {
     "action": "GRAVEYARD RISING",
@@ -2928,7 +2928,7 @@
     "speed": "3.00",
     "slow": "1",
     "target": "ENEMY",
-    "tags": "environment, exposed"
+    "tags": "environment"
   },
   {
     "action": "TREASURE TRAP",
@@ -2940,7 +2940,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "TREASURE DUST",
@@ -2952,7 +2952,7 @@
     "speed": "2.50",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "TREASURE COLLAPSE",
@@ -2964,7 +2964,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "GUARD ALARM",
@@ -2976,7 +2976,7 @@
     "speed": "3.00",
     "slow": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "GUARD POST",
@@ -2988,7 +2988,7 @@
     "speed": "2.50",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "GUARD BARRICADE",
@@ -3000,7 +3000,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "TRAP SPIKE",
@@ -3012,7 +3012,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "TRAP POISON",
@@ -3024,7 +3024,7 @@
     "speed": "2.00",
     "poison": "1",
     "target": "ENEMY",
-    "tags": "environment, fire, earth, exposed"
+    "tags": "environment, fire"
   },
   {
     "action": "TRAP PIT",
@@ -3036,7 +3036,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "TRAP NET",
@@ -3048,7 +3048,7 @@
     "speed": "2.50",
     "slow": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "BOSS SPIKES",
@@ -3060,7 +3060,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "BOSS CURSE",
@@ -3072,7 +3072,7 @@
     "speed": "3.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "BOSS COLLAPSE",
@@ -3084,7 +3084,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "PUZZLE FAILURE",
@@ -3096,7 +3096,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "PUZZLE RUNES",
@@ -3108,7 +3108,7 @@
     "speed": "2.50",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "PUZZLE MECHANICAL",
@@ -3120,7 +3120,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "REST PEACEFUL",
@@ -3132,7 +3132,7 @@
     "speed": "2.50",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "REST HEALING",
@@ -3144,7 +3144,7 @@
     "speed": "2.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "STORAGE CRATES",
@@ -3156,7 +3156,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "STORAGE DUST",
@@ -3168,7 +3168,7 @@
     "speed": "2.00",
     "poison": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "STORAGE SHELF",
@@ -3180,7 +3180,7 @@
     "speed": "2.50",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "LIBRARY BOOKS",
@@ -3192,7 +3192,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "LIBRARY KNOWLEDGE",
@@ -3204,7 +3204,7 @@
     "speed": "2.50",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "LIBRARY DUST",
@@ -3216,7 +3216,7 @@
     "speed": "2.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "LIBRARY TOME",
@@ -3228,7 +3228,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "ARMORY WEAPONS",
@@ -3240,7 +3240,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "ARMORY RACK",
@@ -3252,7 +3252,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "ARMORY DEBRIS",
@@ -3264,7 +3264,7 @@
     "speed": "2.50",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "ARMORY CLATTER",
@@ -3276,7 +3276,7 @@
     "speed": "2.00",
     "slow": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "KITCHEN POT",
@@ -3288,7 +3288,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "KITCHEN FIRE",
@@ -3300,7 +3300,7 @@
     "speed": "2.50",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, fire, earth, exposed"
+    "tags": "environment, fire"
   },
   {
     "action": "KITCHEN POTS",
@@ -3312,7 +3312,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "KITCHEN STEAM",
@@ -3324,7 +3324,7 @@
     "speed": "2.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "DINING CHANDELIER",
@@ -3336,7 +3336,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "DINING TABLE",
@@ -3348,7 +3348,7 @@
     "speed": "2.50",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "DINING FOOD",
@@ -3360,7 +3360,7 @@
     "speed": "2.00",
     "poison": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "DINING WINE",
@@ -3372,7 +3372,7 @@
     "speed": "2.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "CHAMBER ECHO",
@@ -3384,7 +3384,7 @@
     "speed": "2.50",
     "slow": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "CHAMBER CURSE",
@@ -3396,7 +3396,7 @@
     "speed": "3.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "CHAMBER COLLAPSE",
@@ -3408,7 +3408,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "HALL ECHO",
@@ -3420,7 +3420,7 @@
     "speed": "2.00",
     "slow": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "HALL TAPESTRY",
@@ -3432,7 +3432,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "HALL DUST",
@@ -3444,7 +3444,7 @@
     "speed": "2.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "VAULT LOCK",
@@ -3456,7 +3456,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "VAULT COLLAPSE",
@@ -3468,7 +3468,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "VAULT WARD",
@@ -3480,7 +3480,7 @@
     "speed": "2.50",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "SANCTUM WRATH",
@@ -3492,7 +3492,7 @@
     "speed": "3.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, air, exposed"
+    "tags": "environment"
   },
   {
     "action": "SANCTUM FLAMES",
@@ -3504,7 +3504,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, fire, exposed"
+    "tags": "environment, fire"
   },
   {
     "action": "SANCTUM LIGHT",
@@ -3516,7 +3516,7 @@
     "speed": "2.50",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, exposed"
+    "tags": "environment"
   },
   {
     "action": "GROTTO CAVEIN",
@@ -3528,7 +3528,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "GROTTO STALACTITE",
@@ -3540,7 +3540,7 @@
     "speed": "2.50",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "GROTTO POOL",
@@ -3552,7 +3552,7 @@
     "speed": "2.00",
     "poison": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, water, exposed"
+    "tags": "environment, water"
   },
   {
     "action": "CATACOMB BONESHARDS",
@@ -3564,7 +3564,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "CATACOMB NECROTIC",
@@ -3577,7 +3577,7 @@
     "poison": "1",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, exposed"
+    "tags": "environment"
   },
   {
     "action": "CATACOMB TOMB",
@@ -3589,7 +3589,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "SHRINE GROUND",
@@ -3601,7 +3601,7 @@
     "speed": "2.50",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, exposed"
+    "tags": "environment"
   },
   {
     "action": "SHRINE RETRIBUTION",
@@ -3613,7 +3613,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, air, exposed"
+    "tags": "environment"
   },
   {
     "action": "SHRINE WATER",
@@ -3625,7 +3625,7 @@
     "speed": "2.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, water, exposed"
+    "tags": "environment, water"
   },
   {
     "action": "LABORATORY CHEMICAL",
@@ -3637,7 +3637,7 @@
     "speed": "2.00",
     "poison": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "LABORATORY EXPLOSION",
@@ -3649,7 +3649,7 @@
     "speed": "2.50",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "LABORATORY EQUIPMENT",
@@ -3661,7 +3661,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "LABORATORY FUMES",
@@ -3673,7 +3673,7 @@
     "speed": "2.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "OBSERVATORY TELESCOPE",
@@ -3685,7 +3685,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, air, exposed"
+    "tags": "environment"
   },
   {
     "action": "OBSERVATORY STELLAR",
@@ -3697,7 +3697,7 @@
     "speed": "2.50",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, air, exposed"
+    "tags": "environment"
   },
   {
     "action": "OBSERVATORY DUST",
@@ -3709,7 +3709,7 @@
     "speed": "2.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, air, exposed"
+    "tags": "environment"
   },
   {
     "action": "THRONE COLLAPSE",
@@ -3721,7 +3721,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "THRONE CURSE",
@@ -3733,7 +3733,7 @@
     "speed": "3.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "THRONE JEWELS",
@@ -3745,7 +3745,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "THRONE GUARD",
@@ -3757,7 +3757,7 @@
     "speed": "2.50",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "GENERIC COLLAPSE",
@@ -3769,7 +3769,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "GENERIC DUST",
@@ -3781,7 +3781,7 @@
     "speed": "2.00",
     "poison": "1",
     "target": "ENEMY",
-    "tags": "environment, exposed"
+    "tags": "environment"
   },
   {
     "action": "GENERIC TRAP",
@@ -3794,7 +3794,7 @@
     "bleed": "1",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment, earth, exposed"
+    "tags": "environment"
   },
   {
     "action": "ARCANE ECHO",
@@ -3805,7 +3805,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "class, wizard"
+    "tags": "class, action, wizard, air"
   },
   {
     "action": "Sand Dash",
@@ -3838,7 +3838,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Solar Sting",
@@ -3860,7 +3860,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Crystal Barrage",
@@ -3871,7 +3871,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, earth"
+    "tags": "enemy"
   },
   {
     "action": "Illusion Strike",
@@ -3882,7 +3882,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Phase Shift",
@@ -3893,7 +3893,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Vitality Leech",
@@ -3904,7 +3904,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, water"
+    "tags": "enemy"
   },
   {
     "action": "Titan Fist",
@@ -3915,7 +3915,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Toxic Dart",
@@ -3926,7 +3926,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Solar Blessing",
@@ -3937,7 +3937,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, fire"
+    "tags": "enemy"
   },
   {
     "action": "Shell Defense",
@@ -3948,7 +3948,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Ambush",
@@ -3959,7 +3959,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Entomb",
@@ -3970,7 +3970,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, earth"
+    "tags": "enemy"
   },
   {
     "action": "Raise Dead",
@@ -3981,7 +3981,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Crush",
@@ -3992,7 +3992,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Spectral Touch",
@@ -4003,7 +4003,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Talon Strike",
@@ -4014,7 +4014,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Boulder Hurl",
@@ -4025,7 +4025,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Cliff Drop",
@@ -4036,7 +4036,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Quick Bite",
@@ -4047,7 +4047,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Bile Splash",
@@ -4058,7 +4058,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Last Stand Break",
@@ -4069,7 +4069,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Lightning Strike",
@@ -4080,7 +4080,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, air"
+    "tags": "enemy"
   },
   {
     "action": "Dive Bomb",
@@ -4091,7 +4091,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Peak Slam",
@@ -4124,7 +4124,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Cinder Shriek",
@@ -4135,7 +4135,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, fire"
+    "tags": "enemy"
   },
   {
     "action": "Coal Shell",
@@ -4146,7 +4146,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Ember Spit",
@@ -4168,7 +4168,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Predator's Focus",
@@ -4179,7 +4179,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Bark Fortify",
@@ -4190,7 +4190,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Reignite",
@@ -4212,7 +4212,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Searing Focus",
@@ -4223,7 +4223,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Sear The Gap",
@@ -4234,7 +4234,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Iron Vow",
@@ -4245,7 +4245,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Stone Gaze",
@@ -4267,7 +4267,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Flame Salute",
@@ -4300,7 +4300,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Expose Vein",
@@ -4311,7 +4311,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Toxic Focus",
@@ -4322,7 +4322,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Leech Grip",
@@ -4333,7 +4333,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, water"
+    "tags": "enemy"
   },
   {
     "action": "Molten Shell",
@@ -4344,7 +4344,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Magma Kiss",
@@ -4355,7 +4355,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, fire, scorched"
+    "tags": "enemy, fire"
   },
   {
     "action": "Magma Carapace",
@@ -4366,7 +4366,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, fire, scorched"
+    "tags": "enemy, fire"
   },
   {
     "action": "Amber Casing",
@@ -4377,7 +4377,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Lava Douse",
@@ -4388,7 +4388,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, fire, scorched"
+    "tags": "enemy, fire"
   },
   {
     "action": "Amber Ooze",
@@ -4399,7 +4399,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Guard Bite",
@@ -4410,7 +4410,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, earth"
+    "tags": "enemy"
   },
   {
     "action": "Leader's Fang",
@@ -4421,7 +4421,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Skeletal Burst",
@@ -4432,7 +4432,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Sacrificial Strike",
@@ -4443,7 +4443,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Hex Maul",
@@ -4454,7 +4454,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Earth Shield",
@@ -4476,7 +4476,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, air"
+    "tags": "enemy"
   },
   {
     "action": "Sound Strike",
@@ -4487,7 +4487,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Pack Leader's Call",
@@ -4498,7 +4498,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Trick Shot",
@@ -4509,7 +4509,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Thorn Bite",
@@ -4520,7 +4520,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, overgrown"
+    "tags": "enemy"
   },
   {
     "action": "Trap Door",
@@ -4531,7 +4531,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, earth"
+    "tags": "enemy"
   },
   {
     "action": "Pathfind",
@@ -4542,7 +4542,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Circular Strike",
@@ -4553,7 +4553,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Reflex Drain",
@@ -4564,7 +4564,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Perfect Copy",
@@ -4575,7 +4575,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Broken Mirror",
@@ -4586,7 +4586,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Identity Theft",
@@ -4597,7 +4597,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Spiked Charge",
@@ -4608,7 +4608,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Nature's Touch",
@@ -4619,7 +4619,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, overgrown"
+    "tags": "enemy"
   },
   {
     "action": "Venom Bite",
@@ -4630,7 +4630,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Sweet Sting",
@@ -4641,7 +4641,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Allergen Cloud",
@@ -4652,7 +4652,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, overgrown"
+    "tags": "enemy"
   },
   {
     "action": "Gorge Strike",
@@ -4663,7 +4663,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Wall Slam",
@@ -4685,7 +4685,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, overgrown"
+    "tags": "enemy"
   },
   {
     "action": "Decay Touch",
@@ -4696,7 +4696,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Reed Skewer",
@@ -4707,7 +4707,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Freeding Frenzy",
@@ -4718,7 +4718,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Mud Shell",
@@ -4729,7 +4729,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, earth"
+    "tags": "enemy"
   },
   {
     "action": "Tidal Crash",
@@ -4740,7 +4740,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, water"
+    "tags": "enemy"
   },
   {
     "action": "Static Thrash",
@@ -4751,7 +4751,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Spore Drift",
@@ -4762,7 +4762,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Mist Strike",
@@ -4773,7 +4773,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Chilling Grasp",
@@ -4784,7 +4784,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Veil Shatter",
@@ -4795,7 +4795,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Blinding Swarm",
@@ -4806,7 +4806,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Cold Seep",
@@ -4817,7 +4817,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Lurch Strike",
@@ -4828,7 +4828,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Calcified Gaze",
@@ -4839,7 +4839,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Stone Carapace",
@@ -4861,7 +4861,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Venom Spine",
@@ -4872,7 +4872,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Tidal Bulwark",
@@ -4883,7 +4883,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, water"
+    "tags": "enemy"
   },
   {
     "action": "Deep Drain",
@@ -4894,7 +4894,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Food Etch",
@@ -4905,7 +4905,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Inner Current",
@@ -4916,7 +4916,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Torrent Slam",
@@ -4949,7 +4949,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Current Break",
@@ -4960,7 +4960,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Sunken Curse",
@@ -4971,7 +4971,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Desert Veil",
@@ -4982,7 +4982,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, air, scorched"
+    "tags": "enemy"
   },
   {
     "action": "Sand Spray",
@@ -5015,7 +5015,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, fire"
+    "tags": "enemy"
   },
   {
     "action": "Precision Shot",
@@ -5026,7 +5026,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Shatter",
@@ -5037,7 +5037,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Vanish",
@@ -5048,7 +5048,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Soul Drain",
@@ -5060,7 +5060,7 @@
     "speed": "1.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Sap Drain",
@@ -5071,7 +5071,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Ground Pound",
@@ -5082,7 +5082,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Venom Volley",
@@ -5093,7 +5093,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Sunbeam",
@@ -5104,7 +5104,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Mandible Crush",
@@ -5115,7 +5115,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Sand Blind",
@@ -5137,7 +5137,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Death Bolt",
@@ -5148,7 +5148,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Binding Slam",
@@ -5170,7 +5170,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Keen Eye",
@@ -5181,7 +5181,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Stone Barrage",
@@ -5203,7 +5203,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Disease Spread",
@@ -5214,7 +5214,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Corrupted Gulp",
@@ -5225,7 +5225,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Phantom Strike",
@@ -5236,7 +5236,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Thunder Clap",
@@ -5247,7 +5247,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, air"
+    "tags": "enemy"
   },
   {
     "action": "Wind Gust",
@@ -5269,7 +5269,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Ember lunge",
@@ -5291,7 +5291,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Gust Talon",
@@ -5302,7 +5302,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, air"
+    "tags": "enemy"
   },
   {
     "action": "Soot Pummel",
@@ -5313,7 +5313,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Tongue Lash",
@@ -5324,7 +5324,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Murky Ambush",
@@ -5335,7 +5335,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Smoldering Strike",
@@ -5346,7 +5346,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Root Slam",
@@ -5368,7 +5368,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Guard Stance",
@@ -5379,7 +5379,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, earth"
+    "tags": "enemy"
   },
   {
     "action": "Lava Glob",
@@ -5390,7 +5390,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, fire, scorched"
+    "tags": "enemy, fire"
   },
   {
     "action": "Drift Strike",
@@ -5401,7 +5401,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Shield Bash",
@@ -5412,7 +5412,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Rubble Toss",
@@ -5423,7 +5423,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Wall of Ash",
@@ -5434,7 +5434,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, fire, scorched"
+    "tags": "enemy, fire"
   },
   {
     "action": "Blazing Advance",
@@ -5445,7 +5445,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Arcane Ward",
@@ -5467,7 +5467,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Draining Bite",
@@ -5478,7 +5478,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Spore Burst",
@@ -5489,7 +5489,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Crystal barb",
@@ -5500,7 +5500,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, earth"
+    "tags": "enemy"
   },
   {
     "action": "Shell Ram",
@@ -5511,7 +5511,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Slag Drift",
@@ -5522,7 +5522,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Boiling Snap",
@@ -5533,7 +5533,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Petrify Sweep",
@@ -5544,7 +5544,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Molten Pounce",
@@ -5555,7 +5555,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Resin Snare",
@@ -5566,7 +5566,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Boundary Mark",
@@ -5577,7 +5577,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Rally Pack",
@@ -5588,7 +5588,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Marrow Drain",
@@ -5599,7 +5599,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Offering",
@@ -5610,7 +5610,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Dark Roar",
@@ -5621,7 +5621,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Tremor",
@@ -5632,7 +5632,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Night's Grace",
@@ -5643,7 +5643,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Sonic Pulse",
@@ -5654,7 +5654,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Dominant Bite",
@@ -5665,7 +5665,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Misdirect",
@@ -5676,7 +5676,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Bush Ambush",
@@ -5687,7 +5687,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Wall Shift",
@@ -5698,7 +5698,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Confuse Trail",
@@ -5709,7 +5709,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Endless Cycle",
@@ -5720,7 +5720,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Primal Fear",
@@ -5731,7 +5731,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Twin Strike",
@@ -5742,7 +5742,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Fragment",
@@ -5753,7 +5753,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Confusion",
@@ -5764,7 +5764,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Bramble Hide",
@@ -5775,7 +5775,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Vine Whip",
@@ -5786,7 +5786,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, overgrown"
+    "tags": "enemy"
   },
   {
     "action": "Rattle Warning",
@@ -5797,7 +5797,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Collect",
@@ -5808,7 +5808,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Pollinate",
@@ -5819,7 +5819,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Echo Call",
@@ -5830,7 +5830,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Climb",
@@ -5841,7 +5841,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Grow",
@@ -5852,7 +5852,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Crumble",
@@ -5863,7 +5863,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, earth"
+    "tags": "enemy"
   },
   {
     "action": "Predator's Eye",
@@ -5874,7 +5874,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Swarm Dive",
@@ -5885,7 +5885,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Mire Slam",
@@ -5918,7 +5918,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, earth"
+    "tags": "enemy"
   },
   {
     "action": "Surge",
@@ -5929,7 +5929,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "False Form",
@@ -5940,7 +5940,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Frost Crawl",
@@ -5951,7 +5951,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, water"
+    "tags": "enemy"
   },
   {
     "action": "Phantom Lunge",
@@ -5962,7 +5962,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Biolumiscent Flash",
@@ -5973,7 +5973,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Frozen Burst",
@@ -5984,7 +5984,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, water"
+    "tags": "enemy"
   },
   {
     "action": "Cavern Thrash",
@@ -5995,7 +5995,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, earth"
+    "tags": "enemy"
   },
   {
     "action": "Basin Surge",
@@ -6006,7 +6006,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Pit Pull",
@@ -6017,7 +6017,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Tentacle Snap",
@@ -6028,7 +6028,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Steam Dash",
@@ -6039,7 +6039,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Splash",
@@ -6050,7 +6050,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Phantom Surge",
@@ -6061,7 +6061,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Abyssal pull",
@@ -6072,7 +6072,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, water"
+    "tags": "enemy"
   },
   {
     "action": "Tidal Sweep",
@@ -6083,7 +6083,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, water"
+    "tags": "enemy"
   },
   {
     "action": "Pressurized Strike",
@@ -6094,7 +6094,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Rapid Current",
@@ -6105,7 +6105,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Channel Slam",
@@ -6127,7 +6127,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Shadow Surge",
@@ -6138,7 +6138,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, air, exposed"
+    "tags": "enemy"
   },
   {
     "action": "Drowned Wrath",
@@ -6149,6 +6149,6 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy, exposed"
+    "tags": "enemy"
   }
 ]

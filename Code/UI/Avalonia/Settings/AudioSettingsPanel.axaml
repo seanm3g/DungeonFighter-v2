@@ -3,63 +3,50 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
-             x:Class="RPGGame.UI.Avalonia.Settings.AudioSettingsPanel"
-             Background="Transparent">
+             x:Class="RPGGame.UI.Avalonia.Settings.AudioSettingsPanel" Classes="settings-ui" Background="Transparent">
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="20" Margin="20">
 
             <!-- Volume + Mute -->
-            <Border Background="#FF252525"
-                    BorderBrush="#FF404040"
-                    BorderThickness="1"
-                    CornerRadius="6"
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="14">
                     <TextBlock Text="Volume"
-                               FontSize="18"
-                               FontWeight="SemiBold"
-                               Foreground="#FFE8E8E8"
+                               Classes="settings-section-header"
                                Margin="0,0,0,4"/>
 
                     <Grid ColumnDefinitions="160,*,70,90" RowDefinitions="Auto,10,Auto,10,Auto">
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Master"  Foreground="#FFE8E8E8" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Master"  Classes="settings-field-label" VerticalAlignment="Center"/>
                         <Slider    Grid.Row="0" Grid.Column="1" x:Name="MasterVolumeSlider" Minimum="0" Maximum="1" Value="1" TickFrequency="0.05" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="0" Grid.Column="2" x:Name="MasterVolumeLabel" Text="100%" Foreground="#FFE8E8E8" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <CheckBox  Grid.Row="0" Grid.Column="3" x:Name="MasterMuteCheckBox" Content="Mute" Foreground="#FFE8E8E8" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" x:Name="MasterVolumeLabel" Text="100%" Classes="settings-field-label" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <CheckBox  Grid.Row="0" Grid.Column="3" x:Name="MasterMuteCheckBox" Content="Mute" Classes="settings-field-label" VerticalAlignment="Center"/>
 
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Music"  Foreground="#FFE8E8E8" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Music"  Classes="settings-field-label" VerticalAlignment="Center"/>
                         <Slider    Grid.Row="2" Grid.Column="1" x:Name="MusicVolumeSlider"  Minimum="0" Maximum="1" Value="0.7" TickFrequency="0.05" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="2" Grid.Column="2" x:Name="MusicVolumeLabel" Text="70%" Foreground="#FFE8E8E8" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <CheckBox  Grid.Row="2" Grid.Column="3" x:Name="MusicMuteCheckBox" Content="Mute" Foreground="#FFE8E8E8" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" x:Name="MusicVolumeLabel" Text="70%" Classes="settings-field-label" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <CheckBox  Grid.Row="2" Grid.Column="3" x:Name="MusicMuteCheckBox" Content="Mute" Classes="settings-field-label" VerticalAlignment="Center"/>
 
-                        <TextBlock Grid.Row="4" Grid.Column="0" Text="SFX"    Foreground="#FFE8E8E8" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="SFX"    Classes="settings-field-label" VerticalAlignment="Center"/>
                         <Slider    Grid.Row="4" Grid.Column="1" x:Name="SfxVolumeSlider"    Minimum="0" Maximum="1" Value="0.9" TickFrequency="0.05" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="4" Grid.Column="2" x:Name="SfxVolumeLabel" Text="90%" Foreground="#FFE8E8E8" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <CheckBox  Grid.Row="4" Grid.Column="3" x:Name="SfxMuteCheckBox" Content="Mute" Foreground="#FFE8E8E8" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="4" Grid.Column="2" x:Name="SfxVolumeLabel" Text="90%" Classes="settings-field-label" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <CheckBox  Grid.Row="4" Grid.Column="3" x:Name="SfxMuteCheckBox" Content="Mute" Classes="settings-field-label" VerticalAlignment="Center"/>
                     </Grid>
 
                     <Grid ColumnDefinitions="220,160,*">
-                        <TextBlock Grid.Column="0" Text="Music track crossfade (ms)" Foreground="#FFE8E8E8" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="Music track crossfade (ms)" Classes="settings-field-label" VerticalAlignment="Center"/>
                         <NumericUpDown Grid.Column="1" x:Name="MusicCrossfadeMsBox" Minimum="0" Maximum="10000" Increment="50" Value="1000"/>
                     </Grid>
                 </StackPanel>
-            </Border>
+            </StackPanel>
 
             <!-- State → Music mapping -->
-            <Border Background="#FF252525"
-                    BorderBrush="#FF404040"
-                    BorderThickness="1"
-                    CornerRadius="6"
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="12">
                     <TextBlock Text="State → Music"
-                               FontSize="18"
-                               FontWeight="SemiBold"
-                               Foreground="#FFE8E8E8"
+                               Classes="settings-section-header"
                                Margin="0,0,0,4"/>
                     <TextBlock Text="Choose which music cue plays in each game state."
-                               Foreground="#FFAFAFAF" FontSize="12"/>
+                               Classes="settings-muted" FontSize="12"/>
                     <ItemsControl x:Name="StateMusicMapItemsControl">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -68,22 +55,16 @@
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
                 </StackPanel>
-            </Border>
+            </StackPanel>
 
             <!-- Cue grid -->
-            <Border Background="#FF252525"
-                    BorderBrush="#FF404040"
-                    BorderThickness="1"
-                    CornerRadius="6"
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="12">
                     <TextBlock Text="Cue bindings"
-                               FontSize="18"
-                               FontWeight="SemiBold"
-                               Foreground="#FFE8E8E8"
+                               Classes="settings-section-header"
                                Margin="0,0,0,4"/>
                     <TextBlock Text="Each cue can map to a WAV / MP3 / FLAC file under GameData/Audio/. OGG requires the SoundFlow FFmpeg extension. Test plays the cue immediately."
-                               Foreground="#FFAFAFAF" FontSize="12" TextWrapping="Wrap"/>
+                               Classes="settings-muted" FontSize="12" TextWrapping="Wrap"/>
                     <ItemsControl x:Name="CueBindingItemsControl">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -92,7 +73,7 @@
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
                 </StackPanel>
-            </Border>
+            </StackPanel>
 
         </StackPanel>
     </ScrollViewer>

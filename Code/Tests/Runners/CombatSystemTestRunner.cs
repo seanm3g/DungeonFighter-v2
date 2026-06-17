@@ -56,6 +56,14 @@ namespace RPGGame.Tests.Runners
             BattleNarrativeFormattersTests.RunAllTests();
             Console.WriteLine();
             CombatResultsColoredTextTests.RunAllTests();
+            Console.WriteLine();
+            int run = 0, pass = 0, fail = 0;
+            ActionMechanicTagProcessorTests.RunAll(ref run, ref pass, ref fail);
+            Console.WriteLine($"ActionMechanicTagProcessor: {pass}/{run} passed\n");
+            ActionRollTagProcessorTests.RunAll(ref run, ref pass, ref fail);
+            Console.WriteLine($"ActionRollTagProcessor: {pass}/{run} passed\n");
+            EnvironmentRollModifierTests.RunAll(ref run, ref pass, ref fail);
+            Console.WriteLine($"EnvironmentRollModifier: {pass}/{run} passed\n");
         }
     }
 }

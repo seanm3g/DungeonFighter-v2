@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -31,7 +32,7 @@ namespace RPGGame
             {
                 if (data.Tags == null || data.WeaponTypes == null)
                     continue;
-                if (!data.Tags.Any(t => t.Equals(WeaponBasicTag, StringComparison.OrdinalIgnoreCase)))
+                if (!ActionTagSyncHelper.IsRequiredBasic(data.Tags))
                     continue;
                 if (!data.WeaponTypes.Any(wt => wt.Equals(typeName, StringComparison.OrdinalIgnoreCase)))
                     continue;

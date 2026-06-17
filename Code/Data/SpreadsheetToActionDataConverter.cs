@@ -190,6 +190,8 @@ namespace RPGGame.Data
             // No duplicate tags: deduplicate (category + rarity + tags string can repeat the same tag)
             actionData.Tags = actionData.Tags.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
+            ActionTagSyncHelper.SyncCanonicalTags(actionData);
+
             ApplyNonHeroSpreadsheetDefaults(actionData);
             
             // Trigger conditions (ONHIT, ONMISS, ONCOMBO, ONCRITICAL)

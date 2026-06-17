@@ -16,8 +16,7 @@ namespace RPGGame.Utils
         private static readonly object _lockObject = new object();
         private static Stopwatch? _executionStopwatch;
         private static DateTime? _executionStartTime;
-        private static Stopwatch? _launchStopwatch;
-        private static DateTime? _launchStartTime;
+        private static bool _launchTimeRecorded;
 
         /// <summary>
         /// Starts tracking application execution time
@@ -26,10 +25,15 @@ namespace RPGGame.Utils
         {
             _executionStopwatch = Stopwatch.StartNew();
             _executionStartTime = DateTime.UtcNow;
-            
-            // Also start launch time tracking
-            _launchStopwatch = Stopwatch.StartNew();
-            _launchStartTime = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Elapsed time since the OS started this process (includes runtime init before Main).
+        /// </summary>
+        public static TimeSpan GetElapsedSinceProcessStart()
+        {
+            var process = Process.GetCurrentProcess();
+            return DateTime.UtcNow - process.StartTime.ToUniversalTime();
         }
         
         /// <summary>
@@ -63,31 +67,22 @@ namespace RPGGame.Utils
         }
         
         /// <summary>
-        /// Records and outputs launch time (time from program start to ready)
+        /// Records and outputs launch time (process start through application ready).
+        /// For GUI mode, call when the main window is first shown.
         /// </summary>
         public static void RecordLaunchTime(string mode = "GUI")
         {
-            if (_launchStopwatch == null || _launchStartTime == null)
+            if (_launchTimeRecorded)
                 return;
-            
-            _launchStopwatch.Stop();
-            var launchTimeMs = _launchStopwatch.ElapsedMilliseconds;
-            var launchTimeSeconds = _launchStopwatch.Elapsed.TotalSeconds;
-            
-            var assemblyAge = GetTimeSinceAssemblyFileWrite();
-            
+
+            _launchTimeRecorded = true;
+
+            var launchElapsed = GetElapsedSinceProcessStart();
+            var launchTimeMs = (long)launchElapsed.TotalMilliseconds;
+            var launchTimeSeconds = launchElapsed.TotalSeconds;
+
             // Output to console
             Console.WriteLine("\n═══════════════════════════════════════════════════════");
-            if (assemblyAge.HasValue)
-            {
-                var ageSeconds = assemblyAge.Value.TotalSeconds;
-                var ageMs = (long)assemblyAge.Value.TotalMilliseconds;
-                Console.WriteLine($"  Since main assembly file write: {ageSeconds:F2} s ({ageMs} ms)");
-            }
-            else
-            {
-                Console.WriteLine($"  Since main assembly file write: unknown (missing or older than 10 min)");
-            }
             Console.WriteLine($"  Launch Time: {launchTimeSeconds:F2} seconds ({launchTimeMs} ms)");
             Console.WriteLine($"  Mode: {mode}");
             Console.WriteLine($"═══════════════════════════════════════════════════════\n");

@@ -156,6 +156,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             SettingsPanelCatalogTests.RunAllTests();
             Console.WriteLine();
+            SettingsInputApplierTests.RunAllTests();
+            Console.WriteLine();
             SettingsApplyServiceTests.RunAllTests();
             Console.WriteLine();
             SettingsSaveRevampTests.RunAllTests();

@@ -46,22 +46,13 @@ AIR_RE = re.compile(
     re.I,
 )
 
-GIANT_RE = re.compile(r"\b(titan|colossus|golem|warden|mound|bear|treant|scarab)\b", re.I)
-LARGE_RE = re.compile(
-    r"\b(ogre|bear|knight|hulk|hulking|big|large|massive|brute|guard|sentinel|"
-    r"minotaur|hydra|dragon|wyrm)\b",
-    re.I,
-)
+GIANT_RE = re.compile(r"\b(titan|colossus|golem|warden|mound|bear|treant|scarab|roller)\b", re.I)
 YOUNG_RE = re.compile(
-    r"\b(young|juvenile|fledgling|hatchling|cub|whelp|spawn)\b",
-    re.I,
-)
-BULKY_RE = re.compile(
-    r"\b(brute|tortoise|crab|mound|stocky|bulky|thick|armored|shell)\b",
+    r"\b(young|juvenile|fledgling|hatchling|cub|whelp|spawn|sentinel|watcher)\b",
     re.I,
 )
 FRAIL_RE = re.compile(
-    r"\b(wisp|skeleton|glass|thin|brittle|frail|shard|bony|gaunt)\b",
+    r"\b(wisp|skeleton|glass|thin|brittle|frail|shard|bony|gaunt|fragile|spider)\b",
     re.I,
 )
 TINY_RE = re.compile(
@@ -71,8 +62,23 @@ TINY_RE = re.compile(
 )
 HANDS_NAME_RE = re.compile(
     r"\b(goblin|knight|priest|sentinel|mimic|runner|duplicate|lich|"
-    r"warlord|duelist|artificer|trickster|acrobat|flanker|cleric|guard|"
-    r"warden|stalker|hunter|caster|priest|imp)\b",
+    r"warlord|duelist|trickster|acrobat|flanker|cleric|guard|"
+    r"warden|stalker|hunter|caster|imp)\b",
+    re.I,
+)
+FEET_NAME_RE = re.compile(
+    r"\b(wolf|bear|spider|bat|boar|scorpion|serpent|crab|tortoise|beetle|"
+    r"scarab|rat|leech|toad|salamander|goblin|knight|guard|sentinel|warden)\b",
+    re.I,
+)
+LEGS_NAME_RE = re.compile(
+    r"\b(wolf|bear|spider|bat|boar|scorpion|serpent|goblin|knight|guard|"
+    r"sentinel|warden|imp|acrobat|hunter|stalker)\b",
+    re.I,
+)
+HEAD_NAME_RE = re.compile(
+    r"\b(wolf|bear|spider|bat|boar|scorpion|serpent|crab|tortoise|beetle|"
+    r"goblin|knight|guard|sentinel|warden|lich|treant|dragon|hydra)\b",
     re.I,
 )
 
@@ -117,12 +123,13 @@ TAG_ORDER = [
     "boss",
     "minion",
     "giant",
-    "large",
     "young",
     "tiny",
-    "bulky",
     "frail",
     "has_hands",
+    "has_feet",
+    "has_legs",
+    "has_head",
 ]
 
 
@@ -136,7 +143,6 @@ def infer_tags(enemy: dict) -> list[str]:
 
     tags: list[str] = []
 
-    # --- substance (one primary) ---
     if UNDEAD_RE.search(text) or (
         not living
         and not PLANT_RE.search(text)
@@ -153,7 +159,6 @@ def infer_tags(enemy: dict) -> list[str]:
     elif living:
         tags.append("living")
     else:
-        # constructs / spirits without explicit undead wording
         if ELEMENTAL_RE.search(text) or FIRE_RE.search(text):
             tags.append("elemental")
         elif PLANT_RE.search(text):
@@ -161,7 +166,6 @@ def infer_tags(enemy: dict) -> list[str]:
         else:
             tags.append("undead")
 
-    # --- elements (match flavor) ---
     if FIRE_RE.search(text):
         tags.append("fire")
     if EARTH_RE.search(text):
@@ -171,7 +175,6 @@ def infer_tags(enemy: dict) -> list[str]:
     if AIR_RE.search(text):
         tags.append("air")
 
-    # --- encounter role ---
     if name_l in BOSS_NAMES or BOSS_RE.search(name_l) or (
         rarity == "rare" and BOSS_RE.search(text)
     ):
@@ -179,7 +182,6 @@ def infer_tags(enemy: dict) -> list[str]:
     elif rarity in ("common", "uncommon") and MINION_RE.search(name_l):
         tags.append("minion")
 
-    # --- creature size / shape ---
     if BOSS_RE.search(name_l) or name_l in BOSS_NAMES:
         if GIANT_RE.search(text) or GIANT_RE.search(name_l):
             tags.append("giant")
@@ -190,28 +192,24 @@ def infer_tags(enemy: dict) -> list[str]:
 
     has_giant = "giant" in tags
 
-    if not has_giant and (
-        LARGE_RE.search(name_l)
-        or (LARGE_RE.search(text) and rarity in ("rare", "uncommon", "common"))
-    ):
-        tags.append("large")
-
-    if YOUNG_RE.search(text):
+    if not has_giant and YOUNG_RE.search(text):
         tags.append("young")
 
     if TINY_RE.search(name_l):
         tags.append("tiny")
-
-    if BULKY_RE.search(text):
-        tags.append("bulky")
 
     if FRAIL_RE.search(text):
         tags.append("frail")
 
     if HANDS_NAME_RE.search(name_l):
         tags.append("has_hands")
+    if FEET_NAME_RE.search(name_l):
+        tags.append("has_feet")
+    if LEGS_NAME_RE.search(name_l):
+        tags.append("has_legs")
+    if HEAD_NAME_RE.search(name_l):
+        tags.append("has_head")
 
-    # dedupe preserving TAG_ORDER
     seen: set[str] = set()
     ordered: list[str] = []
     tag_set = set(tags)

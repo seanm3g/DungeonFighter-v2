@@ -12,6 +12,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Resources;
 using RPGGame.UI.Avalonia.Settings;
 
 namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
@@ -44,7 +45,24 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             );
 
             WireUpTestButtons(testingPanel);
+            WireUpActionLabButton(testingPanel);
             WireUpScriptsSubsection(testingPanel);
+        }
+
+        private void WireUpActionLabButton(TestingSettingsPanel panel)
+        {
+            if (canvasUI == null) return;
+            var btn = panel.FindControl<Button>("ActionInteractionLabButton");
+            if (btn == null) return;
+
+            btn.Click += async (_, _) =>
+            {
+                var game = canvasUI.GetGame();
+                if (game == null)
+                    return;
+                canvasUI.GetMainWindow()?.Activate();
+                await game.StartActionInteractionLabAsync(canvasUI).ConfigureAwait(true);
+            };
         }
 
         public void LoadSettings(UserControl panel)
@@ -109,8 +127,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 var noScripts = new TextBlock
                 {
                     Text = "Scripts folder not found (run from project root).",
-                    Foreground = Brushes.Gray
                 };
+                SettingsInputApplier.ApplyTextBlock(noScripts, muted: true);
                 scriptsPanel.Children.Add(noScripts);
                 return;
             }

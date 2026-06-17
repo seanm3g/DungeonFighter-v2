@@ -6,7 +6,20 @@
 
 ## Recent Completions ✅
 
-### 📋 Combat log copy shortcut (May 10, 2026)
+### 📋 Large production file refactoring (June 15, 2026)
+
+**Status:** ✅ Complete  
+**Feature:** Split oversized production classes into partial/domain files for readability and maintenance (test files unchanged).
+
+#### Implementation Summary
+- [x] Phase 1A: `JsonArraySheetConverter` helpers (`GameDataTabularSheetKind`, `JsonArraySheetSchemas`, `StatBonusSheetBracketParser`, `SheetTagsNormalizer`, `SheetCellFormatters`, `ItemCatalogSortHelper`, `ModificationsJsonArrayMerger`)
+- [x] Phase 1B: `Code/Config/Items/` domain split (replaces `ItemConfig.cs`)
+- [x] Phase 1C: `ActionLabEncounterSimulator` DTOs + `ActionLabEncounterReportFormatter`
+- [x] Phase 2: Partials for `CombatActionStripBuilder`, `TextAnimationPresetsPanelHandler`, `SoundFlowAudioEngine`, `CanvasUICoordinator` (DisplayBuffer + ScreenRendering)
+- [x] Phase 3: `ActionInteractionLabSession` partials + `LabCombatEntityFactory`
+- [x] Phase 4: `Code/Data/JsonArraySheetConverter/` push/pull partials by sheet type
+
+---
 
 **Status:** ✅ Complete  
 **Feature:** During active combat UI, **Ctrl+C** / **Cmd+C** copies plain combat log text (full display buffer) to the system clipboard; canvas status feedback; overlays (settings/tuning) suppress the shortcut.

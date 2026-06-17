@@ -80,6 +80,10 @@ namespace RPGGame
 
         public List<string>? Tags { get; set; }
 
+        [JsonPropertyName("unstableThresholdMod")]
+
+        public int UnstableThresholdMod { get; set; }
+
         [JsonPropertyName("actions")]
 
         public List<RoomActionData> Actions { get; set; } = new List<RoomActionData>();
@@ -457,6 +461,8 @@ namespace RPGGame
 
 
                 ApplyEnvironmentTags(room, roomData.Tags, dungeonTheme);
+
+                room.SetUnstableThresholdMod(roomData.UnstableThresholdMod);
 
                 return room;
 

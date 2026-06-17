@@ -35,6 +35,12 @@ namespace RPGGame.Data
             return HasTag(tags, "environment");
         }
 
+        /// <summary>True when the tag list includes <c>item</c> pool gate.</summary>
+        public static bool HasItemPoolTag(IEnumerable<string>? tags) => HasTag(tags, "item");
+
+        /// <summary>True when the tag list includes <c>action</c> pool gate.</summary>
+        public static bool HasActionPoolTag(IEnumerable<string>? tags) => HasTag(tags, "action");
+
         /// <summary>True when the tag list includes <c>enemy</c> (case-insensitive). Such actions are for enemy pools only, not the hero.</summary>
         public static bool HasEnemyTag(IEnumerable<string>? tags)
         {

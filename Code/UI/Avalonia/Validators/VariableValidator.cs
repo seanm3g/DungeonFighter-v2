@@ -1,6 +1,6 @@
 using Avalonia.Controls;
-using Avalonia.Media;
 using RPGGame.Editors;
+using RPGGame.UI.Avalonia.Resources;
 using System;
 
 namespace RPGGame.UI.Avalonia.Validators
@@ -76,13 +76,13 @@ namespace RPGGame.UI.Avalonia.Validators
                 if (isValid && newValue != null)
                 {
                     variable.SetValue(newValue);
-                    textBox.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+                    SettingsInputApplier.ApplyTextBox(textBox);
                     showStatusMessage($"✓ Updated {variable.Name} to {newValue}", false);
                     return (true, null);
                 }
                 else
                 {
-                    textBox.Background = new SolidColorBrush(Color.FromRgb(80, 40, 40));
+                    SettingsInputApplier.ApplyTextBox(textBox, isError: true);
                     string errorMsg = $"Invalid value for {variable.Name}. Expected {valueType.Name}.";
                     showStatusMessage(errorMsg, true);
                     // Reset to current value
@@ -92,7 +92,7 @@ namespace RPGGame.UI.Avalonia.Validators
             }
             catch (Exception ex)
             {
-                textBox.Background = new SolidColorBrush(Color.FromRgb(80, 40, 40));
+                SettingsInputApplier.ApplyTextBox(textBox, isError: true);
                 string errorMsg = $"Error updating {variable.Name}: {ex.Message}";
                 showStatusMessage(errorMsg, true);
                 // Reset to current value

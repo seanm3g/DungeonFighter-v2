@@ -4,8 +4,8 @@
              RequestedThemeVariant="Default">
     <Application.Styles>
         <FluentTheme />
-        <!-- Override TextBox selection colors globally to fix white-on-white selection issue -->
-        <!-- Force selection background to dark blue and text to white for visibility -->
+        <StyleInclude Source="avares://DF/UI/Avalonia/Resources/SettingsTheme.axaml"/>
+        <!-- Global TextBox selection (non-settings surfaces) -->
         <Style Selector="TextBox">
             <Setter Property="SelectionBrush" Value="#FF0078D4"/>
             <Setter Property="SelectionForegroundBrush" Value="#FFFFFFFF"/>
@@ -25,7 +25,6 @@
                 <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillUnchecked" Color="White"/>
             </Style.Resources>
         </Style>
-        <!-- CheckBox: make the actual tick box (NormalRectangle) white border and fill -->
         <Style Selector="CheckBox /template/ Border#NormalRectangle">
             <Setter Property="BorderBrush" Value="White"/>
             <Setter Property="Background" Value="White"/>
@@ -50,7 +49,6 @@
             <Setter Property="Background" Value="#FFCCCCCC"/>
         </Style>
     </Application.Styles>
-    <!-- Override Fluent CheckBox default-state resources (after Styles so they take precedence) -->
     <Application.Resources>
         <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeUnchecked" Color="White"/>
         <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillUnchecked" Color="White"/>

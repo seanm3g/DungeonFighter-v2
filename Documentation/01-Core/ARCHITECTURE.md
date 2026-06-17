@@ -340,7 +340,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
   - **`Code/Config/CharacterConfig.cs`** - Character, attributes, progression, and class balance
   - **`Code/Config/CombatConfig.cs`** - Combat, status effects, and roll systems
   - **`Code/Config/EnemyConfig.cs`** - Enemy scaling, balance, and archetypes
-  - **`Code/Config/ItemConfig.cs`** - Item scaling, rarity, and loot systems
+  - **`Code/Config/Items/`** - Item scaling, rarity, affix, loot, and starting gear config (split from monolithic `ItemConfig.cs`)
   - **`Code/Config/DungeonConfig.cs`** - Dungeon generation and scaling
   - **`Code/Config/UIConfig.cs`** - UI customization and messages
   - **`Code/Config/SystemConfig.cs`** - System settings, debug, and balance analysis
@@ -356,6 +356,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/Utils/Dice.cs`** - Dice rolling and probability systems
 - **`Code/Utils/TestManager.cs`** - Test execution and analysis framework
 - **`Code/Data/JsonLoader.cs`** - Common JSON loading and file operations
+- **`Code/Data/JsonArraySheetConverter/`** - Google Sheets JSON array push/pull (partials by sheet type; helpers in `SheetCellFormatters`, `StatBonusSheetBracketParser`, etc.)
 - **`Code/Game/GameTicker.cs`** - Game time management and ticker system
 
 ## 📊 Data Management

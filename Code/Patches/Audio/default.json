@@ -1,0 +1,55 @@
+{
+  "cueMap": {
+    "Music_MainMenu": {
+      "file": "Music/29th-synth MAIN MENU.wav",
+      "volume": 1.0
+    },
+    "Music_WeaponSelection": {
+      "file": "Music/29th-synth bass.wav",
+      "volume": 1.0
+    },
+    "Music_CharacterCreation": {
+      "file": "Music/29th-synth menus.wav",
+      "volume": 1.0
+    },
+    "Music_Inventory": {
+      "file": "Music/29th-synth inventory.wav",
+      "volume": 1.0
+    },
+    "Music_Combat": {
+      "file": "Music/29th-synth harmony.wav",
+      "volume": 1.0
+    },
+    "Menu_Select": {
+      "file": "SFX/blipSelect.wav",
+      "volume": 1.0
+    },
+    "Combat_CriticalMiss": {
+      "file": "SFX/crit miss2.wav",
+      "volume": 1.0
+    },
+    "Combat_Miss": {
+      "file": "SFX/MISS.wav",
+      "volume": 1.0
+    },
+    "Combat_Hit": {
+      "file": "SFX/hitHurt.wav",
+      "volume": 1.0,
+      "rateLimitMs": 80
+    },
+    "Combat_HeroHurt": {
+      "file": "SFX/hitHurt (1).wav",
+      "volume": 1.0,
+      "rateLimitMs": 80
+    }
+  },
+  "stateMusicMap": {
+    "GameLoop": "Music_MainMenu",
+    "MainMenu": "Music_MainMenu",
+    "WeaponSelection": "Music_WeaponSelection",
+    "CharacterCreation": "Music_CharacterCreation",
+    "Inventory": "Music_Inventory",
+    "DungeonSelection": "Music_CharacterCreation",
+    "Combat": "Music_Combat"
+  }
+}

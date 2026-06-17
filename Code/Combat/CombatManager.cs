@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using RPGGame.Actions.RollModification;
+using RPGGame.Combat;
 
 namespace RPGGame
 {
@@ -350,6 +351,7 @@ namespace RPGGame
             InitializeCombatEntities(player, currentEnemy, room, playerGetsFirstAttack, enemyGetsFirstAttack);
             
             // Reset environment action count for new fight
+            CombatEnvironmentContext.CurrentRoom = room;
             room.ResetForNewFight();
 
             while (player.IsAlive && currentEnemy.IsAlive)
@@ -377,6 +379,7 @@ namespace RPGGame
             player.RefreshRoomArmor();
             
             DebugLogger.WriteCombatDebug("CombatManager", $"Combat ended: {player.Name} {(player.IsAlive ? "survived" : "died")} vs {currentEnemy.Name}");
+            CombatEnvironmentContext.CurrentRoom = null;
             
             // Return true if player survived, false if player died
             return player.IsAlive;

@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:settings="clr-namespace:RPGGame.UI.Avalonia.Settings"
         mc:Ignorable="d" d:DesignWidth="620" d:DesignHeight="640"
-        x:Class="RPGGame.UI.Avalonia.Settings.StatSuffixEditDialog"
+        x:Class="RPGGame.UI.Avalonia.Settings.StatSuffixEditDialog" Classes="settings-ui"
         x:DataType="settings:StatSuffixEditViewModel"
         Title="Edit suffix"
         Width="620" Height="640" MinWidth="520" MinHeight="520"
@@ -33,7 +33,6 @@
                    Text="{Binding DialogTitle}"
                    FontSize="20"
                    FontWeight="Bold"
-                   Foreground="White"
                    Margin="0,0,0,16"/>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -43,7 +42,7 @@
                         <ColumnDefinition Width="160"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Name:" FontSize="14" Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="0" Text="Name:" FontSize="14" VerticalAlignment="Center"/>
                     <TextBox Grid.Column="1" Text="{Binding Name, Mode=TwoWay}" FontSize="14" Margin="10,0,0,0"/>
                 </Grid>
                 <Grid>
@@ -55,7 +54,7 @@
                         <ColumnDefinition Width="160"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Description:" FontSize="14" Foreground="White" VerticalAlignment="Top" Margin="0,5,0,0"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Description:" FontSize="14" VerticalAlignment="Top" Margin="0,5,0,0"/>
                     <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Description, Mode=TwoWay}" FontSize="14" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="56" Margin="10,0,0,0"/>
                 </Grid>
                 <Grid>
@@ -63,7 +62,7 @@
                         <ColumnDefinition Width="160"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Rarity (pool):" FontSize="14" Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="0" Text="Rarity (pool):" FontSize="14" VerticalAlignment="Center"/>
                     <ComboBox Grid.Column="1" SelectedItem="{Binding Rarity, Mode=TwoWay}" ItemsSource="{Binding AvailableRarities}" FontSize="14" Margin="10,0,0,0"/>
                 </Grid>
                 <Grid>
@@ -71,7 +70,7 @@
                         <ColumnDefinition Width="160"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Item rank:" FontSize="14" Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="0" Text="Item rank:" FontSize="14" VerticalAlignment="Center"/>
                     <TextBox Grid.Column="1" Text="{Binding ItemRank, Mode=TwoWay}" FontSize="14" Margin="10,0,0,0" Watermark="Optional — loot catalog tier"/>
                 </Grid>
                 <Grid>
@@ -79,7 +78,7 @@
                         <ColumnDefinition Width="160"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Stat type (legacy):" FontSize="14" Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="0" Text="Stat type (legacy):" FontSize="14" VerticalAlignment="Center"/>
                     <TextBox Grid.Column="1" Text="{Binding StatType, Mode=TwoWay}" FontSize="14" Margin="10,0,0,0"/>
                 </Grid>
                 <Grid>
@@ -87,7 +86,7 @@
                         <ColumnDefinition Width="160"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Value (legacy):" FontSize="14" Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="0" Text="Value (legacy):" FontSize="14" VerticalAlignment="Center"/>
                     <TextBox Grid.Column="1" Text="{Binding Value, Mode=TwoWay}" FontSize="14" Margin="10,0,0,0"/>
                 </Grid>
                 <Grid>
@@ -99,19 +98,19 @@
                         <ColumnDefinition Width="160"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Mechanics:" FontSize="14" Foreground="White" VerticalAlignment="Top" Margin="0,5,0,0"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Mechanics:" FontSize="14" VerticalAlignment="Top" Margin="0,5,0,0"/>
                     <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Spacing="6">
                         <TextBox Text="{Binding MechanicsText, Mode=TwoWay}" FontSize="13" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="120"/>
                         <TextBlock Text="One StatType: value per line, or a single bracket cell e.g. [Armor:1, Health:10]. If set, this overrides legacy stat type/value when saving."
-                                   FontSize="12" Foreground="#FFAAAAAA" TextWrapping="Wrap"/>
+                                   FontSize="12" Classes="settings-muted" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Grid>
             </StackPanel>
         </ScrollViewer>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,16,0,0">
-            <Button Content="Cancel" Width="100" Height="35" Background="#FF757575" Foreground="White" BorderThickness="0" CornerRadius="3" Click="OnCancelClick"/>
-            <Button Content="Save" Width="100" Height="35" Background="#FF4CAF50" Foreground="White" BorderThickness="0" CornerRadius="3" Click="OnSaveClick"/>
+            <Button Content="Cancel" Width="100" Height="35" Background="#FF757575" BorderThickness="0" CornerRadius="3" Click="OnCancelClick"/>
+            <Button Content="Save" Width="100" Height="35" Background="#FF4CAF50" BorderThickness="0" CornerRadius="3" Click="OnSaveClick"/>
         </StackPanel>
     </Grid>
 </Window>

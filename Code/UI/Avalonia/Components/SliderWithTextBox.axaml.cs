@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using RPGGame.UI.Avalonia.Resources;
 using Avalonia.Threading;
 
 namespace RPGGame.UI.Avalonia.Components
@@ -11,7 +12,7 @@ namespace RPGGame.UI.Avalonia.Components
     {
         /// <summary>Label color; defaults to black for light strips (e.g. Difficulty panel). Set to a light brush on dark panels so Fluent theme cannot wash the label out.</summary>
         public static readonly StyledProperty<IBrush?> LabelForegroundProperty =
-            AvaloniaProperty.Register<SliderWithTextBox, IBrush?>(nameof(LabelForeground), Brushes.Black);
+            AvaloniaProperty.Register<SliderWithTextBox, IBrush?>(nameof(LabelForeground), SettingsThemeBrushes.TextPrimary);
 
         /// <summary>When false, the built-in label row is hidden (use an external <see cref="TextBlock"/> for the caption).</summary>
         public static readonly StyledProperty<bool> ShowLabelProperty =
@@ -43,6 +44,25 @@ namespace RPGGame.UI.Avalonia.Components
 
         public static readonly StyledProperty<double> TickFrequencyProperty =
             AvaloniaProperty.Register<SliderWithTextBox, double>(nameof(TickFrequency), 0.1);
+
+        /// <summary>TextBox foreground on dark settings panels (Fluent theme otherwise hides values).</summary>
+        public static readonly StyledProperty<IBrush?> TextBoxForegroundProperty =
+            AvaloniaProperty.Register<SliderWithTextBox, IBrush?>(nameof(TextBoxForeground), SettingsThemeBrushes.TextPrimary);
+
+        public static readonly StyledProperty<IBrush?> TextBoxBackgroundBrushProperty =
+            AvaloniaProperty.Register<SliderWithTextBox, IBrush?>(nameof(TextBoxBackgroundBrush), SettingsThemeBrushes.InputBackground);
+
+        public IBrush? TextBoxForeground
+        {
+            get => GetValue(TextBoxForegroundProperty);
+            set => SetValue(TextBoxForegroundProperty, value);
+        }
+
+        public IBrush? TextBoxBackgroundBrush
+        {
+            get => GetValue(TextBoxBackgroundBrushProperty);
+            set => SetValue(TextBoxBackgroundBrushProperty, value);
+        }
 
         public string Label
         {
@@ -77,18 +97,22 @@ namespace RPGGame.UI.Avalonia.Components
                 {
                     UpdateTextBoxFromValue(value);
                 }
-                else if (_isLoaded)
+                else
                 {
-                    // If loaded but text box is null, try to update after a short delay
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        if (ValueTextBox != null)
-                        {
-                            UpdateTextBoxFromValue(value);
-                        }
-                    }, DispatcherPriority.Loaded);
+                    ScheduleTextBoxSync();
                 }
             }
+        }
+
+        /// <summary>Re-applies slider position and text box from <see cref="Value"/> (for programmatic hosts).</summary>
+        public void SyncDisplayFromValue()
+        {
+            if (ValueSlider != null)
+                ValueSlider.Value = Math.Clamp(Value, Minimum, Maximum);
+            if (ValueTextBox != null)
+                UpdateTextBoxFromValue(Value);
+            else
+                ScheduleTextBoxSync();
         }
 
         public double TickFrequency
@@ -108,6 +132,8 @@ namespace RPGGame.UI.Avalonia.Components
 
             LabelForegroundProperty.Changed.AddClassHandler<SliderWithTextBox>((o, _) => o.ApplyLabelForeground());
             ShowLabelProperty.Changed.AddClassHandler<SliderWithTextBox>((o, _) => o.ApplyShowLabel());
+            TextBoxForegroundProperty.Changed.AddClassHandler<SliderWithTextBox>((o, _) => o.ApplyTextBoxChrome());
+            TextBoxBackgroundBrushProperty.Changed.AddClassHandler<SliderWithTextBox>((o, _) => o.ApplyTextBoxChrome());
             
             // Wait for controls to be loaded before setting up bindings
             this.Loaded += OnLoaded;
@@ -132,7 +158,7 @@ namespace RPGGame.UI.Avalonia.Components
             if (LabelTextBlock == null) return;
             if (!ShowLabel)
                 return;
-            LabelTextBlock.Foreground = LabelForeground ?? Brushes.Black;
+            LabelTextBlock.Foreground = LabelForeground ?? SettingsThemeBrushes.TextPrimary;
         }
 
         private void ApplyShowLabel()
@@ -143,22 +169,43 @@ namespace RPGGame.UI.Avalonia.Components
                 ApplyLabelForeground();
         }
         
+        private void ScheduleTextBoxSync()
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (ValueTextBox != null)
+                    UpdateTextBoxFromValue(Value);
+            }, DispatcherPriority.Loaded);
+        }
+
+        private void ApplyTextBoxChrome()
+        {
+            if (ValueTextBox == null) return;
+            ValueTextBox.Foreground = TextBoxForeground ?? SettingsThemeBrushes.TextPrimary;
+            ValueTextBox.CaretBrush = TextBoxForeground ?? SettingsThemeBrushes.TextPrimary;
+            if (TextBoxBackgroundBrush != null)
+                ValueTextBox.Background = TextBoxBackgroundBrush;
+        }
+
         private void UpdateTextBoxFromValue(double value)
         {
             if (ValueTextBox != null)
             {
-                if (Maximum >= 100)
-                {
-                    // Integer format for large ranges (like milliseconds)
-                    ValueTextBox.Text = ((int)value).ToString();
-                }
+                if (ValueKind == SliderValueFormat.Integer || Maximum >= 100)
+                    ValueTextBox.Text = ((int)Math.Round(value)).ToString();
                 else
-                {
-                    // Decimal format for small ranges (like 0-1)
                     ValueTextBox.Text = value.ToString("F2");
-                }
             }
         }
+
+        private enum SliderValueFormat
+        {
+            Auto,
+            Integer
+        }
+
+        private SliderValueFormat ValueKind =>
+            TickFrequency >= 1.0 && Maximum - Minimum >= 1.0 ? SliderValueFormat.Integer : SliderValueFormat.Auto;
         
         private void OnLoaded(object? sender, RoutedEventArgs e)
         {
@@ -205,6 +252,9 @@ namespace RPGGame.UI.Avalonia.Components
                 UpdateTextBoxFromValue(Value);
             }
             
+            ApplyTextBoxChrome();
+            Dispatcher.UIThread.Post(ApplyTextBoxChrome, DispatcherPriority.Loaded);
+
             // Setup textbox validation
             if (ValueTextBox != null)
             {

@@ -32,7 +32,6 @@ namespace RPGGame
                 EnemyArchetype.Warlord => Profile(EnemyArchetype.Warlord, "Warlord", damage: 1.15, armor: 1.1),
                 EnemyArchetype.Sage => Profile(EnemyArchetype.Sage, "Sage", damage: 1.1),
                 EnemyArchetype.Duelist => Profile(EnemyArchetype.Duelist, "Duelist", speed: 1.1, damage: 1.05),
-                EnemyArchetype.Artificer => Profile(EnemyArchetype.Artificer, "Artificer", damage: 1.1),
                 EnemyArchetype.Trickster => Profile(EnemyArchetype.Trickster, "Trickster", speed: 1.15),
                 _ => Profile(EnemyArchetype.Berserker, "Berserker")
             };

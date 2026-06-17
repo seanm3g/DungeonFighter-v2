@@ -1,42 +1,30 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
-             x:Class="RPGGame.UI.Avalonia.Settings.ClassesSettingsPanel"
-             Background="Transparent">
+             x:Class="RPGGame.UI.Avalonia.Settings.ClassesSettingsPanel" Classes="settings-ui" Background="Transparent">
     <!-- Labels on the white form read as black; helper paragraphs keep their own Foreground. -->
-    <UserControl.Styles>
-        <Style Selector="Border#ClassesFormWhiteSurface TextBlock">
-            <Setter Property="Foreground" Value="Black"/>
-        </Style>
-    </UserControl.Styles>
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="16" Margin="20">
-            <Border x:Name="ClassesFormWhiteSurface"
-                    Background="White"
-                    BorderBrush="#FF404040"
-                    BorderThickness="1"
-                    CornerRadius="6"
-                    Padding="20">
-                <StackPanel Spacing="12">
+            <StackPanel x:Name="ClassesFormSurface" Spacing="12">
                     <TextBlock Text="Classes"
                                FontSize="24"
                                FontWeight="Bold"
-                               Foreground="Black"
+                               Classes="settings-field-label"
                                Margin="0,0,0,4"/>
                     <TextBlock FontSize="14"
-                               Foreground="#FF555555"
+                               Classes="settings-muted"
                                TextWrapping="Wrap"
                                Text="Shown class name (HUD, menus, tooltips) is built from **weapon path class points** only — not from STR / AGI / TEC / INT. Leveling is from XP; each level up with a weapon equipped gives +1 class point on that path. Save uses the main Settings Save button."/>
                     <TextBlock Text="Starting name"
-                               FontWeight="SemiBold" Foreground="Black" Margin="0,8,0,0"/>
+                               FontWeight="SemiBold" Classes="settings-field-label" Margin="0,8,0,0"/>
                     <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
                                Text="Default shown label when there is no meaningful build / no class-point shape yet."/>
                     <TextBox x:Name="DefaultClassTextBox" Margin="0,0,0,8"/>
                     <TextBlock Text="Path display names"
-                               FontWeight="SemiBold" Foreground="Black"/>
+                               FontWeight="SemiBold" Classes="settings-field-label"/>
                     <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
                                Text="Used in the composed shown-class title (solo cores, etc.). Does not change how class points are earned."/>
                     <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,8">
@@ -50,7 +38,7 @@
                         <TextBox Grid.Row="3" Grid.Column="1" x:Name="WandClassTextBox"/>
                     </Grid>
                     <TextBlock Text="Class point tier thresholds"
-                               FontWeight="SemiBold" Foreground="Black" Margin="0,4,0,0"/>
+                               FontWeight="SemiBold" Classes="settings-field-label" Margin="0,4,0,0"/>
                     <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
                                Text="Four ascending integer gates (sorted on save). Same band edges as weapon-path progression in-game; also drive Scarred / Blooded / … and quad Prophet / … words for the attribute-based shown title."/>
                     <Grid ColumnDefinitions="160,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,8">
@@ -64,7 +52,7 @@
                         <TextBox Grid.Row="3" Grid.Column="1" x:Name="TierThreshold4TextBox"/>
                     </Grid>
                     <TextBlock Text="Solo–trio tier words (bands 1–4)"
-                               FontWeight="SemiBold" Foreground="Black"/>
+                               FontWeight="SemiBold" Classes="settings-field-label"/>
                     <Grid ColumnDefinitions="180,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,8">
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Band 1 (lowest gate)" VerticalAlignment="Center"/>
                         <TextBox Grid.Row="0" Grid.Column="1" x:Name="AttrSoloTrioPrefix1TextBox"/>
@@ -76,7 +64,7 @@
                         <TextBox Grid.Row="3" Grid.Column="1" x:Name="AttrSoloTrioPrefix4TextBox"/>
                     </Grid>
                     <TextBlock Text="2-class hybrid cores (meaningful pair)"
-                               FontWeight="SemiBold" Foreground="Black"/>
+                               FontWeight="SemiBold" Classes="settings-field-label"/>
                     <Grid ColumnDefinitions="200,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Margin="0,0,0,8">
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Mace + Sword" VerticalAlignment="Center"/>
                         <TextBox Grid.Row="0" Grid.Column="1" x:Name="AttrDuoMaceSwordTextBox"/>
@@ -92,7 +80,7 @@
                         <TextBox Grid.Row="5" Grid.Column="1" x:Name="AttrDuoDaggerWandTextBox"/>
                     </Grid>
                     <TextBlock Text="Third-path suffix (per path)"
-                               FontWeight="SemiBold" Foreground="Black"/>
+                               FontWeight="SemiBold" Classes="settings-field-label"/>
                     <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap" Margin="0,0,0,4"
                                Text="When **three or four** paths have ≥1 class point, the shown title can end with the phrase for the **third-highest** path (ties: Mace → Sword → Dagger → Wand) **only if** that path’s class points are ≥ **Threshold 1** in **Class point tier thresholds** above. Otherwise the title stops after the duo hybrid. Solo and duo do not use these rows. Stored as attributeModifierMace / Sword / Dagger / Wand in tuning JSON."/>
                     <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,8">
@@ -106,7 +94,7 @@
                         <TextBox Grid.Row="3" Grid.Column="1" x:Name="AttrModWandTextBox"/>
                     </Grid>
                     <TextBlock Text="Quad tier words (optional tuning)"
-                               FontWeight="SemiBold" Foreground="Black"/>
+                               FontWeight="SemiBold" Classes="settings-field-label"/>
                     <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap" Margin="0,0,0,4"
                                Text="Not used for the HUD shown class when all four paths have points (that title uses the top-two duo core plus the third-highest path’s phrase when that path meets **Threshold 1**). Kept for JSON compatibility and other hybrid pickers."/>
                     <Grid ColumnDefinitions="180,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,8">
@@ -120,7 +108,7 @@
                         <TextBox Grid.Row="3" Grid.Column="1" x:Name="AttrQuadTier4TextBox"/>
                     </Grid>
                     <TextBlock Text="Preview (class points per path → composed title)"
-                               FontWeight="SemiBold" Foreground="Black"/>
+                               FontWeight="SemiBold" Classes="settings-field-label"/>
                     <Grid ColumnDefinitions="120,*,120,*,120,*" RowDefinitions="Auto,Auto,Auto" Margin="0,0,0,8">
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Mace pts" VerticalAlignment="Center"/>
                         <TextBox Grid.Row="0" Grid.Column="1" x:Name="PreviewMaceClassPointsTextBox"/>
@@ -132,10 +120,9 @@
                         <TextBox Grid.Row="1" Grid.Column="1" x:Name="PreviewWandClassPointsTextBox"/>
                         <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6"
                                    x:Name="AttributeClassPreviewTextBlock"
-                                   FontSize="14" Foreground="Black" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                   FontSize="14" Classes="settings-field-label" TextWrapping="Wrap" Margin="0,6,0,0"/>
                     </Grid>
-                </StackPanel>
-            </Border>
+            </StackPanel>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

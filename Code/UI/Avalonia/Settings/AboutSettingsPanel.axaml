@@ -3,107 +3,92 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
-             x:Class="RPGGame.UI.Avalonia.Settings.AboutSettingsPanel"
-             Background="Transparent">
+             x:Class="RPGGame.UI.Avalonia.Settings.AboutSettingsPanel" Classes="settings-ui" Background="Transparent">
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                  HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="20" Margin="20">
             <!-- Game Information -->
-            <Border Background="White" 
-                    BorderBrush="#FF404040" 
-                    BorderThickness="1" 
-                    CornerRadius="6" 
-                    Padding="20">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="15">
                     <TextBlock Text="DungeonFighter v2" 
-                               FontSize="28" 
-                               FontWeight="Bold" 
-                               Foreground="Black" 
+                               Classes="settings-panel-title" 
                                HorizontalAlignment="Center"
                                Margin="0,0,0,10"/>
                     
                     <TextBlock x:Name="VersionSubtitleTextBlock"
                                FontSize="18" 
-                               Foreground="#FFAAAAAA" 
+                               Classes="settings-muted" 
                                HorizontalAlignment="Center"
                                Margin="0,0,0,20"/>
                     
                     <TextBlock Text="A turn-based RPG/dungeon crawler with deep combat systems, readable battle narration, and tuning that lives in JSON so content and balance can evolve without rebuilding core code." 
                                FontSize="15" 
-                               Foreground="Black" 
+                               Classes="settings-field-label" 
                                TextWrapping="Wrap"
                                Margin="0,0,0,20"/>
                     
                     <Separator Background="#FF555555" Margin="0,10,0,10"/>
                     
                     <TextBlock Text="Key Features:" 
-                               FontSize="20" 
-                               FontWeight="Bold" 
-                               Foreground="Black" 
+                               Classes="settings-panel-title" 
                                Margin="0,0,0,10"/>
                     
                     <StackPanel Spacing="8" Margin="10,0,0,0">
                         <TextBlock Text="• Turn-based combat with combos, routing, and rich action interactions" 
                                    FontSize="15" 
-                                   Foreground="Black"/>
+                                   Classes="settings-field-label"/>
                         <TextBlock Text="• Dice-driven resolution with thresholds, modifiers, and conditional triggers" 
                                    FontSize="15" 
-                                   Foreground="Black"/>
+                                   Classes="settings-field-label"/>
                         <TextBlock Text="• Narrative layer for notable moments plus clear summaries for routine play" 
                                    FontSize="15" 
-                                   Foreground="Black"/>
+                                   Classes="settings-field-label"/>
                         <TextBlock Text="• In-app settings for classes, balance, items, appearance, and import/testing tools" 
                                    FontSize="15" 
-                                   Foreground="Black"/>
+                                   Classes="settings-field-label"/>
                         <TextBlock Text="• JSON-first game data with optional Google Sheets pull/push workflows" 
                                    FontSize="15" 
-                                   Foreground="Black"/>
+                                   Classes="settings-field-label"/>
                     </StackPanel>
                 </StackPanel>
-            </Border>
+            </StackPanel>
             
             <!-- Technical Information -->
-            <Border Background="White" 
-                    BorderBrush="#FF404040" 
-                    BorderThickness="1" 
-                    CornerRadius="6" 
-                    Padding="20">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="15">
                     <TextBlock Text="Technical Information" 
-                               FontSize="20" 
-                               FontWeight="Bold" 
-                               Foreground="Black" 
+                               Classes="settings-panel-title" 
                                Margin="0,0,0,10"/>
                     
                     <StackPanel Spacing="8" Margin="10,0,0,0">
                         <TextBlock Text="• Avalonia 11.x desktop UI (Windows, macOS, Linux)" 
                                    FontSize="15" 
-                                   Foreground="Black"/>
+                                   Classes="settings-field-label"/>
                         <TextBlock Text="• C# on .NET 8" 
                                    FontSize="15" 
-                                   Foreground="Black"/>
+                                   Classes="settings-field-label"/>
                         <TextBlock Text="• Modular architecture: gameplay, data, and UI boundaries stay explicit" 
                                    FontSize="15" 
-                                   Foreground="Black"/>
+                                   Classes="settings-field-label"/>
                         <TextBlock Text="• Automated tests across parsers, progression, and data pipelines" 
                                    FontSize="15" 
-                                   Foreground="Black"/>
+                                   Classes="settings-field-label"/>
                         <TextBlock Text="• MCP (Model Context Protocol) integration for external agent/tooling workflows" 
                                    FontSize="15" 
-                                   Foreground="Black"/>
+                                   Classes="settings-field-label"/>
                     </StackPanel>
                     <Separator Background="#FF555555" Margin="0,10,0,10"/>
                     <TextBlock Text="Settings file (load/save):" 
                                FontSize="14" 
                                FontWeight="SemiBold" 
-                               Foreground="Black"/>
+                               Classes="settings-field-label"/>
                     <TextBlock x:Name="SettingsFilePathTextBlock"
                                FontSize="12" 
-                               Foreground="#FF555555" 
+                               Classes="settings-muted" 
                                TextWrapping="Wrap"
                                Text=""/>
                 </StackPanel>
-            </Border>
+            </StackPanel>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

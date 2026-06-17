@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using RPGGame.Editors;
+using RPGGame.UI.Avalonia.Resources;
 using System;
 using System.Collections.Generic;
 
@@ -36,7 +37,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 Text = isCreatingNewAction ? "New Action (save with global Save)" : $"Edit Action: {action.Name}",
                 FontSize = 18,
                 FontWeight = FontWeight.Bold,
-                Foreground = new SolidColorBrush(Color.FromRgb(255, 215, 0)),
+                Foreground = SettingsThemeBrushes.TextTitle,
                 Margin = new Thickness(0, 0, 0, 15)
             };
             actionFormPanel.Children.Add(title);
@@ -75,8 +76,8 @@ namespace RPGGame.UI.Avalonia.Builders
                 Content = "Cancel",
                 Width = 100,
                 Height = 35,
-                Background = new SolidColorBrush(Color.FromRgb(117, 117, 117)),
-                Foreground = new SolidColorBrush(Colors.White),
+                Background = SettingsThemeBrushes.SidebarItem,
+                Foreground = SettingsThemeBrushes.TextPrimary,
                 BorderThickness = new Thickness(0),
                 CornerRadius = new CornerRadius(3),
                 Cursor = new Cursor(StandardCursorType.Hand)

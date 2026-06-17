@@ -1,0 +1,285 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Styles.Resources>
+        <!-- Color tokens -->
+        <SolidColorBrush x:Key="SettingsBackground" Color="#1A1A1A"/>
+        <SolidColorBrush x:Key="SettingsTextPrimary" Color="#E8E8E8"/>
+        <SolidColorBrush x:Key="SettingsTextMuted" Color="#B0B0B0"/>
+        <SolidColorBrush x:Key="SettingsTextTitle" Color="#FFD700"/>
+        <SolidColorBrush x:Key="SettingsInputBackground" Color="#2A2A2A"/>
+        <SolidColorBrush x:Key="SettingsInputHoverBackground" Color="#353535"/>
+        <SolidColorBrush x:Key="SettingsInputBorder" Color="#555555"/>
+        <SolidColorBrush x:Key="SettingsInputFocusBorder" Color="#0078D4"/>
+        <SolidColorBrush x:Key="SettingsInputErrorBackground" Color="#4A2828"/>
+        <SolidColorBrush x:Key="SettingsInputErrorBorder" Color="#8B4545"/>
+        <SolidColorBrush x:Key="SettingsSidebarBackground" Color="#404040"/>
+        <SolidColorBrush x:Key="SettingsSidebarBorder" Color="#606060"/>
+        <SolidColorBrush x:Key="SettingsSidebarItem" Color="#484848"/>
+        <SolidColorBrush x:Key="SettingsSidebarItemHover" Color="#5A5A5A"/>
+        <SolidColorBrush x:Key="SettingsSidebarSelected" Color="#2F65B2"/>
+        <SolidColorBrush x:Key="SettingsExpanderHeader" Color="#383838"/>
+
+        <!-- Typography sizes -->
+        <x:Double x:Key="SettingsFontSizeTitle">32</x:Double>
+        <x:Double x:Key="SettingsFontSizePanelTitle">20</x:Double>
+        <x:Double x:Key="SettingsFontSizeSection">18</x:Double>
+        <x:Double x:Key="SettingsFontSizeBody">15</x:Double>
+        <x:Double x:Key="SettingsFontSizeCaption">13</x:Double>
+    </Styles.Resources>
+
+    <!-- Baseline foreground for settings subtree (overrides Fluent light-theme defaults on dark panels) -->
+    <Style Selector=".settings-ui TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
+    <Style Selector=".settings-ui Label">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
+
+    <!-- Typography classes -->
+    <Style Selector="TextBlock.settings-title">
+        <Setter Property="FontSize" Value="{StaticResource SettingsFontSizeTitle}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextTitle}"/>
+    </Style>
+    <Style Selector="TextBlock.settings-panel-title">
+        <Setter Property="FontSize" Value="{StaticResource SettingsFontSizePanelTitle}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
+    <Style Selector="TextBlock.settings-section-header">
+        <Setter Property="FontSize" Value="{StaticResource SettingsFontSizeSection}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
+    <Style Selector="TextBlock.settings-field-label">
+        <Setter Property="FontSize" Value="{StaticResource SettingsFontSizeBody}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="TextBlock.settings-muted">
+        <Setter Property="FontSize" Value="{StaticResource SettingsFontSizeCaption}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextMuted}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+    <Style Selector="TextBlock.setting-example">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextMuted}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontStyle" Value="Italic"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="8,4,8,4"/>
+    </Style>
+
+    <!-- Scoped to settings UI subtree -->
+    <Style Selector=".settings-ui TextBox">
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="CaretBrush" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+        <Setter Property="SelectionBrush" Value="{StaticResource SettingsInputFocusBorder}"/>
+        <Setter Property="SelectionForegroundBrush" Value="White"/>
+        <Setter Property="Padding" Value="6,4"/>
+        <Setter Property="MinHeight" Value="28"/>
+    </Style>
+    <Style Selector=".settings-ui TextBox:focus">
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputFocusBorder}"/>
+    </Style>
+    <Style Selector=".settings-ui TextBox:pointerover">
+        <Setter Property="Background" Value="{StaticResource SettingsInputHoverBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+    </Style>
+    <Style Selector=".settings-ui TextBox:pointerover:focus">
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputFocusBorder}"/>
+    </Style>
+    <Style Selector=".settings-ui TextBox /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+    </Style>
+    <Style Selector=".settings-ui TextBox:focus /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+    </Style>
+    <Style Selector=".settings-ui TextBox:pointerover /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{StaticResource SettingsInputHoverBackground}"/>
+    </Style>
+    <Style Selector=".settings-ui TextBox:pointerover:focus /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+    </Style>
+
+    <Style Selector=".settings-ui CheckBox">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
+    <Style Selector=".settings-ui CheckBox /template/ Border#NormalRectangle">
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+    </Style>
+    <Style Selector=".settings-ui CheckBox:checked /template/ Path#CheckGlyph">
+        <Setter Property="Fill" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
+
+    <Style Selector=".settings-ui Expander">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
+    <Style Selector=".settings-ui Expander /template/ ToggleButton">
+        <Setter Property="Background" Value="{StaticResource SettingsExpanderHeader}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
+    <Style Selector=".settings-ui Expander /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource SettingsBackground}"/>
+    </Style>
+
+    <Style Selector=".settings-ui ComboBox">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+    </Style>
+
+    <Style Selector=".settings-ui ComboBox:pointerover">
+        <Setter Property="Background" Value="{StaticResource SettingsInputHoverBackground}"/>
+    </Style>
+
+    <Style Selector=".settings-ui NumericUpDown">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+        <Setter Property="MinHeight" Value="28"/>
+    </Style>
+    <Style Selector=".settings-ui NumericUpDown:focus">
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputFocusBorder}"/>
+    </Style>
+    <Style Selector=".settings-ui NumericUpDown /template/ TextBox">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+        <Setter Property="CaretBrush" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
+
+    <Style Selector=".settings-ui ListBox">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+    </Style>
+    <Style Selector=".settings-ui ListBoxItem">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="Padding" Value="8,6"/>
+    </Style>
+    <Style Selector=".settings-ui ListBoxItem:selected">
+        <Setter Property="Background" Value="{StaticResource SettingsSidebarSelected}"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector=".settings-ui ListBoxItem:pointerover">
+        <Setter Property="Background" Value="{StaticResource SettingsSidebarItemHover}"/>
+    </Style>
+
+    <Style Selector=".settings-ui TabControl">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="Background" Value="{StaticResource SettingsExpanderHeader}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="4"/>
+    </Style>
+    <Style Selector=".settings-ui TabItem">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="FontSize" Value="{StaticResource SettingsFontSizeBody}"/>
+        <Setter Property="Padding" Value="12,8"/>
+    </Style>
+    <Style Selector=".settings-ui TabItem:selected">
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
+    <Style Selector=".settings-ui TabItem:pointerover">
+        <Setter Property="Background" Value="{StaticResource SettingsInputHoverBackground}"/>
+    </Style>
+
+    <Style Selector=".settings-ui TextBox.SpawnPctBox">
+        <Setter Property="Width" Value="64"/>
+        <Setter Property="MinWidth" Value="64"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+        <Setter Property="MaxLength" Value="3"/>
+        <Setter Property="Margin" Value="0,4"/>
+    </Style>
+    <Style Selector=".settings-ui TextBox.SimParamBox">
+        <Setter Property="Width" Value="72"/>
+        <Setter Property="MinWidth" Value="48"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+    </Style>
+
+    <Style Selector=".settings-ui Slider">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
+
+    <Style Selector=".settings-ui Button.settings-primary-button">
+        <Setter Property="Background" Value="{StaticResource SettingsInputFocusBorder}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="Padding" Value="16,8"/>
+        <Setter Property="CornerRadius" Value="4"/>
+    </Style>
+    <Style Selector=".settings-ui Button.settings-primary-button:pointerover">
+        <Setter Property="Background" Value="#1A8AE6"/>
+    </Style>
+    <Style Selector=".settings-ui TextBox.settings-console-output">
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="FontFamily" Value="Consolas,Courier New,monospace"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="AcceptsReturn" Value="True"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+    <Style Selector="TextBlock.settings-total-warning">
+        <Setter Property="Foreground" Value="#E8A040"/>
+        <Setter Property="FontSize" Value="{StaticResource SettingsFontSizeCaption}"/>
+    </Style>
+
+    <!-- Settings shell sidebar -->
+    <Style Selector="ListBox#CategoryListBox ListBoxItem">
+        <Setter Property="Background" Value="{StaticResource SettingsSidebarItem}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="15,12"/>
+        <Setter Property="Margin" Value="0,3"/>
+        <Setter Property="CornerRadius" Value="4"/>
+    </Style>
+    <Style Selector="ListBox#CategoryListBox ListBoxItem ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector="ListBox#CategoryListBox ListBoxItem:selected">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="{StaticResource SettingsSidebarSelected}"/>
+    </Style>
+    <Style Selector="ListBox#CategoryListBox ListBoxItem:selected ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector="ListBox#CategoryListBox ListBoxItem:pointerover">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="{StaticResource SettingsSidebarItemHover}"/>
+    </Style>
+    <Style Selector="ListBox#CategoryListBox ListBoxItem:pointerover ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector="ListBox#CategoryListBox ListBoxItem.settings-sidebar-group-header">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextMuted}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Padding" Value="8,14,8,4"/>
+        <Setter Property="Margin" Value="0,8,0,0"/>
+        <Setter Property="CornerRadius" Value="0"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+    <Style Selector="ListBox#CategoryListBox ListBoxItem.settings-sidebar-panel-item">
+        <Setter Property="Padding" Value="15,10,15,10"/>
+        <Setter Property="Margin" Value="8,2,0,2"/>
+    </Style>
+    <Style Selector="ListBox#CategoryListBox ListBoxItem.settings-sidebar-group-header ContentPresenter">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextMuted}"/>
+    </Style>
+    <Style Selector="ListBox#CategoryListBox ListBoxItem.settings-sidebar-group-header TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextMuted}"/>
+    </Style>
+    <Style Selector="ListBox#CategoryListBox ListBoxItem TextBlock">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+</Styles>

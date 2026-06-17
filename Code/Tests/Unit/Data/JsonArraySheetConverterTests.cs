@@ -18,6 +18,7 @@ namespace RPGGame.Tests.Unit.Data
             WeaponsWithNestedRequirements(ref run, ref pass, ref fail);
             WeaponsWithTagsRoundTrip(ref run, ref pass, ref fail);
             WeaponsImportMapsTypoMinBonusHeaders(ref run, ref pass, ref fail);
+            WeaponsPushSortsByTypeThenTier(ref run, ref pass, ref fail);
             ModificationsRoundTrip(ref run, ref pass, ref fail);
             ModificationsPushIncludesTagsColumn(ref run, ref pass, ref fail);
             ModificationsCsvImportTagsColumn(ref run, ref pass, ref fail);
@@ -59,8 +60,10 @@ namespace RPGGame.Tests.Unit.Data
             ArmorWithTagsRoundTrip(ref run, ref pass, ref fail);
             ArmorCsvUtf8BomOnFirstHeaderImports(ref run, ref pass, ref fail);
             ArmorSpreadsheetTemplateHeadersRoundTrip(ref run, ref pass, ref fail);
+            ArmorPushSortsBySlotThenTier(ref run, ref pass, ref fail);
             ConsumablesCsvHumanHeadersToCanonicalJson(ref run, ref pass, ref fail);
             ConsumablesJsonPushCsvRoundTrip(ref run, ref pass, ref fail);
+            WeaponsCsvImportSortsByTypeThenTier(ref run, ref pass, ref fail);
             TestBase.PrintSummary("JsonArraySheetConverter Tests", run, pass, fail);
         }
 
@@ -155,6 +158,52 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(t.ValueKind == JsonValueKind.Array, "tags array", ref run, ref pass, ref fail);
             TestBase.AssertEqual("magical", t[0].GetString(), "tag0", ref run, ref pass, ref fail);
             TestBase.AssertEqual("starter", t[1].GetString(), "tag1", ref run, ref pass, ref fail);
+        }
+
+        private static void WeaponsPushSortsByTypeThenTier(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(WeaponsPushSortsByTypeThenTier));
+            const string json = """
+            [
+              {"type":"Wand","name":"Zeta","baseDamage":2,"attackSpeed":1,"tier":2},
+              {"type":"Mace","name":"Alpha","baseDamage":2,"attackSpeed":1,"tier":1},
+              {"type":"Mace","name":"Beta","baseDamage":2,"attackSpeed":1,"tier":2},
+              {"type":"Sword","name":"Gamma","baseDamage":2,"attackSpeed":1,"tier":1}
+            ]
+            """;
+            var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Weapons);
+            var headers = rows[0].Select(c => c?.ToString() ?? "").ToList();
+            int typeIdx = headers.FindIndex(h => string.Equals(h, "type", StringComparison.OrdinalIgnoreCase));
+            int nameIdx = headers.FindIndex(h => string.Equals(h, "name", StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertTrue(typeIdx >= 0 && nameIdx >= 0, "type/name columns", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Mace", rows[1][typeIdx]?.ToString(), "row1 type", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Alpha", rows[1][nameIdx]?.ToString(), "row1 name", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Mace", rows[2][typeIdx]?.ToString(), "row2 type", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Beta", rows[2][nameIdx]?.ToString(), "row2 name", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Sword", rows[3][typeIdx]?.ToString(), "row3 type", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Wand", rows[4][typeIdx]?.ToString(), "row4 type", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Zeta", rows[4][nameIdx]?.ToString(), "row4 name", ref run, ref pass, ref fail);
+        }
+
+        private static void WeaponsCsvImportSortsByTypeThenTier(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(WeaponsCsvImportSortsByTypeThenTier));
+            const string csv = """
+            type,name,baseDamage,attackSpeed,tier
+            Wand,Zeta,2,1,2
+            Mace,Alpha,2,1,1
+            Mace,Beta,2,1,2
+            Sword,Gamma,2,1,1
+            """;
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Weapons);
+            using var doc = JsonDocument.Parse(outJson);
+            TestBase.AssertEqual(4, doc.RootElement.GetArrayLength(), "four rows", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Mace", doc.RootElement[0].GetProperty("type").GetString(), "row1 type", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Alpha", doc.RootElement[0].GetProperty("name").GetString(), "row1 name", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Mace", doc.RootElement[1].GetProperty("type").GetString(), "row2 type", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Beta", doc.RootElement[1].GetProperty("name").GetString(), "row2 name", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Sword", doc.RootElement[2].GetProperty("type").GetString(), "row3 type", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Wand", doc.RootElement[3].GetProperty("type").GetString(), "row4 type", ref run, ref pass, ref fail);
         }
 
         private static void ModificationsRoundTrip(ref int run, ref int pass, ref int fail)
@@ -870,6 +919,31 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
             TestBase.AssertTrue(attrIdx >= 0 && reqIdx >= 0, "requirement columns", ref run, ref pass, ref fail);
             TestBase.AssertEqual("TECHNIQUE", pushRows[1][attrIdx]?.ToString(), "pushed attr abbrev", ref run, ref pass, ref fail);
             TestBase.AssertEqual("3", pushRows[1][reqIdx]?.ToString(), "pushed req val", ref run, ref pass, ref fail);
+        }
+
+        private static void ArmorPushSortsBySlotThenTier(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(ArmorPushSortsBySlotThenTier));
+            const string json = """
+            [
+              {"slot":"feet","name":"Zeta","armor":1,"tier":2},
+              {"slot":"head","name":"Alpha","armor":1,"tier":1},
+              {"slot":"head","name":"Beta","armor":1,"tier":2},
+              {"slot":"chest","name":"Gamma","armor":1,"tier":1}
+            ]
+            """;
+            var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Armor);
+            var headers = rows[0].Select(c => c?.ToString() ?? "").ToList();
+            int slotIdx = headers.FindIndex(h => string.Equals(h, "slot", StringComparison.OrdinalIgnoreCase));
+            int nameIdx = headers.FindIndex(h => string.Equals(h, "name", StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertTrue(slotIdx >= 0 && nameIdx >= 0, "slot/name columns", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("head", rows[1][slotIdx]?.ToString(), "row1 slot", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Alpha", rows[1][nameIdx]?.ToString(), "row1 name", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("head", rows[2][slotIdx]?.ToString(), "row2 slot", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Beta", rows[2][nameIdx]?.ToString(), "row2 name", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("chest", rows[3][slotIdx]?.ToString(), "row3 slot", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("feet", rows[4][slotIdx]?.ToString(), "row4 slot", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Zeta", rows[4][nameIdx]?.ToString(), "row4 name", ref run, ref pass, ref fail);
         }
 
         private static void ArmorCsvUtf8BomOnFirstHeaderImports(ref int run, ref int pass, ref int fail)

@@ -59,7 +59,10 @@ namespace RPGGame
             int levelScaledIntelligence = FloorToInt(baseIntelligence + lv * growthIntelligenceS);
             int levelScaledArmor = FloorToInt(baseArmor + lv * scaling.Armor);
 
-            int finalHealth = Math.Max(1, FloorToInt(levelScaledHealth * global.HealthMultiplier));
+            double runtimeHealthMult = GameSettings.Instance?.EnemyHealthMultiplier ?? 1.0;
+            if (runtimeHealthMult <= 0)
+                runtimeHealthMult = 1.0;
+            int finalHealth = Math.Max(1, FloorToInt(levelScaledHealth * global.HealthMultiplier * runtimeHealthMult));
             int finalStrength = Math.Max(0, FloorToInt(levelScaledStrength * global.DamageMultiplier));
             int finalAgility = Math.Max(0, FloorToInt(levelScaledAgility * global.SpeedMultiplier));
             int finalTechnique = Math.Max(0, FloorToInt(levelScaledTechnique * global.DamageMultiplier));

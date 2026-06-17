@@ -5,6 +5,7 @@ using Avalonia.Media;
 using Avalonia.Input;
 using RPGGame;
 using RPGGame.Editors;
+using RPGGame.UI.Avalonia.Resources;
 using System;
 using System.Collections.Generic;
 
@@ -72,9 +73,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 ItemsSource = ActionFormOptions.ThresholdQualifierOptions,
                 SelectedItem = string.IsNullOrEmpty(entry.Qualifier) ? "" : entry.Qualifier,
                 FontSize = 14,
-                Background = new SolidColorBrush(Color.FromRgb(26, 26, 26)),
-                Foreground = new SolidColorBrush(Colors.White),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                Background = SettingsThemeBrushes.InputBackground, Foreground = SettingsThemeBrushes.TextPrimary, BorderBrush = SettingsThemeBrushes.InputBorder
             };
             qualifierCombo.SelectionChanged += (s, e) =>
             {
@@ -89,9 +88,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 ItemsSource = ActionFormOptions.ThresholdTypeDropdownOptions,
                 SelectedItem = entry.Type,
                 FontSize = 14,
-                Background = new SolidColorBrush(Color.FromRgb(26, 26, 26)),
-                Foreground = new SolidColorBrush(Colors.White),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                Background = SettingsThemeBrushes.InputBackground, Foreground = SettingsThemeBrushes.TextPrimary, BorderBrush = SettingsThemeBrushes.InputBorder
             };
             typeCombo.SelectionChanged += (s, e) =>
             {
@@ -106,9 +103,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 ItemsSource = ActionFormOptions.ThresholdOperatorOptions,
                 SelectedItem = string.IsNullOrEmpty(entry.Operator) ? "" : entry.Operator,
                 FontSize = 14,
-                Background = new SolidColorBrush(Color.FromRgb(26, 26, 26)),
-                Foreground = new SolidColorBrush(Colors.White),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                Background = SettingsThemeBrushes.InputBackground, Foreground = SettingsThemeBrushes.TextPrimary, BorderBrush = SettingsThemeBrushes.InputBorder
             };
             operatorCombo.SelectionChanged += (s, e) =>
             {
@@ -139,9 +134,7 @@ namespace RPGGame.UI.Avalonia.Builders
                 ItemsSource = ActionFormOptions.ThresholdValueKindOptions,
                 SelectedItem = string.IsNullOrEmpty(entry.ValueKind) ? "#" : (Array.IndexOf(ActionFormOptions.ThresholdValueKindOptions, entry.ValueKind) >= 0 ? entry.ValueKind : "#"),
                 FontSize = 14,
-                Background = new SolidColorBrush(Color.FromRgb(26, 26, 26)),
-                Foreground = new SolidColorBrush(Colors.White),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                Background = SettingsThemeBrushes.InputBackground, Foreground = SettingsThemeBrushes.TextPrimary, BorderBrush = SettingsThemeBrushes.InputBorder
             };
             valueKindCombo.SelectionChanged += (s, e) =>
             {

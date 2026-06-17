@@ -25,7 +25,12 @@ namespace RPGGame
         /// <summary>Match tags from room data or theme fallback (elements, environment states).</summary>
         public IReadOnlyList<string> Tags => _tags;
 
+        /// <summary>Flat threshold shift from unstable room field (+4, -2, 2, 0).</summary>
+        public int UnstableThresholdMod { get; private set; }
+
         private readonly List<string> _tags = new List<string>();
+
+        internal void SetUnstableThresholdMod(int mod) => UnstableThresholdMod = mod;
 
         internal void SetTags(IEnumerable<string>? tags)
         {
@@ -138,6 +143,7 @@ namespace RPGGame
         /// </summary>
         public void ResetForNewFight()
         {
+            combatStateManager.ConfigureActivityFromTags(_tags);
             combatStateManager.ResetForNewFight();
         }
 

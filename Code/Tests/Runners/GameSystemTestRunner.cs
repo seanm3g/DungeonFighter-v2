@@ -88,6 +88,12 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             RPGGame.Tests.Unit.Tuning.PlayerTuningApplierTests.RunAllTests();
             Console.WriteLine();
+            RPGGame.Tests.Unit.Tuning.CombatTuningParameterRegistryTests.RunAllTests();
+            Console.WriteLine();
+            CombatTuningPanelHandlerTests.RunAllTests();
+            Console.WriteLine();
+            EnemyTuningPanelHandlerTests.RunAllTests();
+            Console.WriteLine();
             BattleStatisticsHandlerTests.RunAllTests();
             Console.WriteLine();
             MatchupAnalyzerTests.RunAllTests();

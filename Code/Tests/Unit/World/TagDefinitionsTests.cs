@@ -30,13 +30,13 @@ namespace RPGGame.Tests.Unit.World
         private static void TestKnownTagCount(ref int run, ref int pass, ref int fail)
         {
             TestBase.SetCurrentTestName(nameof(TestKnownTagCount));
-            TestBase.AssertEqual(58, TagDefinitions.AllRegistryTags.Count(), "58 registry tags", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(77, TagDefinitions.AllRegistryTags.Count(), "77 registry tags", ref run, ref pass, ref fail);
         }
 
         private static void TestEnemyArchetypes(ref int run, ref int pass, ref int fail)
         {
             TestBase.SetCurrentTestName(nameof(TestEnemyArchetypes));
-            TestBase.AssertEqual(10, TagDefinitions.ValidEnemyArchetypes.Count, "10 archetypes", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(9, TagDefinitions.ValidEnemyArchetypes.Count, "9 archetypes", ref run, ref pass, ref fail);
             TestBase.AssertTrue(TagDefinitions.IsValidEnemyArchetype("Knight"), "Knight valid", ref run, ref pass, ref fail);
             TestBase.AssertTrue(TagDefinitions.IsValidEnemyArchetype("sage"), "sage case-insensitive", ref run, ref pass, ref fail);
             TestBase.AssertFalse(TagDefinitions.IsValidEnemyArchetype("Guardian"), "Guardian removed", ref run, ref pass, ref fail);
@@ -58,12 +58,14 @@ namespace RPGGame.Tests.Unit.World
         private static void TestCreatureAttributeTags(ref int run, ref int pass, ref int fail)
         {
             TestBase.SetCurrentTestName(nameof(TestCreatureAttributeTags));
-            TestBase.AssertTrue(TagDefinitions.IsKnownTag("large"), "large known", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(TagDefinitions.IsKnownTag("giant"), "giant known", ref run, ref pass, ref fail);
             TestBase.AssertTrue(TagDefinitions.IsKnownTag("young"), "young known", ref run, ref pass, ref fail);
-            TestBase.AssertTrue(TagDefinitions.IsKnownTag("bulky"), "bulky known", ref run, ref pass, ref fail);
+            TestBase.AssertFalse(TagDefinitions.IsKnownTag("large"), "large removed", ref run, ref pass, ref fail);
+            TestBase.AssertFalse(TagDefinitions.IsKnownTag("bulky"), "bulky removed", ref run, ref pass, ref fail);
             TestBase.AssertTrue(TagDefinitions.IsKnownTag("frail"), "frail known", ref run, ref pass, ref fail);
-            TestBase.AssertFalse(TagDefinitions.IsAllowedOn(TagEntityScope.Item, "large"),
-                "large not on items", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(TagDefinitions.IsKnownTag("has_feet"), "has_feet known", ref run, ref pass, ref fail);
+            TestBase.AssertFalse(TagDefinitions.IsAllowedOn(TagEntityScope.Item, "giant"),
+                "giant not on items", ref run, ref pass, ref fail);
             TestBase.AssertFalse(TagDefinitions.IsAllowedOn(TagEntityScope.Environment, "young"),
                 "young not on environments", ref run, ref pass, ref fail);
         }

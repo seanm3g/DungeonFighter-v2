@@ -30,7 +30,7 @@ namespace RPGGame.World.Tags
         public static readonly IReadOnlyList<string> ValidEnemyArchetypes = new[]
         {
             "Knight", "Assassin", "Berserker", "Acrobat", "Brute",
-            "Warlord", "Sage", "Duelist", "Artificer", "Trickster"
+            "Warlord", "Sage", "Duelist", "Trickster"
         };
 
         private static readonly HashSet<string> ValidEnemyArchetypeSet =
@@ -132,7 +132,6 @@ namespace RPGGame.World.Tags
                 "Warlord" => EnemyArchetype.Warlord,
                 "Sage" => EnemyArchetype.Sage,
                 "Duelist" => EnemyArchetype.Duelist,
-                "Artificer" => EnemyArchetype.Artificer,
                 "Trickster" => EnemyArchetype.Trickster,
                 _ => EnemyArchetype.Berserker
             };
@@ -147,7 +146,7 @@ namespace RPGGame.World.Tags
             void Add(string tag, TagLayer layer, TagEntityScope scope) =>
                 list.Add(new TagDefinition(tag, layer, scope));
 
-            foreach (var t in new[] { "environment", "enemy", "weapon", "class", "unique", "starter", "modtrade" })
+            foreach (var t in new[] { "environment", "enemy", "weapon", "class", "item", "action", "unique", "starter" })
                 Add(t, TagLayer.PoolGate, TagEntityScope.Action | TagEntityScope.Item);
             foreach (var t in new[] { "warrior", "barbarian", "rogue", "wizard" })
                 Add(t, TagLayer.PoolGate, TagEntityScope.Action | TagEntityScope.Hero | TagEntityScope.Item);
@@ -160,9 +159,13 @@ namespace RPGGame.World.Tags
                 Add(t, TagLayer.Match, TagEntityScope.Action | TagEntityScope.Item | TagEntityScope.Enemy | TagEntityScope.Environment);
             foreach (var t in new[] { "scorched", "flooded", "overgrown", "exposed" })
                 Add(t, TagLayer.Match, TagEntityScope.Environment | TagEntityScope.Action | TagEntityScope.Enemy);
+            foreach (var t in new[] { "elegant", "dilapidated" })
+                Add(t, TagLayer.Match, TagEntityScope.Environment | TagEntityScope.Action);
+            foreach (var t in new[] { "dormant", "cycling", "active" })
+                Add(t, TagLayer.Match, TagEntityScope.Environment);
             foreach (var t in new[] { "living", "undead", "plant", "elemental", "celestial" })
                 Add(t, TagLayer.Match, TagEntityScope.Enemy | TagEntityScope.Item);
-            foreach (var t in new[] { "giant", "large", "young", "tiny", "bulky", "frail", "has_hands" })
+            foreach (var t in new[] { "giant", "young", "tiny", "frail", "has_hands", "has_feet", "has_legs", "has_head" })
                 Add(t, TagLayer.Match, TagEntityScope.Enemy);
             foreach (var t in new[] { "boss", "minion" })
                 Add(t, TagLayer.Match, TagEntityScope.Enemy);
@@ -172,6 +175,14 @@ namespace RPGGame.World.Tags
                          "damascus", "mithril", "shadow", "crystal", "stone", "unknown", "strange"
                      })
                 Add(t, TagLayer.Match, TagEntityScope.Item);
+            foreach (var t in new[] { "required", "opener", "finisher" })
+                Add(t, TagLayer.Match, TagEntityScope.Action);
+            foreach (var t in new[] { "swift", "bludgeon", "focus", "insight" })
+                Add(t, TagLayer.Match, TagEntityScope.Action);
+            foreach (var t in new[] { "confidence", "footwork", "target", "aim" })
+                Add(t, TagLayer.Match, TagEntityScope.Action);
+
+            Add("modtrade", TagLayer.Discouraged, TagEntityScope.Action | TagEntityScope.Item);
 
             return list.ToDictionary(d => d.NormalizedName, d => d, StringComparer.OrdinalIgnoreCase);
         }

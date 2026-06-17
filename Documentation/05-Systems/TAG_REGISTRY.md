@@ -9,60 +9,48 @@ Authoritative tag vocabulary for actions, items, enemies, and environment matchi
 | **Pool gate** | Controls loot/action pools (`environment`, `enemy`, `weapon`, …) |
 | **Match** | Combat and conditional matching (elements, substance, materials, …) |
 | **Field duplicate** | Mirrors structured fields (action rarity tags from sheet import) |
-| **Discouraged** | Prefer enums/fields instead (`head`, `chest`, …) |
+| **Discouraged** | Legacy/special tags (`modtrade`) |
 
 Comparison is **case-insensitive**. Canonical registry lives in `Code/World/Tags/TagDefinitions.cs`.
 
-## Layer 1 — Pool / routing (21)
+## Layer 1 — Pool / routing (23)
 
-- **Pool gates:** `environment`, `enemy`, `weapon`, `class`, `unique`, `starter`, `modtrade`
+- **Pool gates:** `environment`, `enemy`, `weapon`, `class`, `item`, `action`, `unique`, `starter`
 - **Primary classes:** `warrior`, `barbarian`, `rogue`, `wizard`
 - **Weapon types:** `sword`, `mace`, `dagger`, `wand`
 - **Action rarity (field dup):** `common`, `uncommon`, `rare`, `epic`, `legendary`, `mythic`
 
-## Layer 2 — Match / flavor (37)
+## Layer 2 — Match / flavor (52)
 
-- **Elements:** `fire`, `earth`, `water`, `air` (only these four; not ice/lightning)
-- **Environment states:** `scorched`, `flooded`, `overgrown`, `exposed`
+- **Elements:** `fire`, `earth`, `water`, `air`
+- **Environment terrain:** `scorched`, `flooded`, `overgrown`, `exposed`
+- **Environment structure:** `elegant` (+dungeon level roll), `dilapidated` (−dungeon level roll)
+- **Environment activity:** `dormant`, `cycling`, `active` (hazard frequency)
 - **Life / substance:** `living`, `undead`, `plant`, `elemental`, `celestial`
-- **Creature attributes (enemy only):** `giant`, `large`, `young`, `tiny`, `bulky`, `frail`, `has_hands`
+- **Creature attributes (enemy only):** `giant`, `young`, `tiny`, `frail`, `has_hands`, `has_feet`, `has_legs`, `has_head`
 - **Encounter role:** `boss`, `minion`
 - **Materials (prefix names):** `bone`, `bronze`, `glass`, `willow`, `steel`, `gold`, `obsidian`, `silver`, `damascus`, `mithril`, `shadow`, `crystal`, `stone`, `unknown`, `strange`
+- **Action routing:** `required`, `opener`, `finisher`
+- **Mechanic tags:** `swift`, `bludgeon`, `focus`, `insight` (next-action bonuses)
+- **Roll tags:** `confidence`, `footwork`, `target`, `aim` (threshold shifts)
 
 Material tags are copied onto `Item.Tags` when a Material prefix is rolled at loot time.
 
 ## Enemy archetypes (field — not freeform tags)
 
-**Author on the ENEMIES spreadsheet tab**, column **Archetype**. Pull via `Scripts/pull-sheets.ps1` or in-game sheet pull → `GameData/Enemies.json`.
-
 | Knight | Assassin | Berserker | Acrobat | Brute |
-| Warlord | Sage | Duelist | Artificer | Trickster |
-
-- Heroes **never** have an `archetype` field.
-- Use **`archetype`** for Trickster/Warlord/etc. on enemies — not the freeform `tags` array.
-
-## ENEMIES sheet columns (canonical)
-
-`region`, `biome`, `location`, `rarity`, `name`, `tags`, `archetype`, base attributes, growth, HEALTH band, `actions`, `isLiving`, `description`
-
-Import normalizes archetype to Title Case and validates against the 10-name allowlist.
+| Warlord | Sage | Duelist | Trickster |
 
 ## ENVIRONMENTS sheet (→ `Rooms.json`)
 
-Columns: `region`, `biome`, `location`, `tags`, `description`, `actions`, `enemies`. Optional **`tags`**: comma-separated **element** and **environment state** tags only, e.g. `fire, scorched` or `water, flooded`. Creature attributes (`giant`, `young`, …) are not valid on environments. **`biome`** restricts which dungeon themes can roll that room; **blank biome** = eligible in any theme.
+Columns: `region`, `biome`, `location`, `tags`, `description`, `actions`, `enemies`, optional `unstableThresholdMod` (`4`, `-2`, `2`, `0`).
+
+Tags may include elements, terrain, structure, and activity tags. Creature attributes are not valid on environments.
 
 ## Runtime wiring
 
 - **Loot pools:** `GameDataTagHelper.IsGrantableOnHeroGear` excludes `environment` / `enemy`
-- **Enemy spawn:** `EnemyDataFactory` copies `EnemyData.Tags` to `Enemy.Tags` and adds `living`/`undead`
-- **Rooms:** `RoomData.tags` → `Environment.Tags` at room creation; procedural rooms may get theme fallback tags when empty
-- **Combat:** `TagDamageCalculator` uses fire→earth→water→air weakness cycle and reads hero tags via `TagAggregator` or enemy `Tags`
-- **Validation:** `EnemyDataValidator`, `RoomDataValidator`, `ActionDataValidator`, weapon/armor validators warn on unknown tags
-
-## Naming collisions
-
-| Collision | Rule |
-|-----------|------|
-| `environment` (pool) vs entity kind | Pool tag on **actions** only |
-| `weapon` (pool) vs equipment slot | Pool tag on **actions**; slot = `ItemType.Weapon` |
-| `celestial` | Substance tag and material prefix share one string; context = entity type |
+- **Pool routing:** `weapon` / `item` / `action` / `class` gate loot and action tables
+- **Mechanic tags:** `ActionMechanicTagProcessor` queues next-action bonuses
+- **Roll tags:** threshold shifts applied during hero rolls
+- **Environment:** elegant/dilapidated adjust d20; activity tags tune hazard frequency; `unstableThresholdMod` shifts thresholds

@@ -10,7 +10,8 @@
     "location": "Entrance",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -28,7 +29,8 @@
     "location": "Treasure Room",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -46,7 +48,8 @@
     "location": "Guard Post",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -64,8 +67,11 @@
     "location": "Trap Room",
     "tags": [
       "earth",
-      "exposed"
-    ]
+      "exposed",
+      "dilapidated",
+      "active"
+    ],
+    "unstableThresholdMod": 2
   },
   {
     "description": "Ancient mechanisms and cryptic symbols cover the walls.",
@@ -82,7 +88,9 @@
     "location": "Puzzle Chamber",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -100,7 +108,8 @@
     "location": "Rest Area",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "dormant"
     ]
   },
   {
@@ -118,7 +127,8 @@
     "location": "Storage Room",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -136,7 +146,9 @@
     "location": "Library",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -154,7 +166,9 @@
     "location": "Armory",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -172,7 +186,8 @@
     "location": "Kitchen",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -190,7 +205,9 @@
     "location": "Dining Hall",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -208,7 +225,9 @@
     "location": "Boss Chamber",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "elegant",
+      "active"
     ]
   },
   {
@@ -225,7 +244,8 @@
     ],
     "location": "Forest Clearing",
     "tags": [
-      "overgrown"
+      "overgrown",
+      "dormant"
     ]
   },
   {
@@ -243,7 +263,9 @@
     "location": "Lava Chamber",
     "tags": [
       "fire",
-      "scorched"
+      "scorched",
+      "elegant",
+      "active"
     ]
   },
   {
@@ -260,7 +282,9 @@
     ],
     "location": "Crypt Passage",
     "tags": [
-      "exposed"
+      "exposed",
+      "dilapidated",
+      "cycling"
     ]
   },
   {
@@ -278,7 +302,8 @@
     "location": "Wolf Den",
     "tags": [
       "earth",
-      "overgrown"
+      "overgrown",
+      "cycling"
     ]
   },
   {
@@ -295,7 +320,8 @@
     ],
     "location": "Ancient Grove",
     "tags": [
-      "overgrown"
+      "overgrown",
+      "cycling"
     ]
   },
   {
@@ -317,7 +343,8 @@
     "location": "Bear Cave",
     "tags": [
       "earth",
-      "overgrown"
+      "overgrown",
+      "cycling"
     ]
   },
   {
@@ -335,7 +362,8 @@
     "location": "Magma Pool",
     "tags": [
       "fire",
-      "scorched"
+      "scorched",
+      "active"
     ]
   },
   {
@@ -353,8 +381,10 @@
     "location": "Volcanic Vent",
     "tags": [
       "fire",
-      "scorched"
-    ]
+      "scorched",
+      "active"
+    ],
+    "unstableThresholdMod": 0
   },
   {
     "description": "A solemn chamber filled with ornate sarcophagi and funerary offerings.",
@@ -370,7 +400,10 @@
     ],
     "location": "Burial Chamber",
     "tags": [
-      "exposed"
+      "exposed",
+      "elegant",
+      "dilapidated",
+      "cycling"
     ]
   },
   {
@@ -387,7 +420,9 @@
     ],
     "location": "Tomb of the Forgotten",
     "tags": [
-      "exposed"
+      "exposed",
+      "dilapidated",
+      "cycling"
     ]
   },
   {
@@ -409,7 +444,9 @@
     "location": "Crystal Garden",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -427,7 +464,9 @@
     "location": "Geode Chamber",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -449,7 +488,8 @@
     "location": "Sacred Altar",
     "tags": [
       "fire",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -467,7 +507,8 @@
     "location": "Frozen Cavern",
     "tags": [
       "water",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -485,7 +526,9 @@
     "location": "Glacial Chamber",
     "tags": [
       "water",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -503,7 +546,8 @@
     "location": "Frozen Lake",
     "tags": [
       "water",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -520,7 +564,9 @@
     ],
     "location": "Shadow Realm",
     "tags": [
-      "exposed"
+      "exposed",
+      "dilapidated",
+      "cycling"
     ]
   },
   {
@@ -537,7 +583,8 @@
     ],
     "location": "Umbra Sanctum",
     "tags": [
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -554,7 +601,10 @@
     ],
     "location": "Void Chamber",
     "tags": [
-      "exposed"
+      "exposed",
+      "elegant",
+      "dilapidated",
+      "cycling"
     ]
   },
   {
@@ -572,7 +622,8 @@
     "location": "Steam Engine Room",
     "tags": [
       "fire",
-      "earth"
+      "earth",
+      "cycling"
     ]
   },
   {
@@ -590,7 +641,8 @@
     "location": "Clockwork Laboratory",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -608,7 +660,9 @@
     "location": "Cog Chamber",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -626,7 +680,8 @@
     "location": "Bog Clearing",
     "tags": [
       "water",
-      "flooded"
+      "flooded",
+      "dormant"
     ]
   },
   {
@@ -645,7 +700,9 @@
     "tags": [
       "water",
       "flooded",
-      "overgrown"
+      "overgrown",
+      "elegant",
+      "dormant"
     ]
   },
   {
@@ -663,7 +720,8 @@
     "location": "Toxic Pool",
     "tags": [
       "water",
-      "flooded"
+      "flooded",
+      "active"
     ]
   },
   {
@@ -681,7 +739,9 @@
     "location": "Star Chamber",
     "tags": [
       "air",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -699,7 +759,9 @@
     "location": "Nebula Observatory",
     "tags": [
       "air",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -717,7 +779,9 @@
     "location": "Galaxy Vault",
     "tags": [
       "air",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -735,7 +799,8 @@
     "location": "Deep Tunnel",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -753,7 +818,9 @@
     "location": "Subterranean Hall",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -771,7 +838,8 @@
     "location": "Mining Shaft",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -789,7 +857,9 @@
     "location": "Thunder Hall",
     "tags": [
       "air",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -807,7 +877,9 @@
     "location": "Tempest Chamber",
     "tags": [
       "air",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -825,7 +897,9 @@
     "location": "Hurricane Vault",
     "tags": [
       "air",
-      "exposed"
+      "exposed",
+      "elegant",
+      "active"
     ]
   },
   {
@@ -842,7 +916,8 @@
     ],
     "location": "Sacred Grove",
     "tags": [
-      "overgrown"
+      "overgrown",
+      "cycling"
     ]
   },
   {
@@ -859,7 +934,8 @@
     ],
     "location": "Wildflower Meadow",
     "tags": [
-      "overgrown"
+      "overgrown",
+      "dormant"
     ]
   },
   {
@@ -877,7 +953,8 @@
     "location": "Natural Spring",
     "tags": [
       "water",
-      "overgrown"
+      "overgrown",
+      "dormant"
     ]
   },
   {
@@ -894,7 +971,9 @@
     ],
     "location": "Spell Chamber",
     "tags": [
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -911,7 +990,8 @@
     ],
     "location": "Wizard's Study",
     "tags": [
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -928,7 +1008,9 @@
     ],
     "location": "Magic Vault",
     "tags": [
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -946,7 +1028,8 @@
     "location": "Sand Dune",
     "tags": [
       "earth",
-      "scorched"
+      "scorched",
+      "cycling"
     ]
   },
   {
@@ -964,7 +1047,8 @@
     "location": "Oasis",
     "tags": [
       "earth",
-      "water"
+      "water",
+      "cycling"
     ]
   },
   {
@@ -983,7 +1067,9 @@
     "tags": [
       "earth",
       "air",
-      "scorched"
+      "scorched",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -1001,7 +1087,9 @@
     "location": "Magma Chamber",
     "tags": [
       "fire",
-      "scorched"
+      "scorched",
+      "elegant",
+      "active"
     ]
   },
   {
@@ -1019,8 +1107,10 @@
     "location": "Volcanic Vent",
     "tags": [
       "fire",
-      "scorched"
-    ]
+      "scorched",
+      "active"
+    ],
+    "unstableThresholdMod": 0
   },
   {
     "description": "The walls glow red-hot, and the air shimmers with intense heat.",
@@ -1037,7 +1127,9 @@
     "location": "Fire Chamber",
     "tags": [
       "fire",
-      "scorched"
+      "scorched",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -1055,7 +1147,9 @@
     "location": "Crumbling Hall",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -1073,7 +1167,10 @@
     "location": "Lost Shrine",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "elegant",
+      "dilapidated",
+      "cycling"
     ]
   },
   {
@@ -1091,7 +1188,9 @@
     "location": "Decayed Chamber",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -1109,7 +1208,8 @@
     "location": "Underwater Cavern",
     "tags": [
       "water",
-      "flooded"
+      "flooded",
+      "cycling"
     ]
   },
   {
@@ -1127,7 +1227,8 @@
     "location": "Coral Garden",
     "tags": [
       "water",
-      "flooded"
+      "flooded",
+      "cycling"
     ]
   },
   {
@@ -1145,7 +1246,8 @@
     "location": "Abyssal Depths",
     "tags": [
       "water",
-      "flooded"
+      "flooded",
+      "cycling"
     ]
   },
   {
@@ -1163,7 +1265,8 @@
     "location": "Peak Summit",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -1182,7 +1285,8 @@
     "tags": [
       "earth",
       "overgrown",
-      "exposed"
+      "exposed",
+      "dormant"
     ]
   },
   {
@@ -1200,7 +1304,9 @@
     "location": "Rocky Outcrop",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "dilapidated",
+      "cycling"
     ]
   },
   {
@@ -1218,8 +1324,11 @@
     "location": "Time Chamber",
     "tags": [
       "air",
-      "exposed"
-    ]
+      "exposed",
+      "elegant",
+      "active"
+    ],
+    "unstableThresholdMod": -2
   },
   {
     "description": "Ancient clocks and hourglasses mark the passage of time in this sacred space.",
@@ -1236,7 +1345,8 @@
     "location": "Chronos Sanctum",
     "tags": [
       "air",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -1254,7 +1364,9 @@
     "location": "Echo Chamber",
     "tags": [
       "earth",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -1271,7 +1383,8 @@
     ],
     "location": "Dreamscape",
     "tags": [
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -1288,7 +1401,9 @@
     ],
     "location": "Lucid Chamber",
     "tags": [
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -1305,7 +1420,8 @@
     ],
     "location": "Subconscious Hall",
     "tags": [
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -1322,7 +1438,10 @@
     ],
     "location": "Void Chamber",
     "tags": [
-      "exposed"
+      "exposed",
+      "elegant",
+      "dilapidated",
+      "cycling"
     ]
   },
   {
@@ -1339,7 +1458,9 @@
     ],
     "location": "Emptiness Hall",
     "tags": [
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -1356,7 +1477,8 @@
     ],
     "location": "Nothingness Room",
     "tags": [
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -1374,7 +1496,8 @@
     "location": "Dimension Rift",
     "tags": [
       "air",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -1392,7 +1515,8 @@
     "location": "Multiverse Hall",
     "tags": [
       "air",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -1410,7 +1534,9 @@
     "location": "Quantum Chamber",
     "tags": [
       "air",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -1428,7 +1554,9 @@
     "location": "Heavenly Chamber",
     "tags": [
       "air",
-      "exposed"
+      "exposed",
+      "elegant",
+      "cycling"
     ]
   },
   {
@@ -1446,7 +1574,8 @@
     "location": "Celestial Sanctum",
     "tags": [
       "air",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   },
   {
@@ -1464,7 +1593,8 @@
     "location": "Eternal Hall",
     "tags": [
       "air",
-      "exposed"
+      "exposed",
+      "cycling"
     ]
   }
 ]

@@ -3,197 +3,98 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
-             x:Class="RPGGame.UI.Avalonia.Settings.BalanceTuningSettingsPanel"
-             Background="Transparent">
+             x:Class="RPGGame.UI.Avalonia.Settings.BalanceTuningSettingsPanel" Classes="settings-ui" Background="Transparent">
     <!-- Fluent theme hover can wash out custom colors on this light panel; keep visible hover states. -->
-    <UserControl.Styles>
-        <Style Selector="Expander /template/ ToggleButton">
-            <Setter Property="Background" Value="#FF2D2D2D"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Expander /template/ ToggleButton:pointerover">
-            <Setter Property="Background" Value="#FF3D3D3D"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Expander /template/ ToggleButton:pressed">
-            <Setter Property="Background" Value="#FF252525"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Expander /template/ ToggleButton:checked">
-            <Setter Property="Background" Value="#FF2D2D2D"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <!-- Google Sheets action buttons: Fluent theme hovers target PART_ContentPresenter; sync template + logical colors so hover never washes out. -->
-        <Style Selector="Button#ResyncSheetsButton">
-            <Setter Property="Background" Value="#FF0078D4"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Button#ResyncSheetsButton /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#FF0078D4"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Button#ResyncSheetsButton:pointerover">
-            <Setter Property="Background" Value="#FF2B94E8"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Button#ResyncSheetsButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#FF2B94E8"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Button#ResyncSheetsButton:pressed">
-            <Setter Property="Background" Value="#FF0A5590"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Button#ResyncSheetsButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#FF0A5590"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Button#PushSheetsButton">
-            <Setter Property="Background" Value="#FFC50E1F"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Button#PushSheetsButton /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#FFC50E1F"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Button#PushSheetsButton:pointerover">
-            <Setter Property="Background" Value="#FFE63242"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Button#PushSheetsButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#FFE63242"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Button#PushSheetsButton:pressed">
-            <Setter Property="Background" Value="#FFA50C18"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Button#PushSheetsButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#FFA50C18"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-    </UserControl.Styles>
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                  HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="20" Margin="20">
             <!-- Header -->
-            <Border Background="White" 
-                    BorderBrush="#FF404040" 
-                    BorderThickness="1" 
-                    CornerRadius="6" 
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Balance Tuning (Import)" 
-                               FontSize="20" 
-                               FontWeight="Bold" 
-                               Foreground="Black" 
+                               Classes="settings-panel-title" 
                                Margin="0,0,0,8"/>
                     <TextBlock Text="Pull or push from one spreadsheet: use the same published CSV base link for Actions, then optional numeric tab gids (from File → Share → Publish to web for each tab). OAuth push needs the browser Edit link so spreadsheetId is valid (publish-only e/2PACX links are not enough)." 
                                FontSize="14" 
-                               Foreground="#FF555555" 
+                               Classes="settings-muted" 
                                TextWrapping="Wrap"/>
                 </StackPanel>
-            </Border>
+            </StackPanel>
 
             <!-- Google Sheets -->
-            <Border Background="White"
-                    BorderBrush="#FF404040"
-                    BorderThickness="1"
-                    CornerRadius="6"
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="12">
                     <TextBlock Text="Google Sheets"
-                               FontSize="18"
-                               FontWeight="SemiBold"
-                               Foreground="Black"
+                               Classes="settings-section-header"
                                Margin="0,0,0,4"/>
                     <TextBlock Text="Spreadsheet edit link (for push / OAuth — copy from the browser address bar; must look like …/spreadsheets/d/&lt;long-id&gt;/edit…)"
                                FontSize="12"
-                               Foreground="#FF555555"
+                               Classes="settings-muted"
                                TextWrapping="Wrap"/>
                     <TextBox x:Name="SpreadsheetEditUrlTextBox"
                              MinHeight="28"
                              Watermark="https://docs.google.com/spreadsheets/d/…/edit…"
                              FontSize="14"
-                             Padding="8"
-                             Background="#FF2D2D2D"
-                             Foreground="White"
-                             CaretBrush="White"
-                             BorderBrush="#FF666666"
-                             BorderThickness="1"/>
+                             Padding="8"/>
                     <TextBlock Text="Actions tab — published CSV URL (same link pattern for all tabs; only gid= changes per tab)"
                                FontSize="12"
-                               Foreground="#FF555555"
+                               Classes="settings-muted"
                                TextWrapping="Wrap"
                                Margin="0,4,0,0"/>
                     <TextBox x:Name="ActionsSheetUrlTextBox"
                              MinHeight="28"
                              Watermark="https://docs.google.com/spreadsheets/..."
                              FontSize="14"
-                             Padding="8"
-                             Background="#FF2D2D2D"
-                             Foreground="White"
-                             CaretBrush="White"
-                             BorderBrush="#FF666666"
-                             BorderThickness="1"/>
+                             Padding="8"/>
                     <Expander Header="Other tabs (same spreadsheet as Actions URL)" IsExpanded="False">
                         <StackPanel Spacing="10" Margin="0,8,0,0">
                             <TextBlock Text="Enter each tab’s numeric gid from Publish to web (same document as Actions). Leave empty to skip that tab. Advanced: set full per-tab URLs in SheetsConfig.json."
                                        FontSize="12"
-                                       Foreground="#FF555555"
+                                       Classes="settings-muted"
                                        TextWrapping="Wrap"/>
-                            <TextBlock Text="WEAPONS → Weapons.json" FontSize="12" Foreground="#FF555555"/>
-                            <TextBox x:Name="WeaponsTabGidTextBox" MinHeight="28" Watermark="e.g. 1234567890" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
-                            <TextBlock Text="Prefix (sheet tab) → Modifications.json" FontSize="12" Foreground="#FF555555"/>
-                            <TextBox x:Name="ModificationsTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
-                            <TextBlock Text="ARMOR → Armor.json" FontSize="12" Foreground="#FF555555"/>
-                            <TextBox x:Name="ArmorTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
-                            <TextBlock Text="SUFFIXES (item suffixes) → StatBonuses.json" FontSize="12" Foreground="#FF555555"/>
-                            <TextBox x:Name="StatBonusesTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
-                            <TextBlock Text="CONSUMABLES → Consumables.json" FontSize="12" Foreground="#FF555555"/>
-                            <TextBox x:Name="ConsumablesTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
-                            <TextBlock Text="ENEMIES → Enemies.json" FontSize="12" Foreground="#FF555555"/>
-                            <TextBox x:Name="EnemiesTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
-                            <TextBlock Text="ENVIRONMENTS → Rooms.json" FontSize="12" Foreground="#FF555555"/>
-                            <TextBox x:Name="EnvironmentsTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
-                            <TextBlock Text="CLASSES → classPresentation in TuningConfig.json" FontSize="12" Foreground="#FF555555"/>
-                            <TextBox x:Name="ClassPresentationTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
-                            <TextBlock Text="CLASS ACTIONS → ClassActions.json (tier / class / action)" FontSize="12" Foreground="#FF555555"/>
-                            <TextBox x:Name="ClassActionsTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
+                            <TextBlock Text="WEAPONS → Weapons.json" FontSize="12" Classes="settings-muted"/>
+                            <TextBox x:Name="WeaponsTabGidTextBox" MinHeight="28" Watermark="e.g. 1234567890" FontSize="13" Padding="8" BorderThickness="1"/>
+                            <TextBlock Text="Prefix (sheet tab) → Modifications.json" FontSize="12" Classes="settings-muted"/>
+                            <TextBox x:Name="ModificationsTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
+                            <TextBlock Text="ARMOR → Armor.json" FontSize="12" Classes="settings-muted"/>
+                            <TextBox x:Name="ArmorTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
+                            <TextBlock Text="SUFFIXES (item suffixes) → StatBonuses.json" FontSize="12" Classes="settings-muted"/>
+                            <TextBox x:Name="StatBonusesTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
+                            <TextBlock Text="CONSUMABLES → Consumables.json" FontSize="12" Classes="settings-muted"/>
+                            <TextBox x:Name="ConsumablesTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
+                            <TextBlock Text="ENEMIES → Enemies.json" FontSize="12" Classes="settings-muted"/>
+                            <TextBox x:Name="EnemiesTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
+                            <TextBlock Text="ENVIRONMENTS → Rooms.json" FontSize="12" Classes="settings-muted"/>
+                            <TextBox x:Name="EnvironmentsTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
+                            <TextBlock Text="CLASSES → classPresentation in TuningConfig.json" FontSize="12" Classes="settings-muted"/>
+                            <TextBox x:Name="ClassPresentationTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
+                            <TextBlock Text="CLASS ACTIONS → ClassActions.json (tier / class / action)" FontSize="12" Classes="settings-muted"/>
+                            <TextBox x:Name="ClassActionsTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
                         </StackPanel>
                     </Expander>
-                    <Border Background="#FFF5F5F5" BorderBrush="#FFCCCCCC" BorderThickness="1" CornerRadius="4" Padding="12">
-                        <!-- Fluent CheckBox template drives label color from theme brushes on hover/press, not Foreground="Black"; default PointerOver brushes are light for dark chrome and vanish on this panel. -->
-                        <Border.Resources>
-                            <SolidColorBrush x:Key="CheckBoxForegroundUncheckedPointerOver" Color="#FF1A1A1A"/>
-                            <SolidColorBrush x:Key="CheckBoxForegroundUncheckedPressed" Color="#FF1A1A1A"/>
-                            <SolidColorBrush x:Key="CheckBoxForegroundCheckedPointerOver" Color="#FF1A1A1A"/>
-                            <SolidColorBrush x:Key="CheckBoxForegroundCheckedPressed" Color="#FF1A1A1A"/>
-                        </Border.Resources>
-                        <StackPanel Spacing="8">
+                    <StackPanel Spacing="8" Margin="0,8,0,0">
                             <TextBlock Text="Include spreadsheet tabs (Pull and Push)"
                                        FontSize="13"
                                        FontWeight="SemiBold"
-                                       Foreground="Black"/>
+                                       Classes="settings-field-label"/>
                             <TextBlock Text="Only checked tabs are pulled from published CSV URLs or pushed via OAuth. Unchecked tabs are left unchanged on disk and on the sheet. Selections are saved to SheetsPushConfig.json when that file exists."
                                        FontSize="11"
-                                       Foreground="#FF555555"
+                                       Classes="settings-muted"
                                        TextWrapping="Wrap"/>
                             <WrapPanel Orientation="Horizontal">
-                                <CheckBox x:Name="PushActionsTabCheckBox" Content="ACTIONS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
-                                <CheckBox x:Name="PushWeaponsTabCheckBox" Content="WEAPONS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
-                                <CheckBox x:Name="PushModificationsTabCheckBox" Content="PREFIX" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
-                                <CheckBox x:Name="PushArmorTabCheckBox" Content="ARMOR" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
-                                <CheckBox x:Name="PushStatBonusesTabCheckBox" Content="SUFFIXES" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
-                                <CheckBox x:Name="PushConsumablesTabCheckBox" Content="CONSUMABLES" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
-                                <CheckBox x:Name="PushEnemiesTabCheckBox" Content="ENEMIES" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
-                                <CheckBox x:Name="PushEnvironmentsTabCheckBox" Content="ENVIRONMENTS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
-                                <CheckBox x:Name="PushDungeonsTabCheckBox" Content="DUNGEONS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
-                                <CheckBox x:Name="PushClassPresentationTabCheckBox" Content="CLASSES" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
-                                <CheckBox x:Name="PushClassActionsTabCheckBox" Content="CLASS ACTIONS" IsChecked="True" Margin="0,0,16,6" Foreground="Black"/>
+                                <CheckBox x:Name="PushActionsTabCheckBox" Content="ACTIONS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushWeaponsTabCheckBox" Content="WEAPONS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushModificationsTabCheckBox" Content="PREFIX" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushArmorTabCheckBox" Content="ARMOR" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushStatBonusesTabCheckBox" Content="SUFFIXES" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushConsumablesTabCheckBox" Content="CONSUMABLES" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushEnemiesTabCheckBox" Content="ENEMIES" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushEnvironmentsTabCheckBox" Content="ENVIRONMENTS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushDungeonsTabCheckBox" Content="DUNGEONS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushClassPresentationTabCheckBox" Content="CLASSES" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushClassActionsTabCheckBox" Content="CLASS ACTIONS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                             </WrapPanel>
                         </StackPanel>
-                    </Border>
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <Button x:Name="ResyncSheetsButton"
                                 Content="PULL from Google Sheets"
@@ -202,7 +103,6 @@
                                 FontSize="14"
                                 FontWeight="SemiBold"
                                 Background="#FF0078D4"
-                                Foreground="White"
                                 BorderThickness="0"
                                 CornerRadius="4"
                                 Cursor="Hand"/>
@@ -213,7 +113,6 @@
                                 FontSize="14"
                                 FontWeight="SemiBold"
                                 Background="#FFC50E1F"
-                                Foreground="White"
                                 BorderThickness="0"
                                 CornerRadius="4"
                                 Cursor="Hand"/>
@@ -221,7 +120,7 @@
                     <TextBlock x:Name="SheetsSyncProgressTextBlock"
                                Text="Ready"
                                FontSize="13"
-                               Foreground="#FF555555"/>
+                               Classes="settings-muted"/>
                     <ScrollViewer MaxHeight="160"
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled">
@@ -230,18 +129,13 @@
                                  Focusable="True"
                                  TextWrapping="Wrap"
                                  MinHeight="120"
-                                 Background="#FF2D2D2D"
-                                 Foreground="White"
-                                 CaretBrush="White"
-                                 BorderBrush="#FF666666"
-                                 BorderThickness="1"
                                  Padding="8"
                                  FontFamily="Consolas"
                                  FontSize="11"
                                  AcceptsReturn="True"/>
                     </ScrollViewer>
                 </StackPanel>
-            </Border>
+            </StackPanel>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

@@ -8,6 +8,7 @@ using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Settings;
 using RPGGame.Utils;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace RPGGame.UI.Avalonia.Managers.Settings
@@ -34,12 +35,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         private readonly Action<string, bool>? showStatusMessage;
         private readonly GetPanelForCategoryResolver getPanelForCategory;
 
-        /// <summary>Category tags that use ISettingsPanelHandler for save. Add new handler-based panels here so the orchestrator saves them without code change.</summary>
-        /// <remarks>
-        /// ItemGeneration must run before Classes: ClassesPanelHandler updates in-memory balance;
-        /// combo caps live in TextBoxes until ItemGeneration applies them — if Classes ran first, balance patch would be written with stale <c>lootSystem</c> when the user saved from another tab without ItemGeneration running after.
-        /// </remarks>
-        private static readonly string[] HandlerSaveCategoryTags = { "Travel", "TextDelays", "TextAnimation", "Appearance", "BalanceTuning", "ItemGeneration", "EnemyTuning", "Classes", "Audio" };
+        private static readonly IReadOnlyList<string> HandlerSaveCategoryTags = SettingsPanelCatalog.HandlerSaveCategoryTags;
 
         public SettingsSaveOrchestrator(
             SettingsManager? settingsManager,
@@ -65,7 +61,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             this.getPanelForCategory = getPanelForCategory ?? ((_, __) => null);
         }
 
-        private static readonly string[] BalanceHandlerTags = { "ItemGeneration", "EnemyTuning", "Classes" };
+        private static readonly string[] BalanceHandlerTags = { "ItemGeneration", "EnemyTuning", "CombatTuning", "Classes" };
 
         /// <summary>Save settings with patch dialogs. Pass the panel currently visible when it applies.</summary>
         public async Task<SettingsSaveResult> SaveSettingsAsync(UserControl? currentlyDisplayedPanel = null, Window? dialogOwner = null)
@@ -124,7 +120,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     try
                     {
                         handler.SaveSettings(panel);
-                        if (tag == "TextDelays") textDelaysSaved = true;
+                        if (tag == "TextAndAnimation") textDelaysSaved = true;
                         if (string.Equals(tag, "Audio", StringComparison.OrdinalIgnoreCase)) audioNeedsPatchSave = true;
                         if (Array.IndexOf(BalanceHandlerTags, tag) >= 0) balanceNeedsPatchSave = true;
                     }

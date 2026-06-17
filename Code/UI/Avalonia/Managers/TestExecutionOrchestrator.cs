@@ -1,8 +1,10 @@
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using RPGGame.Tests;
 using RPGGame.Tests.Runners;
 
 namespace RPGGame.UI.Avalonia.Managers
@@ -54,6 +56,9 @@ namespace RPGGame.UI.Avalonia.Managers
                 ClearOutput();
                 UpdateStatus(statusMessage);
                 SetProgress(0);
+
+                // Reset collector so status stats reflect only this run (not prior suites in the session).
+                TestResultCollector.Clear();
                 
                 StartCapturingOutput();
                 
@@ -230,45 +235,48 @@ namespace RPGGame.UI.Avalonia.Managers
         }
 
         /// <summary>
-        /// Calculates test results by parsing the output for checkmarks and failures
+        /// Calculates test results from TestResultCollector (assertions) or by parsing console output.
         /// </summary>
         private (int passed, int total, double passRate) CalculateTestResults()
         {
+            var (collectorTotal, collectorPassed, _, collectorRate) = TestResultCollector.GetStatistics();
+            if (collectorTotal > 0)
+            {
+                return (collectorPassed, collectorTotal, collectorRate);
+            }
+
             if (outputTextBox == null) return (0, 0, 0.0);
 
             var outputText = outputTextBox.Text ?? string.Empty;
             var lines = outputText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            
+
             int passedCount = 0;
             int failedCount = 0;
-            
-            // Look for lines with checkmarks (✓) or cross marks (✗)
-            // Common patterns: "✓ message", "  ✓ message", "✗ FAILED: message"
+
+            // Fallback for suites that do not record via TestBase: match TestBase output shapes only.
+            // Avoid false positives from section headers like "--- On FAILURE ---" or summary "Failed: N".
             foreach (var line in lines)
             {
                 var trimmedLine = line.Trim();
-                
-                // Check for passed tests (checkmark)
-                if (trimmedLine.Contains("✓") && !trimmedLine.Contains("✗"))
-                {
-                    // Make sure it's not a failed test that happens to have a checkmark elsewhere
-                    if (!trimmedLine.Contains("FAILED") && !trimmedLine.Contains("FAIL"))
-                    {
-                        passedCount++;
-                    }
-                }
-                // Check for failed tests
-                else if (trimmedLine.Contains("✗") || trimmedLine.Contains("FAILED") || trimmedLine.Contains("FAIL"))
+
+                if (trimmedLine.Contains("✗ FAILED:", StringComparison.Ordinal))
                 {
                     failedCount++;
                 }
+                else if (TestPassLinePattern.IsMatch(trimmedLine))
+                {
+                    passedCount++;
+                }
             }
-            
+
             int totalCount = passedCount + failedCount;
             double passRate = totalCount > 0 ? (passedCount * 100.0 / totalCount) : 0.0;
-            
+
             return (passedCount, totalCount, passRate);
         }
+
+        /// <summary>Lines emitted by <see cref="TestBase"/> assertions: leading whitespace, ✓, message.</summary>
+        private static readonly Regex TestPassLinePattern = new Regex(@"^\s*✓\s+\S", RegexOptions.Compiled);
 
         /// <summary>
         /// Formats the completion message with test statistics

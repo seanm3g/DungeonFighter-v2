@@ -3,35 +3,28 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
-             x:Class="RPGGame.UI.Avalonia.Settings.PatchesSettingsPanel"
-             Background="Transparent">
+             x:Class="RPGGame.UI.Avalonia.Settings.PatchesSettingsPanel" Classes="settings-ui" Background="Transparent">
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="20" Margin="20">
-            <Border Background="#FF252525"
-                    BorderBrush="#FF404040"
-                    BorderThickness="1"
-                    CornerRadius="6"
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="12">
                     <TextBlock Text="Config patches"
-                               FontSize="18"
-                               FontWeight="SemiBold"
-                               Foreground="#FFE8E8E8"/>
+                               Classes="settings-section-header"/>
                     <TextBlock Text="General settings (gameplay, UI, volume) are stored locally in GeneralSettings.json and never uploaded. The default audio patch (cue file bindings and state→music triggers) updates from GitHub on pull; named audio patches stay local."
-                               Foreground="#FFB0B0B0"
+                               Classes="settings-muted"
                                FontSize="14"
                                TextWrapping="Wrap"/>
 
                     <Grid ColumnDefinitions="180,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,8,0,0">
-                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" Text="General settings"/>
-                        <TextBlock x:Name="GameSettingsPatchLabel" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Foreground="#FF909090" Text="local only"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" Text="General settings"/>
+                        <TextBlock x:Name="GameSettingsPatchLabel" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Classes="settings-muted" Text="local only"/>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" Text="Audio / music" Margin="0,8,0,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" Text="Audio / music" Margin="0,8,0,0"/>
                         <ComboBox x:Name="AudioPatchCombo" Grid.Row="1" Grid.Column="1" MinWidth="280" HorizontalAlignment="Left" Margin="0,8,0,0"/>
 
-                        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Foreground="#FFE8E8E8" Text="Balance" Margin="0,8,0,0"/>
-                        <TextBlock x:Name="BalancePatchLabel" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Foreground="#FF909090" Text="default (updates from GitHub)" Margin="0,8,0,0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" Text="Balance" Margin="0,8,0,0"/>
+                        <TextBlock x:Name="BalancePatchLabel" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Classes="settings-muted" Text="default (updates from GitHub)" Margin="0,8,0,0"/>
 
                         <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="0,16,0,0">
                             <ComboBox x:Name="PatchIoCategoryCombo" MinWidth="140" SelectedIndex="0">
@@ -45,11 +38,11 @@
                     </Grid>
 
                     <TextBlock x:Name="ActivePathsTextBlock"
-                               Foreground="#FF909090"
+                               Classes="settings-muted"
                                FontSize="12"
                                TextWrapping="Wrap"/>
                 </StackPanel>
-            </Border>
+            </StackPanel>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

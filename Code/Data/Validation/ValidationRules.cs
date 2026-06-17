@@ -97,7 +97,7 @@ namespace RPGGame.Data.Validation
             public static readonly HashSet<string> ValidArchetypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "Knight", "Assassin", "Berserker", "Acrobat", "Brute",
-                "Warlord", "Sage", "Duelist", "Artificer", "Trickster"
+                "Warlord", "Sage", "Duelist", "Trickster"
             };
         }
 
@@ -127,7 +127,7 @@ namespace RPGGame.Data.Validation
 
             public static readonly HashSet<string> ValidSlots = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "Head", "Chest", "Legs", "Arms", "Feet", "Hands", "Neck", "Ring", "Trinket"
+                "Head", "Chest", "Legs", "Feet"
             };
         }
 

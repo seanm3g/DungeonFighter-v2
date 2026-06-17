@@ -3,52 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
-             x:Class="RPGGame.UI.Avalonia.Settings.ActionsSettingsPanel"
-             Background="Transparent">
-    <UserControl.Styles>
-        <!-- Keep form inputs white when focused/selected so they match unselected state (override SettingsPanel dark theme) -->
-        <Style Selector="TextBox">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="Black"/>
-        </Style>
-        <Style Selector="TextBox:focus">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="BorderBrush" Value="#FF0078D4"/>
-        </Style>
-        <Style Selector="TextBox:pointerover">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="Black"/>
-        </Style>
-        <Style Selector="TextBox:pointerover:focus">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="BorderBrush" Value="#FF0078D4"/>
-        </Style>
-        <Style Selector="TextBox /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="White"/>
-        </Style>
-        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="White"/>
-        </Style>
-        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="White"/>
-        </Style>
-        <Style Selector="TextBox:pointerover:focus /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="White"/>
-        </Style>
-        <!-- Filter ComboBoxes: white text on dark background (override theme so placeholder/selection text is visible) -->
-        <Style Selector="ComboBox">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="PlaceholderForeground" Value="White"/>
-        </Style>
-        <Style Selector="ComboBox /template/ ContentPresenter">
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="ComboBox /template/ TextBlock">
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-    </UserControl.Styles>
+             x:Class="RPGGame.UI.Avalonia.Settings.ActionsSettingsPanel" Classes="settings-ui" Background="Transparent">
     <Grid Margin="20" VerticalAlignment="Stretch">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="250"/>
@@ -59,44 +14,24 @@
         <!-- Middle: Filter and Actions List with its own scroll -->
         <Grid Grid.Column="0" VerticalAlignment="Stretch" RowDefinitions="Auto,*,Auto">
             <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,8">
-                <TextBlock Text="Filter by type" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,4"/>
+                <TextBlock Text="Filter by type" FontWeight="SemiBold" Margin="0,0,0,4"/>
                 <ComboBox x:Name="RarityFilterComboBox"
-                          PlaceholderText="Rarity (all)"
-                          Background="#FF2A2A2A"
-                          Foreground="White"
-                          PlaceholderForeground="White"
-                          BorderBrush="#FF555555"/>
+                          PlaceholderText="Rarity (all)"/>
                 <ComboBox x:Name="CategoryFilterComboBox"
-                          PlaceholderText="Category (all)"
-                          Background="#FF2A2A2A"
-                          Foreground="White"
-                          PlaceholderForeground="White"
-                          BorderBrush="#FF555555"/>
+                          PlaceholderText="Category (all)"/>
                 <ComboBox x:Name="CadenceFilterComboBox"
-                          PlaceholderText="Cadence (all)"
-                          Background="#FF2A2A2A"
-                          Foreground="White"
-                          PlaceholderForeground="White"
-                          BorderBrush="#FF555555"/>
+                          PlaceholderText="Cadence (all)"/>
                 <ComboBox x:Name="TagFilterComboBox"
-                          PlaceholderText="Tag (all)"
-                          Background="#FF2A2A2A"
-                          Foreground="White"
-                          PlaceholderForeground="White"
-                          BorderBrush="#FF555555"/>
+                          PlaceholderText="Tag (all)"/>
             </StackPanel>
             <ListBox Grid.Row="1"
                      x:Name="ActionsListBox"
-                     Background="#FF2A2A2A"
                      BorderThickness="1"
-                     BorderBrush="#FF555555"
-                     Foreground="White"
                      VerticalAlignment="Stretch"
                      MinHeight="0"/>
             <StackPanel Grid.Row="2" Margin="0,8,0,0" Spacing="4">
                 <TextBlock Text="Selected action — runtime tags"
                            FontWeight="SemiBold"
-                           Foreground="White"
                            FontSize="12"/>
                 <TextBlock x:Name="SelectedActionTagsPreviewTextBlock"
                            Text="Select an action to see runtime tags."
@@ -120,7 +55,6 @@
                         FontSize="16"
                         FontWeight="SemiBold"
                         Background="#FF0078D4"
-                        Foreground="White"
                         BorderThickness="0"
                         CornerRadius="4"/>
                 <Button x:Name="DeleteActionButton"
@@ -130,7 +64,6 @@
                         FontSize="16"
                         FontWeight="SemiBold"
                         Background="#FFD32F2F"
-                        Foreground="White"
                         BorderThickness="0"
                         CornerRadius="4"/>
             </StackPanel>

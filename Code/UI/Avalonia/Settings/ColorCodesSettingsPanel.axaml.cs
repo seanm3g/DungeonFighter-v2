@@ -4,6 +4,7 @@ using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using RPGGame.Data;
+using RPGGame.UI.Avalonia.Resources;
 using RPGGame.UI.Avalonia.Settings.Helpers;
 using System;
 using System.Collections.Generic;
@@ -47,11 +48,11 @@ namespace RPGGame.UI.Avalonia.Settings
                     Text = $"&{colorCode.Code}",
                     FontSize = 12,
                     FontWeight = FontWeight.Bold,
-                    Foreground = new SolidColorBrush(Colors.Black),
                     VerticalAlignment = VerticalAlignment.Center,
                     Margin = new Thickness(0, 0, 5, 0),
                     Width = 35
                 };
+                SettingsInputApplier.ApplyTextBlock(codeLabel);
                 Grid.SetColumn(codeLabel, 0);
                 grid.Children.Add(codeLabel);
 
@@ -59,10 +60,10 @@ namespace RPGGame.UI.Avalonia.Settings
                 {
                     Text = colorCode.Name ?? "",
                     FontSize = 12,
-                    Foreground = new SolidColorBrush(Colors.Black),
                     VerticalAlignment = VerticalAlignment.Center,
                     Margin = new Thickness(0, 0, 5, 0)
                 };
+                SettingsInputApplier.ApplyTextBlock(nameLabel);
                 Grid.SetColumn(nameLabel, 1);
                 grid.Children.Add(nameLabel);
 
@@ -83,13 +84,11 @@ namespace RPGGame.UI.Avalonia.Settings
                     Text = colorCode.Hex ?? "#FFFFFF",
                     Width = 80,
                     Height = 24,
-                    Background = new SolidColorBrush(AppearanceSettingsHelper.ParseColor("#FF2A2A2A")),
-                    Foreground = new SolidColorBrush(Colors.White),
-                    BorderBrush = new SolidColorBrush(Colors.Gray),
                     BorderThickness = new Thickness(1),
                     Padding = new Thickness(4, 2),
                     FontSize = 11
                 };
+                SettingsInputApplier.ApplyTextBox(hexTextBox);
                 hexTextBox.TextChanged += (s, e) =>
                 {
                     if (s is TextBox tb && !string.IsNullOrEmpty(tb.Text))

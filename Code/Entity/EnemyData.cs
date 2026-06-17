@@ -24,7 +24,6 @@ namespace RPGGame
         Warlord,
         Sage,
         Duelist,
-        Artificer,
         Trickster
     }
 

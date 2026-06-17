@@ -5,6 +5,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using RPGGame;
 using RPGGame.Editors;
+using RPGGame.UI.Avalonia.Resources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,7 +66,7 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 Text = "Separate multiple tags with a comma (e.g. melee, physical, starter).",
                 FontSize = 12,
-                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                Foreground = SettingsThemeBrushes.TextMuted,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 8)
             });
@@ -97,7 +98,7 @@ namespace RPGGame.UI.Avalonia.Builders
             var cadenceDesignNote = new TextBlock
             {
                 FontSize = 12,
-                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                Foreground = SettingsThemeBrushes.TextMuted,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 2, 0, 0)
             };
@@ -147,7 +148,7 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 Text = "Spreadsheet row 1 block \"HERO BASE STATS\", columns AJ–AM: ACTION SPEED, ACTION DAMAGE, MULTIHIT MOD, AMP_MOD. Applies to the hero's next action or ability. Speed / damage / amp are %; multi-hit is a raw value.",
                 FontSize = 12,
-                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                Foreground = SettingsThemeBrushes.TextMuted,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 8)
             });
@@ -165,7 +166,7 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 Text = "Spreadsheet row 1 block \"ENEMY BASE STATS\", columns AD–AG: ACTION SPEED, DAMAGE MOD, MULTIHIT MOD, AMP_MOD. Same units as hero (speed/damage/amp %, multi-hit raw).",
                 FontSize = 12,
-                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                Foreground = SettingsThemeBrushes.TextMuted,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 8)
             });
@@ -196,7 +197,7 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 Text = "Opener: first slot only; Finisher: last slot only.",
                 FontSize = 12,
-                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                Foreground = SettingsThemeBrushes.TextMuted,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 4)
             });
@@ -251,7 +252,7 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 Text = "When checked, this action's status effects apply only on the selected outcome(s). Leave all unchecked to apply on any result.",
                 FontSize = 12,
-                Foreground = new SolidColorBrush(Color.FromRgb(180, 180, 200)),
+                Foreground = SettingsThemeBrushes.TextMuted,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 8)
             });
@@ -269,7 +270,7 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 Text = "This action adds the selected status component(s). Effect strength and duration are determined by the item granting the action.",
                 FontSize = 12,
-                Foreground = new SolidColorBrush(Color.FromRgb(180, 180, 200)),
+                Foreground = SettingsThemeBrushes.TextMuted,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 8)
             });
@@ -318,7 +319,7 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 Text = "Weapon type checks grant this action to every weapon of that type. Required Weapon Basic marks the one action that must stay in that weapon's combo sequence.",
                 FontSize = 12,
-                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                Foreground = SettingsThemeBrushes.TextMuted,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 4)
             });

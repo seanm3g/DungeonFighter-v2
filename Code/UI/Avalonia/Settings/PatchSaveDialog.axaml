@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="560" d:DesignHeight="260"
-        x:Class="RPGGame.UI.Avalonia.Settings.PatchSaveDialog"
+        x:Class="RPGGame.UI.Avalonia.Settings.PatchSaveDialog" Classes="settings-ui"
         Title="Save config patch"
         Width="560" Height="260"
         WindowStartupLocation="CenterOwner"
@@ -27,7 +27,6 @@
                    Grid.Row="1"
                    Text="Choose how to save this patch."
                    FontSize="15"
-                   Foreground="White"
                    TextWrapping="Wrap"
                    VerticalAlignment="Center"/>
 
@@ -43,7 +42,6 @@
                     FontSize="14"
                     FontWeight="SemiBold"
                     Background="#FF0078D4"
-                    Foreground="White"
                     BorderThickness="0"
                     CornerRadius="4"/>
             <Button x:Name="SaveAsButton"
@@ -53,7 +51,6 @@
                     FontSize="14"
                     FontWeight="SemiBold"
                     Background="#FF2E7D32"
-                    Foreground="White"
                     BorderThickness="0"
                     CornerRadius="4"/>
             <Button x:Name="CancelButton"
@@ -63,7 +60,6 @@
                     FontSize="14"
                     FontWeight="SemiBold"
                     Background="#FF555555"
-                    Foreground="White"
                     BorderThickness="0"
                     CornerRadius="4"/>
         </StackPanel>

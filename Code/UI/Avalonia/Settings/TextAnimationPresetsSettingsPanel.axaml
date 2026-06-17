@@ -9,198 +9,9 @@
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="900"
 
              x:Class="RPGGame.UI.Avalonia.Settings.TextAnimationPresetsSettingsPanel"
-
+             Classes="settings-ui"
              Background="Transparent">
 
-    <UserControl.Styles>
-
-        <Style Selector="Border#TextAnimationFormSurface TextBlock">
-
-            <Setter Property="Foreground" Value="Black"/>
-
-        </Style>
-
-        <Style Selector="Border#TextAnimationFormSurface CheckBox">
-
-            <Setter Property="Foreground" Value="Black"/>
-
-        </Style>
-
-        <!-- Form inputs: light fields on white surface so values are always readable. -->
-
-        <Style Selector="Border#TextAnimationFormSurface TextBox">
-
-            <Setter Property="Background" Value="#FFF0F0F0"/>
-
-            <Setter Property="Foreground" Value="#FF1A1A1A"/>
-
-            <Setter Property="BorderBrush" Value="#FF888888"/>
-
-            <Setter Property="CaretBrush" Value="#FF1A1A1A"/>
-
-            <Setter Property="SelectionBrush" Value="#FF0078D4"/>
-
-            <Setter Property="SelectionForegroundBrush" Value="White"/>
-
-            <Setter Property="Padding" Value="6,4"/>
-
-        </Style>
-
-        <Style Selector="Border#TextAnimationFormSurface TextBox:focus">
-
-            <Setter Property="BorderBrush" Value="#FF0078D4"/>
-
-        </Style>
-
-        <Style Selector="Border#TextAnimationFormSurface TextBox:pointerover">
-
-            <Setter Property="Background" Value="#FFE8E8E8"/>
-
-        </Style>
-
-        <Style Selector="Border#TextAnimationFormSurface TextBox /template/ Border#PART_BorderElement">
-
-            <Setter Property="Background" Value="#FFF0F0F0"/>
-
-        </Style>
-
-        <Style Selector="Border#TextAnimationFormSurface TextBox:focus /template/ Border#PART_BorderElement">
-
-            <Setter Property="Background" Value="#FFF0F0F0"/>
-
-        </Style>
-
-        <Style Selector="Border#TextAnimationFormSurface TextBox:pointerover /template/ Border#PART_BorderElement">
-
-            <Setter Property="Background" Value="#FFE8E8E8"/>
-
-        </Style>
-
-        <!-- Preview glyphs: never inherit theme foreground; compositor sets per-character color. -->
-
-        <Style Selector="TextBlock.TextAnimationPreviewGlyph">
-
-            <Setter Property="FontFamily" Value="Courier New, Consolas, monospace"/>
-
-            <Setter Property="FontSize" Value="18"/>
-
-        </Style>
-
-        <!-- ComboBoxes: light fields on white surface (matches TextBox styling above). -->
-
-        <Style Selector="Border#TextAnimationFormSurface ComboBox">
-
-            <Setter Property="Background" Value="#FFF0F0F0"/>
-
-            <Setter Property="Foreground" Value="#FF1A1A1A"/>
-
-            <Setter Property="BorderBrush" Value="#FF888888"/>
-
-            <Setter Property="PlaceholderForeground" Value="#FF666666"/>
-
-            <Setter Property="Padding" Value="6,4"/>
-
-            <Setter Property="MinHeight" Value="28"/>
-
-        </Style>
-
-        <Style Selector="Border#TextAnimationFormSurface ComboBox:focus">
-
-            <Setter Property="BorderBrush" Value="#FF0078D4"/>
-
-        </Style>
-
-        <Style Selector="Border#TextAnimationFormSurface ComboBox:pointerover">
-
-            <Setter Property="Background" Value="#FFE8E8E8"/>
-
-        </Style>
-
-        <Style Selector="Border#TextAnimationFormSurface ComboBox /template/ ContentPresenter">
-
-            <Setter Property="Foreground" Value="#FF1A1A1A"/>
-
-        </Style>
-
-        <Style Selector="Border#TextAnimationFormSurface ComboBox /template/ TextBlock">
-
-            <Setter Property="Foreground" Value="#FF1A1A1A"/>
-
-        </Style>
-
-        <Style Selector="Border#TextAnimationFormSurface ComboBox /template/ Border#PART_BorderElement">
-
-            <Setter Property="Background" Value="#FFF0F0F0"/>
-
-        </Style>
-
-        <Style Selector="Border#TextAnimationFormSurface ComboBox:focus /template/ Border#PART_BorderElement">
-
-            <Setter Property="Background" Value="#FFF0F0F0"/>
-
-        </Style>
-
-        <Style Selector="Border#TextAnimationFormSurface ComboBox:pointerover /template/ Border#PART_BorderElement">
-
-            <Setter Property="Background" Value="#FFE8E8E8"/>
-
-        </Style>
-
-        <!-- Popup renders outside the form border; keep dropdown list readable. -->
-
-        <Style Selector="ComboBoxItem">
-
-            <Setter Property="Background" Value="White"/>
-
-            <Setter Property="Foreground" Value="#FF1A1A1A"/>
-
-            <Setter Property="Padding" Value="8,6"/>
-
-        </Style>
-
-        <Style Selector="ComboBoxItem TextBlock">
-
-            <Setter Property="Foreground" Value="#FF1A1A1A"/>
-
-        </Style>
-
-        <Style Selector="ComboBoxItem:pointerover">
-
-            <Setter Property="Background" Value="#FFE8F4FD"/>
-
-            <Setter Property="Foreground" Value="#FF1A1A1A"/>
-
-        </Style>
-
-        <Style Selector="ComboBoxItem:pointerover TextBlock">
-
-            <Setter Property="Foreground" Value="#FF1A1A1A"/>
-
-        </Style>
-
-        <Style Selector="ComboBoxItem:selected">
-
-            <Setter Property="Background" Value="#FF0078D4"/>
-
-            <Setter Property="Foreground" Value="White"/>
-
-        </Style>
-
-        <Style Selector="ComboBoxItem:selected TextBlock">
-
-            <Setter Property="Foreground" Value="White"/>
-
-        </Style>
-
-        <Style Selector="ComboBox /template/ Popup#PART_Popup Border">
-
-            <Setter Property="Background" Value="White"/>
-
-            <Setter Property="BorderBrush" Value="#FF888888"/>
-
-        </Style>
-
-    </UserControl.Styles>
 
 
 
@@ -212,9 +23,9 @@
 
                 x:Name="TextAnimationPreviewChrome"
 
-                Background="#FF2A2A2A"
+                Background="{DynamicResource SettingsInputBackground}"
 
-                BorderBrush="#FF555555"
+                BorderBrush="{DynamicResource SettingsInputBorder}"
 
                 BorderThickness="0,0,0,1"
 
@@ -222,11 +33,11 @@
 
             <StackPanel Spacing="8">
 
-                <TextBlock Text="Live preview" FontWeight="SemiBold" Foreground="White"/>
+                <TextBlock Text="Live preview" FontWeight="SemiBold" Classes="settings-field-label"/>
 
                 <Border Background="#FF000000"
 
-                        BorderBrush="#FF555555"
+                        BorderBrush="{DynamicResource SettingsInputBorder}"
 
                         BorderThickness="1"
 
@@ -252,7 +63,7 @@
 
                            FontSize="12"
 
-                           Foreground="#FFCCCCCC"
+                           Classes="settings-muted"
 
                            TextWrapping="Wrap"
 
@@ -272,7 +83,7 @@
 
             <Border x:Name="TextAnimationFormSurface"
 
-                    Background="White"
+                    Background="Transparent"
 
                     BorderBrush="#FF404040"
 
@@ -292,13 +103,13 @@
 
                                FontWeight="Bold"
 
-                               Foreground="Black"
+                               Classes="settings-field-label"
 
                                Margin="0,0,0,4"/>
 
                     <TextBlock FontSize="13"
 
-                               Foreground="#FF555555"
+                               Classes="settings-muted"
 
                                TextWrapping="Wrap"
 
@@ -344,7 +155,7 @@
 
                                FontSize="12"
 
-                               Foreground="#FF444444"
+                               Classes="settings-muted"
 
                                TextWrapping="Wrap"/>
 
@@ -420,7 +231,7 @@
 
                         <TextBlock Text="Accent HSV layer (optional stack on top)" FontWeight="SemiBold"/>
 
-                        <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
+                        <TextBlock FontSize="12" Classes="settings-muted" TextWrapping="Wrap"
 
                                    Text="Adds or updates a top hsvAdjust layer masked by a sine wave. Hue 0° and saturation 1.0× remove the accent layer. Sliders and text boxes stay in sync when you press Enter or leave the field. Phase and char offset update the preview live while typing. Saturation scale range is 0–1.5×."/>
 

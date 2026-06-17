@@ -4,60 +4,20 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:components="clr-namespace:RPGGame.UI.Avalonia.Components"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
-             x:Class="RPGGame.UI.Avalonia.Settings.TextDelaysSettingsPanel"
-             Background="Transparent">
-    <UserControl.Styles>
-        <!-- Ensure TextBoxes have proper colors and are visible -->
-        <Style Selector="TextBox">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FF555555"/>
-            <Setter Property="SelectionBrush" Value="#FF0078D4"/>
-            <Setter Property="SelectionForegroundBrush" Value="White"/>
-        </Style>
-        <Style Selector="TextBox:focus">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FF0078D4"/>
-        </Style>
-        <Style Selector="TextBox:pointerover">
-            <Setter Property="Background" Value="#FF353535"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FF555555"/>
-        </Style>
-        <Style Selector="TextBox:pointerover:focus">
-            <Setter Property="Background" Value="#FF2A2A2A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FF0078D4"/>
-        </Style>
-        <Style Selector="TextBlock.setting-example">
-            <Setter Property="Foreground" Value="#FF666666"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontStyle" Value="Italic"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="8,4,8,4"/>
-        </Style>
-    </UserControl.Styles>
+             x:Class="RPGGame.UI.Avalonia.Settings.TextDelaysSettingsPanel" Classes="settings-ui" Background="Transparent">
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                  HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="20" Margin="20">
             <!-- Enable Delays -->
-            <Border Background="White" 
-                    BorderBrush="#FF404040" 
-                    BorderThickness="1" 
-                    CornerRadius="6" 
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="15">
                     <TextBlock Text="Enable Delays" 
-                               FontSize="18" 
-                               FontWeight="SemiBold" 
-                               Foreground="Black" 
+                               Classes="settings-section-header" 
                                Margin="0,0,0,8"/>
                     <StackPanel Spacing="4">
                         <CheckBox x:Name="EnableGuiDelaysCheckBox" 
                                   Content="Enable GUI Delays" 
-                                  Foreground="Black"
+                                  Classes="settings-field-label"
                                   FontSize="15"
                                   IsChecked="True"/>
                         <TextBlock Classes="setting-example"
@@ -66,26 +26,20 @@
                     <StackPanel Spacing="4">
                         <CheckBox x:Name="EnableConsoleDelaysCheckBox" 
                                   Content="Enable Console Delays" 
-                                  Foreground="Black"
+                                  Classes="settings-field-label"
                                   FontSize="15"
                                   IsChecked="True"/>
                         <TextBlock Classes="setting-example"
                                    Text="Example: pauses when playing in console/text mode (no GUI renderer)."/>
                     </StackPanel>
                 </StackPanel>
-            </Border>
+            </StackPanel>
             
             <!-- Combat timing (action block delay, delay between lines) -->
-            <Border Background="White" 
-                    BorderBrush="#FF404040" 
-                    BorderThickness="1" 
-                    CornerRadius="6" 
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="15">
                     <TextBlock Text="Combat Timing (ms)" 
-                               FontSize="18" 
-                               FontWeight="SemiBold" 
-                               Foreground="Black" 
+                               Classes="settings-section-header" 
                                Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -98,43 +52,34 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Action delay (after full block):" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Action delay (after full block):" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" Classes="setting-example"
                                    Text="Example: pause after the whole action finishes — attack line, roll, effects, and narrative all shown."/>
                         <TextBox x:Name="ActionDelayMsTextBox" Grid.Row="0" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Message delay (between lines):" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Message delay (between lines):" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="1" Grid.Column="1" Classes="setting-example"
                                    Text="Example: gap between &quot;You swing your sword at the goblin.&quot; and &quot;     d20 14 Hit&quot; in the same action."/>
                         <TextBox x:Name="MessageDelayMsTextBox" Grid.Row="1" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Tutorial combat delay multiplier:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Tutorial combat delay multiplier:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="2" Grid.Column="1" Classes="setting-example"
                                    Text="Example: scales all Training Ground combat pacing (2 = twice as long between tutorial action lines)."/>
                         <TextBox x:Name="TutorialCombatDelayMultiplierTextBox" Grid.Row="2" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                     </Grid>
-                    <TextBlock TextWrapping="Wrap" Foreground="Black" FontSize="14"
+                    <TextBlock TextWrapping="Wrap" Classes="settings-field-label" FontSize="14"
                                Text="Training Ground tutorial only. Multiplies normal combat log delays (2 = twice as long as default pacing)."/>
                 </StackPanel>
-            </Border>
+            </StackPanel>
             
             <!-- Region travel: per d20 step pacing (also scales journey summary minutes) -->
-            <Border Background="White" 
-                    BorderBrush="#FF404040" 
-                    BorderThickness="1" 
-                    CornerRadius="6" 
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="15">
                     <TextBlock Text="Region travel (per d20 roll)" 
-                               FontSize="18" 
-                               FontWeight="SemiBold" 
-                               Foreground="Black" 
+                               Classes="settings-section-header" 
                                Margin="0,0,0,8"/>
-                    <TextBlock TextWrapping="Wrap" Foreground="Black" FontSize="14"
+                    <TextBlock TextWrapping="Wrap" Classes="settings-field-label" FontSize="14"
                                Text="Each point below 20 on the route d20 adds extra pause before the next line and extra minutes in the trip summary. Natural 20 uses the base values only. Travel time multiplier (Travel settings) still scales both."/>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -148,45 +93,35 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Step pause base (natural 20, ms):" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Step pause base (natural 20, ms):" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" Classes="setting-example"
                                    Text="Example: wait before the next step line when the roll is 20 — e.g. before &quot;2. Bandit ambush - ...&quot; appears."/>
                         <TextBox x:Name="TravelStepDelayBaseMsTextBox" Grid.Row="0" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Extra step pause per point below 20 (ms):" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Extra step pause per point below 20 (ms):" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="1" Grid.Column="1" Classes="setting-example"
                                    Text="Example: roll 14 adds 6× this value to the pause before the next travel step line (20 − 14 = 6 points)."/>
                         <TextBox x:Name="TravelStepExtraDelayMsPerPointTextBox" Grid.Row="1" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Summary minutes base (natural 20):" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Summary minutes base (natural 20):" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="2" Grid.Column="1" Classes="setting-example"
                                    Text="Example: minutes on a natural 20 roll line — &quot;     d20 20 Critical (4 minutes)&quot;."/>
                         <TextBox x:Name="TravelSummaryBaseMinutesTextBox" Grid.Row="2" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Extra summary minutes per point below 20:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Extra summary minutes per point below 20:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="3" Grid.Column="1" Classes="setting-example"
                                    Text="Example: roll 10 adds 10× this to the step minutes and to the trip summary (&quot;time 2h 10m&quot; at arrival)."/>
                         <TextBox x:Name="TravelSummaryExtraMinutesPerPointTextBox" Grid.Row="3" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
-            </Border>
+            </StackPanel>
             
             <!-- Message Type Delays -->
-            <Border Background="White" 
-                    BorderBrush="#FF404040" 
-                    BorderThickness="1" 
-                    CornerRadius="6" 
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="15">
                     <TextBlock Text="Message Type Delays (ms)" 
-                               FontSize="18" 
-                               FontWeight="SemiBold" 
-                               Foreground="Black" 
+                               Classes="settings-section-header" 
                                Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -208,97 +143,80 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Combat:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Combat:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" Classes="setting-example"
                                    Text="Example: &quot;You swing your sword at the goblin.&quot; — main combat action lines in the center log."/>
                         <TextBox x:Name="CombatDelayTextBox" Grid.Row="0" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="System:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="System:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="1" Grid.Column="1" Classes="setting-example"
                                    Text="Example: &quot;Error loading weapon data: Weapons.json not found&quot; — general system and narrative filler lines."/>
                         <TextBox x:Name="SystemDelayTextBox" Grid.Row="1" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Menu:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Menu:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="2" Grid.Column="1" Classes="setting-example"
                                    Text="Example: &quot;1. Attack   2. Defend   3. Use item&quot; — each choice line in action and travel menus."/>
                         <TextBox x:Name="MenuDelayTextBox" Grid.Row="2" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Title:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Title:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="3" Grid.Column="1" Classes="setting-example"
                                    Text="Example: &quot;=== ROOM CLEARED ===&quot; — section headers and room-cleared banners."/>
                         <TextBox x:Name="TitleDelayTextBox" Grid.Row="3" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Main Title:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Main Title:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="4" Grid.Column="1" Classes="setting-example"
                                    Text="Example: &quot;DUNGEON FIGHTER&quot; — main title screen and other large centered headings."/>
                         <TextBox x:Name="MainTitleDelayTextBox" Grid.Row="4" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Environmental:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Environmental:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="5" Grid.Column="1" Classes="setting-example"
                                    Text="Example: &quot;You search the ancient altar...&quot; — center-aligned environmental action blocks (traps, shrines, exits)."/>
                         <TextBox x:Name="EnvironmentalDelayTextBox" Grid.Row="5" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Effect Message:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Effect Message:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="6" Grid.Column="1" Classes="setting-example"
                                    Text="Example: &quot;     Goblin is poisoned (3 turns)&quot; — status effect lines indented under an action."/>
                         <TextBox x:Name="EffectMessageDelayTextBox" Grid.Row="6" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <TextBlock Grid.Row="7" Grid.Column="0" Text="Damage Over Time:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="7" Grid.Column="0" Text="Damage Over Time:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="7" Grid.Column="1" Classes="setting-example"
                                    Text="Example: &quot;Poison deals 5 damage to the goblin.&quot; — turn-start burn, bleed, and poison ticks."/>
                         <TextBox x:Name="DamageOverTimeDelayTextBox" Grid.Row="7" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <TextBlock Grid.Row="8" Grid.Column="0" Text="Encounter:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="8" Grid.Column="0" Text="Encounter:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="8" Grid.Column="1" Classes="setting-example"
                                    Text="Example: dramatic pause when enemies first appear — beat timing before combat begins."/>
                         <TextBox x:Name="EncounterDelayTextBox" Grid.Row="8" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <TextBlock Grid.Row="9" Grid.Column="0" Text="Roll Info:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="9" Grid.Column="0" Text="Roll Info:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="9" Grid.Column="1" Classes="setting-example"
                                    Text="Example: &quot;     d20 17 Hit&quot; — indented roll detail line directly under a combat action."/>
                         <TextBox x:Name="RollInfoDelayTextBox" Grid.Row="9" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <TextBlock Grid.Row="10" Grid.Column="0" Text="Environmental Line Delay:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="10" Grid.Column="0" Text="Environmental Line Delay:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="10" Grid.Column="1" Classes="setting-example"
                                    Text="Example: gap between lines inside one environmental block — action line, roll line, and outcome narrative."/>
                         <TextBox x:Name="EnvironmentalLineDelayTextBox" Grid.Row="10" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
-            </Border>
+            </StackPanel>
             
             <!-- Progressive Menu Delays -->
-            <Border Background="White" 
-                    BorderBrush="#FF404040" 
-                    BorderThickness="1" 
-                    CornerRadius="6" 
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="15">
                     <TextBlock Text="Progressive Menu Delays" 
-                               FontSize="18" 
-                               FontWeight="SemiBold" 
-                               Foreground="Black" 
+                               Classes="settings-section-header" 
                                Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -312,47 +230,38 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Base Menu Delay (ms):" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Base Menu Delay (ms):" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" Classes="setting-example"
                                    Text="Example: delay before the first menu line — &quot;1. Attack&quot; when an action list opens."/>
                         <TextBox x:Name="BaseMenuDelayTextBox" Grid.Row="0" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Progressive Reduction Rate:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Progressive Reduction Rate:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="1" Grid.Column="1" Classes="setting-example"
                                    Text="Example: each next menu line appears this many ms sooner — line 2 is faster than line 1, line 3 faster still."/>
                         <TextBox x:Name="ProgressiveReductionRateTextBox" Grid.Row="1" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Progressive Threshold:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Progressive Threshold:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="2" Grid.Column="1" Classes="setting-example"
                                    Text="Example: after this many menu lines (e.g. 20), reduction continues more slowly for long action lists."/>
                         <TextBox x:Name="ProgressiveThresholdTextBox" Grid.Row="2" Grid.Column="2" Width="90" Height="28" 
-                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
-            </Border>
+            </StackPanel>
             
             <!-- Chunked Text Reveal Presets -->
-            <Border Background="White" 
-                    BorderBrush="#FF404040" 
-                    BorderThickness="1" 
-                    CornerRadius="6" 
-                    Padding="18">
+            <StackPanel Spacing="15">
                 <StackPanel Spacing="20">
                     <TextBlock Text="Chunked Text Reveal Presets" 
-                               FontSize="18" 
-                               FontWeight="SemiBold" 
-                               Foreground="Black" 
+                               Classes="settings-section-header" 
                                Margin="0,0,0,8"/>
                     
                     <!-- Combat Preset -->
                     <Border BorderBrush="#FFCCCCCC" BorderThickness="1" CornerRadius="4" Padding="12">
                         <StackPanel Spacing="10">
-                            <TextBlock Text="Combat Preset" FontSize="16" FontWeight="SemiBold" Foreground="Black" Margin="0,0,0,5"/>
+                            <TextBlock Text="Combat Preset" FontSize="16" FontWeight="SemiBold" Classes="settings-field-label" Margin="0,0,0,5"/>
                             <TextBlock Classes="setting-example"
                                        Text="Used for: fast combat log reveals — e.g. victory summary and battle highlight lines typing out sentence by sentence."/>
                             <Grid>
@@ -367,25 +276,22 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Base Delay Per Char (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Base Delay Per Char (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="0" Grid.Column="1" Classes="setting-example"
                                            Text="Example: ms added per character as &quot;The goblin falls!&quot; types out."/>
                                 <TextBox x:Name="CombatPresetBaseDelayTextBox" Grid.Row="0" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                                 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Delay (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Delay (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" Classes="setting-example"
                                            Text="Example: shortest pause between sentence chunks in a combat reveal."/>
                                 <TextBox x:Name="CombatPresetMinDelayTextBox" Grid.Row="1" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                                 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Delay (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Delay (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Classes="setting-example"
                                            Text="Example: longest pause between chunks — caps wait on long combat paragraphs."/>
                                 <TextBox x:Name="CombatPresetMaxDelayTextBox" Grid.Row="2" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                             </Grid>
                         </StackPanel>
@@ -394,7 +300,7 @@
                     <!-- Dungeon Preset -->
                     <Border BorderBrush="#FFCCCCCC" BorderThickness="1" CornerRadius="4" Padding="12">
                         <StackPanel Spacing="10">
-                            <TextBlock Text="Dungeon Preset" FontSize="16" FontWeight="SemiBold" Foreground="Black" Margin="0,0,0,5"/>
+                            <TextBlock Text="Dungeon Preset" FontSize="16" FontWeight="SemiBold" Classes="settings-field-label" Margin="0,0,0,5"/>
                             <TextBlock Classes="setting-example"
                                        Text="Used for: dungeon exploration flavor — e.g. floor intro and corridor atmosphere text (semantic chunks)."/>
                             <Grid>
@@ -409,25 +315,22 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Base Delay Per Char (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Base Delay Per Char (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="0" Grid.Column="1" Classes="setting-example"
                                            Text="Example: ms per character as &quot;The corridor stretches into darkness...&quot; reveals."/>
                                 <TextBox x:Name="DungeonPresetBaseDelayTextBox" Grid.Row="0" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                                 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Delay (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Delay (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" Classes="setting-example"
                                            Text="Example: shortest pause between semantic chunks in dungeon narration."/>
                                 <TextBox x:Name="DungeonPresetMinDelayTextBox" Grid.Row="1" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                                 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Delay (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Delay (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Classes="setting-example"
                                            Text="Example: longest pause between chunks — keeps long dungeon blurbs readable."/>
                                 <TextBox x:Name="DungeonPresetMaxDelayTextBox" Grid.Row="2" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                             </Grid>
                         </StackPanel>
@@ -436,7 +339,7 @@
                     <!-- Room Preset -->
                     <Border BorderBrush="#FFCCCCCC" BorderThickness="1" CornerRadius="4" Padding="12">
                         <StackPanel Spacing="10">
-                            <TextBlock Text="Room Preset" FontSize="16" FontWeight="SemiBold" Foreground="Black" Margin="0,0,0,5"/>
+                            <TextBlock Text="Room Preset" FontSize="16" FontWeight="SemiBold" Classes="settings-field-label" Margin="0,0,0,5"/>
                             <TextBlock Classes="setting-example"
                                        Text="Used for: room entry descriptions — e.g. &quot;A damp stone chamber. Flickering torches line the walls.&quot; (WriteRoomChunked)."/>
                             <Grid>
@@ -451,25 +354,22 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Base Delay Per Char (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Base Delay Per Char (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="0" Grid.Column="1" Classes="setting-example"
                                            Text="Example: ms per character as the room description types out sentence by sentence."/>
                                 <TextBox x:Name="RoomPresetBaseDelayTextBox" Grid.Row="0" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                                 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Delay (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Delay (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" Classes="setting-example"
                                            Text="Example: shortest pause between sentences in a room description."/>
                                 <TextBox x:Name="RoomPresetMinDelayTextBox" Grid.Row="1" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                                 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Delay (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Delay (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Classes="setting-example"
                                            Text="Example: longest pause between sentences — caps wait on detailed room text."/>
                                 <TextBox x:Name="RoomPresetMaxDelayTextBox" Grid.Row="2" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                             </Grid>
                         </StackPanel>
@@ -478,7 +378,7 @@
                     <!-- Narrative Preset -->
                     <Border BorderBrush="#FFCCCCCC" BorderThickness="1" CornerRadius="4" Padding="12">
                         <StackPanel Spacing="10">
-                            <TextBlock Text="Narrative Preset" FontSize="16" FontWeight="SemiBold" Foreground="Black" Margin="0,0,0,5"/>
+                            <TextBlock Text="Narrative Preset" FontSize="16" FontWeight="SemiBold" Classes="settings-field-label" Margin="0,0,0,5"/>
                             <TextBlock Classes="setting-example"
                                        Text="Used for: story and flavor narration — e.g. critical-miss flavor text and quest outcome paragraphs."/>
                             <Grid>
@@ -493,25 +393,22 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Base Delay Per Char (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Base Delay Per Char (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="0" Grid.Column="1" Classes="setting-example"
                                            Text="Example: ms per character as &quot;Your blade glances off the stone wall...&quot; reveals."/>
                                 <TextBox x:Name="NarrativePresetBaseDelayTextBox" Grid.Row="0" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                                 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Delay (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Delay (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" Classes="setting-example"
                                            Text="Example: shortest pause between narrative sentence chunks."/>
                                 <TextBox x:Name="NarrativePresetMinDelayTextBox" Grid.Row="1" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                                 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Delay (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Delay (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Classes="setting-example"
                                            Text="Example: longest pause between chunks in story passages."/>
                                 <TextBox x:Name="NarrativePresetMaxDelayTextBox" Grid.Row="2" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                             </Grid>
                         </StackPanel>
@@ -520,7 +417,7 @@
                     <!-- Default Preset -->
                     <Border BorderBrush="#FFCCCCCC" BorderThickness="1" CornerRadius="4" Padding="12">
                         <StackPanel Spacing="10">
-                            <TextBlock Text="Default Preset" FontSize="16" FontWeight="SemiBold" Foreground="Black" Margin="0,0,0,5"/>
+                            <TextBlock Text="Default Preset" FontSize="16" FontWeight="SemiBold" Classes="settings-field-label" Margin="0,0,0,5"/>
                             <TextBlock Classes="setting-example"
                                        Text="Used for: any chunked text without a named preset — fallback when WriteChunked has no specific category."/>
                             <Grid>
@@ -535,31 +432,28 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Base Delay Per Char (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Base Delay Per Char (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="0" Grid.Column="1" Classes="setting-example"
                                            Text="Example: ms per character for generic chunked output not covered by other presets."/>
                                 <TextBox x:Name="DefaultPresetBaseDelayTextBox" Grid.Row="0" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                                 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Delay (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Delay (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" Classes="setting-example"
                                            Text="Example: shortest pause between default chunks."/>
                                 <TextBox x:Name="DefaultPresetMinDelayTextBox" Grid.Row="1" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                                 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Delay (ms):" Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Delay (ms):" Classes="settings-field-label" FontSize="14" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Classes="setting-example"
                                            Text="Example: longest pause between default chunks."/>
                                 <TextBox x:Name="DefaultPresetMaxDelayTextBox" Grid.Row="2" Grid.Column="2" Width="90" Height="28" 
-                                         Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                          BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                             </Grid>
                         </StackPanel>
                     </Border>
                 </StackPanel>
-            </Border>
+            </StackPanel>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

@@ -1,6 +1,7 @@
 using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.Actions.RollModification;
+using RPGGame.Combat;
 using RPGGame.Combat.Events;
 using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.Utils;
@@ -140,7 +141,14 @@ namespace RPGGame.Actions.Execution
             }
             result.ModifiedBaseRoll = RollModificationManager.ApplyActionRollModifications(
                 result.BaseRoll, result.SelectedAction, source, target);
+            if (source is Character envHero && envHero is not Enemy)
+            {
+                result.ModifiedBaseRoll = EnvironmentRollModifier.ApplyStructureRollShift(
+                    CombatEnvironmentContext.CurrentRoom, envHero, result.ModifiedBaseRoll);
+            }
             RollModificationManager.ApplyThresholdOverrides(result.SelectedAction, source, target);
+            ActionRollTagProcessor.ApplyRollTags(result.SelectedAction, source);
+            EnvironmentRollModifier.ApplyUnstableThresholdShift(CombatEnvironmentContext.CurrentRoom, source);
             // FIFO / ATTACK / ABILITY ACCURACY: shift hit and combo thresholds only (not crit or crit miss).
             if (actionBonusAccumulator != 0)
             {
