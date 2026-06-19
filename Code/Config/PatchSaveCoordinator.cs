@@ -24,10 +24,18 @@ namespace RPGGame.Config
             return Task.FromResult(true);
         }
 
-        public static async Task<bool> SaveAudioAsync(Window? owner, AudioConfig config)
+        /// <summary>Persists bus volume/mute/crossfade to local general settings (no patch dialog).</summary>
+        public static Task<bool> SaveAudioPreferencesAsync(AudioConfig config)
         {
             config.ValidateAndFix();
             config.SaveAudioPreferences();
+            return Task.FromResult(true);
+        }
+
+        /// <summary>Prompts Update vs Save As for cue bindings and state→music mappings only.</summary>
+        public static async Task<bool> SaveAudioPatchAsync(Window? owner, AudioConfig config)
+        {
+            config.ValidateAndFix();
 
             var profile = PatchProfileService.LoadProfile();
             string active = profile.GetActivePatchName(PatchCategory.Audio);

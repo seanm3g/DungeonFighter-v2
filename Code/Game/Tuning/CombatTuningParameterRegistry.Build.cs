@@ -86,7 +86,7 @@ namespace RPGGame.Tuning
             list.Add(DoubleParam("globalWeaponDamageMult", tab, CombatTuningLayer.WinRate, "Win Rate",
                 "Global weapon damage multiplier", "All weapon base damage scaling", 0.25, 3.0, 0.05,
                 () => cfg().WeaponScaling?.GlobalDamageMultiplier ?? 1.0,
-                v => { if (cfg().WeaponScaling != null) cfg().WeaponScaling.GlobalDamageMultiplier = v; }));
+                v => { var ws = cfg().WeaponScaling; if (ws != null) ws.GlobalDamageMultiplier = v; }));
             list.Add(DoubleParam("enemyAttributeGrowthBudget", tab, CombatTuningLayer.WinRate, "Win Rate",
                 "Enemy attribute growth budget", "STR+AGI+TEC+INT growth sum per level", 1, 20, 0.5,
                 () => cfg().EnemySystem.AttributeGrowthBudgetPerLevel,
@@ -351,20 +351,20 @@ namespace RPGGame.Tuning
                 v => cfg().EquipmentScaling.EnchantmentChance = v, isImplemented: false));
             list.Add(IntParam("startingDamageMace", tab, layer, "Starting Weapon Damage",
                 "Starting damage — Mace", "Level 1 mace base damage", 1, 30,
-                () => cfg().WeaponScaling.StartingWeaponDamage.Mace,
-                v => cfg().WeaponScaling.StartingWeaponDamage.Mace = v));
+                () => cfg().WeaponScaling?.StartingWeaponDamage.Mace ?? 0,
+                v => { var ws = cfg().WeaponScaling; if (ws != null) ws.StartingWeaponDamage.Mace = v; }));
             list.Add(IntParam("startingDamageSword", tab, layer, "Starting Weapon Damage",
                 "Starting damage — Sword", "Level 1 sword base damage", 1, 30,
-                () => cfg().WeaponScaling.StartingWeaponDamage.Sword,
-                v => cfg().WeaponScaling.StartingWeaponDamage.Sword = v));
+                () => cfg().WeaponScaling?.StartingWeaponDamage.Sword ?? 0,
+                v => { var ws = cfg().WeaponScaling; if (ws != null) ws.StartingWeaponDamage.Sword = v; }));
             list.Add(IntParam("startingDamageDagger", tab, layer, "Starting Weapon Damage",
                 "Starting damage — Dagger", "Level 1 dagger base damage", 1, 30,
-                () => cfg().WeaponScaling.StartingWeaponDamage.Dagger,
-                v => cfg().WeaponScaling.StartingWeaponDamage.Dagger = v));
+                () => cfg().WeaponScaling?.StartingWeaponDamage.Dagger ?? 0,
+                v => { var ws = cfg().WeaponScaling; if (ws != null) ws.StartingWeaponDamage.Dagger = v; }));
             list.Add(IntParam("startingDamageWand", tab, layer, "Starting Weapon Damage",
                 "Starting damage — Wand", "Level 1 wand base damage", 1, 30,
-                () => cfg().WeaponScaling.StartingWeaponDamage.Wand,
-                v => cfg().WeaponScaling.StartingWeaponDamage.Wand = v));
+                () => cfg().WeaponScaling?.StartingWeaponDamage.Wand ?? 0,
+                v => { var ws = cfg().WeaponScaling; if (ws != null) ws.StartingWeaponDamage.Wand = v; }));
         }
 
         private static void BuildEnemyStatsParameters(List<CombatTuningParameter> list)

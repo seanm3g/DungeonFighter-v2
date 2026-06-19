@@ -29,6 +29,8 @@ namespace RPGGame.UI.Avalonia
         // Base grid dimensions (original design size)
         private const int BASE_GRID_WIDTH = 210;
         private const int BASE_GRID_HEIGHT = 52;
+        /// <summary>Allows UI to shrink on smaller displays (e.g. 2560×1600 Mac at 2× scaling).</summary>
+        private const double MinCanvasScale = 0.4;
         
         // Grid properties (now calculated dynamically)
         private int _gridWidth = BASE_GRID_WIDTH;
@@ -197,8 +199,8 @@ namespace RPGGame.UI.Avalonia
                 // This will scale the font size up when window is larger
                 double scaleFactor = Math.Min(scaleX, scaleY);
                 
-                // Apply minimum scale of 1.0 and allow scaling up significantly for fullscreen
-                scaleFactor = Math.Max(1.0, Math.Min(scaleFactor, 20.0));
+                // Shrink on small windows; scale up on large/fullscreen displays.
+                scaleFactor = Math.Clamp(scaleFactor, MinCanvasScale, 20.0);
                 
                 // Update the coordinate converter with the calculated scale factor
                 // This scales the font size, making all characters bigger

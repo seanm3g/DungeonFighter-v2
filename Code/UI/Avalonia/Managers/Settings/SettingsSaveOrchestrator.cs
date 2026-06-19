@@ -5,6 +5,7 @@ using RPGGame.Config;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Helpers;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers;
 using RPGGame.UI.Avalonia.Settings;
 using RPGGame.Utils;
 using System;
@@ -75,6 +76,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 bool savedSuccessfully = false;
                 bool actionsSaved = false;
                 bool textDelaysSaved = false;
+                bool audioPanelSaved = false;
                 bool audioNeedsPatchSave = false;
                 bool balanceNeedsPatchSave = false;
 
@@ -121,7 +123,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     {
                         handler.SaveSettings(panel);
                         if (tag == "TextAndAnimation") textDelaysSaved = true;
-                        if (string.Equals(tag, "Audio", StringComparison.OrdinalIgnoreCase)) audioNeedsPatchSave = true;
+                        if (string.Equals(tag, "Audio", StringComparison.OrdinalIgnoreCase))
+                        {
+                            audioPanelSaved = true;
+                            if (handler is AudioPanelHandler audioHandler && audioHandler.NeedsPatchSave)
+                                audioNeedsPatchSave = true;
+                        }
                         if (Array.IndexOf(BalanceHandlerTags, tag) >= 0) balanceNeedsPatchSave = true;
                     }
                     catch (Exception ex)
@@ -178,14 +185,23 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     }
                 }
 
+                if (audioPanelSaved)
+                {
+                    if (!await PatchSaveCoordinator.SaveAudioPreferencesAsync(AudioConfig.Instance))
+                    {
+                        showStatusMessage?.Invoke("Audio preferences save failed.", false);
+                        return new SettingsSaveResult(false);
+                    }
+                    AudioBootstrap.ApplyConfigToEngine();
+                }
+
                 if (audioNeedsPatchSave)
                 {
-                    if (!await PatchSaveCoordinator.SaveAudioAsync(dialogOwner, AudioConfig.Instance))
+                    if (!await PatchSaveCoordinator.SaveAudioPatchAsync(dialogOwner, AudioConfig.Instance))
                     {
                         showStatusMessage?.Invoke("Audio patch save cancelled.", false);
                         return new SettingsSaveResult(false);
                     }
-                    AudioBootstrap.ApplyConfigToEngine();
                 }
 
                 var settings = GameSettings.Instance;

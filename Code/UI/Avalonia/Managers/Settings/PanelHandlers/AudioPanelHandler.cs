@@ -24,12 +24,18 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
     {
         public string PanelType => "Audio";
 
+        /// <summary>True when cue bindings or state→music mappings were edited (patch save prompt applies).</summary>
+        public bool NeedsPatchSave => _patchBindingsDirty;
+
+        private bool _patchBindingsDirty;
+
         public void WireUp(UserControl panel)
         {
             if (panel is not AudioSettingsPanel audioPanel) return;
 
             // Always read the latest config from disk when opening the panel.
             AudioConfig.ReloadFromFile();
+            _patchBindingsDirty = false;
             var config = AudioConfig.Instance;
 
             WireVolumeControls(audioPanel, config);
@@ -44,6 +50,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (panel is not AudioSettingsPanel audioPanel) return;
 
             AudioConfig.ReloadFromFile();
+            _patchBindingsDirty = false;
             var config = AudioConfig.Instance;
 
             var masterSlider = audioPanel.FindControl<Slider>("MasterVolumeSlider");
@@ -95,9 +102,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (masterMute != null)
                 config.MasterEnabled = !(masterMute.IsChecked ?? false);
 
-            // Orchestrator persists the active audio patch after Update / Save As dialog.
+            // Orchestrator persists bus prefs locally; patch dialog only when NeedsPatchSave.
             AudioBootstrap.ApplyConfigToEngine();
         }
+
+        private void MarkPatchBindingsDirty() => _patchBindingsDirty = true;
 
         private void WireVolumeControls(AudioSettingsPanel panel, AudioConfig config)
         {
@@ -209,6 +218,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             {
                 if (combo.SelectedItem is not string selected) return;
                 config.StateMusicMap[stateName] = selected == "(none)" ? string.Empty : selected;
+                MarkPatchBindingsDirty();
             };
             Grid.SetColumn(combo, 1);
             grid.Children.Add(combo);
@@ -256,7 +266,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 Margin = new global::Avalonia.Thickness(4, 0, 4, 0),
                 VerticalContentAlignment = VerticalAlignment.Center
             };
-            fileBox.TextChanged += (_, _) => binding.File = fileBox.Text ?? string.Empty;
+            fileBox.TextChanged += (_, _) =>
+            {
+                binding.File = fileBox.Text ?? string.Empty;
+                MarkPatchBindingsDirty();
+            };
             Grid.SetColumn(fileBox, 1);
             grid.Children.Add(fileBox);
 
@@ -303,6 +317,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     binding.File = chosen;
                     fileBox.Text = chosen;
                 }
+                MarkPatchBindingsDirty();
             };
             Grid.SetColumn(browseBtn, 2);
             grid.Children.Add(browseBtn);
@@ -312,6 +327,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             {
                 if (e.Property != Slider.ValueProperty) return;
                 binding.Volume = (float)volSlider.Value;
+                MarkPatchBindingsDirty();
             };
             Grid.SetColumn(volSlider, 3);
             grid.Children.Add(volSlider);
@@ -333,6 +349,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             {
                 binding.File = string.Empty;
                 fileBox.Text = string.Empty;
+                MarkPatchBindingsDirty();
             };
             Grid.SetColumn(clearBtn, 5);
             grid.Children.Add(clearBtn);

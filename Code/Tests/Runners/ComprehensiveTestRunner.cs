@@ -43,6 +43,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ActionLabWindowPlacementTests.RunAllTests();
             Console.WriteLine();
+            MainWindowStartupSizingTests.RunAllTests();
+            Console.WriteLine();
             ActionLabEncounterSimulatorTests.RunAllTests();
             Console.WriteLine();
             DiceMechanicsTests.RunAllTests();

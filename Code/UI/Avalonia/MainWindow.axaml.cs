@@ -47,6 +47,30 @@ namespace RPGGame.UI.Avalonia
         {
             Opened -= OnMainWindowOpened;
             BuildExecutionMetrics.RecordLaunchTime("GUI");
+
+            if (!OperatingSystem.IsMacOS())
+                return;
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                ApplyMacStartupWindowSizing();
+                Dispatcher.UIThread.Post(ApplyMacStartupWindowSizing, DispatcherPriority.Background);
+            }, DispatcherPriority.Loaded);
+        }
+
+        private void ApplyMacStartupWindowSizing()
+        {
+            MainWindowStartupSizing.ApplyMacStartupSizingIfNeeded(this);
+
+            if (!OperatingSystem.IsMacOS())
+                return;
+
+            double sizeRatio = Width / MainWindowStartupSizing.DesignWidth;
+            if (sizeRatio <= 0)
+                return;
+
+            MainWindowStartupSizing.ScaleOverlayPanel(SettingsMenuPanel, 1728, 972, 1400, 800, sizeRatio);
+            MainWindowStartupSizing.ScaleOverlayPanel(TuningMenuPanel, 1000, 650, 900, 650, sizeRatio);
         }
         
         private void InitializeGame()
