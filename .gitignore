@@ -443,6 +443,9 @@ GameData/Patches/GameSettings/*
 # Audio patches: repo default cue bindings tracked; named/local variants ignored
 GameData/Patches/Audio/*
 !GameData/Patches/Audio/default.json
+# Balance patches: repo default tuning tracked; named/local variants ignored
+GameData/Patches/Balance/*
+!GameData/Patches/Balance/default.json
 GameData/Patches/**/*.bak
 Code/gamesettings.json
 Code/gamesettings.json.bak

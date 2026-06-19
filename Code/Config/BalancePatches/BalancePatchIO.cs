@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using RPGGame.Utils;
 
@@ -157,7 +158,7 @@ namespace RPGGame.Config.BalancePatches
                 if (File.Exists(destPath))
                 {
                     string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-                    fileName = $"{patch.PatchMetadata.PatchId}_{timestamp}.json";
+                    fileName = $"{patch.PatchMetadata.PatchId}-{timestamp}.json";
                     destPath = Path.Combine(PatchesDirectory, fileName);
                 }
 
@@ -207,20 +208,42 @@ namespace RPGGame.Config.BalancePatches
         }
 
         /// <summary>
-        /// Get patch by ID
+        /// Get patch by ID, legacy underscore filename, or metadata name.
         /// </summary>
         public static BalancePatchMetadata.BalancePatch? GetPatch(string patchId)
         {
             try
             {
                 EnsurePatchesDirectory();
-                string filePath = Path.Combine(PatchesDirectory, $"{patchId}.json");
-                return LoadPatch(filePath);
+
+                var patch = TryLoadPatchByFileName(patchId);
+                if (patch != null)
+                    return patch;
+
+                string alternate = patchId.Contains('-', StringComparison.Ordinal)
+                    ? patchId.Replace('-', '_')
+                    : patchId.Replace('_', '-');
+                if (!string.Equals(alternate, patchId, StringComparison.Ordinal))
+                {
+                    patch = TryLoadPatchByFileName(alternate);
+                    if (patch != null)
+                        return patch;
+                }
+
+                return ListPatches().FirstOrDefault(p =>
+                    string.Equals(p.PatchMetadata.PatchId, patchId, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(p.PatchMetadata.Name, patchId, StringComparison.OrdinalIgnoreCase));
             }
             catch
             {
                 return null;
             }
+        }
+
+        private static BalancePatchMetadata.BalancePatch? TryLoadPatchByFileName(string patchId)
+        {
+            string filePath = Path.Combine(PatchesDirectory, $"{patchId}.json");
+            return File.Exists(filePath) ? LoadPatch(filePath) : null;
         }
     }
 }

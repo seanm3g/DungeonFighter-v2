@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace RPGGame.Config.BalancePatches
 {
@@ -61,15 +63,15 @@ namespace RPGGame.Config.BalancePatches
         /// </summary>
         public static string GeneratePatchId(string name, string version)
         {
-            string sanitized = name.ToLower()
-                .Replace(" ", "_")
-                .Replace("-", "_")
-                .Replace(".", "_");
-            
-            // Remove special characters
-            sanitized = new string(sanitized.Where(c => char.IsLetterOrDigit(c) || c == '_').ToArray());
-            
-            return $"{sanitized}_v{version}_{DateTime.Now:yyyyMMdd}";
+            string sanitized = name.ToLowerInvariant()
+                .Replace(' ', '-')
+                .Replace('_', '-')
+                .Replace('.', '-');
+
+            sanitized = new string(sanitized.Where(c => char.IsLetterOrDigit(c) || c == '-').ToArray());
+            sanitized = Regex.Replace(sanitized, "-+", "-").Trim('-');
+
+            return $"{sanitized}-v{version}-{DateTime.Now:yyyyMMdd}";
         }
 
         /// <summary>

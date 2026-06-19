@@ -11,7 +11,7 @@ using RPGGame.UI.Avalonia.Settings;
 namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 {
     /// <summary>
-    /// Lets the player choose active audio config patches (local-only). Game settings and balance
+    /// Lets the player choose active audio and balance config patches (local-only). Game settings
     /// always use the repo default patch.
     /// </summary>
     public sealed class PatchesPanelHandler : ISettingsPanelHandler
@@ -57,10 +57,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 gsLabel.Text = $"local — {GeneralSettingsStore.GetFilePath()}";
 
             PopulateCombo(p.FindControl<ComboBox>("AudioPatchCombo"), PatchCategory.Audio, profile.ActiveAudioPatch);
-
-            var balanceLabel = p.FindControl<TextBlock>("BalancePatchLabel");
-            if (balanceLabel != null)
-                balanceLabel.Text = $"default — {PatchProfileService.GetActivePatchFilePath(PatchCategory.Balance)}";
+            PopulateCombo(p.FindControl<ComboBox>("BalancePatchCombo"), PatchCategory.Balance, profile.ActiveBalancePatch);
 
             var pathsBlock = p.FindControl<TextBlock>("ActivePathsTextBlock");
             if (pathsBlock != null)
@@ -218,13 +215,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             return false;
         }
 
-        private static string? GetSelectedPatchName(PatchesSettingsPanel panel, PatchCategory category)
+        private static string? GetSelectedPatchName(PatchesSettingsPanel panel, PatchCategory category) => category switch
         {
-            if (category != PatchCategory.Audio)
-                return PatchProfile.DefaultPatchName;
-
-            return panel.FindControl<ComboBox>("AudioPatchCombo")?.SelectedItem as string;
-        }
+            PatchCategory.Audio => panel.FindControl<ComboBox>("AudioPatchCombo")?.SelectedItem as string,
+            PatchCategory.Balance => panel.FindControl<ComboBox>("BalancePatchCombo")?.SelectedItem as string,
+            _ => PatchProfile.DefaultPatchName
+        };
 
         private static async Task<string?> PromptPatchNameAsync(TopLevel top, string title, string defaultName)
         {
@@ -248,7 +244,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     {
                         new TextBlock
                         {
-                            Text = "Patch name (letters, numbers, hyphens, underscores):",
+                            Text = "Patch name (letters, numbers, hyphens):",
                             Foreground = global::Avalonia.Media.Brushes.White,
                             TextWrapping = global::Avalonia.Media.TextWrapping.Wrap
                         },
@@ -301,19 +297,26 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             try
             {
                 var profile = PatchProfileService.LoadProfile();
-                bool changed = false;
+                bool audioChanged = TryApplyCombo(panel.FindControl<ComboBox>("AudioPatchCombo"), PatchCategory.Audio, profile);
+                bool balanceChanged = TryApplyCombo(panel.FindControl<ComboBox>("BalancePatchCombo"), PatchCategory.Balance, profile);
 
-                changed |= TryApplyCombo(panel.FindControl<ComboBox>("AudioPatchCombo"), PatchCategory.Audio, profile);
-
-                if (changed)
+                if (audioChanged || balanceChanged)
                 {
-                    PatchProfileService.InvalidateAllRuntimeCaches();
-                    AudioBootstrap.ApplyConfigToEngine();
-                    showStatusMessage?.Invoke("Active audio patch updated.", true);
+                    if (audioChanged)
+                        AudioBootstrap.ApplyConfigToEngine();
+
+                    string message = (audioChanged, balanceChanged) switch
+                    {
+                        (true, true) => "Active audio and balance patches updated.",
+                        (true, false) => "Active audio patch updated.",
+                        (false, true) => "Active balance patch updated.",
+                        _ => "Active patches updated."
+                    };
+                    showStatusMessage?.Invoke(message, true);
                 }
                 else
                 {
-                    showStatusMessage?.Invoke("No audio patch selection changes.", true);
+                    showStatusMessage?.Invoke("No patch selection changes.", true);
                 }
 
                 LoadSettings(panel);

@@ -136,6 +136,12 @@ namespace RPGGame
                 var patch = BalancePatchManager.GetPatch(patchId);
                 if (patch == null)
                 {
+                    var patches = BalancePatchManager.ListPatches();
+                    patch = patches.FirstOrDefault(p =>
+                        string.Equals(p.PatchMetadata.Name, patchId, StringComparison.OrdinalIgnoreCase));
+                }
+                if (patch == null)
+                {
                     ScrollDebugLogger.Log($"BalanceTuningConsole: Patch '{patchId}' not found");
                     return false;
                 }

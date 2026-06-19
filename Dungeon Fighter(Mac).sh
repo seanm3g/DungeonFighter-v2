@@ -6,12 +6,17 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR" || exit 1
 
-# Lock file to prevent duplicate execution
+# Lock file to prevent duplicate launcher execution (double-click / rapid re-launch)
 LOCKFILE="/tmp/DF2_Launcher_${USER}.lock"
 if [ -f "$LOCKFILE" ]; then
+    OLD_PID=$(cat "$LOCKFILE" 2>/dev/null)
+    if [ -n "$OLD_PID" ] && kill -0 "$OLD_PID" 2>/dev/null; then
+        echo "Launcher is already running (PID $OLD_PID)."
+        exit 1
+    fi
     rm -f "$LOCKFILE"
 fi
-echo "$(date)" > "$LOCKFILE"
+echo "$$" > "$LOCKFILE"
 
 # Cleanup function
 cleanup() {
@@ -68,21 +73,37 @@ fi
 echo "Launching game..."
 cd "$SCRIPT_DIR/Code" || cleanup 1
 nohup dotnet run --configuration Debug > /dev/null 2>&1 &
+GAME_PID=$!
 cd "$SCRIPT_DIR" || cleanup 1
 
-# Wait a moment for game to start
-sleep 2
+# Poll for startup (Avalonia on Mac often needs more than 2s before DF.dll appears in ps)
+STARTUP_WAIT_SECONDS=30
+for _ in $(seq 1 "$STARTUP_WAIT_SECONDS"); do
+    if df_game_running; then
+        echo "Game launched successfully."
+        cleanup 0
+    fi
+    if ! kill -0 "$GAME_PID" 2>/dev/null; then
+        break
+    fi
+    sleep 1
+done
 
-# Check if game is running (dotnet exec .../DF.dll per AssemblyName in Code.csproj)
-if ! df_game_running; then
-    echo "ERROR: Game failed to start!"
-    echo "Trying to run in foreground to see errors..."
-    cd "$SCRIPT_DIR/Code" || cleanup 1
-    dotnet run --configuration Debug
-    cd "$SCRIPT_DIR" || cleanup 1
-    cleanup 1
+# Background launcher still alive — do not start a second copy
+if kill -0 "$GAME_PID" 2>/dev/null; then
+    echo "Game is still starting (PID $GAME_PID)..."
+    cleanup 0
 fi
 
-# Game launched successfully
-cleanup 0
+if df_game_running; then
+    echo "Game launched successfully."
+    cleanup 0
+fi
+
+echo "ERROR: Game failed to start!"
+echo "Trying to run in foreground to see errors..."
+cd "$SCRIPT_DIR/Code" || cleanup 1
+dotnet run --configuration Debug
+cd "$SCRIPT_DIR" || cleanup 1
+cleanup 1
 

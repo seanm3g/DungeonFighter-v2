@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using RPGGame;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -161,6 +162,14 @@ namespace RPGGame
 
                 // Launch Avalonia GUI (execution time tracked until app closes)
                 // Launch time will be recorded when the window is ready
+                const string guiMutexName = "DungeonFighter-v2-GUI-SingleInstance";
+                using var guiMutex = new Mutex(true, guiMutexName, out bool createdNewGuiInstance);
+                if (!createdNewGuiInstance)
+                {
+                    Console.WriteLine("Dungeon Fighter is already running.");
+                    return;
+                }
+
                 BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
             }
             finally

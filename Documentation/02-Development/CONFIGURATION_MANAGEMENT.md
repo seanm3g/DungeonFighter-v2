@@ -5,7 +5,7 @@ The Configuration Management System provides a unified, type-safe way to load, s
 
 ## Config patch profiles
 
-Player-local **general settings** (gameplay/UI preferences plus audio bus volume/mute/crossfade) live in gitignored `GameData/GeneralSettings.json`. Active **audio patch** selection (cue file bindings and state→music triggers) lives in gitignored `GameData/PatchProfile.json`.
+Player-local **general settings** (gameplay/UI preferences plus audio bus volume/mute/crossfade) live in gitignored `GameData/GeneralSettings.json`. Active **audio** and **balance patch** selection live in gitignored `GameData/PatchProfile.json`.
 
 | Location | Content | Git |
 |----------|---------|-----|
@@ -14,11 +14,12 @@ Player-local **general settings** (gameplay/UI preferences plus audio bus volume
 | `GameData/Patches/Audio/default.json` | Default cue bindings (`cueMap`, `stateMusicMap`) | Tracked — updates on pull |
 | `GameData/Patches/Audio/*.json` (non-default) | Named local audio patch variants | **Gitignored** |
 | `GameData/Patches/Balance/default.json` | Balance tuning (`GameConfiguration`) | Tracked — updates on pull |
+| `GameData/Patches/Balance/*.json` (non-default) | Named local balance patch variants | **Gitignored** |
 | `GameData/TextDelayConfig.json` | Text delay presets | Tracked — updates on pull |
 
 Runtime still uses `GameSettings` and `AudioConfig` singletons; `GeneralSettingsStore` and `PatchProfileService` merge persisted files on load.
 
-Loaders: `GeneralSettingsStore`, `PatchProfileService`, wired from `GameSettings`, `AudioConfig`, and `GameConfiguration`. Settings → **Patches** switches active audio patches; **Save** on audio prompts **Update patch** or **Save as new patch** for cue bindings only (bus prefs always save to general settings).
+Loaders: `GeneralSettingsStore`, `PatchProfileService`, wired from `GameSettings`, `AudioConfig`, and `GameConfiguration`. Settings → **Patches** switches active audio and balance patches; **Save** on audio prompts **Update patch** or **Save as new patch** for cue bindings only (bus prefs always save to general settings). Balance tuning save uses the same Update / Save as new patch flow.
 
 ## Architecture
 

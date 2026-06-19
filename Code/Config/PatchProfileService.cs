@@ -223,11 +223,15 @@ namespace RPGGame.Config
             if (string.IsNullOrWhiteSpace(patchName))
                 throw new ArgumentException("Patch name is required.", nameof(patchName));
 
-            string trimmed = patchName.Trim();
-            if (!PatchNamePattern.IsMatch(trimmed))
-                throw new ArgumentException("Patch name may use letters, numbers, hyphens, and underscores (max 64 characters).", nameof(patchName));
+            string normalized = patchName.Trim()
+                .Replace(' ', '-')
+                .Replace('_', '-');
+            normalized = Regex.Replace(normalized, "-+", "-").Trim('-');
 
-            return trimmed;
+            if (string.IsNullOrEmpty(normalized) || !PatchNamePattern.IsMatch(normalized))
+                throw new ArgumentException("Patch name may use letters, numbers, and hyphens (max 64 characters).", nameof(patchName));
+
+            return normalized;
         }
 
         public static void WritePatchContent(PatchCategory category, string patchName, string jsonContent, bool overwrite)
@@ -360,6 +364,8 @@ namespace RPGGame.Config
         {
             if (string.IsNullOrWhiteSpace(profile.ActiveAudioPatch))
                 profile.ActiveAudioPatch = PatchProfile.DefaultPatchName;
+            if (string.IsNullOrWhiteSpace(profile.ActiveBalancePatch))
+                profile.ActiveBalancePatch = PatchProfile.DefaultPatchName;
         }
 
         private static void EnsureAudioDefaultPatchExists() =>

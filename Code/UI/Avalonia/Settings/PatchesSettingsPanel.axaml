@@ -11,7 +11,7 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="Config patches"
                                Classes="settings-section-header"/>
-                    <TextBlock Text="General settings (gameplay, UI, volume) are stored locally in GeneralSettings.json and never uploaded. The default audio patch (cue file bindings and state→music triggers) updates from GitHub on pull; named audio patches stay local."
+                    <TextBlock Text="General settings (gameplay, UI, volume) are stored locally in GeneralSettings.json and never uploaded. Default audio and balance patches update from GitHub on pull; named audio and balance patches stay local."
                                Classes="settings-muted"
                                FontSize="14"
                                TextWrapping="Wrap"/>
@@ -24,11 +24,12 @@
                         <ComboBox x:Name="AudioPatchCombo" Grid.Row="1" Grid.Column="1" MinWidth="280" HorizontalAlignment="Left" Margin="0,8,0,0"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" Text="Balance" Margin="0,8,0,0"/>
-                        <TextBlock x:Name="BalancePatchLabel" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Classes="settings-muted" Text="default (updates from GitHub)" Margin="0,8,0,0"/>
+                        <ComboBox x:Name="BalancePatchCombo" Grid.Row="2" Grid.Column="1" MinWidth="280" HorizontalAlignment="Left" Margin="0,8,0,0"/>
 
                         <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="0,16,0,0">
                             <ComboBox x:Name="PatchIoCategoryCombo" MinWidth="140" SelectedIndex="0">
                                 <ComboBoxItem Content="Audio / music"/>
+                                <ComboBoxItem Content="Balance"/>
                             </ComboBox>
                             <Button x:Name="ImportPatchButton" Content="Import patch…" MinWidth="110"/>
                             <Button x:Name="ExportPatchButton" Content="Export patch…" MinWidth="110"/>
