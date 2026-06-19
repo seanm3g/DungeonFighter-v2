@@ -14,7 +14,7 @@ namespace RPGGame
 
         /// <summary>
         /// Calculates final enemy stats from <see cref="EnemyData.BaseAttributes"/> / <see cref="EnemyData.GrowthPerLevel"/>,
-        /// <see cref="EnemyData.BaseHealth"/> / <see cref="EnemyData.HealthGrowthPerLevel"/>, and tuning baselines.
+        /// <see cref="EnemyData.HealthPercent"/> / <see cref="EnemyData.HealthGrowthPercent"/>, and tuning baselines.
         /// Attribute growth is normalized so STR+AGI+TECH+INT growth sums to <see cref="EnemyAttributeGrowthBudgetPerLevel"/> per level.
         /// </summary>
         public static CalculatedEnemyStats CalculateStats(EnemyData enemyData, int level, EnemySystemConfig enemySystem)
@@ -29,7 +29,9 @@ namespace RPGGame
                 archetype = enemySystem.Archetypes.GetValueOrDefault("Berserker") ?? new ArchetypeMultipliersConfig();
             }
 
-            double baseHealth = enemyData.BaseHealth ?? (baseline.Health * archetype.Health);
+            double baselineHp = baseline.Health;
+            double healthPercent = enemyData.HealthPercent ?? (100.0 * archetype.Health);
+            double baseHealth = baselineHp * (healthPercent / 100.0);
             double baseStrength = enemyData.BaseAttributes?.Strength ?? (baseline.Strength * archetype.Strength);
             double baseAgility = enemyData.BaseAttributes?.Agility ?? (baseline.Agility * archetype.Agility);
             double baseTechnique = enemyData.BaseAttributes?.Technique ?? (baseline.Technique * archetype.Technique);
@@ -37,7 +39,7 @@ namespace RPGGame
             double baseArmor = baseline.Armor * archetype.Armor;
 
             var (growthStrength, growthAgility, growthTechnique, growthIntelligence) =
-                ComputeNormalizedAttributeGrowthPerLevel(enemyData.GrowthPerLevel);
+                ComputeNormalizedAttributeGrowthPerLevel(enemyData.GrowthPerLevel, enemySystem.AttributeGrowthBudgetPerLevel);
 
             var prog = enemySystem.ProgressionScales ?? new EnemyProgressionScalesConfig();
             prog.EnsurePositiveScales();
@@ -47,7 +49,9 @@ namespace RPGGame
             double growthTechniqueS = growthTechnique * prog.AttributeGrowthScale;
             double growthIntelligenceS = growthIntelligence * prog.AttributeGrowthScale;
 
-            double growthHealth = (enemyData.HealthGrowthPerLevel ?? scaling.Health) * prog.HealthGrowthScale;
+            double growthPercent = enemyData.HealthGrowthPercent
+                ?? (baselineHp > 0 ? (scaling.Health / baselineHp) * 100.0 : 0.0);
+            double growthHealth = baselineHp * (growthPercent / 100.0) * prog.HealthGrowthScale;
             double baseHealthScaled = baseHealth * prog.BaseHealthScale;
 
             int lv = Math.Max(0, level - 1);
@@ -88,9 +92,11 @@ namespace RPGGame
         /// Resolves partial growth columns: missing stats share the remainder of the 6-point budget; explicit rows scale to sum 6.
         /// </summary>
         internal static (double strength, double agility, double technique, double intelligence)
-            ComputeNormalizedAttributeGrowthPerLevel(EnemyAttributeSet? growth)
+            ComputeNormalizedAttributeGrowthPerLevel(EnemyAttributeSet? growth, double budgetPerLevel = 0)
         {
-            const double B = EnemyAttributeGrowthBudgetPerLevel;
+            double B = budgetPerLevel > 0 ? budgetPerLevel : EnemyAttributeGrowthBudgetPerLevel;
+            if (B <= 0)
+                B = 6.0;
             bool hs = growth?.Strength.HasValue == true;
             bool ha = growth?.Agility.HasValue == true;
             bool ht = growth?.Technique.HasValue == true;

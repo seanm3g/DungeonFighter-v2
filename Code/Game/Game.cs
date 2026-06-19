@@ -576,6 +576,16 @@ namespace RPGGame
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 string normalizedInput = input?.Trim().ToLowerInvariant() ?? "";
+
+                if (stateManager.CurrentState == GameState.ActionInteractionLab)
+                {
+                    string? labPageToken = ActionLabInputCoordinator.MapPageStepInput(normalizedInput);
+                    if (labPageToken != null)
+                    {
+                        _ = ActionLabInputCoordinator.HandleLabControlAsync(labPageToken, canvasUI, this);
+                        return;
+                    }
+                }
                 
                 if (normalizedInput == "up")
                 {

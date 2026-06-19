@@ -36,11 +36,30 @@ namespace RPGGame.Tests.Unit.UI
 
             var dmg = StatTooltipFormatter.TryBuild(c, "stat:damage", 24)!;
             string dmgFlat = string.Join("\n", dmg.Select(ColoredTextRenderer.RenderAsPlainText));
-            TestBase.AssertTrue(dmgFlat.Contains("Attack total", StringComparison.Ordinal),
-                "damage attack total label",
+            TestBase.AssertTrue(dmgFlat.Contains("Base attack total", StringComparison.Ordinal),
+                "damage base attack total label",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(dmgFlat.Contains("Components", StringComparison.Ordinal),
-                "damage components section",
+            TestBase.AssertTrue(dmgFlat.Contains("Attributes (STR + primary)", StringComparison.Ordinal),
+                "damage attributes section",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(dmgFlat.Contains("Equation:", StringComparison.Ordinal),
+                "damage equation line",
+                ref run, ref passed, ref failed);
+
+            c.Stats.Strength = 9;
+            c.EquipItem(new WeaponItem("Log", 1, 6), "weapon");
+            var dmgBarb = StatTooltipFormatter.TryBuild(c, "stat:damage", 24)!;
+            string dmgBarbFlat = string.Join("\n", dmgBarb.Select(ColoredTextRenderer.RenderAsPlainText));
+            TestBase.AssertTrue(dmgBarbFlat.Contains("Strength (always)", StringComparison.Ordinal)
+                    && dmgBarbFlat.Contains("Primary (STR)", StringComparison.Ordinal)
+                    && dmgBarbFlat.Contains("Attribute subtotal", StringComparison.Ordinal),
+                "damage shows STR + primary breakdown",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(dmgBarbFlat.Contains("STR is your primary", StringComparison.Ordinal),
+                "damage notes when STR is primary",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(dmgBarbFlat.Contains("9 + STR 9 + 6", StringComparison.Ordinal),
+                "damage equation reflects STR counted twice when primary",
                 ref run, ref passed, ref failed);
 
             var armor = StatTooltipFormatter.TryBuild(c, "stat:armor", 20)!;

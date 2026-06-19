@@ -37,7 +37,7 @@ namespace RPGGame.Data
             "region", "biome", "location", "rarity", "name", "tags", "archetype",
             "baseAttributes.strength", "baseAttributes.agility", "baseAttributes.technique", "baseAttributes.intelligence",
             "growthPerLevel.strength", "growthPerLevel.agility", "growthPerLevel.technique", "growthPerLevel.intelligence",
-            "baseHealth", "healthGrowthPerLevel",
+            "healthPercent", "healthGrowthPercent",
             "actions", "isLiving", "description", "colorOverride"
         };
 

@@ -164,24 +164,28 @@ namespace RPGGame.Data
 
             if (string.Equals(category, EnemySheetCategoryBaseAttributes, StringComparison.OrdinalIgnoreCase))
             {
-                if (string.Equals(subHeader, "baseHealth", StringComparison.OrdinalIgnoreCase))
-                    return "baseHealth";
+                if (string.Equals(subHeader, "healthPercent", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(subHeader, "baseHealth", StringComparison.OrdinalIgnoreCase))
+                    return EnemyJsonHealthNormalizer.HealthPercentKey;
                 return "baseAttributes." + NormalizeEnemyStatLeafHeader(subHeader);
             }
 
             if (string.Equals(category, EnemySheetCategoryGrowth, StringComparison.OrdinalIgnoreCase))
             {
-                if (string.Equals(subHeader, "healthGrowthPerLevel", StringComparison.OrdinalIgnoreCase))
-                    return "healthGrowthPerLevel";
+                if (string.Equals(subHeader, "healthGrowthPercent", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(subHeader, "healthGrowthPerLevel", StringComparison.OrdinalIgnoreCase))
+                    return EnemyJsonHealthNormalizer.HealthGrowthPercentKey;
                 return "growthPerLevel." + NormalizeEnemyStatLeafHeader(subHeader);
             }
 
             if (string.Equals(category, EnemySheetCategoryHealth, StringComparison.OrdinalIgnoreCase))
             {
-                if (string.Equals(subHeader, "baseHealth", StringComparison.OrdinalIgnoreCase))
-                    return "baseHealth";
-                if (string.Equals(subHeader, "healthGrowthPerLevel", StringComparison.OrdinalIgnoreCase))
-                    return "healthGrowthPerLevel";
+                if (string.Equals(subHeader, "healthPercent", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(subHeader, "baseHealth", StringComparison.OrdinalIgnoreCase))
+                    return EnemyJsonHealthNormalizer.HealthPercentKey;
+                if (string.Equals(subHeader, "healthGrowthPercent", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(subHeader, "healthGrowthPerLevel", StringComparison.OrdinalIgnoreCase))
+                    return EnemyJsonHealthNormalizer.HealthGrowthPercentKey;
             }
 
             return NormalizeEnemyRootHeader(subHeader);
@@ -210,8 +214,10 @@ namespace RPGGame.Data
                 ["isLiving"] = "isLiving",
                 ["description"] = "description",
                 ["colorOverride"] = "colorOverride",
-                ["baseHealth"] = "baseHealth",
-                ["healthGrowthPerLevel"] = "healthGrowthPerLevel"
+                ["healthPercent"] = EnemyJsonHealthNormalizer.HealthPercentKey,
+                ["baseHealth"] = EnemyJsonHealthNormalizer.HealthPercentKey,
+                ["healthGrowthPercent"] = EnemyJsonHealthNormalizer.HealthGrowthPercentKey,
+                ["healthGrowthPerLevel"] = EnemyJsonHealthNormalizer.HealthGrowthPercentKey
             };
 
         /// <summary>Short headers on ENEMIES row-1 that are top-level JSON fields, not growth/baseAttributes sub-keys.</summary>
@@ -298,6 +304,7 @@ namespace RPGGame.Data
             NormalizeEnemyActionsFromSheet(obj);
             NormalizeTagsFromSheet(obj);
             NormalizeEnemyArchetypeFromSheet(obj);
+            EnemyJsonHealthNormalizer.NormalizeHealthPercentFields(obj);
         }
 
         private static void NormalizeEnemyArchetypeFromSheet(JsonObject obj)
@@ -333,12 +340,17 @@ namespace RPGGame.Data
 
             if (obj.TryGetPropertyValue("growthPerLevel", out var gpNode) && gpNode is JsonObject gp)
             {
-                Hoist(obj, gp, "baseHealth", "baseHealth");
-                Hoist(obj, gp, "healthGrowthPerLevel", "healthGrowthPerLevel");
+                Hoist(obj, gp, "baseHealth", EnemyJsonHealthNormalizer.HealthPercentKey);
+                Hoist(obj, gp, "healthGrowthPerLevel", EnemyJsonHealthNormalizer.HealthGrowthPercentKey);
+                Hoist(obj, gp, "healthPercent", EnemyJsonHealthNormalizer.HealthPercentKey);
+                Hoist(obj, gp, "healthGrowthPercent", EnemyJsonHealthNormalizer.HealthGrowthPercentKey);
             }
 
             if (obj.TryGetPropertyValue("baseAttributes", out var baNode) && baNode is JsonObject ba)
-                Hoist(obj, ba, "baseHealth", "baseHealth");
+            {
+                Hoist(obj, ba, "baseHealth", EnemyJsonHealthNormalizer.HealthPercentKey);
+                Hoist(obj, ba, "healthPercent", EnemyJsonHealthNormalizer.HealthPercentKey);
+            }
         }
 
         /// <summary>Drops mistaken root <c>strength</c>/<c>agility</c>/… when nested stat objects were already merged.</summary>

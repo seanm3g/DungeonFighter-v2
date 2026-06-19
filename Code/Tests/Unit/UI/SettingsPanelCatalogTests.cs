@@ -22,6 +22,7 @@ namespace RPGGame.Tests.Unit.UI
             AllDescriptors_Have_Unique_Tags_And_Valid_Factories();
             SidebarGroups_Assign_Every_Panel();
             TextAndAnimation_Is_Main_Content_And_Creates_Panel();
+            CombatTuning_Is_Main_Content_And_Embeds_Child_Panels();
             ItemAffixes_Is_Main_Content_And_Creates_Panel();
             AudioPanel_Is_Main_Content_And_Tag_Resolves();
             BalanceTuning_DisplayName_Is_SpreadsheetImport();
@@ -76,6 +77,36 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(
                 !SettingsPanelCatalog.AllPanels.Any(p => p.Tag == "ActionInteractionLab"),
                 "ActionInteractionLab should not be a top-level sidebar entry",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                !SettingsPanelCatalog.AllPanels.Any(p => p.Tag == "EnemyTuning"),
+                "EnemyTuning should not be a top-level sidebar entry",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void CombatTuning_Is_Main_Content_And_Embeds_Child_Panels()
+        {
+            Console.WriteLine("--- CombatTuning category ---");
+
+            var descriptor = SettingsPanelCatalog.GetDescriptor("CombatTuning");
+            TestBase.AssertTrue(descriptor != null, "CombatTuning descriptor should exist",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(descriptor != null && descriptor.ContentArea == SettingsContentArea.MainScroll,
+                "CombatTuning should use main content area",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var panel = SettingsPanelCatalog.CreatePanel("CombatTuning") as CombatAndEnemyTuningSettingsPanel;
+            TestBase.AssertTrue(panel != null,
+                "CreatePanel(CombatTuning) should return CombatAndEnemyTuningSettingsPanel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(panel!.CombatPanel is CombatTuningSettingsPanel,
+                "CombatTuning should embed CombatTuningSettingsPanel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(panel.EnemyPanel is EnemyTuningSettingsPanel,
+                "CombatTuning should embed EnemyTuningSettingsPanel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("CombatTuning", SettingsPanel.GetCategoryTagForPanel(panel),
+                "CombatAndEnemyTuningSettingsPanel should resolve to CombatTuning tag",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -168,8 +199,9 @@ namespace RPGGame.Tests.Unit.UI
 
             TestBase.AssertTrue(
                 SettingsPanelCatalog.HandlerSaveCategoryTags.Contains("TextAndAnimation") &&
-                !SettingsPanelCatalog.HandlerSaveCategoryTags.Contains("TextDelays"),
-                "Handler save list should use TextAndAnimation instead of TextDelays",
+                !SettingsPanelCatalog.HandlerSaveCategoryTags.Contains("TextDelays") &&
+                !SettingsPanelCatalog.HandlerSaveCategoryTags.Contains("EnemyTuning"),
+                "Handler save list should use TextAndAnimation instead of TextDelays and CombatTuning instead of EnemyTuning",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var itemGenIndex = SettingsPanelCatalog.HandlerSaveCategoryTags

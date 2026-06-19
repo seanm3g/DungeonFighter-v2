@@ -2,160 +2,91 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:components="clr-namespace:RPGGame.UI.Avalonia.Components"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="RPGGame.UI.Avalonia.Settings.EnemyTuningSettingsPanel"
              Classes="settings-ui"
              Background="Transparent"
              HorizontalAlignment="Stretch">
-    <TabControl x:Name="EnemyTuningTabControl">
-        <TabItem Header="Progression">
-            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Spacing="24" Margin="20" HorizontalAlignment="Stretch">
-                    <StackPanel Spacing="8" HorizontalAlignment="Stretch">
-                        <TextBlock Text="These scales apply to every enemy built from Enemies.json (after archetype baselines and before global health/damage/armor/speed multipliers). Enemy baselines and global multipliers are in Combat Tuning."
-                                   Classes="settings-muted"
-                                   TextWrapping="Wrap"/>
-                        <TextBlock Text="Values are saved to TuningConfig.json under enemySystem.progressionScales."
-                                   Classes="settings-muted"
-                                   TextWrapping="Wrap"/>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="24" Margin="20" HorizontalAlignment="Stretch">
+            <StackPanel Spacing="8">
+                <TextBlock Text="Spawn tier weights"
+                           Classes="settings-section-header"/>
+                <TextBlock Text="Enemy progression scales, baselines, and difficulty presets moved to Combat → Parameters → Enemy Stats. This tab only configures spawn tier weights."
+                           Classes="settings-muted"
+                           TextWrapping="Wrap"/>
+                <TextBlock Text="Percent chance for each spawn tier roll (should total 100% per settlement tab). Values are saved under enemySystem.spawnTierWeightsBySettlement."
+                           Classes="settings-muted"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <TabControl MinHeight="320" HorizontalAlignment="Stretch">
+                <TabItem Header="Rural">
+                    <StackPanel Spacing="4" Margin="8,10,8,8" HorizontalAlignment="Stretch">
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Common" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="RuralCommonPercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Uncommon (biome)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="RuralUncommonBiomePercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Uncommon (region)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="RuralUncommonRegionPercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Uncommon (location)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" x:Name="RuralUncommonLocationPercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Rare (location)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" x:Name="RuralRareLocationPercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Anywhere" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="5" Grid.Column="1" x:Name="RuralAnywherePercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" x:Name="RuralTotalLabel"
+                                       Classes="settings-muted" Margin="0,8,0,0"/>
+                        </Grid>
                     </StackPanel>
-
-                    <StackPanel Spacing="16" HorizontalAlignment="Stretch">
-                        <StackPanel Spacing="6" HorizontalAlignment="Stretch">
-                            <TextBlock Text="Base health scale"
-                                       Classes="settings-field-label"
-                                       FontWeight="SemiBold"/>
-                            <components:SliderWithTextBox x:Name="EnemyBaseHealthScaleControl"
-                                                         HorizontalAlignment="Stretch"
-                                                         ShowLabel="False"
-                                                         Label=""
-                                                         Minimum="0.25"
-                                                         Maximum="3.0"
-                                                         Value="1.0"
-                                                         TickFrequency="0.05"/>
-                        </StackPanel>
-
-                        <StackPanel Spacing="6" HorizontalAlignment="Stretch">
-                            <TextBlock Text="Health per level scale"
-                                       Classes="settings-field-label"
-                                       FontWeight="SemiBold"/>
-                            <components:SliderWithTextBox x:Name="EnemyHealthGrowthScaleControl"
-                                                         HorizontalAlignment="Stretch"
-                                                         ShowLabel="False"
-                                                         Label=""
-                                                         Minimum="0.25"
-                                                         Maximum="3.0"
-                                                         Value="1.0"
-                                                         TickFrequency="0.05"/>
-                        </StackPanel>
-
-                        <StackPanel Spacing="6" HorizontalAlignment="Stretch">
-                            <TextBlock Text="Attribute growth scale (STR / AGI / TEC / INT per level)"
-                                       Classes="settings-field-label"
-                                       FontWeight="SemiBold"
-                                       TextWrapping="Wrap"/>
-                            <components:SliderWithTextBox x:Name="EnemyAttributeGrowthScaleControl"
-                                                         HorizontalAlignment="Stretch"
-                                                         ShowLabel="False"
-                                                         Label=""
-                                                         Minimum="0.25"
-                                                         Maximum="3.0"
-                                                         Value="1.0"
-                                                         TickFrequency="0.05"/>
-                        </StackPanel>
+                </TabItem>
+                <TabItem Header="Town">
+                    <StackPanel Spacing="4" Margin="8,10,8,8" HorizontalAlignment="Stretch">
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Common" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="TownCommonPercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Uncommon (biome)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="TownUncommonBiomePercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Uncommon (region)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="TownUncommonRegionPercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Uncommon (location)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" x:Name="TownUncommonLocationPercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Rare (location)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" x:Name="TownRareLocationPercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Anywhere" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="5" Grid.Column="1" x:Name="TownAnywherePercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" x:Name="TownTotalLabel"
+                                       Classes="settings-muted" Margin="0,8,0,0"/>
+                        </Grid>
                     </StackPanel>
+                </TabItem>
+                <TabItem Header="City">
+                    <StackPanel Spacing="4" Margin="8,10,8,8" HorizontalAlignment="Stretch">
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Common" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="CityCommonPercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Uncommon (biome)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="CityUncommonBiomePercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Uncommon (region)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="CityUncommonRegionPercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Uncommon (location)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" x:Name="CityUncommonLocationPercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Rare (location)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" x:Name="CityRareLocationPercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Anywhere" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
+                            <TextBox Grid.Row="5" Grid.Column="1" x:Name="CityAnywherePercent" Classes="SpawnPctBox"/>
+                            <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" x:Name="CityTotalLabel"
+                                       Classes="settings-muted" Margin="0,8,0,0"/>
+                        </Grid>
+                    </StackPanel>
+                </TabItem>
+            </TabControl>
 
-                    <TextBlock Text="Use Save at the bottom of Settings to write TuningConfig.json. New enemies spawned after that use the updated curves."
-                               Classes="settings-muted"
-                               TextWrapping="Wrap"/>
-                </StackPanel>
-            </ScrollViewer>
-        </TabItem>
-        <TabItem Header="Spawn weights">
-            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Spacing="24" Margin="20" HorizontalAlignment="Stretch">
-                    <TextBlock Text="Percent chance for each spawn tier roll (should total 100% per settlement tab). Values are saved under enemySystem.spawnTierWeightsBySettlement. Settlement type is chosen from the room location name (city / town / village), the region's settlementType in Regions.json, or tuning overrides."
-                               Classes="settings-muted"
-                               TextWrapping="Wrap"/>
-
-                    <TabControl MinHeight="320" HorizontalAlignment="Stretch">
-                        <TabItem Header="Rural">
-                            <StackPanel Spacing="4" Margin="8,10,8,8" HorizontalAlignment="Stretch">
-                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Common" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="RuralCommonPercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Uncommon (biome)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="RuralUncommonBiomePercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Uncommon (region)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="2" Grid.Column="1" x:Name="RuralUncommonRegionPercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Uncommon (location)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="3" Grid.Column="1" x:Name="RuralUncommonLocationPercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Rare (location)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="4" Grid.Column="1" x:Name="RuralRareLocationPercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Anywhere" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="5" Grid.Column="1" x:Name="RuralAnywherePercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" x:Name="RuralTotalLabel"
-                                               Classes="settings-muted"
-                                               Margin="0,8,0,0"/>
-                                </Grid>
-                            </StackPanel>
-                        </TabItem>
-                        <TabItem Header="Town">
-                            <StackPanel Spacing="4" Margin="8,10,8,8" HorizontalAlignment="Stretch">
-                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Common" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="TownCommonPercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Uncommon (biome)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="TownUncommonBiomePercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Uncommon (region)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="2" Grid.Column="1" x:Name="TownUncommonRegionPercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Uncommon (location)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="3" Grid.Column="1" x:Name="TownUncommonLocationPercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Rare (location)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="4" Grid.Column="1" x:Name="TownRareLocationPercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Anywhere" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="5" Grid.Column="1" x:Name="TownAnywherePercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" x:Name="TownTotalLabel"
-                                               Classes="settings-muted"
-                                               Margin="0,8,0,0"/>
-                                </Grid>
-                            </StackPanel>
-                        </TabItem>
-                        <TabItem Header="City">
-                            <StackPanel Spacing="4" Margin="8,10,8,8" HorizontalAlignment="Stretch">
-                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Common" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="CityCommonPercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Uncommon (biome)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="CityUncommonBiomePercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Uncommon (region)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="2" Grid.Column="1" x:Name="CityUncommonRegionPercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Uncommon (location)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="3" Grid.Column="1" x:Name="CityUncommonLocationPercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Rare (location)" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="4" Grid.Column="1" x:Name="CityRareLocationPercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Anywhere" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,4"/>
-                                    <TextBox Grid.Row="5" Grid.Column="1" x:Name="CityAnywherePercent" Classes="SpawnPctBox"/>
-                                    <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" x:Name="CityTotalLabel"
-                                               Classes="settings-muted"
-                                               Margin="0,8,0,0"/>
-                                </Grid>
-                            </StackPanel>
-                        </TabItem>
-                    </TabControl>
-
-                    <TextBlock Text="Totals update as you type. Weights that do not total 100% are proportionally normalized when you save."
-                               Classes="settings-muted"
-                               TextWrapping="Wrap"/>
-
-                    <TextBlock Text="Use Save at the bottom of Settings to write TuningConfig.json. New enemies spawned after that use the updated curves."
-                               Classes="settings-muted"
-                               TextWrapping="Wrap"/>
-                </StackPanel>
-            </ScrollViewer>
-        </TabItem>
-    </TabControl>
+            <TextBlock Text="Totals update as you type. Weights that do not total 100% are proportionally normalized when you save."
+                       Classes="settings-muted" TextWrapping="Wrap"/>
+            <TextBlock Text="Use Save at the bottom of Settings to write TuningConfig.json."
+                       Classes="settings-muted" TextWrapping="Wrap"/>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

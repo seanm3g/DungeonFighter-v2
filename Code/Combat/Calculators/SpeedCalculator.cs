@@ -17,8 +17,10 @@ namespace RPGGame.Combat.Calculators
             double m = w.BaseAttackSpeed;
             if (m <= 0 || double.IsNaN(m) || double.IsInfinity(m))
                 m = 1.0;
-            // Keep catalog extremes (roughly 0.6–1.2) without pinning light weapons to a single floor.
-            return Math.Max(0.5, Math.Min(1.5, m));
+            var combat = GameConfiguration.Instance.Combat;
+            double clampMin = combat.WeaponAttackTimeClampMin > 0 ? combat.WeaponAttackTimeClampMin : 0.5;
+            double clampMax = combat.WeaponAttackTimeClampMax > clampMin ? combat.WeaponAttackTimeClampMax : 1.5;
+            return Math.Max(clampMin, Math.Min(clampMax, m));
         }
 
         /// <summary>
@@ -113,7 +115,14 @@ namespace RPGGame.Combat.Calculators
                 double speedMultiplier = charEntity.GetModificationSpeedMultiplier();
                 // Prevent division by zero - ensure speedMultiplier is at least a small positive value
                 speedMultiplier = Math.Max(0.0001, speedMultiplier);
-                finalAttackTime /= speedMultiplier; // Divide by multiplier to make attacks faster
+                finalAttackTime /= speedMultiplier;
+
+                if (charEntity.Weapon is WeaponItem speedWeapon)
+                {
+                    double classSpeed = ClassBalanceHelper.GetSpeedMultiplier(speedWeapon.WeaponType);
+                    if (classSpeed > 0)
+                        finalAttackTime /= classSpeed;
+                }
                 
                 // Ensure result is never negative or zero
                 // Apply minimum cap - ensure MinimumAttackTime is at least 0.01 to match test expectations

@@ -18,8 +18,8 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 36.55,
-    "healthGrowthPerLevel": 2.35,
+    "healthPercent": 52.21,
+    "healthGrowthPercent": 3.36,
     "actions": [
       "JAB",
       "TAUNT"
@@ -54,8 +54,8 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 12.5,
-    "healthGrowthPerLevel": 1.65,
+    "healthPercent": 17.86,
+    "healthGrowthPercent": 2.36,
     "actions": [
       "WEB STRIKE",
       "POISON BITE"
@@ -91,8 +91,8 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "baseHealth": 66.7,
-    "healthGrowthPerLevel": 3.1,
+    "healthPercent": 95.29,
+    "healthGrowthPercent": 4.43,
     "actions": [
       "BITE",
       "HOWL"
@@ -125,8 +125,8 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 28.5,
-    "healthGrowthPerLevel": 2.25,
+    "healthPercent": 40.71,
+    "healthGrowthPercent": 3.21,
     "actions": [
       "FIRE BOLT",
       "IGNITE"
@@ -161,8 +161,8 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 98,
-    "healthGrowthPerLevel": 4.3,
+    "healthPercent": 140,
+    "healthGrowthPercent": 6.14,
     "actions": [
       "MAGMA FIST",
       "ERUPTION"
@@ -195,8 +195,8 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 8,
-    "healthGrowthPerLevel": 1.35,
+    "healthPercent": 11.43,
+    "healthGrowthPercent": 1.93,
     "actions": [
       "BAT SWARM",
       "QUICK STRIKE"
@@ -232,8 +232,8 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "baseHealth": 40.5,
-    "healthGrowthPerLevel": 2.75,
+    "healthPercent": 57.86,
+    "healthGrowthPercent": 3.93,
     "actions": [
       "BONE STRIKE",
       "RATTLE"
@@ -268,8 +268,8 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 60.5,
-    "healthGrowthPerLevel": 3.15,
+    "healthPercent": 86.43,
+    "healthGrowthPercent": 4.5,
     "actions": [
       "CLAW",
       "GROAN"
@@ -299,8 +299,8 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 21.45,
-    "healthGrowthPerLevel": 2.05,
+    "healthPercent": 30.64,
+    "healthGrowthPercent": 2.93,
     "actions": [
       "Soul Drain",
       "PHASE"
@@ -334,8 +334,8 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "baseHealth": 78.75,
-    "healthGrowthPerLevel": 3.45,
+    "healthPercent": 112.5,
+    "healthGrowthPercent": 4.93,
     "actions": [
       "SLAM",
       "GRUNT"
@@ -369,8 +369,8 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 91.8,
-    "healthGrowthPerLevel": 4.1,
+    "healthPercent": 131.14,
+    "healthGrowthPercent": 5.86,
     "actions": [
       "SLAM",
       "PUNCH HARD"
@@ -401,8 +401,8 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "baseHealth": 60.5,
-    "healthGrowthPerLevel": 3.05,
+    "healthPercent": 86.43,
+    "healthGrowthPercent": 4.36,
     "actions": [
       "JAB",
       "PUNCH HARD"
@@ -435,8 +435,8 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 24.5,
-    "healthGrowthPerLevel": 2.15,
+    "healthPercent": 35,
+    "healthGrowthPercent": 3.07,
     "actions": [
       "CHEAP SHOT",
       "JAB"
@@ -470,8 +470,8 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "baseHealth": 18,
-    "healthGrowthPerLevel": 1.85,
+    "healthPercent": 25.71,
+    "healthGrowthPercent": 2.64,
     "actions": [
       "CRITICAL ATTACK",
       "FLURRY"
@@ -504,8 +504,8 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 84.5,
-    "healthGrowthPerLevel": 4,
+    "healthPercent": 120.71,
+    "healthGrowthPercent": 5.71,
     "actions": [
       "SLAM"
     ],
@@ -536,8 +536,8 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 32,
-    "healthGrowthPerLevel": 2.55,
+    "healthPercent": 45.71,
+    "healthGrowthPercent": 3.64,
     "actions": [
       "CHEAP SHOT",
       "JAB"
@@ -567,8 +567,8 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
-    "baseHealth": 40.5,
-    "healthGrowthPerLevel": 2.85,
+    "healthPercent": 57.86,
+    "healthGrowthPercent": 4.07,
     "actions": [
       "CRITICAL ATTACK",
       "STUN"
@@ -602,8 +602,8 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 50,
-    "healthGrowthPerLevel": 2.9,
+    "healthPercent": 71.43,
+    "healthGrowthPercent": 4.14,
     "actions": [
       "SLAM",
       "TAUNT"
@@ -637,14 +637,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "baseHealth": 20,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 100,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Sand Dash",
       "Desert Veil"
     ],
     "isLiving": true,
-    "description": "A desert raider that cuts in from the blinding sand — fast strikes from the edge of vision",
+    "description": "A desert raider that cuts in from the blinding sand \u00E2\u20AC\u201D fast strikes from the edge of vision",
     "tags": [
       "living",
       "earth",
@@ -671,14 +671,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Burrow Strike",
       "Sand Spray"
     ],
     "isLiving": true,
-    "description": "A buried serpent that erupts from the dunes — ambushes with venomous precision",
+    "description": "A buried serpent that erupts from the dunes \u00E2\u20AC\u201D ambushes with venomous precision",
     "tags": [
       "living",
       "earth",
@@ -707,14 +707,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Rolling Charge",
       "Sand Armor"
     ],
     "isLiving": true,
-    "description": "A armored desert dweller that curls and rolls at high speed — hits hard on impact",
+    "description": "A armored desert dweller that curls and rolls at high speed \u00E2\u20AC\u201D hits hard on impact",
     "tags": [
       "living",
       "earth",
@@ -745,14 +745,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Solar Sting",
       "Heat Wave"
     ],
     "isLiving": true,
-    "description": "A scorpion whose tail gleams like a spear in the sun — precise, poisonous strikes",
+    "description": "A scorpion whose tail gleams like a spear in the sun \u00E2\u20AC\u201D precise, poisonous strikes",
     "tags": [
       "living",
       "fire",
@@ -782,8 +782,8 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Blinding Flash",
       "Precision Shot"
@@ -818,14 +818,14 @@
       "technique": 2.9,
       "intelligence": 0.6
     },
-    "baseHealth": 25,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 35.71,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Crystal Barrage",
       "Shatter"
     ],
     "isLiving": true,
-    "description": "A construct of fused desert glass — sharp, brittle, and deadly up close",
+    "description": "A construct of fused desert glass \u00E2\u20AC\u201D sharp, brittle, and deadly up close",
     "tags": [
       "elemental",
       "earth",
@@ -853,14 +853,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Illusion Strike",
       "Vanish"
     ],
     "isLiving": true,
-    "description": "A predator that hunts by false shapes in the heat haze — strikes where you aren't looking",
+    "description": "A predator that hunts by false shapes in the heat haze \u00E2\u20AC\u201D strikes where you aren\u0027t looking",
     "tags": [
       "living",
       "fire",
@@ -890,14 +890,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Phase Shift",
       "Soul Drain"
     ],
     "isLiving": true,
-    "description": "A shade born of desert noon — phases through light and drains the unwary",
+    "description": "A shade born of desert noon \u00E2\u20AC\u201D phases through light and drains the unwary",
     "tags": [
       "undead",
       "air"
@@ -922,14 +922,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 21.43,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Vitality Leech",
       "Sap Drain"
     ],
     "isLiving": true,
-    "description": "A parasitic desert leech that feeds and mends itself — sustains through stolen life",
+    "description": "A parasitic desert leech that feeds and mends itself \u00E2\u20AC\u201D sustains through stolen life",
     "tags": [
       "living",
       "water",
@@ -958,14 +958,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 54.29,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Titan Fist",
       "Ground Pound"
     ],
     "isLiving": true,
-    "description": "A towering statue of carved sandstone — slow, massive, and nearly immovable",
+    "description": "A towering statue of carved sandstone \u00E2\u20AC\u201D slow, massive, and nearly immovable",
     "tags": [
       "living",
       "earth",
@@ -992,14 +992,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Toxic Dart",
       "Venom Volley"
     ],
     "isLiving": true,
-    "description": "A tomb guardian that fires venomous darts from stillness — patient and precise",
+    "description": "A tomb guardian that fires venomous darts from stillness \u00E2\u20AC\u201D patient and precise",
     "tags": [
       "undead",
       "young",
@@ -1028,14 +1028,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 21.43,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Solar Blessing",
       "Sunbeam"
     ],
     "isLiving": true,
-    "description": "A desert cleric who channels solar wrath — casts with burning conviction",
+    "description": "A desert cleric who channels solar wrath \u00E2\u20AC\u201D casts with burning conviction",
     "tags": [
       "celestial",
       "fire",
@@ -1065,14 +1065,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 47.14,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Shell Defense",
       "Mandible Crush"
     ],
     "isLiving": true,
-    "description": "A sacred beetle grown to impossible size — armored and fiercely territorial",
+    "description": "A sacred beetle grown to impossible size \u00E2\u20AC\u201D armored and fiercely territorial",
     "tags": [
       "living",
       "earth",
@@ -1103,14 +1103,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Ambush",
       "Sand Blind"
     ],
     "isLiving": true,
-    "description": "A corpse-thief that crawls through burial passages — strikes from tight darkness",
+    "description": "A corpse-thief that crawls through burial passages \u00E2\u20AC\u201D strikes from tight darkness",
     "tags": [
       "undead",
       "tiny"
@@ -1135,14 +1135,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 54.29,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Entomb",
-      "Mummy's Grasp"
+      "Mummy\u0027s Grasp"
     ],
     "isLiving": true,
-    "description": "An undead bound to a cracked sarcophagus — shambling, heavy, and hard to put down",
+    "description": "An undead bound to a cracked sarcophagus \u00E2\u20AC\u201D shambling, heavy, and hard to put down",
     "tags": [
       "undead"
     ]
@@ -1166,14 +1166,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 21.43,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Raise Dead",
       "Death Bolt"
     ],
     "isLiving": true,
-    "description": "An ancient necromancer of the tombs — commands death with cold intelligence",
+    "description": "An ancient necromancer of the tombs \u00E2\u20AC\u201D commands death with cold intelligence",
     "tags": [
       "undead",
       "boss",
@@ -1202,14 +1202,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 54.29,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Crush",
       "Binding Slam"
     ],
     "isLiving": true,
-    "description": "A wrapped undead preserved by desert rites — durable and relentless",
+    "description": "A wrapped undead preserved by desert rites \u00E2\u20AC\u201D durable and relentless",
     "tags": [
       "undead"
     ]
@@ -1219,7 +1219,7 @@
     "biome": "Pyramids",
     "location": "Burial Chamber",
     "rarity": "Rare",
-    "name": "Ancestor's Shade",
+    "name": "Ancestor\u0027s Shade",
     "archetype": "Sage",
     "baseAttributes": {
       "strength": 3,
@@ -1233,14 +1233,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 21.43,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Spectral Touch",
       "Ancient Curse"
     ],
     "isLiving": true,
-    "description": "The lingering spirit of a forgotten dynasty — strikes with the weight of old grudges",
+    "description": "The lingering spirit of a forgotten dynasty \u00E2\u20AC\u201D strikes with the weight of old grudges",
     "tags": [
       "undead"
     ]
@@ -1264,14 +1264,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Talon Strike",
       "Keen Eye"
     ],
     "isLiving": true,
-    "description": "A desert raptor that dives from above — swift aerial strikes",
+    "description": "A desert raptor that dives from above \u00E2\u20AC\u201D swift aerial strikes",
     "tags": [
       "living",
       "air"
@@ -1296,14 +1296,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 54.29,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Boulder Hurl",
       "Stone Barrage"
     ],
     "isLiving": true,
-    "description": "A brute that hurls sun-baked stones from a distance — simple, crushing force",
+    "description": "A brute that hurls sun-baked stones from a distance \u00E2\u20AC\u201D simple, crushing force",
     "tags": [
       "living",
       "earth",
@@ -1333,14 +1333,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Cliff Drop",
       "Ledge Grab"
     ],
     "isLiving": true,
-    "description": "A blade-wielding hunter that circles the rim of sight — waits for an opening",
+    "description": "A blade-wielding hunter that circles the rim of sight \u00E2\u20AC\u201D waits for an opening",
     "tags": [
       "living",
       "has_hands",
@@ -1368,14 +1368,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Quick Bite",
       "Disease Spread"
     ],
     "isLiving": true,
-    "description": "A gnawing vermin of the wastes — quick, dirty, and opportunistic",
+    "description": "A gnawing vermin of the wastes \u00E2\u20AC\u201D quick, dirty, and opportunistic",
     "tags": [
       "living",
       "minion",
@@ -1404,8 +1404,8 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
-    "baseHealth": 18,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 25.71,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Bile Splash",
       "Corrupted Gulp"
@@ -1435,14 +1435,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Last Stand Break",
       "Phantom Strike"
     ],
     "isLiving": true,
-    "description": "The ghost of a soldier who fled into the dunes — elusive and bitter",
+    "description": "The ghost of a soldier who fled into the dunes \u00E2\u20AC\u201D elusive and bitter",
     "tags": [
       "undead"
     ]
@@ -1466,14 +1466,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 21.43,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Lightning Strike",
       "Thunder Clap"
     ],
     "isLiving": true,
-    "description": "A mountain mystic who summons thunder and wind — casts from afar",
+    "description": "A mountain mystic who summons thunder and wind \u00E2\u20AC\u201D casts from afar",
     "tags": [
       "living",
       "air"
@@ -1498,14 +1498,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Dive Bomb",
       "Wind Gust"
     ],
     "isLiving": true,
-    "description": "A thin-air specter that haunts high passes — cold, fast, and disorienting",
+    "description": "A thin-air specter that haunts high passes \u00E2\u20AC\u201D cold, fast, and disorienting",
     "tags": [
       "undead",
       "air",
@@ -1531,14 +1531,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 54.29,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Peak Slam",
-      "Mountain's Fury"
+      "Mountain\u0027s Fury"
     ],
     "isLiving": true,
-    "description": "A giant of stone and ice at the mountain peak — slow but overwhelming",
+    "description": "A giant of stone and ice at the mountain peak \u00E2\u20AC\u201D slow but overwhelming",
     "tags": [
       "living",
       "earth",
@@ -1565,8 +1565,8 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "baseHealth": 20,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 28.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Scorching Bite",
       "Ember lunge"
@@ -1597,14 +1597,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Tremor Burst",
       "Molten Ooze"
     ],
     "isLiving": true,
-    "description": "A lava-dwelling predator that crawls through fissures — ambushes from below",
+    "description": "A lava-dwelling predator that crawls through fissures \u00E2\u20AC\u201D ambushes from below",
     "tags": [
       "elemental",
       "fire",
@@ -1630,14 +1630,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Cinder Shriek",
       "Gust Talon"
     ],
     "isLiving": true,
-    "description": "A winged scavenger of volcanic skies — fast, shrieking dives",
+    "description": "A winged scavenger of volcanic skies \u00E2\u20AC\u201D fast, shrieking dives",
     "tags": [
       "living",
       "fire",
@@ -1663,14 +1663,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 47.14,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Coal Shell",
       "Soot Pummel"
     ],
     "isLiving": true,
-    "description": "A construct of compressed ash and cinders — armored and smothering",
+    "description": "A construct of compressed ash and cinders \u00E2\u20AC\u201D armored and smothering",
     "tags": [
       "elemental",
       "fire",
@@ -1697,14 +1697,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 54.29,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Ember Spit",
       "Tongue Lash"
     ],
     "isLiving": true,
-    "description": "A bloated toad swollen with inner heat — lurks and lunges from cave pools",
+    "description": "A bloated toad swollen with inner heat \u00E2\u20AC\u201D lurks and lunges from cave pools",
     "tags": [
       "elemental",
       "fire",
@@ -1733,14 +1733,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Smog Step",
       "Murky Ambush"
     ],
     "isLiving": true,
-    "description": "A predator hidden in volcanic fumes — strikes when visibility fails",
+    "description": "A predator hidden in volcanic fumes \u00E2\u20AC\u201D strikes when visibility fails",
     "tags": [
       "living",
       "fire"
@@ -1765,14 +1765,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
-      "Predator's Focus",
+      "Predator\u0027s Focus",
       "Smoldering Strike"
     ],
     "isLiving": true,
-    "description": "A burned forest hunter that moves through blackened trunks — patient ambusher",
+    "description": "A burned forest hunter that moves through blackened trunks \u00E2\u20AC\u201D patient ambusher",
     "tags": [
       "plant",
       "fire",
@@ -1801,14 +1801,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 54.29,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Bark Fortify",
       "Root Slam"
     ],
     "isLiving": true,
-    "description": "A fire-blackened tree spirit — slow, thick-barked, and heavy-hitting",
+    "description": "A fire-blackened tree spirit \u00E2\u20AC\u201D slow, thick-barked, and heavy-hitting",
     "tags": [
       "plant",
       "fire",
@@ -1834,14 +1834,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 21.43,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Reignite",
       "Flicker Dash"
     ],
     "isLiving": true,
-    "description": "A flame spirit that flares back to life — bursts of magical fire",
+    "description": "A flame spirit that flares back to life \u00E2\u20AC\u201D bursts of magical fire",
     "tags": [
       "elemental",
       "fire",
@@ -1868,14 +1868,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 47.14,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Molten Chain",
       "Guard Stance"
     ],
     "isLiving": true,
-    "description": "A lava-bridge guardian in scorched armor — holds the line with discipline",
+    "description": "A lava-bridge guardian in scorched armor \u00E2\u20AC\u201D holds the line with discipline",
     "tags": [
       "living",
       "fire",
@@ -1907,14 +1907,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 21.43,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Searing Focus",
       "Lava Glob"
     ],
     "isLiving": true,
-    "description": "A creature that spews molten rock from a distance — ranged elemental attacker",
+    "description": "A creature that spews molten rock from a distance \u00E2\u20AC\u201D ranged elemental attacker",
     "tags": [
       "elemental",
       "fire",
@@ -1940,14 +1940,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Sear The Gap",
       "Drift Strike"
     ],
     "isLiving": true,
-    "description": "A wandering fire spirit that darts through heat currents — mobile and evasive",
+    "description": "A wandering fire spirit that darts through heat currents \u00E2\u20AC\u201D mobile and evasive",
     "tags": [
       "elemental",
       "fire"
@@ -1972,14 +1972,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 47.14,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Iron Vow",
       "Shield Bash"
     ],
     "isLiving": true,
-    "description": "A zealot knight sworn to the flame temple — armored, trained, unyielding",
+    "description": "A zealot knight sworn to the flame temple \u00E2\u20AC\u201D armored, trained, unyielding",
     "tags": [
       "living",
       "fire",
@@ -2010,14 +2010,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 47.14,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Stone Gaze",
       "Rubble Toss"
     ],
     "isLiving": true,
-    "description": "A sentinel posted beside temple pillars — still, alert, and heavily guarded",
+    "description": "A sentinel posted beside temple pillars \u00E2\u20AC\u201D still, alert, and heavily guarded",
     "tags": [
       "living",
       "earth",
@@ -2047,14 +2047,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Soul Skewer",
       "Wall of Ash"
     ],
     "isLiving": true,
-    "description": "A ghost bound to eternal flame — deceptive strikes from flickering light",
+    "description": "A ghost bound to eternal flame \u00E2\u20AC\u201D deceptive strikes from flickering light",
     "tags": [
       "undead",
       "fire"
@@ -2079,14 +2079,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 47.14,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Flame Salute",
       "Blazing Advance"
     ],
     "isLiving": true,
-    "description": "An elite temple defender in ceremonial armor — disciplined and resilient",
+    "description": "An elite temple defender in ceremonial armor \u00E2\u20AC\u201D disciplined and resilient",
     "tags": [
       "living",
       "fire",
@@ -2118,14 +2118,14 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
-    "baseHealth": 18,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 25.71,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Branding Seal",
       "Arcane Ward"
     ],
     "isLiving": true,
-    "description": "A mage who binds enemies with fiery sigils — technical, controlling magic",
+    "description": "A mage who binds enemies with fiery sigils \u00E2\u20AC\u201D technical, controlling magic",
     "tags": [
       "living",
       "earth",
@@ -2154,14 +2154,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 47.14,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Crumbling Curse",
       "hollow Grasp"
     ],
     "isLiving": true,
-    "description": "A stone guardian carved to sit before a molten throne — immovable sentinel",
+    "description": "A stone guardian carved to sit before a molten throne \u00E2\u20AC\u201D immovable sentinel",
     "tags": [
       "elemental",
       "fire",
@@ -2193,14 +2193,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Expose Vein",
       "Draining Bite"
     ],
     "isLiving": true,
-    "description": "A parasite that drains life from open wounds — predatory and precise",
+    "description": "A parasite that drains life from open wounds \u00E2\u20AC\u201D predatory and precise",
     "tags": [
       "living"
     ]
@@ -2224,14 +2224,14 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
-    "baseHealth": 18,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 25.71,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Toxic Focus",
       "Spore Burst"
     ],
     "isLiving": true,
-    "description": "A fungal spore creature born from volcanic vents — spreads harm through contact",
+    "description": "A fungal spore creature born from volcanic vents \u00E2\u20AC\u201D spreads harm through contact",
     "tags": [
       "plant",
       "fire",
@@ -2257,14 +2257,14 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
-    "baseHealth": 18,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 25.71,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Leech Grip",
       "Crystal barb"
     ],
     "isLiving": true,
-    "description": "A glassy parasite that latches to heated crystal — drains and hardens",
+    "description": "A glassy parasite that latches to heated crystal \u00E2\u20AC\u201D drains and hardens",
     "tags": [
       "elemental",
       "earth",
@@ -2294,14 +2294,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 54.29,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Molten Shell",
       "Shell Ram"
     ],
     "isLiving": true,
-    "description": "A turtle shelled in cooled slag — slow, dense, and extremely tough",
+    "description": "A turtle shelled in cooled slag \u00E2\u20AC\u201D slow, dense, and extremely tough",
     "tags": [
       "living",
       "earth",
@@ -2330,14 +2330,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Magma Kiss",
       "Slag Drift"
     ],
     "isLiving": true,
-    "description": "A creature carried by thermal winds between lava isles — fast and hard to pin down",
+    "description": "A creature carried by thermal winds between lava isles \u00E2\u20AC\u201D fast and hard to pin down",
     "tags": [
       "living",
       "fire",
@@ -2363,14 +2363,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 47.14,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Magma Carapace",
       "Boiling Snap"
     ],
     "isLiving": true,
-    "description": "A crab with a shell of hardened magma — armored and snapping",
+    "description": "A crab with a shell of hardened magma \u00E2\u20AC\u201D armored and snapping",
     "tags": [
       "elemental",
       "fire",
@@ -2400,14 +2400,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 47.14,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Amber Casing",
       "Petrify Sweep"
     ],
     "isLiving": true,
-    "description": "A guardian encased in ancient amber — preserved, patient, and hard to crack",
+    "description": "A guardian encased in ancient amber \u00E2\u20AC\u201D preserved, patient, and hard to crack",
     "tags": [
       "living",
       "earth",
@@ -2437,14 +2437,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Lava Douse",
       "Molten Pounce"
     ],
     "isLiving": true,
-    "description": "A mischievous spirit of excess heat and pressure — chaotic and evasive",
+    "description": "A mischievous spirit of excess heat and pressure \u00E2\u20AC\u201D chaotic and evasive",
     "tags": [
       "elemental",
       "fire",
@@ -2475,14 +2475,14 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
-    "baseHealth": 18,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 25.71,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Amber Ooze",
       "Resin Snare"
     ],
     "isLiving": true,
-    "description": "A predator that lures prey into sticky amber pools — traps with cunning",
+    "description": "A predator that lures prey into sticky amber pools \u00E2\u20AC\u201D traps with cunning",
     "tags": [
       "living",
       "earth"
@@ -2507,14 +2507,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "baseHealth": 20,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 28.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Guard Bite",
       "Boundary Mark"
     ],
     "isLiving": true,
-    "description": "A fierce hound that defends its hunting ground — aggressive pack striker",
+    "description": "A fierce hound that defends its hunting ground \u00E2\u20AC\u201D aggressive pack striker",
     "tags": [
       "living"
     ]
@@ -2538,14 +2538,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "baseHealth": 20,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 28.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
-      "Leader's Fang",
+      "Leader\u0027s Fang",
       "Rally Pack"
     ],
     "isLiving": true,
-    "description": "The lead wolf of a border pack — fast, commanding, and relentless",
+    "description": "The lead wolf of a border pack \u00E2\u20AC\u201D fast, commanding, and relentless",
     "tags": [
       "living",
       "has_feet",
@@ -2572,14 +2572,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 21.43,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Skeletal Burst",
       "Marrow Drain"
     ],
     "isLiving": true,
-    "description": "A necromantic scavenger that scatters cursed bones — spreads decay and dark magic",
+    "description": "A necromantic scavenger that scatters cursed bones \u00E2\u20AC\u201D spreads decay and dark magic",
     "tags": [
       "undead"
     ]
@@ -2603,14 +2603,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 54.29,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Sacrificial Strike",
       "Offering"
     ],
     "isLiving": true,
-    "description": "A bound creature left as offering to old powers — heavy, savage, and enduring",
+    "description": "A bound creature left as offering to old powers \u00E2\u20AC\u201D heavy, savage, and enduring",
     "tags": [
       "living"
     ]
@@ -2634,14 +2634,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 54.29,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Hex Maul",
       "Dark Roar"
     ],
     "isLiving": true,
-    "description": "A bear twisted by forest hexes — powerful, brutal, and hard to fell",
+    "description": "A bear twisted by forest hexes \u00E2\u20AC\u201D powerful, brutal, and hard to fell",
     "tags": [
       "living",
       "giant",
@@ -2669,14 +2669,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 47.14,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Earth Shield",
       "Tremor"
     ],
     "isLiving": true,
-    "description": "A guardian of ancient burial mounds — armored and territorial",
+    "description": "A guardian of ancient burial mounds \u00E2\u20AC\u201D armored and territorial",
     "tags": [
       "undead",
       "earth",
@@ -2707,14 +2707,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 21.43,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Celestial Strike",
-      "Night's Grace"
+      "Night\u0027s Grace"
     ],
     "isLiving": true,
-    "description": "A forest spirit touched by moonlight — heals and harms with sacred power",
+    "description": "A forest spirit touched by moonlight \u00E2\u20AC\u201D heals and harms with sacred power",
     "tags": [
       "elemental",
       "boss"
@@ -2739,14 +2739,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Sound Strike",
       "Sonic Pulse"
     ],
     "isLiving": true,
-    "description": "A hunter that strikes from reflected sound — deceptive and hard to track",
+    "description": "A hunter that strikes from reflected sound \u00E2\u20AC\u201D deceptive and hard to track",
     "tags": [
       "living",
       "has_hands",
@@ -2774,14 +2774,14 @@
       "technique": 0.8,
       "intelligence": 2.3
     },
-    "baseHealth": 28,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 40,
+    "healthGrowthPercent": 4.29,
     "actions": [
-      "Pack Leader's Call",
+      "Pack Leader\u0027s Call",
       "Dominant Bite"
     ],
     "isLiving": true,
-    "description": "The commander of a night watch pack — leads with strength and cunning",
+    "description": "The commander of a night watch pack \u00E2\u20AC\u201D leads with strength and cunning",
     "tags": [
       "living",
       "boss"
@@ -2806,14 +2806,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Trick Shot",
       "Misdirect"
     ],
     "isLiving": true,
-    "description": "A tiny fey spirit of trickery — fast, mischievous, and unpredictable",
+    "description": "A tiny fey spirit of trickery \u00E2\u20AC\u201D fast, mischievous, and unpredictable",
     "tags": [
       "elemental",
       "minion",
@@ -2839,14 +2839,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "baseHealth": 20,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 28.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Thorn Bite",
       "Bush Ambush"
     ],
     "isLiving": true,
-    "description": "A lean hound that hunts along maze hedges — quick flanking predator",
+    "description": "A lean hound that hunts along maze hedges \u00E2\u20AC\u201D quick flanking predator",
     "tags": [
       "living"
     ]
@@ -2870,14 +2870,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Trap Door",
       "Wall Shift"
     ],
     "isLiving": true,
-    "description": "A shapeshifter that waits at false exits — lures victims into ambush",
+    "description": "A shapeshifter that waits at false exits \u00E2\u20AC\u201D lures victims into ambush",
     "tags": [
       "living",
       "has_hands",
@@ -2905,14 +2905,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Pathfind",
       "Confuse Trail"
     ],
     "isLiving": true,
-    "description": "A creature born to sprint endless corridors — blinding speed, low endurance",
+    "description": "A creature born to sprint endless corridors \u00E2\u20AC\u201D blinding speed, low endurance",
     "tags": [
       "living",
       "has_hands"
@@ -2937,14 +2937,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Circular Strike",
       "Endless Cycle"
     ],
     "isLiving": true,
-    "description": "A spirit trapped in repeating paths — disorients and strikes from nowhere",
+    "description": "A spirit trapped in repeating paths \u00E2\u20AC\u201D disorients and strikes from nowhere",
     "tags": [
       "undead"
     ]
@@ -2968,14 +2968,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Reflex Drain",
       "Primal Fear"
     ],
     "isLiving": true,
-    "description": "A horror that feeds on prey’s fear and reflex — preys on hesitation",
+    "description": "A horror that feeds on prey\u00E2\u20AC\u2122s fear and reflex \u00E2\u20AC\u201D preys on hesitation",
     "tags": [
       "living"
     ]
@@ -2999,14 +2999,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Perfect Copy",
       "Twin Strike"
     ],
     "isLiving": true,
-    "description": "A mirror-image foe that copies your movements — unsettling and elusive",
+    "description": "A mirror-image foe that copies your movements \u00E2\u20AC\u201D unsettling and elusive",
     "tags": [
       "living",
       "has_hands"
@@ -3031,8 +3031,8 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Broken Mirror",
       "Fragment"
@@ -3062,14 +3062,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Identity Theft",
       "Confusion"
     ],
     "isLiving": true,
-    "description": "A doppelganger that wears your own face — psychological and deadly",
+    "description": "A doppelganger that wears your own face \u00E2\u20AC\u201D psychological and deadly",
     "tags": [
       "living",
       "boss"
@@ -3094,14 +3094,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 54.29,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Spiked Charge",
       "Bramble Hide"
     ],
     "isLiving": true,
-    "description": "A bristling boar wrapped in thorny hide — charges with brutal force",
+    "description": "A bristling boar wrapped in thorny hide \u00E2\u20AC\u201D charges with brutal force",
     "tags": [
       "plant",
       "has_feet",
@@ -3128,14 +3128,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
-      "Nature's Touch",
+      "Nature\u0027s Touch",
       "Vine Whip"
     ],
     "isLiving": true,
-    "description": "A small woodland spirit tied to living roots — nimble and evasive",
+    "description": "A small woodland spirit tied to living roots \u00E2\u20AC\u201D nimble and evasive",
     "tags": [
       "plant",
       "minion",
@@ -3161,14 +3161,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Venom Bite",
       "Rattle Warning"
     ],
     "isLiving": true,
-    "description": "A coiled viper that strikes without warning — venomous and precise",
+    "description": "A coiled viper that strikes without warning \u00E2\u20AC\u201D venomous and precise",
     "tags": [
       "living",
       "has_feet",
@@ -3195,14 +3195,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Sweet Sting",
       "Collect"
     ],
     "isLiving": true,
-    "description": "A oversized pollinator driven to frenzy — fast, swarming attacks",
+    "description": "A oversized pollinator driven to frenzy \u00E2\u20AC\u201D fast, swarming attacks",
     "tags": [
       "plant",
       "minion",
@@ -3228,14 +3228,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Allergen Cloud",
       "Pollinate"
     ],
     "isLiving": true,
-    "description": "A drifting spirit of choking pollen — obscures sight and saps strength",
+    "description": "A drifting spirit of choking pollen \u00E2\u20AC\u201D obscures sight and saps strength",
     "tags": [
       "undead"
     ]
@@ -3259,14 +3259,14 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "baseHealth": 20,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 28.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Gorge Strike",
       "Echo Call"
     ],
     "isLiving": true,
-    "description": "A lowland predator that hunts at dusk — swift and aggressive",
+    "description": "A lowland predator that hunts at dusk \u00E2\u20AC\u201D swift and aggressive",
     "tags": [
       "living"
     ]
@@ -3290,14 +3290,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Wall Slam",
       "Climb"
     ],
     "isLiving": true,
-    "description": "A vine-creature that scales vertical stone — ambushes from above",
+    "description": "A vine-creature that scales vertical stone \u00E2\u20AC\u201D ambushes from above",
     "tags": [
       "plant",
       "earth"
@@ -3322,14 +3322,14 @@
       "technique": 2.9,
       "intelligence": 0.6
     },
-    "baseHealth": 25,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 35.71,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Whip Strike",
       "Grow"
     ],
     "isLiving": true,
-    "description": "A writhing plant lash given hostile will — whips with disciplined force",
+    "description": "A writhing plant lash given hostile will \u00E2\u20AC\u201D whips with disciplined force",
     "tags": [
       "plant",
       "has_head"
@@ -3354,14 +3354,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Decay Touch",
       "Crumble"
     ],
     "isLiving": true,
-    "description": "A ghost of a fallen settlement — lingers in broken halls",
+    "description": "A ghost of a fallen settlement \u00E2\u20AC\u201D lingers in broken halls",
     "tags": [
       "undead"
     ]
@@ -3385,14 +3385,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Reed Skewer",
-      "Predator's Eye"
+      "Predator\u0027s Eye"
     ],
     "isLiving": true,
-    "description": "A hunter that moves unseen through tall reeds — silent, precise strikes",
+    "description": "A hunter that moves unseen through tall reeds \u00E2\u20AC\u201D silent, precise strikes",
     "tags": [
       "plant",
       "has_hands",
@@ -3420,14 +3420,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Freeding Frenzy",
       "Swarm Dive"
     ],
     "isLiving": true,
-    "description": "A cloud of blood-hungry insects — overwhelming speed, fragile individually",
+    "description": "A cloud of blood-hungry insects \u00E2\u20AC\u201D overwhelming speed, fragile individually",
     "tags": [
       "living"
     ]
@@ -3451,14 +3451,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Mud Shell",
       "Mire Slam"
     ],
     "isLiving": true,
-    "description": "A bog predator that rises from thick mud — ambushes from below",
+    "description": "A bog predator that rises from thick mud \u00E2\u20AC\u201D ambushes from below",
     "tags": [
       "living",
       "giant"
@@ -3483,14 +3483,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Tidal Crash",
       "Wave Slam"
     ],
     "isLiving": true,
-    "description": "A spirit that surfs river currents — fast, fluid, and evasive",
+    "description": "A spirit that surfs river currents \u00E2\u20AC\u201D fast, fluid, and evasive",
     "tags": [
       "elemental"
     ]
@@ -3514,14 +3514,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Static Thrash",
       "Mud Roll"
     ],
     "isLiving": true,
-    "description": "A slippery river eel that strikes in flashes — agile and hard to catch",
+    "description": "A slippery river eel that strikes in flashes \u00E2\u20AC\u201D agile and hard to catch",
     "tags": [
       "living"
     ]
@@ -3545,14 +3545,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Spore Drift",
       "Surge"
     ],
     "isLiving": true,
-    "description": "A empty-souled wanderer of misty hollows — elusive and unsettling",
+    "description": "A empty-souled wanderer of misty hollows \u00E2\u20AC\u201D elusive and unsettling",
     "tags": [
       "living"
     ]
@@ -3576,14 +3576,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Mist Strike",
       "False Form"
     ],
     "isLiving": true,
-    "description": "A shapeshifter hidden in river fog — lures prey into false safety",
+    "description": "A shapeshifter hidden in river fog \u00E2\u20AC\u201D lures prey into false safety",
     "tags": [
       "living",
       "has_hands",
@@ -3611,14 +3611,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Chilling Grasp",
       "Frost Crawl"
     ],
     "isLiving": true,
-    "description": "A chill-loving predator of damp caves — slow approach, sudden strike",
+    "description": "A chill-loving predator of damp caves \u00E2\u20AC\u201D slow approach, sudden strike",
     "tags": [
       "living",
       "tiny"
@@ -3643,14 +3643,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Veil Shatter",
       "Phantom Lunge"
     ],
     "isLiving": true,
-    "description": "A ghost that haunts narrow cave ledges — strikes from cramped angles",
+    "description": "A ghost that haunts narrow cave ledges \u00E2\u20AC\u201D strikes from cramped angles",
     "tags": [
       "living"
     ]
@@ -3674,14 +3674,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Blinding Swarm",
       "Biolumiscent Flash"
     ],
     "isLiving": true,
-    "description": "A bioluminescent cave insect — small, quick, and distracting",
+    "description": "A bioluminescent cave insect \u00E2\u20AC\u201D small, quick, and distracting",
     "tags": [
       "living"
     ]
@@ -3705,14 +3705,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Cold Seep",
       "Frozen Burst"
     ],
     "isLiving": true,
-    "description": "A ice-cloaked cave stalker — patient ambusher in the cold dark",
+    "description": "A ice-cloaked cave stalker \u00E2\u20AC\u201D patient ambusher in the cold dark",
     "tags": [
       "living",
       "tiny",
@@ -3741,14 +3741,14 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "baseHealth": 38,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 54.29,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Lurch Strike",
       "Cavern Thrash"
     ],
     "isLiving": true,
-    "description": "A heavy cave beast that lurches from darkness — slow, crushing blows",
+    "description": "A heavy cave beast that lurches from darkness \u00E2\u20AC\u201D slow, crushing blows",
     "tags": [
       "living"
     ]
@@ -3772,14 +3772,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 21.43,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Calcified Gaze",
       "Basin Surge"
     ],
     "isLiving": true,
-    "description": "A lore-keeper spirit that guards ancient records — wise, magical, and vigilant",
+    "description": "A lore-keeper spirit that guards ancient records \u00E2\u20AC\u201D wise, magical, and vigilant",
     "tags": [
       "elemental",
       "has_hands",
@@ -3807,14 +3807,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Stone Carapace",
       "Pit Pull"
     ],
     "isLiving": true,
-    "description": "A predator that waits beneath unstable ground — pulls prey down to strike",
+    "description": "A predator that waits beneath unstable ground \u00E2\u20AC\u201D pulls prey down to strike",
     "tags": [
       "living"
     ]
@@ -3838,14 +3838,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
-      "Predator's Focus",
+      "Predator\u0027s Focus",
       "Tentacle Snap"
     ],
     "isLiving": true,
-    "description": "A shadowy hunter that moves through dark water — precise, ink-cloud ambushes",
+    "description": "A shadowy hunter that moves through dark water \u00E2\u20AC\u201D precise, ink-cloud ambushes",
     "tags": [
       "living",
       "has_hands",
@@ -3873,14 +3873,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Vent Focus",
       "Steam Dash"
     ],
     "isLiving": true,
-    "description": "A playful but dangerous spirit of cave vents — mischievous and evasive",
+    "description": "A playful but dangerous spirit of cave vents \u00E2\u20AC\u201D mischievous and evasive",
     "tags": [
       "elemental",
       "minion",
@@ -3906,14 +3906,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Venom Spine",
       "Splash"
     ],
     "isLiving": true,
-    "description": "A venomous spined fish — beautiful, slow, and painfully precise",
+    "description": "A venomous spined fish \u00E2\u20AC\u201D beautiful, slow, and painfully precise",
     "tags": [
       "living"
     ]
@@ -3937,14 +3937,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Veil Shatter",
       "Phantom Surge"
     ],
     "isLiving": true,
-    "description": "A formless spirit of deep mist — drifts through attacks and confuses foes",
+    "description": "A formless spirit of deep mist \u00E2\u20AC\u201D drifts through attacks and confuses foes",
     "tags": [
       "elemental"
     ]
@@ -3968,14 +3968,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 47.14,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Tidal Bulwark",
       "Shield Bash"
     ],
     "isLiving": true,
-    "description": "A disciplined guard of an flooded court — armored sentinel of the depths",
+    "description": "A disciplined guard of an flooded court \u00E2\u20AC\u201D armored sentinel of the depths",
     "tags": [
       "living",
       "giant",
@@ -4004,14 +4004,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 21.43,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Deep Drain",
       "Abyssal pull"
     ],
     "isLiving": true,
-    "description": "A abyssal creature that saps life from the deep — magical life drain",
+    "description": "A abyssal creature that saps life from the deep \u00E2\u20AC\u201D magical life drain",
     "tags": [
       "living"
     ]
@@ -4035,14 +4035,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 47.14,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Food Etch",
       "Tidal Sweep"
     ],
     "isLiving": true,
-    "description": "A armored watcher of tidal passages — holds ground against the current",
+    "description": "A armored watcher of tidal passages \u00E2\u20AC\u201D holds ground against the current",
     "tags": [
       "living",
       "giant",
@@ -4071,14 +4071,14 @@
       "technique": 2.9,
       "intelligence": 0.6
     },
-    "baseHealth": 25,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 35.71,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Inner Current",
       "Pressurized Strike"
     ],
     "isLiving": true,
-    "description": "A ascetic trained in crushing depth — martial discipline under extreme force",
+    "description": "A ascetic trained in crushing depth \u00E2\u20AC\u201D martial discipline under extreme force",
     "tags": [
       "living"
     ]
@@ -4102,14 +4102,14 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "baseHealth": 14,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 20,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Torrent Slam",
       "Rapid Current"
     ],
     "isLiving": true,
-    "description": "A rider of falling water and rapids — fast, fluid, and relentless",
+    "description": "A rider of falling water and rapids \u00E2\u20AC\u201D fast, fluid, and relentless",
     "tags": [
       "living"
     ]
@@ -4133,14 +4133,14 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "baseHealth": 33,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 47.14,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Stone Bracing",
       "Channel Slam"
     ],
     "isLiving": true,
-    "description": "A guardian of ancient water channels — armored and immovable",
+    "description": "A guardian of ancient water channels \u00E2\u20AC\u201D armored and immovable",
     "tags": [
       "living",
       "giant",
@@ -4169,14 +4169,14 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "baseHealth": 15,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 21.43,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Toxic Gaze",
       "Still Waters"
     ],
     "isLiving": true,
-    "description": "A meditative watcher of unmoving pools — reads foes and strikes with intent",
+    "description": "A meditative watcher of unmoving pools \u00E2\u20AC\u201D reads foes and strikes with intent",
     "tags": [
       "living"
     ]
@@ -4200,14 +4200,14 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "baseHealth": 13,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 18.57,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Current Break",
       "Shadow Surge"
     ],
     "isLiving": true,
-    "description": "A ghost dragged beneath the current — pulls and strikes from below",
+    "description": "A ghost dragged beneath the current \u00E2\u20AC\u201D pulls and strikes from below",
     "tags": [
       "undead"
     ]
@@ -4231,14 +4231,14 @@
       "technique": 0.8,
       "intelligence": 2.3
     },
-    "baseHealth": 28,
-    "healthGrowthPerLevel": 3,
+    "healthPercent": 40,
+    "healthGrowthPercent": 4.29,
     "actions": [
       "Sunken Curse",
       "Drowned Wrath"
     ],
     "isLiving": true,
-    "description": "An undead monarch risen from a sunken throne — commands death with royal fury",
+    "description": "An undead monarch risen from a sunken throne \u00E2\u20AC\u201D commands death with royal fury",
     "tags": [
       "undead",
       "earth"

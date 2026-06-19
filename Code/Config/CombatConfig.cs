@@ -18,6 +18,22 @@ namespace RPGGame
         public int CriticalHitThreshold { get; set; }
         public double CriticalHitMultiplier { get; set; }
         public int MinimumDamage { get; set; }
+        public int PlayerBaseArmor { get; set; }
+        public int MaximumDamageCap { get; set; } = 999;
+        public double ArmorReductionFactor { get; set; } = 100.0;
+        public double WeaponAttackTimeClampMin { get; set; } = 0.5;
+        public double WeaponAttackTimeClampMax { get; set; } = 1.5;
+        public double TutorialCombatDelayMultiplier { get; set; } = 2.0;
+        public double LevelDifferenceDamageScaling { get; set; }
+        public double EnemyEnrageThresholdPercent { get; set; } = 25.0;
+        public double EnemyEnrageDamageMult { get; set; } = 1.25;
+        public double ComboBreakPenaltyPercent { get; set; } = 10.0;
+        public double StatusEffectBaseProcChance { get; set; } = 1.0;
+        public double GlobalHealEffectiveness { get; set; } = 1.0;
+        public double FirstStrikeBonusPercent { get; set; }
+        public double OverkillDamagePercent { get; set; }
+        public int AttributeSoftCap { get; set; } = 50;
+        public double TechniqueMilestoneRollShift { get; set; } = 1.0;
         public double BaseAttackTime { get; set; }
         public double AgilitySpeedReduction { get; set; }
         public double MinimumAttackTime { get; set; }
@@ -44,6 +60,26 @@ namespace RPGGame
                 MinimumDamage = 1;
             if (CriticalHitMultiplier <= 0)
                 CriticalHitMultiplier = 2.0;
+            if (MaximumDamageCap <= 0)
+                MaximumDamageCap = 999;
+            if (ArmorReductionFactor <= 0)
+                ArmorReductionFactor = 100.0;
+            if (WeaponAttackTimeClampMin <= 0)
+                WeaponAttackTimeClampMin = 0.5;
+            if (WeaponAttackTimeClampMax <= WeaponAttackTimeClampMin)
+                WeaponAttackTimeClampMax = 1.5;
+            if (TutorialCombatDelayMultiplier <= 0)
+                TutorialCombatDelayMultiplier = 2.0;
+            if (EnemyEnrageThresholdPercent <= 0)
+                EnemyEnrageThresholdPercent = 25.0;
+            if (EnemyEnrageDamageMult <= 0)
+                EnemyEnrageDamageMult = 1.25;
+            if (StatusEffectBaseProcChance <= 0)
+                StatusEffectBaseProcChance = 1.0;
+            if (GlobalHealEffectiveness <= 0)
+                GlobalHealEffectiveness = 1.0;
+            if (AttributeSoftCap <= 0)
+                AttributeSoftCap = 50;
         }
         
         // Agility speed mapping parameters
@@ -63,6 +99,14 @@ namespace RPGGame
         public RollDamageMultipliersConfig RollDamageMultipliers { get; set; } = new();
         public StatusEffectScalingConfig StatusEffectScaling { get; set; } = new();
         public EnvironmentalEffectsConfig EnvironmentalEffects { get; set; } = new();
+        public ActionMechanicsConfig ActionMechanics { get; set; } = new();
+        public double CritMissComfortShift { get; set; } = -2.0;
+
+        /// <summary>
+        /// Master variance slider (0 = chaotic spikes, 1 = regular/smoothed). Stored for UI; sub-knobs remain editable.
+        /// </summary>
+        public double RollFeelVarianceCompression { get; set; } = 0.5;
+
         public string Description { get; set; } = "";
 
         /// <summary>
@@ -99,6 +143,21 @@ namespace RPGGame
                 ComboAmplificationScalingMultiplier = 1.0;
             if (TierScalingFallbackMultiplier <= 0)
                 TierScalingFallbackMultiplier = 1.0;
+        }
+    }
+
+    /// <summary>Action mechanic tag bonus percents (swift, bludgeon, etc.).</summary>
+    public class ActionMechanicsConfig
+    {
+        public double SwiftSpeedPercent { get; set; } = 10.0;
+        public double BludgeonDamagePercent { get; set; } = 15.0;
+
+        public void EnsureValidDefaults()
+        {
+            if (SwiftSpeedPercent <= 0)
+                SwiftSpeedPercent = 10.0;
+            if (BludgeonDamagePercent <= 0)
+                BludgeonDamagePercent = 15.0;
         }
     }
 

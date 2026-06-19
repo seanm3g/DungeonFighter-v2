@@ -73,15 +73,17 @@ namespace RPGGame
         [JsonPropertyName("growthPerLevel")]
         public EnemyAttributeSet? GrowthPerLevel { get; set; }
         /// <summary>
-        /// Optional level-1 max health (before per-level growth). When null, uses baseline × archetype health multiplier.
+        /// Level-1 max health as % of <see cref="BaselineStatsConfig.Health"/> (e.g. 125 = 125%).
+        /// When null, uses 100 × archetype health multiplier.
         /// </summary>
-        [JsonPropertyName("baseHealth")]
-        public double? BaseHealth { get; set; }
+        [JsonPropertyName("healthPercent")]
+        public double? HealthPercent { get; set; }
         /// <summary>
-        /// Optional HP gained per level after level 1. When null, uses <see cref="ScalingPerLevelConfig.Health"/>.
+        /// HP gained per level after level 1, as % of baseline health (e.g. 3.36 = 3.36% of baseline per level).
+        /// When null, derives from <see cref="ScalingPerLevelConfig.Health"/> as absolute fallback.
         /// </summary>
-        [JsonPropertyName("healthGrowthPerLevel")]
-        public double? HealthGrowthPerLevel { get; set; }
+        [JsonPropertyName("healthGrowthPercent")]
+        public double? HealthGrowthPercent { get; set; }
         [JsonPropertyName("actions")]
         public List<string> Actions { get; set; } = new List<string>();
         [JsonPropertyName("isLiving")]
@@ -176,6 +178,7 @@ namespace RPGGame
                 if (foundPath != null)
                 {
                     string jsonContent = File.ReadAllText(foundPath);
+                    jsonContent = EnemyJsonHealthNormalizer.RenameLegacyKeysInJsonArrayText(jsonContent);
 
                     var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                     var enemyList = JsonSerializer.Deserialize<List<EnemyData>>(jsonContent, jsonOptions);

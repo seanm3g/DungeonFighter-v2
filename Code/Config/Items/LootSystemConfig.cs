@@ -25,6 +25,9 @@ namespace RPGGame
         /// <summary>Hard cap on combo sequence length after equipment <see cref="Item.ExtraActionSlots"/> and <c>ExtraActionSlots</c> affixes.</summary>
         public int ComboSequenceAbsoluteMax { get; set; } = 8;
 
+        /// <summary>INT threshold for combo sequence unlocks (see <see cref="GameConstants.ComboSequenceIntelligenceThreshold"/>).</summary>
+        public int ComboSequenceIntelligenceThreshold { get; set; } = 10;
+
         public RarityUpgradeConfig RarityUpgrade { get; set; } = new();
         public string Description { get; set; } = "";
 
@@ -52,6 +55,8 @@ namespace RPGGame
                 ComboSequenceBaseMax = 2;
             if (ComboSequenceAbsoluteMax < ComboSequenceBaseMax)
                 ComboSequenceAbsoluteMax = ComboSequenceBaseMax;
+            if (ComboSequenceIntelligenceThreshold <= 0)
+                ComboSequenceIntelligenceThreshold = 10;
         }
     }
 

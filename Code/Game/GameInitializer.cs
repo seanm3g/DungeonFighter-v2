@@ -379,18 +379,8 @@ namespace RPGGame
         internal static void ApplyStartingWeaponTuning(WeaponItem weapon, WeaponType weaponType, StartingWeapon? slotFallback, bool baseDamageFromWeaponsCatalog)
         {
             var scaling = GameConfiguration.Instance?.WeaponScaling;
-            int fromConfig = weaponType switch
-            {
-                WeaponType.Mace => scaling?.StartingWeaponDamage.Mace ?? 0,
-                WeaponType.Sword => scaling?.StartingWeaponDamage.Sword ?? 0,
-                WeaponType.Dagger => scaling?.StartingWeaponDamage.Dagger ?? 0,
-                WeaponType.Wand => scaling?.StartingWeaponDamage.Wand ?? 0,
-                _ => 0
-            };
 
-            if (fromConfig > 0)
-                weapon.BaseDamage = fromConfig;
-            else if (baseDamageFromWeaponsCatalog)
+            if (baseDamageFromWeaponsCatalog)
             {
                 double dmg = weapon.BaseDamage;
                 if (scaling != null && dmg > 0 && scaling.GlobalDamageMultiplier > 0)

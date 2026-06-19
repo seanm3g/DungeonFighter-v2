@@ -61,7 +61,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             this.getPanelForCategory = getPanelForCategory ?? ((_, __) => null);
         }
 
-        private static readonly string[] BalanceHandlerTags = { "ItemGeneration", "EnemyTuning", "CombatTuning", "Classes" };
+        private static readonly string[] BalanceHandlerTags = { "ItemGeneration", "CombatTuning", "Classes" };
 
         /// <summary>Save settings with patch dialogs. Pass the panel currently visible when it applies.</summary>
         public async Task<SettingsSaveResult> SaveSettingsAsync(UserControl? currentlyDisplayedPanel = null, Window? dialogOwner = null)

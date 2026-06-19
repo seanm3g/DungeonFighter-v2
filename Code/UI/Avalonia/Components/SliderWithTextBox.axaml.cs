@@ -8,6 +8,10 @@ using Avalonia.Threading;
 
 namespace RPGGame.UI.Avalonia.Components
 {
+    /// <summary>
+    /// Slider + numeric text box composite for simple static XAML fields.
+    /// Tuning panels use <see cref="Settings.ViewModels.CombatTuningParameterViewModel"/> with native Slider/TextBox bindings instead.
+    /// </summary>
     public partial class SliderWithTextBox : UserControl
     {
         /// <summary>Label color; defaults to black for light strips (e.g. Difficulty panel). Set to a light brush on dark panels so Fluent theme cannot wash the label out.</summary>
@@ -87,32 +91,32 @@ namespace RPGGame.UI.Avalonia.Components
             get => GetValue(ValueProperty);
             set
             {
-                var oldValue = GetValue(ValueProperty);
                 SetValue(ValueProperty, value);
-                
-                // Immediately update text box if it exists, even if component isn't fully loaded
-                // This ensures the text box shows the value when set programmatically
-                // Use Dispatcher to ensure the control is available
-                if (ValueTextBox != null)
-                {
-                    UpdateTextBoxFromValue(value);
-                }
-                else
-                {
-                    ScheduleTextBoxSync();
-                }
+                PushDisplayTextForValue(value);
             }
         }
 
         /// <summary>Re-applies slider position and text box from <see cref="Value"/> (for programmatic hosts).</summary>
         public void SyncDisplayFromValue()
         {
+            if (Minimum > Maximum)
+                return;
+
+            double clamped = Math.Clamp(Value, Minimum, Maximum);
             if (ValueSlider != null)
-                ValueSlider.Value = Math.Clamp(Value, Minimum, Maximum);
-            if (ValueTextBox != null)
-                UpdateTextBoxFromValue(Value);
-            else
-                ScheduleTextBoxSync();
+            {
+                _isSyncingFromSlider = true;
+                try
+                {
+                    ValueSlider.Value = clamped;
+                }
+                finally
+                {
+                    _isSyncingFromSlider = false;
+                }
+            }
+
+            PushDisplayTextForValue(clamped);
         }
 
         public double TickFrequency
@@ -124,7 +128,9 @@ namespace RPGGame.UI.Avalonia.Components
         public Slider Slider => ValueSlider;
         public TextBox TextBox => ValueTextBox;
 
-        private bool _isLoaded = false;
+        private bool _isSyncingFromSlider;
+        private bool _bindingsInitialized;
+        private int _textBoxSyncAttempts;
 
         public SliderWithTextBox()
         {
@@ -134,23 +140,8 @@ namespace RPGGame.UI.Avalonia.Components
             ShowLabelProperty.Changed.AddClassHandler<SliderWithTextBox>((o, _) => o.ApplyShowLabel());
             TextBoxForegroundProperty.Changed.AddClassHandler<SliderWithTextBox>((o, _) => o.ApplyTextBoxChrome());
             TextBoxBackgroundBrushProperty.Changed.AddClassHandler<SliderWithTextBox>((o, _) => o.ApplyTextBoxChrome());
-            
-            // Wait for controls to be loaded before setting up bindings
+
             this.Loaded += OnLoaded;
-            
-            // Listen to Value property changes to update text box
-            // Use PropertyChanged event instead of Subscribe (which requires System.Reactive)
-            this.PropertyChanged += (s, e) =>
-            {
-                if (e.Property == ValueProperty)
-                {
-                    // Update text box if component is loaded, otherwise it will be updated in OnLoaded
-                    if (_isLoaded && ValueTextBox != null)
-                    {
-                        UpdateTextBoxFromValue(Value);
-                    }
-                }
-            };
         }
 
         private void ApplyLabelForeground()
@@ -168,50 +159,77 @@ namespace RPGGame.UI.Avalonia.Components
             if (ShowLabel)
                 ApplyLabelForeground();
         }
-        
+
+        private void PushDisplayTextForValue(double value)
+        {
+            if (Minimum > Maximum)
+                return;
+
+            if (ValueTextBox != null)
+                UpdateTextBoxFromValue(value);
+            else
+                ScheduleTextBoxSync();
+        }
+
         private void ScheduleTextBoxSync()
+        {
+            _textBoxSyncAttempts = 0;
+            TryScheduleTextBoxSync(DispatcherPriority.Loaded);
+        }
+
+        private void TryScheduleTextBoxSync(DispatcherPriority priority)
         {
             Dispatcher.UIThread.Post(() =>
             {
                 if (ValueTextBox != null)
+                {
                     UpdateTextBoxFromValue(Value);
-            }, DispatcherPriority.Loaded);
+                    return;
+                }
+
+                _textBoxSyncAttempts++;
+                if (_textBoxSyncAttempts < 3)
+                    TryScheduleTextBoxSync(DispatcherPriority.Background);
+            }, priority);
         }
 
         private void ApplyTextBoxChrome()
         {
             if (ValueTextBox == null) return;
+            SettingsInputApplier.ApplyTextBox(ValueTextBox);
             ValueTextBox.Foreground = TextBoxForeground ?? SettingsThemeBrushes.TextPrimary;
             ValueTextBox.CaretBrush = TextBoxForeground ?? SettingsThemeBrushes.TextPrimary;
             if (TextBoxBackgroundBrush != null)
                 ValueTextBox.Background = TextBoxBackgroundBrush;
         }
 
+        /// <summary>Clamps then formats a value for display (shared by control and tests).</summary>
+        public static string ClampAndFormatForDisplay(double value, double minimum, double maximum, double tickFrequency)
+        {
+            if (minimum > maximum)
+                return string.Empty;
+
+            double clamped = Math.Clamp(value, minimum, maximum);
+            return FormatValueForDisplay(clamped, minimum, maximum, tickFrequency);
+        }
+
+        /// <summary>Formats a value for display in the text box (shared by control and tests).</summary>
+        public static string FormatValueForDisplay(double value, double minimum, double maximum, double tickFrequency)
+        {
+            bool asInteger = tickFrequency >= 1.0 && maximum - minimum >= 1.0;
+            if (asInteger || maximum >= 100)
+                return ((int)Math.Round(value)).ToString();
+            return value.ToString("F2");
+        }
+
         private void UpdateTextBoxFromValue(double value)
         {
             if (ValueTextBox != null)
-            {
-                if (ValueKind == SliderValueFormat.Integer || Maximum >= 100)
-                    ValueTextBox.Text = ((int)Math.Round(value)).ToString();
-                else
-                    ValueTextBox.Text = value.ToString("F2");
-            }
+                ValueTextBox.Text = FormatValueForDisplay(value, Minimum, Maximum, TickFrequency);
         }
 
-        private enum SliderValueFormat
-        {
-            Auto,
-            Integer
-        }
-
-        private SliderValueFormat ValueKind =>
-            TickFrequency >= 1.0 && Maximum - Minimum >= 1.0 ? SliderValueFormat.Integer : SliderValueFormat.Auto;
-        
         private void OnLoaded(object? sender, RoutedEventArgs e)
         {
-            _isLoaded = true;
-            
-            // Bind label text (skip when host draws its own caption — avoids theme fighting the inner TextBlock)
             if (LabelTextBlock != null)
             {
                 LabelTextBlock.IsVisible = ShowLabel;
@@ -219,60 +237,65 @@ namespace RPGGame.UI.Avalonia.Components
                 {
                     LabelTextBlock.Bind(TextBlock.TextProperty, this.GetObservable(LabelProperty));
                     ApplyLabelForeground();
-                    // Fluent can re-apply TextBlock brushes after Loaded; set again once layout has run.
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        ApplyLabelForeground();
-                    }, DispatcherPriority.Loaded);
+                    Dispatcher.UIThread.Post(ApplyLabelForeground, DispatcherPriority.Loaded);
                 }
             }
-            
-            // Bind slider properties
-            if (ValueSlider != null)
+
+            if (ValueSlider != null && !_bindingsInitialized)
             {
-                ValueSlider.Bind(Slider.MinimumProperty, this.GetObservable(MinimumProperty));
-                ValueSlider.Bind(Slider.MaximumProperty, this.GetObservable(MaximumProperty));
-                ValueSlider.Bind(Slider.ValueProperty, this.GetObservable(ValueProperty));
-                ValueSlider.Bind(Slider.TickFrequencyProperty, this.GetObservable(TickFrequencyProperty));
-                
-                // Sync slider and textbox values when slider changes
-                // Use integer format if maximum is >= 100 (likely integer values), otherwise use decimal format
-                ValueSlider.ValueChanged += (s, ev) =>
+                _bindingsInitialized = true;
+                _isSyncingFromSlider = true;
+                try
                 {
-                    UpdateTextBoxFromValue(ValueSlider.Value);
+                    ValueSlider.Bind(Slider.MinimumProperty, this.GetObservable(MinimumProperty));
+                    ValueSlider.Bind(Slider.MaximumProperty, this.GetObservable(MaximumProperty));
+                    ValueSlider.Bind(Slider.TickFrequencyProperty, this.GetObservable(TickFrequencyProperty));
+                }
+                finally
+                {
+                    _isSyncingFromSlider = false;
+                }
+
+                ValueSlider.ValueChanged += (_, _) =>
+                {
+                    if (_isSyncingFromSlider)
+                        return;
+
+                    double clamped = Math.Clamp(ValueSlider.Value, Minimum, Maximum);
+                    _isSyncingFromSlider = true;
+                    try
+                    {
+                        SetValue(ValueProperty, clamped);
+                        UpdateTextBoxFromValue(clamped);
+                    }
+                    finally
+                    {
+                        _isSyncingFromSlider = false;
+                    }
                 };
-                
-                // Initialize text box with current value (use Value property as source of truth)
-                // The slider will be bound to this value, so we update the text box to match
-                UpdateTextBoxFromValue(Value);
             }
-            else
-            {
-                // Fallback: initialize text box with current Value property if slider isn't available yet
-                UpdateTextBoxFromValue(Value);
-            }
-            
+
             ApplyTextBoxChrome();
             Dispatcher.UIThread.Post(ApplyTextBoxChrome, DispatcherPriority.Loaded);
 
-            // Setup textbox validation
             if (ValueTextBox != null)
             {
-                ValueTextBox.LostFocus += (s, ev) =>
+                ValueTextBox.LostFocus += (_, _) =>
                 {
-                    if (ValueSlider != null && double.TryParse(ValueTextBox.Text, out double value))
+                    if (double.TryParse(ValueTextBox.Text, out double parsed))
                     {
-                        value = System.Math.Max(Minimum, System.Math.Min(Maximum, value));
-                        ValueSlider.Value = value;
-                        // Text box will be updated via ValueChanged event or property change handler
+                        Value = Math.Clamp(parsed, Minimum, Maximum);
+                        SyncDisplayFromValue();
                     }
-                    else if (ValueSlider != null)
+                    else
                     {
-                        // Restore text box to current slider value if input is invalid
-                        UpdateTextBoxFromValue(ValueSlider.Value);
+                        SyncDisplayFromValue();
                     }
                 };
             }
+
+            SyncDisplayFromValue();
+            Dispatcher.UIThread.Post(SyncDisplayFromValue, DispatcherPriority.Background);
         }
 
         private void InitializeComponent()
@@ -281,4 +304,3 @@ namespace RPGGame.UI.Avalonia.Components
         }
     }
 }
-

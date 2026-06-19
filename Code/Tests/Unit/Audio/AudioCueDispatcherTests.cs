@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit.Audio
             TestRoutesLowHealthEventsToDistinctCues(ref run, ref passed, ref failed);
             TestLowHealthThresholdPublishesOnlyWhenCrossing(ref run, ref passed, ref failed);
             TestRespectsGlobalMute(ref run, ref passed, ref failed);
+            TestRespectsDisableCombatUIOutput(ref run, ref passed, ref failed);
             TestMasterDisableSilencesBothBuses(ref run, ref passed, ref failed);
             TestMusicBusDisableSilencesMusicOnly(ref run, ref passed, ref failed);
             TestSettingsPreviewIgnoresMutes(ref run, ref passed, ref failed);
@@ -435,6 +436,44 @@ namespace RPGGame.Tests.Unit.Audio
                 TestBase.AssertEqual(0, engine.PlayCalls.Count, "Global mute short-circuits all Play calls", ref run, ref passed, ref failed);
             }
             finally { TryDelete(stub); }
+        }
+
+        private static void TestRespectsDisableCombatUIOutput(ref int run, ref int passed, ref int failed)
+        {
+            string stub = CreateStubFile();
+            bool prevUi = CombatManager.DisableCombatUIOutput;
+            try
+            {
+                CombatManager.DisableCombatUIOutput = true;
+                CombatEventBus.Reset();
+                var engine = new NullAudioEngine { RecordCalls = true };
+                var cfg = CreateTestConfig(stub);
+                using var dispatcher = new AudioCueDispatcher(engine,
+                    configResolver: () => cfg,
+                    globalEnabledResolver: () => !CombatManager.DisableCombatUIOutput);
+                AudioCues.SetDispatcher(dispatcher);
+
+                ActionEventPublisher.PublishActionHit(
+                    new Character("Hero", 1),
+                    new Enemy(name: "Goblin", level: 1, maxHealth: 100, strength: 8, agility: 6, technique: 4, intelligence: 4, armor: 0),
+                    new RPGGame.Action(name: "Strike"),
+                    rollValue: 12,
+                    isCombo: false,
+                    isCritical: false);
+
+                dispatcher.Trigger(AudioCue.Combat_EnemyDied);
+
+                TestBase.AssertEqual(0, engine.PlayCalls.Count,
+                    "DisableCombatUIOutput suppresses combat SFX during batch simulation",
+                    ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                AudioCues.SetDispatcher(null);
+                CombatEventBus.Reset();
+                CombatManager.DisableCombatUIOutput = prevUi;
+                TryDelete(stub);
+            }
         }
 
         private static void TestMasterDisableSilencesBothBuses(ref int run, ref int passed, ref int failed)

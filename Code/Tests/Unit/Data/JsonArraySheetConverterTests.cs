@@ -514,7 +514,7 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
         {
             TestBase.SetCurrentTestName(nameof(EnemiesRoundTrip));
             const string json = """
-            [{"name":"Goblin","archetype":"Assassin","baseHealth":40,"actions":["JAB","TAUNT"],"isLiving":true,"description":"A goblin"}]
+            [{"name":"Goblin","archetype":"Assassin","healthPercent":40,"actions":["JAB","TAUNT"],"isLiving":true,"description":"A goblin"}]
             """;
             var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
             TestBase.AssertEqual(3, rows.Count, "category+header+data", ref run, ref pass, ref fail);
@@ -523,14 +523,14 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
             TestBase.AssertTrue(cat.Contains("base attributes", StringComparison.OrdinalIgnoreCase), "category base", ref run, ref pass, ref fail);
             TestBase.AssertTrue(cat.Contains("HEALTH", StringComparison.OrdinalIgnoreCase), "category HEALTH", ref run, ref pass, ref fail);
             TestBase.AssertTrue(hdr.Contains("region", StringComparison.Ordinal), "region col", ref run, ref pass, ref fail);
-            TestBase.AssertTrue(hdr.Contains("baseHealth", StringComparison.Ordinal), "baseHealth col", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(hdr.Contains("healthPercent", StringComparison.Ordinal), "healthPercent col", ref run, ref pass, ref fail);
             TestBase.AssertTrue(!hdr.Contains("overrides.", StringComparison.Ordinal), "no dotted overrides in row2", ref run, ref pass, ref fail);
             var csv = RowsToCsv(rows);
             string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Enemies);
             using var a = JsonDocument.Parse(outJson);
             var first = a.RootElement[0];
             TestBase.AssertEqual("Goblin", first.GetProperty("name").GetString(), "name", ref run, ref pass, ref fail);
-            TestBase.AssertEqual(40, first.GetProperty("baseHealth").GetInt32(), "baseHealth", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(40, first.GetProperty("healthPercent").GetInt32(), "healthPercent", ref run, ref pass, ref fail);
             TestBase.AssertEqual("JAB", first.GetProperty("actions")[0].GetString(), "action0", ref run, ref pass, ref fail);
         }
 
@@ -538,7 +538,7 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
         {
             TestBase.SetCurrentTestName(nameof(EnemiesWithTagsRoundTrip));
             const string json = """
-            [{"name":"BossImp","archetype":"Sage","baseHealth":50,"actions":["BOLT"],"isLiving":true,"description":"x","tags":["boss","demon"]}]
+            [{"name":"BossImp","archetype":"Sage","healthPercent":50,"actions":["BOLT"],"isLiving":true,"description":"x","tags":["boss","demon"]}]
             """;
             var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
             var csv = RowsToCsv(rows);
@@ -555,15 +555,15 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
         {
             TestBase.SetCurrentTestName(nameof(EnemiesFullStatsRoundTrip));
             const string json = """
-            [{"name":"TestMob","archetype":"Berserker","baseAttributes":{"strength":3,"agility":2,"technique":2,"intelligence":1},"growthPerLevel":{"strength":0.2,"agility":0.1,"technique":0.1,"intelligence":0.05},"baseHealth":40,"healthGrowthPerLevel":2.5,"actions":["SLAM"],"isLiving":true,"description":"x"}]
+            [{"name":"TestMob","archetype":"Berserker","baseAttributes":{"strength":3,"agility":2,"technique":2,"intelligence":1},"growthPerLevel":{"strength":0.2,"agility":0.1,"technique":0.1,"intelligence":0.05},"healthPercent":40,"healthGrowthPercent":2.5,"actions":["SLAM"],"isLiving":true,"description":"x"}]
             """;
             var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
             var csv = RowsToCsv(rows);
             string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Enemies);
             using var a = JsonDocument.Parse(outJson);
             var first = a.RootElement[0];
-            TestBase.AssertEqual(40, first.GetProperty("baseHealth").GetInt32(), "baseHealth", ref run, ref pass, ref fail);
-            TestBase.AssertEqual(2.5, first.GetProperty("healthGrowthPerLevel").GetDouble(), "healthGrowthPerLevel", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(40, first.GetProperty("healthPercent").GetInt32(), "healthPercent", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(2.5, first.GetProperty("healthGrowthPercent").GetDouble(), "healthGrowthPercent", ref run, ref pass, ref fail);
             TestBase.AssertEqual(3, first.GetProperty("baseAttributes").GetProperty("strength").GetInt32(), "str", ref run, ref pass, ref fail);
         }
 
@@ -604,7 +604,7 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
         {
             TestBase.SetCurrentTestName(nameof(EnemiesPushUsesFlatStatColumns));
             const string json = """
-            [{"name":"X","archetype":"Berserker","baseAttributes":{"strength":2,"agility":3,"technique":4,"intelligence":1},"growthPerLevel":{"strength":0.1,"agility":0.2,"technique":0.15,"intelligence":0.05},"baseHealth":10,"healthGrowthPerLevel":1.5,"actions":["A"],"isLiving":true,"description":"d"}]
+            [{"name":"X","archetype":"Berserker","baseAttributes":{"strength":2,"agility":3,"technique":4,"intelligence":1},"growthPerLevel":{"strength":0.1,"agility":0.2,"technique":0.15,"intelligence":0.05},"healthPercent":10,"healthGrowthPercent":1.5,"actions":["A"],"isLiving":true,"description":"d"}]
             """;
             var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
             string hdr = string.Join(",", rows[1].Select(o => o?.ToString() ?? ""));
@@ -615,7 +615,7 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
             string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Enemies);
             using var a = JsonDocument.Parse(outJson);
             var first = a.RootElement[0];
-            TestBase.AssertEqual(10, first.GetProperty("baseHealth").GetInt32(), "baseHealth", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(10, first.GetProperty("healthPercent").GetInt32(), "healthPercent", ref run, ref pass, ref fail);
             TestBase.AssertEqual(2, first.GetProperty("baseAttributes").GetProperty("strength").GetInt32(), "ba str", ref run, ref pass, ref fail);
             TestBase.AssertEqual(0.2, first.GetProperty("growthPerLevel").GetProperty("agility").GetDouble(), "gp agi", ref run, ref pass, ref fail);
         }
@@ -665,7 +665,7 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
         {
             TestBase.SetCurrentTestName(nameof(EnemiesActionsQuotedCommaListNormalizes));
             const string csv =
-                "name,archetype,baseHealth,actions,isLiving,description\n" +
+                "name,archetype,healthPercent,actions,isLiving,description\n" +
                 "Goblin,Assassin,10,\"\"\"JAB\"\",\n\"\"TAUNT\"\"\",true,G\n";
             string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Enemies);
             using var a = JsonDocument.Parse(outJson);
@@ -681,7 +681,7 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
         {
             TestBase.SetCurrentTestName(nameof(EnemiesPushOmitsLegacyRootStatExtraColumns));
             const string json = """
-            [{"name":"G","archetype":"Assassin","strength":1.05,"agility":0.22,"baseHealth":40,"actions":["J"],"isLiving":true,"description":"d"}]
+            [{"name":"G","archetype":"Assassin","strength":1.05,"agility":0.22,"healthPercent":40,"actions":["J"],"isLiving":true,"description":"d"}]
             """;
             var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
             TestBase.AssertTrue(rows.Count >= 3, "category+header+data", ref run, ref pass, ref fail);
@@ -696,8 +696,8 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
             TestBase.SetCurrentTestName(nameof(EnemiesNewSheetLayoutImport));
             const string csv = """
             ,,,,,,base attributes,,,,growth,,,,HEALTH,,,,,
-            Region,Biome,Location,Rarity,Name,tags,Archetype,Strength,agility,technique,Intelligence,strength,agility,technique,Intelligence,baseHealth,healthGrowthPerLevel,actions,isLiving,description,colorOverride
-            forest,Forest,,Common,Goblin,goblin,Assassin,3,4,5,6,0.1,0.2,0.3,0.4,40,2.35,"[""JAB"",""TAUNT""]",true,A quick goblin,
+            Region,Biome,Location,Rarity,Name,tags,Archetype,Strength,agility,technique,Intelligence,strength,agility,technique,Intelligence,healthPercent,healthGrowthPercent,actions,isLiving,description,colorOverride
+            forest,Forest,,Common,Goblin,goblin,Assassin,3,4,5,6,0.1,0.2,0.3,0.4,57.14%,3.36%,"[""JAB"",""TAUNT""]",true,A quick goblin,
             """;
             string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Enemies);
             using var a = JsonDocument.Parse(outJson);
@@ -706,8 +706,9 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
             TestBase.AssertEqual("Forest", first.GetProperty("biome").GetString(), "biome", ref run, ref pass, ref fail);
             TestBase.AssertEqual("Common", first.GetProperty("rarity").GetString(), "rarity", ref run, ref pass, ref fail);
             TestBase.AssertEqual("Goblin", first.GetProperty("name").GetString(), "name", ref run, ref pass, ref fail);
-            TestBase.AssertEqual(40, first.GetProperty("baseHealth").GetInt32(), "baseHealth", ref run, ref pass, ref fail);
-            TestBase.AssertEqual(2.35, first.GetProperty("healthGrowthPerLevel").GetDouble(), "healthGrowthPerLevel", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(Math.Abs(first.GetProperty("healthPercent").GetDouble() - 57.14) < 0.01,
+                "healthPercent", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(3.36, first.GetProperty("healthGrowthPercent").GetDouble(), "healthGrowthPercent", ref run, ref pass, ref fail);
             TestBase.AssertEqual(3, first.GetProperty("baseAttributes").GetProperty("strength").GetInt32(), "ba.str", ref run, ref pass, ref fail);
             TestBase.AssertEqual(0.4, first.GetProperty("growthPerLevel").GetProperty("intelligence").GetDouble(), "gp.int", ref run, ref pass, ref fail);
             TestBase.AssertEqual("JAB", first.GetProperty("actions")[0].GetString(), "action0", ref run, ref pass, ref fail);
@@ -717,7 +718,7 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
         {
             TestBase.SetCurrentTestName(nameof(EnemiesActionsPipePushFormat));
             const string json = """
-            [{"name":"Goblin","archetype":"Assassin","baseHealth":40,"actions":["JAB","TAUNT"],"isLiving":true,"description":"A goblin"}]
+            [{"name":"Goblin","archetype":"Assassin","healthPercent":40,"actions":["JAB","TAUNT"],"isLiving":true,"description":"A goblin"}]
             """;
             var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
             int actionsIdx = Array.IndexOf(JsonArraySheetConverter.EnemiesCanonicalHeaders, "actions");
@@ -728,7 +729,7 @@ of Sage,desc,0,Rare,INT,,"[INT:2]","[intelligence:10]"
         {
             TestBase.SetCurrentTestName(nameof(EnemiesArchetypeCanonicalization));
             const string json = """
-            [{"name":"Sage Mob","archetype":"sage","baseHealth":40,"actions":["J"],"isLiving":true,"description":"d"}]
+            [{"name":"Sage Mob","archetype":"sage","healthPercent":40,"actions":["J"],"isLiving":true,"description":"d"}]
             """;
             var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
             var csv = RowsToCsv(rows);

@@ -11,6 +11,19 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
     /// </summary>
     public static class ActionLabInputCoordinator
     {
+        /// <summary>
+        /// Maps Page Up / Page Down to lab undo / step tokens (<c>lab_undo</c>, <c>lab_step</c>).
+        /// </summary>
+        public static string? MapPageStepInput(string input)
+        {
+            return input?.Trim().ToLowerInvariant() switch
+            {
+                "pageup" => "lab_undo",
+                "pagedown" => "lab_step",
+                _ => null
+            };
+        }
+
         private static async Task TryShowSimulationReportAsync(CanvasUICoordinator canvasUI, string title, string body)
         {
             var owner = canvasUI.GetMainWindow();

@@ -205,6 +205,7 @@ namespace RPGGame
                         BalanceValidation = config.BalanceValidation;
                         DifficultySettings = config.DifficultySettings;
                         ProgressionCurves = config.ProgressionCurves;
+                        BalanceTuningGoals = config.BalanceTuningGoals ?? BalanceTuningGoals;
 
                         // UI-related configurations
                         UICustomization = config.UICustomization;
@@ -225,6 +226,7 @@ namespace RPGGame
             }
 
             // JSON may omit nested objects; restore so sanitizer methods never null-ref.
+            Character ??= new CharacterConfig();
             CombatBalance ??= new CombatBalanceConfig();
             RollSystem ??= new RollSystemConfig();
             EnemySystem ??= new EnemySystemConfig();
@@ -242,6 +244,8 @@ namespace RPGGame
             Combat.EnsureValidCombatTimingDefaults();
             Combat.EnsureValidCombatCriticalAndDamageDefaults();
             CombatBalance.EnsureValidRollDamageAndCritDefaults();
+            CombatBalance.ActionMechanics ??= new ActionMechanicsConfig();
+            CombatBalance.ActionMechanics.EnsureValidDefaults();
             RollSystem.EnsureValidDefaultThresholdBands();
             Progression.EnsureValidEnemyXpAndGoldDefaults();
             Attributes.EnsureValidIntelligenceRollBonusDefaults();

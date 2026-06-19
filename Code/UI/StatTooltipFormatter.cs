@@ -91,26 +91,71 @@ namespace RPGGame
             int primaryEff = c.GetEffectivePrimaryAttributeValue();
             int attrBonus = c.GetAttributeDamageBonus();
             int total = attrBonus + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
-            var strBreakdown = BuildAttributeBreakdown(c, "STR");
+            var (primaryCode, primaryLabel) = GetPrimaryAttributeDisplay(c);
+            bool primaryIsStrength = primaryCode == DynamicAttributeCategoryResolver.CodeStrength;
 
             AddTitle(lines, "Damage");
             AddBlank(lines);
-            AddHighlight(lines, "Attack total", total.ToString(CultureInfo.InvariantCulture));
+            AddHighlight(lines, "Base attack total", total.ToString(CultureInfo.InvariantCulture));
             AddBlank(lines);
-            AddSection(lines, "STR (feeds damage)");
-            AppendAttributeSummaryRows(lines, strBreakdown);
+            AddSection(lines, "Attributes (STR + primary)");
+            AddStatRow(lines, "Strength (always)", strEff);
+            AddStatRow(lines, $"Primary ({primaryCode})", primaryEff);
+            AddStatRow(lines, "Attribute subtotal", attrBonus);
             AddBlank(lines);
-            AddSection(lines, "Components");
-            AddStatRow(lines, "Primary attribute", primaryEff);
+            AddSection(lines, "Gear & mods");
             AddStatRow(lines, "Weapon", weaponDamage);
-            AddSignedStatRow(lines, "Equipment bonus", equipmentDamageBonus);
-            AddSignedStatRow(lines, "Modification bonus", modificationDamageBonus);
+            AddSignedStatRow(lines, "Equipment", equipmentDamageBonus);
+            AddSignedStatRow(lines, "Modifications", modificationDamageBonus);
             AddBlank(lines);
-            AddNoteLine(lines,
-                $"STR eff. {strEff} + primary {primaryEff} + weapon {weaponDamage} + equip {FormatSigned(equipmentDamageBonus)} + mod {FormatSigned(modificationDamageBonus)} = {total}.");
-            AddNoteLine(lines, "Combat rolls and action multipliers change outgoing hits; this is the panel base total.");
+            AddDamageEquationLine(lines, strEff, primaryCode, primaryEff, weaponDamage, equipmentDamageBonus, modificationDamageBonus, total);
+            if (primaryIsStrength)
+                AddNoteLine(lines, "STR is your primary — Strength and Primary both use the same value.");
+            else
+                AddNoteLine(lines, $"Primary is {primaryLabel} ({primaryCode}), your highest effective stat.");
+            AddNoteLine(lines, "Combat adds d20 rolls, AMP, and action multipliers on top of this base.");
 
             return Trim(lines, maxLines);
+        }
+
+        private static (string Code, string Label) GetPrimaryAttributeDisplay(Character c)
+        {
+            string code = DynamicAttributeCategoryResolver.GetRankedAttributeCodes(c)[0];
+            string label = code switch
+            {
+                DynamicAttributeCategoryResolver.CodeStrength => "Strength",
+                DynamicAttributeCategoryResolver.CodeAgility => "Agility",
+                DynamicAttributeCategoryResolver.CodeTechnique => "Technique",
+                DynamicAttributeCategoryResolver.CodeIntelligence => "Intelligence",
+                _ => code
+            };
+            return (code, label);
+        }
+
+        private static void AddDamageEquationLine(
+            List<List<ColoredText>> lines,
+            int strEff,
+            string primaryCode,
+            int primaryEff,
+            int weaponDamage,
+            int equipmentDamageBonus,
+            int modificationDamageBonus,
+            int total)
+        {
+            var seg = new ColoredTextBuilder();
+            seg.Add("Equation: ", ColorPalette.Info.GetColor());
+            seg.Add(strEff.ToString(CultureInfo.InvariantCulture), Colors.White);
+            seg.Add(" + ", Colors.Gray);
+            seg.Add($"{primaryCode} {primaryEff}", Colors.White);
+            seg.Add(" + ", Colors.Gray);
+            seg.Add(weaponDamage.ToString(CultureInfo.InvariantCulture), Colors.White);
+            seg.Add(" + ", Colors.Gray);
+            seg.Add(FormatSigned(equipmentDamageBonus), ValueColor(equipmentDamageBonus));
+            seg.Add(" + ", Colors.Gray);
+            seg.Add(FormatSigned(modificationDamageBonus), ValueColor(modificationDamageBonus));
+            seg.Add(" = ", Colors.Gray);
+            seg.Add(total.ToString(CultureInfo.InvariantCulture), ColorPalette.Success.GetColor());
+            AddLine(lines, seg.Build());
         }
 
         private static List<List<ColoredText>> BuildArmor(Character c, int maxLines)

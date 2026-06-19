@@ -12,6 +12,8 @@
       "intelligence": 3
     },
     "playerAttributesPerLevel": 2,
+    "playerPrimaryStatPerLevel": 3,
+    "playerSecondaryStatPerLevel": 1,
     "enemyAttributesPerLevel": 0,
     "enemyPrimaryAttributeBonus": 0,
     "intelligenceRollBonusPer": 10
@@ -100,12 +102,29 @@
     "attributeDuoMaceWand": "Ragecaller",
     "attributeDuoSwordDagger": "Duelist",
     "attributeDuoSwordWand": "Spellblade",
-    "attributeDuoDaggerWand": "Hexblade"
+    "attributeDuoDaggerWand": "Hexblade",
+    "wandEquippedComboSlotBonus": 1
   },
   "combat": {
     "criticalHitThreshold": 20,
     "criticalHitMultiplier": 2,
     "minimumDamage": 1,
+    "playerBaseArmor": 0,
+    "maximumDamageCap": 999,
+    "armorReductionFactor": 100,
+    "weaponAttackTimeClampMin": 0.5,
+    "weaponAttackTimeClampMax": 1.5,
+    "tutorialCombatDelayMultiplier": 2,
+    "levelDifferenceDamageScaling": 0,
+    "enemyEnrageThresholdPercent": 25,
+    "enemyEnrageDamageMult": 1.25,
+    "comboBreakPenaltyPercent": 10,
+    "statusEffectBaseProcChance": 1,
+    "globalHealEffectiveness": 1,
+    "firstStrikeBonusPercent": 0,
+    "overkillDamagePercent": 0,
+    "attributeSoftCap": 50,
+    "techniqueMilestoneRollShift": 1,
     "baseAttackTime": 8,
     "agilitySpeedReduction": 0,
     "minimumAttackTime": 0.1,
@@ -117,6 +136,8 @@
   "combatBalance": {
     "criticalHitChance": 0,
     "criticalHitDamageMultiplier": 2,
+    "critMissComfortShift": -2,
+    "rollFeelVarianceCompression": 0.5,
     "rollDamageMultipliers": {
       "comboRollDamageMultiplier": 1.5,
       "basicRollDamageMultiplier": 1,
@@ -130,6 +151,10 @@
       "burnDuration": 0,
       "freezeDuration": 0,
       "statusEffectDamageScaling": 0
+    },
+    "actionMechanics": {
+      "swiftSpeedPercent": 10,
+      "bludgeonDamagePercent": 15
     },
     "environmentalEffects": {
       "enableEnvironmentalEffects": false,
@@ -327,7 +352,7 @@
       "attributeGrowthScale": 1
     },
     "baselineStats": {
-      "health": 50,
+      "health": 70,
       "strength": 3,
       "agility": 3,
       "technique": 3,
@@ -340,7 +365,57 @@
       "attributes": 0,
       "armor": 0
     },
-    "archetypes": {},
+    "archetypes": {
+      "Berserker": {
+        "health": 0.8,
+        "strength": 1.5,
+        "agility": 0.9,
+        "technique": 0.9,
+        "intelligence": 0.8,
+        "armor": 0.5
+      },
+      "Guardian": {
+        "health": 1,
+        "strength": 0.8,
+        "agility": 0.8,
+        "technique": 0.8,
+        "intelligence": 0.8,
+        "armor": 1.8
+      },
+      "Assassin": {
+        "health": 0.7,
+        "strength": 1,
+        "agility": 1.6,
+        "technique": 1.2,
+        "intelligence": 1,
+        "armor": 0.4
+      },
+      "Brute": {
+        "health": 1.6,
+        "strength": 1,
+        "agility": 0.7,
+        "technique": 0.7,
+        "intelligence": 0.7,
+        "armor": 0.8
+      },
+      "Mage": {
+        "health": 0.6,
+        "strength": 0.6,
+        "agility": 0.8,
+        "technique": 0.8,
+        "intelligence": 1.8,
+        "armor": 0.3
+      },
+      "Acrobat": {
+        "health": 0.75,
+        "strength": 0.9,
+        "agility": 1.5,
+        "technique": 1.3,
+        "intelligence": 0.9,
+        "armor": 0.35
+      }
+    },
+    "attributeGrowthBudgetPerLevel": 6,
     "levelVariance": 1,
     "description": "",
     "rarityRewardMultipliers": {},
@@ -398,10 +473,10 @@
   },
   "weaponScaling": {
     "startingWeaponDamage": {
-      "mace": 0,
-      "sword": 0,
-      "dagger": 0,
-      "wand": 0
+      "mace": 6,
+      "sword": 5,
+      "dagger": 3,
+      "wand": 4
     },
     "tierDamageRanges": {
       "tier1": {
@@ -521,6 +596,7 @@
     "affixMagicFindMaxExtraChanceBoost": 2,
     "comboSequenceBaseMax": 2,
     "comboSequenceAbsoluteMax": 8,
+    "comboSequenceIntelligenceThreshold": 10,
     "rarityUpgrade": {
       "enabled": false,
       "baseUpgradeChance": 0.05,

@@ -15,7 +15,9 @@ archetype	Per-archetype multipliers for each stat (Berserker, Guardian, Assassin
 overrides	Per-enemy stat multipliers from Enemies.json (health, strength, agility, technique, intelligence, armor)	Enemy data Overrides
 globalMultipliers	Global multipliers applied to all enemies after scaling: HealthMultiplier, DamageMultiplier, ArmorMultiplier, SpeedMultiplier	enemySystem.globalMultipliers
 scaling	Per-level scaling for enemies: Health, Attributes (all four), Armor	enemySystem.scalingPerLevel
-baseHealth (enemy)	Enemy base health at level 1 = (baseline.Health × archetype.Health × overrides.Health)	Computed in EnemyDataFactory
+healthPercent	Per-enemy level-1 max HP as % of baseline (e.g. 125 = 125%). When null, 100 × archetype.Health	Enemies.json healthPercent (ENEMIES col P)
+healthGrowthPercent	Per-enemy HP gained per level as % of baseline. When null, derived from scalingPerLevel.health	Enemies.json healthGrowthPercent (ENEMIES col Q)
+baseHealth (enemy)	Enemy base health at level 1 = baseline.Health × (healthPercent / 100)	Computed in EnemyStatCalculator
 baseStat	Enemy base attribute at level 1 = (baseline × archetype × overrides) for STR/AGI/TEC/INT	Computed in EnemyDataFactory
 baseArmor	Enemy base armor at level 1 = (baseline.Armor × archetype.Armor × overrides.Armor)	Computed in EnemyDataFactory
 EnemyGoldBase	Base gold reward for defeating an enemy	progression.enemyGoldBase

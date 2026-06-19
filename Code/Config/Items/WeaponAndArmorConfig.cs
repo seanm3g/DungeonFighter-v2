@@ -111,6 +111,14 @@ namespace RPGGame
         public int Sword { get; set; }
         public int Dagger { get; set; }
         public int Wand { get; set; }
+
+        public void EnsureValidDefaults()
+        {
+            if (Mace <= 0) Mace = 6;
+            if (Sword <= 0) Sword = 5;
+            if (Dagger <= 0) Dagger = 3;
+            if (Wand <= 0) Wand = 4;
+        }
     }
 
     /// <summary>

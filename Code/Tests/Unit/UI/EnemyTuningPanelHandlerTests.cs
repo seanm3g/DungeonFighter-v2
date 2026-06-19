@@ -1,6 +1,7 @@
 using System;
 using RPGGame;
 using RPGGame.Tests;
+using RPGGame.Tuning;
 
 namespace RPGGame.Tests.Unit.UI
 {
@@ -21,6 +22,7 @@ namespace RPGGame.Tests.Unit.UI
             TestRawSpawnWeights_PersistWithoutNormalization();
             TestSavePath_NormalizesSpawnWeightsTo100();
             TestProgressionScales_RoundTripOnConfig();
+            TestEnemyTuningViewModel_ReloadFromConfig();
 
             TestBase.PrintSummary("EnemyTuningPanelHandler Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -114,6 +116,28 @@ namespace RPGGame.Tests.Unit.UI
                 sys.ProgressionScales.BaseHealthScale = savedBase;
                 sys.ProgressionScales.HealthGrowthScale = savedGrowth;
                 sys.ProgressionScales.AttributeGrowthScale = savedAttr;
+            }
+        }
+
+        private static void TestEnemyTuningViewModel_ReloadFromConfig()
+        {
+            Console.WriteLine("--- Progression scales live in CombatTuningParameterRegistry ---");
+            var sys = GameConfiguration.Instance.EnemySystem ??= new EnemySystemConfig();
+            sys.ProgressionScales ??= new EnemyProgressionScalesConfig();
+            double savedBase = sys.ProgressionScales.BaseHealthScale;
+            try
+            {
+                sys.ProgressionScales.BaseHealthScale = 1.75;
+                var param = CombatTuningParameterRegistry.GetById("baseHealthScale");
+                TestBase.AssertTrue(param != null, "baseHealthScale exists in registry",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(Math.Abs(param!.GetValue() - 1.75) < 0.001,
+                    "Registry reads base health scale from config",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                sys.ProgressionScales.BaseHealthScale = savedBase;
             }
         }
     }

@@ -89,10 +89,17 @@ namespace RPGGame.Data.Validation
                     result.AddWarning(FileName, entityName, "tags", message);
             }
 
-            if (enemy.BaseHealth.HasValue)
-                ValidateNonNegative(result, entityName, "baseHealth", enemy.BaseHealth.Value);
-            if (enemy.HealthGrowthPerLevel.HasValue)
-                ValidateNonNegative(result, entityName, "healthGrowthPerLevel", enemy.HealthGrowthPerLevel.Value);
+            if (enemy.HealthPercent.HasValue)
+            {
+                ValidateNonNegative(result, entityName, "healthPercent", enemy.HealthPercent.Value);
+                if (enemy.HealthPercent.Value > 500)
+                {
+                    result.AddWarning(FileName, entityName, "healthPercent",
+                        $"Value {enemy.HealthPercent.Value} looks like legacy absolute HP; column P should be % of baseline health.");
+                }
+            }
+            if (enemy.HealthGrowthPercent.HasValue)
+                ValidateNonNegative(result, entityName, "healthGrowthPercent", enemy.HealthGrowthPercent.Value);
 
             if (!string.IsNullOrWhiteSpace(enemy.Rarity)
                 && _validRarityNames != null

@@ -216,6 +216,12 @@ namespace RPGGame.GameCore.Input
                     }
                     // Other input is handled internally by the managers
                     break;
+                case GameState.ActionInteractionLab:
+                    if (input == "up" || input == "down" || input == "pageup" || input == "pagedown")
+                    {
+                        handleCombatScroll(input);
+                    }
+                    break;
                 default:
                     showMessage($"Unknown state: {stateManager.CurrentState}");
                     break;

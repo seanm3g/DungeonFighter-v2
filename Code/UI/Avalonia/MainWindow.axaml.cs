@@ -126,6 +126,9 @@ namespace RPGGame.UI.Avalonia
             if (key != Key.PageUp && key != Key.PageDown)
                 return false;
 
+            if (initializationHandler?.Game?.CurrentState == GameState.ActionInteractionLab)
+                return false;
+
             int speed = key == Key.PageUp
                 ? DeveloperModeState.IncreaseCombatSpeed()
                 : DeveloperModeState.DecreaseCombatSpeed();

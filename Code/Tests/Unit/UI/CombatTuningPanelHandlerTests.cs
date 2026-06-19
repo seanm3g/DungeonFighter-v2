@@ -22,6 +22,8 @@ namespace RPGGame.Tests.Unit.UI
 
             TestRegistry_LayerCountsMatchAllParameters();
             TestRegistry_ParameterRoundTripsThroughConfig();
+            TestConfig_PlayerBaseHealth_LoadsFromPatch();
+            TestConfig_BalanceTuningGoals_LoadsFromPatch();
 
             TestBase.PrintSummary("CombatTuningPanelHandler Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -61,6 +63,37 @@ namespace RPGGame.Tests.Unit.UI
             {
                 cfg.Character.PlayerBaseHealth = saved;
             }
+        }
+
+        private static void TestConfig_PlayerBaseHealth_LoadsFromPatch()
+        {
+            Console.WriteLine("--- Balance patch loads playerBaseHealth into config ---");
+            var cfg = GameConfiguration.Instance;
+            cfg.Reload();
+            CombatTuningParameterRegistry.EnsureSanitizedDefaults();
+
+            var param = CombatTuningParameterRegistry.GetById("playerBaseHealth");
+            TestBase.AssertTrue(param != null, "playerBaseHealth exists", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(cfg.Character.PlayerBaseHealth > 0,
+                "Character.PlayerBaseHealth is positive after patch load",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(cfg.Character.PlayerBaseHealth, (int)param!.GetValue(),
+                "Registry getter matches loaded config value",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestConfig_BalanceTuningGoals_LoadsFromPatch()
+        {
+            Console.WriteLine("--- Balance patch loads balanceTuningGoals into config ---");
+            var cfg = GameConfiguration.Instance;
+            cfg.Reload();
+
+            TestBase.AssertTrue(Math.Abs(cfg.BalanceTuningGoals.WinRate.MinTarget - 85.0) < 0.001,
+                "Win rate min target loaded from patch",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Math.Abs(cfg.BalanceTuningGoals.CombatDuration.MinTarget - 8.0) < 0.001,
+                "Combat duration min target loaded from patch",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

@@ -22,11 +22,11 @@ namespace RPGGame.Tests.Unit.UI
 
             var dmg = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "stat:damage", 50, 20);
             TestBase.AssertTrue(dmg.Count > 0, "damage tooltip has lines", ref run, ref passed, ref failed);
-            TestBase.AssertTrue(dmg.Any(l => l.Contains("Attack total", StringComparison.Ordinal)),
-                "damage mentions attack total",
+            TestBase.AssertTrue(dmg.Any(l => l.Contains("Base attack total", StringComparison.Ordinal)),
+                "damage mentions base attack total",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(dmg.Any(l => l.Contains("Components", StringComparison.Ordinal)),
-                "damage mentions components section",
+            TestBase.AssertTrue(dmg.Any(l => l.Contains("Attributes (STR + primary)", StringComparison.Ordinal)),
+                "damage mentions attributes section",
                 ref run, ref passed, ref failed);
 
             var strLines = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "stat:str", 50, 12);

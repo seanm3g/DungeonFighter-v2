@@ -64,8 +64,8 @@ namespace RPGGame.Data
                 return EnemySheetCategoryBaseAttributes;
             if (canonicalHeader.StartsWith("growthPerLevel.", StringComparison.Ordinal))
                 return EnemySheetCategoryGrowth;
-            if (string.Equals(canonicalHeader, "baseHealth", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(canonicalHeader, "healthGrowthPerLevel", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(canonicalHeader, EnemyJsonHealthNormalizer.HealthPercentKey, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(canonicalHeader, EnemyJsonHealthNormalizer.HealthGrowthPercentKey, StringComparison.OrdinalIgnoreCase))
                 return EnemySheetCategoryHealth;
             return "";
         }

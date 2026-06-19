@@ -68,39 +68,41 @@ namespace RPGGame
 
         public void LevelUp(WeaponType weaponType)
         {
-            // Increase stats based on weapon type (+3 primary / +1 others); see GetPrimaryStatLabelForWeapon
+            var attrs = GameConfiguration.Instance.Attributes;
+            int primary = attrs.PlayerPrimaryStatPerLevel > 0 ? attrs.PlayerPrimaryStatPerLevel : 3;
+            int secondary = attrs.PlayerSecondaryStatPerLevel > 0 ? attrs.PlayerSecondaryStatPerLevel : 1;
+
             switch (weaponType)
             {
-                case WeaponType.Mace: // Barbarian - Strength
-                    Strength += 3;
-                    Agility += 1;
-                    Technique += 1;
-                    Intelligence += 1;
+                case WeaponType.Mace:
+                    Strength += primary;
+                    Agility += secondary;
+                    Technique += secondary;
+                    Intelligence += secondary;
                     break;
-                case WeaponType.Sword: // Warrior - Agility
-                    Strength += 1;
-                    Agility += 3;
-                    Technique += 1;
-                    Intelligence += 1;
+                case WeaponType.Sword:
+                    Strength += secondary;
+                    Agility += primary;
+                    Technique += secondary;
+                    Intelligence += secondary;
                     break;
-                case WeaponType.Dagger: // Rogue - Technique
-                    Strength += 1;
-                    Agility += 1;
-                    Technique += 3;
-                    Intelligence += 1;
+                case WeaponType.Dagger:
+                    Strength += secondary;
+                    Agility += secondary;
+                    Technique += primary;
+                    Intelligence += secondary;
                     break;
-                case WeaponType.Wand: // Wizard - Intelligence
-                    Strength += 1;
-                    Agility += 1;
-                    Technique += 1;
-                    Intelligence += 3;
+                case WeaponType.Wand:
+                    Strength += secondary;
+                    Agility += secondary;
+                    Technique += secondary;
+                    Intelligence += primary;
                     break;
                 default:
-                    // Fallback: equal increases if unknown weapon type
-                    Strength += 2;
-                    Agility += 2;
-                    Technique += 2;
-                    Intelligence += 2;
+                    Strength += primary - 1;
+                    Agility += primary - 1;
+                    Technique += primary - 1;
+                    Intelligence += primary - 1;
                     break;
             }
         }
@@ -117,37 +119,41 @@ namespace RPGGame
         /// <summary>Reverses one <see cref="LevelUp"/> for the given weapon class (Action Lab level-down).</summary>
         public void UndoLevelUp(WeaponType weaponType)
         {
+            var attrs = GameConfiguration.Instance.Attributes;
+            int primary = attrs.PlayerPrimaryStatPerLevel > 0 ? attrs.PlayerPrimaryStatPerLevel : 3;
+            int secondary = attrs.PlayerSecondaryStatPerLevel > 0 ? attrs.PlayerSecondaryStatPerLevel : 1;
+
             switch (weaponType)
             {
                 case WeaponType.Mace:
-                    Strength -= 3;
-                    Agility -= 1;
-                    Technique -= 1;
-                    Intelligence -= 1;
+                    Strength -= primary;
+                    Agility -= secondary;
+                    Technique -= secondary;
+                    Intelligence -= secondary;
                     break;
                 case WeaponType.Sword:
-                    Strength -= 1;
-                    Agility -= 3;
-                    Technique -= 1;
-                    Intelligence -= 1;
+                    Strength -= secondary;
+                    Agility -= primary;
+                    Technique -= secondary;
+                    Intelligence -= secondary;
                     break;
                 case WeaponType.Dagger:
-                    Strength -= 1;
-                    Agility -= 1;
-                    Technique -= 3;
-                    Intelligence -= 1;
+                    Strength -= secondary;
+                    Agility -= secondary;
+                    Technique -= primary;
+                    Intelligence -= secondary;
                     break;
                 case WeaponType.Wand:
-                    Strength -= 1;
-                    Agility -= 1;
-                    Technique -= 1;
-                    Intelligence -= 3;
+                    Strength -= secondary;
+                    Agility -= secondary;
+                    Technique -= secondary;
+                    Intelligence -= primary;
                     break;
                 default:
-                    Strength -= 2;
-                    Agility -= 2;
-                    Technique -= 2;
-                    Intelligence -= 2;
+                    Strength -= primary - 1;
+                    Agility -= primary - 1;
+                    Technique -= primary - 1;
+                    Intelligence -= primary - 1;
                     break;
             }
         }

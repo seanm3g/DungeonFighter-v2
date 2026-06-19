@@ -295,7 +295,7 @@ namespace RPGGame.Tests.Unit.Data
                     Actions = new System.Collections.Generic.List<string>(),
                     IsLiving = true,
                     Description = "test",
-                    BaseHealth = 50
+                    HealthPercent = 100
                 };
                 var enemy = EnemyDataFactory.CreateEnemyFromData(data, level: 5);
                 TestBase.AssertNotNull(enemy, $"Create {archetype}", ref _testsRun, ref _testsPassed, ref _testsFailed);

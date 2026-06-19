@@ -48,6 +48,8 @@ namespace RPGGame
         {
             if (GlobalDamageMultiplier <= 0)
                 GlobalDamageMultiplier = 1.0;
+            StartingWeaponDamage ??= new StartingWeaponDamageConfig();
+            StartingWeaponDamage.EnsureValidDefaults();
         }
     }
 

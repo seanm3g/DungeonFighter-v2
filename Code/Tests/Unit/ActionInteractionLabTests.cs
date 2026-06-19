@@ -68,6 +68,7 @@ namespace RPGGame.Tests.Unit
             ClearLabGear_UnequipsSlot(ref run, ref passed, ref failed);
             WouldNaturalRollSelectComboAction_MatchesSelectActionBasedOnRoll(ref run, ref passed, ref failed);
             ApplyCatalogScrollOffsetDelta_Clamps(ref run, ref passed, ref failed);
+            MapPageStepInput_MapsUndoAndStep(ref run, ref passed, ref failed);
             EncounterSimulationBatchCount_ClampedTiers(ref run, ref passed, ref failed);
             UseParallelEncounterSimulation_DefaultsTrueAndMutable(ref run, ref passed, ref failed);
             RightPanelEnemyLabHover_IdFormat(ref run, ref passed, ref failed);
@@ -215,6 +216,14 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(0, lab.CatalogScrollOffset, "single step toward earlier names", ref run, ref passed, ref failed);
 
             ActionInteractionLabSession.EndSession();
+        }
+
+        private static void MapPageStepInput_MapsUndoAndStep(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.AssertEqual("lab_undo", ActionLabInputCoordinator.MapPageStepInput("pageup"), "Page Up maps to undo", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("lab_step", ActionLabInputCoordinator.MapPageStepInput("pagedown"), "Page Down maps to step", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("lab_undo", ActionLabInputCoordinator.MapPageStepInput(" PageUp "), "Page Up mapping is case-insensitive", ref run, ref passed, ref failed);
+            TestBase.AssertNull(ActionLabInputCoordinator.MapPageStepInput("up"), "arrow up does not map to lab step", ref run, ref passed, ref failed);
         }
 
         private static void EncounterSimulationBatchCount_ClampedTiers(ref int run, ref int passed, ref int failed)

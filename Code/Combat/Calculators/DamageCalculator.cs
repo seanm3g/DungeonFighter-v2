@@ -196,7 +196,17 @@ namespace RPGGame.Combat.Calculators
                 }
             }
 
+            // Apply class damage multiplier for hero attackers
+            if (attacker is Character classChar && classChar.Weapon is WeaponItem classWeapon)
+            {
+                totalDamage *= ClassBalanceHelper.GetDamageMultiplier(classWeapon.WeaponType);
+            }
+
             int result = (int)totalDamage;
+
+            int maxCap = Math.Max(1, combatConfig.MaximumDamageCap);
+            if (result > maxCap)
+                result = maxCap;
 
             // Ensure raw damage is never 0 (safeguard against calculation errors)
             if (result <= 0)

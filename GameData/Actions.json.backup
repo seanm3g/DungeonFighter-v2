@@ -6,7 +6,8 @@
     "numberOfHits": "1",
     "damage": "33%",
     "speed": "0.50",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "class, action, warrior, rogue, wizard"
   },
   {
     "action": "PUNCH HARD",
@@ -14,17 +15,19 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "class, action, barbarian"
   },
   {
     "action": "PUNCH HARDER",
-    "description": "\u002BCrit",
+    "description": "+Crit",
     "dps": "130%",
     "numberOfHits": "1",
     "damage": "130%",
     "speed": "1.00",
     "heroCrit": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "class, action, barbarian, aim"
   },
   {
     "action": "PUNCH HARDEST",
@@ -34,11 +37,12 @@
     "damage": "150%",
     "speed": "1.00",
     "stun": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "class, action, barbarian"
   },
   {
     "action": "TAUNT",
-    "description": "FOR FIGHT (ENEMY): -1 STR, \u002B1 AGI",
+    "description": "FOR FIGHT (ENEMY): -1 STR, +1 AGI",
     "dps": "20%",
     "numberOfHits": "1",
     "damage": "10%",
@@ -46,11 +50,12 @@
     "heroAccuracy": "1",
     "enemySTR": "-1",
     "enemyAGI": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "class, action, warrior, rogue, wizard, insight"
   },
   {
     "action": "CONCENTRATE",
-    "description": "FOR NEXT 3 ATTACKS: \u002B1 ACCURACY",
+    "description": "FOR NEXT 3 ATTACKS: +1 ACCURACY",
     "dps": "20%",
     "numberOfHits": "1",
     "damage": "10%",
@@ -58,7 +63,8 @@
     "duration": "1",
     "cadence": "ATTACK",
     "heroAccuracy": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, insight"
   },
   {
     "action": "STUN",
@@ -68,21 +74,23 @@
     "damage": "100%",
     "speed": "1.00",
     "stun": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "CRITICAL ATTACK",
-    "description": "\u002B10 CRIT",
+    "description": "+10 CRIT",
     "dps": "150%",
     "numberOfHits": "1",
     "damage": "300%",
     "speed": "2.00",
     "heroCrit": "10",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, aim"
   },
   {
     "action": "FLURRY",
-    "description": "for next ACTION: \u002B3 multi-hit",
+    "description": "for next ACTION: +3 multi-hit",
     "dps": "75%",
     "numberOfHits": "5",
     "damage": "30%",
@@ -90,7 +98,8 @@
     "duration": "1",
     "cadence": "ACTION",
     "heroAGI": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "MOMENTUM BASH",
@@ -103,7 +112,8 @@
     "cadence": "DUNGEON",
     "heroSTR": "1",
     "heroTECH": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "READ BOOK",
@@ -115,7 +125,8 @@
     "duration": "1",
     "cadence": "DUNGEON",
     "heroINT": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "CHEAP SHOT",
@@ -127,22 +138,23 @@
     "duration": "3",
     "cadence": "ATTACK",
     "heroAccuracy": "-1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, insight"
   },
   {
     "action": "BERZERK",
-    "description": "IF HEALTH IS \u003C25%: \u002B5 STR, \u002B5 AGI",
+    "description": "IF HEALTH IS <25%: +5 STR, +5 AGI",
     "category": "BARBARIAN",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "barbarian"
+    "tags": "class, action, barbarian"
   },
   {
     "action": "GRUNT",
-    "description": "FOR 2 ATTACKS: \u002B1 ACCURACY, \u002B1 STR",
+    "description": "FOR 2 ATTACKS: +1 ACCURACY, +1 STR",
     "dps": "20%",
     "numberOfHits": "1",
     "damage": "10%",
@@ -151,7 +163,8 @@
     "cadence": "ATTACK",
     "heroAccuracy": "1",
     "heroSTR": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, insight"
   },
   {
     "action": "DISARM",
@@ -163,7 +176,8 @@
     "duration": "3",
     "cadence": "ATTACK",
     "enemyHit": "-3",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "ONE SHOT",
@@ -176,7 +190,7 @@
     "duration": "3",
     "cadence": "Action",
     "target": "ENEMY",
-    "tags": "common"
+    "tags": "action, common"
   },
   {
     "action": "DRUNKEN BRAWLER",
@@ -191,11 +205,11 @@
     "heroAccuracy": "-5",
     "enemyAccuracy": "-5",
     "target": "ENEMY",
-    "tags": "uncommon"
+    "tags": "action, uncommon, insight"
   },
   {
     "action": "STIM PACK",
-    "description": "\u002B1 HIT, \u002B2 COMBO, \u002B3 CRIT",
+    "description": "+1 HIT, +2 COMBO, +3 CRIT",
     "rarity": "rare",
     "dps": "50%",
     "numberOfHits": "1",
@@ -207,11 +221,11 @@
     "heroCombo": "2",
     "heroCrit": "1",
     "target": "ENEMY",
-    "tags": "rare"
+    "tags": "action, rare, footwork, target, aim"
   },
   {
     "action": "ANIME CHARGE-UP",
-    "description": "FOR FIGHT: \u002B1 ACCURACY PER CHAIN POSITION",
+    "description": "FOR FIGHT: +1 ACCURACY PER CHAIN POSITION",
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -219,18 +233,20 @@
     "duration": "1",
     "cadence": "FIGHT",
     "heroAccuracy": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, insight"
   },
   {
     "action": "OVERKILL",
-    "description": "\u002B50% DAMAGE ON NEXT ATTACK",
+    "description": "+50% DAMAGE ON NEXT ATTACK",
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
     "duration": "1",
     "cadence": "ATTACK",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "DANCE",
@@ -243,7 +259,8 @@
     "cadence": "DUNGEON",
     "opener": "true",
     "heroAGI": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, opener"
   },
   {
     "action": "A CARD THAT GETS WORSE OVER TIME",
@@ -251,11 +268,12 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "BULK DAY",
-    "description": "for next ACTION: \u002B50% DAMAGE",
+    "description": "for next ACTION: +50% DAMAGE",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -263,22 +281,24 @@
     "duration": "1",
     "cadence": "ACTION",
     "damageMod": "50",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, bludgeon"
   },
   {
     "action": "CHUG ENERGY DRINK",
-    "description": "FOR NEXT 3 ATTACKS: \u002B25% Speed",
+    "description": "FOR NEXT 3 ATTACKS: +25% Speed",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
     "duration": "3",
     "cadence": "ATTACK",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "TRUE STRIKE",
-    "description": "\u002B10 to ACCURACY, 2x damage",
+    "description": "+10 to ACCURACY, 2x damage",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -286,7 +306,8 @@
     "duration": "1",
     "cadence": "ATTACK",
     "heroAccuracy": "10",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, insight"
   },
   {
     "action": "SECOND WIND",
@@ -296,7 +317,8 @@
     "damage": "200%",
     "speed": "2.00",
     "heroHeal": "5",
-    "target": "SELF"
+    "target": "SELF",
+    "tags": "action, air"
   },
   {
     "action": "QUICK REFLEXES",
@@ -308,7 +330,8 @@
     "duration": "1",
     "cadence": "ACTION",
     "enemyAccuracy": "-5",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "DEJA VU",
@@ -317,16 +340,18 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "POWER OVERWHELMING",
-    "description": "STR \u2265 10: deal double damage",
+    "description": "STR ≥ 10: deal double damage",
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "2.00",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "ANY DAY NOW",
@@ -337,22 +362,24 @@
     "speed": "2.00",
     "duration": "1",
     "cadence": "CHAIN",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "I AM INVINCIBLE",
-    "description": "FOR DUNGEON: \u002B5 Weapon Damage each time a finisher is played.",
+    "description": "FOR DUNGEON: +5 Weapon Damage each time a finisher is played.",
     "dps": "125%",
     "numberOfHits": "1",
     "damage": "250%",
     "speed": "2.00",
     "duration": "1",
     "cadence": "DUNGEON",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "AVENGE",
-    "description": "\u002B20 to next ATTACK",
+    "description": "+20 to next ATTACK",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -360,22 +387,24 @@
     "duration": "1",
     "cadence": "Action",
     "enemyAccuracy": "20",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "FOLLOW THROUGH",
-    "description": "\u002B25% damage to next ACTION",
+    "description": "+25% damage to next ACTION",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
     "cadence": "ACTION",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "OPENING VOLLEY",
-    "description": "for the next 4 ATTACKS: \u002B20 DAMAGE to WEAPON. Weapon Damage decreases by 5 each Attack",
+    "description": "for the next 4 ATTACKS: +20 DAMAGE to WEAPON. Weapon Damage decreases by 5 each Attack",
     "dps": "133%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -383,27 +412,30 @@
     "duration": "4",
     "cadence": "ATTACK",
     "opener": "true",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, opener"
   },
   {
     "action": "WEINING LIGHT",
-    "description": "for fight: \u002B20 DAMAGE to WEAPON. Weapon Damage decreases by 1 each ATTACK",
+    "description": "for fight: +20 DAMAGE to WEAPON. Weapon Damage decreases by 1 each ATTACK",
     "dps": "133%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.75",
     "duration": "1",
     "cadence": "FIGHT",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "MIRROR FLEXING",
-    "description": "\u002B25% damage for the CHAIN POSITION",
+    "description": "+25% damage for the CHAIN POSITION",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "ROGUES GAMBIT",
@@ -412,11 +444,12 @@
     "numberOfHits": "1",
     "damage": "25%",
     "speed": "1.00",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "POISON TIP",
-    "description": "for FIGHT: \u002B1 poison to poison weapons",
+    "description": "for FIGHT: +1 poison to poison weapons",
     "dps": "120%",
     "numberOfHits": "1",
     "damage": "120%",
@@ -424,11 +457,12 @@
     "duration": "1",
     "cadence": "FIGHT",
     "poison": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "HAYMAKER",
-    "description": "FOR NEXT ACTION: -14 ACCURACY, \u002B500% Damage",
+    "description": "FOR NEXT ACTION: -14 ACCURACY, +500% Damage",
     "dps": "33%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -436,11 +470,12 @@
     "duration": "1",
     "cadence": "ACTION",
     "heroAccuracy": "-14",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, insight"
   },
   {
     "action": "FRENZY",
-    "description": "FOR NEXT 4 ACTIONS: \u002B3 HIT, -2 COMBO",
+    "description": "FOR NEXT 4 ACTIONS: +3 HIT, -2 COMBO",
     "dps": "360%",
     "numberOfHits": "3",
     "damage": "120%",
@@ -450,7 +485,8 @@
     "finisher": "true",
     "heroHit": "3",
     "heroCombo": "-2",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, finisher, footwork, target"
   },
   {
     "action": "BLOOD KNIFE",
@@ -463,21 +499,23 @@
     "cadence": "ACTION",
     "selfDamage": "1",
     "heroHeal": "25",
-    "target": "SELF"
+    "target": "SELF",
+    "tags": "action"
   },
   {
     "action": "HOLY HEALY",
-    "description": "HEAL \u002B25",
+    "description": "HEAL +25",
     "dps": "200%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.50",
     "heroHeal": "25",
-    "target": "SELF"
+    "target": "SELF",
+    "tags": "action"
   },
   {
     "action": "BLOODY SUNDAY",
-    "description": "\u002BX DAMAGE TO NEXT ATTACK. X IS TOTAL DAMAGE DONE TO SELF",
+    "description": "+X DAMAGE TO NEXT ATTACK. X IS TOTAL DAMAGE DONE TO SELF",
     "dps": "33%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -485,20 +523,22 @@
     "duration": "1",
     "cadence": "FIGHT",
     "finisher": "true",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, finisher"
   },
   {
     "action": "24/7/365",
-    "description": "\u002B10% attack speed for each turn this fight.",
+    "description": "+10% attack speed for each turn this fight.",
     "dps": "33%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "PRETTY BOY SWAG",
-    "description": "FOR DUNGEON: \u002B5 CRIT, \u002B3 STR",
+    "description": "FOR DUNGEON: +5 CRIT, +3 STR",
     "dps": "17%",
     "numberOfHits": "1",
     "damage": "50%",
@@ -507,11 +547,12 @@
     "cadence": "DUNGEON",
     "heroCrit": "5",
     "heroSTR": "3",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, aim"
   },
   {
     "action": "OPENING CUT",
-    "description": "\u002B25% damage, \u002B2 HIT",
+    "description": "+25% damage, +2 HIT",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "25%",
@@ -520,11 +561,12 @@
     "cadence": "ACTION",
     "opener": "true",
     "heroHit": "2",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, opener, footwork"
   },
   {
     "action": "RAZOR MARGIN",
-    "description": "\u002B2 HIT, \u002B2 CRIT, -2 HIT",
+    "description": "+2 HIT, +2 CRIT, -2 HIT",
     "dps": "136%",
     "numberOfHits": "1",
     "damage": "150%",
@@ -534,11 +576,12 @@
     "heroHit": "-2",
     "heroCrit": "2",
     "enemyHit": "2",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, footwork, aim"
   },
   {
     "action": "FOCUSED BREATHING",
-    "description": "for fight: \u002B1 ACCURACY",
+    "description": "for fight: +1 ACCURACY",
     "dps": "36%",
     "numberOfHits": "1",
     "damage": "25%",
@@ -547,11 +590,12 @@
     "cadence": "FIGHT",
     "heroAccuracy": "1",
     "heroSTR": "0.30",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, insight"
   },
   {
     "action": "ADRENAL SURGE",
-    "description": "for fight: \u002B25% damage. CRIT or MISS damages SELF",
+    "description": "for fight: +25% damage. CRIT or MISS damages SELF",
     "dps": "167%",
     "numberOfHits": "1",
     "damage": "150%",
@@ -560,11 +604,12 @@
     "cadence": "Ability",
     "speedMod": "20",
     "selfDamage": "ON CRIT, ON MISS",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, swift"
   },
   {
     "action": "TENSION HOLD",
-    "description": "for fight: \u002B1 COMBO",
+    "description": "for fight: +1 COMBO",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -572,21 +617,23 @@
     "duration": "1",
     "cadence": "FIGHT",
     "heroCombo": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, target"
   },
   {
     "action": "LATE BLOOM",
-    "description": "IF CHAIN POSITION IS \u003E3: 10x damage",
+    "description": "IF CHAIN POSITION IS >3: 10x damage",
     "dps": "20%",
     "numberOfHits": "1",
     "damage": "30%",
     "speed": "1.50",
     "finisher": "true",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, finisher"
   },
   {
     "action": "MEASURED PATIENCE",
-    "description": "FOR NEXT ACTION: \u002B2 HIT, -1 CRIT",
+    "description": "FOR NEXT ACTION: +2 HIT, -1 CRIT",
     "dps": "167%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -595,11 +642,12 @@
     "cadence": "ACTION",
     "heroHit": "2",
     "heroCrit": "-1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, footwork, aim"
   },
   {
     "action": "MEASURED ADVANCE",
-    "description": "for next action: \u002B1 COMBO",
+    "description": "for next action: +1 COMBO",
     "dps": "94%",
     "numberOfHits": "1",
     "damage": "75%",
@@ -607,33 +655,36 @@
     "duration": "1",
     "cadence": "ACTION",
     "heroCombo": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, target"
   },
   {
     "action": "GLASS STRIKE",
-    "description": "CRIT or MISS deals self damage. for FIGHT: \u002B1 WEAPON DAMAGE",
+    "description": "CRIT or MISS deals self damage. for FIGHT: +1 WEAPON DAMAGE",
     "dps": "188%",
     "numberOfHits": "1",
     "damage": "300%",
     "speed": "1.60",
     "duration": "1",
     "cadence": "FIGHT",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "STATIC ODDS",
-    "description": "For next ACTION: ON HIT: Combo, \u002B10 accuracy",
+    "description": "For next ACTION: ON HIT: Combo, +10 accuracy",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
     "cadence": "ACTION",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "LUCKY CHARM",
-    "description": "\u002B14 ACCURACY",
+    "description": "+14 ACCURACY",
     "dps": "40%",
     "numberOfHits": "1",
     "damage": "10%",
@@ -641,18 +692,20 @@
     "duration": "1",
     "cadence": "ATTACK",
     "heroAccuracy": "14",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, insight"
   },
   {
     "action": "SWIFT",
-    "description": "FOR NEXT CHAIN POSITION: \u002B50% attack speed",
+    "description": "FOR NEXT CHAIN POSITION: +50% attack speed",
     "dps": "143%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.70",
     "duration": "1",
     "cadence": "COMBO",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "EXHAUSTING RHYTHM",
@@ -663,22 +716,24 @@
     "speed": "1.20",
     "duration": "1",
     "cadence": "FIGHT",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "WINDED STATE",
-    "description": "FOR THE FIGHT: \u002B10% SPEED FOR EACH ACTION IN CHAIN",
+    "description": "FOR THE FIGHT: +10% SPEED FOR EACH ACTION IN CHAIN",
     "dps": "55%",
     "numberOfHits": "1",
     "damage": "71%",
     "speed": "1.30",
     "duration": "1",
     "cadence": "FIGHT",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "OVERHAND SMASH",
-    "description": "-2 HIT, \u002B2 CRIT. On CRIT: STUN enemy",
+    "description": "-2 HIT, +2 CRIT. On CRIT: STUN enemy",
     "dps": "147%",
     "numberOfHits": "1",
     "damage": "250%",
@@ -686,7 +741,8 @@
     "heroHit": "-2",
     "heroCrit": "2",
     "stun": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, footwork, aim"
   },
   {
     "action": "HOLD TEMPO",
@@ -697,11 +753,12 @@
     "speed": "0.60",
     "duration": "1",
     "cadence": "CHAIN",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "BACKSTEP SLASH",
-    "description": "NEXT ACTION: CHAIN POSITION -1, \u002B2 HIT",
+    "description": "NEXT ACTION: CHAIN POSITION -1, +2 HIT",
     "dps": "71%",
     "numberOfHits": "1",
     "damage": "50%",
@@ -709,33 +766,36 @@
     "duration": "1",
     "cadence": "ACTION",
     "heroHit": "2",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, footwork"
   },
   {
     "action": "CRUSHING FOLLOW-THROUGH",
-    "description": "NEXT ACTION: CHAIN POSITION -1. FOR EACH CHAIN POSITION: \u002B.25x SPEED, \u002B.50x DAMAGE",
+    "description": "NEXT ACTION: CHAIN POSITION -1. FOR EACH CHAIN POSITION: +.25x SPEED, +.50x DAMAGE",
     "dps": "135%",
     "numberOfHits": "1",
     "damage": "175%",
     "speed": "1.30",
     "duration": "1",
     "cadence": "ACTION",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "ALL IN",
-    "description": "-8 HIT, \u002B5 CRIT",
+    "description": "-8 HIT, +5 CRIT",
     "dps": "200%",
     "numberOfHits": "1",
     "damage": "400%",
     "speed": "2.00",
     "heroHit": "-8",
     "heroCrit": "6",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, footwork, aim"
   },
   {
     "action": "FINAL REP",
-    "description": "FINSHER: for next ACTION: \u002B3 ACCURACY",
+    "description": "FINSHER: for next ACTION: +3 ACCURACY",
     "dps": "133%",
     "numberOfHits": "1",
     "damage": "400%",
@@ -744,18 +804,20 @@
     "cadence": "ACTION",
     "finisher": "true",
     "heroAccuracy": "3",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, finisher, insight"
   },
   {
     "action": "HOLLOW ADVANCE",
-    "description": "\u002B1 CHAIN POSITION",
+    "description": "+1 CHAIN POSITION",
     "dps": "143%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.70",
     "heroCombo": "1",
     "jumpRelative": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, target"
   },
   {
     "action": "SLAPBACK ECHO",
@@ -764,11 +826,12 @@
     "numberOfHits": "1",
     "damage": "50%",
     "speed": "0.80",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "PERFECT LINE",
-    "description": "next ACTION: \u002B4 CHAIN POSITION",
+    "description": "next ACTION: +4 CHAIN POSITION",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -777,22 +840,24 @@
     "cadence": "Action",
     "heroCombo": "4",
     "jumpRelative": "4",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, target"
   },
   {
-    "action": "OL\u0027 FAITHFUL",
-    "description": "\u002B9 HIT, -6 COMBO",
+    "action": "OL' FAITHFUL",
+    "description": "+9 HIT, -6 COMBO",
     "dps": "75%",
     "numberOfHits": "1",
     "damage": "75%",
     "speed": "1.00",
     "heroHit": "9",
     "heroCombo": "-6",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "class, action, barbarian, footwork, target"
   },
   {
     "action": "CONTROLLED BURST",
-    "description": "cannot CRIT. for next action: \u002B1 HIT",
+    "description": "cannot CRIT. for next action: +1 HIT",
     "dps": "164%",
     "numberOfHits": "3",
     "damage": "60%",
@@ -801,17 +866,19 @@
     "cadence": "ACTION",
     "heroHit": "1",
     "heroCrit": "-1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, footwork, aim"
   },
   {
     "action": "PHANTOM FOLLOW-UP",
-    "description": "CHAIN LENGTH \u002B1",
+    "description": "CHAIN LENGTH +1",
     "dps": "200%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.50",
     "heroCombo": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, target"
   },
   {
     "action": "FINAL PUSH",
@@ -822,18 +889,20 @@
     "speed": "2.50",
     "finisher": "true",
     "consume": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, finisher"
   },
   {
     "action": "RISING PRESSURE",
-    "description": "FOR CHAIN: \u002B15% damage per CHAIN POSITION",
+    "description": "FOR CHAIN: +15% damage per CHAIN POSITION",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
     "cadence": "COMBO",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "TEMPO SHIFT",
@@ -842,11 +911,12 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "GUARANTEED HIT",
-    "description": "\u002B5 HIT    |  Guaranteed 100% of the time*      *95% of the time",
+    "description": "+5 HIT    |  Guaranteed 100% of the time*      *95% of the time",
     "dps": "150%",
     "numberOfHits": "1",
     "damage": "150%",
@@ -854,7 +924,8 @@
     "duration": "1",
     "cadence": "ATTACK",
     "heroHit": "5",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, footwork"
   },
   {
     "action": "OVERCOMMIT",
@@ -863,22 +934,24 @@
     "numberOfHits": "1",
     "damage": "500%",
     "speed": "3.00",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "CALM BEFORE STORM",
-    "description": "for next ACTION: \u002B50% DAMAGE, \u002B.2x SPEED",
+    "description": "for next ACTION: +50% DAMAGE, +.2x SPEED",
     "dps": "167%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.60",
     "duration": "1",
     "cadence": "ACTION",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, air"
   },
   {
     "action": "CALCULATED RISK",
-    "description": "-2 HIT, \u002B2 CRIT",
+    "description": "-2 HIT, +2 CRIT",
     "dps": "154%",
     "numberOfHits": "1",
     "damage": "200%",
@@ -887,7 +960,8 @@
     "cadence": "ACTION",
     "heroHit": "-2",
     "heroCrit": "2",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, footwork, aim"
   },
   {
     "action": "AMPLIFY ACCURACY",
@@ -898,7 +972,8 @@
     "duration": "1",
     "cadence": "ACTION",
     "enemyAccuracy": "20",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "GROUNDHOGS DAY",
@@ -908,7 +983,8 @@
     "speed": "1.00",
     "heroSTR": "3",
     "heroHeal": "100%",
-    "target": "SELF"
+    "target": "SELF",
+    "tags": "action"
   },
   {
     "action": "DOMAIN EXPANSION",
@@ -920,7 +996,8 @@
     "cadence": "ACTION",
     "finisher": "true",
     "heroCombo": "14",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, finisher, target"
   },
   {
     "action": "EARLY BIRD GETS THE WORM",
@@ -932,7 +1009,8 @@
     "duration": "1",
     "cadence": "ACTION",
     "consume": "1",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "SLAM",
@@ -943,7 +1021,7 @@
     "damage": "150%",
     "speed": "1.25",
     "target": "ENEMY",
-    "tags": "weapon"
+    "tags": "weapon, mace, earth"
   },
   {
     "action": "STRIKE",
@@ -953,7 +1031,7 @@
     "damage": "50%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "weapon"
+    "tags": "weapon, sword"
   },
   {
     "action": "STAB",
@@ -963,10 +1041,10 @@
     "damage": "60%",
     "speed": "0.50",
     "target": "ENEMY",
-    "tags": "weapon"
+    "tags": "weapon, dagger"
   },
   {
-    "action": "MAGIC MISSLE",
+    "action": "MAGIC MISSILE",
     "category": "WEAPON",
     "dps": "90%",
     "numberOfHits": "3",
@@ -974,7 +1052,7 @@
     "speed": "2.50",
     "heroCombo": "1",
     "target": "ENEMY",
-    "tags": "weapon"
+    "tags": "weapon, wand, target, air"
   },
   {
     "action": "CAST",
@@ -985,7 +1063,8 @@
     "duration": "1",
     "cadence": "Action",
     "heroAccuracy": "20",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "class, action, wizard, insight"
   },
   {
     "action": "RAGE",
@@ -997,7 +1076,8 @@
     "cadence": "Action",
     "heroCrit": "4",
     "damageMod": "50",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, bludgeon, aim"
   },
   {
     "action": "MOMENTUM",
@@ -1006,7 +1086,8 @@
     "damage": "200%",
     "speed": "2.00",
     "finisher": "true",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, finisher"
   },
   {
     "action": "SQUAT",
@@ -1017,7 +1098,7 @@
     "speed": "1.00",
     "heroSTR": "1",
     "target": "ENEMY",
-    "tags": "barbarian"
+    "tags": "class, action, barbarian"
   },
   {
     "action": "SLASH",
@@ -1029,7 +1110,7 @@
     "duration": "3",
     "cadence": "ATTACK",
     "target": "ENEMY",
-    "tags": "warrior"
+    "tags": "class, action, warrior"
   },
   {
     "action": "HACK",
@@ -1039,7 +1120,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "warrior"
+    "tags": "class, action, warrior"
   },
   {
     "action": "JUKE",
@@ -1050,7 +1131,7 @@
     "speed": "1.00",
     "heroAGI": "1",
     "target": "ENEMY",
-    "tags": "warrior"
+    "tags": "class, action, warrior"
   },
   {
     "action": "POUND",
@@ -1064,7 +1145,7 @@
     "heroCrit": "2",
     "damageMod": "50",
     "target": "ENEMY",
-    "tags": "rogue"
+    "tags": "class, action, rogue, bludgeon, aim"
   },
   {
     "action": "SLEIGHT OF HAND",
@@ -1074,7 +1155,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "rogue"
+    "tags": "class, action, rogue"
   },
   {
     "action": "HONE",
@@ -1085,11 +1166,11 @@
     "speed": "1.00",
     "heroTECH": "1",
     "target": "ENEMY",
-    "tags": "rogue"
+    "tags": "class, action, rogue"
   },
   {
     "action": "CHANNEL",
-    "description": "FOR NEXT 3 ATTACKS: \u002B2 COMBO",
+    "description": "FOR NEXT 3 ATTACKS: +2 COMBO",
     "category": "WIZARD",
     "dps": "40%",
     "numberOfHits": "1",
@@ -1099,7 +1180,7 @@
     "cadence": "ATTACK",
     "heroCombo": "2",
     "target": "ENEMY",
-    "tags": "wizard"
+    "tags": "class, action, wizard, target"
   },
   {
     "action": "INVOKE",
@@ -1109,7 +1190,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "wizard"
+    "tags": "class, action, wizard"
   },
   {
     "action": "READ",
@@ -1120,7 +1201,7 @@
     "speed": "1.00",
     "heroINT": "1",
     "target": "ENEMY",
-    "tags": "wizard"
+    "tags": "class, action, wizard"
   },
   {
     "action": "INTELECTUAL DEBATE",
@@ -1129,7 +1210,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "HUNKER DOWN",
@@ -1138,11 +1220,12 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action"
   },
   {
     "action": "WIDE SWING",
-    "description": "\u002B2 multihit, -40% damage",
+    "description": "+2 multihit, -40% damage",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -1151,7 +1234,8 @@
     "cadence": "Action",
     "speedMod": "-40",
     "multiHitMod": "2",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "tags": "action, swift"
   },
   {
     "action": "Commitment Cleaver",
@@ -1164,7 +1248,7 @@
     "speedMod": "-20",
     "damageMod": "25",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift, bludgeon"
   },
   {
     "action": "Stance of Crescendo",
@@ -1177,7 +1261,7 @@
     "speedMod": "-10",
     "ampMod": "15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift, focus"
   },
   {
     "action": "Windup Flurry Mark",
@@ -1190,7 +1274,7 @@
     "speedMod": "-15",
     "multiHitMod": "1",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift, air"
   },
   {
     "action": "Quick Razors",
@@ -1203,7 +1287,7 @@
     "speedMod": "20",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift, bludgeon"
   },
   {
     "action": "Feather Chain",
@@ -1216,7 +1300,7 @@
     "damageMod": "-10",
     "ampMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon, focus"
   },
   {
     "action": "Rakeload",
@@ -1229,7 +1313,7 @@
     "damageMod": "-10",
     "multiHitMod": "2",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Reset Step",
@@ -1242,7 +1326,7 @@
     "speedMod": "20",
     "ampMod": "-15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift, focus"
   },
   {
     "action": "Compression Strike",
@@ -1255,7 +1339,7 @@
     "damageMod": "25",
     "ampMod": "-15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon, focus"
   },
   {
     "action": "Scatter Focus",
@@ -1268,7 +1352,7 @@
     "multiHitMod": "2",
     "ampMod": "-8",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Singletap Recovery",
@@ -1281,7 +1365,7 @@
     "speedMod": "15",
     "multiHitMod": "-1",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Collapse Cut",
@@ -1294,7 +1378,7 @@
     "damageMod": "35",
     "multiHitMod": "-2",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Tight Spiral",
@@ -1307,7 +1391,7 @@
     "multiHitMod": "-1",
     "ampMod": "15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Lumbering Smash",
@@ -1434,7 +1518,7 @@
     "damage": "79%",
     "speed": "1.12",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, earth"
   },
   {
     "action": "Focused Predator",
@@ -1458,7 +1542,7 @@
     "speedMod": "20",
     "enemySpeedMod": "-20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Overextended Strike",
@@ -1471,7 +1555,7 @@
     "speedMod": "-20",
     "enemySpeedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Shatter Plate",
@@ -1483,7 +1567,7 @@
     "speed": "1.00",
     "damageMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Feint Opening",
@@ -1495,7 +1579,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Momentum Hijack",
@@ -1507,7 +1591,7 @@
     "speed": "1.00",
     "ampMod": "15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Stalled Rhythm",
@@ -1519,7 +1603,7 @@
     "speed": "1.00",
     "ampMod": "-8",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Chainloaded",
@@ -1556,7 +1640,7 @@
     "speedMod": "10",
     "enemySpeedMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Lane Clear",
@@ -1569,7 +1653,7 @@
     "speedMod": "20",
     "enemySpeedMod": "-20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Heavy Commit",
@@ -1582,7 +1666,7 @@
     "speedMod": "-20",
     "enemySpeedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Anchor Duel",
@@ -1595,10 +1679,10 @@
     "speedMod": "-10",
     "enemySpeedMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
-    "action": "Blitzer\u0027s Mark",
+    "action": "Blitzer's Mark",
     "description": "You quicken; their next hit hardens.",
     "category": "ModTrade",
     "dps": "95%",
@@ -1607,7 +1691,7 @@
     "speed": "1.00",
     "speedMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Outpace Shell",
@@ -1619,7 +1703,7 @@
     "speed": "1.00",
     "speedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Winded Rush",
@@ -1631,7 +1715,7 @@
     "speed": "1.00",
     "speedMod": "-20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Cautious Brake",
@@ -1643,7 +1727,7 @@
     "speed": "1.00",
     "speedMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Flow State",
@@ -1655,7 +1739,7 @@
     "speed": "1.00",
     "speedMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Tempo Lock",
@@ -1667,7 +1751,7 @@
     "speed": "1.00",
     "speedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Late Block",
@@ -1679,7 +1763,7 @@
     "speed": "1.00",
     "speedMod": "-20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Fatigue Spiral",
@@ -1691,7 +1775,7 @@
     "speed": "1.00",
     "speedMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Flurry Haste",
@@ -1703,7 +1787,7 @@
     "speed": "1.00",
     "speedMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Cut the Chain",
@@ -1715,7 +1799,7 @@
     "speed": "1.00",
     "speedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Trapped Feet",
@@ -1727,7 +1811,7 @@
     "speed": "1.00",
     "speedMod": "-20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Grounded Guard",
@@ -1739,7 +1823,7 @@
     "speed": "1.00",
     "speedMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, swift"
   },
   {
     "action": "Power Rush",
@@ -1752,7 +1836,7 @@
     "damageMod": "20",
     "enemySpeedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Crushing Hold",
@@ -1765,7 +1849,7 @@
     "damageMod": "20",
     "enemySpeedMod": "-20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Glancing Blow",
@@ -1778,7 +1862,7 @@
     "damageMod": "-10",
     "enemySpeedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Soft Tap",
@@ -1791,7 +1875,7 @@
     "damageMod": "-10",
     "enemySpeedMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Arms Race Cut",
@@ -1803,7 +1887,7 @@
     "speed": "1.00",
     "damageMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Sundering Edge",
@@ -1815,7 +1899,7 @@
     "speed": "1.00",
     "damageMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Opening Gift",
@@ -1827,7 +1911,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Pulled Strikes",
@@ -1839,7 +1923,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Heavy Crescendo",
@@ -1851,7 +1935,7 @@
     "speed": "1.00",
     "damageMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Shatter Focus",
@@ -1863,7 +1947,7 @@
     "speed": "1.00",
     "damageMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Tickling Jab",
@@ -1875,7 +1959,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Muffled Exchange",
@@ -1887,7 +1971,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Cleaving Tempest",
@@ -1899,10 +1983,10 @@
     "speed": "1.00",
     "damageMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
-    "action": "Finisher\u0027s Law",
+    "action": "Finisher's Law",
     "description": "You spike damage; their ticks shrink next.",
     "category": "ModTrade",
     "dps": "100%",
@@ -1911,7 +1995,7 @@
     "speed": "1.00",
     "damageMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Chip Scatter",
@@ -1923,7 +2007,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Softened Hail",
@@ -1935,7 +2019,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, bludgeon"
   },
   {
     "action": "Crescendo Sprint",
@@ -1948,7 +2032,7 @@
     "ampMod": "10",
     "enemySpeedMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Dominant Line",
@@ -1961,7 +2045,7 @@
     "ampMod": "15",
     "enemySpeedMod": "-20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Lost Bridge",
@@ -1974,7 +2058,7 @@
     "ampMod": "-10",
     "enemySpeedMod": "20",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Quiet Measure",
@@ -1987,7 +2071,7 @@
     "ampMod": "-10",
     "enemySpeedMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Amp to Steel",
@@ -1999,7 +2083,7 @@
     "speed": "1.00",
     "ampMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Overwhelming Theme",
@@ -2011,7 +2095,7 @@
     "speed": "1.00",
     "ampMod": "15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Burnt Fuse",
@@ -2023,7 +2107,7 @@
     "speed": "1.00",
     "ampMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Flattened Verse",
@@ -2035,7 +2119,7 @@
     "speed": "1.00",
     "ampMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Dueling Anthems",
@@ -2047,7 +2131,7 @@
     "speed": "1.00",
     "ampMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Steal the Chorus",
@@ -2059,7 +2143,7 @@
     "speed": "1.00",
     "ampMod": "15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Broken Streak",
@@ -2071,7 +2155,7 @@
     "speed": "1.00",
     "ampMod": "-8",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Suppressed Duel",
@@ -2083,7 +2167,7 @@
     "speed": "1.00",
     "ampMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Chorus of Cuts",
@@ -2095,7 +2179,7 @@
     "speed": "1.00",
     "ampMod": "10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Precision Crescendo",
@@ -2107,7 +2191,7 @@
     "speed": "1.00",
     "ampMod": "15",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Fumbled Bridge",
@@ -2119,7 +2203,7 @@
     "speed": "1.00",
     "ampMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Muted Finale",
@@ -2131,7 +2215,7 @@
     "speed": "1.00",
     "ampMod": "-10",
     "target": "ENEMY",
-    "tags": "modtrade"
+    "tags": "modtrade, focus"
   },
   {
     "action": "Flurry Sprint",
@@ -2386,7 +2470,7 @@
     "speed": "1.10",
     "burn": "1",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, fire"
   },
   {
     "action": "IGNITE",
@@ -2409,7 +2493,7 @@
     "damage": "130%",
     "speed": "1.30",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, fire"
   },
   {
     "action": "ERUPTION",
@@ -2495,18 +2579,6 @@
     "tags": "enemy"
   },
   {
-    "action": "SOUL DRAIN",
-    "description": "Enemy ability: SOUL DRAIN",
-    "category": "ENEMY",
-    "dps": "86%",
-    "numberOfHits": "1",
-    "damage": "120%",
-    "speed": "1.40",
-    "weaken": "1",
-    "target": "ENEMY",
-    "tags": "enemy"
-  },
-  {
     "action": "PHASE",
     "description": "Enemy ability: PHASE",
     "category": "ENEMY",
@@ -2528,7 +2600,7 @@
     "speedMod": "10",
     "enemySpeedMod": "10",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, swift"
   },
   {
     "action": "Gluefoot Exchange",
@@ -2541,7 +2613,7 @@
     "speedMod": "-10",
     "enemySpeedMod": "-10",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, swift"
   },
   {
     "action": "Blood Moon Strike",
@@ -2553,7 +2625,7 @@
     "speed": "1.00",
     "damageMod": "10",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, bludgeon"
   },
   {
     "action": "Pacifying Ward",
@@ -2565,7 +2637,7 @@
     "speed": "1.00",
     "damageMod": "-10",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, bludgeon"
   },
   {
     "action": "Duel of Crescendos",
@@ -2577,7 +2649,7 @@
     "speed": "1.00",
     "ampMod": "10",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, focus"
   },
   {
     "action": "Suppress Sigil",
@@ -2589,7 +2661,7 @@
     "speed": "1.00",
     "ampMod": "-10",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, focus"
   },
   {
     "action": "Storm of Blades",
@@ -2601,7 +2673,7 @@
     "speed": "1.00",
     "multiHitMod": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, air"
   },
   {
     "action": "Clean Exchange",
@@ -2625,7 +2697,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, overgrown"
   },
   {
     "action": "FOREST VINES",
@@ -2637,7 +2709,7 @@
     "speed": "3.00",
     "slow": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, overgrown"
   },
   {
     "action": "LAVA SPLASH",
@@ -2649,7 +2721,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, fire, scorched"
   },
   {
     "action": "LAVA STEAM",
@@ -2661,7 +2733,7 @@
     "speed": "3.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, fire, scorched"
   },
   {
     "action": "CRYPT NECROTIC",
@@ -2674,7 +2746,7 @@
     "poison": "1",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, earth, exposed"
   },
   {
     "action": "CRYPT BONESHARDS",
@@ -2686,7 +2758,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, earth, exposed"
   },
   {
     "action": "CAVERN CAVEIN",
@@ -2698,7 +2770,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, earth, exposed"
   },
   {
     "action": "CAVERN STALACTITE",
@@ -2710,7 +2782,7 @@
     "speed": "2.50",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, earth, exposed"
   },
   {
     "action": "SWAMP MIASMA",
@@ -2723,7 +2795,7 @@
     "poison": "1",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, water, flooded"
   },
   {
     "action": "SWAMP BOGSINK",
@@ -2735,7 +2807,7 @@
     "speed": "3.00",
     "slow": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, water, flooded"
   },
   {
     "action": "DESERT SANDSTORM",
@@ -2747,7 +2819,7 @@
     "speed": "3.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, earth, scorched"
   },
   {
     "action": "DESERT HEATWAVE",
@@ -2759,7 +2831,7 @@
     "speed": "2.50",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, earth, scorched"
   },
   {
     "action": "ICE SHARDS",
@@ -2771,7 +2843,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, water, exposed"
   },
   {
     "action": "ICE BLIZZARD",
@@ -2783,7 +2855,7 @@
     "speed": "3.00",
     "slow": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, water, exposed"
   },
   {
     "action": "RUINS CURSE",
@@ -2795,7 +2867,7 @@
     "speed": "3.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, air, exposed"
   },
   {
     "action": "RUINS PILLAR",
@@ -2807,7 +2879,7 @@
     "speed": "2.00",
     "stun": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, exposed"
   },
   {
     "action": "CASTLE PORTCULLIS",
@@ -2831,7 +2903,7 @@
     "speed": "2.50",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, fire"
   },
   {
     "action": "GRAVEYARD MIST",
@@ -2952,7 +3024,7 @@
     "speed": "2.00",
     "poison": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, fire"
   },
   {
     "action": "TRAP PIT",
@@ -3228,7 +3300,7 @@
     "speed": "2.50",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, fire"
   },
   {
     "action": "KITCHEN POTS",
@@ -3432,7 +3504,7 @@
     "speed": "2.00",
     "bleed": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, fire"
   },
   {
     "action": "SANCTUM LIGHT",
@@ -3480,7 +3552,7 @@
     "speed": "2.00",
     "poison": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, water"
   },
   {
     "action": "CATACOMB BONESHARDS",
@@ -3553,7 +3625,7 @@
     "speed": "2.00",
     "weaken": "1",
     "target": "ENEMY",
-    "tags": "environment"
+    "tags": "environment, water"
   },
   {
     "action": "LABORATORY CHEMICAL",
@@ -3726,14 +3798,14 @@
   },
   {
     "action": "ARCANE ECHO",
-    "description": "Wizard echo \u2014 used by combo/gear duplication tests.",
+    "description": "Wizard echo — used by combo/gear duplication tests.",
     "category": "WIZARD",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "wizard"
+    "tags": "class, action, wizard, air"
   },
   {
     "action": "Sand Dash",
@@ -3744,7 +3816,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Burrow Strike",
@@ -3755,7 +3827,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Rolling Charge",
@@ -3777,7 +3849,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, fire"
   },
   {
     "action": "Blinding Flash",
@@ -4030,7 +4102,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Scorching Bite",
@@ -4041,7 +4113,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, fire"
   },
   {
     "action": "Tremor Burst",
@@ -4085,7 +4157,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, fire"
   },
   {
     "action": "Smog Step",
@@ -4099,7 +4171,7 @@
     "tags": "enemy"
   },
   {
-    "action": "Predator\u0027s Focus",
+    "action": "Predator's Focus",
     "description": "Focus",
     "category": "ENEMY",
     "dps": "100%",
@@ -4129,7 +4201,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, fire"
   },
   {
     "action": "Molten Chain",
@@ -4184,7 +4256,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Soul Skewer",
@@ -4206,7 +4278,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, fire"
   },
   {
     "action": "Branding Seal",
@@ -4217,7 +4289,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, fire"
   },
   {
     "action": "Crumbling Curse",
@@ -4283,7 +4355,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, fire"
   },
   {
     "action": "Magma Carapace",
@@ -4294,7 +4366,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, fire"
   },
   {
     "action": "Amber Casing",
@@ -4316,7 +4388,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, fire"
   },
   {
     "action": "Amber Ooze",
@@ -4341,7 +4413,7 @@
     "tags": "enemy"
   },
   {
-    "action": "Leader\u0027s Fang",
+    "action": "Leader's Fang",
     "description": "Commanding bite dealing 75 damage",
     "category": "ENEMY",
     "dps": "100%",
@@ -4393,7 +4465,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Celestial Strike",
@@ -4418,7 +4490,7 @@
     "tags": "enemy"
   },
   {
-    "action": "Pack Leader\u0027s Call",
+    "action": "Pack Leader's Call",
     "description": "Summons 2 wolf allies for 20 seconds",
     "category": "ENEMY",
     "dps": "100%",
@@ -4485,7 +4557,7 @@
   },
   {
     "action": "Reflex Drain",
-    "description": "Steals target\u0027s dodge chance for 6 seconds",
+    "description": "Steals target's dodge chance for 6 seconds",
     "category": "ENEMY",
     "dps": "100%",
     "numberOfHits": "1",
@@ -4518,7 +4590,7 @@
   },
   {
     "action": "Identity Theft",
-    "description": "Copies target\u0027s appearance and one ability",
+    "description": "Copies target's appearance and one ability",
     "category": "ENEMY",
     "dps": "100%",
     "numberOfHits": "1",
@@ -4539,7 +4611,7 @@
     "tags": "enemy"
   },
   {
-    "action": "Nature\u0027s Touch",
+    "action": "Nature's Touch",
     "description": "Heals allies for 45 HP",
     "category": "ENEMY",
     "dps": "100%",
@@ -4602,7 +4674,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Whip Strike",
@@ -4716,7 +4788,7 @@
   },
   {
     "action": "Veil Shatter",
-    "description": "\u0060Disrupt",
+    "description": "`Disrupt",
     "category": "ENEMY",
     "dps": "100%",
     "numberOfHits": "1",
@@ -4778,7 +4850,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Vent Focus",
@@ -4855,7 +4927,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Stone Bracing",
@@ -4866,7 +4938,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Toxic Gaze",
@@ -4921,7 +4993,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Sand Armor",
@@ -4932,7 +5004,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Heat Wave",
@@ -5054,10 +5126,10 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
-    "action": "Mummy\u0027s Grasp",
+    "action": "Mummy's Grasp",
     "description": "Wraps bandages around target immobilizing for 4 seconds",
     "category": "ENEMY",
     "dps": "100%",
@@ -5087,7 +5159,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Ancient Curse",
@@ -5120,7 +5192,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Ledge Grab",
@@ -5186,10 +5258,10 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, air"
   },
   {
-    "action": "Mountain\u0027s Fury",
+    "action": "Mountain's Fury",
     "description": "Enrages increasing damage by 50% for 8 seconds",
     "category": "ENEMY",
     "dps": "100%",
@@ -5208,7 +5280,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, fire"
   },
   {
     "action": "Molten Ooze",
@@ -5234,7 +5306,7 @@
   },
   {
     "action": "Soot Pummel",
-    "description": "\u002B HIT",
+    "description": "+ HIT",
     "category": "ENEMY",
     "dps": "100%",
     "numberOfHits": "1",
@@ -5285,7 +5357,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Flicker Dash",
@@ -5300,7 +5372,7 @@
   },
   {
     "action": "Guard Stance",
-    "description": "\u002B ARMOR",
+    "description": "+ ARMOR",
     "category": "ENEMY",
     "dps": "100%",
     "numberOfHits": "1",
@@ -5318,7 +5390,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, fire"
   },
   {
     "action": "Drift Strike",
@@ -5362,7 +5434,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, fire"
   },
   {
     "action": "Blazing Advance",
@@ -5384,7 +5456,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, air"
   },
   {
     "action": "hollow Grasp",
@@ -5520,7 +5592,7 @@
   },
   {
     "action": "Marrow Drain",
-    "description": "Drains 55 HP and weakens target\u0027s defense",
+    "description": "Drains 55 HP and weakens target's defense",
     "category": "ENEMY",
     "dps": "100%",
     "numberOfHits": "1",
@@ -5563,7 +5635,7 @@
     "tags": "enemy"
   },
   {
-    "action": "Night\u0027s Grace",
+    "action": "Night's Grace",
     "description": "Heals for 50 HP and removes debuffs",
     "category": "ENEMY",
     "dps": "100%",
@@ -5794,7 +5866,7 @@
     "tags": "enemy"
   },
   {
-    "action": "Predator\u0027s Eye",
+    "action": "Predator's Eye",
     "description": "Focus",
     "category": "ENEMY",
     "dps": "100%",
@@ -5824,7 +5896,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Wave Slam",
@@ -5835,7 +5907,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Mud Roll",
@@ -6044,7 +6116,7 @@
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "enemy"
+    "tags": "enemy, earth"
   },
   {
     "action": "Still Waters",

@@ -83,7 +83,9 @@ namespace RPGGame.Audio
                 _engine.SetBusMute(AudioBusKind.Music, !cfg.MusicEnabled);
                 _engine.SetBusMute(AudioBusKind.Sfx, !cfg.SfxEnabled);
 
-                _dispatcher = new AudioCueDispatcher(_engine);
+                _dispatcher = new AudioCueDispatcher(
+                    _engine,
+                    globalEnabledResolver: () => !CombatManager.DisableCombatUIOutput);
                 _dispatcher.SubscribeToCombatEvents();
                 AudioCues.SetDispatcher(_dispatcher);
 
@@ -94,7 +96,9 @@ namespace RPGGame.Audio
             {
                 ErrorHandler.LogError(ex, "AudioBootstrap.InitializeCoreLocked", "Audio system bootstrap failed; falling back to silent");
                 _engine = new NullAudioEngine();
-                _dispatcher = new AudioCueDispatcher(_engine);
+                _dispatcher = new AudioCueDispatcher(
+                    _engine,
+                    globalEnabledResolver: () => !CombatManager.DisableCombatUIOutput);
                 AudioCues.SetDispatcher(_dispatcher);
                 _musicController = new MusicController(_engine);
                 _initialized = true;

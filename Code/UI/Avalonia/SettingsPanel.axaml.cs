@@ -132,8 +132,9 @@ namespace RPGGame.UI.Avalonia
             panelHandlerRegistry.Register(new AppearancePanelHandler(settings, colorManager));
             panelHandlerRegistry.Register(new Managers.Settings.PanelHandlers.ClassesPanelHandler(ShowStatusMessage));
             panelHandlerRegistry.Register(new ItemGenerationPanelHandler(ShowStatusMessage));
-            panelHandlerRegistry.Register(new EnemyTuningPanelHandler(ShowStatusMessage));
-            panelHandlerRegistry.Register(new Managers.Settings.PanelHandlers.CombatTuningPanelHandler(ShowStatusMessage));
+            var combatTuningHandler = new Managers.Settings.PanelHandlers.CombatTuningPanelHandler(ShowStatusMessage);
+            var enemyTuningHandler = new EnemyTuningPanelHandler(ShowStatusMessage);
+            panelHandlerRegistry.Register(new CombatAndEnemyTuningPanelHandler(combatTuningHandler, enemyTuningHandler));
             // Testing handler will be registered when canvasUI is available
             
             // Initialize save orchestrator (single panel resolution via GetPanelForCategory)
@@ -405,6 +406,7 @@ namespace RPGGame.UI.Avalonia
             if (handler != null)
             {
                 handler.WireUp(panel);
+                handler.LoadSettings(panel);
                 return;
             }
             

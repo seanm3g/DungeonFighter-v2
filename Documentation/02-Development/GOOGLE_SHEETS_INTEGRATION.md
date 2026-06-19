@@ -64,7 +64,7 @@ Two-row header (category band + short names), then data rows. Canonical columns 
 | G | `archetype` | One of **10** values: Knight, Assassin, Berserker, Acrobat, Brute, Warlord, Sage, Duelist, Artificer, Trickster |
 | H–K | base attributes | `strength`, `agility`, `technique`, `intelligence` |
 | L–O | growth per level | same four stats (sum normalized to 6/level in game) |
-| P–Q | HEALTH | `baseHealth`, `healthGrowthPerLevel` |
+| P–Q | HEALTH | `healthPercent`, `healthGrowthPercent` — % of tuning baseline health (`enemySystem.baselineStats.health`; default 70). E.g. `125` = 125% of baseline at level 1; `3.36` = 3.36% of baseline per level after level 1. Optional `%` suffix accepted on pull. Legacy headers `baseHealth` / `healthGrowthPerLevel` still import. |
 | R–U | `actions`, `isLiving`, `description`, `colorOverride` | `actions`: pipe list (`JAB\|TAUNT`), not a JSON array |
 
 **Authoring flow:** edit **Archetype** and **tags** on the ENEMIES tab → **PULL** → `Enemies.json` updates (archetype Title Case normalized on import). **Push** writes local `Enemies.json` back to the sheet (enable **Push ENEMIES** in Balance Tuning). Push exports `tags` comma-separated and `actions` pipe-separated.

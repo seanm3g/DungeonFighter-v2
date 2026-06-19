@@ -16,12 +16,23 @@ namespace RPGGame
             WeaponType.Wand
         };
 
+        /// <summary>Legacy constant; prefer <see cref="WandEquippedComboSlotBonus"/> property from config.</summary>
+        public const int DefaultWandEquippedComboSlotBonus = 1;
+
         /// <summary>Extra combo strip slots granted while a Wizard-path (Wand) weapon is equipped.</summary>
-        public const int WandEquippedComboSlotBonus = 1;
+        public int WandEquippedComboSlotBonus { get; set; } = DefaultWandEquippedComboSlotBonus;
 
         /// <summary>Class-weapon intrinsic combo strip slots (independent of item affixes and tier upgrades).</summary>
-        public static int GetEquippedWeaponComboSlotBonus(WeaponType? weaponType) =>
-            weaponType == WeaponType.Wand ? WandEquippedComboSlotBonus : 0;
+        public int GetEquippedWeaponComboSlotBonusFor(WeaponType? weaponType) =>
+            weaponType == WeaponType.Wand ? Math.Max(0, WandEquippedComboSlotBonus) : 0;
+
+        /// <summary>Reads wand combo slot bonus from active class presentation config.</summary>
+        public static int GetEquippedWeaponComboSlotBonus(WeaponType? weaponType)
+        {
+            var cp = GameConfiguration.Instance?.ClassPresentation;
+            return cp?.GetEquippedWeaponComboSlotBonusFor(weaponType)
+                ?? (weaponType == WeaponType.Wand ? DefaultWandEquippedComboSlotBonus : 0);
+        }
 
         public string DefaultNoPointsClassName { get; set; } = "Fighter";
 

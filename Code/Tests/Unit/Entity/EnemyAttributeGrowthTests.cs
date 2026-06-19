@@ -25,6 +25,8 @@ namespace RPGGame.Tests.Unit.Entity
             TestPartialBaseAttributesFallsBackForOmittedStats();
             TestExplicitGrowthPerLevelFractional();
             TestExplicitHealthGrowthPerLevel();
+            TestHealthPercentBaselineScaling();
+            TestGoblinHealthCurvePreservedAfterMigration();
             TestProgressionScalesApplyToCurves();
 
             TestBase.PrintSummary("Enemy Attribute Growth Tests", _testsRun, _testsPassed, _testsFailed);
@@ -168,8 +170,8 @@ namespace RPGGame.Tests.Unit.Entity
             {
                 Name = "PartialStatEnemy",
                 Archetype = "Mage",
-                BaseHealth = 33,
-                HealthGrowthPerLevel = 2.05,
+                HealthPercent = 47.14,
+                HealthGrowthPercent = 2.93,
                 BaseAttributes = new EnemyAttributeSet { Strength = 2 },
                 GrowthPerLevel = new EnemyAttributeSet { Strength = 0.08 },
                 IsLiving = false,
@@ -249,7 +251,7 @@ namespace RPGGame.Tests.Unit.Entity
 
         private static void TestExplicitHealthGrowthPerLevel()
         {
-            Console.WriteLine("\n--- Explicit baseHealth + healthGrowthPerLevel ---");
+            Console.WriteLine("\n--- Explicit healthPercent + healthGrowthPercent ---");
 
             var enemySystem = new EnemySystemConfig
             {
@@ -262,7 +264,7 @@ namespace RPGGame.Tests.Unit.Entity
                 },
                 BaselineStats = new BaselineStatsConfig
                 {
-                    Health = 50,
+                    Health = 70,
                     Strength = 3,
                     Agility = 3,
                     Technique = 3,
@@ -282,15 +284,64 @@ namespace RPGGame.Tests.Unit.Entity
             {
                 Name = "HpTest",
                 Archetype = "Berserker",
-                BaseHealth = 100,
-                HealthGrowthPerLevel = 2.7,
+                HealthPercent = 1000.0 / 7.0,
+                HealthGrowthPercent = 2.7 / 70.0 * 100.0,
                 BaseAttributes = new EnemyAttributeSet { Strength = 2, Agility = 2, Technique = 2, Intelligence = 2 },
                 GrowthPerLevel = new EnemyAttributeSet { Strength = 0, Agility = 0, Technique = 0, Intelligence = 0 }
             };
 
             var stats = EnemyStatCalculator.CalculateStats(data, 10, enemySystem);
-            // lv=9; floor(100 + 9*2.7)=floor(124.3)=124 — tuning scaling.Health must not apply when growth is explicit
+            // baseline 70 × (1000/7)% = 100 HP; growth 2.7/lv; lv=9 -> floor(124.3)=124
             TestBase.AssertEqual(124, stats.Health, "Calculator HP at L10 with explicit growth", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestHealthPercentBaselineScaling()
+        {
+            Console.WriteLine("\n--- healthPercent scales from baseline ---");
+
+            var enemySystem = new EnemySystemConfig
+            {
+                GlobalMultipliers = new GlobalMultipliersConfig { HealthMultiplier = 1.0, DamageMultiplier = 1.0, ArmorMultiplier = 1.0, SpeedMultiplier = 1.0 },
+                BaselineStats = new BaselineStatsConfig { Health = 70, Strength = 3, Agility = 3, Technique = 3, Intelligence = 3, Armor = 2 },
+                ScalingPerLevel = new ScalingPerLevelConfig { Health = 0, Attributes = 0, Armor = 0 },
+                Archetypes = new Dictionary<string, ArchetypeMultipliersConfig>()
+            };
+
+            var data = new EnemyData
+            {
+                Name = "BatLike",
+                Archetype = "Assassin",
+                HealthPercent = 125
+            };
+
+            var stats = EnemyStatCalculator.CalculateStats(data, 1, enemySystem);
+            TestBase.AssertEqual(87, stats.Health, "125% of baseline 70 floors to 87 HP", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestGoblinHealthCurvePreservedAfterMigration()
+        {
+            Console.WriteLine("\n--- Goblin health curve preserved at baseline 70 ---");
+
+            var enemySystem = new EnemySystemConfig
+            {
+                GlobalMultipliers = new GlobalMultipliersConfig { HealthMultiplier = 1.0, DamageMultiplier = 1.0, ArmorMultiplier = 1.0, SpeedMultiplier = 1.0 },
+                BaselineStats = new BaselineStatsConfig { Health = 70, Strength = 3, Agility = 3, Technique = 3, Intelligence = 3, Armor = 2 },
+                ScalingPerLevel = new ScalingPerLevelConfig { Health = 0, Attributes = 0, Armor = 0 },
+                Archetypes = new Dictionary<string, ArchetypeMultipliersConfig>()
+            };
+
+            var data = new EnemyData
+            {
+                Name = "Goblin",
+                Archetype = "Assassin",
+                HealthPercent = 52.21,
+                HealthGrowthPercent = 3.36,
+                BaseAttributes = new EnemyAttributeSet { Strength = 5, Agility = 3, Technique = 1, Intelligence = 3 },
+                GrowthPerLevel = new EnemyAttributeSet { Strength = 0.8, Agility = 2.3, Technique = 2.3, Intelligence = 0.5 }
+            };
+
+            var stats = EnemyStatCalculator.CalculateStats(data, 10, enemySystem);
+            TestBase.AssertEqual(57, stats.Health, "Goblin L10 HP matches pre-migration absolute curve", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestProgressionScalesApplyToCurves()
@@ -306,7 +357,7 @@ namespace RPGGame.Tests.Unit.Entity
                     HealthGrowthScale = 0.5,
                     AttributeGrowthScale = 2.0
                 },
-                BaselineStats = new BaselineStatsConfig { Health = 50, Strength = 3, Agility = 3, Technique = 3, Intelligence = 3, Armor = 2 },
+                BaselineStats = new BaselineStatsConfig { Health = 70, Strength = 3, Agility = 3, Technique = 3, Intelligence = 3, Armor = 2 },
                 ScalingPerLevel = new ScalingPerLevelConfig { Health = 10, Attributes = 1, Armor = 1 },
                 Archetypes = new Dictionary<string, ArchetypeMultipliersConfig>
                 {
@@ -318,8 +369,8 @@ namespace RPGGame.Tests.Unit.Entity
             {
                 Name = "ScaleTest",
                 Archetype = "Berserker",
-                BaseHealth = 100,
-                HealthGrowthPerLevel = 4,
+                HealthPercent = 100.0 / 70.0 * 100.0,
+                HealthGrowthPercent = 4.0 / 70.0 * 100.0,
                 BaseAttributes = new EnemyAttributeSet { Strength = 10, Agility = 10, Technique = 10, Intelligence = 10 },
                 GrowthPerLevel = new EnemyAttributeSet { Strength = 1, Agility = 1, Technique = 2, Intelligence = 2 }
             };

@@ -32,6 +32,8 @@ namespace RPGGame
     {
         public AttributeSet PlayerBaseAttributes { get; set; } = new();
         public int PlayerAttributesPerLevel { get; set; }
+        public int PlayerPrimaryStatPerLevel { get; set; } = 3;
+        public int PlayerSecondaryStatPerLevel { get; set; } = 1;
         public int EnemyAttributesPerLevel { get; set; }
         public int EnemyPrimaryAttributeBonus { get; set; }
         public int IntelligenceRollBonusPer { get; set; }
@@ -63,6 +65,10 @@ namespace RPGGame
             }
             if (PlayerAttributesPerLevel <= 0)
                 PlayerAttributesPerLevel = 2;
+            if (PlayerPrimaryStatPerLevel <= 0)
+                PlayerPrimaryStatPerLevel = 3;
+            if (PlayerSecondaryStatPerLevel <= 0)
+                PlayerSecondaryStatPerLevel = 1;
         }
     }
 

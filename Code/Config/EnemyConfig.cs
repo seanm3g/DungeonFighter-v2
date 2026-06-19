@@ -422,6 +422,7 @@ namespace RPGGame
         public BaselineStatsConfig BaselineStats { get; set; } = new();
         public ScalingPerLevelConfig ScalingPerLevel { get; set; } = new();
         public Dictionary<string, ArchetypeMultipliersConfig> Archetypes { get; set; } = new();
+        public double AttributeGrowthBudgetPerLevel { get; set; } = 6.0;
         public int LevelVariance { get; set; } = 1;
         public string Description { get; set; } = "";
 
@@ -464,6 +465,36 @@ namespace RPGGame
             Archetypes ??= new Dictionary<string, ArchetypeMultipliersConfig>();
             if (LevelVariance <= 0)
                 LevelVariance = 1;
+            if (AttributeGrowthBudgetPerLevel <= 0)
+                AttributeGrowthBudgetPerLevel = 6.0;
+            EnsureDefaultArchetypes();
+        }
+
+        private void EnsureDefaultArchetypes()
+        {
+            Archetypes ??= new Dictionary<string, ArchetypeMultipliersConfig>();
+            EnsureArchetype("Berserker", 0.8, 1.5, 0.9, 0.9, 0.8, 0.5);
+            EnsureArchetype("Guardian", 1.0, 0.8, 0.8, 0.8, 0.8, 1.8);
+            EnsureArchetype("Assassin", 0.7, 1.0, 1.6, 1.2, 1.0, 0.4);
+            EnsureArchetype("Brute", 1.6, 1.0, 0.7, 0.7, 0.7, 0.8);
+            EnsureArchetype("Mage", 0.6, 0.6, 0.8, 0.8, 1.8, 0.3);
+            EnsureArchetype("Acrobat", 0.75, 0.9, 1.5, 1.3, 0.9, 0.35);
+        }
+
+        private void EnsureArchetype(string name, double health, double str, double agi, double tec, double intel, double armor)
+        {
+            if (!Archetypes.ContainsKey(name))
+            {
+                Archetypes[name] = new ArchetypeMultipliersConfig
+                {
+                    Health = health,
+                    Strength = str,
+                    Agility = agi,
+                    Technique = tec,
+                    Intelligence = intel,
+                    Armor = armor
+                };
+            }
         }
 
         private static EnemySpawnTierWeightsConfig CloneSpawnWeights(EnemySpawnTierWeightsConfig source) => new()

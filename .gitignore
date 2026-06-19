@@ -433,7 +433,6 @@ GameData/character_save_dead.json
 GameData/character_*_save.json
 GameData/character_*_dead.json
 GameData/gamesettings.json
-GameData/Audio/AudioConfig.json
 GameData/TuningConfig.json
 GameData/PatchProfile.json
 # Player-local general settings (game prefs + audio bus volume/mute)

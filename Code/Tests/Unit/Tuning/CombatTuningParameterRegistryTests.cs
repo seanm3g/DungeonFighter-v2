@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using RPGGame;
 using RPGGame.Tests;
 using RPGGame.Tuning;
@@ -19,13 +20,57 @@ namespace RPGGame.Tests.Unit.Tuning
             _testsFailed = 0;
 
             TestRegistry_HasAllLayers();
+            TestRegistry_HasExpandedParameterCount();
+            TestRegistry_HasAllTabs();
+            TestRegistry_HasHeroAndEnemyBaseHealth();
             TestPlayerBaseHealth_RoundTrips();
             TestGlobalEnemyHealthMult_RoundTrips();
             TestPlayerBaseHealth_AffectsComputeMaxHealth();
             TestEnemyHealthMultiplier_AppliesInStatCalculator();
             TestRuntimeDifficulty_UsesGameSettings();
+            TestClassDamageMultiplier_WiredInRegistry();
+            TestDifficultyPresets_MarkedUnimplemented();
 
             TestBase.PrintSummary("CombatTuningParameterRegistry Tests", _testsRun, _testsPassed, _testsFailed);
+        }
+
+        private static void TestRegistry_HasExpandedParameterCount()
+        {
+            Console.WriteLine("--- Registry has expanded parameter catalog ---");
+            TestBase.AssertTrue(CombatTuningParameterRegistry.All.Count >= 150,
+                $"Registry has 150+ parameters (actual {CombatTuningParameterRegistry.All.Count})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRegistry_HasAllTabs()
+        {
+            Console.WriteLine("--- Registry assigns parameters to all tabs ---");
+            foreach (CombatTuningTab tab in Enum.GetValues(typeof(CombatTuningTab)))
+            {
+                TestBase.AssertTrue(CombatTuningParameterRegistry.GetByTab(tab).Count > 0,
+                    $"Tab {tab} has parameters",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestClassDamageMultiplier_WiredInRegistry()
+        {
+            Console.WriteLine("--- barbarianDamageMult round-trips ---");
+            var param = CombatTuningParameterRegistry.GetById("barbarianDamageMult");
+            var cfg = GameConfiguration.Instance;
+            double saved = cfg.ClassBalance.Barbarian.DamageMultiplier;
+            try
+            {
+                TestBase.AssertTrue(param != null, "barbarianDamageMult exists", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                param!.SetValue(1.2);
+                TestBase.AssertTrue(Math.Abs(ClassBalanceHelper.GetDamageMultiplier(WeaponType.Mace) - 1.2) < 0.001,
+                    "ClassBalanceHelper reads updated damage mult",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.ClassBalance.Barbarian.DamageMultiplier = saved;
+            }
         }
 
         private static void TestRegistry_HasAllLayers()
@@ -37,6 +82,25 @@ namespace RPGGame.Tests.Unit.Tuning
                 "WinRate layer has parameters", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(CombatTuningParameterRegistry.GetByLayer(CombatTuningLayer.Goals).Count >= 4,
                 "Goals layer has parameters", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRegistry_HasHeroAndEnemyBaseHealth()
+        {
+            Console.WriteLine("--- Registry exposes hero and enemy base health ---");
+            var hero = CombatTuningParameterRegistry.GetById("playerBaseHealth");
+            var enemy = CombatTuningParameterRegistry.GetById("enemyBaselineHealth");
+            TestBase.AssertTrue(hero != null, "playerBaseHealth (hero base health) exists",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(enemy != null, "enemyBaselineHealth (enemy base health) exists",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(hero!.Layer == CombatTuningLayer.Duration,
+                "Hero base health is in Duration layer", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(enemy!.Layer == CombatTuningLayer.Duration,
+                "Enemy base health is in Duration layer", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Hero base health", hero.Label,
+                "Hero base health label", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Enemy base health", enemy.Label,
+                "Enemy base health label", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestPlayerBaseHealth_RoundTrips()
@@ -106,8 +170,8 @@ namespace RPGGame.Tests.Unit.Tuning
             {
                 Name = "TuningGoblin",
                 Archetype = "Berserker",
-                BaseHealth = 40,
-                HealthGrowthPerLevel = 2
+                HealthPercent = 57.14,
+                HealthGrowthPercent = 2.0 / 70.0 * 100.0
             };
 
             try
@@ -135,6 +199,23 @@ namespace RPGGame.Tests.Unit.Tuning
             var param = CombatTuningParameterRegistry.GetById("runtimeEnemyHealthMult");
             TestBase.AssertTrue(param != null && param.UsesGameSettings,
                 "runtimeEnemyHealthMult flagged as GameSettings", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestDifficultyPresets_MarkedUnimplemented()
+        {
+            Console.WriteLine("--- Difficulty presets marked unimplemented ---");
+            foreach (var id in new[] { "easyEnemyHealthMult", "normalXpMult", "hardLootMult" })
+            {
+                var param = CombatTuningParameterRegistry.GetById(id);
+                TestBase.AssertTrue(param != null && !param.IsImplemented,
+                    $"{id} is unimplemented",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+
+            var runtime = CombatTuningParameterRegistry.GetById("runtimeEnemyHealthMult");
+            TestBase.AssertTrue(runtime != null && runtime.IsImplemented,
+                "runtimeEnemyHealthMult remains implemented",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

@@ -50,6 +50,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             MinHeight = 480;
 
             Closed += OnClosed;
+            KeyDown += OnKeyDown;
         }
 
         public static void Open(Window? owner, CanvasUICoordinator canvasUi, GameCoordinator game)
@@ -122,6 +123,20 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 _instance = null;
             if (_game?.StateManager?.CurrentState == GameState.ActionInteractionLab)
                 _game.ExitActionInteractionLab();
+        }
+
+        private async void OnKeyDown(object? sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.PageUp && e.Key != Key.PageDown)
+                return;
+
+            string? input = e.Key == Key.PageUp ? "pageup" : "pagedown";
+            string? labToken = ActionLabInputCoordinator.MapPageStepInput(input);
+            if (labToken == null)
+                return;
+
+            e.Handled = true;
+            await ActionLabInputCoordinator.HandleLabControlAsync(labToken, _canvasUi, _game).ConfigureAwait(true);
         }
 
         private void OnCanvasPointerReleased(object? sender, PointerReleasedEventArgs e)

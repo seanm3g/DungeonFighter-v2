@@ -32,7 +32,7 @@ Runtime `TextBoxColorManager` and `BorderColorManager` no longer walk panel cont
 | `SettingsPanelRoot` | ScrollViewer + spaced StackPanel (`Margin 20`, `Spacing 24`) |
 | `SettingsSection` | Collapsible section header + content |
 | `SettingsFieldRow` | Label + control row |
-| `SliderWithTextBox` | Slider + numeric field (defaults match theme) |
+| `SliderWithTextBox` | Slider + numeric field (legacy; tuning panels use ViewModel + Slider/TextBox instead) |
 
 ## Layout rules (flat dark)
 
@@ -85,8 +85,7 @@ When merging related panels under one sidebar entry:
 | Text & Animation | — | Yes | Container with tab embed |
 | Text Animation presets (child) | — | Partial | Preview chrome uses theme tokens; color swatches keep inline styles |
 | Appearance | — | Yes | Tabbed: Settings UI, Color Codes, Templates, Keywords, Combat Text |
-| Enemy Tuning | — | Yes | Migrated from hardcoded brushes |
-| Combat Tuning | — | Yes | Expander headers |
+| Combat Tuning | — | Yes | Container with Combat + Enemy tabs; combat parameters and enemy progression/spawn weights |
 | Classes | — | Partial | |
 | About | — | Yes | |
 | Actions / Testing / Item Generation | — | Yes | Dedicated content areas |

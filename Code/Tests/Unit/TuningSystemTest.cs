@@ -70,7 +70,7 @@ namespace RPGGame
                 Archetype = "Berserker",
                 IsLiving = true,
                 Actions = new List<string> { "JAB", "TAUNT" },
-                BaseHealth = 32,
+                HealthPercent = 64,
                 GrowthPerLevel = new EnemyAttributeSet { Strength = 1.5, Agility = 1.5, Technique = 1.5, Intelligence = 1.5 }
             };
 
@@ -145,22 +145,22 @@ namespace RPGGame
             {
                 Name = "Test Assassin",
                 Archetype = "Assassin",
-                BaseHealth = 28,
-                HealthGrowthPerLevel = 2.1,
+                HealthPercent = 56,
+                HealthGrowthPercent = 4.2,
                 GrowthPerLevel = new EnemyAttributeSet { Agility = 2.0, Strength = 4.0 / 3.0, Technique = 4.0 / 3.0, Intelligence = 4.0 / 3.0 }
             };
 
             UIManager.WriteSystemLine("Step 1 - Baseline Stats (tuning fallbacks when enemy omits a field):");
             UIManager.WriteSystemLine($"  Health: {enemySystem.BaselineStats.Health}, STR: {enemySystem.BaselineStats.Strength}, AGI: {enemySystem.BaselineStats.Agility}");
 
-            UIManager.WriteSystemLine("Step 2 - Enemy row: explicit baseHealth + archetype for missing bases:");
-            UIManager.WriteSystemLine($"  Base HP uses enemy.BaseHealth when set (here 28).");
+            UIManager.WriteSystemLine("Step 2 - Enemy row: explicit healthPercent + archetype for missing bases:");
+            UIManager.WriteSystemLine($"  Base HP = baseline × healthPercent% (here 50 × 56% = 28).");
 
             UIManager.WriteSystemLine("Step 3 - Attribute growth (STR+AGI+TEC+INT) is normalized to 6 points/level:");
             UIManager.WriteSystemLine("  Partial explicit growth shares the remainder across unset stats.");
 
             UIManager.WriteSystemLine("Step 4 - Scale by Level (Level 3, lv=2):");
-            UIManager.WriteSystemLine($"  Health: baseHealth + lv * healthGrowth = 28 + 2 * 2.1");
+            UIManager.WriteSystemLine($"  Health: baseline × healthPercent% + lv × (baseline × healthGrowthPercent%)");
             UIManager.WriteSystemLine($"  Attributes: base (baseline * archetype when omitted) + lv * normalized growthPerLevel");
 
             var finalStats = EnemyStatCalculator.CalculateStats(enemyData, 3, enemySystem);

@@ -71,14 +71,15 @@ SettingsPanel (UI)
 #### 3. Panel handlers and registry
 - **Interface**: `ISettingsPanelHandler` — `PanelType`, `WireUp(panel)`, `LoadSettings(panel)`, `SaveSettings(panel)`
 - **Registry**: `PanelHandlerRegistry` — register and resolve handler by category tag
-- **Handlers**: GameplayPanelHandler, TextAndAnimationPanelHandler, AppearancePanelHandler, TestingPanelHandler (includes Action Lab), TravelPanelHandler, AudioPanelHandler, CombatTuningPanelHandler, EnemyTuningPanelHandler, etc.
+- **Handlers**: GameplayPanelHandler, TextAndAnimationPanelHandler, AppearancePanelHandler, TestingPanelHandler (includes Action Lab), TravelPanelHandler, AudioPanelHandler, CombatAndEnemyTuningPanelHandler, etc.
 - **Use**: Orchestrator calls `handler.SaveSettings(panel)` when a panel is loaded; SettingsPanel uses handlers for load and wire-up
-- **Panel load contract**: Load from settings once when the panel is wired (e.g. call `LoadSettings` once from `WireUp`, with a single deferred post if needed for FindControl). Do **not** subscribe to `Loaded` to re-run `LoadSettings`, because `Loaded` can fire again on layout/focus (e.g. when the user clicks Save), which would overwrite user edits or post-save state with stale values. All handlers follow this load-once behavior.
+- **Panel load contract**: On first open, `SettingsPanel.InitializePanelHandlers` calls `WireUp` then `LoadSettings`. On tab revisit, only `LoadSettings` runs (cached panel). Handlers build ViewModels/bindings once in `WireUp`; `LoadSettings` pushes config into the UI. Use a single deferred post in `WireUp` only when `FindControl` needs the visual tree — do **not** subscribe to `Loaded` to re-run `LoadSettings`, and do **not** nest dispatcher reload loops.
+- **Combat / Enemy tuning UI**: `ItemsControl` + `CombatTuningParameterViewModel` / `EnemyProgressionScaleViewModel` with native `Slider` + `TextBox` two-way bindings (`Code/UI/Avalonia/Settings/ViewModels/`). Do not use `SliderWithTextBox` for registry-driven tuning grids.
 
 #### 4. SettingsSaveOrchestrator (Persistence coordination)
 - **File**: `Code/UI/Avalonia/Managers/Settings/SettingsSaveOrchestrator.cs`
 - **Responsibility**: Save all loaded panels in a defined order; delegate to handlers or tab managers. Uses a single **panel resolver** (`GetPanelForCategoryResolver`) so "displayed or cached" is resolved in one place (SettingsPanel.GetPanelForCategory).
-- **Save order**: Game Variables → Gameplay (handler) → handler categories from `HandlerSaveCategoryTags` (`Travel`, `TextAndAnimation`, `Appearance`, `BalanceTuning`, `ItemGeneration`, `EnemyTuning`, `CombatTuning`, `Classes`, `Audio`) → ItemModifiers + ItemSuffixes tab managers → Items → Enemies (if loaded) → Actions flush → balance/audio patch dialogs → GameSettings patch
+- **Save order**: Game Variables → Gameplay (handler) → handler categories from `HandlerSaveCategoryTags` (`Travel`, `TextAndAnimation`, `Appearance`, `BalanceTuning`, `ItemGeneration`, `CombatTuning`, `Classes`, `Audio`) → ItemModifiers + ItemSuffixes tab managers → Items → Enemies (if loaded) → Actions flush → balance/audio patch dialogs → GameSettings patch
 - **Returns**: `SettingsSaveResult` (Success, ActionsSaved, TextDelaysSaved) so the panel can run post-save apply
 - **Table-driven**: Handler-based categories are in `HandlerSaveCategoryTags`; add a new handler-based panel by registering the handler and adding its tag to that list.
 
@@ -150,8 +151,7 @@ User clicks Save
 | ItemAffixes | Developer | ItemModifiersTabManager + ItemSuffixesTabManager | Tab managers |
 | Patches | Developer | PatchesPanelHandler | Apply button (immediate) |
 | BalanceTuning | Developer | BalanceTuningPanelHandler | Handler + sheets |
-| CombatTuning | Balance | CombatTuningPanelHandler | Handler (balance patch) |
-| EnemyTuning | Balance | EnemyTuningPanelHandler | Handler (balance patch) |
+| CombatTuning | Balance | CombatAndEnemyTuningPanelHandler (Combat + Enemy child panels) | Handler (balance patch) |
 | Classes | Balance | ClassesPanelHandler | Handler (balance patch) |
 | ItemGeneration | Balance | ItemGenerationPanelHandler | Handler (balance patch) |
 | Testing | Testing | TestingPanelHandler | Handler (save no-op; Action Lab wired here) |
