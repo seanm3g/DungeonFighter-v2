@@ -37,14 +37,20 @@ namespace RPGGame.MCP
             bool useIncremental = true)
         {
             // Always create full snapshot first
+            var inputContext = AgentChoiceBuilder.ResolveInputContext(game);
+            var choices = AgentChoiceBuilder.BuildChoices(game, inputContext);
+
             var fullSnapshot = new GameStateSnapshot
             {
                 CurrentState = game.CurrentState.ToString(),
                 Player = game.CurrentPlayer != null ? SerializePlayer(game.CurrentPlayer) : null,
                 CurrentDungeon = game.CurrentDungeon != null ? SerializeDungeon(game.CurrentDungeon, game.CurrentRoom) : null,
                 CurrentRoom = game.CurrentRoom != null ? SerializeRoom(game.CurrentRoom) : null,
-                AvailableActions = GetAvailableActions(game),
+                AvailableActions = AgentChoiceBuilder.GetInputKeys(choices),
                 RecentOutput = includeRecentOutput ? (outputCapture?.GetRecentOutput(10) ?? new List<string>()) : new List<string>(),
+                PendingInputMode = inputContext.PendingInputMode,
+                CustomLevelBuffer = inputContext.CustomLevelBuffer,
+                Hints = AgentChoiceBuilder.BuildHints(inputContext, game.CurrentState),
             };
 
             // Add combat state if in combat
@@ -201,9 +207,10 @@ namespace RPGGame.MCP
 
         private static CombatSnapshot SerializeCombat(GameCoordinator game)
         {
+            var inputContext = AgentChoiceBuilder.ResolveInputContext(game);
             var combat = new CombatSnapshot
             {
-                AvailableCombatActions = GetCombatActions(game),
+                AvailableCombatActions = AgentChoiceBuilder.GetInputKeys(AgentChoiceBuilder.BuildCombatChoices(game)),
                 IsPlayerTurn = ResolveIsPlayerTurn(game)
             };
 
@@ -236,60 +243,8 @@ namespace RPGGame.MCP
 
         private static List<string> GetAvailableActions(GameCoordinator game)
         {
-            var actions = new List<string>();
-
-            switch (game.CurrentState)
-            {
-                case GameState.MainMenu:
-                    actions.AddRange(new[] { "1", "2", "3", "0" }); // Start, Load, Settings, Exit
-                    break;
-
-                case GameState.GameLoop:
-                    actions.AddRange(new[] { "1", "2", "0" }); // Dungeon, Inventory, Exit
-                    break;
-
-                case GameState.DungeonSelection:
-                    // Add dungeon selection options
-                    if (game.AvailableDungeons != null && game.AvailableDungeons.Count > 0)
-                    {
-                        for (int i = 1; i <= game.AvailableDungeons.Count; i++)
-                        {
-                            actions.Add(i.ToString());
-                        }
-                    }
-                    actions.Add("0"); // Back
-                    break;
-
-                case GameState.Combat:
-                    actions.AddRange(GetCombatActions(game));
-                    break;
-
-                case GameState.Inventory:
-                    actions.AddRange(new[] { "1", "2", "3", "4", "5", "6", "0" });
-                    break;
-            }
-
-            return actions;
-        }
-
-        private static List<string> GetCombatActions(GameCoordinator game)
-        {
-            var actions = new List<string>();
-
-            if (game.CurrentPlayer != null)
-            {
-                // Get available actions from character
-                var comboActions = game.CurrentPlayer.GetComboActions();
-                if (comboActions != null && comboActions.Count > 0)
-                {
-                    for (int i = 0; i < comboActions.Count; i++)
-                    {
-                        actions.Add((i + 1).ToString());
-                    }
-                }
-            }
-
-            return actions;
+            var inputContext = AgentChoiceBuilder.ResolveInputContext(game);
+            return AgentChoiceBuilder.GetInputKeys(AgentChoiceBuilder.BuildChoices(game, inputContext));
         }
     }
 }

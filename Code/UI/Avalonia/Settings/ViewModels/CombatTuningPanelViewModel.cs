@@ -34,6 +34,7 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
             SpeedSubGroups = GetSubGroups(CombatTuningTab.SpeedDefense) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
             EquipmentSubGroups = GetSubGroups(CombatTuningTab.Equipment) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
             EnemySubGroups = GetSubGroups(CombatTuningTab.EnemyStats) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
+            ProgressionCurveSubGroups = GetSubGroups(CombatTuningTab.ProgressionCurve) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
             RewardsSubGroups = GetSubGroups(CombatTuningTab.RewardsLoot) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
             GoalsAnalysisSubGroups = GetSubGroups(CombatTuningTab.GoalsAnalysis) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
         }
@@ -43,6 +44,8 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
         public ObservableCollection<CombatTuningSubGroupViewModel> SpeedSubGroups { get; }
         public ObservableCollection<CombatTuningSubGroupViewModel> EquipmentSubGroups { get; }
         public ObservableCollection<CombatTuningSubGroupViewModel> EnemySubGroups { get; }
+        public ObservableCollection<CombatTuningSubGroupViewModel> ProgressionCurveSubGroups { get; }
+        public ProgressionCurvePreviewViewModel ProgressionPreview { get; } = new();
         public ObservableCollection<CombatTuningSubGroupViewModel> RewardsSubGroups { get; }
         public ObservableCollection<CombatTuningSubGroupViewModel> GoalsAnalysisSubGroups { get; }
 
@@ -102,8 +105,31 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
 
             vm.ReloadFromConfig();
             vm.WireRollFeelVarianceCompressionMasterSlider();
+            vm.WireProgressionCurveRefresh();
+            vm.ProgressionPreview.Refresh();
             return vm;
         }
+
+        internal void WireProgressionCurveRefresh()
+        {
+            foreach (var row in byId.Values)
+            {
+                var id = row.Id;
+                if (!IsProgressionCurveKnob(id))
+                    continue;
+
+                row.SetValueCommittedHandler(_ => RefreshProgressionPreview());
+            }
+        }
+
+        private static bool IsProgressionCurveKnob(string id)
+        {
+            return id is "combatTempoScale" or "progressionShape" or "playerEnemyParity" or "progressionPivotLevel"
+                or "playerBaseHealth" or "playerHealthPerLevel" or "baseHealthScale" or "healthGrowthScale"
+                or "attributeGrowthScale";
+        }
+
+        public void RefreshProgressionPreview() => ProgressionPreview.Refresh();
 
         /// <summary>
         /// When the variance compression master slider moves, refresh driven sub-parameter rows in the UI.
@@ -156,6 +182,7 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
             CombatTuningParameterRegistry.EnsureSanitizedDefaults();
             foreach (var row in byId.Values)
                 row.ReloadFromConfig();
+            RefreshProgressionPreview();
         }
 
         public void CommitAllToConfig()

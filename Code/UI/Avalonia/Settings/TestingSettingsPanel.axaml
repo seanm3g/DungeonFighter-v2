@@ -14,7 +14,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Action Lab -->
+        <!-- Action Lab + Balance Workbench -->
         <StackPanel Grid.Row="0" Spacing="12" Margin="0,0,0,16" VerticalAlignment="Top">
             <TextBlock Text="ACTION LAB"
                        FontSize="16"
@@ -37,8 +37,30 @@
                     FontSize="14"
                     FontWeight="SemiBold"
                     HorizontalAlignment="Left"/>
+
+            <TextBlock Text="BALANCE TUNING WORKBENCH"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       Foreground="#FFD700"
+                       Margin="0,16,0,5"/>
+            <TextBlock Text="Interactive tuning lab: pick a test profile (level curve, midgame balance, combat fundamentals, etc.), run N iterations, watch live progress, changelog, and results."
+                       Classes="settings-muted"
+                       FontSize="13"
+                       TextWrapping="Wrap"
+                       MaxWidth="900"/>
+            <Button x:Name="BalanceTuningWorkbenchButton"
+                    Content="Open Balance Tuning Workbench"
+                    Width="320"
+                    Height="40"
+                    Background="#FF0078D4"
+                    Foreground="White"
+                    BorderThickness="0"
+                    CornerRadius="4"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    HorizontalAlignment="Left"/>
         </StackPanel>
-        
+
         <!-- Game mechanics & reliability - single section -->
         <StackPanel Grid.Row="1" Spacing="15" Margin="0,0,0,20" VerticalAlignment="Top">
             <StackPanel Spacing="8">

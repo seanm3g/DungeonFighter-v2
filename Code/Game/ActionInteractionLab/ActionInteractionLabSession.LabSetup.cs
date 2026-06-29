@@ -25,11 +25,14 @@ namespace RPGGame.ActionInteractionLab
         /// <summary>Cumulative right-panel enemy level tweaks (effective = clamp(base + delta, 1–99)).</summary>
         private int _labPanelEnemyLevelDelta;
 
+        /// <summary>Default loader enemy when Action Lab opens (must match a name in Enemies.json).</summary>
+        private const string DefaultCatalogEnemyType = "Sandstorm Flanker";
+
         /// <summary>
-        /// When <see cref="EnemyLoader"/> has at least one enemy type, replaces the default lab dummy with a random
-        /// level-1 loader enemy and scrolls the enemy type list so that type is visible.
+        /// When <see cref="EnemyLoader"/> contains <see cref="DefaultCatalogEnemyType"/>, replaces the default lab
+        /// dummy with that level-1 loader enemy and scrolls the enemy type list so that type is visible.
         /// </summary>
-        private static void TryBeginWithRandomCatalogEnemy(ActionInteractionLabSession session)
+        private static void TryBeginWithDefaultCatalogEnemy(ActionInteractionLabSession session)
         {
             EnemyLoader.LoadEnemies();
             var enemyTypes = EnemyLoader.GetAllEnemyTypes();
@@ -37,7 +40,10 @@ namespace RPGGame.ActionInteractionLab
                 return;
 
             enemyTypes.Sort(StringComparer.OrdinalIgnoreCase);
-            int pickIdx = Random.Shared.Next(enemyTypes.Count);
+            int pickIdx = enemyTypes.FindIndex(t => string.Equals(t, DefaultCatalogEnemyType, StringComparison.OrdinalIgnoreCase));
+            if (pickIdx < 0)
+                return;
+
             string pick = enemyTypes[pickIdx];
             var created = EnemyLoader.CreateEnemy(pick, level: 1);
             if (created == null)

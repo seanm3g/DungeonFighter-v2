@@ -1,0 +1,29 @@
+{
+  "id": "combat-fundamentals",
+  "name": "Combat Fundamentals (No Items)",
+  "description": "Bare hero (baseline weapon only, no armor/accessories). Measures actions per fight and consecutive successful combo+ rolls (2+ in a row).",
+  "simulation": {
+    "mode": "fundamentals_encounter",
+    "encounterCount": 100,
+    "playerLevel": 10,
+    "enemyLevel": 10,
+    "weaponType": "Sword",
+    "enemyType": "Goblin",
+    "forcedCatalogAction": null
+  },
+  "analysis": {
+    "validators": ["fundamentals_tempo", "fundamentals_combo_streaks"],
+    "suggesters": ["dial_routed"],
+    "maxSuggestions": 1,
+    "enableDialRouting": true,
+    "fundamentalsTargets": {
+      "targetMedianCombinedActions": 27,
+      "targetMedianPlayerTurns": 12,
+      "targetMedianEnemyTurns": 12,
+      "minAverageActions": 24,
+      "maxAverageActions": 30,
+      "minAverageComboStreakRuns2Plus": 0.5,
+      "minAverageMaxComboStreak": 2.0
+    }
+  }
+}

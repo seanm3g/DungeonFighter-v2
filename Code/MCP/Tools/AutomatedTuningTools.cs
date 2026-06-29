@@ -6,6 +6,7 @@ using ModelContextProtocol.Server;
 using RPGGame;
 using RPGGame.Config;
 using RPGGame.MCP.Tools;
+using RPGGame.Tuning;
 
 namespace RPGGame.MCP.Tools
 {
@@ -14,19 +15,25 @@ namespace RPGGame.MCP.Tools
     /// </summary>
     public static class AutomatedTuningTools
     {
+        private static TuningAnalysis ResolveAnalysis()
+        {
+            if (McpToolState.LastMultiLevelResult != null && LevelWinRateCurve.IsEnabled)
+                return AutomatedTuningEngine.AnalyzeMultiLevel(McpToolState.LastMultiLevelResult);
+
+            var lastResult = McpToolState.LastTestResult
+                ?? throw new InvalidOperationException(
+                    "No simulation results available. Run run_battle_simulation or run_multi_level_simulation first.");
+
+            return AutomatedTuningEngine.AnalyzeAndSuggest(lastResult);
+        }
+
         [McpServerTool(Name = "suggest_tuning", Title = "Suggest Tuning Adjustments")]
         [Description("Analyzes the most recent battle simulation results and suggests specific tuning adjustments with priorities. Run run_battle_simulation first.")]
         public static Task<string> SuggestTuning()
         {
             return McpToolExecutor.ExecuteAsync(() =>
             {
-                var lastResult = McpToolState.LastTestResult;
-                if (lastResult == null)
-                {
-                    throw new InvalidOperationException("No simulation results available. Run run_battle_simulation first.");
-                }
-
-                var analysis = AutomatedTuningEngine.AnalyzeAndSuggest(lastResult);
+                var analysis = ResolveAnalysis();
 
                 return new
                 {
@@ -67,13 +74,7 @@ namespace RPGGame.MCP.Tools
         {
             return McpToolExecutor.ExecuteAsync(() =>
             {
-                var lastResult = McpToolState.LastTestResult;
-                if (lastResult == null)
-                {
-                    throw new InvalidOperationException("No simulation results available. Run run_battle_simulation first.");
-                }
-
-                var analysis = AutomatedTuningEngine.AnalyzeAndSuggest(lastResult);
+                var analysis = ResolveAnalysis();
                 var suggestion = analysis.Suggestions.FirstOrDefault(s => s.Id == suggestionId);
 
                 if (suggestion == null)

@@ -66,6 +66,11 @@ namespace RPGGame
             return AdjustmentExecutor.AdjustEnemyScalingPerLevel(statName, value);
         }
 
+        public static bool AdjustEnemyProgressionScale(string scaleName, double value)
+        {
+            return AdjustmentExecutor.AdjustEnemyProgressionScale(scaleName, value);
+        }
+
         public static bool ApplyPreset(string presetName)
         {
             return AdjustmentExecutor.ApplyPreset(presetName);

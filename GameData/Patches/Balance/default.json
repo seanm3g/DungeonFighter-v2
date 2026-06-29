@@ -1,6 +1,6 @@
 {
   "character": {
-    "playerBaseHealth": 200,
+    "playerBaseHealth": 304,
     "healthPerLevel": 3,
     "enemyHealthPerLevel": 0
   },
@@ -108,10 +108,10 @@
   "combat": {
     "criticalHitThreshold": 20,
     "criticalHitMultiplier": 2,
-    "minimumDamage": 1,
-    "playerBaseArmor": 0,
-    "maximumDamageCap": 999,
-    "armorReductionFactor": 100,
+    "minimumDamage": 3,
+    "playerBaseArmor": 8,
+    "maximumDamageCap": 730,
+    "armorReductionFactor": 185,
     "weaponAttackTimeClampMin": 0.5,
     "weaponAttackTimeClampMax": 1.5,
     "tutorialCombatDelayMultiplier": 2,
@@ -135,10 +135,10 @@
   },
   "combatBalance": {
     "criticalHitChance": 0,
-    "criticalHitDamageMultiplier": 2,
+    "criticalHitDamageMultiplier": 1.59,
     "rollDamageMultipliers": {
       "comboRollDamageMultiplier": 1.5,
-      "basicRollDamageMultiplier": 1,
+      "basicRollDamageMultiplier": 1.0408329997330663,
       "comboAmplificationScalingMultiplier": 1,
       "tierScalingFallbackMultiplier": 1
     },
@@ -340,16 +340,20 @@
   },
   "enemySystem": {
     "globalMultipliers": {
-      "healthMultiplier": 0.998611111111111,
+      "healthMultiplier": 1,
       "damageMultiplier": 1,
       "armorMultiplier": 1,
       "speedMultiplier": 1,
       "description": ""
     },
     "progressionScales": {
-      "baseHealthScale": 1,
+      "baseHealthScale": 1.572683013768307,
       "healthGrowthScale": 1,
-      "attributeGrowthScale": 1
+      "attributeGrowthScale": 1.25,
+      "combatTempoScale": 1,
+      "progressionShape": 0.5,
+      "playerEnemyParity": 0,
+      "progressionPivotLevel": 30
     },
     "baselineStats": {
       "health": 150,
@@ -1263,6 +1267,24 @@
       "durationWeight": 0.25,
       "weaponBalanceWeight": 0.2,
       "enemyDiffWeight": 0.15
+    },
+    "levelWinRateCurve": {
+      "enabled": true,
+      "anchors": [
+        {
+          "level": 1,
+          "targetWinRate": 100
+        },
+        {
+          "level": 10,
+          "targetWinRate": 90
+        },
+        {
+          "level": 100,
+          "targetWinRate": 1
+        }
+      ],
+      "tolerancePercent": 3
     }
   },
   "difficultySettings": {

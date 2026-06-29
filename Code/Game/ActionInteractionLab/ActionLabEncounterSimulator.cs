@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using RPGGame.Actions.RollModification;
 using RPGGame.BattleStatistics;
 using RPGGame.Combat;
+using RPGGame.Tuning;
 
 namespace RPGGame.ActionInteractionLab
 {
@@ -67,7 +68,9 @@ namespace RPGGame.ActionInteractionLab
             LabCombatSnapshot snapshot,
             int encounterCount,
             Random rng,
-            int maxDegreeOfParallelism = -1)
+            int maxDegreeOfParallelism = -1,
+            IProgress<(int completed, int total, string status)>? progress = null,
+            bool continuePastZeroHp = false)
         {
             if (encounterCount < 1)
                 throw new ArgumentOutOfRangeException(nameof(encounterCount));
@@ -91,16 +94,21 @@ namespace RPGGame.ActionInteractionLab
             {
                 if (dop <= 1)
                 {
-                    for (int i = 0; i < encounterCount; i++)
+                    using (DeveloperSimMode.BeginScope(continuePastZeroHp))
                     {
-                        var m = await RunSingleEncounterAsync(snapshot, rng).ConfigureAwait(false);
-                        report.Encounters.Add(m);
+                        for (int i = 0; i < encounterCount; i++)
+                        {
+                            var m = await RunSingleEncounterAsync(snapshot, rng).ConfigureAwait(false);
+                            report.Encounters.Add(m);
+                            ReportBatchProgress(progress, i + 1, encounterCount);
+                        }
                     }
                 }
                 else
                 {
                     int batchSeed = rng.Next();
                     var results = new EncounterMetrics[encounterCount];
+                    int completed = 0;
                     var options = new ParallelOptions { MaxDegreeOfParallelism = dop };
                     await Parallel.ForEachAsync(
                         Enumerable.Range(0, encounterCount),
@@ -111,11 +119,14 @@ namespace RPGGame.ActionInteractionLab
                             await EncounterExecutionMutex.WaitAsync(cancellationToken).ConfigureAwait(false);
                             try
                             {
-                                results[i] = await RunSingleEncounterAsync(snapshot, encRng).ConfigureAwait(false);
+                                using (DeveloperSimMode.BeginScope(continuePastZeroHp))
+                                    results[i] = await RunSingleEncounterAsync(snapshot, encRng).ConfigureAwait(false);
                             }
                             finally
                             {
                                 EncounterExecutionMutex.Release();
+                                int done = Interlocked.Increment(ref completed);
+                                ReportBatchProgress(progress, done, encounterCount);
                             }
                         }).ConfigureAwait(false);
 
@@ -132,6 +143,21 @@ namespace RPGGame.ActionInteractionLab
             wall.Stop();
             report.SimulationWallElapsed = wall.Elapsed;
             return report;
+        }
+
+        private static void ReportBatchProgress(
+            IProgress<(int completed, int total, string status)>? progress,
+            int completed,
+            int total)
+        {
+            if (progress == null)
+                return;
+
+            int interval = SimulationProgressReporter.GetReportInterval(total);
+            if (completed < total && completed > 0 && completed % interval != 0)
+                return;
+
+            progress.Report((completed, total, $"Encounter {completed}/{total}"));
         }
 
         private static int ResolveMaxDegreeOfParallelism(int maxDegreeOfParallelism)
@@ -275,8 +301,17 @@ namespace RPGGame.ActionInteractionLab
                         forced.IsComboAction = true;
 
                     int safety = 0;
-                    while (player.IsAlive && enemy.IsAlive && safety++ < 50_000)
+                    int advanceCalls = 0;
+                    int playerMinHealth = player.MaxHealth;
+                    int turnsBelowZero = 0;
+                    int maxAdvances = 50_000;
+
+                    while (DeveloperSimMode.ShouldContinueEncounter(player.CurrentHealth, enemy.CurrentHealth, enemy.IsAlive)
+                           && safety++ < maxAdvances)
                     {
+                        if (player.CurrentHealth < playerMinHealth)
+                            playerMinHealth = player.CurrentHealth;
+
                         int d20 = rng.Next(1, 21);
                         Dice.SetAsyncLabEncounterTestRoll(d20);
                         ActionSelector.SetStoredActionRoll(player, d20);
@@ -293,6 +328,11 @@ namespace RPGGame.ActionInteractionLab
                             Dice.ClearAsyncLabEncounterTestRoll();
                         }
 
+                        advanceCalls++;
+
+                        if (player.CurrentHealth <= 0)
+                            turnsBelowZero++;
+
                         if (step == CombatSingleTurnResult.Advanced)
                             continue;
 
@@ -307,15 +347,20 @@ namespace RPGGame.ActionInteractionLab
                         break;
                     }
 
-                    if (safety >= 50_000)
+                    if (safety >= maxAdvances)
                     {
                         metrics.ErrorMessage = "Encounter exceeded iteration safety cap.";
                         metrics.TerminalReason = CombatSingleTurnResult.LoopLimitExceeded;
-                        metrics.PlayerWon = false;
+                        metrics.PlayerWon = enemy.CurrentHealth <= 0 && player.CurrentHealth > DeveloperSimMode.NegativeHpFloor;
                     }
                     else if (!metrics.TerminalReason.HasValue)
                     {
-                        if (!player.IsAlive)
+                        if (DeveloperSimMode.ContinuePastZeroHp && player.CurrentHealth <= DeveloperSimMode.NegativeHpFloor)
+                        {
+                            metrics.TerminalReason = CombatSingleTurnResult.PlayerDefeated;
+                            metrics.PlayerWon = false;
+                        }
+                        else if (!player.IsAlive && !DeveloperSimMode.ContinuePastZeroHp)
                         {
                             metrics.TerminalReason = CombatSingleTurnResult.PlayerDefeated;
                             metrics.PlayerWon = false;
@@ -327,6 +372,10 @@ namespace RPGGame.ActionInteractionLab
                         }
                     }
 
+                    metrics.PlayerMinHealth = playerMinHealth;
+                    metrics.TurnsBelowZero = turnsBelowZero;
+                    metrics.LossSeverityScore = ComputeLossSeverity(playerMinHealth, turnsBelowZero);
+
                     if (narrativeStarted && combatManager != null)
                     {
                         combatManager.EndBattleNarrative(player, enemy);
@@ -334,6 +383,7 @@ namespace RPGGame.ActionInteractionLab
                     }
 
                     FillMetricsFromCombat(combatManager!, player, enemy, metrics);
+                    metrics.SimAdvanceCalls = advanceCalls;
                 }
                 catch (Exception ex)
                 {
@@ -367,6 +417,12 @@ namespace RPGGame.ActionInteractionLab
             }
         }
 
+        private static double ComputeLossSeverity(int playerMinHealth, int turnsBelowZero)
+        {
+            double hpPenalty = playerMinHealth < 0 ? Math.Abs(playerMinHealth) : 0;
+            return hpPenalty + turnsBelowZero * 5.0;
+        }
+
         private static void FillMetricsFromCombat(CombatManager combatManager, Character player, Enemy enemy, EncounterMetrics metrics)
         {
             var narrative = combatManager.GetCurrentBattleNarrative();
@@ -392,23 +448,41 @@ namespace RPGGame.ActionInteractionLab
                     .ToList();
                 metrics.PlayerDamageEvents = playerDamageToEnemy.Count;
                 metrics.PlayerCritCount = playerDamageToEnemy.Count(e => e.IsCritical);
+                metrics.PlayerMissCount = events.Count(e =>
+                    e.Actor == player.Name && e.Target == enemy.Name && !e.IsSuccess);
+
+                int playerActions = events.Count(e =>
+                    e.Actor == player.Name && e.Target == enemy.Name && e.IsSuccess);
+                int enemyActions = events.Count(e =>
+                    e.Actor == enemy.Name && e.Target == player.Name && e.IsSuccess);
 
                 if (currentTurn > 0)
-                    turnCount = currentTurn;
-                else if (totalActionCount > 0)
-                    turnCount = totalActionCount;
-                else
                 {
-                    int pa = events.Count(e => e.Actor == player.Name && e.Target == enemy.Name);
-                    int ea = events.Count(e => e.Actor == enemy.Name && e.Target == player.Name);
-                    turnCount = Math.Max(1, pa + ea);
+                    metrics.PlayerTurns = currentTurn;
+                    metrics.EnemyTurns = Math.Max(0, currentTurn - (metrics.PlayerWon ? 1 : 0));
+                    turnCount = metrics.PlayerTurns + metrics.EnemyTurns;
+                }
+                else if (playerActions + enemyActions > 0)
+                {
+                    metrics.PlayerTurns = playerActions;
+                    metrics.EnemyTurns = enemyActions;
+                    turnCount = playerActions + enemyActions;
+                }
+                else if (currentTurn > 0)
+                {
+                    metrics.PlayerTurns = currentTurn;
+                    turnCount = currentTurn;
+                }
+                else if (totalActionCount > 0)
+                {
+                    turnCount = totalActionCount;
                 }
             }
             else
             {
                 metrics.PlayerDamageDealt = Math.Max(0, enemy.MaxHealth - enemy.CurrentHealth);
                 metrics.EnemyDamageDealt = Math.Max(0, player.MaxHealth - player.CurrentHealth);
-                turnCount = currentTurn > 0 ? currentTurn : totalActionCount > 0 ? totalActionCount : 1;
+                turnCount = totalActionCount > 0 ? totalActionCount : currentTurn > 0 ? currentTurn : 1;
             }
 
             metrics.Turns = turnCount;
@@ -432,7 +506,7 @@ namespace RPGGame.ActionInteractionLab
             var enemy = LabCombatEntityFactory.BuildLabEnemy(
                 snapshot.SessionEnemyLoaderType,
                 snapshot.EnemyLevel,
-                LabCombatSnapshot.DefaultTestEnemyBattleConfig);
+                snapshot.LabEnemyBattleConfig ?? LabCombatSnapshot.DefaultTestEnemyBattleConfig);
             var room = TestCharacterFactory.CreateTestEnvironment();
             return (player, enemy, room);
         }

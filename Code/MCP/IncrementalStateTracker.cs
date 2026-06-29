@@ -276,6 +276,9 @@ namespace RPGGame.MCP
                 } : null,
                 AvailableActions = new List<string>(source.AvailableActions),
                 RecentOutput = new List<string>(source.RecentOutput),
+                PendingInputMode = source.PendingInputMode,
+                CustomLevelBuffer = source.CustomLevelBuffer,
+                Hints = new List<string>(source.Hints),
                 Combat = source.Combat != null ? new CombatSnapshot
                 {
                     CurrentEnemy = source.Combat.CurrentEnemy != null ? new EnemySnapshot

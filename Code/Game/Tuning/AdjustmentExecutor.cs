@@ -320,6 +320,53 @@ namespace RPGGame.Tuning
             }
         }
 
+        public static bool AdjustEnemyProgressionScale(string scaleName, double value)
+        {
+            try
+            {
+                UndoRedoManager.SaveState();
+                var config = GameConfiguration.Instance;
+                var prog = config.EnemySystem.ProgressionScales;
+                prog.EnsurePositiveScales();
+
+                switch (scaleName.ToLower())
+                {
+                    case "basehealthscale":
+                        prog.BaseHealthScale = value;
+                        break;
+                    case "healthgrowthscale":
+                        prog.HealthGrowthScale = value;
+                        break;
+                    case "attributegrowthscale":
+                        prog.AttributeGrowthScale = value;
+                        break;
+                    case "combattemposcale":
+                        prog.CombatTempoScale = value;
+                        break;
+                    case "progressionshape":
+                        prog.ProgressionShape = value;
+                        break;
+                    case "playerenemyparity":
+                        prog.PlayerEnemyParity = value;
+                        break;
+                    case "progressionpivotlevel":
+                        prog.ProgressionPivotLevel = (int)Math.Round(value);
+                        break;
+                    default:
+                        ScrollDebugLogger.Log($"AdjustmentExecutor: Unknown progression scale '{scaleName}'");
+                        return false;
+                }
+
+                ScrollDebugLogger.Log($"AdjustmentExecutor: Set enemy progression {scaleName} to {value}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"AdjustmentExecutor: Error adjusting enemy progression scale: {ex.Message}");
+                return false;
+            }
+        }
+
         public static bool ApplyPreset(string presetName)
         {
             try

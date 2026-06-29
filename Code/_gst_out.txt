@@ -1,0 +1,1643 @@
+﻿
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+  Launch Time: 0.05 seconds (50 ms)
+  Mode: TEST
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+==========================================
+  GAME SYSTEM TEST SUITE
+==========================================
+
+=== GameCoordinator Tests ===
+
+--- Testing Constructor ---
+  Γ£ô GameCoordinator should be created with default constructor
+
+--- Testing Constructor with UI ---
+  Γ£ô GameCoordinator should be created with UI manager (null is acceptable)
+
+--- Testing Constructor with Character ---
+  Γ£ô GameCoordinator should be created with existing character
+
+--- Testing ExitActionInteractionLab (no save character) ---
+  Γ£ô Exit lab without a loaded hero should return to Settings (lab clone is not CurrentPlayer)
+
+--- Testing ExitActionInteractionLab (with save character) ---
+  Γ£ô Exit lab should always return to Settings (even when a save character is loaded)
+
+--- Testing GetBarbarianStarterWeaponChoice1Based ---
+  Γ£ô Barbarian starter choice is at least 1
+  Γ£ô Starter weapon menu should include a Mace row for Barbarian default
+  Γ£ô Barbarian starter choice should be the 1-based index of the first Mace row in the starter weapon menu
+
+=== GameCoordinator Tests Summary ===
+Total Tests: 8
+Passed: 8
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== GameStateManager Tests ===
+
+--- Testing Constructor ---
+  Γ£ô GameStateManager should be created
+  Γ£ô Initial state should be MainMenu
+
+--- Testing CurrentState ---
+  Γ£ô CurrentState should default to MainMenu
+
+--- Testing CurrentPlayer ---
+  Γ£ô CurrentPlayer should be accessible
+
+--- Testing CurrentInventory ---
+  Γ£ô CurrentInventory should return a list
+  Γ£ô Inventory count should be >= 0, got 0
+
+--- Testing AvailableDungeons ---
+  Γ£ô AvailableDungeons should return a list
+  Γ£ô Dungeons count should be >= 0, got 0
+
+--- Testing CurrentDungeon ---
+  Γ£ô CurrentDungeon should be accessible
+
+--- Testing CurrentRoom ---
+  Γ£ô CurrentRoom should be accessible
+
+--- Testing TransitionToState ---
+  Γ£ô State should transition to GameLoop
+
+--- Testing TransitionToState - State Persistence ---
+  Γ£ô State should be GameLoop
+  Γ£ô State should be Inventory
+  Γ£ô State should be MainMenu
+
+--- Testing SetCurrentPlayer ---
+  Γ£ô CurrentPlayer should be set correctly
+
+--- Testing SetCurrentDungeon ---
+  Γ£ô CurrentDungeon should be set correctly
+
+--- Testing SetCurrentRoom ---
+  Γ£ô CurrentRoom should be set correctly
+
+--- Testing AddCharacter ---
+  Γ£ô AddCharacter should return a character ID
+  Γ£ô Character ID should not be empty
+
+--- Testing GetCharacterId ---
+  Γ£ô GetCharacterId should return the correct ID
+
+=== GameStateManager Tests Summary ===
+Total Tests: 20
+Passed: 20
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== GameStateValidator Tests ===
+
+--- Testing Constructor ---
+  Γ£ô GameStateValidator should be created
+
+--- Testing ValidateStateTransition - All Transitions ---
+  Γ£ô ValidateStateTransition should return true for valid transitions
+
+--- Testing ValidateStateTransition - From MainMenu ---
+  Γ£ô All transitions from MainMenu should be valid
+
+--- Testing ValidateStateTransition - From Combat ---
+  Γ£ô All transitions from Combat should be valid
+
+=== GameStateValidator Tests Summary ===
+Total Tests: 4
+Passed: 4
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== GameInitializer Tests ===
+
+--- Testing Constructor ---
+  Γ£ô GameInitializer should be created
+
+--- Testing LoadStartingGear ---
+  Γ£ô LoadStartingGear should return starting gear data
+  Γ£ô Starting gear should have weapons list (always empty; weapons come from Weapons.json)
+  Γ£ô StartingGear.json should not define separate starter weapons
+  Γ£ô Starting gear should have armor list
+  Γ£ô Default StartingGear.json should list no armor; use starter-tagged Armor.json or explicit entries to equip starting armor
+
+--- Testing InitializeNewGame: weapon, random inventory bonus, no extra equipped armor ---
+  Γ£ô New game should equip a starter weapon
+  Γ£ô New game should not equip head/body/feet unless configured
+  Γ£ô New game should add one random armor piece to inventory with the starting weapon
+  Γ£ô New game bonus inventory item must not be a weapon
+
+--- Testing InitializeNewGame equips starter weapon despite catalog attribute gates ---
+  Γ£ô Starter catalog weapon should normally carry attribute requirements from Weapons.json
+  Γ£ô Starter weapon must equip even when base stats are below catalog requirement values
+  Γ£ô Equipped starter weapon should not remain only in inventory
+
+--- Testing catalog starter keeps Weapons.json baseDamage ---
+  Γ£ô Tier-1 mace row exists
+  Γ£ô High slot damage must not replace catalog base damage when baseDamageFromWeaponsCatalog is true
+
+--- Testing legacy slot path uses StartingGear damage ---
+  Γ£ô Legacy path rounds StartingGear slot damage (7.5) to 8
+  Γ£ô Legacy path applies slot attackSpeed override
+
+--- Testing CreateStarterWeaponForMenuIndex uses starter weapon menu row ---
+  Γ£ô Starter weapon menu should have at least one row
+  Γ£ô Starter weapon menu should include a Dagger row
+  Γ£ô Dagger menu slot should use the matching Weapons.json row name
+  Γ£ô Starter preview should keep Weapons.json attack speed (no StartingGear override)
+
+--- Testing starter Wand grants +1 action slot when equipped ---
+  Γ£ô Starter weapon menu should include a Wand row (e.g. Stick)
+  Γ£ô Starter wizard menu row should be a Wand
+  Γ£ù FAILED: Starter wand should equip
+  Γ£ù FAILED: Equipped starter Wand should grant base 2 + 1 class slot = 3 (Expected: 3, Actual: 2)
+
+=== GameInitializer Tests Summary ===
+Total Tests: 25
+Passed: 23
+Failed: 2
+Success Rate: 92.0%
+
+Γ¥î 2 test(s) failed
+
+=== GameInitializationManager Tests ===
+
+--- Testing Constructor ---
+  Γ£ô GameInitializationManager should be created
+
+--- Testing InitializeNewCharacter ---
+  Γ£ô InitializeNewCharacter should return true for valid character
+
+--- Testing InitializeNewCharacter after Training Ground rebuild ---
+  Γ£ô InitializeNewCharacter should succeed after pre-weapon Training Ground action rebuild
+  Γ£ô Post-training character should equip a starter weapon
+
+--- Testing InitializeNewCharacter - Null Character ---
+Cannot initialize character: null reference
+  Γ£ô InitializeNewCharacter should return false for null character
+
+--- Testing InitializeNewCharacter records error message ---
+Cannot initialize character: null reference
+  Γ£ô InitializeNewCharacter should return false for null character
+  Γ£ô LastInitializationError should describe the failure
+
+--- Testing LoadSavedCharacterAsync ---
+No save file found at D:\Code Projects\github projects\DungeonFighter-v2\GameData\character_save.json
+  Γ£ô LoadSavedCharacterAsync should complete without errors
+
+=== GameInitializationManager Tests Summary ===
+Total Tests: 8
+Passed: 8
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== GameLoader Tests ===
+
+--- Testing Constructor ---
+  Γ£ô GameLoader should be created
+
+--- Testing LoadGame - No Save File ---
+No save file found at D:\Code Projects\github projects\DungeonFighter-v2\GameData\character_save.json
+Character loaded from D:\Code Projects\github projects\DungeonFighter-v2\GameData\character_Ivar_Brightheart_1_feef119a_save.json
+  Γ£ô LoadGame should handle no save file gracefully
+
+--- Testing LoadGame - Character Already Loaded ---
+  Γ£ô State should transition to GameLoop when character already loaded
+
+=== GameLoader Tests Summary ===
+Total Tests: 3
+Passed: 3
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== FileManager Tests ===
+
+--- Testing GetGameDataFilePath ---
+  Γ£ô GetGameDataFilePath should return a file path
+  Γ£ô File path should not be empty
+
+--- Testing SafeWriteJsonFile ---
+  Γ£ô SafeWriteJsonFile should create the file
+
+--- Testing CreateBackup ---
+  Γ£ô CreateBackup should create backup file
+
+=== FileManager Tests Summary ===
+Total Tests: 4
+Passed: 4
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== DungeonRunnerManager Tests ===
+
+--- Testing Constructor ---
+  Γ£ô DungeonRunnerManager should be created
+
+--- Testing GetExitChoiceHandler ---
+  Γ£ô GetExitChoiceHandler should return handler or null
+
+=== DungeonRunnerManager Tests Summary ===
+Total Tests: 2
+Passed: 2
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== DungeonDisplayManager Tests ===
+
+--- Testing Constructor ---
+  Γ£ô DungeonDisplayManager should be created with valid GameNarrativeManager
+
+--- Testing Constructor with null narrative manager ---
+  Γ£ô DungeonDisplayManager should throw ArgumentNullException for null narrative manager
+
+--- Testing CombatLog Property ---
+  Γ£ô CombatLog should return non-null list
+
+--- Testing CompleteDisplayLog Property ---
+  Γ£ô CompleteDisplayLog should return non-null list
+
+--- Testing enemy surprise combat event spacing/color ---
+  Γ£ô Enemy surprise should add a leading blank, the colored warning, and one trailing blank
+  Γ£ô Enemy surprise should start with a leading blank line after enemy appears
+  Γ£ô Enemy surprise plain text should match the selected message
+  Γ£ô Enemy surprise should keep one trailing blank before combat actions
+  Γ£ô Enemy surprise text should use the red warning color
+
+=== DungeonDisplayManager Tests Summary ===
+Total Tests: 9
+Passed: 9
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== CharacterCloneService Tests ===
+
+--- Testing Clone Name Progression ---
+  Γ£ô First clone should append Jr.
+  Γ£ô Jr. clone should advance to III
+  Γ£ô III clone should advance to IV
+  Γ£ô IV clone should advance to V
+  Γ£ô V clone should advance to VI
+
+--- Testing Clone Gear Loss And Revival ---
+  Γ£ô Test setup should put a pre-death action in the combo
+  Γ£ô Clone should receive next generation name
+  Γ£ô Clone should revive at full effective health
+  Γ£ô Clone should lose every equipped gear slot
+  Γ£ô Clone should keep bag inventory
+  Γ£ô Clone should clear combat status effects
+  Γ£ô Clone should rebuild an unarmed combo
+  Γ£ô Clone should reset action slots to the unarmed opener
+  Γ£ô Clone should not preserve pre-death action slots
+
+--- Testing Clone Preserves Level And XP ---
+  Γ£ô Clone must keep the same level and XP toward the next level
+
+=== CharacterCloneService Tests Summary ===
+Total Tests: 15
+Passed: 15
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== MainMenuHandler Tests ===
+
+--- Testing Constructor ---
+  Γ£ô MainMenuHandler should be created
+
+--- Testing ShowMainMenu ---
+  Γ£ô ShowMainMenu should complete without errors
+
+--- Testing HandleMenuInput - New Game ---
+  Γ£ô HandleMenuInput for new game should complete
+
+--- Testing HandleMenuInput - Load Game ---
+Character loaded from D:\Code Projects\github projects\DungeonFighter-v2\GameData\character_Ivar_Brightheart_1_feef119a_save.json
+  Γ£ô HandleMenuInput for load game should complete
+
+--- Testing HandleMenuInput - Settings ---
+  Γ£ô HandleMenuInput for settings should complete
+
+--- Testing HandleMenuInput - Character Selection ---
+  Γ£ô HandleMenuInput for character selection (4) should complete
+  Γ£ô HandleMenuInput for character selection (C) should complete
+
+--- Testing HandleMenuInput - Quit ---
+  Γ£ô HandleMenuInput for quit should complete
+
+--- Testing HandleMenuInput - Invalid Input ---
+  Γ£ô HandleMenuInput should show error message for invalid input
+
+--- Testing Event Firing ---
+  Γ£ô Events should be subscribable
+
+=== MainMenuHandler Tests Summary ===
+Total Tests: 10
+Passed: 10
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== CharacterMenuHandler Tests ===
+
+--- Testing Constructor ---
+  Γ£ô CharacterMenuHandler should be created
+
+--- Testing ShowCharacterInfo ---
+  Γ£ô ShowCharacterInfo should complete without errors
+
+--- Testing HandleMenuInput ---
+  Γ£ô HandleMenuInput should complete
+
+=== CharacterMenuHandler Tests Summary ===
+Total Tests: 3
+Passed: 3
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== SettingsMenuHandler Tests ===
+
+--- Testing Constructor ---
+  Γ£ô SettingsMenuHandler should be created
+
+--- Testing ShowSettings ---
+  Γ£ô ShowSettings should complete without errors
+
+--- Testing HandleMenuInput ---
+  Γ£ô HandleMenuInput should complete
+
+--- Testing SaveGame ---
+  Γ£ô SaveGame should complete without errors
+
+--- Testing ExitGame ---
+  Γ£ô ExitGame method exists and is callable
+
+=== SettingsMenuHandler Tests Summary ===
+Total Tests: 5
+Passed: 5
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== WeaponSelectionHandler Tests ===
+
+--- Testing Constructor ---
+  Γ£ô WeaponSelectionHandler should be created
+
+--- Testing ShowWeaponSelection ---
+  Γ£ô ShowWeaponSelection should complete without errors
+
+--- Testing HandleMenuInput - Valid Choice ---
+  Γ£ô Valid weapon choice should equip a starter weapon
+  Γ£ô After weapon choice, state should be CharacterCreation (welcome screen before game loop)
+
+--- Testing HandleMenuInput - Invalid Choice ---
+  Γ£ô HandleMenuInput should show error for invalid choice
+
+--- Testing HandleMenuInput - No Character ---
+  Γ£ô HandleMenuInput should show error when no character is selected
+
+=== WeaponSelectionHandler Tests Summary ===
+Total Tests: 6
+Passed: 6
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== TrainingGroundOfferHandler Tests ===
+
+  Γ£ô Skipping Training Ground should show the path intro before weapon selection
+  Γ£ô Skipping Training Ground should clear the pending tutorial flag
+
+=== TrainingGroundOfferHandler Tests Summary ===
+Total Tests: 2
+Passed: 2
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== CharacterCreationHandler Tests ===
+
+--- Testing Constructor ---
+  Γ£ô CharacterCreationHandler should be created
+
+--- Testing ShowCharacterCreation ---
+  Γ£ô ShowCharacterCreation should complete without errors
+
+--- Testing HandleMenuInput - Start Game ---
+  Γ£ô HandleMenuInput for start game should complete
+
+--- Testing HandleMenuInput - Back to Weapon Selection ---
+  Γ£ô State should transition to WeaponSelection
+
+--- Testing HandleMenuInput - No Character ---
+  Γ£ô HandleMenuInput should show error when no character is selected
+
+=== CharacterCreationHandler Tests Summary ===
+Total Tests: 5
+Passed: 5
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== DungeonSelectionHandler Tests ===
+
+--- Testing Constructor ---
+  Γ£ô DungeonSelectionHandler should be created
+
+--- Testing ShowDungeonSelection ---
+  Γ£ô ShowDungeonSelection should complete without errors
+
+--- Testing HandleMenuInput - Valid Dungeon ---
+  Γ£ô HandleMenuInput for valid dungeon should complete
+
+--- Testing HandleMenuInput - Return to Game Loop ---
+  Γ£ô State should transition to GameLoop
+
+--- Testing HandleMenuInput - Invalid Choice ---
+  Γ£ô HandleMenuInput should show error for invalid choice
+
+--- Testing HandleMenuInput - No Character ---
+  Γ£ô HandleMenuInput should complete even with no character
+
+--- Testing HandleMenuInput - Custom level flow ---
+  Γ£ô Custom level entry should set current dungeon
+  Γ£ô Dungeon should use the entered level
+  Γ£ô Dungeon name should include the chosen level
+
+--- Testing HandleMenuInput - Custom level does not submit on first digit ---
+  Γ£ô Pressing only the first digit of a two-digit level must not start the dungeon
+  Γ£ô After typing 50 and Enter, dungeon should start
+  Γ£ô Dungeon level should be 50
+
+=== DungeonSelectionHandler Tests Summary ===
+Total Tests: 12
+Passed: 12
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== RegionTravelHandler Tests ===
+
+  Γ£ô ShowRegionTravel should transition to RegionTravel state
+  Γ£ô Region travel input 0 should transition to GameLoop
+  Γ£ô Region travel input 0 should raise ShowGameLoopEvent
+  Γ£ô Region travel should delay between route rolls (4d4=4 events with test roll 1 => three gaps)
+  Γ£ô Region travel roll delays should be positive when speed is normal
+
+=== RegionTravelHandler Tests Summary ===
+Total Tests: 5
+Passed: 5
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== TravelRouteColoredTextFormatter Tests ===
+
+  Γ£ù FAILED: Travel step: title line then indented roll line
+  Γ£ô Critical miss label
+  Γ£ô Critical label
+  Γ£ô Summary includes progress, time, XP, and loot
+
+=== TravelRouteColoredTextFormatter Tests Summary ===
+Total Tests: 4
+Passed: 3
+Failed: 1
+Success Rate: 75.0%
+
+Γ¥î 1 test(s) failed
+
+=== DungeonCompletionHandler Tests ===
+
+--- Testing Constructor ---
+  Γ£ô DungeonCompletionHandler should be created
+
+--- Testing HandleMenuInput - Dungeon Selection ---
+  Γ£ô HandleMenuInput for dungeon selection should complete
+
+--- Testing HandleMenuInput - Inventory ---
+  Γ£ô State should transition to Inventory
+
+--- Testing HandleMenuInput - Save and Exit ---
+  Γ£ô State should transition to MainMenu
+
+--- Testing HandleMenuInput - Invalid Choice ---
+  Γ£ô HandleMenuInput should show error for invalid choice
+
+--- Testing HandleMenuInput - No Character ---
+  Γ£ô HandleMenuInput should complete even with no character
+
+=== DungeonCompletionHandler Tests Summary ===
+Total Tests: 6
+Passed: 6
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== DeathScreenHandler Tests ===
+
+--- Testing Constructor ---
+  Γ£ô DeathScreenHandler should be created
+
+--- Testing ShowDeathScreen ---
+ ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+              YOU DIED
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+DEFEAT STATISTICS
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+≡ƒôê CHARACTER PROGRESSION:
+   Level: 1 ΓåÆ 1 (+0)
+   Total XP Gained: 0
+   Play Time: 0 minutes
+ΓÜö∩╕Å  COMBAT PERFORMANCE:
+   Enemies Defeated: 0
+   Total Damage Dealt: 0
+   Total Damage Received: 0
+   Total Healing Received: 0
+   Hit Rate: 0.0%
+   Critical Hit Rate: 0.0%
+≡ƒÆÑ DAMAGE RECORDS:
+   Highest Single Hit: 0
+   Highest Turn Damage: 0
+   Average Damage per Action: 0.0
+≡ƒöÑ COMBO MASTERY:
+   Total Combos Executed: 0
+   Highest Combo Step: 0
+   Total Combo Damage: 0
+   Combo Success Rate: 0.0%
+≡ƒÄÆ ITEM COLLECTION:
+   Items Collected: 0
+   Items Equipped: 0
+   Rare Items: 0
+   Epic Items: 0
+   Legendary Items: 0
+≡ƒù║∩╕Å  EXPLORATION:
+   Dungeons Completed: 0
+   Rooms Explored: 0
+   Encounters Survived: 0
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+Better luck next time!
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+ 1 - Clone this hero (equipped gear is lost)
+0 - Return to main menu
+  Γ£ô ShowDeathScreen should complete without errors
+
+--- Testing ShowDeathScreen - Null Character ---
+  Γ£ô ShowDeathScreen should handle null character gracefully
+
+--- Testing HandleMenuInput ---
+  Γ£ô State should transition to MainMenu
+
+--- Testing HandleMenuInput - Clone Choice ---
+  Γ£ô Clone choice should transition to GameLoop
+  Γ£ô Clone choice should advance character name
+  Γ£ô Clone choice should strip equipped weapon and revive
+
+--- Testing HandleMenuInput - No Character ---
+  Γ£ô State should transition to MainMenu even with no character
+
+=== DeathScreenHandler Tests Summary ===
+Total Tests: 8
+Passed: 8
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== LoadCharacterSelectionHandler Tests ===
+
+--- Testing Constructor ---
+  Γ£ô LoadCharacterSelectionHandler should be created
+
+--- Testing ShowLoadCharacterSelection ---
+=== LOAD CHARACTER ===
+
+1. Ivar Brightheart - Level 4
+2. TestCharacter - Level 5
+3. Character2 - Level 5
+4. Character1 - Level 3
+5. Cedric Serpentfang - Level 1
+6. Quinn Shadowheart - Level 6
+7. Elric Emberveil - Level 1
+8. Orion Griffinheart - Level 2
+9. Theron Lightbringer - Level 5
+10. Aeron Hollowsong - Level 5
+11. Yves Copperblade - Level 1
+12. Merrick Cinderborn - Level 1
+13. Errol Rockheart - Level 1
+14. Knox Darkwood - Level 1
+15. Sean Starwhisper - Level 1
+16. Beckett Ravensong - Level 1
+17. Sven Darkblade - Level 6
+18. Cayden Emberveil - Level 1
+19. Pax Oathkeeper Jr. - Level 4
+20. Felix Snowfang - Level 1
+21. Jude Keenshot - Level 1
+22. Farren Highmount - Level 1
+23. Kenric Beaconfire - Level 4
+24. Kenric Beaconfire - Level 3
+25. Hunter Cloudrider - Level 1
+26. Arlo Soulreaper Jr. - Level 3
+27. Marius Soulshard - Level 1
+28. Leander Stormblade - Level 1
+29. Otto Frostfang - Level 2
+30. Finn Sunforged V - Level 4
+31. Fenwick Bloodthirst - Level 3
+32. Fenwick Bloodthirst - Level 3
+33. Bryn Ashcloak - Level 5
+34. Varis Skyrider - Level 2
+35. Derek Twilight - Level 7
+36. Quill Soulshard - Level 1
+37. Kael Nightstar Jr. - Level 2
+38. Fabian Darkblade - Level 1
+39. Dain Barrowborn - Level 1
+40. Yorin Sapphireheart - Level 4
+41. Doric Galaxyblade - Level 2
+42. Sterling Diamondblade - Level 1
+43. Pike Nightshade - Level 1
+44. Aldric Flamebrand - Level 5
+45. Jasper Firestorm - Level 2
+46. Garrick Starveil - Level 3
+47. Sean Runeforge - Level 3
+48. Lothar Darkhollow - Level 1
+49. Haldir Steelthorn - Level 1
+50. Edric Mountainpeak - Level 1
+51. Amias Bronzethorn - Level 1
+52. Edric Thunderbolt Jr. - Level 7
+53. Jethro Shroudveil Jr. - Level 7
+54. Jethro Shroudveil Jr. - Level 7
+55. Jethro Shroudveil Jr. - Level 7
+56. Jace Oathkeeper III - Level 4
+57. Edric Goldencrown III - Level 4
+58. Jonah Swiftarrow VII - Level 9
+59. Perrin Flamebrand - Level 3
+60. Archer Sandstrider - Level 3
+61. Kingsley Opalheart - Level 3
+62. Rex Ghoststeel - Level 1
+63. Noah Dawnbringer - Level 4
+64. Errol Griffinheart - Level 1
+65. Arlo Shadowbane - Level 7
+66. Deacon Snowfang - Level 1
+67. Monroe Thunderstrike - Level 3
+68. Hugo Leafwind - Level 1
+69. Hugo Leafwind - Level 1
+70. Garrick Lightning - Level 1
+71. Yale Deadmoon - Level 4
+72. Lucius Duskstar - Level 1
+73. Otis Coldbringer - Level 2
+74. Amias Nightflame - Level 2
+75. Rowan Flamebrand - Level 2
+76. Parker Dawnglade - Level 2
+77. Pax Frostfang - Level 1
+78. David Eveningstar - Level 2
+79. Milo Dawnbreak - Level 1
+80. Griffith Frostvale - Level 2
+81. Sven Moonforge - Level 1
+82. Holden Thunderbolt - Level 1
+83. Basil Boulderfist - Level 1
+84. Valen Galaxyblade - Level 1
+85. Basil Spiritwalker - Level 2
+86. Barrett Thunderbolt - Level 1
+87. Magnus Wolfbane - Level 1
+88. Seamus Sunforged - Level 1
+89. Zephyr Lightbringer - Level 1
+90. Jasper Duskblade - Level 1
+91. Maxwell Sunforged - Level 1
+92. Errol Steelheart - Level 1
+93. Killian Grimfang - Level 1
+94. Edric Nebulaheart - Level 1
+95. Weston Mistveil - Level 1
+96. Yves Midnight - Level 1
+97. Idris Seafang - Level 1
+98. Sven Brightfen - Level 1
+99. Parker Shadowheart - Level 1
+100. Ian Thunderstrike - Level 2
+101. Quinlan Opalheart - Level 3
+102. Ethan Blackfang - Level 2
+103. Kendric Moonstar - Level 1
+104. Dain Stonemantle - Level 1
+105. Jude Dawnblade - Level 1
+106. Aeron Beaconfire - Level 1
+107. Cormac Daystar - Level 2
+108. Yves Thunderstrike - Level 1
+109. Hector Kingsbane - Level 4
+110. Maddox Sunshard - Level 1
+111. Orin Nightstar - Level 1
+112. Fenwick Daggerdeep - Level 1
+113. Maddox Mistblade - Level 1
+114. Remus Copperfang - Level 1
+115. Zion Twilight - Level 1
+116. Sage Palefang - Level 2
+117. Severin Hammerfall - Level 2
+118. Errol Darkhollow - Level 3
+119. Emrys Cloudbreaker - Level 1
+120. Finian Ironbark - Level 2
+121. Henrik Griffinheart - Level 2
+122. Aric Netherborn - Level 1
+123. Otis Hollowsong - Level 3
+124. Roland Treewhisper - Level 1
+125. Tyler Voidblade - Level 1
+126. Quinn Shadowbane - Level 1
+127. Gannon Bearclaw - Level 1
+128. Horatio Evensong - Level 3
+129. Ewan Tidecaller - Level 1
+130. Ewan Tidecaller - Level 1
+131. Jareth Mistwalker - Level 1
+132. Yale Starblade - Level 2
+133. Logan Eveningstar - Level 1
+134. Aldric Brightmoon - Level 6
+135. Aldric Brightmoon - Level 6
+136. Aldric Brightmoon - Level 3
+137. Pax Tidecaller - Level 4
+138. Lysander Duskstar - Level 1
+139. Tyler Emeraldwind - Level 1
+140. Yves Shadowweaver - Level 1
+141. Parker Morningshade - Level 1
+142. Baldric Diamondblade - Level 1
+143. Cael Bearclaw - Level 1
+144. Kieran Silverblade - Level 1
+145. Emeric Duskblade - Level 1
+146. Victor Seastorm - Level 1
+147. Lucian Blackthorn - Level 1
+148. Soren Lightbringer - Level 1
+149. Yale Stonebreaker - Level 1
+150. Emeric Daybreak - Level 9
+151. Owen Voidblade - Level 1
+152. Neville Brightblade - Level 1
+153. LegacyChar - Level 1
+154. Weston Lionheart - Level 4
+155. Zane Wavebreaker - Level 1
+156. Yves Eveningstar - Level 1
+157. Yorick Naturecaller - Level 1
+158. TestCharacter - Level 5
+159. TestCharacter - Level 1
+160. Soren Nightfall - Level 4
+161. Sage Meteorheart - Level 1
+162. Quade Valleywind - Level 1
+163. Ryder Daybreak - Level 1
+164. Percival Darkblade - Level 1
+165. Parker Frostwind - Level 1
+166. Orion Crystalheart - Level 6
+167. Neville Icefang - Level 1
+168. Marcus Diamondblade - Level 4
+169. Joren Leafwind - Level 3
+170. Ewan Frostborn - Level 1
+171. Hadric Duskstar - Level 4
+172. Emeric Copperblade - Level 1
+173. David Voidwalker - Level 1
+174. Cyrus Duskstar - Level 6
+175. Chris Nightshade - Level 1
+176. Cael Icefang - Level 1
+177. Bran Wavebreaker - Level 4
+178. Blake Oceanheart - Level 1
+179. Blake Firebrand - Level 3
+180. Ivan Noonblade - Level 2
+181. Yale Dragonheart - Level 1
+
+0. Back to Main Menu
+
+Select a character number to load, or press 0 to return.
+  Γ£ô ShowLoadCharacterSelection should complete without errors
+
+--- Testing HandleLoadCharacterSelectionInput - Valid Choice ---
+Character loaded from D:\Code Projects\github projects\DungeonFighter-v2\GameData\character_Ivar_Brightheart_1_feef119a_save.json
+  Γ£ô HandleLoadCharacterSelectionInput for valid choice should complete
+
+--- Testing HandleLoadCharacterSelectionInput - Return to Main Menu ---
+  Γ£ô State should transition to MainMenu
+
+--- Testing HandleLoadCharacterSelectionInput - Invalid Choice ---
+Character loaded from D:\Code Projects\github projects\DungeonFighter-v2\GameData\character_Parker_Shadowheart_1_a4882440_save.json
+  Γ£ô HandleLoadCharacterSelectionInput should handle invalid choice
+
+--- Testing HandleLoadCharacterSelectionInput - No Saved Characters ---
+  Γ£ô HandleLoadCharacterSelectionInput should handle no saved characters
+
+=== LoadCharacterSelectionHandler Tests Summary ===
+Total Tests: 6
+Passed: 6
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== DungeonExitChoiceHandler Tests ===
+
+--- Testing Constructor ---
+  Γ£ô DungeonExitChoiceHandler should be created
+
+--- Testing Exit Choice Menu Lines ---
+  Γ£ô Exit choice menu should contain blank line, top divider, two options, blank line, and bottom divider
+  Γ£ô Exit choice menu should keep a blank line before the top divider
+  Γ£ô Exit choice menu should draw a divider above option 1
+  Γ£ô Exit choice menu should draw continue option after top divider
+  Γ£ô Exit choice menu should draw leave option after continue option
+  Γ£ô Exit choice menu should keep a blank line before the bottom divider
+  Γ£ô Exit choice menu should draw a divider below both options
+
+--- Testing ShowExitChoiceMenu ---
+  Γ£ô ShowExitChoiceMenu should complete without errors
+
+--- Testing IsWaitingForChoice ---
+  Γ£ô Initially should not be waiting for choice
+
+--- Testing HandleMenuInput - Continue ---
+  Γ£ô HandleMenuInput for continue should complete
+
+--- Testing HandleMenuInput - Leave ---
+  Γ£ô HandleMenuInput for leave should complete
+
+--- Testing HandleMenuInput - Invalid Choice ---
+  Γ£ô HandleMenuInput should show error for invalid choice
+
+--- Testing HandleMenuInput - Not Waiting ---
+  Γ£ô HandleMenuInput should handle input when not waiting gracefully
+
+=== DungeonExitChoiceHandler Tests Summary ===
+Total Tests: 14
+Passed: 14
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== HandlerInitializer Tests ===
+
+--- Testing CreateHandlers ---
+  Γ£ô CreateHandlers should return HandlerInitializationResult
+  Γ£ô MainMenuHandler should be created
+  Γ£ô CharacterMenuHandler should be created
+  Γ£ô SettingsMenuHandler should be created
+
+--- Testing WireHandlerEvents ---
+  Γ£ô WireHandlerEvents should complete without errors
+
+=== HandlerInitializer Tests Summary ===
+Total Tests: 5
+Passed: 5
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== GameInputRouter Tests ===
+
+--- Testing Constructor ---
+  Γ£ô GameInputRouter should be created
+
+--- Testing RouteInput - MainMenu State ---
+  Γ£ô RouteInput should route to MainMenuHandler
+
+--- Testing RouteInput - Empty Input ---
+  Γ£ô RouteInput should handle empty input gracefully
+
+--- Testing RouteInput - Null Handlers ---
+  Γ£ô RouteInput should handle null handlers gracefully
+
+=== GameInputRouter Tests Summary ===
+Total Tests: 4
+Passed: 4
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== EscapeKeyHandler Tests ===
+
+--- Testing Constructor ---
+  Γ£ô EscapeKeyHandler should be created
+
+--- Testing HandleEscapeKey - Inventory State ---
+  Γ£ô State should transition to GameLoop from Inventory
+
+--- Testing HandleEscapeKey - CharacterInfo State ---
+  Γ£ô State should transition to MainMenu from CharacterInfo
+
+--- Testing HandleEscapeKey - DungeonSelection State ---
+  Γ£ô State should transition to GameLoop from DungeonSelection
+
+--- Testing HandleEscapeKey - DungeonSelection clears custom level prompt ---
+  Γ£ô Escape while entering a custom level should stay on dungeon selection
+
+--- Testing HandleEscapeKey - ActionInteractionLab invokes exit delegate ---
+  Γ£ô ActionInteractionLab escape should delegate to exitActionInteractionLab once
+
+--- Testing HandleEscapeKey - Default State ---
+  Γ£ô State should transition to MainMenu for default case
+
+=== EscapeKeyHandler Tests Summary ===
+Total Tests: 7
+Passed: 7
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== ActionEditorHandler Tests ===
+
+--- Testing Constructor ---
+  Γ£ô ActionEditorHandler should be created with valid GameStateManager
+
+--- Testing Constructor with null state manager ---
+  Γ£ô ActionEditorHandler should throw ArgumentNullException for null state manager
+
+--- Testing ActionFormProcessor spreadsheet modifier steps ---
+  Γ£ô Step 4 should trim and set SpeedMod
+  Γ£ô Step 5 should allow empty DamageMod
+  Γ£ô Step 6 should set MultiHitMod
+  Γ£ô Step 7 should set AmpMod
+
+=== ActionEditorHandler Tests Summary ===
+Total Tests: 6
+Passed: 6
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== CharacterManagementHandler Tests ===
+
+--- Testing Constructor ---
+  Γ£ô CharacterManagementHandler should be created with valid GameStateManager
+
+--- Testing Constructor with null state manager ---
+  Γ£ô CharacterManagementHandler should throw ArgumentNullException for null state manager
+
+=== CharacterManagementHandler Tests Summary ===
+Total Tests: 2
+Passed: 2
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== AdjustmentExecutor Tests ===
+
+--- Testing ApplyConfiguration ---
+  Γ£ô ApplyConfiguration should complete without errors
+
+--- Testing AdjustGlobalEnemyMultiplier ---
+  Γ£ô AdjustGlobalEnemyMultiplier should complete
+
+--- Testing AdjustGlobalEnemyMultiplier with invalid name ---
+  Γ£ô AdjustGlobalEnemyMultiplier should return false for invalid multiplier name
+
+=== AdjustmentExecutor Tests Summary ===
+Total Tests: 3
+Passed: 3
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== PlayerTuningApplier Tests ===
+
+--- ComputeMaxHealthFromTuning uses PlayerBaseHealth at level 1 ---
+  Γ£ô level-1 max health follows tuning base
+--- ApplyToCurrentPlayer updates max health after tuning change ---
+  Γ£ô initial max health is 60
+  Γ£ô max health updated to 100 after apply
+  Γ£ô current health healed to new max
+--- ApplyToCurrentPlayer updates base attributes from tuning ---
+  Γ£ô strength reapplied from tuning
+
+=== PlayerTuningApplier Tests Summary ===
+Total Tests: 5
+Passed: 5
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== CombatTuningParameterRegistry Tests ===
+
+--- Registry exposes all balance layers ---
+  Γ£ô Duration layer has parameters
+  Γ£ô WinRate layer has parameters
+  Γ£ô Goals layer has parameters
+--- Registry has expanded parameter catalog ---
+  Γ£ô Registry has 150+ parameters (actual 220)
+--- Registry assigns parameters to all tabs ---
+  Γ£ô Tab Core has parameters
+  Γ£ô Tab HeroClasses has parameters
+  Γ£ô Tab SpeedDefense has parameters
+  Γ£ô Tab Equipment has parameters
+  Γ£ô Tab EnemyStats has parameters
+  Γ£ô Tab Archetypes has parameters
+  Γ£ô Tab StatusEffects has parameters
+  Γ£ô Tab RewardsLoot has parameters
+  Γ£ô Tab GoalsAnalysis has parameters
+--- Registry exposes hero and enemy base health ---
+  Γ£ô playerBaseHealth (hero base health) exists
+  Γ£ô enemyBaselineHealth (enemy base health) exists
+  Γ£ô Hero base health is in Duration layer
+  Γ£ô Enemy base health is in Duration layer
+  Γ£ô Hero base health label
+  Γ£ô Enemy base health label
+--- playerBaseHealth round-trips ---
+  Γ£ô playerBaseHealth exists
+  Γ£ô config updated
+  Γ£ô getter matches
+--- globalEnemyHealthMult round-trips ---
+  Γ£ô global health mult updated
+--- playerBaseHealth affects ComputeMaxHealthFromTuning ---
+  Γ£ô computed max follows registry path
+--- GameSettings.EnemyHealthMultiplier applies in EnemyStatCalculator ---
+  Γ£ô runtime enemy HP doubles (28 -> 56)
+--- runtime params use GameSettings ---
+  Γ£ô runtimeEnemyHealthMult flagged as GameSettings
+--- barbarianDamageMult round-trips ---
+  Γ£ô barbarianDamageMult exists
+  Γ£ô ClassBalanceHelper reads updated damage mult
+--- Difficulty presets marked unimplemented ---
+  Γ£ô easyEnemyHealthMult is unimplemented
+  Γ£ô normalXpMult is unimplemented
+  Γ£ô hardLootMult is unimplemented
+  Γ£ô runtimeEnemyHealthMult remains implemented
+
+=== CombatTuningParameterRegistry Tests Summary ===
+Total Tests: 32
+Passed: 32
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== LevelWinRateCurve Tests ===
+
+--- Anchor levels match targets ---
+  Γ£ô L1 = 100%
+  Γ£ô L5 = 99%
+  Γ£ô L10 = 90%
+  Γ£ô L100 = 0%
+--- L50 interpolates near 50% ---
+  Γ£ô L50 target ~50% (actual 50.0)
+--- Levels above max clamp to last anchor ---
+  Γ£ô L150 clamps to 0%
+--- Conformance 100 when on target ---
+  Γ£ô On-target conformance 100
+--- Default sweep includes 7 levels ---
+  Γ£ô Default anchor count
+--- Multi-level battle estimate ---
+  Γ£ô Battles per level @ 1 battle/combo
+--- Suggester buffs enemies when WR too high ---
+  Γ£ô One suggestion
+  Γ£ô Enemy buff category (enemy_scaling)
+  Γ£ô Suggested value increases enemy power
+--- Suggester helps player when WR too low at low level ---
+  Γ£ô One suggestion
+  Γ£ô Player buff category
+--- Curve quality score averages anchor conformance ---
+  Γ£ô Perfect anchors score 100
+--- Validator passes when anchors on curve ---
+  Γ£ô Some checks pass
+
+=== LevelWinRateCurve Tests Summary ===
+Total Tests: 16
+Passed: 16
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== LevelTuningSessionStore Tests ===
+
+--- Session round-trip ---
+  Γ£ô Score persisted
+  Γ£ô Worst level
+  Γ£ô Snapshot count
+--- Empty session load ---
+  Γ£ô Missing file yields empty session
+
+=== LevelTuningSessionStore Tests Summary ===
+Total Tests: 4
+Passed: 4
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== BalanceTuningProfile Tests ===
+
+--- Load level-curve profile ---
+  Γ£ô Profile id
+  Γ£ô Simulation mode
+  Γ£ô Win rate optimization off by default
+  Γ£ô Uses combat_duration validator
+  Γ£ô Level curve validator excluded
+--- Defaults for comprehensive profile ---
+  Γ£ô OptimizeWinRate defaults false
+  Γ£ô Default combat_duration validator
+  Γ£ô Comprehensive validator excluded when win rate off
+  Γ£ô Default weapon suggester
+  Γ£ô Global suggester excluded when win rate off
+--- Win-rate criteria filtering ---
+  Γ£ô Only combat_duration remains
+  Γ£ô Effective validator id
+  Γ£ô Only duration suggester remains
+  Γ£ô Effective suggester id
+--- Comprehensive mapper round-trip ---
+  Γ£ô Win rate round-trip
+  Γ£ô Combination count
+
+=== BalanceTuningProfile Tests Summary ===
+Total Tests: 16
+Passed: 16
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== BalanceDialClassifier Tests ===
+
+--- Power dial when duration off ---
+  Γ£ô Short fights classify as Power
+--- Variance dial when spread high ---
+  Γ£ô High spread classifies as Variance
+--- Load combat-dials profile ---
+  Γ£ô Profile id
+  Γ£ô Dial routing enabled
+  Γ£ô Continue past zero HP
+
+=== BalanceDialClassifier Tests Summary ===
+Total Tests: 5
+Passed: 5
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== DeveloperSimMode Tests ===
+
+--- Scope restores flag ---
+  Γ£ô Enabled in scope
+  Γ£ô Restored after scope
+--- ShouldContinueEncounter ---
+  Γ£ô Normal mode stops at 0 HP
+  Γ£ô Dev mode continues above floor
+  Γ£ô Dev mode stops at floor
+--- Dev sim single encounter ---
+  Γ£ô Dev sim encounter runs ()
+
+=== DeveloperSimMode Tests Summary ===
+Total Tests: 6
+Passed: 6
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== FundamentalsSimulation Tests ===
+
+--- Fundamentals validators pass ---
+  Γ£ô Validation passes
+  Γ£ô No suggestions
+--- Fundamentals tempo fail ---
+  Γ£ô Tempo too low fails
+--- Fundamentals DTO round-trip ---
+  Γ£ô Actions persisted
+  Γ£ô Hero turns persisted
+  Γ£ô Enemy turns persisted
+  Γ£ô Streak totals
+--- Fundamentals uses loader enemy with health multiplier ---
+  Γ£ô Snapshot uses loader enemy
+  Γ£ô Snapshot has no hardcoded battle config
+  Γ£ô Loader enemy created
+  Γ£ô Loader enemy created at 2├ù
+  Γ£ô HP scales with multiplier (41 ΓåÆ 82)
+--- Fundamentals duration suggester scales health to target ---
+  Γ£ô One suggestion when L10 below target
+  Γ£ô High WR at L10 tunes enemy HP growth
+  Γ£ô Enemy growth scales (1 ΓåÆ 3.00)
+  Γ£ô One suggestion for low WR at L1
+  Γ£ô Low WR at L1 tunes player base health
+  Γ£ô Player base HP increases (600)
+  Γ£ô L1 high WR short fight suggests enemy
+  Γ£ô L1 enemy tune uses base health scale
+  Γ£ô No suggestion at target
+
+=== FundamentalsSimulation Tests Summary ===
+Total Tests: 21
+Passed: 21
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== RollFeelVarianceCompression Tests ===
+
+--- Master parameter registered ---
+  Γ£ô rollFeelVarianceCompression exists in registry
+  Γ£ô Master slider is in Variance Compression subgroup
+  Γ£ô criticalHitDamageMult exists in registry
+  Γ£ô criticalHitDamageMult is in Variance Compression subgroup
+  Γ£ô criticalHitDamageMult is on Core tab
+  Γ£ô comboRollDamageMult exists in registry
+  Γ£ô comboRollDamageMult is in Variance Compression subgroup
+  Γ£ô comboRollDamageMult is on Core tab
+  Γ£ô basicRollDamageMult exists in registry
+  Γ£ô basicRollDamageMult is in Variance Compression subgroup
+  Γ£ô basicRollDamageMult is on Core tab
+  Γ£ô playerArmorBaseline exists in registry
+  Γ£ô playerArmorBaseline is in Variance Compression subgroup
+  Γ£ô playerArmorBaseline is on Core tab
+  Γ£ô globalEnemyArmorMult exists in registry
+  Γ£ô globalEnemyArmorMult is in Variance Compression subgroup
+  Γ£ô globalEnemyArmorMult is on Core tab
+  Γ£ô maximumDamageCap exists in registry
+  Γ£ô maximumDamageCap is in Variance Compression subgroup
+  Γ£ô maximumDamageCap is on Core tab
+  Γ£ô minimumDamage exists in registry
+  Γ£ô minimumDamage is in Variance Compression subgroup
+  Γ£ô minimumDamage is on Core tab
+  Γ£ô armorReductionFactor exists in registry
+  Γ£ô armorReductionFactor is in Variance Compression subgroup
+  Γ£ô armorReductionFactor is on Core tab
+--- Apply(0) sets chaotic endpoints ---
+  Γ£ô Stores compression value
+  Γ£ô Chaotic crit multiplier
+  Γ£ô Chaotic combo multiplier
+  Γ£ô Basic roll multiplier stays 1.0
+  Γ£ô Chaotic player armor baseline
+  Γ£ô Chaotic enemy armor mult
+  Γ£ô Chaotic high damage cap
+  Γ£ô Chaotic low damage floor
+--- Apply(1) sets regular endpoints ---
+  Γ£ô Regular crit multiplier
+  Γ£ô Regular combo multiplier
+  Γ£ô Regular player armor baseline
+  Γ£ô Regular enemy armor mult
+  Γ£ô Regular lower damage cap
+  Γ£ô Regular higher damage floor
+--- Apply(0.5) interpolates ---
+  Γ£ô Midpoint crit multiplier
+  Γ£ô Midpoint combo multiplier
+  Γ£ô Midpoint player armor
+--- Master slider refreshes linked UI rows ---
+  Γ£ô Master row in panel VM
+  Γ£ô Crit row exists
+  Γ£ô Crit row reflects master slider apply
+
+=== RollFeelVarianceCompression Tests Summary ===
+Total Tests: 46
+Passed: 46
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== CombatTuningPanelHandler Tests ===
+
+--- Registry layer counts cover all parameters ---
+  Γ£ô Every registry parameter belongs to exactly one layer
+  Γ£ô Combat tuning exposes curated parameter set
+--- Handler push target round-trips playerBaseHealth ---
+  Γ£ô playerBaseHealth exists
+  Γ£ô PushParameterFromControl target updates config
+  Γ£ô ReloadSettings would read saved value
+--- Balance patch loads playerBaseHealth into config ---
+  Γ£ô playerBaseHealth exists
+  Γ£ô Character.PlayerBaseHealth is positive after patch load
+  Γ£ô Registry getter matches loaded config value
+--- Balance patch loads balanceTuningGoals into config ---
+  Γ£ô Win rate min target loaded from patch
+  Γ£ô Combat duration min target loaded from patch
+
+=== CombatTuningPanelHandler Tests Summary ===
+Total Tests: 10
+Passed: 10
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== TuningValueFormatter Tests ===
+
+--- Integer tick frequency formats as whole number ---
+  Γ£ô Integer-range slider shows rounded whole number
+--- Decimal range formats with two places ---
+  Γ£ô Decimal slider shows F2 format
+--- Maximum >= 100 uses integer display ---
+  Γ£ô Large max range uses integer display even with fractional tick
+--- ClampAndFormat never returns empty for valid input ---
+  Γ£ô ClampAndFormat produces non-empty display text
+  Γ£ô ClampAndFormat shows clamped integer value
+--- ClampAndFormat recovers from out-of-range value ---
+  Γ£ô Out-of-range low value clamps to minimum for display
+--- ClampAndFormat returns empty when min exceeds max ---
+  Γ£ô Incomplete range during init does not throw
+
+=== TuningValueFormatter Tests Summary ===
+Total Tests: 7
+Passed: 7
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== CombatTuningParameterViewModel Tests ===
+
+--- Value clamps to registry maximum ---
+  Γ£ô Value cannot exceed registry maximum
+--- ValueText reflects integer Value ---
+  Γ£ô ValueText shows whole number for health parameter
+--- ValueText parse updates Value ---
+  Γ£ô Parsing ValueText updates decimal Value
+--- ReloadFromConfig reads without writing ---
+  Γ£ô ReloadFromConfig reads current config value
+  Γ£ô ReloadFromConfig does not invoke commit callback
+--- Unimplemented parameter prefixes DisplayAffects ---
+  Γ£ô easyEnemyHealthMult flagged unimplemented
+  Γ£ô DisplayAffects shows [Unimplemented] prefix
+--- Difficulty subgroup header notes unimplemented ---
+  Γ£ô All-unimplemented subgroup shows suffix
+
+=== CombatTuningParameterViewModel Tests Summary ===
+Total Tests: 8
+Passed: 8
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== CombatTuningPanelViewModel Tests ===
+
+--- FromRegistry builds all registry parameters ---
+  Γ£ô Panel view model exposes every registry parameter
+  Γ£ô Core tab has multiple subgroups
+  Γ£ô Hero tab has class multipliers
+  Γ£ô Archetype selector lists all archetypes
+  Γ£ô Status effect selector lists all effects
+  Γ£ô Core layer collections are a subset of all parameters
+--- Hero subgroups follow registry order ---
+  Γ£ô Hero tab subgroup count matches registry
+  Γ£ô Level-Up Growth is the first hero subgroup
+  Γ£ô Hero subgroup 0 matches registry order
+  Γ£ô Hero subgroup 1 matches registry order
+  Γ£ô Hero subgroup 2 matches registry order
+  Γ£ô Hero subgroup 3 matches registry order
+  Γ£ô Hero subgroup 4 matches registry order
+--- ReloadFromConfig reflects playerBaseHealth ---
+  Γ£ô playerBaseHealth row exists
+  Γ£ô ReloadFromConfig loads config into view model
+  Γ£ô ValueText matches loaded config value
+--- GetById resolves registry id ---
+  Γ£ô GetById finds enemyBaselineHealth
+
+=== CombatTuningPanelViewModel Tests Summary ===
+Total Tests: 17
+Passed: 17
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== ArchetypeTuningViewModel Tests ===
+
+--- Archetype selector filters to 6 sliders ---
+  Γ£ô Has archetype names
+  Γ£ô Berserker shows 6 stat multipliers
+  Γ£ô Includes health multiplier
+
+=== ArchetypeTuningViewModel Tests Summary ===
+Total Tests: 3
+Passed: 3
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== StatusEffectTuningViewModel Tests ===
+
+--- Status effect selector filters per-effect sliders ---
+  Γ£ô Has global status scaling params
+  Γ£ô Has effect names
+  Γ£ô Bleed shows 4 key fields
+  Γ£ô Includes damage per tick
+
+=== StatusEffectTuningViewModel Tests Summary ===
+Total Tests: 4
+Passed: 4
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== SliderWithTextBox Logic Tests ===
+
+--- Integer tick frequency formats as whole number ---
+  Γ£ô Integer-range slider shows rounded whole number
+--- Decimal range formats with two places ---
+  Γ£ô Decimal slider shows F2 format
+--- Maximum >= 100 uses integer display ---
+  Γ£ô Large max range uses integer display even with fractional tick
+--- ClampAndFormat never returns empty for valid input ---
+  Γ£ô ClampAndFormat produces non-empty display text
+  Γ£ô ClampAndFormat shows clamped integer value
+--- ClampAndFormat recovers from out-of-range value ---
+  Γ£ô Out-of-range low value clamps to minimum for display
+--- ClampAndFormat returns empty when min exceeds max ---
+  Γ£ô Incomplete range during init does not throw
+
+=== SliderWithTextBox Logic Tests Summary ===
+Total Tests: 7
+Passed: 7
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== EnemyTuningPanelHandler Tests ===
+
+--- Raw spawn weights stay unchanged until sanitize ---
+  Γ£ô Raw total reflects entered values
+  Γ£ô Common percent unchanged before save sanitize
+--- Save sanitize normalizes spawn weights ---
+  Γ£ô Rural weights total 100 after save sanitize
+--- Progression scales round-trip on enemy system ---
+  Γ£ô Base health scale persisted
+  Γ£ô Health growth scale persisted
+  Γ£ô Attribute growth scale persisted
+--- Progression scales live in CombatTuningParameterRegistry ---
+  Γ£ô baseHealthScale exists in registry
+  Γ£ô Registry reads base health scale from config
+
+=== EnemyTuningPanelHandler Tests Summary ===
+Total Tests: 8
+Passed: 8
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== BattleStatisticsHandler Tests ===
+
+--- Testing Constructor ---
+  Γ£ô BattleStatisticsHandler should be created with valid GameStateManager
+
+--- Testing Constructor with null state manager ---
+  Γ£ô BattleStatisticsHandler should throw ArgumentNullException for null state manager
+
+=== BattleStatisticsHandler Tests Summary ===
+Total Tests: 2
+Passed: 2
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== MatchupAnalyzer Tests ===
+
+--- Testing Analyze ---
+  Γ£ô Analyze should return an AnalysisReport
+  Γ£ô AnalysisReport should contain matchup results
+  Γ£ô AnalysisReport should have a generated date
+
+--- Testing MatchupResult Status Determination ---
+  Γ£ô Matchup status should be GOOD, WARNING, or CRITICAL, got: GOOD
+  Γ£ô Matchup status should be GOOD, WARNING, or CRITICAL, got: GOOD
+  Γ£ô Matchup status should be GOOD, WARNING, or CRITICAL, got: GOOD
+  Γ£ô Matchup status should be GOOD, WARNING, or CRITICAL, got: GOOD
+  Γ£ô At least one matchup should have a status
+
+--- Testing AnalysisReport Generation ---
+  Γ£ô AnalysisReport should have battles per matchup
+  Γ£ô AnalysisReport should have matchup results list
+  Γ£ô AnalysisReport should have issues list
+  Γ£ô AnalysisReport should have recommendations list
+
+--- Testing GenerateTextReport ---
+  Γ£ô GenerateTextReport should return a non-empty string
+  Γ£ô Text report should contain report header
+
+--- Testing Issue Detection ---
+  Γ£ô AnalysisReport should have issues list
+
+=== MatchupAnalyzer Tests Summary ===
+Total Tests: 15
+Passed: 15
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== GameScreenCoordinator Tests ===
+
+--- Testing Constructor ---
+  Γ£ô GameScreenCoordinator should be created
+  Γ£ô Constructor should throw ArgumentNullException for null stateManager
+
+--- Testing ShowGameLoop ---
+  Γ£ô ShowGameLoop should handle missing player gracefully
+  Γ£ô ShowGameLoop should execute with player
+
+--- Testing ShowDungeonCompletion ---
+  Γ£ô ShowDungeonCompletion should handle null parameters
+
+--- Testing ShowInventory ---
+  Γ£ô ShowInventory should handle missing player gracefully
+
+--- Testing ShowMainMenu ---
+  Γ£ô ShowMainMenu should execute with default parameters
+  Γ£ô ShowMainMenu should execute with saved game info
+
+--- Testing ShowDeathScreen ---
+  Γ£ô ShowDeathScreen should execute with player
+  Γ£ô ShowDeathScreen should handle null player gracefully
+
+--- Testing ShowDungeonSelection ---
+  Γ£ô ShowDungeonSelection should handle missing data gracefully
+
+--- Testing ShowSettings ---
+  Γ£ô ShowSettings should execute
+
+--- Testing ShowCharacterInfo ---
+  Γ£ô ShowCharacterInfo should handle missing player gracefully
+
+--- Testing ShowWeaponSelection ---
+  Γ£ô ShowWeaponSelection should handle null weapons gracefully
+  Γ£ô ShowWeaponSelection should handle empty weapons list
+
+--- Testing ShowCharacterCreation ---
+  Γ£ô ShowCharacterCreation should execute with character
+  Γ£ô ShowCharacterCreation should handle null character gracefully
+
+=== GameScreenCoordinator Tests Summary ===
+Total Tests: 17
+Passed: 17
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== CombatRenderingValidator Tests ===
+
+--- Death state blocks combat repaint ---
+  Γ£ô ValidateCharacterActive should be false in Death even when context holds the same character
+--- Dungeon state allows combat when context matches ---
+  Γ£ô ValidateCharacterActive should be true in Dungeon when context matches
+
+=== CombatRenderingValidator Tests Summary ===
+Total Tests: 2
+Passed: 2
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+=== ClaudeAIGamePlayer Tests ===
+
+--- Testing Constructor ---
+  Γ£ô ClaudeAIGamePlayer should be created
+
+--- Testing Basic Initialization ---
+  Γ£ô ClaudeAIGamePlayer should be instantiated
+
+--- Testing Error Handling ---
+  Γ£ô ClaudeAIGamePlayer should support error handling
+
+=== ClaudeAIGamePlayer Tests Summary ===
+Total Tests: 3
+Passed: 3
+Failed: 0
+Success Rate: 100.0%
+
+Γ£à All tests passed!
+
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+  Execution Time: 9.46 seconds (9457 ms)
+  Mode: TEST
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+

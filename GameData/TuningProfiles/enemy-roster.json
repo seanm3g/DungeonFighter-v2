@@ -1,0 +1,18 @@
+{
+  "id": "enemy-roster",
+  "name": "Enemy Roster Balance",
+  "description": "Multi-level comprehensive pass for enemy differentiation and archetype spread.",
+  "simulation": {
+    "mode": "comprehensive_weapon_enemy",
+    "battlesPerCombination": 40,
+    "playerLevel": 25,
+    "enemyLevel": 25
+  },
+  "analysis": {
+    "validators": ["enemy_differentiation", "weapon_variance", "combat_duration"],
+    "suggesters": ["enemy", "weapon", "dial_routed"],
+    "maxSuggestions": 1,
+    "enableDialRouting": true,
+    "optimizeWinRate": false
+  }
+}

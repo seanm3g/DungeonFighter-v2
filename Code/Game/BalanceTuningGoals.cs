@@ -42,14 +42,110 @@ namespace RPGGame
             GameConfiguration.Instance.BalanceTuningGoals.QualityWeights;
 
         /// <summary>
-        /// Tuning priority order for automated adjustments
+        /// Target win rate at a level (curve when enabled, else flat optimal midpoint).
         /// </summary>
-        public enum TuningPriority
+        public static double GetTargetWinRate(int level) =>
+            LevelWinRateCurve.GetTargetWinRate(level);
+
+        /// <summary>
+        /// Average anchor conformance score (0–100) from a multi-level simulation result.
+        /// </summary>
+        public static double CalculateLevelCurveQualityScore(Tuning.MultiLevelSimulationResult result)
         {
-            Critical = 1,    // Fix critical issues first (<80% or >99% win rate)
-            High = 2,        // Fix high priority issues (outside optimal range)
-            Medium = 3,      // Fix medium priority issues (warnings)
-            Low = 4          // Fine-tune for optimization
+            if (result?.LevelSnapshots == null || result.LevelSnapshots.Count == 0)
+                return 0.0;
+
+            var anchorLevels = new HashSet<int>(LevelWinRateCurve.GetCurveAnchorLevels());
+            var anchorSnapshots = result.LevelSnapshots
+                .Where(s => anchorLevels.Contains(s.Level))
+                .ToList();
+
+            if (anchorSnapshots.Count == 0)
+                anchorSnapshots = result.LevelSnapshots;
+
+            double sum = anchorSnapshots.Sum(s =>
+                LevelWinRateCurve.GetConformanceScore(s.ActualWinRate, s.Level));
+            return Math.Round(sum / anchorSnapshots.Count, 1);
+        }
+
+        /// <summary>
+        /// Average per-level combat duration score (0–100) from a multi-level simulation result.
+        /// </summary>
+        public static double CalculateMultiLevelDurationQualityScore(Tuning.MultiLevelSimulationResult result)
+        {
+            if (result?.LevelSnapshots == null || result.LevelSnapshots.Count == 0)
+                return 0.0;
+
+            double sum = result.LevelSnapshots.Sum(s => ScoreCombatDuration(s.AverageTurns));
+            return Math.Round(sum / result.LevelSnapshots.Count, 1);
+        }
+
+        private static double ScoreCombatDuration(double averageCombatDuration)
+        {
+            var duration = CombatDurationTargets;
+
+            if (averageCombatDuration < duration.MinTarget || averageCombatDuration > duration.MaxTarget)
+            {
+                if (averageCombatDuration < duration.CriticalShort || averageCombatDuration > duration.CriticalLong)
+                    return 0.0;
+                return 50.0;
+            }
+
+            if (averageCombatDuration >= duration.OptimalMin && averageCombatDuration <= duration.OptimalMax)
+                return 100.0;
+
+            return 80.0;
+        }
+
+        private static double ScoreWeaponVariance(double weaponVariance)
+        {
+            var weapon = WeaponBalanceTargets;
+
+            if (weaponVariance > weapon.CriticalVariance)
+                return 0.0;
+            if (weaponVariance > weapon.MaxVariance)
+                return 50.0;
+            if (weaponVariance <= weapon.OptimalVariance)
+                return 100.0;
+            return 80.0;
+        }
+
+        private static double ScoreEnemyVariance(double enemyVariance)
+        {
+            var enemy = EnemyDifferentiationTargets;
+
+            if (enemyVariance < enemy.CriticalVariance)
+                return 0.0;
+            if (enemyVariance < enemy.MinVariance)
+                return 50.0;
+            if (enemyVariance >= enemy.OptimalVariance)
+                return 100.0;
+            return 80.0;
+        }
+
+        /// <summary>
+        /// Calculate balance quality without win-rate weighting (duration + weapon + enemy spread).
+        /// </summary>
+        public static double CalculateQualityScoreWithoutWinRate(
+            double averageCombatDuration,
+            double weaponVariance,
+            double enemyVariance)
+        {
+            var weights = QualityWeights;
+            double durationScore = ScoreCombatDuration(averageCombatDuration);
+            double weaponScore = ScoreWeaponVariance(weaponVariance);
+            double enemyScore = ScoreEnemyVariance(enemyVariance);
+
+            double totalWeight = weights.DurationWeight + weights.WeaponBalanceWeight + weights.EnemyDiffWeight;
+            if (totalWeight <= 0)
+                return Math.Round((durationScore + weaponScore + enemyScore) / 3.0, 1);
+
+            double totalScore =
+                durationScore * weights.DurationWeight +
+                weaponScore * weights.WeaponBalanceWeight +
+                enemyScore * weights.EnemyDiffWeight;
+
+            return Math.Round(totalScore / totalWeight, 1);
         }
 
         /// <summary>
@@ -62,9 +158,6 @@ namespace RPGGame
             double enemyVariance)
         {
             var winRate = WinRateTargets;
-            var duration = CombatDurationTargets;
-            var weapon = WeaponBalanceTargets;
-            var enemy = EnemyDifferentiationTargets;
             var weights = QualityWeights;
 
             // Win rate score (0-100)
@@ -88,44 +181,13 @@ namespace RPGGame
             }
 
             // Duration score (0-100)
-            double durationScore = 100.0;
-            if (averageCombatDuration < duration.MinTarget || averageCombatDuration > duration.MaxTarget)
-            {
-                if (averageCombatDuration < duration.CriticalShort || averageCombatDuration > duration.CriticalLong)
-                    durationScore = 0.0;
-                else
-                    durationScore = 50.0;
-            }
-            else if (averageCombatDuration >= duration.OptimalMin && averageCombatDuration <= duration.OptimalMax)
-            {
-                durationScore = 100.0;
-            }
-            else
-            {
-                durationScore = 80.0;
-            }
+            double durationScore = ScoreCombatDuration(averageCombatDuration);
 
             // Weapon balance score (0-100)
-            double weaponScore = 100.0;
-            if (weaponVariance > weapon.CriticalVariance)
-                weaponScore = 0.0;
-            else if (weaponVariance > weapon.MaxVariance)
-                weaponScore = 50.0;
-            else if (weaponVariance <= weapon.OptimalVariance)
-                weaponScore = 100.0;
-            else
-                weaponScore = 80.0;
+            double weaponScore = ScoreWeaponVariance(weaponVariance);
 
             // Enemy differentiation score (0-100)
-            double enemyScore = 100.0;
-            if (enemyVariance < enemy.CriticalVariance)
-                enemyScore = 0.0;
-            else if (enemyVariance < enemy.MinVariance)
-                enemyScore = 50.0;
-            else if (enemyVariance >= enemy.OptimalVariance)
-                enemyScore = 100.0;
-            else
-                enemyScore = 80.0;
+            double enemyScore = ScoreEnemyVariance(enemyVariance);
 
             // Weighted average
             double totalScore = 
@@ -135,6 +197,17 @@ namespace RPGGame
                 enemyScore * weights.EnemyDiffWeight;
 
             return Math.Round(totalScore, 1);
+        }
+
+        /// <summary>
+        /// Tuning priority order for automated adjustments
+        /// </summary>
+        public enum TuningPriority
+        {
+            Critical = 1,    // Fix critical issues first (<80% or >99% win rate)
+            High = 2,        // Fix high priority issues (outside optimal range)
+            Medium = 3,      // Fix medium priority issues (warnings)
+            Low = 4          // Fine-tune for optimization
         }
 
         /// <summary>

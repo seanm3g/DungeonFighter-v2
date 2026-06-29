@@ -1,0 +1,17 @@
+{
+  "id": "earlygame-balance",
+  "name": "Early-Game Comprehensive Balance",
+  "description": "Full weapon×enemy matrix at level 5; focus on onboarding difficulty and weapon parity.",
+  "simulation": {
+    "mode": "comprehensive_weapon_enemy",
+    "battlesPerCombination": 40,
+    "playerLevel": 5,
+    "enemyLevel": 5
+  },
+  "analysis": {
+    "optimizeWinRate": false,
+    "validators": ["weapon_variance"],
+    "suggesters": ["weapon"],
+    "maxSuggestions": 1
+  }
+}

@@ -260,6 +260,29 @@ namespace RPGGame.UI.Avalonia
                 handler.LoadSettings(target);
         }
         
+        /// <summary>Selects a sidebar category and loads its panel (used for deep links from Balance Workbench).</summary>
+        public void NavigateToCategory(string categoryTag)
+        {
+            for (int i = 0; i < CategoryListBox.ItemCount; i++)
+            {
+                if (CategoryListBox.Items[i] is ListBoxItem item
+                    && item.Tag is string tag
+                    && string.Equals(tag, categoryTag, StringComparison.OrdinalIgnoreCase))
+                {
+                    CategoryListBox.SelectedIndex = i;
+                    return;
+                }
+            }
+
+            LoadCategoryPanel(categoryTag);
+        }
+
+        public void OpenCombatTuningProgressionCurve()
+        {
+            CombatTuningNavigation.RequestOpen(CombatTuningNavigation.CombatTuningSubTab.ProgressionCurve);
+            NavigateToCategory("CombatTuning");
+        }
+
         private void SetupNavigation()
         {
             // Handle category selection

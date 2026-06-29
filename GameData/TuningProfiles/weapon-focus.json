@@ -1,0 +1,16 @@
+{
+  "id": "weapon-focus",
+  "name": "Weapon Parity Spot Check",
+  "description": "Comprehensive sim at level 10 but only analyze and suggest weapon-balance adjustments.",
+  "simulation": {
+    "mode": "comprehensive_weapon_enemy",
+    "battlesPerCombination": 30,
+    "playerLevel": 10,
+    "enemyLevel": 10
+  },
+  "analysis": {
+    "validators": ["weapon_variance"],
+    "suggesters": ["weapon"],
+    "maxSuggestions": 1
+  }
+}

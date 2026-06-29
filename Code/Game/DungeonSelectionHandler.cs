@@ -16,6 +16,12 @@ namespace RPGGame
         private IUIManager? customUIManager;
         private bool awaitingCustomDungeonLevel;
         private string customLevelBuffer = "";
+
+        /// <summary>MCP/agent: true when digit/enter/backspace inputs edit custom level instead of picking a dungeon.</summary>
+        public bool IsAwaitingCustomDungeonLevel => awaitingCustomDungeonLevel;
+
+        /// <summary>MCP/agent: partial custom level digits entered so far.</summary>
+        public string CustomLevelBuffer => customLevelBuffer;
         
         // Delegates
         public delegate Task OnStartDungeon();

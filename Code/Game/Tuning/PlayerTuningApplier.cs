@@ -57,6 +57,12 @@ namespace RPGGame.Tuning
             var levelUp = new LevelUpManager(character);
             for (int level = 2; level <= character.Level; level++)
                 max += levelUp.GetHealthIncreaseForLevelStep();
+
+            var prog = tuning.EnemySystem.ProgressionScales;
+            prog?.EnsurePositiveScales();
+            if (prog != null)
+                max = Math.Max(1, (int)Math.Round(max * (1 + prog.PlayerEnemyParity * EnemyProgressionCurveEvaluator.ParityPlayerHpFactor)));
+
             return max;
         }
     }

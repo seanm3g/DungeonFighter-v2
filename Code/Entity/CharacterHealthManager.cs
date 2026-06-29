@@ -25,9 +25,11 @@ namespace RPGGame
             get => _currentHealth;
             set 
             {
-                // Clamp health between 0 and effective max health (includes equipment bonuses)
                 int maxHealth = GetEffectiveMaxHealth();
-                _currentHealth = Math.Max(0, Math.Min(value, maxHealth));
+                if (RPGGame.Tuning.DeveloperSimMode.ContinuePastZeroHp)
+                    _currentHealth = Math.Min(value, maxHealth);
+                else
+                    _currentHealth = Math.Max(0, Math.Min(value, maxHealth));
             }
         }
         public int MaxHealth { get; set; }
@@ -132,7 +134,10 @@ namespace RPGGame
             if (armorAbsorbed > 0)
                 character.Effects.LastArmorAbsorbed = armorAbsorbed;
 
-            CurrentHealth = Math.Max(0, CurrentHealth - amount);
+            if (RPGGame.Tuning.DeveloperSimMode.ContinuePastZeroHp)
+                CurrentHealth -= amount;
+            else
+                CurrentHealth = Math.Max(0, CurrentHealth - amount);
 
             // Store shield usage for display purposes
             if (shieldUsed)

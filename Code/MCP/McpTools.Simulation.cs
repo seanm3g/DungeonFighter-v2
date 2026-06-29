@@ -285,6 +285,22 @@ namespace RPGGame.MCP
             return Tools.EnhancedAnalysisTools.RunBattleSimulationWithLogs(battlesPerCombination, playerLevel, enemyLevel, includeTurnLogs);
         }
 
+        [McpServerTool(Name = "run_multi_level_simulation", Title = "Run Multi-Level Battle Simulation")]
+        [Description("Runs comprehensive simulations at multiple same-level points vs the level win-rate curve.")]
+        public static Task<string> RunMultiLevelSimulation(
+            [Description("Comma-separated levels (default: 1,5,10,25,50,75,100)")] string? levels = null,
+            [Description("Battles per combination per level (default: 25)")] int battlesPerCombination = 25)
+        {
+            return Tools.SimulationTools.RunMultiLevelSimulation(levels, battlesPerCombination);
+        }
+
+        [McpServerTool(Name = "get_level_curve_report", Title = "Get Level Curve Report")]
+        [Description("Formatted report from the most recent multi-level simulation.")]
+        public static Task<string> GetLevelCurveReport()
+        {
+            return Tools.SimulationTools.GetLevelCurveReport();
+        }
+
         // ========== Variable Editor Tools ==========
 
         [McpServerTool(Name = "list_variable_categories", Title = "List Variable Categories")]

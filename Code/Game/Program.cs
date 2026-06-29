@@ -43,6 +43,23 @@ namespace RPGGame
                     return;
                 }
 
+                // Headless smoke test for MCP gameplay path
+                if (args.Length > 0 && args[0].Equals("MCPSMOKE", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "MCPSMOKE";
+                    BuildExecutionMetrics.RecordLaunchTime("MCPSMOKE");
+                    await RPGGame.Game.McpSmokeTest.RunAsync();
+                    return;
+                }
+
+                if (args.Length > 0 && args[0].Equals("PLAYTODEATH", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "PLAYTODEATH";
+                    BuildExecutionMetrics.RecordLaunchTime("PLAYTODEATH");
+                    await RPGGame.Game.PlayUntilDeath.RunAsync();
+                    return;
+                }
+
                 // Check if interactive play mode is requested
                 if (args.Length > 0 && args[0].Equals("PLAY", StringComparison.OrdinalIgnoreCase))
                 {
@@ -74,6 +91,92 @@ namespace RPGGame
                     return;
                 }
 
+                if (args.Length > 0 && args[0] == "TUNEPROFILES")
+                {
+                    executionMode = "TUNEPROFILES";
+                    BuildExecutionMetrics.RecordLaunchTime("TUNEPROFILES");
+                    RPGGame.Tuning.BalanceTuningWorkflow.ListProfiles();
+                    return;
+                }
+
+                if (args.Length > 0 && args[0] == "TUNESIM")
+                {
+                    executionMode = "TUNESIM";
+                    BuildExecutionMetrics.RecordLaunchTime("TUNESIM");
+                    string profile = RPGGame.Tuning.Profiles.TuningCliArgs.GetProfileId(args);
+                    System.Environment.ExitCode = await RPGGame.Tuning.BalanceTuningWorkflow.RunSimAsync(profile, args);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0] == "TUNEANALYZE")
+                {
+                    executionMode = "TUNEANALYZE";
+                    BuildExecutionMetrics.RecordLaunchTime("TUNEANALYZE");
+                    System.Environment.ExitCode = await RPGGame.Tuning.BalanceTuningWorkflow.RunAnalyzeAsync();
+                    return;
+                }
+
+                if (args.Length > 0 && args[0] == "TUNEAPPLY")
+                {
+                    executionMode = "TUNEAPPLY";
+                    BuildExecutionMetrics.RecordLaunchTime("TUNEAPPLY");
+                    bool dryRun = args.Any(a => a.Equals("--dry-run", StringComparison.OrdinalIgnoreCase));
+                    System.Environment.ExitCode = await RPGGame.Tuning.BalanceTuningWorkflow.RunApplyAsync(dryRun);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0] == "LEVELSIM")
+                {
+                    executionMode = "LEVELSIM";
+                    BuildExecutionMetrics.RecordLaunchTime("LEVELSIM");
+                    int battles = args.Length > 1 && int.TryParse(args[1], out int bpcSim) ? bpcSim : 25;
+                    string? levels = args.Length > 2 ? args[2] : null;
+                    System.Environment.ExitCode = await RPGGame.Tuning.LevelTuningWorkflow.RunSimAsync(battles, levels);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0] == "LEVELANALYZE")
+                {
+                    executionMode = "LEVELANALYZE";
+                    BuildExecutionMetrics.RecordLaunchTime("LEVELANALYZE");
+                    System.Environment.ExitCode = await RPGGame.Tuning.LevelTuningWorkflow.RunAnalyzeAsync();
+                    return;
+                }
+
+                if (args.Length > 0 && args[0] == "LEVELAPPLY")
+                {
+                    executionMode = "LEVELAPPLY";
+                    BuildExecutionMetrics.RecordLaunchTime("LEVELAPPLY");
+                    bool dryRun = args.Any(a => a.Equals("--dry-run", StringComparison.OrdinalIgnoreCase));
+                    System.Environment.ExitCode = await RPGGame.Tuning.LevelTuningWorkflow.RunApplyAsync(dryRun);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0] == "LEVELTUNING")
+                {
+                    executionMode = "LEVELTUNING";
+                    BuildExecutionMetrics.RecordLaunchTime("LEVELTUNING");
+                    int maxIter = args.Length > 1 && int.TryParse(args[1], out int mi) ? mi : 10;
+                    int battles = args.Length > 2 && int.TryParse(args[2], out int bpc) ? bpc : 25;
+                    string profile = RPGGame.Tuning.Profiles.TuningCliArgs.GetProfileId(args, "level-curve");
+                    bool dryRun = args.Any(a => a.Equals("--dry-run", StringComparison.OrdinalIgnoreCase));
+                    bool stopWhenPass = !args.Any(a => a.Equals("--no-stop-when-pass", StringComparison.OrdinalIgnoreCase));
+                    await RPGGame.Tuning.LevelTuningRunner.Run(maxIter, battles, profile, stopWhenPass, dryRun, args);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0] == "TUNETUNING")
+                {
+                    executionMode = "TUNETUNING";
+                    BuildExecutionMetrics.RecordLaunchTime("TUNETUNING");
+                    int maxIter = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--max-iterations", "-n") ?? 10;
+                    string profile = RPGGame.Tuning.Profiles.TuningCliArgs.GetProfileId(args, "combat-dials");
+                    bool dryRun = args.Any(a => a.Equals("--dry-run", StringComparison.OrdinalIgnoreCase));
+                    bool stopWhenPass = !args.Any(a => a.Equals("--no-stop-when-pass", StringComparison.OrdinalIgnoreCase));
+                    await RPGGame.Tuning.LevelTuningRunner.Run(maxIter, 25, profile, stopWhenPass, dryRun, args);
+                    return;
+                }
+
                 // Check if unit test suite is requested (run-tests.bat / run-tests.ps1)
                 if (args.Length > 0 && (args[0] == "--run-tests" || args.Any(a => a == "--run-tests")))
                 {
@@ -96,6 +199,23 @@ namespace RPGGame
                     executionMode = "TEST";
                     BuildExecutionMetrics.RecordLaunchTime("TEST");
                     RPGGame.Tests.Runners.GameSystemTestRunner.RunAllTests();
+                    return;
+                }
+
+                if (args.Length > 0 && args[0] == "--list-test-suites")
+                {
+                    executionMode = "TEST";
+                    BuildExecutionMetrics.RecordLaunchTime("TEST");
+                    RPGGame.Tests.Runners.FilteredTestRunner.ListSuites();
+                    return;
+                }
+
+                if (args.Length > 0 && args[0] == "--run-test-filter")
+                {
+                    executionMode = "TEST";
+                    BuildExecutionMetrics.RecordLaunchTime("TEST");
+                    string filter = args.Length > 1 ? string.Join(' ', args.Skip(1)) : "";
+                    System.Environment.ExitCode = RPGGame.Tests.Runners.FilteredTestRunner.Run(filter);
                     return;
                 }
 

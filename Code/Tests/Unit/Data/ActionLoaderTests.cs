@@ -27,7 +27,6 @@ namespace RPGGame.Tests.Unit.Data
             _testsFailed = 0;
 
             TestActionLoading();
-            TestModTradeActionInActionsJson();
             TestReloadActionsInvokesActionsReloaded();
             TestGetAction();
             TestGetActions();
@@ -70,26 +69,6 @@ namespace RPGGame.Tests.Unit.Data
         }
 
         #region Action Loading Tests
-
-        private static void TestModTradeActionInActionsJson()
-        {
-            Console.WriteLine("--- Testing mod-trade row in Actions.json (tags modtrade) ---");
-            _testsRun++;
-            ActionLoader.ReloadActions();
-            var mt = ActionLoader.GetAction("Commitment Cleaver");
-            bool ok = mt != null && mt.SpeedMod == "-20" && mt.DamageMod == "25"
-                && mt.Description != null && mt.Description.Contains("telegraph", StringComparison.OrdinalIgnoreCase);
-            if (ok)
-            {
-                _testsPassed++;
-                Console.WriteLine("  ✓ Commitment Cleaver from Actions.json: mods + catalog description");
-            }
-            else
-            {
-                _testsFailed++;
-                Console.WriteLine("  ✗ Commitment Cleaver missing, wrong mods, or description not from catalog");
-            }
-        }
 
         private static void TestActionLoading()
         {

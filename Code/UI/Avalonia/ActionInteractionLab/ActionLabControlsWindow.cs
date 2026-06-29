@@ -190,16 +190,26 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 return;
             }
 
-            if (session.LastCatalogWheelMinGridY < 0 || session.LastCatalogWheelMinGridX < 0) return;
-            if (g.X < session.LastCatalogWheelMinGridX || g.X > session.LastCatalogWheelMaxGridX) return;
-            if (g.Y < session.LastCatalogWheelMinGridY || g.Y > session.LastCatalogWheelMaxGridY) return;
-
             var delta = e.Delta.Y;
             if (Math.Abs(delta) < 0.1) return;
 
             int steps = Math.Max(1, (int)(Math.Abs(delta) / 50.0));
             if (steps > 30) steps = 30;
             int signed = delta > 0 ? -steps : steps;
+
+            if (session.LastEnemyCatalogWheelMinGridY >= 0 && session.LastEnemyCatalogWheelMinGridX >= 0
+                && g.X >= session.LastEnemyCatalogWheelMinGridX && g.X <= session.LastEnemyCatalogWheelMaxGridX
+                && g.Y >= session.LastEnemyCatalogWheelMinGridY && g.Y <= session.LastEnemyCatalogWheelMaxGridY)
+            {
+                ActionLabInputCoordinator.ApplyEnemyCatalogScrollOffsetDelta(session, signed, _canvasUi);
+                e.Handled = true;
+                return;
+            }
+
+            if (session.LastCatalogWheelMinGridY < 0 || session.LastCatalogWheelMinGridX < 0) return;
+            if (g.X < session.LastCatalogWheelMinGridX || g.X > session.LastCatalogWheelMaxGridX) return;
+            if (g.Y < session.LastCatalogWheelMinGridY || g.Y > session.LastCatalogWheelMaxGridY) return;
+
             ActionLabInputCoordinator.ApplyCatalogScrollOffsetDelta(session, signed, _canvasUi);
             e.Handled = true;
         }

@@ -20,6 +20,13 @@ namespace RPGGame.MCP
             return Tools.GameControlTools.StartNewGame();
         }
 
+        [McpServerTool(Name = "reset_game", Title = "[Gameplay] Reset Game")]
+        [Description("Disposes the current game, starts fresh, and shows the main menu.")]
+        public static Task<string> ResetGame()
+        {
+            return Tools.GameControlTools.ResetGame();
+        }
+
         [McpServerTool(Name = "save_game", Title = "Save Game")]
         [Description("Saves the current game state.")]
         public static Task<string> SaveGame()

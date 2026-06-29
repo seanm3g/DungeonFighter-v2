@@ -207,6 +207,12 @@ namespace RPGGame
         public GameStateManager StateManager => stateManager;
         public DeveloperMenuHandler? DeveloperMenuHandler => developerMenuHandler;
 
+        /// <summary>MCP/agent: dungeon selection handler for pending input queries.</summary>
+        public DungeonSelectionHandler? GetDungeonSelectionHandler() => dungeonSelectionHandler;
+
+        /// <summary>MCP/agent: exit choice handler when between dungeon rooms.</summary>
+        public DungeonExitChoiceHandler? GetExitChoiceHandler() => dungeonRunnerManager?.GetExitChoiceHandler();
+
         // Main entry points
         public void ShowMainMenu()
         {

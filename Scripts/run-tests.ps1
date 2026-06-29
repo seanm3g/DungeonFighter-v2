@@ -32,8 +32,14 @@ Write-Host ""
 
 # Run tests through the game's test system
 $testExecutable = Join-Path (Get-Location) "Code\bin\Debug\net8.0\DF.exe"
+$filter = $args | Where-Object { $_ -ne "" } | Select-Object -First 1
 if (Test-Path $testExecutable) {
-    & $testExecutable --run-tests
+    if ($filter) {
+        Write-Host "Running filtered tests: $filter" -ForegroundColor Yellow
+        & $testExecutable --run-test-filter $filter
+    } else {
+        & $testExecutable --run-tests
+    }
 } else {
     Write-Host "Test executable not found. Please build the project first." -ForegroundColor Red
     exit 1

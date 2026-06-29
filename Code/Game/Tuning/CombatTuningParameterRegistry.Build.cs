@@ -19,18 +19,14 @@ namespace RPGGame.Tuning
             var goals = () => cfg().BalanceTuningGoals;
             const CombatTuningTab tab = CombatTuningTab.Core;
 
-            // Duration
-            list.Add(IntParam("playerBaseHealth", tab, CombatTuningLayer.Duration, "Duration",
-                "Hero base health", "Hero max HP at level 1 (before class multipliers)", 20, 200,
-                () => cfg().Character.PlayerBaseHealth, v => cfg().Character.PlayerBaseHealth = v));
-            list.Add(IntParam("playerHealthPerLevel", tab, CombatTuningLayer.Duration, "Duration",
-                "Player health per level", "Combat length scaling with player level", 0, 20,
-                () => cfg().Character.HealthPerLevel, v => cfg().Character.HealthPerLevel = v));
+            const int tuningMaxBaseHealth = 1000000;
+            const int tuningMaxHealthPerLevel = 100000;
+
             list.Add(IntParam("enemyBaselineHealth", tab, CombatTuningLayer.Duration, "Duration",
-                "Enemy base health", "Global enemy HP anchor at level 1", 10, 200,
+                "Enemy base health", "Global enemy HP anchor at level 1", 10, tuningMaxBaseHealth,
                 () => cfg().EnemySystem.BaselineStats.Health, v => cfg().EnemySystem.BaselineStats.Health = v));
             list.Add(IntParam("enemyHealthPerLevel", tab, CombatTuningLayer.Duration, "Duration",
-                "Enemy health per level", "Enemy HP growth per level", 0, 30,
+                "Enemy health per level", "Enemy HP growth per level", 0, tuningMaxHealthPerLevel,
                 () => cfg().EnemySystem.ScalingPerLevel.Health, v => cfg().EnemySystem.ScalingPerLevel.Health = v));
             list.Add(DoubleParam("globalEnemyHealthMult", tab, CombatTuningLayer.Duration, "Duration",
                 "Global enemy health multiplier", "All spawned enemy max HP", 0.25, 3.0, 0.05,
@@ -373,18 +369,6 @@ namespace RPGGame.Tuning
             const CombatTuningTab tab = CombatTuningTab.EnemyStats;
             const CombatTuningLayer layer = CombatTuningLayer.WinRate;
 
-            list.Add(DoubleParam("baseHealthScale", tab, layer, "Progression Scales",
-                "Base health scale", "Scales enemy base health", 0.25, 3.0, 0.05,
-                () => cfg().EnemySystem.ProgressionScales.BaseHealthScale,
-                v => cfg().EnemySystem.ProgressionScales.BaseHealthScale = v));
-            list.Add(DoubleParam("healthGrowthScale", tab, layer, "Progression Scales",
-                "Health growth scale", "Scales enemy HP per level", 0.25, 3.0, 0.05,
-                () => cfg().EnemySystem.ProgressionScales.HealthGrowthScale,
-                v => cfg().EnemySystem.ProgressionScales.HealthGrowthScale = v));
-            list.Add(DoubleParam("attributeGrowthScale", tab, layer, "Progression Scales",
-                "Attribute growth scale", "Scales enemy attribute growth", 0.25, 3.0, 0.05,
-                () => cfg().EnemySystem.ProgressionScales.AttributeGrowthScale,
-                v => cfg().EnemySystem.ProgressionScales.AttributeGrowthScale = v));
             list.Add(IntParam("enemyLevelVariance", tab, layer, "Spawn",
                 "Enemy level variance", "Spawn level jitter ±N", 0, 10,
                 () => cfg().EnemySystem.LevelVariance, v => cfg().EnemySystem.LevelVariance = v));
@@ -399,6 +383,69 @@ namespace RPGGame.Tuning
             AddDifficultyPreset(list, tab, layer, "Easy", "easy", () => cfg().DifficultySettings.Easy);
             AddDifficultyPreset(list, tab, layer, "Normal", "normal", () => cfg().DifficultySettings.Normal);
             AddDifficultyPreset(list, tab, layer, "Hard", "hard", () => cfg().DifficultySettings.Hard);
+        }
+
+        private static void BuildProgressionCurveParameters(List<CombatTuningParameter> list)
+        {
+            var cfg = () => GameConfiguration.Instance;
+            const CombatTuningTab tab = CombatTuningTab.ProgressionCurve;
+            const CombatTuningLayer layer = CombatTuningLayer.Duration;
+            const int tuningMaxBaseHealth = 1000000;
+            const int tuningMaxHealthPerLevel = 100000;
+
+            list.Add(DoubleParam("combatTempoScale", tab, layer, "Progression Curve (Broad Knobs)",
+                "Combat tempo scale",
+                "Stretches all enemy HP uniformly — longer fights at every level when increased",
+                0.25, 3.0, 0.05,
+                () => cfg().EnemySystem.ProgressionScales.CombatTempoScale,
+                v => cfg().EnemySystem.ProgressionScales.CombatTempoScale = v));
+            list.Add(DoubleParam("progressionShape", tab, layer, "Progression Curve (Broad Knobs)",
+                "Progression shape",
+                "0 = early/base-dominated (L10–L30 stay closer to base HP); 1 = growth kicks in earlier at high levels",
+                0, 1, 0.05,
+                () => cfg().EnemySystem.ProgressionScales.ProgressionShape,
+                v => cfg().EnemySystem.ProgressionScales.ProgressionShape = v));
+            list.Add(DoubleParam("playerEnemyParity", tab, CombatTuningLayer.WinRate, "Progression Curve (Broad Knobs)",
+                "Player/enemy parity",
+                "+ shifts survivability toward the hero; − toward enemies — does not change curve shape",
+                -1, 1, 0.05,
+                () => cfg().EnemySystem.ProgressionScales.PlayerEnemyParity,
+                v => cfg().EnemySystem.ProgressionScales.PlayerEnemyParity = v));
+            list.Add(IntParam("progressionPivotLevel", tab, layer, "Progression Curve (Broad Knobs)",
+                "Progression pivot level",
+                "Level where growth weight reaches full strength (design constant; rarely changed)",
+                10, 100,
+                () => cfg().EnemySystem.ProgressionScales.ProgressionPivotLevel,
+                v => cfg().EnemySystem.ProgressionScales.ProgressionPivotLevel = v));
+
+            list.Add(IntParam("playerBaseHealth", tab, layer, "Curve Inputs (Fine)",
+                "Hero base health",
+                "Hero max HP at level 1 — intercept of the player curve",
+                20, tuningMaxBaseHealth,
+                () => cfg().Character.PlayerBaseHealth, v => cfg().Character.PlayerBaseHealth = v));
+            list.Add(IntParam("playerHealthPerLevel", tab, layer, "Curve Inputs (Fine)",
+                "Player health per level",
+                "Hero HP slope per level — midgame survivability when parity alone is not enough",
+                0, tuningMaxHealthPerLevel,
+                () => cfg().Character.HealthPerLevel, v => cfg().Character.HealthPerLevel = v));
+            list.Add(DoubleParam("baseHealthScale", tab, CombatTuningLayer.WinRate, "Curve Inputs (Fine)",
+                "Enemy base health scale",
+                "Multiplies enemy base HP at all levels — early-game intercept",
+                0.25, 3.0, 0.05,
+                () => cfg().EnemySystem.ProgressionScales.BaseHealthScale,
+                v => cfg().EnemySystem.ProgressionScales.BaseHealthScale = v));
+            list.Add(DoubleParam("healthGrowthScale", tab, CombatTuningLayer.WinRate, "Curve Inputs (Fine)",
+                "Enemy health growth scale",
+                "Multiplies per-level enemy HP growth — late-game slope input",
+                0.25, 3.0, 0.05,
+                () => cfg().EnemySystem.ProgressionScales.HealthGrowthScale,
+                v => cfg().EnemySystem.ProgressionScales.HealthGrowthScale = v));
+            list.Add(DoubleParam("attributeGrowthScale", tab, CombatTuningLayer.WinRate, "Curve Inputs (Fine)",
+                "Attribute growth scale",
+                "Enemy STR/AGI/TEC/INT growth (damage/speed, not HP curve)",
+                0.25, 3.0, 0.05,
+                () => cfg().EnemySystem.ProgressionScales.AttributeGrowthScale,
+                v => cfg().EnemySystem.ProgressionScales.AttributeGrowthScale = v));
         }
 
         private static void AddDifficultyPreset(

@@ -18,12 +18,16 @@ namespace RPGGame.MCP.Tools
             return McpToolExecutor.ExecuteAsync(() =>
             {
                 var wrapper = McpToolState.GameWrapper;
-                if (wrapper == null)
+                if (wrapper?.Game == null)
                     throw new InvalidOperationException("Game wrapper not initialized");
 
-                // TODO: Get available dungeons from game state
-                return new { message = "Available dungeons feature not yet implemented" };
-            });
+                var dungeons = AgentContextBuilder.BuildDungeonList(wrapper.Game);
+                return new
+                {
+                    count = dungeons.Count,
+                    dungeons
+                };
+            }, writeIndented: true);
         }
     }
 }

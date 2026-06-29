@@ -30,7 +30,7 @@ namespace RPGGame.Tests.Unit
             StoredActionRollMatchesGetActionRoll(ref run, ref passed, ref failed);
             LabStepRoundTrip(ref run, ref passed, ref failed);
             LabSessionBeginsWithDefaultD20Selection16(ref run, ref passed, ref failed);
-            LabSessionBegin_PicksRandomLoaderEnemyWhenCatalogPopulated(ref run, ref passed, ref failed);
+            LabSessionBegin_PicksDefaultCatalogEnemyWhenAvailable(ref run, ref passed, ref failed);
             ResolveD20ForNextStepUsesSelectedWhenNotRandom(ref run, ref passed, ref failed);
             LabPlayerIsActiveForDisplayWhenInLabState(ref run, ref passed, ref failed);
             SetLabEnemyFromLoaderSwapsEnemy(ref run, ref passed, ref failed);
@@ -68,6 +68,7 @@ namespace RPGGame.Tests.Unit
             ClearLabGear_UnequipsSlot(ref run, ref passed, ref failed);
             WouldNaturalRollSelectComboAction_MatchesSelectActionBasedOnRoll(ref run, ref passed, ref failed);
             ApplyCatalogScrollOffsetDelta_Clamps(ref run, ref passed, ref failed);
+            ApplyEnemyCatalogScrollOffsetDelta_Clamps(ref run, ref passed, ref failed);
             MapPageStepInput_MapsUndoAndStep(ref run, ref passed, ref failed);
             EncounterSimulationBatchCount_ClampedTiers(ref run, ref passed, ref failed);
             UseParallelEncounterSimulation_DefaultsTrueAndMutable(ref run, ref passed, ref failed);
@@ -103,32 +104,38 @@ namespace RPGGame.Tests.Unit
             ActionInteractionLabSession.EndSession();
         }
 
-        private static void LabSessionBegin_PicksRandomLoaderEnemyWhenCatalogPopulated(ref int run, ref int passed, ref int failed)
+        private static void LabSessionBegin_PicksDefaultCatalogEnemyWhenAvailable(ref int run, ref int passed, ref int failed)
         {
             ActionLoader.LoadActions();
             EnemyLoader.LoadEnemies();
             var types = EnemyLoader.GetAllEnemyTypes();
             if (types.Count == 0)
             {
-                TestBase.AssertTrue(true, "LabSessionBegin_PicksRandomLoaderEnemy skipped (no Enemies.json)", ref run, ref passed, ref failed);
+                TestBase.AssertTrue(true, "LabSessionBegin_PicksDefaultCatalogEnemy skipped (no Enemies.json)", ref run, ref passed, ref failed);
                 return;
             }
 
-            var hero = TestDataBuilders.Character().WithName("LabRandFoe").Build();
+            const string defaultEnemy = "Sandstorm Flanker";
+            if (!types.Any(t => string.Equals(t, defaultEnemy, StringComparison.OrdinalIgnoreCase)))
+            {
+                TestBase.AssertTrue(true, "LabSessionBegin_PicksDefaultCatalogEnemy skipped (Sandstorm Flanker missing)", ref run, ref passed, ref failed);
+                return;
+            }
+
+            var hero = TestDataBuilders.Character().WithName("LabDefaultFoe").Build();
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
             if (lab == null)
             {
-                TestBase.AssertTrue(false, "LabSessionBegin_PicksRandomLoaderEnemy: session null", ref run, ref passed, ref failed);
+                TestBase.AssertTrue(false, "LabSessionBegin_PicksDefaultCatalogEnemy: session null", ref run, ref passed, ref failed);
                 return;
             }
 
             var snap = lab.CaptureSimulationSnapshot();
-            TestBase.AssertTrue(!string.IsNullOrEmpty(snap.SessionEnemyLoaderType), "Begin sets loader enemy type", ref run, ref passed, ref failed);
             TestBase.AssertTrue(
-                types.Any(t => string.Equals(t, snap.SessionEnemyLoaderType, StringComparison.OrdinalIgnoreCase)),
-                "Snapshot enemy type is from catalog",
+                string.Equals(defaultEnemy, snap.SessionEnemyLoaderType, StringComparison.OrdinalIgnoreCase),
+                "Begin sets Sandstorm Flanker as default loader enemy",
                 ref run, ref passed, ref failed);
             TestBase.AssertEqual(1, snap.EnemyLevel, "Begin uses level 1 loader enemy", ref run, ref passed, ref failed);
 
@@ -214,6 +221,45 @@ namespace RPGGame.Tests.Unit
             lab.CatalogScrollOffset = 1;
             ActionLabInputCoordinator.ApplyCatalogScrollOffsetDelta(lab, -1, null);
             TestBase.AssertEqual(0, lab.CatalogScrollOffset, "single step toward earlier names", ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
+        }
+
+        private static void ApplyEnemyCatalogScrollOffsetDelta_Clamps(ref int run, ref int passed, ref int failed)
+        {
+            EnemyLoader.LoadEnemies();
+            var enemyTypes = EnemyLoader.GetAllEnemyTypes();
+            enemyTypes.Sort(StringComparer.OrdinalIgnoreCase);
+            if (enemyTypes.Count == 0)
+            {
+                TestBase.AssertTrue(true, "ApplyEnemyCatalogScrollOffsetDelta_Clamps skipped (no Enemies.json)", ref run, ref passed, ref failed);
+                return;
+            }
+
+            ActionLoader.LoadActions();
+            var hero = TestDataBuilders.Character().WithName("LabEnemyCatalogScroll").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "ApplyEnemyCatalogScrollOffsetDelta_Clamps: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            int visible = ActionInteractionLabSession.EnemyCatalogVisibleRowCount;
+            int maxScroll = Math.Max(0, enemyTypes.Count - visible);
+            lab.EnemyCatalogScrollOffset = 0;
+            ActionLabInputCoordinator.ApplyEnemyCatalogScrollOffsetDelta(lab, -5, null);
+            TestBase.AssertEqual(0, lab.EnemyCatalogScrollOffset, "enemy negative delta clamps at 0", ref run, ref passed, ref failed);
+
+            lab.EnemyCatalogScrollOffset = maxScroll;
+            ActionLabInputCoordinator.ApplyEnemyCatalogScrollOffsetDelta(lab, 5, null);
+            TestBase.AssertEqual(maxScroll, lab.EnemyCatalogScrollOffset, "enemy positive delta clamps at maxScroll", ref run, ref passed, ref failed);
+
+            lab.EnemyCatalogScrollOffset = 1;
+            ActionLabInputCoordinator.ApplyEnemyCatalogScrollOffsetDelta(lab, -1, null);
+            TestBase.AssertEqual(0, lab.EnemyCatalogScrollOffset, "enemy single step toward earlier types", ref run, ref passed, ref failed);
 
             ActionInteractionLabSession.EndSession();
         }

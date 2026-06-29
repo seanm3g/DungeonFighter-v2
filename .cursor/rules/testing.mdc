@@ -4,6 +4,29 @@ alwaysApply: true
 
 # Testing Rules for DungeonFighter-v2
 
+## Running Tests
+
+From `Code/`:
+
+```bash
+dotnet run -- --run-tests              # full comprehensive suite
+dotnet run -- --run-game-system-tests  # game-system runner only
+dotnet run -- --run-data-tests         # data runner only
+dotnet run -- --list-test-suites       # list filterable suite names
+dotnet run -- --run-test-filter <pattern>   # run matching suites only
+```
+
+Filter examples (usable from chat prompts — ask the agent to run these):
+
+```bash
+dotnet run -- --run-test-filter FundamentalsSimulation
+dotnet run -- --run-test-filter EnemyProgressionCurveEvaluator
+dotnet run -- --run-test-filter game-system:Tuning
+dotnet run -- --run-test-filter data:EnemyLoader
+```
+
+Patterns match suite names (substring, case-insensitive). Prefix with `game-system:` or `data:` to limit scope.
+
 ## Testing Strategy
 Always follow the testing strategy:
 

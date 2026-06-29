@@ -1,0 +1,17 @@
+{
+  "id": "midgame-balance",
+  "name": "Mid-Game Comprehensive Balance",
+  "description": "Full weapon×enemy matrix at level 10; tune overall win rate, weapon spread, and combat duration.",
+  "simulation": {
+    "mode": "comprehensive_weapon_enemy",
+    "battlesPerCombination": 50,
+    "playerLevel": 10,
+    "enemyLevel": 10
+  },
+  "analysis": {
+    "optimizeWinRate": false,
+    "validators": ["combat_duration", "weapon_variance", "enemy_differentiation"],
+    "suggesters": ["weapon", "duration"],
+    "maxSuggestions": 1
+  }
+}

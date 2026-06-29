@@ -10,6 +10,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Resources;
@@ -46,7 +47,20 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
             WireUpTestButtons(testingPanel);
             WireUpActionLabButton(testingPanel);
+            WireUpBalanceWorkbenchButton(testingPanel);
             WireUpScriptsSubsection(testingPanel);
+        }
+
+        private void WireUpBalanceWorkbenchButton(TestingSettingsPanel panel)
+        {
+            var btn = panel.FindControl<Button>("BalanceTuningWorkbenchButton");
+            if (btn == null) return;
+
+            btn.Click += (_, _) =>
+            {
+                var owner = (panel.GetVisualRoot() as Window) ?? canvasUI?.GetMainWindow();
+                RPGGame.UI.Avalonia.Tuning.BalanceTuningWorkbenchWindow.Open(owner);
+            };
         }
 
         private void WireUpActionLabButton(TestingSettingsPanel panel)

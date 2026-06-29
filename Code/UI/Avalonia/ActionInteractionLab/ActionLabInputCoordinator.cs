@@ -61,6 +61,26 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
         }
 
         /// <summary>
+        /// Moves <see cref="ActionInteractionLabSession.EnemyCatalogScrollOffset"/> by <paramref name="delta"/> rows
+        /// (negative = toward earlier types, same as ▲ types). Optionally refreshes combat UI when <paramref name="canvasUI"/> is non-null.
+        /// </summary>
+        public static void ApplyEnemyCatalogScrollOffsetDelta(ActionInteractionLabSession session, int delta, CanvasUICoordinator? canvasUI)
+        {
+            if (delta == 0) return;
+            var enemyTypes = EnemyLoader.GetAllEnemyTypes();
+            enemyTypes.Sort(StringComparer.OrdinalIgnoreCase);
+            int visible = ActionInteractionLabSession.EnemyCatalogVisibleRowCount;
+            int maxScroll = Math.Max(0, enemyTypes.Count - visible);
+            if (delta < 0)
+                session.EnemyCatalogScrollOffset = Math.Max(0, session.EnemyCatalogScrollOffset + delta);
+            else
+                session.EnemyCatalogScrollOffset = Math.Min(maxScroll, session.EnemyCatalogScrollOffset + delta);
+
+            if (canvasUI != null)
+                canvasUI.RenderCombat(session.LabPlayer, session.LabEnemy, new List<string>());
+        }
+
+        /// <summary>
         /// Wheel over the Action Lab sim row: steps <see cref="ActionInteractionLabSession.EncounterSimulationBatchCount"/>
         /// through 1 / 10 / 100 / 1000 (clamped at 1 and 1000). Positive <paramref name="wheelDeltaY"/> scrolls toward larger counts.
         /// </summary>
@@ -153,19 +173,13 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
 
             if (value == "lab_enemy_up")
             {
-                session.EnemyCatalogScrollOffset = Math.Max(0, session.EnemyCatalogScrollOffset - 1);
-                RefreshLabCombat();
+                ApplyEnemyCatalogScrollOffsetDelta(session, -1, canvasUI);
                 return;
             }
 
             if (value == "lab_enemy_down")
             {
-                var enemyTypes = EnemyLoader.GetAllEnemyTypes();
-                enemyTypes.Sort(StringComparer.OrdinalIgnoreCase);
-                int enemyVisible = ActionInteractionLabSession.EnemyCatalogVisibleRowCount;
-                int maxScroll = Math.Max(0, enemyTypes.Count - enemyVisible);
-                session.EnemyCatalogScrollOffset = Math.Min(maxScroll, session.EnemyCatalogScrollOffset + 1);
-                RefreshLabCombat();
+                ApplyEnemyCatalogScrollOffsetDelta(session, +1, canvasUI);
                 return;
             }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RPGGame;
 using RPGGame.Tests.Unit.Game;
 using RPGGame.Tests.Unit.Game.Handlers;
@@ -12,111 +13,87 @@ namespace RPGGame.Tests.Runners
     /// </summary>
     public static class GameSystemTestRunner
     {
-        /// <summary>
-        /// Runs all Game system tests
-        /// </summary>
-        public static void RunAllTests()
+        private static readonly (string Name, System.Action Execute)[] Suites =
+        {
+            ("GameCoordinator", () => GameCoordinatorTests.RunAllTests()),
+            ("GameStateManager", () => GameStateManagerTests.RunAllTests()),
+            ("GameStateValidator", () => GameStateValidatorTests.RunAllTests()),
+            ("GameInitializer", () => GameInitializerTests.RunAllTests()),
+            ("GameInitializationManager", () => GameInitializationManagerTests.RunAllTests()),
+            ("GameLoader", () => GameLoaderTests.RunAllTests()),
+            ("FileManager", () => FileManagerTests.RunAllTests()),
+            ("DungeonRunnerManager", () => DungeonRunnerManagerTests.RunAllTests()),
+            ("DungeonDisplayManager", () => DungeonDisplayManagerTests.RunAllTests()),
+            ("CharacterCloneService", () => CharacterCloneServiceTests.RunAllTests()),
+            ("MainMenuHandler", () => MainMenuHandlerTests.RunAllTests()),
+            ("CharacterMenuHandler", () => CharacterMenuHandlerTests.RunAllTests()),
+            ("SettingsMenuHandler", () => SettingsMenuHandlerTests.RunAllTests()),
+            ("WeaponSelectionHandler", () => WeaponSelectionHandlerTests.RunAllTests()),
+            ("TrainingGroundOfferHandler", () => TrainingGroundOfferHandlerTests.RunAllTests()),
+            ("CharacterCreationHandler", () => CharacterCreationHandlerTests.RunAllTests()),
+            ("DungeonSelectionHandler", () => DungeonSelectionHandlerTests.RunAllTests()),
+            ("RegionTravelHandler", () => RegionTravelHandlerTests.RunAllTests()),
+            ("TravelRouteColoredTextFormatter", () => TravelRouteColoredTextFormatterTests.RunAllTests()),
+            ("DungeonCompletionHandler", () => DungeonCompletionHandlerTests.RunAllTests()),
+            ("DeathScreenHandler", () => DeathScreenHandlerTests.RunAllTests()),
+            ("LoadCharacterSelectionHandler", () => LoadCharacterSelectionHandlerTests.RunAllTests()),
+            ("DungeonExitChoiceHandler", () => DungeonExitChoiceHandlerTests.RunAllTests()),
+            ("HandlerInitializer", () => HandlerInitializerTests.RunAllTests()),
+            ("GameInputRouter", () => GameInputRouterTests.RunAllTests()),
+            ("EscapeKeyHandler", () => EscapeKeyHandlerTests.RunAllTests()),
+            ("ActionEditorHandler", () => ActionEditorHandlerTests.RunAllTests()),
+            ("CharacterManagementHandler", () => CharacterManagementHandlerTests.RunAllTests()),
+            ("AdjustmentExecutor", () => AdjustmentExecutorTests.RunAllTests()),
+            ("PlayerTuningApplier", () => RPGGame.Tests.Unit.Tuning.PlayerTuningApplierTests.RunAllTests()),
+            ("CombatTuningParameterRegistry", () => RPGGame.Tests.Unit.Tuning.CombatTuningParameterRegistryTests.RunAllTests()),
+            ("LevelWinRateCurve", () => RPGGame.Tests.Unit.Tuning.LevelWinRateCurveTests.RunAllTests()),
+            ("LevelTuningSessionStore", () => RPGGame.Tests.Unit.Tuning.LevelTuningSessionStoreTests.RunAllTests()),
+            ("BalanceTuningProfile", () => RPGGame.Tests.Unit.Tuning.BalanceTuningProfileTests.RunAllTests()),
+            ("BalanceDialClassifier", () => RPGGame.Tests.Unit.Tuning.BalanceDialClassifierTests.RunAllTests()),
+            ("DeveloperSimMode", () => RPGGame.Tests.Unit.Tuning.DeveloperSimModeTests.RunAllTests()),
+            ("FundamentalsSimulation", () => RPGGame.Tests.Unit.Tuning.FundamentalsSimulationTests.RunAllTests()),
+            ("EnemyProgressionCurveEvaluator", () => RPGGame.Tests.Unit.Tuning.EnemyProgressionCurveEvaluatorTests.RunAllTests()),
+            ("RollFeelVarianceCompression", () => RPGGame.Tests.Unit.Tuning.RollFeelVarianceCompressionTests.RunAllTests()),
+            ("CombatTuningPanelHandler", () => CombatTuningPanelHandlerTests.RunAllTests()),
+            ("TuningValueFormatter", () => TuningValueFormatterTests.RunAllTests()),
+            ("CombatTuningParameterViewModel", () => CombatTuningParameterViewModelTests.RunAllTests()),
+            ("CombatTuningPanelViewModel", () => CombatTuningPanelViewModelTests.RunAllTests()),
+            ("ArchetypeTuningViewModel", () => ArchetypeTuningViewModelTests.RunAllTests()),
+            ("StatusEffectTuningViewModel", () => StatusEffectTuningViewModelTests.RunAllTests()),
+            ("SliderWithTextBoxLogic", () => SliderWithTextBoxLogicTests.RunAllTests()),
+            ("EnemyTuningPanelHandler", () => EnemyTuningPanelHandlerTests.RunAllTests()),
+            ("BattleStatisticsHandler", () => BattleStatisticsHandlerTests.RunAllTests()),
+            ("MatchupAnalyzer", () => MatchupAnalyzerTests.RunAllTests()),
+            ("GameScreenCoordinator", () => GameScreenCoordinatorTests.RunAllTests()),
+            ("CombatRenderingValidator", () => CombatRenderingValidatorTests.RunAllTests()),
+            ("ClaudeAIGamePlayer", () => ClaudeAIGamePlayerTests.RunAllTests()),
+        };
+
+        public static IReadOnlyList<FilteredTestRunner.TestSuiteEntry> GetSuiteEntries()
+        {
+            var entries = new List<FilteredTestRunner.TestSuiteEntry>(Suites.Length);
+            foreach (var (name, execute) in Suites)
+                entries.Add(new FilteredTestRunner.TestSuiteEntry("game-system", name, execute));
+            return entries;
+        }
+
+        public static void RunAllTests() => RunFiltered(null);
+
+        public static void RunFiltered(string? filter)
         {
             Console.WriteLine(GameConstants.StandardSeparator);
             Console.WriteLine("  GAME SYSTEM TEST SUITE");
+            if (!string.IsNullOrWhiteSpace(filter))
+                Console.WriteLine($"  Filter: {filter}");
             Console.WriteLine($"{GameConstants.StandardSeparator}\n");
 
-            // Core Game System Tests
-            GameCoordinatorTests.RunAllTests();
-            Console.WriteLine();
-            GameStateManagerTests.RunAllTests();
-            Console.WriteLine();
-            GameStateValidatorTests.RunAllTests();
-            Console.WriteLine();
-            GameInitializerTests.RunAllTests();
-            Console.WriteLine();
-            GameInitializationManagerTests.RunAllTests();
-            Console.WriteLine();
-            GameLoaderTests.RunAllTests();
-            Console.WriteLine();
-            FileManagerTests.RunAllTests();
-            Console.WriteLine();
-            DungeonRunnerManagerTests.RunAllTests();
-            Console.WriteLine();
-            DungeonDisplayManagerTests.RunAllTests();
-            Console.WriteLine();
-            CharacterCloneServiceTests.RunAllTests();
-            Console.WriteLine();
-            
-            // Handler Tests
-            MainMenuHandlerTests.RunAllTests();
-            Console.WriteLine();
-            CharacterMenuHandlerTests.RunAllTests();
-            Console.WriteLine();
-            SettingsMenuHandlerTests.RunAllTests();
-            Console.WriteLine();
-            WeaponSelectionHandlerTests.RunAllTests();
-            Console.WriteLine();
-            TrainingGroundOfferHandlerTests.RunAllTests();
-            Console.WriteLine();
-            CharacterCreationHandlerTests.RunAllTests();
-            Console.WriteLine();
-            DungeonSelectionHandlerTests.RunAllTests();
-            Console.WriteLine();
-            RegionTravelHandlerTests.RunAllTests();
-            Console.WriteLine();
-            TravelRouteColoredTextFormatterTests.RunAllTests();
-            Console.WriteLine();
-            DungeonCompletionHandlerTests.RunAllTests();
-            Console.WriteLine();
-            DeathScreenHandlerTests.RunAllTests();
-            Console.WriteLine();
-            LoadCharacterSelectionHandlerTests.RunAllTests();
-            Console.WriteLine();
-            DungeonExitChoiceHandlerTests.RunAllTests();
-            Console.WriteLine();
-            HandlerInitializerTests.RunAllTests();
-            Console.WriteLine();
-            
-            // Input Routing Tests
-            GameInputRouterTests.RunAllTests();
-            Console.WriteLine();
-            EscapeKeyHandlerTests.RunAllTests();
-            Console.WriteLine();
-            
-            // Other Game System Tests
-            ActionEditorHandlerTests.RunAllTests();
-            Console.WriteLine();
-            CharacterManagementHandlerTests.RunAllTests();
-            Console.WriteLine();
-            AdjustmentExecutorTests.RunAllTests();
-            Console.WriteLine();
-            RPGGame.Tests.Unit.Tuning.PlayerTuningApplierTests.RunAllTests();
-            Console.WriteLine();
-            RPGGame.Tests.Unit.Tuning.CombatTuningParameterRegistryTests.RunAllTests();
-            Console.WriteLine();
-            RPGGame.Tests.Unit.Tuning.RollFeelVarianceCompressionTests.RunAllTests();
-            Console.WriteLine();
-            CombatTuningPanelHandlerTests.RunAllTests();
-            Console.WriteLine();
-            TuningValueFormatterTests.RunAllTests();
-            Console.WriteLine();
-            CombatTuningParameterViewModelTests.RunAllTests();
-            Console.WriteLine();
-            CombatTuningPanelViewModelTests.RunAllTests();
-            Console.WriteLine();
-            ArchetypeTuningViewModelTests.RunAllTests();
-            Console.WriteLine();
-            StatusEffectTuningViewModelTests.RunAllTests();
-            Console.WriteLine();
-            SliderWithTextBoxLogicTests.RunAllTests();
-            Console.WriteLine();
-            EnemyTuningPanelHandlerTests.RunAllTests();
-            Console.WriteLine();
-            BattleStatisticsHandlerTests.RunAllTests();
-            Console.WriteLine();
-            MatchupAnalyzerTests.RunAllTests();
-            Console.WriteLine();
-            GameScreenCoordinatorTests.RunAllTests();
-            Console.WriteLine();
-            CombatRenderingValidatorTests.RunAllTests();
-            Console.WriteLine();
-            ClaudeAIGamePlayerTests.RunAllTests();
+            foreach (var (name, execute) in Suites)
+            {
+                if (!TestRunFilter.Matches(name, filter))
+                    continue;
+                execute();
+                Console.WriteLine();
+            }
         }
     }
 }

@@ -1,14 +1,9 @@
 {
   "mcpServers": {
     "dungeonfighter": {
-      "command": "dotnet",
-      "args": [
-        "run",
-        "--project",
-        "Code/Code.csproj",
-        "--",
-        "MCP"
-      ]
+      "command": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\Code\\bin\\Debug\\net8.0\\DF.exe",
+      "args": ["MCP"],
+      "cwd": "D:\\Code Projects\\github projects\\DungeonFighter-v2"
     }
   }
 }

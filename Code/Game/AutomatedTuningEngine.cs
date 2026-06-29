@@ -70,6 +70,34 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Analyze multi-level simulation and generate level-curve tuning suggestions.
+        /// </summary>
+        public static TuningAnalysis AnalyzeMultiLevel(Tuning.MultiLevelSimulationResult multiResult)
+        {
+            var analysis = new TuningAnalysis
+            {
+                OverallWinRate = multiResult.LevelSnapshots.Count > 0
+                    ? multiResult.LevelSnapshots.Average(s => s.ActualWinRate)
+                    : 0,
+                AverageCombatDuration = multiResult.LevelSnapshots.Count > 0
+                    ? multiResult.LevelSnapshots.Average(s => s.AverageTurns)
+                    : 0,
+                QualityScore = BalanceTuningGoals.CalculateLevelCurveQualityScore(multiResult)
+            };
+
+            var suggestions = LevelCurveAdjustmentSuggester.Suggest(multiResult);
+            analysis.Suggestions = suggestions;
+            analysis.SuggestionCounts = suggestions
+                .GroupBy(s => s.Priority)
+                .ToDictionary(g => g.Key, g => g.Count());
+            analysis.Summary = suggestions.Count > 0
+                ? $"Level curve tuning: worst level {multiResult.WorstLevel}, delta {multiResult.WorstDeltaMagnitude:F1}%"
+                : "All anchor levels within tolerance";
+
+            return analysis;
+        }
+
+        /// <summary>
         /// Apply a tuning suggestion
         /// </summary>
         public static bool ApplySuggestion(TuningSuggestion suggestion)

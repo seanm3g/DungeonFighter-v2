@@ -1,0 +1,17 @@
+{
+  "id": "class-build-matrix",
+  "name": "Class Build Matrix",
+  "description": "Weapon path parity at fixed level — comprehensive weapon×enemy matrix with dial routing.",
+  "simulation": {
+    "mode": "class_build_matrix",
+    "battlesPerCombination": 30,
+    "playerLevel": 10,
+    "enemyLevel": 10
+  },
+  "analysis": {
+    "validators": ["combat_duration", "weapon_variance", "enemy_differentiation"],
+    "suggesters": ["dial_routed"],
+    "maxSuggestions": 1,
+    "enableDialRouting": true
+  }
+}

@@ -21,6 +21,7 @@ namespace RPGGame.Tuning
         SpeedDefense,
         Equipment,
         EnemyStats,
+        ProgressionCurve,
         Archetypes,
         StatusEffects,
         RewardsLoot,
@@ -123,6 +124,16 @@ namespace RPGGame.Tuning
         public static IReadOnlyList<CombatTuningParameter> GetByTab(CombatTuningTab tab) =>
             All.Where(p => p.Tab == tab).ToList();
 
+        public static BalanceDial GetDialForLayer(CombatTuningLayer layer) => layer switch
+        {
+            CombatTuningLayer.Duration => BalanceDial.Power,
+            CombatTuningLayer.WinRate => BalanceDial.Power,
+            CombatTuningLayer.RollFeel => BalanceDial.Variance,
+            CombatTuningLayer.ComboAffordance => BalanceDial.Agency,
+            CombatTuningLayer.Goals => BalanceDial.Scaling,
+            _ => BalanceDial.Power
+        };
+
         public static IReadOnlyList<string> GetSubGroupsForTab(CombatTuningTab tab) =>
             All.Where(p => p.Tab == tab)
                 .Select(p => p.SubGroup)
@@ -153,6 +164,7 @@ namespace RPGGame.Tuning
             BuildSpeedDefenseParameters(list);
             BuildEquipmentParameters(list);
             BuildEnemyStatsParameters(list);
+            BuildProgressionCurveParameters(list);
             BuildArchetypeParameters(list);
             BuildStatusEffectParameters(list);
             BuildRewardsLootParameters(list);

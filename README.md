@@ -15,8 +15,9 @@ Turn-based RPG in C# (.NET) with a data-driven action/combat system and an Avalo
 
 - **Main code**: `Code/`
 - **Game data**: `GameData/`
-- **Architecture docs**: `Documentation/01-Core/ARCHITECTURE.md`
-- **Settings system docs**: `Documentation/05-Systems/SETTINGS_SYSTEM_ARCHITECTURE.md`
+- **Architecture docs**: `Documentation/ARCHITECTURE.md`
+- **Settings system docs**: `Documentation/SETTINGS_SYSTEM_ARCHITECTURE.md`
+- **Documentation index**: `Documentation/README.md`
 - **Work tracking**: `TASKLIST.md`
 - **Product overview**: `OVERVIEW.md`
 

@@ -1,0 +1,16 @@
+{
+  "id": "level-curve",
+  "name": "Level Combat Duration",
+  "description": "Same-level fights at anchor levels; observe combat duration across the level curve (win-rate tuning disabled).",
+  "simulation": {
+    "mode": "multi_level_weapon_enemy",
+    "battlesPerCombination": 25,
+    "levels": [1, 5, 10, 25, 50, 75, 100]
+  },
+  "analysis": {
+    "optimizeWinRate": false,
+    "validators": ["combat_duration"],
+    "suggesters": ["level_curve", "duration"],
+    "maxSuggestions": 1
+  }
+}

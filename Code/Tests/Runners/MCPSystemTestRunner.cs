@@ -9,6 +9,21 @@ namespace RPGGame.Tests.Runners
     /// </summary>
     public static class MCPSystemTestRunner
     {
+        private static readonly (string Name, System.Action Execute)[] Suites =
+        {
+            ("DungeonFighterMCPServer", () => DungeonFighterMCPServerTests.RunAllTests()),
+            ("GameWrapper", () => GameWrapperTests.RunAllTests()),
+            ("AgentGameplay", () => AgentGameplayTests.RunAllTests()),
+        };
+
+        public static IReadOnlyList<FilteredTestRunner.TestSuiteEntry> GetSuiteEntries()
+        {
+            var entries = new List<FilteredTestRunner.TestSuiteEntry>(Suites.Length);
+            foreach (var (name, execute) in Suites)
+                entries.Add(new FilteredTestRunner.TestSuiteEntry("mcp", name, execute));
+            return entries;
+        }
+
         /// <summary>
         /// Runs all MCP system tests
         /// </summary>
@@ -18,9 +33,11 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine("  MCP SYSTEM TEST SUITE");
             Console.WriteLine($"{GameConstants.StandardSeparator}\n");
 
-            DungeonFighterMCPServerTests.RunAllTests();
-            Console.WriteLine();
-            GameWrapperTests.RunAllTests();
+            foreach (var (_, execute) in Suites)
+            {
+                execute();
+                Console.WriteLine();
+            }
         }
     }
 }

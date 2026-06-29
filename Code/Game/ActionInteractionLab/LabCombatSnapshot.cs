@@ -20,7 +20,8 @@ namespace RPGGame.ActionInteractionLab
             string? sessionEnemyLoaderType,
             int enemyLevel,
             IReadOnlyList<string> comboStripActionNames,
-            string selectedCatalogActionName)
+            string selectedCatalogActionName,
+            BattleConfiguration? labEnemyBattleConfig = null)
         {
             InitialPlayerJson = initialPlayerJson ?? throw new ArgumentNullException(nameof(initialPlayerJson));
             LabPanelStrDelta = labPanelStrDelta;
@@ -33,6 +34,7 @@ namespace RPGGame.ActionInteractionLab
             EnemyLevel = enemyLevel;
             ComboStripActionNames = comboStripActionNames ?? throw new ArgumentNullException(nameof(comboStripActionNames));
             SelectedCatalogActionName = selectedCatalogActionName ?? "";
+            LabEnemyBattleConfig = labEnemyBattleConfig;
         }
 
         public string InitialPlayerJson { get; }
@@ -46,6 +48,8 @@ namespace RPGGame.ActionInteractionLab
         public int EnemyLevel { get; }
         public IReadOnlyList<string> ComboStripActionNames { get; }
         public string SelectedCatalogActionName { get; }
+        /// <summary>When set, overrides <see cref="DefaultTestEnemyBattleConfig"/> for batch sim dummies.</summary>
+        public BattleConfiguration? LabEnemyBattleConfig { get; }
 
         /// <summary>Matches <see cref="ActionInteractionLabSession"/> default dummy when no loader enemy is set.</summary>
         public static BattleConfiguration DefaultTestEnemyBattleConfig { get; } = new()
@@ -58,6 +62,22 @@ namespace RPGGame.ActionInteractionLab
             EnemyAttackSpeed = 0.65,
             EnemyArmor = 5,
             EnemyHealth = 150
+        };
+
+        /// <summary>
+        /// Legacy tuned dummy HP pool. Fundamentals tuning sims use a loader enemy
+        /// (<see cref="FundamentalsCombatSetup.DefaultFundamentalsEnemyType"/>) so global health multipliers apply.
+        /// </summary>
+        public static BattleConfiguration FundamentalsTestEnemyBattleConfig { get; } = new()
+        {
+            PlayerDamage = 10,
+            PlayerAttackSpeed = 1.0,
+            PlayerArmor = 0,
+            PlayerHealth = 100,
+            EnemyDamage = 8,
+            EnemyAttackSpeed = 0.65,
+            EnemyArmor = 18,
+            EnemyHealth = 560
         };
     }
 }

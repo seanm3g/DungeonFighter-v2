@@ -23,6 +23,7 @@ namespace RPGGame.Tests.Unit.Tuning
             TestRegistry_HasExpandedParameterCount();
             TestRegistry_HasAllTabs();
             TestRegistry_HasHeroAndEnemyBaseHealth();
+            TestRegistry_HasProgressionCurveKnobs();
             TestPlayerBaseHealth_RoundTrips();
             TestGlobalEnemyHealthMult_RoundTrips();
             TestPlayerBaseHealth_AffectsComputeMaxHealth();
@@ -101,6 +102,36 @@ namespace RPGGame.Tests.Unit.Tuning
                 "Hero base health label", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("Enemy base health", enemy.Label,
                 "Enemy base health label", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRegistry_HasProgressionCurveKnobs()
+        {
+            Console.WriteLine("--- Registry exposes progression curve knobs ---");
+            foreach (var id in new[]
+                     {
+                         "combatTempoScale", "progressionShape", "playerEnemyParity", "progressionPivotLevel",
+                         "baseHealthScale", "healthGrowthScale", "playerHealthPerLevel"
+                     })
+            {
+                var param = CombatTuningParameterRegistry.GetById(id);
+                TestBase.AssertTrue(param != null, $"{id} exists", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(param!.Tab == CombatTuningTab.ProgressionCurve,
+                    $"{id} on Progression Curve tab", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+
+            var tempo = CombatTuningParameterRegistry.GetById("combatTempoScale");
+            var cfg = GameConfiguration.Instance;
+            double saved = cfg.EnemySystem.ProgressionScales.CombatTempoScale;
+            try
+            {
+                tempo!.SetValue(1.5);
+                TestBase.AssertTrue(Math.Abs(cfg.EnemySystem.ProgressionScales.CombatTempoScale - 1.5) < 0.001,
+                    "combatTempoScale round-trips", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.EnemySystem.ProgressionScales.CombatTempoScale = saved;
+            }
         }
 
         private static void TestPlayerBaseHealth_RoundTrips()

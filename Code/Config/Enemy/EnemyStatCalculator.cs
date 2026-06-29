@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using RPGGame.Tuning;
 using RPGGame.World.Tags;
 
 namespace RPGGame
@@ -51,12 +52,11 @@ namespace RPGGame
 
             double growthPercent = enemyData.HealthGrowthPercent
                 ?? (baselineHp > 0 ? (scaling.Health / baselineHp) * 100.0 : 0.0);
-            double growthHealth = baselineHp * (growthPercent / 100.0) * prog.HealthGrowthScale;
-            double baseHealthScaled = baseHealth * prog.BaseHealthScale;
+            double growthHealth = baselineHp * (growthPercent / 100.0);
 
             int lv = Math.Max(0, level - 1);
-
-            int levelScaledHealth = FloorToInt(baseHealthScaled + lv * growthHealth);
+            int levelScaledHealth = EnemyProgressionCurveEvaluator.ComputeLevelScaledHealth(
+                baseHealth, growthHealth, level, prog);
             int levelScaledStrength = FloorToInt(baseStrength + lv * growthStrengthS);
             int levelScaledAgility = FloorToInt(baseAgility + lv * growthAgilityS);
             int levelScaledTechnique = FloorToInt(baseTechnique + lv * growthTechniqueS);
@@ -66,7 +66,8 @@ namespace RPGGame
             double runtimeHealthMult = GameSettings.Instance?.EnemyHealthMultiplier ?? 1.0;
             if (runtimeHealthMult <= 0)
                 runtimeHealthMult = 1.0;
-            int finalHealth = Math.Max(1, FloorToInt(levelScaledHealth * global.HealthMultiplier * runtimeHealthMult));
+            int finalHealth = EnemyProgressionCurveEvaluator.ApplyFinalHealthMultipliers(
+                levelScaledHealth, enemySystem);
             int finalStrength = Math.Max(0, FloorToInt(levelScaledStrength * global.DamageMultiplier));
             int finalAgility = Math.Max(0, FloorToInt(levelScaledAgility * global.SpeedMultiplier));
             int finalTechnique = Math.Max(0, FloorToInt(levelScaledTechnique * global.DamageMultiplier));

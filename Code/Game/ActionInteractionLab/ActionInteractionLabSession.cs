@@ -140,7 +140,7 @@ namespace RPGGame.ActionInteractionLab
             session.UseRandomD20PerStep = false;
             session.CatalogScrollOffset = 0;
             session.EnemyCatalogScrollOffset = 0;
-            TryBeginWithRandomCatalogEnemy(session);
+            TryBeginWithDefaultCatalogEnemy(session);
             session.EncounterSimulationBatchCount = ActionLabEncounterSimulator.DefaultBatchEncounterCount;
             session.ResetSimulatedCombatTurnAccumulator();
             session._restoreTarget = canvasContext;

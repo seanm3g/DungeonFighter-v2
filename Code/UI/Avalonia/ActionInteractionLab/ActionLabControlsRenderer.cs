@@ -47,6 +47,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 $"HP: {labEnemy.CurrentHealth}/{labEnemy.MaxHealth}",
                 AsciiArtAssets.Colors.White);
             y++;
+            int enemyWheelMinY = y;
             if (interactive && enemyTypes.Count > 0)
             {
                 var eUp = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_enemy_up", "▲ types");
@@ -79,7 +80,13 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             }
             else if (enemyTypes.Count > enemyVisible)
                 canvas.AddText(x, y, "▼", AsciiArtAssets.Colors.DarkGray);
+            int enemyWheelMaxY = y;
             y++;
+
+            lab.LastEnemyCatalogWheelMinGridX = x;
+            lab.LastEnemyCatalogWheelMaxGridX = x + rowWidth - 1;
+            lab.LastEnemyCatalogWheelMinGridY = enemyWheelMinY;
+            lab.LastEnemyCatalogWheelMaxGridY = enemyWheelMaxY;
 
             var next = lab.GetNextActorToAct();
             string who = next == null ? "(time...)" : next == lab.LabPlayer ? "Player" : next == lab.LabEnemy ? "Enemy" : "Env";

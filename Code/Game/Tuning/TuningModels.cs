@@ -34,6 +34,13 @@ namespace RPGGame.Tuning
         public List<TuningSuggestion> Suggestions { get; set; } = new();
         public Dictionary<BalanceTuningGoals.TuningPriority, int> SuggestionCounts { get; set; } = new();
         public string Summary { get; set; } = "";
+        public string? PrimaryDial { get; set; }
+        public string? DialDiagnosis { get; set; }
+        public double TurnDurationStdDev { get; set; }
+        public double AverageMissRate { get; set; }
+        public double AverageCritRate { get; set; }
+        public double AverageLossSeverity { get; set; }
+        public double AverageComboStreak { get; set; }
     }
 }
 

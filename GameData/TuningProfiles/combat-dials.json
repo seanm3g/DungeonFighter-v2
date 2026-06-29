@@ -1,0 +1,31 @@
+{
+  "id": "combat-dials",
+  "name": "Combat Dials (Fundamentals)",
+  "description": "Primary profile for four-dial tuning: 1000 no-gear encounters, dial-routed suggesters.",
+  "simulation": {
+    "mode": "fundamentals_encounter",
+    "encounterCount": 1000,
+    "playerLevel": 1,
+    "enemyLevel": 1,
+    "levels": [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+    "enemyType": "Goblin",
+    "weaponType": "Sword",
+    "continuePastZeroHp": true
+  },
+  "analysis": {
+    "validators": ["fundamentals_tempo", "fundamentals_anchors", "fundamentals_combo_streaks", "dial_variance", "dial_agency"],
+    "suggesters": ["dial_routed"],
+    "maxSuggestions": 1,
+    "enableDialRouting": true,
+    "fundamentalsTargets": {
+      "targetMedianCombinedActions": 27,
+      "targetMedianPlayerTurns": 12,
+      "targetMedianEnemyTurns": 12,
+      "minAverageActions": 24,
+      "maxAverageActions": 30,
+      "minAverageComboStreakRuns2Plus": 0.5,
+      "minAverageMaxComboStreak": 2.0,
+      "requireL1AnchorBeforeScaling": true
+    }
+  }
+}

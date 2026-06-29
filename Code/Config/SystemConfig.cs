@@ -85,6 +85,38 @@ namespace RPGGame
         /// Quality score weights (must sum to 1.0)
         /// </summary>
         public QualityWeightsConfig QualityWeights { get; set; } = new QualityWeightsConfig();
+
+        /// <summary>
+        /// Level-indexed win rate target curve for same-level matchups.
+        /// </summary>
+        public LevelWinRateCurveConfig LevelWinRateCurve { get; set; } = new LevelWinRateCurveConfig();
+    }
+
+    /// <summary>
+    /// Single anchor on the level win-rate curve.
+    /// </summary>
+    public class LevelWinRateAnchor
+    {
+        public int Level { get; set; }
+        public double TargetWinRate { get; set; }
+    }
+
+    /// <summary>
+    /// Piecewise-linear win rate targets by hero/enemy level (same-level fights).
+    /// </summary>
+    public class LevelWinRateCurveConfig
+    {
+        public bool Enabled { get; set; } = true;
+
+        public List<LevelWinRateAnchor> Anchors { get; set; } = new()
+        {
+            new LevelWinRateAnchor { Level = 1, TargetWinRate = 100 },
+            new LevelWinRateAnchor { Level = 10, TargetWinRate = 90 },
+            new LevelWinRateAnchor { Level = 100, TargetWinRate = 1 },
+        };
+
+        /// <summary>Acceptable ± deviation from target at each anchor (percent points).</summary>
+        public double TolerancePercent { get; set; } = 3.0;
     }
 
     /// <summary>
@@ -107,12 +139,12 @@ namespace RPGGame
     /// </summary>
     public class CombatDurationGoalsConfig
     {
-        public double MinTarget { get; set; } = 8.0;
-        public double MaxTarget { get; set; } = 15.0;
-        public double OptimalMin { get; set; } = 9.0;
-        public double OptimalMax { get; set; } = 13.0;
-        public double CriticalShort { get; set; } = 6.0;
-        public double WarningShort { get; set; } = 8.0;
+        public double MinTarget { get; set; } = 10.0;
+        public double MaxTarget { get; set; } = 18.0;
+        public double OptimalMin { get; set; } = 12.0;
+        public double OptimalMax { get; set; } = 15.0;
+        public double CriticalShort { get; set; } = 8.0;
+        public double WarningShort { get; set; } = 10.0;
         public double WarningLong { get; set; } = 15.0;
         public double CriticalLong { get; set; } = 18.0;
     }

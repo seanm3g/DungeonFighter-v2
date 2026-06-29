@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RPGGame;
 using RPGGame.Tests.Unit.Config;
 using RPGGame.Tests.Unit.Data;
@@ -11,89 +12,74 @@ namespace RPGGame.Tests.Runners
     /// </summary>
     public static class DataSystemTestRunner
     {
-        /// <summary>
-        /// Runs all Data system tests
-        /// </summary>
-        public static void RunAllTests()
+        private static readonly (string Name, System.Action Execute)[] Suites =
+        {
+            ("ActionLoader", () => ActionLoaderTests.RunAllTests()),
+            ("ActionDataToSpreadsheetJsonConverter", () => ActionDataToSpreadsheetJsonConverterTests.RunAllTests()),
+            ("SpreadsheetActionDataSheetRowSerializer", () => SpreadsheetActionDataSheetRowSerializerTests.RunAllTests()),
+            ("SheetsPushConfig", () => SheetsPushConfigTests.RunAllTests()),
+            ("PatchProfileService", () => PatchProfileServiceTests.RunAllTests()),
+            ("BalancePatchMetadata", () => BalancePatchMetadataTests.RunAllTests()),
+            ("GeneralSettingsStore", () => GeneralSettingsStoreTests.RunAllTests()),
+            ("SheetsPushUtilities", () => SheetsPushUtilitiesTests.RunAllTests()),
+            ("JsonArraySheetConverter", () => JsonArraySheetConverterTests.RunAllTests()),
+            ("GameDataTagHelper", () => GameDataTagHelperTests.RunAllTests()),
+            ("ClassPresentationSheetConverter", () => ClassPresentationSheetConverterTests.RunAllTests()),
+            ("ClassActionsSheetConverter", () => ClassActionsSheetConverterTests.RunAllTests()),
+            ("GoogleSheetsUrlHelper", () => GoogleSheetsUrlHelperTests.RunAllTests()),
+            ("SheetsCsvFetch", () => SheetsCsvFetchTests.RunAllTests()),
+            ("SheetsPushPreflight", () => SheetsPushPreflightTests.RunAllTests()),
+            ("JsonLoader", () => JsonLoaderTests.RunAllTests()),
+            ("LootGenerator", () => LootGeneratorTests.RunAllTests()),
+            ("RoomSearchConsumable", () => RPGGame.Tests.Unit.World.RoomSearchConsumableTests.RunAllTests()),
+            ("LootItemSelector", () => LootItemSelectorTests.RunAllTests()),
+            ("ItemGenerator", () => ItemGeneratorTests.RunAllTests()),
+            ("WeaponTypeFromCatalog", () => WeaponTypeFromCatalogTests.RunAllTests()),
+            ("StarterCatalogItems", () => StarterCatalogItemsTests.RunAllTests()),
+            ("LootBonusApplier", () => LootBonusApplierTests.RunAllTests()),
+            ("ItemPrefixHelper", () => ItemPrefixHelperTests.RunAllTests()),
+            ("ItemGetTotalArmorNullSafety", () => ItemGetTotalArmorNullSafetyTests.RunAllTests()),
+            ("ItemGenerationLabService", () => ItemGenerationLabServiceTests.RunAllTests()),
+            ("ItemGenerationBatchStatistics", () => ItemGenerationBatchStatisticsTests.RunAllTests()),
+            ("LootDataCache", () => LootDataCacheTests.RunAllTests()),
+            ("EnemyLoader", () => EnemyLoaderTests.RunAllTests()),
+            ("EnemySpawnFilter", () => EnemySpawnFilterTests.RunAllTests()),
+            ("EnemyRarityReward", () => EnemyRarityRewardTests.RunAllTests()),
+            ("RoomLoader", () => RoomLoaderTests.RunAllTests()),
+            ("ColorConfigurationLoader", () => ColorConfigurationLoaderTests.RunAllTests()),
+            ("ActionDescriptionEnhancer", () => ActionDescriptionEnhancerTests.RunAllTests()),
+            ("LootTierCalculator", () => LootTierCalculatorTests.RunAllTests()),
+            ("LootContext", () => LootContextTests.RunAllTests()),
+            ("LootRarityProcessor", () => LootRarityProcessorTests.RunAllTests()),
+            ("GameDataValidator", () => GameDataValidatorTests.RunAllTests()),
+            ("ActionDataValidator", () => ActionDataValidatorTests.RunAllTests()),
+        };
+
+        public static IReadOnlyList<FilteredTestRunner.TestSuiteEntry> GetSuiteEntries()
+        {
+            var entries = new List<FilteredTestRunner.TestSuiteEntry>(Suites.Length);
+            foreach (var (name, execute) in Suites)
+                entries.Add(new FilteredTestRunner.TestSuiteEntry("data", name, execute));
+            return entries;
+        }
+
+        public static void RunAllTests() => RunFiltered(null);
+
+        public static void RunFiltered(string? filter)
         {
             Console.WriteLine(GameConstants.StandardSeparator);
             Console.WriteLine("  DATA SYSTEM TEST SUITE");
+            if (!string.IsNullOrWhiteSpace(filter))
+                Console.WriteLine($"  Filter: {filter}");
             Console.WriteLine($"{GameConstants.StandardSeparator}\n");
 
-            ActionLoaderTests.RunAllTests();
-            Console.WriteLine();
-            ActionDataToSpreadsheetJsonConverterTests.RunAllTests();
-            Console.WriteLine();
-            SpreadsheetActionDataSheetRowSerializerTests.RunAllTests();
-            Console.WriteLine();
-            SheetsPushConfigTests.RunAllTests();
-            Console.WriteLine();
-            PatchProfileServiceTests.RunAllTests();
-            Console.WriteLine();
-            GeneralSettingsStoreTests.RunAllTests();
-            Console.WriteLine();
-            SheetsPushUtilitiesTests.RunAllTests();
-            Console.WriteLine();
-            JsonArraySheetConverterTests.RunAllTests();
-            Console.WriteLine();
-            GameDataTagHelperTests.RunAllTests();
-            Console.WriteLine();
-            ClassPresentationSheetConverterTests.RunAllTests();
-            ClassActionsSheetConverterTests.RunAllTests();
-            Console.WriteLine();
-            GoogleSheetsUrlHelperTests.RunAllTests();
-            Console.WriteLine();
-            SheetsCsvFetchTests.RunAllTests();
-            Console.WriteLine();
-            SheetsPushPreflightTests.RunAllTests();
-            Console.WriteLine();
-            JsonLoaderTests.RunAllTests();
-            Console.WriteLine();
-            LootGeneratorTests.RunAllTests();
-            Console.WriteLine();
-            RPGGame.Tests.Unit.World.RoomSearchConsumableTests.RunAllTests();
-            Console.WriteLine();
-            LootItemSelectorTests.RunAllTests();
-            Console.WriteLine();
-            ItemGeneratorTests.RunAllTests();
-            Console.WriteLine();
-            WeaponTypeFromCatalogTests.RunAllTests();
-            Console.WriteLine();
-            StarterCatalogItemsTests.RunAllTests();
-            Console.WriteLine();
-            LootBonusApplierTests.RunAllTests();
-            Console.WriteLine();
-            ItemPrefixHelperTests.RunAllTests();
-            Console.WriteLine();
-            ItemGetTotalArmorNullSafetyTests.RunAllTests();
-            Console.WriteLine();
-            ItemGenerationLabServiceTests.RunAllTests();
-            Console.WriteLine();
-            ItemGenerationBatchStatisticsTests.RunAllTests();
-            Console.WriteLine();
-            LootDataCacheTests.RunAllTests();
-            Console.WriteLine();
-            EnemyLoaderTests.RunAllTests();
-            Console.WriteLine();
-            EnemySpawnFilterTests.RunAllTests();
-            Console.WriteLine();
-            EnemyRarityRewardTests.RunAllTests();
-            Console.WriteLine();
-            RoomLoaderTests.RunAllTests();
-            Console.WriteLine();
-            ColorConfigurationLoaderTests.RunAllTests();
-            Console.WriteLine();
-            ActionDescriptionEnhancerTests.RunAllTests();
-            Console.WriteLine();
-            LootTierCalculatorTests.RunAllTests();
-            Console.WriteLine();
-            LootContextTests.RunAllTests();
-            Console.WriteLine();
-            LootRarityProcessorTests.RunAllTests();
-            Console.WriteLine();
-            GameDataValidatorTests.RunAllTests();
-            Console.WriteLine();
-            ActionDataValidatorTests.RunAllTests();
+            foreach (var (name, execute) in Suites)
+            {
+                if (!TestRunFilter.Matches(name, filter))
+                    continue;
+                execute();
+                Console.WriteLine();
+            }
         }
     }
 }

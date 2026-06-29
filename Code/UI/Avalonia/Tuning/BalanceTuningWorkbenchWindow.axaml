@@ -1,0 +1,303 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="RPGGame.UI.Avalonia.Tuning.BalanceTuningWorkbenchWindow"
+        Title="Balance Tuning Workbench"
+        Width="1200"
+        Height="900"
+        MinWidth="960"
+        MinHeight="700"
+        Background="#FF1A1A1A">
+    <Grid Margin="16" RowDefinitions="Auto,Auto,Auto,*">
+        <StackPanel Grid.Row="0" Spacing="4">
+            <TextBlock Text="BALANCE TUNING WORKBENCH"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Foreground="#FFD700"/>
+            <TextBlock Text="Select a profile, tune all simulation and analysis parameters, then run. Lower encounters/levels/battles for faster iterations."
+                       Foreground="#AAAAAA"
+                       TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <Border Grid.Row="1"
+                Background="#FF252525"
+                CornerRadius="6"
+                Padding="12"
+                Margin="0,12,0,0"
+                BorderBrush="#FF444444"
+                BorderThickness="1">
+            <Grid ColumnDefinitions="*,*,*,Auto,Auto" RowDefinitions="Auto,Auto">
+                <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4">
+                    <TextBlock Text="Test profile" Foreground="#CCCCCC" FontSize="12"/>
+                    <ComboBox x:Name="ProfileComboBox"
+                              MinWidth="220"
+                              HorizontalAlignment="Stretch"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4">
+                    <TextBlock Text="Run mode" Foreground="#CCCCCC" FontSize="12"/>
+                    <ComboBox x:Name="RunModeComboBox"
+                              MinWidth="180"
+                              HorizontalAlignment="Stretch"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Grid.Row="0" Spacing="4">
+                    <TextBlock Text="Iterations" Foreground="#CCCCCC" FontSize="12"/>
+                    <NumericUpDown x:Name="IterationsUpDown"
+                                   Minimum="1"
+                                   Maximum="50"
+                                   Value="1"
+                                   Width="100"
+                                   HorizontalAlignment="Left"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Center" Spacing="8">
+                    <Button x:Name="StartButton"
+                            Content="Start run"
+                            Width="120"
+                            Height="36"
+                            Background="#FF0078D4"
+                            Foreground="White"
+                            FontWeight="SemiBold"/>
+                    <Button x:Name="StopButton"
+                            Content="Stop"
+                            Width="120"
+                            Height="32"
+                            Background="#FF8B0000"
+                            Foreground="White"
+                            IsEnabled="False"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Center">
+                    <Button x:Name="ClearButton"
+                            Content="Clear panels"
+                            Width="120"
+                            Height="32"
+                            Background="#FF404040"
+                            Foreground="White"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Orientation="Horizontal" Spacing="16" Margin="0,8,0,0">
+                    <CheckBox x:Name="AutoApplyCheckBox"
+                              Content="Auto-apply suggestions"
+                              Foreground="White"
+                              IsChecked="False"/>
+                    <CheckBox x:Name="DryRunCheckBox"
+                              Content="Dry-run apply (preview only)"
+                              Foreground="White"
+                              IsChecked="True"/>
+                    <CheckBox x:Name="StopWhenPassCheckBox"
+                              Content="Stop when checks pass"
+                              Foreground="White"
+                              IsChecked="True"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="2" Margin="0,12,0,0" MaxHeight="320" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="8">
+                <Expander x:Name="SimulationExpander" Header="Simulation parameters" IsExpanded="True">
+                    <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="8,4,0,0">
+                        <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4" Margin="0,0,8,8">
+                            <TextBlock x:Name="BattlesLabel" Text="Battles per combination" Foreground="#CCCCCC" FontSize="12"/>
+                            <NumericUpDown x:Name="BattlesPerCombinationUpDown" Minimum="1" Maximum="5000" Value="25" Width="140"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="1" Spacing="4" Margin="0,0,8,8">
+                            <TextBlock x:Name="EncountersLabel" Text="Encounters" Foreground="#CCCCCC" FontSize="12"/>
+                            <NumericUpDown x:Name="EncounterCountUpDown" Minimum="1" Maximum="10000" Value="100" Width="140"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="2" Spacing="4" Margin="0,0,8,8">
+                            <TextBlock Text="Player level" Foreground="#CCCCCC" FontSize="12"/>
+                            <NumericUpDown x:Name="PlayerLevelUpDown" Minimum="1" Maximum="100" Value="10" Width="140"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="3" Spacing="4" Margin="0,0,0,8">
+                            <TextBlock Text="Enemy level" Foreground="#CCCCCC" FontSize="12"/>
+                            <NumericUpDown x:Name="EnemyLevelUpDown" Minimum="1" Maximum="100" Value="10" Width="140"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="0" Spacing="4" Margin="0,0,8,8">
+                            <TextBlock Text="Levels (csv)" Foreground="#CCCCCC" FontSize="12"/>
+                            <TextBox x:Name="LevelsTextBox" Watermark="1, 5, 10, 25, 50, 75, 100" Width="220"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4" Margin="0,0,8,8">
+                            <TextBlock Text="Weapon type" Foreground="#CCCCCC" FontSize="12"/>
+                            <ComboBox x:Name="WeaponTypeComboBox" Width="140"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="2" Spacing="4" Margin="0,0,8,8">
+                            <TextBlock Text="Enemy type" Foreground="#CCCCCC" FontSize="12"/>
+                            <TextBox x:Name="EnemyTypeTextBox" Watermark="(default dummy)" Width="140"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="3" Spacing="4" Margin="0,0,0,8">
+                            <TextBlock Text="Forced catalog action" Foreground="#CCCCCC" FontSize="12"/>
+                            <TextBox x:Name="ForcedActionTextBox" Watermark="(auto)" Width="140"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Grid.Column="0" Spacing="4" Margin="0,0,8,0">
+                            <TextBlock Text="Battles per weapon" Foreground="#CCCCCC" FontSize="12"/>
+                            <NumericUpDown x:Name="BattlesPerWeaponUpDown" Minimum="1" Maximum="5000" Value="100" Width="140"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="2" Grid.Column="1" Spacing="4" Margin="0,0,8,0">
+                            <TextBlock Text="Number of battles" Foreground="#CCCCCC" FontSize="12"/>
+                            <NumericUpDown x:Name="NumberOfBattlesUpDown" Minimum="1" Maximum="5000" Value="100" Width="140"/>
+                        </StackPanel>
+                    </Grid>
+                </Expander>
+
+                <Expander x:Name="AnalysisExpander" Header="Analysis parameters" IsExpanded="True">
+                    <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="8,4,0,0">
+                        <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4" Margin="0,0,8,8">
+                            <CheckBox x:Name="OptimizeWinRateCheckBox"
+                                      Content="Optimize win rate"
+                                      Foreground="White"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="1" Spacing="4" Margin="0,0,8,8">
+                            <TextBlock Text="Max suggestions" Foreground="#CCCCCC" FontSize="12"/>
+                            <NumericUpDown x:Name="MaxSuggestionsUpDown" Minimum="0" Maximum="20" Value="1" Width="140"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="2" Spacing="4" Margin="0,0,8,8">
+                            <TextBlock Text="Target median combined" Foreground="#CCCCCC" FontSize="12"/>
+                            <NumericUpDown x:Name="TargetCombinedUpDown" Minimum="1" Maximum="100" Value="24" Increment="1" FormatString="F0" Width="140"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="3" Spacing="4" Margin="0,0,0,8">
+                            <TextBlock Text="Target median hero turns" Foreground="#CCCCCC" FontSize="12"/>
+                            <NumericUpDown x:Name="TargetHeroTurnsUpDown" Minimum="1" Maximum="100" Value="12" Increment="1" FormatString="F0" Width="140"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="0" Spacing="4" Margin="0,0,8,0">
+                            <TextBlock Text="Target median enemy turns" Foreground="#CCCCCC" FontSize="12"/>
+                            <NumericUpDown x:Name="TargetEnemyTurnsUpDown" Minimum="1" Maximum="100" Value="12" Increment="1" FormatString="F0" Width="140"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4" Margin="0,0,8,0">
+                            <TextBlock Text="Mean combined min" Foreground="#CCCCCC" FontSize="12"/>
+                            <NumericUpDown x:Name="MinAverageActionsUpDown" Minimum="1" Maximum="100" Value="20" Increment="1" FormatString="F0" Width="140"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="2" Spacing="4" Margin="0,0,8,0">
+                            <TextBlock Text="Mean combined max" Foreground="#CCCCCC" FontSize="12"/>
+                            <NumericUpDown x:Name="MaxAverageActionsUpDown" Minimum="1" Maximum="100" Value="28" Increment="1" FormatString="F0" Width="140"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="3" Spacing="4" Margin="0,0,0,0">
+                            <TextBlock Text="Min combo+ chains (≥2)" Foreground="#CCCCCC" FontSize="12"/>
+                            <NumericUpDown x:Name="MinComboStreakRunsUpDown" Minimum="0" Maximum="10" Value="0.5" Increment="0.1" FormatString="F1" Width="140"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Grid.Column="0" Spacing="4" Margin="0,8,8,0">
+                            <TextBlock Text="Min max combo+ chain" Foreground="#CCCCCC" FontSize="12"/>
+                            <NumericUpDown x:Name="MinMaxComboStreakUpDown" Minimum="0" Maximum="20" Value="2" Increment="0.5" FormatString="F1" Width="140"/>
+                        </StackPanel>
+                    </Grid>
+                </Expander>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="3"
+                Background="#FF2A2A2A"
+                CornerRadius="6"
+                Padding="12,8"
+                Margin="0,12,0,0"
+                BorderBrush="#FF444444"
+                BorderThickness="1">
+            <Grid RowDefinitions="Auto,Auto,*">
+                <StackPanel Grid.Row="0" Spacing="6">
+                    <TextBlock x:Name="StepTextBlock"
+                               Text="Idle — select a profile and press Start"
+                               Foreground="White"
+                               FontWeight="SemiBold"/>
+                    <ProgressBar x:Name="RunProgressBar"
+                                 Minimum="0"
+                                 Maximum="100"
+                                 Value="0"
+                                 Height="8"/>
+                    <TextBlock x:Name="ProgressDetailTextBlock"
+                               Text=""
+                               Foreground="#AAAAAA"
+                               FontSize="12"/>
+                </StackPanel>
+
+                <Border Grid.Row="1"
+                        x:Name="ProgressionDiagnosisPanel"
+                        IsVisible="False"
+                        Background="#FF1E1E1E"
+                        CornerRadius="4"
+                        Padding="10,8"
+                        Margin="0,10,0,0"
+                        BorderBrush="#FF555555"
+                        BorderThickness="1">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="4">
+                            <TextBlock Foreground="#FFD080" FontWeight="SemiBold" Text="Progression diagnosis"/>
+                            <TextBlock x:Name="WorstAnchorTextBlock" Foreground="#CCCCCC" FontSize="12"/>
+                            <TextBlock x:Name="PrimaryAxisTextBlock" Foreground="#CCCCCC" FontSize="12"/>
+                            <TextBlock x:Name="SuggestionSummaryTextBlock" Foreground="#888888" FontSize="11" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                x:Name="OpenProgressionCurveButton"
+                                Content="Open Progression Curve settings"
+                                VerticalAlignment="Center"
+                                MinWidth="200"
+                                Height="32"
+                                Background="#FF404040"
+                                Foreground="White"/>
+                    </Grid>
+                </Border>
+
+                <TabControl Grid.Row="2" Margin="0,12,0,0" Background="Transparent">
+                    <TabItem Header="Live log">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <TextBox x:Name="LiveLogTextBox"
+                                     IsReadOnly="True"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     FontFamily="Consolas"
+                                     FontSize="12"
+                                     Background="#FF121212"
+                                     Foreground="#E0E0E0"
+                                     BorderThickness="0"
+                                     MinHeight="240"/>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Changelog">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <TextBox x:Name="ChangelogTextBox"
+                                     IsReadOnly="True"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     FontFamily="Consolas"
+                                     FontSize="12"
+                                     Background="#FF121212"
+                                     Foreground="#FFD080"
+                                     BorderThickness="0"
+                                     MinHeight="240"/>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Ideas tried">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <TextBox x:Name="IdeasTextBox"
+                                     IsReadOnly="True"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     FontFamily="Consolas"
+                                     FontSize="12"
+                                     Background="#FF121212"
+                                     Foreground="#80D0FF"
+                                     BorderThickness="0"
+                                     MinHeight="240"/>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Results">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <TextBox x:Name="ResultsTextBox"
+                                     IsReadOnly="True"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     FontFamily="Consolas"
+                                     FontSize="12"
+                                     Background="#FF121212"
+                                     Foreground="#A0FFA0"
+                                     BorderThickness="0"
+                                     MinHeight="240"/>
+                        </ScrollViewer>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

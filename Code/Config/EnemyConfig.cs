@@ -256,6 +256,18 @@ namespace RPGGame
         /// <summary>Multiplies STR/AGI/TEC/INT per-level growth after the 6-point budget normalization.</summary>
         public double AttributeGrowthScale { get; set; } = 1.0;
 
+        /// <summary>Uniform multiplier on enemy max HP (fight tempo / duration).</summary>
+        public double CombatTempoScale { get; set; } = 1.0;
+
+        /// <summary>0 = early/base-dominated HP curve; 1 = late/growth-dominated.</summary>
+        public double ProgressionShape { get; set; } = 0.5;
+
+        /// <summary>+1 = hero relatively tougher; −1 = hero relatively weaker (player max HP).</summary>
+        public double PlayerEnemyParity { get; set; }
+
+        /// <summary>Level where growth weight reaches full strength (design pivot).</summary>
+        public int ProgressionPivotLevel { get; set; } = 30;
+
         public void EnsurePositiveScales()
         {
             if (BaseHealthScale <= 0)
@@ -264,6 +276,14 @@ namespace RPGGame
                 HealthGrowthScale = 1.0;
             if (AttributeGrowthScale <= 0)
                 AttributeGrowthScale = 1.0;
+            if (CombatTempoScale <= 0)
+                CombatTempoScale = 1.0;
+            ProgressionShape = Math.Clamp(ProgressionShape, 0, 1);
+            PlayerEnemyParity = Math.Clamp(PlayerEnemyParity, -1, 1);
+            if (ProgressionPivotLevel < 10)
+                ProgressionPivotLevel = 10;
+            if (ProgressionPivotLevel > 100)
+                ProgressionPivotLevel = 100;
         }
     }
 

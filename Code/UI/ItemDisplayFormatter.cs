@@ -11,7 +11,7 @@ namespace RPGGame
     /// <summary>
     /// Centralized formatter for item display logic to eliminate duplication between display managers.
     /// 
-    /// 📖 FOR COMPLETE FORMATTING GUIDE: See Documentation/04-Reference/FORMATTING_SYSTEM_GUIDE.md
+    /// 📖 FOR COMPLETE FORMATTING GUIDE: See Documentation/FORMATTING_SYSTEM_GUIDE.md
     /// 
     /// Quick Reference:
     /// - Format item name: GetColoredItemName() or GetColoredFullItemName()

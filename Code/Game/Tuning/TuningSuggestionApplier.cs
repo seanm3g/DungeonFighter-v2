@@ -89,15 +89,59 @@ namespace RPGGame.Tuning
                         break;
 
                     case "archetype":
-                        ScrollDebugLogger.Log($"TuningSuggestionApplier: Archetype adjustments not yet fully implemented");
-                        break;
+                        return BalanceTuningConsole.AdjustArchetype(
+                            suggestion.Target,
+                            suggestion.Parameter,
+                            suggestion.SuggestedValue);
 
                     case "weapon":
                         return BalanceTuningConsole.AdjustWeaponScaling(suggestion.Target, "damage", suggestion.SuggestedValue);
 
                     case "enemy":
-                        ScrollDebugLogger.Log($"TuningSuggestionApplier: Enemy-specific adjustments require Enemies.json modification");
+                        return BalanceTuningConsole.AdjustEnemyOverride(
+                            suggestion.Target,
+                            suggestion.Parameter,
+                            suggestion.SuggestedValue);
+
+                    case "roll_feel":
+                        if (suggestion.Parameter == "rollFeelVarianceCompression")
+                        {
+                            RollFeelVarianceCompression.Apply(suggestion.SuggestedValue);
+                            return true;
+                        }
+                        var param = CombatTuningParameterRegistry.GetById(suggestion.Parameter);
+                        if (param != null)
+                        {
+                            param.SetValue(suggestion.SuggestedValue);
+                            return true;
+                        }
                         break;
+
+                    case "dungeon_scaling":
+                        var scaling = GameConfiguration.Instance.DungeonScaling;
+                        if (scaling == null)
+                            break;
+                        if (suggestion.Parameter == "EnemyCountPerRoom")
+                        {
+                            scaling.EnemyCountPerRoom = (int)suggestion.SuggestedValue;
+                            return true;
+                        }
+                        if (suggestion.Parameter == "RoomCountPerLevel")
+                        {
+                            scaling.RoomCountPerLevel = suggestion.SuggestedValue;
+                            return true;
+                        }
+                        break;
+
+                    case "enemy_scaling":
+                        return BalanceTuningConsole.AdjustEnemyScalingPerLevel(
+                            suggestion.Parameter.ToLower(),
+                            suggestion.SuggestedValue);
+
+                    case "enemy_progression":
+                        return BalanceTuningConsole.AdjustEnemyProgressionScale(
+                            suggestion.Parameter,
+                            suggestion.SuggestedValue);
                 }
 
                 return false;

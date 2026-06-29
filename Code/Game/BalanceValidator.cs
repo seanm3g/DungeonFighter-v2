@@ -141,6 +141,69 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Validate multi-level results against the level win-rate curve.
+        /// </summary>
+        public static ValidationResult ValidateMultiLevel(Tuning.MultiLevelSimulationResult multiResult)
+        {
+            var result = new ValidationResult();
+            if (multiResult?.LevelSnapshots == null || multiResult.LevelSnapshots.Count == 0)
+            {
+                result.Warnings.Add("No multi-level simulation snapshots to validate");
+                return result;
+            }
+
+            var anchorSnapshots = multiResult.GetAnchorSnapshots().ToList();
+            if (anchorSnapshots.Count == 0)
+                anchorSnapshots = multiResult.LevelSnapshots;
+
+            result.TotalChecks++;
+            var failures = anchorSnapshots.Where(s => !s.WithinTolerance).ToList();
+            if (failures.Count > 0)
+            {
+                foreach (var f in failures)
+                {
+                    result.Warnings.Add(
+                        $"Level {f.Level}: win rate {f.ActualWinRate:F1}% vs target {f.TargetWinRate:F1}% (tolerance ±{LevelWinRateCurve.GetTolerance(f.Level):F1})");
+                }
+            }
+            else
+            {
+                result.PassedChecks++;
+            }
+
+            result.TotalChecks++;
+            double maxDelta = anchorSnapshots.Max(s => Math.Abs(s.Delta));
+            double tolerance = LevelWinRateCurve.Config?.TolerancePercent ?? 3.0;
+            if (maxDelta > tolerance * 3)
+            {
+                result.Warnings.Add($"Max anchor curve deviation {maxDelta:F1}% exceeds {tolerance * 3:F1}% warning threshold");
+            }
+            else
+            {
+                result.PassedChecks++;
+            }
+
+            result.TotalChecks++;
+            var durationTargets = BalanceTuningGoals.CombatDurationTargets;
+            var durationFailures = multiResult.LevelSnapshots
+                .Where(s => s.AverageTurns < durationTargets.MinTarget || s.AverageTurns > durationTargets.MaxTarget)
+                .ToList();
+            if (durationFailures.Count > 0)
+            {
+                result.Warnings.Add($"{durationFailures.Count} level(s) have combat duration outside {durationTargets.MinTarget}-{durationTargets.MaxTarget} turns");
+            }
+            else
+            {
+                result.PassedChecks++;
+            }
+
+            if (failures.Count > 0)
+                result.IsValid = false;
+
+            return result;
+        }
+
+        /// <summary>
         /// Validate scaling consistency across levels
         /// </summary>
         public static ValidationResult ValidateScaling(List<BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult> levelResults)
@@ -155,7 +218,12 @@ namespace RPGGame
                 return result;
             }
 
-            // Check that win rates remain consistent across levels
+            if (LevelWinRateCurve.IsEnabled)
+            {
+                return ValidateLevelCurveMonotonicity(levelResults, result);
+            }
+
+            // Flat win-rate mode: expect consistency across levels
             result.TotalChecks++;
             var winRateVariances = new List<double>();
             for (int i = 1; i < levelResults.Count; i++)
@@ -191,6 +259,31 @@ namespace RPGGame
             if (maxDurationVariance > 5)
             {
                 result.Warnings.Add($"Combat duration variance across levels: {maxDurationVariance:F1} turns (target: <5)");
+            }
+            else
+            {
+                result.PassedChecks++;
+            }
+
+            return result;
+        }
+
+        private static ValidationResult ValidateLevelCurveMonotonicity(
+            List<BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult> levelResults,
+            ValidationResult result)
+        {
+            var ordered = levelResults;
+            result.TotalChecks++;
+            int violations = 0;
+            for (int i = 1; i < ordered.Count; i++)
+            {
+                if (ordered[i].OverallWinRate > ordered[i - 1].OverallWinRate + 5.0)
+                    violations++;
+            }
+
+            if (violations > 0)
+            {
+                result.Warnings.Add($"{violations} level pair(s) have rising win rate (expected decline with level when curve enabled)");
             }
             else
             {

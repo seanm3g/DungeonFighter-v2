@@ -121,7 +121,7 @@ namespace RPGGame.Config
                     {
                         new TextBlock
                         {
-                            Text = "Enter a patch name (letters, numbers, hyphens, underscores):",
+                            Text = "Enter a patch name (letters, numbers, hyphens):",
                             Foreground = Brushes.White,
                             TextWrapping = TextWrapping.Wrap
                         },

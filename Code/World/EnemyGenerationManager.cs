@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using RPGGame.Data;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
@@ -118,21 +120,8 @@ namespace RPGGame
         {
             try
             {
-                string[] possiblePaths = {
-                    Path.Combine("GameData", "Enemies.json"),
-                    Path.Combine("..", "GameData", "Enemies.json"),
-                    Path.Combine("..", "..", "GameData", "Enemies.json")
-                };
-
-                string? foundPath = null;
-                foreach (string path in possiblePaths)
-                {
-                    if (File.Exists(path))
-                    {
-                        foundPath = path;
-                        break;
-                    }
-                }
+                string? foundPath = JsonLoader.FindGameDataFile(GameConstants.EnemiesJson)
+                    ?? GameConstants.TryGetExistingGameDataFilePath(GameConstants.EnemiesJson);
 
                 if (foundPath != null)
                 {
@@ -141,10 +130,10 @@ namespace RPGGame
                     // ENEMIES data is expected to already be canonical (baseAttributes + growthPerLevel) from the sheet pipeline.
                     return loadedEnemies;
                 }
-                else
-                {
-                    BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"Warning: Enemies.json not found. Tried paths: {string.Join(", ", possiblePaths)}"));
-                }
+
+                var triedPaths = GameConstants.GetPossibleGameDataFilePaths(GameConstants.EnemiesJson);
+                BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse(
+                    $"Warning: Enemies.json not found. Tried paths: {string.Join(", ", triedPaths)}"));
             }
             catch (Exception ex)
             {

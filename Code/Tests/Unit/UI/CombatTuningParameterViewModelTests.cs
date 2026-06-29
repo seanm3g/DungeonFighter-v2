@@ -34,7 +34,7 @@ namespace RPGGame.Tests.Unit.UI
             Console.WriteLine("--- Value clamps to registry maximum ---");
             var param = CombatTuningParameterRegistry.GetById("playerBaseHealth");
             var row = new CombatTuningParameterViewModel(param!);
-            row.Value = 999;
+            row.Value = 2000000;
             TestBase.AssertEqual(param!.Maximum, row.Value,
                 "Value cannot exceed registry maximum",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);

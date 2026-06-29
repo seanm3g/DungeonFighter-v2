@@ -1,0 +1,17 @@
+{
+  "id": "dungeon-scaling",
+  "name": "Dungeon Scaling",
+  "description": "Comprehensive combat pass with dungeon scaling validators and suggesters.",
+  "simulation": {
+    "mode": "dungeon_scaling",
+    "battlesPerCombination": 25,
+    "playerLevel": 10,
+    "enemyLevel": 10
+  },
+  "analysis": {
+    "validators": ["combat_duration", "win_rate"],
+    "suggesters": ["dungeon_scaling", "duration"],
+    "maxSuggestions": 1,
+    "optimizeWinRate": false
+  }
+}

@@ -15,7 +15,9 @@ Check the balance file with the latest date in year-month-day_hour-minute-second
 
 ## Step 3: Understand Win Rate Logic
 - **Win Rate = Player Win Rate** (how often the player beats the enemy)
-- **Target Range**: 85-98% player win rate (players should win 85-98% of the time)
+- **Flat target** (legacy): 85-98% at all levels when `levelWinRateCurve.enabled` is false
+- **Level curve** (when enabled): 100% @ L1 → 99% @ L5 → 90% @ L10 → 0% @ L100 for same-level fights — see `.cursor/rules/level-balance-tuning.mdc` and `Documentation/LEVEL_BALANCE_TUNING.md`
+- **CLI automation**: `dotnet run --project Code/Code.csproj -- LEVELTUNING`
 
 ### Enemy Categories:
 - **Too Easy** (player win rate >98%): Players win too much → Make enemies HARDER

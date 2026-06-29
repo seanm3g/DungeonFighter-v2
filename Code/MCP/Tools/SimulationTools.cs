@@ -144,5 +144,80 @@ namespace RPGGame.MCP.Tools
                 };
             }, writeIndented: true);
         }
+
+        [McpServerTool(Name = "run_multi_level_simulation", Title = "Run Multi-Level Battle Simulation")]
+        [Description("Runs comprehensive weapon×enemy simulations at multiple same-level anchor points and compares against the level win-rate curve.")]
+        public static async Task<string> RunMultiLevelSimulation(
+            [Description("Comma-separated levels to test (default: 1,5,10,25,50,75,100)")] string? levels = null,
+            [Description("Battles per weapon-enemy combination per level (default: 25)")] int battlesPerCombination = 25)
+        {
+            return await McpToolExecutor.ExecuteAsync(async () =>
+            {
+                var levelList = ParseLevels(levels);
+                var result = await RPGGame.Tuning.MultiLevelSimulationRunner.RunAsync(
+                    levelList,
+                    battlesPerCombination,
+                    new System.Progress<(int completed, int total, string status)>());
+
+                return BuildMultiLevelResponse(result);
+            }, writeIndented: true);
+        }
+
+        [McpServerTool(Name = "get_level_curve_report", Title = "Get Level Curve Report")]
+        [Description("Returns a formatted report of the most recent multi-level simulation vs level win-rate targets.")]
+        public static Task<string> GetLevelCurveReport()
+        {
+            return McpToolExecutor.ExecuteAsync(() =>
+            {
+                var result = McpToolState.LastMultiLevelResult;
+                if (result == null)
+                    throw new InvalidOperationException("No multi-level simulation results. Run run_multi_level_simulation first.");
+
+                return new
+                {
+                    report = RPGGame.Tuning.MultiLevelSimulationRunner.FormatReport(result),
+                    curveScore = result.OverallCurveScore,
+                    allAnchorsPass = result.AllAnchorsWithinTolerance,
+                    snapshots = result.LevelSnapshots.Select(s => new
+                    {
+                        level = s.Level,
+                        targetWinRate = s.TargetWinRate,
+                        actualWinRate = s.ActualWinRate,
+                        delta = s.Delta,
+                        averageTurns = s.AverageTurns,
+                        withinTolerance = s.WithinTolerance
+                    }).ToList()
+                };
+            }, writeIndented: true);
+        }
+
+        private static int[] ParseLevels(string? levels)
+        {
+            if (string.IsNullOrWhiteSpace(levels))
+                return LevelWinRateCurve.GetDefaultAnchorLevels().ToArray();
+
+            return levels.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(s => int.Parse(s))
+                .ToArray();
+        }
+
+        private static object BuildMultiLevelResponse(RPGGame.Tuning.MultiLevelSimulationResult result) =>
+            new
+            {
+                report = RPGGame.Tuning.MultiLevelSimulationRunner.FormatReport(result),
+                curveScore = result.OverallCurveScore,
+                allAnchorsPass = result.AllAnchorsWithinTolerance,
+                worstLevel = result.WorstLevel,
+                worstDelta = result.WorstDeltaMagnitude,
+                snapshots = result.LevelSnapshots.Select(s => new
+                {
+                    level = s.Level,
+                    targetWinRate = s.TargetWinRate,
+                    actualWinRate = s.ActualWinRate,
+                    delta = s.Delta,
+                    averageTurns = s.AverageTurns,
+                    withinTolerance = s.WithinTolerance
+                }).ToList()
+            };
     }
 }

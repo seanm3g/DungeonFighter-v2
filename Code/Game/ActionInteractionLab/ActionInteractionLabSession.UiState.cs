@@ -34,6 +34,18 @@ namespace RPGGame.ActionInteractionLab
         /// <summary>Inclusive grid Y bounds for wheel-scrolling the catalog; <c>-1</c> when unset.</summary>
         public int LastCatalogWheelMaxGridY { get; set; } = -1;
 
+        /// <summary>Inclusive grid X bounds for wheel-scrolling the enemy type list in the tools panel; <c>-1</c> when unset.</summary>
+        public int LastEnemyCatalogWheelMinGridX { get; set; } = -1;
+
+        /// <summary>Inclusive grid X bounds for wheel-scrolling the enemy type list in the tools panel; <c>-1</c> when unset.</summary>
+        public int LastEnemyCatalogWheelMaxGridX { get; set; } = -1;
+
+        /// <summary>Inclusive grid Y bounds (▲ types through ▼ types) for wheel-scrolling the enemy list; <c>-1</c> when unset.</summary>
+        public int LastEnemyCatalogWheelMinGridY { get; set; } = -1;
+
+        /// <summary>Inclusive grid Y bounds for wheel-scrolling the enemy list; <c>-1</c> when unset.</summary>
+        public int LastEnemyCatalogWheelMaxGridY { get; set; } = -1;
+
         /// <summary>Batch size for Action Lab encounter simulation (wheel over the sim row steps 1 / 10 / 100 / 1000, clamped at ends).</summary>
         public int EncounterSimulationBatchCount { get; set; } = ActionLabEncounterSimulator.DefaultBatchEncounterCount;
 

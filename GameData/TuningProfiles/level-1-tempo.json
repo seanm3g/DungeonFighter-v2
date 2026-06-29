@@ -1,0 +1,29 @@
+{
+  "id": "level-1-tempo",
+  "name": "Level 1 Combat Tempo",
+  "description": "L1 no-gear fundamentals: tune hero turns-to-kill toward 12 via enemy base health scale and roll damage multipliers.",
+  "simulation": {
+    "mode": "fundamentals_encounter",
+    "encounterCount": 200,
+    "levels": [1],
+    "playerLevel": 1,
+    "enemyLevel": 1,
+    "weaponType": "Sword",
+    "enemyType": "Goblin"
+  },
+  "analysis": {
+    "optimizeWinRate": false,
+    "validators": ["fundamentals_tempo"],
+    "suggesters": ["duration"],
+    "maxSuggestions": 1,
+    "fundamentalsTargets": {
+      "targetMedianPlayerTurns": 12,
+      "targetMedianEnemyTurns": 12,
+      "targetMedianCombinedActions": 24,
+      "minAverageActions": 22,
+      "maxAverageActions": 26,
+      "tempoTolerance": 0.5,
+      "requireL1AnchorBeforeScaling": true
+    }
+  }
+}

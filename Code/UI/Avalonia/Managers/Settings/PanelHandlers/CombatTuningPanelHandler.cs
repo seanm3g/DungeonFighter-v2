@@ -41,6 +41,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 return;
 
             p.ViewModel?.ReloadFromConfig();
+            CombatTuningNavigation.ApplyToPanel(p);
         }
 
         public void SaveSettings(UserControl panel)

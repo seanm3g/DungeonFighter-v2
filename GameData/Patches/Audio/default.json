@@ -1,15 +1,175 @@
 {
   "cueMap": {
-    "Music_MainMenu": { "file": "Music/29th-synth MAIN MENU.wav", "volume": 1.0 },
-    "Music_WeaponSelection": { "file": "Music/29th-synth bass.wav", "volume": 1.0 },
-    "Music_CharacterCreation": { "file": "Music/29th-synth menus.wav", "volume": 1.0 },
-    "Music_Inventory": { "file": "Music/29th-synth inventory.wav", "volume": 1.0 },
-    "Music_Combat": { "file": "Music/29th-synth harmony.wav", "volume": 1.0 },
-    "Menu_Select": { "file": "SFX/blipSelect.wav", "volume": 1.0 },
-    "Combat_CriticalMiss": { "file": "SFX/crit miss2.wav", "volume": 1.0 },
-    "Combat_Miss": { "file": "SFX/MISS.wav", "volume": 1.0 },
-    "Combat_Hit": { "file": "SFX/hitHurt.wav", "volume": 1.0, "rateLimitMs": 80 },
-    "Combat_HeroHurt": { "file": "SFX/hitHurt (1).wav", "volume": 1.0, "rateLimitMs": 80 }
+    "Music_MainMenu": {
+      "file": "Music/29th-synth MAIN MENU.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Music_WeaponSelection": {
+      "file": "Music/29th-synth bass.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Music_CharacterCreation": {
+      "file": "Music/29th-synth menus.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Music_Inventory": {
+      "file": "Music/29th-synth inventory.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Music_Combat": {
+      "file": "Music/29th-synth harmony.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Menu_Select": {
+      "file": "SFX/blipSelect.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_CriticalMiss": {
+      "file": "SFX/crit miss2.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_Miss": {
+      "file": "SFX/MISS.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_Hit": {
+      "file": "SFX/hitHurt.wav",
+      "volume": 1,
+      "rateLimitMs": 80
+    },
+    "Combat_HeroHurt": {
+      "file": "SFX/hitHurt (1).wav",
+      "volume": 1,
+      "rateLimitMs": 80
+    },
+    "Music_DungeonSelection": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Music_Dungeon": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Music_DungeonCompletion": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Music_Death": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Music_TrainingGround": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Menu_Back": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Menu_Invalid": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Menu_Confirm": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Menu_Hover": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_ComboComplete": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_CriticalHit": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_EnemyDied": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_HeroLowHealth": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_EnemyLowHealth": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_StatusApplied": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Progression_LevelUp": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Progression_XpGain": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Loot_ItemPickup": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Loot_Equip": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Loot_Unequip": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Loot_Save": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Dungeon_Enter": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Dungeon_Exit": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Dungeon_RoomClear": {
+      "file": "",
+      "volume": 1,
+      "rateLimitMs": null
+    }
   },
   "stateMusicMap": {
     "GameLoop": "Music_MainMenu",

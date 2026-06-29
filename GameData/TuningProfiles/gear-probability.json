@@ -1,0 +1,18 @@
+{
+  "id": "gear-probability",
+  "name": "Gear Probability",
+  "description": "Weapon variance and attribute-gate pass rates at midgame level.",
+  "simulation": {
+    "mode": "comprehensive_weapon_enemy",
+    "battlesPerCombination": 35,
+    "playerLevel": 15,
+    "enemyLevel": 15
+  },
+  "analysis": {
+    "validators": ["weapon_variance", "combat_duration"],
+    "suggesters": ["weapon", "dial_routed"],
+    "maxSuggestions": 1,
+    "enableDialRouting": true,
+    "optimizeWinRate": false
+  }
+}

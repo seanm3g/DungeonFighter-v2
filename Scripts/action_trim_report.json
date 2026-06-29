@@ -1,0 +1,172 @@
+{
+  "actions_before": 527,
+  "actions_after": 270,
+  "actions_removed": 257,
+  "modtrade_removed": 96,
+  "unreferenced_removed": 161,
+  "removed_sample": [
+    {
+      "name": "MOMENTUM BASH",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "BERZERK",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "DISARM",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "ONE SHOT",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "STIM PACK",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "ANIME CHARGE-UP",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "OVERKILL",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "A CARD THAT GETS WORSE OVER TIME",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "CHUG ENERGY DRINK",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "POWER OVERWHELMING",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "ANY DAY NOW",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "I AM INVINCIBLE",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "WEINING LIGHT",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "MIRROR FLEXING",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "ROGUES GAMBIT",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "POISON TIP",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "HAYMAKER",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "FRENZY",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "BLOOD KNIFE",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "HOLY HEALY",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "BLOODY SUNDAY",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "24/7/365",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "OPENING CUT",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "RAZOR MARGIN",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "FOCUSED BREATHING",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "ADRENAL SURGE",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "TENSION HOLD",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "LATE BLOOM",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "MEASURED PATIENCE",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "MEASURED ADVANCE",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "GLASS STRIKE",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "STATIC ODDS",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "LUCKY CHARM",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "SWIFT",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "EXHAUSTING RHYTHM",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "WINDED STATE",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "OVERHAND SMASH",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "HOLD TEMPO",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "BACKSTEP SLASH",
+      "reason": "unreferenced"
+    },
+    {
+      "name": "CRUSHING FOLLOW-THROUGH",
+      "reason": "unreferenced"
+    }
+  ],
+  "environmental_before": 92,
+  "environmental_after": 7,
+  "environmental_removed": 85
+}

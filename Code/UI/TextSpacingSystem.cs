@@ -9,7 +9,7 @@ namespace RPGGame
     /// Makes it easy to adjust spacing to match the reference by defining rules based on
     /// what block type follows what (context-aware spacing).
     /// 
-    /// 📖 FOR COMPLETE FORMATTING GUIDE: See Documentation/04-Reference/FORMATTING_SYSTEM_GUIDE.md
+    /// 📖 FOR COMPLETE FORMATTING GUIDE: See Documentation/FORMATTING_SYSTEM_GUIDE.md
     /// 
     /// Quick Reference:
     /// - Edit spacing rules: Lines 77-131 (SpacingRules dictionary)

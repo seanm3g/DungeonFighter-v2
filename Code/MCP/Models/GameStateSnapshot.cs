@@ -15,6 +15,9 @@ namespace RPGGame.MCP.Models
         public List<string> AvailableActions { get; set; } = new();
         public List<string> RecentOutput { get; set; } = new();
         public CombatSnapshot? Combat { get; set; }
+        public string PendingInputMode { get; set; } = "Normal";
+        public string? CustomLevelBuffer { get; set; }
+        public List<string> Hints { get; set; } = new();
     }
 
     public class PlayerSnapshot

@@ -8,6 +8,7 @@ using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Helpers;
 using RPGGame.UI.Avalonia.Handlers;
+using RPGGame.UI.Avalonia.Settings;
 using RPGGame.UI.Avalonia.Utils;
 using RPGGame.Utils;
 using System;
@@ -77,6 +78,13 @@ namespace RPGGame.UI.Avalonia
         {
             initializationHandler = new GameInitializationHandler(GameCanvas, this);
             initializationHandler.InitializeGame(UpdateStatus);
+            CombatTuningNavigation.OpenSettingsAndNavigateToProgressionCurve = () => OpenCombatTuningProgressionCurveSettings();
+        }
+
+        private void OpenCombatTuningProgressionCurveSettings()
+        {
+            ShowSettingsPanel();
+            Dispatcher.UIThread.Post(() => SettingsMenuPanel?.OpenCombatTuningProgressionCurve(), DispatcherPriority.Loaded);
         }
 
         private async void OnKeyDown(object? sender, KeyEventArgs e)

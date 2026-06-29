@@ -1,0 +1,27 @@
+{
+  "id": "environment-hazards",
+  "name": "Environment Hazards",
+  "description": "Fundamentals tempo pass for environmental action impact (observation + dial routing).",
+  "simulation": {
+    "mode": "fundamentals_encounter",
+    "encounterCount": 500,
+    "playerLevel": 10,
+    "enemyLevel": 10,
+    "weaponType": "Sword"
+  },
+  "analysis": {
+    "validators": ["fundamentals_tempo", "dial_variance"],
+    "suggesters": ["dial_routed"],
+    "maxSuggestions": 1,
+    "enableDialRouting": true,
+    "fundamentalsTargets": {
+      "targetMedianCombinedActions": 27,
+      "targetMedianPlayerTurns": 12,
+      "targetMedianEnemyTurns": 12,
+      "minAverageActions": 24,
+      "maxAverageActions": 30,
+      "minAverageComboStreakRuns2Plus": 0.5,
+      "minAverageMaxComboStreak": 2.0
+    }
+  }
+}

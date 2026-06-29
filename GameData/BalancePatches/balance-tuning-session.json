@@ -1,0 +1,187 @@
+{
+  "version": "2.0",
+  "updatedUtc": "2026-06-26T01:56:46.4036749Z",
+  "profileId": "combat-dials",
+  "profileName": "Combat Dials (Fundamentals)",
+  "simulationMode": "fundamentals_encounter",
+  "fundamentals": {
+    "timestampUtc": "2026-06-26T01:56:46.3274797Z",
+    "encounterCount": 330,
+    "successfulEncounters": 330,
+    "erroredEncounters": 0,
+    "averageActionsPerEncounter": 6.918181818181818,
+    "medianActionsPerEncounter": 7.045454545454546,
+    "averagePlayerTurnsPerEncounter": 3.815151515151515,
+    "medianPlayerTurnsPerEncounter": 3.909090909090909,
+    "averageEnemyTurnsPerEncounter": 3.103030303030303,
+    "medianEnemyTurnsPerEncounter": 3.1363636363636362,
+    "minActions": 3,
+    "maxActions": 57,
+    "averageComboPlusEventsPerEncounter": 1.9757575757575758,
+    "averageComboStreakRuns2PlusPerEncounter": 0.43333333333333335,
+    "averageMaxComboStreak": 1.393939393939394,
+    "comboStreakRunTotals": {
+      "2": 136,
+      "3": 7
+    },
+    "forcedCatalogAction": "STRIKE",
+    "comboStripCount": 1,
+    "enemyType": "Goblin",
+    "playerLevel": 1,
+    "enemyLevel": 1,
+    "weaponType": "Sword",
+    "winRate": 0.7121212121212122,
+    "turnDurationStdDev": 1.0605200731950728,
+    "averageMissRate": 0.03363121723187769,
+    "averageCritRate": 0.23158927616259092,
+    "averageLossSeverity": 1.4393939393939394,
+    "averageTurnsBelowZero": 0.2878787878787879,
+    "continuePastZeroHp": true,
+    "levelSnapshots": [
+      {
+        "level": 1,
+        "encounterCount": 30,
+        "successfulEncounters": 30,
+        "medianCombinedActions": 37.5,
+        "averageCombinedActions": 36.86666666666667,
+        "medianPlayerTurns": 19,
+        "medianEnemyTurns": 18.5,
+        "winRate": 0.2
+      },
+      {
+        "level": 10,
+        "encounterCount": 30,
+        "successfulEncounters": 30,
+        "medianCombinedActions": 7,
+        "averageCombinedActions": 7.533333333333333,
+        "medianPlayerTurns": 4,
+        "medianEnemyTurns": 3,
+        "winRate": 0.6
+      },
+      {
+        "level": 20,
+        "encounterCount": 30,
+        "successfulEncounters": 30,
+        "medianCombinedActions": 5,
+        "averageCombinedActions": 4.833333333333333,
+        "medianPlayerTurns": 3,
+        "medianEnemyTurns": 2,
+        "winRate": 0.43333333333333335
+      },
+      {
+        "level": 30,
+        "encounterCount": 30,
+        "successfulEncounters": 30,
+        "medianCombinedActions": 4,
+        "averageCombinedActions": 3.8666666666666667,
+        "medianPlayerTurns": 2,
+        "medianEnemyTurns": 2,
+        "winRate": 0.13333333333333333
+      },
+      {
+        "level": 40,
+        "encounterCount": 30,
+        "successfulEncounters": 30,
+        "medianCombinedActions": 4,
+        "averageCombinedActions": 3.533333333333333,
+        "medianPlayerTurns": 2,
+        "medianEnemyTurns": 2,
+        "winRate": 0.4666666666666667
+      },
+      {
+        "level": 50,
+        "encounterCount": 30,
+        "successfulEncounters": 30,
+        "medianCombinedActions": 3,
+        "averageCombinedActions": 3.4,
+        "medianPlayerTurns": 2,
+        "medianEnemyTurns": 1,
+        "winRate": 1
+      },
+      {
+        "level": 60,
+        "encounterCount": 30,
+        "successfulEncounters": 30,
+        "medianCombinedActions": 5,
+        "averageCombinedActions": 4.066666666666666,
+        "medianPlayerTurns": 3,
+        "medianEnemyTurns": 2,
+        "winRate": 1
+      },
+      {
+        "level": 70,
+        "encounterCount": 30,
+        "successfulEncounters": 30,
+        "medianCombinedActions": 3,
+        "averageCombinedActions": 3,
+        "medianPlayerTurns": 2,
+        "medianEnemyTurns": 1,
+        "winRate": 1
+      },
+      {
+        "level": 80,
+        "encounterCount": 30,
+        "successfulEncounters": 30,
+        "medianCombinedActions": 3,
+        "averageCombinedActions": 3,
+        "medianPlayerTurns": 2,
+        "medianEnemyTurns": 1,
+        "winRate": 1
+      },
+      {
+        "level": 90,
+        "encounterCount": 30,
+        "successfulEncounters": 30,
+        "medianCombinedActions": 3,
+        "averageCombinedActions": 3,
+        "medianPlayerTurns": 2,
+        "medianEnemyTurns": 1,
+        "winRate": 1
+      },
+      {
+        "level": 100,
+        "encounterCount": 30,
+        "successfulEncounters": 30,
+        "medianCombinedActions": 3,
+        "averageCombinedActions": 3,
+        "medianPlayerTurns": 2,
+        "medianEnemyTurns": 1,
+        "winRate": 1
+      }
+    ]
+  },
+  "lastApply": {
+    "appliedUtc": "2026-06-26T01:56:46.4036358Z",
+    "suggestionId": "fundamentals_l1_increase_player_base_health",
+    "success": true,
+    "patchName": "combat-dials_apply_20260625_205646",
+    "message": "Applied and saved to active balance config"
+  },
+  "runAnalysisConfig": {
+    "optimizeWinRate": false,
+    "validators": [
+      "fundamentals_tempo",
+      "fundamentals_anchors",
+      "fundamentals_combo_streaks",
+      "dial_variance",
+      "dial_agency"
+    ],
+    "suggesters": [
+      "dial_routed"
+    ],
+    "maxSuggestions": 1,
+    "fundamentalsTargets": {
+      "targetMedianPlayerTurns": 12,
+      "targetMedianEnemyTurns": 12,
+      "targetMedianCombinedActions": 27,
+      "minAverageActions": 24,
+      "maxAverageActions": 30,
+      "minAverageComboStreakRuns2Plus": 0.5,
+      "minAverageMaxComboStreak": 2,
+      "targetWinRateMin": 0.65,
+      "targetWinRateMax": 0.85,
+      "requireL1AnchorBeforeScaling": true
+    },
+    "enableDialRouting": true
+  }
+}

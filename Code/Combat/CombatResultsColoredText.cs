@@ -16,7 +16,7 @@ namespace RPGGame
     /// SPACING STANDARDIZATION:
     /// Uses ColoredTextBuilder which automatically handles spacing via CombatLogSpacingManager.
     /// Manual spaces in operators (e.g., " + ", " - ", " | ") are intentional for display.
-    /// See Documentation/05-Systems/COMBAT_LOG_SPACING_STANDARD.md for spacing guidelines.
+    /// See Documentation/COMBAT_LOG_SPACING_STANDARD.md for spacing guidelines.
     /// </summary>
     public static class CombatResultsColoredText
     {

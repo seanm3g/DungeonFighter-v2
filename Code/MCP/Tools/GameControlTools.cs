@@ -22,6 +22,29 @@ namespace RPGGame.MCP.Tools
                 if (wrapper == null)
                     throw new InvalidOperationException("Game wrapper not initialized");
 
+                if (wrapper.IsGameInitialized)
+                    wrapper.DisposeGame();
+
+                wrapper.InitializeGame();
+                GameStateSerializer.ResetIncrementalTracker();
+                wrapper.ShowMainMenu();
+                return wrapper.GetGameState();
+            }, writeIndented: false);
+        }
+
+        [McpServerTool(Name = "reset_game", Title = "[Gameplay] Reset Game")]
+        [Description("Disposes the current game, starts fresh, and shows the main menu. Use between runs when start_new_game fails.")]
+        public static Task<string> ResetGame()
+        {
+            return McpToolExecutor.ExecuteAsync(() =>
+            {
+                var wrapper = McpToolState.GameWrapper;
+                if (wrapper == null)
+                    throw new InvalidOperationException("Game wrapper not initialized");
+
+                wrapper.DisposeGame();
+                McpToolState.ClearGameplaySessionState();
+                GameStateSerializer.ResetIncrementalTracker();
                 wrapper.InitializeGame();
                 wrapper.ShowMainMenu();
                 return wrapper.GetGameState();

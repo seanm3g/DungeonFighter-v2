@@ -40,9 +40,9 @@ Each patch is a JSON file containing:
 ## File Naming
 
 Patches are automatically named with format:
-`{name}_v{version}_{date}.json`
+`{name}-v{version}-{date}.json`
 
-Example: `aggressive_enemies_v1.2_20250115.json`
+Example: `aggressive-enemies-v1.2-20250115.json`
 
 ## Notes
 

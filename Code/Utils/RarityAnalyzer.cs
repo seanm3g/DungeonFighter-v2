@@ -195,7 +195,7 @@ namespace RPGGame
             Console.WriteLine("   • Adjust weights in RarityTable.json to change drop rates");
             Console.WriteLine("   • Modify bonus counts to change power levels");
             Console.WriteLine("   • Test with small changes (10-20%) first");
-            Console.WriteLine("   • See Documentation/05-Systems/GEAR_RARITY_ANALYSIS.md for details");
+            Console.WriteLine("   • See Documentation/GEAR_RARITY_ANALYSIS.md for details");
         }
 
         /// <summary>
