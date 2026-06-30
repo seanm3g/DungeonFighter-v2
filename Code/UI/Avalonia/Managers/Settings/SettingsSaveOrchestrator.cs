@@ -202,6 +202,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                         showStatusMessage?.Invoke("Audio patch save cancelled.", false);
                         return new SettingsSaveResult(false);
                     }
+                    if (panelHandlerRegistry?.GetHandler("Audio") is AudioPanelHandler audioHandler)
+                        audioHandler.OnPatchSaved();
                 }
 
                 var settings = GameSettings.Instance;

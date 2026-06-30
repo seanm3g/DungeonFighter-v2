@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -17,17 +18,20 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
     /// Wires up the Audio settings panel and persists <see cref="AudioConfig"/> on save.
     /// </summary>
     /// <remarks>
-    /// Volume / mute changes are applied live to the audio engine. Bus prefs save to gitignored
-    /// <c>GeneralSettings.json</c>; cue bindings save to the active audio patch.
+    /// Volume / mute / crossfade changes apply live and persist immediately to gitignored
+    /// <c>GeneralSettings.json</c> (no patch dialog). Cue bindings save to the active audio patch.
     /// </remarks>
     public class AudioPanelHandler : ISettingsPanelHandler
     {
         public string PanelType => "Audio";
 
-        /// <summary>True when cue bindings or state→music mappings were edited (patch save prompt applies).</summary>
-        public bool NeedsPatchSave => _patchBindingsDirty;
+        /// <summary>True when cue bindings or state→music mappings differ from the last loaded snapshot.</summary>
+        public bool NeedsPatchSave => HasPatchBindingChanges();
 
-        private bool _patchBindingsDirty;
+        private bool _suppressBusPersist;
+        private string? _patchSnapshotJson;
+
+        private static readonly JsonSerializerOptions PatchSnapshotOptions = new() { WriteIndented = false };
 
         public void WireUp(UserControl panel)
         {
@@ -35,7 +39,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
             // Always read the latest config from disk when opening the panel.
             AudioConfig.ReloadFromFile();
-            _patchBindingsDirty = false;
             var config = AudioConfig.Instance;
 
             WireVolumeControls(audioPanel, config);
@@ -50,7 +53,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (panel is not AudioSettingsPanel audioPanel) return;
 
             AudioConfig.ReloadFromFile();
-            _patchBindingsDirty = false;
             var config = AudioConfig.Instance;
 
             var masterSlider = audioPanel.FindControl<Slider>("MasterVolumeSlider");
@@ -64,6 +66,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             var musicLbl     = audioPanel.FindControl<TextBlock>("MusicVolumeLabel");
             var sfxLbl       = audioPanel.FindControl<TextBlock>("SfxVolumeLabel");
 
+            _suppressBusPersist = true;
+            try
+            {
             if (masterSlider != null) masterSlider.Value = config.MasterVolume;
             if (musicSlider  != null) musicSlider.Value  = config.MusicVolume;
             if (sfxSlider    != null) sfxSlider.Value    = config.SfxVolume;
@@ -77,7 +82,15 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
             BuildStateMusicMappingRows(audioPanel, config);
             BuildCueBindingRows(audioPanel, config);
+            }
+            finally
+            {
+                SchedulePatchUiInitComplete();
+            }
         }
+
+        /// <summary>Call after a successful audio patch write so a later Save does not re-prompt.</summary>
+        public void OnPatchSaved() => CapturePatchSnapshot(AudioConfig.Instance);
 
         public void SaveSettings(UserControl panel)
         {
@@ -106,7 +119,43 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             AudioBootstrap.ApplyConfigToEngine();
         }
 
-        private void MarkPatchBindingsDirty() => _patchBindingsDirty = true;
+        private static string SerializePatchSnapshot(AudioConfig config)
+        {
+            var patch = new AudioPatchContent
+            {
+                CueMap = config.CueMap,
+                StateMusicMap = config.StateMusicMap
+            };
+            return JsonSerializer.Serialize(patch, PatchSnapshotOptions);
+        }
+
+        private void CapturePatchSnapshot(AudioConfig config)
+        {
+            _patchSnapshotJson = SerializePatchSnapshot(config);
+        }
+
+        private bool HasPatchBindingChanges()
+        {
+            if (_patchSnapshotJson == null) return false;
+            return SerializePatchSnapshot(AudioConfig.Instance) != _patchSnapshotJson;
+        }
+
+        /// <summary>Defers snapshot capture until cue rows finish layout (avoids false dirty from control init).</summary>
+        private void SchedulePatchUiInitComplete()
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                _suppressBusPersist = false;
+                CapturePatchSnapshot(AudioConfig.Instance);
+            }, DispatcherPriority.Loaded);
+        }
+
+        private void PersistBusPreferences(AudioConfig config)
+        {
+            if (_suppressBusPersist) return;
+            config.ValidateAndFix();
+            config.SaveAudioPreferences();
+        }
 
         private void WireVolumeControls(AudioSettingsPanel panel, AudioConfig config)
         {
@@ -129,6 +178,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     config.MasterVolume = v;
                     if (masterLbl != null) masterLbl.Text = $"{(int)Math.Round(v * 100)}%";
                     AudioBootstrap.Engine?.SetMasterVolume(v);
+                    PersistBusPreferences(config);
                 };
             if (musicSlider != null)
                 musicSlider.PropertyChanged += (_, e) =>
@@ -138,6 +188,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     config.MusicVolume = v;
                     if (musicLbl != null) musicLbl.Text = $"{(int)Math.Round(v * 100)}%";
                     AudioBootstrap.Engine?.SetBusVolume(AudioBusKind.Music, v);
+                    PersistBusPreferences(config);
                 };
             if (sfxSlider != null)
                 sfxSlider.PropertyChanged += (_, e) =>
@@ -147,6 +198,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     config.SfxVolume = v;
                     if (sfxLbl != null) sfxLbl.Text = $"{(int)Math.Round(v * 100)}%";
                     AudioBootstrap.Engine?.SetBusVolume(AudioBusKind.Sfx, v);
+                    PersistBusPreferences(config);
                 };
 
             if (masterMute != null)
@@ -155,6 +207,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     bool muted = masterMute.IsChecked ?? false;
                     config.MasterEnabled = !muted;
                     AudioBootstrap.Engine?.SetMasterMute(muted);
+                    PersistBusPreferences(config);
                 };
             if (musicMute != null)
                 musicMute.IsCheckedChanged += (_, _) =>
@@ -162,6 +215,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     bool muted = musicMute.IsChecked ?? false;
                     config.MusicEnabled = !muted;
                     AudioBootstrap.Engine?.SetBusMute(AudioBusKind.Music, muted);
+                    PersistBusPreferences(config);
                 };
             if (sfxMute != null)
                 sfxMute.IsCheckedChanged += (_, _) =>
@@ -169,12 +223,14 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     bool muted = sfxMute.IsChecked ?? false;
                     config.SfxEnabled = !muted;
                     AudioBootstrap.Engine?.SetBusMute(AudioBusKind.Sfx, muted);
+                    PersistBusPreferences(config);
                 };
             if (crossfade != null)
                 crossfade.ValueChanged += (_, _) =>
                 {
                     if (crossfade.Value is decimal d)
                         config.MusicCrossfadeMs = (int)d;
+                    PersistBusPreferences(config);
                 };
         }
 
@@ -214,11 +270,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             string current = config.StateMusicMap.TryGetValue(stateName, out var c) ? c : string.Empty;
             int idx = musicCueNames.IndexOf(string.IsNullOrEmpty(current) ? "(none)" : current);
             combo.SelectedIndex = idx < 0 ? 0 : idx;
+            string initialSelection = string.IsNullOrEmpty(current) ? "(none)" : current;
             combo.SelectionChanged += (_, _) =>
             {
                 if (combo.SelectedItem is not string selected) return;
+                if (string.Equals(selected, initialSelection, StringComparison.Ordinal)) return;
                 config.StateMusicMap[stateName] = selected == "(none)" ? string.Empty : selected;
-                MarkPatchBindingsDirty();
             };
             Grid.SetColumn(combo, 1);
             grid.Children.Add(combo);
@@ -266,10 +323,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 Margin = new global::Avalonia.Thickness(4, 0, 4, 0),
                 VerticalContentAlignment = VerticalAlignment.Center
             };
+            string initialFile = binding.File;
             fileBox.TextChanged += (_, _) =>
             {
-                binding.File = fileBox.Text ?? string.Empty;
-                MarkPatchBindingsDirty();
+                string text = fileBox.Text ?? string.Empty;
+                if (string.Equals(text, initialFile, StringComparison.Ordinal)) return;
+                binding.File = text;
             };
             Grid.SetColumn(fileBox, 1);
             grid.Children.Add(fileBox);
@@ -317,17 +376,18 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     binding.File = chosen;
                     fileBox.Text = chosen;
                 }
-                MarkPatchBindingsDirty();
             };
             Grid.SetColumn(browseBtn, 2);
             grid.Children.Add(browseBtn);
 
             var volSlider = new Slider { Minimum = 0, Maximum = 1, Value = binding.Volume, TickFrequency = 0.05, VerticalAlignment = VerticalAlignment.Center };
+            float initialCueVolume = binding.Volume;
             volSlider.PropertyChanged += (_, e) =>
             {
                 if (e.Property != Slider.ValueProperty) return;
-                binding.Volume = (float)volSlider.Value;
-                MarkPatchBindingsDirty();
+                float v = (float)volSlider.Value;
+                if (Math.Abs(v - initialCueVolume) < 1e-5f) return;
+                binding.Volume = v;
             };
             Grid.SetColumn(volSlider, 3);
             grid.Children.Add(volSlider);
@@ -349,7 +409,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             {
                 binding.File = string.Empty;
                 fileBox.Text = string.Empty;
-                MarkPatchBindingsDirty();
             };
             Grid.SetColumn(clearBtn, 5);
             grid.Children.Add(clearBtn);
