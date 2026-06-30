@@ -23,7 +23,7 @@ namespace RPGGame.Editors
         public ActionEditor()
         {
             // Use canonical path (same as ActionLoader) so save and load always use the same file
-            actionsFilePath = GameConstants.GetGameDataFilePath(GameConstants.ActionsJson);
+            actionsFilePath = ActionLoader.ResolveActionsFilePath();
             LoadActions();
         }
 

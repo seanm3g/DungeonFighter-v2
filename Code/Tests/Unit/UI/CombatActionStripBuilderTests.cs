@@ -134,6 +134,18 @@ namespace RPGGame.Tests.Unit.UI
                 "BuildPanelData: positive chain accuracy yields AccuracyRollBonus > 0 for action strip card",
                 ref run, ref passed, ref failed);
 
+            // BuildPanelData: FIFO ACTION layers preview on upcoming combo slots (not only current ComboStep)
+            var charThreeAction = CreateCharacterWithThreeComboActions();
+            charThreeAction.ComboStep = 1;
+            charThreeAction.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = 25 } });
+            charThreeAction.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = 25 } });
+            var fifoPanels = CombatActionStripBuilder.BuildPanelData(charThreeAction);
+            TestBase.AssertTrue(fifoPanels != null && fifoPanels.Count >= 3
+                && fifoPanels[1].DamageModified > fifoPanels[1].DamageBase
+                && fifoPanels[2].DamageModified > fifoPanels[2].DamageBase,
+                "BuildPanelData: two FIFO layers at ComboStep 1 buff slots 1 and 2",
+                ref run, ref passed, ref failed);
+
             // BuildActiveModifierLines
             var nullModLines = CombatActionStripBuilder.BuildActiveModifierLines(null);
             TestBase.AssertTrue(nullModLines != null && nullModLines.Count == 0,
@@ -422,7 +434,7 @@ namespace RPGGame.Tests.Unit.UI
             character.EquipItem(weapon, "weapon");
 
             var action = TestDataBuilders.CreateMockAction("MechanicsMatrix", ActionType.Attack);
-            action.Target = TargetType.AreaOfEffect;
+            action.Target = TargetType.Environment;
             action.DamageMultiplier = 1.25;
             action.Length = 0.75;
             action.IsComboAction = true;
@@ -439,7 +451,6 @@ namespace RPGGame.Tests.Unit.UI
                 new StatBonusEntry { Type = "STR", Value = 2 },
                 new StatBonusEntry { Type = "PRIMARY", Value = 1 }
             };
-            action.Advanced.SelfDamagePercent = 5;
             action.Advanced.SkipNextTurn = true;
             action.Advanced.GuaranteeNextSuccess = true;
             action.Advanced.RepeatLastAction = true;
@@ -534,6 +545,23 @@ namespace RPGGame.Tests.Unit.UI
             character.AddAction(action2, 1.0);
             character.Actions.AddToCombo(action1);
             character.Actions.AddToCombo(action2);
+            return character;
+        }
+
+        private static Character CreateCharacterWithThreeComboActions()
+        {
+            var character = TestDataBuilders.Character().WithName("Test").WithStats(10, 10, 10, 10).Build();
+            var weapon = TestDataBuilders.Weapon().WithBaseDamage(5).Build();
+            character.EquipItem(weapon, "weapon");
+            for (int i = 0; i < 3; i++)
+            {
+                var action = TestDataBuilders.CreateMockAction($"Action{i + 1}", ActionType.Attack);
+                action.DamageMultiplier = 1.0;
+                action.Length = 1.0;
+                action.IsComboAction = true;
+                character.AddAction(action, 1.0);
+                character.Actions.AddToCombo(action);
+            }
             return character;
         }
     }

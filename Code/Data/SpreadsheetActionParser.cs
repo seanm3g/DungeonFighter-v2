@@ -116,6 +116,10 @@ namespace RPGGame.Data
             {
                 for (int i = 0; i < Math.Min(5, lines.Length); i++)
                 {
+                    var probe = ParseCsvLine(lines[i]);
+                    string colA = probe.Length > 0 ? probe[0].Trim() : "";
+                    if (SpreadsheetActionData.IsLayerSectionMarkerRow(colA))
+                        continue;
                     if (lines[i].StartsWith("ACTION,") || lines[i].StartsWith("\"ACTION\","))
                     {
                         labelRowIndex = i;
@@ -160,6 +164,10 @@ namespace RPGGame.Data
                     continue;
 
                 var columns = ParseCsvLine(line);
+                string colA = columns.Length > 0 ? columns[0].Trim() : "";
+                if (SpreadsheetActionData.IsLayerSectionMarkerRow(colA))
+                    continue;
+
                 var actionData = SpreadsheetActionData.FromCsvRow(columns, header);
 
                 if (actionData.IsValid())
@@ -213,6 +221,8 @@ namespace RPGGame.Data
                 {
                     var r = rowCells[i];
                     string c0 = r.Length > 0 ? r[0].Trim() : "";
+                    if (SpreadsheetActionData.IsLayerSectionMarkerRow(c0))
+                        continue;
                     if (c0.Equals("ACTION", StringComparison.OrdinalIgnoreCase))
                     {
                         labelRowIndex = i;

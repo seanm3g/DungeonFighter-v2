@@ -161,6 +161,8 @@ namespace RPGGame
                 "SPEED_MOD" => $"{sign}{b.Value:0}% SPD",
                 "MULTIHIT_MOD" => $"{sign}{b.Value:0} MH",
                 "AMP_MOD" => $"{sign}{b.Value:0}% AMP",
+                MultiDiceRollMapper.AdvantageBonusType => "Advantage (2d20 high)",
+                MultiDiceRollMapper.DisadvantageBonusType => "Disadvantage (2d20 low)",
                 _ => $"{sign}{b.Value:0} {b.Type}"
             };
         }
@@ -177,18 +179,15 @@ namespace RPGGame
             if (action.CausesSlow) parts.Add("Slow");
             if (action.CausesVulnerability) parts.Add("Vuln");
             if (action.CausesHarden) parts.Add("Harden");
-            if (action.CausesFortify) parts.Add("Fortify");
             if (action.CausesFocus) parts.Add("Focus");
             if (action.CausesExpose) parts.Add("Expose");
             if (action.CausesHPRegen) parts.Add("Regen");
             if (action.CausesArmorBreak) parts.Add("ArmBrk");
             if (action.CausesPierce) parts.Add("Pierce");
-            if (action.CausesReflect) parts.Add("Reflect");
             if (action.CausesSilence) parts.Add("Silence");
             if (action.CausesAbsorb) parts.Add("Absorb");
             if (action.CausesTemporaryHP) parts.Add("TempHP");
             if (action.CausesConfusion) parts.Add("Confuse");
-            if (action.CausesCleanse) parts.Add("Cleanse");
             if (action.CausesMark) parts.Add("Mark");
             if (action.CausesDisrupt) parts.Add("Disrupt");
             if (action.CausesStatDrain) parts.Add("Drain");

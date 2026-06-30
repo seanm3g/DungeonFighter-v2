@@ -106,6 +106,12 @@ namespace RPGGame.Combat.Calculators
             // Apply action damage multiplier if action is provided
             double actionMultiplier = action?.DamageMultiplier ?? 1.0;
 
+            if (attacker is Character earlyGameCharacter)
+            {
+                double startingActionMult = EarlyGameBalanceHelper.GetStartingActionDamageMultiplier(earlyGameCharacter, action);
+                actionMultiplier *= startingActionMult;
+            }
+
             // Apply consumed DAMAGE_MOD from ACTION/ABILITY keyword (next action/ability only)
             if (attacker is Character damageModCharacter && damageModCharacter.Effects.ConsumedDamageModPercent != 0)
                 actionMultiplier *= (1.0 + damageModCharacter.Effects.ConsumedDamageModPercent / 100.0);

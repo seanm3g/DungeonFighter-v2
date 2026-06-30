@@ -83,7 +83,10 @@ namespace RPGGame.Tuning.Profiles
                 EnemyLevel = GetIntFlag(args, "--enemy-level"),
                 EncounterCount = GetIntFlag(args, "--encounters", "-e"),
                 ContinuePastZeroHp = HasFlag(args, "--continue-past-zero-hp") ? true : null,
-                NegativeHpFloor = GetIntFlag(args, "--negative-hp-floor")
+                NegativeHpFloor = GetIntFlag(args, "--negative-hp-floor"),
+                RunsPerClass = GetIntFlag(args, "--runs-per-class", "-r"),
+                MaxActionsPerRun = GetIntFlag(args, "--max-actions-per-run"),
+                Classes = GetFlagValue(args, "--classes")
             };
         }
     }

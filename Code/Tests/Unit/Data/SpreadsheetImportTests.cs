@@ -37,7 +37,9 @@ namespace RPGGame.Tests.Unit.Data
             TestRarityCategoryCadenceRoundTrip();
             TestPropertyValidation();
             TestActionAttackBonuses();
+            TestMultiDiceRollMapperLuckUnluck();
             TestGameMechanicsCompatibility();
+            SpreadsheetDurationSemanticsTests.RunAll();
 
             TestBase.PrintSummary("Spreadsheet Import Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -143,7 +145,8 @@ namespace RPGGame.Tests.Unit.Data
                 "GRACE",
                 "REPLACE ACTION",
                 "CHAIN LENGTH",
-                "MODIFY ROOM"
+                "MODIFY ROOM",
+                "LAYER 2 ACTIONS",
             };
 
             foreach (var name in contextLikeNames)
@@ -435,6 +438,55 @@ namespace RPGGame.Tests.Unit.Data
 
             Console.WriteLine($"  Actions with bonuses: {actionsWithBonuses}/{bonusTestActions.Length}");
             Console.WriteLine($"  Total bonus groups: {bonusGroupsFound}");
+        }
+
+        private static void TestMultiDiceRollMapperLuckUnluck()
+        {
+            Console.WriteLine("\n--- Testing MultiDiceRollMapper (LUCK / UNLUCK) ---");
+
+            var luckRow = new SpreadsheetActionData
+            {
+                Action = "LUCK",
+                Description = "ROLL FROM ADVANTAGE",
+                Cadence = "ACTION",
+                Duration = "1"
+            };
+            var luckData = SpreadsheetToActionDataConverter.Convert(luckRow);
+            TestBase.AssertTrue(
+                luckData.ActionAttackBonuses?.BonusGroups?.Any(g =>
+                    g.Bonuses?.Any(b => b.Type == MultiDiceRollMapper.AdvantageBonusType) == true) == true,
+                "LUCK row maps to ACTION cadence ADVANTAGE bonus",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var unluckRow = new SpreadsheetActionData
+            {
+                Action = "UNLUCK",
+                Description = "ROLL WITH DISADVANTAGE",
+                Cadence = "ACTION",
+                Duration = "1"
+            };
+            var unluckData = SpreadsheetToActionDataConverter.Convert(unluckRow);
+            TestBase.AssertTrue(
+                unluckData.ActionAttackBonuses?.BonusGroups?.Any(g =>
+                    g.Bonuses?.Any(b => b.Type == MultiDiceRollMapper.DisadvantageBonusType) == true) == true,
+                "UNLUCK row maps to ACTION cadence DISADVANTAGE bonus",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var columnRow = new SpreadsheetActionData
+            {
+                Action = "FORTUNE",
+                Description = "Lucky strike",
+                Cadence = "ACTION",
+                Duration = "2",
+                DiceRolls = "2",
+                HighestLowestRoll = "HIGHEST"
+            };
+            var columnData = SpreadsheetToActionDataConverter.Convert(columnRow);
+            var advGroup = columnData.ActionAttackBonuses?.BonusGroups?.FirstOrDefault(g =>
+                g.Bonuses?.Any(b => b.Type == MultiDiceRollMapper.AdvantageBonusType) == true);
+            TestBase.AssertTrue(advGroup != null && advGroup.Count == 2,
+                "highestLowestRoll/diceRolls columns map to ACTION ADVANTAGE with duration",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

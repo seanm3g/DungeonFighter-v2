@@ -21,8 +21,6 @@ namespace RPGGame.Data.Validation
             public const int MaxRollBonus = 20;
             public const int MinMultiHitCount = 1;
             public const int MaxMultiHitCount = 10;
-            public const int MinSelfDamagePercent = 0;
-            public const int MaxSelfDamagePercent = 100;
             public const int MinThreshold = 0;
             public const int MaxThreshold = 20;
             public const int MinThresholdAdjustment = -20;
@@ -37,7 +35,7 @@ namespace RPGGame.Data.Validation
 
             public static readonly HashSet<string> ValidTargetTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "Self", "SingleTarget", "AreaOfEffect", "Environment", "SelfAndTarget"
+                "Self", "SingleTarget", "Environment", "SelfAndTarget", "AreaOfEffect"
             };
 
             public static readonly HashSet<string> ValidMultipleDiceModes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

@@ -6,6 +6,7 @@ using RPGGame.Tests;
 using RPGGame.Utils;
 using RPGGame.Actions;
 using RPGGame.Actions.Execution;
+using RPGGame.Actions.RollModification;
 using RPGGame.Data;
 
 namespace RPGGame.Tests.Unit
@@ -331,7 +332,7 @@ namespace RPGGame.Tests.Unit
                 Type = ActionType.Attack,
                 Target = TargetType.SingleTarget,
                 Cadence = "Action",
-                IsComboAction = false,
+                IsComboAction = true,
                 DamageMultiplier = 0.01,
                 Length = 1.0,
                 ComboBonusDuration = 2,
@@ -343,15 +344,17 @@ namespace RPGGame.Tests.Unit
                 }
             };
 
-            Dice.SetTestRoll(18);
-            ActionSelector.SetStoredActionRoll(hero, 18);
+            int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMin <= 0) comboMin = 14;
+            Dice.SetTestRoll(Math.Max(comboMin + 1, 18));
+            ActionSelector.SetStoredActionRoll(hero, Math.Max(comboMin + 1, 18));
             var lastUsed = new Dictionary<Actor, Action>();
             var lastCrit = new Dictionary<Actor, bool>();
             var hitResult = ActionExecutionFlow.Execute(hero, enemy, null, null, drunkenStyle, null, lastUsed, lastCrit);
             Dice.SetTestRoll(null);
 
-            TestBase.AssertTrue(hitResult.Hit,
-                "Controlled high roll should hit",
+            TestBase.AssertTrue(hitResult.Hit && hitResult.IsCombo,
+                "Controlled high roll should hit+combo",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(-5, ActionSelector.PeekQueuedAccuracyBonus(hero),
                 "Hero deferred RollBonus should queue ACCURACY FIFO for next attack (peek first layer)",
@@ -371,8 +374,15 @@ namespace RPGGame.Tests.Unit
             hero.Effects.SetTempRollBonus(0, 0);
             enemy.RollPenalty = 0;
             enemy.RollPenaltyTurns = 0;
-            Dice.SetTestRoll(2);
-            ActionSelector.SetStoredActionRoll(hero, 2);
+            var missTm = RollModificationManager.GetThresholdManager();
+            missTm.ResetThresholds(hero);
+            TechniqueMilestoneThresholdBonuses.Apply(missTm, hero);
+            NaiveteThresholdBonuses.Apply(missTm, hero);
+            int missRollBonus = ActionUtilities.CalculateRollBonus(hero, drunkenStyle, consumeTempBonus: false);
+            int missHitTh = missTm.GetHitThreshold(hero);
+            int missBaseRoll = missHitTh - missRollBonus - 1;
+            Dice.SetTestRoll(missBaseRoll);
+            ActionSelector.SetStoredActionRoll(hero, missBaseRoll);
             var missResult = ActionExecutionFlow.Execute(hero, enemy, null, null, drunkenStyle, null, lastUsed, lastCrit);
             Dice.SetTestRoll(null);
             TestBase.AssertFalse(missResult.Hit,
@@ -408,7 +418,7 @@ namespace RPGGame.Tests.Unit
                 Type = ActionType.Attack,
                 Target = TargetType.SingleTarget,
                 Cadence = "Action",
-                IsComboAction = false,
+                IsComboAction = true,
                 DamageMultiplier = 0.01,
                 Length = 1.0,
                 ComboBonusDuration = 1,
@@ -431,8 +441,10 @@ namespace RPGGame.Tests.Unit
                 IsComboAction = false
             };
 
-            Dice.SetTestRoll(18);
-            ActionSelector.SetStoredActionRoll(hero, 18);
+            int comboMinDebuff = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMinDebuff <= 0) comboMinDebuff = 14;
+            Dice.SetTestRoll(Math.Max(comboMinDebuff + 1, 18));
+            ActionSelector.SetStoredActionRoll(hero, Math.Max(comboMinDebuff + 1, 18));
             var lastUsed = new Dictionary<Actor, Action>();
             var lastCrit = new Dictionary<Actor, bool>();
             _ = ActionExecutionFlow.Execute(hero, enemy, null, null, drunk, null, lastUsed, lastCrit);
@@ -480,7 +492,7 @@ namespace RPGGame.Tests.Unit
                 Type = ActionType.Attack,
                 Target = TargetType.SingleTarget,
                 Cadence = "Action",
-                IsComboAction = false,
+                IsComboAction = true,
                 DamageMultiplier = 0.01,
                 Length = 1.0,
                 ComboBonusDuration = 1,
@@ -493,15 +505,17 @@ namespace RPGGame.Tests.Unit
                 }
             };
 
-            Dice.SetTestRoll(18);
-            ActionSelector.SetStoredActionRoll(hero, 18);
+            int comboMinTwin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMinTwin <= 0) comboMinTwin = 14;
+            Dice.SetTestRoll(Math.Max(comboMinTwin + 1, 18));
+            ActionSelector.SetStoredActionRoll(hero, Math.Max(comboMinTwin + 1, 18));
             var lastUsed = new Dictionary<Actor, Action>();
             var lastCrit = new Dictionary<Actor, bool>();
             var hitResult = ActionExecutionFlow.Execute(hero, enemy, null, null, twinShot, null, lastUsed, lastCrit);
             Dice.SetTestRoll(null);
 
-            TestBase.AssertTrue(hitResult.Hit,
-                "Controlled high roll should hit",
+            TestBase.AssertTrue(hitResult.Hit && hitResult.IsCombo,
+                "Controlled high roll should hit+combo",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(-2, ActionSelector.PeekQueuedAccuracyBonus(hero),
                 "2-hit action with deferred RollBonus -1 should queue ACCURACY -2 for next attack",
@@ -619,7 +633,7 @@ namespace RPGGame.Tests.Unit
                 Type = ActionType.Attack,
                 Target = TargetType.SingleTarget,
                 Cadence = "Action",
-                IsComboAction = false,
+                IsComboAction = true,
                 DamageMultiplier = 0.01,
                 Length = 1.0,
                 ComboBonusDuration = 1,
@@ -635,12 +649,14 @@ namespace RPGGame.Tests.Unit
 
             try
             {
-                Dice.SetTestRoll(16);
-                ActionSelector.SetStoredActionRoll(enemy, 16);
+                int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+                if (comboMin <= 0) comboMin = 14;
+                Dice.SetTestRoll(Math.Max(comboMin + 1, 16));
+                ActionSelector.SetStoredActionRoll(enemy, Math.Max(comboMin + 1, 16));
                 var hit = ActionExecutionFlow.Execute(enemy, hero, null, null, enemyTauntLike, null, lastUsed, lastCrit);
 
-                TestBase.AssertTrue(hit.Hit,
-                    "Enemy taunt-like swing should hit",
+                TestBase.AssertTrue(hit.Hit && hit.IsCombo,
+                    "Enemy taunt-like swing should hit+combo",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(4, ActionSelector.PeekQueuedAccuracyBonus(enemy),
                     "Enemy deferred RollBonus should queue ACCURACY FIFO for the enemy's next attack rolls",

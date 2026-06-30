@@ -14,6 +14,8 @@ namespace RPGGame.Tuning.Profiles
         public MultiLevelSimulationResult? MultiLevel { get; init; }
         public BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult? Comprehensive { get; init; }
         public FundamentalsSimulationResult? Fundamentals { get; init; }
+        public ClassPlaythroughBatchResult? PlaythroughBatch { get; init; }
+        public PlaythroughSimulationDto? PlaythroughSnapshot { get; init; }
         public int PlayerLevel { get; init; }
         public int EnemyLevel { get; init; }
         public int BattlesPerCombination { get; init; }
@@ -30,6 +32,7 @@ namespace RPGGame.Tuning.Profiles
                 TuningSimulationModes.ClassBuildMatrix => Comprehensive != null,
                 TuningSimulationModes.DungeonScaling => Comprehensive != null,
                 TuningSimulationModes.FundamentalsEncounter => Fundamentals?.SuccessfulEncounters > 0,
+                TuningSimulationModes.ClassPlaythroughBatch => PlaythroughBatch?.ClassAggregates.Count > 0,
                 _ => false
             };
 
@@ -41,6 +44,8 @@ namespace RPGGame.Tuning.Profiles
                 FormatComprehensiveReport(Comprehensive, PlayerLevel, EnemyLevel),
             TuningSimulationModes.FundamentalsEncounter when Fundamentals != null =>
                 Fundamentals.FormatReport(),
+            TuningSimulationModes.ClassPlaythroughBatch when PlaythroughBatch != null =>
+                ClassPlaythroughBatchRunner.FormatReport(PlaythroughBatch),
             _ => "No simulation results."
         };
 
@@ -93,6 +98,7 @@ namespace RPGGame.Tuning.Profiles
                 TuningSimulationModes.FundamentalsEncounter => await RunFundamentalsAsync(profile, overrides, progress),
                 TuningSimulationModes.ClassBuildMatrix => await RunComprehensiveAsync(profile, overrides, progress, TuningSimulationModes.ClassBuildMatrix),
                 TuningSimulationModes.DungeonScaling => await RunComprehensiveAsync(profile, overrides, progress, TuningSimulationModes.DungeonScaling),
+                TuningSimulationModes.ClassPlaythroughBatch => await RunPlaythroughBatchAsync(profile, overrides, progress),
                 _ => await RunMultiLevelAsync(profile, overrides, progress)
             };
         }
@@ -177,6 +183,37 @@ namespace RPGGame.Tuning.Profiles
                 OptimizeWinRate = profile.Analysis.OptimizeWinRate
             };
         }
+
+        private static async Task<TuningSimulationOutcome> RunPlaythroughBatchAsync(
+            BalanceTuningProfile profile,
+            SimulationRunOverrides? overrides,
+            IProgress<(int completed, int total, string status)>? progress)
+        {
+            var sim = profile.Simulation;
+            int runsPerClass = overrides?.RunsPerClass ?? sim.RunsPerClass;
+            int maxActions = overrides?.MaxActionsPerRun ?? sim.MaxActionsPerRun;
+            string? classes = overrides?.Classes ?? sim.Classes;
+
+            var batch = await ClassPlaythroughBatchRunner.RunAsync(
+                runsPerClass,
+                classes,
+                maxActions,
+                progress);
+
+            McpToolState.LastPlaythroughBatchResult = batch;
+
+            var snapshot = PlaythroughSimulationMapper.FromBatch(batch, profile.Analysis.PlaythroughTargets);
+
+            return new TuningSimulationOutcome
+            {
+                Mode = TuningSimulationModes.ClassPlaythroughBatch,
+                ProfileId = profile.Id,
+                PlaythroughBatch = batch,
+                PlaythroughSnapshot = snapshot,
+                TimestampUtc = batch.Timestamp,
+                OptimizeWinRate = profile.Analysis.OptimizeWinRate
+            };
+        }
     }
 
     public sealed class SimulationRunOverrides
@@ -193,5 +230,8 @@ namespace RPGGame.Tuning.Profiles
         public string? ForcedCatalogAction { get; init; }
         public bool? ContinuePastZeroHp { get; init; }
         public int? NegativeHpFloor { get; init; }
+        public int? RunsPerClass { get; init; }
+        public int? MaxActionsPerRun { get; init; }
+        public string? Classes { get; init; }
     }
 }

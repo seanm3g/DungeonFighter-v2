@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using RPGGame;
+using RPGGame.Data;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia.Layout;
 
@@ -20,7 +21,27 @@ namespace RPGGame.Tests.Unit.UI
             var tempRoll = TestDataBuilders.Character().WithName("TempRoll").WithStats(10, 10, 10, 0).Build();
             tempRoll.Effects.SetTempRollBonus(2, 3);
             var tempRollLines = StatusEffectDisplayLines.Build(tempRoll, tempRoll);
-            TestBase.AssertTrue(tempRollLines.Any(l => l.Contains("Accuracy +2") && l.Contains("next attack")), "temp roll bonus merges into Accuracy +N (next attack)", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(tempRollLines.Any(l => l.Contains("Accuracy +2") && l.Contains("3 atks")), "temp roll bonus merges into Accuracy +N with attack count", ref run, ref passed, ref failed);
+
+            var attackAcc = TestDataBuilders.Character().WithName("AttackAcc").WithStats(10, 10, 10, 0).Build();
+            attackAcc.Effects.AddActionAttackBonuses(new ActionAttackBonuses
+            {
+                BonusGroups = new System.Collections.Generic.List<ActionAttackBonusGroup>
+                {
+                    new ActionAttackBonusGroup
+                    {
+                        CadenceType = "ATTACK",
+                        Count = 3,
+                        Bonuses = new System.Collections.Generic.List<ActionAttackBonusItem>
+                        {
+                            new ActionAttackBonusItem { Type = "ACCURACY", Value = 3 }
+                        }
+                    }
+                }
+            });
+            var attackAccLines = StatusEffectDisplayLines.Build(attackAcc, attackAcc);
+            TestBase.AssertTrue(attackAccLines.Any(l => l.Contains("Accuracy +3") && l.Contains("3 atks")),
+                "ATTACK cadence accuracy shows remaining attack count", ref run, ref passed, ref failed);
 
             var bleed = TestDataBuilders.Character().WithName("BleedHero").Build();
             bleed.BleedIntensity = 3;

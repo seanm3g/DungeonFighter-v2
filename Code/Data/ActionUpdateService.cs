@@ -90,19 +90,21 @@ namespace RPGGame.Data
                     throw new ArgumentException($"Invalid Google Sheets URL: {googleSheetsUrl}. URL must start with http:// or https://");
                 }
                 
-                // Use same canonical path as ActionLoader (project root GameData, not Code\GameData)
-                outputPath ??= GameConstants.GetGameDataFilePath("Actions.json");
+                // Write to the same Actions.json the game already uses (not a second copy under a different GameData folder).
+                outputPath ??= ActionLoader.ResolveActionsFilePath();
                 
                 Console.WriteLine($"Fetching actions from Google Sheets: {googleSheetsUrl}");
+                Console.WriteLine($"Writing Actions.json to: {outputPath}");
                 
-                // Parse CSV and generate JSON
+                // Parse CSV and generate JSON (replaces the file entirely — removed sheet rows are dropped).
                 await SpreadsheetParserRunner.ParseAndGenerateAsync(googleSheetsUrl, outputPath);
 
-                string resolvedOut = outputPath ?? GameConstants.GetGameDataFilePath("Actions.json");
-                JsonLoader.ClearCacheForFile(resolvedOut);
-                try { JsonLoader.ClearCacheForFile(Path.GetFullPath(resolvedOut)); } catch { }
+                string resolvedOut = outputPath;
+                try { resolvedOut = Path.GetFullPath(outputPath); } catch { }
 
-                Console.WriteLine($"Successfully updated {outputPath} from Google Sheets");
+                ActionLoader.ReloadActions(resolvedOut);
+                int loadedCount = ActionLoader.GetAllActionNames().Count;
+                Console.WriteLine($"Successfully updated {resolvedOut} from Google Sheets ({loadedCount} actions loaded)");
             }
             catch (Exception ex)
             {

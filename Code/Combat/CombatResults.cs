@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Calculators;
+using RPGGame.Combat.Formatting;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
@@ -25,7 +26,7 @@ namespace RPGGame
         /// <param name="rollBonus">Roll bonus applied</param>
         /// <param name="roll">The attack roll</param>
         /// <returns>Tuple of (damageText, rollInfo)</returns>
-        public static (string damageText, string rollInfo) FormatDamageDisplaySeparated(Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
+        public static (string damageText, string rollInfo) FormatDamageDisplaySeparated(Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
         {
             ArgumentNullException.ThrowIfNull(attacker);
             ArgumentNullException.ThrowIfNull(target);
@@ -63,7 +64,7 @@ namespace RPGGame
             var rollInfo = new List<string>();
             
             // Roll information: roll + buffs - debuffs = total (only show = if there are modifiers)
-            string rollDisplay = roll.ToString();
+            string rollDisplay = RollInfoFormatter.FormatRollValuePlain(roll, multiDiceDetail);
             if (rollBonus > 0)
             {
                 rollDisplay += $" + {rollBonus} = {totalRoll}";
@@ -189,10 +190,11 @@ namespace RPGGame
         /// </summary>
         public static (List<ColoredText> damageText, List<ColoredText> rollInfo) FormatDamageDisplayColored(
             Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, 
-            double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, int multiHitCount = 1, bool isCriticalMiss = false, bool? resolvedCritical = null)
+            double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, int multiHitCount = 1, bool isCriticalMiss = false, bool? resolvedCritical = null,
+            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
         {
             return CombatResultsColoredText.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, 
-                action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss, resolvedCritical);
+                action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss, resolvedCritical, multiDiceDetail);
         }
         
         /// <summary>
@@ -200,9 +202,10 @@ namespace RPGGame
         /// Returns both miss text and roll info as separate ColoredText lists
         /// </summary>
         public static (List<ColoredText> missText, List<ColoredText> rollInfo) FormatMissMessageColored(
-            Actor attacker, Actor target, Action action, int roll, int rollBonus, int naturalRoll)
+            Actor attacker, Actor target, Action action, int roll, int rollBonus, int naturalRoll,
+            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
         {
-            return CombatResultsColoredText.FormatMissMessageColored(attacker, target, action, roll, rollBonus, naturalRoll);
+            return CombatResultsColoredText.FormatMissMessageColored(attacker, target, action, roll, rollBonus, naturalRoll, multiDiceDetail);
         }
         
         /// <summary>
@@ -210,9 +213,10 @@ namespace RPGGame
         /// Returns both action text and roll info as separate ColoredText lists
         /// </summary>
         public static (List<ColoredText> actionText, List<ColoredText> rollInfo) FormatNonAttackActionColored(
-            Actor source, Actor target, Action action, int roll, int rollBonus)
+            Actor source, Actor target, Action action, int roll, int rollBonus,
+            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
         {
-            return CombatResultsColoredText.FormatNonAttackActionColored(source, target, action, roll, rollBonus);
+            return CombatResultsColoredText.FormatNonAttackActionColored(source, target, action, roll, rollBonus, multiDiceDetail);
         }
         
         /// <summary>

@@ -20,6 +20,7 @@ namespace RPGGame
         public Action? SelectedAction { get; set; }
         public int BaseRoll { get; set; }
         public int ModifiedBaseRoll { get; set; }
+        public Actions.RollModification.MultiDiceRollDetail MultiDiceRollDetail { get; set; }
         public int RollBonus { get; set; }
         public int AttackRoll { get; set; }
         public bool IsCriticalMiss { get; set; }
@@ -31,6 +32,8 @@ namespace RPGGame
         public List<string> StatusEffectMessages { get; set; } = new List<string>();
         public List<List<ColoredText>> ColoredStatusEffects { get; set; } = new List<List<ColoredText>>();
         public bool WasOneShotKill { get; set; }
+        /// <summary>True when the hero peeked (did not consume) the head ACTION-cadence FIFO layer for this roll.</summary>
+        public bool PendingActionCadenceLayerPeekedForRoll { get; set; }
     }
 
     /// <summary>
@@ -78,7 +81,7 @@ namespace RPGGame
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
                     // Get multi-hit count for display formatting
                     int multiHitCount = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(result.SelectedAction, source);
-                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, result.IsCriticalMiss, result.IsCritical);
+                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, result.IsCriticalMiss, result.IsCritical, result.MultiDiceRollDetail);
                     return (damageText, rollInfo);
                 }
                 else if (result.SelectedAction.Type == ActionType.Heal)
@@ -128,13 +131,13 @@ namespace RPGGame
                 }
                 else
                 {
-                    var (actionText, actionRollInfo) = CombatResults.FormatNonAttackActionColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus);
+                    var (actionText, actionRollInfo) = CombatResults.FormatNonAttackActionColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus, result.MultiDiceRollDetail);
                     return (actionText, actionRollInfo);
                 }
             }
             else
             {
-                var (missText, missRollInfo) = CombatResults.FormatMissMessageColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll);
+                var (missText, missRollInfo) = CombatResults.FormatMissMessageColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, result.MultiDiceRollDetail);
                 return (missText, missRollInfo);
             }
         }
@@ -158,7 +161,7 @@ namespace RPGGame
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
                     // Get multi-hit count for display formatting
                     int multiHitCount = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(result.SelectedAction, source);
-                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, false, result.IsCritical);
+                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, false, result.IsCritical, result.MultiDiceRollDetail);
                     string damageString = ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + ColoredTextRenderer.RenderAsMarkup(rollInfo);
                     results.Add(damageString);
                 }
@@ -168,7 +171,7 @@ namespace RPGGame
                 }
                 else
                 {
-                    var (actionText, actionRollInfo) = CombatResults.FormatNonAttackActionColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus);
+                    var (actionText, actionRollInfo) = CombatResults.FormatNonAttackActionColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus, result.MultiDiceRollDetail);
                     string actionString = ColoredTextRenderer.RenderAsMarkup(actionText) + "\n" + ColoredTextRenderer.RenderAsMarkup(actionRollInfo);
                     results.Add(actionString);
                 }
@@ -178,7 +181,7 @@ namespace RPGGame
             }
             else
             {
-                var (missText, missRollInfo) = CombatResults.FormatMissMessageColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll);
+                var (missText, missRollInfo) = CombatResults.FormatMissMessageColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, result.MultiDiceRollDetail);
                 string missString = ColoredTextRenderer.RenderAsMarkup(missText) + "\n" + ColoredTextRenderer.RenderAsMarkup(missRollInfo);
                 results.Add(missString);
             }

@@ -31,6 +31,9 @@ namespace RPGGame
             BuildExecutionMetrics.StartExecutionTracking();
             string executionMode = "GUI";
 
+            if (args.Length > 0 && ShouldEnableSimulationFastPacing(args))
+                SimulationPacing.EnableFastMode();
+
             try
             {
                 // Check if MCP mode is requested
@@ -57,6 +60,29 @@ namespace RPGGame
                     executionMode = "PLAYTODEATH";
                     BuildExecutionMetrics.RecordLaunchTime("PLAYTODEATH");
                     await RPGGame.Game.PlayUntilDeath.RunAsync();
+                    return;
+                }
+
+                if (args.Length > 0 && args[0].Equals("PLAYTODEATHBATCH", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "PLAYTODEATHBATCH";
+                    BuildExecutionMetrics.RecordLaunchTime("PLAYTODEATHBATCH");
+                    int runsPerClass = 3;
+                    if (args.Length > 1 && int.TryParse(args[1], out int parsedRuns))
+                        runsPerClass = Math.Max(1, parsedRuns);
+                    await RPGGame.Game.PlayUntilDeathBatch.RunAsync(runsPerClass);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0].Equals("PLAYTHROUGHTUNING", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "PLAYTHROUGHTUNING";
+                    BuildExecutionMetrics.RecordLaunchTime("PLAYTHROUGHTUNING");
+                    int maxIter = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--max-iterations", "-n") ?? 8;
+                    int runsPerClass = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--runs-per-class", "-r") ?? 10;
+                    bool dryRun = args.Any(a => a.Equals("--dry-run", StringComparison.OrdinalIgnoreCase));
+                    bool stopWhenPass = !args.Any(a => a.Equals("--no-stop-when-pass", StringComparison.OrdinalIgnoreCase));
+                    await RPGGame.Tuning.PlaythroughTuningRunner.Run(maxIter, runsPerClass, stopWhenPass, dryRun, args);
                     return;
                 }
 
@@ -229,14 +255,28 @@ namespace RPGGame
                     return;
                 }
 
+                if (args.Length > 0 && args[0].Equals("AUDIT_ACTIONS_HEADERS", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "AUDIT_ACTIONS_HEADERS";
+                    BuildExecutionMetrics.RecordLaunchTime("AUDIT_ACTIONS_HEADERS");
+                    string csvPathOrUrl = args.Length > 1
+                        ? args[1]
+                        : (RPGGame.Data.SheetsConfig.Load().ActionsSheetUrl
+                           ?? "https://docs.google.com/spreadsheets/d/1bN3vmkQGdbO_4TkdgRXy_5KeuxUAcPtuarzSOOAyArc/export?format=csv&gid=2020359111");
+                    await RPGGame.Data.SpreadsheetParserRunner.AuditHeadersAsync(csvPathOrUrl);
+                    return;
+                }
+
                 // Check if parse mode is requested (for spreadsheet parser)
                 if (args.Length > 0 && args[0].Equals("PARSE", StringComparison.OrdinalIgnoreCase))
                 {
                     executionMode = "PARSE";
                     BuildExecutionMetrics.RecordLaunchTime("PARSE");
-                    // Run spreadsheet parser
-                    // Default to Google Sheets URL, fallback to local file
-                    string csvPathOrUrl = args.Length > 1 ? args[1] : "https://docs.google.com/spreadsheets/d/e/2PACX-1vTD25Fiu9OIwSaBildDnGlE8aaouIyTjO6XlFqgY5XdSwgOh462ZcVueJKsbb4kSQ/pub?gid=2020359111&single=true&output=csv";
+                    // Run spreadsheet parser — default URL from SheetsConfig (matches live edit layout)
+                    string csvPathOrUrl = args.Length > 1
+                        ? args[1]
+                        : (RPGGame.Data.SheetsConfig.Load().ActionsSheetUrl
+                           ?? "https://docs.google.com/spreadsheets/d/1bN3vmkQGdbO_4TkdgRXy_5KeuxUAcPtuarzSOOAyArc/export?format=csv&gid=2020359111");
                     string outputPath = args.Length > 2 ? args[2] : "GameData/Actions.json";
                     await RPGGame.Data.SpreadsheetParserRunner.ParseAndGenerateAsync(csvPathOrUrl, outputPath);
                     return;
@@ -373,6 +413,25 @@ namespace RPGGame
             if (File.Exists(parentGameDataPath)) return parentGameDataPath;
             
             return null;
+        }
+
+        private static bool ShouldEnableSimulationFastPacing(string[] args)
+        {
+            if (args.Length == 0)
+                return false;
+
+            string cmd = args[0];
+            if (cmd.StartsWith("--run-", StringComparison.OrdinalIgnoreCase)
+                || cmd.Equals("--list-test-suites", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            return cmd.ToUpperInvariant() switch
+            {
+                "MCP" or "MCPSMOKE" or "PLAYTODEATH" or "PLAYTODEATHBATCH" or "PLAYTHROUGHTUNING"
+                    or "TUNESIM" or "TUNEANALYZE" or "TUNEAPPLY" or "TUNETUNING" or "TUNEPROFILES"
+                    or "LEVELSIM" or "LEVELANALYZE" or "LEVELAPPLY" or "LEVELTUNING" or "TEST" => true,
+                _ => false
+            };
         }
         
     }

@@ -1,5 +1,6 @@
 using RPGGame;
 using RPGGame.ActionInteractionLab;
+using RPGGame.Actions;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
 using RPGGame.Combat.Events;
@@ -48,13 +49,20 @@ namespace RPGGame.Actions.Execution
                     int currentBonus = ReadTempStatBonusForResolvedCode(abilityBonusCharacter, concrete);
                     abilityBonusCharacter.ApplyStatBonus(currentBonus + (int)bonus.Value, bonusType, 999);
                 }
+                // ACTION cadence FIFO: consume head layer and apply sheet mods only on hit+combo.
+                if (result.IsCombo && result.PendingActionCadenceLayerPeekedForRoll)
+                {
+                    var consumedFifo = abilityBonusCharacter.Effects.ConsumePendingActionBonusesNextHeroRoll();
+                    abilityBonusCharacter.Effects.AccumulateConsumedModifierBonuses(consumedFifo);
+                }
             }
             var hitEvent = ActionEventPublisher.PublishActionHit(
                 source, target, selected, result.AttackRoll, result.IsCombo, result.IsCritical);
 
             if (selected.Type == ActionType.Attack || selected.Type == ActionType.Spell)
             {
-                double targetLowHealthBefore = ActionEventPublisher.GetActorHealthPercentage(target);
+                Actor primaryRecipient = ActionEffectTargetResolver.ResolvePrimaryRecipient(selected, source, target);
+                double targetLowHealthBefore = ActionEventPublisher.GetActorHealthPercentage(primaryRecipient);
                 double sourceLowHealthBefore = selected.Target == TargetType.SelfAndTarget
                     ? ActionEventPublisher.GetActorHealthPercentage(source)
                     : double.NaN;
@@ -71,41 +79,58 @@ namespace RPGGame.Actions.Execution
                         source, target, selected, damageMultiplier, totalRoll,
                         result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, battleNarrative,
                         source.RollPenalty);
+                    ActionEffectTargetResolver.ApplyLifestealHealing(source, selected, result.Damage);
                 }
                 else
                 {
-                    result.Damage = CombatCalculator.CalculateDamage(source, target, selected, damageMultiplier, 1.0, result.RollBonus, totalRoll);
-                    if (selected.Target == TargetType.SelfAndTarget)
+                    result.Damage = selected.DamageMultiplier > 0
+                        ? CombatCalculator.CalculateDamage(source, target, selected, damageMultiplier, 1.0, result.RollBonus, totalRoll)
+                        : 0;
+                    if (result.Damage > 0)
                     {
-                        ActionUtilities.ApplyDamage(target, result.Damage);
-                        ActionUtilities.ApplyDamage(source, result.Damage);
+                        if (selected.Target == TargetType.SelfAndTarget)
+                        {
+                            ActionUtilities.ApplyDamage(target, result.Damage);
+                            ActionUtilities.ApplyDamage(source, result.Damage);
+                        }
+                        else if (selected.Target == TargetType.Self)
+                            ActionUtilities.ApplyDamage(source, result.Damage);
+                        else
+                            ActionUtilities.ApplyDamage(target, result.Damage);
                     }
-                    else
-                        ActionUtilities.ApplyDamage(target, result.Damage);
                     if (source is Character sourceCharacter)
                         ActionStatisticsTracker.RecordAttackAction(sourceCharacter, totalRoll, result.BaseRoll, result.RollBonus, result.Damage, selected, target as Enemy, result.IsCritical);
-                    if (target is Character targetCharacter)
+                    if (primaryRecipient is Character targetCharacter && result.Damage > 0)
                         ActionStatisticsTracker.RecordDamageReceived(targetCharacter, result.Damage);
-                    if (selected.Target == TargetType.SelfAndTarget && source is Character selfCharacter)
+                    if (selected.Target == TargetType.SelfAndTarget && source is Character selfCharacter && result.Damage > 0)
                         ActionStatisticsTracker.RecordDamageReceived(selfCharacter, result.Damage);
-                    ActionUtilities.CreateAndAddBattleEvent(source, target, selected, result.Damage, totalRoll, result.RollBonus, true, result.IsCombo, 0, 0, result.IsCritical, result.BaseRoll, battleNarrative);
+                    ActionUtilities.CreateAndAddBattleEvent(source, primaryRecipient, selected, result.Damage, totalRoll, result.RollBonus, true, result.IsCombo, 0, 0, result.IsCritical, result.BaseRoll, battleNarrative);
+                    ActionEffectTargetResolver.ApplyLifestealHealing(source, selected, result.Damage);
                 }
 
-                ActionEventPublisher.PublishLowHealthThresholdIfCrossed(target, targetLowHealthBefore);
+                ActionEventPublisher.PublishLowHealthThresholdIfCrossed(primaryRecipient, targetLowHealthBefore);
                 if (selected.Target == TargetType.SelfAndTarget && !ReferenceEquals(source, target))
                     ActionEventPublisher.PublishLowHealthThresholdIfCrossed(source, sourceLowHealthBefore);
             }
             else if (selected.Type == ActionType.Heal)
             {
+                Actor healRecipient = ActionEffectTargetResolver.ResolvePrimaryRecipient(selected, source, target);
                 result.HealAmount = ActionUtilities.CalculateHealAmount(source, selected);
-                ActionUtilities.ApplyHealing(target, result.HealAmount);
-                if (target is Character targetCharacterHeal)
+                ActionUtilities.ApplyHealing(healRecipient, result.HealAmount);
+                if (healRecipient is Character targetCharacterHeal)
                     ActionStatisticsTracker.RecordHealingReceived(targetCharacterHeal, result.HealAmount);
-                ActionUtilities.CreateAndAddBattleEvent(source, target, selected, 0, result.BaseRoll + result.RollBonus, result.RollBonus, true, result.IsCombo, 0, result.HealAmount, false, result.BaseRoll, battleNarrative);
+                ActionUtilities.CreateAndAddBattleEvent(source, healRecipient, selected, 0, result.BaseRoll + result.RollBonus, result.RollBonus, true, result.IsCombo, 0, result.HealAmount, false, result.BaseRoll, battleNarrative);
+            }
+            else if (selected.Type == ActionType.Buff || selected.Type == ActionType.Debuff)
+            {
+                Actor effectRecipient = ActionEffectTargetResolver.ResolvePrimaryRecipient(selected, source, target);
+                int totalRoll = result.ModifiedBaseRoll + result.RollBonus;
+                ActionUtilities.CreateAndAddBattleEvent(source, effectRecipient, selected, 0, totalRoll, result.RollBonus, true, result.IsCombo, 0, 0, result.IsCritical, result.BaseRoll, battleNarrative);
             }
             else
             {
-                ActionUtilities.CreateAndAddBattleEvent(source, target, selected, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, true, result.IsCombo, 0, 0, false, result.BaseRoll, battleNarrative);
+                Actor displayRecipient = ActionEffectTargetResolver.ResolvePrimaryRecipient(selected, source, target);
+                ActionUtilities.CreateAndAddBattleEvent(source, displayRecipient, selected, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, true, result.IsCombo, 0, 0, false, result.BaseRoll, battleNarrative);
             }
 
             if (selected.ActionAttackBonuses != null && source is Character bonusSourceCharacter && !(bonusSourceCharacter is Enemy))
@@ -114,8 +139,7 @@ namespace RPGGame.Actions.Execution
                 // ACTION cadence: FIFO layers â€” one layer consumed per hero attack roll (enemy turns do not count).
                 // Spreadsheet Count / duration = number of consecutive hero actions that receive one application each.
                 bool grantOnComboSuccess = result.IsCombo && selected.IsComboAction;
-                bool grantOnComboFailSelf = result.Hit && selected.IsComboAction && !result.IsCombo;
-                if (grantOnComboSuccess || grantOnComboFailSelf)
+                if (grantOnComboSuccess)
                 {
                     var comboActions = ActionUtilities.GetComboActions(bonusSourceCharacter);
                     if (comboActions.Count > 0)
@@ -125,9 +149,8 @@ namespace RPGGame.Actions.Execution
                             var ct = string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType;
                             if (!string.Equals(ct, "ACTION", StringComparison.OrdinalIgnoreCase) || group.Bonuses == null)
                                 continue;
-                            int layers = grantOnComboSuccess
-                                ? (group.Count > 0 ? group.Count : 1)
-                                : 1;
+                            int layers = ActionCadenceDurationResolver.ResolveGrantedLayers(selected, group, comboActions, selected);
+                            if (layers <= 0) continue;
                             var payload = CloneActionAttackBonusItems(group.Bonuses);
                             for (int i = 0; i < layers; i++)
                                 bonusSourceCharacter.Effects.AddPendingActionBonusesNextHeroRoll(payload);
@@ -141,15 +164,29 @@ namespace RPGGame.Actions.Execution
             // so the HUD shows a single "Accuracy" line. Enemy debuff uses RollPenalty on the target for their next N attack/spell rolls (N = duration).
             if (Action.DefersSheetCombatPackagesToNextHeroRoll(selected))
             {
+                bool actionCadenceDeferred = string.Equals(selected.Cadence?.Trim(), "Action", StringComparison.OrdinalIgnoreCase);
+                if (!actionCadenceDeferred || result.IsCombo)
+                {
                 int accTurns = selected.Advanced.RollBonusDuration > 0
                     ? selected.Advanced.RollBonusDuration
                     : (selected.ComboBonusDuration > 0 ? selected.ComboBonusDuration : 1);
                 if (accTurns < 1) accTurns = 1;
 
+                if (actionCadenceDeferred && selected.IsComboAction && source is Character comboClipHero && !(comboClipHero is Enemy))
+                {
+                    var comboActionsForClip = ActionUtilities.GetComboActions(comboClipHero);
+                    if (comboActionsForClip.Count > 0)
+                    {
+                        int remaining = ActionUtilities.CountRemainingComboActionsAfter(selected, comboActionsForClip);
+                        if (remaining >= 0)
+                            accTurns = Math.Min(accTurns, remaining);
+                    }
+                }
+
                 int hitLayers = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(selected, source);
                 if (hitLayers < 1) hitLayers = 1;
 
-                if (selected.Advanced.RollBonus != 0)
+                if (selected.Advanced.RollBonus != 0 && accTurns > 0)
                 {
                     int scaledRollBonus = selected.Advanced.RollBonus * hitLayers;
                     if (source is Character heroAcc && !(heroAcc is Enemy))
@@ -174,8 +211,9 @@ namespace RPGGame.Actions.Execution
                     }
                 }
 
-                if (!ReferenceEquals(source, target) && selected.Advanced.EnemyRollBonus < 0)
+                if (!ReferenceEquals(source, target) && selected.Advanced.EnemyRollBonus < 0 && accTurns > 0)
                     target.ApplyRollPenalty(-selected.Advanced.EnemyRollBonus * hitLayers, accTurns);
+                }
             }
             if (source is Character modSourceCharacter && !(modSourceCharacter is Enemy))
             {
@@ -331,7 +369,8 @@ namespace RPGGame.Actions.Execution
                     var ct = string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType;
                     if (!string.Equals(ct, "ACTION", StringComparison.OrdinalIgnoreCase) || group.Bonuses == null)
                         continue;
-                    int layers = group.Count > 0 ? group.Count : 1;
+                    int layers = ActionCadenceDurationResolver.GetRequestedLayerCount(result.SelectedAction, group);
+                    if (layers < 1) layers = 1;
                     var payload = CloneActionAttackBonusItems(group.Bonuses);
                     for (int i = 0; i < layers; i++)
                         enemyForFumble.Effects.AddPendingActionBonusesNextHeroRoll(payload);

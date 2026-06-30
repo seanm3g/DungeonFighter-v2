@@ -5,6 +5,7 @@ using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.BattleStatistics;
 using RPGGame.Combat.Formatting;
+using RPGGame.Entity.Services;
 using RPGGame.Tests;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.ActionInteractionLab;
@@ -52,6 +53,7 @@ namespace RPGGame.Tests.Unit
             UndoReplayPreservesComboStripEdits(ref run, ref passed, ref failed);
             UndoReplayPreservesLabStatEdits(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_StrArmorAndFloors(ref run, ref passed, ref failed);
+            LeftPanelStatAdjustment_ActionSlots(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_HeroHpDamageAndHeal(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_HeroLevelClamp(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_LevelUpMirrorsGameLevelUpForWeapon(ref run, ref passed, ref failed);
@@ -72,6 +74,7 @@ namespace RPGGame.Tests.Unit
             MapPageStepInput_MapsUndoAndStep(ref run, ref passed, ref failed);
             EncounterSimulationBatchCount_ClampedTiers(ref run, ref passed, ref failed);
             UseParallelEncounterSimulation_DefaultsTrueAndMutable(ref run, ref passed, ref failed);
+            IgnoreActionRequirements_ToggleBypassesGearAndWeaponBasic(ref run, ref passed, ref failed);
             RightPanelEnemyLabHover_IdFormat(ref run, ref passed, ref failed);
             EnemyLevelCaption_ShowsHeroDelta(ref run, ref passed, ref failed);
             RightPanelEnemyAdjustment_TryApplyWrongId(ref run, ref passed, ref failed);
@@ -322,6 +325,72 @@ namespace RPGGame.Tests.Unit
             ActionInteractionLabSession.EndSession();
         }
 
+        private static void IgnoreActionRequirements_ToggleBypassesGearAndWeaponBasic(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var hero = TestDataBuilders.Character().WithName("LabReqToggle").WithStats(3, 3, 3, 3).Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "IgnoreActionRequirements_ToggleBypassesGearAndWeaponBasic: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            TestBase.AssertFalse(lab.IgnoreActionRequirements, "lab starts with requirements enforced", ref run, ref passed, ref failed);
+
+            var blockedWeapon = TestDataBuilders.Weapon()
+                .WithName("High Tec Blade")
+                .WithTier(1)
+                .Build();
+            blockedWeapon.AttributeRequirements = new AttributeRequirements(new Dictionary<string, int> { ["technique"] = 10 });
+
+            TestBase.AssertFalse(
+                lab.TryApplyLabGear(blockedWeapon, "weapon", out _),
+                "TryApplyLabGear blocks gear when requirements unmet and toggle off",
+                ref run, ref passed, ref failed);
+
+            lab.IgnoreActionRequirements = true;
+            TestBase.AssertTrue(
+                lab.TryApplyLabGear(blockedWeapon, "weapon", out _),
+                "TryApplyLabGear succeeds when IgnoreActionRequirements is true",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                lab.LabPlayer.Equipment.Weapon == blockedWeapon,
+                "Blocked weapon should equip after bypass toggle",
+                ref run, ref passed, ref failed);
+
+            CharacterSerializer.RebuildCharacterActions(lab.LabPlayer);
+
+            var strike = lab.LabPlayer.GetComboActions()
+                .FirstOrDefault(a => string.Equals(a.Name, "STRIKE", StringComparison.OrdinalIgnoreCase));
+            if (strike == null)
+            {
+                TestBase.AssertTrue(true, "IgnoreActionRequirements weapon-basic portion skipped (no STRIKE in combo)", ref run, ref passed, ref failed);
+                ActionInteractionLabSession.EndSession();
+                return;
+            }
+
+            lab.IgnoreActionRequirements = false;
+            TestBase.AssertFalse(
+                lab.TryRemoveFromLabCombo(strike),
+                "TryRemoveFromLabCombo refuses last required basic when requirements enforced",
+                ref run, ref passed, ref failed);
+
+            lab.IgnoreActionRequirements = true;
+            TestBase.AssertTrue(
+                lab.TryRemoveFromLabCombo(strike),
+                "TryRemoveFromLabCombo removes required basic when requirements bypassed",
+                ref run, ref passed, ref failed);
+            TestBase.AssertFalse(
+                lab.LabPlayer.GetComboActions().Any(a => string.Equals(a.Name, "STRIKE", StringComparison.OrdinalIgnoreCase)),
+                "STRIKE should be gone after bypass removal",
+                ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
+        }
+
         private static void StoredActionRollMatchesGetActionRoll(ref int run, ref int passed, ref int failed)
         {
             ActionLoader.LoadActions();
@@ -354,6 +423,19 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(1, c.Stats.Strength, "STR min 1", ref run, ref passed, ref failed);
             TestBase.AssertTrue(ActionLabLeftPanelStatAdjustment.TryApply(c, p + "armor", -5), "armor toward floor", ref run, ref passed, ref failed);
             TestBase.AssertEqual(0, c.ActionLabArmorBonus, "armor min 0", ref run, ref passed, ref failed);
+        }
+
+        private static void LeftPanelStatAdjustment_ActionSlots(ref int run, ref int passed, ref int failed)
+        {
+            var c = TestDataBuilders.Character().WithName("LabSlotAdj").Build();
+            int baseSlots = ComboSequenceMaxHelper.GetEffectiveMax(c);
+            string p = ActionLabLeftPanelStatAdjustment.StatHoverPrefix;
+            TestBase.AssertTrue(ActionLabLeftPanelStatAdjustment.TryApply(c, p + "actionslots", +2), "slots +2", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(2, c.ActionLabActionSlotBonus, "slot bonus", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(baseSlots + 2, ComboSequenceMaxHelper.GetEffectiveMax(c), "effective slots increased", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ActionLabLeftPanelStatAdjustment.TryApply(c, p + "actionslots", -5), "slots toward floor", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, c.ActionLabActionSlotBonus, "slot bonus min 0", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(baseSlots, ComboSequenceMaxHelper.GetEffectiveMax(c), "effective slots restored", ref run, ref passed, ref failed);
         }
 
         private static void LeftPanelStatAdjustment_HeroHpDamageAndHeal(ref int run, ref int passed, ref int failed)
@@ -1545,10 +1627,12 @@ namespace RPGGame.Tests.Unit
             string p = ActionLabLeftPanelStatAdjustment.StatHoverPrefix;
             TestBase.AssertTrue(ActionLabLeftPanelStatAdjustment.TryApply(lab.LabPlayer, p + "str", +4), "str +4 for undo stat test", ref run, ref passed, ref failed);
             TestBase.AssertTrue(ActionLabLeftPanelStatAdjustment.TryApply(lab.LabPlayer, p + "armor", +3), "armor +3 for undo stat test", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ActionLabLeftPanelStatAdjustment.TryApply(lab.LabPlayer, p + "actionslots", +1), "slots +1 for undo stat test", ref run, ref passed, ref failed);
             TestBase.AssertTrue(ActionLabLeftPanelStatAdjustment.TryApply(lab.LabPlayer, ActionLabLeftPanelStatAdjustment.HeroLevelHoverId, +2), "level +2 for undo stat test", ref run, ref passed, ref failed);
 
             int expectStr = lab.LabPlayer.Stats.Strength;
             int expectArmorBonus = lab.LabPlayer.ActionLabArmorBonus;
+            int expectSlotBonus = lab.LabPlayer.ActionLabActionSlotBonus;
             int expectLevel = lab.LabPlayer.Level;
 
             string pick = names[names.Count > 1 ? 1 : 0];
@@ -1560,6 +1644,7 @@ namespace RPGGame.Tests.Unit
 
             TestBase.AssertEqual(expectStr, lab.LabPlayer.Stats.Strength, "Undo preserves lab STR", ref run, ref passed, ref failed);
             TestBase.AssertEqual(expectArmorBonus, lab.LabPlayer.ActionLabArmorBonus, "Undo preserves ActionLabArmorBonus", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(expectSlotBonus, lab.LabPlayer.ActionLabActionSlotBonus, "Undo preserves ActionLabActionSlotBonus", ref run, ref passed, ref failed);
             TestBase.AssertEqual(expectLevel, lab.LabPlayer.Level, "Undo preserves lab level", ref run, ref passed, ref failed);
 
             ActionInteractionLabSession.EndSession();

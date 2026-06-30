@@ -67,6 +67,8 @@ namespace RPGGame
             _comboManager.UpdateComboSequenceAfterGearChange(actor);
         }
 
+        public void RefreshComboFromLoader() => _comboManager.RefreshActionInstancesFromLoader();
+
         // ========== Gear Actions Delegation ==========
 
         public void AddWeaponActions(Actor actor, Item? weapon)

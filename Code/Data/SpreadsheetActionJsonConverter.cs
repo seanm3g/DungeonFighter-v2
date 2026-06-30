@@ -32,6 +32,7 @@ namespace RPGGame.Data
             action.Speed = GetStringValue(root, "speed");
             action.Duration = GetStringValue(root, "duration");
             action.Cadence = GetStringValue(root, "cadence");
+            action.CadenceDuration = GetStringValue(root, "cadenceDuration");
             action.Opener = GetStringValue(root, "opener");
             action.Finisher = GetStringValue(root, "finisher");
             action.HeroAccuracy = GetStringValue(root, "heroAccuracy");
@@ -76,6 +77,7 @@ namespace RPGGame.Data
             action.Consume = GetStringValue(root, "consume");
             action.Focus = GetStringValue(root, "focus");
             action.Cleanse = GetStringValue(root, "cleanse");
+            action.Confuse = GetStringValue(root, "confuse");
             action.Lifesteal = GetStringValue(root, "lifesteal");
             action.Reflect = GetStringValue(root, "reflect");
             action.SelfDamage = GetStringValue(root, "selfDamage");
@@ -150,6 +152,7 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "speed", value.Speed);
             WriteIfNotEmpty(writer, "duration", value.Duration);
             WriteIfNotEmpty(writer, "cadence", value.Cadence);
+            WriteIfNotEmpty(writer, "cadenceDuration", value.CadenceDuration);
             WriteIfNotEmpty(writer, "opener", value.Opener);
             WriteIfNotEmpty(writer, "finisher", value.Finisher);
             WriteIfNotEmpty(writer, "heroAccuracy", value.HeroAccuracy);
@@ -194,6 +197,7 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "consume", value.Consume);
             WriteIfNotEmpty(writer, "focus", value.Focus);
             WriteIfNotEmpty(writer, "cleanse", value.Cleanse);
+            WriteIfNotEmpty(writer, "confuse", value.Confuse);
             WriteIfNotEmpty(writer, "lifesteal", value.Lifesteal);
             WriteIfNotEmpty(writer, "reflect", value.Reflect);
             WriteIfNotEmpty(writer, "selfDamage", value.SelfDamage);

@@ -142,6 +142,36 @@ namespace RPGGame.Tuning
                         return BalanceTuningConsole.AdjustEnemyProgressionScale(
                             suggestion.Parameter,
                             suggestion.SuggestedValue);
+
+                    case "starting_weapon":
+                        if (EarlyGameBalanceHelper.TryParseWeaponType(suggestion.Target, out var startWeapon)
+                            && suggestion.Parameter.Equals("StartingWeaponDamage", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return AdjustmentExecutor.AdjustStartingWeaponDamage(
+                                startWeapon, (int)Math.Round(suggestion.SuggestedValue));
+                        }
+                        break;
+
+                    case "early_game":
+                        if (!EarlyGameBalanceHelper.TryParseWeaponType(suggestion.Target, out var earlyWeapon))
+                            break;
+                        if (suggestion.Parameter.Equals("StartingClassPointsBonus", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return AdjustmentExecutor.AdjustStartingClassPointsBonus(
+                                earlyWeapon, (int)Math.Round(suggestion.SuggestedValue));
+                        }
+                        if (suggestion.Parameter.Equals("StartingActionDamageMultiplier", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return AdjustmentExecutor.AdjustStartingActionDamageMultiplier(
+                                earlyWeapon, suggestion.SuggestedValue);
+                        }
+                        break;
+
+                    case "class_balance":
+                        return AdjustmentExecutor.AdjustClassBalanceMultiplier(
+                            suggestion.Target,
+                            suggestion.Parameter,
+                            suggestion.SuggestedValue);
                 }
 
                 return false;

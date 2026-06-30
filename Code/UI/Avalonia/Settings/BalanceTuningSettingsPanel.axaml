@@ -36,6 +36,13 @@
                              Watermark="https://docs.google.com/spreadsheets/d/…/edit…"
                              FontSize="14"
                              Padding="8"/>
+                    <Button x:Name="OpenSpreadsheetEditUrlButton"
+                            Content="Open spreadsheet in browser"
+                            HorizontalAlignment="Left"
+                            MinHeight="28"
+                            FontSize="13"
+                            Padding="12,4"
+                            Cursor="Hand"/>
                     <TextBlock Text="Actions tab — published CSV URL (same link pattern for all tabs; only gid= changes per tab)"
                                FontSize="12"
                                Classes="settings-muted"

@@ -106,7 +106,7 @@ namespace RPGGame.Tests.Unit
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 TestBase.AssertTrue(action.Target == TargetType.SingleTarget || 
-                                  action.Target == TargetType.AreaOfEffect || 
+                                  action.Target == TargetType.Environment || 
                                   action.Target == TargetType.SelfAndTarget, 
                     $"{action.Name} should have valid target type", 
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -188,7 +188,7 @@ namespace RPGGame.Tests.Unit
                                 action.CausesSlow || action.CausesPoison || 
                                 action.CausesBurn || action.CausesStun ||
                                 action.CausesVulnerability || action.CausesHarden ||
-                                action.CausesFortify || action.CausesFocus;
+                                action.CausesFocus;
 
                 if (hasEffect)
                 {

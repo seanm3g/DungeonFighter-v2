@@ -174,6 +174,11 @@ namespace RPGGame
         public void AddModifierBonusesFromAction(Action? action, int? nextSlotForAbilityCadence = null, bool useEnemySpreadsheetMods = false)
         {
             if (action == null) return;
+            // ACTION cadence modifiers are queued as FIFO layers from ActionAttackBonuses on hit+combo;
+            // do not also route sheet DAMAGE_MOD / SPEED_MOD through the ATTACK roll queue (single-use).
+            if (!useEnemySpreadsheetMods
+                && string.Equals((action.Cadence ?? "").Trim(), "Action", StringComparison.OrdinalIgnoreCase))
+                return;
             var bonuses = BuildModifierBonusesFromActionFields(action, useEnemySpreadsheetMods);
             if (bonuses.Count == 0) return;
 
@@ -253,9 +258,15 @@ namespace RPGGame
         /// <summary>Peek the next roll's bonuses only (first FIFO layer).</summary>
         public List<ActionAttackBonusItem> PeekPendingActionBonusesNextHeroRoll()
         {
-            if (PendingActionCadenceBonusLayers.Count == 0)
+            return PeekPendingActionCadenceLayerAt(0);
+        }
+
+        /// <summary>Peek a specific FIFO layer by index (0 = next hero roll). Does not consume.</summary>
+        public List<ActionAttackBonusItem> PeekPendingActionCadenceLayerAt(int layerIndex)
+        {
+            if (layerIndex < 0 || layerIndex >= PendingActionCadenceBonusLayers.Count)
                 return new List<ActionAttackBonusItem>();
-            return new List<ActionAttackBonusItem>(PendingActionCadenceBonusLayers[0]);
+            return new List<ActionAttackBonusItem>(PendingActionCadenceBonusLayers[layerIndex]);
         }
 
         public int GetPendingActionCadenceLayerCount() => PendingActionCadenceBonusLayers.Count;

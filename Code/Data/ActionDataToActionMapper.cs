@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Actions;
 using RPGGame.Data;
 
 namespace RPGGame
@@ -74,10 +75,9 @@ namespace RPGGame
             action.CausesSilence = data.CausesSilence;
             action.CausesPierce = data.CausesPierce;
             action.CausesStatDrain = data.CausesStatDrain;
-            action.CausesFortify = data.CausesFortify;
             action.CausesFocus = data.CausesFocus;
-            action.CausesCleanse = data.CausesCleanse;
-            action.CausesReflect = data.CausesReflect;
+            action.CausesConfusion = data.CausesConfusion;
+            action.CausesDisrupt = data.CausesDisrupt;
 
             data.NormalizeStatBonuses();
             action.Advanced.StatBonuses = data.StatBonuses == null ? new List<StatBonusEntry>() : new List<StatBonusEntry>(data.StatBonuses);
@@ -88,7 +88,11 @@ namespace RPGGame
             action.Advanced.RollBonusDuration = data.RollBonusDuration;
             action.Advanced.StatBonusDuration = data.StatBonusDuration;
             action.Advanced.MultiHitCount = data.MultiHitCount;
-            action.Advanced.SelfDamagePercent = data.SelfDamagePercent;
+            action.Advanced.HealAmount = data.HealAmount;
+            action.Advanced.LifestealPercent = data.LifestealPercent;
+            action.Advanced.SelfTargetEffects = data.SelfTargetEffects == null || data.SelfTargetEffects.Count == 0
+                ? new List<string>()
+                : new List<string>(data.SelfTargetEffects);
             action.Advanced.SkipNextTurn = data.SkipNextTurn;
             action.Advanced.RepeatLastAction = data.RepeatLastAction;
             action.Tags = data.Tags == null || data.Tags.Count == 0
@@ -122,6 +126,7 @@ namespace RPGGame
             action.RollMods.ApplyThresholdAdjustmentsToBoth = data.ApplyThresholdAdjustmentsToBoth;
 
             action.ActionAttackBonuses = CloneActionAttackBonuses(data.ActionAttackBonuses);
+            ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(action);
 
             action.SpeedMod = data.SpeedMod ?? "";
             action.DamageMod = data.DamageMod ?? "";
@@ -178,7 +183,7 @@ namespace RPGGame
             {
                 "self" => TargetType.Self,
                 "singletarget" => TargetType.SingleTarget,
-                "areaofeffect" => TargetType.AreaOfEffect,
+                "areaofeffect" => TargetType.Environment,
                 "environment" => TargetType.Environment,
                 "selfandtarget" => TargetType.SelfAndTarget,
                 _ => TargetType.SingleTarget

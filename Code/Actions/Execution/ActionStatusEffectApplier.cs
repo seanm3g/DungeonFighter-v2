@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Actions;
 using RPGGame.Data;
 using RPGGame.UI.ColorSystem;
 using Avalonia.Media;
@@ -83,6 +84,7 @@ namespace RPGGame.Actions.Execution
             if (!actionHit && isAbilityCadence)
                 return;
 
+            bool isActionCadence = string.Equals((selectedAction.Cadence ?? "").Trim(), "Action", StringComparison.OrdinalIgnoreCase);
             bool sourceUsesEnemySpreadsheetMods = source is Enemy;
             var sourceBonuses = BuildModifierBonusesForQueuedDisplay(selectedAction, useEnemySpreadsheetMods: sourceUsesEnemySpreadsheetMods);
             if (sourceBonuses.Count > 0)
@@ -93,7 +95,25 @@ namespace RPGGame.Actions.Execution
                     && actionWasComboSuccess
                     && source is Character;
 
-                string label = routedToNextComboSlot ? "Next action" : (isAbilityCadence ? "Next ability" : "Next attack");
+                string label;
+                if (routedToNextComboSlot)
+                    label = "Next action";
+                else if (isAbilityCadence)
+                    label = "Next ability";
+                else if (isActionCadence && actionHit && actionWasComboSuccess && source is Character actionHero && !(actionHero is Enemy))
+                {
+                    var comboActions = ActionUtilities.GetComboActions(actionHero);
+                    var actionGroup = selectedAction.ActionAttackBonuses?.BonusGroups?
+                        .FirstOrDefault(g => string.Equals(
+                            string.IsNullOrEmpty(g.CadenceType) ? g.Keyword : g.CadenceType,
+                            "ACTION",
+                            StringComparison.OrdinalIgnoreCase));
+                    int granted = ActionCadenceDurationResolver.ResolveGrantedLayers(
+                        selectedAction, actionGroup, comboActions, selectedAction);
+                    label = granted > 1 ? $"Next {granted} actions" : "Next action";
+                }
+                else
+                    label = "Next attack";
                 AddQueuedModsLine(coloredStatusEffects, label, sourceBonuses);
             }
 

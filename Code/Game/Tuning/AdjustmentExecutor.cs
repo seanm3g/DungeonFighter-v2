@@ -32,6 +32,8 @@ namespace RPGGame.Tuning
             current.BalanceValidation = config.BalanceValidation;
             current.DifficultySettings = config.DifficultySettings;
             current.UICustomization = config.UICustomization;
+            current.ClassBalance = config.ClassBalance;
+            current.EarlyGame = config.EarlyGame;
         }
 
         public static bool AdjustGlobalEnemyMultiplier(string multiplierName, double value)
@@ -363,6 +365,163 @@ namespace RPGGame.Tuning
             catch (Exception ex)
             {
                 ScrollDebugLogger.Log($"AdjustmentExecutor: Error adjusting enemy progression scale: {ex.Message}");
+                return false;
+            }
+        }
+
+        public static bool AdjustStartingWeaponDamage(WeaponType weaponType, int value)
+        {
+            try
+            {
+                UndoRedoManager.SaveState();
+                var config = GameConfiguration.Instance;
+                config.WeaponScaling ??= new WeaponScalingConfig();
+                config.WeaponScaling.StartingWeaponDamage ??= new StartingWeaponDamageConfig();
+
+                switch (weaponType)
+                {
+                    case WeaponType.Mace:
+                        config.WeaponScaling.StartingWeaponDamage.Mace = Math.Max(1, value);
+                        break;
+                    case WeaponType.Sword:
+                        config.WeaponScaling.StartingWeaponDamage.Sword = Math.Max(1, value);
+                        break;
+                    case WeaponType.Dagger:
+                        config.WeaponScaling.StartingWeaponDamage.Dagger = Math.Max(1, value);
+                        break;
+                    case WeaponType.Wand:
+                        config.WeaponScaling.StartingWeaponDamage.Wand = Math.Max(1, value);
+                        break;
+                    default:
+                        ScrollDebugLogger.Log($"AdjustmentExecutor: Unknown weapon type '{weaponType}'");
+                        return false;
+                }
+
+                ScrollDebugLogger.Log($"AdjustmentExecutor: Set starting {weaponType} weapon damage to {value}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"AdjustmentExecutor: Error adjusting starting weapon damage: {ex.Message}");
+                return false;
+            }
+        }
+
+        public static bool AdjustStartingClassPointsBonus(WeaponType weaponType, int value)
+        {
+            try
+            {
+                UndoRedoManager.SaveState();
+                var config = GameConfiguration.Instance;
+                config.EarlyGame ??= new EarlyGameConfig();
+                config.EarlyGame.StartingClassPointsBonus ??= new StartingClassPointsBonusConfig();
+                value = Math.Clamp(value, 0, 5);
+
+                switch (weaponType)
+                {
+                    case WeaponType.Mace:
+                        config.EarlyGame.StartingClassPointsBonus.Mace = value;
+                        break;
+                    case WeaponType.Sword:
+                        config.EarlyGame.StartingClassPointsBonus.Sword = value;
+                        break;
+                    case WeaponType.Dagger:
+                        config.EarlyGame.StartingClassPointsBonus.Dagger = value;
+                        break;
+                    case WeaponType.Wand:
+                        config.EarlyGame.StartingClassPointsBonus.Wand = value;
+                        break;
+                    default:
+                        ScrollDebugLogger.Log($"AdjustmentExecutor: Unknown weapon type '{weaponType}'");
+                        return false;
+                }
+
+                ScrollDebugLogger.Log($"AdjustmentExecutor: Set starting {weaponType} class points bonus to {value}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"AdjustmentExecutor: Error adjusting starting class points: {ex.Message}");
+                return false;
+            }
+        }
+
+        public static bool AdjustStartingActionDamageMultiplier(WeaponType weaponType, double value)
+        {
+            try
+            {
+                UndoRedoManager.SaveState();
+                var config = GameConfiguration.Instance;
+                config.EarlyGame ??= new EarlyGameConfig();
+                config.EarlyGame.StartingActionDamageMultiplier ??= new StartingActionDamageMultiplierConfig();
+                value = Math.Clamp(value, 0.5, 2.0);
+
+                switch (weaponType)
+                {
+                    case WeaponType.Mace:
+                        config.EarlyGame.StartingActionDamageMultiplier.Mace = value;
+                        break;
+                    case WeaponType.Sword:
+                        config.EarlyGame.StartingActionDamageMultiplier.Sword = value;
+                        break;
+                    case WeaponType.Dagger:
+                        config.EarlyGame.StartingActionDamageMultiplier.Dagger = value;
+                        break;
+                    case WeaponType.Wand:
+                        config.EarlyGame.StartingActionDamageMultiplier.Wand = value;
+                        break;
+                    default:
+                        ScrollDebugLogger.Log($"AdjustmentExecutor: Unknown weapon type '{weaponType}'");
+                        return false;
+                }
+
+                ScrollDebugLogger.Log($"AdjustmentExecutor: Set starting {weaponType} action damage multiplier to {value}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"AdjustmentExecutor: Error adjusting starting action damage multiplier: {ex.Message}");
+                return false;
+            }
+        }
+
+        public static bool AdjustClassBalanceMultiplier(string classKey, string parameter, double value)
+        {
+            try
+            {
+                UndoRedoManager.SaveState();
+                if (!EarlyGameBalanceHelper.TryParseClassBalanceKey(classKey, out _, out string normalizedKey))
+                {
+                    ScrollDebugLogger.Log($"AdjustmentExecutor: Unknown class '{classKey}'");
+                    return false;
+                }
+
+                var multipliers = EarlyGameBalanceHelper.GetClassMultipliers(normalizedKey);
+                switch (parameter.ToLowerInvariant())
+                {
+                    case "damagemultiplier":
+                    case "damage":
+                        multipliers.DamageMultiplier = Math.Clamp(value, 0.25, 3.0);
+                        break;
+                    case "healthmultiplier":
+                    case "health":
+                        multipliers.HealthMultiplier = Math.Clamp(value, 0.25, 3.0);
+                        break;
+                    case "speedmultiplier":
+                    case "speed":
+                        multipliers.SpeedMultiplier = Math.Clamp(value, 0.25, 3.0);
+                        break;
+                    default:
+                        ScrollDebugLogger.Log($"AdjustmentExecutor: Unknown class balance parameter '{parameter}'");
+                        return false;
+                }
+
+                ScrollDebugLogger.Log($"AdjustmentExecutor: Set {normalizedKey}.{parameter} to {value}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"AdjustmentExecutor: Error adjusting class balance: {ex.Message}");
                 return false;
             }
         }

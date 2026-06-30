@@ -230,6 +230,7 @@ namespace RPGGame.Game
             // Check for game over states
             return _currentState.CurrentState switch
             {
+                "Death" => true,
                 "GameOver" => true,
                 "PlayerDefeated" => true,
                 "VictoryScreen" => true,

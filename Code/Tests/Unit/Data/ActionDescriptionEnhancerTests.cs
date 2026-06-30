@@ -30,7 +30,6 @@ namespace RPGGame.Tests.Unit.Data
             TestComboBonus();
             TestStatusEffects();
             TestMultiHit();
-            TestSelfDamage();
             TestStatBonus();
             TestSpecialEffects();
             TestMultipleModifiers();
@@ -247,33 +246,6 @@ namespace RPGGame.Tests.Unit.Data
             var result2 = ActionDescriptionEnhancer.EnhanceActionDescription(data2);
             TestBase.AssertFalse(result2.Contains("Multi-hit:"),
                 "Multi-hit count of 1 should not appear",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestSelfDamage()
-        {
-            Console.WriteLine("\n--- Testing Self-Damage ---");
-
-            // Self-damage > 0
-            var data1 = new ActionData
-            {
-                Description = "Attack",
-                SelfDamagePercent = 25
-            };
-            var result1 = ActionDescriptionEnhancer.EnhanceActionDescription(data1);
-            TestBase.AssertTrue(result1.Contains("Self-damage: 25%"),
-                "Self-damage should appear with percentage",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            // Self-damage = 0 (should not appear)
-            var data2 = new ActionData
-            {
-                Description = "Attack",
-                SelfDamagePercent = 0
-            };
-            var result2 = ActionDescriptionEnhancer.EnhanceActionDescription(data2);
-            TestBase.AssertFalse(result2.Contains("Self-damage:"),
-                "Self-damage of 0% should not appear",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

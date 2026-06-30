@@ -48,6 +48,24 @@ namespace RPGGame.Tuning.Profiles
 
         /// <summary>Stop developer sim when player HP falls to or below this value.</summary>
         public int NegativeHpFloor { get; set; } = -500;
+
+        /// <summary>class_playthrough_batch: runs per weapon path.</summary>
+        public int RunsPerClass { get; set; } = 10;
+
+        /// <summary>class_playthrough_batch: max menu/combat actions before stopping a run.</summary>
+        public int MaxActionsPerRun { get; set; } = 500;
+
+        /// <summary>class_playthrough_batch: optional csv class filter.</summary>
+        public string? Classes { get; set; }
+    }
+
+    public sealed class PlaythroughAnalysisTargets
+    {
+        public double MinMeanFinalLevel { get; set; } = 3.0;
+        public double MinMeanDungeonsCompleted { get; set; } = 1.5;
+        public double MaxMeanFinalLevel { get; set; } = 12.0;
+        public double MaxLevelSpread { get; set; } = 1.5;
+        public double MaxDungeonSpread { get; set; } = 1.0;
     }
 
     public sealed class FundamentalsAnalysisTargets
@@ -104,6 +122,9 @@ namespace RPGGame.Tuning.Profiles
 
         /// <summary>When true, route suggesters by classified balance dial (Power/Variance/Agency/Scaling).</summary>
         public bool EnableDialRouting { get; set; }
+
+        /// <summary>Targets when using playthrough_* validators.</summary>
+        public PlaythroughAnalysisTargets? PlaythroughTargets { get; set; }
     }
 
     public static class TuningSimulationModes
@@ -113,6 +134,7 @@ namespace RPGGame.Tuning.Profiles
         public const string FundamentalsEncounter = "fundamentals_encounter";
         public const string ClassBuildMatrix = "class_build_matrix";
         public const string DungeonScaling = "dungeon_scaling";
+        public const string ClassPlaythroughBatch = "class_playthrough_batch";
     }
 
     public static class TuningValidatorIds
@@ -130,6 +152,8 @@ namespace RPGGame.Tuning.Profiles
         public const string DialAgency = "dial_agency";
         public const string DungeonScaling = "dungeon_scaling";
         public const string ClassBuildMatrix = "class_build_matrix";
+        public const string PlaythroughProgression = "playthrough_progression";
+        public const string PlaythroughClassParity = "playthrough_class_parity";
         public const string EnvironmentHazards = "environment_hazards";
         public const string GearProbability = "gear_probability";
         public const string EnemyRoster = "enemy_roster";
@@ -148,5 +172,6 @@ namespace RPGGame.Tuning.Profiles
         public const string Variance = "variance";
         public const string Agency = "agency";
         public const string DungeonScaling = "dungeon_scaling";
+        public const string PlaythroughBalance = "playthrough_balance";
     }
 }

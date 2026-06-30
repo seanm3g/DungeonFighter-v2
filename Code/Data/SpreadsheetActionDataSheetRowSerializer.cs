@@ -27,6 +27,7 @@ namespace RPGGame.Data
             h.SetCell(row, null, "CADENCE", data.Cadence);
             h.SetCell(row, null, "OPENER", data.Opener);
             h.SetCell(row, null, "FINISHER", data.Finisher);
+            h.SetCell(row, null, "TARGET", data.Target);
 
             WriteHeroEnemyAccuracy(h, row, data.HeroAccuracy, isHero: true);
             h.SetCell(row, "HERO DICE ROLL MODIFICATIONS", "HIT", data.HeroHit);
@@ -73,8 +74,7 @@ namespace RPGGame.Data
             h.SetCell(row, "ENEMY TARGET", "CLENSE", data.Cleanse);
             h.SetCell(row, "ENEMY TARGET", "LIFESTEAL", data.Lifesteal);
             h.SetCell(row, "ENEMY TARGET", "REFLECT", data.Reflect);
-            h.SetCell(row, "ENEMY TARGET", "SELF DAMAGE", data.SelfDamage);
-            h.SetCell(row, "SELF TARGET", "SELF DAMAGE", data.SelfDamage);
+            h.SetCell(row, "ENEMY TARGET", "CONFUSE", data.Confuse);
 
             FallbackUnscoped(h, row, data);
 
@@ -176,8 +176,8 @@ namespace RPGGame.Data
             SetIf("FOCUS", data.Focus);
             SetIf("CLENSE", data.Cleanse);
             SetIf("LIFESTEAL", data.Lifesteal);
+            SetIf("CONFUSE", data.Confuse);
             SetIf("REFLECT", data.Reflect);
-            SetIf("SELF DAMAGE", data.SelfDamage);
             SetIf("HEAL", data.HeroHeal);
             SetIf("MAX HEALTH", data.HeroHealMaxHealth);
         }
@@ -221,7 +221,6 @@ namespace RPGGame.Data
             L("ACCUMULATIONS JSON", data.AccumulationsJson);
             L("CHAIN POSITION BONUSES JSON", data.ChainPositionBonusesJson);
 
-            L("TARGET", data.Target);
             L("THRESHOLD CATEGORY", data.ThresholdCategory);
             L("THRESHOLD AMOUNT", data.ThresholdAmount);
             L("BONUS", data.Bonus);

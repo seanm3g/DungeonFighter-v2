@@ -89,7 +89,7 @@ namespace RPGGame
                     canvasUIEnemy.RenderEnemyEncounter(enemy, player, displayManager.DungeonContext, 
                         stateManager.CurrentDungeon?.Name, stateManager.CurrentRoom?.Name);
                     // Brief delay to show enemy encounter information.
-                    await DelayForCombatSpeedAsync(2000);
+                    await SimulationPacing.DelayForCombatSpeedAsync(2000);
                 }
                 
                 // Initial render of combat screen with structured content
@@ -219,7 +219,7 @@ namespace RPGGame
             
             // Wait for any reactive renders triggered by AddCombatEvent to complete before final render
             // This prevents text from overlapping when multiple renders happen in quick succession
-            await DelayForCombatSpeedAsync(250, skipInMcp: true);
+            await SimulationPacing.DelayForCombatSpeedAsync(250);
             
             // Final refresh to show complete combat log including victory message (use Post to avoid blocking)
             // This single render will replace any previous renders and show the complete state
@@ -235,7 +235,7 @@ namespace RPGGame
                     }
                 });
                 // Small delay to ensure the final render completes before continuing
-                await DelayForCombatSpeedAsync(100, skipInMcp: true);
+                await SimulationPacing.DelayForCombatSpeedAsync(100);
             }
             
             // Remove the dead enemy from the room's enemy list
@@ -252,7 +252,7 @@ namespace RPGGame
             }
             
             // Small delay before next
-            await DelayForCombatSpeedAsync(1000, skipInMcp: true);
+            await SimulationPacing.DelayForCombatSpeedAsync(1000);
 
             // Restore exploration state only after combat UI / victory messaging is finished — early restore made
             // GameState.Dungeon while the screen still looked like combat, allowing combo reorder in that window.
@@ -327,16 +327,6 @@ namespace RPGGame
             bool isActive = activeCharacter == character;
             
             return isActive;
-        }
-
-        private static async Task DelayForCombatSpeedAsync(int delayMs, bool skipInMcp = false)
-        {
-            if (skipInMcp && RPGGame.MCP.MCPMode.IsActive)
-                return;
-
-            int scaledDelayMs = DeveloperModeState.ScaleDelayMs(delayMs);
-            if (scaledDelayMs > 0)
-                await Task.Delay(scaledDelayMs);
         }
     }
 }

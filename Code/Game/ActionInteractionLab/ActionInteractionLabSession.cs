@@ -277,6 +277,7 @@ namespace RPGGame.ActionInteractionLab
                 _labPanelIntDelta,
                 _labPanelLevelDelta,
                 _labPanelArmorDelta,
+                _labPanelActionSlotDelta,
                 _sessionEnemyLoaderType,
                 enemyLevel: Math.Clamp(_labEnemy.Level, 1, 99),
                 strip,
@@ -314,8 +315,9 @@ namespace RPGGame.ActionInteractionLab
         }
 
         /// <summary>
-        /// Note: <see cref="Dice.SetTestRoll"/> forces the same value for every <see cref="Dice.Roll"/> in the turn
-        /// (e.g. secondary random picks). Primary d20 selection is the intended use.
+        /// Note: <see cref="Dice.SetTestRoll"/> forces the primary d20 for action selection and the first die
+        /// in 2d20 luck/unluck; the second 2d20 die uses <see cref="Dice.RollUnforced"/> so Action Lab picks
+        /// do not duplicate as 4/4. Other <see cref="Dice.Roll"/> calls in the turn may still use the test value.
         /// </summary>
         private async Task<CombatSingleTurnResult> ExecuteOneStepCoreAsync(int d20, string forcedActionName, bool silent)
         {

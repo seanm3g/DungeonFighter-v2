@@ -109,6 +109,25 @@ namespace RPGGame.UI.Avalonia.Tuning
                 window.Show();
         }
 
+        /// <summary>Stops any in-flight tuning run and closes the workbench during app shutdown.</summary>
+        public static void CloseForShutdown()
+        {
+            if (_instance == null)
+                return;
+
+            var window = _instance;
+            _instance = null;
+            try
+            {
+                window._runCts?.Cancel();
+                window.Close();
+            }
+            catch
+            {
+                // Best effort during shutdown.
+            }
+        }
+
         private void WireControls()
         {
             _profileComboBox = this.FindControl<ComboBox>("ProfileComboBox");

@@ -18,6 +18,22 @@ namespace RPGGame.Data
         {
             ParseAndGenerateAsync(csvPathOrUrl, outputPath).GetAwaiter().GetResult();
         }
+
+        /// <summary>Fetches ACTIONS tab and prints header audit only (no JSON write).</summary>
+        public static async Task AuditHeadersAsync(string csvPathOrUrl)
+        {
+            bool isUrl = csvPathOrUrl.StartsWith("http://") || csvPathOrUrl.StartsWith("https://");
+            if (!isUrl && !File.Exists(csvPathOrUrl))
+            {
+                Console.WriteLine($"Error: CSV file not found: {csvPathOrUrl}");
+                return;
+            }
+
+            var parseResult = isUrl
+                ? await SpreadsheetActionParser.ParseCsvAsync(csvPathOrUrl)
+                : SpreadsheetActionParser.ParseCsvFile(csvPathOrUrl);
+            SpreadsheetHeaderAudit.PrintAudit(parseResult.Header);
+        }
         
         /// <summary>
         /// Parses a CSV file or URL and generates Actions.json
@@ -42,7 +58,11 @@ namespace RPGGame.Data
                 var spreadsheetActions = parseResult.Actions;
                 Console.WriteLine($"Parsed {spreadsheetActions.Count} actions from spreadsheet");
                 if (parseResult.Header != null)
+                {
                     Console.WriteLine($"Using row 1 (context) + row 2 (labels) for column mapping and mechanics");
+                    SpreadsheetHeaderAudit.PrintAudit(parseResult.Header);
+                    SpreadsheetActionColumnUsage.PrintPullColumnUsageSummary(parseResult.Header);
+                }
                 
                 Console.WriteLine($"Converting to ActionData...");
                 var actionDataList = new List<ActionData>();

@@ -127,6 +127,7 @@ namespace RPGGame.Tuning
         public SimulationSessionDto? Simulation { get; set; }
         public ComprehensiveSimulationDto? Comprehensive { get; set; }
         public FundamentalsSimulationDto? Fundamentals { get; set; }
+        public PlaythroughSimulationDto? PlaythroughBatch { get; set; }
         public AnalysisSessionDto? Analysis { get; set; }
         public ApplySessionDto? LastApply { get; set; }
 
@@ -173,6 +174,7 @@ namespace RPGGame.Tuning
     {
         public string Id { get; set; } = "";
         public string Category { get; set; } = "";
+        public string Target { get; set; } = "";
         public string Parameter { get; set; } = "";
         public double CurrentValue { get; set; }
         public double SuggestedValue { get; set; }

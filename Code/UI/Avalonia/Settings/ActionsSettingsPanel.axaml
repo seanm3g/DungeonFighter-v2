@@ -42,8 +42,20 @@
         </Grid>
 
         <!-- Right: Action form with its own scroll -->
-        <Grid Grid.Column="2" RowDefinitions="Auto,*" VerticalAlignment="Stretch">
+        <Grid Grid.Column="2" RowDefinitions="Auto,Auto,*" VerticalAlignment="Stretch">
             <StackPanel Grid.Row="0"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Left"
+                        Spacing="10"
+                        Margin="0,0,0,8">
+                <Button x:Name="OpenActionsSheetButton"
+                        Content="Open ACTIONS sheet"
+                        MinHeight="32"
+                        FontSize="13"
+                        Padding="12,4"
+                        Cursor="Hand"/>
+            </StackPanel>
+            <StackPanel Grid.Row="1"
                         Orientation="Horizontal"
                         HorizontalAlignment="Right"
                         Spacing="10"
@@ -67,7 +79,7 @@
                         BorderThickness="0"
                         CornerRadius="4"/>
             </StackPanel>
-            <ScrollViewer Grid.Row="1"
+            <ScrollViewer Grid.Row="2"
                          VerticalScrollBarVisibility="Auto"
                          HorizontalScrollBarVisibility="Disabled"
                          VerticalAlignment="Stretch">

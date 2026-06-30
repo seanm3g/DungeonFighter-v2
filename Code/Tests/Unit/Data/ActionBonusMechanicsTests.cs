@@ -26,7 +26,7 @@ namespace RPGGame.Tests.Unit.Data
         {
             Console.WriteLine("=== Action Bonus Mechanics Tests ===\n");
             Console.WriteLine("Cadence types:");
-            Console.WriteLine("  - For next ACTION: Buffs queue for the hero's next attack roll. Added when source action SUCCEEDS (hit+combo). Consumed on that roll (combo-step drift safe).");
+            Console.WriteLine("  - For next ACTION: Buffs queue when source action hit+combos. Clipped to remaining combo slots. Consumed only when receiving action hit+combos.");
             Console.WriteLine("  - For next ATTACK: Buffs apply to the next roll. Consumed on every roll. Stat bonuses (STR/AGI/etc) apply ONLY on hit.\n");
 
             _testsRun = 0;
@@ -42,6 +42,15 @@ namespace RPGGame.Tests.Unit.Data
             TestActionBonusAddLogic_Deterministic();
             TestActionCadenceComboThresholdDoesNotPersistAcrossRolls();
             TestActionCadenceDurationIsFifoLayersPerHeroRoll();
+            TestActionGrantRequiresCombo();
+            TestActionBonusClipAtFinisher();
+            TestActionBonusClipMidCombo();
+            TestActionBonusMissPreservesLayer();
+            TestActionBonusHitNoComboPreservesLayer();
+            TestActionBonusComboConsumesLayer();
+            TestThreeActionComboDamageModBuffsRemainingSlots();
+            TestActionBonusDurationFollowsComboBonusDurationWhenGroupCountStale();
+            TestActionLabForcedGetActionUsesLoaderCadenceDuration();
             TestFullFlow_ActionBuffsNextAction();
             TestActionBonusNextRollSurvivesComboStepMismatch();
             TestForNextAction_OnSuccess();
@@ -128,13 +137,22 @@ namespace RPGGame.Tests.Unit.Data
                     "After SetupStrike succeeds: next-hero-roll queue has +3 COMBO pending",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-                // Step 2: Execute Finisher. Bonuses consumed from next-roll queue regardless of ComboStep.
+                // Step 2: Execute Finisher. Bonuses consumed only on hit+combo.
                 character.ComboStep = 1;
+                int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+                if (comboMin <= 0) comboMin = 14;
+                Dice.SetTestRoll(Math.Max(comboMin + 1, 15));
+                ActionSelector.SetStoredActionRoll(character, Math.Max(comboMin + 1, 15));
                 var result2 = ActionExecutionFlow.Execute(character, enemy, null, null, finisherAction, null, lastUsed, lastCritMiss);
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
 
+                TestBase.AssertTrue(result2.Hit && result2.IsCombo,
+                    "Finisher must hit+combo to consume pending ACTION bonus",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
                 var pendingAfter = character.Effects.PeekPendingActionBonusesNextHeroRoll();
                 TestBase.AssertTrue(pendingAfter.Count == 0,
-                    "After Finisher rolls: next-roll ACTION bonuses consumed (applied to roll)",
+                    "After Finisher hit+combo: next-roll ACTION bonuses consumed",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 Console.WriteLine($"  Run {successCount}: Finisher executed. Bonuses consumed. Hit={result2.Hit}, Combo={result2.IsCombo}.\n");
@@ -185,14 +203,11 @@ namespace RPGGame.Tests.Unit.Data
                 character.ComboStep = 0;
                 Dice.SetTestRoll(edgeTotal);
                 var r2 = ActionExecutionFlow.Execute(character, enemy, null, null, finisher, null, lastUsed, lastCritMiss);
-                TestBase.AssertTrue(r2.Hit,
-                    "Finisher with edge attack total still hits",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertTrue(r2.IsCombo,
-                    "Finisher: queued +3 COMBO must apply even when ComboStep was 0 (next-roll queue, not slot 1 only)",
+                TestBase.AssertTrue(r2.Hit && r2.IsCombo,
+                    "Finisher with edge attack total + queued COMBO must hit+combo",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(character.Effects.PeekPendingActionBonusesNextHeroRoll().Count == 0,
-                    "Next-roll ACTION bonuses consumed after finisher",
+                    "Next-roll ACTION bonuses consumed after finisher hit+combo",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
@@ -289,6 +304,460 @@ namespace RPGGame.Tests.Unit.Data
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             Console.WriteLine("  OK: duration stacks as separate per-roll layers.\n");
+        }
+
+        private static void TestActionGrantRequiresCombo()
+        {
+            Console.WriteLine("\n--- ACTION grant: hit without combo queues nothing ---\n");
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMin <= 0) comboMin = 14;
+            int hitNoComboRoll = Math.Max(1, comboMin - 1);
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+                var character = CreateComboWithBuffingAction();
+                character.Intelligence = 0;
+                var setup = character.GetComboActions()[0];
+                var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
+
+                Dice.SetTestRoll(hitNoComboRoll);
+                ActionSelector.SetStoredActionRoll(character, hitNoComboRoll);
+                var result = ActionExecutionFlow.Execute(character, enemy, null, null, setup, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(result.Hit && !result.IsCombo,
+                    "Setup hits but does not combo",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "Hit without combo must not queue ACTION bonus layers",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        private static void TestActionBonusClipAtFinisher()
+        {
+            Console.WriteLine("\n--- ACTION grant clip: finisher grants zero layers ---\n");
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMin <= 0) comboMin = 14;
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+                var character = CreateComboWithBuffingAction(count: 3);
+                var finisher = character.GetComboActions()[1];
+                var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
+                character.ComboStep = 1;
+
+                Dice.SetTestRoll(Math.Max(comboMin + 1, 15));
+                ActionSelector.SetStoredActionRoll(character, Math.Max(comboMin + 1, 15));
+                var result = ActionExecutionFlow.Execute(character, enemy, null, null, finisher, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(result.Hit && result.IsCombo,
+                    "Finisher hit+combo",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "Finisher with Count=3 clips to 0 remaining combo slots",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        private static void TestActionBonusClipMidCombo()
+        {
+            Console.WriteLine("\n--- ACTION grant clip: mid-combo Count=3 clips to remaining slots ---\n");
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMin <= 0) comboMin = 14;
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+                var character = CreateFourActionComboWithBuffingAtSlot(1, bonusCount: 3);
+                var granting = character.GetComboActions()[1];
+                var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
+                character.ComboStep = 1;
+
+                Dice.SetTestRoll(Math.Max(comboMin + 1, 15));
+                ActionSelector.SetStoredActionRoll(character, Math.Max(comboMin + 1, 15));
+                var result = ActionExecutionFlow.Execute(character, enemy, null, null, granting, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(result.Hit && result.IsCombo,
+                    "Mid-combo action hit+combo",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(2, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "Slot 1 of 4 with Count=3 clips to 2 remaining actions",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        private static void TestActionBonusMissPreservesLayer()
+        {
+            Console.WriteLine("\n--- ACTION consume: miss preserves FIFO layer ---\n");
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+                var character = CreateComboWithBuffingAction();
+                character.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
+                {
+                    new ActionAttackBonusItem { Type = "COMBO", Value = 3 }
+                });
+                var finisher = character.GetComboActions()[1];
+                var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
+                character.ComboStep = 1;
+
+                Dice.SetTestRoll(1);
+                ActionSelector.SetStoredActionRoll(character, 1);
+                var result = ActionExecutionFlow.Execute(character, enemy, null, null, finisher, null, lastUsed, lastCritMiss);
+                TestBase.AssertFalse(result.Hit,
+                    "Forced miss",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(1, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "Miss must not consume pending ACTION layer",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        private static void TestActionBonusHitNoComboPreservesLayer()
+        {
+            Console.WriteLine("\n--- ACTION consume: hit without combo preserves FIFO layer ---\n");
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+                var character = CreateComboWithBuffingAction();
+                character.Intelligence = 0;
+                var tm = RollModificationManager.GetThresholdManager();
+                tm.ResetThresholds(character);
+                TechniqueMilestoneThresholdBonuses.Apply(tm, character);
+                NaiveteThresholdBonuses.Apply(tm, character);
+                int hitMin = tm.GetHitThreshold(character);
+                int comboTh = tm.GetComboThreshold(character);
+                character.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
+                {
+                    new ActionAttackBonusItem { Type = "SPEED_MOD", Value = 10 }
+                });
+                var finisher = character.GetComboActions()[1];
+                var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
+                character.ComboStep = 1;
+
+                int targetAttack = Math.Max(hitMin, comboTh - 1);
+                int rollBonus = ActionUtilities.CalculateRollBonus(character, finisher, consumeTempBonus: false);
+                int baseRoll = targetAttack - rollBonus;
+                Dice.SetTestRoll(baseRoll);
+                ActionSelector.SetStoredActionRoll(character, baseRoll);
+                var result = ActionExecutionFlow.Execute(character, enemy, null, null, finisher, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(result.Hit && !result.IsCombo,
+                    "Hit without combo",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(1, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "Hit without combo must not consume pending ACTION layer",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        private static void TestActionBonusComboConsumesLayer()
+        {
+            Console.WriteLine("\n--- ACTION consume: hit+combo removes FIFO layer ---\n");
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMin <= 0) comboMin = 14;
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+                var character = CreateComboWithBuffingAction();
+                character.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
+                {
+                    new ActionAttackBonusItem { Type = "COMBO", Value = 3 }
+                });
+                var finisher = character.GetComboActions()[1];
+                var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
+                character.ComboStep = 1;
+
+                Dice.SetTestRoll(Math.Max(comboMin + 1, 15));
+                ActionSelector.SetStoredActionRoll(character, Math.Max(comboMin + 1, 15));
+                var result = ActionExecutionFlow.Execute(character, enemy, null, null, finisher, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(result.Hit && result.IsCombo,
+                    "Hit+combo consumes layer",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "Hit+combo must consume pending ACTION layer",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        /// <summary>
+        /// 3-action combo [buff, mid, finisher]: ACTION x3 clipped to 2 remaining slots; both mid and finisher receive +DAMAGE_MOD on hit+combo.
+        /// </summary>
+        private static void TestThreeActionComboDamageModBuffsRemainingSlots()
+        {
+            Console.WriteLine("\n--- ACTION x3: mid + finisher both receive DAMAGE_MOD ---\n");
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMin <= 0) comboMin = 14;
+            int comboRoll = Math.Max(comboMin + 2, 16);
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+                var character = CreateThreeActionComboWithDamageModBuff(count: 3, damageModPercent: 25);
+                var combo = character.GetComboActions();
+                var buff = combo[0];
+                var mid = combo[1];
+                var finisher = combo[2];
+                var enemy = new Enemy("TestEnemy", 1, 500, 5, 5, 5, 5);
+
+                Dice.SetTestRoll(comboRoll);
+                ActionSelector.SetStoredActionRoll(character, comboRoll);
+                var r1 = ActionExecutionFlow.Execute(character, enemy, null, null, buff, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(r1.Hit && r1.IsCombo,
+                    "Buff action hit+combo grants FIFO layers",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(2, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "Count=3 clipped to 2 remaining combo slots after slot 0",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(character.Effects.PeekAttackBonuses().Count == 0,
+                    "ACTION cadence must not duplicate DAMAGE_MOD into ATTACK queue",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                character.ComboStep = 1;
+                int hpBeforeMid = enemy.CurrentHealth;
+                Dice.SetTestRoll(comboRoll);
+                ActionSelector.SetStoredActionRoll(character, comboRoll);
+                var r2 = ActionExecutionFlow.Execute(character, enemy, null, null, mid, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(r2.Hit && r2.IsCombo,
+                    "Mid action hit+combo consumes first FIFO layer",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(1, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "One FIFO layer remains for finisher",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                int midDamage = hpBeforeMid - enemy.CurrentHealth;
+                TestBase.AssertTrue(midDamage > 0, "Mid action dealt damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                character.ComboStep = 2;
+                int hpBeforeFinisher = enemy.CurrentHealth;
+                Dice.SetTestRoll(comboRoll);
+                ActionSelector.SetStoredActionRoll(character, comboRoll);
+                var r3 = ActionExecutionFlow.Execute(character, enemy, null, null, finisher, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(r3.Hit && r3.IsCombo,
+                    "Finisher hit+combo consumes second FIFO layer",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "All FIFO layers consumed after finisher",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                int finisherDamage = hpBeforeFinisher - enemy.CurrentHealth;
+                TestBase.AssertTrue(finisherDamage > 0, "Finisher dealt damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // Baseline finisher without buff should deal less than buffed finisher (same roll).
+                var baseline = CreateThreeActionComboWithDamageModBuff(count: 3, damageModPercent: 25);
+                baseline.ComboStep = 2;
+                var baselineEnemy = new Enemy("TestEnemy", 1, 500, 5, 5, 5, 5);
+                Dice.SetTestRoll(comboRoll);
+                ActionSelector.SetStoredActionRoll(baseline, comboRoll);
+                int hpBeforeBaseline = baselineEnemy.CurrentHealth;
+                var rBase = ActionExecutionFlow.Execute(baseline, baselineEnemy, null, null, baseline.GetComboActions()[2], null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(rBase.Hit, "Baseline finisher hits", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                int baselineDamage = hpBeforeBaseline - baselineEnemy.CurrentHealth;
+                TestBase.AssertTrue(finisherDamage > baselineDamage,
+                    "Buffed finisher deals more damage than unbuffed finisher (+25% DAMAGE_MOD)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        /// <summary>
+        /// Spreadsheet Duration (ComboBonusDuration) is authoritative when ActionAttackBonuses.Count is stale after an edit.
+        /// </summary>
+        private static void TestActionBonusDurationFollowsComboBonusDurationWhenGroupCountStale()
+        {
+            Console.WriteLine("\n--- ACTION duration: ComboBonusDuration overrides stale bonus group Count ---\n");
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMin <= 0) comboMin = 14;
+            int comboRoll = Math.Max(comboMin + 2, 16);
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+                var character = CreateFourActionComboWithDamageModBuffAtSlot0(staleGroupCount: 3, comboBonusDuration: 2, damageModPercent: 25);
+                var buff = character.GetComboActions()[0];
+                var enemy = new Enemy("TestEnemy", 1, 500, 5, 5, 5, 5);
+
+                Dice.SetTestRoll(comboRoll);
+                ActionSelector.SetStoredActionRoll(character, comboRoll);
+                var result = ActionExecutionFlow.Execute(character, enemy, null, null, buff, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(result.Hit && result.IsCombo,
+                    "ACTION BONUS hit+combo",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(2, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "ComboBonusDuration=2 should queue two FIFO layers even when bonus group Count=3",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(2, ActionCadenceDurationResolver.GetDisplayCount(buff, buff.ActionAttackBonuses!.BonusGroups[0]),
+                    "Display count should follow ComboBonusDuration",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        /// <summary>
+        /// Action Lab passes a fresh <see cref="ActionLoader.GetAction"/> instance while the combo strip may hold stale bonus group Count.
+        /// </summary>
+        private static void TestActionLabForcedGetActionUsesLoaderCadenceDuration()
+        {
+            Console.WriteLine("\n--- ACTION Lab: forced GetAction uses loader cadence duration ---\n");
+
+            var loaded = ActionLoader.GetAction("ACTION BONUS");
+            if (loaded == null)
+            {
+                Console.WriteLine("  (skipped — ACTION BONUS not in Actions.json)");
+                return;
+            }
+
+            var data = ActionLoader.GetActionData("ACTION BONUS");
+            TestBase.AssertTrue(data != null && data.ComboBonusDuration == 2,
+                "ACTION BONUS loader data should have cadence duration 2",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMin <= 0) comboMin = 14;
+            int comboRoll = Math.Max(comboMin + 2, 16);
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+                var character = BuildFourActionLabComboWithStaleStripBonus(staleGroupCount: 3);
+                var forced = ActionLoader.GetAction("ACTION BONUS");
+                TestBase.AssertNotNull(forced, "Forced lab action resolves", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                Dice.SetTestRoll(comboRoll);
+                ActionSelector.SetStoredActionRoll(character, comboRoll);
+                var result = ActionExecutionFlow.Execute(character, new Enemy("T", 1, 500, 5, 5, 5, 5), null, null, forced, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(result.Hit && result.IsCombo, "ACTION BONUS hit+combo", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(2, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "Forced GetAction should queue two FIFO layers (not stale strip Count=3)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        private static Character BuildFourActionLabComboWithStaleStripBonus(int staleGroupCount)
+        {
+            var character = new Character("LabHero", 1);
+            string[] names = { "ACTION BONUS", "CRITICAL ATTACK", "FIGHT BONUS", "SLAM" };
+            for (int i = 0; i < names.Length; i++)
+            {
+                var action = ActionLoader.GetAction(names[i]) ?? TestDataBuilders.CreateMockAction(names[i], ActionType.Attack);
+                action.IsComboAction = true;
+                action.ComboOrder = i + 1;
+                if (i == 0 && action.ActionAttackBonuses?.BonusGroups?.Count > 0)
+                {
+                    action.ComboBonusDuration = 0;
+                    action.ActionAttackBonuses.BonusGroups[0].Count = staleGroupCount;
+                }
+                character.AddAction(action, 1.0);
+                character.Actions.AddToCombo(action);
+            }
+            character.ComboStep = 0;
+            return character;
+        }
+
+        private static Character CreateFourActionComboWithDamageModBuffAtSlot0(int staleGroupCount, int comboBonusDuration, double damageModPercent)
+        {
+            var character = new Character("TestHero", 1);
+            var names = new[] { "ActionBonus", "Burn", "Bleed", "Dance" };
+            for (int i = 0; i < names.Length; i++)
+            {
+                var action = TestDataBuilders.CreateMockAction(names[i], ActionType.Attack);
+                action.IsComboAction = true;
+                action.ComboOrder = i + 1;
+                action.DamageMultiplier = 1.0;
+                if (i == 0)
+                {
+                    action.Cadence = "Action";
+                    action.ComboBonusDuration = comboBonusDuration;
+                    action.DamageMod = damageModPercent.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    action.ActionAttackBonuses = new ActionAttackBonuses
+                    {
+                        BonusGroups = new List<ActionAttackBonusGroup>
+                        {
+                            new ActionAttackBonusGroup
+                            {
+                                CadenceType = "ACTION",
+                                Count = staleGroupCount,
+                                Bonuses = new List<ActionAttackBonusItem>
+                                {
+                                    new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = damageModPercent }
+                                }
+                            }
+                        }
+                    };
+                }
+                character.AddAction(action, 1.0);
+                character.Actions.AddToCombo(action);
+            }
+            character.ComboStep = 0;
+            return character;
         }
 
         #endregion
@@ -768,12 +1237,12 @@ namespace RPGGame.Tests.Unit.Data
         /// <summary>
         /// Creates a 2-action combo: SetupStrike (grants "For next ACTION: +3 COMBO") and Finisher.
         /// </summary>
-        private static Character CreateComboWithBuffingAction()
+        private static Character CreateComboWithBuffingAction(int count = 1)
         {
             var character = new Character("TestHero", 1);
             var setup = TestDataBuilders.CreateMockAction("SetupStrike", ActionType.Attack);
             setup.IsComboAction = true;
-            setup.ComboOrder = 1; // First in combo
+            setup.ComboOrder = 1;
             setup.ActionAttackBonuses = new ActionAttackBonuses
             {
                 BonusGroups = new List<ActionAttackBonusGroup>
@@ -781,18 +1250,98 @@ namespace RPGGame.Tests.Unit.Data
                     new ActionAttackBonusGroup
                     {
                         CadenceType = "ACTION",
-                        Count = 1,
+                        Count = count,
                         Bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 3 } }
                     }
                 }
             };
             var finisher = TestDataBuilders.CreateMockAction("Finisher", ActionType.Attack);
             finisher.IsComboAction = true;
-            finisher.ComboOrder = 2; // Second in combo
+            finisher.ComboOrder = 2;
+            finisher.ActionAttackBonuses = new ActionAttackBonuses
+            {
+                BonusGroups = new List<ActionAttackBonusGroup>
+                {
+                    new ActionAttackBonusGroup
+                    {
+                        CadenceType = "ACTION",
+                        Count = count,
+                        Bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 3 } }
+                    }
+                }
+            };
             character.AddAction(setup, 1.0);
             character.AddAction(finisher, 1.0);
             character.Actions.AddToCombo(setup);
             character.Actions.AddToCombo(finisher);
+            character.ComboStep = 0;
+            return character;
+        }
+
+        private static Character CreateThreeActionComboWithDamageModBuff(int count, double damageModPercent)
+        {
+            var character = new Character("TestHero", 1);
+            var names = new[] { "ActionBonus", "Slam", "Finisher" };
+            for (int i = 0; i < names.Length; i++)
+            {
+                var action = TestDataBuilders.CreateMockAction(names[i], ActionType.Attack);
+                action.IsComboAction = true;
+                action.ComboOrder = i + 1;
+                action.DamageMultiplier = 1.0;
+                if (i == 0)
+                {
+                    action.Cadence = "Action";
+                    action.DamageMod = damageModPercent.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    action.ActionAttackBonuses = new ActionAttackBonuses
+                    {
+                        BonusGroups = new List<ActionAttackBonusGroup>
+                        {
+                            new ActionAttackBonusGroup
+                            {
+                                CadenceType = "ACTION",
+                                Count = count,
+                                Bonuses = new List<ActionAttackBonusItem>
+                                {
+                                    new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = damageModPercent }
+                                }
+                            }
+                        }
+                    };
+                }
+                character.AddAction(action, 1.0);
+                character.Actions.AddToCombo(action);
+            }
+            character.ComboStep = 0;
+            return character;
+        }
+
+        private static Character CreateFourActionComboWithBuffingAtSlot(int slotIndex, int bonusCount)
+        {
+            var character = new Character("TestHero", 1);
+            var names = new[] { "Opener", "MidA", "MidB", "Finisher" };
+            for (int i = 0; i < names.Length; i++)
+            {
+                var action = TestDataBuilders.CreateMockAction(names[i], ActionType.Attack);
+                action.IsComboAction = true;
+                action.ComboOrder = i + 1;
+                if (i == slotIndex)
+                {
+                    action.ActionAttackBonuses = new ActionAttackBonuses
+                    {
+                        BonusGroups = new List<ActionAttackBonusGroup>
+                        {
+                            new ActionAttackBonusGroup
+                            {
+                                CadenceType = "ACTION",
+                                Count = bonusCount,
+                                Bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 2 } }
+                            }
+                        }
+                    };
+                }
+                character.AddAction(action, 1.0);
+                character.Actions.AddToCombo(action);
+            }
             character.ComboStep = 0;
             return character;
         }

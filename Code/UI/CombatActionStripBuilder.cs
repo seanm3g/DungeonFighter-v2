@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Actions;
 using RPGGame.Actions.RollModification;
 using RPGGame.Data;
 using RPGGame.Items.Helpers;
@@ -95,10 +96,20 @@ namespace RPGGame
                 // Damage line: multiplier as % of character base (matches Spd line style), not raw HP output.
                 double baseDamagePct = action.DamageMultiplier * 100.0;
 
-                // Pending bonuses for this slot (peek, do not consume). Next-hero-roll ACTION queue applies to the current strip slot.
+                // Pending bonuses for this slot (peek, do not consume). FIFO ACTION layers apply to the next N combo slots from ComboStep.
                 var slotBonuses = new List<ActionAttackBonusItem>(character.Effects.GetPendingActionBonusesForSlot(i));
-                if (actions.Count > 0 && i == character.ComboStep % actions.Count)
-                    slotBonuses.AddRange(character.Effects.PeekPendingActionBonusesNextHeroRoll());
+                int actionCount = actions.Count;
+                if (actionCount > 0)
+                {
+                    int currentStep = character.ComboStep % actionCount;
+                    int fifoLayers = character.Effects.GetPendingActionCadenceLayerCount();
+                    for (int layer = 0; layer < fifoLayers; layer++)
+                    {
+                        int targetSlot = (currentStep + layer) % actionCount;
+                        if (i == targetSlot)
+                            slotBonuses.AddRange(character.Effects.PeekPendingActionCadenceLayerAt(layer));
+                    }
+                }
                 double damageModPercent = 0;
                 double speedModPercent = 0;
                 foreach (var b in slotBonuses)
@@ -241,7 +252,8 @@ namespace RPGGame
                     string cad = string.IsNullOrWhiteSpace(group.CadenceType)
                         ? (string.IsNullOrWhiteSpace(group.Keyword) ? "BONUS" : group.Keyword)
                         : group.CadenceType;
-                    string count = group.Count > 1 ? $" x{group.Count}" : "";
+                    int displayCount = ActionCadenceDurationResolver.GetDisplayCount(action, group);
+                    string count = displayCount > 1 ? $" x{displayCount}" : "";
                     add($"{cad}{count}: {items}");
                 }
             }

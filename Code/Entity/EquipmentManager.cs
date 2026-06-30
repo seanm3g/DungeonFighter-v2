@@ -24,10 +24,15 @@ namespace RPGGame
         /// Inventory and UI must use this (or check <see cref="Item.GetEquipBlockedReason"/> first) before mutating bag contents.
         /// </summary>
         /// <returns><c>true</c> if the item is now equipped; <c>false</c> if requirements block equip (no state change).</returns>
-        public bool TryEquipItem(Item item, string slot, out Item? replacedItem, out string? failureReason)
+        public bool TryEquipItem(
+            Item item,
+            string slot,
+            out Item? replacedItem,
+            out string? failureReason,
+            bool ignoreAttributeRequirements = false)
         {
             replacedItem = null;
-            failureReason = item.GetEquipBlockedReason(_character);
+            failureReason = ignoreAttributeRequirements ? null : item.GetEquipBlockedReason(_character);
             if (failureReason != null)
                 return false;
 

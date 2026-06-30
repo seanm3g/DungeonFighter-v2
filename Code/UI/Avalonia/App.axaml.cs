@@ -3,11 +3,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using RPGGame;
-using RPGGame.Audio;
 using RPGGame.UI.Avalonia;
 using RPGGame.Utils;
-using System;
-using System.Linq;
 
 namespace RPGGame.UI.Avalonia
 {
@@ -22,57 +19,19 @@ namespace RPGGame.UI.Avalonia
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow();
-                
-                // Track execution time when window closes
-                desktop.MainWindow.Closing += (sender, e) =>
-                {
-                    BuildExecutionMetrics.StopExecutionTracking("GUI");
-                    
-                    // Close all settings windows when main window closes
-                    var settingsWindows = desktop.Windows.OfType<SettingsWindow>().ToList();
-                    foreach (var window in settingsWindows)
-                    {
-                        try
-                        {
-                            if (window != null && window.IsVisible)
-                            {
-                                window.Close();
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            // Ignore errors when closing windows
-                        }
-                    }
-                };
-                
-                // Also handle application exit as a fallback
-                desktop.Exit += (sender, e) =>
-                {
-                    // Release audio backend so MiniAudio device is closed cleanly before the process exits.
-                    try { AudioBootstrap.Shutdown(); } catch { /* shutdown must not throw */ }
+                // Closing the main window must exit the process even if auxiliary windows
+                // (settings, Action Lab, tuning workbench) are still open.
+                desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-                    // Close all settings windows on application exit
-                    if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
-                    {
-                        var settingsWindows = desktopLifetime.Windows.OfType<SettingsWindow>().ToList();
-                        foreach (var window in settingsWindows)
-                        {
-                            try
-                            {
-                                if (window != null && window.IsVisible)
-                                {
-                                    window.Close();
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                // Ignore errors when closing windows
-                            }
-                        }
-                    }
+                desktop.MainWindow = new MainWindow();
+
+                desktop.MainWindow.Closing += (_, _) =>
+                {
+                    ApplicationShutdownHelper.PerformShutdown();
+                    BuildExecutionMetrics.StopExecutionTracking("GUI");
                 };
+
+                desktop.Exit += (_, _) => ApplicationShutdownHelper.PerformShutdown();
             }
 
             base.OnFrameworkInitializationCompleted();

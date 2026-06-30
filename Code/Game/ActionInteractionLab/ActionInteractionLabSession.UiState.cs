@@ -55,6 +55,12 @@ namespace RPGGame.ActionInteractionLab
         /// </summary>
         public bool UseParallelEncounterSimulation { get; set; } = true;
 
+        /// <summary>
+        /// When false (default), lab gear equip and combo-strip removal enforce attribute and weapon-basic requirements like the live game.
+        /// When true, those gates are bypassed for sandbox testing.
+        /// </summary>
+        public bool IgnoreActionRequirements { get; set; }
+
         private static readonly int[] EncounterSimulationBatchTiers = { 1, 10, 100, 1000 };
 
         /// <summary>Inclusive grid X bounds for wheel-changing simulation batch count; <c>-1</c> when unset.</summary>

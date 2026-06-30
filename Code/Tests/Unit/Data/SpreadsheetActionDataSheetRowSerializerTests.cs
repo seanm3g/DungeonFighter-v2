@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame;
 using RPGGame.Data;
 
@@ -27,6 +28,11 @@ namespace RPGGame.Tests.Unit.Data
             TestEnemyAndHeroBaseStats_SeparateNextActionMods(ref testsRun, ref testsPassed, ref testsFailed);
             TestTagsColumn_IngestsAndConverts(ref testsRun, ref testsPassed, ref testsFailed);
             TestTagsColumn_PushLayoutColumnE(ref testsRun, ref testsPassed, ref testsFailed);
+            TestLayerSectionMarkerRow_SkippedOnParse(ref testsRun, ref testsPassed, ref testsFailed);
+            TestColumnUsage_IgnoredLabelsOnPull(ref testsRun, ref testsPassed, ref testsFailed);
+            TestTargetColumn_IngestsEnemySelfEnvironment(ref testsRun, ref testsPassed, ref testsFailed);
+            TestHeroHealAndStatusColumns_ConvertToActionData(ref testsRun, ref testsPassed, ref testsFailed);
+            TestSelfTargetHarden_ClassifiedAsBuff(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("SpreadsheetActionDataSheetRowSerializer Tests", testsRun, testsPassed, testsFailed);
         }
@@ -322,6 +328,126 @@ namespace RPGGame.Tests.Unit.Data
             var (left, right) = SheetsPushUtilities.SplitActionPushRowPreservingColumnsEF(row);
             TestBase.AssertEqual("environment, earth, exposed", left[4]?.ToString(), "push left block includes TAGS", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual("65%", right[0]?.ToString(), "DPS resumes at G", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestLayerSectionMarkerRow_SkippedOnParse(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestLayerSectionMarkerRow_SkippedOnParse));
+
+            TestBase.AssertTrue(SpreadsheetActionData.IsLayerSectionMarkerRow("LAYER 2 ACTIONS"),
+                "LAYER 2 ACTIONS is a section marker", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(SpreadsheetActionData.IsHeaderOrContextRow("LAYER 1 ACTIONS"),
+                "layer marker is header/context", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(!SpreadsheetActionData.IsLayerSectionMarkerRow("JAB"),
+                "JAB is not a layer marker", ref testsRun, ref testsPassed, ref testsFailed);
+
+            const string csv = ""
+                + "ACTION,DESCRIPTION\n"
+                + "JAB,reset\n"
+                + "LAYER 2 ACTIONS,\n"
+                + "TAUNT,draw aggro\n";
+
+            var result = SpreadsheetActionParser.ParseCsvContent(csv);
+            TestBase.AssertTrue(result.Header != null, "header parsed", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(2, result.Actions.Count, "two actions ingested", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("JAB", result.Actions[0].Action, "first action", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("TAUNT", result.Actions[1].Action, "second action after layer break", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(
+                result.Actions.TrueForAll(a => !SpreadsheetActionData.IsLayerSectionMarkerRow(a.Action)),
+                "no layer marker ingested as action",
+                ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestColumnUsage_IgnoredLabelsOnPull(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestColumnUsage_IgnoredLabelsOnPull));
+            var labelRow = new[] { "ACTION", "DPS(%)", "CHAIN LENGTH", "DISRUPT", "TARGET" };
+            var (header, _) = SpreadsheetActionParser.BuildHeaderFromSheetRows(new List<string[]> { labelRow });
+            TestBase.AssertTrue(header != null, "header parsed", ref testsRun, ref testsPassed, ref testsFailed);
+            if (header == null) return;
+
+            TestBase.AssertTrue(SpreadsheetActionColumnUsage.IsIngestedOnPull("ACTION", null),
+                "ACTION is ingested", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(SpreadsheetActionColumnUsage.IsIngestedOnPull("DPS(%)", null),
+                "DPS is ingested", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertFalse(SpreadsheetActionColumnUsage.IsIngestedOnPull("CHAIN LENGTH", null),
+                "CHAIN LENGTH not ingested on pull", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var ignored = SpreadsheetActionColumnUsage.GetLabelsIgnoredOnPull(header);
+            TestBase.AssertTrue(ignored.Any(s => s.IndexOf("CHAIN LENGTH", StringComparison.OrdinalIgnoreCase) >= 0),
+                "CHAIN LENGTH listed as ignored", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertFalse(ignored.Any(s => s.IndexOf("TARGET", StringComparison.OrdinalIgnoreCase) >= 0),
+                "TARGET is ingested on pull", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(SpreadsheetActionColumnUsage.IsIngestedOnPull("TARGET", null),
+                "TARGET is ingested", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestTargetColumn_IngestsEnemySelfEnvironment(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestTargetColumn_IngestsEnemySelfEnvironment));
+            var labelRow = new[] { "ACTION", "TARGET" };
+            var (header, _) = SpreadsheetActionParser.BuildHeaderFromSheetRows(new List<string[]> { labelRow });
+            TestBase.AssertTrue(header != null, "header parsed", ref testsRun, ref testsPassed, ref testsFailed);
+            if (header == null) return;
+
+            var emptyTarget = SpreadsheetToActionDataConverter.Convert(
+                SpreadsheetActionDataCsvParser.FromCsvRow(new[] { "STRIKE", "" }, header));
+            TestBase.AssertEqual("SingleTarget", emptyTarget.TargetType,
+                "empty target defaults to enemy", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var enemyTarget = SpreadsheetToActionDataConverter.Convert(
+                SpreadsheetActionDataCsvParser.FromCsvRow(new[] { "STRIKE", "enemy" }, header));
+            TestBase.AssertEqual("SingleTarget", enemyTarget.TargetType,
+                "enemy → SingleTarget", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var selfTarget = SpreadsheetToActionDataConverter.Convert(
+                SpreadsheetActionDataCsvParser.FromCsvRow(new[] { "GUARD", "self" }, header));
+            TestBase.AssertEqual("Self", selfTarget.TargetType,
+                "self → Self", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var envTarget = SpreadsheetToActionDataConverter.Convert(
+                SpreadsheetActionDataCsvParser.FromCsvRow(new[] { "HAZARD", "environment" }, header));
+            TestBase.AssertEqual("Environment", envTarget.TargetType,
+                "environment → Environment", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestHeroHealAndStatusColumns_ConvertToActionData(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestHeroHealAndStatusColumns_ConvertToActionData));
+            var contextRow = new[] { "", "HERO HEAL", "ENEMY TARGET", "ENEMY TARGET", "ENEMY TARGET", "" };
+            var labelRow = new[] { "ACTION", "HEAL", "CONFUSE", "LIFESTEAL", "DISRUPT", "TARGET" };
+            var (header, _) = SpreadsheetActionParser.BuildHeaderFromSheetRows(new List<string[]> { contextRow, labelRow });
+            TestBase.AssertTrue(header != null, "header parsed", ref testsRun, ref testsPassed, ref testsFailed);
+            if (header == null) return;
+
+            var parsed = SpreadsheetActionData.FromCsvRow(
+                new[] { "DRAIN", "20", "1", "25%", "1", "enemy" }, header);
+            var action = SpreadsheetToActionDataConverter.Convert(parsed);
+
+            TestBase.AssertEqual(20, action.HealAmount, "HERO HEAL maps to HealAmount", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(action.CausesConfusion, "CONFUSE maps to CausesConfusion", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(action.CausesDisrupt, "DISRUPT maps to CausesDisrupt", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(Math.Abs(action.LifestealPercent - 0.25) < 0.001,
+                "LIFESTEAL maps to LifestealPercent", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("Heal", action.Type, "Heal column sets Heal type", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestSelfTargetHarden_ClassifiedAsBuff(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestSelfTargetHarden_ClassifiedAsBuff));
+            var contextRow = new[] { "", "ENEMY TARGET", "" };
+            var labelRow = new[] { "ACTION", "HARDEN", "TARGET" };
+            var (header, _) = SpreadsheetActionParser.BuildHeaderFromSheetRows(new List<string[]> { contextRow, labelRow });
+            TestBase.AssertTrue(header != null, "header parsed", ref testsRun, ref testsPassed, ref testsFailed);
+            if (header == null) return;
+
+            var parsed = SpreadsheetActionData.FromCsvRow(new[] { "HARDEN", "1", "self" }, header);
+            parsed.Damage = "0%";
+            var action = SpreadsheetToActionDataConverter.Convert(parsed);
+
+            TestBase.AssertEqual("Buff", action.Type, "self-target harden classified as Buff", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("Self", action.TargetType, "target=self preserved", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(action.CausesHarden, "harden flag set", ref testsRun, ref testsPassed, ref testsFailed);
         }
     }
 }

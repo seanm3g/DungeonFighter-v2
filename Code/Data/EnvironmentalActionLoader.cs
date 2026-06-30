@@ -159,7 +159,7 @@ namespace RPGGame.Data
                 var action = new Action(
                     name: data.Name,
                     type: actionType,
-                    targetType: TargetType.AreaOfEffect, // Environmental actions are always area of effect
+                    targetType: TargetType.Environment,
                     cooldown: 0,
                     description: data.Description ?? "",
                     comboOrder: -1,

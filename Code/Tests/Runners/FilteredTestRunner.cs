@@ -128,6 +128,8 @@ namespace RPGGame.Tests.Runners
             list.AddRange(GameSystemTestRunner.GetSuiteEntries());
             list.AddRange(DataSystemTestRunner.GetSuiteEntries());
             list.AddRange(MCPSystemTestRunner.GetSuiteEntries());
+            list.Add(new TestSuiteEntry("data", "ActionBonusMechanics", () => RPGGame.Tests.Unit.Data.ActionBonusMechanicsTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("data", "ActionExecutionFlow", () => RPGGame.Tests.Unit.ActionExecutionFlowTests.RunAllTests()));
             list.Add(new TestSuiteEntry("comprehensive", "Comprehensive", () => ComprehensiveTestRunner.RunAllTests()));
             return list;
         }

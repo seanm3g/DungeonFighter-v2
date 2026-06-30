@@ -307,11 +307,12 @@ namespace RPGGame
         public void ExitGame()
         {
             ShowMessageEvent?.Invoke("Thanks for playing Dungeon Fighter!");
-            // Close the application
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.Close();
             }
+
+            ApplicationShutdownHelper.PerformShutdown();
             System.Environment.Exit(0);
         }
     }

@@ -101,6 +101,14 @@ namespace RPGGame
                 case "stat:armor":
                     AppendArmor(character, result, AddWrapped, maxLines);
                     break;
+                case "stat:actionslots":
+                {
+                    int slots = ComboSequenceMaxHelper.GetEffectiveMax(character);
+                    int labBonus = character.ActionLabActionSlotBonus;
+                    string labNote = labBonus > 0 ? $" Includes +{labBonus} Action Lab bonus." : "";
+                    AppendSimpleStat(character, "ACTION SLOTS", $"Max combo sequence length: {slots}.{labNote}", result, AddWrapped, maxLines);
+                    break;
+                }
                 case "stat:str":
                     AppendPrimaryStat(character, "STR", "Strength", result, AddWrapped, maxLines);
                     break;

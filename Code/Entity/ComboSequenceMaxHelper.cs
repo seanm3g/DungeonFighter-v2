@@ -20,7 +20,8 @@ namespace RPGGame
 
             int gearSlots = character?.Equipment?.GetEquipmentStatBonus("ExtraActionSlots", character) ?? 0;
             int classSlots = character?.Progression?.GetClassUpgradeActionSlotBonus() ?? 0;
-            return Math.Min(absMax, baseMax + Math.Max(0, gearSlots) + Math.Max(0, classSlots));
+            int labSlots = character?.ActionLabActionSlotBonus ?? 0;
+            return Math.Min(absMax, baseMax + Math.Max(0, gearSlots) + Math.Max(0, classSlots) + Math.Max(0, labSlots));
         }
 
         /// <summary>

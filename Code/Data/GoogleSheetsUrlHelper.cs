@@ -132,6 +132,52 @@ namespace RPGGame.Data
             return url.TrimEnd('&', '?') + sep + "gid=" + g;
         }
 
+        /// <summary>
+        /// Browser edit URL for OAuth push. Prefers <see cref="SheetsConfig.SpreadsheetEditUrl"/>,
+        /// otherwise derives <c>…/d/&lt;id&gt;/edit</c> from <see cref="SheetsConfig.ActionsSheetUrl"/>.
+        /// </summary>
+        public static string? TryResolveSpreadsheetEditBaseUrl(SheetsConfig? sheetsConfig)
+        {
+            if (sheetsConfig == null)
+                return null;
+
+            string edit = (sheetsConfig.SpreadsheetEditUrl ?? "").Trim();
+            if (edit.Length > 0)
+                return edit;
+
+            if (!TryExtractApiSpreadsheetId(sheetsConfig.ActionsSheetUrl, out string id))
+                return null;
+
+            return "https://docs.google.com/spreadsheets/d/" + id + "/edit";
+        }
+
+        /// <summary>
+        /// Builds a browser edit link for one tab. <paramref name="gidOrTabUrl"/> is a numeric gid
+        /// or any configured per-tab URL that contains <c>gid=</c>.
+        /// </summary>
+        public static string? TryBuildTabEditUrl(SheetsConfig? sheetsConfig, string? gidOrTabUrl)
+        {
+            string? baseEdit = TryResolveSpreadsheetEditBaseUrl(sheetsConfig);
+            if (string.IsNullOrWhiteSpace(baseEdit))
+                return null;
+
+            string gid = (gidOrTabUrl ?? "").Trim();
+            if (gid.Length == 0)
+                return baseEdit;
+
+            if (gid.Contains("gid=", StringComparison.OrdinalIgnoreCase)
+                && TryExtractGidParameter(gid, out string fromUrl))
+                gid = fromUrl;
+
+            if (!Regex.IsMatch(gid, @"^\d+$"))
+                return baseEdit;
+
+            if (!TryExtractApiSpreadsheetId(baseEdit, out string id))
+                return ReplaceGidInPublishedGoogleSheetsUrl(baseEdit, gid);
+
+            return "https://docs.google.com/spreadsheets/d/" + id + "/edit?gid=" + gid;
+        }
+
         /// <summary>Reads the first <c>gid=digits</c> from a Sheets URL query string.</summary>
         public static bool TryExtractGidParameter(string? url, out string gid)
         {

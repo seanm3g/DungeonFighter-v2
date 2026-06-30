@@ -26,6 +26,7 @@ namespace RPGGame
         public ExperienceSystemConfig ExperienceSystem { get; set; } = new();
         public ClassBalanceConfig ClassBalance { get; set; } = new();
         public ClassPresentationConfig ClassPresentation { get; set; } = new();
+        public EarlyGameConfig EarlyGame { get; set; } = new();
 
         /// <summary>CLASS ACTIONS sheet / ClassActions.json — not written by <see cref="SaveToFile"/>.</summary>
         [JsonIgnore]
@@ -159,6 +160,7 @@ namespace RPGGame
                         XPRewards = config.XPRewards;
                         ExperienceSystem = config.ExperienceSystem;
                         ClassBalance = config.ClassBalance;
+                        EarlyGame = config.EarlyGame;
                         ClassPresentation = config.ClassPresentation != null
                             ? config.ClassPresentation.EnsureNormalized()
                             : new ClassPresentationConfig().EnsureNormalized();
@@ -237,6 +239,7 @@ namespace RPGGame
             ItemScaling ??= new ItemScalingConfig();
             Progression ??= new ProgressionConfig();
             ClassBalance ??= new ClassBalanceConfig();
+            EarlyGame ??= new EarlyGameConfig();
             DungeonScaling ??= new DungeonScalingConfig();
             RarityScaling ??= new RarityScalingConfig();
             RarityScaling.MagicFindScaling ??= new MagicFindScalingConfig();
@@ -258,6 +261,7 @@ namespace RPGGame
             WeaponScaling.EnsureSanitizedDefaults();
             ItemScaling.EnsureSanitizedWeaponScalingDefaults();
             ClassBalance.EnsureNonDegenerateClassMultipliers();
+            EarlyGame.EnsureValidDefaults();
             DungeonScaling.EnsureSensibleDefaults();
 
             ReloadClassActionsUnlockFromDisk();

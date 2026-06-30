@@ -22,6 +22,20 @@ namespace RPGGame
             return sortedCombo;
         }
 
+        /// <summary>Replaces each combo entry with a fresh <see cref="ActionLoader.GetAction"/> instance (same name).</summary>
+        public void RefreshActionInstancesFromLoader()
+        {
+            for (int i = 0; i < ComboSequence.Count; i++)
+            {
+                string? name = ComboSequence[i]?.Name;
+                if (string.IsNullOrWhiteSpace(name))
+                    continue;
+                var fresh = ActionLoader.GetAction(name);
+                if (fresh != null)
+                    ComboSequence[i] = fresh;
+            }
+        }
+
         /// <summary>
         /// Adds an action to the combo sequence if it's a valid combo action
         /// Allows duplicate actions (same name) by checking if the exact Action object is already in combo

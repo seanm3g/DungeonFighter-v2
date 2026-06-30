@@ -6,10 +6,13 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.Actions;
 using RPGGame.Combat.Calculators;
+using RPGGame.Data;
 using RPGGame.Editors;
 using RPGGame.UI.Avalonia.Builders;
 using RPGGame.UI.Avalonia.Settings;
+using RPGGame.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,6 +72,9 @@ namespace RPGGame.UI.Avalonia.Managers
             formBuilder = new ActionFormBuilder(actionFormControls, showStatusMessage);
             formBuilder.CancelActionRequested += OnCancelAction;
             
+            // Always sync editor state from ActionLoader (may have changed via spreadsheet pull before this tab opened).
+            actionEditor?.ReloadFromDisk();
+
             // Defer loading actions list until after UI is ready to avoid blocking
             Dispatcher.UIThread.Post(() =>
             {
@@ -78,6 +84,14 @@ namespace RPGGame.UI.Avalonia.Managers
             createActionButton.Click += OnCreateActionClick;
             deleteActionButton.Click += OnDeleteActionClick;
             actionsListBox.SelectionChanged += OnActionSelectionChanged;
+
+            if (actionFormPanel.Parent is ScrollViewer scroll
+                && scroll.Parent is Grid actionsGrid)
+            {
+                var openSheet = actionsGrid.FindControl<Button>("OpenActionsSheetButton");
+                if (openSheet != null)
+                    openSheet.Click += (_, _) => OpenActionsSheetInBrowser();
+            }
 
             if (rarityFilterComboBox != null)
                 rarityFilterComboBox.SelectionChanged += (s, e) => ApplyFilter();
@@ -234,12 +248,26 @@ namespace RPGGame.UI.Avalonia.Managers
             Dispatcher.UIThread.Post(ReloadFromDisk, DispatcherPriority.Normal);
         }
 
+        private static void OpenActionsSheetInBrowser()
+        {
+            var cfg = SheetsConfig.Load();
+            string? url = GoogleSheetsUrlHelper.TryBuildTabEditUrl(cfg, cfg.ActionsSheetUrl);
+            if (string.IsNullOrWhiteSpace(url))
+                url = GoogleSheetsUrlHelper.TryResolveSpreadsheetEditBaseUrl(cfg);
+            BrowserLaunchHelper.TryOpenUrl(url);
+        }
+
         /// <summary>Syncs the tab's <see cref="ActionEditor"/> and list/form from <see cref="ActionLoader"/> after disk changes.</summary>
         public void ReloadFromDisk()
         {
-            if (actionEditor == null || actionsListBox == null) return;
-            string? keepName = actionsListBox.SelectedItem as string;
+            if (actionEditor == null) return;
+
+            string? keepName = actionsListBox?.SelectedItem as string;
             actionEditor.ReloadFromDisk();
+
+            if (actionsListBox == null)
+                return;
+
             LoadActionsList();
             if (string.IsNullOrEmpty(keepName)) return;
             if (actionsListBox.ItemsSource is System.Collections.IEnumerable enumerable)
@@ -473,7 +501,11 @@ namespace RPGGame.UI.Avalonia.Managers
             if ((v = GetText("DamageMultiplier")) != null && double.TryParse(v, out double d1)) action.DamageMultiplier = d1;
             if ((v = GetText("Speed")) != null && double.TryParse(v, out double d2)) action.Length = d2;
             if ((v = GetText("Cadence")) != null) action.Cadence = (v == "(None)" || string.IsNullOrWhiteSpace(v)) ? "" : v;
-            if ((v = GetText("Duration")) != null && int.TryParse(v, out int i3) && i3 >= 0) action.ComboBonusDuration = i3;
+            if ((v = GetText("Duration")) != null && int.TryParse(v, out int i3) && i3 >= 0)
+            {
+                action.ComboBonusDuration = i3;
+                ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(action);
+            }
             if ((v = GetText("ACTION SPEED [hero] (%)")) != null) action.SpeedMod = v ?? "";
             if ((v = GetText("ACTION DAMAGE [hero] (%)")) != null) action.DamageMod = v ?? "";
             if ((v = GetText("MULTIHIT MOD [hero]")) != null) action.MultiHitMod = v ?? "";
@@ -524,10 +556,7 @@ namespace RPGGame.UI.Avalonia.Managers
             if (GetBool("CausesSilence") is bool s10) action.CausesSilence = s10;
             if (GetBool("CausesPierce") is bool s11) action.CausesPierce = s11;
             if (GetBool("CausesStatDrain") is bool s12) action.CausesStatDrain = s12;
-            if (GetBool("CausesFortify") is bool s13) action.CausesFortify = s13;
             if (GetBool("CausesFocus") is bool s14) action.CausesFocus = s14;
-            if (GetBool("CausesCleanse") is bool s15) action.CausesCleanse = s15;
-            if (GetBool("CausesReflect") is bool s16) action.CausesReflect = s16;
             // Flush weapon-type checkboxes so save (from any tab) persists "Assign to Weapon Types"
             // Only update from form when the form has weapon-type controls (otherwise we'd clear existing data)
             var weaponTypes = new[] { "Sword", "Dagger", "Mace", "Wand" };

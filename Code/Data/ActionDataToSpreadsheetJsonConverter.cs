@@ -115,7 +115,12 @@ namespace RPGGame.Data
                 row.ChainPositionBonusesJson = baseRow.ChainPositionBonusesJson ?? "";
 
             // TargetType round-trip (form edits must persist when baseRow exists)
-            row.Target = data.TargetType == "Self" ? "SELF" : "ENEMY";
+            row.Target = FormatTargetForSheet(data.TargetType);
+
+            if (data.HealAmount > 0)
+                row.HeroHeal = data.HealAmount.ToString();
+            if (data.LifestealPercent > 0)
+                row.Lifesteal = FormatLifestealForSheet(data.LifestealPercent);
 
             // Default/starting action round-trip (Settings Actions form)
             row.IsDefaultAction = data.IsDefaultAction ? "1" : (baseRow?.IsDefaultAction ?? "");
@@ -125,10 +130,6 @@ namespace RPGGame.Data
 
             if (baseRow == null)
             {
-                if (data.SelfDamagePercent != 0)
-                {
-                    row.SelfDamage = (data.SelfDamagePercent / 100.0).ToString("F2");
-                }
                 row.Stun = data.CausesStun ? "1" : "";
                 row.Poison = data.CausesPoison ? "1" : "";
                 row.Burn = data.CausesBurn ? "1" : "";
@@ -141,10 +142,9 @@ namespace RPGGame.Data
                 row.Silence = data.CausesSilence ? "1" : "";
                 row.Pierce = data.CausesPierce ? "1" : "";
                 row.StatDrain = data.CausesStatDrain ? "1" : "";
-                row.Fortify = data.CausesFortify ? "1" : "";
                 row.Focus = data.CausesFocus ? "1" : "";
-                row.Cleanse = data.CausesCleanse ? "1" : "";
-                row.Reflect = data.CausesReflect ? "1" : "";
+                row.Confuse = data.CausesConfusion ? "1" : "";
+                row.Disrupt = data.CausesDisrupt ? "1" : "";
             }
 
             return row;
@@ -178,6 +178,24 @@ namespace RPGGame.Data
                 result.Add(Merge(action, baseRow));
             }
             return result;
+        }
+
+        private static string FormatTargetForSheet(string? targetType)
+        {
+            if (string.IsNullOrWhiteSpace(targetType))
+                return "";
+            return targetType.Trim() switch
+            {
+                "Self" => "self",
+                "Environment" => "environment",
+                _ => ""
+            };
+        }
+
+        private static string FormatLifestealForSheet(double lifestealPercent)
+        {
+            double pct = lifestealPercent <= 1.0 ? lifestealPercent * 100 : lifestealPercent;
+            return pct % 1 == 0 ? $"{(int)pct}%" : pct.ToString("F1") + "%";
         }
 
         private static string FormatDamage(double damageMultiplier)

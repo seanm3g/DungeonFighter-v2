@@ -18,6 +18,7 @@ namespace RPGGame.ActionInteractionLab
         private int _labPanelIntDelta;
         private int _labPanelLevelDelta;
         private int _labPanelArmorDelta;
+        private int _labPanelActionSlotDelta;
 
         /// <summary>Enemy level from the last loader pick (or 1 for the default lab dummy).</summary>
         private int _labEnemyBaseLevel = 1;
@@ -106,7 +107,7 @@ namespace RPGGame.ActionInteractionLab
                     throw new ArgumentException("Slot must be weapon, head, body, legs, or feet.", nameof(slot));
             }
 
-            if (!_labPlayer.TryEquipItem(item, s, out _, out var reqFail))
+            if (!_labPlayer.TryEquipItem(item, s, out _, out var reqFail, IgnoreActionRequirements))
             {
                 failureReason = reqFail ?? "Cannot equip item (attribute requirements).";
                 return false;
@@ -122,6 +123,12 @@ namespace RPGGame.ActionInteractionLab
             _refreshCombatUi();
             return true;
         }
+
+        /// <summary>
+        /// Removes an action from the lab hero combo strip, honoring <see cref="IgnoreActionRequirements"/>.
+        /// </summary>
+        public bool TryRemoveFromLabCombo(Action action) =>
+            _labPlayer.RemoveFromCombo(action, ignoreWeaponRequirement: IgnoreActionRequirements);
 
         /// <summary>
         /// Same as <see cref="TryApplyLabGear"/> but throws <see cref="InvalidOperationException"/> when requirements block equip.
@@ -173,6 +180,7 @@ namespace RPGGame.ActionInteractionLab
             _labPanelIntDelta = 0;
             _labPanelLevelDelta = 0;
             _labPanelArmorDelta = 0;
+            _labPanelActionSlotDelta = 0;
         }
 
         /// <summary>Called from <see cref="ActionLabLeftPanelStatAdjustment"/> when the user changes a stat row.</summary>
@@ -198,6 +206,9 @@ namespace RPGGame.ActionInteractionLab
                 case "armor":
                     _labPanelArmorDelta += delta;
                     break;
+                case "actionslots":
+                    _labPanelActionSlotDelta += delta;
+                    break;
             }
         }
 
@@ -218,7 +229,8 @@ namespace RPGGame.ActionInteractionLab
                 _labPanelAgiDelta,
                 _labPanelTecDelta,
                 _labPanelIntDelta,
-                _labPanelArmorDelta);
+                _labPanelArmorDelta,
+                _labPanelActionSlotDelta);
         }
 
         /// <summary>Replace the lab enemy from <see cref="EnemyLoader"/> data (level 1 by default). Clears step history.</summary>

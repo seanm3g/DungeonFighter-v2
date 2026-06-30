@@ -340,19 +340,23 @@
   },
   "enemySystem": {
     "globalMultipliers": {
-      "healthMultiplier": 1,
+      "healthMultiplier": 0.4900520833333334,
       "damageMultiplier": 1,
       "armorMultiplier": 1,
       "speedMultiplier": 1,
       "description": ""
     },
     "progressionScales": {
-      "baseHealthScale": 1,
+      "baseHealthScale": 15.8668,
       "healthGrowthScale": 1,
-      "attributeGrowthScale": 1
+      "attributeGrowthScale": 1,
+      "combatTempoScale": 1,
+      "progressionShape": 0.5,
+      "playerEnemyParity": 0,
+      "progressionPivotLevel": 30
     },
     "baselineStats": {
-      "health": 70,
+      "health": 50,
       "strength": 3,
       "agility": 3,
       "technique": 3,

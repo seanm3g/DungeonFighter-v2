@@ -38,6 +38,79 @@ namespace RPGGame.Actions.RollModification
                 modifiedRoll = MultiDiceRoller.RollMultipleDice(action.RollMods.MultipleDiceCount, 20, mode);
             }
 
+            return ApplyNonMultiDiceRollModifications(modifiedRoll, action, source, target);
+        }
+
+        /// <summary>
+        /// Applies pending advantage/disadvantage (2d20 take higher/lower) or falls back to action roll mods.
+        /// When both advantage and disadvantage are set, they cancel and the original base roll is kept.
+        /// </summary>
+        public static int ApplyMultiDiceRoll(int baseRoll, bool advantage, bool disadvantage, Action action, Actor source, Actor? target)
+        {
+            return ApplyMultiDiceRoll(baseRoll, advantage, disadvantage, action, source, target, out _);
+        }
+
+        public static int ApplyMultiDiceRoll(
+            int baseRoll,
+            bool advantage,
+            bool disadvantage,
+            Action action,
+            Actor source,
+            Actor? target,
+            out MultiDiceRollDetail detail)
+        {
+            detail = MultiDiceRollDetail.None;
+            int modifiedRoll;
+            if (advantage && disadvantage)
+            {
+                modifiedRoll = baseRoll;
+                detail = MultiDiceRollDetail.Cancelled(baseRoll);
+            }
+            else if (advantage)
+            {
+                int die2 = Dice.RollUnforced(20);
+                int high = Math.Max(baseRoll, die2);
+                int low = Math.Min(baseRoll, die2);
+                modifiedRoll = high;
+                detail = MultiDiceRollDetail.FromTwoDice(MultiDiceLuckMode.Advantage, high, low);
+            }
+            else if (disadvantage)
+            {
+                int die2 = Dice.RollUnforced(20);
+                int high = Math.Max(baseRoll, die2);
+                int low = Math.Min(baseRoll, die2);
+                modifiedRoll = low;
+                detail = MultiDiceRollDetail.FromTwoDice(MultiDiceLuckMode.Disadvantage, high, low);
+            }
+            else
+                return ApplyActionRollModifications(baseRoll, action, source, target);
+
+            return ApplyNonMultiDiceRollModifications(modifiedRoll, action, source, target);
+        }
+
+        /// <summary>Updates advantage/disadvantage flags from consumed or peeked bonus items.</summary>
+        public static void CollectAdvantageFlags(IEnumerable<ActionAttackBonusItem>? bonuses, ref bool advantage, ref bool disadvantage)
+        {
+            if (bonuses == null)
+                return;
+            foreach (var bonus in bonuses)
+            {
+                switch ((bonus.Type ?? "").ToUpperInvariant())
+                {
+                    case MultiDiceRollMapper.AdvantageBonusType:
+                        advantage = true;
+                        break;
+                    case MultiDiceRollMapper.DisadvantageBonusType:
+                        disadvantage = true;
+                        break;
+                }
+            }
+        }
+
+        private static int ApplyNonMultiDiceRollModifications(int modifiedRoll, Action action, Actor source, Actor? target)
+        {
+            var context = new RollModificationContext(source, target, action);
+
             // Apply exploding dice if enabled
             if (action.RollMods.ExplodingDice && modifiedRoll >= action.RollMods.ExplodingDiceThreshold)
             {

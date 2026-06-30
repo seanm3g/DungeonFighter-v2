@@ -289,7 +289,7 @@ namespace RPGGame.Tests.Unit.Data
                 Description = "Test hazard",
                 Damage = "120%",
                 Speed = "2.5",
-                Target = "AOE",
+                Target = "environment",
                 Category = "ENVIRONMENT",
                 Tags = "environment, crypt",
                 WeaponTypes = "Sword, Mace"
@@ -297,7 +297,7 @@ namespace RPGGame.Tests.Unit.Data
             var data = SpreadsheetToActionDataConverter.Convert(sheet);
             TestBase.AssertTrue(data.WeaponTypes == null || data.WeaponTypes.Count == 0, "WeaponTypes cleared for environment row", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("Debuff", data.Type, "Type becomes Debuff", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("AreaOfEffect", data.TargetType, "Target is AreaOfEffect", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Environment", data.TargetType, "Target is Environment", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(!data.IsComboAction, "Not a combo action", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(-1, data.ComboOrder, "ComboOrder -1 for hazards", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }

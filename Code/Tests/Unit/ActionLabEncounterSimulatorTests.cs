@@ -57,6 +57,7 @@ namespace RPGGame.Tests.Unit
                 labPanelIntDelta: 0,
                 labPanelLevelDelta: 0,
                 labPanelArmorDelta: 0,
+                labPanelActionSlotDelta: 0,
                 sessionEnemyLoaderType: null,
                 enemyLevel: 1,
                 comboStripActionNames: Array.Empty<string>(),
@@ -86,7 +87,7 @@ namespace RPGGame.Tests.Unit
             var strip = hero.GetComboActions().Select(a => a.Name).ToList();
             var snapshot = new LabCombatSnapshot(
                 json,
-                0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0,
                 null,
                 1,
                 strip,
@@ -125,7 +126,7 @@ namespace RPGGame.Tests.Unit
             var strip = hero.GetComboActions().Select(a => a.Name).ToList();
             var snapshot = new LabCombatSnapshot(
                 json,
-                0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0,
                 null,
                 enemyLevel: 3,
                 strip,
@@ -163,7 +164,7 @@ namespace RPGGame.Tests.Unit
             var strip = hero.GetComboActions().Select(a => a.Name).ToList();
             var snapshot = new LabCombatSnapshot(
                 json,
-                0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0,
                 null,
                 1,
                 strip,
@@ -205,7 +206,7 @@ namespace RPGGame.Tests.Unit
             var strip = hero.GetComboActions().Select(a => a.Name).ToList();
             var snapshot = new LabCombatSnapshot(
                 json,
-                0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0,
                 null,
                 1,
                 strip,
@@ -270,7 +271,7 @@ namespace RPGGame.Tests.Unit
             var strip = hero.GetComboActions().Select(a => a.Name).ToList();
             var snapshot = new LabCombatSnapshot(
                 json,
-                0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0,
                 null,
                 1,
                 strip,

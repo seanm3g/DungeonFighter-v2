@@ -236,6 +236,19 @@ namespace RPGGame.Tuning.Profiles
 
         public static TuningSimulationOutcome ToOutcome(LevelTuningSession session)
         {
+            if (session.PlaythroughBatch != null)
+            {
+                var batch = PlaythroughSimulationMapper.ToBatch(session.PlaythroughBatch);
+                return new TuningSimulationOutcome
+                {
+                    Mode = TuningSimulationModes.ClassPlaythroughBatch,
+                    ProfileId = session.ProfileId ?? "",
+                    PlaythroughBatch = batch,
+                    PlaythroughSnapshot = session.PlaythroughBatch,
+                    TimestampUtc = session.PlaythroughBatch.TimestampUtc
+                };
+            }
+
             if (session.Fundamentals != null)
             {
                 var fundamentals = ToFundamentalsResult(session.Fundamentals);

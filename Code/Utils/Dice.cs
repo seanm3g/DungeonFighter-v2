@@ -161,6 +161,18 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Rolls one die using true randomness, bypassing test/lab forced rolls and async d20 queues.
+        /// Used as the second die in 2d20 advantage/disadvantage so the primary action-selection roll
+        /// is not duplicated when <see cref="SetTestRoll"/> is active (Action Lab).
+        /// </summary>
+        public static int RollUnforced(int sides)
+        {
+            if (sides < 2)
+                throw new ArgumentException("Dice must have at least 2 sides", nameof(sides));
+            return Random.Shared.Next(1, sides + 1);
+        }
+
+        /// <summary>
         /// New dice mechanics for combo system:
         /// 1-5: Fail at attack
         /// 6-13: Normal attack

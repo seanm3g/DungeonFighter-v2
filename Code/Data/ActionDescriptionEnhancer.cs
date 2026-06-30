@@ -58,10 +58,11 @@ namespace RPGGame
                 modifiers.Add($"Multi-hit: {data.MultiHitCount} attacks");
             }
             
-            // Add self-damage information
-            if (data.SelfDamagePercent > 0)
+            // Add lifesteal information
+            if (data.LifestealPercent > 0)
             {
-                modifiers.Add($"Self-damage: {data.SelfDamagePercent}%");
+                double pct = data.LifestealPercent <= 1.0 ? data.LifestealPercent * 100 : data.LifestealPercent;
+                modifiers.Add($"Lifesteal: {pct:F0}%");
             }
             
             // Add stat bonus information (list or legacy single)

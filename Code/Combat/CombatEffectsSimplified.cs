@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Actions.Execution;
 using RPGGame.Combat.Formatting;
 using RPGGame.UI.ColorSystem;
 using RPGGame.Combat.Events;
@@ -90,7 +91,10 @@ namespace RPGGame
                 {
                     if (IsDoTStatusEffectType(effectType) && !ShouldApplyUnconditionalActionDoTFromHit(action, combatEvent))
                         continue;
-                    if (_effectRegistry.ApplyEffect(effectType, target, action, results))
+                    var effectRecipient = ActionEffectTargetResolver.ResolveStatusEffectRecipient(
+                        action, effectType, attacker, target);
+                    var effectAction = StatusEffectActionResolver.ResolveActionForEffectApplication(action, effectType);
+                    if (_effectRegistry.ApplyEffect(effectType, effectRecipient, effectAction, results))
                     {
                         effectsApplied = true;
                     }

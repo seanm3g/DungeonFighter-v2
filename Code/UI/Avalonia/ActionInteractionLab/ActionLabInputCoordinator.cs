@@ -216,6 +216,13 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 return;
             }
 
+            if (value == "lab_req_toggle")
+            {
+                session.IgnoreActionRequirements = !session.IgnoreActionRequirements;
+                RefreshLabCombat();
+                return;
+            }
+
             if (value == "lab_sim_run")
             {
                 var snapshot = session.CaptureSimulationSnapshot();

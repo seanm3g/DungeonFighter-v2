@@ -40,14 +40,14 @@ namespace RPGGame.Data
                 header.GetValue(columns, null, "TAG"));
             data.NumberOfHits = header.GetValue(columns, null, "# OF HITS");
             data.Damage = header.GetDamagePercentValue(columns);
-            // Legacy layout: ACTION,DESC,…,RARITY(3),CATEGORY(4),DPS(5),#HITS(6),DAMAGE(7). If header text omits "%", GetDamagePercentValue uses column index; when that also fails, H is index 7 (not 6 — 6 is # OF HITS).
-            if (string.IsNullOrEmpty(data.Damage) && columns.Length > 7)
-                data.Damage = columns[7].Trim();
             data.Speed = header.GetValue(columns, null, "SPEED(x)");
-            data.Duration = header.GetValue(columns, null, "DURATION");
+            data.Duration = FirstNonEmpty(
+                header.GetValue(columns, SpreadsheetDurationSemantics.StatusEffectContext, "DURATION", allowUnscopedLabelFallback: false),
+                header.GetValue(columns, null, "DURATION"));
             data.Cadence = header.GetValue(columns, null, "CADENCE");
             data.Opener = header.GetValue(columns, null, "OPENER");
             data.Finisher = header.GetValue(columns, null, "FINISHER");
+            data.Target = header.GetValue(columns, null, "TARGET");
 
             data.HeroAccuracy = header.GetValue(columns, "HERO DICE ROLL MODIFICATIONS", "ACCUARCY");
             if (string.IsNullOrEmpty(data.HeroAccuracy)) data.HeroAccuracy = header.GetValue(columns, "HERO DICE ROLL MODIFICATIONS", "ACCURACY");
@@ -110,8 +110,9 @@ namespace RPGGame.Data
             data.Cleanse = header.GetValue(columns, "ENEMY TARGET", "CLENSE");
             data.Lifesteal = header.GetValue(columns, "ENEMY TARGET", "LIFESTEAL");
             data.Reflect = header.GetValue(columns, "ENEMY TARGET", "REFLECT");
-            data.SelfDamage = header.GetValue(columns, "ENEMY TARGET", "SELF DAMAGE");
-            if (string.IsNullOrEmpty(data.SelfDamage)) data.SelfDamage = header.GetValue(columns, "SELF TARGET", "SELF DAMAGE");
+            data.Confuse = header.GetValue(columns, "ENEMY TARGET", "CONFUSE");
+
+            ParseSelfTargetStatusEffects(data, columns, header);
 
             // Unscoped fallbacks only when neither hero nor enemy section provided a value (avoids stealing AD–AG into AJ–AM).
             if (string.IsNullOrEmpty(data.SpeedMod) && string.IsNullOrEmpty(data.EnemySpeedMod))
@@ -152,11 +153,53 @@ namespace RPGGame.Data
             if (string.IsNullOrEmpty(data.Cleanse)) data.Cleanse = header.GetValue(columns, null, "CLENSE");
             if (string.IsNullOrEmpty(data.Lifesteal)) data.Lifesteal = header.GetValue(columns, null, "LIFESTEAL");
             if (string.IsNullOrEmpty(data.Reflect)) data.Reflect = header.GetValue(columns, null, "REFLECT");
-            if (string.IsNullOrEmpty(data.SelfDamage)) data.SelfDamage = header.GetValue(columns, null, "SELF DAMAGE");
+            if (string.IsNullOrEmpty(data.Confuse)) data.Confuse = header.GetValue(columns, null, "CONFUSE");
             if (string.IsNullOrEmpty(data.HeroHeal)) data.HeroHeal = header.GetValue(columns, null, "HEAL");
             if (string.IsNullOrEmpty(data.HeroHealMaxHealth)) data.HeroHealMaxHealth = header.GetValue(columns, null, "MAX HEALTH");
 
+            ParseRollMechanics(data, columns, header);
             ParseJumpShiftDisruptMechanics(data, columns, header);
+        }
+
+        private static void ParseSelfTargetStatusEffects(SpreadsheetActionData data, string[] columns, SpreadsheetHeader header)
+        {
+            data.SelfTargetEffects.Clear();
+            AddSelfTargetEffectIfPresent(data, columns, header, "STUN", "stun");
+            AddSelfTargetEffectIfPresent(data, columns, header, "POISON", "poison");
+            AddSelfTargetEffectIfPresent(data, columns, header, "BURN", "burn");
+            AddSelfTargetEffectIfPresent(data, columns, header, "BLEED", "bleed");
+            AddSelfTargetEffectIfPresent(data, columns, header, "WEAKEN", "weaken");
+            AddSelfTargetEffectIfPresent(data, columns, header, "EXPOSE", "expose");
+            AddSelfTargetEffectIfPresent(data, columns, header, "SLOW", "slow");
+            AddSelfTargetEffectIfPresent(data, columns, header, "VULNERABILITY", "vulnerability");
+            AddSelfTargetEffectIfPresent(data, columns, header, "HARDEN", "harden");
+            AddSelfTargetEffectIfPresent(data, columns, header, "SILENCE", "silence");
+            AddSelfTargetEffectIfPresent(data, columns, header, "PIERCE", "pierce");
+            AddSelfTargetEffectIfPresent(data, columns, header, "STAT DRAIN", "statdrain");
+            AddSelfTargetEffectIfPresent(data, columns, header, "FOCUS", "focus");
+        }
+
+        private static void AddSelfTargetEffectIfPresent(
+            SpreadsheetActionData data,
+            string[] columns,
+            SpreadsheetHeader header,
+            string label,
+            string effectKey)
+        {
+            string value = header.GetValue(columns, "SELF TARGET", label);
+            if (!string.IsNullOrWhiteSpace(value) && value != "0")
+                data.SelfTargetEffects.Add(effectKey);
+        }
+
+        private static void ParseRollMechanics(SpreadsheetActionData data, string[] columns, SpreadsheetHeader header)
+        {
+            data.DiceRolls = FirstNonEmpty(
+                header.GetValue(columns, null, "DICE ROLLS"),
+                data.DiceRolls);
+            data.HighestLowestRoll = FirstNonEmpty(
+                header.GetValue(columns, null, "HIGHEST/LOWEST ROLL"),
+                header.GetValue(columns, null, "HIGHEST LOWEST ROLL"),
+                data.HighestLowestRoll);
         }
 
         private static void ParseNextActionModsFromHeader(SpreadsheetActionData data, string[] columns, SpreadsheetHeader header)
@@ -275,7 +318,6 @@ namespace RPGGame.Data
             if (columns.Length > 54) data.Cleanse = columns[54].Trim();
             if (columns.Length > 55) data.Lifesteal = columns[55].Trim();
             if (columns.Length > 56) data.Reflect = columns[56].Trim();
-            if (columns.Length > 57) data.SelfDamage = columns[57].Trim();
         }
     }
 }

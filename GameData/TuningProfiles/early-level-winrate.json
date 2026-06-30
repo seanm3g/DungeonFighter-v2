@@ -1,0 +1,16 @@
+{
+  "id": "early-level-winrate",
+  "name": "Early Level Win Rate",
+  "description": "Same-level weapon×enemy matrix at L1–5; tune toward the level win-rate curve before playthrough autobalance.",
+  "simulation": {
+    "mode": "multi_level_weapon_enemy",
+    "battlesPerCombination": 8,
+    "levels": [1, 2, 3, 5]
+  },
+  "analysis": {
+    "optimizeWinRate": true,
+    "validators": ["level_curve", "win_rate"],
+    "suggesters": ["level_curve", "global", "player"],
+    "maxSuggestions": 1
+  }
+}

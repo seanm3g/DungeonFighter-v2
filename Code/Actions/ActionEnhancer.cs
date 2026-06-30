@@ -38,8 +38,8 @@ namespace RPGGame.Actions
             // Add multi-hit information
             AddMultiHitInfo(data, modifiers);
             
-            // Add self-damage information
-            AddSelfDamageInfo(data, modifiers);
+            // Add lifesteal information
+            AddLifestealInfo(data, modifiers);
             
             // Add stat bonus information
             AddStatBonusInfo(data, modifiers);
@@ -133,13 +133,14 @@ namespace RPGGame.Actions
         }
         
         /// <summary>
-        /// Adds self-damage information to the modifier list
+        /// Adds lifesteal information to the modifier list
         /// </summary>
-        private static void AddSelfDamageInfo(ActionData data, List<string> modifiers)
+        private static void AddLifestealInfo(ActionData data, List<string> modifiers)
         {
-            if (data.SelfDamagePercent > 0)
+            if (data.LifestealPercent > 0)
             {
-                modifiers.Add($"Self-damage: {data.SelfDamagePercent}%");
+                double pct = data.LifestealPercent <= 1.0 ? data.LifestealPercent * 100 : data.LifestealPercent;
+                modifiers.Add($"Lifesteal: {pct:F0}%");
             }
         }
         

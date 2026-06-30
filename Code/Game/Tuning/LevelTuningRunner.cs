@@ -46,7 +46,7 @@ namespace RPGGame.Tuning
                     await BalanceTuningWorkflow.RunSimAsync(profileId, simArgs);
 
                     var session = LevelTuningSessionStore.Load();
-                    if (session.Simulation == null && session.Comprehensive == null && session.Fundamentals == null)
+                    if (session.Simulation == null && session.Comprehensive == null && session.Fundamentals == null && session.PlaythroughBatch == null)
                     {
                         Console.WriteLine("Simulation failed to persist; stopping.");
                         break;
@@ -58,7 +58,18 @@ namespace RPGGame.Tuning
                         break;
                     }
 
-                    double currentScore = session.Simulation?.OverallCurveScore ?? 0;
+                    double currentScore = session.PlaythroughBatch?.QualityScore
+                        ?? session.Simulation?.OverallCurveScore
+                        ?? 0;
+
+                    if (previousScore >= 0 && session.PlaythroughBatch != null && currentScore < previousScore)
+                    {
+                        Console.WriteLine($"Playthrough quality regressed ({currentScore:F1} < {previousScore:F1}). Reverting.");
+                        BalancePatchManager.ApplyPatch(snapshotPatch);
+                        GameConfiguration.ResetInstance();
+                        _ = GameConfiguration.Instance;
+                        continue;
+                    }
 
                     if (previousScore >= 0 && session.Simulation != null && currentScore < previousScore)
                     {
@@ -69,7 +80,9 @@ namespace RPGGame.Tuning
                         continue;
                     }
 
-                    if (session.Simulation != null)
+                    if (session.PlaythroughBatch != null)
+                        previousScore = session.PlaythroughBatch.QualityScore;
+                    else if (session.Simulation != null)
                         previousScore = session.Simulation.OverallCurveScore;
 
                     await BalanceTuningWorkflow.RunAnalyzeAsync();

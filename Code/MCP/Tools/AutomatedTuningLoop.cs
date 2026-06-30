@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using RPGGame.MCP.Models;
+using RPGGame.Tuning;
 
 namespace RPGGame.MCP.Tools
 {
@@ -255,32 +256,35 @@ namespace RPGGame.MCP.Tools
 
         private static async Task<string> RunGameplayPhase(System.Text.StringBuilder output)
         {
-            _currentState.Status = "Game Tester Agent: Playing through dungeon...";
-            output.AppendLine("Game Tester Agent: Verifying gameplay experience...\n");
+            _currentState.Status = "Game Tester Agent: Running four-class playthrough batch...";
+            output.AppendLine("Game Tester Agent: Verifying full-game balance across all four classes...\n");
 
-            output.AppendLine("  → Starting new game...");
-            await GameControlTools.StartNewGame();
-            output.AppendLine("  ✓ Game started\n");
+            const int runsPerClass = 3;
+            const int maxActionsPerRun = 400;
 
-            output.AppendLine("  → Simulating dungeon playthrough...");
-            output.AppendLine("     (Testing weapon variety and matchup feel)\n");
+            output.AppendLine($"  → Running {runsPerClass} playthrough(s) per class (max {maxActionsPerRun} actions each)...\n");
 
-            // Simple playthrough sequence
-            var actions = new[] { "1", "1", "1", "1", "1" }; // Simulate some actions
-            foreach (var action in actions)
+            var batch = await ClassPlaythroughBatchRunner.RunAsync(
+                runsPerClass,
+                classesCsv: null,
+                maxActionsPerRun);
+
+            McpToolState.LastPlaythroughBatchResult = batch;
+            _currentState.Results["playthroughBatch"] = batch;
+
+            var report = ClassPlaythroughBatchRunner.FormatReport(batch);
+            output.AppendLine(report);
+
+            if (batch.HasParityWarnings)
             {
-                try
-                {
-                    await NavigationTools.HandleInput(action);
-                }
-                catch { }
+                output.AppendLine("  ⚠ Cross-class parity warnings detected — review before accepting tuning changes.\n");
+                _currentState.Status = "Gameplay Phase: Complete with parity warnings";
+                return report + "\nGameplay verification completed with parity warnings.";
             }
 
-            output.AppendLine("  ✓ Playthrough complete\n");
-            output.AppendLine("  Feedback: Weapons feel responsive, matchups diverse, pacing good\n");
-
+            output.AppendLine("  ✓ Playthrough batch complete — no cross-class parity warnings.\n");
             _currentState.Status = "Gameplay Phase: Complete";
-            return "Gameplay verification passed - No major issues detected";
+            return report + "\nGameplay verification passed.";
         }
 
         private static async Task<string> RunSavePhase(System.Text.StringBuilder output)

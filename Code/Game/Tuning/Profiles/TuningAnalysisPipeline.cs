@@ -125,6 +125,12 @@ namespace RPGGame.Tuning.Profiles
                 case TuningValidatorIds.DialAgency:
                     return ValidateDialAgency(simulation);
 
+                case TuningValidatorIds.PlaythroughProgression:
+                    return ValidatePlaythroughProgression(simulation, profile);
+
+                case TuningValidatorIds.PlaythroughClassParity:
+                    return ValidatePlaythroughClassParity(simulation, profile);
+
                 default:
                     return WarningOnly($"Unknown validator '{id}'");
             }
@@ -244,6 +250,22 @@ namespace RPGGame.Tuning.Profiles
 
         private static TuningAnalysis BuildAnalysis(BalanceTuningProfile profile, TuningSimulationOutcome simulation)
         {
+            if (simulation.PlaythroughSnapshot != null)
+            {
+                var dto = simulation.PlaythroughSnapshot;
+                return new TuningAnalysis
+                {
+                    OverallWinRate = 0,
+                    AverageCombatDuration = simulation.PlaythroughBatch?.ClassAggregates.Count > 0
+                        ? simulation.PlaythroughBatch.ClassAggregates.Average(a => a.MeanTurnCount)
+                        : 0,
+                    WeaponVariance = dto.LevelSpread,
+                    EnemyVariance = dto.DungeonSpread,
+                    QualityScore = dto.QualityScore,
+                    Summary = $"Playthrough: avg level {dto.OverallMeanFinalLevel:F1}, avg dungeons {dto.OverallMeanDungeonsCompleted:F1}, level spread {dto.LevelSpread:F1}, dungeon spread {dto.DungeonSpread:F1}"
+                };
+            }
+
             if (simulation.Fundamentals != null)
             {
                 var f = simulation.Fundamentals;
@@ -341,6 +363,12 @@ namespace RPGGame.Tuning.Profiles
                         suggestions.AddRange(DungeonScalingAdjustmentSuggester.Suggest(analysis));
                         break;
 
+                    case TuningSuggesterIds.PlaythroughBalance:
+                        if (simulation.PlaythroughBatch != null)
+                            suggestions.AddRange(PlaythroughAdjustmentSuggester.Suggest(
+                                simulation.PlaythroughBatch, analysis, profile.Analysis.PlaythroughTargets));
+                        break;
+
                     case TuningSuggesterIds.Global:
                     case TuningSuggesterIds.Player:
                     case TuningSuggesterIds.EnemyBaseline:
@@ -408,6 +436,14 @@ namespace RPGGame.Tuning.Profiles
                 return suggestions.Count > 0
                     ? $"{profile.Name}: avg {avgTurns:F1} turns/level — {suggestions.Count} suggestion(s)"
                     : $"{profile.Name}: combat duration within target at all levels (avg {avgTurns:F1} turns)";
+            }
+
+            if (simulation.PlaythroughSnapshot != null)
+            {
+                var p = simulation.PlaythroughSnapshot;
+                return suggestions.Count > 0
+                    ? $"{profile.Name}: avg level {p.OverallMeanFinalLevel:F1}, dungeons {p.OverallMeanDungeonsCompleted:F1} — {suggestions.Count} suggestion(s)"
+                    : $"{profile.Name}: playthrough targets met (quality {p.QualityScore:F0}/100)";
             }
 
             return suggestions.Count > 0
@@ -623,6 +659,76 @@ namespace RPGGame.Tuning.Profiles
             }
             else
                 result.PassedChecks++;
+
+            return result;
+        }
+
+        private static BalanceValidator.ValidationResult ValidatePlaythroughProgression(
+            TuningSimulationOutcome simulation,
+            BalanceTuningProfile profile)
+        {
+            var result = new BalanceValidator.ValidationResult { TotalChecks = 2 };
+            var dto = simulation.PlaythroughSnapshot;
+            if (dto == null)
+            {
+                result.Warnings.Add("playthrough_progression requires class playthrough batch data");
+                return result;
+            }
+
+            var targets = profile.Analysis.PlaythroughTargets ?? new PlaythroughAnalysisTargets();
+
+            if (dto.OverallMeanFinalLevel >= targets.MinMeanFinalLevel)
+                result.PassedChecks++;
+            else
+            {
+                result.Warnings.Add(
+                    $"Mean level at death {dto.OverallMeanFinalLevel:F1} below target {targets.MinMeanFinalLevel:F1}");
+                result.IsValid = false;
+            }
+
+            if (dto.OverallMeanDungeonsCompleted >= targets.MinMeanDungeonsCompleted)
+                result.PassedChecks++;
+            else
+            {
+                result.Warnings.Add(
+                    $"Mean dungeons completed {dto.OverallMeanDungeonsCompleted:F1} below target {targets.MinMeanDungeonsCompleted:F1}");
+                result.IsValid = false;
+            }
+
+            return result;
+        }
+
+        private static BalanceValidator.ValidationResult ValidatePlaythroughClassParity(
+            TuningSimulationOutcome simulation,
+            BalanceTuningProfile profile)
+        {
+            var result = new BalanceValidator.ValidationResult { TotalChecks = 2 };
+            var dto = simulation.PlaythroughSnapshot;
+            if (dto == null)
+            {
+                result.Warnings.Add("playthrough_class_parity requires class playthrough batch data");
+                return result;
+            }
+
+            var targets = profile.Analysis.PlaythroughTargets ?? new PlaythroughAnalysisTargets();
+
+            if (dto.LevelSpread <= targets.MaxLevelSpread)
+                result.PassedChecks++;
+            else
+            {
+                result.Warnings.Add(
+                    $"Class level spread {dto.LevelSpread:F1} exceeds max {targets.MaxLevelSpread:F1}");
+                result.IsValid = false;
+            }
+
+            if (dto.DungeonSpread <= targets.MaxDungeonSpread && !dto.HasParityWarnings)
+                result.PassedChecks++;
+            else
+            {
+                result.Warnings.Add(
+                    $"Class dungeon spread {dto.DungeonSpread:F1} exceeds max {targets.MaxDungeonSpread:F1} or parity warnings present");
+                result.IsValid = false;
+            }
 
             return result;
         }

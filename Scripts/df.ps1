@@ -64,6 +64,8 @@ function Cmd-Build {
     $root = Get-RepoRoot
     Set-Location $root
     Write-Header "BUILD ($config)"
+    Write-Host "Stopping any running DF.exe (avoids locked-output build errors)..." -ForegroundColor Yellow
+    try { taskkill /f /im DF.exe 2>$null | Out-Null } catch { }
     $exit = Invoke-DotNet @("build", "Code/Code.csproj", "--configuration", $config)
     if ($exit -ne 0) { exit $exit }
 }
@@ -73,6 +75,8 @@ function Cmd-Test {
     Set-Location $root
 
     Write-Header "TEST SUITE"
+    Write-Host "Stopping any running DF.exe (avoids locked-output build errors)..." -ForegroundColor Yellow
+    try { taskkill /f /im DF.exe 2>$null | Out-Null } catch { }
     Write-Host "Building project..." -ForegroundColor Yellow
     $exit = Invoke-DotNet @("build", "Code/Code.csproj", "--configuration", "Debug")
     if ($exit -ne 0) { exit $exit }

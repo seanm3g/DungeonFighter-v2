@@ -72,6 +72,9 @@ namespace RPGGame.UI.Avalonia.Layout
             var techMilestoneSteps = actor is Character chTec
                 ? TechniqueMilestoneThresholdBonuses.GetSteps(chTec.GetEffectiveTechnique())
                 : default;
+            int naiveteHitSteps = actor is Character chNav && chNav is not Enemy
+                ? NaiveteBalanceHelper.GetHitSteps(chNav)
+                : 0;
 
             int eqHit = 0, eqCombo = 0, eqCrit = 0;
             int dungeonHit = 0, dungeonCombo = 0, dungeonCrit = 0, dungeonCritMiss = 0;
@@ -88,7 +91,7 @@ namespace RPGGame.UI.Avalonia.Layout
             }
 
             int comboRowShift = pendingHud.SharedAccuracy + pendingHud.ComboDelta + techMilestoneSteps.ComboSteps + eqCombo + dungeonCombo;
-            int hitRowShift = pendingHud.SharedAccuracy + pendingHud.HitDelta + techMilestoneSteps.HitSteps + eqHit + dungeonHit;
+            int hitRowShift = pendingHud.SharedAccuracy + pendingHud.HitDelta + techMilestoneSteps.HitSteps + naiveteHitSteps + eqHit + dungeonHit;
             int critRowShift = pendingHud.CritDelta + techMilestoneSteps.CritSteps + eqCrit + dungeonCrit;
             // Crit-miss potions store the same delta passed to AdjustCriticalMissThreshold (add, not subtract).
             int critMissRowShift = -pendingHud.CritMissDelta - dungeonCritMiss;

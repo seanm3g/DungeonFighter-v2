@@ -48,4 +48,9 @@
     <PackageReference Include="SoundFlow" Version="1.4.0" />
   </ItemGroup>
 
+  <!-- Avoid MSB3027 when DF.exe is still running from a previous dotnet run / debug session. -->
+  <Target Name="StopRunningInstanceBeforeOutputCopy" BeforeTargets="CopyFilesToOutputDirectory" Condition="'$(OS)' == 'Windows_NT'">
+    <Exec Command="cmd /c &quot;taskkill /F /IM DF.exe &gt;nul 2&gt;&amp;1 || exit /b 0&quot;" />
+  </Target>
+
 </Project>

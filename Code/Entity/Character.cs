@@ -54,6 +54,9 @@ namespace RPGGame
         /// <summary>Action Interaction Lab only: added to <see cref="GetTotalArmor"/> for sandbox tuning (default 0).</summary>
         public int ActionLabArmorBonus { get; set; }
 
+        /// <summary>Action Interaction Lab only: added to <see cref="ComboSequenceMaxHelper.GetEffectiveMax"/> for sandbox tuning (default 0).</summary>
+        public int ActionLabActionSlotBonus { get; set; }
+
         // Health properties (delegated to Health manager)
         public int CurrentHealth 
         { 
@@ -152,8 +155,13 @@ namespace RPGGame
         public void ApplyHealthMultiplier(double multiplier) => Health.ApplyHealthMultiplier(multiplier);
 
         // Equipment management (delegated to EquipmentManager)
-        public bool TryEquipItem(Item item, string slot, out Item? replacedItem, out string? failureReason) =>
-            _equipmentManager.TryEquipItem(item, slot, out replacedItem, out failureReason);
+        public bool TryEquipItem(
+            Item item,
+            string slot,
+            out Item? replacedItem,
+            out string? failureReason,
+            bool ignoreAttributeRequirements = false) =>
+            _equipmentManager.TryEquipItem(item, slot, out replacedItem, out failureReason, ignoreAttributeRequirements);
 
         public Item? EquipItem(Item item, string slot) => _equipmentManager.EquipItem(item, slot);
         public Item? UnequipItem(string slot) => _equipmentManager.UnequipItem(slot);

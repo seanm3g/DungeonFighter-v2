@@ -25,7 +25,7 @@ namespace RPGGame.Tests.Unit.Entity
         {
             run++;
             var c = new Character("PoolTestHero");
-            var env = new Action("RoomHazard", ActionType.Debuff, TargetType.AreaOfEffect, 0, "x")
+            var env = new Action("RoomHazard", ActionType.Debuff, TargetType.Environment, 0, "x")
             {
                 Tags = new System.Collections.Generic.List<string> { "environment" }
             };
@@ -48,7 +48,7 @@ namespace RPGGame.Tests.Unit.Entity
         {
             run++;
             var c = new Character("DupTestHero");
-            var env = new Action("HazardDup", ActionType.Debuff, TargetType.AreaOfEffect, 0, "x")
+            var env = new Action("HazardDup", ActionType.Debuff, TargetType.Environment, 0, "x")
             {
                 Tags = new System.Collections.Generic.List<string> { "ENVIRONMENT" }
             };
@@ -67,7 +67,7 @@ namespace RPGGame.Tests.Unit.Entity
             run++;
             var e = new Enemy("PoolTestEnemy", level: 1, maxHealth: 10, strength: 5, agility: 5, technique: 5, intelligence: 5, armor: 0);
             e.ActionPool.Clear();
-            var env = new Action("EnemyEnvLeak", ActionType.Debuff, TargetType.AreaOfEffect, 0, "x")
+            var env = new Action("EnemyEnvLeak", ActionType.Debuff, TargetType.Environment, 0, "x")
             {
                 Tags = new System.Collections.Generic.List<string> { "environment" }
             };

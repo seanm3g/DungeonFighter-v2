@@ -26,7 +26,7 @@ namespace RPGGame.Data
             }
             
             string cadence = spreadsheetData.Cadence.Trim().ToUpper();
-            int duration = SpreadsheetActionData.ParseIntValue(spreadsheetData.Duration);
+            int duration = SpreadsheetDurationSemantics.ResolveCadenceDuration(spreadsheetData);
             // Default duration for ABILITY or ACTION keyword
             if (duration == 0 && (cadence == "ABILITY" || cadence == "ABILITIES" || cadence == "ACTION" || cadence == "ACTIONS" || cadence == "ATTACK" || cadence == "ATTACKS"))
             {
@@ -144,7 +144,7 @@ namespace RPGGame.Data
             
             if (bonusItems.Count > 0)
             {
-                int duration = SpreadsheetActionData.ParseIntValue(spreadsheetData.Duration);
+                int duration = SpreadsheetDurationSemantics.ResolveCadenceDuration(spreadsheetData);
                 if (duration == 0) duration = 1;
                 
                 var group = new ActionAttackBonusGroup

@@ -55,6 +55,7 @@ namespace RPGGame.Tuning.Profiles
                 labPanelIntDelta: 0,
                 labPanelLevelDelta: 0,
                 labPanelArmorDelta: 0,
+                labPanelActionSlotDelta: 0,
                 sessionEnemyLoaderType: enemyType,
                 enemyLevel: Math.Clamp(config.EnemyLevel, 1, 99),
                 comboStripActionNames: strip,

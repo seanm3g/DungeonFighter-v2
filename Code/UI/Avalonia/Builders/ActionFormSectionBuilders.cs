@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using RPGGame;
+using RPGGame.Actions;
 using RPGGame.Editors;
 using RPGGame.UI.Avalonia.Resources;
 using System;
@@ -93,7 +94,7 @@ namespace RPGGame.UI.Avalonia.Builders
             if (!string.IsNullOrWhiteSpace(cadenceDisplay) && !cadenceOptions.Any(c => string.Equals(c, cadenceDisplay, StringComparison.OrdinalIgnoreCase)))
                 cadenceOptions.Add(cadenceDisplay);
             _ctx.Factory.AddFormField(stack, "Cadence", cadenceDisplay, (value) => action.Cadence = (value == ActionFormOptions.NoneOption || string.IsNullOrWhiteSpace(value)) ? "" : value, cadenceOptions.ToArray());
-            _ctx.Factory.AddFormField(stack, "Duration", action.ComboBonusDuration.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= 0) action.ComboBonusDuration = v; }, description: "e.g. 3 (combo bonus duration, modifier queue depth, or deferred accuracy layers — see cadence note below)");
+            _ctx.Factory.AddFormField(stack, "Duration", action.ComboBonusDuration.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= 0) { action.ComboBonusDuration = v; ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(action); } }, description: "Cadence duration (sheet column K): how many ACTION/ATTACK/ABILITY applications, e.g. 2 for ACTION x2");
 
             var cadenceDesignNote = new TextBlock
             {
@@ -286,10 +287,7 @@ namespace RPGGame.UI.Avalonia.Builders
             _ctx.Factory.AddBooleanField(stack, "CausesSilence", action.CausesSilence, (value) => action.CausesSilence = value);
             _ctx.Factory.AddBooleanField(stack, "CausesPierce", action.CausesPierce, (value) => action.CausesPierce = value);
             _ctx.Factory.AddBooleanField(stack, "CausesStatDrain", action.CausesStatDrain, (value) => action.CausesStatDrain = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesFortify", action.CausesFortify, (value) => action.CausesFortify = value);
             _ctx.Factory.AddBooleanField(stack, "CausesFocus", action.CausesFocus, (value) => action.CausesFocus = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesCleanse", action.CausesCleanse, (value) => action.CausesCleanse = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesReflect", action.CausesReflect, (value) => action.CausesReflect = value);
         }
 
         private void AddActionAssignmentToStack(StackPanel stack, ActionData action)

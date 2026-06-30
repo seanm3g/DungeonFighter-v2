@@ -79,9 +79,7 @@ namespace RPGGame.ActionInteractionLab
             }
             else
             {
-                var fallbackAction = actionSelector.SelectWeaponActionForStarter(starterWeapon.WeaponType.ToString());
-                if (!string.IsNullOrEmpty(fallbackAction))
-                    starterWeapon.GearAction = fallbackAction;
+                // Starter gear actions come only from Actions.json (spreadsheet pull). ActionTables.json is legacy loot data.
             }
         }
 

@@ -25,17 +25,14 @@ namespace RPGGame.Tests.Unit
             
             TestVulnerabilityEffect();
             TestHardenEffect();
-            TestFortifyEffect();
             TestFocusEffect();
             TestExposeEffect();
             TestHPRegenEffect();
             TestArmorBreakEffect();
             TestPierceEffect();
-            TestReflectEffect();
             TestSilenceEffect();
             TestMarkEffect();
             TestDisruptEffect();
-            TestCleanseEffect();
             
             PrintSummary();
         }

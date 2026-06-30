@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace RPGGame.Data
 {
@@ -28,25 +29,31 @@ namespace RPGGame.Data
         // Column F
         public string DPS { get; set; } = "";
         
-        // Column G
+        // Column G — # OF HITS
         public string NumberOfHits { get; set; } = "";
         
-        // Column H
+        // Column H — DAMAGE(%)
         public string Damage { get; set; } = "";
         
-        // Column I
+        // Column I — SPEED(x)
         public string Speed { get; set; } = "";
         
-        // Column J
+        /// <summary>STATUS EFFECT / DURATION (column K) — cadence duration (ACTION/ATTACK/ABILITY application count).</summary>
         public string Duration { get; set; } = "";
         
-        // Column K
+        /// <summary>STATUS EFFECT / CADENCE — keyword (ACTION / ATTACK / ABILITY / FIGHT / DUNGEON).</summary>
         public string Cadence { get; set; } = "";
         
-        // Column L
+        /// <summary>Legacy JSON alias for <see cref="Duration"/> when round-tripping old Actions.json rows.</summary>
+        public string CadenceApplicationCount { get; set; } = "";
+        
+        // Column M — TARGET
+        public string Target { get; set; } = "";
+        
+        // Column N — OPENER
         public string Opener { get; set; } = "";
         
-        // Column M
+        // Column O — FINISHER
         public string Finisher { get; set; } = "";
         
         // Columns N-Q: Hero bonuses (ACCURACY, HIT, COMBO, CRIT)
@@ -109,7 +116,11 @@ namespace RPGGame.Data
         public string Cleanse { get; set; } = "";
         public string Lifesteal { get; set; } = "";
         public string Reflect { get; set; } = "";
+        public string Confuse { get; set; } = "";
         public string SelfDamage { get; set; } = "";
+
+        /// <summary>Status effect types populated from the SELF TARGET sheet block (e.g. "harden", "fortify").</summary>
+        public List<string> SelfTargetEffects { get; set; } = new List<string>();
         
         // Heal columns
         public string HeroHeal { get; set; } = "";
@@ -159,7 +170,6 @@ namespace RPGGame.Data
         public string ChainPositionBonusesJson { get; set; } = "";
 
         // Threshold columns
-        public string Target { get; set; } = "";
         public string ThresholdCategory { get; set; } = "";
         public string ThresholdAmount { get; set; } = "";
         public string Bonus { get; set; } = "";
@@ -202,6 +212,20 @@ namespace RPGGame.Data
             "RESET", "MODIFY ROOM", "GRACE", "CHAIN POSITION BONUSES JSON"
         };
 
+        private static readonly Regex LayerSectionMarkerPattern = new Regex(
+            @"^LAYER\s+\d+\s+ACTIONS\s*$",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+
+        /// <summary>
+        /// True when column A is a mid-sheet section break such as "LAYER 2 ACTIONS" (not a playable action).
+        /// </summary>
+        public static bool IsLayerSectionMarkerRow(string? columnA)
+        {
+            if (string.IsNullOrWhiteSpace(columnA))
+                return false;
+            return LayerSectionMarkerPattern.IsMatch(columnA.Trim());
+        }
+
         /// <summary>
         /// Returns true if the action name looks like spreadsheet context/header rather than a real action.
         /// Rows with parenthetical labels (e.g. "(RESET CHAIN)") or sub-header column names are skipped.
@@ -212,6 +236,9 @@ namespace RPGGame.Data
                 return false;
 
             var trimmed = actionName.Trim();
+
+            if (IsLayerSectionMarkerRow(trimmed))
+                return true;
 
             // Parenthetical context labels: "(RESET CHAIN)", "(ON FAIL NO RESET)"
             if (trimmed.StartsWith("(") && trimmed.Contains(")"))

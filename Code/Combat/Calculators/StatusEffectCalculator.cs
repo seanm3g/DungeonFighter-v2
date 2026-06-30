@@ -19,11 +19,11 @@ namespace RPGGame.Combat.Calculators
             // Check if action can cause any status effect (basic or advanced)
             if (!action.CausesBleed && !action.CausesWeaken && !action.CausesSlow && 
                 !action.CausesPoison && !action.CausesStun && !action.CausesBurn &&
-                !action.CausesVulnerability && !action.CausesHarden && !action.CausesFortify &&
+                !action.CausesVulnerability && !action.CausesHarden &&
                 !action.CausesFocus && !action.CausesExpose && !action.CausesHPRegen &&
-                !action.CausesArmorBreak && !action.CausesPierce && !action.CausesReflect &&
+                !action.CausesArmorBreak && !action.CausesPierce &&
                 !action.CausesSilence && !action.CausesStatDrain && !action.CausesAbsorb &&
-                !action.CausesTemporaryHP && !action.CausesConfusion && !action.CausesCleanse &&
+                !action.CausesTemporaryHP && !action.CausesConfusion &&
                 !action.CausesMark && !action.CausesDisrupt)
             {
                 return false; // No status effects possible

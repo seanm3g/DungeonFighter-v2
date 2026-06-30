@@ -36,9 +36,10 @@ namespace RPGGame
             int roll = 0,
             int multiHitCount = 1,
             bool isCriticalMiss = false,
-            bool? resolvedCritical = null)
+            bool? resolvedCritical = null,
+            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
         {
-            return DamageFormatter.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss, resolvedCritical);
+            return DamageFormatter.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss, resolvedCritical, multiDiceDetail);
         }
         
         /// <summary>
@@ -104,7 +105,8 @@ namespace RPGGame
             Action action, 
             int roll, 
             int rollBonus,
-            int naturalRoll)
+            int naturalRoll,
+            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
         {
             var builder = new ColoredTextBuilder();
             
@@ -144,7 +146,7 @@ namespace RPGGame
                 actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(attacker, action, outcome.IsCriticalMiss);
             }
             
-            var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, 0, 0, actualSpeed, null, action);
+            var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, 0, 0, actualSpeed, null, action, multiDiceDetail: multiDiceDetail);
             
             return (missText, rollInfo);
         }
@@ -158,7 +160,8 @@ namespace RPGGame
             Actor target, 
             Action action, 
             int roll, 
-            int rollBonus)
+            int rollBonus,
+            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
         {
             var builder = new ColoredTextBuilder();
             
@@ -183,7 +186,7 @@ namespace RPGGame
                 actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(source, action);
             }
             
-            var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, 0, 0, actualSpeed, null, action);
+            var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, 0, 0, actualSpeed, null, action, multiDiceDetail: multiDiceDetail);
             
             return (actionText, rollInfo);
         }

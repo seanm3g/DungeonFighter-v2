@@ -187,6 +187,21 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Count of combo strip slots after <paramref name="executed"/> within the current combo cycle (no wrap).
+        /// Used to clip ACTION cadence bonus duration at combo end.
+        /// Returns -1 when <paramref name="executed"/> is not found in the strip (caller should skip clipping).
+        /// </summary>
+        public static int CountRemainingComboActionsAfter(Action executed, IReadOnlyList<Action> comboActions)
+        {
+            if (comboActions == null || comboActions.Count == 0 || executed == null)
+                return -1;
+            int n = comboActions.Count;
+            int idx = TryGetComboActionSlotIndex(executed, comboActions);
+            if (idx < 0) return -1;
+            return Math.Max(0, n - idx - 1);
+        }
+
+        /// <summary>
         /// Combo slot that receives pending ACTION / Ability-cadence modifiers (for next action in the strip).
         /// Uses the executed action's index in the ordered combo so the last slot (finisher) wraps to 0;
         /// falls back to <see cref="GetComboStep"/> when the action is not found in the list.

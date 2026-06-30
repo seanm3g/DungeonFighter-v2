@@ -69,6 +69,9 @@ namespace RPGGame
                     weaponType = WeaponType.Sword;
 
                 double scaledBase = row.BaseDamage;
+                int configOverride = EarlyGameBalanceHelper.GetStartingWeaponDamageOverride(weaponType, scaling);
+                if (configOverride > 0)
+                    scaledBase = configOverride;
                 if (scaling != null && scaledBase > 0 && scaling.GlobalDamageMultiplier > 0)
                     scaledBase *= scaling.GlobalDamageMultiplier;
 
@@ -195,12 +198,7 @@ namespace RPGGame
             }
             else
             {
-                // Fallback: if no starting weapon actions found, use SelectWeaponActionForStarter
-                var fallbackAction = actionSelector.SelectWeaponActionForStarter(weaponType.ToString());
-                if (!string.IsNullOrEmpty(fallbackAction))
-                {
-                    starterWeapon.GearAction = fallbackAction;
-                }
+                // Starter gear actions come only from Actions.json (spreadsheet pull). ActionTables.json is legacy loot data.
             }
             
             ClearStarterEquipRequirements(starterWeapon);
@@ -212,6 +210,8 @@ namespace RPGGame
                     starterWeapon.Name, starterWeaponFail ?? "unknown reason");
                 player.AddToInventory(starterWeapon);
             }
+
+            EarlyGameBalanceHelper.ApplyStartingClassPointsBonus(player, weaponType);
 
             var bonusLoot = LootGenerator.GenerateNewGameBonusLoot(player);
             if (bonusLoot != null)
@@ -382,7 +382,8 @@ namespace RPGGame
 
             if (baseDamageFromWeaponsCatalog)
             {
-                double dmg = weapon.BaseDamage;
+                int configOverride = EarlyGameBalanceHelper.GetStartingWeaponDamageOverride(weaponType, scaling);
+                double dmg = configOverride > 0 ? configOverride : weapon.BaseDamage;
                 if (scaling != null && dmg > 0 && scaling.GlobalDamageMultiplier > 0)
                     dmg *= scaling.GlobalDamageMultiplier;
                 weapon.BaseDamage = Math.Max(1, (int)Math.Round(dmg));

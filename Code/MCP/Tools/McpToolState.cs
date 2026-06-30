@@ -16,6 +16,7 @@ namespace RPGGame.MCP.Tools
         private static RPGGame.Editors.VariableEditor? _variableEditor;
         private static string? _agentDirective;
         private static DungeonRunSummary? _lastRunSummary;
+        private static ClassPlaythroughBatchResult? _lastPlaythroughBatchResult;
 
         public static GameWrapper? GameWrapper
         {
@@ -59,6 +60,13 @@ namespace RPGGame.MCP.Tools
         {
             get => _lastMultiLevelResult;
             set => _lastMultiLevelResult = value;
+        }
+
+        /// <summary>Most recent four-class playthrough batch result.</summary>
+        public static ClassPlaythroughBatchResult? LastPlaythroughBatchResult
+        {
+            get => _lastPlaythroughBatchResult;
+            set => _lastPlaythroughBatchResult = value;
         }
 
         public static RPGGame.Editors.VariableEditor GetVariableEditor()

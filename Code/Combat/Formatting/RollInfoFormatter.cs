@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Avalonia.Media;
+using RPGGame.Actions.RollModification;
 using RPGGame.UI.ColorSystem;
 using static RPGGame.Combat.Formatting.DamageFormatter;
 
@@ -11,6 +12,67 @@ namespace RPGGame.Combat.Formatting
     public static class RollInfoFormatter
     {
         /// <summary>
+        /// Plain-text roll value for log footers, including 2d20 luck/unluck when applicable.
+        /// </summary>
+        public static string FormatRollValuePlain(int roll, MultiDiceRollDetail detail = default)
+        {
+            if (!detail.HasLuckDetail)
+                return roll.ToString();
+
+            return detail.Mode switch
+            {
+                MultiDiceLuckMode.Advantage =>
+                    $"2d20 luck {detail.HighDie}/{detail.LowDie} → {roll}",
+                MultiDiceLuckMode.Disadvantage =>
+                    $"2d20 unluck {detail.HighDie}/{detail.LowDie} → {roll}",
+                MultiDiceLuckMode.Cancelled =>
+                    $"{roll} (luck cancel)",
+                _ => roll.ToString()
+            };
+        }
+
+        /// <summary>
+        /// Appends the d20 (or 2d20 luck/unluck) segment after the <c>roll:</c> label.
+        /// </summary>
+        public static void AppendRollValue(ColoredTextBuilder builder, int roll, MultiDiceRollDetail detail = default)
+        {
+            if (!detail.HasLuckDetail)
+            {
+                builder.Add(roll.ToString(), Colors.White);
+                return;
+            }
+
+            switch (detail.Mode)
+            {
+                case MultiDiceLuckMode.Advantage:
+                    builder.Add("2d20", Colors.White);
+                    builder.AddSpace();
+                    builder.Add("luck", ColorPalette.Success);
+                    builder.AddSpace();
+                    builder.Add($"{detail.HighDie}/{detail.LowDie}", Colors.White);
+                    builder.Add(" → ", Colors.White);
+                    builder.Add(roll.ToString(), Colors.White);
+                    break;
+                case MultiDiceLuckMode.Disadvantage:
+                    builder.Add("2d20", Colors.White);
+                    builder.AddSpace();
+                    builder.Add("unluck", ColorPalette.Error);
+                    builder.AddSpace();
+                    builder.Add($"{detail.HighDie}/{detail.LowDie}", Colors.White);
+                    builder.Add(" → ", Colors.White);
+                    builder.Add(roll.ToString(), Colors.White);
+                    break;
+                case MultiDiceLuckMode.Cancelled:
+                    builder.Add(roll.ToString(), Colors.White);
+                    builder.Add(" (luck cancel)", Colors.Gray);
+                    break;
+                default:
+                    builder.Add(roll.ToString(), Colors.White);
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Formats roll information with colored text
         /// </summary>
         public static List<ColoredText> FormatRollInfoColored(
@@ -21,13 +83,14 @@ namespace RPGGame.Combat.Formatting
             double actualSpeed, 
             double? comboAmplifier = null, 
             Action? action = null,
-            bool targetUsesArmorPool = false)
+            bool targetUsesArmorPool = false,
+            MultiDiceRollDetail multiDiceDetail = default)
         {
             var builder = new ColoredTextBuilder();
             builder.Add("     (", Colors.Gray);
             builder.Add("roll:", ColorPalette.Info);
             builder.AddSpace();
-            builder.Add(roll.ToString(), Colors.White);
+            AppendRollValue(builder, roll, multiDiceDetail);
             
             if (rollBonus != 0)
             {
@@ -78,4 +141,3 @@ namespace RPGGame.Combat.Formatting
         }
     }
 }
-

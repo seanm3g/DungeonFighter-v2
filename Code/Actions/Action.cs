@@ -20,6 +20,7 @@ namespace RPGGame
     {
         Self,
         SingleTarget,
+        [Obsolete("Use Environment. AreaOfEffect is retained for legacy JSON only.")]
         AreaOfEffect,
         Environment,
         SelfAndTarget
@@ -58,19 +59,16 @@ namespace RPGGame
         // Advanced status effects (Phase 2)
         public bool CausesVulnerability { get; set; }
         public bool CausesHarden { get; set; }
-        public bool CausesFortify { get; set; }
         public bool CausesFocus { get; set; }
         public bool CausesExpose { get; set; }
         public bool CausesHPRegen { get; set; }
         public bool CausesArmorBreak { get; set; }
         public bool CausesPierce { get; set; }
-        public bool CausesReflect { get; set; }
         public bool CausesSilence { get; set; }
         public bool CausesStatDrain { get; set; }
         public bool CausesAbsorb { get; set; }
         public bool CausesTemporaryHP { get; set; }
         public bool CausesConfusion { get; set; }
-        public bool CausesCleanse { get; set; }
         public bool CausesMark { get; set; }
         public bool CausesDisrupt { get; set; }
         

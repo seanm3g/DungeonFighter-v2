@@ -26,6 +26,8 @@ namespace RPGGame.Tests.Unit.Data
             TestRejectsNullOrEmpty(ref testsRun, ref testsPassed, ref testsFailed);
             TestSyncSkipsMissingPushConfigFile(ref testsRun, ref testsPassed, ref testsFailed);
             TestSyncUpdatesTempPushConfig(ref testsRun, ref testsPassed, ref testsFailed);
+            TestResolveSpreadsheetEditBaseUrl(ref testsRun, ref testsPassed, ref testsFailed);
+            TestBuildTabEditUrl(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("GoogleSheetsUrlHelper Tests", testsRun, testsPassed, testsFailed);
         }
@@ -194,6 +196,37 @@ namespace RPGGame.Tests.Unit.Data
             {
                 try { if (File.Exists(temp)) File.Delete(temp); } catch { /* ignore */ }
             }
+        }
+
+        private static void TestResolveSpreadsheetEditBaseUrl(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestResolveSpreadsheetEditBaseUrl));
+            const string edit = "https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit";
+            var fromEdit = new SheetsConfig { SpreadsheetEditUrl = edit };
+            TestBase.AssertEqual(edit, GoogleSheetsUrlHelper.TryResolveSpreadsheetEditBaseUrl(fromEdit), "prefers spreadsheetEditUrl", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var fromActions = new SheetsConfig
+            {
+                ActionsSheetUrl = "https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit?gid=2020359111"
+            };
+            TestBase.AssertEqual(edit,
+                GoogleSheetsUrlHelper.TryResolveSpreadsheetEditBaseUrl(fromActions),
+                "derives from actions url", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestBuildTabEditUrl(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestBuildTabEditUrl));
+            var cfg = new SheetsConfig
+            {
+                SpreadsheetEditUrl = "https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit",
+                ActionsSheetUrl = "https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit?gid=2020359111"
+            };
+            string? tab = GoogleSheetsUrlHelper.TryBuildTabEditUrl(cfg, cfg.ActionsSheetUrl);
+            TestBase.AssertTrue(tab != null && tab.Contains("gid=2020359111", StringComparison.Ordinal), "actions tab gid", ref testsRun, ref testsPassed, ref testsFailed);
+
+            string? weapons = GoogleSheetsUrlHelper.TryBuildTabEditUrl(cfg, "1440786122");
+            TestBase.AssertTrue(weapons != null && weapons.Contains("gid=1440786122", StringComparison.Ordinal), "numeric gid", ref testsRun, ref testsPassed, ref testsFailed);
         }
     }
 }

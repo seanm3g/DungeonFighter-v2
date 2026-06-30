@@ -17,6 +17,7 @@ namespace RPGGame.ActionInteractionLab
             int labPanelIntDelta,
             int labPanelLevelDelta,
             int labPanelArmorDelta,
+            int labPanelActionSlotDelta,
             string? sessionEnemyLoaderType,
             int enemyLevel,
             IReadOnlyList<string> comboStripActionNames,
@@ -30,6 +31,7 @@ namespace RPGGame.ActionInteractionLab
             LabPanelIntDelta = labPanelIntDelta;
             LabPanelLevelDelta = labPanelLevelDelta;
             LabPanelArmorDelta = labPanelArmorDelta;
+            LabPanelActionSlotDelta = labPanelActionSlotDelta;
             SessionEnemyLoaderType = sessionEnemyLoaderType;
             EnemyLevel = enemyLevel;
             ComboStripActionNames = comboStripActionNames ?? throw new ArgumentNullException(nameof(comboStripActionNames));
@@ -44,6 +46,7 @@ namespace RPGGame.ActionInteractionLab
         public int LabPanelIntDelta { get; }
         public int LabPanelLevelDelta { get; }
         public int LabPanelArmorDelta { get; }
+        public int LabPanelActionSlotDelta { get; }
         public string? SessionEnemyLoaderType { get; }
         public int EnemyLevel { get; }
         public IReadOnlyList<string> ComboStripActionNames { get; }

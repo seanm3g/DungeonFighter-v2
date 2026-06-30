@@ -5,6 +5,7 @@ using RPGGame;
 using RPGGame.Tests;
 using RPGGame.Actions.RollModification;
 using RPGGame.Data;
+using RPGGame.Utils;
 
 namespace RPGGame.Tests.Unit.Actions
 {
@@ -38,6 +39,7 @@ namespace RPGGame.Tests.Unit.Actions
             TestDeferredRollModOverridesWhenCadenceBlank();
             TestImmediateRollModOverridesWhenCadenceAttack();
             TestDeferredSheetAccuracyQueuedWithBlankCadence();
+            TestApplyMultiDiceRollAdvantageDisadvantageCancel();
 
             TestBase.PrintSummary("RollModificationManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -282,6 +284,54 @@ namespace RPGGame.Tests.Unit.Actions
             TestBase.AssertTrue(manual.Count == 1 && manual[0].Type == "ACCURACY" && Math.Abs(manual[0].Value - 3) < 0.001,
                 "Manual ACCURACY FIFO matches hit-path queue",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestApplyMultiDiceRollAdvantageDisadvantageCancel()
+        {
+            Console.WriteLine("\n--- Testing ApplyMultiDiceRoll (advantage / disadvantage / cancel) ---");
+
+            var character = TestDataBuilders.Character().WithName("TestPlayer").WithLevel(1).Build();
+            var enemy = TestDataBuilders.Enemy().WithName("TestEnemy").WithLevel(1).Build();
+            var action = TestDataBuilders.CreateMockAction("TestAction", ActionType.Attack);
+
+            try
+            {
+                int cancelled = RollModificationManager.ApplyMultiDiceRoll(8, true, true, action, character, enemy, out var cancelDetail);
+                TestBase.AssertEqual(8, cancelled,
+                    "Advantage + disadvantage cancel -> keep base roll",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(cancelDetail.Mode == MultiDiceLuckMode.Cancelled,
+                    "Cancel detail recorded",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                Dice.SetTestRoll(12);
+                int advantaged = RollModificationManager.ApplyMultiDiceRoll(5, true, false, action, character, enemy, out var advDetail);
+                TestBase.AssertTrue(advantaged >= 5 && advantaged <= 20,
+                    "Advantage uses primary die + unforced second d20 (take highest)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(advDetail.Mode == MultiDiceLuckMode.Advantage,
+                    "Advantage detail recorded",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(advDetail.HighDie == 5 || advDetail.LowDie == 5,
+                    "Primary die is included in the 2d20 pair",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                Dice.SetTestRoll(4);
+                int disadvantaged = RollModificationManager.ApplyMultiDiceRoll(15, false, true, action, character, enemy, out var disDetail);
+                TestBase.AssertTrue(disadvantaged >= 1 && disadvantaged <= 15,
+                    "Disadvantage uses primary die + unforced second d20 (take lowest)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(disDetail.Mode == MultiDiceLuckMode.Disadvantage,
+                    "Disadvantage detail recorded",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(disDetail.HighDie == 15 || disDetail.LowDie == 15,
+                    "Primary die is included in the 2d20 pair",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+            }
         }
 
         #endregion

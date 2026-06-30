@@ -22,11 +22,7 @@ namespace RPGGame.Actions.Parsing
                 action.Advanced.MultiHitCount = 3;
             }
 
-            // Self-damage (Deal with the Devil)
-            if (actionName == "DEAL WITH THE DEVIL" && desc.Contains("5% damage to yourself"))
-            {
-                action.Advanced.SelfDamagePercent = 5;
-            }
+            // Self-damage removed from sheet; use target=self for self-directed effects.
 
             // Roll bonuses/penalties
             if (actionName == "LUCKY STRIKE" && desc.Contains("+1 to next roll"))

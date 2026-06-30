@@ -23,7 +23,7 @@ namespace RPGGame.UI.Avalonia.Builders
         public static readonly string[] CategoryDropdownOptions = { "Barbarian", "Warrior", "Rogue", "Wizard", "WEAPON", "ENEMY", "REFERENCE" };
 
         /// <summary>Target type options.</summary>
-        public static readonly string[] TargetTypeDropdownOptions = { "Self", "SingleTarget", "AreaOfEffect", "Environment", "SelfAndTarget" };
+        public static readonly string[] TargetTypeDropdownOptions = { "Self", "SingleTarget", "Environment", "SelfAndTarget" };
 
         /// <summary>Stat bonus type options.</summary>
         public static readonly string[] StatBonusTypeDropdownOptions = { "", "Health Regen", "Max Health", "Heal", "Strength", "Agility", "Technique", "Intelligence" };

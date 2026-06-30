@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using RPGGame;
+using RPGGame.Tests.Unit;
 using RPGGame.Tests.Unit.Game;
 using RPGGame.Tests.Unit.Game.Handlers;
 using RPGGame.Tests.Unit.Game.Input;
 using RPGGame.Tests.Unit.UI;
+using RPGGame.Tests.Unit.Combat;
 
 namespace RPGGame.Tests.Runners
 {
@@ -52,6 +54,8 @@ namespace RPGGame.Tests.Runners
             ("BalanceDialClassifier", () => RPGGame.Tests.Unit.Tuning.BalanceDialClassifierTests.RunAllTests()),
             ("DeveloperSimMode", () => RPGGame.Tests.Unit.Tuning.DeveloperSimModeTests.RunAllTests()),
             ("FundamentalsSimulation", () => RPGGame.Tests.Unit.Tuning.FundamentalsSimulationTests.RunAllTests()),
+            ("ClassPlaythrough", () => RPGGame.Tests.Unit.Tuning.ClassPlaythroughBatchTests.RunAllTests()),
+            ("PlaythroughTuning", () => RPGGame.Tests.Unit.Tuning.PlaythroughTuningTests.RunAllTests()),
             ("EnemyProgressionCurveEvaluator", () => RPGGame.Tests.Unit.Tuning.EnemyProgressionCurveEvaluatorTests.RunAllTests()),
             ("RollFeelVarianceCompression", () => RPGGame.Tests.Unit.Tuning.RollFeelVarianceCompressionTests.RunAllTests()),
             ("CombatTuningPanelHandler", () => CombatTuningPanelHandlerTests.RunAllTests()),
@@ -67,6 +71,8 @@ namespace RPGGame.Tests.Runners
             ("GameScreenCoordinator", () => GameScreenCoordinatorTests.RunAllTests()),
             ("CombatRenderingValidator", () => CombatRenderingValidatorTests.RunAllTests()),
             ("ClaudeAIGamePlayer", () => ClaudeAIGamePlayerTests.RunAllTests()),
+            ("NaiveteThresholdBonuses", () => NaiveteThresholdBonusesTests.RunAllTests()),
+            ("ActionEffectTarget", () => ActionEffectTargetTests.RunAllTests()),
         };
 
         public static IReadOnlyList<FilteredTestRunner.TestSuiteEntry> GetSuiteEntries()

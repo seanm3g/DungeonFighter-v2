@@ -40,6 +40,10 @@ namespace RPGGame.Data
         [JsonPropertyName("cadence")]
         public string Cadence { get; set; } = "";
 
+        /// <summary>STATUS EFFECT / CADENCE DURATION — modifier application count (ACTION x2).</summary>
+        [JsonPropertyName("cadenceDuration")]
+        public string CadenceDuration { get; set; } = "";
+
         [JsonPropertyName("opener")]
         public string Opener { get; set; } = "";
 

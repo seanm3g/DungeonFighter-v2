@@ -30,24 +30,68 @@ namespace RPGGame
         public static event System.Action? ActionsReloaded;
 
         /// <summary>
-        /// Reloads actions from disk, clearing caches so updated Actions.json is used.
-        /// Call when actions may have been modified (e.g., between dungeon runs).
+        /// Resolves the Actions.json path used for load, save, and spreadsheet pull.
+        /// Prefers the file already loaded in this session, then any existing file on disk, then the canonical GameData path.
         /// </summary>
-        public static void ReloadActions()
+        public static string ResolveActionsFilePath()
         {
             lock (ActionsLock)
             {
-                var pathToClear = _loadedActionsFilePath ?? GameConstants.GetGameDataFilePath(GameConstants.ActionsJson);
-                if (!string.IsNullOrEmpty(pathToClear))
+                if (!string.IsNullOrEmpty(_loadedActionsFilePath))
                 {
-                    JsonLoader.ClearCacheForFile(pathToClear);
-                    try { JsonLoader.ClearCacheForFile(Path.GetFullPath(pathToClear)); } catch { }
+                    try
+                    {
+                        string full = Path.GetFullPath(_loadedActionsFilePath);
+                        if (File.Exists(full))
+                            return full;
+                    }
+                    catch
+                    {
+                        if (File.Exists(_loadedActionsFilePath))
+                            return _loadedActionsFilePath;
+                    }
                 }
+            }
+
+            string? existing = GameConstants.TryGetExistingGameDataFilePath(GameConstants.ActionsJson);
+            if (!string.IsNullOrEmpty(existing))
+                return existing;
+
+            return GameConstants.GetGameDataFilePath(GameConstants.ActionsJson);
+        }
+
+        /// <summary>
+        /// Reloads actions from disk, clearing caches so updated Actions.json is used.
+        /// Call when actions may have been modified (e.g., between dungeon runs or after a spreadsheet pull).
+        /// </summary>
+        /// <param name="explicitFilePath">When set (e.g. after an external pull wrote Actions.json), load from this path instead of the previously cached path.</param>
+        public static void ReloadActions(string? explicitFilePath = null)
+        {
+            lock (ActionsLock)
+            {
+                if (!string.IsNullOrWhiteSpace(explicitFilePath))
+                {
+                    try { _loadedActionsFilePath = Path.GetFullPath(explicitFilePath); }
+                    catch { _loadedActionsFilePath = explicitFilePath; }
+                }
+
+                ClearActionsJsonCache(_loadedActionsFilePath ?? GameConstants.GetGameDataFilePath(GameConstants.ActionsJson));
                 _actions = null;
                 _actionNameAliases = null;
+                _wasSpreadsheetFormat = false;
+                _originalSpreadsheetActions = null;
                 LoadActions();
                 ActionsReloaded?.Invoke();
             }
+        }
+
+        private static void ClearActionsJsonCache(string pathToClear)
+        {
+            if (string.IsNullOrEmpty(pathToClear))
+                return;
+
+            JsonLoader.ClearCacheForFile(pathToClear);
+            try { JsonLoader.ClearCacheForFile(Path.GetFullPath(pathToClear)); } catch { }
         }
 
         /// <summary>

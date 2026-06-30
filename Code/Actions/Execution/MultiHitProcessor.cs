@@ -53,7 +53,12 @@ namespace RPGGame.Actions.Execution
 
                 // Roll-based damage: apply RollPenalty per hit (hit 0 uses the same total as the hit roll; later hits stack the debuff again)
                 int perHitTotalRoll = GetMultihitDamageTotalRoll(totalRoll, source, hit);
-                int hitDamage = CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, rollBonus, perHitTotalRoll);
+                int hitDamage = action.DamageMultiplier > 0
+                    ? CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, rollBonus, perHitTotalRoll)
+                    : 0;
+
+                if (hitDamage <= 0)
+                    continue;
 
                 // Handle SelfAndTarget - apply damage to both self and enemy
                 if (action.Target == TargetType.SelfAndTarget)
@@ -67,6 +72,15 @@ namespace RPGGame.Actions.Execution
                     if (!ActionExecutor.DisableCombatDebugOutput)
                     {
                         DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {hitDamage} damage (hit {hit + 1}/{multiHitCount}) to both {target.Name} and themselves with {action.Name}");
+                    }
+                }
+                else if (action.Target == TargetType.Self)
+                {
+                    ActionUtilities.ApplyDamage(source, hitDamage);
+
+                    if (!ActionExecutor.DisableCombatDebugOutput)
+                    {
+                        DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {hitDamage} damage (hit {hit + 1}/{multiHitCount}) to themselves with {action.Name}");
                     }
                 }
                 else
@@ -94,7 +108,8 @@ namespace RPGGame.Actions.Execution
             {
                 ActionStatisticsTracker.RecordAttackAction(sourceCharacter, totalRoll, naturalRoll, rollBonus, totalDamage, action, target as Enemy, isCriticalHit);
             }
-            if (target is Character targetCharacter)
+            Actor primaryRecipient = ActionEffectTargetResolver.ResolvePrimaryRecipient(action, source, target);
+            if (primaryRecipient is Character targetCharacter)
             {
                 ActionStatisticsTracker.RecordDamageReceived(targetCharacter, totalDamage);
             }
@@ -105,7 +120,7 @@ namespace RPGGame.Actions.Execution
                 ActionStatisticsTracker.RecordDamageReceived(selfCharacter, totalDamage);
             }
 
-            ActionUtilities.CreateAndAddBattleEvent(source, target, action, totalDamage, totalRoll, rollBonus, true, isComboEvent, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
+            ActionUtilities.CreateAndAddBattleEvent(source, primaryRecipient, action, totalDamage, totalRoll, rollBonus, true, isComboEvent, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
 
             return totalDamage;
         }

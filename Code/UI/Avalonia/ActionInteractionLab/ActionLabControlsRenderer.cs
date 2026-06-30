@@ -267,6 +267,12 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                     var threadBtn = InventoryButtonFactory.CreateButton(x, y, threadLabel.Length, "lab_sim_parallel_toggle", threadLabel);
                     interactionManager!.AddClickableElement(threadBtn);
                     canvas.AddText(x, y, threadLabel, threadColor);
+                    int reqX = x + threadLabel.Length + 1;
+                    string reqLabel = lab.IgnoreActionRequirements ? "[ !Req ]" : "[ Req ]";
+                    var reqColor = lab.IgnoreActionRequirements ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.Cyan;
+                    var reqBtn = InventoryButtonFactory.CreateButton(reqX, y, reqLabel.Length, "lab_req_toggle", reqLabel);
+                    interactionManager!.AddClickableElement(reqBtn);
+                    canvas.AddText(reqX, y, reqLabel, reqColor);
                     y++;
                 }
                 var exit = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_exit", "[ Exit lab ]");
@@ -288,6 +294,9 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 y++;
                 string threadHint = lab.UseParallelEncounterSimulation ? "[ Par ] sim threads" : "[ 1T ] sim threads";
                 canvas.AddText(x, y, threadHint, AsciiArtAssets.Colors.DarkGray);
+                int reqHintX = x + threadHint.Length + 1;
+                string reqHint = lab.IgnoreActionRequirements ? "[ !Req ] bypass" : "[ Req ] enforce";
+                canvas.AddText(reqHintX, y, reqHint, AsciiArtAssets.Colors.DarkGray);
                 y++;
                 canvas.AddText(x, y, "[ Exit lab ]", AsciiArtAssets.Colors.DarkGray);
             }

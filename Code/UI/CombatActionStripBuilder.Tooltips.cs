@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using RPGGame.Actions;
 using RPGGame.Actions.RollModification;
 using RPGGame.Data;
 using RPGGame.Items.Helpers;
@@ -123,8 +124,10 @@ namespace RPGGame
         {
             TargetType.Self => "Self",
             TargetType.SingleTarget => "Enemy",
-            TargetType.AreaOfEffect => "AOE",
             TargetType.Environment => "Environment",
+#pragma warning disable CS0618
+            TargetType.AreaOfEffect => "Environment",
+#pragma warning restore CS0618
             TargetType.SelfAndTarget => "Self + Enemy",
             _ => target.ToString()
         };
@@ -247,18 +250,15 @@ namespace RPGGame
             if (action.CausesSlow) parts.Add("Slow");
             if (action.CausesVulnerability) parts.Add("Vulnerability");
             if (action.CausesHarden) parts.Add("Harden");
-            if (action.CausesFortify) parts.Add("Fortify");
             if (action.CausesFocus) parts.Add("Focus");
             if (action.CausesExpose) parts.Add("Expose");
             if (action.CausesHPRegen) parts.Add("HP Regen");
             if (action.CausesArmorBreak) parts.Add("Armor Break");
             if (action.CausesPierce) parts.Add("Pierce");
-            if (action.CausesReflect) parts.Add("Reflect");
             if (action.CausesSilence) parts.Add("Silence");
             if (action.CausesAbsorb) parts.Add("Absorb");
             if (action.CausesTemporaryHP) parts.Add("Temporary HP");
             if (action.CausesConfusion) parts.Add("Confusion");
-            if (action.CausesCleanse) parts.Add("Cleanse");
             if (action.CausesMark) parts.Add("Mark");
             if (action.CausesDisrupt) parts.Add("Disrupt");
             if (action.CausesStatDrain) parts.Add("Stat Drain");
@@ -306,8 +306,8 @@ namespace RPGGame
                 AddSegment(segments, $"Stat bonus ({FormatStatBonusDuration(action)}): {adv.StatBonusType} {FormatSignedValue(adv.StatBonus)}");
             }
 
-            if (adv.SelfDamagePercent > 0)
-                AddSegment(segments, $"Self damage: {adv.SelfDamagePercent}%");
+            if (adv.LifestealPercent > 0)
+                AddSegment(segments, $"Lifesteal: {adv.LifestealPercent * 100:F0}%");
             if (adv.SkipNextTurn)
                 AddSegment(segments, adv.GuaranteeNextSuccess ? "Skips next turn; guarantees next success." : "Skips next turn.");
             if (adv.RepeatLastAction)
@@ -461,7 +461,8 @@ namespace RPGGame
                     string cad = string.IsNullOrWhiteSpace(group.CadenceType)
                         ? (string.IsNullOrWhiteSpace(group.Keyword) ? "BONUS" : group.Keyword)
                         : group.CadenceType;
-                    string count = group.Count > 1 ? $" x{group.Count}" : "";
+                    int displayCount = ActionCadenceDurationResolver.GetDisplayCount(action, group);
+                    string count = displayCount > 1 ? $" x{displayCount}" : "";
                     AddSegment(segments, $"{cad}{count}: {items}");
                 }
             }

@@ -37,6 +37,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ActionExecutionFlowTests.RunAllTests();
             Console.WriteLine();
+            ActionEffectTargetTests.RunAllTests();
+            Console.WriteLine();
             ActionSequenceTests.RunAllTests();
             Console.WriteLine();
             ActionInteractionLabTests.RunAllTests();
@@ -330,6 +332,8 @@ namespace RPGGame.Tests.Runners
 
             Console.WriteLine("=== Action execution (modifiers) ===\n");
             ActionExecutionFlowTests.RunAllTests();
+            Console.WriteLine();
+            ActionEffectTargetTests.RunAllTests();
             Console.WriteLine();
 
             Console.WriteLine("=== Data & loot (rarity, category) ===\n");

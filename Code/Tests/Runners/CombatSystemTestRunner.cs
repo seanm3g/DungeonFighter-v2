@@ -1,5 +1,6 @@
 using System;
 using RPGGame;
+using RPGGame.Tests.Unit;
 using RPGGame.Tests.Unit.Combat;
 using RPGGame.Tests.Unit.Diagnostics;
 
@@ -46,6 +47,8 @@ namespace RPGGame.Tests.Runners
             BattleNarrativeTests.RunAllTests();
             Console.WriteLine();
             CombatEffectsSimplifiedTests.RunAllTests();
+            Console.WriteLine();
+            ActionEffectTargetTests.RunAllTests();
             Console.WriteLine();
             HealthBarDeltaDamageHintTests.RunAllTests();
             Console.WriteLine();

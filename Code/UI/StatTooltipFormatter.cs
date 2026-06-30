@@ -28,6 +28,7 @@ namespace RPGGame
                 "stat:agi" => BuildPrimaryStat(character, "AGI", "Agility", maxLines),
                 "stat:tec" => BuildPrimaryStat(character, "TEC", "Technique", maxLines),
                 "stat:int" => BuildPrimaryStat(character, "INT", "Intelligence", maxLines),
+                "stat:naivete" => BuildNaivete(character, maxLines),
                 _ => null
             };
         }
@@ -114,6 +115,34 @@ namespace RPGGame
             else
                 AddNoteLine(lines, $"Primary is {primaryLabel} ({primaryCode}), your highest effective stat.");
             AddNoteLine(lines, "Combat adds d20 rolls, AMP, and action multipliers on top of this base.");
+
+            return Trim(lines, maxLines);
+        }
+
+        private static List<List<ColoredText>> BuildNaivete(Character c, int maxLines)
+        {
+            var lines = new List<List<ColoredText>>();
+            int naivete = NaiveteBalanceHelper.ComputeNaivete(c);
+            if (naivete <= 0)
+                return Trim(lines, maxLines);
+
+            int hitSteps = NaiveteBalanceHelper.GetHitSteps(c);
+            int attributeSum = NaiveteBalanceHelper.GetBaseAttributeSum(c);
+            var config = NaiveteBalanceHelper.GetConfig();
+
+            AddTitle(lines, "Naiveté");
+            AddBlank(lines);
+            AddHighlight(lines, "Remaining", naivete.ToString(CultureInfo.InvariantCulture));
+            AddBlank(lines);
+            AddSection(lines, "Effect");
+            AddStatRow(lines, "HIT threshold steps", hitSteps);
+            AddNoteLine(lines, "Easier to hit while you are still inexperienced in combat.");
+            AddBlank(lines);
+            AddSection(lines, "Progress");
+            AddStatRow(lines, "Base attribute total", attributeSum);
+            if (config != null)
+                AddStatRow(lines, "Fades at total", config.AttributeTotalCap);
+            AddNoteLine(lines, "Derived from base STR+AGI+TEC+INT. Reaches zero as you grow stronger.");
 
             return Trim(lines, maxLines);
         }

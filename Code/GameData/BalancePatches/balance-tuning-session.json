@@ -1,0 +1,133 @@
+{
+  "version": "2.0",
+  "updatedUtc": "2026-06-29T18:28:35.2932527Z",
+  "profileId": "class-playthrough-balance",
+  "profileName": "Class Playthrough Balance",
+  "simulationMode": "class_playthrough_batch",
+  "playthroughBatch": {
+    "timestampUtc": "2026-06-29T18:28:32.6455915Z",
+    "runsPerClass": 3,
+    "maxActionsPerRun": 500,
+    "elapsedSeconds": 2.6189397,
+    "overallMeanFinalLevel": 1.1666666666666665,
+    "overallMeanDungeonsCompleted": 0.16666666666666666,
+    "levelSpread": 0.33333333333333326,
+    "dungeonSpread": 0.3333333333333333,
+    "hasParityWarnings": true,
+    "parityWarnings": [
+      "Barbarian averaged 0 dungeons completed across 3 run(s).",
+      "Wizard averaged 0 dungeons completed across 3 run(s)."
+    ],
+    "qualityScore": 34.166666666666664,
+    "classes": [
+      {
+        "classDisplayName": "Barbarian",
+        "weaponType": "Mace",
+        "runCount": 3,
+        "deathRate": 1,
+        "meanFinalLevel": 1,
+        "medianFinalLevel": 1,
+        "meanDungeonsCompleted": 0,
+        "meanTurnCount": 7,
+        "meanActionsByLevel": [
+          {
+            "level": 1,
+            "meanActions": 7,
+            "sampleRunCount": 3
+          }
+        ]
+      },
+      {
+        "classDisplayName": "Warrior",
+        "weaponType": "Sword",
+        "runCount": 3,
+        "deathRate": 1,
+        "meanFinalLevel": 1.3333333333333333,
+        "medianFinalLevel": 1,
+        "meanDungeonsCompleted": 0.3333333333333333,
+        "meanTurnCount": 7.666666666666667,
+        "meanActionsByLevel": [
+          {
+            "level": 1,
+            "meanActions": 7,
+            "sampleRunCount": 3
+          },
+          {
+            "level": 2,
+            "meanActions": 2,
+            "sampleRunCount": 1
+          }
+        ]
+      },
+      {
+        "classDisplayName": "Rogue",
+        "weaponType": "Dagger",
+        "runCount": 3,
+        "deathRate": 1,
+        "meanFinalLevel": 1.3333333333333333,
+        "medianFinalLevel": 1,
+        "meanDungeonsCompleted": 0.3333333333333333,
+        "meanTurnCount": 7.666666666666667,
+        "meanActionsByLevel": [
+          {
+            "level": 1,
+            "meanActions": 7,
+            "sampleRunCount": 3
+          },
+          {
+            "level": 2,
+            "meanActions": 2,
+            "sampleRunCount": 1
+          }
+        ]
+      },
+      {
+        "classDisplayName": "Wizard",
+        "weaponType": "Wand",
+        "runCount": 3,
+        "deathRate": 1,
+        "meanFinalLevel": 1,
+        "medianFinalLevel": 1,
+        "meanDungeonsCompleted": 0,
+        "meanTurnCount": 7,
+        "meanActionsByLevel": [
+          {
+            "level": 1,
+            "meanActions": 7,
+            "sampleRunCount": 3
+          }
+        ]
+      }
+    ]
+  },
+  "runAnalysisConfig": {
+    "optimizeWinRate": false,
+    "validators": [
+      "playthrough_progression",
+      "playthrough_class_parity"
+    ],
+    "suggesters": [
+      "playthrough_balance"
+    ],
+    "maxSuggestions": 1,
+    "fundamentalsTargets": {
+      "targetMedianPlayerTurns": 12,
+      "targetMedianEnemyTurns": 12,
+      "targetMedianCombinedActions": 24,
+      "minAverageActions": 24,
+      "maxAverageActions": 30,
+      "minAverageComboStreakRuns2Plus": 0.5,
+      "minAverageMaxComboStreak": 2,
+      "tempoTolerance": 1.5,
+      "requireL1AnchorBeforeScaling": false
+    },
+    "enableDialRouting": false,
+    "playthroughTargets": {
+      "minMeanFinalLevel": 3,
+      "minMeanDungeonsCompleted": 1.5,
+      "maxMeanFinalLevel": 12,
+      "maxLevelSpread": 1.5,
+      "maxDungeonSpread": 1
+    }
+  }
+}

@@ -55,6 +55,9 @@ namespace RPGGame.Data
         [JsonPropertyName("cleanse")]
         public string Cleanse { get; set; } = "";
 
+        [JsonPropertyName("confuse")]
+        public string Confuse { get; set; } = "";
+
         [JsonPropertyName("lifesteal")]
         public string Lifesteal { get; set; } = "";
 

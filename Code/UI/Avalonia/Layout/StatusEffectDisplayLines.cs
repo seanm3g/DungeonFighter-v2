@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using RPGGame;
+using RPGGame.Data;
 
 namespace RPGGame.UI.Avalonia.Layout
 {
@@ -64,7 +66,11 @@ namespace RPGGame.UI.Avalonia.Layout
                 int accTemp = charHud.Effects.TempRollBonusTurns > 0 ? charHud.Effects.GetTempRollBonus() : 0;
                 int accTotal = accFromQueues + accTemp;
                 if (accTotal != 0)
-                    lines.Add(accTotal > 0 ? $"Accuracy +{accTotal} (next attack)" : $"Accuracy {accTotal} (next attack)");
+                {
+                    int accAttacks = CountRemainingAccuracyAttacks(charHud);
+                    string accDuration = FormatAttackDurationSuffix(accAttacks);
+                    lines.Add(accTotal > 0 ? $"Accuracy +{accTotal} {accDuration}" : $"Accuracy {accTotal} {accDuration}");
+                }
 
                 if (charHud.Effects.SlowTurns > 0)
                     lines.Add($"Slow ({charHud.Effects.SlowTurns} turn{(charHud.Effects.SlowTurns != 1 ? "s" : "")})");
@@ -82,6 +88,62 @@ namespace RPGGame.UI.Avalonia.Layout
                     lines.Add($"Reroll x{charHud.Effects.RerollCharges}");
             }
             return lines;
+        }
+
+        private static string FormatAttackDurationSuffix(int attacks) =>
+            $"({attacks} atk{(attacks != 1 ? "s" : "")})";
+
+        /// <summary>
+        /// Longest remaining hero attack-roll count among accuracy sources (ATTACK/ABILITY cadence, ACTION FIFO, temp roll bonus, slot pending).
+        /// </summary>
+        private static int CountRemainingAccuracyAttacks(Character c)
+        {
+            int max = 0;
+
+            if (c.Effects.TempRollBonusTurns > 0 && c.Effects.GetTempRollBonus() != 0)
+                max = Math.Max(max, c.Effects.TempRollBonusTurns);
+
+            foreach (var group in c.Effects.AttackBonuses)
+            {
+                if (group.Count > 0 && HasAccuracyBonus(group.Bonuses))
+                    max = Math.Max(max, group.Count);
+            }
+
+            foreach (var group in c.Effects.AbilityBonuses)
+            {
+                if (group.Count > 0 && HasAccuracyBonus(group.Bonuses))
+                    max = Math.Max(max, group.Count);
+            }
+
+            if (HasAccuracyBonus(c.Effects.PeekPendingActionBonusesNextHeroRoll()))
+            {
+                int fifoLayers = c.Effects.GetPendingActionCadenceLayerCount();
+                if (fifoLayers > 0)
+                    max = Math.Max(max, fifoLayers);
+            }
+
+            var comboActions = c.GetComboActions();
+            if (comboActions != null && comboActions.Count > 0)
+            {
+                int currentSlot = c.ComboStep % comboActions.Count;
+                if (HasAccuracyBonus(c.Effects.GetPendingActionBonusesForSlot(currentSlot)))
+                    max = Math.Max(max, 1);
+            }
+
+            return Math.Max(max, 1);
+        }
+
+        private static bool HasAccuracyBonus(IEnumerable<ActionAttackBonusItem>? items)
+        {
+            if (items == null)
+                return false;
+            foreach (var b in items)
+            {
+                if (string.Equals(ActionAttackBonusItem.NormalizeBonusType(b.Type), "ACCURACY", StringComparison.OrdinalIgnoreCase)
+                    && b.Value != 0)
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>

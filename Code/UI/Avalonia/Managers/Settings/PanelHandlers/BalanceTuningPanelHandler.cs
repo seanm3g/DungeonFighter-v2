@@ -48,6 +48,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (push != null)
                 push.Click += async (_, _) => await PushGameDataToGoogleSheetsAsync(balancePanel);
 
+            var openSpreadsheet = balancePanel.FindControl<Button>("OpenSpreadsheetEditUrlButton");
+            if (openSpreadsheet != null)
+                openSpreadsheet.Click += (_, _) => OpenSpreadsheetInBrowser(balancePanel);
+
             Dispatcher.UIThread.Post(() => LoadSettings(balancePanel), DispatcherPriority.Loaded);
         }
 
@@ -390,6 +394,22 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
         {
             var box = panel.FindControl<CheckBox>(checkBoxName);
             return box?.IsChecked ?? defaultIfNull;
+        }
+
+        private void OpenSpreadsheetInBrowser(BalanceTuningSettingsPanel panel)
+        {
+            TrySaveSheetsUrlsFromPanel(panel, logErrors: false);
+            var cfg = SheetsConfig.Load();
+            string? url = GoogleSheetsUrlHelper.TryBuildTabEditUrl(cfg, cfg.ActionsSheetUrl)
+                ?? GoogleSheetsUrlHelper.TryResolveSpreadsheetEditBaseUrl(cfg);
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                sheetsRunner?.AppendOutput("✗ Set Spreadsheet edit link or Actions URL first.\n");
+                return;
+            }
+
+            if (!BrowserLaunchHelper.TryOpenUrl(url))
+                sheetsRunner?.AppendOutput("✗ Could not open spreadsheet URL in the browser.\n");
         }
     }
 }

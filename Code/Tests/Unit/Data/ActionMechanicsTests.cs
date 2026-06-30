@@ -69,10 +69,7 @@ namespace RPGGame.Tests.Unit.Data
                 if (action.CausesSilence) inventory.StatusEffects.Add("Silence");
                 if (action.CausesPierce) inventory.StatusEffects.Add("Pierce");
                 if (action.CausesStatDrain) inventory.StatusEffects.Add("StatDrain");
-                if (action.CausesFortify) inventory.StatusEffects.Add("Fortify");
                 if (action.CausesFocus) inventory.StatusEffects.Add("Focus");
-                if (action.CausesCleanse) inventory.StatusEffects.Add("Cleanse");
-                if (action.CausesReflect) inventory.StatusEffects.Add("Reflect");
 
                 // Roll Modifications
                 if (action.RollMods.MultipleDiceCount > 1)
@@ -162,9 +159,9 @@ namespace RPGGame.Tests.Unit.Data
                 {
                     inventory.AdvancedMechanics.Add($"MultiHit({action.Advanced.MultiHitCount})");
                 }
-                if (action.Advanced.SelfDamagePercent > 0)
+                if (action.Target == TargetType.Self)
                 {
-                    inventory.AdvancedMechanics.Add($"SelfDamage({action.Advanced.SelfDamagePercent}%)");
+                    inventory.AdvancedMechanics.Add("SelfTarget");
                 }
                 if (action.Advanced.RollBonus != 0)
                 {
@@ -305,10 +302,7 @@ namespace RPGGame.Tests.Unit.Data
                 ("Silence", (Func<Action, bool>)(a => a.CausesSilence)),
                 ("Pierce", (Func<Action, bool>)(a => a.CausesPierce)),
                 ("StatDrain", (Func<Action, bool>)(a => a.CausesStatDrain)),
-                ("Fortify", (Func<Action, bool>)(a => a.CausesFortify)),
-                ("Focus", (Func<Action, bool>)(a => a.CausesFocus)),
-                ("Cleanse", (Func<Action, bool>)(a => a.CausesCleanse)),
-                ("Reflect", (Func<Action, bool>)(a => a.CausesReflect))
+                ("Focus", (Func<Action, bool>)(a => a.CausesFocus))
             };
 
             int testedTypes = 0;
@@ -579,13 +573,9 @@ namespace RPGGame.Tests.Unit.Data
                         isValid = false;
                     }
                 }
-                if (action.Advanced.SelfDamagePercent > 0)
+                if (action.Target == TargetType.Self)
                 {
                     hasAdvanced = true;
-                    if (action.Advanced.SelfDamagePercent < 0 || action.Advanced.SelfDamagePercent > 100)
-                    {
-                        isValid = false;
-                    }
                 }
                 if (action.Advanced.RollBonus != 0)
                 {
@@ -691,12 +681,12 @@ namespace RPGGame.Tests.Unit.Data
                 }
             }
 
-            var selfDamageActions = allActions.Where(a => a.Advanced.SelfDamagePercent > 0).Take(3).ToList();
-            if (selfDamageActions.Count > 0)
+            var selfTargetActions = allActions.Where(a => a.Target == TargetType.Self).Take(3).ToList();
+            if (selfTargetActions.Count > 0)
             {
-                foreach (var action in selfDamageActions)
+                foreach (var action in selfTargetActions)
                 {
-                    Console.WriteLine($"  ✓ SelfDamage: {action.Name} ({action.Advanced.SelfDamagePercent}%)");
+                    Console.WriteLine($"  ✓ SelfTarget: {action.Name}");
                 }
             }
 

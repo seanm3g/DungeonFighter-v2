@@ -1,0 +1,22 @@
+{
+  "id": "class-playthrough-balance",
+  "name": "Class Playthrough Balance",
+  "description": "Four-class full-game playthrough batch until Death — validates early survival and class parity, suggests one knob per iteration.",
+  "simulation": {
+    "mode": "class_playthrough_batch",
+    "runsPerClass": 10,
+    "maxActionsPerRun": 500
+  },
+  "analysis": {
+    "validators": ["playthrough_progression", "playthrough_class_parity"],
+    "suggesters": ["playthrough_balance"],
+    "maxSuggestions": 1,
+    "playthroughTargets": {
+      "minMeanFinalLevel": 3.0,
+      "minMeanDungeonsCompleted": 1.5,
+      "maxMeanFinalLevel": 12.0,
+      "maxLevelSpread": 1.5,
+      "maxDungeonSpread": 1.0
+    }
+  }
+}

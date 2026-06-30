@@ -112,6 +112,7 @@ namespace RPGGame.Tuning
                 session.Simulation = LevelTuningSessionStore.FromSimulationResult(outcome.MultiLevel);
                 session.Comprehensive = null;
                 session.Fundamentals = null;
+                session.PlaythroughBatch = null;
             }
             else if (outcome.Comprehensive != null)
             {
@@ -122,12 +123,22 @@ namespace RPGGame.Tuning
                     outcome.BattlesPerCombination);
                 session.Simulation = null;
                 session.Fundamentals = null;
+                session.PlaythroughBatch = null;
             }
             else if (outcome.Fundamentals != null)
             {
                 session.Fundamentals = ComprehensiveSimulationMapper.FromFundamentalsResult(outcome.Fundamentals);
                 session.Simulation = null;
                 session.Comprehensive = null;
+                session.PlaythroughBatch = null;
+            }
+            else if (outcome.PlaythroughSnapshot != null)
+            {
+                session.PlaythroughBatch = outcome.PlaythroughSnapshot;
+                session.Simulation = null;
+                session.Comprehensive = null;
+                session.Fundamentals = null;
+                McpToolState.LastPlaythroughBatchResult = outcome.PlaythroughBatch;
             }
 
             LevelTuningSessionStore.Save(session, sessionPath);
@@ -145,7 +156,7 @@ namespace RPGGame.Tuning
             int maxIterations)
         {
             var session = LevelTuningSessionStore.Load(sessionPath);
-            if (session.Simulation == null && session.Comprehensive == null && session.Fundamentals == null)
+            if (session.Simulation == null && session.Comprehensive == null && session.Fundamentals == null && session.PlaythroughBatch == null)
             {
                 Write(sink, BalanceTuningLogLevel.Error, "No simulation in session. Run TUNESIM first.", iteration, maxIterations);
                 return Task.FromResult(2);
@@ -171,6 +182,8 @@ namespace RPGGame.Tuning
                 McpToolState.LastMultiLevelResult = simulation.MultiLevel;
             if (simulation.Comprehensive != null)
                 McpToolState.LastTestResult = simulation.Comprehensive;
+            if (simulation.PlaythroughBatch != null)
+                McpToolState.LastPlaythroughBatchResult = simulation.PlaythroughBatch;
 
             var outcome = TuningAnalysisPipeline.Analyze(profile, simulation);
 
@@ -259,7 +272,9 @@ namespace RPGGame.Tuning
             {
                 Id = suggestion.Id,
                 Category = suggestion.Category,
-                Target = session.ProfileName ?? profileLabel,
+                Target = string.IsNullOrWhiteSpace(suggestion.Target)
+                    ? session.ProfileName ?? profileLabel
+                    : suggestion.Target,
                 Parameter = suggestion.Parameter,
                 CurrentValue = suggestion.CurrentValue,
                 SuggestedValue = suggestion.SuggestedValue,
@@ -367,6 +382,7 @@ namespace RPGGame.Tuning
             {
                 Id = s.Id,
                 Category = s.Category,
+                Target = s.Target,
                 Parameter = s.Parameter,
                 CurrentValue = s.CurrentValue,
                 SuggestedValue = s.SuggestedValue,
@@ -402,6 +418,19 @@ namespace RPGGame.Tuning
             }
 
             clone.EnableDialRouting = source.EnableDialRouting;
+
+            if (source.PlaythroughTargets != null)
+            {
+                var pt = source.PlaythroughTargets;
+                clone.PlaythroughTargets = new PlaythroughAnalysisTargets
+                {
+                    MinMeanFinalLevel = pt.MinMeanFinalLevel,
+                    MinMeanDungeonsCompleted = pt.MinMeanDungeonsCompleted,
+                    MaxMeanFinalLevel = pt.MaxMeanFinalLevel,
+                    MaxLevelSpread = pt.MaxLevelSpread,
+                    MaxDungeonSpread = pt.MaxDungeonSpread
+                };
+            }
 
             return clone;
         }

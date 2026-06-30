@@ -124,6 +124,11 @@ namespace RPGGame.Tuning.Profiles
                         TuningValidatorIds.FundamentalsAnchors,
                         TuningValidatorIds.FundamentalsComboStreaks
                     },
+                    TuningSimulationModes.ClassPlaythroughBatch => new List<string>
+                    {
+                        TuningValidatorIds.PlaythroughProgression,
+                        TuningValidatorIds.PlaythroughClassParity
+                    },
                     _ => profile.Analysis.OptimizeWinRate
                         ? new List<string> { TuningValidatorIds.LevelCurve }
                         : new List<string> { TuningValidatorIds.CombatDuration }
@@ -150,6 +155,10 @@ namespace RPGGame.Tuning.Profiles
                             TuningSuggesterIds.Duration
                         },
                     TuningSimulationModes.FundamentalsEncounter => new List<string>(),
+                    TuningSimulationModes.ClassPlaythroughBatch => new List<string>
+                    {
+                        TuningSuggesterIds.PlaythroughBalance
+                    },
                     _ => profile.Analysis.OptimizeWinRate
                         ? new List<string> { TuningSuggesterIds.LevelCurve }
                         : new List<string>()
@@ -157,6 +166,7 @@ namespace RPGGame.Tuning.Profiles
             }
 
             profile.Analysis.FundamentalsTargets ??= new FundamentalsAnalysisTargets();
+            profile.Analysis.PlaythroughTargets ??= new PlaythroughAnalysisTargets();
 
             if (profile.Simulation.Mode == TuningSimulationModes.FundamentalsEncounter
                 && (profile.Simulation.Levels == null || profile.Simulation.Levels.Count == 0))

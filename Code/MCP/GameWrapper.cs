@@ -260,23 +260,7 @@ namespace RPGGame.MCP
         /// </summary>
         private void DisableAllDelays()
         {
-            // Set MCP mode flag
-            MCPMode.IsActive = true;
-            
-            // Disable UI delays
-            UIManager.EnableDelays = false;
-            
-            // Disable combat UI output (which also disables combat delays)
-            CombatManager.DisableCombatUIOutput = true;
-            
-            // Note: Combat delays are automatically disabled by DisableCombatUIOutput
-            // and UIManager.EnableDelays = false above. The old UpdateConfig method
-            // is obsolete and configuration should be managed via TextDelayConfig.json
-            
-            // Disable text display delays in game settings
-            var settings = GameSettings.Instance;
-            settings.EnableTextDisplayDelays = false;
-            settings.FastCombat = true;
+            SimulationPacing.EnableFastMode();
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame;
+using RPGGame.ActionInteractionLab;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Feedback;
@@ -254,6 +255,13 @@ namespace RPGGame.UI.Avalonia.Layout
                 int armorRowY = y;
                 canvas.AddCharacterStat(x, y, "Armor", character.GetMaxArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.DarkBlue);
                 y++;
+                int slotsRowY = -1;
+                if (ActionInteractionLabSession.Current != null)
+                {
+                    slotsRowY = y;
+                    canvas.AddCharacterStat(x, y, "SLOTS", ComboSequenceMaxHelper.GetEffectiveMax(character), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Cyan);
+                    y++;
+                }
                 y++;
 
                 string primaryStat = GetPrimaryStatForCharacter(character);
@@ -276,6 +284,16 @@ namespace RPGGame.UI.Avalonia.Layout
                     primaryStat == "Intelligence" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
                 y++;
 
+                int naivete = NaiveteBalanceHelper.ComputeNaivete(character);
+                int naivRowY = -1;
+                if (naivete > 0)
+                {
+                    naivRowY = y;
+                    var naivColor = AsciiArtAssets.Colors.Cyan;
+                    canvas.AddCharacterStat(x, y, "NAIVETE", naivete, 0, naivColor, naivColor);
+                    y++;
+                }
+
                 List<(int rowY, string idSuffix)>? expandedHoverTargets = interactionManager != null && stateManager != null
                     ? new List<(int rowY, string idSuffix)>()
                     : null;
@@ -293,10 +311,14 @@ namespace RPGGame.UI.Avalonia.Layout
                     RegisterLeftPanelHoverRow(x, speedRowY, headerClickWidth, 1, "stat:speed");
                     RegisterLeftPanelHoverRow(x, ampRowY, headerClickWidth, 1, "stat:amp");
                     RegisterLeftPanelHoverRow(x, armorRowY, headerClickWidth, 1, "stat:armor");
+                    if (slotsRowY >= 0)
+                        RegisterLeftPanelHoverRow(x, slotsRowY, headerClickWidth, 1, "stat:actionslots");
                     RegisterLeftPanelHoverRow(x, strRowY, headerClickWidth, 1, "stat:str");
                     RegisterLeftPanelHoverRow(x, agiRowY, headerClickWidth, 1, "stat:agi");
                     RegisterLeftPanelHoverRow(x, tecRowY, headerClickWidth, 1, "stat:tec");
                     RegisterLeftPanelHoverRow(x, intRowY, headerClickWidth, 1, "stat:int");
+                    if (naivRowY >= 0)
+                        RegisterLeftPanelHoverRow(x, naivRowY, headerClickWidth, 1, "stat:naivete");
                     if (expandedHoverTargets != null)
                     {
                         foreach (var (rowY, id) in expandedHoverTargets)

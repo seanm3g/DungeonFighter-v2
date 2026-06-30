@@ -5,6 +5,7 @@ namespace RPGGame.ActionInteractionLab
 {
     /// <summary>
     /// Action Lab: left panel STATS rows use <c>lphover:stat:*</c> hit targets; HERO level line uses <c>lphover:hero:level</c>;
+    /// SLOTS row uses <c>lphover:stat:actionslots</c> to adjust combo capacity in the lab.
     /// HP bar uses <see cref="HeroHpHoverId"/> (damage/heal clicks, not ±1 stat deltas).
     /// Left-click / right-click deltas are applied by the canvas mouse handler in Action Lab state.
     /// When an <see cref="ActionInteractionLabSession"/> is active, changing the hero level also applies the same
@@ -83,6 +84,20 @@ namespace RPGGame.ActionInteractionLab
                     int before = player.ActionLabArmorBonus;
                     player.ActionLabArmorBonus = System.Math.Max(0, player.ActionLabArmorBonus + delta);
                     ActionInteractionLabSession.Current?.RecordLabPanelStatDelta("armor", player.ActionLabArmorBonus - before);
+                    return true;
+                }
+                case "actionslots":
+                case "slots":
+                {
+                    int beforeEffective = ComboSequenceMaxHelper.GetEffectiveMax(player);
+                    int beforeBonus = player.ActionLabActionSlotBonus;
+                    player.ActionLabActionSlotBonus = System.Math.Max(0, player.ActionLabActionSlotBonus + delta);
+                    ActionInteractionLabSession.Current?.RecordLabPanelStatDelta(
+                        "actionslots",
+                        player.ActionLabActionSlotBonus - beforeBonus);
+                    int afterEffective = ComboSequenceMaxHelper.GetEffectiveMax(player);
+                    if (afterEffective < beforeEffective)
+                        ComboSequenceMaxHelper.TrimComboSequenceToMax(player, afterEffective);
                     return true;
                 }
                 default:

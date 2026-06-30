@@ -373,7 +373,8 @@ namespace RPGGame.Combat.Formatting
             int roll = 0,
             int multiHitCount = 1,
             bool isCriticalMiss = false,
-            bool? resolvedCritical = null)
+            bool? resolvedCritical = null,
+            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
         {
             var builder = new ColoredTextBuilder();
             
@@ -451,7 +452,7 @@ namespace RPGGame.Combat.Formatting
                 actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(attacker, action, isCriticalMiss);
             }
             
-            var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, actualRawDamage, targetDefense, actualSpeed, rollInfoCombo, action, targetUsesArmorPool);
+            var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, actualRawDamage, targetDefense, actualSpeed, rollInfoCombo, action, targetUsesArmorPool, multiDiceDetail);
             
             return (damageText, rollInfo);
         }

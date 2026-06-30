@@ -10,6 +10,7 @@ namespace RPGGame
         /// <summary>Accumulation rules: bonus damage/effect per self damage, cadences passed, etc.</summary>
         public List<AccumulationEntry> Accumulations { get; set; } = new List<AccumulationEntry>();
         public int MultiHitCount { get; set; } = 1;
+        [Obsolete("Self-damage sheet column removed; use target=self instead.")]
         public int SelfDamagePercent { get; set; } = 0;
         public int RollBonus { get; set; } = 0;
         /// <summary>Action accuracy bonus when the attacker is an enemy (hero uses RollBonus).</summary>
@@ -25,6 +26,8 @@ namespace RPGGame
         public bool SkipNextTurn { get; set; } = false;
         public bool GuaranteeNextSuccess { get; set; } = false;
         public int HealAmount { get; set; } = 0;
+        /// <summary>Fraction of damage dealt returned as healing (0–1), from sheet LIFESTEAL.</summary>
+        public double LifestealPercent { get; set; } = 0;
         public double HealthThreshold { get; set; } = 0.0;
         /// <summary>Thresholds per attribute (value 0.0-1.0, type: Health, Strength, Agility, Technique, Intelligence). When non-empty, use this; otherwise legacy HealthThreshold applies.</summary>
         public List<ThresholdEntry> Thresholds { get; set; } = new List<ThresholdEntry>();
@@ -46,6 +49,11 @@ namespace RPGGame
         public bool ReduceLengthNextActions { get; set; } = false;
         public double LengthReduction { get; set; } = 0.0;
         public int LengthReductionDuration { get; set; } = 0;
+
+        /// <summary>
+        /// Status effect types (e.g. "stun", "harden") from the sheet SELF TARGET block that apply to the attacker.
+        /// </summary>
+        public List<string> SelfTargetEffects { get; set; } = new List<string>();
     }
 }
 

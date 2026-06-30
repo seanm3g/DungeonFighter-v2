@@ -18,6 +18,7 @@ namespace RPGGame.Tests.Unit.Entity
             TestEffectiveMaxBasePlusEquippedExtraSlots();
             TestEffectiveMaxIncludesClassUpgradeSlots();
             TestEffectiveMaxWandWeaponGrantsOneSlot();
+            TestEffectiveMaxIncludesActionLabBonus();
             TestTrimRemovesNonRequiredWhenOverCap();
 
             TestBase.PrintSummary("ComboSequenceMaxHelper Tests", _testsRun, _testsPassed, _testsFailed);
@@ -130,6 +131,37 @@ namespace RPGGame.Tests.Unit.Entity
                 c.Equipment.Weapon = new WeaponItem("Sword", 1, 5, 0.5, WeaponType.Sword);
                 TestBase.AssertEqual(2, ComboSequenceMaxHelper.GetEffectiveMax(c),
                     "non-Wand weapon does not add class slot", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.LootSystem = backupLoot;
+            }
+        }
+
+        private static void TestEffectiveMaxIncludesActionLabBonus()
+        {
+            Console.WriteLine("\n--- Testing GetEffectiveMax includes Action Lab slot bonus ---");
+            var cfg = GameConfiguration.Instance;
+            var backupLoot = cfg.LootSystem;
+            try
+            {
+                cfg.LootSystem = new LootSystemConfig
+                {
+                    ComboSequenceBaseMax = 2,
+                    ComboSequenceAbsoluteMax = 8
+                };
+
+                var c = TestDataBuilders.Character().WithName("LabSlotBonusTest").Build();
+                TestBase.AssertEqual(2, ComboSequenceMaxHelper.GetEffectiveMax(c),
+                    "no lab bonus", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                c.ActionLabActionSlotBonus = 3;
+                TestBase.AssertEqual(5, ComboSequenceMaxHelper.GetEffectiveMax(c),
+                    "base 2 + lab 3", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                c.ActionLabActionSlotBonus = 10;
+                TestBase.AssertEqual(8, ComboSequenceMaxHelper.GetEffectiveMax(c),
+                    "clamped to absolute max", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {

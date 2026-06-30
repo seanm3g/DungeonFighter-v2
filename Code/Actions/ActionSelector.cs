@@ -97,7 +97,7 @@ namespace RPGGame
             int stripIndex = ActionUtilities.ResolveComboStripIndex(hero, comboActions, deterministicSalt: null);
             PeekRollAccuracyAndComboBonuses(hero, out int accuracyAcc, out int effectComboBonus, stripIndex);
             Action comboAction = comboActions[stripIndex];
-            int selectionDie = GetComboPathSelectionDie(source, comboAction, baseRoll);
+            int selectionDie = GetComboPathSelectionDie(source, comboAction, baseRoll, stripIndex);
             int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus, accuracyAcc);
 
             if (selectionDie >= comboThreshold)
@@ -129,7 +129,7 @@ namespace RPGGame
             int stripIndex = ActionUtilities.ResolveComboStripIndex(character, comboActions, baseRoll);
             PeekRollAccuracyAndComboBonuses(character, out int accuracyAcc, out int effectComboBonus, stripIndex);
             Action comboAction = comboActions[stripIndex];
-            int selectionDie = GetComboPathSelectionDie(source, comboAction, baseRoll);
+            int selectionDie = GetComboPathSelectionDie(source, comboAction, baseRoll, stripIndex);
             int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus, accuracyAcc);
             return selectionDie >= comboThreshold;
         }
@@ -269,10 +269,45 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Modified d20 (sheet roll modifications only) used for combo-strip vs normal <em>selection</em>.
+        /// Modified d20 (sheet roll modifications + peeked pending advantage/disadvantage) used for combo-strip vs normal <em>selection</em>.
         /// </summary>
-        private static int GetComboPathSelectionDie(Actor source, Action comboAction, int baseRoll) =>
-            RollModificationManager.ApplyActionRollModifications(baseRoll, comboAction, source, null);
+        private static int GetComboPathSelectionDie(Actor source, Action comboAction, int baseRoll, int? actionSlotForPendingPeek)
+        {
+            if (source is Character hero && hero is not Enemy)
+            {
+                PeekPendingMultiDiceFlags(hero, out bool advantage, out bool disadvantage, actionSlotForPendingPeek);
+                return RollModificationManager.ApplyMultiDiceRoll(baseRoll, advantage, disadvantage, comboAction, source, null);
+            }
+            return RollModificationManager.ApplyActionRollModifications(baseRoll, comboAction, source, null);
+        }
+
+        /// <summary>
+        /// Peeks pending ADVANTAGE/DISADVANTAGE bonuses that would apply on the next hero attack roll (without consuming).
+        /// </summary>
+        public static void PeekPendingMultiDiceFlags(Character? c, out bool advantage, out bool disadvantage, int? actionSlotForPendingPeek)
+        {
+            advantage = false;
+            disadvantage = false;
+            if (c == null || c is Enemy)
+                return;
+
+            var comboActions = ActionUtilities.GetComboActions(c);
+            int comboLength = comboActions.Count;
+            if (comboLength > 0)
+            {
+                int currentSlot = actionSlotForPendingPeek.HasValue
+                    ? (actionSlotForPendingPeek.Value % comboLength + comboLength) % comboLength
+                    : c.ComboStep % comboLength;
+                RollModificationManager.CollectAdvantageFlags(
+                    c.Effects.GetPendingActionBonusesForSlot(currentSlot), ref advantage, ref disadvantage);
+            }
+            RollModificationManager.CollectAdvantageFlags(
+                c.Effects.PeekPendingActionBonusesNextHeroRoll(), ref advantage, ref disadvantage);
+            RollModificationManager.CollectAdvantageFlags(
+                c.Effects.PeekAttackBonuses(), ref advantage, ref disadvantage);
+            RollModificationManager.CollectAdvantageFlags(
+                c.Effects.PeekAbilityBonuses(), ref advantage, ref disadvantage);
+        }
 
         /// <summary>
         /// Selects an enemy action based on roll thresholds
@@ -315,7 +350,7 @@ namespace RPGGame
             int stripIdx = ActionUtilities.ResolveComboStripIndex(enemyCharacter, comboActions, deterministicSalt: null);
             PeekRollAccuracyAndComboBonuses(enemyCharacter, out _, out int effectComboBonus, stripIdx);
             Action comboAction = comboActions[stripIdx];
-            int selectionDie = GetComboPathSelectionDie(source, comboAction, baseRoll);
+            int selectionDie = GetComboPathSelectionDie(source, comboAction, baseRoll, stripIdx);
             int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus, accuracyAcc: 0);
 
             if (selectionDie >= comboThreshold)

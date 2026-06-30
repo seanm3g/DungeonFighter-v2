@@ -37,7 +37,6 @@ namespace RPGGame
                 _handlers[kv.Key] = kv.Value;
             _handlers["absorb"] = new Combat.Effects.AdvancedStatusEffects.AbsorbEffectHandler();
             _handlers["confusion"] = new Combat.Effects.AdvancedStatusEffects.ConfusionEffectHandler();
-            _handlers["cleanse"] = new Combat.Effects.AdvancedStatusEffects.CleanseEffectHandler();
             _handlers["disrupt"] = new Combat.Effects.AdvancedStatusEffects.DisruptEffectHandler();
         }
 
@@ -91,19 +90,16 @@ namespace RPGGame
                 "burning" => action.CausesBurn,
                 "vulnerability" => action.CausesVulnerability,
                 "harden" => action.CausesHarden,
-                "fortify" => action.CausesFortify,
                 "focus" => action.CausesFocus,
                 "expose" => action.CausesExpose,
                 "hpregen" => action.CausesHPRegen,
                 "armorbreak" => action.CausesArmorBreak,
                 "pierce" => action.CausesPierce,
-                "reflect" => action.CausesReflect,
                 "silence" => action.CausesSilence,
                 "statdrain" => action.CausesStatDrain,
                 "absorb" => action.CausesAbsorb,
                 "temporaryhp" => action.CausesTemporaryHP,
                 "confusion" => action.CausesConfusion,
-                "cleanse" => action.CausesCleanse,
                 "mark" => action.CausesMark,
                 "disrupt" => action.CausesDisrupt,
                 _ => false

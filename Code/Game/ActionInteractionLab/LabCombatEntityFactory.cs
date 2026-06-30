@@ -31,7 +31,8 @@ namespace RPGGame.ActionInteractionLab
                 snapshot.LabPanelAgiDelta,
                 snapshot.LabPanelTecDelta,
                 snapshot.LabPanelIntDelta,
-                snapshot.LabPanelArmorDelta);
+                snapshot.LabPanelArmorDelta,
+                snapshot.LabPanelActionSlotDelta);
         }
 
         public static void ApplyPanelDeltas(
@@ -41,7 +42,8 @@ namespace RPGGame.ActionInteractionLab
             int labPanelAgiDelta,
             int labPanelTecDelta,
             int labPanelIntDelta,
-            int labPanelArmorDelta)
+            int labPanelArmorDelta,
+            int labPanelActionSlotDelta)
         {
             if (labPanelLevelDelta != 0)
                 labPlayer.ApplyActionLabLevelDelta(labPanelLevelDelta);
@@ -55,6 +57,13 @@ namespace RPGGame.ActionInteractionLab
                 labPlayer.Stats.Intelligence = Math.Max(1, labPlayer.Stats.Intelligence + labPanelIntDelta);
             if (labPanelArmorDelta != 0)
                 labPlayer.ActionLabArmorBonus = Math.Max(0, labPlayer.ActionLabArmorBonus + labPanelArmorDelta);
+            if (labPanelActionSlotDelta != 0)
+            {
+                labPlayer.ActionLabActionSlotBonus = Math.Max(0, labPlayer.ActionLabActionSlotBonus + labPanelActionSlotDelta);
+                ComboSequenceMaxHelper.TrimComboSequenceToMax(
+                    labPlayer,
+                    ComboSequenceMaxHelper.GetEffectiveMax(labPlayer));
+            }
         }
 
         public static Enemy BuildLabEnemy(

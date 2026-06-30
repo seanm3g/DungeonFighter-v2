@@ -32,6 +32,7 @@ namespace RPGGame.Actions.Execution
             if (source is Character techMilestoneCharacter)
             {
                 TechniqueMilestoneThresholdBonuses.Apply(thresholdManager, techMilestoneCharacter);
+                NaiveteThresholdBonuses.Apply(thresholdManager, techMilestoneCharacter);
             }
 
             // Catalog + suffix + prefix (Swift/HIT, etc.) dice stats: literal threshold shifts, same sign as TECH milestones / FIFO HIT.
@@ -56,11 +57,12 @@ namespace RPGGame.Actions.Execution
             if (source is Character character && !(character is Enemy) && forcedAction == null)
                 result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
 
-            // Roll and threshold bonuses: ATTACK (consumed per roll), ACTION (FIFO per hero/enemy attack roll + legacy per-slot), ABILITY (consumed on hit)
+            // Roll and threshold bonuses: ATTACK (consumed per roll), ACTION (FIFO peek; consumed on hit+combo), ABILITY (consumed on hit)
             int actionBonusAccumulator = 0, actionBonusHit = 0, actionBonusCombo = 0, actionBonusCrit = 0, actionBonusCritMiss = 0;
+            bool pendingAdvantage = false, pendingDisadvantage = false;
             if (source is Character actionBonusCharacter && !(actionBonusCharacter is Enemy))
             {
-                // 1. ACTION cadence: legacy slot-based pending + one FIFO layer per hero attack roll (enemy turns do not consume hero layers)
+                // 1. ACTION cadence: legacy slot-based pending (consumed per roll) + FIFO head peeked until hit+combo
                 var comboActions = ActionUtilities.GetComboActions(actionBonusCharacter);
                 int comboLength = comboActions.Count;
                 var pendingActionRollBonuses = new List<ActionAttackBonusItem>();
@@ -68,13 +70,19 @@ namespace RPGGame.Actions.Execution
                 {
                     int currentSlot = ActionUtilities.GetComboSlotForPendingBonuses(
                         actionBonusCharacter, result.SelectedAction, comboActions);
-                    pendingActionRollBonuses.AddRange(actionBonusCharacter.Effects.ConsumePendingActionBonusesForSlot(currentSlot));
+                    var slotBonuses = actionBonusCharacter.Effects.ConsumePendingActionBonusesForSlot(currentSlot);
+                    pendingActionRollBonuses.AddRange(slotBonuses);
+                    actionBonusCharacter.Effects.AccumulateConsumedModifierBonuses(slotBonuses);
                 }
-                pendingActionRollBonuses.AddRange(actionBonusCharacter.Effects.ConsumePendingActionBonusesNextHeroRoll());
+                var fifoPeeked = actionBonusCharacter.Effects.PeekPendingActionBonusesNextHeroRoll();
+                if (fifoPeeked.Count > 0)
+                {
+                    result.PendingActionCadenceLayerPeekedForRoll = true;
+                    pendingActionRollBonuses.AddRange(fifoPeeked);
+                }
                 if (pendingActionRollBonuses.Count > 0)
                 {
                     RollModificationManager.ApplyDeferredThresholdPackageSetPhase(source, pendingActionRollBonuses);
-                    actionBonusCharacter.Effects.AccumulateConsumedModifierBonuses(pendingActionRollBonuses);
                     foreach (var bonus in pendingActionRollBonuses)
                     {
                         switch ((bonus.Type ?? "").ToUpper())
@@ -86,6 +94,7 @@ namespace RPGGame.Actions.Execution
                             case "CRIT_MISS": actionBonusCritMiss += (int)bonus.Value; break;
                         }
                     }
+                    RollModificationManager.CollectAdvantageFlags(pendingActionRollBonuses, ref pendingAdvantage, ref pendingDisadvantage);
                 }
                 // 2. Consume ATTACK bonuses (roll-based; consumed per roll, apply only on hit for stat bonuses)
                 var actionBonuses = actionBonusCharacter.Effects.GetAndConsumeAttackBonuses();
@@ -103,6 +112,7 @@ namespace RPGGame.Actions.Execution
                         case "CRIT_MISS": actionBonusCritMiss += (int)bonus.Value; break;
                     }
                 }
+                RollModificationManager.CollectAdvantageFlags(actionBonuses, ref pendingAdvantage, ref pendingDisadvantage);
                 // Apply ability-queued roll/threshold bonuses to this roll (consumed on hit in ApplyHitOutcome).
                 var abilityBonusesPeek = actionBonusCharacter.Effects.PeekAbilityBonuses();
                 RollModificationManager.ApplyDeferredThresholdPackageSetPhase(source, abilityBonusesPeek);
@@ -117,6 +127,7 @@ namespace RPGGame.Actions.Execution
                         case "CRIT_MISS": actionBonusCritMiss += (int)bonus.Value; break;
                     }
                 }
+                RollModificationManager.CollectAdvantageFlags(abilityBonusesPeek, ref pendingAdvantage, ref pendingDisadvantage);
             }
             else if (source is Enemy enemyAttacker)
             {
@@ -137,10 +148,13 @@ namespace RPGGame.Actions.Execution
                             case "CRIT_MISS": actionBonusCritMiss += (int)bonus.Value; break;
                         }
                     }
+                    RollModificationManager.CollectAdvantageFlags(layer, ref pendingAdvantage, ref pendingDisadvantage);
                 }
             }
-            result.ModifiedBaseRoll = RollModificationManager.ApplyActionRollModifications(
-                result.BaseRoll, result.SelectedAction, source, target);
+            result.ModifiedBaseRoll = RollModificationManager.ApplyMultiDiceRoll(
+                result.BaseRoll, pendingAdvantage, pendingDisadvantage, result.SelectedAction, source, target,
+                out var multiDiceDetail);
+            result.MultiDiceRollDetail = multiDiceDetail;
             if (source is Character envHero && envHero is not Enemy)
             {
                 result.ModifiedBaseRoll = EnvironmentRollModifier.ApplyStructureRollShift(

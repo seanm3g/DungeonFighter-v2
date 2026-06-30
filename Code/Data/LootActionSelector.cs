@@ -339,23 +339,42 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets starting weapon actions from Actions.json using the "startingWeapon" tag
-        /// Returns all actions with "startingWeapon" tag that match the weapon type
+        /// Gets starting weapon actions from Actions.json.
+        /// Uses <c>startingWeapon</c> tag first, then <c>weapon_basic</c> / required basics for the weapon type.
+        /// Does not read ActionTables.json — spreadsheet pull only updates Actions.json.
         /// </summary>
         public List<string> GetStartingWeaponActions(string weaponType)
         {
             var weaponTag = weaponType.ToLower();
-            var allActions = ActionLoader.GetAllActions();
+            var allActionData = ActionLoader.GetAllActionData();
 
-            // Get all actions with "startingWeapon" tag that match the weapon type
-            var startingActions = allActions
-                .Where(action => action.Tags != null &&
-                                action.Tags.Any(tag => tag.Equals("startingWeapon", StringComparison.OrdinalIgnoreCase)) &&
-                                action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)))
-                .Select(action => action.Name)
+            var fromStartingTag = allActionData
+                .Where(a => a.Tags != null &&
+                            a.Tags.Any(tag => tag.Equals("startingWeapon", StringComparison.OrdinalIgnoreCase)) &&
+                            MatchesWeaponTypeForStarter(a, weaponType, weaponTag))
+                .Select(a => a.Name)
+                .Where(n => !string.IsNullOrWhiteSpace(n))
                 .ToList();
 
-            return startingActions;
+            if (fromStartingTag.Count > 0)
+                return fromStartingTag;
+
+            return allActionData
+                .Where(a => ActionTagSyncHelper.IsRequiredBasic(a.Tags) &&
+                            MatchesWeaponTypeForStarter(a, weaponType, weaponTag))
+                .Select(a => a.Name)
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .ToList();
+        }
+
+        private static bool MatchesWeaponTypeForStarter(ActionData action, string weaponType, string weaponTag)
+        {
+            if (action.WeaponTypes != null &&
+                action.WeaponTypes.Any(wt => wt.Equals(weaponType, StringComparison.OrdinalIgnoreCase)))
+                return true;
+
+            return action.Tags != null &&
+                   action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

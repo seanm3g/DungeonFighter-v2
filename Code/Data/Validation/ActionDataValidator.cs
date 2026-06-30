@@ -66,9 +66,6 @@ namespace RPGGame.Data.Validation
             
             ValidateRange(result, entityName, "multiHitCount", action.MultiHitCount, 
                 ValidationRules.Actions.MinMultiHitCount, ValidationRules.Actions.MaxMultiHitCount);
-            
-            ValidateRange(result, entityName, "selfDamagePercent", action.SelfDamagePercent, 
-                ValidationRules.Actions.MinSelfDamagePercent, ValidationRules.Actions.MaxSelfDamagePercent);
 
             // Threshold validations
             ValidateRange(result, entityName, "criticalMissThresholdOverride", action.CriticalMissThresholdOverride, 
@@ -179,10 +176,10 @@ namespace RPGGame.Data.Validation
                     "Multi-hit actions should typically have a positive damage multiplier");
             }
 
-            if (action.SelfDamagePercent > 0 && action.DamageMultiplier <= 0)
+            if (string.Equals(action.TargetType, "Self", StringComparison.OrdinalIgnoreCase) && action.DamageMultiplier <= 0)
             {
                 result.AddWarning(FileName, entityName, "damageMultiplier", 
-                    "Actions with self-damage should typically have a positive damage multiplier");
+                    "Self-target actions should typically have a positive damage multiplier");
             }
 
             // Threshold validation (qualifier, type, operator, value, valueKind # or %)

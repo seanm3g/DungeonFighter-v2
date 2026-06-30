@@ -553,7 +553,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                 var lab = ActionInteractionLabSession.Current;
                 if (lab == null)
                     return false;
-                player.RemoveFromCombo(combo[idx]);
+                lab.TryRemoveFromLabCombo(combo[idx]);
                 canvasUI.RenderCombat(lab.LabPlayer, lab.LabEnemy, new List<string>());
                 return true;
             }

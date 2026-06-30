@@ -43,9 +43,11 @@ namespace RPGGame
             if (!FallbackBasicByType.TryGetValue(weaponType, out var fallback))
                 return null;
 
-            ActionLoader.LoadActions();
             var resolved = ActionLoader.ResolveActionName(fallback);
-            return string.IsNullOrEmpty(resolved) ? fallback : resolved;
+            if (string.IsNullOrEmpty(resolved) || !ActionLoader.HasAction(resolved))
+                return null;
+
+            return resolved;
         }
 
         /// <summary>

@@ -23,6 +23,7 @@ namespace RPGGame.Tests.Unit.UI
             TestDelayScaling();
             TestTutorialCombatSlowPacing();
             TestCenterPanelTintChangesWithCombatSpeed();
+            TestSimulationPacingFastMode();
 
             TestBase.PrintSummary("DeveloperModeState Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -151,6 +152,37 @@ namespace RPGGame.Tests.Unit.UI
             {
                 DeveloperModeState.SetCombatLogInstant(prevInstant);
                 DeveloperModeState.SetCombatSpeedMultiplier(prevSpeed);
+            }
+        }
+
+        private static void TestSimulationPacingFastMode()
+        {
+            Console.WriteLine("--- SimulationPacing disables combat delays ---");
+
+            bool prevUiDelays = UIManager.EnableDelays;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            bool prevFastCombat = GameSettings.Instance.FastCombat;
+            try
+            {
+                UIManager.EnableDelays = true;
+                DeveloperModeState.SetCombatLogInstant(false);
+                GameSettings.Instance.FastCombat = false;
+
+                TestBase.AssertTrue(!SimulationPacing.ShouldSkipDelays,
+                    "delays active before fast mode", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                SimulationPacing.EnableFastMode();
+
+                TestBase.AssertTrue(SimulationPacing.ShouldSkipDelays,
+                    "fast mode skips delays", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(DeveloperModeState.IsCombatLogInstant,
+                    "fast mode enables instant combat log", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                UIManager.EnableDelays = prevUiDelays;
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                GameSettings.Instance.FastCombat = prevFastCombat;
             }
         }
     }

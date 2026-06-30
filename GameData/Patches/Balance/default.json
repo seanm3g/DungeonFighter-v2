@@ -1,6 +1,6 @@
 {
   "character": {
-    "playerBaseHealth": 304,
+    "playerBaseHealth": 100,
     "healthPerLevel": 3,
     "enemyHealthPerLevel": 0
   },
@@ -104,6 +104,27 @@
     "attributeDuoSwordDagger": "Duelist",
     "attributeDuoSwordWand": "Spellblade",
     "attributeDuoDaggerWand": "Hexblade"
+  },
+  "earlyGame": {
+    "startingActionBonusLevelCap": 5,
+    "startingClassPointsBonus": {
+      "mace": 0,
+      "sword": 0,
+      "dagger": 0,
+      "wand": 0
+    },
+    "startingActionDamageMultiplier": {
+      "mace": 1,
+      "sword": 1,
+      "dagger": 1,
+      "wand": 1
+    },
+    "naivete": {
+      "enabled": true,
+      "attributeTotalCap": 66,
+      "naivetePointsPerHitStep": 2,
+      "maxHitStepsFromNaivete": 4
+    }
   },
   "combat": {
     "criticalHitThreshold": 20,
@@ -340,14 +361,14 @@
   },
   "enemySystem": {
     "globalMultipliers": {
-      "healthMultiplier": 1,
+      "healthMultiplier": 0.4900520833333334,
       "damageMultiplier": 1,
       "armorMultiplier": 1,
       "speedMultiplier": 1,
       "description": ""
     },
     "progressionScales": {
-      "baseHealthScale": 1.572683013768307,
+      "baseHealthScale": 15.8668,
       "healthGrowthScale": 1,
       "attributeGrowthScale": 1.25,
       "combatTempoScale": 1,
@@ -356,7 +377,7 @@
       "progressionPivotLevel": 30
     },
     "baselineStats": {
-      "health": 150,
+      "health": 50,
       "strength": 3,
       "agility": 3,
       "technique": 3,

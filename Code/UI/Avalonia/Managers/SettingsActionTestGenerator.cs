@@ -196,19 +196,16 @@ namespace RPGGame.UI.Avalonia.Managers
                                 if (selectedAction.CausesStun) effectsList.Add("Stun");
                                 if (selectedAction.CausesVulnerability) effectsList.Add("Vulnerability");
                                 if (selectedAction.CausesHarden) effectsList.Add("Harden");
-                                if (selectedAction.CausesFortify) effectsList.Add("Fortify");
                                 if (selectedAction.CausesFocus) effectsList.Add("Focus");
                                 if (selectedAction.CausesExpose) effectsList.Add("Expose");
                                 if (selectedAction.CausesHPRegen) effectsList.Add("HP Regen");
                                 if (selectedAction.CausesArmorBreak) effectsList.Add("Armor Break");
                                 if (selectedAction.CausesPierce) effectsList.Add("Pierce");
-                                if (selectedAction.CausesReflect) effectsList.Add("Reflect");
                                 if (selectedAction.CausesSilence) effectsList.Add("Silence");
                                 if (selectedAction.CausesStatDrain) effectsList.Add("Stat Drain");
                                 if (selectedAction.CausesAbsorb) effectsList.Add("Absorb");
                                 if (selectedAction.CausesTemporaryHP) effectsList.Add("Temporary HP");
                                 if (selectedAction.CausesConfusion) effectsList.Add("Confusion");
-                                if (selectedAction.CausesCleanse) effectsList.Add("Cleanse");
                                 if (selectedAction.CausesMark) effectsList.Add("Mark");
                                 if (selectedAction.CausesDisrupt) effectsList.Add("Disrupt");
                                 

@@ -37,7 +37,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 var action = new Action(
                     name: randomData.Name ?? "Unknown Environment Action",
                     type: actionType,
-                    targetType: TargetType.AreaOfEffect,
+                    targetType: TargetType.Environment,
                     cooldown: 0,
                     description: randomData.Description ?? "",
                     comboOrder: -1,
@@ -108,11 +108,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                       !action.Tags.Any(t => t.Equals("environment", StringComparison.OrdinalIgnoreCase)))) &&
                     (action.CausesBleed || action.CausesWeaken || action.CausesSlow ||
                     action.CausesPoison || action.CausesBurn || action.CausesStun ||
-                    action.CausesVulnerability || action.CausesHarden || action.CausesFortify ||
+                    action.CausesVulnerability || action.CausesHarden ||
                     action.CausesFocus || action.CausesExpose || action.CausesHPRegen ||
-                    action.CausesArmorBreak || action.CausesPierce || action.CausesReflect ||
+                    action.CausesArmorBreak || action.CausesPierce ||
                     action.CausesSilence || action.CausesStatDrain || action.CausesAbsorb ||
-                    action.CausesTemporaryHP || action.CausesConfusion || action.CausesCleanse ||
+                    action.CausesTemporaryHP || action.CausesConfusion ||
                     action.CausesMark || action.CausesDisrupt)
                 ).ToList();
                 

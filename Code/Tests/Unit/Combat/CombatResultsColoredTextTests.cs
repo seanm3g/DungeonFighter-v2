@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Formatting;
 using RPGGame.Tests;
 using RPGGame.UI.ColorSystem;
@@ -129,6 +130,18 @@ namespace RPGGame.Tests.Unit.Combat
                 string ampJoined = string.Concat(rollInfoAmp.Select(c => c.Text));
                 TestBase.AssertTrue(ampJoined.Contains("1.02x"),
                     "RollInfoFormatter should display small combo amp with two decimals (1.02x)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var luckDetail = MultiDiceRollDetail.FromTwoDice(MultiDiceLuckMode.Advantage, 16, 4);
+                string luckPlain = RollInfoFormatter.FormatRollValuePlain(16, luckDetail);
+                TestBase.AssertEqual("2d20 luck 16/4 → 16", luckPlain,
+                    "Roll footer shows luck dice and selected value",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var unluckDetail = MultiDiceRollDetail.FromTwoDice(MultiDiceLuckMode.Disadvantage, 16, 4);
+                string unluckPlain = RollInfoFormatter.FormatRollValuePlain(4, unluckDetail);
+                TestBase.AssertEqual("2d20 unluck 16/4 → 4", unluckPlain,
+                    "Roll footer shows unluck dice and selected value",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             catch (Exception ex)

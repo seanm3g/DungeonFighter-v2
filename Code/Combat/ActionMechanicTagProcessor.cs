@@ -18,13 +18,16 @@ namespace RPGGame.Combat
             const double InsightAccuracy = 2.0;
 
             var bonuses = new List<ActionAttackBonusItem>();
-            if (ActionTagSyncHelper.HasTag(action.Tags, "swift"))
+            // Tags are inferred from sheet mod columns (ActionTagSyncHelper); skip duplicate FIFO layers when the sheet field already drives cadence bonuses.
+            if (ActionTagSyncHelper.HasTag(action.Tags, "swift") && string.IsNullOrWhiteSpace(action.SpeedMod))
                 bonuses.Add(new ActionAttackBonusItem { Type = "SPEED_MOD", Value = swiftSpeed });
-            if (ActionTagSyncHelper.HasTag(action.Tags, "bludgeon"))
+            if (ActionTagSyncHelper.HasTag(action.Tags, "bludgeon") && string.IsNullOrWhiteSpace(action.DamageMod))
                 bonuses.Add(new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = bludgeonDamage });
-            if (ActionTagSyncHelper.HasTag(action.Tags, "focus"))
+            if (ActionTagSyncHelper.HasTag(action.Tags, "focus") && string.IsNullOrWhiteSpace(action.AmpMod))
                 bonuses.Add(new ActionAttackBonusItem { Type = "AMP_MOD", Value = FocusAmpPercent });
-            if (ActionTagSyncHelper.HasTag(action.Tags, "insight"))
+            if (ActionTagSyncHelper.HasTag(action.Tags, "insight")
+                && action.Advanced?.RollBonus == 0
+                && !action.CausesFocus)
                 bonuses.Add(new ActionAttackBonusItem { Type = "ACCURACY", Value = InsightAccuracy });
 
             if (bonuses.Count > 0)

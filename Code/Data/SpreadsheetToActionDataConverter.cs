@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using RPGGame.Actions;
 using RPGGame;
 
 namespace RPGGame.Data
@@ -57,15 +58,11 @@ namespace RPGGame.Data
             // Basic properties
             actionData.Name = spreadsheet.Action;
             actionData.Description = spreadsheet.Description;
-            actionData.Type = DetermineActionType(spreadsheet);
-            actionData.TargetType = DetermineTargetType(spreadsheet);
-            
-            // Damage and speed
-            actionData.DamageMultiplier = SpreadsheetActionData.ParseNumericValue(spreadsheet.Damage);
-            if (actionData.DamageMultiplier == 0)
-            {
-                actionData.DamageMultiplier = 1.0; // Default
-            }
+
+            // Damage and speed (preserve explicit 0% damage for buff/debuff rows)
+            double rawDamage = SpreadsheetActionData.ParseNumericValue(spreadsheet.Damage);
+            bool damageExplicitlyZero = !string.IsNullOrWhiteSpace(spreadsheet.Damage) && rawDamage <= 0;
+            actionData.DamageMultiplier = damageExplicitlyZero ? 0 : (rawDamage == 0 ? 1.0 : rawDamage);
             
             actionData.Length = SpreadsheetActionData.ParseNumericValue(spreadsheet.Speed);
             if (actionData.Length == 0)
@@ -102,29 +99,39 @@ namespace RPGGame.Data
             actionData.CausesSilence = !string.IsNullOrWhiteSpace(spreadsheet.Silence) && spreadsheet.Silence != "0";
             actionData.CausesPierce = !string.IsNullOrWhiteSpace(spreadsheet.Pierce) && spreadsheet.Pierce != "0";
             actionData.CausesStatDrain = !string.IsNullOrWhiteSpace(spreadsheet.StatDrain) && spreadsheet.StatDrain != "0";
-            actionData.CausesFortify = !string.IsNullOrWhiteSpace(spreadsheet.Fortify) && spreadsheet.Fortify != "0";
             actionData.CausesFocus = !string.IsNullOrWhiteSpace(spreadsheet.Focus) && spreadsheet.Focus != "0";
-            actionData.CausesCleanse = !string.IsNullOrWhiteSpace(spreadsheet.Cleanse) && spreadsheet.Cleanse != "0";
-            actionData.CausesReflect = !string.IsNullOrWhiteSpace(spreadsheet.Reflect) && spreadsheet.Reflect != "0";
-            
-            // Self damage
-            if (!string.IsNullOrWhiteSpace(spreadsheet.SelfDamage))
+            actionData.CausesConfusion = !string.IsNullOrWhiteSpace(spreadsheet.Confuse) && spreadsheet.Confuse != "0";
+            actionData.CausesDisrupt = !string.IsNullOrWhiteSpace(spreadsheet.Disrupt) && spreadsheet.Disrupt != "0";
+
+            if (!string.IsNullOrWhiteSpace(spreadsheet.Lifesteal) && spreadsheet.Lifesteal != "0")
+                actionData.LifestealPercent = ParseLifestealPercent(spreadsheet.Lifesteal);
+
+            if (!string.IsNullOrWhiteSpace(spreadsheet.HeroHeal) && spreadsheet.HeroHeal != "0")
             {
-                actionData.SelfDamagePercent = (int)Math.Round(SpreadsheetActionData.ParseNumericValue(spreadsheet.SelfDamage) * 100);
+                int heal = SpreadsheetActionData.ParseIntValue(spreadsheet.HeroHeal);
+                if (heal <= 0)
+                    heal = (int)Math.Round(SpreadsheetActionData.ParseNumericValue(spreadsheet.HeroHeal));
+                actionData.HealAmount = Math.Max(1, heal);
             }
-            
-            // Heal
-            if (!string.IsNullOrWhiteSpace(spreadsheet.HeroHeal))
+
+            if (spreadsheet.SelfTargetEffects != null && spreadsheet.SelfTargetEffects.Count > 0)
             {
-                // This would need to be handled differently - heal actions are a different type
-                // For now, we'll note it in the description or handle via tags
+                actionData.SelfTargetEffects = spreadsheet.SelfTargetEffects
+                    .Where(e => !string.IsNullOrWhiteSpace(e))
+                    .Select(e => e.Trim().ToLowerInvariant())
+                    .Where(e => e is not ("fortify" or "reflect" or "cleanse"))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
             }
-            
+
+            actionData.Type = DetermineActionType(spreadsheet, actionData.DamageMultiplier);
+            actionData.TargetType = DetermineTargetType(spreadsheet);
+
             // Spreadsheet-origin fields (round-trip)
             actionData.Rarity = spreadsheet.Rarity ?? "";
             actionData.Category = spreadsheet.Category ?? "";
             actionData.Cadence = spreadsheet.Cadence ?? "";
-            actionData.ComboBonusDuration = SpreadsheetActionData.ParseIntValue(spreadsheet.Duration);
+            actionData.ComboBonusDuration = SpreadsheetDurationSemantics.ResolveCadenceDuration(spreadsheet);
             actionData.SpeedMod = spreadsheet.SpeedMod ?? "";
             actionData.DamageMod = spreadsheet.DamageMod ?? "";
             actionData.MultiHitMod = spreadsheet.MultiHitMod ?? "";
@@ -211,6 +218,8 @@ namespace RPGGame.Data
             
             // ACTION/ATTACK bonuses
             actionData.ActionAttackBonuses = ActionAttackKeywordProcessor.ProcessBonuses(spreadsheet);
+            ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(actionData);
+            MultiDiceRollMapper.ApplyRollAdvantageBonuses(actionData, spreadsheet);
 
             // Roll bonus fields (form edits these; round-trip from Hero / Enemy columns)
             actionData.RollBonus = SpreadsheetActionData.ParseIntValue(spreadsheet.HeroAccuracy);
@@ -242,19 +251,57 @@ namespace RPGGame.Data
             return actionData;
         }
         
-        /// <summary>
-        /// Determines the action type from spreadsheet data
-        /// </summary>
-        private static string DetermineActionType(SpreadsheetActionData spreadsheet)
+        private static string DetermineActionType(SpreadsheetActionData spreadsheet, double damageMultiplier)
         {
-            // Check if it's a heal action
-            if (!string.IsNullOrWhiteSpace(spreadsheet.HeroHeal))
-            {
+            if (!string.IsNullOrWhiteSpace(spreadsheet.HeroHeal) && spreadsheet.HeroHeal != "0")
                 return "Heal";
-            }
-            
-            // Default to Attack
+
+            if (IsSelfTarget(spreadsheet) && HasDefensiveStatus(spreadsheet) && !HasOffensiveStatus(spreadsheet))
+                return "Buff";
+
+            if (HasOffensiveStatus(spreadsheet) && damageMultiplier <= 0)
+                return "Debuff";
+
+            if (damageMultiplier <= 0 && HasDefensiveStatus(spreadsheet) && !HasOffensiveStatus(spreadsheet))
+                return "Buff";
+
+            if (damageMultiplier <= 0 && HasOffensiveStatus(spreadsheet))
+                return "Debuff";
+
             return "Attack";
+        }
+
+        private static bool IsSelfTarget(SpreadsheetActionData spreadsheet)
+        {
+            if (string.IsNullOrWhiteSpace(spreadsheet.Target))
+                return false;
+            return spreadsheet.Target.Trim().Equals("self", StringComparison.OrdinalIgnoreCase)
+                || spreadsheet.Target.Trim().Equals("SELF", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool HasDefensiveStatus(SpreadsheetActionData s) =>
+            IsStatusSet(s.Harden) || IsStatusSet(s.Focus);
+
+        private static bool HasOffensiveStatus(SpreadsheetActionData s) =>
+            IsStatusSet(s.Stun) || IsStatusSet(s.Poison) || IsStatusSet(s.Burn) || IsStatusSet(s.Bleed)
+            || IsStatusSet(s.Weaken) || IsStatusSet(s.Slow) || IsStatusSet(s.Vulnerability) || IsStatusSet(s.Expose)
+            || IsStatusSet(s.Silence) || IsStatusSet(s.Pierce) || IsStatusSet(s.StatDrain)
+            || IsStatusSet(s.Confuse) || IsStatusSet(s.Disrupt);
+
+        private static bool IsStatusSet(string value) =>
+            !string.IsNullOrWhiteSpace(value) && value != "0";
+
+        private static double ParseLifestealPercent(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value) || value == "0")
+                return 0;
+            string trimmed = value.Trim();
+            if (trimmed.EndsWith("%", StringComparison.Ordinal))
+                return SpreadsheetActionData.ParseNumericValue(trimmed);
+            double v = SpreadsheetActionData.ParseNumericValue(trimmed);
+            if (v > 1.0)
+                return v / 100.0;
+            return v;
         }
         
         /// <summary>
@@ -264,22 +311,27 @@ namespace RPGGame.Data
         {
             if (!string.IsNullOrWhiteSpace(spreadsheet.Target))
             {
-                string target = spreadsheet.Target.ToUpperInvariant();
-                if (target == "SELF")
-                    return "Self";
-                if (target == "ENEMY")
-                    return "SingleTarget";
-                if (target is "AOE" or "AREA" or "ALL" or "EVERYONE" or "ROOM")
-                    return "AreaOfEffect";
+                string target = spreadsheet.Target.Trim();
+                switch (target.ToUpperInvariant())
+                {
+                    case "SELF":
+                        return "Self";
+                    case "ENEMY":
+                        return "SingleTarget";
+                    case "ENVIRONMENT":
+                    case "AOE":
+                    case "AREA":
+                    case "ALL":
+                    case "EVERYONE":
+                    case "ROOM":
+                        return "Environment";
+                }
             }
-            
-            // Default based on action type
-            if (!string.IsNullOrWhiteSpace(spreadsheet.HeroHeal))
-            {
-                return "Self"; // Heal actions typically target self
-            }
-            
-            return "SingleTarget"; // Default
+
+            if (!string.IsNullOrWhiteSpace(spreadsheet.HeroHeal) && spreadsheet.HeroHeal != "0")
+                return "Self";
+
+            return "SingleTarget";
         }
 
         /// <summary>
@@ -299,7 +351,8 @@ namespace RPGGame.Data
             if (hasEnvironment)
             {
                 actionData.Type = "Debuff";
-                actionData.TargetType = "AreaOfEffect";
+                if (actionData.TargetType == "SingleTarget")
+                    actionData.TargetType = "Environment";
                 actionData.IsComboAction = false;
                 actionData.ComboOrder = -1;
             }

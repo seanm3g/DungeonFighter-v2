@@ -119,14 +119,6 @@ namespace RPGGame.Tests.Unit
                 $"Harden should apply: stacks={character.HardenStacks}, turns={character.HardenTurns}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test Fortify
-            var fortifyAction = TestDataBuilders.CreateMockAction("FortifyAction");
-            var fortifyResults = new List<string>();
-            registry.ApplyEffect("fortify", character, fortifyAction, fortifyResults);
-            TestBase.AssertTrue(character.FortifyStacks > 0 && character.FortifyTurns > 0,
-                $"Fortify should apply: stacks={character.FortifyStacks}, turns={character.FortifyTurns}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
             // Test Focus
             var focusAction = TestDataBuilders.CreateMockAction("FocusAction");
             var focusResults = new List<string>();
@@ -167,14 +159,6 @@ namespace RPGGame.Tests.Unit
                 $"Pierce should apply: hasPierce={character.HasPierce}, turns={character.PierceTurns}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test Reflect
-            var reflectAction = TestDataBuilders.CreateMockAction("ReflectAction");
-            var reflectResults = new List<string>();
-            registry.ApplyEffect("reflect", character, reflectAction, reflectResults);
-            TestBase.AssertTrue(character.ReflectStacks > 0 && character.ReflectTurns > 0,
-                $"Reflect should apply: stacks={character.ReflectStacks}, turns={character.ReflectTurns}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
             // Test Silence
             var silenceAction = TestDataBuilders.CreateMockAction("SilenceAction");
             var silenceResults = new List<string>();
@@ -213,15 +197,6 @@ namespace RPGGame.Tests.Unit
             registry.ApplyEffect("confusion", enemy, confusionAction, confusionResults);
             TestBase.AssertTrue(enemy.IsConfused && enemy.ConfusionTurns > 0,
                 $"Confusion should apply: isConfused={enemy.IsConfused}, turns={enemy.ConfusionTurns}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            // Test Cleanse
-            var cleanseAction = TestDataBuilders.CreateMockAction("CleanseAction");
-            var cleanseResults = new List<string>();
-            enemy.BleedIntensity = 3;
-            registry.ApplyEffect("cleanse", enemy, cleanseAction, cleanseResults);
-            TestBase.AssertTrue(true, // Cleanse may reduce stacks, handler exists
-                "Cleanse handler should exist and process effects",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test Mark

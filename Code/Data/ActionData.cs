@@ -52,18 +52,24 @@ namespace RPGGame
         public bool CausesPierce { get; set; }
         [JsonPropertyName("causesStatDrain")]
         public bool CausesStatDrain { get; set; }
-        [JsonPropertyName("causesFortify")]
-        public bool CausesFortify { get; set; }
         [JsonPropertyName("causesFocus")]
         public bool CausesFocus { get; set; }
-        [JsonPropertyName("causesCleanse")]
-        public bool CausesCleanse { get; set; }
-        [JsonPropertyName("causesReflect")]
-        public bool CausesReflect { get; set; }
+        [JsonPropertyName("causesConfusion")]
+        public bool CausesConfusion { get; set; }
+        [JsonPropertyName("causesDisrupt")]
+        public bool CausesDisrupt { get; set; }
+        [JsonPropertyName("healAmount")]
+        public int HealAmount { get; set; }
+        /// <summary>Fraction of damage dealt returned as healing (0–1). From sheet LIFESTEAL column.</summary>
+        [JsonPropertyName("lifestealPercent")]
+        public double LifestealPercent { get; set; }
         [JsonPropertyName("comboBonusAmount")]
         public int ComboBonusAmount { get; set; }
         [JsonPropertyName("comboBonusDuration")]
         public int ComboBonusDuration { get; set; }
+        /// <summary>Reserved for a future status-effect-turns column; not populated from cadence duration (column K).</summary>
+        [JsonPropertyName("statusEffectDuration")]
+        public int StatusEffectDuration { get; set; }
         [JsonPropertyName("comboOrder")]
         public int ComboOrder { get; set; }
         [JsonPropertyName("isComboAction")]
@@ -86,7 +92,10 @@ namespace RPGGame
         [JsonPropertyName("multiHitCount")]
         public int MultiHitCount { get; set; }
         [JsonPropertyName("selfDamagePercent")]
+        [Obsolete("Self-damage sheet column removed; use target=self instead.")]
         public int SelfDamagePercent { get; set; }
+        [JsonPropertyName("selfTargetEffects")]
+        public List<string> SelfTargetEffects { get; set; } = new List<string>();
         [JsonPropertyName("skipNextTurn")]
         public bool SkipNextTurn { get; set; }
         [JsonPropertyName("repeatLastAction")]
