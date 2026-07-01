@@ -12,6 +12,7 @@ namespace RPGGame.Tests.Unit.Data
             Console.WriteLine("=== EnemySpawnFilter Tests ===\n");
             int run = 0, pass = 0, fail = 0;
             FilterEmptyPlacementMatchesAll(ref run, ref pass, ref fail);
+            FilterNaPlacementWildcardsMatchAny(ref run, ref pass, ref fail);
             FilterBiomeMismatchExcludes(ref run, ref pass, ref fail);
             FilterRegionMatchesIdOrDisplayName(ref run, ref pass, ref fail);
             FilterLocationListMatches(ref run, ref pass, ref fail);
@@ -45,6 +46,24 @@ namespace RPGGame.Tests.Unit.Data
             var ctx = new EnemySpawnContext("forest", "Forest", "Dark Clearing");
             var filtered = EnemySpawnFilter.Filter(pool, ctx);
             TestBase.AssertEqual(1, filtered.Count, "wildcard placement", ref run, ref pass, ref fail);
+        }
+
+        private static void FilterNaPlacementWildcardsMatchAny(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(FilterNaPlacementWildcardsMatchAny));
+            var pool = new List<EnemyData>
+            {
+                Make("Goblin", region: "n/a", biome: "n/a", location: "General", rarity: "Common"),
+                Make("Spring Sprite", region: "Water", biome: "Spring", location: "Chronicle Basin", rarity: "Uncommon")
+            };
+            var ctx = new EnemySpawnContext("Water", "Spring", "Chronicle Basin");
+            var filtered = EnemySpawnFilter.Filter(pool, ctx);
+            TestBase.AssertEqual(2, filtered.Count, "n/a + regional match", ref run, ref pass, ref fail);
+
+            var forestCtx = new EnemySpawnContext(null, "Forest", "Entrance");
+            var forestFiltered = EnemySpawnFilter.Filter(pool, forestCtx);
+            TestBase.AssertEqual(1, forestFiltered.Count, "only wildcard goblin in forest", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Goblin", forestFiltered[0].Name, "wildcard goblin", ref run, ref pass, ref fail);
         }
 
         private static void FilterBiomeMismatchExcludes(ref int run, ref int pass, ref int fail)

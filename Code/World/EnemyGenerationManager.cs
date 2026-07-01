@@ -158,35 +158,16 @@ namespace RPGGame
                 && TryGenerateFromRoomEnemyPool(roomLevel, enemyCount, enemyData, minLevel, maxLevel, spawnContext, resolvedRegion))
                 return;
 
-            // Filter enemies by possible enemies list first, then by theme
-            List<EnemyData> availableEnemies;
-            if (possibleEnemies != null && possibleEnemies.Count > 0)
-            {
-                availableEnemies = enemyData.Where(e => possibleEnemies.Contains(e.Name)).ToList();
-                if (availableEnemies.Count == 0)
-                {
-                    availableEnemies = GetThemeAppropriateEnemies(enemyData);
-                }
-            }
-            else
-            {
-                var themeEnemies = GetThemeAppropriateEnemies(enemyData);
-                availableEnemies = themeEnemies.Count > 0 ? themeEnemies : enemyData;
-            }
-
-            if (availableEnemies.Count == 0)
-            {
-                BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"Warning: No theme-appropriate enemies found for theme '{theme}', using all available enemies"));
-                availableEnemies = enemyData;
-            }
+            // Build spawn pool from ENEMIES sheet placement metadata, legacy dungeon lists, then theme fallback.
+            var spawnCtx = spawnContext ?? new EnemySpawnContext(null, theme, null);
+            List<EnemyData> availableEnemies = ResolveAvailableEnemyPool(
+                enemyData, possibleEnemies, spawnCtx, resolvedRegion, theme);
 
             if (availableEnemies.Count == 0)
             {
                 BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse("Error: No enemy data available, cannot generate enemies"));
                 return;
             }
-
-            var spawnCtx = spawnContext ?? new EnemySpawnContext(null, theme, null);
 
             for (int i = 0; i < enemyCount; i++)
             {
@@ -308,7 +289,44 @@ namespace RPGGame
             return enemyLevel;
         }
 
-        private List<EnemyData> GetThemeAppropriateEnemies(List<EnemyData> allEnemies)
+        /// <summary>
+        /// Resolves the encounter pool: placement-filtered sheet rows, plus explicit dungeon lists, with legacy theme fallback.
+        /// </summary>
+        internal static List<EnemyData> ResolveAvailableEnemyPool(
+            List<EnemyData> enemyData,
+            List<string>? possibleEnemies,
+            EnemySpawnContext spawnCtx,
+            TravelRegion? resolvedRegion,
+            string dungeonTheme)
+        {
+            var placementMatched = EnemySpawnFilter.Filter(enemyData, spawnCtx, resolvedRegion);
+
+            List<EnemyData> availableEnemies;
+            if (possibleEnemies != null && possibleEnemies.Count > 0)
+            {
+                var possibleSet = new HashSet<string>(possibleEnemies, StringComparer.OrdinalIgnoreCase);
+                var fromDungeonList = enemyData.Where(e => possibleSet.Contains(e.Name)).ToList();
+                availableEnemies = placementMatched
+                    .Concat(fromDungeonList)
+                    .GroupBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
+                    .Select(g => g.First())
+                    .ToList();
+            }
+            else
+            {
+                availableEnemies = placementMatched;
+            }
+
+            if (availableEnemies.Count == 0)
+            {
+                var themeEnemies = GetThemeAppropriateEnemies(allEnemies: enemyData, theme: dungeonTheme);
+                availableEnemies = themeEnemies.Count > 0 ? themeEnemies : enemyData;
+            }
+
+            return availableEnemies;
+        }
+
+        private static List<EnemyData> GetThemeAppropriateEnemies(List<EnemyData> allEnemies, string theme)
         {
             var themeEnemyMap = new Dictionary<string, string[]>
             {

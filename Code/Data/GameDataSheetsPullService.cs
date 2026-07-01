@@ -86,6 +86,15 @@ namespace RPGGame.Data
                     ?? GameConstants.GetGameDataFilePath(GameConstants.EnemiesJson);
                 await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
                 ClearJsonCacheForGameDataFile(GameConstants.EnemiesJson);
+                try
+                {
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    Console.WriteLine($"✓ Enemies pulled: {doc.RootElement.GetArrayLength()} row(s) → {outPath}");
+                }
+                catch
+                {
+                    Console.WriteLine($"✓ Enemies pulled → {outPath}");
+                }
             }
 
             if (tabFlags.PushEnvironmentsTab && !string.IsNullOrWhiteSpace(sc.EnvironmentsSheetUrl))

@@ -7,9 +7,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "strength": 15
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -26,9 +24,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "strength": 11
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -45,9 +41,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "strength": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -64,9 +58,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "strength": 12
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -83,9 +75,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "strength": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -102,9 +92,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "strength": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian",
@@ -122,9 +110,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "strength": 11
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -141,9 +127,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "strength": 10
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -160,9 +144,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "strength": 13
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -179,9 +161,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "strength": 10
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -198,9 +178,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "strength": 24
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -217,9 +195,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "strength": 13
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -236,9 +212,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "strength": 14
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -255,9 +229,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "strength": 28
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -274,9 +246,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "strength": 25
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -293,9 +263,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "strength": 18
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -312,9 +280,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "strength": 23
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -331,9 +297,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "strength": 23
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -350,9 +314,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "strength": 28
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -369,9 +331,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "strength": 19
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -388,9 +348,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "strength": 55
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -407,9 +365,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "strength": 50
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -426,9 +382,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "strength": 41
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -445,9 +399,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "strength": 57
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -464,9 +416,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "strength": 63
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -483,9 +433,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "strength": 57
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -502,9 +450,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "strength": 65
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -521,9 +467,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "strength": 46
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -540,9 +484,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "strength": 39
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -559,9 +501,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "strength": 62
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -578,9 +518,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "strength": 67
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -597,9 +535,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "strength": 56
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -616,9 +552,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "strength": 74
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -635,9 +569,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "strength": 61
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -654,9 +586,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "strength": 90
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -673,9 +603,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "strength": 77
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -692,9 +620,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "strength": 60
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -711,9 +637,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "strength": 62
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -730,9 +654,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "strength": 61
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -749,9 +671,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "strength": 101
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -768,9 +688,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "strength": 103
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -787,9 +705,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "strength": 91
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -806,9 +722,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "strength": 118
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -825,9 +739,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "strength": 76
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -844,9 +756,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "strength": 106
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -863,9 +773,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "strength": 124
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -882,9 +790,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "strength": 88
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -901,9 +807,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "strength": 120
-    },
+    "attributeRequirements": null,
     "tags": [
       "mace",
       "barbarian"
@@ -920,9 +824,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "agility": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior",
@@ -940,9 +842,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "agility": 14
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -959,9 +859,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "agility": 9
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -978,9 +876,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "agility": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -997,9 +893,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "agility": 7
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1016,9 +910,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "agility": 12
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1035,9 +927,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "agility": 14
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1054,9 +944,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "agility": 14
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1073,9 +961,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "agility": 26
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1092,9 +978,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "agility": 12
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1111,9 +995,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "agility": 24
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1130,9 +1012,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "agility": 14
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1149,9 +1029,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "agility": 27
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1168,9 +1046,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "agility": 15
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1187,9 +1063,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "agility": 15
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1206,9 +1080,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "agility": 23
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1225,9 +1097,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "agility": 26
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1244,9 +1114,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "agility": 14
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1263,9 +1131,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "agility": 57
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1282,9 +1148,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "agility": 57
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1301,9 +1165,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "agility": 35
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1320,9 +1182,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "agility": 56
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1339,9 +1199,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "agility": 46
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1358,9 +1216,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "agility": 60
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1377,9 +1233,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "agility": 44
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1396,9 +1250,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "agility": 57
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1415,9 +1267,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "agility": 54
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1434,9 +1284,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "agility": 61
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1453,9 +1301,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "agility": 91
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1472,9 +1318,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "agility": 82
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1491,9 +1335,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "agility": 68
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1510,9 +1352,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "agility": 70
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1529,9 +1369,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "agility": 93
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1548,9 +1386,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "agility": 88
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1567,9 +1403,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "agility": 87
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1586,9 +1420,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "agility": 80
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1605,9 +1437,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "agility": 80
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1624,9 +1454,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "agility": 60
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1643,9 +1471,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "agility": 69
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1662,9 +1488,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "agility": 120
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1681,9 +1505,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "agility": 80
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1700,9 +1522,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "agility": 80
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1719,9 +1539,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "agility": 110
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1738,9 +1556,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "agility": 121
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1757,9 +1573,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "agility": 79
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1776,9 +1590,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "agility": 110
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1795,9 +1607,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "agility": 109
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1814,9 +1624,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "agility": 77
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1833,9 +1641,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "agility": 76
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1852,9 +1658,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "agility": 88
-    },
+    "attributeRequirements": null,
     "tags": [
       "sword",
       "warrior"
@@ -1871,9 +1675,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "technique": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -1890,9 +1692,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "technique": 10
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -1909,9 +1709,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "technique": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -1928,9 +1726,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "technique": 7
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -1947,9 +1743,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "technique": 9
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -1966,9 +1760,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "technique": 12
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -1985,9 +1777,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "technique": 14
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2004,9 +1794,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "technique": 10
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2023,9 +1811,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "technique": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2042,9 +1828,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "technique": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue",
@@ -2062,9 +1846,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "technique": 18
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2081,9 +1863,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "technique": 18
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2100,9 +1880,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "technique": 11
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2119,9 +1897,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "technique": 17
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2138,9 +1914,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "technique": 20
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2157,9 +1931,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "technique": 19
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2176,9 +1948,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "technique": 25
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2195,9 +1965,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "technique": 19
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2214,9 +1982,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "technique": 30
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2233,9 +1999,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "technique": 21
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2252,9 +2016,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "technique": 30
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2271,9 +2033,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "technique": 62
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2290,9 +2050,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "technique": 47
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2309,9 +2067,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "technique": 60
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2328,9 +2084,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "technique": 44
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2347,9 +2101,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "technique": 43
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2366,9 +2118,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "technique": 37
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2385,9 +2135,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "technique": 61
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2404,9 +2152,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "technique": 52
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2423,9 +2169,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "technique": 55
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2442,9 +2186,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "technique": 49
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2461,9 +2203,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "technique": 64
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2480,9 +2220,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "technique": 78
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2499,9 +2237,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "technique": 63
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2518,9 +2254,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "technique": 57
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2537,9 +2271,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "technique": 91
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2556,9 +2288,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "technique": 92
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2575,9 +2305,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "technique": 91
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2594,9 +2322,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "technique": 87
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2613,9 +2339,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "technique": 72
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2632,9 +2356,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "technique": 89
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2651,9 +2373,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "technique": 89
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2670,9 +2390,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "technique": 99
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2689,9 +2407,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "technique": 114
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2708,9 +2424,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "technique": 115
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2727,9 +2441,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "technique": 113
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2746,9 +2458,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "technique": 123
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2759,15 +2469,13 @@
   },
   {
     "type": "Dagger",
-    "name": "Eternity'S Shiv",
+    "name": "Eternity\u0027S Shiv",
     "baseDamage": 20,
     "attackSpeed": 0.78,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "technique": 107
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2784,9 +2492,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "technique": 103
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2803,9 +2509,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "technique": 114
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2822,9 +2526,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "technique": 100
-    },
+    "attributeRequirements": null,
     "tags": [
       "dagger",
       "rogue"
@@ -2841,9 +2543,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "intelligence": 15
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -2860,9 +2560,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "intelligence": 6
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -2879,9 +2577,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "intelligence": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -2898,9 +2594,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "intelligence": 11
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -2917,9 +2611,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "intelligence": 11
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -2936,9 +2628,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "intelligence": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -2955,9 +2645,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "intelligence": 7
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -2974,9 +2662,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "intelligence": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -2993,9 +2679,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "intelligence": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3012,9 +2696,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "intelligence": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard",
@@ -3032,9 +2714,7 @@
     "damageBonusMin": 1,
     "damageBonusMax": 4,
     "tier": 1,
-    "attributeRequirements": {
-      "intelligence": 5
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3051,9 +2731,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "intelligence": 18
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3070,9 +2748,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "intelligence": 15
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3089,9 +2765,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "intelligence": 19
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3108,9 +2782,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "intelligence": 19
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3127,9 +2799,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "intelligence": 18
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3146,9 +2816,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "intelligence": 10
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3165,9 +2833,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "intelligence": 10
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3184,9 +2850,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "intelligence": 13
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3203,9 +2867,7 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": {
-      "intelligence": 15
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3222,9 +2884,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "intelligence": 53
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3241,9 +2901,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "intelligence": 65
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3260,9 +2918,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "intelligence": 50
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3279,9 +2935,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "intelligence": 52
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3298,9 +2952,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "intelligence": 52
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3317,9 +2969,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "intelligence": 51
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3336,9 +2986,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "intelligence": 60
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3355,9 +3003,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "intelligence": 36
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3374,9 +3020,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "intelligence": 54
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3393,9 +3037,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "intelligence": 54
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3412,9 +3054,7 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": {
-      "intelligence": 60
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3431,9 +3071,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 64
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3450,9 +3088,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 59
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3469,9 +3105,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 69
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3488,9 +3122,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 90
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3507,9 +3139,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 58
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3526,9 +3156,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 65
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3545,9 +3173,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 68
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3564,9 +3190,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 56
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3583,9 +3207,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 91
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3602,9 +3224,7 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": {
-      "intelligence": 94
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3621,9 +3241,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "intelligence": 124
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3640,9 +3258,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "intelligence": 76
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3659,9 +3275,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "intelligence": 97
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3678,9 +3292,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "intelligence": 123
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3697,9 +3309,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "intelligence": 98
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3716,9 +3326,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "intelligence": 101
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3735,9 +3343,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "intelligence": 123
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3754,9 +3360,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "intelligence": 103
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3773,9 +3377,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "intelligence": 77
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"
@@ -3792,9 +3394,7 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": {
-      "intelligence": 91
-    },
+    "attributeRequirements": null,
     "tags": [
       "wand",
       "wizard"

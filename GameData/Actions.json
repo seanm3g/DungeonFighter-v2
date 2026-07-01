@@ -15,7 +15,7 @@
     "numberOfHits": "1",
     "damage": "120%",
     "speed": "1.00",
-    "tags": "startingweapon, mace, weapon_basic, required"
+    "tags": "startingWeapon, mace, weapon_basic"
   },
   {
     "action": "STRIKE",
@@ -24,7 +24,7 @@
     "numberOfHits": "2",
     "damage": "100%",
     "speed": "1.25",
-    "tags": "startingweapon, sword, weapon_basic, required"
+    "tags": "startingWeapon, sword, weapon_basic"
   },
   {
     "action": "STAB",
@@ -33,7 +33,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "tags": "startingweapon, dagger, weapon_basic, required"
+    "tags": "startingWeapon, dagger, weapon_basic"
   },
   {
     "action": "MAGIC MISSLE",
@@ -42,7 +42,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "tags": "startingweapon, wand, weapon_basic, required"
+    "tags": "startingWeapon, wand, weapon_basic"
   },
   {
     "action": "ATTACK BONUS",
@@ -62,10 +62,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "Action",
-    "damageMod": "25",
-    "tags": "bludgeon"
+    "duration": "2",
+    "cadence": "ACTION",
+    "damageMod": "25"
   },
   {
     "action": "FIGHT BONUS",
@@ -180,8 +179,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "speedMod": "1",
-    "tags": "swift"
+    "speedMod": "1"
   },
   {
     "action": "STRONGER",
@@ -193,7 +191,7 @@
     "duration": "1",
     "cadence": "Action",
     "damageMod": "1",
-    "tags": "class, warrior, bludgeon"
+    "tags": "class, warrior"
   },
   {
     "action": "BETTER",
@@ -211,8 +209,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "ampMod": "1",
-    "tags": "focus"
+    "ampMod": "1"
   },
   {
     "action": "OPENER",
@@ -221,8 +218,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "opener": "true",
-    "tags": "opener"
+    "opener": "TRUE"
   },
   {
     "action": "FINISHER",
@@ -231,8 +227,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "finisher": "true",
-    "tags": "finisher"
+    "finisher": "TRUE"
   },
   {
     "action": "PHANTOM FOLLOW-UP",
@@ -324,7 +319,7 @@
     "damage": "100%",
     "speed": "1.00",
     "harden": "1",
-    "target": "self"
+    "target": "SELF"
   },
   {
     "action": "PIERCE",
@@ -351,7 +346,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "self"
+    "target": "SELF"
   },
   {
     "action": "LUCK",
@@ -359,8 +354,7 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "cadence": "ACTION"
+    "speed": "1.00"
   },
   {
     "action": "UNLUCK",
@@ -368,8 +362,7 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "cadence": "ACTION"
+    "speed": "1.00"
   },
   {
     "action": "set bonus",
@@ -390,24 +383,15 @@
   },
   {
     "action": "flip switch",
-    "description": "triggers environment action",
-    "numberOfHits": "1",
-    "damage": "100%",
-    "speed": "1.00"
+    "description": "triggers environment action"
   },
   {
     "action": "berzerker",
-    "description": "below 50% health gives you a 25% damage bonus",
-    "numberOfHits": "1",
-    "damage": "100%",
-    "speed": "1.00"
+    "description": "below 50% health gives you a 25% damage bonus"
   },
   {
     "action": "GAMBLERS BLESSING",
-    "description": "If you roll a above X you take another action",
-    "numberOfHits": "1",
-    "damage": "100%",
-    "speed": "1.00"
+    "description": "If you roll a above X you take another action"
   },
   {
     "action": "HAYMAKER",

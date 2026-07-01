@@ -198,6 +198,10 @@ namespace RPGGame.Data
                 {
                     MergeEnemyFlatColumnsToNested(obj);
                     NormalizeEnemyJsonArrayRow(obj);
+                    if (!obj.TryGetPropertyValue("name", out var nameNode)
+                        || nameNode is null
+                        || string.IsNullOrWhiteSpace(nameNode.GetValue<string>()))
+                        continue;
                 }
                 else if (kind == GameDataTabularSheetKind.Dungeons)
                 {

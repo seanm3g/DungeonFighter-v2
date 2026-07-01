@@ -22,6 +22,37 @@ namespace RPGGame
     /// <summary>Filters and tier-rolls enemy rows by rarity + region/biome/location.</summary>
     public static class EnemySpawnFilter
     {
+        /// <summary>Sheet sentinel values that mean "any" for region, biome, or location columns.</summary>
+        public static bool IsPlacementWildcard(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return true;
+            var t = value.Trim();
+            return t.Equals("n/a", StringComparison.OrdinalIgnoreCase)
+                || t.Equals("na", StringComparison.OrdinalIgnoreCase)
+                || t.Equals("any", StringComparison.OrdinalIgnoreCase)
+                || t == "*"
+                || t.Equals("general", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>Builds spawn context from a generated room plus dungeon travel metadata.</summary>
+        public static EnemySpawnContext BuildSpawnContext(Environment room, string? spawnRegionId, string dungeonTheme)
+        {
+            var roomData = RoomLoader.GetRoomData(room.Name);
+            string? region = !string.IsNullOrWhiteSpace(roomData?.Region)
+                ? roomData!.Region.Trim()
+                : !string.IsNullOrWhiteSpace(spawnRegionId)
+                    ? spawnRegionId.Trim()
+                    : null;
+            string? biome = !string.IsNullOrWhiteSpace(roomData?.Biome)
+                ? roomData!.Biome.Trim()
+                : dungeonTheme;
+            string? location = roomData?.GetLocationKey();
+            if (string.IsNullOrWhiteSpace(location))
+                location = room.Name;
+            return new EnemySpawnContext(region, biome, location);
+        }
+
         public static List<EnemyData> Filter(IEnumerable<EnemyData> pool, EnemySpawnContext ctx, TravelRegion? resolvedRegion = null)
         {
             return pool.Where(e => MatchesPlacement(e, ctx, resolvedRegion)).ToList();
@@ -131,14 +162,14 @@ namespace RPGGame
 
         public static bool MatchesBiomePlacement(EnemyData enemy, EnemySpawnContext ctx)
         {
-            if (string.IsNullOrWhiteSpace(enemy.Biome) || string.IsNullOrWhiteSpace(ctx.Biome))
+            if (IsPlacementWildcard(enemy.Biome) || string.IsNullOrWhiteSpace(ctx.Biome))
                 return false;
             return MatchesTokenList(enemy.Biome, ctx.Biome);
         }
 
         public static bool MatchesRegionPlacement(EnemyData enemy, EnemySpawnContext ctx, TravelRegion? resolvedRegion)
         {
-            if (string.IsNullOrWhiteSpace(enemy.Region))
+            if (IsPlacementWildcard(enemy.Region) || string.IsNullOrWhiteSpace(enemy.Region))
                 return false;
             if (string.IsNullOrWhiteSpace(ctx.RegionId) && resolvedRegion == null)
                 return false;
@@ -147,7 +178,8 @@ namespace RPGGame
 
         public static bool MatchesLocationPlacement(EnemyData enemy, EnemySpawnContext ctx)
         {
-            if (string.IsNullOrWhiteSpace(enemy.Location) || string.IsNullOrWhiteSpace(ctx.Location))
+            if (IsPlacementWildcard(enemy.Location) || string.IsNullOrWhiteSpace(enemy.Location)
+                || string.IsNullOrWhiteSpace(ctx.Location))
                 return false;
             return MatchesTokenList(enemy.Location, ctx.Location);
         }
@@ -157,11 +189,13 @@ namespace RPGGame
 
         public static bool MatchesRegion(string? filterCell, string? regionId, TravelRegion? resolvedRegion)
         {
-            if (string.IsNullOrWhiteSpace(filterCell))
+            if (IsPlacementWildcard(filterCell))
                 return true;
 
             var tokens = GameDataTagHelper.ParseCommaSeparatedTags(filterCell);
             if (tokens.Count == 0)
+                return true;
+            if (tokens.All(IsPlacementWildcard))
                 return true;
 
             var matchAgainst = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -182,6 +216,8 @@ namespace RPGGame
 
             foreach (var token in tokens)
             {
+                if (IsPlacementWildcard(token))
+                    return true;
                 if (matchAgainst.Contains(token))
                     return true;
             }
@@ -192,7 +228,7 @@ namespace RPGGame
         /// <summary>Empty filter cell matches any context value; empty context matches any enemy cell.</summary>
         public static bool MatchesTokenList(string? filterCell, string? contextValue)
         {
-            if (string.IsNullOrWhiteSpace(filterCell))
+            if (IsPlacementWildcard(filterCell))
                 return true;
             if (string.IsNullOrWhiteSpace(contextValue))
                 return true;
@@ -204,6 +240,8 @@ namespace RPGGame
             string ctx = contextValue.Trim();
             foreach (var token in tokens)
             {
+                if (IsPlacementWildcard(token))
+                    return true;
                 if (string.Equals(token, ctx, StringComparison.OrdinalIgnoreCase))
                     return true;
             }

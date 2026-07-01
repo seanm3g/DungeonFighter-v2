@@ -123,7 +123,7 @@ namespace RPGGame
                     // Pass dungeon level bounds to ensure enemy levels stay within range
                     try
                     {
-                        var spawnCtx = new EnemySpawnContext(SpawnRegionId, Theme, room.Name);
+                        var spawnCtx = EnemySpawnFilter.BuildSpawnContext(room, SpawnRegionId, Theme);
                         room.GenerateEnemies(roomLevel, PossibleEnemies, MinLevel, MaxLevel, spawnCtx, spawnRegion);
                     }
                     catch (Exception ex)
@@ -157,7 +157,7 @@ namespace RPGGame
                         );
                         try
                         {
-                            var spawnCtx = new EnemySpawnContext(SpawnRegionId, Theme, fallbackRoom.Name);
+                            var spawnCtx = EnemySpawnFilter.BuildSpawnContext(fallbackRoom, SpawnRegionId, Theme);
                             fallbackRoom.GenerateEnemies(roomLevel, PossibleEnemies, MinLevel, MaxLevel, spawnCtx, spawnRegion);
                         }
                         catch
@@ -192,7 +192,7 @@ namespace RPGGame
                         isHostile: true,
                         theme: Theme
                     );
-                    var spawnCtx = new EnemySpawnContext(SpawnRegionId, Theme, fallbackRoom.Name);
+                    var spawnCtx = EnemySpawnFilter.BuildSpawnContext(fallbackRoom, SpawnRegionId, Theme);
                     fallbackRoom.GenerateEnemies(roomLevel, PossibleEnemies, MinLevel, MaxLevel, spawnCtx, spawnRegion);
                     Rooms.Add(fallbackRoom);
                 }

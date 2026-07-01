@@ -44,6 +44,7 @@ namespace RPGGame.Tests.Runners
             ("LootDataCache", () => LootDataCacheTests.RunAllTests()),
             ("EnemyLoader", () => EnemyLoaderTests.RunAllTests()),
             ("EnemySpawnFilter", () => EnemySpawnFilterTests.RunAllTests()),
+            ("EnemyGenerationManager", () => RPGGame.Tests.Unit.World.EnemyGenerationManagerTests.RunAllTests()),
             ("EnemyRarityReward", () => EnemyRarityRewardTests.RunAllTests()),
             ("RoomLoader", () => RoomLoaderTests.RunAllTests()),
             ("ColorConfigurationLoader", () => ColorConfigurationLoaderTests.RunAllTests()),

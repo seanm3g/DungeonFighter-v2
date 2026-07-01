@@ -4,6 +4,42 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "name": "aaaSTARTER",
+    "archetype": "Assassin",
+    "baseAttributes": {
+      "strength": 5,
+      "agility": 3,
+      "technique": 1,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.8,
+      "agility": 2.3,
+      "technique": 2.3,
+      "intelligence": 0.5
+    },
+    "healthPercent": 100,
+    "healthGrowthPercent": 3.36,
+    "actions": [
+      "JAB",
+      "TAUNT"
+    ],
+    "isLiving": true,
+    "description": "A quick and cunning creature that strikes from the shadows",
+    "tags": [
+      "living",
+      "minion",
+      "has_hands",
+      "has_feet",
+      "has_legs",
+      "has_head"
+    ]
+  },
+  {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
     "name": "Goblin",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -18,7 +54,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 52.21,
+    "healthPercent": 100,
     "healthGrowthPercent": 3.36,
     "actions": [
       "JAB",
@@ -54,7 +90,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 17.86,
+    "healthPercent": 100,
     "healthGrowthPercent": 2.36,
     "actions": [
       "WEB STRIKE",
@@ -91,7 +127,7 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "healthPercent": 95.29,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.43,
     "actions": [
       "BITE",
@@ -125,7 +161,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 40.71,
+    "healthPercent": 100,
     "healthGrowthPercent": 3.21,
     "actions": [
       "FIRE BOLT",
@@ -161,7 +197,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 140,
+    "healthPercent": 100,
     "healthGrowthPercent": 6.14,
     "actions": [
       "MAGMA FIST",
@@ -195,7 +231,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 11.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 1.93,
     "actions": [
       "BAT SWARM",
@@ -232,7 +268,7 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "healthPercent": 57.86,
+    "healthPercent": 100,
     "healthGrowthPercent": 3.93,
     "actions": [
       "BONE STRIKE",
@@ -268,7 +304,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 86.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.5,
     "actions": [
       "CLAW",
@@ -299,7 +335,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 30.64,
+    "healthPercent": 100,
     "healthGrowthPercent": 2.93,
     "actions": [
       "Soul Drain",
@@ -334,7 +370,7 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "healthPercent": 112.5,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.93,
     "actions": [
       "SLAM",
@@ -369,7 +405,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 131.14,
+    "healthPercent": 100,
     "healthGrowthPercent": 5.86,
     "actions": [
       "SLAM",
@@ -401,7 +437,7 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "healthPercent": 86.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.36,
     "actions": [
       "JAB",
@@ -435,7 +471,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 35,
+    "healthPercent": 100,
     "healthGrowthPercent": 3.07,
     "actions": [
       "CHEAP SHOT",
@@ -470,7 +506,7 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "healthPercent": 25.71,
+    "healthPercent": 100,
     "healthGrowthPercent": 2.64,
     "actions": [
       "CRITICAL ATTACK",
@@ -504,7 +540,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 120.71,
+    "healthPercent": 100,
     "healthGrowthPercent": 5.71,
     "actions": [
       "SLAM"
@@ -536,7 +572,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 45.71,
+    "healthPercent": 100,
     "healthGrowthPercent": 3.64,
     "actions": [
       "CHEAP SHOT",
@@ -567,7 +603,7 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
-    "healthPercent": 57.86,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.07,
     "actions": [
       "CRITICAL ATTACK",
@@ -602,7 +638,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 71.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.14,
     "actions": [
       "SLAM",
@@ -671,7 +707,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Burrow Strike",
@@ -707,7 +743,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Rolling Charge",
@@ -745,7 +781,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Solar Sting",
@@ -782,7 +818,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Blinding Flash",
@@ -818,7 +854,7 @@
       "technique": 2.9,
       "intelligence": 0.6
     },
-    "healthPercent": 35.71,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Crystal Barrage",
@@ -853,7 +889,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Illusion Strike",
@@ -890,7 +926,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Phase Shift",
@@ -922,7 +958,7 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "healthPercent": 21.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Vitality Leech",
@@ -958,7 +994,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 54.29,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Titan Fist",
@@ -992,7 +1028,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Toxic Dart",
@@ -1028,7 +1064,7 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "healthPercent": 21.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Solar Blessing",
@@ -1065,7 +1101,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 47.14,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Shell Defense",
@@ -1103,7 +1139,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Ambush",
@@ -1135,7 +1171,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 54.29,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Entomb",
@@ -1166,7 +1202,7 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "healthPercent": 21.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Raise Dead",
@@ -1202,7 +1238,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 54.29,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Crush",
@@ -1233,7 +1269,7 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "healthPercent": 21.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Spectral Touch",
@@ -1264,7 +1300,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Talon Strike",
@@ -1296,7 +1332,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 54.29,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Boulder Hurl",
@@ -1333,7 +1369,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Cliff Drop",
@@ -1368,7 +1404,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Quick Bite",
@@ -1404,7 +1440,7 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
-    "healthPercent": 25.71,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Bile Splash",
@@ -1435,7 +1471,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Last Stand Break",
@@ -1466,7 +1502,7 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "healthPercent": 21.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Lightning Strike",
@@ -1498,7 +1534,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Dive Bomb",
@@ -1531,7 +1567,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 54.29,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Peak Slam",
@@ -1565,7 +1601,7 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "healthPercent": 28.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Scorching Bite",
@@ -1597,7 +1633,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Tremor Burst",
@@ -1630,7 +1666,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Cinder Shriek",
@@ -1663,7 +1699,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 47.14,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Coal Shell",
@@ -1697,7 +1733,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 54.29,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Ember Spit",
@@ -1733,7 +1769,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Smog Step",
@@ -1765,7 +1801,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Predator\u0027s Focus",
@@ -1801,7 +1837,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 54.29,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Bark Fortify",
@@ -1834,7 +1870,7 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "healthPercent": 21.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Reignite",
@@ -1868,7 +1904,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 47.14,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Molten Chain",
@@ -1907,7 +1943,7 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "healthPercent": 21.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Searing Focus",
@@ -1940,7 +1976,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Sear The Gap",
@@ -1972,7 +2008,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 47.14,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Iron Vow",
@@ -2010,7 +2046,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 47.14,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Stone Gaze",
@@ -2047,7 +2083,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Soul Skewer",
@@ -2079,7 +2115,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 47.14,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Flame Salute",
@@ -2118,7 +2154,7 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
-    "healthPercent": 25.71,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Branding Seal",
@@ -2154,7 +2190,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 47.14,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Crumbling Curse",
@@ -2193,7 +2229,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Expose Vein",
@@ -2224,7 +2260,7 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
-    "healthPercent": 25.71,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Toxic Focus",
@@ -2257,7 +2293,7 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
-    "healthPercent": 25.71,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Leech Grip",
@@ -2294,7 +2330,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 54.29,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Molten Shell",
@@ -2330,7 +2366,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Magma Kiss",
@@ -2363,7 +2399,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 47.14,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Magma Carapace",
@@ -2400,7 +2436,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 47.14,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Amber Casing",
@@ -2437,7 +2473,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Lava Douse",
@@ -2475,7 +2511,7 @@
       "technique": 2.3,
       "intelligence": 2.3
     },
-    "healthPercent": 25.71,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Amber Ooze",
@@ -2507,7 +2543,7 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "healthPercent": 28.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Guard Bite",
@@ -2538,7 +2574,7 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "healthPercent": 28.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Leader\u0027s Fang",
@@ -2572,7 +2608,7 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "healthPercent": 21.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Skeletal Burst",
@@ -2603,7 +2639,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 54.29,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Sacrificial Strike",
@@ -2634,7 +2670,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 54.29,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Hex Maul",
@@ -2669,7 +2705,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 47.14,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Earth Shield",
@@ -2707,7 +2743,7 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "healthPercent": 21.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Celestial Strike",
@@ -2739,7 +2775,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Sound Strike",
@@ -2774,7 +2810,7 @@
       "technique": 0.8,
       "intelligence": 2.3
     },
-    "healthPercent": 40,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Pack Leader\u0027s Call",
@@ -2806,7 +2842,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Trick Shot",
@@ -2839,7 +2875,7 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "healthPercent": 28.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Thorn Bite",
@@ -2870,7 +2906,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Trap Door",
@@ -2905,7 +2941,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Pathfind",
@@ -2937,7 +2973,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Circular Strike",
@@ -2968,7 +3004,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Reflex Drain",
@@ -2999,7 +3035,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Perfect Copy",
@@ -3031,7 +3067,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Broken Mirror",
@@ -3062,7 +3098,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Identity Theft",
@@ -3094,7 +3130,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 54.29,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Spiked Charge",
@@ -3128,7 +3164,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Nature\u0027s Touch",
@@ -3161,7 +3197,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Venom Bite",
@@ -3195,7 +3231,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Sweet Sting",
@@ -3228,7 +3264,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Allergen Cloud",
@@ -3259,7 +3295,7 @@
       "technique": 0.8,
       "intelligence": 0.5
     },
-    "healthPercent": 28.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Gorge Strike",
@@ -3290,7 +3326,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Wall Slam",
@@ -3322,7 +3358,7 @@
       "technique": 2.9,
       "intelligence": 0.6
     },
-    "healthPercent": 35.71,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Whip Strike",
@@ -3354,7 +3390,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Decay Touch",
@@ -3385,7 +3421,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Reed Skewer",
@@ -3420,7 +3456,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Freeding Frenzy",
@@ -3451,7 +3487,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Mud Shell",
@@ -3483,7 +3519,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Tidal Crash",
@@ -3514,7 +3550,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Static Thrash",
@@ -3545,7 +3581,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Spore Drift",
@@ -3576,7 +3612,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Mist Strike",
@@ -3611,7 +3647,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Chilling Grasp",
@@ -3643,7 +3679,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Veil Shatter",
@@ -3674,7 +3710,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Blinding Swarm",
@@ -3705,7 +3741,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Cold Seep",
@@ -3741,7 +3777,7 @@
       "technique": 1.1,
       "intelligence": 0.7
     },
-    "healthPercent": 54.29,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Lurch Strike",
@@ -3772,7 +3808,7 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "healthPercent": 21.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Calcified Gaze",
@@ -3807,7 +3843,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Stone Carapace",
@@ -3838,7 +3874,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Predator\u0027s Focus",
@@ -3873,7 +3909,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Vent Focus",
@@ -3906,7 +3942,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Venom Spine",
@@ -3937,7 +3973,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Veil Shatter",
@@ -3968,7 +4004,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 47.14,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Tidal Bulwark",
@@ -4004,7 +4040,7 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "healthPercent": 21.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Deep Drain",
@@ -4035,7 +4071,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 47.14,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Food Etch",
@@ -4071,7 +4107,7 @@
       "technique": 2.9,
       "intelligence": 0.6
     },
-    "healthPercent": 35.71,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Inner Current",
@@ -4102,7 +4138,7 @@
       "technique": 1.3,
       "intelligence": 0.6
     },
-    "healthPercent": 20,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Torrent Slam",
@@ -4133,7 +4169,7 @@
       "technique": 2.3,
       "intelligence": 0.5
     },
-    "healthPercent": 47.14,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Stone Bracing",
@@ -4169,7 +4205,7 @@
       "technique": 1.3,
       "intelligence": 3.2
     },
-    "healthPercent": 21.43,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Toxic Gaze",
@@ -4200,7 +4236,7 @@
       "technique": 1,
       "intelligence": 2.3
     },
-    "healthPercent": 18.57,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Current Break",
@@ -4231,7 +4267,7 @@
       "technique": 0.8,
       "intelligence": 2.3
     },
-    "healthPercent": 40,
+    "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
       "Sunken Curse",
