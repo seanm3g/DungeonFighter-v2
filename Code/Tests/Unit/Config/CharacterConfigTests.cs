@@ -28,6 +28,8 @@ namespace RPGGame.Tests.Unit.Config
             TestCharacterConfig();
             TestAttributesConfig();
             TestEnsureValidPlayerHealthDefaults();
+            TestEnsureValidPlayerHealthDefaults_TuningPanelMinimum();
+            TestGetEffectivePlayerBaseHealth_ReadOnlyFallback();
             TestEnsureValidPlayerBaseStatDefaults();
             TestEnsureValidIntelligenceRollBonusDefaults();
             TestAttributeSet();
@@ -111,6 +113,28 @@ namespace RPGGame.Tests.Unit.Config
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(4, custom.HealthPerLevel,
                 "Positive HealthPerLevel should be preserved",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEnsureValidPlayerHealthDefaults_TuningPanelMinimum()
+        {
+            Console.WriteLine("\n--- Testing EnsureValidPlayerHealthDefaults tuning panel minimum ---");
+            var zeroed = new CharacterConfig { PlayerBaseHealth = 0 };
+            zeroed.EnsureValidPlayerHealthDefaults(CharacterConfig.TuningPanelMinBaseHealth);
+            TestBase.AssertEqual(CharacterConfig.TuningPanelMinBaseHealth, zeroed.PlayerBaseHealth,
+                "Combat tuning sanitizer floors invalid base health to panel minimum",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestGetEffectivePlayerBaseHealth_ReadOnlyFallback()
+        {
+            Console.WriteLine("\n--- Testing GetEffectivePlayerBaseHealth read-only fallback ---");
+            var cfg = new CharacterConfig { PlayerBaseHealth = 0 };
+            TestBase.AssertEqual(CharacterConfig.RuntimeFallbackBaseHealth, cfg.GetEffectivePlayerBaseHealth(),
+                "read-only fallback is 60 when stored value is zero",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, cfg.PlayerBaseHealth,
+                "GetEffectivePlayerBaseHealth does not mutate stored value",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

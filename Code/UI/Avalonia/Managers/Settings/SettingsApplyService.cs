@@ -1,4 +1,5 @@
 using RPGGame;
+using RPGGame.ActionInteractionLab;
 using RPGGame.Tuning;
 using RPGGame.UI.Avalonia.Managers;
 using System;
@@ -27,6 +28,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     ActionsTabManager.RefreshCurrentPlayerActionPool(player);
                 PlayerTuningApplier.ApplyToCurrentPlayer(player);
             }
+
+            if (gameStateManager?.CurrentState == GameState.ActionInteractionLab)
+                ActionInteractionLabSession.ApplyTuningToActiveLabHeroIfAny();
+
             // TextDelaysSaved: TextDelayConfiguration was updated during save; consumers read from it directly. No reload needed.
         }
     }

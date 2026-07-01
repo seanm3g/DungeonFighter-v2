@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using RPGGame.Config;
 using RPGGame.Tuning;
 
 namespace RPGGame.UI.Avalonia.Settings.ViewModels
@@ -49,6 +50,22 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
         public ObservableCollection<CombatTuningSubGroupViewModel> RewardsSubGroups { get; }
         public ObservableCollection<CombatTuningSubGroupViewModel> GoalsAnalysisSubGroups { get; }
 
+        /// <summary>Shown at top of Combat Tuning so saves target the active balance patch file.</summary>
+        public string ActiveBalancePatchLabel { get; private set; } = BuildActiveBalancePatchLabel();
+
+        public void RefreshActiveBalancePatchLabel()
+        {
+            ActiveBalancePatchLabel = BuildActiveBalancePatchLabel();
+        }
+
+        private static string BuildActiveBalancePatchLabel()
+        {
+            string patch = PatchProfileService.LoadProfile().GetActivePatchName(PatchCategory.Balance);
+            return string.IsNullOrWhiteSpace(patch)
+                ? "Active balance patch: (none)"
+                : $"Active balance patch: {patch} — Save writes to GameData/Patches/Balance/{patch}.json";
+        }
+
         public IReadOnlyDictionary<CombatTuningTab, ObservableCollection<CombatTuningSubGroupViewModel>> SubGroupsByTab { get; }
         public ArchetypeTuningViewModel ArchetypeTuning { get; }
         public StatusEffectTuningViewModel StatusEffectTuning { get; }
@@ -71,7 +88,7 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
 
             foreach (var param in CombatTuningParameterRegistry.All)
             {
-                var row = new CombatTuningParameterViewModel(param, v => param.SetValue(v));
+                var row = new CombatTuningParameterViewModel(param);
                 rowsByTab[param.Tab].Add(row);
                 byId[param.Id] = row;
             }
@@ -104,6 +121,7 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
                 new StatusEffectTuningViewModel(globalStatus, perEffectStatus));
 
             vm.ReloadFromConfig();
+            vm.RefreshActiveBalancePatchLabel();
             vm.WireRollFeelVarianceCompressionMasterSlider();
             vm.WireProgressionCurveRefresh();
             vm.ProgressionPreview.Refresh();
@@ -129,7 +147,21 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
                 or "attributeGrowthScale";
         }
 
-        public void RefreshProgressionPreview() => ProgressionPreview.Refresh();
+        public void RefreshProgressionPreview()
+        {
+            ApplyProgressionCurveKnobsForPreview();
+            ProgressionPreview.Refresh();
+        }
+
+        /// <summary>Writes progression-curve knob UI values to config so the preview chart matches sliders.</summary>
+        private void ApplyProgressionCurveKnobsForPreview()
+        {
+            foreach (var row in byId.Values)
+            {
+                if (IsProgressionCurveKnob(row.Id))
+                    row.CommitToConfig();
+            }
+        }
 
         /// <summary>
         /// When the variance compression master slider moves, refresh driven sub-parameter rows in the UI.
@@ -142,6 +174,7 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
             masterRow.SetValueCommittedHandler(compression =>
             {
                 RollFeelVarianceCompression.Apply(compression);
+                masterRow.CommitToConfig();
                 ReloadRollFeelLinkedParameters();
             });
         }
@@ -182,11 +215,20 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
             CombatTuningParameterRegistry.EnsureSanitizedDefaults();
             foreach (var row in byId.Values)
                 row.ReloadFromConfig();
+            RefreshActiveBalancePatchLabel();
             RefreshProgressionPreview();
+        }
+
+        /// <summary>Commits any in-progress text box edits into row values (call before save).</summary>
+        public void FlushPendingEdits()
+        {
+            foreach (var row in byId.Values)
+                row.FlushPendingText();
         }
 
         public void CommitAllToConfig()
         {
+            FlushPendingEdits();
             foreach (var row in byId.Values)
                 row.CommitToConfig();
         }

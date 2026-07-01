@@ -22,6 +22,8 @@ namespace RPGGame.Tests.Unit.UI
             TestValue_ClampsToMaximum();
             TestValueText_ReflectsIntegerValue();
             TestValueText_ParseUpdatesValue();
+            TestFlushPendingText_AppliesUncommittedText();
+            TestValueChange_DoesNotInvokeCommitUntilCommitToConfig();
             TestReloadFromConfig_DoesNotPushToBackingParameter();
             TestUnimplementedParameter_ShowsDisplayAffectsPrefix();
             TestDifficultyPresetSubgroup_ShowsUnimplementedHeader();
@@ -60,6 +62,55 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(Math.Abs(row.Value - 1.5) < 0.001,
                 "Parsing ValueText updates decimal Value",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestFlushPendingText_AppliesUncommittedText()
+        {
+            Console.WriteLine("--- FlushPendingText applies typed text without focus loss ---");
+            var param = CombatTuningParameterRegistry.GetById("playerBaseHealth");
+            int saved = (int)param!.GetValue();
+            try
+            {
+                var row = new CombatTuningParameterViewModel(param);
+                row.ReloadFromConfig();
+                row.ValueText = "175";
+                TestBase.AssertEqual(saved, (int)param.GetValue(),
+                    "pending text does not commit to config until flush",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                row.FlushPendingText();
+                row.CommitToConfig();
+                TestBase.AssertEqual(175, (int)param.GetValue(),
+                    "FlushPendingText + CommitToConfig writes typed value",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                param.SetValue(saved);
+            }
+        }
+
+        private static void TestValueChange_DoesNotInvokeCommitUntilCommitToConfig()
+        {
+            Console.WriteLine("--- Value change does not live-commit to config ---");
+            var param = CombatTuningParameterRegistry.GetById("playerBaseHealth");
+            int saved = (int)param!.GetValue();
+            try
+            {
+                var row = new CombatTuningParameterViewModel(param);
+                row.ReloadFromConfig();
+                row.Value = 142;
+                TestBase.AssertEqual(saved, (int)param.GetValue(),
+                    "slider move updates VM only until CommitToConfig",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                row.CommitToConfig();
+                TestBase.AssertEqual(142, (int)param.GetValue(),
+                    "CommitToConfig pushes VM value to config",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                param.SetValue(saved);
+            }
         }
 
         private static void TestReloadFromConfig_DoesNotPushToBackingParameter()

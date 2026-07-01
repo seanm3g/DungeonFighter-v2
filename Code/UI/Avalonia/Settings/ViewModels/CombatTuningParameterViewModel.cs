@@ -12,6 +12,7 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
         private Action<double>? onValueCommitted;
         private double _value;
         private bool _suppressCommit;
+        private string? _pendingValueText;
 
         public CombatTuningParameterViewModel(CombatTuningParameter parameter, Action<double>? onValueCommitted = null)
         {
@@ -48,6 +49,7 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
                     return;
 
                 _value = clamped;
+                _pendingValueText = null;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ValueText));
                 if (!_suppressCommit)
@@ -57,13 +59,42 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
 
         public string ValueText
         {
-            get => TuningValueFormatter.Format(_value, Minimum, Maximum, TickFrequency);
+            get => _pendingValueText ?? TuningValueFormatter.Format(_value, Minimum, Maximum, TickFrequency);
             set
             {
+                _pendingValueText = value;
+                OnPropertyChanged();
                 if (!TuningValueFormatter.TryParse(value, out double parsed))
                     return;
 
+                _pendingValueText = null;
                 Value = Math.Clamp(parsed, Minimum, Maximum);
+            }
+        }
+
+        /// <summary>Parses any in-progress text box text into <see cref="Value"/> (e.g. before Save).</summary>
+        public void FlushPendingText()
+        {
+            if (string.IsNullOrWhiteSpace(_pendingValueText))
+                return;
+
+            if (TuningValueFormatter.TryParse(_pendingValueText, out double parsed))
+            {
+                _suppressCommit = true;
+                try
+                {
+                    _pendingValueText = null;
+                    Value = Math.Clamp(parsed, Minimum, Maximum);
+                }
+                finally
+                {
+                    _suppressCommit = false;
+                }
+            }
+            else
+            {
+                _pendingValueText = null;
+                OnPropertyChanged(nameof(ValueText));
             }
         }
 

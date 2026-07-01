@@ -31,6 +31,7 @@ namespace RPGGame.Tests.Unit
             StoredActionRollMatchesGetActionRoll(ref run, ref passed, ref failed);
             LabStepRoundTrip(ref run, ref passed, ref failed);
             LabSessionBeginsWithDefaultD20Selection16(ref run, ref passed, ref failed);
+            LabSessionBegin_UsesCurrentTuningBaseHealth(ref run, ref passed, ref failed);
             LabSessionBegin_PicksDefaultCatalogEnemyWhenAvailable(ref run, ref passed, ref failed);
             ResolveD20ForNextStepUsesSelectedWhenNotRandom(ref run, ref passed, ref failed);
             LabPlayerIsActiveForDisplayWhenInLabState(ref run, ref passed, ref failed);
@@ -106,6 +107,39 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(16, lab.SelectedD20, "Lab default SelectedD20 is 16", ref run, ref passed, ref failed);
             TestBase.AssertEqual(16, lab.ResolveD20ForNextStep(), "ResolveD20ForNextStep uses default SelectedD20", ref run, ref passed, ref failed);
             ActionInteractionLabSession.EndSession();
+        }
+
+        private static void LabSessionBegin_UsesCurrentTuningBaseHealth(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var cfg = GameConfiguration.Instance;
+            int savedBase = cfg.Character.PlayerBaseHealth;
+            try
+            {
+                cfg.Character.PlayerBaseHealth = 150;
+                var hero = TestDataBuilders.Character().WithName("LabTuningHp").WithLevel(1).Build();
+                hero.MaxHealth = 60;
+                hero.CurrentHealth = 60;
+
+                var combatManager = new CombatManager();
+                ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+                var lab = ActionInteractionLabSession.Current;
+                TestBase.AssertTrue(lab != null, "LabSessionBegin_UsesCurrentTuningBaseHealth: session exists", ref run, ref passed, ref failed);
+                if (lab == null)
+                {
+                    ActionInteractionLabSession.EndSession();
+                    return;
+                }
+
+                TestBase.AssertEqual(150, lab.LabPlayer.MaxHealth, "lab clone uses tuning base health, not stale save max", ref run, ref passed, ref failed);
+                TestBase.AssertEqual(150, lab.LabPlayer.GetEffectiveMaxHealth(), "lab clone effective max matches tuning", ref run, ref passed, ref failed);
+                ActionInteractionLabSession.EndSession();
+            }
+            finally
+            {
+                cfg.Character.PlayerBaseHealth = savedBase;
+                ActionInteractionLabSession.EndSession();
+            }
         }
 
         private static void LabSessionBegin_PicksDefaultCatalogEnemyWhenAvailable(ref int run, ref int passed, ref int failed)
@@ -1758,7 +1792,8 @@ namespace RPGGame.Tests.Unit
             lab.SelectedCatalogActionName = "JAB";
             lab.AddSelectedCatalogActionToComboStrip();
             int stripCount = lab.LabPlayer.GetComboActions().Count;
-            string firstStripName = lab.LabPlayer.GetComboActions()[0].Name;
+            var stripNamesBefore = lab.LabPlayer.GetComboActions().Select(a => a.Name).ToList();
+            string firstStripName = stripNamesBefore[0];
 
             lab.StepAsync(18, "JAB").GetAwaiter().GetResult();
             TestBase.AssertTrue(lab.LabTotalActionTicks > 0, "RefreshGameData test: history recorded a step", ref run, ref passed, ref failed);
@@ -1770,6 +1805,14 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(stripCount, lab.LabPlayer.GetComboActions().Count, "RefreshGameData keeps combo strip size", ref run, ref passed, ref failed);
             TestBase.AssertTrue(string.Equals(firstStripName, lab.LabPlayer.GetComboActions()[0].Name, StringComparison.OrdinalIgnoreCase),
                 "RefreshGameData keeps first combo slot name", ref run, ref passed, ref failed);
+            var stripNamesAfter = lab.LabPlayer.GetComboActions().Select(a => a.Name).ToList();
+            for (int i = 0; i < stripNamesBefore.Count; i++)
+            {
+                TestBase.AssertTrue(
+                    string.Equals(stripNamesBefore[i], stripNamesAfter[i], StringComparison.OrdinalIgnoreCase),
+                    $"RefreshGameData keeps combo slot {i + 1} ({stripNamesBefore[i]})",
+                    ref run, ref passed, ref failed);
+            }
             TestBase.AssertTrue(ActionLoader.GetAllActionNames().Count > 0, "RefreshGameData reloads action catalog", ref run, ref passed, ref failed);
 
             ActionInteractionLabSession.EndSession();

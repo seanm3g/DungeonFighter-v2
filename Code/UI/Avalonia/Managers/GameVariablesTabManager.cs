@@ -7,6 +7,7 @@ using Avalonia.Input;
 using Avalonia.Threading;
 using RPGGame;
 using RPGGame.Editors;
+using RPGGame.Utils;
 using RPGGame.UI.Avalonia.Builders;
 using RPGGame.UI.Avalonia.Resources;
 using RPGGame.UI.Avalonia.Validators;
@@ -232,6 +233,21 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RefreshFromConfiguration()
         {
             RefreshGameVariableValues();
+        }
+
+        /// <summary>Commits visible variable text boxes to in-memory configuration (no disk write or singleton reset).</summary>
+        public void FlushPendingEditsToConfiguration()
+        {
+            if (variableEditor == null) return;
+
+            try
+            {
+                FlushPendingEdits();
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"GameVariablesTabManager: Error flushing pending edits: {ex.Message}");
+            }
         }
 
         /// <summary>Save game variables to file. Optionally pass the currently displayed panel (when category is GameVariables) so the orchestrator can pass the visible panel for future flush/validation.</summary>

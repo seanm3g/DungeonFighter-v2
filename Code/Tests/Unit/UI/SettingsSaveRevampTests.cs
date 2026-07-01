@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using RPGGame;
+using RPGGame.Tuning;
 using RPGGame.UI.Avalonia.Managers.Settings;
 using RPGGame.Tests;
 
@@ -31,6 +32,8 @@ namespace RPGGame.Tests.Unit.UI
             TestGameSettings_ValidateAndFix_DoesNotLoseValues();
             TestGameSettings_ActionStripFlashClamped();
             TestHandlerSaveOrder_ItemGenerationBeforeClasses();
+            TestBalanceHandlerTags_CommitBeforeGeneralHandlers();
+            TestEstimatePlayerMaxHealth_DoesNotMutateZeroConfig();
 
             TestBase.PrintSummary("Settings Save Revamp Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -119,6 +122,53 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(ig < cl, "ItemGeneration before Classes", ref _testsRun, ref _testsPassed, ref _testsFailed);
             int au = Array.IndexOf(tags, "Audio");
             TestBase.AssertTrue(au >= 0, "Audio handler included so AudioConfig.json saves with settings", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestBalanceHandlerTags_CommitBeforeGeneralHandlers()
+        {
+            Console.WriteLine("--- SettingsSaveOrchestrator: balance handlers have dedicated early-save pass ---");
+            var balanceField = typeof(SettingsSaveOrchestrator).GetField(
+                "BalanceHandlerTags",
+                BindingFlags.NonPublic | BindingFlags.Static);
+            TestBase.AssertNotNull(balanceField, "BalanceHandlerTags field", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (balanceField == null)
+                return;
+
+            var balanceTags = (string[]?)balanceField.GetValue(null);
+            TestBase.AssertNotNull(balanceTags, "balance tag list", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (balanceTags == null)
+                return;
+
+            TestBase.AssertTrue(Array.IndexOf(balanceTags, "CombatTuning") >= 0,
+                "CombatTuning in balance pass", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Array.IndexOf(balanceTags, "ItemGeneration") >= 0,
+                "ItemGeneration in balance pass", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Array.IndexOf(balanceTags, "Classes") >= 0,
+                "Classes in balance pass", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            int ig = Array.IndexOf(balanceTags, "ItemGeneration");
+            int cl = Array.IndexOf(balanceTags, "Classes");
+            TestBase.AssertTrue(ig < cl, "balance pass: ItemGeneration before Classes", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEstimatePlayerMaxHealth_DoesNotMutateZeroConfig()
+        {
+            Console.WriteLine("--- EstimatePlayerMaxHealth does not rewrite zero config to 60 ---");
+            var cfg = GameConfiguration.Instance;
+            int saved = cfg.Character.PlayerBaseHealth;
+            try
+            {
+                cfg.Character.PlayerBaseHealth = 0;
+                int estimate = EnemyProgressionCurveEvaluator.EstimatePlayerMaxHealth(1);
+                TestBase.AssertEqual(0, cfg.Character.PlayerBaseHealth,
+                    "preview estimate must not mutate stored PlayerBaseHealth", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(CharacterConfig.RuntimeFallbackBaseHealth, estimate,
+                    "preview uses read-only runtime fallback", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.Character.PlayerBaseHealth = saved;
+            }
         }
     }
 }

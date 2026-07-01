@@ -21,6 +21,73 @@ namespace RPGGame.Tuning
             public double? SimulatedWinRate { get; init; }
         }
 
+        /// <summary>Stage-by-stage enemy max HP for diagnostics (Action Lab, tuning previews).</summary>
+        public sealed class EnemyHealthBreakdown
+        {
+            public int Level { get; init; }
+            public double BaselineHp { get; init; }
+            public double HealthPercent { get; init; }
+            public double BaseHealth { get; init; }
+            public bool ArchetypeFallbackUsed { get; init; }
+            public double BaseHealthScale { get; init; }
+            public int LevelScaledHealth { get; init; }
+            public double GlobalMult { get; init; }
+            public double RuntimeMult { get; init; }
+            public double CombatTempoScale { get; init; }
+            public int FinalHealth { get; init; }
+
+            public string FormatCompactLine()
+            {
+                int baseInt = (int)Math.Floor(BaseHealth);
+                return $"HP factors: base {baseInt} × scale {BaseHealthScale:F2} × global {GlobalMult:F2} × runtime {RuntimeMult:F2} = {FinalHealth}";
+            }
+        }
+
+        public static EnemyHealthBreakdown GetHealthBreakdown(EnemyData enemyData, int level, EnemySystemConfig? enemySystem = null)
+        {
+            enemySystem ??= GameConfiguration.Instance.EnemySystem;
+            enemySystem.EnsureSanitizedDefaults();
+            var prog = enemySystem.ProgressionScales ?? new EnemyProgressionScalesConfig();
+            prog.EnsurePositiveScales();
+
+            var baseline = enemySystem.BaselineStats;
+            var scaling = enemySystem.ScalingPerLevel;
+            var archetype = enemySystem.Archetypes.GetValueOrDefault(enemyData.Archetype)
+                ?? enemySystem.Archetypes.GetValueOrDefault("Berserker")
+                ?? new ArchetypeMultipliersConfig();
+
+            double baselineHp = baseline.Health;
+            bool archetypeFallbackUsed = !enemyData.HealthPercent.HasValue;
+            double healthPercent = enemyData.HealthPercent ?? (100.0 * archetype.Health);
+            double baseHealth = baselineHp * (healthPercent / 100.0);
+            double growthPercent = enemyData.HealthGrowthPercent
+                ?? (baselineHp > 0 ? (scaling.Health / baselineHp) * 100.0 : 0.0);
+            double growthHealth = baselineHp * (growthPercent / 100.0);
+
+            int levelScaled = ComputeLevelScaledHealth(baseHealth, growthHealth, level, prog);
+            int finalHp = ApplyFinalHealthMultipliers(levelScaled, enemySystem);
+
+            var global = enemySystem.GlobalMultipliers;
+            double runtime = GameSettings.Instance?.EnemyHealthMultiplier ?? 1.0;
+            if (runtime <= 0)
+                runtime = 1.0;
+
+            return new EnemyHealthBreakdown
+            {
+                Level = level,
+                BaselineHp = baselineHp,
+                HealthPercent = healthPercent,
+                BaseHealth = baseHealth,
+                ArchetypeFallbackUsed = archetypeFallbackUsed,
+                BaseHealthScale = prog.BaseHealthScale,
+                LevelScaledHealth = levelScaled,
+                GlobalMult = global.HealthMultiplier,
+                RuntimeMult = runtime,
+                CombatTempoScale = prog.CombatTempoScale,
+                FinalHealth = finalHp
+            };
+        }
+
         public static double ComputeGrowthWeight(int level, EnemyProgressionScalesConfig prog)
         {
             prog.EnsurePositiveScales();
@@ -62,12 +129,11 @@ namespace RPGGame.Tuning
         public static int EstimatePlayerMaxHealth(int level)
         {
             var tuning = GameConfiguration.Instance;
-            tuning.Character.EnsureValidPlayerHealthDefaults();
             var prog = tuning.EnemySystem.ProgressionScales ?? new EnemyProgressionScalesConfig();
             prog.EnsurePositiveScales();
 
-            int baseHealth = tuning.Character.PlayerBaseHealth;
-            int perLevel = tuning.Character.HealthPerLevel;
+            int baseHealth = tuning.Character.GetEffectivePlayerBaseHealth();
+            int perLevel = tuning.Character.HealthPerLevel > 0 ? tuning.Character.HealthPerLevel : 3;
             int lv = Math.Max(0, level - 1);
             double raw = baseHealth + lv * (double)perLevel;
             raw *= 1 + prog.PlayerEnemyParity * ParityPlayerHpFactor;

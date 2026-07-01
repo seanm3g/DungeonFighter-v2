@@ -1,5 +1,6 @@
 using System;
 using RPGGame;
+using RPGGame.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Managers.Settings;
 using RPGGame.Tests;
@@ -30,6 +31,7 @@ namespace RPGGame.Tests.Unit.UI
             TestApplyAfterSave_WhenCurrentPlayerNull_DoesNotThrow();
             TestApplyAfterSave_WhenActionsSaved_ResetsPlayerComboStep();
             TestApplyAfterSave_AppliesTuningHealthToCurrentPlayer();
+            TestApplyAfterSave_AppliesTuningHealthToLabPlayer();
 
             TestBase.PrintSummary("SettingsApplyService Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -142,6 +144,45 @@ namespace RPGGame.Tests.Unit.UI
             finally
             {
                 cfg.Character.PlayerBaseHealth = savedBase;
+            }
+        }
+
+        private static void TestApplyAfterSave_AppliesTuningHealthToLabPlayer()
+        {
+            Console.WriteLine("--- ApplyAfterSave applies tuning health to Action Lab hero ---");
+            ActionLoader.LoadActions();
+            var cfg = GameConfiguration.Instance;
+            int savedBase = cfg.Character.PlayerBaseHealth;
+            try
+            {
+                cfg.Character.PlayerBaseHealth = 80;
+                var stateManager = new GameStateManager();
+                var hero = new Character("LabHealthApplyTest", 1);
+                stateManager.AddCharacter(hero);
+                stateManager.TransitionToState(GameState.ActionInteractionLab);
+                var combatManager = new CombatManager();
+                ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+                var lab = ActionInteractionLabSession.Current;
+                TestBase.AssertTrue(lab != null, "lab session exists", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                if (lab == null)
+                {
+                    ActionInteractionLabSession.EndSession();
+                    return;
+                }
+
+                TestBase.AssertEqual(80, lab.LabPlayer.MaxHealth, "lab hero starts at tuning base health", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                cfg.Character.PlayerBaseHealth = 120;
+                var result = new SettingsSaveResult(true, false, false);
+                SettingsApplyService.ApplyAfterSave(result, stateManager);
+
+                TestBase.AssertEqual(120, lab.LabPlayer.MaxHealth, "lab hero max health updated after ApplyAfterSave", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                ActionInteractionLabSession.EndSession();
+            }
+            finally
+            {
+                cfg.Character.PlayerBaseHealth = savedBase;
+                ActionInteractionLabSession.EndSession();
             }
         }
     }

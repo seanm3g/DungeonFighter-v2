@@ -153,6 +153,7 @@ namespace RPGGame.Tuning
             cfg.Attributes?.EnsureValidPlayerBaseStatDefaults();
             cfg.ClassBalance?.EnsureNonDegenerateClassMultipliers();
             cfg.WeaponScaling?.EnsureSanitizedDefaults();
+            cfg.Character?.EnsureValidPlayerHealthDefaults(CharacterConfig.TuningPanelMinBaseHealth);
             GameSettings.Instance.ValidateAndFix();
         }
 

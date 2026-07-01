@@ -16,7 +16,16 @@ namespace RPGGame.Tuning
             DamageCalculator.InvalidateCache(player);
         }
 
-        private static void ApplyMaxHealthFromTuning(Character player)
+        /// <summary>
+        /// Recomputes max health from tuning without touching base attributes (for Action Lab where panel deltas own stats).
+        /// </summary>
+        public static void ApplyMaxHealthFromTuning(Character? player)
+        {
+            if (player == null) return;
+            ApplyMaxHealthFromTuningCore(player);
+        }
+
+        private static void ApplyMaxHealthFromTuningCore(Character player)
         {
             int oldEffective = player.GetEffectiveMaxHealth();
             int computedMax = ComputeMaxHealthFromTuning(player);
@@ -46,9 +55,7 @@ namespace RPGGame.Tuning
         internal static int ComputeMaxHealthFromTuning(Character character)
         {
             var tuning = GameConfiguration.Instance;
-            int baseHealth = tuning.Character.PlayerBaseHealth;
-            if (baseHealth <= 0)
-                baseHealth = 60;
+            int baseHealth = tuning.Character.GetEffectivePlayerBaseHealth(CharacterConfig.RuntimeFallbackBaseHealth);
 
             int max = baseHealth;
             if (character.Level <= 1)

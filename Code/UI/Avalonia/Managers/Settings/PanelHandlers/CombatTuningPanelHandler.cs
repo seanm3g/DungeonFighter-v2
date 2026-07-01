@@ -54,7 +54,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 p.ViewModel?.CommitAllToConfig();
                 CombatTuningParameterRegistry.EnsureSanitizedDefaults();
                 p.ViewModel?.ReloadFromConfig();
-                showStatusMessage?.Invoke("Combat tuning updated (save settings to write balance patch).", true);
             }
             catch (Exception ex)
             {

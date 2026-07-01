@@ -144,6 +144,7 @@ namespace RPGGame.ActionInteractionLab
             TryBeginWithDefaultCatalogEnemy(session);
             session.EncounterSimulationBatchCount = ActionLabEncounterSimulator.DefaultBatchEncounterCount;
             session.ResetSimulatedCombatTurnAccumulator();
+            session.SyncLabHeroFromTuning();
             session._restoreTarget = canvasContext;
             if (canvasContext != null)
             {
@@ -194,8 +195,13 @@ namespace RPGGame.ActionInteractionLab
             await _turnGate.WaitAsync().ConfigureAwait(true);
             try
             {
+                // Catalog/strip edits live on the in-memory lab clone; RebuildCharacterActions only restores
+                // combo slots that exist in the action pool with IsComboAction. ReapplyLabHeroComboStrip
+                // matches ReplayHistoryAsync and resolves names from pool or ActionLoader.
+                var comboSnapshot = _labPlayer.GetComboActions().Select(a => a.Name).ToList();
                 ReloadLabGameDataFromDisk();
-                CharacterSerializer.RebuildCharacterActions(_labPlayer, preserveComboSequence: true);
+                CharacterSerializer.RebuildCharacterActions(_labPlayer, preserveComboSequence: false);
+                ReapplyLabHeroComboStrip(comboSnapshot);
                 ApplyLabPanelDeltasToLabHero();
                 BuildLabEnemyFromPanelState();
                 SyncLabEnemyToCanvasContext();

@@ -1,6 +1,7 @@
 using System;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
+using RPGGame.Tuning;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers.Inventory;
@@ -56,6 +57,16 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 $"HP: {labEnemy.CurrentHealth}/{labEnemy.MaxHealth}",
                 AsciiArtAssets.Colors.White);
             y++;
+            var enemyData = EnemyLoader.GetEnemyData(labEnemy.Name);
+            if (enemyData != null)
+            {
+                var hpBreakdown = EnemyProgressionCurveEvaluator.GetHealthBreakdown(enemyData, labEnemy.Level);
+                string factorsLine = hpBreakdown.FormatCompactLine();
+                if (factorsLine.Length > rowWidth)
+                    factorsLine = factorsLine.Substring(0, Math.Max(0, rowWidth - 1)) + "…";
+                canvas.AddText(x, y, factorsLine, AsciiArtAssets.Colors.DarkGray);
+                y++;
+            }
             int enemyWheelMinY = y;
             if (interactive && enemyTypes.Count > 0)
             {

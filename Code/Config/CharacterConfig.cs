@@ -8,21 +8,29 @@ namespace RPGGame
     /// </summary>
     public class CharacterConfig
     {
+        public const int RuntimeFallbackBaseHealth = 60;
+        public const int TuningPanelMinBaseHealth = 20;
+
         public int PlayerBaseHealth { get; set; }
         public int HealthPerLevel { get; set; }
         public int EnemyHealthPerLevel { get; set; }
 
         /// <summary>
-        /// When tuning JSON has non-positive values, <see cref="Character"/> uses these same fallbacks at runtime.
+        /// When tuning JSON has non-positive values, <see cref="Character"/> uses <see cref="RuntimeFallbackBaseHealth"/> at runtime.
         /// Applying them after load keeps <see cref="GameConfiguration"/>, tools, and the variable editor aligned with gameplay.
         /// </summary>
-        public void EnsureValidPlayerHealthDefaults()
+        /// <param name="minimumWhenInvalid">Floor used when stored value is ≤0 (load uses 60; combat tuning UI uses 20).</param>
+        public void EnsureValidPlayerHealthDefaults(int minimumWhenInvalid = RuntimeFallbackBaseHealth)
         {
             if (PlayerBaseHealth <= 0)
-                PlayerBaseHealth = 60;
+                PlayerBaseHealth = minimumWhenInvalid;
             if (HealthPerLevel <= 0)
                 HealthPerLevel = 3;
         }
+
+        /// <summary>Read-only effective base health for previews without mutating stored config.</summary>
+        public int GetEffectivePlayerBaseHealth(int fallback = RuntimeFallbackBaseHealth) =>
+            PlayerBaseHealth > 0 ? PlayerBaseHealth : fallback;
     }
 
     /// <summary>

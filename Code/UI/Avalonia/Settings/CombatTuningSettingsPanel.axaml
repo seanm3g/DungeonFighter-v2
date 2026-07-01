@@ -20,7 +20,7 @@
                     <Slider Grid.Column="0" Minimum="{Binding Minimum}" Maximum="{Binding Maximum}"
                             TickFrequency="{Binding TickFrequency}" Value="{Binding Value, Mode=TwoWay}"
                             VerticalAlignment="Center"/>
-                    <TextBox Grid.Column="1" Text="{Binding ValueText, Mode=TwoWay}" Width="75" Height="28"
+                    <TextBox Grid.Column="1" Text="{Binding ValueText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="75" Height="28"
                              Margin="5,0,0,0" FontSize="14" VerticalAlignment="Center"/>
                 </Grid>
             </Grid>
@@ -39,6 +39,9 @@
         </DataTemplate>
     </UserControl.Resources>
 
+    <StackPanel>
+        <TextBlock Text="{Binding ActiveBalancePatchLabel}" Classes="settings-muted" TextWrapping="Wrap"
+                   Margin="20,8,20,4" FontSize="13"/>
     <TabControl x:Name="CombatTuningTabControl">
         <TabItem Header="Parameters">
             <TabControl x:Name="ParametersInnerTabControl">
@@ -178,4 +181,5 @@
             </ScrollViewer>
         </TabItem>
     </TabControl>
+    </StackPanel>
 </UserControl>

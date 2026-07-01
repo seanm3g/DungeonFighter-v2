@@ -79,16 +79,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 bool audioPanelSaved = false;
                 bool audioNeedsPatchSave = false;
                 bool balanceNeedsPatchSave = false;
-
-                try
-                {
-                    var gameVariablesPanel = getPanelForCategory("GameVariables", currentlyDisplayedPanel);
-                    gameVariablesTabManager?.SaveGameVariables(gameVariablesPanel);
-                }
-                catch (Exception ex)
-                {
-                    ScrollDebugLogger.Log($"SettingsPanel: Error saving game variables: {ex.Message}");
-                }
+                bool gameVariablesPanelLoaded = getPanelForCategory("GameVariables", currentlyDisplayedPanel) != null;
 
                 var gameplayPanel = getPanelForCategory("Gameplay", currentlyDisplayedPanel) as GameplaySettingsPanel;
                 var gameplayHandler = panelHandlerRegistry?.GetHandler("Gameplay");
@@ -113,8 +104,29 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     savedSuccessfully = true;
                 }
 
+                // Commit balance panels before any GameConfiguration disk write or singleton reset.
+                foreach (var tag in BalanceHandlerTags)
+                {
+                    var panel = getPanelForCategory(tag, currentlyDisplayedPanel);
+                    if (panel == null) continue;
+                    var handler = panelHandlerRegistry?.GetHandler(tag);
+                    if (handler == null) continue;
+                    try
+                    {
+                        handler.SaveSettings(panel);
+                        balanceNeedsPatchSave = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        ScrollDebugLogger.Log($"SettingsPanel: Error saving {tag} settings: {ex.Message}");
+                    }
+                }
+
                 foreach (var tag in HandlerSaveCategoryTags)
                 {
+                    if (Array.IndexOf(BalanceHandlerTags, tag) >= 0)
+                        continue;
+
                     var panel = getPanelForCategory(tag, currentlyDisplayedPanel);
                     if (panel == null) continue;
                     var handler = panelHandlerRegistry?.GetHandler(tag);
@@ -129,12 +141,22 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                             if (handler is AudioPanelHandler audioHandler && audioHandler.NeedsPatchSave)
                                 audioNeedsPatchSave = true;
                         }
-                        if (Array.IndexOf(BalanceHandlerTags, tag) >= 0) balanceNeedsPatchSave = true;
+                        if (string.Equals(tag, "BalanceTuning", StringComparison.OrdinalIgnoreCase))
+                            balanceNeedsPatchSave = true;
                     }
                     catch (Exception ex)
                     {
                         ScrollDebugLogger.Log($"SettingsPanel: Error saving {tag} settings: {ex.Message}");
                     }
+                }
+
+                try
+                {
+                    gameVariablesTabManager?.FlushPendingEditsToConfiguration();
+                }
+                catch (Exception ex)
+                {
+                    ScrollDebugLogger.Log($"SettingsPanel: Error flushing game variables: {ex.Message}");
                 }
 
                 if (itemModifiersTabManager != null)
@@ -181,6 +203,23 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     if (!await PatchSaveCoordinator.SaveBalanceAsync(dialogOwner, GameConfiguration.Instance))
                     {
                         showStatusMessage?.Invoke("Balance patch save cancelled.", false);
+                        return new SettingsSaveResult(false);
+                    }
+                }
+                else if (gameVariablesPanelLoaded)
+                {
+                    try
+                    {
+                        if (!GameConfiguration.Instance.SaveToFile())
+                        {
+                            showStatusMessage?.Invoke("Error: Failed to save game variables to balance patch.", false);
+                            return new SettingsSaveResult(false);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ScrollDebugLogger.Log($"SettingsPanel: Error saving game variables to file: {ex.Message}");
+                        showStatusMessage?.Invoke($"Error saving game variables: {ex.Message}", false);
                         return new SettingsSaveResult(false);
                     }
                 }
@@ -237,4 +276,3 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         }
     }
 }
-

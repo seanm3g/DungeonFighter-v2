@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Entity.Services;
+using RPGGame.Tuning;
 using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame.ActionInteractionLab
@@ -231,6 +232,25 @@ namespace RPGGame.ActionInteractionLab
                 _labPanelIntDelta,
                 _labPanelArmorDelta,
                 _labPanelActionSlotDelta);
+            SyncLabHeroFromTuning();
+        }
+
+        /// <summary>
+        /// Recomputes lab hero max health from <see cref="GameConfiguration"/> (settings / balance patches).
+        /// Does not reset base attributes so left-panel stat deltas are preserved.
+        /// </summary>
+        private void SyncLabHeroFromTuning()
+        {
+            PlayerTuningApplier.ApplyMaxHealthFromTuning(_labPlayer);
+        }
+
+        /// <summary>When Action Lab is active, reapplies combat tuning to the sandbox hero (e.g. after settings save).</summary>
+        public static void ApplyTuningToActiveLabHeroIfAny()
+        {
+            if (_current == null)
+                return;
+            _current.SyncLabHeroFromTuning();
+            _current._refreshCombatUi();
         }
 
         /// <summary>Replace the lab enemy from <see cref="EnemyLoader"/> data (level 1 by default). Clears step history.</summary>

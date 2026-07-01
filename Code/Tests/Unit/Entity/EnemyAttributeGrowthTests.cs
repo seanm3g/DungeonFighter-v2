@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame;
+using RPGGame.Tuning;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Entity
@@ -28,6 +29,8 @@ namespace RPGGame.Tests.Unit.Entity
             TestHealthPercentBaselineScaling();
             TestGoblinHealthCurvePreservedAfterMigration();
             TestProgressionScalesApplyToCurves();
+            TestAaaStarterL1ParityHealth();
+            TestHealthBreakdownReportsFactors();
 
             TestBase.PrintSummary("Enemy Attribute Growth Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -380,6 +383,80 @@ namespace RPGGame.Tests.Unit.Entity
             TestBase.AssertEqual(204, stats.Health, "HP respects base and growth scales", ref _testsRun, ref _testsPassed, ref _testsFailed);
             // growth STR 1 -> *2 = 2/level; lv=2 -> 10+4=14
             TestBase.AssertEqual(14, stats.Strength, "STR respects attribute growth scale", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestAaaStarterL1ParityHealth()
+        {
+            Console.WriteLine("\n--- aaaSTARTER L1 parity: baseline 100 + sheet 100% = 100 HP ---");
+
+            var gs = GameSettings.Instance;
+            double savedRuntime = gs.EnemyHealthMultiplier;
+            try
+            {
+                gs.EnemyHealthMultiplier = 1.0;
+
+                var enemySystem = new EnemySystemConfig
+                {
+                    GlobalMultipliers = new GlobalMultipliersConfig { HealthMultiplier = 1.0, DamageMultiplier = 1.0, ArmorMultiplier = 1.0, SpeedMultiplier = 1.0 },
+                    ProgressionScales = new EnemyProgressionScalesConfig { BaseHealthScale = 1.0, HealthGrowthScale = 1.0, CombatTempoScale = 1.0 },
+                    BaselineStats = new BaselineStatsConfig { Health = 100, Strength = 3, Agility = 3, Technique = 3, Intelligence = 3, Armor = 2 },
+                    ScalingPerLevel = new ScalingPerLevelConfig { Health = 0, Attributes = 0, Armor = 0 },
+                    Archetypes = new Dictionary<string, ArchetypeMultipliersConfig>
+                    {
+                        ["Assassin"] = new ArchetypeMultipliersConfig { Health = 0.7, Strength = 1, Agility = 1.6, Technique = 1.2, Intelligence = 1, Armor = 0.4 }
+                    }
+                };
+
+                EnemyLoader.LoadEnemies();
+                var data = EnemyLoader.GetEnemyData("aaaSTARTER");
+                TestBase.AssertNotNull(data, "aaaSTARTER exists in Enemies.json", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                if (data == null)
+                    return;
+
+                var stats = EnemyStatCalculator.CalculateStats(data, 1, enemySystem);
+                TestBase.AssertEqual(100, stats.Health, "aaaSTARTER L1 max HP at parity tuning", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                gs.EnemyHealthMultiplier = savedRuntime;
+            }
+        }
+
+        private static void TestHealthBreakdownReportsFactors()
+        {
+            Console.WriteLine("\n--- GetHealthBreakdown exposes amplification stages ---");
+
+            var gs = GameSettings.Instance;
+            double savedRuntime = gs.EnemyHealthMultiplier;
+            try
+            {
+                gs.EnemyHealthMultiplier = 1.0;
+
+                var enemySystem = new EnemySystemConfig
+                {
+                    GlobalMultipliers = new GlobalMultipliersConfig { HealthMultiplier = 0.49, DamageMultiplier = 1.0, ArmorMultiplier = 1.0, SpeedMultiplier = 1.0 },
+                    ProgressionScales = new EnemyProgressionScalesConfig { BaseHealthScale = 3.0, HealthGrowthScale = 1.0, CombatTempoScale = 1.0 },
+                    BaselineStats = new BaselineStatsConfig { Health = 100, Strength = 3, Agility = 3, Technique = 3, Intelligence = 3, Armor = 2 },
+                    ScalingPerLevel = new ScalingPerLevelConfig { Health = 0, Attributes = 0, Armor = 0 },
+                    Archetypes = new Dictionary<string, ArchetypeMultipliersConfig>()
+                };
+
+                var data = new EnemyData
+                {
+                    Name = "aaaSTARTER",
+                    Archetype = "Assassin",
+                    HealthPercent = 100
+                };
+
+                var breakdown = EnemyProgressionCurveEvaluator.GetHealthBreakdown(data, 1, enemySystem);
+                TestBase.AssertFalse(breakdown.ArchetypeFallbackUsed, "explicit healthPercent skips archetype fallback", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(147, breakdown.FinalHealth, "breakdown final HP matches 100×3×0.49", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(breakdown.FormatCompactLine().Contains("147"), "compact line includes final HP", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                gs.EnemyHealthMultiplier = savedRuntime;
+            }
         }
     }
 }
