@@ -3,9 +3,9 @@ using System.Text.Json.Serialization;
 namespace RPGGame.Config
 {
     /// <summary>
-    /// Local-only active audio and balance patch selection.
+    /// Local-only active audio and balance patch selection (<c>GameData/PatchProfile.json</c>).
+    /// Shared balance patch files live in git under <c>GameData/Patches/Balance/</c>; personal experiments go in <c>local/</c>.
     /// Gameplay/UI prefs and audio bus volume live in gitignored <c>GeneralSettings.json</c>.
-    /// Repo <c>default</c> patches update on git pull; named patches stay local.
     /// </summary>
     public sealed class PatchProfile
     {

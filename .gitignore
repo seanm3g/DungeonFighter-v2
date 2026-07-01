@@ -443,10 +443,13 @@ GameData/Patches/GameSettings/*
 # Audio patches: repo default cue bindings tracked; named/local variants ignored
 GameData/Patches/Audio/*
 !GameData/Patches/Audio/default.json
-# Balance patches: repo default tuning tracked; named/local variants ignored
-GameData/Patches/Balance/*
-!GameData/Patches/Balance/default.json
+# Balance patches: shared library tracked under GameData/Patches/Balance/
+GameData/Patches/Balance/local/**
+GameData/Patches/Balance/**/*.bak
 GameData/Patches/**/*.bak
+# Legacy repo-root patch folder (runtime uses GameData/Patches/Balance/)
+Patches/Balance/**
+PatchProfile.json
 Code/gamesettings.json
 Code/gamesettings.json.bak
 Code/GameData/build_execution_metrics.json
