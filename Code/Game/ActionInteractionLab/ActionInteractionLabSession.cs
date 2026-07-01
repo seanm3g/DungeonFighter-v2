@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using RPGGame.BattleStatistics;
+using RPGGame.Data;
 using RPGGame.Entity.Services;
 using RPGGame.UI.Avalonia.Managers;
 
@@ -176,35 +177,94 @@ namespace RPGGame.ActionInteractionLab
             await _turnGate.WaitAsync().ConfigureAwait(true);
             try
             {
-                _history.Clear();
-                ResetSimulatedCombatTurnAccumulator();
-                _prepareLabHistoryReplay?.Invoke();
-
-                _labPlayer.Facade.ClearAllTempEffects();
-                _labEnemy.Facade.ClearAllTempEffects();
-
-                _labPlayer.CurrentHealth = _labPlayer.GetEffectiveMaxHealth();
-                _labEnemy.CurrentHealth = _labEnemy.GetEffectiveMaxHealth();
-
-                GameTicker.Instance.Reset();
-                _combatManager.StartBattleNarrative(
-                    _labPlayer.Name,
-                    _labEnemy.Name,
-                    _labRoom.Name,
-                    _labPlayer.CurrentHealth,
-                    _labEnemy.CurrentHealth);
-                _combatManager.InitializeCombatEntities(_labPlayer, _labEnemy, _labRoom, playerGetsFirstAttack: true, enemyGetsFirstAttack: false);
-                _labRoom.ResetForNewFight();
-                ActionSelector.ClearStoredRolls();
-                Dice.ClearTestRoll();
-
-                SyncCatalogSelectionToUpcomingActor();
-                _refreshCombatUi();
+                ResetLabEncounterCore();
             }
             finally
             {
                 _turnGate.Release();
             }
+        }
+
+        /// <summary>
+        /// Reloads game data from disk (actions, enemies, tuning config), rebuilds lab entities with fresh definitions,
+        /// and resets the current encounter (clears step history). Preserves combo strip order, gear, and lab panel deltas.
+        /// </summary>
+        public async Task RefreshGameDataAsync()
+        {
+            await _turnGate.WaitAsync().ConfigureAwait(true);
+            try
+            {
+                ReloadLabGameDataFromDisk();
+                CharacterSerializer.RebuildCharacterActions(_labPlayer, preserveComboSequence: true);
+                ApplyLabPanelDeltasToLabHero();
+                BuildLabEnemyFromPanelState();
+                SyncLabEnemyToCanvasContext();
+                EnsureValidCatalogSelection();
+                ResetLabEncounterCore();
+            }
+            finally
+            {
+                _turnGate.Release();
+            }
+        }
+
+        private static void ReloadLabGameDataFromDisk()
+        {
+            ActionLoader.ReloadActions();
+            GameDataSheetsPullService.ReloadRuntimeCachesAfterPull();
+            try
+            {
+                GameConfiguration.Instance.Reload();
+            }
+            catch
+            {
+                // best-effort: tuning file may be missing or invalid during dev
+            }
+        }
+
+        private void EnsureValidCatalogSelection()
+        {
+            var names = ActionLoader.GetAllActionNames();
+            if (names.Count == 0)
+            {
+                SelectedCatalogActionName = "";
+                return;
+            }
+
+            names.Sort(StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrEmpty(SelectedCatalogActionName)
+                || !names.Any(n => string.Equals(n, SelectedCatalogActionName, StringComparison.OrdinalIgnoreCase)))
+            {
+                SelectedCatalogActionName = names[0];
+            }
+        }
+
+        private void ResetLabEncounterCore()
+        {
+            _history.Clear();
+            ResetSimulatedCombatTurnAccumulator();
+            _prepareLabHistoryReplay?.Invoke();
+
+            _labPlayer.Facade.ClearAllTempEffects();
+            _labEnemy.Facade.ClearAllTempEffects();
+
+            _labPlayer.CurrentHealth = _labPlayer.GetEffectiveMaxHealth();
+            _labEnemy.CurrentHealth = _labEnemy.GetEffectiveMaxHealth();
+
+            GameTicker.Instance.Reset();
+            _combatManager.StartBattleNarrative(
+                _labPlayer.Name,
+                _labEnemy.Name,
+                _labRoom.Name,
+                _labPlayer.CurrentHealth,
+                _labEnemy.CurrentHealth);
+            _combatManager.InitializeCombatEntities(_labPlayer, _labEnemy, _labRoom, playerGetsFirstAttack: true, enemyGetsFirstAttack: false);
+            _labRoom.ResetForNewFight();
+            ActionSelector.ClearStoredRolls();
+            Dice.ClearTestRoll();
+
+            SyncCatalogSelectionToUpcomingActor();
+            _refreshCombatUi();
         }
 
         private void BootstrapCombatState()

@@ -45,6 +45,7 @@ namespace RPGGame.Tests.Unit
             LabSessionSyncCatalogMatchesComputeHelper(ref run, ref passed, ref failed);
             ResetLabEncounterZerosBothSteps(ref run, ref passed, ref failed);
             ResetLabEncounterAsync_ClearsHistoryHpEffectsKeepsStripEnemy(ref run, ref passed, ref failed);
+            RefreshGameDataAsync_ReloadsAndPreservesComboStrip(ref run, ref passed, ref failed);
             LabEnemyTurnUsesEnemyPoolNotForcedCatalog(ref run, ref passed, ref failed);
             LabTotalActionTicks_StepUndoSimAndFightReset(ref run, ref passed, ref failed);
             LabCatalogSyncShowsSecondSlotWhenComboStepOne(ref run, ref passed, ref failed);
@@ -1726,6 +1727,50 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(string.Equals(enemyName, lab.LabEnemy.Name, StringComparison.Ordinal),
                 "ResetLabEncounter keeps same enemy name", ref run, ref passed, ref failed);
             TestBase.AssertEqual(enemyLevel, lab.LabEnemy.Level, "ResetLabEncounter keeps enemy level", ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
+        }
+
+        /// <summary>
+        /// <see cref="ActionInteractionLabSession.RefreshGameDataAsync"/> reloads disk data, clears step history,
+        /// and preserves the combo strip order.
+        /// </summary>
+        private static void RefreshGameDataAsync_ReloadsAndPreservesComboStrip(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var jab = ActionLoader.GetAction("JAB");
+            if (jab == null)
+            {
+                TestBase.AssertTrue(true, "RefreshGameDataAsync_Reloads skipped (no JAB)", ref run, ref passed, ref failed);
+                return;
+            }
+
+            var hero = TestDataBuilders.Character().WithName("LabRefreshData").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "RefreshGameDataAsync_Reloads: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            lab.SelectedCatalogActionName = "JAB";
+            lab.AddSelectedCatalogActionToComboStrip();
+            int stripCount = lab.LabPlayer.GetComboActions().Count;
+            string firstStripName = lab.LabPlayer.GetComboActions()[0].Name;
+
+            lab.StepAsync(18, "JAB").GetAwaiter().GetResult();
+            TestBase.AssertTrue(lab.LabTotalActionTicks > 0, "RefreshGameData test: history recorded a step", ref run, ref passed, ref failed);
+
+            lab.RefreshGameDataAsync().GetAwaiter().GetResult();
+
+            TestBase.AssertEqual(0, lab.History.Count, "RefreshGameData clears step history", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, lab.LabTotalActionTicks, "RefreshGameData zeros LabTotalActionTicks", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(stripCount, lab.LabPlayer.GetComboActions().Count, "RefreshGameData keeps combo strip size", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(string.Equals(firstStripName, lab.LabPlayer.GetComboActions()[0].Name, StringComparison.OrdinalIgnoreCase),
+                "RefreshGameData keeps first combo slot name", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ActionLoader.GetAllActionNames().Count > 0, "RefreshGameData reloads action catalog", ref run, ref passed, ref failed);
 
             ActionInteractionLabSession.EndSession();
         }

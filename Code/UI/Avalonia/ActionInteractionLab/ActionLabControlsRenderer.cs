@@ -26,7 +26,16 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             int footerTopY = panelBottom - footerRows + 1;
 
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("ACTION LAB"), AsciiArtAssets.Colors.Gold);
-            y += 2;
+            y++;
+            if (interactive)
+            {
+                var refreshBtn = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_refresh_data", "[ Refresh data ]");
+                interactionManager!.AddClickableElement(refreshBtn);
+                canvas.AddText(x, y, "[ Refresh data ]", AsciiArtAssets.Colors.Cyan);
+            }
+            else
+                canvas.AddText(x, y, "[ Refresh data ]", AsciiArtAssets.Colors.DarkGray);
+            y++;
 
             var enemyTypes = EnemyLoader.GetAllEnemyTypes();
             enemyTypes.Sort(StringComparer.OrdinalIgnoreCase);

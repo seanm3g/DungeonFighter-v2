@@ -201,6 +201,14 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 return;
             }
 
+            if (value == "lab_refresh_data")
+            {
+                if (session.IsEncounterSimulationRunning)
+                    return;
+                await session.RefreshGameDataAsync().ConfigureAwait(true);
+                return;
+            }
+
             if (value == "lab_step")
             {
                 await session.StepAsync(session.ResolveD20ForNextStep(), session.SelectedCatalogActionName).ConfigureAwait(true);
