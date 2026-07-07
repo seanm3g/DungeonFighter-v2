@@ -228,43 +228,71 @@ namespace RPGGame
     /// </summary>
     public class ComboSystemConfig
     {
-        /// <summary>Legacy tuning field; the current amplifier curve is the fixed designer log formula in <see cref="ComboAmplifierFromIntelligence"/>.</summary>
+        /// <summary>Legacy tuning field retained for old configs.</summary>
         public double ComboAmplifierAtTech5 { get; set; }
 
-        /// <summary>Legacy tuning field retained for old configs; current INT AMP no longer clamps to a configured maximum.</summary>
+        /// <summary>Maximum base combo AMP multiplier at <see cref="ComboAmplifierMaxTech"/> effective TECH.</summary>
         public double ComboAmplifierMax { get; set; }
 
-        /// <summary>Legacy tuning field retained for old configs; current INT AMP has no configured max-stat breakpoint.</summary>
+        /// <summary>Effective TECH at which base combo AMP reaches <see cref="ComboAmplifierMax"/>.</summary>
         public int ComboAmplifierMaxTech { get; set; }
 
-        /// <summary>
-        /// Legacy tuning field retained for old configs; current INT AMP uses a fixed logarithmic curve.
-        /// </summary>
+        /// <summary>Power exponent for the slow early/mid TECH ramp (0 → knee TECH).</summary>
         public double ComboAmplifierCurveExponent { get; set; }
 
-        /// <summary>
-        /// Repairs legacy tuning values for older configs. The current INT AMP formula does not read these fields,
-        /// but settings and saved tuning profiles may still display them.
-        /// </summary>
+        /// <summary>Repairs zero/invalid combo AMP tuning values from older configs.</summary>
         public void EnsureValidComboAmplifierDefaults()
         {
             if (ComboAmplifierMax <= 0)
                 ComboAmplifierMax = Utils.GameConstants.COMBO_AMPLIFIER_MAX;
             if (ComboAmplifierMaxTech <= 0)
                 ComboAmplifierMaxTech = Utils.GameConstants.COMBO_AMPLIFIER_MAX_TECH;
+            if (ComboAmplifierCurveExponent <= 0)
+                ComboAmplifierCurveExponent = Utils.GameConstants.COMBO_AMPLIFIER_CURVE_EXPONENT;
         }
     }
 
     /// <summary>
-    /// Maps Intelligence to base combo amplifier using the designer formula <c>1 + 0.5 * log10(INT + 1)</c>.
+    /// Maps effective Technique to base combo amplifier using a slow power ramp (0 → knee TECH)
+    /// and a short linear finish (knee TECH → max TECH). Default knee: TECH 99 → 1.98×, TECH 110 → 2.00×.
     /// </summary>
+    public static class ComboAmplifierCurve
+    {
+        public static double Compute(int technique, ComboSystemConfig combo)
+        {
+            int clamped = Math.Max(0, technique);
+            combo.EnsureValidComboAmplifierDefaults();
+            double maxAmp = combo.ComboAmplifierMax;
+            int maxTech = combo.ComboAmplifierMaxTech;
+            if (maxAmp <= 1.0)
+                return 1.0;
+            if (clamped >= maxTech)
+                return maxAmp;
+            if (clamped <= 0)
+                return 1.0;
+
+            int kneeTech = Math.Max(1, maxTech - Utils.GameConstants.COMBO_AMPLIFIER_KNEE_TECH_OFFSET);
+            double kneeAmp = Math.Max(1.0, maxAmp - Utils.GameConstants.COMBO_AMPLIFIER_KNEE_AMP_DELTA);
+            double curveExponent = combo.ComboAmplifierCurveExponent;
+
+            if (clamped >= kneeTech)
+            {
+                double finishSpan = Math.Max(1, maxTech - kneeTech);
+                double t = (clamped - kneeTech) / finishSpan;
+                return kneeAmp + t * (maxAmp - kneeAmp);
+            }
+
+            double progress = Math.Pow(clamped / (double)kneeTech, curveExponent);
+            return 1.0 + (kneeAmp - 1.0) * progress;
+        }
+    }
+
+    /// <summary>Obsolete name; use <see cref="ComboAmplifierCurve"/>.</summary>
+    [Obsolete("Use ComboAmplifierCurve — AMP is driven by effective Technique.")]
     public static class ComboAmplifierFromIntelligence
     {
-        public static double Compute(int intelligence, ComboSystemConfig combo)
-        {
-            int clamped = Math.Max(0, intelligence);
-            return 1.0 + 0.5 * Math.Log10(clamped + 1.0);
-        }
+        public static double Compute(int technique, ComboSystemConfig combo) =>
+            ComboAmplifierCurve.Compute(technique, combo);
     }
 
     /// <summary>

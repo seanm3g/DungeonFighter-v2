@@ -8,7 +8,7 @@ namespace RPGGame
 {
     /// <summary>
     /// Threshold-related bonuses that will apply on the character's next attack roll resolution
-    /// (slot pending + first FIFO layer + peeked ATTACK + peeked ABILITY), matching
+    /// (slot pending + first FIFO layer + peeked TURN), matching
     /// <see cref="RPGGame.Actions.Execution.ActionExecutionFlow.SelectActionAndResolveRoll"/> consumption order.
     /// Used by the combat HUD so HIT/COMBO/ACCURACY show <em>before</em> they are consumed, including between enemy turns.
     /// </summary>
@@ -65,7 +65,7 @@ namespace RPGGame
         /// - Otherwise compares the <strong>modified d20</strong> (sheet roll modifications to the die only) to the effective combo threshold
         ///   (threshold manager + COMBO-type threshold adjustments + combo action roll-mod threshold fields).
         ///   Stat/chain/equipment roll bonuses do not substitute for the die gate.
-        ///   Queued ACCURACY (ACTION/ATTACK/ABILITY FIFO and slot peek, same as <see cref="ActionExecutionFlow"/>) lowers this gate so a follow-up
+        ///   Queued ACCURACY (ACTION/TURN FIFO and slot peek, same as <see cref="ActionExecutionFlow"/>) lowers this gate so a follow-up
         ///   swing can resolve as the named combo action when the deferred bonus makes the effective combo threshold reachable.
         /// For heroes only.
         /// </summary>
@@ -135,8 +135,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Sum of peeked ACCURACY from ACTION/ATTACK/ABILITY queues (applied as threshold shifts on the next attack, not added to the d20).
-        /// Heroes: slot + FIFO + ATTACK + ABILITY peek (matches <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/>).
+        /// Sum of peeked ACCURACY from ACTION/TURN queues (applied as threshold shifts on the next roll, not added to the d20).
+        /// Heroes: slot + FIFO + TURN peek (matches <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/>).
         /// Enemies: FIFO layer only.
         /// </summary>
         public static int PeekQueuedAccuracyBonus(Character? c) => PeekPendingThresholdHudShifts(c).SharedAccuracy;
@@ -164,9 +164,7 @@ namespace RPGGame
             }
             foreach (var bonus in c.Effects.PeekPendingActionBonusesNextHeroRoll())
                 AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
-            foreach (var bonus in c.Effects.PeekAttackBonuses())
-                AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
-            foreach (var bonus in c.Effects.PeekAbilityBonuses())
+            foreach (var bonus in c.Effects.PeekTurnBonuses())
                 AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
             return new PendingThresholdHudShifts(acc, combo, hit, crit, critMiss);
         }
@@ -231,15 +229,7 @@ namespace RPGGame
                     case "COMBO": effectComboBonus += (int)bonus.Value; break;
                 }
             }
-            foreach (var bonus in c.Effects.PeekAttackBonuses())
-            {
-                switch (bonus.Type.ToUpper())
-                {
-                    case "ACCURACY": accuracyAccumulator += (int)bonus.Value; break;
-                    case "COMBO": effectComboBonus += (int)bonus.Value; break;
-                }
-            }
-            foreach (var bonus in c.Effects.PeekAbilityBonuses())
+            foreach (var bonus in c.Effects.PeekTurnBonuses())
             {
                 switch (bonus.Type.ToUpper())
                 {
@@ -304,9 +294,7 @@ namespace RPGGame
             RollModificationManager.CollectAdvantageFlags(
                 c.Effects.PeekPendingActionBonusesNextHeroRoll(), ref advantage, ref disadvantage);
             RollModificationManager.CollectAdvantageFlags(
-                c.Effects.PeekAttackBonuses(), ref advantage, ref disadvantage);
-            RollModificationManager.CollectAdvantageFlags(
-                c.Effects.PeekAbilityBonuses(), ref advantage, ref disadvantage);
+                c.Effects.PeekTurnBonuses(), ref advantage, ref disadvantage);
         }
 
         /// <summary>

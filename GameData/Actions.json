@@ -15,7 +15,7 @@
     "numberOfHits": "1",
     "damage": "120%",
     "speed": "1.00",
-    "tags": "startingWeapon, mace, weapon_basic"
+    "tags": "startingweapon, mace, weapon_basic, required"
   },
   {
     "action": "STRIKE",
@@ -24,7 +24,7 @@
     "numberOfHits": "2",
     "damage": "100%",
     "speed": "1.25",
-    "tags": "startingWeapon, sword, weapon_basic"
+    "tags": "startingweapon, sword, weapon_basic, required"
   },
   {
     "action": "STAB",
@@ -33,7 +33,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "tags": "startingWeapon, dagger, weapon_basic"
+    "tags": "startingweapon, dagger, weapon_basic, required"
   },
   {
     "action": "MAGIC MISSLE",
@@ -42,7 +42,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "tags": "startingWeapon, wand, weapon_basic"
+    "tags": "startingweapon, wand, weapon_basic, required"
   },
   {
     "action": "ATTACK BONUS",
@@ -52,7 +52,8 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "3",
-    "cadence": "ATTACK",
+    "cadence": "TURN",
+    "mechanics": "hero_accuracy",
     "heroAccuracy": "3"
   },
   {
@@ -62,9 +63,11 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "2",
-    "cadence": "ACTION",
-    "damageMod": "25"
+    "duration": "3",
+    "cadence": "Action",
+    "mechanics": "hero_next_action_damage",
+    "damageMod": "25",
+    "tags": "bludgeon"
   },
   {
     "action": "FIGHT BONUS",
@@ -93,6 +96,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "duration": "1",
+    "cadence": "TURN",
+    "mechanics": "hero_accuracy",
     "heroAccuracy": "1"
   },
   {
@@ -104,6 +110,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "ACTION",
+    "mechanics": "hero_hit_threshold",
     "heroHit": "1"
   },
   {
@@ -113,6 +120,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "duration": "1",
+    "cadence": "TURN",
+    "mechanics": "hero_combo_threshold",
     "heroCombo": "1"
   },
   {
@@ -122,6 +132,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "duration": "1",
+    "cadence": "TURN",
+    "mechanics": "hero_crit_threshold",
     "heroCrit": "1"
   },
   {
@@ -133,6 +146,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "DUNGEON",
+    "mechanics": "hero_stat_bonus",
     "heroSTR": "1",
     "tags": "class"
   },
@@ -145,6 +159,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "DUNGEON",
+    "mechanics": "hero_stat_bonus",
     "heroAGI": "1",
     "tags": "class"
   },
@@ -157,6 +172,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "DUNGEON",
+    "mechanics": "hero_stat_bonus",
     "heroTECH": "1",
     "tags": "class"
   },
@@ -169,6 +185,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "DUNGEON",
+    "mechanics": "hero_stat_bonus",
     "heroINT": "1",
     "tags": "class"
   },
@@ -179,7 +196,11 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "speedMod": "1"
+    "duration": "1",
+    "cadence": "ACTION",
+    "mechanics": "hero_next_action_speed",
+    "speedMod": "1",
+    "tags": "swift"
   },
   {
     "action": "STRONGER",
@@ -190,8 +211,9 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "Action",
+    "mechanics": "hero_next_action_damage",
     "damageMod": "1",
-    "tags": "class, warrior"
+    "tags": "class, warrior, bludgeon"
   },
   {
     "action": "BETTER",
@@ -200,6 +222,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "duration": "1",
+    "cadence": "ACTION",
+    "mechanics": "hero_next_action_multihit",
     "multiHitMod": "1"
   },
   {
@@ -209,7 +234,11 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "ampMod": "1"
+    "duration": "1",
+    "cadence": "ACTION",
+    "mechanics": "hero_next_action_amp",
+    "ampMod": "1",
+    "tags": "focus"
   },
   {
     "action": "OPENER",
@@ -218,7 +247,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "opener": "TRUE"
+    "opener": "true",
+    "tags": "opener"
   },
   {
     "action": "FINISHER",
@@ -227,7 +257,20 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "finisher": "TRUE"
+    "finisher": "true",
+    "tags": "finisher"
+  },
+  {
+    "action": "ANGRY ENRAGE",
+    "description": "TURN(x3):\u002B5 combo",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "3",
+    "cadence": "TURN",
+    "mechanics": "hero_combo_threshold",
+    "heroCombo": "5"
   },
   {
     "action": "PHANTOM FOLLOW-UP",
@@ -236,6 +279,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "duration": "1",
+    "cadence": "TURN",
+    "mechanics": "hero_combo_threshold",
     "heroCombo": "1",
     "tags": "class"
   },
@@ -291,6 +337,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "mechanics": "weaken",
     "weaken": "1"
   },
   {
@@ -300,6 +347,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "mechanics": "slow",
     "slow": "1"
   },
   {
@@ -309,6 +357,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "mechanics": "vulnerability",
     "vulnerability": "1"
   },
   {
@@ -318,8 +367,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "mechanics": "harden",
     "harden": "1",
-    "target": "SELF"
+    "target": "self"
   },
   {
     "action": "PIERCE",
@@ -337,6 +387,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "mechanics": "confuse",
     "confuse": "1"
   },
   {
@@ -346,7 +397,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "SELF"
+    "target": "self"
   },
   {
     "action": "LUCK",
@@ -354,7 +405,8 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "cadence": "ACTION"
   },
   {
     "action": "UNLUCK",
@@ -362,7 +414,8 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00"
+    "speed": "1.00",
+    "cadence": "ACTION"
   },
   {
     "action": "set bonus",
@@ -383,15 +436,24 @@
   },
   {
     "action": "flip switch",
-    "description": "triggers environment action"
+    "description": "triggers environment action",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00"
   },
   {
     "action": "berzerker",
-    "description": "below 50% health gives you a 25% damage bonus"
+    "description": "below 50% health gives you a 25% damage bonus",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00"
   },
   {
     "action": "GAMBLERS BLESSING",
-    "description": "If you roll a above X you take another action"
+    "description": "If you roll a above X you take another action",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00"
   },
   {
     "action": "HAYMAKER",
@@ -402,17 +464,21 @@
     "speed": "3.00",
     "duration": "1",
     "cadence": "ACTION",
+    "mechanics": "hero_accuracy",
     "heroAccuracy": "-14",
     "tags": "class"
   },
   {
     "action": "TAUNT",
-    "description": "FOR FIGHT (ENEMY): -1 STR, \u002B1 AGI",
+    "description": "TURN(3x): \u002B1 COMBO",
     "dps": "20%",
     "numberOfHits": "1",
     "damage": "10%",
     "speed": "0.50",
-    "heroAccuracy": "1",
+    "duration": "3",
+    "cadence": "Turn",
+    "mechanics": "enemy_stat_bonus, hero_combo_threshold",
+    "heroCombo": "5",
     "enemySTR": "-1",
     "enemyAGI": "1",
     "tags": "class, barbarian"

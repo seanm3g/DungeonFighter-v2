@@ -482,7 +482,7 @@ namespace RPGGame.Tests.Unit
                     "Setup action should hit so its modifier is applied in the hit pipeline",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-                var queued = hero.Effects.PeekAttackBonuses();
+                var queued = hero.Effects.PeekTurnBonuses();
                 TestBase.AssertTrue(queued.Any(b => string.Equals(b.Type, "MULTIHIT_MOD", StringComparison.OrdinalIgnoreCase) && Math.Abs(b.Value - 2) < 0.01),
                     "After setup: next-roll bonuses include MULTIHIT_MOD +2",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -509,7 +509,7 @@ namespace RPGGame.Tests.Unit
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 // Step 3: Next action should NOT still have the multihit mod (it is one-shot, consumed on the follow roll).
-                var remaining = hero.Effects.PeekAttackBonuses();
+                var remaining = hero.Effects.PeekTurnBonuses();
                 TestBase.AssertTrue(!remaining.Any(b => string.Equals(b.Type, "MULTIHIT_MOD", StringComparison.OrdinalIgnoreCase)),
                     "After follow: MULTIHIT_MOD should be consumed from the queue",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);

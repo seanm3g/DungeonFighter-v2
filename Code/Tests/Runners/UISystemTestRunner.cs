@@ -39,6 +39,7 @@ namespace RPGGame.Tests.Runners
             LeftPanelHoverStateTests.RunAllTests();
             Console.WriteLine();
             LeftPanelTooltipBuilderTests.RunAllTests();
+            ThresholdModificationTooltipBuilderTests.RunAllTests();
             StatTooltipFormatterTests.RunAllTests();
             ItemTooltipFormatterTests.RunAllTests();
             Console.WriteLine();
@@ -51,6 +52,8 @@ namespace RPGGame.Tests.Runners
             CanvasInteractionManagerHitTestTests.RunAllTests();
             Console.WriteLine();
             CombatActionStripBuilderTests.RunAllTests();
+            Console.WriteLine();
+            CadenceCardLineFormatterTests.RunAllTests();
             Console.WriteLine();
             ActionInfoStripLayoutTests.RunAllTests();
             Console.WriteLine();

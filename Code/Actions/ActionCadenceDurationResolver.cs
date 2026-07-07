@@ -5,7 +5,7 @@ using RPGGame.Data;
 namespace RPGGame.Actions
 {
     /// <summary>
-    /// Resolves ACTION / ATTACK / ABILITY cadence layer counts from spreadsheet cadence duration
+    /// Resolves TURN / ACTION cadence layer counts from spreadsheet cadence duration
     /// (<see cref="Action.ComboBonusDuration"/> — column K STATUS EFFECT / DURATION) and keeps them aligned
     /// with <see cref="Action.ActionAttackBonuses"/> group counts after edits or imports.
     /// </summary>
@@ -14,10 +14,9 @@ namespace RPGGame.Actions
         public static bool IsKeywordCadenceGroup(ActionAttackBonusGroup? group)
         {
             if (group == null) return false;
-            var ct = string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType;
-            return string.Equals(ct, "ACTION", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(ct, "ATTACK", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(ct, "ABILITY", StringComparison.OrdinalIgnoreCase);
+            var ct = CadenceKeywords.NormalizeCadenceType(
+                string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType);
+            return CadenceKeywords.IsKeywordCadence(ct);
         }
 
         /// <summary>

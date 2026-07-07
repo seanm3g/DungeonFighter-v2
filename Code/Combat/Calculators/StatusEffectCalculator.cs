@@ -24,7 +24,7 @@ namespace RPGGame.Combat.Calculators
                 !action.CausesArmorBreak && !action.CausesPierce &&
                 !action.CausesSilence && !action.CausesStatDrain && !action.CausesAbsorb &&
                 !action.CausesTemporaryHP && !action.CausesConfusion &&
-                !action.CausesMark && !action.CausesDisrupt)
+                !action.CausesMark && !action.CausesDisrupt && !action.CausesFortify)
             {
                 return false; // No status effects possible
             }

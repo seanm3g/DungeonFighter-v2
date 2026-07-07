@@ -38,6 +38,7 @@ namespace RPGGame
             _handlers["absorb"] = new Combat.Effects.AdvancedStatusEffects.AbsorbEffectHandler();
             _handlers["confusion"] = new Combat.Effects.AdvancedStatusEffects.ConfusionEffectHandler();
             _handlers["disrupt"] = new Combat.Effects.AdvancedStatusEffects.DisruptEffectHandler();
+            _handlers["fortify"] = new FortifyEffectHandler();
         }
 
         /// <summary>
@@ -102,6 +103,7 @@ namespace RPGGame
                 "confusion" => action.CausesConfusion,
                 "mark" => action.CausesMark,
                 "disrupt" => action.CausesDisrupt,
+                "fortify" => action.CausesFortify,
                 _ => false
             };
         }
@@ -239,6 +241,31 @@ namespace RPGGame
         }
 
         public string GetEffectType() => "Burning";
+    }
+
+    /// <summary>Fortify: stacking armor bonus on the room armor pool (sheet FORTIFY / SELF TARGET).</summary>
+    public class FortifyEffectHandler : IEffectHandler
+    {
+        private const int DefaultTurns = 3;
+
+        public bool Apply(Actor target, Action action, List<string> results)
+        {
+            if (!action.CausesFortify)
+                return false;
+
+            int armorPerStack = action.FortifyArmorPerStack > 0 ? action.FortifyArmorPerStack : 1;
+            target.FortifyStacks = (target.FortifyStacks ?? 0) + 1;
+            target.FortifyTurns = DefaultTurns;
+            target.FortifyArmorBonus = (target.FortifyArmorBonus ?? 0) + armorPerStack;
+
+            if (target is Character character)
+                character.Health.RefreshRoomArmor();
+
+            StatusEffectCombatLogMessageBuilder.AppendNameWithPlainSuffix(results, target, "fortifies, gaining armor!");
+            return true;
+        }
+
+        public string GetEffectType() => "fortify";
     }
 }
 

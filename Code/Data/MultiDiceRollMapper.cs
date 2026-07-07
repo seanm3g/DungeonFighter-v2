@@ -29,12 +29,12 @@ namespace RPGGame.Data
                 duration = 1;
 
             string cadence = string.IsNullOrWhiteSpace(spreadsheet.Cadence)
-                ? "ACTION"
-                : spreadsheet.Cadence.Trim().ToUpperInvariant();
-            if (cadence is not ("ACTION" or "ACTIONS" or "ATTACK" or "ATTACKS"))
-                cadence = "ACTION";
+                ? CadenceKeywords.Action
+                : CadenceKeywords.Normalize(spreadsheet.Cadence);
+            if (!CadenceKeywords.IsKeywordCadence(cadence))
+                cadence = CadenceKeywords.Action;
 
-            string cadenceType = cadence is "ATTACK" or "ATTACKS" ? "ATTACK" : "ACTION";
+            string cadenceType = CadenceKeywords.IsTurn(cadence) ? CadenceKeywords.Turn : CadenceKeywords.Action;
 
             if (string.IsNullOrWhiteSpace(actionData.Cadence))
                 actionData.Cadence = cadenceType;

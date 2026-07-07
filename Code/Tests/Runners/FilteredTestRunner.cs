@@ -129,6 +129,11 @@ namespace RPGGame.Tests.Runners
             list.AddRange(DataSystemTestRunner.GetSuiteEntries());
             list.AddRange(MCPSystemTestRunner.GetSuiteEntries());
             list.Add(new TestSuiteEntry("data", "ActionBonusMechanics", () => RPGGame.Tests.Unit.Data.ActionBonusMechanicsTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("data", "ActionCadenceEditorSync", () => RPGGame.Tests.Unit.Data.ActionCadenceEditorSyncTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "CadenceCardLineFormatter", () => RPGGame.Tests.Unit.UI.CadenceCardLineFormatterTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "CombatActionStripBuilder", () => RPGGame.Tests.Unit.UI.CombatActionStripBuilderTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("data", "ActionMechanicsRegistry", () => RPGGame.Tests.Unit.Data.ActionMechanicsRegistryTests.RunAll()));
+            list.Add(new TestSuiteEntry("data", "ActionMechanicsCadenceMatrix", () => RPGGame.Tests.Unit.Data.ActionMechanicsCadenceMatrixTests.RunAll()));
             list.Add(new TestSuiteEntry("data", "ActionExecutionFlow", () => RPGGame.Tests.Unit.ActionExecutionFlowTests.RunAllTests()));
             list.Add(new TestSuiteEntry("comprehensive", "Comprehensive", () => ComprehensiveTestRunner.RunAllTests()));
             return list;

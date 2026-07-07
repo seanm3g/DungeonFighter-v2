@@ -14,13 +14,13 @@ namespace RPGGame.Data
         {
             (null, "ACTION", "Action name"),
             (null, "DESCRIPTION", "Description"),
-            ("STATUS EFFECT", "DURATION", "Cadence duration (ACTION/ATTACK/ABILITY application count, e.g. x2)"),
-            (null, "CADENCE", "Cadence keyword (ACTION / ATTACK / ABILITY / FIGHT / DUNGEON)"),
+            ("STATUS EFFECT", "DURATION", "Cadence duration (TURN/ACTION application count, e.g. x2)"),
+            (null, "CADENCE", "Cadence keyword (TURN / ACTION / FIGHT / DUNGEON; legacy ATTACK/ABILITY accepted on import)"),
             (null, "TARGET", "Effect target (enemy / self / environment) — optional on some layouts"),
-            ("ENEMY TARGET", "STUN", "Stun flag"),
-            ("ENEMY TARGET", "POISON", "Poison magnitude"),
-            ("ENEMY TARGET", "BURN", "Burn magnitude"),
-            ("ENEMY TARGET", "BLEED", "Bleed magnitude"),
+            ("ENEMY TARGET", "STUN", "Legacy column; stun is item-applied only (not pulled to combat)"),
+            ("ENEMY TARGET", "POISON", "Legacy column; poison is item-applied only (not pulled to combat)"),
+            ("ENEMY TARGET", "BURN", "Legacy column; burn is item-applied only (not pulled to combat)"),
+            ("ENEMY TARGET", "BLEED", "Legacy column; bleed is item-applied only (not pulled to combat)"),
             ("HERO BASE STATS", "ACTION DAMAGE", "Hero DAMAGE_MOD for next-action bonuses"),
         };
 
@@ -75,8 +75,8 @@ namespace RPGGame.Data
             {
                 lines.Add("");
                 lines.Add("STATUS EFFECT semantics:");
-                lines.Add($"  DURATION is column {IndexToExcelColumn(cadenceDurationIdx)} (cadence duration — how many ACTION/ATTACK/ABILITY applications).");
-                lines.Add($"  CADENCE is column {IndexToExcelColumn(cadenceIdx)} (keyword: ACTION, ATTACK, ABILITY, FIGHT, DUNGEON, …).");
+                lines.Add($"  DURATION is column {IndexToExcelColumn(cadenceDurationIdx)} (cadence duration — how many TURN/ACTION applications).");
+                lines.Add($"  CADENCE is column {IndexToExcelColumn(cadenceIdx)} (keyword: TURN, ACTION, FIGHT, DUNGEON, …; legacy ATTACK/ABILITY on import).");
                 if (cadenceDurationIdx > cadenceIdx)
                     lines.Add("  WARNING: DURATION appears after CADENCE — expected DURATION then CADENCE on canonical layout.");
             }

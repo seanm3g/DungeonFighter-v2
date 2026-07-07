@@ -1,6 +1,6 @@
 {
   "character": {
-    "playerBaseHealth": 250,
+    "playerBaseHealth": 500,
     "healthPerLevel": 3,
     "enemyHealthPerLevel": 0
   },

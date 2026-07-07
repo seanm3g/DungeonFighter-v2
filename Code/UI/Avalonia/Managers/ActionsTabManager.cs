@@ -500,20 +500,6 @@ namespace RPGGame.UI.Avalonia.Managers
             if ((v = GetText("MultiHitCount")) != null && int.TryParse(v, out int i1) && i1 >= 1) action.MultiHitCount = i1;
             if ((v = GetText("DamageMultiplier")) != null && double.TryParse(v, out double d1)) action.DamageMultiplier = d1;
             if ((v = GetText("Speed")) != null && double.TryParse(v, out double d2)) action.Length = d2;
-            if ((v = GetText("Cadence")) != null) action.Cadence = (v == "(None)" || string.IsNullOrWhiteSpace(v)) ? "" : v;
-            if ((v = GetText("Duration")) != null && int.TryParse(v, out int i3) && i3 >= 0)
-            {
-                action.ComboBonusDuration = i3;
-                ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(action);
-            }
-            if ((v = GetText("ACTION SPEED [hero] (%)")) != null) action.SpeedMod = v ?? "";
-            if ((v = GetText("ACTION DAMAGE [hero] (%)")) != null) action.DamageMod = v ?? "";
-            if ((v = GetText("MULTIHIT MOD [hero]")) != null) action.MultiHitMod = v ?? "";
-            if ((v = GetText("AMP_MOD [hero] (%)")) != null) action.AmpMod = v ?? "";
-            if ((v = GetText("ACTION SPEED [enemy] (%)")) != null) action.EnemySpeedMod = v ?? "";
-            if ((v = GetText("DAMAGE MOD [enemy] (%)")) != null) action.EnemyDamageMod = v ?? "";
-            if ((v = GetText("MULTIHIT MOD [enemy]")) != null) action.EnemyMultiHitMod = v ?? "";
-            if ((v = GetText("AMP_MOD [enemy] (%)")) != null) action.EnemyAmpMod = v ?? "";
             if ((v = GetText("Chain Position")) != null) action.ChainPosition = v ?? "";
             if ((v = GetText("Chain Position Number")) != null && int.TryParse(v, out int i4) && i4 >= -1) action.ComboOrder = i4;
             if (GetBool("Chain Position MOD") is bool b1) action.ModifyBasedOnChainPosition = b1 ? "true" : "";
@@ -525,16 +511,6 @@ namespace RPGGame.UI.Avalonia.Managers
             if (GetBool("Reset") is bool b4) action.Reset = b4 ? "true" : "";
             if (GetBool("Opener") is bool b5) action.IsOpener = b5;
             if (GetBool("Finisher") is bool b6) action.IsFinisher = b6;
-            if ((v = GetText("Roll bonus: Crit Miss")) != null && int.TryParse(v, out int i5)) action.CriticalMissThresholdAdjustment = i5;
-            if ((v = GetText("Roll bonus: Hit")) != null && int.TryParse(v, out int i6)) action.HitThresholdAdjustment = i6;
-            if ((v = GetText("Roll bonus: Combo")) != null && int.TryParse(v, out int i7)) action.ComboThresholdAdjustment = i7;
-            if ((v = GetText("Roll bonus: Crit")) != null && int.TryParse(v, out int i8)) action.CriticalHitThresholdAdjustment = i8;
-            // Accuracy is not read from form here: it is kept in sync via TextChanged on the Accuracy field, so we don't overwrite with a reverted value when the user saves via the global Save button (focus has already moved and the TextBox may have reverted).
-            if ((v = GetText("Enemy roll bonus: Crit Miss")) != null && int.TryParse(v, out int e5)) action.EnemyCriticalMissThresholdAdjustment = e5;
-            if ((v = GetText("Enemy roll bonus: Hit")) != null && int.TryParse(v, out int e6)) action.EnemyHitThresholdAdjustment = e6;
-            if ((v = GetText("Enemy roll bonus: Combo")) != null && int.TryParse(v, out int e7)) action.EnemyComboThresholdAdjustment = e7;
-            if ((v = GetText("Enemy roll bonus: Crit")) != null && int.TryParse(v, out int e8)) action.EnemyCriticalHitThresholdAdjustment = e8;
-            // Enemy Accuracy: synced via TextChanged on the Enemy Accuracy field (same as Accuracy).
             action.TriggerConditions ??= new List<string>();
             if (GetBool("On Hit") == true && !action.TriggerConditions.Any(c => string.Equals(c, "ONHIT", StringComparison.OrdinalIgnoreCase))) action.TriggerConditions.Add("ONHIT");
             if (GetBool("On Hit") == false) action.TriggerConditions.RemoveAll(c => string.Equals(c, "ONHIT", StringComparison.OrdinalIgnoreCase));
@@ -548,15 +524,11 @@ namespace RPGGame.UI.Avalonia.Managers
             if (GetBool("CausesPoison") is bool s2) action.CausesPoison = s2;
             if (GetBool("CausesBurn") is bool s3) action.CausesBurn = s3;
             if (GetBool("CausesBleed") is bool s4) action.CausesBleed = s4;
-            if (GetBool("CausesWeaken") is bool s5) action.CausesWeaken = s5;
             if (GetBool("CausesExpose") is bool s6) action.CausesExpose = s6;
-            if (GetBool("CausesSlow") is bool s7) action.CausesSlow = s7;
-            if (GetBool("CausesVulnerability") is bool s8) action.CausesVulnerability = s8;
-            if (GetBool("CausesHarden") is bool s9) action.CausesHarden = s9;
             if (GetBool("CausesSilence") is bool s10) action.CausesSilence = s10;
-            if (GetBool("CausesPierce") is bool s11) action.CausesPierce = s11;
-            if (GetBool("CausesStatDrain") is bool s12) action.CausesStatDrain = s12;
-            if (GetBool("CausesFocus") is bool s14) action.CausesFocus = s14;
+
+            if (formBuilder?.LastCadenceBlocks != null)
+                ActionCadenceEditorSync.ApplyBlocks(action, formBuilder.LastCadenceBlocks);
             // Flush weapon-type checkboxes so save (from any tab) persists "Assign to Weapon Types"
             // Only update from form when the form has weapon-type controls (otherwise we'd clear existing data)
             var weaponTypes = new[] { "Sword", "Dagger", "Mace", "Wand" };

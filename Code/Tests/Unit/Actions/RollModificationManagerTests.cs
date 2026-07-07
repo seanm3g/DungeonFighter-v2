@@ -115,7 +115,7 @@ namespace RPGGame.Tests.Unit.Actions
         }
 
         /// <summary>
-        /// Sheet HIT/COMBO/CRIT adjustments must not change thresholds on the same roll; they enqueue for the next attack.
+        /// Sheet HIT/COMBO/CRIT adjustments must not change thresholds on the same roll; they enqueue for the Next turn.
         /// </summary>
         private static void TestDeferredRollModAdjustmentsNotAppliedImmediately()
         {
@@ -249,7 +249,7 @@ namespace RPGGame.Tests.Unit.Actions
             tm.Clear();
 
             var action = TestDataBuilders.CreateMockAction("ImmediateCombo", ActionType.Attack);
-            action.Cadence = "ATTACK";
+            action.Cadence = "TURN";
             action.RollMods.ComboThresholdOverride = 11;
 
             RollModificationManager.ApplyThresholdOverrides(action, character, null);

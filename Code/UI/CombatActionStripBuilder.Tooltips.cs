@@ -138,15 +138,15 @@ namespace RPGGame
             return $"Type {action.Type} | Target {FormatTarget(action.Target)} | {comboText}";
         }
 
-        /// <summary>Cadence bonus groups labeled Ability are hidden on action strip cards and hover tooltips (sheet still applies).</summary>
-        private static bool ShouldOmitAbilityCadenceBonusGroup(ActionAttackBonusGroup? group)
+        private static string FormatKeywordCadenceLabel(ActionAttackBonusGroup group, int displayCount)
         {
-            if (group == null)
-                return true;
-            string cad = string.IsNullOrWhiteSpace(group.CadenceType)
-                ? (string.IsNullOrWhiteSpace(group.Keyword) ? "BONUS" : group.Keyword)
-                : group.CadenceType;
-            return string.Equals(cad, "Ability", StringComparison.OrdinalIgnoreCase);
+            string cad = CadenceKeywords.NormalizeCadenceType(
+                string.IsNullOrWhiteSpace(group.CadenceType)
+                    ? (string.IsNullOrWhiteSpace(group.Keyword) ? CadenceKeywords.Turn : group.Keyword)
+                    : group.CadenceType);
+            if (ActionCadenceDurationResolver.IsKeywordCadenceGroup(group))
+                return CadenceKeywords.GetDisplayLabel(cad, Math.Max(1, displayCount));
+            return displayCount > 1 ? $"{cad} x{displayCount}" : cad;
         }
 
         /// <summary>
@@ -436,6 +436,19 @@ namespace RPGGame
                 segments.Add(line);
         }
 
+        /// <summary>Optional declarative mechanics line from loaded action data (readability only).</summary>
+        private static void AppendDeclaredMechanicsLine(List<string> segments, Action action)
+        {
+            if (action == null || string.IsNullOrWhiteSpace(action.Name))
+                return;
+
+            var data = ActionLoader.GetActionData(action.Name);
+            if (data?.Mechanics == null || data.Mechanics.Count == 0)
+                return;
+
+            AddSegment(segments, $"Mechanics: {string.Join(", ", data.Mechanics)}");
+        }
+
         /// <summary>
         /// Ordered mechanical segments after the title line: swing Dmg/Spd, then each spreadsheet / keyword / roll / status block.
         /// </summary>
@@ -443,6 +456,7 @@ namespace RPGGame
         {
             var segments = new List<string>();
             AppendComboRoleAndWeaponRequirementNotation(segments, character, action);
+            AppendDeclaredMechanicsLine(segments, action);
             segments.Add(BuildTooltipSwingModsLine(character, action, panelIndex, swingLineMode));
             AppendAccuracyLines(segments, action);
             segments.AddRange(BuildSpreadsheetFriendlyModLines(action));
@@ -451,19 +465,11 @@ namespace RPGGame
             {
                 foreach (var group in action.ActionAttackBonuses.BonusGroups)
                 {
-                    if (ShouldOmitAbilityCadenceBonusGroup(group))
-                        continue;
                     if (group?.Bonuses == null || group.Bonuses.Count == 0)
                         continue;
-                    string items = FormatBonusItemsShort(group.Bonuses);
-                    if (string.IsNullOrEmpty(items))
-                        continue;
-                    string cad = string.IsNullOrWhiteSpace(group.CadenceType)
-                        ? (string.IsNullOrWhiteSpace(group.Keyword) ? "BONUS" : group.Keyword)
-                        : group.CadenceType;
                     int displayCount = ActionCadenceDurationResolver.GetDisplayCount(action, group);
-                    string count = displayCount > 1 ? $" x{displayCount}" : "";
-                    AddSegment(segments, $"{cad}{count}: {items}");
+                    foreach (string line in UI.CadenceCardLineFormatter.FormatGroupLines(group, displayCount))
+                        AddSegment(segments, line);
                 }
             }
 

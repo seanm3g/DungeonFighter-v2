@@ -353,12 +353,31 @@ namespace RPGGame.ActionInteractionLab
         /// <summary>Who will act next (peek). Null if the speed system must advance time first.</summary>
         public Actor? GetNextActorToAct() => _combatManager.GetNextEntityToAct();
 
+        /// <summary>
+        /// False once either fighter dies in the lab combat log, while history is replaying, or during batch sim.
+        /// Use <see cref="UndoLastStepAsync"/> or <see cref="ResetLabEncounterAsync"/> to step again.
+        /// </summary>
+        public bool CanStepForward =>
+            !IsReplayingHistory
+            && !IsEncounterSimulationRunning
+            && _labPlayer.IsAlive
+            && _labEnemy.IsAlive;
+
         /// <summary>Runs one lab turn with the chosen catalog action name and d20.</summary>
         public async Task<CombatSingleTurnResult> StepAsync(int d20, string forcedActionName)
         {
             await _turnGate.WaitAsync().ConfigureAwait(true);
             try
             {
+                if (!CanStepForward)
+                {
+                    if (!_labPlayer.IsAlive)
+                        return CombatSingleTurnResult.PlayerDefeated;
+                    if (!_labEnemy.IsAlive)
+                        return CombatSingleTurnResult.EnemyDefeated;
+                    return CombatSingleTurnResult.Advanced;
+                }
+
                 if (d20 < 1 || d20 > 20)
                     throw new ArgumentOutOfRangeException(nameof(d20), "d20 must be 1–20.");
 

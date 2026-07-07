@@ -45,6 +45,10 @@ namespace RPGGame.Data
                 header.GetValue(columns, SpreadsheetDurationSemantics.StatusEffectContext, "DURATION", allowUnscopedLabelFallback: false),
                 header.GetValue(columns, null, "DURATION"));
             data.Cadence = header.GetValue(columns, null, "CADENCE");
+            data.Mechanics = FirstNonEmpty(
+                header.GetValue(columns, "MECHANICS", "MECHANICS", allowUnscopedLabelFallback: false),
+                header.GetValue(columns, null, "MECHANICS"));
+            SpreadsheetDurationSemantics.NormalizeDurationAndCadence(data);
             data.Opener = header.GetValue(columns, null, "OPENER");
             data.Finisher = header.GetValue(columns, null, "FINISHER");
             data.Target = header.GetValue(columns, null, "TARGET");

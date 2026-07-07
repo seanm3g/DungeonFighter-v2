@@ -226,7 +226,7 @@ namespace RPGGame.Tests.Unit
 
         /// <summary>
         /// When sheet accuracy is deferred (non-ATTACK cadence), it does not apply to the swing that resolves the card;
-        /// on hit it queues hero FIFO <c>ACCURACY</c> and enemy <see cref="Actor.ApplyRollPenalty"/> for their next attack rolls.
+        /// on hit it queues hero FIFO <c>ACCURACY</c> and enemy <see cref="Actor.ApplyRollPenalty"/> for their Next turn rolls.
         /// </summary>
         /// <summary>
         /// FIFO ACCURACY must not reduce <see cref="ActionExecutionResult.ModifiedBaseRoll"/> (no "15 - 5" on the d20);
@@ -253,7 +253,7 @@ namespace RPGGame.Tests.Unit
                 Name = "FifoAccStrike",
                 Type = ActionType.Attack,
                 Target = TargetType.SingleTarget,
-                Cadence = "ATTACK",
+                Cadence = "TURN",
                 DamageMultiplier = 0.01,
                 Length = 1.0,
                 IsComboAction = false
@@ -292,7 +292,7 @@ namespace RPGGame.Tests.Unit
                 Name = "ComboAttack",
                 Type = ActionType.Attack,
                 Target = TargetType.SingleTarget,
-                Cadence = "ATTACK",
+                Cadence = "TURN",
                 DamageMultiplier = 0.01,
                 Length = 1.0,
                 IsComboAction = true
@@ -356,11 +356,11 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(hitResult.Hit && hitResult.IsCombo,
                 "Controlled high roll should hit+combo",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(-5, ActionSelector.PeekQueuedAccuracyBonus(hero),
-                "Hero deferred RollBonus should queue ACCURACY FIFO for next attack (peek first layer)",
+            TestBase.AssertEqual(-10, ActionSelector.PeekQueuedAccuracyBonus(hero),
+                "Hero deferred RollBonus should bank ACCURACY additively (-5 x2 duration)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(2, hero.Effects.GetPendingActionCadenceLayerCount(),
-                "Two ACCURACY FIFO layers when ComboBonusDuration is 2",
+                "Deposit count 2 when ComboBonusDuration is 2",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(5, enemy.RollPenalty,
                 "Enemy should receive RollPenalty for next roll(s) from EnemyRollBonus -5",
@@ -435,7 +435,7 @@ namespace RPGGame.Tests.Unit
                 Name = "Jab",
                 Type = ActionType.Attack,
                 Target = TargetType.SingleTarget,
-                Cadence = "ATTACK",
+                Cadence = "TURN",
                 DamageMultiplier = 0.01,
                 Length = 1.0,
                 IsComboAction = false
@@ -518,7 +518,7 @@ namespace RPGGame.Tests.Unit
                 "Controlled high roll should hit+combo",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(-2, ActionSelector.PeekQueuedAccuracyBonus(hero),
-                "2-hit action with deferred RollBonus -1 should queue ACCURACY -2 for next attack",
+                "2-hit action with deferred RollBonus -1 should queue ACCURACY -2 for Next turn",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(4, enemy.RollPenalty,
                 "Enemy RollPenalty should scale with multihit: -2 per hit × 2 = 4",
@@ -548,7 +548,7 @@ namespace RPGGame.Tests.Unit
                 Name = "BankEnemyDmg",
                 Type = ActionType.Attack,
                 Target = TargetType.SingleTarget,
-                Cadence = "Attack",
+                Cadence = "TURN",
                 IsComboAction = true,
                 DamageMultiplier = 0.01,
                 Length = 1.0,
@@ -559,7 +559,7 @@ namespace RPGGame.Tests.Unit
                 Name = "Jab",
                 Type = ActionType.Attack,
                 Target = TargetType.SingleTarget,
-                Cadence = "Attack",
+                Cadence = "TURN",
                 IsComboAction = true,
                 DamageMultiplier = 1.0,
                 Length = 1.0
@@ -659,7 +659,7 @@ namespace RPGGame.Tests.Unit
                     "Enemy taunt-like swing should hit+combo",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(4, ActionSelector.PeekQueuedAccuracyBonus(enemy),
-                    "Enemy deferred RollBonus should queue ACCURACY FIFO for the enemy's next attack rolls",
+                    "Enemy deferred RollBonus should queue ACCURACY FIFO for the enemy's Next turn rolls",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally

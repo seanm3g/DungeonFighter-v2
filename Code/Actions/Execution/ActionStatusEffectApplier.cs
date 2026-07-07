@@ -79,52 +79,40 @@ namespace RPGGame.Actions.Execution
             if (selectedAction == null || source == null || target == null || coloredStatusEffects == null)
                 return;
 
-            bool isAbilityCadence = string.Equals((selectedAction.Cadence ?? "").Trim(), "Ability", StringComparison.OrdinalIgnoreCase);
-            // Mirrors ActionExecutionFlow: on miss, ability-cadence modifier bonuses do not apply/queue.
-            if (!actionHit && isAbilityCadence)
-                return;
-
-            bool isActionCadence = string.Equals((selectedAction.Cadence ?? "").Trim(), "Action", StringComparison.OrdinalIgnoreCase);
+            bool isActionCadence = CadenceKeywords.IsAction(selectedAction.Cadence);
             bool sourceUsesEnemySpreadsheetMods = source is Enemy;
             var sourceBonuses = BuildModifierBonusesForQueuedDisplay(selectedAction, useEnemySpreadsheetMods: sourceUsesEnemySpreadsheetMods);
             if (sourceBonuses.Count > 0)
             {
-                // Mirrors ActionExecutionFlow: ability-cadence on a successful combo hit routes to "next combo slot" pending instead of the ability queue.
                 bool routedToNextComboSlot = !sourceUsesEnemySpreadsheetMods
-                    && isAbilityCadence
+                    && isActionCadence
                     && actionWasComboSuccess
                     && source is Character;
 
                 string label;
                 if (routedToNextComboSlot)
                     label = "Next action";
-                else if (isAbilityCadence)
-                    label = "Next ability";
                 else if (isActionCadence && actionHit && actionWasComboSuccess && source is Character actionHero && !(actionHero is Enemy))
                 {
                     var comboActions = ActionUtilities.GetComboActions(actionHero);
                     var actionGroup = selectedAction.ActionAttackBonuses?.BonusGroups?
-                        .FirstOrDefault(g => string.Equals(
-                            string.IsNullOrEmpty(g.CadenceType) ? g.Keyword : g.CadenceType,
-                            "ACTION",
-                            StringComparison.OrdinalIgnoreCase));
+                        .FirstOrDefault(g => CadenceKeywords.IsAction(
+                            string.IsNullOrEmpty(g.CadenceType) ? g.Keyword : g.CadenceType));
                     int granted = ActionCadenceDurationResolver.ResolveGrantedLayers(
                         selectedAction, actionGroup, comboActions, selectedAction);
                     label = granted > 1 ? $"Next {granted} actions" : "Next action";
                 }
                 else
-                    label = "Next attack";
+                    label = "Next turn";
                 AddQueuedModsLine(coloredStatusEffects, label, sourceBonuses);
             }
 
-            // Also show enemy-facing queued mods when a hero action applies enemy spreadsheet mods (AD–AG) and the target is an enemy.
-            // These are queued onto the enemy (and consumed on their next roll).
             if (source is Character && source is not Enemy)
             {
                 var enemyTargetBonuses = BuildModifierBonusesForQueuedDisplay(selectedAction, useEnemySpreadsheetMods: true);
                 if (enemyTargetBonuses.Count > 0 && target is Enemy)
                 {
-                    AddQueuedModsLine(coloredStatusEffects, "Enemy next attack", enemyTargetBonuses);
+                    AddQueuedModsLine(coloredStatusEffects, "Enemy next turn", enemyTargetBonuses);
                 }
             }
         }

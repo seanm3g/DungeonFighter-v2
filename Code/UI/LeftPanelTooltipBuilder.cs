@@ -270,46 +270,40 @@ namespace RPGGame
 
         private static void AppendThresholdCrit(Character c, Action<string> addWrapped)
         {
-            var tm = RollModificationManager.GetThresholdManager();
-            var cfg = GameConfiguration.Instance;
-            int cur = tm.GetCriticalHitThreshold(c);
-            int def = cfg.Combat.CriticalHitThreshold > 0 ? cfg.Combat.CriticalHitThreshold : 20;
+            var snapshot = DiceRollThresholdResolver.Resolve(c);
             addWrapped("Critical hit threshold (crit-eval roll)");
-            addWrapped($"Current: {cur} (default {def}).");
+            addWrapped($"Panel: {snapshot.EffectiveCrit}{ThresholdDisplayFormatting.FormatSignedDeltaSuffix(snapshot.EffectiveCrit - snapshot.DefaultCrit)} (stored {snapshot.Crit}, default {snapshot.DefaultCrit}).");
             addWrapped("Compared to your underlying d20 total for this attack (accuracy and other roll bonuses do not make crits easier).");
+            ThresholdModificationTooltipBuilder.AppendLines(c, ThresholdModificationTooltipBuilder.Kind.Crit, addWrapped);
             AppendThresholdOutcomePercent(c, "Crit", addWrapped);
         }
 
         private static void AppendThresholdCombo(Character c, Action<string> addWrapped)
         {
-            var tm = RollModificationManager.GetThresholdManager();
-            var cfg = GameConfiguration.Instance;
-            int cur = tm.GetComboThreshold(c);
-            int def = cfg.RollSystem.ComboThreshold.Min > 0 ? cfg.RollSystem.ComboThreshold.Min : 14;
+            var snapshot = DiceRollThresholdResolver.Resolve(c);
             addWrapped("Combo threshold (d20 roll)");
-            addWrapped($"Current: {cur} (default {def}).");
+            addWrapped($"Panel: {snapshot.EffectiveCombo}{ThresholdDisplayFormatting.FormatSignedDeltaSuffix(snapshot.EffectiveCombo - snapshot.DefaultCombo)} (stored {snapshot.Combo}, default {snapshot.DefaultCombo}).");
             addWrapped("Named combo-strip swings require meeting this on the modified die (panel ACC shifts hit and post-roll combo outcomes, not which strip action is chosen).");
+            ThresholdModificationTooltipBuilder.AppendLines(c, ThresholdModificationTooltipBuilder.Kind.Combo, addWrapped);
             AppendThresholdOutcomePercent(c, "Combo", addWrapped);
         }
 
         private static void AppendThresholdHit(Character c, Action<string> addWrapped)
         {
-            var tm = RollModificationManager.GetThresholdManager();
-            var cfg = GameConfiguration.Instance;
-            int hit = tm.GetHitThreshold(c);
-            int def = cfg.RollSystem.MissThreshold.Max > 0 ? cfg.RollSystem.MissThreshold.Max : 5;
+            var snapshot = DiceRollThresholdResolver.Resolve(c);
             addWrapped("Hit vs miss (d20 roll)");
-            addWrapped($"Miss threshold uses the configured band; panel shows {hit + 1} as the hit line (current tuning {hit}).");
-            addWrapped($"Reference default for miss band: {def}.");
+            addWrapped($"Panel: min roll to hit {snapshot.EffectiveHit}{ThresholdDisplayFormatting.FormatSignedDeltaSuffix(snapshot.EffectiveHit - snapshot.DefaultMinRollToHit)} (miss-band max {snapshot.Hit}, default {snapshot.DefaultHit}).");
+            ThresholdModificationTooltipBuilder.AppendLines(c, ThresholdModificationTooltipBuilder.Kind.Hit, addWrapped);
             AppendThresholdOutcomePercent(c, "Hit", addWrapped);
         }
 
         private static void AppendThresholdCritMiss(Character c, Action<string> addWrapped)
         {
-            var tm = RollModificationManager.GetThresholdManager();
-            int cur = tm.GetCriticalMissThreshold(c);
+            var snapshot = DiceRollThresholdResolver.Resolve(c);
             addWrapped("Critical miss threshold");
-            addWrapped($"Current: {cur}. Uses the same crit-eval roll as critical hit (accuracy affects hit/combo only, not this band).");
+            addWrapped($"Panel: {snapshot.EffectiveCritMiss}{ThresholdDisplayFormatting.FormatSignedDeltaSuffix(snapshot.EffectiveCritMiss - DiceRollThresholdSnapshot.DefaultCritMiss)} (stored {snapshot.CritMiss}, default {DiceRollThresholdSnapshot.DefaultCritMiss}).");
+            addWrapped("Uses the same crit-eval roll as critical hit (accuracy affects hit/combo only, not this band).");
+            ThresholdModificationTooltipBuilder.AppendLines(c, ThresholdModificationTooltipBuilder.Kind.CritMiss, addWrapped);
             AppendThresholdOutcomePercent(c, "Crit Miss", addWrapped);
         }
 

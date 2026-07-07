@@ -94,7 +94,7 @@ namespace RPGGame.Tests.Unit.UI
 
             var amp = StatTooltipFormatter.TryBuild(c, "stat:amp", 24)!;
             string ampFlat = string.Join("\n", amp.Select(ColoredTextRenderer.RenderAsPlainText));
-            TestBase.AssertTrue(ampFlat.Contains("Base per combo step", StringComparison.Ordinal) && ampFlat.Contains("INT (feeds AMP)", StringComparison.Ordinal),
+            TestBase.AssertTrue(ampFlat.Contains("Base per combo step", StringComparison.Ordinal) && ampFlat.Contains("TECH (feeds AMP)", StringComparison.Ordinal),
                 "amp highlight and TECH section",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(ampFlat.Contains("Scaling:", StringComparison.Ordinal)

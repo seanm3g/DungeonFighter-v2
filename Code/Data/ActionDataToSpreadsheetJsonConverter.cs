@@ -114,11 +114,20 @@ namespace RPGGame.Data
             else if (baseRow != null)
                 row.ChainPositionBonusesJson = baseRow.ChainPositionBonusesJson ?? "";
 
+            if (data.ActionAttackBonuses?.BonusGroups != null && data.ActionAttackBonuses.BonusGroups.Count > 1)
+                row.ActionAttackBonusesJson = JsonSerializer.Serialize(data.ActionAttackBonuses, jsonOptions);
+            else if (baseRow != null)
+                row.ActionAttackBonusesJson = baseRow.ActionAttackBonusesJson ?? "";
+            else
+                row.ActionAttackBonusesJson = "";
+
             // TargetType round-trip (form edits must persist when baseRow exists)
             row.Target = FormatTargetForSheet(data.TargetType);
 
             if (data.HealAmount > 0)
                 row.HeroHeal = data.HealAmount.ToString();
+            if (data.MaxHealthIncrease > 0)
+                row.HeroHealMaxHealth = data.MaxHealthIncrease.ToString();
             if (data.LifestealPercent > 0)
                 row.Lifesteal = FormatLifestealForSheet(data.LifestealPercent);
 
@@ -130,10 +139,6 @@ namespace RPGGame.Data
 
             if (baseRow == null)
             {
-                row.Stun = data.CausesStun ? "1" : "";
-                row.Poison = data.CausesPoison ? "1" : "";
-                row.Burn = data.CausesBurn ? "1" : "";
-                row.Bleed = data.CausesBleed ? "1" : "";
                 row.Weaken = data.CausesWeaken ? "1" : "";
                 row.Slow = data.CausesSlow ? "1" : "";
                 row.Vulnerability = data.CausesVulnerability ? "1" : "";
@@ -145,9 +150,14 @@ namespace RPGGame.Data
                 row.Focus = data.CausesFocus ? "1" : "";
                 row.Confuse = data.CausesConfusion ? "1" : "";
                 row.Disrupt = data.CausesDisrupt ? "1" : "";
+                row.Fortify = data.CausesFortify
+                    ? (data.FortifyArmorPerStack > 0 ? data.FortifyArmorPerStack.ToString() : "1")
+                    : "";
             }
 
-            return row;
+            var spreadsheetRow = row.ToSpreadsheetActionData();
+            ActionMechanicsSheetSync.SyncRow(spreadsheetRow);
+            return SpreadsheetActionJson.FromSpreadsheetActionData(spreadsheetRow);
         }
 
         /// <summary>

@@ -76,7 +76,7 @@ namespace RPGGame.Tests.Runners
             string phase2 = "PHASE 2: ADVANCED SYSTEMS";
             TestResultCollector.SetCurrentCategory(phase2);
             Console.WriteLine($"\n=== {phase2} ===\n");
-            ComboAmplifierFromIntelligenceTests.RunAllTests();
+            ComboAmplifierCurveTests.RunAllTests();
             ComboExecutionTests.RunAllTests();
             Console.WriteLine();
             StatusEffectsTests.RunAllTests();
@@ -375,7 +375,7 @@ namespace RPGGame.Tests.Runners
         {
             Console.WriteLine("=== COMBO SYSTEM TESTS ===\n");
             
-            ComboAmplifierFromIntelligenceTests.RunAllTests();
+            ComboAmplifierCurveTests.RunAllTests();
             ComboExecutionTests.RunAllTests();
         }
 

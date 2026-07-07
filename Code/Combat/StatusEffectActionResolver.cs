@@ -11,7 +11,7 @@ namespace RPGGame
     {
         private static readonly HashSet<string> RemovedEffectTypes = new(StringComparer.OrdinalIgnoreCase)
         {
-            "fortify", "reflect", "cleanse"
+            "reflect", "cleanse"
         };
 
         /// <summary>
@@ -40,6 +40,7 @@ namespace RPGGame
             if (action.CausesConfusion) effects.Add("confusion");
             if (action.CausesMark) effects.Add("mark");
             if (action.CausesDisrupt) effects.Add("disrupt");
+            if (action.CausesFortify) effects.Add("fortify");
 
             if (action.Advanced?.SelfTargetEffects != null)
             {
@@ -90,6 +91,7 @@ namespace RPGGame
                 case "confusion": action.CausesConfusion = true; break;
                 case "mark": action.CausesMark = true; break;
                 case "disrupt": action.CausesDisrupt = true; break;
+                case "fortify": action.CausesFortify = true; break;
                 default: return null;
             }
             return action;
@@ -133,6 +135,7 @@ namespace RPGGame
                 "confusion" => action.CausesConfusion,
                 "mark" => action.CausesMark,
                 "disrupt" => action.CausesDisrupt,
+                "fortify" => action.CausesFortify,
                 _ => false
             };
         }

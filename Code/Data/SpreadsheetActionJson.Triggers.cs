@@ -39,5 +39,8 @@ namespace RPGGame.Data
 
         [JsonPropertyName("chainPositionBonusesJson")]
         public string ChainPositionBonusesJson { get; set; } = "";
+
+        [JsonPropertyName("actionAttackBonusesJson")]
+        public string ActionAttackBonusesJson { get; set; } = "";
     }
 }

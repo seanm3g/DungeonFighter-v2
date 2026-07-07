@@ -153,7 +153,7 @@ namespace RPGGame.Tests.Unit
 
             var baseline = new Action
             {
-                Cadence = "ATTACK",
+                Cadence = "TURN",
                 Advanced = new AdvancedMechanicsProperties { RollBonus = 0, RollBonusDuration = 0 }
             };
             var actionCadence = new Action
@@ -168,7 +168,7 @@ namespace RPGGame.Tests.Unit
             };
             var attackCadence = new Action
             {
-                Cadence = "ATTACK",
+                Cadence = "TURN",
                 Advanced = new AdvancedMechanicsProperties { RollBonus = 15, RollBonusDuration = 0 }
             };
 
@@ -342,7 +342,7 @@ namespace RPGGame.Tests.Unit
 
             var action = new Action
             {
-                Cadence = "ATTACK",
+                Cadence = "TURN",
                 Advanced = new AdvancedMechanicsProperties { RollBonus = 10, RollBonusDuration = 0 }
             };
             var comboActions = new List<Action>();

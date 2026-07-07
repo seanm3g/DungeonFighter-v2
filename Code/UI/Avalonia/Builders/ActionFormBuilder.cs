@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using RPGGame.Editors;
+using RPGGame.Data;
 using RPGGame.UI.Avalonia.Resources;
 using System;
 using System.Collections.Generic;
@@ -48,16 +49,9 @@ namespace RPGGame.UI.Avalonia.Builders
 
             sections.BuildBasicSection(actionFormPanel, action);
             sections.BuildTagsSection(actionFormPanel, action);
-            sections.BuildSpreadsheetTypeSection(actionFormPanel, action);
-            sections.BuildModifiersSection(actionFormPanel, action);
-            sections.BuildComboAndPositionSection(actionFormPanel, action);
-            sections.BuildRollBonusesSection(actionFormPanel, action);
-            sections.BuildEnemyRollBonusesSection(actionFormPanel, action);
-            sections.BuildTriggersSection(actionFormPanel, action);
-            sections.BuildStatusSection(actionFormPanel, action);
-            sections.BuildAdvancedSection(actionFormPanel, action);
-            sections.BuildThresholdsSection(actionFormPanel, action);
-            sections.BuildAccumulationsSection(actionFormPanel, action);
+            sections.BuildCadenceMechanicsSection(actionFormPanel, action);
+            LastCadenceBlocks = ctx.CadenceBlocks;
+            sections.BuildAdvancedExpanderSection(actionFormPanel, action);
             BuildButtons(actionFormPanel);
         }
 
@@ -90,6 +84,9 @@ namespace RPGGame.UI.Avalonia.Builders
         }
 
         public event System.Action? CancelActionRequested;
+
+        /// <summary>Cadence blocks from the most recent form build (for flush on save).</summary>
+        public List<CadenceEditorBlock>? LastCadenceBlocks { get; private set; }
 
         private void OnCancelAction()
         {

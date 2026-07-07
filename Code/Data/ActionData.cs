@@ -58,8 +58,15 @@ namespace RPGGame
         public bool CausesConfusion { get; set; }
         [JsonPropertyName("causesDisrupt")]
         public bool CausesDisrupt { get; set; }
+        [JsonPropertyName("causesFortify")]
+        public bool CausesFortify { get; set; }
+        [JsonPropertyName("fortifyArmorPerStack")]
+        public int FortifyArmorPerStack { get; set; }
         [JsonPropertyName("healAmount")]
         public int HealAmount { get; set; }
+        /// <summary>Permanent base max HP increase when this heal/buff action succeeds (HERO HEAL / MAX HEALTH column).</summary>
+        [JsonPropertyName("maxHealthIncrease")]
+        public int MaxHealthIncrease { get; set; }
         /// <summary>Fraction of damage dealt returned as healing (0–1). From sheet LIFESTEAL column.</summary>
         [JsonPropertyName("lifestealPercent")]
         public double LifestealPercent { get; set; }
@@ -179,6 +186,8 @@ namespace RPGGame
         public string Category { get; set; } = "";
         [JsonPropertyName("cadence")]
         public string Cadence { get; set; } = "";
+        [JsonPropertyName("mechanics")]
+        public List<string> Mechanics { get; set; } = new List<string>();
         /// <summary>Hero next-action speed modifier as a percentage (spreadsheet AJ; e.g. "10" = 10%).</summary>
         [JsonPropertyName("speedMod")]
         public string SpeedMod { get; set; } = "";

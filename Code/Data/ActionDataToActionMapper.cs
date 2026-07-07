@@ -78,6 +78,8 @@ namespace RPGGame
             action.CausesFocus = data.CausesFocus;
             action.CausesConfusion = data.CausesConfusion;
             action.CausesDisrupt = data.CausesDisrupt;
+            action.CausesFortify = data.CausesFortify;
+            action.FortifyArmorPerStack = data.FortifyArmorPerStack;
 
             data.NormalizeStatBonuses();
             action.Advanced.StatBonuses = data.StatBonuses == null ? new List<StatBonusEntry>() : new List<StatBonusEntry>(data.StatBonuses);
@@ -89,6 +91,7 @@ namespace RPGGame
             action.Advanced.StatBonusDuration = data.StatBonusDuration;
             action.Advanced.MultiHitCount = data.MultiHitCount;
             action.Advanced.HealAmount = data.HealAmount;
+            action.Advanced.MaxHealthIncrease = data.MaxHealthIncrease;
             action.Advanced.LifestealPercent = data.LifestealPercent;
             action.Advanced.SelfTargetEffects = data.SelfTargetEffects == null || data.SelfTargetEffects.Count == 0
                 ? new List<string>()

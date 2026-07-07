@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Actions;
 using RPGGame.Data;
 
 namespace RPGGame
@@ -74,20 +75,20 @@ namespace RPGGame
         }
         #endregion
 
-        #region Next attack
-        public double NextAttackDamageMultiplier { get; set; } = 1.0;
-        public int NextAttackStatBonus { get; set; }
-        public string NextAttackStatBonusType { get; set; } = "";
-        public int NextAttackStatBonusDuration { get; set; }
+        #region Next turn (legacy one-shot modifiers)
+        public double NextTurnDamageMultiplier { get; set; } = 1.0;
+        public int NextTurnStatBonus { get; set; }
+        public string NextTurnStatBonusType { get; set; } = "";
+        public int NextTurnStatBonusDuration { get; set; }
 
-        public double ConsumeNextAttackDamageMultiplier() { var m = NextAttackDamageMultiplier; NextAttackDamageMultiplier = 1.0; return m; }
-        public (int bonus, string statType, int duration) ConsumeNextAttackStatBonus()
+        public double ConsumeNextTurnDamageMultiplier() { var m = NextTurnDamageMultiplier; NextTurnDamageMultiplier = 1.0; return m; }
+        public (int bonus, string statType, int duration) ConsumeNextTurnStatBonus()
         {
-            var r = (NextAttackStatBonus, NextAttackStatBonusType, NextAttackStatBonusDuration);
-            NextAttackStatBonus = 0; NextAttackStatBonusType = ""; NextAttackStatBonusDuration = 0;
+            var r = (NextTurnStatBonus, NextTurnStatBonusType, NextTurnStatBonusDuration);
+            NextTurnStatBonus = 0; NextTurnStatBonusType = ""; NextTurnStatBonusDuration = 0;
             return r;
         }
-        public void ClearNextAttack() { NextAttackDamageMultiplier = 1.0; NextAttackStatBonus = 0; NextAttackStatBonusType = ""; NextAttackStatBonusDuration = 0; }
+        public void ClearNextTurn() { NextTurnDamageMultiplier = 1.0; NextTurnStatBonus = 0; NextTurnStatBonusType = ""; NextTurnStatBonusDuration = 0; }
         #endregion
 
         #region Reroll
@@ -103,34 +104,63 @@ namespace RPGGame
         public void ClearReroll() { RerollCharges = 0; UsedRerollThisTurn = false; RerollChargesUsed = 0; }
         #endregion
 
-        #region Action bonus
-        public List<ActionAttackBonusGroup> AbilityBonuses { get; set; } = new List<ActionAttackBonusGroup>();
-        /// <summary>ATTACK cadence: consumed per roll, apply only on hit.</summary>
-        public List<ActionAttackBonusGroup> AttackBonuses { get; set; } = new List<ActionAttackBonusGroup>();
+        #region Cadence bonuses (TURN / ACTION)
+        /// <summary>TURN cadence: consumed per roll, apply stat portions only on hit.</summary>
+        public List<ActionAttackBonusGroup> TurnBonuses { get; set; } = new List<ActionAttackBonusGroup>();
         /// <summary>ACTION cadence: slot-based. Key = combo slot index; value = bonuses to apply when that slot executes.</summary>
         public Dictionary<int, List<ActionAttackBonusItem>> PendingActionBonusesBySlot { get; set; } = new Dictionary<int, List<ActionAttackBonusItem>>();
         /// <summary>
-        /// ACTION cadence: FIFO layers. Each hero (or enemy, when fumble-routed) attack roll consumes exactly one layer.
-        /// Duration N is stored as N consecutive identical layers (spreadsheet Count / combo bonus duration).
+        /// ACTION cadence: additive bank. Multiple deposits sum by bonus type; the full bank redeems on the next hit+combo.
+        /// Cleared when the room ends (<see cref="ClearActionBonus"/>).
         /// </summary>
-        public List<List<ActionAttackBonusItem>> PendingActionCadenceBonusLayers { get; set; } = new List<List<ActionAttackBonusItem>>();
+        public List<ActionAttackBonusItem> PendingActionCadenceBonusBank { get; set; } = new List<ActionAttackBonusItem>();
+        /// <summary>Number of deposit events stacked into <see cref="PendingActionCadenceBonusBank"/> (for HUD).</summary>
+        public int PendingActionCadenceDepositCount { get; set; }
         public double ConsumedDamageModPercent { get; set; }
         public double ConsumedSpeedModPercent { get; set; }
         public double ConsumedMultiHitMod { get; set; }
         public double ConsumedAmpModPercent { get; set; }
-        /// <summary>ATTACK bonuses consumed this roll; apply stat bonuses on hit, then clear.</summary>
-        public List<ActionAttackBonusItem> ConsumedAttackBonusesThisRoll { get; set; } = new List<ActionAttackBonusItem>();
+        /// <summary>TURN bonuses consumed this roll; apply stat bonuses on hit, then clear.</summary>
+        public List<ActionAttackBonusItem> ConsumedTurnBonusesThisRoll { get; set; } = new List<ActionAttackBonusItem>();
 
-        public void AddActionAttackBonuses(ActionAttackBonuses? bonuses)
+        public void AddActionAttackBonuses(ActionAttackBonuses? bonuses, Action? sourceAction = null)
         {
             if (bonuses?.BonusGroups == null) return;
             foreach (var group in bonuses.BonusGroups)
             {
-                var ct = string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType;
-                if (ct == "ABILITY") AbilityBonuses.Add(group);
-                else if (ct == "ATTACK") AttackBonuses.Add(group);
-                // ACTION cadence: queued in ActionExecutionFlow (PendingActionCadenceBonusLayers)
+                var ct = CadenceKeywords.NormalizeCadenceType(
+                    string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType);
+                var cloned = CloneBonusGroup(group, sourceAction);
+                cloned.CadenceType = ct;
+                cloned.Keyword = ct;
+                if (CadenceKeywords.IsTurn(ct))
+                    TurnBonuses.Add(cloned);
+                // ACTION cadence: deposited in ActionExecutionFlow (PendingActionCadenceBonusBank)
             }
+        }
+
+        private static ActionAttackBonusGroup CloneBonusGroup(ActionAttackBonusGroup group, Action? sourceAction)
+        {
+            int count = group.Count;
+            if (sourceAction != null && ActionCadenceDurationResolver.IsKeywordCadenceGroup(group))
+            {
+                int requested = ActionCadenceDurationResolver.GetRequestedLayerCount(sourceAction, group);
+                if (requested > 0)
+                    count = requested;
+            }
+            if (count <= 0)
+                count = 1;
+
+            return new ActionAttackBonusGroup
+            {
+                Keyword = group.Keyword,
+                CadenceType = group.CadenceType,
+                Count = count,
+                DurationType = group.DurationType,
+                Bonuses = group.Bonuses == null
+                    ? new List<ActionAttackBonusItem>()
+                    : group.Bonuses.Select(b => new ActionAttackBonusItem { Type = b.Type, Value = b.Value }).ToList()
+            };
         }
         public void ClearConsumedModifierBonuses() { ConsumedDamageModPercent = 0; ConsumedSpeedModPercent = 0; ConsumedMultiHitMod = 0; ConsumedAmpModPercent = 0; }
         public void AccumulateConsumedModifierBonuses(List<ActionAttackBonusItem>? bonuses)
@@ -169,59 +199,56 @@ namespace RPGGame
 
         /// <summary>
         /// Adds modifier bonuses from an action (hero fields by default; enemy AD–AG when <paramref name="useEnemySpreadsheetMods"/>).
-        /// When nextSlotForAbilityCadence is provided (Ability cadence in combo), adds to that slot instead of AbilityBonuses.
+        /// When <paramref name="nextComboSlot"/> is provided, adds to that combo slot pending queue.
         /// </summary>
-        public void AddModifierBonusesFromAction(Action? action, int? nextSlotForAbilityCadence = null, bool useEnemySpreadsheetMods = false)
+        public void AddModifierBonusesFromAction(Action? action, int? nextComboSlot = null, bool useEnemySpreadsheetMods = false)
         {
             if (action == null) return;
-            // ACTION cadence modifiers are queued as FIFO layers from ActionAttackBonuses on hit+combo;
-            // do not also route sheet DAMAGE_MOD / SPEED_MOD through the ATTACK roll queue (single-use).
-            if (!useEnemySpreadsheetMods
-                && string.Equals((action.Cadence ?? "").Trim(), "Action", StringComparison.OrdinalIgnoreCase))
+            if (!useEnemySpreadsheetMods && CadenceKeywords.IsAction(action.Cadence) && !nextComboSlot.HasValue)
                 return;
             var bonuses = BuildModifierBonusesFromActionFields(action, useEnemySpreadsheetMods);
             if (bonuses.Count == 0) return;
 
-            if (nextSlotForAbilityCadence.HasValue)
+            if (nextComboSlot.HasValue)
             {
-                AddPendingActionBonuses(nextSlotForAbilityCadence.Value, bonuses);
+                AddPendingActionBonuses(nextComboSlot.Value, bonuses);
                 return;
             }
 
-            string keyword = string.Equals((action.Cadence ?? "").Trim(), "Ability", StringComparison.OrdinalIgnoreCase) ? "ABILITY" : "ATTACK";
             int count = action.Advanced?.StatBonusDuration > 0 ? action.Advanced.StatBonusDuration : (action.Advanced?.RollBonusDuration > 0 ? action.Advanced.RollBonusDuration : 1);
             if (count <= 0) count = 1;
-            var group = new ActionAttackBonusGroup { Keyword = keyword, CadenceType = keyword, Count = count, Bonuses = bonuses };
-            if (keyword == "ABILITY") AbilityBonuses.Add(group); else AttackBonuses.Add(group);
-        }
-        public List<ActionAttackBonusItem> GetAndConsumeAbilityBonuses(bool actionSucceeded)
-        {
-            var result = new List<ActionAttackBonusItem>();
-            if (!actionSucceeded) return result;
-            var toRemove = new List<ActionAttackBonusGroup>();
-            foreach (var group in AbilityBonuses)
+            var group = new ActionAttackBonusGroup
             {
-                if (group.Count > 0 && group.Bonuses != null) { result.AddRange(group.Bonuses); group.Count--; if (group.Count <= 0) toRemove.Add(group); }
-            }
-            foreach (var g in toRemove) AbilityBonuses.Remove(g);
-            return result;
+                Keyword = CadenceKeywords.Turn,
+                CadenceType = CadenceKeywords.Turn,
+                Count = count,
+                Bonuses = bonuses
+            };
+            TurnBonuses.Add(group);
         }
-        public List<ActionAttackBonusItem> GetAndConsumeActionBonuses() => GetAndConsumeAttackBonuses();
-        public List<ActionAttackBonusItem> GetAndConsumeAttackBonuses()
+        public List<ActionAttackBonusItem> GetAndConsumeTurnBonuses()
         {
             var result = new List<ActionAttackBonusItem>();
             var toRemove = new List<ActionAttackBonusGroup>();
-            foreach (var group in AttackBonuses)
+            foreach (var group in TurnBonuses)
             {
                 if (group.Count > 0 && group.Bonuses != null) { result.AddRange(group.Bonuses); group.Count--; if (group.Count <= 0) toRemove.Add(group); }
             }
-            foreach (var g in toRemove) AttackBonuses.Remove(g);
+            foreach (var g in toRemove) TurnBonuses.Remove(g);
             return result;
         }
-        public List<ActionAttackBonusItem> PeekAbilityBonuses() { var r = new List<ActionAttackBonusItem>(); foreach (var g in AbilityBonuses) { if (g.Bonuses != null) r.AddRange(g.Bonuses); } return r; }
-        public List<ActionAttackBonusItem> PeekActionBonuses() => PeekAttackBonuses();
-        public List<ActionAttackBonusItem> PeekAttackBonuses() { var r = new List<ActionAttackBonusItem>(); foreach (var g in AttackBonuses) { if (g.Bonuses != null) r.AddRange(g.Bonuses); } return r; }
-        public void ClearActionBonus() { AbilityBonuses.Clear(); AttackBonuses.Clear(); PendingActionBonusesBySlot.Clear(); PendingActionCadenceBonusLayers.Clear(); ConsumedDamageModPercent = 0; ConsumedSpeedModPercent = 0; ConsumedMultiHitMod = 0; ConsumedAmpModPercent = 0; }
+        public List<ActionAttackBonusItem> PeekTurnBonuses() { var r = new List<ActionAttackBonusItem>(); foreach (var g in TurnBonuses) { if (g.Bonuses != null) r.AddRange(g.Bonuses); } return r; }
+        public void ClearActionBonus()
+        {
+            TurnBonuses.Clear();
+            PendingActionBonusesBySlot.Clear();
+            PendingActionCadenceBonusBank.Clear();
+            PendingActionCadenceDepositCount = 0;
+            ConsumedDamageModPercent = 0;
+            ConsumedSpeedModPercent = 0;
+            ConsumedMultiHitMod = 0;
+            ConsumedAmpModPercent = 0;
+        }
         public void AddPendingActionBonuses(int slot, List<ActionAttackBonusItem> bonuses)
         {
             if (bonuses == null || bonuses.Count == 0) return;
@@ -243,44 +270,55 @@ namespace RPGGame
         public void ClearPendingActionBonuses()
         {
             PendingActionBonusesBySlot.Clear();
-            PendingActionCadenceBonusLayers.Clear();
+            PendingActionCadenceBonusBank.Clear();
+            PendingActionCadenceDepositCount = 0;
         }
 
-        /// <summary>Enqueues one application (one hero or enemy attack roll) of ACTION cadence bonuses.</summary>
-        public void AddPendingActionBonusesNextHeroRoll(List<ActionAttackBonusItem>? bonuses) => EnqueuePendingActionCadenceLayer(bonuses);
+        /// <summary>Adds ACTION cadence bonuses to the additive bank (one deposit).</summary>
+        public void AddPendingActionBonusesNextHeroRoll(List<ActionAttackBonusItem>? bonuses) =>
+            AccumulatePendingActionCadenceBank(bonuses, 1);
 
-        public void EnqueuePendingActionCadenceLayer(List<ActionAttackBonusItem>? bonuses)
+        /// <summary>Legacy name: one additive deposit.</summary>
+        public void EnqueuePendingActionCadenceLayer(List<ActionAttackBonusItem>? bonuses) =>
+            AccumulatePendingActionCadenceBank(bonuses, 1);
+
+        /// <summary>
+        /// Merges bonuses into the ACTION bank. <paramref name="stackTimes"/> multiplies each value
+        /// (spreadsheet duration on a single grant).
+        /// </summary>
+        public void AccumulatePendingActionCadenceBank(List<ActionAttackBonusItem>? bonuses, int stackTimes = 1)
         {
-            if (bonuses == null || bonuses.Count == 0) return;
-            PendingActionCadenceBonusLayers.Add(bonuses.Select(b => new ActionAttackBonusItem { Type = b.Type, Value = b.Value }).ToList());
+            if (bonuses == null || bonuses.Count == 0 || stackTimes < 1) return;
+            ActionCadenceBonusBank.MergeAdditively(PendingActionCadenceBonusBank, bonuses, stackTimes);
+            PendingActionCadenceDepositCount += stackTimes;
         }
 
-        /// <summary>Peek the next roll's bonuses only (first FIFO layer).</summary>
-        public List<ActionAttackBonusItem> PeekPendingActionBonusesNextHeroRoll()
-        {
-            return PeekPendingActionCadenceLayerAt(0);
-        }
+        public bool HasPendingActionCadenceBank() => PendingActionCadenceBonusBank.Count > 0;
 
-        /// <summary>Peek a specific FIFO layer by index (0 = next hero roll). Does not consume.</summary>
+        /// <summary>Peek the full additive ACTION bank (roll help until hit+combo redeems).</summary>
+        public List<ActionAttackBonusItem> PeekPendingActionBonusesNextHeroRoll() =>
+            ActionCadenceBonusBank.Copy(PendingActionCadenceBonusBank);
+
+        /// <summary>Index 0 returns the bank; higher indices are empty (legacy FIFO API).</summary>
         public List<ActionAttackBonusItem> PeekPendingActionCadenceLayerAt(int layerIndex)
         {
-            if (layerIndex < 0 || layerIndex >= PendingActionCadenceBonusLayers.Count)
-                return new List<ActionAttackBonusItem>();
-            return new List<ActionAttackBonusItem>(PendingActionCadenceBonusLayers[layerIndex]);
+            if (layerIndex != 0) return new List<ActionAttackBonusItem>();
+            return PeekPendingActionBonusesNextHeroRoll();
         }
 
-        public int GetPendingActionCadenceLayerCount() => PendingActionCadenceBonusLayers.Count;
+        /// <summary>Deposit count for HUD (how many times the bank was charged).</summary>
+        public int GetPendingActionCadenceLayerCount() => PendingActionCadenceDepositCount;
 
+        /// <summary>Redeems the full ACTION bank on hit+combo.</summary>
         public List<ActionAttackBonusItem> ConsumePendingActionBonusesNextHeroRoll()
         {
-            if (PendingActionCadenceBonusLayers.Count == 0)
-                return new List<ActionAttackBonusItem>();
-            var r = PendingActionCadenceBonusLayers[0];
-            PendingActionCadenceBonusLayers.RemoveAt(0);
-            return r;
+            var result = ActionCadenceBonusBank.Copy(PendingActionCadenceBonusBank);
+            PendingActionCadenceBonusBank.Clear();
+            PendingActionCadenceDepositCount = 0;
+            return result;
         }
-        public void SetConsumedAttackBonusesThisRoll(List<ActionAttackBonusItem> bonuses) { ConsumedAttackBonusesThisRoll = bonuses ?? new List<ActionAttackBonusItem>(); }
-        public List<ActionAttackBonusItem> GetAndClearConsumedAttackBonusesThisRoll() { var r = ConsumedAttackBonusesThisRoll; ConsumedAttackBonusesThisRoll = new List<ActionAttackBonusItem>(); return r; }
+        public void SetConsumedTurnBonusesThisRoll(List<ActionAttackBonusItem> bonuses) { ConsumedTurnBonusesThisRoll = bonuses ?? new List<ActionAttackBonusItem>(); }
+        public List<ActionAttackBonusItem> GetAndClearConsumedTurnBonusesThisRoll() { var r = ConsumedTurnBonusesThisRoll; ConsumedTurnBonusesThisRoll = new List<ActionAttackBonusItem>(); return r; }
 
         private static double SumBonusValuesOfType(IEnumerable<ActionAttackBonusItem>? items, string typeUpper)
         {
@@ -297,7 +335,7 @@ namespace RPGGame
 
         /// <summary>
         /// HUD / tooltips: AMP_MOD (percent points) that will apply on the hero's next damage roll
-        /// (same sources as <see cref="ActionExecutionFlow"/> roll prep: slot pending + FIFO + ATTACK + ABILITY peeks).
+        /// (same sources as <see cref="ActionExecutionFlow"/> roll prep: slot pending + FIFO + TURN peeks).
         /// </summary>
         public static double PeekSheetAmpModPercentQueuedForNextHeroDamageRoll(Character character)
         {
@@ -309,8 +347,7 @@ namespace RPGGame
                 sum += SumBonusValuesOfType(character.Effects.GetPendingActionBonusesForSlot(slot), "AMP_MOD");
             }
             sum += SumBonusValuesOfType(character.Effects.PeekPendingActionBonusesNextHeroRoll(), "AMP_MOD");
-            sum += SumBonusValuesOfType(character.Effects.PeekAttackBonuses(), "AMP_MOD");
-            sum += SumBonusValuesOfType(character.Effects.PeekAbilityBonuses(), "AMP_MOD");
+            sum += SumBonusValuesOfType(character.Effects.PeekTurnBonuses(), "AMP_MOD");
             return sum;
         }
 

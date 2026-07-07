@@ -54,6 +54,26 @@ namespace RPGGame.UI.Avalonia.Layout
         public int DefaultMinRollToHit { get; }
     }
 
+    public readonly struct ThresholdShiftParts
+    {
+        public PendingThresholdHudShifts Pending { get; init; }
+        public int TechHitSteps { get; init; }
+        public int TechComboSteps { get; init; }
+        public int TechCritSteps { get; init; }
+        public int NaiveteHitSteps { get; init; }
+        public int EqHit { get; init; }
+        public int EqCombo { get; init; }
+        public int EqCrit { get; init; }
+        public int DungeonHit { get; init; }
+        public int DungeonCombo { get; init; }
+        public int DungeonCrit { get; init; }
+        public int DungeonCritMiss { get; init; }
+        public int HitRowShift { get; init; }
+        public int ComboRowShift { get; init; }
+        public int CritRowShift { get; init; }
+        public int CritMissRowShift { get; init; }
+    }
+
     public static class DiceRollThresholdResolver
     {
         public static DiceRollThresholdSnapshot Resolve(Actor actor)
@@ -68,6 +88,39 @@ namespace RPGGame.UI.Avalonia.Layout
             int defaultCombo = config.RollSystem.ComboThreshold.Min > 0 ? config.RollSystem.ComboThreshold.Min : 14;
             int defaultCrit = config.Combat.CriticalHitThreshold > 0 ? config.Combat.CriticalHitThreshold : 20;
 
+            var parts = ResolveShiftParts(actor, hit, combo, crit);
+
+            int effectiveCrit = ResolveEffectiveThreshold(crit, parts.CritRowShift);
+            int effectiveCombo = ResolveEffectiveThreshold(combo, parts.ComboRowShift);
+            int effectiveHit = ResolveEffectiveThreshold(hit + 1, parts.HitRowShift);
+            int effectiveCritMiss = ResolveEffectiveThreshold(critMiss, parts.CritMissRowShift);
+
+            return new DiceRollThresholdSnapshot(
+                crit,
+                combo,
+                hit,
+                critMiss,
+                defaultCrit,
+                defaultCombo,
+                defaultHit,
+                effectiveCrit,
+                effectiveCombo,
+                effectiveHit,
+                effectiveCritMiss);
+        }
+
+        public static ThresholdShiftParts ResolveShiftParts(Actor actor)
+        {
+            var tm = RollModificationManager.GetThresholdManager();
+            return ResolveShiftParts(
+                actor,
+                tm.GetHitThreshold(actor),
+                tm.GetComboThreshold(actor),
+                tm.GetCriticalHitThreshold(actor));
+        }
+
+        private static ThresholdShiftParts ResolveShiftParts(Actor actor, int hit, int combo, int crit)
+        {
             var pendingHud = actor is Character chHud ? ActionSelector.PeekPendingThresholdHudShifts(chHud) : default;
             var techMilestoneSteps = actor is Character chTec
                 ? TechniqueMilestoneThresholdBonuses.GetSteps(chTec.GetEffectiveTechnique())
@@ -96,23 +149,25 @@ namespace RPGGame.UI.Avalonia.Layout
             // Crit-miss potions store the same delta passed to AdjustCriticalMissThreshold (add, not subtract).
             int critMissRowShift = -pendingHud.CritMissDelta - dungeonCritMiss;
 
-            int effectiveCrit = ResolveEffectiveThreshold(crit, critRowShift);
-            int effectiveCombo = ResolveEffectiveThreshold(combo, comboRowShift);
-            int effectiveHit = ResolveEffectiveThreshold(hit + 1, hitRowShift);
-            int effectiveCritMiss = ResolveEffectiveThreshold(critMiss, critMissRowShift);
-
-            return new DiceRollThresholdSnapshot(
-                crit,
-                combo,
-                hit,
-                critMiss,
-                defaultCrit,
-                defaultCombo,
-                defaultHit,
-                effectiveCrit,
-                effectiveCombo,
-                effectiveHit,
-                effectiveCritMiss);
+            return new ThresholdShiftParts
+            {
+                Pending = pendingHud,
+                TechHitSteps = techMilestoneSteps.HitSteps,
+                TechComboSteps = techMilestoneSteps.ComboSteps,
+                TechCritSteps = techMilestoneSteps.CritSteps,
+                NaiveteHitSteps = naiveteHitSteps,
+                EqHit = eqHit,
+                EqCombo = eqCombo,
+                EqCrit = eqCrit,
+                DungeonHit = dungeonHit,
+                DungeonCombo = dungeonCombo,
+                DungeonCrit = dungeonCrit,
+                DungeonCritMiss = dungeonCritMiss,
+                HitRowShift = hitRowShift,
+                ComboRowShift = comboRowShift,
+                CritRowShift = critRowShift,
+                CritMissRowShift = critMissRowShift
+            };
         }
 
         private static int ResolveEffectiveThreshold(int baseThreshold, int rowAccuracy)

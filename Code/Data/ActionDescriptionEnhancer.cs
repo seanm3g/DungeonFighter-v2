@@ -51,6 +51,18 @@ namespace RPGGame
             {
                 modifiers.Add("Causes Poison");
             }
+
+            if (data.CausesFortify)
+            {
+                modifiers.Add(data.FortifyArmorPerStack > 1
+                    ? $"Fortify +{data.FortifyArmorPerStack} armor"
+                    : "Fortify");
+            }
+
+            if (data.MaxHealthIncrease > 0)
+            {
+                modifiers.Add($"Max Health +{data.MaxHealthIncrease}");
+            }
             
             // Add multi-hit information
             if (data.MultiHitCount > 1)

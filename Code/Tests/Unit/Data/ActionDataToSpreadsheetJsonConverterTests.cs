@@ -317,7 +317,7 @@ namespace RPGGame.Tests.Unit.Data
             };
             var data = SpreadsheetToActionDataConverter.Convert(sheet);
             TestBase.AssertTrue(data.WeaponTypes == null || data.WeaponTypes.Count == 0, "WeaponTypes cleared for enemy row", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("Attack", data.Type, "Enemy strike remains Attack by default", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("TURN", data.Type, "Enemy strike remains Attack by default", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

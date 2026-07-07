@@ -131,6 +131,7 @@ namespace RPGGame.Data
                 var data = json.ToSpreadsheetActionData();
                 if (!data.IsValid())
                     continue;
+                ActionMechanicsSheetSync.SyncRow(data);
                 var cells = SpreadsheetActionDataSheetRowSerializer.ToRow(data, header);
                 bodyRows.Add(cells.Select(c => SheetsPushUtilities.NormalizeCellValueForUpload(c)).ToList());
             }

@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit
             TestVulnerabilityEffect();
             TestHardenEffect();
             TestFocusEffect();
+            TestFortifyEffect();
             TestExposeEffect();
             TestHPRegenEffect();
             TestArmorBreakEffect();
@@ -123,7 +124,7 @@ namespace RPGGame.Tests.Unit
             {
                 var handler = new EffectHandlerRegistry().GetHandler("fortify")!;
                 var target = new Character("Test", 1);
-                var action = new Action { Name = "Test Action" };
+                var action = new Action { Name = "Test Action", CausesFortify = true };
                 var results = new System.Collections.Generic.List<string>();
                 
                 int initialStacks = target.FortifyStacks ?? 0;

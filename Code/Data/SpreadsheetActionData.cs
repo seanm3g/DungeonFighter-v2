@@ -43,6 +43,9 @@ namespace RPGGame.Data
         
         /// <summary>STATUS EFFECT / CADENCE — keyword (ACTION / ATTACK / ABILITY / FIGHT / DUNGEON).</summary>
         public string Cadence { get; set; } = "";
+
+        /// <summary>Declarative comma-separated mechanic IDs (MECHANICS band). Auto-filled on push; validated on pull.</summary>
+        public string Mechanics { get; set; } = "";
         
         /// <summary>Legacy JSON alias for <see cref="Duration"/> when round-tripping old Actions.json rows.</summary>
         public string CadenceApplicationCount { get; set; } = "";
@@ -168,6 +171,7 @@ namespace RPGGame.Data
 
         /// <summary>JSON-serialized list of <see cref="ChainPositionBonusEntry"/> for chain-position scaling.</summary>
         public string ChainPositionBonusesJson { get; set; } = "";
+        public string ActionAttackBonusesJson { get; set; } = "";
 
         // Threshold columns
         public string ThresholdCategory { get; set; } = "";

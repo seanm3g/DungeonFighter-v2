@@ -158,7 +158,7 @@ namespace RPGGame.Actions.Execution
                 clearModCharacter.Effects.ClearConsumedModifierBonuses();
             if (source is Character nextAttackStatCharacter && !(nextAttackStatCharacter is Enemy))
             {
-                var (nextBonus, nextStatType, nextDuration) = nextAttackStatCharacter.Effects.ConsumeNextAttackStatBonus();
+                var (nextBonus, nextStatType, nextDuration) = nextAttackStatCharacter.Effects.ConsumeNextTurnStatBonus();
                 if (nextBonus == 0 || string.IsNullOrEmpty(nextStatType)) return;
                 string statType = nextStatType!.ToUpper();
                 if (!DynamicAttributeCategoryResolver.IsStatOrDynamicCategoryType(statType))

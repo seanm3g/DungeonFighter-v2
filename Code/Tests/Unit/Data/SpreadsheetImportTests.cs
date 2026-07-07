@@ -40,6 +40,8 @@ namespace RPGGame.Tests.Unit.Data
             TestMultiDiceRollMapperLuckUnluck();
             TestGameMechanicsCompatibility();
             SpreadsheetDurationSemanticsTests.RunAll();
+            ActionMechanicsRegistryTests.RunAll();
+            ActionMechanicsCadenceMatrixTests.RunAll();
 
             TestBase.PrintSummary("Spreadsheet Import Tests", _testsRun, _testsPassed, _testsFailed);
         }

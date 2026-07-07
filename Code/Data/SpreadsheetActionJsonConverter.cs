@@ -32,6 +32,7 @@ namespace RPGGame.Data
             action.Speed = GetStringValue(root, "speed");
             action.Duration = GetStringValue(root, "duration");
             action.Cadence = GetStringValue(root, "cadence");
+            action.Mechanics = GetStringValue(root, "mechanics");
             action.CadenceDuration = GetStringValue(root, "cadenceDuration");
             action.Opener = GetStringValue(root, "opener");
             action.Finisher = GetStringValue(root, "finisher");
@@ -111,6 +112,7 @@ namespace RPGGame.Data
             action.ThresholdsJson = GetStringValue(root, "thresholdsJson");
             action.AccumulationsJson = GetStringValue(root, "accumulationsJson");
             action.ChainPositionBonusesJson = GetStringValue(root, "chainPositionBonusesJson");
+            action.ActionAttackBonusesJson = GetStringValue(root, "actionAttackBonusesJson");
             action.ThresholdCategory = GetStringValue(root, "thresholdCategory");
             action.ThresholdAmount = GetStringValue(root, "thresholdAmount");
             action.Bonus = GetStringValue(root, "bonus");
@@ -152,6 +154,7 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "speed", value.Speed);
             WriteIfNotEmpty(writer, "duration", value.Duration);
             WriteIfNotEmpty(writer, "cadence", value.Cadence);
+            WriteIfNotEmpty(writer, "mechanics", value.Mechanics);
             WriteIfNotEmpty(writer, "cadenceDuration", value.CadenceDuration);
             WriteIfNotEmpty(writer, "opener", value.Opener);
             WriteIfNotEmpty(writer, "finisher", value.Finisher);
@@ -231,6 +234,7 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "thresholdsJson", value.ThresholdsJson);
             WriteIfNotEmpty(writer, "accumulationsJson", value.AccumulationsJson);
             WriteIfNotEmpty(writer, "chainPositionBonusesJson", value.ChainPositionBonusesJson);
+            WriteIfNotEmpty(writer, "actionAttackBonusesJson", value.ActionAttackBonusesJson);
             WriteIfNotEmpty(writer, "thresholdCategory", value.ThresholdCategory);
             WriteIfNotEmpty(writer, "thresholdAmount", value.ThresholdAmount);
             WriteIfNotEmpty(writer, "bonus", value.Bonus);

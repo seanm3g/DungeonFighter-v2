@@ -68,7 +68,7 @@ namespace RPGGame
 
         /// <summary>
         /// Builds display lines for active action/attack modifiers during combat.
-        /// Examples: "Next Action 2: +3 COMBO, 2x DMG", "Next 3 Attacks: +1 HIT", "STR +1 (Enemy)".
+        /// Examples: "Next Action 2: +3 COMBO, 2x DMG", "Next 3 turns: +1 HIT".
         /// </summary>
         /// <param name="character">Current player character (combat actor).</param>
         /// <returns>Lines describing active modifiers; empty if none.</returns>
@@ -79,7 +79,7 @@ namespace RPGGame
 
             var lines = new List<string>();
 
-            // Pending ACTION bonuses for the next hero attack roll (combo-step-independent); FIFO layers
+            // Pending ACTION additive bank for the next hit+combo redeem
             var nextRollBonuses = character.Effects.PeekPendingActionBonusesNextHeroRoll();
             int layerCount = character.Effects.GetPendingActionCadenceLayerCount();
             if (nextRollBonuses.Count > 0)
@@ -87,7 +87,7 @@ namespace RPGGame
                 string nextRollDesc = FormatBonusItemsShort(nextRollBonuses);
                 if (!string.IsNullOrEmpty(nextRollDesc))
                 {
-                    string prefix = layerCount > 1 ? $"Next roll ({layerCount}): " : "Next roll: ";
+                    string prefix = layerCount > 1 ? $"Next action (x{layerCount} stacked): " : "Next action: ";
                     lines.Add(prefix + nextRollDesc);
                 }
             }
@@ -102,24 +102,14 @@ namespace RPGGame
                 lines.Add($"Next Action {displaySlot}: {desc}");
             }
 
-            // ATTACK cadence bonuses (e.g. "Next 3 Attacks: +1 HIT")
-            foreach (var group in character.Effects.AttackBonuses ?? new List<ActionAttackBonusGroup>())
+            // TURN cadence bonuses (e.g. "Next 3 turns: +1 HIT")
+            foreach (var group in character.Effects.TurnBonuses ?? new List<ActionAttackBonusGroup>())
             {
                 if (group.Bonuses == null || group.Bonuses.Count == 0) continue;
                 string desc = FormatBonusItemsShort(group.Bonuses);
                 if (string.IsNullOrEmpty(desc)) continue;
-                string label = group.Count > 1 ? $"Next {group.Count} Attacks" : "Next Attack";
+                string label = group.Count > 1 ? $"Next {group.Count} turns" : "Next turn";
                 lines.Add($"{label}: {desc}");
-            }
-
-            // ABILITY cadence bonuses (e.g. "STR +1 (Enemy)")
-            foreach (var group in character.Effects.AbilityBonuses ?? new List<ActionAttackBonusGroup>())
-            {
-                if (group.Bonuses == null || group.Bonuses.Count == 0) continue;
-                string desc = FormatBonusItemsShort(group.Bonuses);
-                if (string.IsNullOrEmpty(desc)) continue;
-                string scope = string.IsNullOrEmpty(group.DurationType) ? "" : $" ({group.DurationType})";
-                lines.Add($"{desc}{scope}");
             }
 
             return lines;

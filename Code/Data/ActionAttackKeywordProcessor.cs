@@ -5,105 +5,48 @@ using System.Linq;
 namespace RPGGame.Data
 {
     /// <summary>
-    /// Processes ABILITY/ACTION keywords from spreadsheet data and generates bonus structures.
-    /// ABILITY = bonuses consumed on successful ability use; ACTION = bonuses consumed per attack roll.
+    /// Processes TURN/ACTION cadence keywords from spreadsheet data and generates bonus structures.
+    /// TURN = bonuses consumed per roll; ACTION = bonuses queued as FIFO combo layers.
     /// </summary>
     public static class ActionAttackKeywordProcessor
     {
         /// <summary>
-        /// Processes a SpreadsheetActionData and extracts ABILITY/ACTION bonuses
+        /// Processes a SpreadsheetActionData and extracts TURN/ACTION bonuses
         /// </summary>
         public static ActionAttackBonuses ProcessBonuses(SpreadsheetActionData spreadsheetData)
         {
             var bonuses = new ActionAttackBonuses();
             
-            // Get action name once
-            string actionName = spreadsheetData.Action?.Trim() ?? "";
-            
             if (string.IsNullOrWhiteSpace(spreadsheetData.Cadence))
             {
-                return bonuses; // No keyword bonuses
+                return bonuses;
             }
             
-            string cadence = spreadsheetData.Cadence.Trim().ToUpper();
+            string cadence = CadenceKeywords.NormalizeFromRow(spreadsheetData.Cadence, spreadsheetData);
             int duration = SpreadsheetDurationSemantics.ResolveCadenceDuration(spreadsheetData);
-            // Default duration for ABILITY or ACTION keyword
-            if (duration == 0 && (cadence == "ABILITY" || cadence == "ABILITIES" || cadence == "ACTION" || cadence == "ACTIONS" || cadence == "ATTACK" || cadence == "ATTACKS"))
+            if (duration == 0 && CadenceKeywords.IsKeywordCadence(cadence))
             {
-                duration = 1; // Default to 1 if not specified
+                duration = 1;
             }
             
-            // CadenceType: ACTION = slot-based (next action in combo); ATTACK = roll-based (next roll); ABILITY = consumed on hit
             string keyword = "";
             string cadenceType = "";
-            if (cadence == "ABILITY" || cadence == "ABILITIES")
+            if (CadenceKeywords.IsAction(cadence))
             {
-                keyword = "ABILITY";
-                cadenceType = "ABILITY";
+                keyword = CadenceKeywords.Action;
+                cadenceType = CadenceKeywords.Action;
             }
-            else if (cadence == "ACTION" || cadence == "ACTIONS")
+            else if (CadenceKeywords.IsTurn(cadence))
             {
-                keyword = "ACTION";
-                cadenceType = "ACTION";
-            }
-            else if (cadence == "ATTACK" || cadence == "ATTACKS")
-            {
-                keyword = "ATTACK";
-                cadenceType = "ATTACK";
+                keyword = CadenceKeywords.Turn;
+                cadenceType = CadenceKeywords.Turn;
             }
             else
             {
-                // Other duration types (FIGHT, DUNGEON, CHAIN, COMBO) - handle separately
                 return ProcessSpecialDurationBonuses(spreadsheetData, cadence);
             }
             
-            // Collect all bonuses
-            var bonusItems = new List<ActionAttackBonusItem>();
-            
-            // Roll-based bonuses
-            // Check Hero columns first
-            AddBonusIfPresent(bonusItems, "ACCURACY", spreadsheetData.HeroAccuracy);
-            AddBonusIfPresent(bonusItems, "HIT", spreadsheetData.HeroHit);
-            AddBonusIfPresent(bonusItems, "COMBO", spreadsheetData.HeroCombo);
-            AddBonusIfPresent(bonusItems, "CRIT", spreadsheetData.HeroCrit);
-            
-            // Fallback: If Hero columns are empty but Enemy columns have values, map them to Hero bonuses
-            // Some CSV exports may have bonus values in Enemy columns that should be Hero bonuses
-            // Common pattern: single value in Enemy ACCUARCY column (index 16) should be Hero HIT bonus
-            if (bonusItems.Count == 0)
-            {
-                // Check if any Enemy bonus columns have values
-                // Map Enemy ACCUARCY -> Hero HIT (most common case based on CSV structure)
-                if (!string.IsNullOrWhiteSpace(spreadsheetData.EnemyAccuracy))
-                {
-                    AddBonusIfPresent(bonusItems, "HIT", spreadsheetData.EnemyAccuracy);
-                }
-                // Also check other Enemy columns
-                if (!string.IsNullOrWhiteSpace(spreadsheetData.EnemyHit))
-                {
-                    AddBonusIfPresent(bonusItems, "COMBO", spreadsheetData.EnemyHit);
-                }
-                if (!string.IsNullOrWhiteSpace(spreadsheetData.EnemyCombo))
-                {
-                    AddBonusIfPresent(bonusItems, "CRIT", spreadsheetData.EnemyCombo);
-                }
-                if (!string.IsNullOrWhiteSpace(spreadsheetData.EnemyCrit))
-                {
-                    AddBonusIfPresent(bonusItems, "ACCURACY", spreadsheetData.EnemyCrit);
-                }
-            }
-            
-            // Stat bonuses
-            AddBonusIfPresent(bonusItems, "STR", spreadsheetData.HeroSTR);
-            AddBonusIfPresent(bonusItems, "AGI", spreadsheetData.HeroAGI);
-            AddBonusIfPresent(bonusItems, "TECH", spreadsheetData.HeroTECH);
-            AddBonusIfPresent(bonusItems, "INT", spreadsheetData.HeroINT);
-            
-            // Modifier bonuses: hero columns AJ–AM (HERO BASE STATS → SpeedMod, …) feed the same ACTION/ABILITY keyword group as roll bonuses.
-            if (ModifierParser.ParsePercent(spreadsheetData.SpeedMod) is { } sv) bonusItems.Add(new ActionAttackBonusItem { Type = "SPEED_MOD", Value = sv * 100.0 });
-            if (ModifierParser.ParsePercent(spreadsheetData.DamageMod) is { } dv) bonusItems.Add(new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = dv * 100.0 });
-            if (ModifierParser.ParseValue(spreadsheetData.MultiHitMod) is { } mv) bonusItems.Add(new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = mv });
-            if (ModifierParser.ParsePercent(spreadsheetData.AmpMod) is { } av) bonusItems.Add(new ActionAttackBonusItem { Type = "AMP_MOD", Value = av * 100.0 });
+            var bonusItems = CollectBonusItems(spreadsheetData);
             
             if (bonusItems.Count > 0)
             {
@@ -128,19 +71,7 @@ namespace RPGGame.Data
         private static ActionAttackBonuses ProcessSpecialDurationBonuses(SpreadsheetActionData spreadsheetData, string durationType)
         {
             var bonuses = new ActionAttackBonuses();
-            
-            // For special durations, we might need to apply bonuses differently
-            // For now, treat them as ACTION bonuses with special duration type
-            var bonusItems = new List<ActionAttackBonusItem>();
-            
-            AddBonusIfPresent(bonusItems, "ACCURACY", spreadsheetData.HeroAccuracy);
-            AddBonusIfPresent(bonusItems, "HIT", spreadsheetData.HeroHit);
-            AddBonusIfPresent(bonusItems, "COMBO", spreadsheetData.HeroCombo);
-            AddBonusIfPresent(bonusItems, "CRIT", spreadsheetData.HeroCrit);
-            AddBonusIfPresent(bonusItems, "STR", spreadsheetData.HeroSTR);
-            AddBonusIfPresent(bonusItems, "AGI", spreadsheetData.HeroAGI);
-            AddBonusIfPresent(bonusItems, "TECH", spreadsheetData.HeroTECH);
-            AddBonusIfPresent(bonusItems, "INT", spreadsheetData.HeroINT);
+            var bonusItems = CollectBonusItems(spreadsheetData);
             
             if (bonusItems.Count > 0)
             {
@@ -149,8 +80,8 @@ namespace RPGGame.Data
                 
                 var group = new ActionAttackBonusGroup
                 {
-                    Keyword = "ABILITY",
-                    CadenceType = "ABILITY", // Default for special durations (FIGHT, DUNGEON, etc.)
+                    Keyword = CadenceKeywords.Turn,
+                    CadenceType = CadenceKeywords.Turn,
                     Count = duration,
                     Bonuses = bonusItems,
                     DurationType = durationType
@@ -161,10 +92,41 @@ namespace RPGGame.Data
             
             return bonuses;
         }
+
+        private static List<ActionAttackBonusItem> CollectBonusItems(SpreadsheetActionData spreadsheetData)
+        {
+            var bonusItems = new List<ActionAttackBonusItem>();
+            
+            AddBonusIfPresent(bonusItems, "ACCURACY", spreadsheetData.HeroAccuracy);
+            AddBonusIfPresent(bonusItems, "HIT", spreadsheetData.HeroHit);
+            AddBonusIfPresent(bonusItems, "COMBO", spreadsheetData.HeroCombo);
+            AddBonusIfPresent(bonusItems, "CRIT", spreadsheetData.HeroCrit);
+            
+            if (bonusItems.Count == 0)
+            {
+                if (!string.IsNullOrWhiteSpace(spreadsheetData.EnemyAccuracy))
+                    AddBonusIfPresent(bonusItems, "HIT", spreadsheetData.EnemyAccuracy);
+                if (!string.IsNullOrWhiteSpace(spreadsheetData.EnemyHit))
+                    AddBonusIfPresent(bonusItems, "COMBO", spreadsheetData.EnemyHit);
+                if (!string.IsNullOrWhiteSpace(spreadsheetData.EnemyCombo))
+                    AddBonusIfPresent(bonusItems, "CRIT", spreadsheetData.EnemyCombo);
+                if (!string.IsNullOrWhiteSpace(spreadsheetData.EnemyCrit))
+                    AddBonusIfPresent(bonusItems, "ACCURACY", spreadsheetData.EnemyCrit);
+            }
+            
+            AddBonusIfPresent(bonusItems, "STR", spreadsheetData.HeroSTR);
+            AddBonusIfPresent(bonusItems, "AGI", spreadsheetData.HeroAGI);
+            AddBonusIfPresent(bonusItems, "TECH", spreadsheetData.HeroTECH);
+            AddBonusIfPresent(bonusItems, "INT", spreadsheetData.HeroINT);
+            
+            if (ModifierParser.ParsePercent(spreadsheetData.SpeedMod) is { } sv) bonusItems.Add(new ActionAttackBonusItem { Type = "SPEED_MOD", Value = sv * 100.0 });
+            if (ModifierParser.ParsePercent(spreadsheetData.DamageMod) is { } dv) bonusItems.Add(new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = dv * 100.0 });
+            if (ModifierParser.ParseValue(spreadsheetData.MultiHitMod) is { } mv) bonusItems.Add(new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = mv });
+            if (ModifierParser.ParsePercent(spreadsheetData.AmpMod) is { } av) bonusItems.Add(new ActionAttackBonusItem { Type = "AMP_MOD", Value = av * 100.0 });
+
+            return bonusItems;
+        }
         
-        /// <summary>
-        /// Adds a bonus item if the value is present and non-zero
-        /// </summary>
         private static void AddBonusIfPresent(List<ActionAttackBonusItem> bonuses, string type, string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -181,9 +143,6 @@ namespace RPGGame.Data
             }
         }
         
-        /// <summary>
-        /// Generates a human-readable keyword string for display
-        /// </summary>
         public static string GenerateKeywordString(ActionAttackBonuses bonuses)
         {
             if (bonuses.BonusGroups.Count == 0)
@@ -193,10 +152,9 @@ namespace RPGGame.Data
             
             foreach (var group in bonuses.BonusGroups)
             {
-                var cadence = string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType;
-                var keywordText = group.Count > 1
-                    ? group.Count + " " + (cadence == "ABILITY" ? "ABILITIES" : cadence == "ATTACK" ? "ATTACKS" : "ACTIONS")
-                    : "the Next " + cadence;
+                var cadence = CadenceKeywords.NormalizeCadenceType(
+                    string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType);
+                var keywordText = CadenceKeywords.GetPluralDurationPhrase(cadence, group.Count);
                 
                 var bonusStrings = group.Bonuses.Select(b => 
                 {

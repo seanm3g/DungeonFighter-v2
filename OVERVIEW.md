@@ -69,7 +69,7 @@ The Avalonia combat log should support direct mouse copying: right-click inside 
 
 ### Combat — TECH logarithmic AMP curve
 
-Base combo AMP uses the designer logarithmic formula **`AMP = 1 + 0.5 * log10(TECH + 1)`**, where **TECH** is effective Technique and the result is the per-step combo multiplier. Combo slot scaling still raises that base multiplier by strip position: first slot 1.00×, second slot the TECH baseline multiplier, then higher powers for later slots.
+Base combo AMP uses effective **TECH** on a slow early power ramp, then a short linear finish to the cap (defaults: **1.00×** at TECH 0, **~1.20×** at 20, **~1.44×** at 50, **1.98×** at 99, **2.00×** at 110). Combo slot scaling still raises that base multiplier by strip position: first slot 1.00×, second slot the TECH baseline multiplier, then higher powers for later slots.
 
 ### UI - inventory item list scroll
 

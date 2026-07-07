@@ -134,7 +134,7 @@ namespace RPGGame.Tests.Unit.UI
                 "BuildPanelData: positive chain accuracy yields AccuracyRollBonus > 0 for action strip card",
                 ref run, ref passed, ref failed);
 
-            // BuildPanelData: FIFO ACTION layers preview on upcoming combo slots (not only current ComboStep)
+            // BuildPanelData: additive ACTION bank previews on the current combo step only
             var charThreeAction = CreateCharacterWithThreeComboActions();
             charThreeAction.ComboStep = 1;
             charThreeAction.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = 25 } });
@@ -142,8 +142,11 @@ namespace RPGGame.Tests.Unit.UI
             var fifoPanels = CombatActionStripBuilder.BuildPanelData(charThreeAction);
             TestBase.AssertTrue(fifoPanels != null && fifoPanels.Count >= 3
                 && fifoPanels[1].DamageModified > fifoPanels[1].DamageBase
-                && fifoPanels[2].DamageModified > fifoPanels[2].DamageBase,
-                "BuildPanelData: two FIFO layers at ComboStep 1 buff slots 1 and 2",
+                && Math.Abs(fifoPanels[1].DamageModified - fifoPanels[1].DamageBase * 1.5) < 0.01,
+                "BuildPanelData: two +25% deposits stack to +50% on current combo step slot",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(Math.Abs(fifoPanels[2].DamageModified - fifoPanels[2].DamageBase) < 0.01,
+                "BuildPanelData: later combo slot not previewed until it becomes current step",
                 ref run, ref passed, ref failed);
 
             // BuildActiveModifierLines
@@ -160,8 +163,8 @@ namespace RPGGame.Tests.Unit.UI
             var charWithBonuses = new Character("Test", 1);
             charWithBonuses.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 3 } });
             var modLines = CombatActionStripBuilder.BuildActiveModifierLines(charWithBonuses);
-            TestBase.AssertTrue(modLines != null && modLines.Count >= 1 && modLines[0].Contains("Next roll:") && modLines[0].Contains("COMBO"),
-                "BuildActiveModifierLines shows pending ACTION bonus as next roll",
+            TestBase.AssertTrue(modLines != null && modLines.Count >= 1 && modLines[0].Contains("Next action:") && modLines[0].Contains("COMBO"),
+                "BuildActiveModifierLines shows pending ACTION bank as next action",
                 ref run, ref passed, ref failed);
 
             // BuildActionTooltipLines + word wrap (hover tooltip content)
@@ -279,10 +282,12 @@ namespace RPGGame.Tests.Unit.UI
             var richAction = charMechanical.GetComboActions()[0];
             string summaryMechanical = CombatActionStripBuilder.BuildActionMechanicalModSummary(charMechanical, richAction, 0);
             TestBase.AssertTrue(
-                summaryMechanical.Contains("ACTION x2: +1 ACC, +20% DMG", StringComparison.Ordinal)
+                summaryMechanical.Contains("ACTION (2x)", StringComparison.Ordinal)
+                && summaryMechanical.Contains("ACC +1", StringComparison.Ordinal)
+                && summaryMechanical.Contains("DAMAGE +20%", StringComparison.Ordinal)
                 && summaryMechanical.Contains("Hero thresholds H:-1 C:+2 Cr:-1 Cm:+1", StringComparison.Ordinal)
                 && summaryMechanical.Contains("Enemy thresholds H:+1 C:-2 Cr:+3 Cm:-1", StringComparison.Ordinal),
-                "BuildActionMechanicalModSummary includes action-bonus and hero/enemy threshold mechanics",
+                "BuildActionMechanicalModSummary includes two-line cadence bonus format",
                 ref run, ref passed, ref failed);
 
             var wrap = CombatActionStripBuilder.WrapTextToLines("hello world wide", 5);
@@ -310,7 +315,7 @@ namespace RPGGame.Tests.Unit.UI
 
             // ATTACK cadence: sheet hero accuracy is in roll total — omit duplicate Hero accuracy line
             var nowAcc = TestDataBuilders.CreateMockAction("NowAcc", ActionType.Attack);
-            nowAcc.Cadence = "ATTACK";
+            nowAcc.Cadence = "TURN";
             nowAcc.Advanced.RollBonus = 2;
             var nowTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(nowAcc, 2, 80, 8);
             string nowJoined = string.Join(" ", nowTail);
@@ -320,7 +325,7 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
 
             var statTailAction = TestDataBuilders.CreateMockAction("BuffSwing", ActionType.Attack);
-            statTailAction.Cadence = "ATTACK";
+            statTailAction.Cadence = "TURN";
             statTailAction.Advanced.StatBonuses = new List<StatBonusEntry>
             {
                 new StatBonusEntry { Type = "STR", Value = 1 },
@@ -334,7 +339,7 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
 
             var abilityTailAction = TestDataBuilders.CreateMockAction("CadenceMix", ActionType.Attack);
-            abilityTailAction.Cadence = "ATTACK";
+            abilityTailAction.Cadence = "TURN";
             abilityTailAction.ActionAttackBonuses = new ActionAttackBonuses();
             abilityTailAction.ActionAttackBonuses.BonusGroups.Add(new ActionAttackBonusGroup
             {
@@ -350,8 +355,10 @@ namespace RPGGame.Tests.Unit.UI
             var abilityTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(abilityTailAction, 0, 80, 8);
             string abilityJoined = string.Join(" ", abilityTail);
             TestBase.AssertTrue(
-                !abilityJoined.Contains("Ability:", StringComparison.Ordinal) && abilityJoined.Contains("ACTION:", StringComparison.Ordinal),
-                "BuildActionStripModifierTailLines omits Ability cadence bonus groups but keeps other cadences",
+                !abilityJoined.Contains("Ability:", StringComparison.Ordinal)
+                && abilityJoined.Contains("ACTION (1x)", StringComparison.Ordinal)
+                && abilityJoined.Contains("ACC +2", StringComparison.Ordinal),
+                "BuildActionStripModifierTailLines uses two-line cadence format",
                 ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("CombatActionStripBuilder Tests", run, passed, failed);

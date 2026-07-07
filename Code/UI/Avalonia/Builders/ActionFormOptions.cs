@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using RPGGame.Data;
 
 namespace RPGGame.UI.Avalonia.Builders
 {
@@ -14,7 +15,7 @@ namespace RPGGame.UI.Avalonia.Builders
         public const string GeneralOption = "(general)";
 
         /// <summary>Canonical cadence values for strict list.</summary>
-        public static readonly string[] CanonicalCadences = { "Action", "Ability", "Chain", "Fight", "Dungeon" };
+        public static readonly string[] CanonicalCadences = { "Turn", "Action", "Chain", "Fight", "Dungeon" };
 
         /// <summary>Rarity dropdown options (item/action context).</summary>
         public static readonly string[] RarityDropdownOptions = { NoneOption, "Common", "Uncommon", "Rare", "Legendary" };
@@ -56,7 +57,7 @@ namespace RPGGame.UI.Avalonia.Builders
         public static readonly (string Label, string Type)[] AccumulationTypeOptions =
         {
             ("Actions passed", "CadenceAction"),
-            ("Abilities passed", "CadenceAbility"),
+            ("Turns passed", "CadenceTurn"),
             ("Chains passed", "CadenceChain"),
             ("Fights passed", "CadenceFight"),
             ("Dungeons passed", "CadenceDungeon"),
@@ -74,15 +75,21 @@ namespace RPGGame.UI.Avalonia.Builders
         /// <summary>Parameters that accumulations can modify.</summary>
         public static readonly string[] AccumulationModifiesOptions = { "Damage", "Max Health", "Heal", "Health Regen", "Strength", "Agility", "Technique", "Intelligence" };
 
-        /// <summary>Normalizes legacy cadence values to canonical.</summary>
+        /// <summary>Normalizes legacy cadence values to canonical Turn/Action.</summary>
         public static string NormalizeCadence(string? raw)
         {
             if (string.IsNullOrWhiteSpace(raw)) return "";
             var u = raw.Trim();
-            if (string.Equals(u, "Abilities", StringComparison.OrdinalIgnoreCase)) return "Ability";
-            if (string.Equals(u, "ACTIONS", StringComparison.OrdinalIgnoreCase) || string.Equals(u, "Actions", StringComparison.OrdinalIgnoreCase)) return "Action";
-            if (string.Equals(u, "COMBO", StringComparison.OrdinalIgnoreCase) || string.Equals(u, "Combo", StringComparison.OrdinalIgnoreCase)) return "Chain";
-            if (string.Equals(u, "ATTACK", StringComparison.OrdinalIgnoreCase) || string.Equals(u, "ATTACKS", StringComparison.OrdinalIgnoreCase)) return "Action";
+            if (string.Equals(u, "Abilities", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(u, "Ability", StringComparison.OrdinalIgnoreCase))
+                return "Action";
+            if (string.Equals(u, "ACTIONS", StringComparison.OrdinalIgnoreCase) || string.Equals(u, "Actions", StringComparison.OrdinalIgnoreCase))
+                return "Action";
+            if (string.Equals(u, "COMBO", StringComparison.OrdinalIgnoreCase) || string.Equals(u, "Combo", StringComparison.OrdinalIgnoreCase))
+                return "Chain";
+            if (string.Equals(u, "ATTACK", StringComparison.OrdinalIgnoreCase) || string.Equals(u, "ATTACKS", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(u, "TURN", StringComparison.OrdinalIgnoreCase) || string.Equals(u, "TURNS", StringComparison.OrdinalIgnoreCase))
+                return "Turn";
             var canonical = CanonicalCadences.FirstOrDefault(c => string.Equals(c, u, StringComparison.OrdinalIgnoreCase));
             return canonical ?? u;
         }

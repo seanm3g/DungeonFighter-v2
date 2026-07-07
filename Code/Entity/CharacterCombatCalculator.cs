@@ -18,13 +18,13 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets the base combo amplifier based on effective Intelligence stat
+        /// Gets the base combo amplifier based on effective Technique stat
         /// </summary>
         /// <returns>Base combo amplifier value</returns>
         public double GetComboAmplifier()
         {
             var tuning = GameConfiguration.Instance;
-            return ComboAmplifierFromIntelligence.Compute(character.GetEffectiveIntelligence(), tuning.ComboSystem);
+            return ComboAmplifierCurve.Compute(character.GetEffectiveTechnique(), tuning.ComboSystem);
         }
 
         /// <summary>

@@ -57,7 +57,7 @@ namespace RPGGame.Actions.Execution
             if (source is Character character && !(character is Enemy) && forcedAction == null)
                 result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
 
-            // Roll and threshold bonuses: ATTACK (consumed per roll), ACTION (FIFO peek; consumed on hit+combo), ABILITY (consumed on hit)
+            // Roll and threshold bonuses: TURN (consumed per roll), ACTION (additive bank peek; full bank redeemed on hit+combo)
             int actionBonusAccumulator = 0, actionBonusHit = 0, actionBonusCombo = 0, actionBonusCrit = 0, actionBonusCritMiss = 0;
             bool pendingAdvantage = false, pendingDisadvantage = false;
             if (source is Character actionBonusCharacter && !(actionBonusCharacter is Enemy))
@@ -96,12 +96,12 @@ namespace RPGGame.Actions.Execution
                     }
                     RollModificationManager.CollectAdvantageFlags(pendingActionRollBonuses, ref pendingAdvantage, ref pendingDisadvantage);
                 }
-                // 2. Consume ATTACK bonuses (roll-based; consumed per roll, apply only on hit for stat bonuses)
-                var actionBonuses = actionBonusCharacter.Effects.GetAndConsumeAttackBonuses();
-                RollModificationManager.ApplyDeferredThresholdPackageSetPhase(source, actionBonuses);
-                actionBonusCharacter.Effects.AccumulateConsumedModifierBonuses(actionBonuses);
-                actionBonusCharacter.Effects.SetConsumedAttackBonusesThisRoll(actionBonuses);
-                foreach (var bonus in actionBonuses)
+                // 2. Consume TURN bonuses (roll-based; consumed per roll, apply only on hit for stat bonuses)
+                var turnBonuses = actionBonusCharacter.Effects.GetAndConsumeTurnBonuses();
+                RollModificationManager.ApplyDeferredThresholdPackageSetPhase(source, turnBonuses);
+                actionBonusCharacter.Effects.AccumulateConsumedModifierBonuses(turnBonuses);
+                actionBonusCharacter.Effects.SetConsumedTurnBonusesThisRoll(turnBonuses);
+                foreach (var bonus in turnBonuses)
                 {
                     switch (bonus.Type.ToUpper())
                     {
@@ -112,22 +112,7 @@ namespace RPGGame.Actions.Execution
                         case "CRIT_MISS": actionBonusCritMiss += (int)bonus.Value; break;
                     }
                 }
-                RollModificationManager.CollectAdvantageFlags(actionBonuses, ref pendingAdvantage, ref pendingDisadvantage);
-                // Apply ability-queued roll/threshold bonuses to this roll (consumed on hit in ApplyHitOutcome).
-                var abilityBonusesPeek = actionBonusCharacter.Effects.PeekAbilityBonuses();
-                RollModificationManager.ApplyDeferredThresholdPackageSetPhase(source, abilityBonusesPeek);
-                foreach (var bonus in abilityBonusesPeek)
-                {
-                    switch (bonus.Type.ToUpper())
-                    {
-                        case "ACCURACY": actionBonusAccumulator += (int)bonus.Value; break;
-                        case "HIT": actionBonusHit += (int)bonus.Value; break;
-                        case "COMBO": actionBonusCombo += (int)bonus.Value; break;
-                        case "CRIT": actionBonusCrit += (int)bonus.Value; break;
-                        case "CRIT_MISS": actionBonusCritMiss += (int)bonus.Value; break;
-                    }
-                }
-                RollModificationManager.CollectAdvantageFlags(abilityBonusesPeek, ref pendingAdvantage, ref pendingDisadvantage);
+                RollModificationManager.CollectAdvantageFlags(turnBonuses, ref pendingAdvantage, ref pendingDisadvantage);
             }
             else if (source is Enemy enemyAttacker)
             {
@@ -163,13 +148,13 @@ namespace RPGGame.Actions.Execution
             RollModificationManager.ApplyThresholdOverrides(result.SelectedAction, source, target);
             ActionRollTagProcessor.ApplyRollTags(result.SelectedAction, source);
             EnvironmentRollModifier.ApplyUnstableThresholdShift(CombatEnvironmentContext.CurrentRoom, source);
-            // FIFO / ATTACK / ABILITY ACCURACY: shift hit and combo thresholds only (not crit or crit miss).
+            // FIFO / TURN ACCURACY: shift hit and combo thresholds only (not crit or crit miss).
             if (actionBonusAccumulator != 0)
             {
                 thresholdManager.AdjustHitThreshold(source, actionBonusAccumulator);
                 thresholdManager.AdjustComboThreshold(source, actionBonusAccumulator);
             }
-            // Pending queue + ABILITY peek: SET_* deferred overrides first, then deltas (crit miss â†’ crit â†’ combo â†’ hit).
+            // Pending queue: SET_* deferred overrides first, then deltas (crit miss → crit → combo → hit).
             if (actionBonusCritMiss != 0 && source is Character cmBonusCharacter)
                 thresholdManager.AdjustCriticalMissThreshold(cmBonusCharacter, actionBonusCritMiss);
             if (actionBonusCrit != 0 && source is Character critBonusCharacter)
@@ -209,7 +194,7 @@ namespace RPGGame.Actions.Execution
             result.IsCritical = critThresholdRoll >= thresholdManager.GetCriticalHitThreshold(source);
             ActionEventPublisher.PublishActionExecuted(source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical);
             result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
-            // Sheet accuracy + threshold adjustments (and deferred overrides when not ATTACK cadence) queue for the next application.
+            // Sheet accuracy + threshold adjustments (and deferred overrides when not TURN cadence) queue for the next application.
             RollModificationManager.EnqueueDeferredRollModThresholdAdjustmentsForNextRoll(result.SelectedAction, source, target);
         }
     }

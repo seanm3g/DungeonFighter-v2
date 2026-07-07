@@ -72,7 +72,7 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(ampLines.Any(l => l.Contains("Scaling:", StringComparison.Ordinal) && l.Contains("Combo 4", StringComparison.Ordinal)),
                 "AMP tooltip scaling example through combo 4",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(ampLines.Any(l => l.Contains("INT (feeds AMP)", StringComparison.Ordinal)),
+            TestBase.AssertTrue(ampLines.Any(l => l.Contains("TECH (feeds AMP)", StringComparison.Ordinal)),
                 "AMP tooltip TECH section",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(ampLines.Any(l => l.Contains("Slot 1", StringComparison.Ordinal) && l.Contains('×')),
@@ -138,6 +138,20 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(heroHp.Any(l => l.Contains("HP", StringComparison.Ordinal)),
                 "hero hp tooltip",
                 ref run, ref passed, ref failed);
+
+            var hitTip = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "thresh:hit", 80, 30);
+            TestBase.AssertTrue(hitTip.Any(l => l.Contains("Modifications:", StringComparison.Ordinal)),
+                "hit threshold tooltip lists modifications section",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(hitTip.Any(l => l.Contains("Panel:", StringComparison.Ordinal) && l.Contains("min roll to hit", StringComparison.Ordinal)),
+                "hit threshold tooltip shows panel line",
+                ref run, ref passed, ref failed);
+            if (NaiveteBalanceHelper.GetHitSteps(c) > 0)
+            {
+                TestBase.AssertTrue(hitTip.Any(l => l.Contains("Naiveté", StringComparison.OrdinalIgnoreCase)),
+                    "hit threshold tooltip names naiveté when active",
+                    ref run, ref passed, ref failed);
+            }
 
             TestBase.PrintSummary("LeftPanelTooltipBuilder Tests", run, passed, failed);
         }

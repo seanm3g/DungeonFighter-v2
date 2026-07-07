@@ -102,7 +102,13 @@ namespace RPGGame.Utils
         public const double ATTACK_SPEED_BASE = 1.0;
         public const double COMBO_AMPLIFIER_BASE = 1.01;
         public const double COMBO_AMPLIFIER_MAX = 2.0;
-        public const int COMBO_AMPLIFIER_MAX_TECH = 20;
+        public const int COMBO_AMPLIFIER_MAX_TECH = 110;
+        /// <summary>TECH below max where AMP finishes the last linear step to <see cref="COMBO_AMPLIFIER_MAX"/>.</summary>
+        public const int COMBO_AMPLIFIER_KNEE_TECH_OFFSET = 11;
+        /// <summary>AMP at the knee TECH (max − offset); last segment ramps knee → max.</summary>
+        public const double COMBO_AMPLIFIER_KNEE_AMP_DELTA = 0.02;
+        /// <summary>Power exponent for the slow early/mid TECH AMP ramp (0 → knee).</summary>
+        public const double COMBO_AMPLIFIER_CURVE_EXPONENT = 1.1;
         
         // Status Effect Constants
         public const int MAX_STATUS_EFFECT_DURATION = 20;

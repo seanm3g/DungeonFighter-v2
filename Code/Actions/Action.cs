@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame.Actions.Parsing;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -71,6 +72,9 @@ namespace RPGGame
         public bool CausesConfusion { get; set; }
         public bool CausesMark { get; set; }
         public bool CausesDisrupt { get; set; }
+        public bool CausesFortify { get; set; }
+        /// <summary>Armor bonus per fortify stack; 0 with CausesFortify uses default 1.</summary>
+        public int FortifyArmorPerStack { get; set; }
         
         public bool IsComboAction { get; set; }
         public int ComboBonusAmount { get; set; }
@@ -233,17 +237,15 @@ namespace RPGGame
 
         /// <summary>
         /// Sheet accuracy (<see cref="AdvancedMechanicsProperties.RollBonus"/> / <see cref="AdvancedMechanicsProperties.EnemyRollBonus"/>)
-        /// is not added to the <em>current</em> attack total when cadence is blank (treated as deferred) or any value other than ATTACK.
-        /// Cadence ATTACK keeps accuracy on the current roll. When deferred, a successful hit queues hero temp accuracy for the hero's
-        /// next attack and, if <see cref="AdvancedMechanicsProperties.EnemyRollBonus"/> is negative, applies <see cref="Actor.ApplyRollPenalty"/>
-        /// to the target for their next attack roll(s) — see <c>ActionExecutionFlow.ApplyHitOutcome</c>.
+        /// is not added to the <em>current</em> attack total when cadence is blank (treated as deferred) or any value other than TURN.
+        /// Cadence TURN keeps accuracy on the current roll.
         /// </summary>
         public static bool DefersSheetCombatPackagesToNextHeroRoll(Action? action)
         {
             if (action == null) return false;
             var c = (action.Cadence ?? "").Trim();
             if (c.Length == 0) return true;
-            if (string.Equals(c, "ATTACK", StringComparison.OrdinalIgnoreCase)) return false;
+            if (CadenceKeywords.IsTurn(c)) return false;
             return true;
         }
 
@@ -255,8 +257,9 @@ namespace RPGGame
             if (action?.ActionAttackBonuses?.BonusGroups == null) return false;
             foreach (var group in action.ActionAttackBonuses.BonusGroups)
             {
-                var ct = string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType;
-                if (string.Equals(ct, "ACTION", StringComparison.OrdinalIgnoreCase))
+                var ct = CadenceKeywords.NormalizeCadenceType(
+                    string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType);
+                if (CadenceKeywords.IsAction(ct))
                     return true;
             }
             return false;

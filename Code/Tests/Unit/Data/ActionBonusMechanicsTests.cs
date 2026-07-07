@@ -14,7 +14,7 @@ namespace RPGGame.Tests.Unit.Data
 {
     /// <summary>
     /// Tests for the action bonus system (ACTION/ATTACK cadence).
-    /// Verifies: "For next ACTION" vs "For next ATTACK", success vs failure behavior, and full sequence flows.
+    /// Verifies: "For next ACTION" vs "For Next turn", success vs failure behavior, and full sequence flows.
     /// </summary>
     public static class ActionBonusMechanicsTests
     {
@@ -26,8 +26,8 @@ namespace RPGGame.Tests.Unit.Data
         {
             Console.WriteLine("=== Action Bonus Mechanics Tests ===\n");
             Console.WriteLine("Cadence types:");
-            Console.WriteLine("  - For next ACTION: Buffs queue when source action hit+combos. Clipped to remaining combo slots. Consumed only when receiving action hit+combos.");
-            Console.WriteLine("  - For next ATTACK: Buffs apply to the next roll. Consumed on every roll. Stat bonuses (STR/AGI/etc) apply ONLY on hit.\n");
+            Console.WriteLine("  - For next ACTION: Buffs bank when source action hit+combos. Duration stacks additively. Full bank redeems on the next hit+combo. Cleared when the room ends.");
+            Console.WriteLine("  - For Next turn: Buffs apply to the next roll. Consumed on every roll. Stat bonuses (STR/AGI/etc) apply ONLY on hit.\n");
 
             _testsRun = 0;
             _testsPassed = 0;
@@ -41,7 +41,8 @@ namespace RPGGame.Tests.Unit.Data
 
             TestActionBonusAddLogic_Deterministic();
             TestActionCadenceComboThresholdDoesNotPersistAcrossRolls();
-            TestActionCadenceDurationIsFifoLayersPerHeroRoll();
+            TestActionCadenceAdditiveBankMergesDeposits();
+            TestActionCadenceBankClearsOnRoomEnd();
             TestActionGrantRequiresCombo();
             TestActionBonusClipAtFinisher();
             TestActionBonusClipMidCombo();
@@ -218,7 +219,7 @@ namespace RPGGame.Tests.Unit.Data
         }
 
         /// <summary>
-        /// ACTION cadence +COMBO to threshold applies to one roll only; the next attack must not keep an easier combo threshold.
+        /// ACTION cadence +COMBO to threshold applies to one roll only; the Next turn must not keep an easier combo threshold.
         /// Uses attack total = comboMin - 1: with default threshold it is not a combo; with a one-shot -3 it is; third swing must revert.
         /// </summary>
         private static void TestActionCadenceComboThresholdDoesNotPersistAcrossRolls()
@@ -276,34 +277,58 @@ namespace RPGGame.Tests.Unit.Data
         }
 
         /// <summary>
-        /// Duration N queues N FIFO layers; each hero attack roll consumes at most one layer (enemy turns do not).
+        /// ACTION cadence deposits merge additively; one redeem clears the full bank.
         /// </summary>
-        private static void TestActionCadenceDurationIsFifoLayersPerHeroRoll()
+        private static void TestActionCadenceAdditiveBankMergesDeposits()
         {
-            Console.WriteLine("--- ACTION cadence duration: FIFO layers (one per hero roll) ---\n");
+            Console.WriteLine("--- ACTION cadence: additive bank (multiple deposits, one redeem) ---\n");
 
             var character = TestDataBuilders.Character().WithName("TestHero").Build();
-            var oneLayer = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 2 } };
+            var oneDeposit = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 2 } };
             for (int i = 0; i < 3; i++)
-                character.Effects.AddPendingActionBonusesNextHeroRoll(oneLayer);
+                character.Effects.AddPendingActionBonusesNextHeroRoll(oneDeposit);
 
             TestBase.AssertEqual(3, character.Effects.GetPendingActionCadenceLayerCount(),
-                "Three enqueues -> three layers",
+                "Three deposits increment stack count",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            var a = character.Effects.ConsumePendingActionBonusesNextHeroRoll();
-            TestBase.AssertTrue(a.Count > 0 && a[0].Type == "COMBO" && Math.Abs(a[0].Value - 2) < 0.01,
-                "First consume returns first layer",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(2, character.Effects.GetPendingActionCadenceLayerCount(),
-                "After one consume -> two layers remain",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            _ = character.Effects.ConsumePendingActionBonusesNextHeroRoll();
-            _ = character.Effects.ConsumePendingActionBonusesNextHeroRoll();
-            TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
-                "After three consumes -> empty",
+            var peeked = character.Effects.PeekPendingActionBonusesNextHeroRoll();
+            TestBase.AssertTrue(peeked.Count == 1 && peeked[0].Type == "COMBO" && Math.Abs(peeked[0].Value - 6) < 0.01,
+                "Three +2 COMBO deposits merge to +6 COMBO",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            Console.WriteLine("  OK: duration stacks as separate per-roll layers.\n");
+            var redeemed = character.Effects.ConsumePendingActionBonusesNextHeroRoll();
+            TestBase.AssertTrue(redeemed.Count == 1 && Math.Abs(redeemed[0].Value - 6) < 0.01,
+                "Redeem returns full merged bank",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
+                "After redeem bank is empty",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            Console.WriteLine("  OK: deposits stack additively; one redeem clears the bank.\n");
+        }
+
+        private static void TestActionCadenceBankClearsOnRoomEnd()
+        {
+            Console.WriteLine("--- ACTION cadence: bank clears when room ends (ClearAllTempEffects) ---\n");
+
+            var character = TestDataBuilders.Character().WithName("TestHero").Build();
+            character.Effects.AccumulatePendingActionCadenceBank(new List<ActionAttackBonusItem>
+            {
+                new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = 25 }
+            }, 2);
+            TestBase.AssertTrue(character.Effects.HasPendingActionCadenceBank(),
+                "Bank has deposits before room end",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            character.Effects.ClearAllTempEffects();
+            TestBase.AssertFalse(character.Effects.HasPendingActionCadenceBank(),
+                "Bank cleared after room-end temp effect wipe",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
+                "Deposit count reset after room end",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            Console.WriteLine("  OK: ACTION bank decays on room end.\n");
         }
 
         private static void TestActionGrantRequiresCombo()
@@ -530,11 +555,11 @@ namespace RPGGame.Tests.Unit.Data
         }
 
         /// <summary>
-        /// 3-action combo [buff, mid, finisher]: ACTION x3 clipped to 2 remaining slots; both mid and finisher receive +DAMAGE_MOD on hit+combo.
+        /// 3-action combo [buff, mid, finisher]: ACTION x3 clipped to 2 deposits (+50% DAMAGE_MOD bank); mid redeems all.
         /// </summary>
         private static void TestThreeActionComboDamageModBuffsRemainingSlots()
         {
-            Console.WriteLine("\n--- ACTION x3: mid + finisher both receive DAMAGE_MOD ---\n");
+            Console.WriteLine("\n--- ACTION x3: additive bank redeems on first hit+combo (mid) ---\n");
 
             var lastUsed = new Dictionary<Actor, Action>();
             var lastCritMiss = new Dictionary<Actor, bool>();
@@ -559,9 +584,13 @@ namespace RPGGame.Tests.Unit.Data
                     "Buff action hit+combo grants FIFO layers",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(2, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "Count=3 clipped to 2 remaining combo slots after slot 0",
+                    "Count=3 clipped to 2 additive deposits after slot 0",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertTrue(character.Effects.PeekAttackBonuses().Count == 0,
+                var bankPeek = character.Effects.PeekPendingActionBonusesNextHeroRoll();
+                TestBase.AssertTrue(bankPeek.Any(b => b.Type == "DAMAGE_MOD" && Math.Abs(b.Value - 50) < 0.01),
+                    "Two +25% deposits merge to +50% DAMAGE_MOD in bank",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(character.Effects.PeekTurnBonuses().Count == 0,
                     "ACTION cadence must not duplicate DAMAGE_MOD into ATTACK queue",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
@@ -571,10 +600,10 @@ namespace RPGGame.Tests.Unit.Data
                 ActionSelector.SetStoredActionRoll(character, comboRoll);
                 var r2 = ActionExecutionFlow.Execute(character, enemy, null, null, mid, null, lastUsed, lastCritMiss);
                 TestBase.AssertTrue(r2.Hit && r2.IsCombo,
-                    "Mid action hit+combo consumes first FIFO layer",
+                    "Mid action hit+combo redeems full bank",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(1, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "One FIFO layer remains for finisher",
+                TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "Bank empty after mid redeems",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 int midDamage = hpBeforeMid - enemy.CurrentHealth;
                 TestBase.AssertTrue(midDamage > 0, "Mid action dealt damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -585,26 +614,35 @@ namespace RPGGame.Tests.Unit.Data
                 ActionSelector.SetStoredActionRoll(character, comboRoll);
                 var r3 = ActionExecutionFlow.Execute(character, enemy, null, null, finisher, null, lastUsed, lastCritMiss);
                 TestBase.AssertTrue(r3.Hit && r3.IsCombo,
-                    "Finisher hit+combo consumes second FIFO layer",
+                    "Finisher hit+combo after bank already redeemed",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "All FIFO layers consumed after finisher",
+                    "Bank still empty after finisher",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 int finisherDamage = hpBeforeFinisher - enemy.CurrentHealth;
                 TestBase.AssertTrue(finisherDamage > 0, "Finisher dealt damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-                // Baseline finisher without buff should deal less than buffed finisher (same roll).
                 var baseline = CreateThreeActionComboWithDamageModBuff(count: 3, damageModPercent: 25);
-                baseline.ComboStep = 2;
                 var baselineEnemy = new Enemy("TestEnemy", 1, 500, 5, 5, 5, 5);
+                baseline.ComboStep = 1;
+                int hpBeforeBaselineMid = baselineEnemy.CurrentHealth;
                 Dice.SetTestRoll(comboRoll);
                 ActionSelector.SetStoredActionRoll(baseline, comboRoll);
-                int hpBeforeBaseline = baselineEnemy.CurrentHealth;
-                var rBase = ActionExecutionFlow.Execute(baseline, baselineEnemy, null, null, baseline.GetComboActions()[2], null, lastUsed, lastCritMiss);
-                TestBase.AssertTrue(rBase.Hit, "Baseline finisher hits", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                int baselineDamage = hpBeforeBaseline - baselineEnemy.CurrentHealth;
-                TestBase.AssertTrue(finisherDamage > baselineDamage,
-                    "Buffed finisher deals more damage than unbuffed finisher (+25% DAMAGE_MOD)",
+                _ = ActionExecutionFlow.Execute(baseline, baselineEnemy, null, null, mid, null, lastUsed, lastCritMiss);
+                int baselineMidDamage = hpBeforeBaselineMid - baselineEnemy.CurrentHealth;
+                TestBase.AssertTrue(midDamage > baselineMidDamage,
+                    "Mid with +50% bank deals more than unbuffed mid (+25% x2 deposits)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                baseline.ComboStep = 2;
+                int hpBeforeBaselineFin = baselineEnemy.CurrentHealth;
+                Dice.SetTestRoll(comboRoll);
+                ActionSelector.SetStoredActionRoll(baseline, comboRoll);
+                var rBaseFin = ActionExecutionFlow.Execute(baseline, baselineEnemy, null, null, finisher, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(rBaseFin.Hit, "Baseline finisher hits", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                int baselineFinDamage = hpBeforeBaselineFin - baselineEnemy.CurrentHealth;
+                TestBase.AssertTrue(Math.Abs(finisherDamage - baselineFinDamage) < 0.01,
+                    "Finisher deals normal damage after bank was spent on mid",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
@@ -641,7 +679,11 @@ namespace RPGGame.Tests.Unit.Data
                     "ACTION BONUS hit+combo",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(2, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "ComboBonusDuration=2 should queue two FIFO layers even when bonus group Count=3",
+                    "ComboBonusDuration=2 should add two additive deposits even when bonus group Count=3",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                var bank = character.Effects.PeekPendingActionBonusesNextHeroRoll();
+                TestBase.AssertTrue(bank.Any(b => b.Type == "DAMAGE_MOD" && Math.Abs(b.Value - 50) < 0.01),
+                    "Duration 2 merges to +50% DAMAGE_MOD in bank",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(2, ActionCadenceDurationResolver.GetDisplayCount(buff, buff.ActionAttackBonuses!.BonusGroups[0]),
                     "Display count should follow ComboBonusDuration",
@@ -669,8 +711,8 @@ namespace RPGGame.Tests.Unit.Data
             }
 
             var data = ActionLoader.GetActionData("ACTION BONUS");
-            TestBase.AssertTrue(data != null && data.ComboBonusDuration == 2,
-                "ACTION BONUS loader data should have cadence duration 2",
+            TestBase.AssertTrue(data != null && data.ComboBonusDuration == 3,
+                "ACTION BONUS loader data should have cadence duration 3",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var lastUsed = new Dictionary<Actor, Action>();
@@ -682,7 +724,7 @@ namespace RPGGame.Tests.Unit.Data
             try
             {
                 ActionSelector.ClearStoredRolls();
-                var character = BuildFourActionLabComboWithStaleStripBonus(staleGroupCount: 3);
+                var character = BuildFourActionLabComboWithStaleStripBonus(staleGroupCount: 5);
                 var forced = ActionLoader.GetAction("ACTION BONUS");
                 TestBase.AssertNotNull(forced, "Forced lab action resolves", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
@@ -690,8 +732,8 @@ namespace RPGGame.Tests.Unit.Data
                 ActionSelector.SetStoredActionRoll(character, comboRoll);
                 var result = ActionExecutionFlow.Execute(character, new Enemy("T", 1, 500, 5, 5, 5, 5), null, null, forced, null, lastUsed, lastCritMiss);
                 TestBase.AssertTrue(result.Hit && result.IsCombo, "ACTION BONUS hit+combo", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(2, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "Forced GetAction should queue two FIFO layers (not stale strip Count=3)",
+                TestBase.AssertEqual(3, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "Forced GetAction should add three additive deposits from loader duration (not stale strip Count=5)",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
@@ -841,14 +883,14 @@ namespace RPGGame.Tests.Unit.Data
 
         #endregion
 
-        #region For Next ATTACK: Success vs Failure
+        #region For Next turn: Success vs Failure
 
         /// <summary>
-        /// For next ATTACK: When the roll HITS, stat bonuses (STR, AGI, etc) ARE applied.
+        /// For Next turn: When the roll HITS, stat bonuses (STR, AGI, etc) ARE applied.
         /// </summary>
         private static void TestForNextAttack_OnSuccess()
         {
-            Console.WriteLine("\n--- For next ATTACK: On SUCCESS (hit) ---");
+            Console.WriteLine("\n--- For Next turn: On SUCCESS (hit) ---");
             Console.WriteLine("  ATTACK bonuses are consumed on every roll. Stat bonuses (STR/AGI) apply ONLY when we HIT.\n");
 
             var lastUsed = new Dictionary<Actor, Action>();
@@ -865,7 +907,7 @@ namespace RPGGame.Tests.Unit.Data
                     {
                         new ActionAttackBonusGroup
                         {
-                            CadenceType = "ATTACK",
+                            CadenceType = "TURN",
                             Count = 1,
                             Bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "STR", Value = 5 } }
                         }
@@ -888,7 +930,7 @@ namespace RPGGame.Tests.Unit.Data
             }
 
             TestBase.AssertTrue(verified >= 1,
-                "For next ATTACK on hit: stat bonus applied",
+                "For Next turn on hit: stat bonus applied",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -897,7 +939,7 @@ namespace RPGGame.Tests.Unit.Data
         /// </summary>
         private static void TestForNextAttack_OnHit_AppliesPrimaryCategoryBonus()
         {
-            Console.WriteLine("\n--- For next ATTACK: PRIMARY category on SUCCESS ---");
+            Console.WriteLine("\n--- For Next turn: PRIMARY category on SUCCESS ---");
 
             var lastUsed = new Dictionary<Actor, Action>();
             var lastCritMiss = new Dictionary<Actor, bool>();
@@ -917,7 +959,7 @@ namespace RPGGame.Tests.Unit.Data
                     {
                         new ActionAttackBonusGroup
                         {
-                            CadenceType = "ATTACK",
+                            CadenceType = "TURN",
                             Count = 1,
                             Bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "PRIMARY", Value = 5 } }
                         }
@@ -939,16 +981,16 @@ namespace RPGGame.Tests.Unit.Data
             }
 
             TestBase.AssertTrue(verified >= 1,
-                "For next ATTACK PRIMARY on hit: resolved to primary attribute",
+                "For Next turn PRIMARY on hit: resolved to primary attribute",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         /// <summary>
-        /// For next ATTACK: When the roll MISSES, stat bonuses are consumed but NOT applied.
+        /// For Next turn: When the roll MISSES, stat bonuses are consumed but NOT applied.
         /// </summary>
         private static void TestForNextAttack_OnFailure()
         {
-            Console.WriteLine("\n--- For next ATTACK: On FAILURE (miss) ---");
+            Console.WriteLine("\n--- For Next turn: On FAILURE (miss) ---");
             Console.WriteLine("  ATTACK bonuses are consumed on every roll. When we MISS, stat bonuses are wasted (not applied).\n");
 
             var lastUsed = new Dictionary<Actor, Action>();
@@ -965,7 +1007,7 @@ namespace RPGGame.Tests.Unit.Data
                     {
                         new ActionAttackBonusGroup
                         {
-                            CadenceType = "ATTACK",
+                            CadenceType = "TURN",
                             Count = 1,
                             Bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "STR", Value = 5 } }
                         }
@@ -982,7 +1024,7 @@ namespace RPGGame.Tests.Unit.Data
                     TestBase.AssertTrue(character.Stats.TempStrengthBonus == 0,
                         "ATTACK on MISS: STR bonus NOT applied (consumed but wasted)",
                         ref _testsRun, ref _testsPassed, ref _testsFailed);
-                    TestBase.AssertTrue(character.Effects.PeekAttackBonuses().Count == 0,
+                    TestBase.AssertTrue(character.Effects.PeekTurnBonuses().Count == 0,
                         "ATTACK bonus consumed even on miss",
                         ref _testsRun, ref _testsPassed, ref _testsFailed);
                     Console.WriteLine($"  Verified: Roll missed -> TempStrengthBonus = 0, bonus consumed.\n");
@@ -991,7 +1033,7 @@ namespace RPGGame.Tests.Unit.Data
             }
 
             TestBase.AssertTrue(verified >= 1,
-                "For next ATTACK on miss: stat bonus not applied",
+                "For Next turn on miss: stat bonus not applied",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -1017,11 +1059,11 @@ namespace RPGGame.Tests.Unit.Data
             {
                 BonusGroups = new List<ActionAttackBonusGroup>
                 {
-                    new ActionAttackBonusGroup { CadenceType = "ATTACK", Count = 1, Bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "HIT", Value = 2 } } }
+                    new ActionAttackBonusGroup { CadenceType = "TURN", Count = 1, Bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "HIT", Value = 2 } } }
                 }
             });
-            var attackConsumed = character.Effects.GetAndConsumeAttackBonuses();
-            TestBase.AssertTrue(attackConsumed.Count > 0 && character.Effects.PeekAttackBonuses().Count == 0,
+            var attackConsumed = character.Effects.GetAndConsumeTurnBonuses();
+            TestBase.AssertTrue(attackConsumed.Count > 0 && character.Effects.PeekTurnBonuses().Count == 0,
                 "ATTACK bonuses: consume clears queue",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
@@ -1029,8 +1071,8 @@ namespace RPGGame.Tests.Unit.Data
             character.Effects.ClearAllTempEffects();
             character.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 3 } });
             var lines = CombatActionStripBuilder.BuildActiveModifierLines(character);
-            TestBase.AssertTrue(lines != null && lines.Count >= 1 && lines[0].Contains("Next roll:") && lines[0].Contains("COMBO"),
-                "Display: BuildActiveModifierLines shows 'Next roll: ... COMBO'",
+            TestBase.AssertTrue(lines != null && lines.Count >= 1 && lines[0].Contains("Next action:") && lines[0].Contains("COMBO"),
+                "Display: BuildActiveModifierLines shows 'Next action: ... COMBO'",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Clear on combo change
@@ -1140,7 +1182,7 @@ namespace RPGGame.Tests.Unit.Data
                 foreach (var group in action.ActionAttackBonuses!.BonusGroups)
                 {
                     var ct = group.CadenceType ?? group.Keyword ?? "";
-                    if (ct != "ACTION" && ct != "ATTACK") continue;
+                    if (ct != "ACTION" && ct != "TURN") continue;
 
                     string desc = ActionAttackKeywordProcessor.GenerateKeywordString(
                         new ActionAttackBonuses { BonusGroups = new List<ActionAttackBonusGroup> { group } });
@@ -1154,14 +1196,14 @@ namespace RPGGame.Tests.Unit.Data
                     {
                         if (group.Bonuses != null && group.Bonuses.Count > 0)
                         {
-                            for (int i = 0; i < group.Count; i++)
-                                character.Effects.AddPendingActionBonusesNextHeroRoll(group.Bonuses);
+                            int stacks = group.Count > 0 ? group.Count : 1;
+                            character.Effects.AccumulatePendingActionCadenceBank(group.Bonuses, stacks);
                             var pending = character.Effects.PeekPendingActionBonusesNextHeroRoll();
-                            bool ok = pending.Count >= group.Bonuses.Count;
+                            bool ok = pending.Count >= 1;
                             foreach (var b in group.Bonuses)
-                                ok = ok && pending.Any(p => p.Type == b.Type && Math.Abs(p.Value - b.Value) < 0.01);
+                                ok = ok && pending.Any(p => p.Type == b.Type && Math.Abs(p.Value - b.Value * stacks) < 0.01);
                             TestBase.AssertTrue(ok,
-                                $"{action.Name} ACTION: bonuses stored for next hero roll",
+                                $"{action.Name} ACTION: bonuses stored additively for next hero roll",
                                 ref _testsRun, ref _testsPassed, ref _testsFailed);
                             if (ok) actionPassed++;
                         }
@@ -1169,7 +1211,7 @@ namespace RPGGame.Tests.Unit.Data
                     else // ATTACK
                     {
                         character.Effects.AddActionAttackBonuses(new ActionAttackBonuses { BonusGroups = new List<ActionAttackBonusGroup> { group } });
-                        var peeked = character.Effects.PeekAttackBonuses();
+                        var peeked = character.Effects.PeekTurnBonuses();
                         bool ok = peeked.Count >= (group.Bonuses?.Count ?? 0);
                         if (group.Bonuses != null)
                             foreach (var b in group.Bonuses)
@@ -1221,7 +1263,7 @@ namespace RPGGame.Tests.Unit.Data
                 foreach (var group in action.ActionAttackBonuses!.BonusGroups)
                 {
                     var ct = group.CadenceType ?? "";
-                    if (ct == "ACTION" || ct == "ATTACK" || ct == "ABILITY") valid++;
+                    if (ct == "ACTION" || ct == "TURN") valid++;
                 }
             }
 
@@ -1370,7 +1412,7 @@ namespace RPGGame.Tests.Unit.Data
             var adrenalSurge = TestDataBuilders.CreateMockAction("AdrenalSurge", ActionType.Attack);
             adrenalSurge.IsComboAction = true;
             adrenalSurge.ComboOrder = 1;
-            adrenalSurge.Cadence = "Ability";
+            adrenalSurge.Cadence = "Action";
             adrenalSurge.SpeedMod = "20";
             var rage = TestDataBuilders.CreateMockAction("Rage", ActionType.Attack);
             rage.IsComboAction = true;

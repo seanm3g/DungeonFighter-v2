@@ -36,21 +36,19 @@ namespace RPGGame
         public double ComboAmplifierMultiplier { get => _state.ComboAmplifierMultiplier; set => _state.ComboAmplifierMultiplier = value; }
         public int ComboAmplifierTurns { get => _state.ComboAmplifierTurns; set => _state.ComboAmplifierTurns = value; }
 
-        // Next attack
-        public double NextAttackDamageMultiplier { get => _state.NextAttackDamageMultiplier; set => _state.NextAttackDamageMultiplier = value; }
-        public int NextAttackStatBonus { get => _state.NextAttackStatBonus; set => _state.NextAttackStatBonus = value; }
-        public string NextAttackStatBonusType { get => _state.NextAttackStatBonusType; set => _state.NextAttackStatBonusType = value; }
-        public int NextAttackStatBonusDuration { get => _state.NextAttackStatBonusDuration; set => _state.NextAttackStatBonusDuration = value; }
+        // Next turn (legacy one-shot)
+        public double NextTurnDamageMultiplier { get => _state.NextTurnDamageMultiplier; set => _state.NextTurnDamageMultiplier = value; }
+        public int NextTurnStatBonus { get => _state.NextTurnStatBonus; set => _state.NextTurnStatBonus = value; }
+        public string NextTurnStatBonusType { get => _state.NextTurnStatBonusType; set => _state.NextTurnStatBonusType = value; }
+        public int NextTurnStatBonusDuration { get => _state.NextTurnStatBonusDuration; set => _state.NextTurnStatBonusDuration = value; }
 
         // Reroll
         public int RerollCharges { get => _state.RerollCharges; set => _state.RerollCharges = value; }
         public bool UsedRerollThisTurn { get => _state.UsedRerollThisTurn; set => _state.UsedRerollThisTurn = value; }
         public int RerollChargesUsed { get => _state.RerollChargesUsed; set => _state.RerollChargesUsed = value; }
 
-        // Action bonuses
-        public List<ActionAttackBonusGroup> AbilityBonuses => _state.AbilityBonuses;
-        public List<ActionAttackBonusGroup> AttackBonuses => _state.AttackBonuses;
-        public List<ActionAttackBonusGroup> ActionBonuses => _state.AttackBonuses; // Backward compat
+        // Cadence bonuses (TURN / ACTION)
+        public List<ActionAttackBonusGroup> TurnBonuses => _state.TurnBonuses;
         public double ConsumedDamageModPercent { get => _state.ConsumedDamageModPercent; set => _state.ConsumedDamageModPercent = value; }
         public double ConsumedSpeedModPercent { get => _state.ConsumedSpeedModPercent; set => _state.ConsumedSpeedModPercent = value; }
         public double ConsumedMultiHitMod { get => _state.ConsumedMultiHitMod; set => _state.ConsumedMultiHitMod = value; }
@@ -76,8 +74,8 @@ namespace RPGGame
         public void SetTempRollBonus(int bonus, int turns) => _state.SetTempRollBonus(bonus, turns);
         public int GetTempRollBonus() => _state.GetTempRollBonus();
         public int ConsumeTempRollBonus() => _state.ConsumeTempRollBonus();
-        public double ConsumeNextAttackDamageMultiplier() => _state.ConsumeNextAttackDamageMultiplier();
-        public (int bonus, string statType, int duration) ConsumeNextAttackStatBonus() => _state.ConsumeNextAttackStatBonus();
+        public double ConsumeNextTurnDamageMultiplier() => _state.ConsumeNextTurnDamageMultiplier();
+        public (int bonus, string statType, int duration) ConsumeNextTurnStatBonus() => _state.ConsumeNextTurnStatBonus();
         public void ActivateComboMode() => _state.ActivateComboMode();
         public void DeactivateComboMode() => _state.DeactivateComboMode();
         public void ResetCombo() => _state.ResetCombo();
@@ -89,7 +87,7 @@ namespace RPGGame
         {
             _state.ClearRollAndShield();
             _state.ClearCombo();
-            _state.ClearNextAttack();
+            _state.ClearNextTurn();
             _state.ClearReroll();
             _state.ClearActionBonus();
             ExtraDamage = 0;
@@ -99,29 +97,27 @@ namespace RPGGame
             GuaranteeNextSuccess = false;
         }
 
-        public void AddActionAttackBonuses(ActionAttackBonuses? bonuses) => _state.AddActionAttackBonuses(bonuses);
+        public void AddActionAttackBonuses(ActionAttackBonuses? bonuses, Action? sourceAction = null) => _state.AddActionAttackBonuses(bonuses, sourceAction);
         public void ClearConsumedModifierBonuses() => _state.ClearConsumedModifierBonuses();
         public void AccumulateConsumedModifierBonuses(List<ActionAttackBonusItem> bonuses) => _state.AccumulateConsumedModifierBonuses(bonuses);
-        public void AddModifierBonusesFromAction(Action? action, int? nextSlotForAbilityCadence = null, bool useEnemySpreadsheetMods = false) => _state.AddModifierBonusesFromAction(action, nextSlotForAbilityCadence, useEnemySpreadsheetMods);
-        public List<ActionAttackBonusItem> GetAndConsumeAbilityBonuses(bool actionSucceeded) => _state.GetAndConsumeAbilityBonuses(actionSucceeded);
-        public List<ActionAttackBonusItem> GetAndConsumeActionBonuses() => _state.GetAndConsumeActionBonuses();
-        public List<ActionAttackBonusItem> GetAndConsumeAttackBonuses() => _state.GetAndConsumeAttackBonuses();
-        public List<ActionAttackBonusItem> PeekAbilityBonuses() => _state.PeekAbilityBonuses();
-        public List<ActionAttackBonusItem> PeekActionBonuses() => _state.PeekActionBonuses();
-        public List<ActionAttackBonusItem> PeekAttackBonuses() => _state.PeekAttackBonuses();
+        public void AddModifierBonusesFromAction(Action? action, int? nextComboSlot = null, bool useEnemySpreadsheetMods = false) => _state.AddModifierBonusesFromAction(action, nextComboSlot, useEnemySpreadsheetMods);
+        public List<ActionAttackBonusItem> GetAndConsumeTurnBonuses() => _state.GetAndConsumeTurnBonuses();
+        public List<ActionAttackBonusItem> PeekTurnBonuses() => _state.PeekTurnBonuses();
         public void AddPendingActionBonuses(int slot, List<ActionAttackBonusItem> bonuses) => _state.AddPendingActionBonuses(slot, bonuses);
         public List<ActionAttackBonusItem> ConsumePendingActionBonusesForSlot(int slot) => _state.ConsumePendingActionBonusesForSlot(slot);
         public List<ActionAttackBonusItem> GetPendingActionBonusesForSlot(int slot) => _state.GetPendingActionBonusesForSlot(slot);
         public IEnumerable<int> GetPendingActionBonusSlots() => _state.GetPendingActionBonusSlots();
         public void ClearPendingActionBonuses() => _state.ClearPendingActionBonuses();
         public void AddPendingActionBonusesNextHeroRoll(List<ActionAttackBonusItem>? bonuses) => _state.AddPendingActionBonusesNextHeroRoll(bonuses);
+        public void AccumulatePendingActionCadenceBank(List<ActionAttackBonusItem>? bonuses, int stackTimes = 1) => _state.AccumulatePendingActionCadenceBank(bonuses, stackTimes);
         public void EnqueuePendingActionCadenceLayer(List<ActionAttackBonusItem>? bonuses) => _state.EnqueuePendingActionCadenceLayer(bonuses);
+        public bool HasPendingActionCadenceBank() => _state.HasPendingActionCadenceBank();
         public int GetPendingActionCadenceLayerCount() => _state.GetPendingActionCadenceLayerCount();
         public List<ActionAttackBonusItem> PeekPendingActionBonusesNextHeroRoll() => _state.PeekPendingActionBonusesNextHeroRoll();
         public List<ActionAttackBonusItem> PeekPendingActionCadenceLayerAt(int layerIndex) => _state.PeekPendingActionCadenceLayerAt(layerIndex);
         public List<ActionAttackBonusItem> ConsumePendingActionBonusesNextHeroRoll() => _state.ConsumePendingActionBonusesNextHeroRoll();
-        public void SetConsumedAttackBonusesThisRoll(List<ActionAttackBonusItem> bonuses) => _state.SetConsumedAttackBonusesThisRoll(bonuses);
-        public List<ActionAttackBonusItem> GetAndClearConsumedAttackBonusesThisRoll() => _state.GetAndClearConsumedAttackBonusesThisRoll();
+        public void SetConsumedTurnBonusesThisRoll(List<ActionAttackBonusItem> bonuses) => _state.SetConsumedTurnBonusesThisRoll(bonuses);
+        public List<ActionAttackBonusItem> GetAndClearConsumedTurnBonusesThisRoll() => _state.GetAndClearConsumedTurnBonusesThisRoll();
         public bool UseReroll() => _state.UseReroll();
         public void ResetRerollUsage() => _state.ResetRerollUsage();
         public void ResetRerollCharges() => _state.ResetRerollCharges();

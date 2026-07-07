@@ -63,6 +63,8 @@ namespace RPGGame.Data
                     SpreadsheetHeaderAudit.PrintAudit(parseResult.Header);
                     SpreadsheetActionColumnUsage.PrintPullColumnUsageSummary(parseResult.Header);
                 }
+
+                ActionMechanicsSheetSync.ValidateAllAndWarn(spreadsheetActions);
                 
                 Console.WriteLine($"Converting to ActionData...");
                 var actionDataList = new List<ActionData>();

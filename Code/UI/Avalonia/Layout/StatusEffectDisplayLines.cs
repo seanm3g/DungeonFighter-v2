@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame;
 using RPGGame.Data;
 
@@ -21,7 +22,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (actor.IsStunned && actor.StunTurnsRemaining > 0)
                 lines.Add($"Stunned ({actor.StunTurnsRemaining} turn{(actor.StunTurnsRemaining != 1 ? "s" : "")})");
             if (actor.RollPenalty != 0 && actor.RollPenaltyTurns > 0)
-                lines.Add($"Accuracy -{actor.RollPenalty} ({actor.RollPenaltyTurns} atk{(actor.RollPenaltyTurns != 1 ? "s" : "")})");
+                lines.Add($"Accuracy -{actor.RollPenalty} {CadenceBonusDisplayFormatter.FormatTurnDurationSuffix(actor.RollPenaltyTurns)}");
             if (actor.PoisonPercentOfMaxHealth > 0)
                 lines.Add($"Poison {actor.PoisonPercentOfMaxHealth:0.##}% max HP");
             if (actor.BleedIntensity > 0 || actor.PendingBleedFromHits > 0)
@@ -61,16 +62,7 @@ namespace RPGGame.UI.Avalonia.Layout
             Character? charHud = asCharacter ?? actor as Character;
             if (charHud != null)
             {
-                // Single "Accuracy" line: FIFO ACCURACY bonuses for the next attack(s) plus any legacy temp roll bonus slot.
-                int accFromQueues = ActionSelector.PeekQueuedAccuracyBonus(charHud);
-                int accTemp = charHud.Effects.TempRollBonusTurns > 0 ? charHud.Effects.GetTempRollBonus() : 0;
-                int accTotal = accFromQueues + accTemp;
-                if (accTotal != 0)
-                {
-                    int accAttacks = CountRemainingAccuracyAttacks(charHud);
-                    string accDuration = FormatAttackDurationSuffix(accAttacks);
-                    lines.Add(accTotal > 0 ? $"Accuracy +{accTotal} {accDuration}" : $"Accuracy {accTotal} {accDuration}");
-                }
+                lines.AddRange(BuildTurnBonusStatusLines(charHud));
 
                 if (charHud.Effects.SlowTurns > 0)
                     lines.Add($"Slow ({charHud.Effects.SlowTurns} turn{(charHud.Effects.SlowTurns != 1 ? "s" : "")})");
@@ -90,67 +82,50 @@ namespace RPGGame.UI.Avalonia.Layout
             return lines;
         }
 
-        private static string FormatAttackDurationSuffix(int attacks) =>
-            $"({attacks} atk{(attacks != 1 ? "s" : "")})";
-
-        /// <summary>
-        /// Longest remaining hero attack-roll count among accuracy sources (ATTACK/ABILITY cadence, ACTION FIFO, temp roll bonus, slot pending).
-        /// </summary>
-        private static int CountRemainingAccuracyAttacks(Character c)
+        /// <summary>Per-group TURN bonus lines so stacking (e.g. TURN x3 from multiple sources) is visible.</summary>
+        internal static List<string> BuildTurnBonusStatusLines(Character c)
         {
-            int max = 0;
+            var lines = new List<string>();
+            bool hasTurnGroups = c.Effects.TurnBonuses.Any(g => g.Count > 0 && g.Bonuses?.Count > 0);
 
-            if (c.Effects.TempRollBonusTurns > 0 && c.Effects.GetTempRollBonus() != 0)
-                max = Math.Max(max, c.Effects.TempRollBonusTurns);
-
-            foreach (var group in c.Effects.AttackBonuses)
+            foreach (var group in c.Effects.TurnBonuses)
             {
-                if (group.Count > 0 && HasAccuracyBonus(group.Bonuses))
-                    max = Math.Max(max, group.Count);
+                if (group.Count <= 0 || group.Bonuses == null || group.Bonuses.Count == 0)
+                    continue;
+                string items = CadenceBonusDisplayFormatter.FormatBonusItemsShort(group.Bonuses);
+                if (string.IsNullOrEmpty(items))
+                    continue;
+                string suffix = CadenceBonusDisplayFormatter.FormatTurnDurationSuffix(group.Count);
+                if (group.Bonuses.Count == 1 && IsSingleAccuracyOnly(group.Bonuses))
+                    lines.Add($"Accuracy +{group.Bonuses[0].Value:0} {suffix}");
+                else
+                    lines.Add($"{CadenceKeywords.GetDisplayLabel(CadenceKeywords.Turn, group.Count)}: {items} {suffix}");
             }
 
-            foreach (var group in c.Effects.AbilityBonuses)
+            if (!hasTurnGroups)
             {
-                if (group.Count > 0 && HasAccuracyBonus(group.Bonuses))
-                    max = Math.Max(max, group.Count);
+                int accTemp = c.Effects.TempRollBonusTurns > 0 ? c.Effects.GetTempRollBonus() : 0;
+                if (accTemp != 0)
+                {
+                    string suffix = CadenceBonusDisplayFormatter.FormatTurnDurationSuffix(c.Effects.TempRollBonusTurns);
+                    lines.Add(accTemp > 0 ? $"Accuracy +{accTemp} {suffix}" : $"Accuracy {accTemp} {suffix}");
+                }
             }
 
-            if (HasAccuracyBonus(c.Effects.PeekPendingActionBonusesNextHeroRoll()))
-            {
-                int fifoLayers = c.Effects.GetPendingActionCadenceLayerCount();
-                if (fifoLayers > 0)
-                    max = Math.Max(max, fifoLayers);
-            }
-
-            var comboActions = c.GetComboActions();
-            if (comboActions != null && comboActions.Count > 0)
-            {
-                int currentSlot = c.ComboStep % comboActions.Count;
-                if (HasAccuracyBonus(c.Effects.GetPendingActionBonusesForSlot(currentSlot)))
-                    max = Math.Max(max, 1);
-            }
-
-            return Math.Max(max, 1);
+            return lines;
         }
 
-        private static bool HasAccuracyBonus(IEnumerable<ActionAttackBonusItem>? items)
+        private static bool IsSingleAccuracyOnly(List<ActionAttackBonusItem> bonuses)
         {
-            if (items == null)
-                return false;
-            foreach (var b in items)
-            {
-                if (string.Equals(ActionAttackBonusItem.NormalizeBonusType(b.Type), "ACCURACY", StringComparison.OrdinalIgnoreCase)
-                    && b.Value != 0)
-                    return true;
-            }
-            return false;
+            if (bonuses.Count != 1) return false;
+            return string.Equals(ActionAttackBonusItem.NormalizeBonusType(bonuses[0].Type), "ACCURACY", StringComparison.OrdinalIgnoreCase)
+                && bonuses[0].Value != 0;
         }
 
         /// <summary>
         /// Enemies with <see cref="Enemy.IsLiving"/> false (spreadsheet <c>isLiving</c> false: undead, elementals, etc.)
         /// do not take poison DoT or bleed damage — surface that in the status-effects HUD.
         /// </summary>
-        /// <returns>A single display line, or null when the enemy has no such template immunities.</returns>
         public static string? GetNonLivingEnemyImmunityLine(Enemy enemy)
         {
             if (enemy == null || enemy.IsLiving)

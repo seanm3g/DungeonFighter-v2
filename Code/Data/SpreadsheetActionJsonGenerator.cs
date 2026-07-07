@@ -52,6 +52,7 @@ namespace RPGGame.Data
                 {
                     if (!string.IsNullOrWhiteSpace(spreadsheet.Action))
                     {
+                        ActionMechanicsSheetSync.SyncRow(spreadsheet);
                         var json = SpreadsheetActionJson.FromSpreadsheetActionData(spreadsheet);
                         jsonList.Add(json);
                     }

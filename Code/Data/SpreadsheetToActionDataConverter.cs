@@ -53,6 +53,8 @@ namespace RPGGame.Data
         /// </summary>
         public static ActionData Convert(SpreadsheetActionData spreadsheet)
         {
+            SpreadsheetDurationSemantics.NormalizeDurationAndCadence(spreadsheet);
+            ActionMechanicsSheetSync.ApplyCadenceDefaultsForMechanics(spreadsheet);
             var actionData = new ActionData();
             
             // Basic properties
@@ -77,21 +79,10 @@ namespace RPGGame.Data
                 actionData.MultiHitCount = 1; // Default
             }
             
-            // Status effects
-            actionData.CausesStun = !string.IsNullOrWhiteSpace(spreadsheet.Stun) && spreadsheet.Stun != "0";
-            actionData.CausesPoison = !string.IsNullOrWhiteSpace(spreadsheet.Poison) && spreadsheet.Poison != "0";
-            actionData.CausesBurn = !string.IsNullOrWhiteSpace(spreadsheet.Burn) && spreadsheet.Burn != "0";
-            actionData.CausesBleed = !string.IsNullOrWhiteSpace(spreadsheet.Bleed) && spreadsheet.Bleed != "0";
+            // Item-applied status only (stun/poison/burn/bleed) — see ActionMechanicsRegistry.ItemAppliedStatusEffectIds.
+            // Sheet columns may still round-trip in SpreadsheetActionData but are not applied to ActionData on pull.
             actionData.CausesWeaken = !string.IsNullOrWhiteSpace(spreadsheet.Weaken) && spreadsheet.Weaken != "0";
             actionData.CausesSlow = !string.IsNullOrWhiteSpace(spreadsheet.Slow) && spreadsheet.Slow != "0";
-
-            if (actionData.CausesPoison)
-                actionData.PoisonPercentToAdd = ParsePositiveDoubleStatusMagnitude(spreadsheet.Poison, 1.0);
-            if (actionData.CausesBurn)
-                actionData.BurnAmountToAdd = ParsePositiveIntStatusMagnitude(spreadsheet.Burn, 1);
-            if (actionData.CausesBleed)
-                actionData.BleedAmountToAdd = ParsePositiveIntStatusMagnitude(spreadsheet.Bleed, 1);
-            
             // Advanced status effects
             actionData.CausesVulnerability = !string.IsNullOrWhiteSpace(spreadsheet.Vulnerability) && spreadsheet.Vulnerability != "0";
             actionData.CausesHarden = !string.IsNullOrWhiteSpace(spreadsheet.Harden) && spreadsheet.Harden != "0";
@@ -102,6 +93,9 @@ namespace RPGGame.Data
             actionData.CausesFocus = !string.IsNullOrWhiteSpace(spreadsheet.Focus) && spreadsheet.Focus != "0";
             actionData.CausesConfusion = !string.IsNullOrWhiteSpace(spreadsheet.Confuse) && spreadsheet.Confuse != "0";
             actionData.CausesDisrupt = !string.IsNullOrWhiteSpace(spreadsheet.Disrupt) && spreadsheet.Disrupt != "0";
+            actionData.CausesFortify = !string.IsNullOrWhiteSpace(spreadsheet.Fortify) && spreadsheet.Fortify != "0";
+            if (actionData.CausesFortify)
+                actionData.FortifyArmorPerStack = ParsePositiveIntStatusMagnitude(spreadsheet.Fortify, 1);
 
             if (!string.IsNullOrWhiteSpace(spreadsheet.Lifesteal) && spreadsheet.Lifesteal != "0")
                 actionData.LifestealPercent = ParseLifestealPercent(spreadsheet.Lifesteal);
@@ -114,14 +108,24 @@ namespace RPGGame.Data
                 actionData.HealAmount = Math.Max(1, heal);
             }
 
+            if (!string.IsNullOrWhiteSpace(spreadsheet.HeroHealMaxHealth) && spreadsheet.HeroHealMaxHealth != "0")
+            {
+                int maxHp = SpreadsheetActionData.ParseIntValue(spreadsheet.HeroHealMaxHealth);
+                if (maxHp <= 0)
+                    maxHp = (int)Math.Round(SpreadsheetActionData.ParseNumericValue(spreadsheet.HeroHealMaxHealth));
+                actionData.MaxHealthIncrease = Math.Max(1, maxHp);
+            }
+
             if (spreadsheet.SelfTargetEffects != null && spreadsheet.SelfTargetEffects.Count > 0)
             {
                 actionData.SelfTargetEffects = spreadsheet.SelfTargetEffects
                     .Where(e => !string.IsNullOrWhiteSpace(e))
                     .Select(e => e.Trim().ToLowerInvariant())
-                    .Where(e => e is not ("fortify" or "reflect" or "cleanse"))
+                    .Where(e => e is not ("reflect" or "cleanse"))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
+                if (actionData.SelfTargetEffects.Contains("fortify"))
+                    actionData.CausesFortify = true;
             }
 
             actionData.Type = DetermineActionType(spreadsheet, actionData.DamageMultiplier);
@@ -218,7 +222,11 @@ namespace RPGGame.Data
             
             // ACTION/ATTACK bonuses
             actionData.ActionAttackBonuses = ActionAttackKeywordProcessor.ProcessBonuses(spreadsheet);
+            var persistedBonuses = DeserializeActionAttackBonuses(spreadsheet.ActionAttackBonusesJson);
+            if (persistedBonuses?.BonusGroups != null && persistedBonuses.BonusGroups.Count > 0)
+                actionData.ActionAttackBonuses = persistedBonuses;
             ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(actionData);
+            EnsureKeywordBonusGroups(actionData, spreadsheet);
             MultiDiceRollMapper.ApplyRollAdvantageBonuses(actionData, spreadsheet);
 
             // Roll bonus fields (form edits these; round-trip from Hero / Enemy columns)
@@ -247,6 +255,11 @@ namespace RPGGame.Data
             // Modifiers
             // SpeedMod, DamageMod, MultiHitMod, AmpMod would need special handling
             // These might affect the action's properties directly rather than being bonuses
+
+            var declaredMechanics = ActionMechanicsRegistry.ParseMechanicsCell(spreadsheet.Mechanics);
+            actionData.Mechanics = declaredMechanics.Count > 0
+                ? ActionMechanicsRegistry.FilterForMechanicsColumn(declaredMechanics)
+                : ActionMechanicsRegistry.FilterForMechanicsColumn(ActionMechanicsRegistry.DetectFromSpreadsheetRow(spreadsheet));
             
             return actionData;
         }
@@ -254,6 +267,9 @@ namespace RPGGame.Data
         private static string DetermineActionType(SpreadsheetActionData spreadsheet, double damageMultiplier)
         {
             if (!string.IsNullOrWhiteSpace(spreadsheet.HeroHeal) && spreadsheet.HeroHeal != "0")
+                return "Heal";
+
+            if (!string.IsNullOrWhiteSpace(spreadsheet.HeroHealMaxHealth) && spreadsheet.HeroHealMaxHealth != "0")
                 return "Heal";
 
             if (IsSelfTarget(spreadsheet) && HasDefensiveStatus(spreadsheet) && !HasOffensiveStatus(spreadsheet))
@@ -280,7 +296,7 @@ namespace RPGGame.Data
         }
 
         private static bool HasDefensiveStatus(SpreadsheetActionData s) =>
-            IsStatusSet(s.Harden) || IsStatusSet(s.Focus);
+            IsStatusSet(s.Harden) || IsStatusSet(s.Focus) || IsStatusSet(s.Fortify);
 
         private static bool HasOffensiveStatus(SpreadsheetActionData s) =>
             IsStatusSet(s.Stun) || IsStatusSet(s.Poison) || IsStatusSet(s.Burn) || IsStatusSet(s.Bleed)
@@ -402,6 +418,16 @@ namespace RPGGame.Data
             catch { return new List<ChainPositionBonusEntry>(); }
         }
 
+        private static ActionAttackBonuses? DeserializeActionAttackBonuses(string? json)
+        {
+            if (string.IsNullOrWhiteSpace(json)) return null;
+            try
+            {
+                return JsonSerializer.Deserialize<ActionAttackBonuses>(json);
+            }
+            catch { return null; }
+        }
+
         private static double ParsePositiveDoubleStatusMagnitude(string? cell, double defaultVal)
         {
             if (string.IsNullOrWhiteSpace(cell)) return defaultVal;
@@ -416,6 +442,46 @@ namespace RPGGame.Data
             if (int.TryParse(cell.Trim(), out int v) && v > 0)
                 return v;
             return defaultVal;
+        }
+
+        /// <summary>
+        /// Hero dice / AJ–AM modifier columns without an explicit CADENCE cell still defer to the next ACTION/ATTACK.
+        /// Infer cadence + duration from DURATION (including combined cells like <c>3 ACTION</c>) so layer count is not stuck at 1.
+        /// </summary>
+        private static void EnsureKeywordBonusGroups(ActionData actionData, SpreadsheetActionData spreadsheet)
+        {
+            if (actionData.ActionAttackBonuses?.BonusGroups != null && actionData.ActionAttackBonuses.BonusGroups.Count > 0)
+                return;
+            if (!SpreadsheetRowHasKeywordBonusSource(spreadsheet) && !ActionMechanicsRegistry.RowHasCadenceGatedMechanic(spreadsheet))
+                return;
+
+            ActionMechanicsSheetSync.ApplyCadenceDefaultsForMechanics(spreadsheet);
+
+            actionData.Cadence = spreadsheet.Cadence;
+            actionData.ComboBonusDuration = SpreadsheetDurationSemantics.ResolveCadenceDuration(spreadsheet);
+            if (actionData.ComboBonusDuration <= 0)
+                actionData.ComboBonusDuration = 1;
+
+            actionData.ActionAttackBonuses = ActionAttackKeywordProcessor.ProcessBonuses(spreadsheet);
+            ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(actionData);
+        }
+
+        private static bool SpreadsheetRowHasKeywordBonusSource(SpreadsheetActionData spreadsheet)
+        {
+            static bool nz(string? v) => !string.IsNullOrWhiteSpace(v) && v != "0";
+            return nz(spreadsheet.HeroAccuracy)
+                || nz(spreadsheet.HeroHit)
+                || nz(spreadsheet.HeroCombo)
+                || nz(spreadsheet.HeroCrit)
+                || nz(spreadsheet.HeroCritMiss)
+                || nz(spreadsheet.HeroSTR)
+                || nz(spreadsheet.HeroAGI)
+                || nz(spreadsheet.HeroTECH)
+                || nz(spreadsheet.HeroINT)
+                || nz(spreadsheet.SpeedMod)
+                || nz(spreadsheet.DamageMod)
+                || nz(spreadsheet.MultiHitMod)
+                || nz(spreadsheet.AmpMod);
         }
     }
 }

@@ -243,9 +243,14 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 var back = InventoryButtonFactory.CreateButton(x, y, 12, "lab_undo", "[ Back ]");
                 interactionManager!.AddClickableElement(back);
                 canvas.AddText(x, y, "[ Back ]", AsciiArtAssets.Colors.Orange);
-                var step = InventoryButtonFactory.CreateButton(x + 14, y, 12, "lab_step", "[ Step ]");
-                interactionManager!.AddClickableElement(step);
-                canvas.AddText(x + 14, y, "[ Step ]", AsciiArtAssets.Colors.Green);
+                if (lab.CanStepForward)
+                {
+                    var step = InventoryButtonFactory.CreateButton(x + 14, y, 12, "lab_step", "[ Step ]");
+                    interactionManager!.AddClickableElement(step);
+                    canvas.AddText(x + 14, y, "[ Step ]", AsciiArtAssets.Colors.Green);
+                }
+                else
+                    canvas.AddText(x + 14, y, "[ Step ]", AsciiArtAssets.Colors.DarkGray);
                 y++;
                 y++;
                 var resetCombo = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_reset_combo", "[ Reset ]");

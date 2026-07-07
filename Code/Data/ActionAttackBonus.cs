@@ -34,20 +34,20 @@ namespace RPGGame.Data
     }
     
     /// <summary>
-    /// Represents a group of bonuses applied via ABILITY, ACTION, or ATTACK keyword.
-    /// CadenceType: "ACTION" = slot-based (next action in combo); "ATTACK" = roll-based (next roll); "ABILITY" = consumed on hit.
+    /// Represents a group of bonuses applied via TURN or ACTION cadence.
+    /// CadenceType: "ACTION" = combo FIFO layers; "TURN" = roll-based (per turn).
     /// </summary>
     public class ActionAttackBonusGroup
     {
         [JsonPropertyName("keyword")]
-        public string Keyword { get; set; } = ""; // "ABILITY", "ACTION", or "ATTACK"
+        public string Keyword { get; set; } = "";
         
-        /// <summary>Authoritative cadence from spreadsheet. "ACTION" = slot-based; "ATTACK" = roll-based; "ABILITY" = on hit.</summary>
+        /// <summary>Authoritative cadence from spreadsheet. "ACTION" = combo FIFO; "TURN" = per roll.</summary>
         [JsonPropertyName("cadenceType")]
         public string CadenceType { get; set; } = "";
         
         [JsonPropertyName("count")]
-        public int Count { get; set; } = 1; // X in "for next X ACTIONs/ATTACKs"
+        public int Count { get; set; } = 1; // X in "for next X TURNs/ACTIONs"
         
         [JsonPropertyName("bonuses")]
         public List<ActionAttackBonusItem> Bonuses { get; set; } = new List<ActionAttackBonusItem>();
@@ -57,7 +57,7 @@ namespace RPGGame.Data
     }
     
     /// <summary>
-    /// Container for all ABILITY/ACTION keyword bonuses for an action
+    /// Container for all TURN/ACTION cadence keyword bonuses for an action
     /// </summary>
     public class ActionAttackBonuses
     {

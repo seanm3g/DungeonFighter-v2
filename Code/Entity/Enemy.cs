@@ -242,12 +242,12 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets combo amplification for enemies (same as heroes: based on Intelligence)
+        /// Gets combo amplification for enemies (same as heroes: based on Technique)
         /// </summary>
         public new double GetComboAmplifier()
         {
             var tuning = GameConfiguration.Instance;
-            return ComboAmplifierFromIntelligence.Compute(Intelligence, tuning.ComboSystem);
+            return ComboAmplifierCurve.Compute(Technique, tuning.ComboSystem);
         }
 
         /// <summary>HUD: sheet <c>DAMAGE_MOD</c> (percent points) queued on this enemy for their next attack.</summary>

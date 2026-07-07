@@ -179,17 +179,15 @@ namespace RPGGame.Tuning
                 "Combo sequence absolute max", "Hard cap on combo strip length", 1, 12,
                 () => cfg().LootSystem.ComboSequenceAbsoluteMax, v => cfg().LootSystem.ComboSequenceAbsoluteMax = v));
             list.Add(DoubleParam("comboAmplifierMax", tab, CombatTuningLayer.ComboAffordance, "Combo Affordance",
-                "Combo amplifier max (legacy)", "Legacy INT amp max display", 1, 5, 0.1,
-                () => cfg().ComboSystem.ComboAmplifierMax, v => cfg().ComboSystem.ComboAmplifierMax = v,
-                isImplemented: false));
+                "Combo amplifier max", "Base AMP multiplier at max TECH", 1, 5, 0.1,
+                () => cfg().ComboSystem.ComboAmplifierMax, v => cfg().ComboSystem.ComboAmplifierMax = v));
             list.Add(IntParam("comboAmplifierMaxTech", tab, CombatTuningLayer.ComboAffordance, "Combo Affordance",
-                "Combo amplifier max TECH (legacy)", "Legacy TECH breakpoint", 5, 50,
-                () => cfg().ComboSystem.ComboAmplifierMaxTech, v => cfg().ComboSystem.ComboAmplifierMaxTech = v,
-                isImplemented: false));
+                "Combo amplifier max TECH", "Effective TECH where base AMP reaches max", 20, 200,
+                () => cfg().ComboSystem.ComboAmplifierMaxTech, v => cfg().ComboSystem.ComboAmplifierMaxTech = v));
             list.Add(DoubleParam("comboAmplifierCurveExponent", tab, CombatTuningLayer.ComboAffordance, "Combo Affordance",
-                "Combo amplifier curve exponent", "Legacy curve exponent", 0, 3, 0.1,
+                "Combo amplifier curve exponent", "Early/mid TECH power-ramp exponent (0 → knee)", 0.5, 2.5, 0.05,
                 () => cfg().ComboSystem.ComboAmplifierCurveExponent,
-                v => cfg().ComboSystem.ComboAmplifierCurveExponent = v, isImplemented: false));
+                v => cfg().ComboSystem.ComboAmplifierCurveExponent = v));
             list.Add(IntParam("comboIntelligenceThreshold", tab, CombatTuningLayer.ComboAffordance, "Combo Affordance",
                 "Combo INT threshold", "INT required for combo sequence unlocks", 1, 30,
                 () => cfg().LootSystem.ComboSequenceIntelligenceThreshold,

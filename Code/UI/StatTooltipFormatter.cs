@@ -72,11 +72,8 @@ namespace RPGGame
                         $"Milestones: +{steps.HitSteps} HIT, +{steps.ComboSteps} COMBO, +{steps.CritSteps} CRIT threshold steps (easier bands).");
                 else
                     AddNoteLine(lines, "Milestones at TECH 10+ improve HIT/COMBO/CRIT thresholds each attack.");
-            }
-            else if (code == "INT")
-            {
-                double amp = ComboAmplifierFromIntelligence.Compute(b.Effective, GameConfiguration.Instance.ComboSystem);
-                AddNoteLine(lines, $"Feeds combo AMP: {amp:F2}× per combo step (log curve from effective INT).");
+                double amp = ComboAmplifierCurve.Compute(b.Effective, GameConfiguration.Instance.ComboSystem);
+                AddNoteLine(lines, $"Feeds combo AMP: {amp:F2}× per combo step (slow TECH power ramp + late finish).");
             }
 
             return Trim(lines, maxLines);
@@ -261,7 +258,7 @@ namespace RPGGame
             double baseAmp = c.GetComboAmplifier();
             var combo = c.GetComboActions();
             int slotCount = combo.Count > 0 ? combo.Count : Math.Max(1, ComboSequenceMaxHelper.GetEffectiveMax(c));
-            var intBreakdown = BuildAttributeBreakdown(c, "INT");
+            var tecBreakdown = BuildAttributeBreakdown(c, "TEC");
             double queuedSheetAmpPct = c.PeekQueuedSheetAmpModPercentForDisplay();
 
             AddTitle(lines, "AMP");
@@ -270,8 +267,8 @@ namespace RPGGame
             AddBlank(lines);
             AddAmpScalingExample(lines, baseAmp);
             AddBlank(lines);
-            AddSection(lines, "INT (feeds AMP)");
-            AppendAttributeSummaryRows(lines, intBreakdown, effectiveLabel: "Effective INT");
+            AddSection(lines, "TECH (feeds AMP)");
+            AppendAttributeSummaryRows(lines, tecBreakdown, effectiveLabel: "Effective TECH");
             AddBlank(lines);
             AddSection(lines, combo.Count > 0 ? "Combo strip" : "Strip preview");
             for (int i = 0; i < slotCount; i++)
@@ -289,7 +286,7 @@ namespace RPGGame
                     AddTextStatRow(lines, slotLabel, $"{Math.Pow(baseAmp, i):F2}×");
             }
             AddBlank(lines);
-            AddNoteLine(lines, $"INT eff. {intBreakdown.Effective} → base {baseAmp:F2}×; combo steps use Pow(base, zero-based index).");
+            AddNoteLine(lines, $"TECH eff. {tecBreakdown.Effective} → base {baseAmp:F2}×; combo steps use Pow(base, zero-based index).");
             if (queuedSheetAmpPct > 0.05)
                 AddNoteLine(lines, $"Queued sheet AMP_MOD on next hero damage swing: +{queuedSheetAmpPct:0.#}%.");
             AddNoteLine(lines, "Non-combo strip actions stay at 1.00×; combat rolls may apply further swing multipliers.");

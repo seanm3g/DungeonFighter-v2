@@ -74,6 +74,7 @@ namespace RPGGame.Tests.Unit
             ApplyCatalogScrollOffsetDelta_Clamps(ref run, ref passed, ref failed);
             ApplyEnemyCatalogScrollOffsetDelta_Clamps(ref run, ref passed, ref failed);
             MapPageStepInput_MapsUndoAndStep(ref run, ref passed, ref failed);
+            StepBlockedAfterCombatantDeath(ref run, ref passed, ref failed);
             EncounterSimulationBatchCount_ClampedTiers(ref run, ref passed, ref failed);
             UseParallelEncounterSimulation_DefaultsTrueAndMutable(ref run, ref passed, ref failed);
             IgnoreActionRequirements_ToggleBypassesGearAndWeaponBasic(ref run, ref passed, ref failed);
@@ -308,6 +309,61 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual("lab_step", ActionLabInputCoordinator.MapPageStepInput("pagedown"), "Page Down maps to step", ref run, ref passed, ref failed);
             TestBase.AssertEqual("lab_undo", ActionLabInputCoordinator.MapPageStepInput(" PageUp "), "Page Up mapping is case-insensitive", ref run, ref passed, ref failed);
             TestBase.AssertNull(ActionLabInputCoordinator.MapPageStepInput("up"), "arrow up does not map to lab step", ref run, ref passed, ref failed);
+        }
+
+        /// <summary>
+        /// After a fighter dies in the lab log, forward stepping is disabled until undo or reset restores the encounter.
+        /// </summary>
+        private static void StepBlockedAfterCombatantDeath(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var hero = TestDataBuilders.Character().WithName("LabStepDeath").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "StepBlockedAfterCombatantDeath: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            TestBase.AssertTrue(lab.CanStepForward, "Can step at fight start", ref run, ref passed, ref failed);
+
+            var jab = ActionLoader.GetAction("JAB");
+            if (jab == null)
+            {
+                TestBase.AssertTrue(true, "StepBlockedAfterCombatantDeath skipped (no JAB)", ref run, ref passed, ref failed);
+                ActionInteractionLabSession.EndSession();
+                return;
+            }
+
+            foreach (var a in lab.LabPlayer.GetComboActions().ToList())
+                lab.LabPlayer.RemoveFromCombo(a);
+            if (!jab.IsComboAction)
+                jab.IsComboAction = true;
+            lab.LabPlayer.AddToCombo(jab);
+            lab.SelectedCatalogActionName = "JAB";
+
+            lab.StepAsync(18, "JAB").GetAwaiter().GetResult();
+            TestBase.AssertEqual(1, lab.History.Count, "First step recorded", ref run, ref passed, ref failed);
+
+            lab.LabEnemy.CurrentHealth = 0;
+            TestBase.AssertFalse(lab.CanStepForward, "Cannot step after enemy death", ref run, ref passed, ref failed);
+
+            lab.StepAsync(lab.ResolveD20ForNextStep(), lab.SelectedCatalogActionName).GetAwaiter().GetResult();
+            TestBase.AssertEqual(1, lab.History.Count, "Blocked step does not add history", ref run, ref passed, ref failed);
+
+            lab.UndoLastStepAsync().GetAwaiter().GetResult();
+            TestBase.AssertTrue(lab.CanStepForward, "Undo restores stepping after death", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, lab.History.Count, "Undo clears death step", ref run, ref passed, ref failed);
+
+            lab.StepAsync(18, "JAB").GetAwaiter().GetResult();
+            lab.LabEnemy.CurrentHealth = 0;
+            lab.ResetLabEncounterAsync().GetAwaiter().GetResult();
+            TestBase.AssertTrue(lab.CanStepForward, "Reset restores stepping after death", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, lab.History.Count, "Reset clears history", ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
         }
 
         private static void EncounterSimulationBatchCount_ClampedTiers(ref int run, ref int passed, ref int failed)

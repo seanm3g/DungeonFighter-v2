@@ -94,7 +94,7 @@ namespace RPGGame.UI.Avalonia.Builders
             if (!string.IsNullOrWhiteSpace(cadenceDisplay) && !cadenceOptions.Any(c => string.Equals(c, cadenceDisplay, StringComparison.OrdinalIgnoreCase)))
                 cadenceOptions.Add(cadenceDisplay);
             _ctx.Factory.AddFormField(stack, "Cadence", cadenceDisplay, (value) => action.Cadence = (value == ActionFormOptions.NoneOption || string.IsNullOrWhiteSpace(value)) ? "" : value, cadenceOptions.ToArray());
-            _ctx.Factory.AddFormField(stack, "Duration", action.ComboBonusDuration.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= 0) { action.ComboBonusDuration = v; ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(action); } }, description: "Cadence duration (sheet column K): how many ACTION/ATTACK/ABILITY applications, e.g. 2 for ACTION x2");
+            _ctx.Factory.AddFormField(stack, "Duration", action.ComboBonusDuration.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= 0) { action.ComboBonusDuration = v; ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(action); } }, description: "Cadence duration (sheet column K): how many TURN/ACTION applications, e.g. 2 for ACTION x2");
 
             var cadenceDesignNote = new TextBlock
             {

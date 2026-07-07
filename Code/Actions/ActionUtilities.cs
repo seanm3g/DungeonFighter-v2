@@ -317,6 +317,18 @@ namespace RPGGame
             return Math.Max(1, baseHeal); // Ensure at least 1 healing
         }
 
+        /// <summary>Raises base max HP for the run and adjusts current HP proportionally.</summary>
+        public static void ApplyMaxHealthIncrease(Character character, int amount)
+        {
+            if (character == null || amount <= 0)
+                return;
+
+            int oldEffective = character.GetEffectiveMaxHealth();
+            character.MaxHealth += amount;
+            int newEffective = character.GetEffectiveMaxHealth();
+            character.Health.AdjustHealthForMaxHealthChange(oldEffective, newEffective);
+        }
+
         /// <summary>
         /// Applies damage to target entity
         /// </summary>

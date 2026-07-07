@@ -26,6 +26,8 @@ namespace RPGGame
         public bool SkipNextTurn { get; set; } = false;
         public bool GuaranteeNextSuccess { get; set; } = false;
         public int HealAmount { get; set; } = 0;
+        /// <summary>Base max HP increase granted on successful heal/buff (sheet HERO HEAL / MAX HEALTH).</summary>
+        public int MaxHealthIncrease { get; set; } = 0;
         /// <summary>Fraction of damage dealt returned as healing (0–1), from sheet LIFESTEAL.</summary>
         public double LifestealPercent { get; set; } = 0;
         public double HealthThreshold { get; set; } = 0.0;

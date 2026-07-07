@@ -25,6 +25,10 @@ namespace RPGGame.Data
             h.SetCell(row, null, "SPEED(x)", data.Speed);
             h.SetCell(row, null, "DURATION", data.Duration);
             h.SetCell(row, null, "CADENCE", data.Cadence);
+            h.SetCell(row, "MECHANICS", "MECHANICS", data.Mechanics, null, allowUnscopedLabelFallback: true);
+            if (string.IsNullOrEmpty(rowValueAtLabel(h, row, "MECHANICS", "MECHANICS"))
+                && string.IsNullOrEmpty(rowValueAtLabel(h, row, null, "MECHANICS")))
+                h.SetCell(row, null, "MECHANICS", data.Mechanics);
             h.SetCell(row, null, "OPENER", data.Opener);
             h.SetCell(row, null, "FINISHER", data.Finisher);
             h.SetCell(row, null, "TARGET", data.Target);

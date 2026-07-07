@@ -58,7 +58,7 @@ namespace RPGGame.Data.Validation
             /// <summary>Valid accumulation source types (cadences, damage done, hits landed, etc.).</summary>
             public static readonly HashSet<string> ValidAccumulationTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "CadenceAction", "CadenceAbility", "CadenceChain", "CadenceFight", "CadenceDungeon",
+                "CadenceAction", "CadenceTurn", "CadenceChain", "CadenceFight", "CadenceDungeon",
                 "SelfDamage", "HealthRestored",
                 "HitsLanded", "Blocks", "Dodges", "Kills", "DamageTaken", "TurnsTaken", "CombosUsed"
             };

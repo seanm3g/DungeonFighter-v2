@@ -211,6 +211,8 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
 
             if (value == "lab_step")
             {
+                if (!session.CanStepForward)
+                    return;
                 await session.StepAsync(session.ResolveD20ForNextStep(), session.SelectedCatalogActionName).ConfigureAwait(true);
                 return;
             }

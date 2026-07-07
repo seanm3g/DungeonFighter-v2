@@ -81,13 +81,13 @@ On pull, the console prints a **column usage summary** (see `SpreadsheetActionCo
 
 | Tier | Meaning | Examples |
 |------|---------|----------|
-| **Combat / runtime** | Pulled → `Actions.json` → `ActionData` → `Action` → combat | `ACTION`, `DAMAGE` / `DAMAGE(%)`, `SPEED(x)`, `# OF HITS`, `TARGET` (column **M**: `enemy` / `self` / `environment`; empty = enemy), status columns (`STUN`, `POISON`, `CONFUSE`, `DISRUPT`, `LIFESTEAL`, …), hero/enemy dice mods, `CADENCE`+`DURATION` keyword bonuses, next-action mods under `HERO BASE STATS` / `ENEMY BASE STATS`, `JUMP`/`SHIFT`, `OPENER`/`FINISHER`, `HEAL` (under **HERO HEAL**) |
+| **Combat / runtime** | Pulled → `Actions.json` → `ActionData` → `Action` → combat | `ACTION`, `DAMAGE` / `DAMAGE(%)`, `SPEED(x)`, `# OF HITS`, `TARGET` (column **M**: `enemy` / `self` / `environment`; empty = enemy), action-sheet status columns (`WEAKEN`, `CONFUSE`, `DISRUPT`, `LIFESTEAL`, …), hero/enemy dice mods, `CADENCE`+`DURATION` keyword bonuses, `MECHANICS` (declarative; validated on pull), next-action mods under `HERO BASE STATS` / `ENEMY BASE STATS`, `JUMP`/`SHIFT`, `OPENER`/`FINISHER`, `HEAL` (under **HERO HEAL**) |
 | **Loot / pools only** | Pool assignment, not combat math | `RARITY`, `CATEGORY`, `TAGS` |
 | **JSON round-trip / sheet reference** | Stored in `Actions.json`; not applied in combat | `DPS(%)` (authoring reference — combat uses `DAMAGE(%)`), `DESCRIPTION` |
 | **Not ingested on CSV pull** | Push/Settings know these labels; **pull ignores** sheet cells | `WEAPON TYPES`, `CHAIN LENGTH`, `RESET`, `GRACE`, `LOOP CHAIN`, JSON blob columns, `TRIGGER CONDITIONS`, threshold flat columns, … |
 | **Sheet-only** | Never pulled | Column **F** (formulas) |
 
-**Known gaps (ingested but not wired to combat today):** `CONSUME`, `MAX HEALTH` — stored in `Actions.json` but not mapped to runtime `Action` effects. Hero/enemy `STR`/`AGI`/`TECH`/`INT` only apply as combat bonuses when `CADENCE` is `ABILITY`/`ACTION`/`ATTACK`.
+**Known gaps (ingested but not wired to combat today):** `CONSUME`, `MAX HEALTH` — stored in `Actions.json` but not mapped to runtime `Action` effects. Hero/enemy `STR`/`AGI`/`TECH`/`INT` only apply as combat bonuses when `CADENCE` is `TURN`/`ACTION`.
 
 **Legacy:** JSON `targetType: "AreaOfEffect"` imports as `Environment`. The removed **SELF DAMAGE** column is deprecated — use `target=self` for self-directed effects instead.
 
@@ -164,6 +164,51 @@ Single header row; columns match `Dungeons.json`: `name`, `theme`, `minLevel`, `
 ### ACTIONS — TAGS column
 
 Optional **TAGS** cell (column **E** on the standard layout): comma/semicolon list of extra tokens (pool gates like `environment`, `enemy`, `weapon`, elements, etc.). Category and rarity are merged into runtime tags separately on import. **Push** writes TAGS from `Actions.json`; column **F** (e.g. `e(V)` formulas) is left unchanged.
+
+### ACTIONS — CADENCE, DURATION, and MECHANICS
+
+Three related columns in the cadence band (exact letters follow your sheet headers; labels drive import):
+
+| Row 1 context | Row 2 label | Content | Role |
+|---------------|-------------|---------|------|
+| `STATUS EFFECT` (existing) | `DURATION` | `1`, `2`, `3` only | Application **count** (not turn length for status effects) |
+| (existing) | `CADENCE` | `TURN`, `ACTION`, … | Application **type** — combined at runtime as `CADENCE` × `DURATION` (legacy `ATTACK`/`ABILITY` accepted on import) |
+| **`MECHANICS`** (new) | **`MECHANICS`** | multi-value list | Declarative checklist of mechanic IDs on this row |
+
+**Authoring rules:**
+
+- **DURATION** = number only. Do not put `3 ACTION` in DURATION (legacy combined parsing remains as a compat fallback on pull; **push** writes split columns).
+- **CADENCE + DURATION** = timing source of truth when you set them.
+- **MECHANICS** = documents which systems the row touches; auto-filled on **push**; validated on **pull** (warnings when declared IDs do not match detected columns). MECHANICS does **not** drive combat by itself — hero dice, status, and mod columns remain required.
+
+**Runtime timing (cadence matrix):**
+
+| Matrix column | Maps to `CADENCE` | Behavior |
+|---------------|-------------------|----------|
+| Turn bonus | `TURN` | Next roll / turn-scoped bonus queue |
+| Action bonus | `ACTION` | Hit+combo deposits into an **additive bank** for the next hit+combo; duration ×N stacks values additively; bank clears when the room ends |
+| Fight | `FIGHT` | Fight-scoped duration |
+| Dungeon | `DUNGEON` | Dungeon-scoped duration |
+
+**Implicit defaults when CADENCE and DURATION are both empty:**
+
+- Hero/enemy **dice** and **stat** mods (`hero_combo_threshold`, `hero_stat_bonus`, …) → **`TURN` / `1`**
+- **Next-action** mods (`hero_next_action_speed`, `enemy_next_action_damage`, …) → **`ACTION` / `1`**
+- Mixed row (dice + next-action mod) → **`TURN` / `1`** + pull warning
+- Instant status on the sheet (`weaken`, `slow`, `fortify`, …) → no cadence default
+- **Stun, poison, burn, bleed** are **item-applied only** — use item mods, not the ACTIONS **MECHANICS** column, mechanic IDs, or combat pull. Legacy **STUN** / **POISON** / **BURN** / **BLEED** columns may still round-trip in spreadsheet JSON but are **not** mapped to `ActionData` on pull (`SpreadsheetColumnUsage.IngestedNotRuntime`).
+
+**MECHANIC_LIST** (~33 IDs): `ActionMechanicsRegistry.AllMechanicIds` — only **GOOD** mechanics with **ON ACTIONS=TRUE**. Excluded from the dropdown but still work in-game: instant status columns, **CUT** mechanics (`silence`, `lifesteal`, `consume`, `multi_dice`, `exploding_dice`, `replace_next_roll`). **REDUNDANT** mechanic IDs removed (`damage`, `multi_hit`, `accumulations`, `threshold_bonus`, `stat_bonuses`) — use core columns instead.
+
+**NEEDS IMPROVEMENT backlog** (not in MECHANIC_LIST): `expose`, `reflect`, `cleanse`, `self_damage`, combo routing (`combo_jump`, `chain_*`, …), triggers (`on_*`), `modify_room`.
+
+**Multi-select in Google Sheets:**
+
+1. Add a reference tab **`MECHANIC_LIST`** with one mechanic ID per row in column A (copy from `ActionMechanicsRegistry.AllMechanicIds` in code).
+2. On ACTIONS → **MECHANICS** column: **Data → Data validation → Dropdown (from a range)** → `MECHANIC_LIST!A:A`, enable **Allow multiple selections**.
+3. Pull/push stores a **comma-separated** cell (e.g. `hero_combo_threshold, weaken`) — same pattern as TAGS.
+
+Fallback: type `hero_combo_threshold, weaken` manually if multi-select chips are unavailable. Legacy unprefixed hero IDs (`combo_threshold`, etc.) are normalized to `hero_*` on import.
 
 ### WEAPONS / ARMOR — tags
 

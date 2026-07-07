@@ -21,16 +21,16 @@ namespace RPGGame.Tests.Unit.UI
             var tempRoll = TestDataBuilders.Character().WithName("TempRoll").WithStats(10, 10, 10, 0).Build();
             tempRoll.Effects.SetTempRollBonus(2, 3);
             var tempRollLines = StatusEffectDisplayLines.Build(tempRoll, tempRoll);
-            TestBase.AssertTrue(tempRollLines.Any(l => l.Contains("Accuracy +2") && l.Contains("3 atks")), "temp roll bonus merges into Accuracy +N with attack count", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(tempRollLines.Any(l => l.Contains("Accuracy +2") && l.Contains("3 turns")), "temp roll bonus merges into Accuracy +N with turn count", ref run, ref passed, ref failed);
 
-            var attackAcc = TestDataBuilders.Character().WithName("AttackAcc").WithStats(10, 10, 10, 0).Build();
-            attackAcc.Effects.AddActionAttackBonuses(new ActionAttackBonuses
+            var turnAcc = TestDataBuilders.Character().WithName("TurnAcc").WithStats(10, 10, 10, 0).Build();
+            turnAcc.Effects.AddActionAttackBonuses(new ActionAttackBonuses
             {
                 BonusGroups = new System.Collections.Generic.List<ActionAttackBonusGroup>
                 {
                     new ActionAttackBonusGroup
                     {
-                        CadenceType = "ATTACK",
+                        CadenceType = "TURN",
                         Count = 3,
                         Bonuses = new System.Collections.Generic.List<ActionAttackBonusItem>
                         {
@@ -39,9 +39,52 @@ namespace RPGGame.Tests.Unit.UI
                     }
                 }
             });
-            var attackAccLines = StatusEffectDisplayLines.Build(attackAcc, attackAcc);
-            TestBase.AssertTrue(attackAccLines.Any(l => l.Contains("Accuracy +3") && l.Contains("3 atks")),
-                "ATTACK cadence accuracy shows remaining attack count", ref run, ref passed, ref failed);
+            var turnAccLines = StatusEffectDisplayLines.Build(turnAcc, turnAcc);
+            TestBase.AssertTrue(turnAccLines.Any(l => l.Contains("Accuracy +3") && l.Contains("3 turns")),
+                "TURN cadence accuracy shows remaining turn count", ref run, ref passed, ref failed);
+
+            var turnHit = TestDataBuilders.Character().WithName("TurnHit").WithStats(10, 10, 10, 0).Build();
+            turnHit.Effects.AddActionAttackBonuses(new ActionAttackBonuses
+            {
+                BonusGroups = new System.Collections.Generic.List<ActionAttackBonusGroup>
+                {
+                    new ActionAttackBonusGroup
+                    {
+                        CadenceType = "TURN",
+                        Count = 2,
+                        Bonuses = new System.Collections.Generic.List<ActionAttackBonusItem>
+                        {
+                            new ActionAttackBonusItem { Type = "HIT", Value = 1 }
+                        }
+                    }
+                }
+            });
+            var turnHitLines = StatusEffectDisplayLines.Build(turnHit, turnHit);
+            TestBase.AssertTrue(turnHitLines.Any(l => l.Contains("+1 HIT") && l.Contains("2 turns")),
+                "TURN HIT bonus shows as status line", ref run, ref passed, ref failed);
+
+            var stackA = TestDataBuilders.Character().WithName("StackA").WithStats(10, 10, 10, 0).Build();
+            stackA.Effects.TurnBonuses.Add(new ActionAttackBonusGroup
+            {
+                CadenceType = "TURN",
+                Count = 3,
+                Bonuses = new System.Collections.Generic.List<ActionAttackBonusItem>
+                {
+                    new ActionAttackBonusItem { Type = "COMBO", Value = 1 }
+                }
+            });
+            stackA.Effects.TurnBonuses.Add(new ActionAttackBonusGroup
+            {
+                CadenceType = "TURN",
+                Count = 2,
+                Bonuses = new System.Collections.Generic.List<ActionAttackBonusItem>
+                {
+                    new ActionAttackBonusItem { Type = "HIT", Value = 2 }
+                }
+            });
+            var stackLines = StatusEffectDisplayLines.Build(stackA, stackA);
+            TestBase.AssertTrue(stackLines.Count(l => l.Contains("TURN x")) >= 2,
+                "two concurrent TURN groups both visible for stacking", ref run, ref passed, ref failed);
 
             var bleed = TestDataBuilders.Character().WithName("BleedHero").Build();
             bleed.BleedIntensity = 3;

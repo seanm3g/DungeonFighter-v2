@@ -131,7 +131,7 @@ namespace RPGGame.Combat.Calculators
             double nextAttackMultiplier = 1.0;
             if (attacker is Character characterAttacker)
             {
-                nextAttackMultiplier = characterAttacker.Effects.ConsumeNextAttackDamageMultiplier();
+                nextAttackMultiplier = characterAttacker.Effects.ConsumeNextTurnDamageMultiplier();
             }
 
             // Calculate total damage before armor

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
+using RPGGame.Actions;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
 using RPGGame.Data;
@@ -284,6 +285,11 @@ namespace RPGGame.Actions.RollModification
         /// </summary>
         public static void EnqueueDeferredRollModThresholdAdjustmentsForNextRoll(Action action, Actor source, Actor? target)
         {
+            // Keyword cadence bonuses (ACTION / ATTACK / ABILITY) are granted via ActionAttackBonuses with the
+            // spreadsheet duration layer count — do not also queue a single RollMods threshold package here.
+            if (ActionGrantsKeywordCadenceRollBonuses(action))
+                return;
+
             bool deferPackages = ShouldDeferRollModThresholdPackages(action);
             var combined = new List<ActionAttackBonusItem>();
 
@@ -300,29 +306,67 @@ namespace RPGGame.Actions.RollModification
             if (combined.Count == 0)
                 return;
 
-            bool routeToAbilityQueue = string.Equals((action.Cadence ?? "").Trim(), "Ability", StringComparison.OrdinalIgnoreCase);
+            bool routeToTurnQueue = CadenceKeywords.IsTurn(action.Cadence)
+                || string.Equals((action.Cadence ?? "").Trim(), "Ability", StringComparison.OrdinalIgnoreCase);
+            int layerCount = action.ComboBonusDuration > 0 ? action.ComboBonusDuration : 1;
+            if (layerCount < 1)
+                layerCount = 1;
 
             void EnqueueOn(Character ch)
             {
                 var copy = combined.Select(b => new ActionAttackBonusItem { Type = b.Type, Value = b.Value }).ToList();
-                if (routeToAbilityQueue)
+                if (routeToTurnQueue)
                 {
-                    ch.Effects.AbilityBonuses.Add(new ActionAttackBonusGroup
+                    ch.Effects.TurnBonuses.Add(new ActionAttackBonusGroup
                     {
-                        Keyword = "ABILITY",
-                        CadenceType = "ABILITY",
-                        Count = 1,
+                        Keyword = CadenceKeywords.Turn,
+                        CadenceType = CadenceKeywords.Turn,
+                        Count = layerCount,
                         Bonuses = copy
                     });
                 }
                 else
-                    ch.Effects.AddPendingActionBonusesNextHeroRoll(copy);
+                {
+                    ch.Effects.AccumulatePendingActionCadenceBank(copy, layerCount);
+                }
             }
 
             if (source is Character src)
                 EnqueueOn(src);
             if (action.RollMods.ApplyThresholdAdjustmentsToBoth && target is Character tgt)
                 EnqueueOn(tgt);
+        }
+
+        /// <summary>
+        /// True when <see cref="Action.ActionAttackBonuses"/> will apply roll/threshold bonuses with cadence duration on hit.
+        /// </summary>
+        public static bool ActionGrantsKeywordCadenceRollBonuses(Action? action)
+        {
+            if (action?.ActionAttackBonuses?.BonusGroups == null)
+                return false;
+
+            foreach (var group in action.ActionAttackBonuses.BonusGroups)
+            {
+                if (!ActionCadenceDurationResolver.IsKeywordCadenceGroup(group))
+                    continue;
+                if (group.Bonuses == null || group.Bonuses.Count == 0)
+                    continue;
+
+                foreach (var bonus in group.Bonuses)
+                {
+                    switch ((bonus.Type ?? "").ToUpperInvariant())
+                    {
+                        case "ACCURACY":
+                        case "HIT":
+                        case "COMBO":
+                        case "CRIT":
+                        case "CRIT_MISS":
+                            return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

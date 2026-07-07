@@ -182,8 +182,8 @@
   "comboSystem": {
     "comboAmplifierAtTech5": 0,
     "comboAmplifierMax": 2,
-    "comboAmplifierMaxTech": 20,
-    "comboAmplifierCurveExponent": 0
+    "comboAmplifierMaxTech": 110,
+    "comboAmplifierCurveExponent": 1.1
   },
   "poison": {
     "tickInterval": 0,
