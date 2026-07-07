@@ -136,9 +136,9 @@ namespace RPGGame.UI.Avalonia.Builders
 
         public void BuildModifiersSection(Panel parent, ActionData action)
         {
-            // Sheet order: ENEMY BASE STATS (AD–AG) to the left of HERO BASE STATS (AJ–AM); WEAPON SPEED/DAMAGE (AH–AI) are separate weapon columns, not edited here.
-            BuildEnemyModifiersSection(parent, action);
+            // Editor UX: hero mods first (used more often); sheet columns AD–AG enemy / AJ–AM hero.
             BuildHeroModifiersSection(parent, action);
+            BuildEnemyModifiersSection(parent, action);
         }
 
         private void BuildHeroModifiersSection(Panel parent, ActionData action)

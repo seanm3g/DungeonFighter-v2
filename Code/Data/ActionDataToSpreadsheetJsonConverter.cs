@@ -114,10 +114,10 @@ namespace RPGGame.Data
             else if (baseRow != null)
                 row.ChainPositionBonusesJson = baseRow.ChainPositionBonusesJson ?? "";
 
-            if (data.ActionAttackBonuses?.BonusGroups != null && data.ActionAttackBonuses.BonusGroups.Count > 1)
+            bool hasPersistedBonusGroups = data.ActionAttackBonuses?.BonusGroups != null
+                && data.ActionAttackBonuses.BonusGroups.Any(g => g?.Bonuses != null && g.Bonuses.Count > 0);
+            if (hasPersistedBonusGroups)
                 row.ActionAttackBonusesJson = JsonSerializer.Serialize(data.ActionAttackBonuses, jsonOptions);
-            else if (baseRow != null)
-                row.ActionAttackBonusesJson = baseRow.ActionAttackBonusesJson ?? "";
             else
                 row.ActionAttackBonusesJson = "";
 
@@ -137,23 +137,20 @@ namespace RPGGame.Data
             // Weapon types round-trip (Assign to Weapon Types in Actions settings)
             row.WeaponTypes = data.WeaponTypes != null && data.WeaponTypes.Count > 0 ? string.Join(", ", data.WeaponTypes) : (baseRow?.WeaponTypes ?? "");
 
-            if (baseRow == null)
-            {
-                row.Weaken = data.CausesWeaken ? "1" : "";
-                row.Slow = data.CausesSlow ? "1" : "";
-                row.Vulnerability = data.CausesVulnerability ? "1" : "";
-                row.Harden = data.CausesHarden ? "1" : "";
-                row.Expose = data.CausesExpose ? "1" : "";
-                row.Silence = data.CausesSilence ? "1" : "";
-                row.Pierce = data.CausesPierce ? "1" : "";
-                row.StatDrain = data.CausesStatDrain ? "1" : "";
-                row.Focus = data.CausesFocus ? "1" : "";
-                row.Confuse = data.CausesConfusion ? "1" : "";
-                row.Disrupt = data.CausesDisrupt ? "1" : "";
-                row.Fortify = data.CausesFortify
-                    ? (data.FortifyArmorPerStack > 0 ? data.FortifyArmorPerStack.ToString() : "1")
-                    : "";
-            }
+            row.Weaken = data.CausesWeaken ? "1" : "";
+            row.Slow = data.CausesSlow ? "1" : "";
+            row.Vulnerability = data.CausesVulnerability ? "1" : "";
+            row.Harden = data.CausesHarden ? "1" : "";
+            row.Expose = data.CausesExpose ? "1" : "";
+            row.Silence = data.CausesSilence ? "1" : "";
+            row.Pierce = data.CausesPierce ? "1" : "";
+            row.StatDrain = data.CausesStatDrain ? "1" : "";
+            row.Focus = data.CausesFocus ? "1" : "";
+            row.Confuse = data.CausesConfusion ? "1" : "";
+            row.Disrupt = data.CausesDisrupt ? "1" : "";
+            row.Fortify = data.CausesFortify
+                ? (data.FortifyArmorPerStack > 0 ? data.FortifyArmorPerStack.ToString() : "1")
+                : "";
 
             var spreadsheetRow = row.ToSpreadsheetActionData();
             ActionMechanicsSheetSync.SyncRow(spreadsheetRow);

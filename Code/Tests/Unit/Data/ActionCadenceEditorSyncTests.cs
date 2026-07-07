@@ -65,7 +65,49 @@ namespace RPGGame.Tests.Unit.Data
                 "LoadBlocks round-trips multi-block ActionAttackBonuses",
                 ref run, ref passed, ref failed);
 
+            TestSingleBlockMultipleMechanicsRoundTrip(ref run, ref passed, ref failed);
+
             Console.WriteLine($"\nActionCadenceEditorSync: {passed}/{run} passed, {failed} failed\n");
+        }
+
+        private static void TestSingleBlockMultipleMechanicsRoundTrip(ref int run, ref int passed, ref int failed)
+        {
+            var action = new ActionData
+            {
+                Name = "MultiMech",
+                Cadence = "Turn",
+                ComboBonusDuration = 2,
+                ComboThresholdAdjustment = 1,
+            };
+
+            var edited = new List<CadenceEditorBlock>
+            {
+                new CadenceEditorBlock
+                {
+                    Cadence = "Turn",
+                    Duration = 2,
+                    Mechanics = new List<CadenceMechanicRow>
+                    {
+                        new CadenceMechanicRow { MechanicId = "hero_combo_threshold", Quantity = 1 },
+                        new CadenceMechanicRow { MechanicId = "hero_hit_threshold", Quantity = 2 },
+                    }
+                }
+            };
+
+            ActionCadenceEditorSync.ApplyBlocks(action, edited);
+            TestBase.AssertTrue(action.HitThresholdAdjustment == 2
+                && action.ComboThresholdAdjustment == 1
+                && action.ActionAttackBonuses?.BonusGroups?.Count == 1
+                && action.ActionAttackBonuses.BonusGroups[0].Bonuses.Count == 2,
+                "ApplyBlocks keeps all mechanics in one bonus group",
+                ref run, ref passed, ref failed);
+
+            var reloaded = ActionCadenceEditorSync.LoadBlocks(action);
+            TestBase.AssertTrue(reloaded.Count == 1
+                && reloaded[0].Mechanics.Any(m => m.MechanicId == "hero_hit_threshold" && m.Quantity == 2)
+                && reloaded[0].Mechanics.Any(m => m.MechanicId == "hero_combo_threshold" && m.Quantity == 1),
+                "LoadBlocks round-trips single-block multi-mechanic edits",
+                ref run, ref passed, ref failed);
         }
     }
 }

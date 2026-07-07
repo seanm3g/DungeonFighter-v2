@@ -321,7 +321,7 @@ namespace RPGGame.Data
         /// <summary>Cadence dropdown options for the actions settings editor.</summary>
         public static readonly string[] EditorCadenceOptions = { "Turn", "Action", "Fight", "Dungeon" };
 
-        /// <summary>Mechanic IDs eligible for a cadence in the editor (GOOD + ON ACTIONS).</summary>
+        /// <summary>Mechanic IDs eligible for a cadence in the editor (GOOD + ON ACTIONS). Hero mods list before enemy mods.</summary>
         public static IReadOnlyList<string> GetMechanicIdsForCadence(string? cadence)
         {
             string normalized = CadenceKeywords.Normalize(cadence ?? "");
@@ -329,7 +329,28 @@ namespace RPGGame.Data
                 normalized = CadenceKeywords.Turn;
             return AllMechanicIds
                 .Where(id => GetAllowedCadencesForMechanic(id).Contains(normalized))
+                .OrderBy(id => id, Comparer<string>.Create(CompareMechanicIdsForEditor))
                 .ToList();
+        }
+
+        /// <summary>Editor sort: hero_* first, then neutral mechanics, then enemy_*; alphabetical within each group.</summary>
+        public static int CompareMechanicIdsForEditor(string? a, string? b)
+        {
+            int groupCmp = GetEditorMechanicSortGroup(a).CompareTo(GetEditorMechanicSortGroup(b));
+            if (groupCmp != 0)
+                return groupCmp;
+            return string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static int GetEditorMechanicSortGroup(string? mechanicId)
+        {
+            if (string.IsNullOrWhiteSpace(mechanicId))
+                return 1;
+            if (mechanicId.StartsWith("hero_", StringComparison.OrdinalIgnoreCase))
+                return 0;
+            if (mechanicId.StartsWith("enemy_", StringComparison.OrdinalIgnoreCase))
+                return 2;
+            return 1;
         }
 
         /// <summary>Player-facing label for card/editor lines (e.g. COMBO, DAMAGE).</summary>
@@ -420,6 +441,10 @@ namespace RPGGame.Data
                     mechanicId = "hero_stat_bonus"; statSubType = "TECH"; return true;
                 case "INT" or "INTELLIGENCE":
                     mechanicId = "hero_stat_bonus"; statSubType = "INT"; return true;
+                case "ADVANTAGE":
+                    mechanicId = "advantage"; return true;
+                case "DISADVANTAGE":
+                    mechanicId = "disadvantage"; return true;
                 default: return false;
             }
         }
@@ -454,6 +479,12 @@ namespace RPGGame.Data
                 case "enemy_stat_bonus":
                     bonusType = NormalizeStatBonusType(statSubType);
                     return !string.IsNullOrEmpty(bonusType);
+                case "advantage":
+                    bonusType = MultiDiceRollMapper.AdvantageBonusType;
+                    return true;
+                case "disadvantage":
+                    bonusType = MultiDiceRollMapper.DisadvantageBonusType;
+                    return true;
                 default: return false;
             }
         }

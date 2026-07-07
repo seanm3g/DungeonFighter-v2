@@ -527,8 +527,9 @@ namespace RPGGame.UI.Avalonia.Managers
             if (GetBool("CausesExpose") is bool s6) action.CausesExpose = s6;
             if (GetBool("CausesSilence") is bool s10) action.CausesSilence = s10;
 
-            if (formBuilder?.LastCadenceBlocks != null)
-                ActionCadenceEditorSync.ApplyBlocks(action, formBuilder.LastCadenceBlocks);
+            var cadenceBlocks = formBuilder?.GetCadenceBlocksForSave();
+            if (cadenceBlocks != null)
+                ActionCadenceEditorSync.ApplyBlocks(action, cadenceBlocks);
             // Flush weapon-type checkboxes so save (from any tab) persists "Assign to Weapon Types"
             // Only update from form when the form has weapon-type controls (otherwise we'd clear existing data)
             var weaponTypes = new[] { "Sword", "Dagger", "Mace", "Wand" };

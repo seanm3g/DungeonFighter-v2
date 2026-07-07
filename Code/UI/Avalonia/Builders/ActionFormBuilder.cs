@@ -18,6 +18,7 @@ namespace RPGGame.UI.Avalonia.Builders
     {
         private readonly Dictionary<string, Control> actionFormControls;
         private readonly Action<string, bool>? showStatusMessage;
+        private ActionFormBuildContext? _cadenceContext;
 
         public ActionFormBuilder(Dictionary<string, Control> actionFormControls, Action<string, bool>? showStatusMessage)
         {
@@ -45,6 +46,7 @@ namespace RPGGame.UI.Avalonia.Builders
 
             var factory = new ActionFormControlFactory(actionFormControls);
             var ctx = new ActionFormBuildContext(actionFormControls, factory);
+            _cadenceContext = ctx;
             var sections = new ActionFormSectionBuilders(ctx);
 
             sections.BuildBasicSection(actionFormPanel, action);
@@ -87,6 +89,13 @@ namespace RPGGame.UI.Avalonia.Builders
 
         /// <summary>Cadence blocks from the most recent form build (for flush on save).</summary>
         public List<CadenceEditorBlock>? LastCadenceBlocks { get; private set; }
+
+        /// <summary>Syncs live cadence UI controls into block models, then returns blocks for persistence.</summary>
+        public List<CadenceEditorBlock>? GetCadenceBlocksForSave()
+        {
+            _cadenceContext?.FlushCadenceEditorState();
+            return LastCadenceBlocks;
+        }
 
         private void OnCancelAction()
         {

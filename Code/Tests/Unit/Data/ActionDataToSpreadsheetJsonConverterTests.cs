@@ -30,6 +30,9 @@ namespace RPGGame.Tests.Unit.Data
             TestMergeCritMissRoundTrip();
             TestMergeEnemyRollBonusesRoundTrip();
             TestMergeJumpRelativeRoundTrip();
+            TestMergeSingleBlockBonusGroupsPersistJson();
+            TestMergeClearsStaleActionAttackBonusesJson();
+            TestMergeAddedMechanicRoundTripsThroughExistingBaseRow();
             TestSpreadsheetEnvironmentRowClearsWeaponsAndSetsDebuffAoe();
             TestSpreadsheetEnemyRowClearsWeaponTypes();
 
@@ -278,6 +281,116 @@ namespace RPGGame.Tests.Unit.Data
             var action = ActionDataToActionMapper.CreateAction(back);
             TestBase.AssertTrue(action.ComboRouting.JumpRelativeSlots == 1, "Mapper sets JumpRelativeSlots", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(action.ComboRouting.JumpToSlot == 0, "Absolute jump stays off when Jump empty", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestMergeSingleBlockBonusGroupsPersistJson()
+        {
+            System.Console.WriteLine("--- Merge single-block bonus groups persist JSON ---");
+            var data = new ActionData
+            {
+                Name = "BUFF",
+                Cadence = "Turn",
+                ComboBonusDuration = 2,
+                ComboThresholdAdjustment = 1,
+                HitThresholdAdjustment = 2,
+                ActionAttackBonuses = new ActionAttackBonuses
+                {
+                    BonusGroups = new List<ActionAttackBonusGroup>
+                    {
+                        new ActionAttackBonusGroup
+                        {
+                            Count = 2,
+                            DurationType = "TURN",
+                            Keyword = "TURN",
+                            CadenceType = "TURN",
+                            Bonuses = new List<ActionAttackBonusItem>
+                            {
+                                new ActionAttackBonusItem { Type = "COMBO", Value = 1 },
+                                new ActionAttackBonusItem { Type = "HIT", Value = 2 },
+                            }
+                        }
+                    }
+                }
+            };
+            var row = ActionDataToSpreadsheetJsonConverter.Merge(data, new SpreadsheetActionJson { Action = "BUFF" });
+            TestBase.AssertTrue(!string.IsNullOrWhiteSpace(row.ActionAttackBonusesJson),
+                "Single bonus group with mechanics must serialize to actionAttackBonusesJson",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestMergeClearsStaleActionAttackBonusesJson()
+        {
+            System.Console.WriteLine("--- Merge clears stale actionAttackBonusesJson ---");
+            var baseRow = new SpreadsheetActionJson
+            {
+                Action = "BUFF",
+                ActionAttackBonusesJson = "{\"bonusGroups\":[{\"count\":3,\"bonuses\":[{\"type\":\"COMBO\",\"value\":5}]}]}"
+            };
+            var data = new ActionData
+            {
+                Name = "BUFF",
+                Cadence = "Turn",
+                ComboBonusDuration = 1,
+                ComboThresholdAdjustment = 1,
+                ActionAttackBonuses = null
+            };
+            var row = ActionDataToSpreadsheetJsonConverter.Merge(data, baseRow);
+            TestBase.AssertEqual("", row.ActionAttackBonusesJson,
+                "Removed bonus groups must not keep stale baseRow JSON",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestMergeAddedMechanicRoundTripsThroughExistingBaseRow()
+        {
+            System.Console.WriteLine("--- Merge added cadence mechanic round-trips through existing base row ---");
+            var baseRow = new SpreadsheetActionJson
+            {
+                Action = "TEST BUFF",
+                Cadence = "TURN",
+                Duration = "2",
+                HeroCombo = "1",
+            };
+            var data = new ActionData
+            {
+                Name = "TEST BUFF",
+                Cadence = "Turn",
+                ComboBonusDuration = 2,
+                ComboThresholdAdjustment = 1,
+                HitThresholdAdjustment = 2,
+                ActionAttackBonuses = new ActionAttackBonuses
+                {
+                    BonusGroups = new List<ActionAttackBonusGroup>
+                    {
+                        new ActionAttackBonusGroup
+                        {
+                            Count = 2,
+                            DurationType = "TURN",
+                            Keyword = "TURN",
+                            CadenceType = "TURN",
+                            Bonuses = new List<ActionAttackBonusItem>
+                            {
+                                new ActionAttackBonusItem { Type = "COMBO", Value = 1 },
+                                new ActionAttackBonusItem { Type = "HIT", Value = 2 },
+                            }
+                        }
+                    }
+                }
+            };
+
+            var merged = ActionDataToSpreadsheetJsonConverter.Merge(data, baseRow);
+            TestBase.AssertEqual("1", merged.HeroCombo, "Existing combo preserved", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("2", merged.HeroHit, "Added hit mechanic written", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!string.IsNullOrWhiteSpace(merged.ActionAttackBonusesJson),
+                "Bonus groups JSON persisted for single block",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var reloaded = SpreadsheetToActionDataConverter.Convert(merged);
+            var editorBlocks = ActionCadenceEditorSync.LoadBlocks(reloaded);
+            TestBase.AssertTrue(editorBlocks.Count >= 1
+                && editorBlocks[0].Mechanics.Any(m => m.MechanicId == "hero_hit_threshold" && m.Quantity == 2)
+                && editorBlocks[0].Mechanics.Any(m => m.MechanicId == "hero_combo_threshold" && m.Quantity == 1),
+                "Reloaded editor blocks include newly added mechanic",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestSpreadsheetEnvironmentRowClearsWeaponsAndSetsDebuffAoe()

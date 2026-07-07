@@ -18,6 +18,7 @@ namespace RPGGame.Tests.Unit.Data
             TestEnemyDiceAndModsDetectedSeparately();
             TestLegacyAliasNormalization();
             TestAllMechanicIdsTrimmedToGoodOnActions();
+            TestEditorMechanicOrderHeroBeforeEnemy();
             TestItemOnlyStatusNotAppliedOnConvert();
             TestFortifyAndMaxHealthAppliedOnConvert();
         }
@@ -136,6 +137,22 @@ namespace RPGGame.Tests.Unit.Data
             TestHarnessBase.AssertFalse(ActionMechanicsRegistry.AllMechanicIds.Contains("stun"), "item-only stun excluded from MECHANIC_LIST");
             TestHarnessBase.AssertTrue(ActionMechanicsRegistry.ItemAppliedStatusEffectIds.Contains("poison"), "poison listed as item-applied");
             TestHarnessBase.AssertTrue(ActionMechanicsRegistry.AllMechanicIds.Contains("hero_combo_threshold"), "hero_combo_threshold included");
+        }
+
+        private static void TestEditorMechanicOrderHeroBeforeEnemy()
+        {
+            var turnIds = ActionMechanicsRegistry.GetMechanicIdsForCadence("Turn");
+            int firstEnemy = turnIds.ToList().FindIndex(id => id.StartsWith("enemy_", StringComparison.OrdinalIgnoreCase));
+            int lastHero = turnIds.ToList().FindLastIndex(id => id.StartsWith("hero_", StringComparison.OrdinalIgnoreCase));
+            TestHarnessBase.AssertTrue(firstEnemy < 0 || lastHero < firstEnemy,
+                "hero mechanics appear before enemy mechanics in editor dropdown");
+
+            TestHarnessBase.AssertTrue(
+                ActionMechanicsRegistry.CompareMechanicIdsForEditor("hero_accuracy", "enemy_accuracy") < 0,
+                "hero_accuracy sorts before enemy_accuracy");
+            TestHarnessBase.AssertTrue(
+                ActionMechanicsRegistry.CompareMechanicIdsForEditor("weaken", "enemy_accuracy") < 0,
+                "neutral mechanics sort between hero and enemy groups");
         }
 
         private static void TestItemOnlyStatusNotAppliedOnConvert()

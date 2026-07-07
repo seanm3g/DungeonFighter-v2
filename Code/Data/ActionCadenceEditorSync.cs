@@ -15,8 +15,7 @@ namespace RPGGame.Data
                 return new List<CadenceEditorBlock>();
 
             if (action.ActionAttackBonuses?.BonusGroups != null
-                && action.ActionAttackBonuses.BonusGroups.Count > 0
-                && HasPersistedMultiBlockOrRichGroups(action))
+                && action.ActionAttackBonuses.BonusGroups.Any(g => g?.Bonuses != null && g.Bonuses.Count > 0))
             {
                 var fromGroups = LoadFromBonusGroups(action);
                 AppendStatusMechanicsNotInBlocks(action, fromGroups);
@@ -32,6 +31,7 @@ namespace RPGGame.Data
             if (action == null)
                 return;
             blocks ??= new List<CadenceEditorBlock>();
+            PruneIncompleteMechanicRows(blocks);
 
             ClearCadenceFlatFields(action);
             action.ActionAttackBonuses = new ActionAttackBonuses();
@@ -58,23 +58,6 @@ namespace RPGGame.Data
 
             ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(action);
             RebuildMechanicsList(action);
-        }
-
-        private static bool HasPersistedMultiBlockOrRichGroups(ActionData action)
-        {
-            var groups = action.ActionAttackBonuses!.BonusGroups;
-            if (groups.Count > 1)
-                return true;
-            if (groups.Count == 1 && groups[0].Bonuses.Count > 0)
-            {
-                string cadence = ResolveGroupCadence(groups[0]);
-                string flatCadence = CadenceKeywords.Normalize(action.Cadence ?? "");
-                int flatDuration = action.ComboBonusDuration > 0 ? action.ComboBonusDuration : 1;
-                if (!string.Equals(cadence, flatCadence, StringComparison.OrdinalIgnoreCase)
-                    || groups[0].Count != flatDuration)
-                    return true;
-            }
-            return false;
         }
 
         private static List<CadenceEditorBlock> LoadFromBonusGroups(ActionData action)
@@ -367,6 +350,21 @@ namespace RPGGame.Data
                     break;
                 case "disrupt": action.CausesDisrupt = row.Quantity != 0; break;
                 case "pierce": action.CausesPierce = row.Quantity != 0; break;
+            }
+        }
+
+        private static void PruneIncompleteMechanicRows(List<CadenceEditorBlock> blocks)
+        {
+            foreach (var block in blocks)
+            {
+                foreach (var row in block.Mechanics)
+                {
+                    if (IsStatusMechanic(row.MechanicId) && row.Quantity == 0)
+                        row.Quantity = 1;
+                }
+                block.Mechanics.RemoveAll(m =>
+                    string.IsNullOrWhiteSpace(m.MechanicId)
+                    || (m.Quantity == 0 && !IsStatusMechanic(m.MechanicId)));
             }
         }
 

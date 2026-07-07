@@ -187,11 +187,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     catch (Exception ex) { ScrollDebugLogger.Log($"SettingsPanel: Error saving enemies: {ex.Message}"); }
                 }
 
-                var actionsPanelForFlush = getPanelForCategory("Actions", currentlyDisplayedPanel) as ActionsSettingsPanel;
-                if (actionsTabManager != null && actionsPanelForFlush != null)
+                if (actionsTabManager != null)
                 {
                     try
                     {
+                        var actionsPanelForFlush = getPanelForCategory("Actions", currentlyDisplayedPanel) as ActionsSettingsPanel;
                         actionsTabManager.FlushCurrentActionAndSaveToFile(actionsPanelForFlush);
                         actionsSaved = true;
                     }

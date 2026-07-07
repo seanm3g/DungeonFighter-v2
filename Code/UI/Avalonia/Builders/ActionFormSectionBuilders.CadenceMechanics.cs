@@ -22,6 +22,7 @@ namespace RPGGame.UI.Avalonia.Builders
 
         public void BuildCadenceMechanicsSection(Panel parent, ActionData action)
         {
+            _ctx.ClearCadenceFlushActions();
             _ctx.CadenceBlocks = ActionCadenceEditorSync.LoadBlocks(action);
             if (_ctx.CadenceBlocks.Count == 0)
                 _ctx.CadenceBlocks.Add(new CadenceEditorBlock());
@@ -127,16 +128,32 @@ namespace RPGGame.UI.Avalonia.Builders
                 BorderBrush = SettingsThemeBrushes.InputBorder,
                 Margin = new Thickness(8, 0, 0, 0)
             };
-            durationBox.LostFocus += (_, _) =>
+            void SyncDurationFromText()
             {
                 if (int.TryParse(durationBox.Text, out int d) && d >= 1)
                     block.Duration = d;
-                else
+                _ctx.NotifyCadenceBlocksChanged();
+            }
+            // TextChanged keeps block model in sync when Save is clicked before LostFocus (same pattern as Name/Description).
+            durationBox.TextChanged += (_, _) => SyncDurationFromText();
+            durationBox.LostFocus += (_, _) =>
+            {
+                if (!int.TryParse(durationBox.Text, out int d) || d < 1)
                     durationBox.Text = block.Duration.ToString();
+                else
+                    block.Duration = d;
                 _ctx.NotifyCadenceBlocksChanged();
             };
             Grid.SetColumn(durationBox, 1);
             headerGrid.Children.Add(durationBox);
+
+            _ctx.RegisterCadenceFlush(() =>
+            {
+                if (cadenceCombo.SelectedItem is string selectedCadence)
+                    block.Cadence = selectedCadence;
+                if (int.TryParse(durationBox.Text, out int d) && d >= 1)
+                    block.Duration = d;
+            });
 
             if (_ctx.CadenceBlocks.Count > 1)
             {
@@ -262,11 +279,13 @@ namespace RPGGame.UI.Avalonia.Builders
                 BorderBrush = SettingsThemeBrushes.InputBorder,
                 Margin = new Thickness(6, 0, 0, 0)
             };
-            qtyBox.LostFocus += (_, _) =>
+            void SyncQtyFromText()
             {
                 row.Quantity = double.TryParse(qtyBox.Text, out double v) ? v : 0;
                 _ctx.NotifyCadenceBlocksChanged();
-            };
+            }
+            qtyBox.TextChanged += (_, _) => SyncQtyFromText();
+            qtyBox.LostFocus += (_, _) => SyncQtyFromText();
             Grid.SetColumn(qtyBox, 2);
             grid.Children.Add(qtyBox);
 
@@ -286,7 +305,27 @@ namespace RPGGame.UI.Avalonia.Builders
             Grid.SetColumn(removeBtn, 3);
             grid.Children.Add(removeBtn);
 
+            _ctx.RegisterCadenceFlush(() =>
+            {
+                if (mechanicCombo.SelectedItem is string label)
+                    row.MechanicId = ParseMechanicIdFromEditorLabel(label) ?? "";
+                if (statCombo.SelectedItem is string stat)
+                    row.StatSubType = stat;
+                row.Quantity = double.TryParse(qtyBox.Text, out double v) ? v : 0;
+            });
+
             return grid;
+        }
+
+        private static string? ParseMechanicIdFromEditorLabel(string? label)
+        {
+            if (string.IsNullOrWhiteSpace(label))
+                return null;
+            int open = label.LastIndexOf('(');
+            int close = label.LastIndexOf(')');
+            if (open >= 0 && close > open)
+                return ActionMechanicsRegistry.NormalizeMechanicId(label.Substring(open + 1, close - open - 1));
+            return ActionMechanicsRegistry.NormalizeMechanicId(label);
         }
 
         private void RefreshCadencePreview()
