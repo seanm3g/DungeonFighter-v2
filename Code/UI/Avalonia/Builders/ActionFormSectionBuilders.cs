@@ -52,9 +52,24 @@ namespace RPGGame.UI.Avalonia.Builders
                 targetTypeOptions.Add(targetTypeDisplay);
             _ctx.Factory.AddFormField(stack, "Target Type", targetTypeDisplay, (value) => action.TargetType = string.IsNullOrWhiteSpace(value) ? "SingleTarget" : value, targetTypeOptions.ToArray());
 
-            _ctx.Factory.AddFormField(stack, "MultiHitCount", action.MultiHitCount.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= 1) action.MultiHitCount = v; }, description: "e.g. 1 (number of hits)");
-            _ctx.Factory.AddFormField(stack, "DamageMultiplier", action.DamageMultiplier.ToString(), (value) => { if (double.TryParse(value, out double v)) action.DamageMultiplier = v; }, description: "e.g. 1.0");
-            _ctx.Factory.AddFormField(stack, "Speed", action.Length.ToString(), (value) => { if (double.TryParse(value, out double v)) action.Length = v; }, description: "e.g. 1.0 (action length)");
+            void SetMultiHitCount(string value)
+            {
+                if (int.TryParse(value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out int v) && v >= 1)
+                    action.MultiHitCount = v;
+            }
+            void SetDamageMultiplier(string value)
+            {
+                if (double.TryParse(value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double v))
+                    action.DamageMultiplier = v;
+            }
+            void SetSpeed(string value)
+            {
+                if (double.TryParse(value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double v))
+                    action.Length = v;
+            }
+            _ctx.Factory.AddFormField(stack, "MultiHitCount", action.MultiHitCount.ToString(), SetMultiHitCount, description: "e.g. 1 (number of hits)", onTextChanged: SetMultiHitCount);
+            _ctx.Factory.AddFormField(stack, "DamageMultiplier", action.DamageMultiplier.ToString(), SetDamageMultiplier, description: "e.g. 1.0", onTextChanged: SetDamageMultiplier);
+            _ctx.Factory.AddFormField(stack, "Speed", action.Length.ToString(), SetSpeed, description: "e.g. 1.0 (action length)", onTextChanged: SetSpeed);
 
             AddActionAssignmentToStack(stack, action);
         }

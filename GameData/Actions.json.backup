@@ -501,6 +501,6 @@
     "enemySTR": "-1",
     "enemyAGI": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022COMBO\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "class, barbarian, insight"
+    "tags": "class, barbarian"
   }
 ]

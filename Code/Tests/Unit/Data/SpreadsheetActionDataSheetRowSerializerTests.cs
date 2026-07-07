@@ -29,6 +29,7 @@ namespace RPGGame.Tests.Unit.Data
             TestTagsColumn_IngestsAndConverts(ref testsRun, ref testsPassed, ref testsFailed);
             TestTagsColumn_PushLayoutColumnE(ref testsRun, ref testsPassed, ref testsFailed);
             TestLayerSectionMarkerRow_SkippedOnParse(ref testsRun, ref testsPassed, ref testsFailed);
+            TestTierSectionMarkerRow_SkippedOnParse(ref testsRun, ref testsPassed, ref testsFailed);
             TestColumnUsage_IgnoredLabelsOnPull(ref testsRun, ref testsPassed, ref testsFailed);
             TestTargetColumn_IngestsEnemySelfEnvironment(ref testsRun, ref testsPassed, ref testsFailed);
             TestHeroHealAndStatusColumns_ConvertToActionData(ref testsRun, ref testsPassed, ref testsFailed);
@@ -356,6 +357,31 @@ namespace RPGGame.Tests.Unit.Data
                 result.Actions.TrueForAll(a => !SpreadsheetActionData.IsLayerSectionMarkerRow(a.Action)),
                 "no layer marker ingested as action",
                 ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestTierSectionMarkerRow_SkippedOnParse(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestTierSectionMarkerRow_SkippedOnParse));
+
+            TestBase.AssertTrue(SpreadsheetActionData.IsTierSectionMarkerRow("TIER 2 ACTIONS"),
+                "TIER 2 ACTIONS is a tier section marker", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(SpreadsheetActionData.IsPushPreservedSectionRow("TIER 1 ACTIONS"),
+                "tier marker is push-preserved", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(SpreadsheetActionData.IsHeaderOrContextRow("TIER 3 ACTIONS"),
+                "tier marker is header/context on pull", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(!SpreadsheetActionData.IsTierSectionMarkerRow("JAB"),
+                "JAB is not a tier marker", ref testsRun, ref testsPassed, ref testsFailed);
+
+            const string csv = ""
+                + "ACTION,DESCRIPTION\n"
+                + "JAB,reset\n"
+                + "TIER 2 ACTIONS,\n"
+                + "TAUNT,draw aggro\n";
+
+            var result = SpreadsheetActionParser.ParseCsvContent(csv);
+            TestBase.AssertEqual(2, result.Actions.Count, "two actions ingested (tier skipped)", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("JAB", result.Actions[0].Action, "first action", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("TAUNT", result.Actions[1].Action, "second action after tier break", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
         private static void TestColumnUsage_IgnoredLabelsOnPull(ref int testsRun, ref int testsPassed, ref int testsFailed)

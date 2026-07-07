@@ -22,6 +22,7 @@ namespace RPGGame.Tests.Runners
             ("BalancePatchMetadata", () => BalancePatchMetadataTests.RunAllTests()),
             ("GeneralSettingsStore", () => GeneralSettingsStoreTests.RunAllTests()),
             ("SheetsPushUtilities", () => SheetsPushUtilitiesTests.RunAllTests()),
+            ("ActionSheetsPushRowMerger", () => ActionSheetsPushRowMergerTests.RunAllTests()),
             ("JsonArraySheetConverter", () => JsonArraySheetConverterTests.RunAllTests()),
             ("GameDataTagHelper", () => GameDataTagHelperTests.RunAllTests()),
             ("ClassPresentationSheetConverter", () => ClassPresentationSheetConverterTests.RunAllTests()),

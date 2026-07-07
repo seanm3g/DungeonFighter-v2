@@ -231,6 +231,24 @@ namespace RPGGame.Data
         }
 
         /// <summary>
+        /// True when column A is a tier section header (e.g. "TIER 1 ACTIONS"). These rows are preserved on push.
+        /// </summary>
+        public static bool IsTierSectionMarkerRow(string? columnA)
+        {
+            if (string.IsNullOrWhiteSpace(columnA))
+                return false;
+            return columnA.IndexOf("TIER", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        /// <summary>
+        /// Section-break rows that must not be reordered or overwritten when pushing to the ACTIONS sheet.
+        /// </summary>
+        public static bool IsPushPreservedSectionRow(string? columnA)
+        {
+            return IsLayerSectionMarkerRow(columnA) || IsTierSectionMarkerRow(columnA);
+        }
+
+        /// <summary>
         /// Returns true if the action name looks like spreadsheet context/header rather than a real action.
         /// Rows with parenthetical labels (e.g. "(RESET CHAIN)") or sub-header column names are skipped.
         /// </summary>
@@ -241,7 +259,7 @@ namespace RPGGame.Data
 
             var trimmed = actionName.Trim();
 
-            if (IsLayerSectionMarkerRow(trimmed))
+            if (IsPushPreservedSectionRow(trimmed))
                 return true;
 
             // Parenthetical context labels: "(RESET CHAIN)", "(ON FAIL NO RESET)"

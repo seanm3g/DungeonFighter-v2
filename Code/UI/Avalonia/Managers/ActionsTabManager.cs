@@ -485,7 +485,8 @@ namespace RPGGame.UI.Avalonia.Managers
                 return cb.IsChecked == true;
             }
             string? v;
-            // Name and Description are synced to the action via TextChanged (like Accuracy), so we don't read from form here and overwrite with a reverted value when the user saves via the global Save button (focus may move before LostFocus fires).
+            // Name, Description, DamageMultiplier, MultiHitCount, and Speed sync via TextChanged (like Accuracy).
+            // Do not read those from form controls on save — focus may move before LostFocus and the TextBox can revert.
             if ((v = GetText("Rarity")) != null) action.Rarity = (v == "(None)" || string.IsNullOrWhiteSpace(v)) ? "" : v;
             if ((v = GetText("Category")) != null) action.Category = (v == ActionFormOptions.GeneralOption || string.IsNullOrWhiteSpace(v)) ? "" : v;
             if ((v = GetText("Tags")) != null) action.Tags = string.IsNullOrWhiteSpace(v) ? new List<string>() : v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
@@ -497,9 +498,6 @@ namespace RPGGame.UI.Avalonia.Managers
                     action.Tags.Add(WeaponRequiredComboAction.WeaponBasicTag);
             }
             if ((v = GetText("Target Type")) != null) action.TargetType = string.IsNullOrWhiteSpace(v) ? "SingleTarget" : v;
-            if ((v = GetText("MultiHitCount")) != null && int.TryParse(v, out int i1) && i1 >= 1) action.MultiHitCount = i1;
-            if ((v = GetText("DamageMultiplier")) != null && double.TryParse(v, out double d1)) action.DamageMultiplier = d1;
-            if ((v = GetText("Speed")) != null && double.TryParse(v, out double d2)) action.Length = d2;
             if ((v = GetText("Chain Position")) != null) action.ChainPosition = v ?? "";
             if ((v = GetText("Chain Position Number")) != null && int.TryParse(v, out int i4) && i4 >= -1) action.ComboOrder = i4;
             if (GetBool("Chain Position MOD") is bool b1) action.ModifyBasedOnChainPosition = b1 ? "true" : "";

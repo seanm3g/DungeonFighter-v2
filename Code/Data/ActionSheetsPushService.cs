@@ -125,30 +125,37 @@ namespace RPGGame.Data
             if (header == null)
                 throw new InvalidOperationException("Could not parse header rows. Set actionsSheetUrl in GameData/SheetsConfig.json to match the published CSV used for pull, or check actionsSheetTabName and header rows on the tab.");
 
-            var bodyRows = new List<IList<object>>();
-            foreach (var json in actions)
-            {
-                var data = json.ToSpreadsheetActionData();
-                if (!data.IsValid())
-                    continue;
-                ActionMechanicsSheetSync.SyncRow(data);
-                var cells = SpreadsheetActionDataSheetRowSerializer.ToRow(data, header);
-                bodyRows.Add(cells.Select(c => SheetsPushUtilities.NormalizeCellValueForUpload(c)).ToList());
-            }
+            var existingSheetRows = await FetchExistingDataRowsAsync(
+                    service, cfg, sheet, firstDataRowOneBased, cancellationToken)
+                .ConfigureAwait(false);
+            int previousDataRowCount = existingSheetRows.Count;
+
+            var merge = ActionSheetsPushRowMerger.BuildBodyRowsPreservingSheetOrder(existingSheetRows, actions, header);
+            var bodyRows = merge.BodyRows.ToList();
 
             if (bodyRows.Count == 0)
                 throw new InvalidOperationException("No valid action rows to push (every row failed IsValid).");
 
             // Column F is reserved for on-sheet formulas (e.g. e(V)); TAGS in column E is pushed with A–D.
             int lastDataRowOneBased = firstDataRowOneBased + bodyRows.Count - 1;
-            string clearLeft = $"{sheet}!A{firstDataRowOneBased}:E5000";
-            string clearRight = $"{sheet}!G{firstDataRowOneBased}:ZZ5000";
-            await service.Spreadsheets.Values
-                .BatchClear(
-                    new BatchClearValuesRequest { Ranges = new List<string> { clearLeft, clearRight } },
-                    cfg.SpreadsheetId)
-                .ExecuteAsync(cancellationToken)
-                .ConfigureAwait(false);
+            int trailingClearStart = lastDataRowOneBased + 1;
+            int trailingClearEnd = Math.Max(firstDataRowOneBased + previousDataRowCount - 1, trailingClearStart);
+            var clearRanges = new List<string>();
+            if (trailingClearStart <= trailingClearEnd)
+            {
+                clearRanges.Add($"{sheet}!A{trailingClearStart}:E{trailingClearEnd}");
+                clearRanges.Add($"{sheet}!G{trailingClearStart}:ZZ{trailingClearEnd}");
+            }
+
+            if (clearRanges.Count > 0)
+            {
+                await service.Spreadsheets.Values
+                    .BatchClear(
+                        new BatchClearValuesRequest { Ranges = clearRanges },
+                        cfg.SpreadsheetId)
+                    .ExecuteAsync(cancellationToken)
+                    .ConfigureAwait(false);
+            }
 
             var leftRows = new List<IList<object>>(bodyRows.Count);
             var rightRows = new List<IList<object>>(bodyRows.Count);
@@ -203,8 +210,9 @@ namespace RPGGame.Data
             int? updated = batchResponse?.TotalUpdatedRows;
             int? updatedCells = batchResponse?.TotalUpdatedCells;
             Console.WriteLine(
-                $"Sheets push: wrote {bodyRows.Count} action row(s) to tab {cfg.ActionsSheetTabName} starting at row {firstDataRowOneBased} " +
-                $"(column F left unchanged for sheet formulas; TAGS column E included; API reports TotalUpdatedRows={updated}, TotalUpdatedCells={updatedCells}).");
+                $"Sheets push: wrote {bodyRows.Count} row(s) to tab {cfg.ActionsSheetTabName} starting at row {firstDataRowOneBased} " +
+                $"({merge.UpdatedActionCount} action(s) updated, {merge.PreservedSectionRowCount} section header(s) preserved, {merge.AppendedActionCount} new action(s) appended; " +
+                $"column F left unchanged for sheet formulas; TAGS column E included; API reports TotalUpdatedRows={updated}, TotalUpdatedCells={updatedCells}).");
 
             return new ActionSheetsPushOutcome(bodyRows.Count, firstDataRowOneBased, updated, updatedCells);
         }
@@ -225,6 +233,24 @@ namespace RPGGame.Data
 
             var rowStrings = SheetsPushUtilities.NormalizeToStringRows(previewResponse.Values);
             return SpreadsheetActionParser.BuildHeaderFromSheetRows(rowStrings);
+        }
+
+        private static async Task<List<string[]>> FetchExistingDataRowsAsync(
+            SheetsService service,
+            SheetsPushConfig cfg,
+            string escapedSheetName,
+            int firstDataRowOneBased,
+            CancellationToken cancellationToken)
+        {
+            string dataRange = $"{escapedSheetName}!A{firstDataRowOneBased}:ZZ5000";
+            var response = await service.Spreadsheets.Values
+                .Get(cfg.SpreadsheetId, dataRange)
+                .ExecuteAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            var rows = SheetsPushUtilities.NormalizeToStringRows(response.Values);
+            ActionSheetsPushRowMerger.TrimTrailingEmptyRows(rows);
+            return rows;
         }
     }
 }
