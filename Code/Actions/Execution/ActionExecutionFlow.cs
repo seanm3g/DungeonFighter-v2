@@ -91,8 +91,8 @@ namespace RPGGame.Actions.Execution
             Action? lastPlayerAction,
             Action? forcedAction,
             BattleNarrative? battleNarrative,
-            Dictionary<Actor, Action> lastUsedActions,
-            Dictionary<Actor, bool> lastCriticalMissStatus)
+            IDictionary<Actor, Action> lastUsedActions,
+            IDictionary<Actor, bool> lastCriticalMissStatus)
         {
             var sw = CombatHotPathMetrics.IsEnabled ? Stopwatch.StartNew() : null;
 

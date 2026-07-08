@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
@@ -45,11 +46,11 @@ namespace RPGGame
         // Flag to disable debug output during balance analysis
         public static bool DisableCombatDebugOutput = false; // Temporarily enable debug output
 
-        // Store the last action used by each Actor
-        private static readonly Dictionary<Actor, Action> _lastUsedActions = new Dictionary<Actor, Action>();
+        // Store the last action used by each Actor (concurrent for parallel sim workers)
+        private static readonly ConcurrentDictionary<Actor, Action> _lastUsedActions = new();
         
         // Store the critical miss status for the last action used by each Actor
-        private static readonly Dictionary<Actor, bool> _lastCriticalMissStatus = new Dictionary<Actor, bool>();
+        private static readonly ConcurrentDictionary<Actor, bool> _lastCriticalMissStatus = new();
 
         /// <summary>
         /// Core execution logic shared between string and ColoredText methods

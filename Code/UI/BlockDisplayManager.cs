@@ -131,9 +131,8 @@ namespace RPGGame
             }
             catch (Exception ex)
             {
-                // Log error but don't throw - allow combat to continue
-                System.Diagnostics.Debug.WriteLine($"Error in BlockDisplayManager.DisplayActionBlock: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                // Log (do not swallow silently) but continue combat — display failure must not abort the fight.
+                LogDisplayFailure(nameof(DisplayActionBlock), ex);
             }
         }
         
@@ -199,19 +198,31 @@ namespace RPGGame
                 TextSpacingSystem.RecordBlockDisplayed(blockType, currentEntity);
                 
                 // Delay and spacing are now handled by the batch method for GUI
-                // For console, still apply delay and spacing
+                // For console, still apply delay and spacing (await so combat pacing stays consistent)
                 var customUIManager = UIManager.GetCustomUIManager();
                 if (customUIManager == null)
                 {
-                    BlockDelayManager.ApplyBlockDelay();
+                    await BlockDelayManager.ApplyBlockDelayAsync();
                 }
             }
             catch (Exception ex)
             {
-                // Log error but don't throw - allow combat to continue
-                System.Diagnostics.Debug.WriteLine($"Error in BlockDisplayManager.DisplayActionBlockAsync: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                // Log (do not swallow silently) but continue combat — display failure must not abort the fight.
+                LogDisplayFailure(nameof(DisplayActionBlockAsync), ex);
             }
+        }
+
+        /// <summary>
+        /// Surfaces combat-display failures to Debug + DebugLogger so stuck/blank logs are diagnosable.
+        /// </summary>
+        internal static void LogDisplayFailure(string methodName, Exception ex)
+        {
+            string message = $"Error in BlockDisplayManager.{methodName}: {ex.GetType().Name}: {ex.Message}";
+            System.Diagnostics.Debug.WriteLine(message);
+            System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            DebugLogger.WriteDebugAlways($"[BlockDisplayManager] {message}");
+            if (!string.IsNullOrEmpty(ex.StackTrace))
+                DebugLogger.WriteDebugAlways($"[BlockDisplayManager] Stack: {ex.StackTrace}");
         }
         
         /// <summary>

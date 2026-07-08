@@ -20,6 +20,7 @@ namespace RPGGame.Tests.Unit.Tuning
             _run = _pass = _fail = 0;
 
             TestScopeRestoresFlag();
+            TestScopeRestoresNegativeHpFloor();
             TestShouldContinueEncounter();
             TestDevSimSingleEncounter();
 
@@ -35,6 +36,20 @@ namespace RPGGame.Tests.Unit.Tuning
                 TestBase.AssertTrue(DeveloperSimMode.ContinuePastZeroHp, "Enabled in scope", ref _run, ref _pass, ref _fail);
             }
             TestBase.AssertFalse(DeveloperSimMode.ContinuePastZeroHp, "Restored after scope", ref _run, ref _pass, ref _fail);
+        }
+
+        private static void TestScopeRestoresNegativeHpFloor()
+        {
+            Console.WriteLine("--- Scope restores negative HP floor ---");
+            using (DeveloperSimMode.BeginScope(true, -100))
+            {
+                TestBase.AssertEqual(-100, DeveloperSimMode.NegativeHpFloor, "Scoped floor", ref _run, ref _pass, ref _fail);
+                TestBase.AssertTrue(DeveloperSimMode.ShouldContinueEncounter(-50, 100, true),
+                    "Continues above scoped floor", ref _run, ref _pass, ref _fail);
+                TestBase.AssertFalse(DeveloperSimMode.ShouldContinueEncounter(-150, 100, true),
+                    "Stops at scoped floor", ref _run, ref _pass, ref _fail);
+            }
+            TestBase.AssertEqual(-500, DeveloperSimMode.NegativeHpFloor, "Default floor restored", ref _run, ref _pass, ref _fail);
         }
 
         private static void TestShouldContinueEncounter()

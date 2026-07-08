@@ -77,24 +77,9 @@ namespace RPGGame
             rollInfo.Add($"roll: {rollDisplay}");
             
             // Attack vs Defense information
-            int targetDefense = 0;
-            bool targetUsesArmorPool = false;
-            if (target is Enemy targetEnemy)
-            {
-                targetDefense = targetEnemy.Armor;
-            }
-            else if (target is Character targetCharacter)
-            {
-                targetUsesArmorPool = true;
-                targetDefense = targetCharacter.CurrentArmor + targetCharacter.Effects.LastArmorAbsorbed;
-            }
-            
-            // Match combat damage: roll bands use total attack (base + bonuses), not base alone.
+            int targetDefense = DamageCalculator.ResolveTargetArmor(target);
             int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, totalRoll, rollBonus);
-            if (targetUsesArmorPool)
-                rollInfo.Add($"attack {actualRawDamage}{(targetDefense > 0 ? $" | {targetDefense} armor" : "")}");
-            else
-                rollInfo.Add($"attack {actualRawDamage} - {targetDefense} armor");
+            rollInfo.Add($"attack {actualRawDamage} - {targetDefense} armor");
             
             // Speed information - calculate actual action speed
             if (action != null && action.Length > 0)

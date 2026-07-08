@@ -240,28 +240,12 @@ namespace RPGGame.Combat.Calculators
                 totalDamage = (int)(totalDamage * tagModifier);
             }
 
-            // Get target's armor (enemies only — hero armor is a room pool absorbed in TakeDamage)
-            int targetArmor = 0;
-            if (target is Enemy targetEnemy)
-            {
-                targetArmor = targetEnemy.Armor;
-            }
+            // Flat armor reduction for both heroes and enemies (persistent; not consumed).
+            int targetArmor = ResolveTargetArmor(target);
 
             // Calculate final damage after armor reduction
-            int finalDamage;
-
             int minimumDamage = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage); // Ensure at least 1
-
-            if (target is Character)
-            {
-                // Hero armor pool absorbs full damage in TakeDamage; no flat reduction here.
-                finalDamage = Math.Max(minimumDamage, (int)totalDamage);
-            }
-            else
-            {
-                // Apply simple armor reduction (flat reduction) for enemies
-                finalDamage = Math.Max(minimumDamage, (int)totalDamage - targetArmor);
-            }
+            int finalDamage = Math.Max(minimumDamage, (int)totalDamage - targetArmor);
 
             // Apply weakened effect if target is weakened
             if (target.IsWeakened && showWeakenedMessage)
@@ -289,12 +273,7 @@ namespace RPGGame.Combat.Calculators
         /// </summary>
         public static int ApplyDamageReduction(Actor target, int damage)
         {
-            // Get base armor reduction (enemies only — hero armor is a room pool)
-            int armorReduction = 0;
-            if (target is Enemy targetEnemy)
-            {
-                armorReduction = targetEnemy.Armor;
-            }
+            int armorReduction = ResolveTargetArmor(target);
 
             // Apply damage reduction from effects
             double damageReductionMultiplier = 1.0;
@@ -304,10 +283,20 @@ namespace RPGGame.Combat.Calculators
             }
 
             // Apply simple armor reduction (flat reduction) with damage reduction multiplier
-            int preMitigation = target is Character ? damage : damage - armorReduction;
+            int preMitigation = damage - armorReduction;
             int finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)(preMitigation * damageReductionMultiplier));
 
             return finalDamage;
+        }
+
+        /// <summary>Effective flat armor for the target (hero gear+/effects, enemy <see cref="Enemy.Armor"/>).</summary>
+        public static int ResolveTargetArmor(Actor target)
+        {
+            if (target is Enemy enemy)
+                return Math.Max(0, enemy.Armor);
+            if (target is Character character)
+                return Math.Max(0, character.GetMaxArmor());
+            return 0;
         }
     }
 }

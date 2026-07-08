@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace RPGGame
@@ -325,7 +326,17 @@ namespace RPGGame
 
         // === SAVE/LOAD METHODS ===
         public void SaveCharacter(string? characterId = null, string? filename = null, bool markDead = false) => CharacterSaveManager.SaveCharacter(_character, characterId, filename, markDead);
-        public static async Task<Character?> LoadCharacterAsync(string? characterId = null, string? filename = null) => await CharacterSaveManager.LoadCharacterAsync(characterId, filename).ConfigureAwait(false);
+        public Task SaveCharacterAsync(
+            string? characterId = null,
+            string? filename = null,
+            bool markDead = false,
+            System.Threading.CancellationToken cancellationToken = default) =>
+            CharacterSaveManager.SaveCharacterAsync(_character, characterId, filename, markDead, cancellationToken);
+        public static async Task<Character?> LoadCharacterAsync(
+            string? characterId = null,
+            string? filename = null,
+            System.Threading.CancellationToken cancellationToken = default) =>
+            await CharacterSaveManager.LoadCharacterAsync(characterId, filename, cancellationToken).ConfigureAwait(false);
         public static void DeleteSaveFile(string? filename = null) => CharacterSaveManager.DeleteSaveFile(filename);
 
         // === DIRECT ACCESS TO UNDERLYING CHARACTER ===

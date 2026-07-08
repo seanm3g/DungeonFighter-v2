@@ -15,6 +15,7 @@ namespace RPGGame.Tests.Unit
             TestCharacterRegistration();
             TestCharacterSwitching();
             TestCharacterContextManagement();
+            TestSwitchDoesNotBleedLegacyDungeonRoom();
             TestActiveCharacterComputedProperty();
             TestCharacterRemoval();
             Console.WriteLine("All GameStateManager multi-character tests passed!");
@@ -99,6 +100,35 @@ namespace RPGGame.Tests.Unit
                 Assert(context.ActiveDungeon == null, "Dungeon should be cleared");
                 Assert(context.ActiveRoom == null, "Room should be cleared");
             }
+        }
+
+        private static void TestSwitchDoesNotBleedLegacyDungeonRoom()
+        {
+            var stateManager = new GameStateManager();
+            var character1 = new Character("BleedChar1", 1);
+            var character2 = new Character("BleedChar2", 2);
+
+            var id1 = stateManager.AddCharacter(character1);
+            var id2 = stateManager.AddCharacter(character2);
+
+            var dungeon1 = new Dungeon("Dungeon One", 1, 3, "Forest");
+            var room1 = new Environment("Room One", "First character room", isHostile: true, theme: "Forest");
+            stateManager.SwitchCharacter(id1);
+            stateManager.SetCurrentDungeon(dungeon1);
+            stateManager.SetCurrentRoom(room1);
+
+            Assert(stateManager.CurrentDungeon == dungeon1, "Char1 dungeon should be set");
+            Assert(stateManager.CurrentRoom == room1, "Char1 room should be set");
+
+            // Switch to a character with no dungeon/room — must not leak char1's legacy fields
+            stateManager.SwitchCharacter(id2);
+            Assert(stateManager.CurrentDungeon == null, "Char2 should not inherit Char1 dungeon via legacy dual-write");
+            Assert(stateManager.CurrentRoom == null, "Char2 should not inherit Char1 room via legacy dual-write");
+
+            // Char1 context still holds its own dungeon/room
+            stateManager.SwitchCharacter(id1);
+            Assert(stateManager.CurrentDungeon == dungeon1, "Char1 dungeon should still be on its context");
+            Assert(stateManager.CurrentRoom == room1, "Char1 room should still be on its context");
         }
 
         private static void TestActiveCharacterComputedProperty()

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame;
+using RPGGame.Combat;
 
 namespace RPGGame.Combat.UI
 {
@@ -43,6 +44,8 @@ namespace RPGGame.Combat.UI
 
         public static void SetPending(string entityId, int poisonDamage, int burnDamage, int bleedDamage)
         {
+            if (CombatUiMuteScope.IsMuted)
+                return;
             Pending[entityId] = (poisonDamage, burnDamage, bleedDamage);
         }
 
@@ -52,6 +55,8 @@ namespace RPGGame.Combat.UI
         /// </summary>
         public static void RecordAfterMitigation(string entityId, int poisonRequested, int burnRequested, int bleedRequested, int requestedTotal, int actualHpLost)
         {
+            if (CombatUiMuteScope.IsMuted)
+                return;
             if (string.IsNullOrEmpty(entityId) || actualHpLost <= 0)
                 return;
 

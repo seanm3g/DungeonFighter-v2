@@ -338,10 +338,17 @@ namespace RPGGame.ActionInteractionLab
         public void AddSelectedCatalogActionToComboStrip()
         {
             if (string.IsNullOrWhiteSpace(SelectedCatalogActionName)) return;
-            var action = ActionLoader.GetAction(SelectedCatalogActionName);
+            var poolEntry = _labPlayer.ActionPool.FirstOrDefault(item =>
+                item.action != null && string.Equals(item.action.Name, SelectedCatalogActionName, StringComparison.OrdinalIgnoreCase));
+            var action = poolEntry.action ?? ActionLoader.GetAction(SelectedCatalogActionName);
             if (action == null) return;
             if (!action.IsComboAction)
                 action.IsComboAction = true;
+            // Fresh ActionLoader instances keep JSON ComboOrder (often 0), which ReorderComboSequence sorts to the front.
+            // Append at the end of the current strip, matching ReapplyComboStrip / RestoreComboFromActionNames.
+            var existing = _labPlayer.GetComboActions();
+            int nextSlot = existing.Count > 0 ? existing.Max(a => a.ComboOrder) + 1 : 1;
+            action.ComboOrder = nextSlot;
             _labPlayer.AddToCombo(action);
             SyncCatalogSelectionToUpcomingActor();
             _refreshCombatUi();

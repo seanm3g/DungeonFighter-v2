@@ -88,9 +88,7 @@ namespace RPGGame.ActionInteractionLab
             // Default dummy path still calls GetAllEnemyTypes from parallel workers; preload + lock in EnemyLoader avoids races.
             EnemyLoader.LoadEnemies();
 
-            bool prevUi = CombatManager.DisableCombatUIOutput;
-            CombatManager.DisableCombatUIOutput = true;
-            try
+            using (CombatUiMuteScope.Begin(muted: true))
             {
                 if (dop <= 1)
                 {
@@ -133,10 +131,6 @@ namespace RPGGame.ActionInteractionLab
                     foreach (var m in results)
                         report.Encounters.Add(m);
                 }
-            }
-            finally
-            {
-                CombatManager.DisableCombatUIOutput = prevUi;
             }
 
             Aggregate(report);

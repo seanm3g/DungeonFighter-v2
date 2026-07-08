@@ -1,4 +1,5 @@
 using System;
+using RPGGame.Combat.Calculators;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Entity
@@ -25,10 +26,9 @@ namespace RPGGame.Tests.Unit.Entity
             _testsFailed = 0;
 
             TestTakeDamage();
-            TestArmorPoolAbsorption();
-            TestRefreshRoomArmor();
-            TestArmorClampsWhenMaxDecreases();
-            TestEquipRefreshesArmorToFull();
+            TestArmorFlatReductionPersists();
+            TestArmorUnaffectedByHits();
+            TestArmorTracksEquipUnequip();
             TestIsAlive();
             TestGetEffectiveMaxHealth();
             TestGetHealthPercentage();
@@ -60,34 +60,43 @@ namespace RPGGame.Tests.Unit.Entity
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestArmorPoolAbsorption()
+        /// <summary>
+        /// Attack damage path subtracts effective armor in DamageCalculator; TakeDamage does not consume armor.
+        /// </summary>
+        private static void TestArmorFlatReductionPersists()
         {
-            Console.WriteLine("\n--- Testing ArmorPoolAbsorption ---");
+            Console.WriteLine("\n--- Testing ArmorFlatReductionPersists ---");
 
-            var character = TestDataBuilders.Character()
+            var attacker = TestDataBuilders.Enemy()
+                .WithName("Attacker")
+                .WithHealth(100)
+                .Build();
+
+            var defender = TestDataBuilders.Character()
                 .WithName("ArmoredPlayer")
                 .WithLevel(1)
                 .Build();
 
             var chest = new ChestItem("TestChest", 1, 10);
-            character.EquipItem(chest, "body");
-            character.RefreshRoomArmor();
+            defender.EquipItem(chest, "body");
 
-            int initialHealth = character.CurrentHealth;
-            TestBase.AssertEqual(10, character.CurrentArmor, "Armor pool should match equipped armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(10, defender.GetMaxArmor(), "Effective armor should match equipped armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(10, defender.CurrentArmor, "CurrentArmor should alias effective armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            character.Health.TakeDamage(6);
-            TestBase.AssertEqual(4, character.CurrentArmor, "Armor should absorb damage linearly", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(initialHealth, character.CurrentHealth, "Health should be untouched while armor remains", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var action = TestDataBuilders.CreateMockAction("JAB");
+            action.DamageMultiplier = 1.0;
 
-            character.Health.TakeDamage(10);
-            TestBase.AssertEqual(0, character.CurrentArmor, "Armor pool should be depleted", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(initialHealth - 6, character.CurrentHealth, "Overflow damage should hit health", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            int raw = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
+            int mitigated = DamageCalculator.CalculateDamage(attacker, defender, action, 1.0, 1.0, 0, 10);
+            int expected = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, raw - 10);
+
+            TestBase.AssertEqual(expected, mitigated, "Hero armor should flat-reduce attack damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(10, defender.GetMaxArmor(), "Armor value should still be present after mitigation calc", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestRefreshRoomArmor()
+        private static void TestArmorUnaffectedByHits()
         {
-            Console.WriteLine("\n--- Testing RefreshRoomArmor ---");
+            Console.WriteLine("\n--- Testing ArmorUnaffectedByHits ---");
 
             var character = TestDataBuilders.Character()
                 .WithName("ArmoredPlayer")
@@ -96,17 +105,20 @@ namespace RPGGame.Tests.Unit.Entity
 
             var chest = new ChestItem("TestChest", 1, 8);
             character.EquipItem(chest, "body");
-            character.RefreshRoomArmor();
+
+            int initialHealth = character.CurrentHealth;
             character.Health.TakeDamage(8);
-            TestBase.AssertEqual(0, character.CurrentArmor, "Armor should be depleted after full absorption", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertEqual(8, character.GetMaxArmor(), "TakeDamage must not consume armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(initialHealth - 8, character.CurrentHealth, "TakeDamage applies amount directly to health", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             character.RefreshRoomArmor();
-            TestBase.AssertEqual(8, character.CurrentArmor, "Armor should refill at room entry", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(8, character.GetMaxArmor(), "RefreshRoomArmor is a no-op for flat armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestArmorClampsWhenMaxDecreases()
+        private static void TestArmorTracksEquipUnequip()
         {
-            Console.WriteLine("\n--- Testing ArmorClampsWhenMaxDecreases ---");
+            Console.WriteLine("\n--- Testing ArmorTracksEquipUnequip ---");
 
             var character = TestDataBuilders.Character()
                 .WithName("ArmoredPlayer")
@@ -115,32 +127,16 @@ namespace RPGGame.Tests.Unit.Entity
 
             var chest = new ChestItem("HeavyChest", 1, 10);
             character.EquipItem(chest, "body");
-            character.RefreshRoomArmor();
-            TestBase.AssertEqual(10, character.CurrentArmor, "Armor should start at max", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(10, character.GetMaxArmor(), "Armor should match equipped piece", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             character.UnequipItem("body");
-            TestBase.AssertEqual(0, character.GetMaxArmor(), "Unequipping armor should drop max to 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0, character.CurrentArmor, "Current armor should match max after unequip refresh", ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestEquipRefreshesArmorToFull()
-        {
-            Console.WriteLine("\n--- Testing EquipRefreshesArmorToFull ---");
-
-            var character = TestDataBuilders.Character()
-                .WithName("ArmoredPlayer")
-                .WithLevel(1)
-                .Build();
-
-            var chest = new ChestItem("TestChest", 1, 6);
-            character.EquipItem(chest, "body");
-            character.RefreshRoomArmor();
-            character.Health.TakeDamage(4);
-            TestBase.AssertEqual(2, character.CurrentArmor, "Armor should be partially depleted", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, character.GetMaxArmor(), "Unequipping armor should drop effective armor to 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, character.CurrentArmor, "CurrentArmor should match effective armor after unequip", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var upgradedChest = new ChestItem("BetterChest", 1, 8);
             character.EquipItem(upgradedChest, "body");
-            TestBase.AssertEqual(8, character.CurrentArmor, "Equipping armor should restore armor to full", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            character.Health.TakeDamage(4);
+            TestBase.AssertEqual(8, character.GetMaxArmor(), "Equipping armor sets effective flat DR; hits do not deplete it", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

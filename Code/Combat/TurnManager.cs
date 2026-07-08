@@ -10,8 +10,12 @@ namespace RPGGame
     /// </summary>
     public class TurnManager
     {
-        // Flag to disable UI output during balance analysis
-        public static bool DisableCombatUIOutput = false;
+        // Flag to disable UI output during balance analysis — aliases CombatManager so DoT and combat stay in sync
+        public static bool DisableCombatUIOutput
+        {
+            get => CombatManager.DisableCombatUIOutput;
+            set => CombatManager.DisableCombatUIOutput = value;
+        }
         
         private ActionSpeedSystem? actionSpeedSystem;
         private BattleHealthTracker? healthTracker;

@@ -317,12 +317,15 @@ namespace RPGGame.Tuning.Profiles
 
             var rng = new Random();
             bool continuePastZeroHp = overrides?.ContinuePastZeroHp ?? sim.ContinuePastZeroHp;
-            if (continuePastZeroHp && overrides?.NegativeHpFloor != null)
-                DeveloperSimMode.NegativeHpFloor = overrides.NegativeHpFloor.Value;
+            int? negativeHpFloor = continuePastZeroHp ? overrides?.NegativeHpFloor : null;
 
-            var report = await ActionLabEncounterSimulator.RunBatchAsync(
-                    snapshot, encounters, rng, maxDegreeOfParallelism: 1, encounterProgress, continuePastZeroHp)
-                .ConfigureAwait(false);
+            ActionLabEncounterSimulationReport report;
+            using (DeveloperSimMode.BeginScope(continuePastZeroHp, negativeHpFloor))
+            {
+                report = await ActionLabEncounterSimulator.RunBatchAsync(
+                        snapshot, encounters, rng, maxDegreeOfParallelism: 1, encounterProgress, continuePastZeroHp)
+                    .ConfigureAwait(false);
+            }
 
             progress?.Report((encounters, encounters,
                 $"Done: {report.AverageTurns:F1} mean actions, {report.AveragePlayerMaxComboStreak:F2} mean max combo+ chain"));

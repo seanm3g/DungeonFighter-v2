@@ -83,7 +83,6 @@ namespace RPGGame.Combat.Formatting
             double actualSpeed, 
             double? comboAmplifier = null, 
             Action? action = null,
-            bool targetUsesArmorPool = false,
             MultiDiceRollDetail multiDiceDetail = default)
         {
             var builder = new ColoredTextBuilder();
@@ -111,10 +110,7 @@ namespace RPGGame.Combat.Formatting
             // Attack vs Defense
             if (rawDamage > 0 || targetDefense > 0)
             {
-                if (targetUsesArmorPool)
-                    AddAttackWithArmorPool(builder, rawDamage, targetDefense);
-                else
-                    AddAttackVsArmor(builder, rawDamage, targetDefense);
+                AddAttackVsArmor(builder, rawDamage, targetDefense);
             }
             
             // Speed information

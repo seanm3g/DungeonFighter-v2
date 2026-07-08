@@ -34,11 +34,13 @@ namespace RPGGame
         }
         // State fields
         private GameState currentState = GameState.MainMenu;
-        private Character? currentPlayer;
-        private List<Item> currentInventory = new();
+        /// <summary>Fallback when no character is registered (pre-registry / reset). Prefer <see cref="CharacterContext"/> when active.</summary>
+        private Character? legacyPlayerFallback;
+        private List<Item> legacyInventoryFallback = new();
         private List<Dungeon> availableDungeons = new();
-        private Dungeon? currentDungeon;
-        private Environment? currentRoom;
+        /// <summary>Fallback dungeon/room only when no active character context exists. Never dual-write into both.</summary>
+        private Dungeon? legacyDungeonFallback;
+        private Environment? legacyRoomFallback;
 
         /// <summary>Ref-count for active dungeon enemy encounters (intro, combat, victory delays). Blocks combo strip reorder regardless of <see cref="GameState"/>.</summary>
         private int comboStripEncounterLockCount;
@@ -78,7 +80,7 @@ namespace RPGGame
         public Character? CurrentPlayer
         {
             get => GetActiveCharacter();
-            private set => currentPlayer = value;
+            private set => legacyPlayerFallback = value;
         }
         
         /// <summary>
@@ -99,9 +101,9 @@ namespace RPGGame
                 {
                     return activeCharacter.Inventory;
                 }
-                return currentInventory;
+                return legacyInventoryFallback;
             }
-            private set => currentInventory = value;
+            private set => legacyInventoryFallback = value;
         }
 
         /// <summary>
@@ -122,37 +124,46 @@ namespace RPGGame
             get
             {
                 var context = GetActiveCharacterContext();
-                return context?.ActiveDungeon ?? currentDungeon;
+                return context != null ? context.ActiveDungeon : legacyDungeonFallback;
             }
             private set
             {
-                currentDungeon = value;
                 var context = GetActiveCharacterContext();
                 if (context != null)
                 {
                     context.ActiveDungeon = value;
+                    // Clear legacy fallback so a later empty-registry path cannot revive a stale dungeon.
+                    legacyDungeonFallback = null;
+                }
+                else
+                {
+                    legacyDungeonFallback = value;
                 }
             }
         }
 
         /// <summary>
         /// Gets or sets the current room within a dungeon.
-        /// Now uses active character context if available.
+        /// Prefers active character context; legacy fallback only when no character is registered.
         /// </summary>
         public Environment? CurrentRoom
         {
             get
             {
                 var context = GetActiveCharacterContext();
-                return context?.ActiveRoom ?? currentRoom;
+                return context != null ? context.ActiveRoom : legacyRoomFallback;
             }
             private set
             {
-                currentRoom = value;
                 var context = GetActiveCharacterContext();
                 if (context != null)
                 {
                     context.ActiveRoom = value;
+                    legacyRoomFallback = null;
+                }
+                else
+                {
+                    legacyRoomFallback = value;
                 }
             }
         }
@@ -220,7 +231,6 @@ namespace RPGGame
         /// <param name="player">The player character to set, or null to clear.</param>
         public void SetCurrentPlayer(Character? player)
         {
-            currentPlayer = player;
             if (player != null)
             {
                 // If character is not in registry, add it
@@ -235,7 +245,8 @@ namespace RPGGame
                     // Switch to existing character
                     characterStateManager.SwitchCharacter(existingId);
                 }
-                
+
+                legacyPlayerFallback = player;
                 if (player.Inventory != null)
                 {
                     CurrentInventory = player.Inventory;
@@ -244,7 +255,10 @@ namespace RPGGame
             else
             {
                 characterStateManager.SetActiveCharacterId(null);
+                legacyPlayerFallback = null;
                 CurrentInventory.Clear();
+                legacyDungeonFallback = null;
+                legacyRoomFallback = null;
             }
         }
 
@@ -283,13 +297,13 @@ namespace RPGGame
         public void ResetGameState()
         {
             CurrentState = GameState.MainMenu;
-            CurrentPlayer = null;
-            CurrentInventory.Clear();
             AvailableDungeons.Clear();
-            CurrentDungeon = null;
-            CurrentRoom = null;
             // Clear all characters from the registry to ensure clean state
             characterStateManager.ClearAllCharacters();
+            legacyPlayerFallback = null;
+            CurrentInventory.Clear();
+            legacyDungeonFallback = null;
+            legacyRoomFallback = null;
         }
 
         /// <summary>
@@ -329,10 +343,10 @@ namespace RPGGame
         {
             var id = characterStateManager.AddCharacter(character, characterId);
             
-            // If this becomes the active character, update currentPlayer and inventory
+            // If this becomes the active character, sync inventory fallback reference
             if (characterStateManager.ActiveCharacterId == id && character != null)
             {
-                currentPlayer = character;
+                legacyPlayerFallback = character;
                 if (character.Inventory != null)
                 {
                     CurrentInventory = character.Inventory;
@@ -344,6 +358,7 @@ namespace RPGGame
         
         /// <summary>
         /// Switches the active character to the one with the given ID.
+        /// Dungeon/room come only from that character's <see cref="CharacterContext"/> (no legacy dual-write).
         /// </summary>
         /// <param name="characterId">The character ID to switch to</param>
         /// <returns>True if switch was successful, false if character not found</returns>
@@ -355,8 +370,8 @@ namespace RPGGame
                 return false;
             }
             
-            // Update current player and inventory
-            currentPlayer = context.Character;
+            // Update player/inventory fallbacks for code paths that still touch them
+            legacyPlayerFallback = context.Character;
             if (context.Character.Inventory != null)
             {
                 CurrentInventory = context.Character.Inventory;
@@ -365,10 +380,10 @@ namespace RPGGame
             {
                 CurrentInventory.Clear();
             }
-            
-            // Restore dungeon/room state from context
-            currentDungeon = context.ActiveDungeon;
-            currentRoom = context.ActiveRoom;
+
+            // Drop legacy dungeon/room so getters cannot leak the previous character's room.
+            legacyDungeonFallback = null;
+            legacyRoomFallback = null;
             
             return true;
         }
@@ -417,7 +432,7 @@ namespace RPGGame
         /// <returns>The active character, or null if none</returns>
         public Character? GetActiveCharacter()
         {
-            return characterStateManager.GetActiveCharacter() ?? currentPlayer;
+            return characterStateManager.GetActiveCharacter() ?? legacyPlayerFallback;
         }
         
         /// <summary>
@@ -465,10 +480,10 @@ namespace RPGGame
                 else
                 {
                     characterStateManager.SetActiveCharacterId(null);
-                    currentPlayer = null;
+                    legacyPlayerFallback = null;
                     CurrentInventory.Clear();
-                    currentDungeon = null;
-                    currentRoom = null;
+                    legacyDungeonFallback = null;
+                    legacyRoomFallback = null;
                 }
             });
         }

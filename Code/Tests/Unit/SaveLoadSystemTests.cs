@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using RPGGame.Entity.Services;
 using RPGGame.Tests;
@@ -28,6 +29,7 @@ namespace RPGGame.Tests.Unit
 
             TestSaveFileValidation();
             TestLoadErrorHandling();
+            TestLoadCancelledByCallerToken();
             TestMultiCharacterSaves();
             TestSaveFileCleanup();
             TestEquipmentPersistence();
@@ -95,6 +97,35 @@ namespace RPGGame.Tests.Unit
                 // Exception is acceptable for nonexistent save
                 TestBase.AssertTrue(true,
                     $"Load should handle nonexistent save: {ex.GetType().Name}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestLoadCancelledByCallerToken()
+        {
+            Console.WriteLine("\n--- Testing Load Cancelled By Caller Token ---");
+
+            try
+            {
+                var character = TestDataBuilders.Character().WithName("CancelLoadHero").WithLevel(1).Build();
+                string testId = "cancel_load_" + Guid.NewGuid().ToString("N").Substring(0, 8);
+                CharacterSaveManager.SaveCharacter(character, testId);
+
+                using var cts = new CancellationTokenSource();
+                cts.Cancel();
+                var loaded = CharacterSaveManager.LoadCharacterAsync(testId, cancellationToken: cts.Token)
+                    .GetAwaiter().GetResult();
+
+                TestBase.AssertTrue(loaded == null,
+                    "Pre-cancelled load token should return null without hanging",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                CharacterSaveManager.DeleteSaveFile(CharacterSaveManager.GetCharacterSaveFilename(testId));
+            }
+            catch (Exception ex)
+            {
+                TestBase.AssertTrue(false,
+                    $"Cancelled load should not throw unhandled: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }

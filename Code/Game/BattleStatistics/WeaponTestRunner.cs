@@ -23,10 +23,7 @@ namespace RPGGame.BattleStatistics
             int enemyLevel = 1,
             IProgress<(int completed, int total, string status)>? progress = null)
         {
-            var originalDisableFlag = CombatManager.DisableCombatUIOutput;
-            CombatManager.DisableCombatUIOutput = true;
-            
-            try
+            using (CombatUiMuteScope.Begin(muted: true))
             {
                 var results = new List<WeaponTestResult>();
                 var allWeaponTypes = new List<WeaponType> { WeaponType.Mace, WeaponType.Sword, WeaponType.Dagger, WeaponType.Wand };
@@ -98,10 +95,6 @@ namespace RPGGame.BattleStatistics
                 
                 return results;
             }
-            finally
-            {
-                CombatManager.DisableCombatUIOutput = originalDisableFlag;
-            }
         }
 
         /// <summary>
@@ -113,10 +106,7 @@ namespace RPGGame.BattleStatistics
             int enemyLevel = 1,
             IProgress<(int completed, int total, string status)>? progress = null)
         {
-            var originalDisableFlag = CombatManager.DisableCombatUIOutput;
-            CombatManager.DisableCombatUIOutput = true;
-            
-            try
+            using (CombatUiMuteScope.Begin(muted: true))
             {
                 var result = new ComprehensiveWeaponEnemyTestResult();
                 var allWeaponTypes = new List<WeaponType> { WeaponType.Mace, WeaponType.Sword, WeaponType.Dagger, WeaponType.Wand };
@@ -216,10 +206,6 @@ namespace RPGGame.BattleStatistics
                 ScrollDebugLogger.Log($"WeaponTestRunner: Comprehensive test complete - Overall Win Rate: {result.OverallWinRate:F1}%");
                 
                 return result;
-            }
-            finally
-            {
-                CombatManager.DisableCombatUIOutput = originalDisableFlag;
             }
         }
     }

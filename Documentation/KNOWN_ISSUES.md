@@ -47,8 +47,56 @@ Track of known problems, their status, and potential solutions.
 
 ## Medium Priority Issues
 
-### None Currently Known
-*No medium priority issues identified at this time.*
+### Issue: Combat reliability static bleed (Phase 3)
+**Status**: ✅ RESOLVED (July 2026 — Phase 3 reliability)
+**Priority**: MEDIUM
+**Description**: Remaining process-global combat state could poison live play: interactive Action Lab used `Dice.SetTestRoll`, `DeveloperSimMode.NegativeHpFloor` leaked across tuning batches, muted sims wrote `HealthBarDeltaDamageHint` entries consumed by live HP bars, `ActionExecutor` static dictionaries were not thread-safe, and Action Lab `GameTicker.Reset()` hit the global clock.
+
+**Solution**:
+1. Action Lab steps use `Dice.QueueAsyncForcedD20Rolls` / `ClearAsyncForcedD20Rolls` (AsyncLocal).
+2. `DeveloperSimMode.BeginScope(continuePastZeroHp, negativeHpFloor?)` scopes floor; fundamentals runner uses scope.
+3. `HealthBarDeltaDamageHint` no-ops when `CombatUiMuteScope.IsMuted`; mute enter clears pending hints.
+4. `ActionExecutor` uses `ConcurrentDictionary` for last-action maps.
+5. Action Lab session holds `GameTicker.BeginIsolatedEncounterGameTime` for its lifetime.
+
+**Files Modified**:
+- `Code/Game/ActionInteractionLab/ActionInteractionLabSession.cs`
+- `Code/Game/Tuning/DeveloperSimMode.cs`, `FundamentalsSimulationRunner.cs`
+- `Code/Combat/UI/HealthBarDeltaDamageHint.cs`, `CombatUiMuteScope.cs`
+- `Code/Actions/ActionExecutor.cs`, `ActionExecutionFlow.cs`, `ActionExecutionFlow.Selection.cs`
+
+### Issue: Combat reliability secondary nicks (Phase 2)
+**Status**: ✅ RESOLVED (July 2026 — Phase 2 reliability)
+**Priority**: MEDIUM
+**Description**: After Phase 1 pacing/mute fixes, remaining player-facing risks were silent combat display exceptions, load timeout that did not cancel the file read, sync menu-exit save that could hang the UI, `GameStateManager` dual-writing legacy dungeon/room fields beside `CharacterContext` (bleed on character switch), and muted sims calling `GameTicker.Reset()` on the process-global clock.
+
+**Solution**:
+1. `BlockDisplayManager` logs display failures via `DebugLogger.WriteDebugAlways` (combat continues).
+2. `CharacterSaveService.LoadCharacterAsync` uses a linked CTS + `CancelAfter` so the underlying read is cancelled on timeout/caller cancel; menu exit uses `SaveCharacterAsync`.
+3. `GameStateManager` dungeon/room properties prefer active `CharacterContext` and clear legacy fallbacks on switch.
+4. Muted `RunCombat` / `BattleExecutor` / `CombatSimulator` wrap `GameTicker.BeginIsolatedEncounterGameTime()`.
+
+**Files Modified**:
+- `Code/UI/BlockDisplayManager.cs`
+- `Code/Entity/Services/CharacterSaveService.cs`, `CharacterFileManager.cs`, `ICharacterSaveService.cs`
+- `Code/Game/GameStateManager.cs`, `GameLoopInputHandler.cs`
+- `Code/Combat/CombatManager.cs`, `Code/Simulation/CombatSimulator.cs`, `Code/Game/BattleStatistics/BattleExecutor.cs`
+
+### Issue: Combat log GUI pacing / fire-and-forget races (historical)
+**Status**: ✅ RESOLVED (July 2026 — Phase 1 reliability)
+**Priority**: MEDIUM
+**Description**: Avalonia combat log dumped action lines instantly because `CombatDelayManager` skipped GUI message delays, while sync display wrappers fire-and-forgot async batch writes so environmental turns could advance before prior UI finished.
+
+**Solution**:
+1. `DelayAfterMessageAsync` applies for GUI and console when delays are enabled; `DelayAfterActionAsync` remains a GUI no-op (end-of-action wait owned by batch `delayAfterBatchMs`).
+2. Environment turns use `ProcessEnvironmentTurnAsync` → `DisplayActionBlockAsync`.
+3. Sync batch/renderers dump without starting orphan async work; combat must await async APIs.
+4. `CombatUiMuteScope` / AsyncLocal room context prevent mute/room bleed across lab/sim.
+
+**Files Modified**:
+- `Code/Combat/CombatDelayManager.cs`, `CombatTurnHandlerSimplified.cs`, `CombatManager.cs`
+- `Code/UI/Avalonia/Coordinators/BatchOperationCoordinator.cs`, BlockDisplay renderers / `BlockDelayManager.cs`
+- `Code/Combat/CombatUiMuteScope.cs`, `CombatEnvironmentContext.cs`
 
 ## Low Priority Issues
 

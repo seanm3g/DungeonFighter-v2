@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
+using RPGGame.Combat;
 
 namespace RPGGame.Simulation
 {
@@ -53,92 +54,93 @@ namespace RPGGame.Simulation
         /// </summary>
         public static CombatSimulationResult SimulateCombat(Character player, Enemy enemy)
         {
-            // Disable UI output during simulation
-            var originalUIState = CombatManager.DisableCombatUIOutput;
-            CombatManager.DisableCombatUIOutput = true;
-
-            try
+            using (CombatUiMuteScope.Begin(muted: true))
+            using (GameTicker.BeginIsolatedEncounterGameTime())
             {
+                GameTicker.Instance.Reset();
                 var manager = new CombatManager();
-                manager.InitializeCombatEntities(player, enemy);
-                
-                int turnCount = 0;
-                int playerDamageDealt = 0;
-                int enemyDamageDealt = 0;
-                
-                // Track health at phase transitions for phase detection
-                int initialEnemyHealth = enemy.GetEffectiveMaxHealth();
-                var phaseTracker = new List<(int turn, double healthPercent)>();
-                
-                // Combat loop
-                while (player.IsAlive && enemy.IsAlive && turnCount < MaxTurnsPerCombat)
+                try
                 {
-                    turnCount++;
-                    
-                    var actor = manager.GetNextEntityToAct();
-                    if (actor == null) break;
-                    
-                    int healthBefore = actor == player ? player.CurrentHealth : enemy.CurrentHealth;
-                    int targetHealthBefore = actor == player ? enemy.CurrentHealth : player.CurrentHealth;
-                    
-                    // Execute action
-                    if (actor is Character character)
+                    manager.InitializeCombatEntities(player, enemy);
+
+                    int turnCount = 0;
+                    int playerDamageDealt = 0;
+                    int enemyDamageDealt = 0;
+
+                    // Track health at phase transitions for phase detection
+                    int initialEnemyHealth = enemy.GetEffectiveMaxHealth();
+                    var phaseTracker = new List<(int turn, double healthPercent)>();
+
+                    // Combat loop
+                    while (player.IsAlive && enemy.IsAlive && turnCount < MaxTurnsPerCombat)
                     {
-                        var action = SelectPlayerAction(character, enemy);
-                        if (action != null)
+                        turnCount++;
+
+                        var actor = manager.GetNextEntityToAct();
+                        if (actor == null) break;
+
+                        int healthBefore = actor == player ? player.CurrentHealth : enemy.CurrentHealth;
+                        int targetHealthBefore = actor == player ? enemy.CurrentHealth : player.CurrentHealth;
+
+                        // Execute action
+                        if (actor is Character character)
                         {
-                            CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
-                                character, enemy, action, null, null, null);
-                            playerDamageDealt += Math.Max(0, targetHealthBefore - enemy.CurrentHealth);
+                            var action = SelectPlayerAction(character, enemy);
+                            if (action != null)
+                            {
+                                CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
+                                    character, enemy, action, null, null, null);
+                                playerDamageDealt += Math.Max(0, targetHealthBefore - enemy.CurrentHealth);
+                            }
                         }
+                        else if (actor is Enemy enemyActor)
+                        {
+                            var action = SelectEnemyAction(enemyActor);
+                            if (action != null)
+                            {
+                                CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
+                                    enemyActor, player, action, null, null, null);
+                                enemyDamageDealt += Math.Max(0, healthBefore - player.CurrentHealth);
+                            }
+                        }
+
+                        // Track phase transitions
+                        double enemyHealthPercent = (double)enemy.CurrentHealth / initialEnemyHealth;
+                        phaseTracker.Add((turnCount, enemyHealthPercent));
                     }
-                    else if (actor is Enemy enemyActor)
+
+                    // Detect phases (phases go from 100% -> 66% -> 33% -> 0%)
+                    var (phase1, phase2, phase3) = DetectPhases(phaseTracker);
+
+                    return new CombatSimulationResult
                     {
-                        var action = SelectEnemyAction(enemyActor);
-                        if (action != null)
-                        {
-                            CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
-                                enemyActor, player, action, null, null, null);
-                            enemyDamageDealt += Math.Max(0, healthBefore - player.CurrentHealth);
-                        }
-                    }
-                    
-                    // Track phase transitions
-                    double enemyHealthPercent = (double)enemy.CurrentHealth / initialEnemyHealth;
-                    phaseTracker.Add((turnCount, enemyHealthPercent));
+                        PlayerWon = !enemy.IsAlive,
+                        TurnsToComplete = turnCount,
+                        PlayerFinalHealth = player.CurrentHealth,
+                        PlayerMaxHealth = player.GetEffectiveMaxHealth(),
+                        EnemyFinalHealth = Math.Max(0, enemy.CurrentHealth),
+                        EnemyMaxHealth = initialEnemyHealth,
+
+                        Phase1Turns = phase1,
+                        Phase2Turns = phase2,
+                        Phase3Turns = phase3,
+
+                        TotalPlayerDamageDealt = playerDamageDealt,
+                        TotalEnemyDamageDealt = enemyDamageDealt,
+                        AverageTurnsPerPhase = turnCount > 0 ? turnCount / 3.0 : 0,
+
+                        PlayerName = player.Name,
+                        PlayerLevel = player.Level,
+                        EquippedWeapon = (player.Weapon as WeaponItem)?.Name ?? "Unarmed",
+
+                        EnemyName = enemy.Name,
+                        EnemyLevel = enemy.Level
+                    };
                 }
-                
-                // Detect phases (phases go from 100% -> 66% -> 33% -> 0%)
-                var (phase1, phase2, phase3) = DetectPhases(phaseTracker);
-                
-                return new CombatSimulationResult
+                finally
                 {
-                    PlayerWon = !enemy.IsAlive,
-                    TurnsToComplete = turnCount,
-                    PlayerFinalHealth = player.CurrentHealth,
-                    PlayerMaxHealth = player.GetEffectiveMaxHealth(),
-                    EnemyFinalHealth = Math.Max(0, enemy.CurrentHealth),
-                    EnemyMaxHealth = initialEnemyHealth,
-                    
-                    Phase1Turns = phase1,
-                    Phase2Turns = phase2,
-                    Phase3Turns = phase3,
-                    
-                    TotalPlayerDamageDealt = playerDamageDealt,
-                    TotalEnemyDamageDealt = enemyDamageDealt,
-                    AverageTurnsPerPhase = turnCount > 0 ? turnCount / 3.0 : 0,
-                    
-                    PlayerName = player.Name,
-                    PlayerLevel = player.Level,
-                    EquippedWeapon = (player.Weapon as WeaponItem)?.Name ?? "Unarmed",
-                    
-                    EnemyName = enemy.Name,
-                    EnemyLevel = enemy.Level
-                };
-            }
-            finally
-            {
-                CombatManager.DisableCombatUIOutput = originalUIState;
+                    manager.Cleanup();
+                }
             }
         }
 

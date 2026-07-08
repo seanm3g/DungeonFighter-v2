@@ -4,6 +4,74 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Issue: Combat Reliability Phase 3 — Scoped Static State (July 2026)
+**Symptoms:**
+- Interactive Action Lab `SetTestRoll` leaked forced d20 across parallel work
+- `DeveloperSimMode.NegativeHpFloor` persisted across fundamentals tuning batches
+- Muted sim DoT ticks left `HealthBarDeltaDamageHint` entries that colored live HP bar segments
+- `ActionExecutor` static dictionaries could race under parallel battle stats
+- Action Lab `GameTicker.Reset()` zeroed the process-global clock during bootstrap
+
+**Solutions:**
+1. Action Lab steps use `Dice.QueueAsyncForcedD20Rolls` (AsyncLocal, 1d20 only)
+2. `DeveloperSimMode.BeginScope(continuePastZeroHp, negativeHpFloor?)` scopes floor per batch
+3. `HealthBarDeltaDamageHint` skips writes when muted; `CombatUiMuteScope.Begin` clears pending hints
+4. `ConcurrentDictionary` for `ActionExecutor` last-action maps; `IDictionary` in `ActionExecutionFlow`
+5. Action Lab session holds `GameTicker.BeginIsolatedEncounterGameTime` from `Begin` to `EndSession`
+
+**Related files:** See `COMBAT_RELIABILITY_PHASE3.md`
+
+### Issue: Combat Reliability Phase 2 — Secondary Nicks (July 2026)
+**Symptoms:**
+- Combat display exceptions vanished into `Debug.WriteLine` only
+- Load timeout left file reads running after the UI timed out
+- Save & Exit blocked the UI on sync disk write
+- Switching characters could show the previous hero's dungeon/room
+- Parallel muted battles / sims zeroed live `GameTicker` via `Reset()`
+
+**Solutions:**
+1. `BlockDisplayManager.LogDisplayFailure` → `DebugLogger.WriteDebugAlways`
+2. Linked CTS + `CancelAfter` on `LoadCharacterAsync`; `SaveCharacterAsync` for menu exit
+3. `GameStateManager` context-first dungeon/room (no dual-write bleed)
+4. Isolated encounter game time whenever combat UI is muted
+
+**Related files:** See `COMBAT_RELIABILITY_PHASE2.md`
+
+### Issue: Hero Armor Was a Consumable Room Pool (July 2026)
+**Symptoms:**
+- Equipped armor depleted as hits landed and reset at the start of each fight/room
+- Combat HUD showed `Armor current/max` as if armor were a second HP bar
+- Heroes and enemies used different armor maths (pool absorption vs flat DR)
+
+**Root Cause:**
+`CharacterHealthManager` treated armor as a depleting pool absorbed in `TakeDamage`, while `DamageCalculator` skipped flat reduction for heroes. Room entry, combat end, and equip paths called `RefreshRoomArmor()` to refill the pool.
+
+**Solution:**
+1. Apply the same flat armor subtraction for heroes and enemies in `DamageCalculator.ResolveTargetArmor` / `CalculateDamage`
+2. Stop consuming armor in `TakeDamage`; keep `CurrentArmor` / `GetMaxArmor` as the effective (derived) value
+3. Leave `RefreshRoomArmor` as a no-op for call-site compatibility; update HUD and roll footers to persistent flat DR
+
+**Related files:** `CharacterHealthManager`, `DamageCalculator`, `CharacterPanelRenderer`, `RollInfoFormatter`, `DamageFormatter`, `CombatResults`
+
+### Issue: Combat Log GUI Instant Dump + Fire-and-Forget Race (July 2026)
+**Symptoms:**
+- Avalonia combat action lines appeared all at once instead of line-by-line
+- Environmental hazard turns could start overlapping the previous action's log
+- Lab silent sims and battle statistics could leave combat UI muted for a live fight
+
+**Root Causes:**
+1. `CombatDelayManager.DelayAfterMessageAsync` returned immediately whenever a custom UI manager existed, while `BatchOperationCoordinator` still awaited those no-op delays between lines
+2. Sync display wrappers (`WriteColoredSegmentsBatch`, `RenderMessageGroups`) started async work with `_ = ...` so the combat loop did not wait
+3. Process-global `DisableCombatUIOutput` / `CombatEnvironmentContext.CurrentRoom` were shared across lab, sims, and live combat; `TurnManager` had a second divergent mute flag
+
+**Solutions:**
+1. Restore real GUI inter-line delays in `DelayAfterMessageAsync`; keep GUI `DelayAfterActionAsync` as a no-op so end-of-action pacing stays solely on batch `delayAfterBatchMs`
+2. Environment turns await `DisplayActionBlockAsync`; sync batch/render paths dump without orphaning tasks
+3. `CombatUiMuteScope` (AsyncLocal) + scoped room context; `TurnManager.DisableCombatUIOutput` aliases `CombatManager`
+4. `RunCombat` / background dungeon accept `CancellationToken`; battle executors call `Cleanup()`
+
+**Related files:** `CombatDelayManager`, `BatchOperationCoordinator`, `CombatTurnHandlerSimplified`, `CombatUiMuteScope`, `CombatEnvironmentContext`, `BackgroundDungeonTaskManager`, `BattleExecutor`
+
 ### Issue: Combat Freeze During Battle (November 20, 2025)
 **Symptoms:**
 - Game shows "not responding" during combat

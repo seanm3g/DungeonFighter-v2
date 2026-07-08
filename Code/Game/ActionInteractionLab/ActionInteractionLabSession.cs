@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using RPGGame.BattleStatistics;
+using RPGGame.Combat;
 using RPGGame.Data;
 using RPGGame.Entity.Services;
 using RPGGame.UI.Avalonia.Managers;
@@ -41,6 +42,7 @@ namespace RPGGame.ActionInteractionLab
 
         private ICanvasContextManager? _restoreTarget;
         private CanvasContextSnapshot? _contextSnapshot;
+        private IDisposable? _tickerIsolation;
 
         public Character LabPlayer => _labPlayer;
         public Enemy LabEnemy => _labEnemy;
@@ -131,6 +133,7 @@ namespace RPGGame.ActionInteractionLab
 
             var session = new ActionInteractionLabSession(combatManager, labPlayer, labEnemy, labRoom, json, refreshCombatUi, prepareLabHistoryReplay);
             _current = session;
+            session._tickerIsolation = GameTicker.BeginIsolatedEncounterGameTime();
             session._sessionEnemyLoaderType = null;
             session._labEnemyBaseLevel = 1;
             session._labPanelEnemyLevelDelta = 0;
@@ -300,28 +303,27 @@ namespace RPGGame.ActionInteractionLab
         {
             _prepareLabHistoryReplay?.Invoke();
 
-            bool prevUi = CombatManager.DisableCombatUIOutput;
             IsReplayingHistory = true;
-            // Allow combat UI while replaying so the center log matches state. (DisableCombatUIOutput was not
-            // honored by all display paths, which left stale lines and appended duplicate blocks.)
-            CombatManager.DisableCombatUIOutput = false;
+            // Allow combat UI while replaying so the center log matches state (scoped so it cannot leak).
             try
             {
-                // Strip edits (catalog add/remove/reorder) live only on the in-memory lab clone; the baseline JSON
-                // is from session start (or gear change). Preserve the current strip across entity restore.
-                var comboSnapshot = _labPlayer.GetComboActions().Select(a => a.Name).ToList();
-                RestoreLabEntitiesFromInitialBaseline();
-                ApplyLabPanelDeltasToLabHero();
-                BootstrapCombatState();
-                ReapplyLabHeroComboStrip(comboSnapshot);
-                foreach (var step in steps)
+                using (CombatUiMuteScope.Begin(muted: false))
                 {
-                    await ExecuteOneStepCoreAsync(step.D20, step.ForcedActionName, silent: false).ConfigureAwait(true);
+                    // Strip edits (catalog add/remove/reorder) live only on the in-memory lab clone; the baseline JSON
+                    // is from session start (or gear change). Preserve the current strip across entity restore.
+                    var comboSnapshot = _labPlayer.GetComboActions().Select(a => a.Name).ToList();
+                    RestoreLabEntitiesFromInitialBaseline();
+                    ApplyLabPanelDeltasToLabHero();
+                    BootstrapCombatState();
+                    ReapplyLabHeroComboStrip(comboSnapshot);
+                    foreach (var step in steps)
+                    {
+                        await ExecuteOneStepCoreAsync(step.D20, step.ForcedActionName, silent: false).ConfigureAwait(true);
+                    }
                 }
             }
             finally
             {
-                CombatManager.DisableCombatUIOutput = prevUi;
                 IsReplayingHistory = false;
                 SyncCatalogSelectionToUpcomingActor();
                 _refreshCombatUi();
@@ -400,9 +402,8 @@ namespace RPGGame.ActionInteractionLab
         }
 
         /// <summary>
-        /// Note: <see cref="Dice.SetTestRoll"/> forces the primary d20 for action selection and the first die
-        /// in 2d20 luck/unluck; the second 2d20 die uses <see cref="Dice.RollUnforced"/> so Action Lab picks
-        /// do not duplicate as 4/4. Other <see cref="Dice.Roll"/> calls in the turn may still use the test value.
+        /// Queues a one-shot forced d20 in the current async context for action selection and the first die
+        /// in 2d20 luck/unluck; only 1d20 rolls consume the queue so the second 2d20 die stays unforced.
         /// </summary>
         private async Task<CombatSingleTurnResult> ExecuteOneStepCoreAsync(int d20, string forcedActionName, bool silent)
         {
@@ -415,14 +416,11 @@ namespace RPGGame.ActionInteractionLab
             if (!forced.IsComboAction)
                 forced.IsComboAction = true;
 
-            Dice.SetTestRoll(d20);
+            Dice.QueueAsyncForcedD20Rolls(d20);
             ActionSelector.SetStoredActionRoll(_labPlayer, d20);
             ActionSelector.SetStoredActionRoll(_labEnemy, d20);
 
-            bool prevUiOut = CombatManager.DisableCombatUIOutput;
-            if (silent)
-                CombatManager.DisableCombatUIOutput = true;
-
+            IDisposable? muteScope = silent ? CombatUiMuteScope.Begin(muted: true) : null;
             try
             {
                 // Only force the catalog combo action when this d20 would select a combo (same as main combat).
@@ -434,9 +432,8 @@ namespace RPGGame.ActionInteractionLab
             }
             finally
             {
-                if (silent)
-                    CombatManager.DisableCombatUIOutput = prevUiOut;
-                Dice.ClearTestRoll();
+                muteScope?.Dispose();
+                Dice.ClearAsyncForcedD20Rolls();
             }
         }
 
@@ -471,10 +468,20 @@ namespace RPGGame.ActionInteractionLab
                 // best-effort cleanup
             }
             Dice.ClearTestRoll();
+            Dice.ClearAsyncForcedD20Rolls();
             ActionSelector.ClearStoredRolls();
             var restore = session._restoreTarget;
             var snap = session._contextSnapshot;
             session.SetEncounterSimulationRunning(false);
+            try
+            {
+                session._tickerIsolation?.Dispose();
+            }
+            catch
+            {
+                /* best-effort */
+            }
+            session._tickerIsolation = null;
             _current = null;
             if (restore != null && snap != null)
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using RPGGame.Audio;
 using RPGGame.Entity.Services;
@@ -41,15 +42,34 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Saves a character asynchronously so menu-exit paths do not block on hung IO.
+        /// </summary>
+        public static async Task SaveCharacterAsync(
+            Character character,
+            string? characterId = null,
+            string? filename = null,
+            bool markDead = false,
+            CancellationToken cancellationToken = default)
+        {
+            await Service.SaveCharacterAsync(character, characterId, filename, markDead, cancellationToken)
+                .ConfigureAwait(false);
+            AudioCues.Trigger(AudioCue.Loot_Save);
+        }
+
+        /// <summary>
         /// Loads a character from a JSON file (async version to prevent UI freezing)
         /// Delegates to the service instance for implementation.
         /// </summary>
         /// <param name="characterId">Optional character ID for multi-character support. If provided, loads from per-character filename.</param>
         /// <param name="filename">The filename to load from. If provided, overrides characterId-based naming.</param>
+        /// <param name="cancellationToken">Cancels the underlying file read.</param>
         /// <returns>The loaded character, or null if loading failed</returns>
-        public static async Task<Character?> LoadCharacterAsync(string? characterId = null, string? filename = null)
+        public static async Task<Character?> LoadCharacterAsync(
+            string? characterId = null,
+            string? filename = null,
+            CancellationToken cancellationToken = default)
         {
-            return await Service.LoadCharacterAsync(characterId, filename).ConfigureAwait(false);
+            return await Service.LoadCharacterAsync(characterId, filename, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>

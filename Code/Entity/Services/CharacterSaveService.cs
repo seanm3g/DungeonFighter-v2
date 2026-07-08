@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using RPGGame;
 using RPGGame.Utils;
@@ -16,6 +17,8 @@ namespace RPGGame.Entity.Services
     /// </summary>
     public class CharacterSaveService : ICharacterSaveService
     {
+        private const int DefaultLoadTimeoutSeconds = 3;
+
         private readonly CharacterFileManager fileManager;
         private readonly CharacterSerializer serializer;
         private readonly ICharacterSaveErrorReporter errorReporter;
@@ -95,6 +98,64 @@ namespace RPGGame.Entity.Services
             }
         }
 
+        /// <inheritdoc />
+        public async Task SaveCharacterAsync(
+            Character character,
+            string? characterId = null,
+            string? filename = null,
+            bool markDead = false,
+            CancellationToken cancellationToken = default)
+        {
+            if (character == null)
+                throw new ArgumentNullException(nameof(character));
+
+            if (markDead && string.IsNullOrEmpty(filename))
+            {
+                await Task.Run(() => PersistDeadCharacter(character, characterId), cancellationToken)
+                    .ConfigureAwait(false);
+                return;
+            }
+
+            string? resolvedFilename = null;
+            try
+            {
+                resolvedFilename = fileManager.ResolveFilename(characterId, filename);
+                if (resolvedFilename == null)
+                    throw new InvalidOperationException("Failed to resolve filename for character save");
+
+                string json = serializer.Serialize(character, markDead: false);
+                await fileManager.WriteAllTextAsync(resolvedFilename, json, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (IOException ex)
+            {
+                string errorMessage = $"I/O error: {ex.Message}";
+                errorReporter.ReportSaveError("Failed to save character", errorMessage, resolvedFilename);
+                throw;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                string errorMessage = $"Access denied: {ex.Message}";
+                errorReporter.ReportSaveError("Failed to save character", errorMessage, resolvedFilename);
+                throw;
+            }
+            catch (System.Text.Json.JsonException ex)
+            {
+                string errorMessage = $"JSON serialization error: {ex.Message}";
+                errorReporter.ReportSaveError("Failed to save character", errorMessage, resolvedFilename);
+                throw;
+            }
+            catch (Exception ex) when (ex is not ArgumentNullException and not InvalidOperationException)
+            {
+                errorReporter.ReportSaveError("Failed to save character", ex.Message, resolvedFilename);
+                throw;
+            }
+        }
+
         /// <summary>
         /// Writes tombstone JSON (isDead) to <c>character_*_dead.json</c> or legacy dead filename, then removes the matching live save if present.
         /// </summary>
@@ -143,9 +204,13 @@ namespace RPGGame.Entity.Services
 
         /// <summary>
         /// Loads a character from a JSON file (async version to prevent UI freezing).
-        /// Includes timeout protection to prevent indefinite hangs.
+        /// Cancels the underlying file read when the default timeout elapses or
+        /// <paramref name="cancellationToken"/> is cancelled.
         /// </summary>
-        public async Task<Character?> LoadCharacterAsync(string? characterId = null, string? filename = null)
+        public async Task<Character?> LoadCharacterAsync(
+            string? characterId = null,
+            string? filename = null,
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -159,20 +224,28 @@ namespace RPGGame.Entity.Services
                     return null;
                 }
 
-                DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: File exists, starting read with 3 second timeout: {filename}");
+                DebugLogger.Log(
+                    "CharacterSaveService",
+                    $"LoadCharacterAsync: File exists, starting cancellable read (timeout {DefaultLoadTimeoutSeconds}s): {filename}");
 
-                var readTask = fileManager.ReadAllTextAsync(filename);
-                var timeoutTask = Task.Delay(TimeSpan.FromSeconds(3));
-                var completedTask = await Task.WhenAny(readTask, timeoutTask).ConfigureAwait(false);
+                using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                timeoutCts.CancelAfter(TimeSpan.FromSeconds(DefaultLoadTimeoutSeconds));
 
-                if (completedTask == timeoutTask)
+                string json;
+                try
                 {
-                    DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: File read timed out after 3 seconds: {filename}");
+                    json = await fileManager.ReadAllTextAsync(filename, timeoutCts.Token)
+                        .ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+                {
+                    DebugLogger.Log(
+                        "CharacterSaveService",
+                        $"LoadCharacterAsync: File read timed out after {DefaultLoadTimeoutSeconds} seconds: {filename}");
                     errorReporter.ReportLoadError("File read operation timed out");
                     return null;
                 }
 
-                string json = await readTask.ConfigureAwait(false);
                 DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: File read completed, size: {json?.Length ?? 0} bytes");
 
                 if (string.IsNullOrEmpty(json))
@@ -204,6 +277,12 @@ namespace RPGGame.Entity.Services
                 if (UIManager.GetCustomUIManager() == null)
                     UIManager.WriteLine($"Character loaded from {filename}");
                 return character;
+            }
+            catch (OperationCanceledException)
+            {
+                DebugLogger.Log("CharacterSaveService", "LoadCharacterAsync: Load cancelled by caller");
+                errorReporter.ReportLoadError("File read operation was cancelled");
+                return null;
             }
             catch (Exception ex)
             {

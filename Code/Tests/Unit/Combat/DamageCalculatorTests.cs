@@ -236,6 +236,25 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(damageLowArmor >= 0,
                 "Damage against low armor target should be calculated",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var heroTarget = TestDataBuilders.Character()
+                .WithName("HeroTarget")
+                .WithLevel(1)
+                .Build();
+            heroTarget.EquipItem(new ChestItem("Plate", 1, 5), "body");
+
+            var weapon = new WeaponItem("TestSword", 1, 10);
+            attacker.EquipItem(weapon, "weapon");
+
+            int rawVsHero = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
+            int dmgVsHero = DamageCalculator.CalculateDamage(attacker, heroTarget, action, 1.0, 1.0, 0, 10);
+            int expectedHero = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, rawVsHero - 5);
+            TestBase.AssertEqual(expectedHero, dmgVsHero,
+                "Hero armor should flat-reduce incoming attack damage",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(5, heroTarget.GetMaxArmor(),
+                "Hero armor must remain after damage calculation",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestDamageWithMultipliers()

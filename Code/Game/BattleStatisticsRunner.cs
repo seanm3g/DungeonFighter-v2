@@ -39,13 +39,10 @@ namespace RPGGame
                 TotalBattles = numberOfBattles
             };
 
-            var originalDisableFlag = CombatManager.DisableCombatUIOutput;
-            CombatManager.DisableCombatUIOutput = true;
-
-            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(TIMEOUT_MINUTES));
-
-            try
+            using (CombatUiMuteScope.Begin(muted: true))
             {
+                using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(TIMEOUT_MINUTES));
+
                 var battleTasks = new List<Task<RPGGame.BattleStatistics.BattleResult>>();
                 var semaphore = new System.Threading.SemaphoreSlim(System.Environment.ProcessorCount * 2, System.Environment.ProcessorCount * 2);
 
@@ -126,10 +123,6 @@ namespace RPGGame
                 }
 
                 RPGGame.BattleStatistics.BattleStatisticsCalculator.CalculateStatistics(result);
-            }
-            finally
-            {
-                CombatManager.DisableCombatUIOutput = originalDisableFlag;
             }
 
             return result;

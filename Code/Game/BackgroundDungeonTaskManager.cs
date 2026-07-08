@@ -2,8 +2,9 @@ namespace RPGGame
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Manages background dungeon runs for multiple characters.
@@ -12,6 +13,7 @@ namespace RPGGame
     public class BackgroundDungeonTaskManager
     {
         private readonly Dictionary<string, Task> _activeDungeonTasks = new Dictionary<string, Task>();
+        private readonly Dictionary<string, CancellationTokenSource> _activeCancellation = new Dictionary<string, CancellationTokenSource>();
         private readonly Dictionary<string, DungeonRunInfo> _dungeonRunInfo = new Dictionary<string, DungeonRunInfo>();
         private readonly object _lockObject = new object();
 
@@ -26,6 +28,7 @@ namespace RPGGame
             public DateTime StartTime { get; set; }
             public bool IsComplete { get; set; }
             public bool WasSuccessful { get; set; }
+            public bool WasCancelled { get; set; }
             public string? CompletionMessage { get; set; }
         }
 
@@ -35,27 +38,31 @@ namespace RPGGame
         public event Action<string, DungeonRunInfo>? DungeonCompleted;
 
         /// <summary>
-        /// Start a dungeon run in the background for a character
+        /// Start a dungeon run in the background for a character.
+        /// The factory receives a cancellation token that is cancelled if another run starts for the same character
+        /// or when <see cref="CancelDungeon"/> is called.
         /// </summary>
         public void StartBackgroundDungeon(
             string characterId,
             string characterName,
             string dungeonName,
-            Func<Task> dungeonRunTask)
+            Func<CancellationToken, Task> dungeonRunTask)
         {
             if (string.IsNullOrEmpty(characterId))
                 throw new ArgumentException("Character ID cannot be null or empty", nameof(characterId));
+            if (dungeonRunTask == null)
+                throw new ArgumentNullException(nameof(dungeonRunTask));
 
+            CancellationTokenSource cts;
+            DungeonRunInfo runInfo;
             lock (_lockObject)
             {
-                // Cancel any existing dungeon run for this character
-                if (_activeDungeonTasks.ContainsKey(characterId))
-                {
-                    // Note: We can't cancel a running Task easily, but we can track it
-                    // The old task will complete naturally
-                }
+                CancelExistingLocked(characterId);
 
-                var runInfo = new DungeonRunInfo
+                cts = new CancellationTokenSource();
+                _activeCancellation[characterId] = cts;
+
+                runInfo = new DungeonRunInfo
                 {
                     CharacterId = characterId,
                     CharacterName = characterName,
@@ -66,15 +73,23 @@ namespace RPGGame
 
                 _dungeonRunInfo[characterId] = runInfo;
 
-                // Start the dungeon run as a background task
+                var token = cts.Token;
                 var task = Task.Run(async () =>
                 {
                     try
                     {
-                        await dungeonRunTask();
+                        await dungeonRunTask(token);
+                        token.ThrowIfCancellationRequested();
                         runInfo.IsComplete = true;
                         runInfo.WasSuccessful = true;
                         runInfo.CompletionMessage = $"{characterName} completed {dungeonName}";
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        runInfo.IsComplete = true;
+                        runInfo.WasSuccessful = false;
+                        runInfo.WasCancelled = true;
+                        runInfo.CompletionMessage = $"{characterName}'s run in {dungeonName} was cancelled";
                     }
                     catch (Exception ex)
                     {
@@ -84,20 +99,70 @@ namespace RPGGame
                     }
                     finally
                     {
-                        // Fire completion event
                         DungeonCompleted?.Invoke(characterId, runInfo);
-                        
-                        // Clean up after a delay to allow UI to read the completion info
+
                         await Task.Delay(5000);
                         lock (_lockObject)
                         {
-                            _activeDungeonTasks.Remove(characterId);
-                            _dungeonRunInfo.Remove(characterId);
+                            if (_dungeonRunInfo.TryGetValue(characterId, out var info) && ReferenceEquals(info, runInfo))
+                            {
+                                _activeDungeonTasks.Remove(characterId);
+                                _dungeonRunInfo.Remove(characterId);
+                                if (_activeCancellation.TryGetValue(characterId, out var storedCts) && ReferenceEquals(storedCts, cts))
+                                {
+                                    _activeCancellation.Remove(characterId);
+                                    storedCts.Dispose();
+                                }
+                            }
                         }
                     }
-                });
+                }, CancellationToken.None);
 
                 _activeDungeonTasks[characterId] = task;
+            }
+        }
+
+        /// <summary>
+        /// Backward-compatible overload without cancellation. Prefer the token-aware overload.
+        /// </summary>
+        public void StartBackgroundDungeon(
+            string characterId,
+            string characterName,
+            string dungeonName,
+            Func<Task> dungeonRunTask)
+        {
+            StartBackgroundDungeon(characterId, characterName, dungeonName, _ => dungeonRunTask());
+        }
+
+        /// <summary>
+        /// Cancel an active dungeon run for a character (if any).
+        /// </summary>
+        public void CancelDungeon(string characterId)
+        {
+            if (string.IsNullOrEmpty(characterId))
+                return;
+
+            lock (_lockObject)
+            {
+                CancelExistingLocked(characterId);
+            }
+        }
+
+        private void CancelExistingLocked(string characterId)
+        {
+            if (_activeCancellation.TryGetValue(characterId, out var existingCts))
+            {
+                try
+                {
+                    existingCts.Cancel();
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Already disposed
+                }
+
+                _activeCancellation.Remove(characterId);
+                existingCts.Dispose();
             }
         }
 
@@ -108,7 +173,7 @@ namespace RPGGame
         {
             lock (_lockObject)
             {
-                return _activeDungeonTasks.ContainsKey(characterId) && 
+                return _activeDungeonTasks.ContainsKey(characterId) &&
                        _dungeonRunInfo.ContainsKey(characterId) &&
                        !_dungeonRunInfo[characterId].IsComplete;
             }
@@ -157,8 +222,12 @@ namespace RPGGame
         /// </summary>
         public async Task WaitForDungeonCompletion(string characterId, int timeoutMs = 300000)
         {
-            if (!_activeDungeonTasks.TryGetValue(characterId, out var task))
-                return;
+            Task? task;
+            lock (_lockObject)
+            {
+                if (!_activeDungeonTasks.TryGetValue(characterId, out task))
+                    return;
+            }
 
             try
             {
@@ -171,4 +240,3 @@ namespace RPGGame
         }
     }
 }
-

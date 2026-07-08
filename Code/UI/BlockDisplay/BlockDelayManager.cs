@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.UI;
@@ -11,9 +12,10 @@ namespace RPGGame.UI.BlockDisplay
     public static class BlockDelayManager
     {
         /// <summary>
-        /// Applies delay using centralized delay system
+        /// Applies delay using centralized delay system and waits for completion.
+        /// Prefer this over fire-and-forget on any path that must not race the combat loop.
         /// </summary>
-        public static void ApplyBlockDelay()
+        public static async Task ApplyBlockDelayAsync()
         {
             // Skip delays if combat UI output is disabled (e.g., during statistics runs)
             if (CombatManager.DisableCombatUIOutput) return;
@@ -22,8 +24,17 @@ namespace RPGGame.UI.BlockDisplay
             
             if (!UIManager.EnableDelays) return;
             
-            // Use centralized delay system for individual messages (fire and forget)
-            _ = CombatDelayManager.DelayAfterMessageAsync();
+            await CombatDelayManager.DelayAfterMessageAsync();
+        }
+
+        /// <summary>
+        /// Applies delay using centralized delay system (sync callers dump without waiting).
+        /// Combat display should use <see cref="ApplyBlockDelayAsync"/>.
+        /// </summary>
+        public static void ApplyBlockDelay()
+        {
+            // Intentionally no-op for sync callers: awaiting DelayAfterMessageAsync via fire-and-forget
+            // raced the combat loop. Async display paths already wait via the batch coordinator.
         }
         
         /// <summary>
@@ -50,4 +61,3 @@ namespace RPGGame.UI.BlockDisplay
         }
     }
 }
-

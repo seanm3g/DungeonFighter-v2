@@ -18,8 +18,8 @@ namespace RPGGame.Actions.Execution
             Actor source,
             Actor? target,
             ActionExecutionResult result,
-            Dictionary<Actor, Action> lastUsedActions,
-            Dictionary<Actor, bool> lastCriticalMissStatus,
+            IDictionary<Actor, Action> lastUsedActions,
+            IDictionary<Actor, bool> lastCriticalMissStatus,
             Action? forcedAction)
         {
             // Reset before combo vs normal selection so <see cref="ActionSelector"/> does not read stale

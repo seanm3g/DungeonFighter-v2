@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RPGGame.Entity.Services
@@ -19,12 +20,27 @@ namespace RPGGame.Entity.Services
         void SaveCharacter(Character character, string? characterId = null, string? filename = null, bool markDead = false);
 
         /// <summary>
-        /// Loads a character from a JSON file (async version to prevent UI freezing)
+        /// Saves a character asynchronously so menu-exit paths do not block the UI thread on hung IO.
+        /// </summary>
+        Task SaveCharacterAsync(
+            Character character,
+            string? characterId = null,
+            string? filename = null,
+            bool markDead = false,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Loads a character from a JSON file (async version to prevent UI freezing).
+        /// Honors <paramref name="cancellationToken"/> so a timed-out load cancels the underlying read.
         /// </summary>
         /// <param name="characterId">Optional character ID for multi-character support. If provided, loads from per-character filename.</param>
         /// <param name="filename">The filename to load from. If provided, overrides characterId-based naming.</param>
+        /// <param name="cancellationToken">Cancels the file read (callers may combine with a timeout CTS).</param>
         /// <returns>The loaded character, or null if loading failed</returns>
-        Task<Character?> LoadCharacterAsync(string? characterId = null, string? filename = null);
+        Task<Character?> LoadCharacterAsync(
+            string? characterId = null,
+            string? filename = null,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes a character save file

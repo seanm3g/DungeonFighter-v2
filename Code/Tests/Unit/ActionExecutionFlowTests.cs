@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using RPGGame;
 using RPGGame.Tests;
 using RPGGame.Utils;
@@ -47,6 +48,7 @@ namespace RPGGame.Tests.Unit
             TestDeferredSheetAccuracyOnEnemyHitQueuesEnemyFifo();
             TestEnemyComboSelectionUsesFreshThresholdAfterPriorSwingOverrides();
             TestShouldFlashComboCompleteRules();
+            TestConcurrentLastActionMapsDoNotThrow();
 
             TestBase.PrintSummary("Action Execution Flow Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -776,6 +778,30 @@ namespace RPGGame.Tests.Unit
                 character.Actions.AddToCombo(action);
             }
             return character;
+        }
+
+        private static void TestConcurrentLastActionMapsDoNotThrow()
+        {
+            Console.WriteLine("\n--- Concurrent last-action maps do not throw ---");
+            ActionLoader.LoadActions();
+            var heroA = TestDataBuilders.Character().WithName("ConcurrentA").Build();
+            var heroB = TestDataBuilders.Character().WithName("ConcurrentB").Build();
+            var enemyA = TestDataBuilders.Enemy().WithName("ConcurrentEnemyA").Build();
+            var enemyB = TestDataBuilders.Enemy().WithName("ConcurrentEnemyB").Build();
+            Exception? caught = null;
+            try
+            {
+                Parallel.Invoke(
+                    () => ActionExecutor.ExecuteAction(heroA, enemyA),
+                    () => ActionExecutor.ExecuteAction(heroB, enemyB));
+            }
+            catch (Exception ex)
+            {
+                caught = ex;
+            }
+            TestBase.AssertTrue(caught == null,
+                $"Parallel ActionExecutor.ExecuteAction on distinct actors ({caught?.Message})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

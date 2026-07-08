@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using RPGGame.Data;
 
 namespace RPGGame
@@ -124,7 +125,6 @@ namespace RPGGame
             
             Health.MaxHealth = baseHealth + (level - 1) * healthPerLevel;
             Health.CurrentHealth = Health.MaxHealth;
-            Health.RefreshRoomArmor();
 
             // Ensure actions are loaded from JSON before adding them
             // This ensures ActionLoader has initialized before we try to get actions
@@ -152,6 +152,7 @@ namespace RPGGame
         public List<string> TakeDamageWithNotifications(int amount) => Health.TakeDamageWithNotifications(amount);
         public (int finalDamage, int shieldReduction, bool shieldUsed) CalculateDamageWithShield(int amount) => Health.CalculateDamageWithShield(amount);
         public int GetMaxArmor() => Health.GetMaxArmor();
+        /// <summary>No-op retained for call-site compatibility; armor is flat DR and does not refresh per room.</summary>
         public void RefreshRoomArmor() => Health.RefreshRoomArmor();
         public void Heal(int amount) => Health.Heal(amount);
         public bool IsAlive => Health.IsAlive;
@@ -478,7 +479,17 @@ namespace RPGGame
         public override string ToString() => base.ToString();
         public void DisplayCharacterInfo() => Facade.DisplayCharacterInfo();
         public void SaveCharacter(string? characterId = null, string? filename = null, bool markDead = false) => Facade.SaveCharacter(characterId, filename, markDead);
-        public static async Task<Character?> LoadCharacterAsync(string? characterId = null, string? filename = null) => await CharacterFacade.LoadCharacterAsync(characterId, filename).ConfigureAwait(false);
+        public Task SaveCharacterAsync(
+            string? characterId = null,
+            string? filename = null,
+            bool markDead = false,
+            System.Threading.CancellationToken cancellationToken = default) =>
+            Facade.SaveCharacterAsync(characterId, filename, markDead, cancellationToken);
+        public static async Task<Character?> LoadCharacterAsync(
+            string? characterId = null,
+            string? filename = null,
+            System.Threading.CancellationToken cancellationToken = default) =>
+            await CharacterFacade.LoadCharacterAsync(characterId, filename, cancellationToken).ConfigureAwait(false);
         public static void DeleteSaveFile(string? filename = null) => CharacterFacade.DeleteSaveFile(filename);
         
         // Session statistics methods

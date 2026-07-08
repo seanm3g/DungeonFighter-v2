@@ -154,9 +154,9 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Processes a single environment turn
+        /// Processes a single environment turn and awaits combat log display completion.
         /// </summary>
-        public bool ProcessEnvironmentTurn(Character player, Enemy currentEnemy, Environment room)
+        public async System.Threading.Tasks.Task<bool> ProcessEnvironmentTurnAsync(Character player, Enemy currentEnemy, Environment room)
         {
             if (room.ShouldEnvironmentAct())
             {
@@ -196,12 +196,12 @@ namespace RPGGame
                         // Turn separator line removed for cleaner combat logs
                     }
                     
-                    // Display environmental action result using unified action block system
+                    // Display environmental action result using unified action block system (await so next turn waits)
                     if (textDisplayed && actionText != null)
                     {
                         // Use empty list if rollInfo is null (DisplayActionBlock expects non-nullable rollInfo)
                         var rollInfoToDisplay = rollInfo ?? new List<UI.ColorSystem.ColoredText>();
-                        BlockDisplayManager.DisplayActionBlock(actionText, rollInfoToDisplay, statusEffects, null, null, null, TextSpacingSystem.BlockType.EnvironmentalAction);
+                        await BlockDisplayManager.DisplayActionBlockAsync(actionText, rollInfoToDisplay, statusEffects, null, null, null, TextSpacingSystem.BlockType.EnvironmentalAction);
                     }
                     
                     // Update environment's action timing in the action speed system
@@ -231,6 +231,14 @@ namespace RPGGame
             }
             
             return true;
+        }
+
+        /// <summary>
+        /// Synchronous wrapper kept for callers that cannot await. Prefer <see cref="ProcessEnvironmentTurnAsync"/>.
+        /// </summary>
+        public bool ProcessEnvironmentTurn(Character player, Enemy currentEnemy, Environment room)
+        {
+            return ProcessEnvironmentTurnAsync(player, currentEnemy, room).GetAwaiter().GetResult();
         }
 
         /// <summary>

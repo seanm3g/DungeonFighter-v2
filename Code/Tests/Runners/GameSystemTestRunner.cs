@@ -18,6 +18,7 @@ namespace RPGGame.Tests.Runners
         private static readonly (string Name, System.Action Execute)[] Suites =
         {
             ("GameCoordinator", () => GameCoordinatorTests.RunAllTests()),
+            ("BackgroundDungeonTaskManager", () => BackgroundDungeonTaskManagerTests.RunAllTests()),
             ("GameStateManager", () => GameStateManagerTests.RunAllTests()),
             ("GameStateValidator", () => GameStateValidatorTests.RunAllTests()),
             ("GameInitializer", () => GameInitializerTests.RunAllTests()),

@@ -40,49 +40,36 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Applies delay after a complete action is processed and displayed
-        /// For GUI, delays are handled by the rendering system, so we skip blocking delays here
+        /// Applies delay after a complete action is processed and displayed.
+        /// Console: blocks here with ActionDelayMs.
+        /// GUI: no-op — end-of-action pacing is applied by the batch display path via delayAfterBatchMs
+        /// so the combat loop does not double-wait after DisplayActionBlockAsync returns.
         /// </summary>
         public static async Task DelayAfterActionAsync()
         {
             if (!ShouldApplyDelay()) return;
-            
-            // For GUI, skip blocking delays - timing is handled by the rendering system
+
+            // GUI action gaps are owned by BatchOperationCoordinator's delayAfterBatchMs.
             if (UIManager.GetCustomUIManager() != null)
-            {
-                // No blocking delay for GUI - rendering system handles timing
                 return;
-            }
-            else
-            {
-                // Use async delay for console (non-blocking)
-                int delayMs = DeveloperModeState.ScaleDelayMs(Config.ActionDelayMs);
-                if (delayMs > 0)
-                    await Task.Delay(delayMs);
-            }
+
+            int delayMs = DeveloperModeState.ScaleDelayMs(Config.ActionDelayMs);
+            if (delayMs > 0)
+                await Task.Delay(delayMs);
         }
         
         /// <summary>
-        /// Applies delay after individual messages within an action
-        /// For GUI, delays are handled by the rendering system, so we skip blocking delays here
+        /// Applies delay between individual messages within an action block.
+        /// Applies for both GUI and console when the matching Enable*Delays flag is on,
+        /// so Avalonia combat log gets real line-by-line reveal (not an instant buffer dump).
         /// </summary>
         public static async Task DelayAfterMessageAsync()
         {
             if (!ShouldApplyDelay()) return;
-            
-            // For GUI, skip blocking delays - timing is handled by the rendering system
-            if (UIManager.GetCustomUIManager() != null)
-            {
-                // No blocking delay for GUI - rendering system handles timing
-                return;
-            }
-            else
-            {
-                // Use async delay for console (non-blocking)
-                int delayMs = DeveloperModeState.ScaleDelayMs(Config.MessageDelayMs);
-                if (delayMs > 0)
-                    await Task.Delay(delayMs);
-            }
+
+            int delayMs = DeveloperModeState.ScaleDelayMs(Config.MessageDelayMs);
+            if (delayMs > 0)
+                await Task.Delay(delayMs);
         }
         
         /// <summary>

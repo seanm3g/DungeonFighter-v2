@@ -135,6 +135,14 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("data", "ActionMechanicsRegistry", () => RPGGame.Tests.Unit.Data.ActionMechanicsRegistryTests.RunAll()));
             list.Add(new TestSuiteEntry("data", "ActionMechanicsCadenceMatrix", () => RPGGame.Tests.Unit.Data.ActionMechanicsCadenceMatrixTests.RunAll()));
             list.Add(new TestSuiteEntry("data", "ActionExecutionFlow", () => RPGGame.Tests.Unit.ActionExecutionFlowTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "CombatDelayManager", () => RPGGame.Tests.Unit.Combat.CombatDelayManagerTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "CombatUiMuteScope", () => RPGGame.Tests.Unit.Combat.CombatUiMuteScopeTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "HealthBarDeltaDamageHint", () => RPGGame.Tests.Unit.Combat.HealthBarDeltaDamageHintTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("game", "DeveloperSimMode", () => RPGGame.Tests.Unit.Tuning.DeveloperSimModeTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("game", "ActionInteractionLab", () => RPGGame.Tests.Unit.ActionInteractionLabTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "BlockDisplayManager", () => RPGGame.Tests.Unit.UI.BlockDisplayManagerTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("game", "GameStateManagerMultiCharacter", () => RPGGame.Tests.Unit.GameStateManagerMultiCharacterTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("persistence", "SaveLoad", () => RPGGame.Tests.Unit.SaveLoadSystemTests.RunAllTests()));
             list.Add(new TestSuiteEntry("comprehensive", "Comprehensive", () => ComprehensiveTestRunner.RunAllTests()));
             return list;
         }

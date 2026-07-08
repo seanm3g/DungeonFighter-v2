@@ -22,8 +22,19 @@ namespace RPGGame.UI.BlockDisplay.Renderers
         
         public void RenderMessageGroups(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs, Character? character = null)
         {
-            // Fire and forget - use async version but don't wait
-            _ = RenderMessageGroupsAsync(groups, delayMs, character);
+            // Sync path dumps lines without pacing. Combat must use RenderMessageGroupsAsync.
+            if (groups == null || groups.Count == 0)
+                return;
+
+            foreach (var (segments, messageType) in groups)
+            {
+                if (segments == null)
+                    continue;
+                if (segments.Count == 0)
+                    uiManager.WriteBlankLine();
+                else
+                    uiManager.WriteColoredSegments(segments, messageType);
+            }
         }
         
         public async Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs, Character? character = null)

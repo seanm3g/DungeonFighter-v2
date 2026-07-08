@@ -2,6 +2,8 @@ using System.Linq;
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
 
@@ -25,8 +27,13 @@ namespace RPGGame
     /// </summary>
     public class CombatManager
     {
-        // Flag to disable UI output during balance analysis
-        public static bool DisableCombatUIOutput = false;
+        // Flag to disable UI output during balance analysis.
+        // Backed by CombatUiMuteScope so nested AsyncLocal mute (lab/sims) does not fight the global flag.
+        public static bool DisableCombatUIOutput
+        {
+            get => CombatUiMuteScope.IsMuted;
+            set => CombatUiMuteScope.GlobalMute = value;
+        }
 
         // Flag to disable battle narrative tracking (separate from UI output)
         // This is used to disable logging of battle events for memory efficiency
@@ -293,7 +300,7 @@ namespace RPGGame
 
                 if (nextEntity == room && room.IsHostile && room.ActionPool.Count > 0)
                 {
-                    if (!turnHandler.ProcessEnvironmentTurn(player, currentEnemy, room))
+                    if (!await turnHandler.ProcessEnvironmentTurnAsync(player, currentEnemy, room))
                     {
                         if (!player.IsAlive)
                             return CombatSingleTurnResult.PlayerDefeated;
@@ -334,9 +341,15 @@ namespace RPGGame
             Environment room,
             bool playerGetsFirstAttack = false,
             bool enemyGetsFirstAttack = false,
-            TrainingGroundTutorialScript? tutorialScript = null)
+            TrainingGroundTutorialScript? tutorialScript = null,
+            CancellationToken cancellationToken = default)
         {
             tutorialScript?.Reset();
+
+            // Muted/headless fights isolate the encounter clock so Reset() cannot zero live combat time.
+            using var tickerIsolation = CombatUiMuteScope.IsMuted
+                ? GameTicker.BeginIsolatedEncounterGameTime()
+                : null;
 
             // Reset game time FIRST to ensure clean timing state
             GameTicker.Instance.Reset();
@@ -350,39 +363,46 @@ namespace RPGGame
             // Initialize combat entities AFTER action speed system is created
             InitializeCombatEntities(player, currentEnemy, room, playerGetsFirstAttack, enemyGetsFirstAttack);
             
-            // Reset environment action count for new fight
-            CombatEnvironmentContext.CurrentRoom = room;
+            // Reset environment action count for new fight (AsyncLocal-scoped so parallel sims do not share room)
+            using var roomScope = CombatEnvironmentContext.BeginScope(room);
             room.ResetForNewFight();
 
-            while (player.IsAlive && currentEnemy.IsAlive)
+            try
             {
-                var step = await AdvanceSingleTurnAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: tutorialScript);
-                if (step == CombatSingleTurnResult.Advanced)
-                    continue;
-                break;
+                while (player.IsAlive && currentEnemy.IsAlive)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var step = await AdvanceSingleTurnAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: tutorialScript);
+                    if (step == CombatSingleTurnResult.Advanced)
+                        continue;
+                    break;
+                }
+                
+                // End the battle narrative with final health values
+                EndBattleNarrative(player, currentEnemy);
+
+                // Clear roll threshold modifiers so UI and the next fight start from config defaults
+                // (per-roll logic resets at attack time; this clears any state left after the last roll).
+                var thresholdManager = RollModificationManager.GetThresholdManager();
+                thresholdManager.ResetThresholds(player);
+                thresholdManager.ResetThresholds(currentEnemy);
+                
+                // Full combo reset after combat so exploration / next encounter never inherits combo mode or strip index
+                player.ResetCombo();
+
+                // Wipe combat status (DoT, debuffs, advanced stacks) so the hero never carries encounter state onward
+                player.ClearEncounterTempEffects();
+                player.RefreshRoomArmor();
+                
+                DebugLogger.WriteCombatDebug("CombatManager", $"Combat ended: {player.Name} {(player.IsAlive ? "survived" : "died")} vs {currentEnemy.Name}");
+                
+                // Return true if player survived, false if player died
+                return player.IsAlive;
             }
-            
-            // End the battle narrative with final health values
-            EndBattleNarrative(player, currentEnemy);
-
-            // Clear roll threshold modifiers so UI and the next fight start from config defaults
-            // (per-roll logic resets at attack time; this clears any state left after the last roll).
-            var thresholdManager = RollModificationManager.GetThresholdManager();
-            thresholdManager.ResetThresholds(player);
-            thresholdManager.ResetThresholds(currentEnemy);
-            
-            // Full combo reset after combat so exploration / next encounter never inherits combo mode or strip index
-            player.ResetCombo();
-
-            // Wipe combat status (DoT, debuffs, advanced stacks) so the hero never carries encounter state onward
-            player.ClearEncounterTempEffects();
-            player.RefreshRoomArmor();
-            
-            DebugLogger.WriteCombatDebug("CombatManager", $"Combat ended: {player.Name} {(player.IsAlive ? "survived" : "died")} vs {currentEnemy.Name}");
-            CombatEnvironmentContext.CurrentRoom = null;
-            
-            // Return true if player survived, false if player died
-            return player.IsAlive;
+            finally
+            {
+                Cleanup();
+            }
         }
     }
 }

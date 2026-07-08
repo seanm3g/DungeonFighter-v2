@@ -128,13 +128,33 @@ namespace RPGGame.Entity.Services
         }
 
         /// <summary>
+        /// Writes text to a file asynchronously (non-blocking for UI exit paths).
+        /// </summary>
+        public System.Threading.Tasks.Task WriteAllTextAsync(
+            string filename,
+            string content,
+            System.Threading.CancellationToken cancellationToken = default)
+        {
+            // Ensure the directory exists before writing
+            var directory = Path.GetDirectoryName(filename);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            return File.WriteAllTextAsync(filename, content, cancellationToken);
+        }
+
+        /// <summary>
         /// Reads text from a file asynchronously
         /// </summary>
         /// <param name="filename">The filename to read from</param>
         /// <returns>The file content</returns>
-        public System.Threading.Tasks.Task<string> ReadAllTextAsync(string filename)
+        public System.Threading.Tasks.Task<string> ReadAllTextAsync(
+            string filename,
+            System.Threading.CancellationToken cancellationToken = default)
         {
-            return File.ReadAllTextAsync(filename);
+            return File.ReadAllTextAsync(filename, cancellationToken);
         }
 
         /// <summary>

@@ -34,20 +34,22 @@ namespace RPGGame
         }
         public int MaxHealth { get; set; }
 
-        /// <summary>Remaining room armor pool; absorbs incoming damage before health. Refreshes each room.</summary>
-        private int _currentArmor;
+        /// <summary>
+        /// Effective armor for display/compat. Armor is flat damage reduction from gear and combat
+        /// modifiers; it is not a depleting pool. Prefer <see cref="GetMaxArmor"/> /
+        /// <see cref="GetEffectiveArmor"/> for new code.
+        /// </summary>
         public int CurrentArmor
         {
-            get
-            {
-                EnsureCurrentArmorWithinMax();
-                return _currentArmor;
-            }
-            set => _currentArmor = Math.Max(0, Math.Min(value, GetMaxArmor()));
+            get => GetEffectiveArmor();
+            set { /* Armor is derived from gear/effects; kept for save/API compatibility. */ }
         }
 
-        /// <summary>Maximum armor for the current room (equipment + temporary combat bonuses).</summary>
-        public int GetMaxArmor()
+        /// <summary>Effective flat armor reduction (equipment + fortify − armor break / expose).</summary>
+        public int GetMaxArmor() => GetEffectiveArmor();
+
+        /// <summary>Effective flat armor reduction (equipment + fortify − armor break / expose).</summary>
+        public int GetEffectiveArmor()
         {
             int max = character.GetTotalArmor();
             if (character.FortifyArmorBonus is int fortifyBonus && fortifyBonus > 0)
@@ -59,16 +61,13 @@ namespace RPGGame
             return max;
         }
 
-        /// <summary>Refills the room armor pool to <see cref="GetMaxArmor"/>.</summary>
-        public void RefreshRoomArmor() => CurrentArmor = GetMaxArmor();
+        /// <summary>
+        /// No-op retained for call-site compatibility. Armor is flat DR and does not refresh per room.
+        /// </summary>
+        public void RefreshRoomArmor() { }
 
-        /// <summary>Clamps stored armor when max armor drops (equipment change, effect expiry).</summary>
-        public void EnsureCurrentArmorWithinMax()
-        {
-            int max = GetMaxArmor();
-            if (_currentArmor > max)
-                _currentArmor = max;
-        }
+        /// <summary>No-op retained for call-site compatibility (armor is not a stored pool).</summary>
+        public void EnsureCurrentArmorWithinMax() { }
 
         /// <summary>
         /// Makes the character take damage with shield and damage reduction calculations
@@ -80,7 +79,9 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Makes the character take damage and returns notification messages
+        /// Makes the character take damage and returns notification messages.
+        /// Attack armor mitigation is applied in <see cref="Combat.Calculators.DamageCalculator"/>;
+        /// this path still applies shield and percent damage reduction for non-attack damage sources.
         /// </summary>
         /// <param name="amount">Base damage amount</param>
         /// <returns>List of notification messages</returns>
@@ -121,18 +122,6 @@ namespace RPGGame
                 CurrentHealth = Math.Min(GetEffectiveMaxHealth(), CurrentHealth - amount);
                 return new List<string>();
             }
-
-            // Armor pool absorbs damage linearly before health (refreshes each room).
-            int armorAbsorbed = 0;
-            if (amount > 0 && CurrentArmor > 0)
-            {
-                armorAbsorbed = Math.Min(amount, CurrentArmor);
-                CurrentArmor -= armorAbsorbed;
-                amount -= armorAbsorbed;
-            }
-
-            if (armorAbsorbed > 0)
-                character.Effects.LastArmorAbsorbed = armorAbsorbed;
 
             if (RPGGame.Tuning.DeveloperSimMode.ContinuePastZeroHp)
                 CurrentHealth -= amount;
@@ -176,8 +165,9 @@ namespace RPGGame
                 amount = (int)(amount * (1.0 - character.DamageReduction));
             }
 
-            if (amount > 0 && CurrentArmor > 0)
-                amount = Math.Max(0, amount - Math.Min(amount, CurrentArmor));
+            int armor = GetEffectiveArmor();
+            if (amount > 0 && armor > 0)
+                amount = Math.Max(0, amount - armor);
 
             return (amount, shieldReduction, shieldUsed);
         }

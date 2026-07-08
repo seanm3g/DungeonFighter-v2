@@ -37,6 +37,7 @@ namespace RPGGame.Tests.Unit
             LabPlayerIsActiveForDisplayWhenInLabState(ref run, ref passed, ref failed);
             SetLabEnemyFromLoaderSwapsEnemy(ref run, ref passed, ref failed);
             CanvasContextRestoredAfterEndSession(ref run, ref passed, ref failed);
+            LabBeginDoesNotResetGlobalGameTime(ref run, ref passed, ref failed);
             LabCatalogSelectionAddsActionToCombo(ref run, ref passed, ref failed);
             LabRemoveFromComboShrinksSequence(ref run, ref passed, ref failed);
             EnemyComboSelectionUsesComboStepIndex(ref run, ref passed, ref failed);
@@ -52,6 +53,7 @@ namespace RPGGame.Tests.Unit
             LabCatalogSyncShowsSecondSlotWhenComboStepOne(ref run, ref passed, ref failed);
             LabNudgeComboStepClampsStrip(ref run, ref passed, ref failed);
             AddSelectedCatalogToStripHelperAddsAction(ref run, ref passed, ref failed);
+            AddSelectedCatalogToStrip_AppendsToEnd(ref run, ref passed, ref failed);
             UndoReplayPreservesComboStripEdits(ref run, ref passed, ref failed);
             UndoReplayPreservesLabStatEdits(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_StrArmorAndFloors(ref run, ref passed, ref failed);
@@ -1115,6 +1117,22 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual("BeforeRoom", ctx.GetRoomName(), "Room name restored", ref run, ref passed, ref failed);
         }
 
+        private static void LabBeginDoesNotResetGlobalGameTime(ref int run, ref int passed, ref int failed)
+        {
+            Console.WriteLine("--- Lab Begin does not reset global GameTicker ---");
+            ActionLoader.LoadActions();
+            GameTicker.Instance.AdvanceGameTime(9.0);
+            double before = GameTicker.Instance.GameTime;
+            var hero = TestDataBuilders.Character().WithName("LabTicker").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            TestBase.AssertTrue(Math.Abs(GameTicker.Instance.GameTime - before) < 0.0001,
+                "Global GameTime unchanged after lab bootstrap", ref run, ref passed, ref failed);
+            ActionInteractionLabSession.EndSession();
+            TestBase.AssertTrue(Math.Abs(GameTicker.Instance.GameTime - before) < 0.0001,
+                "Global GameTime unchanged after lab EndSession", ref run, ref passed, ref failed);
+        }
+
         /// <summary>
         /// Mirrors catalog click behavior: resolve name → GetAction → ensure combo-eligible → AddToCombo on lab clone.
         /// </summary>
@@ -1637,6 +1655,69 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(
                 lab.LabPlayer.GetComboActions().Any(a => string.Equals(a.Name, pick, StringComparison.OrdinalIgnoreCase)),
                 "Strip contains selected catalog action",
+                ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
+        }
+
+        /// <summary>
+        /// Catalog adds must append to the strip end even when the action's JSON ComboOrder is 0.
+        /// </summary>
+        private static void AddSelectedCatalogToStrip_AppendsToEnd(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var names = ActionLoader.GetAllActionNames();
+            if (names.Count < 2)
+            {
+                TestBase.AssertTrue(true, "AddSelectedCatalogToStrip_AppendsToEnd skipped (need 2+ actions)", ref run, ref passed, ref failed);
+                return;
+            }
+
+            names.Sort(StringComparer.OrdinalIgnoreCase);
+            var hero = TestDataBuilders.Character().WithName("LabAppendStrip").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "AddSelectedCatalogToStrip_AppendsToEnd: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            string firstName = names[0];
+            string secondName = names[1];
+            var first = ActionLoader.GetAction(firstName);
+            var second = ActionLoader.GetAction(secondName);
+            TestBase.AssertTrue(first != null && second != null, "AddSelectedCatalogToStrip_AppendsToEnd GetAction", ref run, ref passed, ref failed);
+            if (first == null || second == null)
+            {
+                ActionInteractionLabSession.EndSession();
+                return;
+            }
+
+            foreach (var a in lab.LabPlayer.GetComboActions().ToList())
+                lab.LabPlayer.RemoveFromCombo(a, ignoreWeaponRequirement: true);
+
+            if (!first.IsComboAction)
+                first.IsComboAction = true;
+            first.ComboOrder = 1;
+            lab.LabPlayer.AddToCombo(first);
+
+            lab.SelectedCatalogActionName = secondName;
+            if (!second.IsComboAction)
+                second.IsComboAction = true;
+            second.ComboOrder = 0;
+            lab.AddSelectedCatalogActionToComboStrip();
+
+            var strip = lab.LabPlayer.GetComboActions();
+            TestBase.AssertEqual(2, strip.Count, "AddSelectedCatalogToStrip_AppendsToEnd strip length", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                string.Equals(strip[0].Name, firstName, StringComparison.OrdinalIgnoreCase),
+                "AddSelectedCatalogToStrip_AppendsToEnd keeps first action at slot 0",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                string.Equals(strip[1].Name, secondName, StringComparison.OrdinalIgnoreCase),
+                "AddSelectedCatalogToStrip_AppendsToEnd places new action at end",
                 ref run, ref passed, ref failed);
 
             ActionInteractionLabSession.EndSession();

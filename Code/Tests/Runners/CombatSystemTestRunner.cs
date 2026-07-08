@@ -22,6 +22,10 @@ namespace RPGGame.Tests.Runners
 
             CombatManagerTests.RunAllTests();
             Console.WriteLine();
+            CombatDelayManagerTests.RunAllTests();
+            Console.WriteLine();
+            CombatUiMuteScopeTests.RunAllTests();
+            Console.WriteLine();
             CombatStateManagerTests.RunAllTests();
             Console.WriteLine();
             CombatTurnHandlerTests.RunAllTests();

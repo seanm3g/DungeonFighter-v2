@@ -129,23 +129,6 @@ namespace RPGGame.Combat.Formatting
             builder.Add(armor.ToString(), Colors.White);
             builder.Add(" armor", Colors.White);
         }
-
-        /// <summary>
-        /// Adds "attack X | Y armor" for hero room armor pool (linear absorption, not flat reduction).
-        /// </summary>
-        public static void AddAttackWithArmorPool(ColoredTextBuilder builder, int attack, int armorBeforeHit)
-        {
-            builder.Add(" | ", Colors.Gray);
-            builder.Add("attack", ColorPalette.Info);
-            builder.AddSpace();
-            builder.Add(attack.ToString(), Colors.White);
-            if (armorBeforeHit > 0)
-            {
-                builder.Add(" | ", Colors.Gray);
-                builder.Add(armorBeforeHit.ToString(), ColorPalette.Success);
-                builder.Add(" armor", Colors.White);
-            }
-        }
         
         /// <summary>
         /// Adds "speed: X.Xs" pattern to a ColoredTextBuilder with proper spacing
@@ -429,17 +412,7 @@ namespace RPGGame.Combat.Formatting
             var damageText = builder.Build();
             
             // Calculate roll info
-            int targetDefense = 0;
-            bool targetUsesArmorPool = false;
-            if (target is Enemy targetEnemy)
-            {
-                targetDefense = targetEnemy.Armor;
-            }
-            else if (target is Character targetCharacter)
-            {
-                targetUsesArmorPool = true;
-                targetDefense = targetCharacter.CurrentArmor + targetCharacter.Effects.LastArmorAbsorbed;
-            }
+            int targetDefense = DamageCalculator.ResolveTargetArmor(target);
             
             // Match combat damage: roll bands use total attack (modified base + bonuses), not base alone.
             int rollForDamageScaling = roll + rollBonus;
@@ -452,7 +425,7 @@ namespace RPGGame.Combat.Formatting
                 actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(attacker, action, isCriticalMiss);
             }
             
-            var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, actualRawDamage, targetDefense, actualSpeed, rollInfoCombo, action, targetUsesArmorPool, multiDiceDetail);
+            var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, actualRawDamage, targetDefense, actualSpeed, rollInfoCombo, action, multiDiceDetail: multiDiceDetail);
             
             return (damageText, rollInfo);
         }

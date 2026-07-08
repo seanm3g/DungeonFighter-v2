@@ -23,9 +23,9 @@ namespace RPGGame.UI.Avalonia.Coordinators
         }
 
         /// <summary>
-        /// Writes multiple ColoredText segment lists with delays between each message
-        /// Messages are added one at a time with delays between them for better pacing
-        /// Stores structured data directly to eliminate round-trip conversions
+        /// Writes multiple ColoredText segment lists with delays between each message.
+        /// Prefer <see cref="WriteColoredSegmentsBatchAsync"/> on the combat hot path so the combat loop
+        /// waits for line-by-line reveal. This sync entry point dumps messages without waiting (non-combat UI).
         /// </summary>
         /// <param name="messageGroups">List of tuples containing (segments, messageType) to write</param>
         /// <param name="delayAfterBatchMs">Optional delay in milliseconds after the batch is added (for combat timing)</param>
@@ -34,22 +34,29 @@ namespace RPGGame.UI.Avalonia.Coordinators
             if (messageGroups == null || messageGroups.Count == 0)
                 return;
             
-            // Extract segments for validation / non-canvas fallback (empty lists are valid blank lines)
-            var segmentsList = new List<List<ColoredText>>();
-            foreach (var (segments, messageType) in messageGroups)
+            // Sync path: enqueue all lines immediately without awaiting inter-line delays.
+            // Combat must use WriteColoredSegmentsBatchAsync so pacing and races stay correct.
+            if (textManager is CanvasTextManager canvasTextManager)
             {
-                if (segments != null)
+                var targetDisplayManager = canvasTextManager.GetDisplayManagerForCharacter(character);
+                foreach (var (segments, messageType) in messageGroups)
                 {
-                    // Add segment even if empty (for blank lines)
-                    segmentsList.Add(segments);
+                    if (segments == null)
+                        continue;
+                    targetDisplayManager.AddMessage(segments, messageType);
                 }
-            }
-            
-            if (segmentsList.Count == 0)
                 return;
-            
-            // Fire and forget - use async version but don't wait
-            _ = WriteColoredSegmentsBatchAsync(messageGroups, delayAfterBatchMs, character);
+            }
+
+            foreach (var (segments, _) in messageGroups)
+            {
+                if (segments == null)
+                    continue;
+                if (segments.Count == 0)
+                    messageWritingCoordinator.WriteBlankLine();
+                else
+                    messageWritingCoordinator.WriteLine(ColoredTextRenderer.RenderAsMarkup(segments));
+            }
         }
         
         /// <summary>

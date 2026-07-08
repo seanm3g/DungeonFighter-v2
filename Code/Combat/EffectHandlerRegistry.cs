@@ -243,7 +243,7 @@ namespace RPGGame
         public string GetEffectType() => "Burning";
     }
 
-    /// <summary>Fortify: stacking armor bonus on the room armor pool (sheet FORTIFY / SELF TARGET).</summary>
+    /// <summary>Fortify: stacking flat armor bonus (sheet FORTIFY / SELF TARGET).</summary>
     public class FortifyEffectHandler : IEffectHandler
     {
         private const int DefaultTurns = 3;
@@ -257,9 +257,6 @@ namespace RPGGame
             target.FortifyStacks = (target.FortifyStacks ?? 0) + 1;
             target.FortifyTurns = DefaultTurns;
             target.FortifyArmorBonus = (target.FortifyArmorBonus ?? 0) + armorPerStack;
-
-            if (target is Character character)
-                character.Health.RefreshRoomArmor();
 
             StatusEffectCombatLogMessageBuilder.AppendNameWithPlainSuffix(results, target, "fortifies, gaining armor!");
             return true;

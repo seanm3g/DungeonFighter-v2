@@ -115,7 +115,7 @@ namespace RPGGame.UI.Avalonia.Layout
                         x,
                         healthBarY,
                         healthBarWidth,
-                        character.CurrentArmor,
+                        maxArmor,
                         maxArmor,
                         AsciiArtAssets.Colors.DarkBlue,
                         AsciiArtAssets.Colors.White,
@@ -148,7 +148,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     canvas.AddText(
                         x,
                         hpValueY,
-                        $"Health {character.CurrentHealth}/{character.GetEffectiveMaxHealth()}  Armor {character.CurrentArmor}/{maxArmor}",
+                        $"Health {character.CurrentHealth}/{character.GetEffectiveMaxHealth()}  Armor {maxArmor}",
                         AsciiArtAssets.Colors.White);
                 }
                 else

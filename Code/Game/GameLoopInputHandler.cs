@@ -66,15 +66,14 @@ namespace RPGGame
                     ShowCharacterSelectionEvent?.Invoke();
                     break;
                 case "0":
-                    // Save & Return to Main Menu
+                    // Save & Return to Main Menu (async save so exit is not blocked on hung IO)
                     var activeCharacter = stateManager.GetActiveCharacter();
                     if (activeCharacter != null)
                     {
-                        // Save character before returning to main menu
                         try
                         {
                             var characterId = stateManager.GetCharacterId(activeCharacter);
-                            activeCharacter.SaveCharacter(characterId);
+                            await activeCharacter.SaveCharacterAsync(characterId).ConfigureAwait(false);
                         }
                         catch (Exception)
                         {

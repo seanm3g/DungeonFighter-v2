@@ -212,6 +212,7 @@ namespace RPGGame
             }
             AddBlank(lines);
             AddNoteLine(lines, "Piece values include that item's armor stats and affixes.");
+            AddNoteLine(lines, "Armor is flat damage reduction and is not consumed by hits.");
 
             return Trim(lines, maxLines);
         }

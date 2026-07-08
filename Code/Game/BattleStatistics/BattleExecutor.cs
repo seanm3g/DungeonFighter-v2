@@ -26,6 +26,12 @@ namespace RPGGame.BattleStatistics
 
             try
             {
+                // Ensure mute + isolated ticker even if the caller forgot an outer scope
+                // (RunCombat also isolates when muted; this covers any pre-RunCombat timing).
+                using var muteScope = CombatUiMuteScope.Begin(muted: true);
+                using var tickerIsolation = GameTicker.BeginIsolatedEncounterGameTime();
+                GameTicker.Instance.Reset();
+
                 var player = TestCharacterFactory.CreateTestCharacter(
                     name: $"TestPlayer_{battleIndex}",
                     damage: config.PlayerDamage,
@@ -42,84 +48,91 @@ namespace RPGGame.BattleStatistics
                 int turnCount = 0;
 
                 var combatManager = new CombatManager();
-                var combatTask = combatManager.RunCombat(player, enemy, environment);
-
                 try
                 {
-                    bool playerWon = await combatTask.ConfigureAwait(false);
-                    result.PlayerWon = playerWon;
-                    result.PlayerFinalHealth = player.CurrentHealth;
-                    result.EnemyFinalHealth = enemy.CurrentHealth;
+                    var combatTask = combatManager.RunCombat(player, enemy, environment, cancellationToken: cts.Token);
 
-                    var narrative = combatManager.GetCurrentBattleNarrative();
-                    int currentTurn = combatManager.GetCurrentTurn();
-                    int totalActionCount = combatManager.GetTotalActionCount();
-                    var funTracker = combatManager.GetFunMomentTracker();
-
-                    if (narrative != null)
+                    try
                     {
-                        var events = narrative.GetAllEvents();
+                        bool playerWon = await combatTask.ConfigureAwait(false);
+                        result.PlayerWon = playerWon;
+                        result.PlayerFinalHealth = player.CurrentHealth;
+                        result.EnemyFinalHealth = enemy.CurrentHealth;
 
-                        result.PlayerDamageDealt = events
-                            .Where(e => e.Actor == player.Name && e.Target == enemy.Name && e.Damage > 0)
-                            .Sum(e => e.Damage);
+                        var narrative = combatManager.GetCurrentBattleNarrative();
+                        int currentTurn = combatManager.GetCurrentTurn();
+                        int totalActionCount = combatManager.GetTotalActionCount();
+                        var funTracker = combatManager.GetFunMomentTracker();
 
-                        result.EnemyDamageDealt = events
-                            .Where(e => e.Actor == enemy.Name && e.Target == player.Name && e.Damage > 0)
-                            .Sum(e => e.Damage);
-
-                        if (currentTurn > 0)
+                        if (narrative != null)
                         {
-                            turnCount = currentTurn;
-                        }
-                        else if (totalActionCount > 0)
-                        {
-                            turnCount = totalActionCount;
+                            var events = narrative.GetAllEvents();
+
+                            result.PlayerDamageDealt = events
+                                .Where(e => e.Actor == player.Name && e.Target == enemy.Name && e.Damage > 0)
+                                .Sum(e => e.Damage);
+
+                            result.EnemyDamageDealt = events
+                                .Where(e => e.Actor == enemy.Name && e.Target == player.Name && e.Damage > 0)
+                                .Sum(e => e.Damage);
+
+                            if (currentTurn > 0)
+                            {
+                                turnCount = currentTurn;
+                            }
+                            else if (totalActionCount > 0)
+                            {
+                                turnCount = totalActionCount;
+                            }
+                            else
+                            {
+                                var playerActions = events.Count(e => e.Actor == player.Name && e.Target == enemy.Name);
+                                var enemyActions = events.Count(e => e.Actor == enemy.Name && e.Target == player.Name);
+                                turnCount = Math.Max(1, playerActions + enemyActions);
+                            }
+
+                            result.TurnLogs = BuildTurnLogs(events, player.Name, enemy.Name);
+                            result.ActionUsageCount = BuildActionUsageStats(events, player.Name);
+
+                            if (funTracker != null)
+                            {
+                                result.FunMomentSummary = funTracker.GetSummary();
+                            }
                         }
                         else
                         {
-                            var playerActions = events.Count(e => e.Actor == player.Name && e.Target == enemy.Name);
-                            var enemyActions = events.Count(e => e.Actor == enemy.Name && e.Target == player.Name);
-                            turnCount = Math.Max(1, playerActions + enemyActions);
-                        }
+                            result.PlayerDamageDealt = Math.Max(0, initialEnemyHealth - enemy.CurrentHealth);
+                            result.EnemyDamageDealt = Math.Max(0, initialPlayerHealth - player.CurrentHealth);
 
-                        result.TurnLogs = BuildTurnLogs(events, player.Name, enemy.Name);
-                        result.ActionUsageCount = BuildActionUsageStats(events, player.Name);
-
-                        if (funTracker != null)
-                        {
-                            result.FunMomentSummary = funTracker.GetSummary();
+                            if (currentTurn > 0)
+                            {
+                                turnCount = currentTurn;
+                            }
+                            else if (totalActionCount > 0)
+                            {
+                                turnCount = totalActionCount;
+                            }
+                            else
+                            {
+                                int totalDamageDealt = result.PlayerDamageDealt + result.EnemyDamageDealt;
+                                int averageDamagePerAction = Math.Max(1, (config.PlayerDamage + config.EnemyDamage) / 2);
+                                int estimatedActions = Math.Max(1, (int)Math.Ceiling((double)totalDamageDealt / averageDamagePerAction));
+                                turnCount = Math.Max(1, estimatedActions);
+                            }
                         }
+                        result.Turns = turnCount;
                     }
-                    else
+                    catch (OperationCanceledException)
                     {
-                        result.PlayerDamageDealt = Math.Max(0, initialEnemyHealth - enemy.CurrentHealth);
-                        result.EnemyDamageDealt = Math.Max(0, initialPlayerHealth - player.CurrentHealth);
-
-                        if (currentTurn > 0)
-                        {
-                            turnCount = currentTurn;
-                        }
-                        else if (totalActionCount > 0)
-                        {
-                            turnCount = totalActionCount;
-                        }
-                        else
-                        {
-                            int totalDamageDealt = result.PlayerDamageDealt + result.EnemyDamageDealt;
-                            int averageDamagePerAction = Math.Max(1, (config.PlayerDamage + config.EnemyDamage) / 2);
-                            int estimatedActions = Math.Max(1, (int)Math.Ceiling((double)totalDamageDealt / averageDamagePerAction));
-                            turnCount = Math.Max(1, estimatedActions);
-                        }
+                        result.ErrorMessage = $"Battle timed out after {BATTLE_TIMEOUT_SECONDS} seconds";
+                        result.PlayerWon = false;
+                        result.Turns = 0;
+                        Utils.ScrollDebugLogger.Log($"BattleExecutor: Battle timeout (battle {battleIndex})");
                     }
-                    result.Turns = turnCount;
                 }
-                catch (OperationCanceledException)
+                finally
                 {
-                    result.ErrorMessage = $"Battle timed out after {BATTLE_TIMEOUT_SECONDS} seconds";
-                    result.PlayerWon = false;
-                    result.Turns = 0;
-                    Utils.ScrollDebugLogger.Log($"BattleExecutor: Battle timeout (battle {battleIndex})");
+                    combatManager.Cleanup();
                 }
             }
             catch (Exception ex)
@@ -149,6 +162,10 @@ namespace RPGGame.BattleStatistics
 
             try
             {
+                using var muteScope = CombatUiMuteScope.Begin(muted: true);
+                using var tickerIsolation = GameTicker.BeginIsolatedEncounterGameTime();
+                GameTicker.Instance.Reset();
+
                 var character = TestCharacterFactory.CreateTestCharacterWithWeapon(
                     $"TestPlayer_{weaponType}_{battleIndex}", weaponType, playerLevel);
 
@@ -165,86 +182,93 @@ namespace RPGGame.BattleStatistics
 
                 var combatStartTime = DateTime.Now;
                 var combatManager = new CombatManager();
-                var combatTask = combatManager.RunCombat(character, enemy, environment);
-
                 try
                 {
-                    bool playerWon = await combatTask.ConfigureAwait(false);
-                    var totalBattleTime = (DateTime.Now - battleStartTime).TotalSeconds;
+                    var combatTask = combatManager.RunCombat(character, enemy, environment, cancellationToken: cts.Token);
 
-                    if (totalBattleTime > 5.0)
+                    try
                     {
-                        Utils.ScrollDebugLogger.Log($"BattleExecutor: Slow battle detected: {weaponType} vs {enemyType} took {totalBattleTime:F2}s");
-                    }
+                        bool playerWon = await combatTask.ConfigureAwait(false);
+                        var totalBattleTime = (DateTime.Now - battleStartTime).TotalSeconds;
 
-                    result.PlayerWon = playerWon;
-                    result.PlayerFinalHealth = character.CurrentHealth;
-                    result.EnemyFinalHealth = enemy.CurrentHealth;
-
-                    var narrative = combatManager.GetCurrentBattleNarrative();
-                    int currentTurn = combatManager.GetCurrentTurn();
-                    int totalActionCount = combatManager.GetTotalActionCount();
-                    var funTracker = combatManager.GetFunMomentTracker();
-
-                    if (narrative != null)
-                    {
-                        var events = narrative.GetAllEvents();
-
-                        result.PlayerDamageDealt = events
-                            .Where(e => e.Actor == character.Name && e.Target == enemy.Name && e.Damage > 0)
-                            .Sum(e => e.Damage);
-
-                        result.EnemyDamageDealt = events
-                            .Where(e => e.Actor == enemy.Name && e.Target == character.Name && e.Damage > 0)
-                            .Sum(e => e.Damage);
-
-                        if (currentTurn > 0)
+                        if (totalBattleTime > 5.0)
                         {
-                            result.Turns = currentTurn;
+                            Utils.ScrollDebugLogger.Log($"BattleExecutor: Slow battle detected: {weaponType} vs {enemyType} took {totalBattleTime:F2}s");
                         }
-                        else if (totalActionCount > 0)
+
+                        result.PlayerWon = playerWon;
+                        result.PlayerFinalHealth = character.CurrentHealth;
+                        result.EnemyFinalHealth = enemy.CurrentHealth;
+
+                        var narrative = combatManager.GetCurrentBattleNarrative();
+                        int currentTurn = combatManager.GetCurrentTurn();
+                        int totalActionCount = combatManager.GetTotalActionCount();
+                        var funTracker = combatManager.GetFunMomentTracker();
+
+                        if (narrative != null)
                         {
-                            result.Turns = totalActionCount;
+                            var events = narrative.GetAllEvents();
+
+                            result.PlayerDamageDealt = events
+                                .Where(e => e.Actor == character.Name && e.Target == enemy.Name && e.Damage > 0)
+                                .Sum(e => e.Damage);
+
+                            result.EnemyDamageDealt = events
+                                .Where(e => e.Actor == enemy.Name && e.Target == character.Name && e.Damage > 0)
+                                .Sum(e => e.Damage);
+
+                            if (currentTurn > 0)
+                            {
+                                result.Turns = currentTurn;
+                            }
+                            else if (totalActionCount > 0)
+                            {
+                                result.Turns = totalActionCount;
+                            }
+                            else
+                            {
+                                var playerActions = events.Count(e => e.Actor == character.Name && e.Target == enemy.Name);
+                                var enemyActions = events.Count(e => e.Actor == enemy.Name && e.Target == character.Name);
+                                int totalActions = playerActions + enemyActions;
+                                result.Turns = Math.Max(1, totalActions);
+                            }
+
+                            if (funTracker != null)
+                            {
+                                result.FunMomentSummary = funTracker.GetSummary();
+                            }
                         }
                         else
                         {
-                            var playerActions = events.Count(e => e.Actor == character.Name && e.Target == enemy.Name);
-                            var enemyActions = events.Count(e => e.Actor == enemy.Name && e.Target == character.Name);
-                            int totalActions = playerActions + enemyActions;
-                            result.Turns = Math.Max(1, totalActions);
-                        }
+                            result.PlayerDamageDealt = Math.Max(0, initialEnemyHealth - enemy.CurrentHealth);
+                            result.EnemyDamageDealt = Math.Max(0, initialPlayerHealth - character.CurrentHealth);
 
-                        if (funTracker != null)
-                        {
-                            result.FunMomentSummary = funTracker.GetSummary();
+                            if (currentTurn > 0)
+                            {
+                                result.Turns = currentTurn;
+                            }
+                            else if (totalActionCount > 0)
+                            {
+                                result.Turns = totalActionCount;
+                            }
+                            else
+                            {
+                                result.Turns = 1;
+                            }
                         }
                     }
-                    else
+                    catch (OperationCanceledException)
                     {
-                        result.PlayerDamageDealt = Math.Max(0, initialEnemyHealth - enemy.CurrentHealth);
-                        result.EnemyDamageDealt = Math.Max(0, initialPlayerHealth - character.CurrentHealth);
-
-                        if (currentTurn > 0)
-                        {
-                            result.Turns = currentTurn;
-                        }
-                        else if (totalActionCount > 0)
-                        {
-                            result.Turns = totalActionCount;
-                        }
-                        else
-                        {
-                            result.Turns = 1;
-                        }
+                        var combatWaitTime = (DateTime.Now - combatStartTime).TotalSeconds;
+                        Utils.ScrollDebugLogger.Log($"BattleExecutor: Battle TIMEOUT after {combatWaitTime:F2}s: {weaponType} vs {enemyType} (battle {battleIndex})");
+                        result.ErrorMessage = $"Battle timed out after {BATTLE_TIMEOUT_SECONDS} seconds (Weapon: {weaponType}, Enemy: {enemyType})";
+                        result.PlayerWon = false;
+                        result.Turns = 0;
                     }
                 }
-                catch (OperationCanceledException)
+                finally
                 {
-                    var combatWaitTime = (DateTime.Now - combatStartTime).TotalSeconds;
-                    Utils.ScrollDebugLogger.Log($"BattleExecutor: Battle TIMEOUT after {combatWaitTime:F2}s: {weaponType} vs {enemyType} (battle {battleIndex})");
-                    result.ErrorMessage = $"Battle timed out after {BATTLE_TIMEOUT_SECONDS} seconds (Weapon: {weaponType}, Enemy: {enemyType})";
-                    result.PlayerWon = false;
-                    result.Turns = 0;
+                    combatManager.Cleanup();
                 }
             }
             catch (Exception ex)
