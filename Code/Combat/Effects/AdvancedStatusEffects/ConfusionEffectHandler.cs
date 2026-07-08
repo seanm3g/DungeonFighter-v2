@@ -4,7 +4,7 @@ using RPGGame;
 namespace RPGGame.Combat.Effects.AdvancedStatusEffects
 {
     /// <summary>
-    /// Handler for Confusion status effect - chance to attack self/ally
+    /// Handler for Confusion status effect — randomizes combat targets for the duration.
     /// </summary>
     public class ConfusionEffectHandler : IEffectHandler
     {
@@ -12,10 +12,10 @@ namespace RPGGame.Combat.Effects.AdvancedStatusEffects
         {
             if (target == null) return false;
 
-            // Apply confusion - chance to attack self/ally
+            int duration = action.ComboBonusDuration > 0 ? action.ComboBonusDuration : 2;
             target.IsConfused = true;
-            target.ConfusionTurns = 2; // Default duration
-            target.ConfusionChance = 0.3; // 30% chance
+            target.ConfusionTurns = duration;
+            target.ConfusionChance = 1.0;
 
             results.Add($"    {target.Name} is confused!");
             return true;

@@ -16,6 +16,7 @@ namespace RPGGame.Tests.Unit
             TestCharacterSwitching();
             TestCharacterContextManagement();
             TestSwitchDoesNotBleedLegacyDungeonRoom();
+            TestPerCharacterDungeonIsolatedAcrossSwitches();
             TestActiveCharacterComputedProperty();
             TestCharacterRemoval();
             Console.WriteLine("All GameStateManager multi-character tests passed!");
@@ -129,6 +130,33 @@ namespace RPGGame.Tests.Unit
             stateManager.SwitchCharacter(id1);
             Assert(stateManager.CurrentDungeon == dungeon1, "Char1 dungeon should still be on its context");
             Assert(stateManager.CurrentRoom == room1, "Char1 room should still be on its context");
+        }
+
+        private static void TestPerCharacterDungeonIsolatedAcrossSwitches()
+        {
+            var stateManager = new GameStateManager();
+            var character1 = new Character("IsoChar1", 1);
+            var character2 = new Character("IsoChar2", 2);
+
+            var id1 = stateManager.AddCharacter(character1);
+            var id2 = stateManager.AddCharacter(character2);
+
+            var dungeon1 = new Dungeon("Dungeon Alpha", 1, 3, "Forest");
+            var dungeon2 = new Dungeon("Dungeon Beta", 1, 3, "Crypt");
+
+            stateManager.SwitchCharacter(id1);
+            stateManager.SetCurrentDungeon(dungeon1);
+
+            stateManager.SwitchCharacter(id2);
+            stateManager.SetCurrentDungeon(dungeon2);
+
+            Assert(stateManager.CurrentDungeon == dungeon2, "Char2 should see its own dungeon");
+
+            stateManager.SwitchCharacter(id1);
+            Assert(stateManager.CurrentDungeon == dungeon1, "Char1 dungeon must not be resurrected from legacy fallback");
+
+            stateManager.SwitchCharacter(id2);
+            Assert(stateManager.CurrentDungeon == dungeon2, "Char2 dungeon must remain on its context");
         }
 
         private static void TestActiveCharacterComputedProperty()

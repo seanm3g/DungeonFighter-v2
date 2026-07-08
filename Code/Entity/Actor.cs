@@ -170,6 +170,24 @@ namespace RPGGame
             }
         }
 
+        /// <summary>
+        /// Confusion lasts for a number of resolved actions; each non-self combat action decrements duration.
+        /// </summary>
+        public void ConsumeConfusionAfterCombatAction(Action? resolvedAction)
+        {
+            if (!IsConfused || ConfusionTurns <= 0 || resolvedAction == null)
+                return;
+            if (resolvedAction.Target == TargetType.Self || resolvedAction.Target == TargetType.Environment)
+                return;
+
+            ConfusionTurns = Math.Max(0, ConfusionTurns - 1);
+            if (ConfusionTurns == 0)
+            {
+                IsConfused = false;
+                ConfusionChance = 0.0;
+            }
+        }
+
         public Action? SelectAction()
         {
             if (ActionPool.Count == 0)
@@ -220,6 +238,16 @@ namespace RPGGame
                 if (WeakenTurns == 0)
                 {
                     IsWeakened = false;
+                }
+            }
+
+            if (ConfusionTurns > 0)
+            {
+                ConfusionTurns = Math.Max(0, ConfusionTurns - (int)Math.Ceiling(turnsPassed));
+                if (ConfusionTurns == 0)
+                {
+                    IsConfused = false;
+                    ConfusionChance = 0.0;
                 }
             }
             

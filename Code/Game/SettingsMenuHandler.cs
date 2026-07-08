@@ -4,6 +4,7 @@ namespace RPGGame
     using System.ComponentModel;
     using System.Linq;
     using System.Text.Json;
+    using System.Threading.Tasks;
     using Avalonia;
     using Avalonia.Controls.ApplicationLifetimes;
     using RPGGame.UI.Avalonia;
@@ -203,18 +204,17 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Save the current game
+        /// Save the current game (async; does not block the UI thread on disk IO).
         /// </summary>
-        public void SaveGame()
+        public async Task SaveGameAsync()
         {
             var activeCharacter = stateManager.GetActiveCharacter();
             if (activeCharacter != null)
             {
                 try
                 {
-                    // Get character ID for multi-character save support
                     var characterId = stateManager.GetCharacterId(activeCharacter);
-                    activeCharacter.SaveCharacter(characterId);
+                    await activeCharacter.SaveCharacterAsync(characterId).ConfigureAwait(true);
                     ShowMessageEvent?.Invoke("Game saved successfully!");
                 }
                 catch (Exception ex)
@@ -222,6 +222,14 @@ namespace RPGGame
                     ShowMessageEvent?.Invoke($"Error saving game: {ex.Message}");
                 }
             }
+        }
+
+        /// <summary>
+        /// Save the current game (sync wrapper for legacy callers).
+        /// </summary>
+        public void SaveGame()
+        {
+            SaveGameAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>

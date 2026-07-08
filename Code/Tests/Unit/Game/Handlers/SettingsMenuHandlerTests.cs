@@ -29,6 +29,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             TestShowSettings();
             TestHandleMenuInput();
             TestSaveGame();
+            TestSaveGameAsync_WithCharacter();
             TestExitGame();
 
             TestBase.PrintSummary("SettingsMenuHandler Tests", _testsRun, _testsPassed, _testsFailed);
@@ -101,6 +102,24 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             handler.SaveGame();
             TestBase.AssertTrue(true,
                 "SaveGame should complete without errors",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestSaveGameAsync_WithCharacter()
+        {
+            Console.WriteLine("\n--- Testing SaveGameAsync with character ---");
+
+            var stateManager = new GameStateManager();
+            var hero = TestDataBuilders.Character().WithName("SettingsSaveAsync").Build();
+            stateManager.AddCharacter(hero);
+            string? messageReceived = null;
+            var handler = new SettingsMenuHandler(stateManager, null);
+            handler.ShowMessageEvent += (msg) => { messageReceived = msg; };
+
+            Task.Run(async () => await handler.SaveGameAsync()).Wait();
+
+            TestBase.AssertTrue(messageReceived != null && messageReceived.Contains("saved", StringComparison.OrdinalIgnoreCase),
+                "SaveGameAsync should report success",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

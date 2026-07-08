@@ -47,6 +47,10 @@ DungeonFighter v2 is a turn-based RPG written in C# (.NET) with a data-driven co
 
 ## Current focus area (for this change)
 
+### Reliability — Combat Phase 4 (closeout)
+
+Phase 4 closes the combat reliability track: `CombatManager.Cleanup()` on lab encounter sim paths, `GameStateManager` legacy dungeon/room fallback cleared when characters register/switch, async save on settings and death-screen UI paths, and batch lab sim forced-d20 parity with interactive lab (`QueueAsyncForcedD20Rolls`). Structural maintainability refactors from the audit are the next separate track. Verify checklist: `Documentation/COMBAT_RELIABILITY_PHASE4.md`.
+
 ### Reliability — Combat Phase 3 (scoped static state)
 
 After Phase 2, Phase 3 finishes remaining process-global combat bleed: interactive Action Lab forced d20 uses AsyncLocal queue rolls (not `SetTestRoll`), `DeveloperSimMode.NegativeHpFloor` is scoped per sim batch, muted fights do not write `HealthBarDeltaDamageHint` entries that could color live HP bars, `ActionExecutor` last-action maps are thread-safe for parallel tooling, and the full Action Lab session isolates `GameTicker` so bootstrap/reset cannot zero live combat time. Verify checklist: `Documentation/COMBAT_RELIABILITY_PHASE3.md`.

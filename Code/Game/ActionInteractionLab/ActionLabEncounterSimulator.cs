@@ -281,7 +281,7 @@ namespace RPGGame.ActionInteractionLab
                     narrativeStarted = true;
                     combatManager.InitializeCombatEntities(player, enemy, room, playerGetsFirstAttack: true, enemyGetsFirstAttack: false);
                     room.ResetForNewFight();
-                    Dice.ClearAsyncLabEncounterTestRoll();
+                    Dice.ClearAsyncForcedD20Rolls();
                     Dice.ClearTestRoll();
 
                     var forced = ActionLoader.GetAction(snapshot.SelectedCatalogActionName.Trim());
@@ -307,7 +307,7 @@ namespace RPGGame.ActionInteractionLab
                             playerMinHealth = player.CurrentHealth;
 
                         int d20 = rng.Next(1, 21);
-                        Dice.SetAsyncLabEncounterTestRoll(d20);
+                        Dice.QueueAsyncForcedD20Rolls(d20);
                         ActionSelector.SetStoredActionRoll(player, d20);
                         ActionSelector.SetStoredActionRoll(enemy, d20);
 
@@ -319,7 +319,7 @@ namespace RPGGame.ActionInteractionLab
                         }
                         finally
                         {
-                            Dice.ClearAsyncLabEncounterTestRoll();
+                            Dice.ClearAsyncForcedD20Rolls();
                         }
 
                         advanceCalls++;
@@ -385,7 +385,7 @@ namespace RPGGame.ActionInteractionLab
                 }
                 finally
                 {
-                    Dice.ClearAsyncLabEncounterTestRoll();
+                    Dice.ClearAsyncForcedD20Rolls();
                     Dice.ClearTestRoll();
                     ActionSelector.RemoveStoredRoll(player);
                     ActionSelector.RemoveStoredRoll(enemy);
@@ -405,6 +405,8 @@ namespace RPGGame.ActionInteractionLab
                         thresholdManager.ResetThresholds(player);
                     if (enemy != null)
                         thresholdManager.ResetThresholds(enemy);
+
+                    combatManager?.Cleanup();
                 }
 
                 return metrics;

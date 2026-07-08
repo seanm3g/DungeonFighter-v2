@@ -247,6 +247,8 @@ namespace RPGGame
                 }
 
                 legacyPlayerFallback = player;
+                legacyDungeonFallback = null;
+                legacyRoomFallback = null;
                 if (player.Inventory != null)
                 {
                     CurrentInventory = player.Inventory;
@@ -347,6 +349,8 @@ namespace RPGGame
             if (characterStateManager.ActiveCharacterId == id && character != null)
             {
                 legacyPlayerFallback = character;
+                legacyDungeonFallback = null;
+                legacyRoomFallback = null;
                 if (character.Inventory != null)
                 {
                     CurrentInventory = character.Inventory;

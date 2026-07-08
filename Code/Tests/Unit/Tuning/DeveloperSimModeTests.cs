@@ -23,6 +23,7 @@ namespace RPGGame.Tests.Unit.Tuning
             TestScopeRestoresNegativeHpFloor();
             TestShouldContinueEncounter();
             TestDevSimSingleEncounter();
+            TestRepeatedSingleEncountersStable();
 
             TestBase.PrintSummary("DeveloperSimMode Tests", _run, _pass, _fail);
         }
@@ -82,6 +83,31 @@ namespace RPGGame.Tests.Unit.Tuning
                     Console.WriteLine($"  Error: {metrics.ErrorMessage}");
                 TestBase.AssertTrue(string.IsNullOrEmpty(metrics.ErrorMessage),
                     $"Dev sim encounter runs ({metrics.ErrorMessage})", ref _run, ref _pass, ref _fail);
+            }
+        }
+
+        private static void TestRepeatedSingleEncountersStable()
+        {
+            Console.WriteLine("--- Repeated single encounters stay stable ---");
+            _ = GameConfiguration.Instance;
+            RPGGame.EnemyLoader.LoadEnemies();
+            var config = new SimulationProfileConfig { PlayerLevel = 10, EnemyLevel = 10 };
+            var snapshot = FundamentalsCombatSetup.BuildSnapshot(config);
+            int? firstTurns = null;
+            using (DeveloperSimMode.BeginScope(false))
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    var metrics = ActionLabEncounterSimulator
+                        .RunSingleEncounterAsync(snapshot, new Random(42)).GetAwaiter().GetResult();
+                    TestBase.AssertTrue(string.IsNullOrEmpty(metrics.ErrorMessage),
+                        $"Encounter {i + 1} runs ({metrics.ErrorMessage})", ref _run, ref _pass, ref _fail);
+                    if (!firstTurns.HasValue)
+                        firstTurns = metrics.SimAdvanceCalls;
+                    else
+                        TestBase.AssertEqual(firstTurns.Value, metrics.SimAdvanceCalls,
+                            $"Turn count stable across repeated sims (run {i + 1})", ref _run, ref _pass, ref _fail);
+                }
             }
         }
     }

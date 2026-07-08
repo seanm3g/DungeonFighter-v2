@@ -61,7 +61,7 @@ namespace RPGGame.Tests
             var combatManager = new CombatManager();
             CombatManager.DisableCombatUIOutput = true;  // Disable UI output
 
-            // Run the full combat using the standard combat system
+            // RunCombat calls Cleanup() in its finally block.
             bool playerWon = await combatManager.RunCombat(player, enemy, environment);
 
             Console.WriteLine("=== BATTLE COMPLETE ===\n");

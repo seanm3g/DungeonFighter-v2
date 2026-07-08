@@ -58,6 +58,12 @@ namespace RPGGame.Tests.Unit
 
             TestSelfTargetSheetEffectRoutesToAttacker();
 
+            TestConfusedAttackerHitsSelf();
+
+            TestConfusedSelfTargetActionUnchanged();
+
+            TestConfusionDurationExpiresAfterAction();
+
 
 
             TestBase.PrintSummary("Action Effect Target Tests", _testsRun, _testsPassed, _testsFailed);
@@ -401,6 +407,113 @@ namespace RPGGame.Tests.Unit
                 "Self-target harden should not apply to enemy",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
+        }
+
+        private static void TestConfusedAttackerHitsSelf()
+        {
+            Console.WriteLine("\n--- Confused attacker can hit self ---");
+
+            var hero = TestDataBuilders.Character().WithName("Hero").Build();
+            hero.CurrentHealth = 100;
+            var enemy = TestDataBuilders.Enemy().WithName("Enemy").WithHealth(200).Build();
+            enemy.IsConfused = true;
+            enemy.ConfusionTurns = 2;
+
+            var action = TestDataBuilders.CreateMockAction("Strike");
+            action.Type = ActionType.Attack;
+            action.Target = TargetType.SingleTarget;
+            action.DamageMultiplier = 1.0;
+
+            ActionEffectTargetResolver.ConfusionTargetPickerOverride = (source, _) => source;
+
+            try
+            {
+                var lastUsed = new Dictionary<Actor, Action>();
+                var lastCritMiss = new Dictionary<Actor, bool>();
+                ActionSelector.SetStoredActionRoll(enemy, 18);
+
+                int enemyHealthBefore = enemy.CurrentHealth;
+                var result = ActionExecutionFlow.Execute(
+                    enemy, hero, null, null, action, null, lastUsed, lastCritMiss);
+
+                TestBase.AssertTrue(result.Hit, "Confused attack should hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(result.Damage > 0, "Confused attack should deal damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(enemy.CurrentHealth < enemyHealthBefore,
+                    "Confused enemy redirected to self should take damage",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(hero.CurrentHealth, 100,
+                    "Hero should be untouched when confused enemy hits self",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                ActionEffectTargetResolver.ConfusionTargetPickerOverride = null;
+            }
+        }
+
+        private static void TestConfusedSelfTargetActionUnchanged()
+        {
+            Console.WriteLine("\n--- Confused self-target action stays on self ---");
+
+            var hero = TestDataBuilders.Character().WithName("Hero").Build();
+            hero.CurrentHealth = 50;
+            hero.IsConfused = true;
+            hero.ConfusionTurns = 2;
+            var enemy = TestDataBuilders.Enemy().WithName("Enemy").Build();
+
+            var action = TestDataBuilders.CreateMockAction("REST");
+            action.Type = ActionType.Heal;
+            action.Target = TargetType.Self;
+            action.Advanced.HealAmount = 10;
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            ActionSelector.SetStoredActionRoll(hero, 15);
+
+            var result = ActionExecutionFlow.Execute(
+                hero, enemy, null, null, action, null, lastUsed, lastCritMiss);
+
+            TestBase.AssertTrue(result.Hit, "Self heal should hit while confused", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(hero.CurrentHealth > 50,
+                "Self-target heal should still heal the confused attacker",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, hero.ConfusionTurns,
+                "Self-target action should not consume confusion duration",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestConfusionDurationExpiresAfterAction()
+        {
+            Console.WriteLine("\n--- Confusion duration expires after enemy-target action ---");
+
+            var hero = TestDataBuilders.Character().WithName("Hero").Build();
+            var enemy = TestDataBuilders.Enemy().WithName("Enemy").WithHealth(200).Build();
+            enemy.IsConfused = true;
+            enemy.ConfusionTurns = 1;
+
+            var action = TestDataBuilders.CreateMockAction("Strike");
+            action.Type = ActionType.Attack;
+            action.Target = TargetType.SingleTarget;
+            action.DamageMultiplier = 1.0;
+
+            ActionEffectTargetResolver.ConfusionTargetPickerOverride = (_, nominal) => nominal;
+
+            try
+            {
+                var lastUsed = new Dictionary<Actor, Action>();
+                var lastCritMiss = new Dictionary<Actor, bool>();
+                ActionSelector.SetStoredActionRoll(enemy, 18);
+
+                ActionExecutionFlow.Execute(
+                    enemy, hero, null, null, action, null, lastUsed, lastCritMiss);
+
+                TestBase.AssertFalse(enemy.IsConfused, "Confusion should clear after duration", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(0, enemy.ConfusionTurns, "Confusion turns should be zero", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                ActionEffectTargetResolver.ConfusionTargetPickerOverride = null;
+            }
         }
 
     }

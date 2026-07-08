@@ -109,6 +109,14 @@ namespace RPGGame.Actions.Execution
                 return result;
             }
 
+            Actor combatTarget = target;
+            if (target != null)
+            {
+                combatTarget = ActionEffectTargetResolver.ResolveConfusedCombatTarget(
+                    result.SelectedAction, source, target);
+                result.EffectiveTarget = combatTarget;
+            }
+
             TriggerThresholdBarFeedback(source, result);
 
             Character? heroForStripFeedback = null;
@@ -122,9 +130,9 @@ namespace RPGGame.Actions.Execution
             }
 
             if (result.Hit)
-                ApplyHitOutcome(source, target, result, battleNarrative);
+                ApplyHitOutcome(source, combatTarget, result, battleNarrative);
             else
-                ApplyMissOutcome(source, target, result, battleNarrative);
+                ApplyMissOutcome(source, combatTarget, result, battleNarrative);
 
             if (stripIndexForFeedback.HasValue && heroForStripFeedback != null)
             {
@@ -139,6 +147,7 @@ namespace RPGGame.Actions.Execution
             }
 
             source.ConsumeRollPenaltyAfterCombatRoll(result.SelectedAction);
+            source.ConsumeConfusionAfterCombatAction(result.SelectedAction);
 
             if (sw != null)
             {

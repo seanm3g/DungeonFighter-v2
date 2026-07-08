@@ -4,6 +4,21 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Issue: Combat Reliability Phase 4 — Closeout (July 2026)
+**Symptoms:**
+- Repeated lab encounter sims could leak `OneShotKillOccurred` subscriptions
+- Legacy GSM dungeon/room fallbacks could resurrect on character switch
+- Settings save and death-screen saves blocked UI on sync disk writes
+- Batch lab sim forced all 1d20 rolls, diverging from interactive lab
+
+**Solutions:**
+1. `ActionLabEncounterSimulator` calls `CombatManager.Cleanup()` in finally
+2. `GameStateManager` clears legacy dungeon/room when active character is registered or switched
+3. `SaveGameAsync` / `SaveCharacterAsync` on settings and death paths
+4. Batch sim uses `QueueAsyncForcedD20Rolls` (1d20 queue only)
+
+**Related files:** See `COMBAT_RELIABILITY_PHASE4.md`
+
 ### Issue: Combat Reliability Phase 3 — Scoped Static State (July 2026)
 **Symptoms:**
 - Interactive Action Lab `SetTestRoll` leaked forced d20 across parallel work

@@ -89,21 +89,19 @@ namespace RPGGame
         {
             if (string.Equals(input?.Trim(), "1", StringComparison.OrdinalIgnoreCase))
             {
-                CloneAndReturnToGameLoop();
-                await Task.CompletedTask;
+                await CloneAndReturnToGameLoopAsync().ConfigureAwait(true);
                 return;
             }
 
-            ReturnToMainMenuAsDead();
-            await Task.CompletedTask;
+            await ReturnToMainMenuAsDeadAsync().ConfigureAwait(true);
         }
 
-        private void CloneAndReturnToGameLoop()
+        private async Task CloneAndReturnToGameLoopAsync()
         {
             var player = stateManager.CurrentPlayer ?? stateManager.GetActiveCharacter();
             if (player == null)
             {
-                ReturnToMainMenuAsDead();
+                await ReturnToMainMenuAsDeadAsync().ConfigureAwait(true);
                 return;
             }
 
@@ -118,7 +116,7 @@ namespace RPGGame
             try
             {
                 var characterId = stateManager.GetCharacterId(player);
-                CharacterSaveManager.SaveCharacter(player, characterId);
+                await CharacterSaveManager.SaveCharacterAsync(player, characterId).ConfigureAwait(true);
             }
             catch (Exception ex)
             {
@@ -136,7 +134,7 @@ namespace RPGGame
             }
         }
 
-        private void ReturnToMainMenuAsDead()
+        private async Task ReturnToMainMenuAsDeadAsync()
         {
             var player = stateManager.CurrentPlayer ?? stateManager.GetActiveCharacter();
             if (player != null)
@@ -144,7 +142,7 @@ namespace RPGGame
                 try
                 {
                     var characterId = stateManager.GetCharacterId(player);
-                    CharacterSaveManager.SaveCharacter(player, characterId, filename: null, markDead: true);
+                    await CharacterSaveManager.SaveCharacterAsync(player, characterId, filename: null, markDead: true).ConfigureAwait(true);
                 }
                 catch (Exception ex)
                 {

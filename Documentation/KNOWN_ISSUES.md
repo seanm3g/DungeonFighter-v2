@@ -47,6 +47,22 @@ Track of known problems, their status, and potential solutions.
 
 ## Medium Priority Issues
 
+### Issue: Combat reliability closeout (Phase 4)
+**Status**: ✅ RESOLVED (July 2026 — Phase 4 reliability)
+**Priority**: MEDIUM
+**Description**: Remaining reliability tails: `ActionLabEncounterSimulator` did not call `CombatManager.Cleanup()` (static event leak risk), `GameStateManager` could retain stale legacy dungeon/room on character register, settings/death saves blocked UI on sync disk IO, and batch lab sim used `SetAsyncLabEncounterTestRoll` (all 1d20 rolls) instead of queue semantics.
+
+**Solution**:
+1. `combatManager?.Cleanup()` in `ActionLabEncounterSimulator` finally.
+2. Clear `legacyDungeonFallback` / `legacyRoomFallback` on `SetCurrentPlayer` / `AddCharacter` when syncing active character.
+3. `SettingsMenuHandler.SaveGameAsync` and `DeathScreenHandler` async save paths.
+4. Batch sim uses `QueueAsyncForcedD20Rolls` / `ClearAsyncForcedD20Rolls`.
+
+**Files Modified**:
+- `Code/Game/ActionInteractionLab/ActionLabEncounterSimulator.cs`
+- `Code/Game/GameStateManager.cs`
+- `Code/Game/SettingsMenuHandler.cs`, `DeathScreenHandler.cs`
+
 ### Issue: Combat reliability static bleed (Phase 3)
 **Status**: ✅ RESOLVED (July 2026 — Phase 3 reliability)
 **Priority**: MEDIUM

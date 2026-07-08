@@ -35,6 +35,8 @@ namespace RPGGame
         public bool WasOneShotKill { get; set; }
         /// <summary>True when the hero peeked (did not consume) the head ACTION-cadence FIFO layer for this roll.</summary>
         public bool PendingActionCadenceLayerPeekedForRoll { get; set; }
+        /// <summary>Combat recipient after confusion target randomization (if any).</summary>
+        public Actor? EffectiveTarget { get; set; }
     }
 
     /// <summary>
@@ -67,6 +69,8 @@ namespace RPGGame
         /// </summary>
         private static (List<ColoredText> actionText, List<ColoredText> rollInfo) FormatAsColoredText(ActionExecutionResult result, Actor source, Actor target)
         {
+            Actor displayTarget = result.EffectiveTarget ?? target;
+
             if (result.SelectedAction == null)
             {
                 var builder = new ColoredTextBuilder();
@@ -82,13 +86,13 @@ namespace RPGGame
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
                     // Get multi-hit count for display formatting
                     int multiHitCount = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(result.SelectedAction, source);
-                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, result.IsCriticalMiss, result.IsCritical, result.MultiDiceRollDetail);
+                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, displayTarget, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, result.IsCriticalMiss, result.IsCritical, result.MultiDiceRollDetail);
                     return (damageText, rollInfo);
                 }
                 else if (result.SelectedAction.Type == ActionType.Heal)
                 {
                     // Format healing message (healing already applied in ExecuteActionCore)
-                    var healingText = CombatResults.FormatHealingMessageColored(source, target, result.HealAmount);
+                    var healingText = CombatResults.FormatHealingMessageColored(source, displayTarget, result.HealAmount);
                     
                     // Create roll info for healing
                     var rollInfoBuilder = new ColoredTextBuilder();
