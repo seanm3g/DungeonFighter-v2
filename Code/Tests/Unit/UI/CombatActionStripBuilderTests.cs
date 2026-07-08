@@ -145,7 +145,8 @@ namespace RPGGame.Tests.Unit.UI
                 && Math.Abs(fifoPanels[1].DamageModified - fifoPanels[1].DamageBase * 1.5) < 0.01,
                 "BuildPanelData: two +25% deposits stack to +50% on current combo step slot",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(Math.Abs(fifoPanels[2].DamageModified - fifoPanels[2].DamageBase) < 0.01,
+            TestBase.AssertTrue(fifoPanels != null && fifoPanels.Count >= 3
+                && Math.Abs(fifoPanels[2].DamageModified - fifoPanels[2].DamageBase) < 0.01,
                 "BuildPanelData: later combo slot not previewed until it becomes current step",
                 ref run, ref passed, ref failed);
 
