@@ -306,22 +306,22 @@ namespace RPGGame.Tests.Unit.UI
             var deferAcc = TestDataBuilders.CreateMockAction("TauntLike", ActionType.Attack);
             deferAcc.Cadence = "";
             deferAcc.Advanced.RollBonus = 1;
-            var deferTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(deferAcc, 0, 80, 8);
+            var deferTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(deferAcc, 80, 8);
             string deferJoined = string.Join(" ", deferTail);
             TestBase.AssertTrue(
                 deferJoined.Contains("Hero accuracy +1", StringComparison.Ordinal) && deferJoined.Contains("on hit: next roll", StringComparison.Ordinal),
                 "BuildActionStripModifierTailLines lists deferred Hero accuracy when swing Acc total is 0",
                 ref run, ref passed, ref failed);
 
-            // ATTACK cadence: sheet hero accuracy is in roll total — omit duplicate Hero accuracy line
+            // TURN cadence: current-roll accuracy belongs under cadence headers only — no standalone Acc or Hero accuracy line
             var nowAcc = TestDataBuilders.CreateMockAction("NowAcc", ActionType.Attack);
             nowAcc.Cadence = "TURN";
             nowAcc.Advanced.RollBonus = 2;
-            var nowTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(nowAcc, 2, 80, 8);
+            var nowTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(nowAcc, 80, 8);
             string nowJoined = string.Join(" ", nowTail);
             TestBase.AssertTrue(
-                nowJoined.Contains("Acc +2", StringComparison.Ordinal) && !nowJoined.Contains("Hero accuracy", StringComparison.Ordinal),
-                "BuildActionStripModifierTailLines omits redundant Hero accuracy when it is on the current roll",
+                !nowJoined.Contains("Acc +2", StringComparison.Ordinal) && !nowJoined.Contains("Hero accuracy", StringComparison.Ordinal),
+                "BuildActionStripModifierTailLines omits standalone Acc and Hero accuracy for current-roll sheet accuracy",
                 ref run, ref passed, ref failed);
 
             var statTailAction = TestDataBuilders.CreateMockAction("BuffSwing", ActionType.Attack);
@@ -331,7 +331,7 @@ namespace RPGGame.Tests.Unit.UI
                 new StatBonusEntry { Type = "STR", Value = 1 },
                 new StatBonusEntry { Type = "HIT", Value = -1 }
             };
-            var statTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(statTailAction, 0, 80, 8);
+            var statTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(statTailAction, 80, 8);
             string statJoined = string.Join(" ", statTail);
             TestBase.AssertTrue(
                 statJoined.Contains("Stats:", StringComparison.Ordinal) && statJoined.Contains("STR +1", StringComparison.Ordinal) && statJoined.Contains("HIT -1", StringComparison.Ordinal),
@@ -352,7 +352,7 @@ namespace RPGGame.Tests.Unit.UI
                 Count = 1,
                 Bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "ACCURACY", Value = 2 } }
             });
-            var abilityTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(abilityTailAction, 0, 80, 8);
+            var abilityTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(abilityTailAction, 80, 8);
             string abilityJoined = string.Join(" ", abilityTail);
             TestBase.AssertTrue(
                 !abilityJoined.Contains("Ability:", StringComparison.Ordinal)

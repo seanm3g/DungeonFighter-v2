@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Actions;
 using RPGGame.Data;
 
 namespace RPGGame
@@ -97,10 +98,48 @@ namespace RPGGame
             GuaranteeNextSuccess = false;
         }
 
-        public void AddActionAttackBonuses(ActionAttackBonuses? bonuses, Action? sourceAction = null) => _state.AddActionAttackBonuses(bonuses, sourceAction);
+        public void AddActionAttackBonuses(ActionAttackBonuses? bonuses, Action? sourceAction = null, Character? owner = null)
+        {
+            if (bonuses?.BonusGroups == null) return;
+
+            var turnOnly = new ActionAttackBonuses();
+            foreach (var group in bonuses.BonusGroups)
+            {
+                string scope = CadenceKeywords.ResolveScope(
+                    string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType,
+                    group.DurationType);
+                if (owner != null && (CadenceKeywords.IsFight(scope) || CadenceKeywords.IsDungeon(scope)))
+                {
+                    int stackTimes = ResolveGrantStackTimes(group, sourceAction);
+                    if (group.Bonuses != null && group.Bonuses.Count > 0)
+                        CadenceScopedBuffApplicator.DepositToScope(owner, scope, group.Bonuses, stackTimes);
+                    continue;
+                }
+
+                var ct = CadenceKeywords.NormalizeCadenceType(
+                    string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType);
+                if (CadenceKeywords.IsTurn(ct))
+                    turnOnly.BonusGroups.Add(group);
+            }
+
+            if (turnOnly.BonusGroups.Count > 0)
+                _state.AddActionAttackBonuses(turnOnly, sourceAction);
+        }
+
+        private static int ResolveGrantStackTimes(ActionAttackBonusGroup group, Action? sourceAction)
+        {
+            int count = group.Count;
+            if (sourceAction != null && ActionCadenceDurationResolver.IsKeywordCadenceGroup(group))
+            {
+                int requested = ActionCadenceDurationResolver.GetRequestedLayerCount(sourceAction, group);
+                if (requested > 0)
+                    count = requested;
+            }
+            return count > 0 ? count : 1;
+        }
         public void ClearConsumedModifierBonuses() => _state.ClearConsumedModifierBonuses();
         public void AccumulateConsumedModifierBonuses(List<ActionAttackBonusItem> bonuses) => _state.AccumulateConsumedModifierBonuses(bonuses);
-        public void AddModifierBonusesFromAction(Action? action, int? nextComboSlot = null, bool useEnemySpreadsheetMods = false) => _state.AddModifierBonusesFromAction(action, nextComboSlot, useEnemySpreadsheetMods);
+        public void AddModifierBonusesFromAction(Action? action, int? nextComboSlot = null, bool useEnemySpreadsheetMods = false, Character? owner = null) => _state.AddModifierBonusesFromAction(action, nextComboSlot, useEnemySpreadsheetMods, owner);
         public List<ActionAttackBonusItem> GetAndConsumeTurnBonuses() => _state.GetAndConsumeTurnBonuses();
         public List<ActionAttackBonusItem> PeekTurnBonuses() => _state.PeekTurnBonuses();
         public void AddPendingActionBonuses(int slot, List<ActionAttackBonusItem> bonuses) => _state.AddPendingActionBonuses(slot, bonuses);

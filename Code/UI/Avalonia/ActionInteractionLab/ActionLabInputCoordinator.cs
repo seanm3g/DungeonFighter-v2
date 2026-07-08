@@ -12,14 +12,14 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
     public static class ActionLabInputCoordinator
     {
         /// <summary>
-        /// Maps Page Up / Page Down to lab undo / step tokens (<c>lab_undo</c>, <c>lab_step</c>).
+        /// Maps Page Up / Page Down to lab step / undo tokens (<c>lab_step</c>, <c>lab_undo</c>).
         /// </summary>
         public static string? MapPageStepInput(string input)
         {
             return input?.Trim().ToLowerInvariant() switch
             {
-                "pageup" => "lab_undo",
-                "pagedown" => "lab_step",
+                "pageup" => "lab_step",
+                "pagedown" => "lab_undo",
                 _ => null
             };
         }

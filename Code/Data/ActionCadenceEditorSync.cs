@@ -260,8 +260,8 @@ namespace RPGGame.Data
             }
             else
             {
-                group.Keyword = CadenceKeywords.Turn;
-                group.CadenceType = CadenceKeywords.Turn;
+                group.Keyword = cadence;
+                group.CadenceType = cadence;
             }
 
             foreach (var row in block.Mechanics)

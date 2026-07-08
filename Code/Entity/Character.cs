@@ -40,6 +40,12 @@ namespace RPGGame
         /// <summary>Potion buffs from room search that last for the current dungeon run only.</summary>
         public DungeonSearchBuffState DungeonSearchBuffs { get; } = new();
 
+        /// <summary>Cadence bonuses scoped to the current combat encounter (cleared at combat end).</summary>
+        public CadenceScopedBonusState FightCadenceBuffs { get; } = new();
+
+        /// <summary>Cadence bonuses scoped to the current dungeon run (cleared on dungeon exit/completion).</summary>
+        public CadenceScopedBonusState DungeonCadenceBuffs { get; } = new();
+
         /// <summary>
         /// When true, the hero must see the Training Ground offer (or complete/skip it) before normal weapon selection.
         /// Cleared when the player skips the tutorial or completes the Training Ground run.
@@ -387,18 +393,30 @@ namespace RPGGame
 
         public override int ProcessPoison(double currentTime) => base.ProcessPoison(currentTime);
         public override int ProcessBurn(double currentTime) => base.ProcessBurn(currentTime);
-        public override void ClearAllTempEffects() 
+        /// <summary>Clears encounter-scoped temp state (TURN/ACTION queues, fight cadence, combat status) but preserves dungeon-scoped cadence.</summary>
+        public void ClearEncounterTempEffects()
         {
-            // Clear base class effects (poison, burn, stun, weaken, etc.)
             base.ClearAllTempEffects();
-            // Clear character-specific effects
             Effects.ClearAllTempEffects();
-            // Clear temporary stat bonuses
+            FightCadenceBuffs.Clear();
             Stats.TempStrengthBonus = 0;
             Stats.TempAgilityBonus = 0;
             Stats.TempTechniqueBonus = 0;
             Stats.TempIntelligenceBonus = 0;
             Stats.TempStatBonusTurns = 0;
+        }
+
+        /// <summary>Clears dungeon-run scoped cadence bonuses and room-search potion buffs.</summary>
+        public void ClearDungeonRunTempEffects()
+        {
+            DungeonCadenceBuffs.Clear();
+            ClearDungeonSearchBuffs();
+        }
+
+        public override void ClearAllTempEffects()
+        {
+            ClearEncounterTempEffects();
+            ClearDungeonRunTempEffects();
         }
 
         /// <summary>Clears room-search potion bonuses for the current dungeon run.</summary>

@@ -1,59 +1,106 @@
 {
   "version": "2.0",
-  "updatedUtc": "2026-06-29T18:28:35.2932527Z",
+  "updatedUtc": "2026-07-07T23:57:12.7383869Z",
   "profileId": "class-playthrough-balance",
   "profileName": "Class Playthrough Balance",
   "simulationMode": "class_playthrough_batch",
   "playthroughBatch": {
-    "timestampUtc": "2026-06-29T18:28:32.6455915Z",
-    "runsPerClass": 3,
+    "timestampUtc": "2026-07-07T23:56:42.3698556Z",
+    "runsPerClass": 10,
     "maxActionsPerRun": 500,
-    "elapsedSeconds": 2.6189397,
-    "overallMeanFinalLevel": 1.1666666666666665,
-    "overallMeanDungeonsCompleted": 0.16666666666666666,
-    "levelSpread": 0.33333333333333326,
-    "dungeonSpread": 0.3333333333333333,
-    "hasParityWarnings": true,
-    "parityWarnings": [
-      "Barbarian averaged 0 dungeons completed across 3 run(s).",
-      "Wizard averaged 0 dungeons completed across 3 run(s)."
-    ],
-    "qualityScore": 34.166666666666664,
+    "elapsedSeconds": 4.0685958,
+    "overallMeanFinalLevel": 4.574999999999999,
+    "overallMeanDungeonsCompleted": 4.4750000000000005,
+    "levelSpread": 1.4,
+    "dungeonSpread": 1.8000000000000003,
+    "hasParityWarnings": false,
+    "parityWarnings": [],
+    "qualityScore": 89.4,
     "classes": [
       {
         "classDisplayName": "Barbarian",
         "weaponType": "Mace",
-        "runCount": 3,
+        "runCount": 10,
         "deathRate": 1,
-        "meanFinalLevel": 1,
-        "medianFinalLevel": 1,
-        "meanDungeonsCompleted": 0,
-        "meanTurnCount": 7,
+        "meanFinalLevel": 4.9,
+        "medianFinalLevel": 5,
+        "meanDungeonsCompleted": 5,
+        "meanTurnCount": 17,
         "meanActionsByLevel": [
           {
             "level": 1,
             "meanActions": 7,
-            "sampleRunCount": 3
+            "sampleRunCount": 10
+          },
+          {
+            "level": 2,
+            "meanActions": 2,
+            "sampleRunCount": 10
+          },
+          {
+            "level": 3,
+            "meanActions": 2.8,
+            "sampleRunCount": 10
+          },
+          {
+            "level": 4,
+            "meanActions": 3.2,
+            "sampleRunCount": 10
+          },
+          {
+            "level": 5,
+            "meanActions": 2,
+            "sampleRunCount": 8
+          },
+          {
+            "level": 6,
+            "meanActions": 4,
+            "sampleRunCount": 1
           }
         ]
       },
       {
         "classDisplayName": "Warrior",
         "weaponType": "Sword",
-        "runCount": 3,
+        "runCount": 10,
         "deathRate": 1,
-        "meanFinalLevel": 1.3333333333333333,
-        "medianFinalLevel": 1,
-        "meanDungeonsCompleted": 0.3333333333333333,
-        "meanTurnCount": 7.666666666666667,
+        "meanFinalLevel": 5.3,
+        "medianFinalLevel": 5,
+        "meanDungeonsCompleted": 5.4,
+        "meanTurnCount": 17.8,
         "meanActionsByLevel": [
           {
             "level": 1,
             "meanActions": 7,
-            "sampleRunCount": 3
+            "sampleRunCount": 10
           },
           {
             "level": 2,
+            "meanActions": 2,
+            "sampleRunCount": 10
+          },
+          {
+            "level": 3,
+            "meanActions": 2.4,
+            "sampleRunCount": 10
+          },
+          {
+            "level": 4,
+            "meanActions": 3.4,
+            "sampleRunCount": 10
+          },
+          {
+            "level": 5,
+            "meanActions": 2.5,
+            "sampleRunCount": 8
+          },
+          {
+            "level": 6,
+            "meanActions": 2,
+            "sampleRunCount": 4
+          },
+          {
+            "level": 7,
             "meanActions": 2,
             "sampleRunCount": 1
           }
@@ -62,43 +109,89 @@
       {
         "classDisplayName": "Rogue",
         "weaponType": "Dagger",
-        "runCount": 3,
+        "runCount": 10,
         "deathRate": 1,
-        "meanFinalLevel": 1.3333333333333333,
-        "medianFinalLevel": 1,
-        "meanDungeonsCompleted": 0.3333333333333333,
-        "meanTurnCount": 7.666666666666667,
+        "meanFinalLevel": 4.2,
+        "medianFinalLevel": 4,
+        "meanDungeonsCompleted": 3.9,
+        "meanTurnCount": 14.8,
         "meanActionsByLevel": [
           {
             "level": 1,
             "meanActions": 7,
-            "sampleRunCount": 3
+            "sampleRunCount": 10
           },
           {
             "level": 2,
             "meanActions": 2,
-            "sampleRunCount": 1
+            "sampleRunCount": 10
+          },
+          {
+            "level": 3,
+            "meanActions": 2.4,
+            "sampleRunCount": 10
+          },
+          {
+            "level": 4,
+            "meanActions": 3,
+            "sampleRunCount": 8
+          },
+          {
+            "level": 5,
+            "meanActions": 2.5,
+            "sampleRunCount": 4
           }
         ]
       },
       {
         "classDisplayName": "Wizard",
         "weaponType": "Wand",
-        "runCount": 3,
+        "runCount": 10,
         "deathRate": 1,
-        "meanFinalLevel": 1,
-        "medianFinalLevel": 1,
-        "meanDungeonsCompleted": 0,
-        "meanTurnCount": 7,
+        "meanFinalLevel": 3.9,
+        "medianFinalLevel": 4,
+        "meanDungeonsCompleted": 3.6,
+        "meanTurnCount": 14.2,
         "meanActionsByLevel": [
           {
             "level": 1,
             "meanActions": 7,
-            "sampleRunCount": 3
+            "sampleRunCount": 10
+          },
+          {
+            "level": 2,
+            "meanActions": 2.2,
+            "sampleRunCount": 10
+          },
+          {
+            "level": 3,
+            "meanActions": 2.8,
+            "sampleRunCount": 10
+          },
+          {
+            "level": 4,
+            "meanActions": 2.2857142857142856,
+            "sampleRunCount": 7
+          },
+          {
+            "level": 5,
+            "meanActions": 3,
+            "sampleRunCount": 2
           }
         ]
       }
     ]
+  },
+  "analysis": {
+    "qualityScore": 89.4,
+    "summary": "Playthrough: avg level 4.6, avg dungeons 4.5, level spread 1.4, dungeon spread 1.8",
+    "allAnchorsPass": false,
+    "primaryDial": "Power",
+    "dialDiagnosis": "Power dial: avg turns 15.9, win rate 0.0% off target.",
+    "validationWarnings": [
+      "Class dungeon spread 1.8 exceeds max 1.0 or parity warnings present"
+    ],
+    "validationErrors": []
   },
   "runAnalysisConfig": {
     "optimizeWinRate": false,

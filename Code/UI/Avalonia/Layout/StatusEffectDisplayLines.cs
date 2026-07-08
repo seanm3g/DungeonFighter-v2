@@ -63,6 +63,8 @@ namespace RPGGame.UI.Avalonia.Layout
             if (charHud != null)
             {
                 lines.AddRange(BuildTurnBonusStatusLines(charHud));
+                lines.AddRange(BuildPendingActionBonusStatusLines(charHud));
+                lines.AddRange(BuildScopedCadenceStatusLines(charHud));
 
                 if (charHud.Effects.SlowTurns > 0)
                     lines.Add($"Slow ({charHud.Effects.SlowTurns} turn{(charHud.Effects.SlowTurns != 1 ? "s" : "")})");
@@ -98,6 +100,10 @@ namespace RPGGame.UI.Avalonia.Layout
                 string suffix = CadenceBonusDisplayFormatter.FormatTurnDurationSuffix(group.Count);
                 if (group.Bonuses.Count == 1 && IsSingleAccuracyOnly(group.Bonuses))
                     lines.Add($"Accuracy +{group.Bonuses[0].Value:0} {suffix}");
+                else if (group.Bonuses.Count == 1 && IsSingleAdvantageOnly(group.Bonuses))
+                    lines.Add($"Advantage {suffix}");
+                else if (group.Bonuses.Count == 1 && IsSingleDisadvantageOnly(group.Bonuses))
+                    lines.Add($"Disadvantage {suffix}");
                 else
                     lines.Add($"{CadenceKeywords.GetDisplayLabel(CadenceKeywords.Turn, group.Count)}: {items} {suffix}");
             }
@@ -115,12 +121,75 @@ namespace RPGGame.UI.Avalonia.Layout
             return lines;
         }
 
+        internal static List<string> BuildPendingActionBonusStatusLines(Character c)
+        {
+            var lines = new List<string>();
+
+            var nextRollBonuses = c.Effects.PeekPendingActionBonusesNextHeroRoll();
+            if (nextRollBonuses.Count > 0)
+            {
+                string items = CadenceBonusDisplayFormatter.FormatBonusItemsShort(nextRollBonuses);
+                if (!string.IsNullOrEmpty(items))
+                {
+                    int layers = c.Effects.GetPendingActionCadenceLayerCount();
+                    string suffix = layers > 1 ? $"(x{layers} stacked, next action)" : "(next action)";
+                    if (IsSingleAdvantageOnly(nextRollBonuses))
+                        lines.Add($"Advantage {suffix}");
+                    else if (IsSingleDisadvantageOnly(nextRollBonuses))
+                        lines.Add($"Disadvantage {suffix}");
+                    else
+                        lines.Add($"Next action: {items}");
+                }
+            }
+
+            foreach (var slot in c.Effects.GetPendingActionBonusSlots().OrderBy(s => s))
+            {
+                var bonuses = c.Effects.GetPendingActionBonusesForSlot(slot);
+                if (bonuses.Count == 0) continue;
+                string items = CadenceBonusDisplayFormatter.FormatBonusItemsShort(bonuses);
+                if (string.IsNullOrEmpty(items)) continue;
+                int displaySlot = slot + 1;
+                if (IsSingleAdvantageOnly(bonuses))
+                    lines.Add($"Advantage (action {displaySlot})");
+                else if (IsSingleDisadvantageOnly(bonuses))
+                    lines.Add($"Disadvantage (action {displaySlot})");
+                else
+                    lines.Add($"Action {displaySlot}: {items}");
+            }
+
+            return lines;
+        }
+
+        internal static List<string> BuildScopedCadenceStatusLines(Character c)
+        {
+            var lines = new List<string>();
+            AppendScopedLine(lines, "Fight", c.FightCadenceBuffs);
+            AppendScopedLine(lines, "Dungeon", c.DungeonCadenceBuffs);
+            return lines;
+        }
+
+        private static void AppendScopedLine(List<string> lines, string label, CadenceScopedBonusState scope)
+        {
+            if (!scope.HasAny) return;
+            string items = CadenceBonusDisplayFormatter.FormatBonusItemsShort(scope.CopyBonuses());
+            if (!string.IsNullOrEmpty(items))
+                lines.Add($"{label}: {items}");
+        }
+
         private static bool IsSingleAccuracyOnly(List<ActionAttackBonusItem> bonuses)
         {
             if (bonuses.Count != 1) return false;
             return string.Equals(ActionAttackBonusItem.NormalizeBonusType(bonuses[0].Type), "ACCURACY", StringComparison.OrdinalIgnoreCase)
                 && bonuses[0].Value != 0;
         }
+
+        private static bool IsSingleAdvantageOnly(List<ActionAttackBonusItem> bonuses) =>
+            bonuses.Count == 1
+            && string.Equals(ActionAttackBonusItem.NormalizeBonusType(bonuses[0].Type), MultiDiceRollMapper.AdvantageBonusType, StringComparison.OrdinalIgnoreCase);
+
+        private static bool IsSingleDisadvantageOnly(List<ActionAttackBonusItem> bonuses) =>
+            bonuses.Count == 1
+            && string.Equals(ActionAttackBonusItem.NormalizeBonusType(bonuses[0].Type), MultiDiceRollMapper.DisadvantageBonusType, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Enemies with <see cref="Enemy.IsLiving"/> false (spreadsheet <c>isLiving</c> false: undead, elementals, etc.)

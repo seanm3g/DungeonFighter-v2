@@ -110,8 +110,8 @@ namespace RPGGame
         /// <summary>ACTION cadence: slot-based. Key = combo slot index; value = bonuses to apply when that slot executes.</summary>
         public Dictionary<int, List<ActionAttackBonusItem>> PendingActionBonusesBySlot { get; set; } = new Dictionary<int, List<ActionAttackBonusItem>>();
         /// <summary>
-        /// ACTION cadence: additive bank. Multiple deposits sum by bonus type; the full bank redeems on the next hit+combo.
-        /// Cleared when the room ends (<see cref="ClearActionBonus"/>).
+        /// ACTION cadence: additive bank. Multiple deposits sum by bonus type; the full bank redeems on the next hit+combo
+        /// or is forfeited on hit without combo or miss. Cleared when the room ends (<see cref="ClearActionBonus"/>).
         /// </summary>
         public List<ActionAttackBonusItem> PendingActionCadenceBonusBank { get; set; } = new List<ActionAttackBonusItem>();
         /// <summary>Number of deposit events stacked into <see cref="PendingActionCadenceBonusBank"/> (for HUD).</summary>
@@ -201,7 +201,7 @@ namespace RPGGame
         /// Adds modifier bonuses from an action (hero fields by default; enemy AD–AG when <paramref name="useEnemySpreadsheetMods"/>).
         /// When <paramref name="nextComboSlot"/> is provided, adds to that combo slot pending queue.
         /// </summary>
-        public void AddModifierBonusesFromAction(Action? action, int? nextComboSlot = null, bool useEnemySpreadsheetMods = false)
+        public void AddModifierBonusesFromAction(Action? action, int? nextComboSlot = null, bool useEnemySpreadsheetMods = false, Character? owner = null)
         {
             if (action == null) return;
             if (!useEnemySpreadsheetMods && CadenceKeywords.IsAction(action.Cadence) && !nextComboSlot.HasValue)
@@ -212,6 +212,13 @@ namespace RPGGame
             if (nextComboSlot.HasValue)
             {
                 AddPendingActionBonuses(nextComboSlot.Value, bonuses);
+                return;
+            }
+
+            if (owner != null && (CadenceKeywords.IsFight(action.Cadence) || CadenceKeywords.IsDungeon(action.Cadence)))
+            {
+                int stackTimes = action.ComboBonusDuration > 0 ? action.ComboBonusDuration : 1;
+                CadenceScopedBuffApplicator.DepositToScope(owner, CadenceKeywords.Normalize(action.Cadence), bonuses, stackTimes);
                 return;
             }
 
@@ -295,7 +302,7 @@ namespace RPGGame
 
         public bool HasPendingActionCadenceBank() => PendingActionCadenceBonusBank.Count > 0;
 
-        /// <summary>Peek the full additive ACTION bank (roll help until hit+combo redeems).</summary>
+        /// <summary>Peek the full additive ACTION bank (roll help until hit+combo redeems or hit/miss forfeits).</summary>
         public List<ActionAttackBonusItem> PeekPendingActionBonusesNextHeroRoll() =>
             ActionCadenceBonusBank.Copy(PendingActionCadenceBonusBank);
 
@@ -348,6 +355,8 @@ namespace RPGGame
             }
             sum += SumBonusValuesOfType(character.Effects.PeekPendingActionBonusesNextHeroRoll(), "AMP_MOD");
             sum += SumBonusValuesOfType(character.Effects.PeekTurnBonuses(), "AMP_MOD");
+            sum += SumBonusValuesOfType(character.FightCadenceBuffs.CopyBonuses(), "AMP_MOD");
+            sum += SumBonusValuesOfType(character.DungeonCadenceBuffs.CopyBonuses(), "AMP_MOD");
             return sum;
         }
 

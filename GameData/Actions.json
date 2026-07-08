@@ -52,7 +52,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "3",
-    "cadence": "ATTACK",
+    "cadence": "TURN",
     "mechanics": "hero_accuracy",
     "heroAccuracy": "3"
   },
@@ -101,7 +101,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "ACTION",
+    "cadence": "TURN",
     "mechanics": "hero_accuracy",
     "heroAccuracy": "1"
   },
@@ -113,7 +113,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "ACTION",
+    "cadence": "TURN",
     "mechanics": "hero_hit_threshold",
     "heroHit": "1"
   },
@@ -125,7 +125,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "ACTION",
+    "cadence": "TURN",
     "mechanics": "hero_combo_threshold",
     "heroCombo": "1"
   },
@@ -137,7 +137,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "ACTION",
+    "cadence": "TURN",
     "mechanics": "hero_crit_threshold",
     "heroCrit": "1"
   },
@@ -214,7 +214,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "Action",
+    "cadence": "ACTION",
     "mechanics": "hero_next_action_damage",
     "damageMod": "1",
     "tags": "class, warrior, bludgeon"
@@ -268,18 +268,6 @@
     "tags": "finisher"
   },
   {
-    "action": "ANGRY ENRAGE",
-    "description": "TURN(x3):\u002B5 combo",
-    "dps": "100%",
-    "numberOfHits": "1",
-    "damage": "100%",
-    "speed": "1.00",
-    "duration": "3",
-    "cadence": "ATTACK",
-    "mechanics": "hero_combo_threshold",
-    "heroCombo": "5"
-  },
-  {
     "action": "PHANTOM FOLLOW-UP",
     "description": "CHAIN LENGTH \u002B1",
     "dps": "100%",
@@ -293,52 +281,14 @@
     "tags": "class"
   },
   {
-    "action": "STUN",
-    "description": "STUNS THE ENEMY FOR 1 TURN",
-    "dps": "100%",
-    "numberOfHits": "1",
-    "damage": "100%",
-    "speed": "1.00",
-    "mechanics": "stun",
-    "stun": "1"
-  },
-  {
-    "action": "POISON",
-    "description": "POISON DOT ON THE ENEMY",
-    "dps": "100%",
-    "numberOfHits": "1",
-    "damage": "100%",
-    "speed": "1.00",
-    "mechanics": "poison",
-    "poison": "1"
-  },
-  {
-    "action": "BURN",
-    "description": "BURN DOT ON THE ENEMY",
-    "dps": "100%",
-    "numberOfHits": "1",
-    "damage": "100%",
-    "speed": "1.00",
-    "mechanics": "burn",
-    "burn": "1"
-  },
-  {
-    "action": "BLEED",
-    "description": "BLEED DOT ON THE ENEMY",
-    "dps": "100%",
-    "numberOfHits": "1",
-    "damage": "100%",
-    "speed": "1.00",
-    "mechanics": "bleed",
-    "bleed": "1"
-  },
-  {
     "action": "EXPOSE",
     "description": "INCREASE DAMAGE TAKEN BY ENEMY",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "duration": "1",
+    "cadence": "TURN",
     "mechanics": "expose",
     "expose": "1"
   },
@@ -431,14 +381,6 @@
     "cadence": "ACTION"
   },
   {
-    "action": "SET BONUS",
-    "description": "\u002B1 DAMAGE per X tag",
-    "dps": "100%",
-    "numberOfHits": "1",
-    "damage": "100%",
-    "speed": "1.00"
-  },
-  {
     "action": "JAB",
     "description": "RESET ENEMY ACTION CHAIN",
     "dps": "100%",
@@ -448,18 +390,78 @@
     "tags": "class, rogue"
   },
   {
-    "action": "flip switch",
+    "action": "STUN",
+    "description": "STUNS THE ENEMY FOR 1 TURN",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "mechanics": "stun",
+    "stun": "1"
+  },
+  {
+    "action": "POISON",
+    "description": "POISON DOT ON THE ENEMY",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "mechanics": "poison",
+    "poison": "1"
+  },
+  {
+    "action": "BURN",
+    "description": "BURN DOT ON THE ENEMY",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "mechanics": "burn",
+    "burn": "1"
+  },
+  {
+    "action": "BLEED",
+    "description": "BLEED DOT ON THE ENEMY",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "mechanics": "bleed",
+    "bleed": "1"
+  },
+  {
+    "action": "SET BONUS",
+    "description": "\u002B1 DAMAGE per X tag",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00"
+  },
+  {
+    "action": "FLIP ROOM SWITCH",
     "description": "triggers environment action",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00"
   },
   {
-    "action": "berzerker",
+    "action": "BERZERKER",
     "description": "below 50% health gives you a 25% damage bonus",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00"
+  },
+  {
+    "action": "ANGRY ENRAGE",
+    "description": "TURN(x3):\u002B5 combo",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "3",
+    "cadence": "ATTACK",
+    "mechanics": "hero_combo_threshold",
+    "heroCombo": "5"
   },
   {
     "action": "GAMBLERS BLESSING",

@@ -80,8 +80,8 @@ namespace RPGGame.Data
                 
                 var group = new ActionAttackBonusGroup
                 {
-                    Keyword = CadenceKeywords.Turn,
-                    CadenceType = CadenceKeywords.Turn,
+                    Keyword = durationType,
+                    CadenceType = durationType,
                     Count = duration,
                     Bonuses = bonusItems,
                     DurationType = durationType

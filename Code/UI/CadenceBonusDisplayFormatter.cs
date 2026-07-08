@@ -38,6 +38,8 @@ namespace RPGGame.UI
                 "AGI" or "AGILITY" => $"{sign}{b.Value:0} AGI",
                 "TECH" or "TECHNIQUE" => $"{sign}{b.Value:0} TECH",
                 "INT" or "INTELLIGENCE" => $"{sign}{b.Value:0} INT",
+                MultiDiceRollMapper.AdvantageBonusType => "Advantage",
+                MultiDiceRollMapper.DisadvantageBonusType => "Disadvantage",
                 _ => $"{sign}{b.Value:0} {b.Type}"
             };
         }

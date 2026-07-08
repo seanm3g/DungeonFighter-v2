@@ -305,9 +305,9 @@ namespace RPGGame.Tests.Unit
 
         private static void MapPageStepInput_MapsUndoAndStep(ref int run, ref int passed, ref int failed)
         {
-            TestBase.AssertEqual("lab_undo", ActionLabInputCoordinator.MapPageStepInput("pageup"), "Page Up maps to undo", ref run, ref passed, ref failed);
-            TestBase.AssertEqual("lab_step", ActionLabInputCoordinator.MapPageStepInput("pagedown"), "Page Down maps to step", ref run, ref passed, ref failed);
-            TestBase.AssertEqual("lab_undo", ActionLabInputCoordinator.MapPageStepInput(" PageUp "), "Page Up mapping is case-insensitive", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("lab_step", ActionLabInputCoordinator.MapPageStepInput("pageup"), "Page Up maps to step", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("lab_undo", ActionLabInputCoordinator.MapPageStepInput("pagedown"), "Page Down maps to undo", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("lab_step", ActionLabInputCoordinator.MapPageStepInput(" PageUp "), "Page Up mapping is case-insensitive", ref run, ref passed, ref failed);
             TestBase.AssertNull(ActionLabInputCoordinator.MapPageStepInput("up"), "arrow up does not map to lab step", ref run, ref passed, ref failed);
         }
 

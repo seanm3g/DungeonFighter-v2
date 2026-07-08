@@ -48,6 +48,7 @@ namespace RPGGame.Actions.Execution
                 if (eqCrit != 0)
                     thresholdManager.AdjustCriticalHitThreshold(gearCharacter, eqCrit);
                 DungeonSearchBuffThresholdApplicator.Apply(gearCharacter, thresholdManager);
+                CadenceScopedBuffApplicator.ApplyThresholds(gearCharacter, thresholdManager);
             }
 
             result.SelectedAction = forcedAction ?? ActionSelector.SelectActionByEntityType(source);
@@ -57,12 +58,12 @@ namespace RPGGame.Actions.Execution
             if (source is Character character && !(character is Enemy) && forcedAction == null)
                 result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
 
-            // Roll and threshold bonuses: TURN (consumed per roll), ACTION (additive bank peek; full bank redeemed on hit+combo)
+            // Roll and threshold bonuses: TURN (consumed per roll), ACTION (peek slot + bank; redeem on hit+combo, forfeit otherwise)
             int actionBonusAccumulator = 0, actionBonusHit = 0, actionBonusCombo = 0, actionBonusCrit = 0, actionBonusCritMiss = 0;
             bool pendingAdvantage = false, pendingDisadvantage = false;
             if (source is Character actionBonusCharacter && !(actionBonusCharacter is Enemy))
             {
-                // 1. ACTION cadence: legacy slot-based pending (consumed per roll) + FIFO head peeked until hit+combo
+                // 1. ACTION cadence: legacy slot-based pending (peeked per roll) + FIFO bank peeked until hit+combo redeems or hit/miss forfeits
                 var comboActions = ActionUtilities.GetComboActions(actionBonusCharacter);
                 int comboLength = comboActions.Count;
                 var pendingActionRollBonuses = new List<ActionAttackBonusItem>();
@@ -70,9 +71,12 @@ namespace RPGGame.Actions.Execution
                 {
                     int currentSlot = ActionUtilities.GetComboSlotForPendingBonuses(
                         actionBonusCharacter, result.SelectedAction, comboActions);
-                    var slotBonuses = actionBonusCharacter.Effects.ConsumePendingActionBonusesForSlot(currentSlot);
-                    pendingActionRollBonuses.AddRange(slotBonuses);
-                    actionBonusCharacter.Effects.AccumulateConsumedModifierBonuses(slotBonuses);
+                    var slotBonuses = actionBonusCharacter.Effects.GetPendingActionBonusesForSlot(currentSlot);
+                    if (slotBonuses.Count > 0)
+                    {
+                        result.PendingActionCadenceLayerPeekedForRoll = true;
+                        pendingActionRollBonuses.AddRange(slotBonuses);
+                    }
                 }
                 var fifoPeeked = actionBonusCharacter.Effects.PeekPendingActionBonusesNextHeroRoll();
                 if (fifoPeeked.Count > 0)
@@ -113,6 +117,27 @@ namespace RPGGame.Actions.Execution
                     }
                 }
                 RollModificationManager.CollectAdvantageFlags(turnBonuses, ref pendingAdvantage, ref pendingDisadvantage);
+                // 3. Fight/Dungeon scoped bonuses (persistent for scope; peek without consumption)
+                var scopedBonuses = new List<ActionAttackBonusItem>();
+                scopedBonuses.AddRange(actionBonusCharacter.FightCadenceBuffs.CopyBonuses());
+                scopedBonuses.AddRange(actionBonusCharacter.DungeonCadenceBuffs.CopyBonuses());
+                if (scopedBonuses.Count > 0)
+                {
+                    RollModificationManager.ApplyDeferredThresholdPackageSetPhase(source, scopedBonuses);
+                    actionBonusCharacter.Effects.AccumulateConsumedModifierBonuses(scopedBonuses);
+                    foreach (var bonus in scopedBonuses)
+                    {
+                        switch ((bonus.Type ?? "").ToUpper())
+                        {
+                            case "ACCURACY": actionBonusAccumulator += (int)bonus.Value; break;
+                            case "HIT": actionBonusHit += (int)bonus.Value; break;
+                            case "COMBO": actionBonusCombo += (int)bonus.Value; break;
+                            case "CRIT": actionBonusCrit += (int)bonus.Value; break;
+                            case "CRIT_MISS": actionBonusCritMiss += (int)bonus.Value; break;
+                        }
+                    }
+                    RollModificationManager.CollectAdvantageFlags(scopedBonuses, ref pendingAdvantage, ref pendingDisadvantage);
+                }
             }
             else if (source is Enemy enemyAttacker)
             {

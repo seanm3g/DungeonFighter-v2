@@ -35,12 +35,8 @@ namespace RPGGame.Actions.Execution
                     int currentBonus = ReadTempStatBonusForResolvedCode(turnBonusCharacter, concrete);
                     turnBonusCharacter.ApplyStatBonus(currentBonus + (int)bonus.Value, bonusType, 999);
                 }
-                // ACTION cadence bank: redeem full accumulated bank on hit+combo.
-                if (result.IsCombo && result.PendingActionCadenceLayerPeekedForRoll)
-                {
-                    var consumedFifo = turnBonusCharacter.Effects.ConsumePendingActionBonusesNextHeroRoll();
-                    turnBonusCharacter.Effects.AccumulateConsumedModifierBonuses(consumedFifo);
-                }
+                // ACTION cadence: redeem on hit+combo; forfeit on hit without combo (handled below before damage).
+                ResolvePendingActionCadenceBonuses(turnBonusCharacter, selected, result);
             }
             var hitEvent = ActionEventPublisher.PublishActionHit(
                 source, target, selected, result.AttackRoll, result.IsCombo, result.IsCritical);
@@ -127,7 +123,7 @@ namespace RPGGame.Actions.Execution
 
             if (selected.ActionAttackBonuses != null && source is Character bonusSourceCharacter && !(bonusSourceCharacter is Enemy))
             {
-                bonusSourceCharacter.Effects.AddActionAttackBonuses(selected.ActionAttackBonuses, selected);
+                bonusSourceCharacter.Effects.AddActionAttackBonuses(selected.ActionAttackBonuses, selected, bonusSourceCharacter);
                 // ACTION cadence: FIFO layers â€” one layer consumed per hero attack roll (enemy turns do not count).
                 // Spreadsheet Count / duration = number of consecutive hero actions that receive one application each.
                 bool grantOnComboSuccess = result.IsCombo && selected.IsComboAction;
@@ -183,10 +179,21 @@ namespace RPGGame.Actions.Execution
                     int scaledRollBonus = selected.Advanced.RollBonus * hitLayers;
                     if (source is Character heroAcc && !(heroAcc is Enemy))
                     {
-                        heroAcc.Effects.AccumulatePendingActionCadenceBank(new List<ActionAttackBonusItem>
+                        if (CadenceKeywords.IsFight(selected.Cadence) || CadenceKeywords.IsDungeon(selected.Cadence))
                         {
-                            new ActionAttackBonusItem { Type = "ACCURACY", Value = scaledRollBonus }
-                        }, accTurns);
+                            CadenceScopedBuffApplicator.DepositToScope(heroAcc, CadenceKeywords.Normalize(selected.Cadence),
+                                new List<ActionAttackBonusItem>
+                                {
+                                    new ActionAttackBonusItem { Type = "ACCURACY", Value = scaledRollBonus }
+                                }, accTurns);
+                        }
+                        else
+                        {
+                            heroAcc.Effects.AccumulatePendingActionCadenceBank(new List<ActionAttackBonusItem>
+                            {
+                                new ActionAttackBonusItem { Type = "ACCURACY", Value = scaledRollBonus }
+                            }, accTurns);
+                        }
                     }
                     else if (source is Enemy enemyAcc)
                     {
@@ -210,7 +217,7 @@ namespace RPGGame.Actions.Execution
                     if (comboActions.Count > 0)
                         nextComboSlot = ActionUtilities.GetNextComboSlotForPendingBonuses(modSourceCharacter, selected, comboActions);
                 }
-                modSourceCharacter.Effects.AddModifierBonusesFromAction(selected, nextComboSlot, useEnemySpreadsheetMods: false);
+                modSourceCharacter.Effects.AddModifierBonusesFromAction(selected, nextComboSlot, useEnemySpreadsheetMods: false, modSourceCharacter);
                 var enemyTargetMods = CharacterEffectsState.BuildModifierBonusesFromActionFields(selected, useEnemySpreadsheetMods: true);
                 if (enemyTargetMods.Count > 0 && target is Enemy enemyReceivingMods)
                     enemyReceivingMods.Effects.AddPendingActionBonusesNextHeroRoll(enemyTargetMods);
@@ -248,19 +255,36 @@ namespace RPGGame.Actions.Execution
                 var statEntries = GetStatBonusEntries(selected);
                 if (statEntries.Count > 0 && source is Character statBonusCharacter && !(statBonusCharacter is Enemy))
                 {
-                    int duration = CadenceToStatBonusDuration(selected.Cadence);
-                    foreach (var entry in statEntries)
+                    if (CadenceKeywords.IsFight(selected.Cadence) || CadenceKeywords.IsDungeon(selected.Cadence))
                     {
-                        if (entry.Value == 0 && string.IsNullOrEmpty(entry.Type)) continue;
-                        string statType = (entry.Type ?? "").ToUpper();
-                        if (string.IsNullOrEmpty(statType)) continue;
-                        if (!DynamicAttributeCategoryResolver.IsStatOrDynamicCategoryType(statType)) continue;
-                        string concrete = DynamicAttributeCategoryResolver.ResolveStatBonusTypeToConcreteCode(statBonusCharacter, statType);
-                        if (concrete != DynamicAttributeCategoryResolver.CodeStrength && concrete != DynamicAttributeCategoryResolver.CodeAgility
-                            && concrete != DynamicAttributeCategoryResolver.CodeTechnique && concrete != DynamicAttributeCategoryResolver.CodeIntelligence)
-                            continue;
-                        int currentBonus = ReadTempStatBonusForResolvedCode(statBonusCharacter, concrete);
-                        statBonusCharacter.ApplyStatBonus(currentBonus + entry.Value, statType, duration);
+                        int stackTimes = selected.ComboBonusDuration > 0 ? selected.ComboBonusDuration : 1;
+                        var items = new List<ActionAttackBonusItem>();
+                        foreach (var entry in statEntries)
+                        {
+                            if (entry.Value == 0 && string.IsNullOrEmpty(entry.Type)) continue;
+                            string statType = (entry.Type ?? "").ToUpper();
+                            if (string.IsNullOrEmpty(statType)) continue;
+                            items.Add(new ActionAttackBonusItem { Type = statType, Value = entry.Value });
+                        }
+                        if (items.Count > 0)
+                            CadenceScopedBuffApplicator.DepositToScope(statBonusCharacter, CadenceKeywords.Normalize(selected.Cadence), items, stackTimes);
+                    }
+                    else
+                    {
+                        int duration = CadenceToStatBonusDuration(selected.Cadence);
+                        foreach (var entry in statEntries)
+                        {
+                            if (entry.Value == 0 && string.IsNullOrEmpty(entry.Type)) continue;
+                            string statType = (entry.Type ?? "").ToUpper();
+                            if (string.IsNullOrEmpty(statType)) continue;
+                            if (!DynamicAttributeCategoryResolver.IsStatOrDynamicCategoryType(statType)) continue;
+                            string concrete = DynamicAttributeCategoryResolver.ResolveStatBonusTypeToConcreteCode(statBonusCharacter, statType);
+                            if (concrete != DynamicAttributeCategoryResolver.CodeStrength && concrete != DynamicAttributeCategoryResolver.CodeAgility
+                                && concrete != DynamicAttributeCategoryResolver.CodeTechnique && concrete != DynamicAttributeCategoryResolver.CodeIntelligence)
+                                continue;
+                            int currentBonus = ReadTempStatBonusForResolvedCode(statBonusCharacter, concrete);
+                            statBonusCharacter.ApplyStatBonus(currentBonus + entry.Value, statType, duration);
+                        }
                     }
                 }
             }
@@ -338,6 +362,12 @@ namespace RPGGame.Actions.Execution
             {
                 enemyMiss.Effects.AddModifierBonusesFromAction(result.SelectedAction, useEnemySpreadsheetMods: true);
             }
+            if (source is Character heroMissCadence && !(heroMissCadence is Enemy)
+                && result.SelectedAction != null
+                && result.PendingActionCadenceLayerPeekedForRoll)
+            {
+                ResolvePendingActionCadenceBonuses(heroMissCadence, result.SelectedAction, result);
+            }
             // Critical miss (fumble): ACTION cadence affects the enemy â€” duration counts down on the enemy's attack rolls, not the hero's.
             if (result.IsCriticalMiss
                 && target is Enemy enemyForFumble
@@ -363,6 +393,31 @@ namespace RPGGame.Actions.Execution
             if (source is Character comboCharacterMiss)
                 comboCharacterMiss.ComboStep = 0;
             ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction!, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, false, false, 0, 0, false, result.BaseRoll, battleNarrative);
+        }
+
+        /// <summary>
+        /// ACTION cadence slot + bank: peeked during roll prep; modifiers apply only on hit+combo,
+        /// forfeited on hit without combo or miss.
+        /// </summary>
+        private static void ResolvePendingActionCadenceBonuses(Character hero, Action selectedAction, ActionExecutionResult result)
+        {
+            if (!result.PendingActionCadenceLayerPeekedForRoll)
+                return;
+
+            var slotConsumed = new List<ActionAttackBonusItem>();
+            var comboActions = ActionUtilities.GetComboActions(hero);
+            if (comboActions.Count > 0)
+            {
+                int currentSlot = ActionUtilities.GetComboSlotForPendingBonuses(hero, selectedAction, comboActions);
+                slotConsumed = hero.Effects.ConsumePendingActionBonusesForSlot(currentSlot);
+            }
+            var bankConsumed = hero.Effects.ConsumePendingActionBonusesNextHeroRoll();
+
+            if (result.IsCombo)
+            {
+                hero.Effects.AccumulateConsumedModifierBonuses(slotConsumed);
+                hero.Effects.AccumulateConsumedModifierBonuses(bankConsumed);
+            }
         }
 
         /// <summary>

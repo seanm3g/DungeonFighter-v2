@@ -109,6 +109,35 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(skLine != null && skLine.Contains("Immune") && skLine.Contains("Bleed") && skLine.Contains("Poison"),
                 "non-living enemy: immunity line lists bleed and poison", ref run, ref passed, ref failed);
 
+            var turnAdv = TestDataBuilders.Character().WithName("TurnAdv").WithStats(10, 10, 10, 0).Build();
+            turnAdv.Effects.AddActionAttackBonuses(new ActionAttackBonuses
+            {
+                BonusGroups = new System.Collections.Generic.List<ActionAttackBonusGroup>
+                {
+                    new ActionAttackBonusGroup
+                    {
+                        CadenceType = "TURN",
+                        Count = 2,
+                        Bonuses = new System.Collections.Generic.List<ActionAttackBonusItem>
+                        {
+                            new ActionAttackBonusItem { Type = MultiDiceRollMapper.AdvantageBonusType, Value = 0 }
+                        }
+                    }
+                }
+            });
+            var turnAdvLines = StatusEffectDisplayLines.Build(turnAdv, turnAdv);
+            TestBase.AssertTrue(turnAdvLines.Any(l => l.Contains("Advantage") && l.Contains("2 turns")),
+                "TURN cadence advantage shows as status line", ref run, ref passed, ref failed);
+
+            var actionDis = TestDataBuilders.Character().WithName("ActionDis").WithStats(10, 10, 10, 0).Build();
+            actionDis.Effects.AddPendingActionBonusesNextHeroRoll(new System.Collections.Generic.List<ActionAttackBonusItem>
+            {
+                new ActionAttackBonusItem { Type = MultiDiceRollMapper.DisadvantageBonusType, Value = 0 }
+            });
+            var actionDisLines = StatusEffectDisplayLines.Build(actionDis, actionDis);
+            TestBase.AssertTrue(actionDisLines.Any(l => l.Contains("Disadvantage") && l.Contains("next action")),
+                "pending ACTION disadvantage shows as status line", ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("StatusEffectDisplayLines Tests", run, passed, failed);
         }
     }

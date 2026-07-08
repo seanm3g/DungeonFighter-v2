@@ -184,11 +184,11 @@ namespace RPGGame
             action == null ? "" : BuildActionMetadataLine(action);
 
         /// <summary>
-        /// Extra modifier lines for compact action strip cards after the swing (Dmg/Spd) line: total roll bonus when non-zero,
-        /// deferred sheet accuracy (and related lines) so cards match tooltip behavior, compact stat bonuses, and cadence bonus groups.
-        /// When sheet accuracy applies on the <em>current</em> roll it is already included in <paramref name="rollBonusThisSwing"/>; that hero line is omitted to avoid duplication.
+        /// Extra modifier lines for compact action strip cards after the swing (Dmg/Spd) line: deferred sheet accuracy
+        /// (and related lines) so cards match tooltip behavior, compact stat bonuses, and cadence bonus groups.
+        /// Current-roll accuracy is shown only under TURN/ACTION cadence headers, not as a standalone Acc line.
         /// </summary>
-        public static List<string> BuildActionStripModifierTailLines(Action? action, int rollBonusThisSwing, int maxWidth, int maxLines)
+        public static List<string> BuildActionStripModifierTailLines(Action? action, int maxWidth, int maxLines)
         {
             var lines = new List<string>();
             if (action == null || maxLines <= 0 || maxWidth < 4)
@@ -205,8 +205,12 @@ namespace RPGGame
                 lines.Add(t);
             }
 
-            if (rollBonusThisSwing != 0)
-                add($"Acc {rollBonusThisSwing:+0;-0;0}");
+            void addBlank()
+            {
+                if (lines.Count >= maxLines)
+                    return;
+                lines.Add("");
+            }
 
             foreach (var line in EnumerateSheetAccuracyModifierLines(action))
             {
@@ -240,6 +244,7 @@ namespace RPGGame
                     if (group?.Bonuses == null || group.Bonuses.Count == 0)
                         continue;
                     int displayCount = ActionCadenceDurationResolver.GetDisplayCount(action, group);
+                    addBlank();
                     foreach (string line in UI.CadenceCardLineFormatter.FormatGroupLines(group, displayCount))
                         add(line);
                 }

@@ -46,8 +46,8 @@ namespace RPGGame.Tests.Unit.Data
             TestActionGrantRequiresCombo();
             TestActionBonusClipAtFinisher();
             TestActionBonusClipMidCombo();
-            TestActionBonusMissPreservesLayer();
-            TestActionBonusHitNoComboPreservesLayer();
+            TestActionBonusMissForfeitsLayer();
+            TestActionBonusHitNoComboForfeitsLayer();
             TestActionBonusComboConsumesLayer();
             TestThreeActionComboDamageModBuffsRemainingSlots();
             TestActionBonusDurationFollowsComboBonusDurationWhenGroupCountStale();
@@ -63,6 +63,11 @@ namespace RPGGame.Tests.Unit.Data
             TestAbilityCadenceSpeedModToNextSlot();
             TestCadenceTypeFromActionsJson();
             TestAllLoadedActionsWithBonuses();
+            TestFightCadence_PersistsAcrossRolls();
+            TestFightCadence_ClearsOnEncounterEnd();
+            TestDungeonCadence_PersistsAcrossEncounters();
+            TestDungeonCadence_StatBonusSurvivesEncounterClear();
+            TestDungeonCadence_ClearsOnDungeonRunEnd();
 
             TestBase.PrintSummary("Action Bonus Mechanics Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -434,9 +439,9 @@ namespace RPGGame.Tests.Unit.Data
             }
         }
 
-        private static void TestActionBonusMissPreservesLayer()
+        private static void TestActionBonusMissForfeitsLayer()
         {
-            Console.WriteLine("\n--- ACTION consume: miss preserves FIFO layer ---\n");
+            Console.WriteLine("\n--- ACTION consume: miss forfeits FIFO layer ---\n");
 
             var lastUsed = new Dictionary<Actor, Action>();
             var lastCritMiss = new Dictionary<Actor, bool>();
@@ -459,8 +464,8 @@ namespace RPGGame.Tests.Unit.Data
                 TestBase.AssertFalse(result.Hit,
                     "Forced miss",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(1, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "Miss must not consume pending ACTION layer",
+                TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "Miss must forfeit pending ACTION layer",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
@@ -470,9 +475,9 @@ namespace RPGGame.Tests.Unit.Data
             }
         }
 
-        private static void TestActionBonusHitNoComboPreservesLayer()
+        private static void TestActionBonusHitNoComboForfeitsLayer()
         {
-            Console.WriteLine("\n--- ACTION consume: hit without combo preserves FIFO layer ---\n");
+            Console.WriteLine("\n--- ACTION consume: hit without combo forfeits FIFO layer ---\n");
 
             var lastUsed = new Dictionary<Actor, Action>();
             var lastCritMiss = new Dictionary<Actor, bool>();
@@ -505,8 +510,8 @@ namespace RPGGame.Tests.Unit.Data
                 TestBase.AssertTrue(result.Hit && !result.IsCombo,
                     "Hit without combo",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(1, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "Hit without combo must not consume pending ACTION layer",
+                TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "Hit without combo must forfeit pending ACTION layer",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
@@ -1424,6 +1429,118 @@ namespace RPGGame.Tests.Unit.Data
             character.Actions.AddToCombo(rage);
             character.ComboStep = 0;
             return character;
+        }
+
+        #endregion
+
+        #region Fight / Dungeon scoped cadence
+
+        private static void TestFightCadence_PersistsAcrossRolls()
+        {
+            Console.WriteLine("\n--- FIGHT cadence: bonus persists across rolls in combat ---\n");
+            var character = new Character("FightHero", 1);
+            character.Effects.AddActionAttackBonuses(new ActionAttackBonuses
+            {
+                BonusGroups = new List<ActionAttackBonusGroup>
+                {
+                    new ActionAttackBonusGroup
+                    {
+                        CadenceType = "FIGHT",
+                        DurationType = "FIGHT",
+                        Count = 1,
+                        Bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "ACCURACY", Value = 1 } }
+                    }
+                }
+            }, null, character);
+
+            TestBase.AssertTrue(character.FightCadenceBuffs.HasAny,
+                "FIGHT grant deposits into FightCadenceBuffs",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(character.Effects.PeekTurnBonuses().Count == 0,
+                "FIGHT grant does not use TURN queue",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            int accBefore = ActionSelector.PeekQueuedAccuracyBonus(character);
+            character.Effects.GetAndConsumeTurnBonuses();
+            int accAfterConsume = ActionSelector.PeekQueuedAccuracyBonus(character);
+            character.Effects.GetAndConsumeTurnBonuses();
+            int accSecondRoll = ActionSelector.PeekQueuedAccuracyBonus(character);
+
+            TestBase.AssertEqual(1, accBefore, "FIGHT +1 ACC visible before rolls", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, accAfterConsume, "FIGHT +1 ACC persists after first roll consume", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, accSecondRoll, "FIGHT +1 ACC persists after second roll consume", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestFightCadence_ClearsOnEncounterEnd()
+        {
+            Console.WriteLine("\n--- FIGHT cadence: clears on encounter end ---\n");
+            var character = new Character("FightHero", 1);
+            CadenceScopedBuffApplicator.DepositToScope(character, "FIGHT",
+                new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "ACCURACY", Value = 2 } });
+            TestBase.AssertTrue(character.FightCadenceBuffs.HasAny, "Fight buff present", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            character.ClearEncounterTempEffects();
+            TestBase.AssertTrue(!character.FightCadenceBuffs.HasAny,
+                "ClearEncounterTempEffects clears fight-scoped bonuses",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, ActionSelector.PeekQueuedAccuracyBonus(character),
+                "No fight ACC after encounter clear", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestDungeonCadence_PersistsAcrossEncounters()
+        {
+            Console.WriteLine("\n--- DUNGEON cadence: bonus survives encounter clear ---\n");
+            var character = new Character("DungeonHero", 1);
+            character.Effects.AddActionAttackBonuses(new ActionAttackBonuses
+            {
+                BonusGroups = new List<ActionAttackBonusGroup>
+                {
+                    new ActionAttackBonusGroup
+                    {
+                        CadenceType = "DUNGEON",
+                        DurationType = "DUNGEON",
+                        Count = 1,
+                        Bonuses = new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "ACCURACY", Value = 1 } }
+                    }
+                }
+            }, null, character);
+
+            character.ClearEncounterTempEffects();
+            TestBase.AssertTrue(character.DungeonCadenceBuffs.HasAny,
+                "Dungeon cadence survives encounter clear",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, ActionSelector.PeekQueuedAccuracyBonus(character),
+                "Dungeon +1 ACC still peeked after encounter clear",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestDungeonCadence_StatBonusSurvivesEncounterClear()
+        {
+            Console.WriteLine("\n--- DUNGEON cadence: stat bonus survives encounter clear ---\n");
+            var character = new Character("DungeonHero", 1);
+            int baseStr = character.GetEffectiveStrength();
+            CadenceScopedBuffApplicator.DepositToScope(character, "DUNGEON",
+                new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "STR", Value = 1 } });
+
+            TestBase.AssertEqual(baseStr + 1, character.GetEffectiveStrength(),
+                "Dungeon +1 STR applied", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            character.ClearEncounterTempEffects();
+            TestBase.AssertEqual(baseStr + 1, character.GetEffectiveStrength(),
+                "Dungeon +1 STR survives encounter clear", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestDungeonCadence_ClearsOnDungeonRunEnd()
+        {
+            Console.WriteLine("\n--- DUNGEON cadence: clears on dungeon run end ---\n");
+            var character = new Character("DungeonHero", 1);
+            CadenceScopedBuffApplicator.DepositToScope(character, "DUNGEON",
+                new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "ACCURACY", Value = 3 } });
+            TestBase.AssertTrue(character.DungeonCadenceBuffs.HasAny, "Dungeon buff present", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            character.ClearDungeonRunTempEffects();
+            TestBase.AssertTrue(!character.DungeonCadenceBuffs.HasAny,
+                "ClearDungeonRunTempEffects clears dungeon-scoped bonuses",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

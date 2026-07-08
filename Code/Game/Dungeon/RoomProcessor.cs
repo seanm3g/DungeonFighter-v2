@@ -79,7 +79,7 @@ namespace RPGGame
             // Clear temporary effects
             if (stateManager.CurrentPlayer != null)
             {
-                stateManager.CurrentPlayer.ClearAllTempEffects();
+                stateManager.CurrentPlayer.ClearEncounterTempEffects();
                 RollModificationManager.GetThresholdManager().ResetThresholds(stateManager.CurrentPlayer);
                 stateManager.CurrentPlayer.RefreshRoomArmor();
                 // New room: combo strip and routing always start from the opener (matches new-enemy encounter reset)
@@ -305,7 +305,7 @@ namespace RPGGame
 
             if (stateManager.CurrentPlayer != null)
             {
-                stateManager.CurrentPlayer.ClearAllTempEffects();
+                stateManager.CurrentPlayer.ClearEncounterTempEffects();
                 stateManager.CurrentPlayer.RefreshRoomArmor();
             }
             

@@ -74,6 +74,26 @@ namespace RPGGame.Data
         public static bool IsKeywordCadence(string? cadence)
             => IsTurn(cadence) || IsAction(cadence);
 
+        public static bool IsFight(string? cadence)
+        {
+            if (string.IsNullOrWhiteSpace(cadence)) return false;
+            return string.Equals(Normalize(cadence), "FIGHT", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static bool IsDungeon(string? cadence)
+        {
+            if (string.IsNullOrWhiteSpace(cadence)) return false;
+            return string.Equals(Normalize(cadence), "DUNGEON", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>Resolves scoped cadence from bonus group fields (DurationType wins when set).</summary>
+        public static string ResolveScope(string? cadenceType, string? durationType)
+        {
+            if (!string.IsNullOrWhiteSpace(durationType) && !IsKeywordCadence(durationType))
+                return Normalize(durationType);
+            return Normalize(cadenceType ?? "");
+        }
+
         /// <summary>Player-facing label, e.g. "TURN x3" or "ACTION x2".</summary>
         public static string GetDisplayLabel(string? cadence, int count)
         {

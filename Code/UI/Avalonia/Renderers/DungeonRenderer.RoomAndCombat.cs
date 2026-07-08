@@ -146,8 +146,13 @@ namespace RPGGame.UI.Avalonia.Renderers
 
                 void drawLine(string text, Color color)
                 {
-                    if (contentY >= panelBottomExclusive - reserveBottomRows || string.IsNullOrEmpty(text))
+                    if (contentY >= panelBottomExclusive - reserveBottomRows)
                         return;
+                    if (string.IsNullOrEmpty(text))
+                    {
+                        contentY++;
+                        return;
+                    }
                     if (text.Length > contentW)
                         text = text.Substring(0, Math.Max(1, contentW - 3)) + "...";
                     canvas.AddText(contentX, contentY, text, color);
@@ -171,23 +176,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                 drawLine(swingLine, swingLineColor);
 
                 int tailBudget = Math.Max(0, panelBottomExclusive - contentY - reserveBottomRows);
-                var tailLines = CombatActionStripBuilder.BuildActionStripModifierTailLines(action, info.AccuracyRollBonus, contentW, tailBudget);
+                var tailLines = CombatActionStripBuilder.BuildActionStripModifierTailLines(action, contentW, tailBudget);
                 foreach (var tl in tailLines)
-                {
-                    var c = AsciiArtAssets.Colors.White;
-                    if (tl.StartsWith("Acc ", StringComparison.Ordinal) && tl.Length > 4)
-                    {
-                        ReadOnlySpan<char> rest = tl.AsSpan(4).Trim();
-                        if (int.TryParse(rest, System.Globalization.NumberStyles.AllowLeadingSign, System.Globalization.CultureInfo.InvariantCulture, out int accVal))
-                        {
-                            if (accVal > 0)
-                                c = AsciiArtAssets.Colors.Green;
-                            else if (accVal < 0)
-                                c = AsciiArtAssets.Colors.Red;
-                        }
-                    }
-                    drawLine(tl, c);
-                }
+                    drawLine(tl, AsciiArtAssets.Colors.White);
 
                 if (hasThreshold && contentY < panelBottomExclusive)
                 {

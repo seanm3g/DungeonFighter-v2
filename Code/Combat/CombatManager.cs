@@ -375,7 +375,7 @@ namespace RPGGame
             player.ResetCombo();
 
             // Wipe combat status (DoT, debuffs, advanced stacks) so the hero never carries encounter state onward
-            player.ClearAllTempEffects();
+            player.ClearEncounterTempEffects();
             player.RefreshRoomArmor();
             
             DebugLogger.WriteCombatDebug("CombatManager", $"Combat ended: {player.Name} {(player.IsAlive ? "survived" : "died")} vs {currentEnemy.Name}");

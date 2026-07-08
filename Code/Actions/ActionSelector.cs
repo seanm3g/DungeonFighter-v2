@@ -166,6 +166,7 @@ namespace RPGGame
                 AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
             foreach (var bonus in c.Effects.PeekTurnBonuses())
                 AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
+            CadenceScopedBuffApplicator.AccumulateRollBonuses(c, ref acc, ref hit, ref combo, ref crit, ref critMiss);
             return new PendingThresholdHudShifts(acc, combo, hit, crit, critMiss);
         }
 
@@ -231,12 +232,14 @@ namespace RPGGame
             }
             foreach (var bonus in c.Effects.PeekTurnBonuses())
             {
-                switch (bonus.Type.ToUpper())
+                switch ((bonus.Type ?? "").ToUpper())
                 {
                     case "ACCURACY": accuracyAccumulator += (int)bonus.Value; break;
                     case "COMBO": effectComboBonus += (int)bonus.Value; break;
                 }
             }
+            int scopedHit = 0, scopedCrit = 0, scopedCritMiss = 0;
+            CadenceScopedBuffApplicator.AccumulateRollBonuses(c, ref accuracyAccumulator, ref scopedHit, ref effectComboBonus, ref scopedCrit, ref scopedCritMiss);
         }
 
         /// <summary>
@@ -295,6 +298,7 @@ namespace RPGGame
                 c.Effects.PeekPendingActionBonusesNextHeroRoll(), ref advantage, ref disadvantage);
             RollModificationManager.CollectAdvantageFlags(
                 c.Effects.PeekTurnBonuses(), ref advantage, ref disadvantage);
+            CadenceScopedBuffApplicator.CollectAdvantageFlags(c, ref advantage, ref disadvantage);
         }
 
         /// <summary>
