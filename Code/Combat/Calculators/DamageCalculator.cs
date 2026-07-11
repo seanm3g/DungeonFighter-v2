@@ -241,7 +241,8 @@ namespace RPGGame.Combat.Calculators
             }
 
             // Flat armor reduction for both heroes and enemies (persistent; not consumed).
-            int targetArmor = ResolveTargetArmor(target);
+            // Pierce: CausesPierce on the swing, or HasPierce on the target, ignores armor.
+            int targetArmor = ResolveTargetArmor(target, action);
 
             // Calculate final damage after armor reduction
             int minimumDamage = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage); // Ensure at least 1
@@ -271,9 +272,9 @@ namespace RPGGame.Combat.Calculators
         /// <summary>
         /// Calculates damage reduction from armor and other sources
         /// </summary>
-        public static int ApplyDamageReduction(Actor target, int damage)
+        public static int ApplyDamageReduction(Actor target, int damage, Action? action = null)
         {
-            int armorReduction = ResolveTargetArmor(target);
+            int armorReduction = ResolveTargetArmor(target, action);
 
             // Apply damage reduction from effects
             double damageReductionMultiplier = 1.0;
@@ -289,14 +290,43 @@ namespace RPGGame.Combat.Calculators
             return finalDamage;
         }
 
-        /// <summary>Effective flat armor for the target (hero gear+/effects, enemy <see cref="Enemy.Armor"/>).</summary>
-        public static int ResolveTargetArmor(Actor target)
+        /// <summary>
+        /// True when this swing ignores flat armor: the action has pierce, or the target is pierced.
+        /// </summary>
+        public static bool IgnoresArmor(Actor? target, Action? action = null)
         {
+            if (action?.CausesPierce == true)
+                return true;
+            return target != null && target.HasPierce && target.PierceTurns > 0;
+        }
+
+        /// <summary>
+        /// Effective flat armor for the target (hero gear+/effects, enemy base armor minus combat shred).
+        /// Returns 0 when <paramref name="action"/> has pierce or the target is under pierce.
+        /// </summary>
+        public static int ResolveTargetArmor(Actor target, Action? action = null)
+        {
+            if (target == null)
+                return 0;
+            if (IgnoresArmor(target, action))
+                return 0;
+
+            int baseArmor;
             if (target is Enemy enemy)
-                return Math.Max(0, enemy.Armor);
-            if (target is Character character)
+                baseArmor = enemy.Armor;
+            else if (target is Character character)
                 return Math.Max(0, character.GetMaxArmor());
-            return 0;
+            else
+                return 0;
+
+            // Enemies use base Armor; subtract combat shred fields (Acid is the live shred DoT).
+            if (target.ArmorBreakReduction is int armorBreak && armorBreak > 0)
+                baseArmor -= armorBreak;
+            if (target.ExposeArmorReduction is int expose && expose > 0)
+                baseArmor -= expose;
+            if (target.AcidArmorReduction > 0)
+                baseArmor -= target.AcidArmorReduction;
+            return Math.Max(0, baseArmor);
         }
     }
 }

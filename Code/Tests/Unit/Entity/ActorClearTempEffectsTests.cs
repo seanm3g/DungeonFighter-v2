@@ -31,6 +31,9 @@ namespace RPGGame.Tests.Unit.Entity
             var c = new Character("ClearTest", 1);
             c.PoisonPercentOfMaxHealth = 3;
             c.BurnIntensity = 2;
+            c.AcidIntensity = 4;
+            c.PendingAcidFromHits = 1;
+            c.AcidArmorReduction = 8;
             c.IsStunned = true;
             c.StunTurnsRemaining = 2;
             c.HasCriticalMissPenalty = true;
@@ -48,6 +51,9 @@ namespace RPGGame.Tests.Unit.Entity
 
             TestBase.AssertTrue(c.PoisonPercentOfMaxHealth == 0, "Poison cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0, c.BurnIntensity, "Burn cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, c.AcidIntensity, "Acid intensity cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, c.PendingAcidFromHits, "Acid pending cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, c.AcidArmorReduction, "Acid armor shred cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertFalse(c.IsStunned, "Stun cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertFalse(c.HasCriticalMissPenalty, "Crit miss penalty cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertNull(c.VulnerabilityStacks, "Vulnerability stacks cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);

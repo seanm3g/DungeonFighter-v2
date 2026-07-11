@@ -33,6 +33,7 @@ namespace RPGGame.UI.Avalonia
 
         // Status effect icons
         public const string Burn = "🔥"; // Same as Fire
+        public const string Acid = "🧪";
         public const string Freeze = "❄"; // Same as Ice
         public const string Poison = "💀"; // Same as Death
         public const string Stun = "⚡";
@@ -112,6 +113,7 @@ namespace RPGGame.UI.Avalonia
             return statusEffect.ToLower() switch
             {
                 "burn" or "burning" => Burn,
+                "acid" or "corroding" => Acid,
                 "freeze" or "frozen" => Freeze,
                 "poison" or "poisoned" => Poison,
                 "stun" or "stunned" => Stun,

@@ -247,6 +247,7 @@ namespace RPGGame
             if (action.CausesBleed) parts.Add($"Bleed +{(action.BleedAmountToAdd > 0 ? action.BleedAmountToAdd : 1)}");
             if (action.CausesPoison) parts.Add($"Poison +{FormatValue(action.PoisonPercentToAdd > 0 ? action.PoisonPercentToAdd : 1, "% max HP")}");
             if (action.CausesBurn) parts.Add($"Burn +{(action.BurnAmountToAdd > 0 ? action.BurnAmountToAdd : 1)}");
+            if (action.CausesAcid) parts.Add($"Acid +{(action.AcidAmountToAdd > 0 ? action.AcidAmountToAdd : 1)}");
             if (action.CausesSlow) parts.Add("Slow");
             if (action.CausesVulnerability) parts.Add("Vulnerability");
             if (action.CausesHarden) parts.Add("Harden");
@@ -266,7 +267,7 @@ namespace RPGGame
             if (parts.Count == 0)
                 return;
 
-            bool hasDot = action.CausesPoison || action.CausesBurn || action.CausesBleed;
+            bool hasDot = action.CausesPoison || action.CausesBurn || action.CausesAcid || action.CausesBleed;
             bool hasTrigger = action.Triggers?.TriggerConditions != null && action.Triggers.TriggerConditions.Count > 0;
             string dotNote = hasDot
                 ? hasTrigger ? " (trigger-gated)" : " (DoT applies on crit)"

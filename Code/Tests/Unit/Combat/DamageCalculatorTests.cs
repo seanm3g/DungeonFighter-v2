@@ -38,6 +38,8 @@ namespace RPGGame.Tests.Unit.Combat
             TestCacheStats();
             TestEdgeCases();
             TestDamageWithArmor();
+            TestResolveTargetArmor_SubtractsAcidArmorReduction();
+            TestPierceIgnoresArmor();
             TestDamageWithMultipliers();
 
             TestBase.PrintSummary("DamageCalculator Tests", _testsRun, _testsPassed, _testsFailed);
@@ -254,6 +256,99 @@ namespace RPGGame.Tests.Unit.Combat
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(5, heroTarget.GetMaxArmor(),
                 "Hero armor must remain after damage calculation",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestResolveTargetArmor_SubtractsAcidArmorReduction()
+        {
+            Console.WriteLine("\n--- Testing ResolveTargetArmor with AcidArmorReduction ---");
+
+            var enemy = new Enemy("ArmoredConstruct", 1, 100, 5, 5, 5, 5, armor: 10, isLiving: false);
+            TestBase.AssertEqual(10, DamageCalculator.ResolveTargetArmor(enemy),
+                "enemy base armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            enemy.AcidArmorReduction = 4;
+            TestBase.AssertEqual(6, DamageCalculator.ResolveTargetArmor(enemy),
+                "enemy armor after acid shred", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            enemy.AcidArmorReduction = 20;
+            TestBase.AssertEqual(0, DamageCalculator.ResolveTargetArmor(enemy),
+                "enemy armor floors at 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var hero = TestDataBuilders.Character().WithName("HeroArmor").WithLevel(1).Build();
+            hero.EquipItem(new ChestItem("Plate", 1, 8), "body");
+            TestBase.AssertEqual(8, hero.GetMaxArmor(), "hero gear armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            hero.AcidArmorReduction = 3;
+            TestBase.AssertEqual(5, hero.GetMaxArmor(),
+                "hero GetMaxArmor subtracts AcidArmorReduction",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(5, DamageCalculator.ResolveTargetArmor(hero),
+                "ResolveTargetArmor matches hero GetMaxArmor with acid",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestPierceIgnoresArmor()
+        {
+            Console.WriteLine("\n--- Testing Pierce ignores armor ---");
+
+            var attacker = TestDataBuilders.Character()
+                .WithName("Piercer")
+                .WithStats(10, 10, 10, 10)
+                .Build();
+            attacker.EquipItem(new WeaponItem("TestSword", 1, 20), "weapon");
+
+            var armoredEnemy = new Enemy("Armored", 1, 100, 5, 5, 5, 5, armor: 15, isLiving: true);
+            var normalAction = TestDataBuilders.CreateMockAction("JAB");
+            normalAction.DamageMultiplier = 1.0;
+
+            int raw = DamageCalculator.CalculateRawDamage(attacker, normalAction, 1.0, 1.0, 10);
+            int withArmor = DamageCalculator.CalculateDamage(attacker, armoredEnemy, normalAction, 1.0, 1.0, 0, 10);
+            int expectedArmored = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, raw - 15);
+            TestBase.AssertEqual(expectedArmored, withArmor,
+                "non-pierce swing should subtract enemy armor",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var pierceAction = TestDataBuilders.CreateMockAction("PIERCE");
+            pierceAction.DamageMultiplier = 1.0;
+            pierceAction.CausesPierce = true;
+            int rawPierce = DamageCalculator.CalculateRawDamage(attacker, pierceAction, 1.0, 1.0, 10);
+            int pierceDmg = DamageCalculator.CalculateDamage(attacker, armoredEnemy, pierceAction, 1.0, 1.0, 0, 10);
+            TestBase.AssertEqual(rawPierce, pierceDmg,
+                "CausesPierce swing should ignore armor",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, DamageCalculator.ResolveTargetArmor(armoredEnemy, pierceAction),
+                "ResolveTargetArmor with CausesPierce is 0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            armoredEnemy.HasPierce = true;
+            armoredEnemy.PierceTurns = 3;
+            TestBase.AssertEqual(0, DamageCalculator.ResolveTargetArmor(armoredEnemy),
+                "pierced target ResolveTargetArmor is 0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            int vsPierced = DamageCalculator.CalculateDamage(attacker, armoredEnemy, normalAction, 1.0, 1.0, 0, 10);
+            TestBase.AssertEqual(raw, vsPierced,
+                "subsequent swings vs pierced target ignore armor",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var heroTarget = TestDataBuilders.Character().WithName("HeroPierce").WithLevel(1).Build();
+            heroTarget.EquipItem(new ChestItem("Plate", 1, 8), "body");
+            heroTarget.HasPierce = true;
+            heroTarget.PierceTurns = 2;
+            TestBase.AssertEqual(8, heroTarget.GetMaxArmor(),
+                "HUD effective armor unchanged while pierced",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, DamageCalculator.ResolveTargetArmor(heroTarget),
+                "ResolveTargetArmor ignores pierced hero armor",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            heroTarget.UpdateTempEffects(1.0);
+            TestBase.AssertEqual(1, heroTarget.PierceTurns,
+                "PierceTurns decays by one turn",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            heroTarget.UpdateTempEffects(1.0);
+            TestBase.AssertTrue(!heroTarget.HasPierce && heroTarget.PierceTurns == 0,
+                "pierce clears when turns expire",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(8, DamageCalculator.ResolveTargetArmor(heroTarget),
+                "armor applies again after pierce expires",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -429,8 +429,12 @@ namespace RPGGame
         /// <summary>
         /// Opens the stepped combat sandbox (Settings → Testing, or main menu F8 shortcut).
         /// When <paramref name="presetStarterWeaponChoice"/> is null, prompts for a starter weapon; otherwise uses that 1-based index (see <see cref="GameInitializer.InitializeNewGame"/>).
+        /// When <paramref name="alsoOpenSettingsWindow"/> is true (main-menu F8), opens the Settings pop-out before the lab tools window so multi-window placement can left-anchor it.
         /// </summary>
-        public async Task StartActionInteractionLabAsync(CanvasUICoordinator canvasUI, int? presetStarterWeaponChoice = null)
+        public async Task StartActionInteractionLabAsync(
+            CanvasUICoordinator canvasUI,
+            int? presetStarterWeaponChoice = null,
+            bool alsoOpenSettingsWindow = false)
         {
             if (combatManager == null) return;
 
@@ -466,6 +470,8 @@ namespace RPGGame
                 });
             // Ensure at least one line is in the combat buffer so the center panel is visibly live (buffer was cleared with settings).
             UIManager.WriteLine("Action Lab — select d20 and action, then Step.", UIMessageType.System);
+            if (alsoOpenSettingsWindow)
+                ShowSettings();
             ActionLabControlsWindow.Open(canvasUI.GetMainWindow(), canvasUI, this);
             try
             {

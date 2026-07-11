@@ -42,6 +42,7 @@ namespace RPGGame.UI.Avalonia.Managers
         private ComboBox? categoryFilterComboBox;
         private ComboBox? cadenceFilterComboBox;
         private ComboBox? tagFilterComboBox;
+        private ComboBox? tierSetFilterComboBox;
         private TextBlock? selectedActionTagsPreview;
         private Action<string, bool>? showStatusMessage;
 
@@ -55,7 +56,7 @@ namespace RPGGame.UI.Avalonia.Managers
             actionEditor = new ActionEditor();
         }
 
-        public void Initialize(ListBox actionsListBox, Panel actionFormPanel, Button createActionButton, Button deleteActionButton, Action<string, bool> showStatusMessage, ComboBox? rarityFilterComboBox = null, ComboBox? categoryFilterComboBox = null, ComboBox? cadenceFilterComboBox = null, ComboBox? tagFilterComboBox = null, TextBlock? selectedActionTagsPreview = null)
+        public void Initialize(ListBox actionsListBox, Panel actionFormPanel, Button createActionButton, Button deleteActionButton, Action<string, bool> showStatusMessage, ComboBox? rarityFilterComboBox = null, ComboBox? categoryFilterComboBox = null, ComboBox? cadenceFilterComboBox = null, ComboBox? tagFilterComboBox = null, TextBlock? selectedActionTagsPreview = null, ComboBox? tierSetFilterComboBox = null)
         {
             ActionLoader.ActionsReloaded += OnGlobalActionsReloaded;
             this.actionsListBox = actionsListBox;
@@ -66,6 +67,7 @@ namespace RPGGame.UI.Avalonia.Managers
             this.categoryFilterComboBox = categoryFilterComboBox;
             this.cadenceFilterComboBox = cadenceFilterComboBox;
             this.tagFilterComboBox = tagFilterComboBox;
+            this.tierSetFilterComboBox = tierSetFilterComboBox;
             this.selectedActionTagsPreview = selectedActionTagsPreview;
             this.showStatusMessage = showStatusMessage;
             
@@ -93,6 +95,8 @@ namespace RPGGame.UI.Avalonia.Managers
                     openSheet.Click += (_, _) => OpenActionsSheetInBrowser();
             }
 
+            if (tierSetFilterComboBox != null)
+                tierSetFilterComboBox.SelectionChanged += (s, e) => ApplyFilter();
             if (rarityFilterComboBox != null)
                 rarityFilterComboBox.SelectionChanged += (s, e) => ApplyFilter();
             if (categoryFilterComboBox != null)
@@ -103,6 +107,29 @@ namespace RPGGame.UI.Avalonia.Managers
                 tagFilterComboBox.SelectionChanged += (s, e) => ApplyFilter();
 
             AttachActionsListTypeAheadHandlers(actionsListBox);
+        }
+
+        /// <summary>
+        /// True when <paramref name="actionTier"/> is within the selected workshop set (tier ≤ max).
+        /// </summary>
+        public static bool MatchesTierSetFilter(int actionTier, int maxTierInclusive)
+        {
+            return actionTier <= maxTierInclusive;
+        }
+
+        /// <summary>Display label for a through-tier set option (e.g. "Through Tier 2").</summary>
+        public static string FormatTierSetOption(int tier) => $"Through Tier {tier}";
+
+        /// <summary>Parses a through-tier option label; returns false if not a set option.</summary>
+        public static bool TryParseTierSetOption(string? option, out int maxTier)
+        {
+            maxTier = 0;
+            if (string.IsNullOrWhiteSpace(option))
+                return false;
+            const string prefix = "Through Tier ";
+            if (!option.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                return false;
+            return int.TryParse(option.AsSpan(prefix.Length), out maxTier);
         }
 
         private void AttachActionsListTypeAheadHandlers(ListBox listBox)
@@ -318,10 +345,17 @@ namespace RPGGame.UI.Avalonia.Managers
 
         private void PopulateFilterOptions(IEnumerable<ActionData> actions)
         {
-            var rarities = actions.Select(a => a.Rarity).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().OrderBy(s => s).ToList();
-            var categories = actions.Select(a => a.Category).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().OrderBy(s => s, StringComparer.OrdinalIgnoreCase).ToList();
-            var cadences = actions.Select(a => ActionFormBuilder.NormalizeCadence(a.Cadence)).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().OrderBy(s => s).ToList();
-            var tags = actions
+            var actionList = actions as IList<ActionData> ?? actions.ToList();
+            int maxTier = actionList.Count > 0 ? actionList.Max(a => a.Tier) : 0;
+            if (maxTier < 0) maxTier = 0;
+            var tierOptions = new List<string>();
+            for (int t = 0; t <= maxTier; t++)
+                tierOptions.Add(FormatTierSetOption(t));
+
+            var rarities = actionList.Select(a => a.Rarity).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().OrderBy(s => s).ToList();
+            var categories = actionList.Select(a => a.Category).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().OrderBy(s => s, StringComparer.OrdinalIgnoreCase).ToList();
+            var cadences = actionList.Select(a => ActionFormBuilder.NormalizeCadence(a.Cadence)).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().OrderBy(s => s).ToList();
+            var tags = actionList
                 .Where(a => a.Tags != null)
                 .SelectMany(a => a.Tags)
                 .Where(s => !string.IsNullOrWhiteSpace(s))
@@ -336,6 +370,21 @@ namespace RPGGame.UI.Avalonia.Managers
             allCadence.AddRange(cadences);
             var allTags = new List<string> { FilterAll };
             allTags.AddRange(tags);
+            if (tierSetFilterComboBox != null)
+            {
+                string? previous = tierSetFilterComboBox.SelectedItem as string;
+                tierSetFilterComboBox.ItemsSource = tierOptions;
+                // Default to max tier (show everything) unless a still-valid prior selection remains.
+                int selectIndex = tierOptions.Count - 1;
+                if (!string.IsNullOrEmpty(previous))
+                {
+                    int prior = tierOptions.FindIndex(o => string.Equals(o, previous, StringComparison.OrdinalIgnoreCase));
+                    if (prior >= 0)
+                        selectIndex = prior;
+                }
+                if (selectIndex >= 0)
+                    tierSetFilterComboBox.SelectedIndex = selectIndex;
+            }
             if (rarityFilterComboBox != null) rarityFilterComboBox.ItemsSource = allRarity;
             if (categoryFilterComboBox != null) categoryFilterComboBox.ItemsSource = allCategory;
             if (cadenceFilterComboBox != null) cadenceFilterComboBox.ItemsSource = allCadence;
@@ -345,10 +394,12 @@ namespace RPGGame.UI.Avalonia.Managers
         private void ApplyFilter()
         {
             if (actionsListBox == null || actionNameToAction == null) return;
+            string? selectedTierSet = tierSetFilterComboBox?.SelectedItem as string;
             string? selectedRarity = rarityFilterComboBox?.SelectedItem as string;
             string? selectedCategory = categoryFilterComboBox?.SelectedItem as string;
             string? selectedCadence = cadenceFilterComboBox?.SelectedItem as string;
             string? selectedTag = tagFilterComboBox?.SelectedItem as string;
+            bool filterByTierSet = TryParseTierSetOption(selectedTierSet, out int maxTierInclusive);
             bool filterByRarity = !string.IsNullOrEmpty(selectedRarity) && selectedRarity != FilterAll;
             bool filterByCategory = !string.IsNullOrEmpty(selectedCategory) && selectedCategory != FilterAll;
             bool filterByCadence = !string.IsNullOrEmpty(selectedCadence) && selectedCadence != FilterAll;
@@ -357,6 +408,7 @@ namespace RPGGame.UI.Avalonia.Managers
             var actions = actionEditor?.GetActions() ?? new List<ActionData>();
             var filtered = actions
                 .Where(a => !string.IsNullOrEmpty(a.Name))
+                .Where(a => (!filterByTierSet) || MatchesTierSetFilter(a.Tier, maxTierInclusive))
                 .Where(a => (!filterByRarity) || string.Equals(a.Rarity, selectedRarity, StringComparison.OrdinalIgnoreCase))
                 .Where(a => (!filterByCategory) || (selectedCategory == ActionFormOptions.GeneralOption ? string.IsNullOrWhiteSpace(a.Category) : string.Equals(a.Category, selectedCategory, StringComparison.OrdinalIgnoreCase)))
                 .Where(a => (!filterByCadence) || string.Equals(ActionFormBuilder.NormalizeCadence(a.Cadence), selectedCadence, StringComparison.OrdinalIgnoreCase))
@@ -521,6 +573,7 @@ namespace RPGGame.UI.Avalonia.Managers
             if (GetBool("CausesStun") is bool s1) action.CausesStun = s1;
             if (GetBool("CausesPoison") is bool s2) action.CausesPoison = s2;
             if (GetBool("CausesBurn") is bool s3) action.CausesBurn = s3;
+            if (GetBool("CausesAcid") is bool sAcid) action.CausesAcid = sAcid;
             if (GetBool("CausesBleed") is bool s4) action.CausesBleed = s4;
             if (GetBool("CausesExpose") is bool s6) action.CausesExpose = s6;
             if (GetBool("CausesSilence") is bool s10) action.CausesSilence = s10;

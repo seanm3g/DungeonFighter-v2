@@ -14,7 +14,10 @@
         <!-- Middle: Filter and Actions List with its own scroll -->
         <Grid Grid.Column="0" VerticalAlignment="Stretch" RowDefinitions="Auto,*,Auto">
             <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,8">
-                <TextBlock Text="Filter by type" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <TextBlock Text="Action set" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <ComboBox x:Name="TierSetFilterComboBox"
+                          PlaceholderText="Through tier…"/>
+                <TextBlock Text="Filter by type" FontWeight="SemiBold" Margin="0,4,0,4"/>
                 <ComboBox x:Name="RarityFilterComboBox"
                           PlaceholderText="Rarity (all)"/>
                 <ComboBox x:Name="CategoryFilterComboBox"

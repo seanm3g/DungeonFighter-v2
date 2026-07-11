@@ -193,6 +193,7 @@ namespace RPGGame.UI.Avalonia.Managers
                                 if (selectedAction.CausesSlow) effectsList.Add("Slow");
                                 if (selectedAction.CausesPoison) effectsList.Add("Poison");
                                 if (selectedAction.CausesBurn) effectsList.Add("Burn");
+                                if (selectedAction.CausesAcid) effectsList.Add("Acid");
                                 if (selectedAction.CausesStun) effectsList.Add("Stun");
                                 if (selectedAction.CausesVulnerability) effectsList.Add("Vulnerability");
                                 if (selectedAction.CausesHarden) effectsList.Add("Harden");

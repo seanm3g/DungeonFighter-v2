@@ -22,20 +22,8 @@ namespace RPGGame.Actions.Execution
 
             if (source is Character turnBonusCharacter && !(turnBonusCharacter is Enemy))
             {
-                // Apply consumed TURN bonuses (stat bonuses only on hit)
-                var consumedTurn = turnBonusCharacter.Effects.GetAndClearConsumedTurnBonusesThisRoll();
-                foreach (var bonus in consumedTurn)
-                {
-                    string bonusType = (bonus.Type ?? "").ToUpper();
-                    if (!DynamicAttributeCategoryResolver.IsStatOrDynamicCategoryType(bonusType)) continue;
-                    string concrete = DynamicAttributeCategoryResolver.ResolveStatBonusTypeToConcreteCode(turnBonusCharacter, bonusType);
-                    if (concrete != DynamicAttributeCategoryResolver.CodeStrength && concrete != DynamicAttributeCategoryResolver.CodeAgility
-                        && concrete != DynamicAttributeCategoryResolver.CodeTechnique && concrete != DynamicAttributeCategoryResolver.CodeIntelligence)
-                        continue;
-                    int currentBonus = ReadTempStatBonusForResolvedCode(turnBonusCharacter, concrete);
-                    turnBonusCharacter.ApplyStatBonus(currentBonus + (int)bonus.Value, bonusType, 999);
-                }
-                // ACTION cadence: redeem on hit+combo; forfeit on hit without combo (handled below before damage).
+                // TURN stat bonuses were tentatively applied before the roll (Selection); kept on hit, reverted on miss.
+                turnBonusCharacter.Effects.GetAndClearConsumedTurnBonusesThisRoll();
                 ResolvePendingActionCadenceBonuses(turnBonusCharacter, selected, result);
             }
             var hitEvent = ActionEventPublisher.PublishActionHit(
@@ -253,7 +241,8 @@ namespace RPGGame.Actions.Execution
             else
             {
                 var statEntries = GetStatBonusEntries(selected);
-                if (statEntries.Count > 0 && source is Character statBonusCharacter && !(statBonusCharacter is Enemy))
+                if (statEntries.Count > 0 && source is Character statBonusCharacter && !(statBonusCharacter is Enemy)
+                    && !DefersStatBonusToCadenceQueue(selected))
                 {
                     if (CadenceKeywords.IsFight(selected.Cadence) || CadenceKeywords.IsDungeon(selected.Cadence))
                     {
@@ -357,6 +346,8 @@ namespace RPGGame.Actions.Execution
             {
                 modMissCharacter.Effects.AddModifierBonusesFromAction(result.SelectedAction, useEnemySpreadsheetMods: false);
                 modMissCharacter.Effects.GetAndClearConsumedTurnBonusesThisRoll(); // Discard; TURN bonuses consumed on roll but not applied on miss
+                if (result.TurnStatSnapshot is { } snapshot)
+                    TempStatSnapshot.Restore(modMissCharacter, snapshot);
             }
             else if (source is Enemy enemyMiss)
             {
@@ -415,6 +406,9 @@ namespace RPGGame.Actions.Execution
 
             if (result.IsCombo)
             {
+                int duration = CadenceToStatBonusDuration(CadenceKeywords.Action);
+                ApplyStatBonusesFromCadenceItems(hero, slotConsumed, duration);
+                ApplyStatBonusesFromCadenceItems(hero, bankConsumed, duration);
                 hero.Effects.AccumulateConsumedModifierBonuses(slotConsumed);
                 hero.Effects.AccumulateConsumedModifierBonuses(bankConsumed);
             }

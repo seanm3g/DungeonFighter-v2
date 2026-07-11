@@ -134,6 +134,7 @@ namespace RPGGame.Data
             // Spreadsheet-origin fields (round-trip)
             actionData.Rarity = spreadsheet.Rarity ?? "";
             actionData.Category = spreadsheet.Category ?? "";
+            actionData.Tier = spreadsheet.Tier;
             actionData.Cadence = spreadsheet.Cadence ?? "";
             actionData.ComboBonusDuration = SpreadsheetDurationSemantics.ResolveCadenceDuration(spreadsheet);
             actionData.SpeedMod = spreadsheet.SpeedMod ?? "";

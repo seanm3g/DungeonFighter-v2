@@ -105,6 +105,11 @@ namespace RPGGame.Actions.Execution
                 RollModificationManager.ApplyDeferredThresholdPackageSetPhase(source, turnBonuses);
                 actionBonusCharacter.Effects.AccumulateConsumedModifierBonuses(turnBonuses);
                 actionBonusCharacter.Effects.SetConsumedTurnBonusesThisRoll(turnBonuses);
+                if (turnBonuses.Any(b => DynamicAttributeCategoryResolver.IsStatOrDynamicCategoryType((b.Type ?? "").ToUpper())))
+                {
+                    result.TurnStatSnapshot = TempStatSnapshot.Capture(actionBonusCharacter);
+                    ApplyStatBonusesFromCadenceItems(actionBonusCharacter, turnBonuses, duration: 1);
+                }
                 foreach (var bonus in turnBonuses)
                 {
                     switch (bonus.Type.ToUpper())

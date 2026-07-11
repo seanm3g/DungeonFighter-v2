@@ -74,6 +74,7 @@ namespace RPGGame
                 "weaponBleed" => $"+{modification.RolledValue:F0} bleed on critical hit",
                 "weaponPoison" => $"+{modification.RolledValue:F0}% max HP poison on critical hit",
                 "weaponBurn" => $"+{modification.RolledValue:F0} burn on critical hit",
+                "weaponAcid" => $"+{modification.RolledValue:F0} acid on critical hit",
                 "bleedChance" => $"{modification.RolledValue * 100:F0}% bleed chance",
                 "poisonChance" => $"{modification.RolledValue * 100:F0}% poison chance",
                 "burnChance" => $"{modification.RolledValue * 100:F0}% burn chance",

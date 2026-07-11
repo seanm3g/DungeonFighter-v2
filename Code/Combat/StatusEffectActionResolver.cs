@@ -26,6 +26,7 @@ namespace RPGGame
             if (action.CausesPoison) effects.Add("poison");
             if (action.CausesStun) effects.Add("stun");
             if (action.CausesBurn) effects.Add("burn");
+            if (action.CausesAcid) effects.Add("acid");
             if (action.CausesVulnerability) effects.Add("vulnerability");
             if (action.CausesHarden) effects.Add("harden");
             if (action.CausesFocus) effects.Add("focus");
@@ -76,6 +77,7 @@ namespace RPGGame
                 case "slow": action.CausesSlow = true; break;
                 case "poison": action.CausesPoison = true; break;
                 case "burn": action.CausesBurn = true; break;
+                case "acid": action.CausesAcid = true; break;
                 case "stun": action.CausesStun = true; break;
                 case "vulnerability": action.CausesVulnerability = true; break;
                 case "harden": action.CausesHarden = true; break;
@@ -121,6 +123,7 @@ namespace RPGGame
                 "poison" => action.CausesPoison,
                 "stun" => action.CausesStun,
                 "burn" => action.CausesBurn,
+                "acid" => action.CausesAcid,
                 "vulnerability" => action.CausesVulnerability,
                 "harden" => action.CausesHarden,
                 "focus" => action.CausesFocus,

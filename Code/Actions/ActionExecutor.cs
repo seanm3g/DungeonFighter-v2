@@ -37,6 +37,8 @@ namespace RPGGame
         public bool PendingActionCadenceLayerPeekedForRoll { get; set; }
         /// <summary>Combat recipient after confusion target randomization (if any).</summary>
         public Actor? EffectiveTarget { get; set; }
+        /// <summary>Temp stat values before TURN cadence stat bonuses were tentatively applied for this roll (reverted on miss).</summary>
+        public ActionExecutionFlow.TempStatSnapshot? TurnStatSnapshot { get; set; }
     }
 
     /// <summary>

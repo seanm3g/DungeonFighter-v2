@@ -273,5 +273,17 @@
     "MinValue": 25,
     "MaxValue": 25,
     "RolledValue": 0
+  },
+  {
+    "ItemRank": "Uncommon",
+    "Name": "Caustic",
+    "Effect": "weaponAcid",
+    "prefixCategory": "ADJECTIVE",
+    "ATTRIBUTE REQUREMENT": "technique",
+    "REQUIREMENT VALUE": 3,
+    "DiceResult": 0,
+    "MinValue": 2,
+    "MaxValue": 3,
+    "RolledValue": 0
   }
 ]

@@ -25,6 +25,12 @@ namespace RPGGame.Data
         
         // Column E
         public string Category { get; set; } = "";
+
+        /// <summary>
+        /// Workshop set from ACTIONS sheet section markers (e.g. "TIER 2 ACTIONS").
+        /// Not a sheet column — stamped on pull from the most recent tier marker (0 before any marker).
+        /// </summary>
+        public int Tier { get; set; }
         
         // Column F
         public string DPS { get; set; } = "";
@@ -220,6 +226,10 @@ namespace RPGGame.Data
             @"^LAYER\s+\d+\s+ACTIONS\s*$",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
+        private static readonly Regex TierSectionNumberPattern = new Regex(
+            @"TIER\s+(\d+)",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+
         /// <summary>
         /// True when column A is a mid-sheet section break such as "LAYER 2 ACTIONS" (not a playable action).
         /// </summary>
@@ -238,6 +248,20 @@ namespace RPGGame.Data
             if (string.IsNullOrWhiteSpace(columnA))
                 return false;
             return columnA.IndexOf("TIER", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        /// <summary>
+        /// Parses the numeric tier from a section marker such as "TIER 2 ACTIONS".
+        /// </summary>
+        public static bool TryParseTierSectionNumber(string? columnA, out int tier)
+        {
+            tier = 0;
+            if (string.IsNullOrWhiteSpace(columnA))
+                return false;
+            var match = TierSectionNumberPattern.Match(columnA.Trim());
+            if (!match.Success)
+                return false;
+            return int.TryParse(match.Groups[1].Value, out tier);
         }
 
         /// <summary>

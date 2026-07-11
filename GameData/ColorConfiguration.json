@@ -643,6 +643,12 @@
       "description": "Burn status effect"
     },
     {
+      "name": "corroding",
+      "shaderType": "sequence",
+      "colors": ["G", "Y", "G", "g"],
+      "description": "Acid status effect"
+    },
+    {
       "name": "frozen",
       "shaderType": "sequence",
       "colors": ["C", "B", "Y", "C"],

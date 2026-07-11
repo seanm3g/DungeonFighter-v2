@@ -132,12 +132,17 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("data", "ActionCadenceEditorSync", () => RPGGame.Tests.Unit.Data.ActionCadenceEditorSyncTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CadenceCardLineFormatter", () => RPGGame.Tests.Unit.UI.CadenceCardLineFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatActionStripBuilder", () => RPGGame.Tests.Unit.UI.CombatActionStripBuilderTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ActionsTabManager", () => RPGGame.Tests.Unit.UI.ActionsTabManagerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "ActionMechanicsRegistry", () => RPGGame.Tests.Unit.Data.ActionMechanicsRegistryTests.RunAll()));
             list.Add(new TestSuiteEntry("data", "ActionMechanicsCadenceMatrix", () => RPGGame.Tests.Unit.Data.ActionMechanicsCadenceMatrixTests.RunAll()));
             list.Add(new TestSuiteEntry("data", "ActionExecutionFlow", () => RPGGame.Tests.Unit.ActionExecutionFlowTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatDelayManager", () => RPGGame.Tests.Unit.Combat.CombatDelayManagerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatUiMuteScope", () => RPGGame.Tests.Unit.Combat.CombatUiMuteScopeTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "HealthBarDeltaDamageHint", () => RPGGame.Tests.Unit.Combat.HealthBarDeltaDamageHintTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "CombatEffectsSimplified", () => RPGGame.Tests.Unit.Combat.CombatEffectsSimplifiedTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "DamageCalculator", () => RPGGame.Tests.Unit.Combat.DamageCalculatorTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "StatusEffects", () => RPGGame.Tests.Unit.StatusEffectsTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("entity", "ActorClearTempEffects", () => RPGGame.Tests.Unit.Entity.ActorClearTempEffectsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "DeveloperSimMode", () => RPGGame.Tests.Unit.Tuning.DeveloperSimModeTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "ActionInteractionLab", () => RPGGame.Tests.Unit.ActionInteractionLabTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "SettingsMenuHandler", () => RPGGame.Tests.Unit.Game.Handlers.SettingsMenuHandlerTests.RunAllTests()));

@@ -119,6 +119,7 @@ namespace RPGGame
         public int GetWeaponBleedPerHit() => modificationCalculator.GetWeaponBleedPerHit();
         public double GetWeaponPoisonPercentPerHit() => modificationCalculator.GetWeaponPoisonPercentPerHit();
         public int GetWeaponBurnPerHit() => modificationCalculator.GetWeaponBurnPerHit();
+        public int GetWeaponAcidPerHit() => modificationCalculator.GetWeaponAcidPerHit();
         public double GetModificationFreezeChance() => modificationCalculator.GetFreezeChance();
         public double GetModificationStunChance() => modificationCalculator.GetStunChance();
         public double GetModificationUniqueActionChance() => modificationCalculator.GetUniqueActionChance();

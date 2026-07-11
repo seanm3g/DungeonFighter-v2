@@ -49,7 +49,8 @@ namespace RPGGame.UI.Avalonia.Managers
             ComboBox? categoryFilterComboBox = null,
             ComboBox? cadenceFilterComboBox = null,
             ComboBox? tagFilterComboBox = null,
-            TextBlock? selectedActionTagsPreview = null)
+            TextBlock? selectedActionTagsPreview = null,
+            ComboBox? tierSetFilterComboBox = null)
         {
             if (actionsTabManager != null && actionsListBox != null && actionFormPanel != null &&
                 createActionButton != null && deleteActionButton != null)
@@ -64,7 +65,8 @@ namespace RPGGame.UI.Avalonia.Managers
                     categoryFilterComboBox,
                     cadenceFilterComboBox,
                     tagFilterComboBox,
-                    selectedActionTagsPreview);
+                    selectedActionTagsPreview,
+                    tierSetFilterComboBox);
             }
         }
     }

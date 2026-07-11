@@ -76,7 +76,7 @@ namespace RPGGame.Combat.Turn
 
                 int actual = hpBefore - GetCharacterCurrentHealth(entity);
                 if (barId != null)
-                    HealthBarDeltaDamageHint.RecordAfterMitigation(barId, 0, 0, damage, damage, actual);
+                    HealthBarDeltaDamageHint.RecordAfterMitigation(barId, 0, 0, 0, damage, damage, actual);
                 ActionEventPublisher.PublishLowHealthThresholdIfCrossed(entity, lowHealthBefore);
             }
             if (results.Count > 0)
@@ -123,6 +123,7 @@ namespace RPGGame.Combat.Turn
                         barId,
                         breakdown.PoisonDamage,
                         breakdown.BurnDamage,
+                        breakdown.AcidDamage,
                         bleedRequested: 0,
                         requestedTotal: damage,
                         actualHpLost: actual);

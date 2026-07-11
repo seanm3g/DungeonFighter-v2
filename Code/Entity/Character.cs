@@ -387,6 +387,7 @@ namespace RPGGame
         public void ApplySlow(double slowMultiplier, int duration) => Facade.ApplySlow(slowMultiplier, duration);
         public override void ApplyPoison(int damage, int stacks = 1, bool isBleeding = false) => base.ApplyPoison(damage, stacks, isBleeding);
         public override void ApplyBurn(int damage, int stacks = 1) => base.ApplyBurn(damage, stacks);
+        public override void ApplyAcid(int damage, int stacks = 1) => base.ApplyAcid(damage, stacks);
         public void ApplyShield() => Facade.ApplyShield();
         public bool ConsumeShield() => Facade.ConsumeShield();
         public override void ApplyWeaken(int turns) => base.ApplyWeaken(turns);
@@ -394,6 +395,7 @@ namespace RPGGame
 
         public override int ProcessPoison(double currentTime) => base.ProcessPoison(currentTime);
         public override int ProcessBurn(double currentTime) => base.ProcessBurn(currentTime);
+        public override int ProcessAcid(double currentTime) => base.ProcessAcid(currentTime);
         /// <summary>Clears encounter-scoped temp state (TURN/ACTION queues, fight cadence, combat status) but preserves dungeon-scoped cadence.</summary>
         public void ClearEncounterTempEffects()
         {
@@ -446,6 +448,7 @@ namespace RPGGame
         public int GetWeaponBleedPerHit() => Facade.GetWeaponBleedPerHit();
         public double GetWeaponPoisonPercentPerHit() => Facade.GetWeaponPoisonPercentPerHit();
         public int GetWeaponBurnPerHit() => Facade.GetWeaponBurnPerHit();
+        public int GetWeaponAcidPerHit() => Facade.GetWeaponAcidPerHit();
         public double GetModificationFreezeChance() => Facade.GetModificationFreezeChance();
         public double GetModificationStunChance() => Facade.GetModificationStunChance();
         public double GetModificationUniqueActionChance() => Facade.GetModificationUniqueActionChance();

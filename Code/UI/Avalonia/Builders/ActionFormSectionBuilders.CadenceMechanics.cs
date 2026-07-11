@@ -449,6 +449,7 @@ namespace RPGGame.UI.Avalonia.Builders
             _ctx.Factory.AddBooleanField(stack, "CausesStun", action.CausesStun, (value) => action.CausesStun = value);
             _ctx.Factory.AddBooleanField(stack, "CausesPoison", action.CausesPoison, (value) => action.CausesPoison = value);
             _ctx.Factory.AddBooleanField(stack, "CausesBurn", action.CausesBurn, (value) => action.CausesBurn = value);
+            _ctx.Factory.AddBooleanField(stack, "CausesAcid", action.CausesAcid, (value) => action.CausesAcid = value);
             _ctx.Factory.AddBooleanField(stack, "CausesBleed", action.CausesBleed, (value) => action.CausesBleed = value);
             _ctx.Factory.AddBooleanField(stack, "CausesExpose", action.CausesExpose, (value) => action.CausesExpose = value);
             _ctx.Factory.AddBooleanField(stack, "CausesSilence", action.CausesSilence, (value) => action.CausesSilence = value);

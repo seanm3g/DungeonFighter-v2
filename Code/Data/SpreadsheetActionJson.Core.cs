@@ -22,6 +22,10 @@ namespace RPGGame.Data
         [JsonPropertyName("category")]
         public string Category { get; set; } = "";
 
+        /// <summary>Workshop set stamped from ACTIONS sheet "TIER N ACTIONS" markers (0 before any marker).</summary>
+        [JsonPropertyName("tier")]
+        public int Tier { get; set; }
+
         [JsonPropertyName("dps")]
         public string DPS { get; set; } = "";
 

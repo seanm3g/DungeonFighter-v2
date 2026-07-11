@@ -47,6 +47,7 @@ namespace RPGGame.Tests.Unit
             LabSessionSyncCatalogMatchesComputeHelper(ref run, ref passed, ref failed);
             ResetLabEncounterZerosBothSteps(ref run, ref passed, ref failed);
             ResetLabEncounterAsync_ClearsHistoryHpEffectsKeepsStripEnemy(ref run, ref passed, ref failed);
+            ResetLabEncounterAsync_RestoresCombatLogEnemyAlignment(ref run, ref passed, ref failed);
             RefreshGameDataAsync_ReloadsAndPreservesComboStrip(ref run, ref passed, ref failed);
             LabEnemyTurnUsesEnemyPoolNotForcedCatalog(ref run, ref passed, ref failed);
             LabTotalActionTicks_StepUndoSimAndFightReset(ref run, ref passed, ref failed);
@@ -1898,6 +1899,45 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(string.Equals(enemyName, lab.LabEnemy.Name, StringComparison.Ordinal),
                 "ResetLabEncounter keeps same enemy name", ref run, ref passed, ref failed);
             TestBase.AssertEqual(enemyLevel, lab.LabEnemy.Level, "ResetLabEncounter keeps enemy level", ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
+        }
+
+        /// <summary>
+        /// Center-panel clear during lab reset wipes sticky enemy alignment names; reset must re-register the lab enemy.
+        /// </summary>
+        private static void ResetLabEncounterAsync_RestoresCombatLogEnemyAlignment(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            EnemyLoader.LoadEnemies();
+            var hero = TestDataBuilders.Character().WithName("LabAlignReset").Build();
+            var ctx = new CanvasContextManager();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(
+                hero,
+                combatManager,
+                () => { },
+                ctx,
+                prepareLabHistoryReplay: () => ctx.ClearCombatLogEnemyAlignmentSticky());
+
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "ResetLabEncounterAsync_RestoresCombatLogEnemyAlignment: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            string enemyName = lab.LabEnemy.Name;
+            TestBase.AssertEqual(enemyName, ctx.GetCombatLogEnemyAlignmentName(), "Begin registers lab enemy for log alignment", ref run, ref passed, ref failed);
+
+            ctx.ClearCombatLogEnemyAlignmentSticky();
+            TestBase.AssertNull(ctx.GetCombatLogEnemyAlignmentName(), "sticky cleared before reset", ref run, ref passed, ref failed);
+
+            lab.ResetLabEncounterAsync().GetAwaiter().GetResult();
+
+            TestBase.AssertEqual(enemyName, ctx.GetCombatLogEnemyAlignmentName(),
+                "ResetLabEncounter restores combat log enemy alignment after center panel clear",
+                ref run, ref passed, ref failed);
 
             ActionInteractionLabSession.EndSession();
         }

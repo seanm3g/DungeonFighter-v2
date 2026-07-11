@@ -107,7 +107,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                      (!action.Tags.Any(t => t.Equals("enemy", StringComparison.OrdinalIgnoreCase)) &&
                       !action.Tags.Any(t => t.Equals("environment", StringComparison.OrdinalIgnoreCase)))) &&
                     (action.CausesBleed || action.CausesWeaken || action.CausesSlow ||
-                    action.CausesPoison || action.CausesBurn || action.CausesStun ||
+                    action.CausesPoison || action.CausesBurn || action.CausesAcid || action.CausesStun ||
                     action.CausesVulnerability || action.CausesHarden ||
                     action.CausesFocus || action.CausesExpose || action.CausesHPRegen ||
                     action.CausesArmorBreak || action.CausesPierce ||

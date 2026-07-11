@@ -166,6 +166,7 @@ namespace RPGGame
             if (action.CausesBleed) parts.Add("Bleed");
             if (action.CausesPoison) parts.Add("Poison");
             if (action.CausesBurn) parts.Add("Burn");
+            if (action.CausesAcid) parts.Add("Acid");
             if (action.CausesSlow) parts.Add("Slow");
             if (action.CausesVulnerability) parts.Add("Vuln");
             if (action.CausesHarden) parts.Add("Harden");

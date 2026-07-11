@@ -156,6 +156,7 @@ namespace RPGGame.Data
                 dataStartRowIndex: labelRowIndex + 1);
 
             int dataStartRow = labelRowIndex + 1;
+            int currentTier = 0;
 
             for (int i = dataStartRow; i < lines.Length; i++)
             {
@@ -167,11 +168,18 @@ namespace RPGGame.Data
                 string colA = columns.Length > 0 ? columns[0].Trim() : "";
                 if (SpreadsheetActionData.IsLayerSectionMarkerRow(colA))
                     continue;
+                if (SpreadsheetActionData.IsTierSectionMarkerRow(colA))
+                {
+                    if (SpreadsheetActionData.TryParseTierSectionNumber(colA, out int parsedTier))
+                        currentTier = parsedTier;
+                    continue;
+                }
 
                 var actionData = SpreadsheetActionData.FromCsvRow(columns, header);
 
                 if (actionData.IsValid())
                 {
+                    actionData.Tier = currentTier;
                     actions.Add(actionData);
                 }
             }

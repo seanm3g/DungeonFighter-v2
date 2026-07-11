@@ -183,8 +183,10 @@ namespace RPGGame
             // pre-Reset() ticker state, or poison/burn intervals never elapse (currentTime - lastTick stays negative).
             player.LastPoisonTickTime = 0;
             player.LastBurnTickTime = 0;
+            player.LastAcidTickTime = 0;
             enemy.LastPoisonTickTime = 0;
             enemy.LastBurnTickTime = 0;
+            enemy.LastAcidTickTime = 0;
 
             // Initialize health tracker for battle participants
             var participants = new List<Actor> { player, enemy };

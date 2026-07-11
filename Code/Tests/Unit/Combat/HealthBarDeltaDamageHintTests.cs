@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame;
+using RPGGame.Combat;
 using RPGGame.Combat.UI;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia;
@@ -23,12 +24,25 @@ namespace RPGGame.Tests.Unit.Combat
             _testsPassed = 0;
             _testsFailed = 0;
 
-            TestHealthBarEntityId_EnemyUsesEnemyPrefix();
-            TestTryConsume_OrdersPoisonThenBurn();
-            TestTryConsume_MismatchClearsPendingAndReturnsFalse();
-            TestHealthTracker_ConsumesHintOnDamageAndStoresParts();
-            TestProcessStatusEffectsWithBreakdown_MatchesProcessStatusEffectsTotal();
-            TestRecordAfterMitigation_ScalesPoisonBurnToActualHpLost();
+            // Test runner enables SimulationPacing fast mode (global combat UI mute); hint writes skip when muted.
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            CombatUiMuteScope.GlobalMute = false;
+            try
+            {
+                TestHealthBarEntityId_EnemyUsesEnemyPrefix();
+                TestTryConsume_OrdersPoisonThenBurn();
+                TestTryConsume_OrdersPoisonBurnAcidBleed();
+                TestTryConsume_MismatchClearsPendingAndReturnsFalse();
+                TestHealthTracker_ConsumesHintOnDamageAndStoresParts();
+                TestProcessStatusEffectsWithBreakdown_MatchesProcessStatusEffectsTotal();
+                TestRecordAfterMitigation_ScalesPoisonBurnToActualHpLost();
+                TestRecordAfterMitigation_IncludesAcidChannel();
+            }
+            finally
+            {
+                CombatUiMuteScope.GlobalMute = prevMute;
+                HealthBarDeltaDamageHint.ClearAll();
+            }
 
             TestBase.PrintSummary("HealthBarDeltaDamageHint Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -48,7 +62,7 @@ namespace RPGGame.Tests.Unit.Combat
             Console.WriteLine("--- HealthBarDeltaDamageHint: TryConsume orders poison then burn ---");
             HealthBarDeltaDamageHint.ClearAll();
             const string id = "player_TestHero";
-            HealthBarDeltaDamageHint.SetPending(id, poisonDamage: 3, burnDamage: 2, bleedDamage: 0);
+            HealthBarDeltaDamageHint.SetPending(id, poisonDamage: 3, burnDamage: 2, acidDamage: 0, bleedDamage: 0);
             bool ok = HealthBarDeltaDamageHint.TryConsume(id, 5, out var parts);
             TestBase.AssertTrue(ok && parts != null && parts.Count == 2,
                 "TryConsume should succeed with two segments",
@@ -72,7 +86,7 @@ namespace RPGGame.Tests.Unit.Combat
             HealthBarDeltaDamageHint.ClearAll();
             const string id = "enemy_Mitigated";
             // Requested 14 (10 poison + 4 burn) but only 7 HP removed (e.g. damage reduction)
-            HealthBarDeltaDamageHint.RecordAfterMitigation(id, poisonRequested: 10, burnRequested: 4, bleedRequested: 0, requestedTotal: 14, actualHpLost: 7);
+            HealthBarDeltaDamageHint.RecordAfterMitigation(id, poisonRequested: 10, burnRequested: 4, acidRequested: 0, bleedRequested: 0, requestedTotal: 14, actualHpLost: 7);
             bool ok = HealthBarDeltaDamageHint.TryConsume(id, 7, out var parts);
             TestBase.AssertTrue(ok && parts != null && parts.Count == 2,
                 "scaled parts should consume for actual total 7",
@@ -87,12 +101,50 @@ namespace RPGGame.Tests.Unit.Combat
             }
         }
 
+        private static void TestTryConsume_OrdersPoisonBurnAcidBleed()
+        {
+            Console.WriteLine("--- HealthBarDeltaDamageHint: TryConsume orders poison, burn, acid, bleed ---");
+            HealthBarDeltaDamageHint.ClearAll();
+            const string id = "player_AcidOrder";
+            HealthBarDeltaDamageHint.SetPending(id, poisonDamage: 1, burnDamage: 2, acidDamage: 3, bleedDamage: 4);
+            bool ok = HealthBarDeltaDamageHint.TryConsume(id, 10, out var parts);
+            TestBase.AssertTrue(ok && parts != null && parts.Count == 4,
+                "TryConsume should succeed with four segments",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (parts != null && parts.Count == 4)
+            {
+                TestBase.AssertTrue(parts[0].Kind == HealthBarDotDamageKind.Poison, "poison first", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(parts[1].Kind == HealthBarDotDamageKind.Burn, "burn second", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(parts[2].Kind == HealthBarDotDamageKind.Acid, "acid third", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(parts[3].Kind == HealthBarDotDamageKind.Bleed, "bleed fourth", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestRecordAfterMitigation_IncludesAcidChannel()
+        {
+            Console.WriteLine("--- RecordAfterMitigation: acid channel scales with poison/burn ---");
+            HealthBarDeltaDamageHint.ClearAll();
+            const string id = "enemy_AcidMitigated";
+            HealthBarDeltaDamageHint.RecordAfterMitigation(
+                id, poisonRequested: 0, burnRequested: 0, acidRequested: 8, bleedRequested: 0,
+                requestedTotal: 8, actualHpLost: 8);
+            bool ok = HealthBarDeltaDamageHint.TryConsume(id, 8, out var parts);
+            TestBase.AssertTrue(ok && parts != null && parts.Count == 1,
+                "acid-only hint should consume",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (parts != null && parts.Count == 1)
+            {
+                TestBase.AssertTrue(parts[0].Kind == HealthBarDotDamageKind.Acid, "acid kind", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(8, parts[0].Amount, "acid amount", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
         private static void TestTryConsume_MismatchClearsPendingAndReturnsFalse()
         {
             Console.WriteLine("--- HealthBarDeltaDamageHint: wrong total removes hint ---");
             HealthBarDeltaDamageHint.ClearAll();
             const string id = "enemy_Boss";
-            HealthBarDeltaDamageHint.SetPending(id, 2, 2, 0);
+            HealthBarDeltaDamageHint.SetPending(id, 2, 2, 0, 0);
             bool ok = HealthBarDeltaDamageHint.TryConsume(id, 99, out var parts);
             TestBase.AssertFalse(ok, "mismatch should not succeed", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(parts == null, "parts should be null on mismatch", ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -107,7 +159,7 @@ namespace RPGGame.Tests.Unit.Combat
             var tracker = new HealthTracker();
             const string id = "player_A";
             tracker.UpdateHealth(id, 100);
-            HealthBarDeltaDamageHint.SetPending(id, 1, 0, 4);
+            HealthBarDeltaDamageHint.SetPending(id, 1, 0, 0, 4);
             tracker.UpdateHealth(id, 95);
             var parts = tracker.GetDamageDeltaDotParts(id);
             TestBase.AssertTrue(parts != null && parts.Count == 2,
@@ -148,7 +200,7 @@ namespace RPGGame.Tests.Unit.Combat
                 TestBase.AssertEqual(totalLegacy, bd.TotalDamage,
                     "breakdown total should match ProcessStatusEffects for equivalent pre-tick actor state",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(bd.PoisonDamage + bd.BurnDamage, bd.TotalDamage,
+                TestBase.AssertEqual(bd.PoisonDamage + bd.BurnDamage + bd.AcidDamage, bd.TotalDamage,
                     "components sum to total",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }

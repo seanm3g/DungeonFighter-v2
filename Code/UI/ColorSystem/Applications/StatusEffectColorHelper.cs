@@ -37,6 +37,9 @@ namespace RPGGame.UI.ColorSystem.Applications
             
             { "BURN", "burning" },
             { "BURNING", "burning" },
+
+            { "ACID", "corroding" },
+            { "CORRODING", "corroding" },
             
             { "FREEZE", "frozen" },
             { "FROZEN", "frozen" },

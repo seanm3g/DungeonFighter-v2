@@ -45,10 +45,10 @@ namespace RPGGame
             set { /* Armor is derived from gear/effects; kept for save/API compatibility. */ }
         }
 
-        /// <summary>Effective flat armor reduction (equipment + fortify − armor break / expose).</summary>
+        /// <summary>Effective flat armor reduction (equipment + fortify − armor break / expose / acid).</summary>
         public int GetMaxArmor() => GetEffectiveArmor();
 
-        /// <summary>Effective flat armor reduction (equipment + fortify − armor break / expose).</summary>
+        /// <summary>Effective flat armor reduction (equipment + fortify − armor break / expose / acid).</summary>
         public int GetEffectiveArmor()
         {
             int max = character.GetTotalArmor();
@@ -58,6 +58,8 @@ namespace RPGGame
                 max = Math.Max(0, max - armorBreak);
             if (character.ExposeArmorReduction is int expose && expose > 0)
                 max = Math.Max(0, max - expose);
+            if (character.AcidArmorReduction > 0)
+                max = Math.Max(0, max - character.AcidArmorReduction);
             return max;
         }
 

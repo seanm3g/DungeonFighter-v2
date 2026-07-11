@@ -23,6 +23,7 @@ namespace RPGGame.Data
             row.Description = data.Description ?? "";
             row.Rarity = data.Rarity ?? "";
             row.Category = data.Category ?? "";
+            row.Tier = data.Tier;
             row.Cadence = data.Cadence ?? "";
             row.Duration = data.ComboBonusDuration > 0 ? data.ComboBonusDuration.ToString() : (baseRow?.Duration ?? "");
             row.SpeedMod = data.SpeedMod ?? baseRow?.SpeedMod ?? "";

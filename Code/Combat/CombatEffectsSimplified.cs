@@ -15,12 +15,12 @@ namespace RPGGame
     {
         private static readonly EffectHandlerRegistry _effectRegistry = new EffectHandlerRegistry();
 
-        /// <summary>Poison, burn, and bleed from weapon stats or weapon <c>StatusEffects</c> apply only on a critical hit.</summary>
+        /// <summary>Poison, burn, acid, and bleed from weapon stats or weapon <c>StatusEffects</c> apply only on a critical hit.</summary>
         private static bool ShouldApplyEquipmentDoTFromHit(CombatEvent? combatEvent) =>
             combatEvent != null && combatEvent.IsCritical;
 
         /// <summary>
-        /// When an action has no <see cref="Action.Triggers"/> conditions, poison/burn/bleed from the action itself
+        /// When an action has no <see cref="Action.Triggers"/> conditions, poison/burn/acid/bleed from the action itself
         /// also require a critical hit. If the sheet defines trigger conditions, those gate the whole bundle as before.
         /// </summary>
         private static bool ShouldApplyUnconditionalActionDoTFromHit(Action action, CombatEvent? combatEvent)
@@ -34,6 +34,7 @@ namespace RPGGame
         private static bool IsDoTStatusEffectType(string effectType) =>
             string.Equals(effectType, "poison", StringComparison.OrdinalIgnoreCase)
             || string.Equals(effectType, "burn", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(effectType, "acid", StringComparison.OrdinalIgnoreCase)
             || string.Equals(effectType, "bleed", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
@@ -162,6 +163,14 @@ namespace RPGGame
                     effectsApplied = true;
             }
 
+            int acidAmt = attacker.GetWeaponAcidPerHit();
+            if (applyWeaponDots && acidAmt > 0)
+            {
+                var tempAcid = new Action { CausesAcid = true, AcidAmountToAdd = acidAmt };
+                if (_effectRegistry.ApplyEffect("acid", target, tempAcid, results))
+                    effectsApplied = true;
+            }
+
             int bleedAmt = attacker.GetWeaponBleedPerHit();
             if (applyWeaponDots && bleedAmt > 0)
             {
@@ -217,28 +226,29 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Poison + burn damage from a single status tick (same <see cref="Actor"/> <c>TakeDamage</c> call).
+        /// Poison + burn + acid damage from a single status tick (same <see cref="Actor"/> <c>TakeDamage</c> call).
         /// </summary>
-        public readonly record struct StatusEffectDamageBreakdown(int PoisonDamage, int BurnDamage)
+        public readonly record struct StatusEffectDamageBreakdown(int PoisonDamage, int BurnDamage, int AcidDamage)
         {
-            public int TotalDamage => PoisonDamage + BurnDamage;
+            public int TotalDamage => PoisonDamage + BurnDamage + AcidDamage;
         }
 
         /// <summary>
-        /// Processes poison then burn for an actor (global tick). Use <see cref="ProcessStatusEffectsWithBreakdown"/> when the UI needs per-type HP delta coloring.
+        /// Processes poison then burn then acid for an actor (global tick). Use <see cref="ProcessStatusEffectsWithBreakdown"/> when the UI needs per-type HP delta coloring.
         /// </summary>
         public static int ProcessStatusEffects(Actor actor, List<string> results) =>
             ProcessStatusEffectsWithBreakdown(actor, results).TotalDamage;
 
         /// <summary>
-        /// Processes all active status effects for an Actor at the start of their turn, reporting poison vs burn amounts separately.
+        /// Processes all active status effects for an Actor at the start of their turn, reporting poison vs burn vs acid amounts separately.
         /// </summary>
         public static StatusEffectDamageBreakdown ProcessStatusEffectsWithBreakdown(Actor actor, List<string> results)
         {
             double currentTime = GameTicker.Instance.GetCurrentGameTime();
             int poison = ProcessPoisonPercentDamage(actor, currentTime, results);
             int burn = ProcessBurnDamage(actor, currentTime, results);
-            return new StatusEffectDamageBreakdown(poison, burn);
+            int acid = ProcessAcidDamage(actor, currentTime, results);
+            return new StatusEffectDamageBreakdown(poison, burn, acid);
         }
 
         /// <summary>Bleed pulse when the afflicted actor has completed a turn (including stunned skip).</summary>
@@ -318,6 +328,34 @@ namespace RPGGame
             {
                 var builder = new ColoredTextBuilder();
                 DamageFormatter.AddActorNoLongerAffected(builder, actor, "burning", ColorPalette.Orange);
+                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
+            }
+            return damage;
+        }
+
+        private static int ProcessAcidDamage(Actor actor, double currentTime, List<string> results)
+        {
+            if (actor.AcidIntensity <= 0 && actor.PendingAcidFromHits <= 0)
+                return 0;
+            int damage = actor.ProcessAcid(currentTime);
+            if (damage <= 0)
+                return 0;
+
+            var damageBuilder = new ColoredTextBuilder();
+            DamageFormatter.AddActorTakesDamage(damageBuilder, actor, damage, "acid");
+            results.Add(ColoredTextRenderer.RenderAsMarkup(damageBuilder.Build()));
+
+            int displayIntensity = actor.AcidIntensity + actor.PendingAcidFromHits;
+            if (displayIntensity > 0)
+            {
+                var builder = new ColoredTextBuilder();
+                DamageFormatter.AddEffectStacksRemain(builder, "acid", ColorPalette.Lime, displayIntensity);
+                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
+            }
+            else
+            {
+                var builder = new ColoredTextBuilder();
+                DamageFormatter.AddActorNoLongerAffected(builder, actor, "corroding", ColorPalette.Lime);
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
             return damage;
@@ -436,6 +474,7 @@ namespace RPGGame
         public static void ClearAllTemporaryEffects(Actor Actor, List<string> results)
         {
             bool hadEffects = Actor.PoisonPercentOfMaxHealth > 0 || Actor.BurnIntensity > 0 || Actor.PendingBurnFromHits > 0
+                             || Actor.AcidIntensity > 0 || Actor.PendingAcidFromHits > 0 || Actor.AcidArmorReduction > 0
                              || Actor.BleedIntensity > 0 || Actor.PendingBleedFromHits > 0
                              || Actor.IsStunned || Actor.IsWeakened;
             

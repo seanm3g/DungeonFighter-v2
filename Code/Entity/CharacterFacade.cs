@@ -248,11 +248,13 @@ namespace RPGGame
         public void ApplySlow(double slowMultiplier, int duration) => _character.Effects.ApplySlow(slowMultiplier, duration);
         public void ApplyPoison(int damage, int stacks = 1, bool isBleeding = false) => _character.ApplyPoison(damage, stacks, isBleeding);
         public void ApplyBurn(int damage, int stacks = 1) => _character.ApplyBurn(damage, stacks);
+        public void ApplyAcid(int damage, int stacks = 1) => _character.ApplyAcid(damage, stacks);
         public void ApplyShield() => _character.Effects.ApplyShield();
         public bool ConsumeShield() => _character.Effects.ConsumeShield();
         public void ApplyWeaken(int turns) => _character.ApplyWeaken(turns);
         public int ProcessPoison(double currentTime) => _character.ProcessPoison(currentTime);
         public int ProcessBurn(double currentTime) => _character.ProcessBurn(currentTime);
+        public int ProcessAcid(double currentTime) => _character.ProcessAcid(currentTime);
         public void ClearAllTempEffects() => _character.ClearAllTempEffects();
         public void ClearEncounterTempEffects() => _character.ClearEncounterTempEffects();
         public void ClearDungeonRunTempEffects() => _character.ClearDungeonRunTempEffects();
@@ -282,6 +284,7 @@ namespace RPGGame
         public int GetWeaponBleedPerHit() => _character.Equipment.GetWeaponBleedPerHit();
         public double GetWeaponPoisonPercentPerHit() => _character.Equipment.GetWeaponPoisonPercentPerHit();
         public int GetWeaponBurnPerHit() => _character.Equipment.GetWeaponBurnPerHit();
+        public int GetWeaponAcidPerHit() => _character.Equipment.GetWeaponAcidPerHit();
         public double GetModificationFreezeChance() => _character.Equipment.GetModificationFreezeChance();
         public double GetModificationStunChance() => _character.Equipment.GetModificationStunChance();
         public double GetModificationUniqueActionChance() => _character.Equipment.GetModificationUniqueActionChance();

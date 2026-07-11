@@ -32,6 +32,9 @@ namespace RPGGame.Tests.Unit.UI
             TestFindFirstActionNamePrefixIndex_ReturnsFirstOfOrderedList();
             TestFindFirstActionNamePrefixIndex_EmptyOrMissing_ReturnsMinusOne();
 
+            TestMatchesTierSetFilter_InclusiveThroughMax();
+            TestTierSetOption_FormatAndParse();
+
             TestBase.PrintSummary("ActionsTabManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
 
@@ -105,6 +108,33 @@ namespace RPGGame.Tests.Unit.UI
             var names = new List<string> { "Zed" };
             TestBase.AssertEqual(-1, ActionsTabManager.FindFirstActionNamePrefixIndex(names, ""), "empty prefix", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(-1, ActionsTabManager.FindFirstActionNamePrefixIndex(names, "x"), "no match", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestMatchesTierSetFilter_InclusiveThroughMax()
+        {
+            Console.WriteLine("--- MatchesTierSetFilter keeps tiers <= selected max ---");
+            var tiers = new[] { 0, 1, 2 };
+            var kept = new List<int>();
+            foreach (int t in tiers)
+            {
+                if (ActionsTabManager.MatchesTierSetFilter(t, maxTierInclusive: 1))
+                    kept.Add(t);
+            }
+            TestBase.AssertEqual(2, kept.Count, "two tiers through max 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, kept[0], "includes tier 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, kept[1], "includes tier 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(ActionsTabManager.MatchesTierSetFilter(2, 2), "tier equals max kept", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!ActionsTabManager.MatchesTierSetFilter(3, 2), "tier above max excluded", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestTierSetOption_FormatAndParse()
+        {
+            Console.WriteLine("--- Tier set option format/parse ---");
+            string label = ActionsTabManager.FormatTierSetOption(2);
+            TestBase.AssertEqual("Through Tier 2", label, "format label", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(ActionsTabManager.TryParseTierSetOption(label, out int max), "parse label", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, max, "parsed max", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!ActionsTabManager.TryParseTierSetOption("(All)", out _), "non-set option fails", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

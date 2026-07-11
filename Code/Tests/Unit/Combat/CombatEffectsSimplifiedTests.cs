@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using RPGGame.Tests;
 using RPGGame;
+using RPGGame.Combat.Calculators;
 using RPGGame.Combat.Events;
 using RPGGame.Combat.Turn;
 using RPGGame.UI.ColorSystem;
@@ -31,6 +32,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestApplyStatusEffects_PoisonFromAction_RegistersOnTarget();
             TestProcessStatusEffects_NoPoisonOrBurn_ReturnsZeroTotalDamage();
             TestBurnIntensityDecayAndPendingMerge();
+            TestAcidIntensityDecayPendingMergeAndArmorShred();
             TestPoisonPercentUnchangedAcrossTicks();
             TestProcessStatusEffects_DoesNotRepeatDotStateBeforeNextTick();
             TestBleedOnActionWithoutGameTimeTick();
@@ -38,6 +40,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestCanEntityAct_Stunned_ReturnsFalse();
             TestCalculateEffectDuration_RespectsMinimumOneTurn();
             TestNonLivingEnemyBurnTicksViaStatusEffectProcessor();
+            TestNonLivingEnemyAcidTicksAndShredsArmor();
             TestWeaponDoTModsRequireCriticalHitEvent();
             TestWeakenStatusLogLineUsesEntityColorOnActorName();
 
@@ -94,6 +97,13 @@ namespace RPGGame.Tests.Unit.Combat
                     MinValue = 1,
                     MaxValue = 1
                 })
+                .WithModification(new Modification
+                {
+                    Effect = "weaponAcid",
+                    RolledValue = 2,
+                    MinValue = 2,
+                    MaxValue = 2
+                })
                 .Build();
             attacker.EquipItem(weapon, "weapon");
 
@@ -110,9 +120,11 @@ namespace RPGGame.Tests.Unit.Combat
             target.PoisonPercentOfMaxHealth = 0;
             target.PendingBurnFromHits = 0;
             target.PendingBleedFromHits = 0;
+            target.PendingAcidFromHits = 0;
             _ = CombatEffectsSimplified.ApplyStatusEffects(jab, attacker, target, resultsNon, nonCrit);
-            TestBase.AssertTrue(target.PoisonPercentOfMaxHealth < 0.0001 && target.PendingBurnFromHits == 0 && target.PendingBleedFromHits == 0,
-                "non-crit hit event must not apply weapon poison, burn, or bleed",
+            TestBase.AssertTrue(target.PoisonPercentOfMaxHealth < 0.0001 && target.PendingBurnFromHits == 0
+                    && target.PendingBleedFromHits == 0 && target.PendingAcidFromHits == 0,
+                "non-crit hit event must not apply weapon poison, burn, bleed, or acid",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var crit = new CombatEvent(CombatEventType.ActionHit, attacker)
@@ -123,8 +135,9 @@ namespace RPGGame.Tests.Unit.Combat
             };
             var resultsCrit = new List<string>();
             _ = CombatEffectsSimplified.ApplyStatusEffects(jab, attacker, target, resultsCrit, crit);
-            TestBase.AssertTrue(target.PoisonPercentOfMaxHealth > 0 && target.PendingBurnFromHits > 0 && target.PendingBleedFromHits > 0,
-                "critical hit event should apply all three weapon DoT channels",
+            TestBase.AssertTrue(target.PoisonPercentOfMaxHealth > 0 && target.PendingBurnFromHits > 0
+                    && target.PendingBleedFromHits > 0 && target.PendingAcidFromHits > 0,
+                "critical hit event should apply all four weapon DoT channels",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -158,6 +171,30 @@ namespace RPGGame.Tests.Unit.Combat
                 int dmg = enemy.ProcessBurn(GameTicker.Instance.GetCurrentGameTime());
                 TestBase.AssertEqual(5, dmg, "burn damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(7, enemy.BurnIntensity, "burn intensity after decay+pending", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestAcidIntensityDecayPendingMergeAndArmorShred()
+        {
+            Console.WriteLine("--- Acid: decay + pending merge + armor shred on global tick ---");
+            using (GameTicker.BeginIsolatedEncounterGameTime())
+            {
+                var enemy = new Enemy("AcidDummy", 1, 100, 5, 5, 5, 5, armor: 12);
+                enemy.AcidIntensity = 5;
+                enemy.PendingAcidFromHits = 3;
+                enemy.LastAcidTickTime = 0;
+                enemy.AcidArmorReduction = 0;
+                int armorBefore = DamageCalculator.ResolveTargetArmor(enemy);
+                TestBase.AssertEqual(12, armorBefore, "armor before acid tick", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                GameTicker.Instance.AdvanceGameTime(5.1);
+                int dmg = enemy.ProcessAcid(GameTicker.Instance.GetCurrentGameTime());
+                TestBase.AssertEqual(5, dmg, "acid damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(7, enemy.AcidIntensity, "acid intensity after decay+pending", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(5, enemy.AcidArmorReduction, "acid armor shred equals tick damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(7, DamageCalculator.ResolveTargetArmor(enemy),
+                    "enemy ResolveTargetArmor subtracts AcidArmorReduction",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
 
@@ -256,6 +293,55 @@ namespace RPGGame.Tests.Unit.Combat
                         ref _testsRun, ref _testsPassed, ref _testsFailed);
                     TestBase.AssertEqual(9, enemy.BurnIntensity,
                         "burn intensity should decay after tick",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                }
+            }
+            finally
+            {
+                TurnManager.DisableCombatUIOutput = prevUi;
+            }
+        }
+
+        /// <summary>
+        /// Non-living enemies still take acid ticks and accumulate armor shred (like burn; unlike poison/bleed).
+        /// </summary>
+        private static void TestNonLivingEnemyAcidTicksAndShredsArmor()
+        {
+            Console.WriteLine("--- StatusEffectProcessor: non-living enemy acid tick + armor shred ---");
+            bool prevUi = TurnManager.DisableCombatUIOutput;
+            TurnManager.DisableCombatUIOutput = true;
+            try
+            {
+                using (GameTicker.BeginIsolatedEncounterGameTime())
+                {
+                    var player = TestDataBuilders.Character().WithName("Player").Build();
+                    player.AcidIntensity = 0;
+                    player.PendingAcidFromHits = 0;
+
+                    var enemy = new Enemy("Construct", 1, 100, 5, 5, 5, 5, armor: 15, isLiving: false);
+                    TestBase.AssertTrue(!enemy.IsLiving && enemy.IsAlive,
+                        "fixture should be non-living template but alive in combat",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                    int hpBefore = enemy.CurrentHealth;
+                    enemy.AcidIntensity = 6;
+                    enemy.LastAcidTickTime = 0;
+                    enemy.AcidArmorReduction = 0;
+                    GameTicker.Instance.AdvanceGameTime(5.1);
+
+                    StatusEffectProcessor.ProcessDamageOverTimeEffects(player, enemy);
+
+                    TestBase.AssertEqual(hpBefore - 6, enemy.CurrentHealth,
+                        "acid tick should reduce HP on non-living enemy",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    TestBase.AssertEqual(5, enemy.AcidIntensity,
+                        "acid intensity should decay after tick",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    TestBase.AssertEqual(6, enemy.AcidArmorReduction,
+                        "acid tick should shred armor by intensity",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    TestBase.AssertEqual(9, DamageCalculator.ResolveTargetArmor(enemy),
+                        "non-living enemy armor after acid shred",
                         ref _testsRun, ref _testsPassed, ref _testsFailed);
                 }
             }

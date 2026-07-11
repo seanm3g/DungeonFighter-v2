@@ -32,10 +32,14 @@ namespace RPGGame
         public bool CausesPoison { get; set; }
         [JsonPropertyName("causesBurn")]
         public bool CausesBurn { get; set; }
+        [JsonPropertyName("causesAcid")]
+        public bool CausesAcid { get; set; }
         [JsonPropertyName("poisonPercentToAdd")]
         public double PoisonPercentToAdd { get; set; }
         [JsonPropertyName("burnAmountToAdd")]
         public int BurnAmountToAdd { get; set; }
+        [JsonPropertyName("acidAmountToAdd")]
+        public int AcidAmountToAdd { get; set; }
         [JsonPropertyName("bleedAmountToAdd")]
         public int BleedAmountToAdd { get; set; }
         [JsonPropertyName("causesStun")]
@@ -184,6 +188,9 @@ namespace RPGGame
         public string Rarity { get; set; } = "";
         [JsonPropertyName("category")]
         public string Category { get; set; } = "";
+        /// <summary>Workshop set from ACTIONS sheet "TIER N ACTIONS" markers (0 before any marker). Editor filter only.</summary>
+        [JsonPropertyName("tier")]
+        public int Tier { get; set; }
         [JsonPropertyName("cadence")]
         public string Cadence { get; set; } = "";
         [JsonPropertyName("mechanics")]

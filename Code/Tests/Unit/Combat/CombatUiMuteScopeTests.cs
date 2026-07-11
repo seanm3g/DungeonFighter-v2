@@ -203,7 +203,7 @@ namespace RPGGame.Tests.Unit.Combat
             Console.WriteLine("\n--- Mute scope clears pending health bar hints on enter ---");
             HealthBarDeltaDamageHint.ClearAll();
             const string id = "player_MuteClear";
-            HealthBarDeltaDamageHint.SetPending(id, 2, 1, 0);
+            HealthBarDeltaDamageHint.SetPending(id, 2, 1, 0, 0);
             using (CombatUiMuteScope.Begin(muted: true))
             {
                 TestBase.AssertTrue(CombatUiMuteScope.IsMuted, "muted in scope", ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -219,8 +219,8 @@ namespace RPGGame.Tests.Unit.Combat
             const string id = "enemy_MutedSkip";
             using (CombatUiMuteScope.Begin(muted: true))
             {
-                HealthBarDeltaDamageHint.SetPending(id, 4, 0, 0);
-                HealthBarDeltaDamageHint.RecordAfterMitigation(id, 4, 0, 0, 4, 4);
+                HealthBarDeltaDamageHint.SetPending(id, 4, 0, 0, 0);
+                HealthBarDeltaDamageHint.RecordAfterMitigation(id, 4, 0, 0, 0, 4, 4);
             }
             bool ok = HealthBarDeltaDamageHint.TryConsume(id, 4, out _);
             TestBase.AssertFalse(ok, "muted sim must not leave pending hints", ref _testsRun, ref _testsPassed, ref _testsFailed);

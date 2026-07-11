@@ -29,6 +29,16 @@ namespace RPGGame.UI.Avalonia.Layout
                 lines.Add($"Bleed {actor.BleedIntensity + actor.PendingBleedFromHits}");
             if (actor.BurnIntensity > 0 || actor.PendingBurnFromHits > 0)
                 lines.Add($"Burn {actor.BurnIntensity + actor.PendingBurnFromHits}");
+            if (actor.AcidIntensity > 0 || actor.PendingAcidFromHits > 0 || actor.AcidArmorReduction > 0)
+            {
+                int acidDisplay = actor.AcidIntensity + actor.PendingAcidFromHits;
+                if (acidDisplay > 0 && actor.AcidArmorReduction > 0)
+                    lines.Add($"Acid {acidDisplay} (−{actor.AcidArmorReduction} armor)");
+                else if (acidDisplay > 0)
+                    lines.Add($"Acid {acidDisplay}");
+                else
+                    lines.Add($"Acid (−{actor.AcidArmorReduction} armor)");
+            }
             if (actor.HasCriticalMissPenalty && actor.CriticalMissPenaltyTurns > 0)
                 lines.Add($"Crit miss ({actor.CriticalMissPenaltyTurns} turn{(actor.CriticalMissPenaltyTurns != 1 ? "s" : "")})");
             if (actor.VulnerabilityStacks > 0 && actor.VulnerabilityTurns > 0)

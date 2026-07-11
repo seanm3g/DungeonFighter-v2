@@ -40,6 +40,23 @@ namespace RPGGame.Actions.Execution
                 _ => 0
             };
 
+        /// <summary>Applies STR/AGI/TEC/INT items from cadence bonus lists (TURN consumed, ACTION bank redeemed, etc.).</summary>
+        private static void ApplyStatBonusesFromCadenceItems(Character hero, IEnumerable<ActionAttackBonusItem>? bonuses, int duration = 999)
+        {
+            if (bonuses == null) return;
+            foreach (var bonus in bonuses)
+            {
+                string bonusType = (bonus.Type ?? "").ToUpper();
+                if (!DynamicAttributeCategoryResolver.IsStatOrDynamicCategoryType(bonusType)) continue;
+                string concrete = DynamicAttributeCategoryResolver.ResolveStatBonusTypeToConcreteCode(hero, bonusType);
+                if (concrete != DynamicAttributeCategoryResolver.CodeStrength && concrete != DynamicAttributeCategoryResolver.CodeAgility
+                    && concrete != DynamicAttributeCategoryResolver.CodeTechnique && concrete != DynamicAttributeCategoryResolver.CodeIntelligence)
+                    continue;
+                int currentBonus = ReadTempStatBonusForResolvedCode(hero, concrete);
+                hero.ApplyStatBonus(currentBonus + (int)bonus.Value, bonusType, duration);
+            }
+        }
+
         /// <summary>Returns stat bonus entries from the action (list if non-empty, else legacy single as one entry).</summary>
         private static List<StatBonusEntry> GetStatBonusEntries(Action action)
         {
@@ -67,6 +84,41 @@ namespace RPGGame.Actions.Execution
             if (action.Advanced.HealthThreshold > 0.0)
                 return new List<double> { action.Advanced.HealthThreshold };
             return new List<double> { 0.1, 0.25, 0.5 };
+        }
+
+        /// <summary>Stat bonuses on TURN/ACTION cadence actions are queued via <see cref="ActionAttackBonuses"/>, not applied on the granting hit.</summary>
+        private static bool DefersStatBonusToCadenceQueue(Action? action)
+        {
+            if (action == null) return false;
+            string cadence = CadenceKeywords.Normalize(action.Cadence);
+            return CadenceKeywords.IsTurn(cadence) || CadenceKeywords.IsAction(cadence);
+        }
+
+        internal readonly struct TempStatSnapshot
+        {
+            public int Str { get; init; }
+            public int Agi { get; init; }
+            public int Tec { get; init; }
+            public int Int { get; init; }
+            public int Turns { get; init; }
+
+            public static TempStatSnapshot Capture(Character character) => new()
+            {
+                Str = character.Stats.TempStrengthBonus,
+                Agi = character.Stats.TempAgilityBonus,
+                Tec = character.Stats.TempTechniqueBonus,
+                Int = character.Stats.TempIntelligenceBonus,
+                Turns = character.Stats.TempStatBonusTurns
+            };
+
+            public static void Restore(Character character, TempStatSnapshot snapshot)
+            {
+                character.Stats.TempStrengthBonus = snapshot.Str;
+                character.Stats.TempAgilityBonus = snapshot.Agi;
+                character.Stats.TempTechniqueBonus = snapshot.Tec;
+                character.Stats.TempIntelligenceBonus = snapshot.Int;
+                character.Stats.TempStatBonusTurns = snapshot.Turns;
+            }
         }
 
         /// <summary>Maps cadence (Action, Ability, Chain, Fight, Dungeon) to stat bonus duration in turns.</summary>
@@ -97,6 +149,8 @@ namespace RPGGame.Actions.Execution
             var sw = CombatHotPathMetrics.IsEnabled ? Stopwatch.StartNew() : null;
 
             var result = new ActionExecutionResult();
+            if (source is Character tempDecayCharacter)
+                tempDecayCharacter.UpdateTempEffects(Character.DEFAULT_ACTION_LENGTH);
             ApplyPreRollBonuses(source);
             SelectActionAndResolveRoll(source, target, result, lastUsedActions, lastCriticalMissStatus, forcedAction);
             if (result.SelectedAction == null)

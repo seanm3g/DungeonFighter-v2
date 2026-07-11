@@ -412,7 +412,7 @@ namespace RPGGame.Combat.Formatting
             var damageText = builder.Build();
             
             // Calculate roll info
-            int targetDefense = DamageCalculator.ResolveTargetArmor(target);
+            int targetDefense = DamageCalculator.ResolveTargetArmor(target, action);
             
             // Match combat damage: roll bands use total attack (modified base + bonuses), not base alone.
             int rollForDamageScaling = roll + rollBonus;

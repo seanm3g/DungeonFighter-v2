@@ -77,7 +77,7 @@ namespace RPGGame
             rollInfo.Add($"roll: {rollDisplay}");
             
             // Attack vs Defense information
-            int targetDefense = DamageCalculator.ResolveTargetArmor(target);
+            int targetDefense = DamageCalculator.ResolveTargetArmor(target, action);
             int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, totalRoll, rollBonus);
             rollInfo.Add($"attack {actualRawDamage} - {targetDefense} armor");
             

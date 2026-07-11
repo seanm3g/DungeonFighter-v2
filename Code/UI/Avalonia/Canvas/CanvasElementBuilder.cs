@@ -367,6 +367,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                         {
                             HealthBarDotDamageKind.Poison => ColorPalette.Green.GetColor(),
                             HealthBarDotDamageKind.Burn => ColorPalette.Orange.GetColor(),
+                            HealthBarDotDamageKind.Acid => ColorPalette.Lime.GetColor(),
                             HealthBarDotDamageKind.Bleed => ColorPalette.Error.GetColor(),
                             _ => Colors.White
                         };

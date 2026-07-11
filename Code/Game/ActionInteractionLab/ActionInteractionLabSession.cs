@@ -248,11 +248,21 @@ namespace RPGGame.ActionInteractionLab
             }
         }
 
+        /// <summary>
+        /// Clears/reseeds the center combat log (undo/replay/reset) and restores enemy-name sticky alignment
+        /// cleared by <see cref="CenterPanelDisplayManager.ClearWithoutRender"/>.
+        /// </summary>
+        private void PrepareLabCenterPanelAndRestoreCombatLogAlignment()
+        {
+            _prepareLabHistoryReplay?.Invoke();
+            SyncLabEnemyToCanvasContext();
+        }
+
         private void ResetLabEncounterCore()
         {
             _history.Clear();
             ResetSimulatedCombatTurnAccumulator();
-            _prepareLabHistoryReplay?.Invoke();
+            PrepareLabCenterPanelAndRestoreCombatLogAlignment();
 
             _labPlayer.Facade.ClearAllTempEffects();
             _labEnemy.Facade.ClearAllTempEffects();
@@ -301,7 +311,7 @@ namespace RPGGame.ActionInteractionLab
         /// <summary>Replay history to match <paramref name="steps"/> after undo. Clears center log, re-runs turns with UI to rebuild it.</summary>
         public async Task ReplayHistoryAsync(IReadOnlyList<LabStep> steps)
         {
-            _prepareLabHistoryReplay?.Invoke();
+            PrepareLabCenterPanelAndRestoreCombatLogAlignment();
 
             IsReplayingHistory = true;
             // Allow combat UI while replaying so the center log matches state (scoped so it cannot leak).

@@ -91,7 +91,7 @@ namespace RPGGame.UI.ColorSystem
             
             // Poison-related keywords
             CreateGroup("poison", "poison", false,
-                "poison", "toxic", "venom", "acid", "corrupt", "taint", "disease", "plague");
+                "poison", "toxic", "venom", "acid", "corroding", "corrupt", "taint", "disease", "plague");
             
             // Class-related keywords
             CreateGroup("class", "class", false,

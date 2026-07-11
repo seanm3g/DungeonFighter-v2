@@ -1,6 +1,6 @@
 [
   {
-    "action": "PUNCH HARD",
+    "action": "PUNCH",
     "description": "basic non-weapon action",
     "dps": "100%",
     "numberOfHits": "1",
@@ -11,7 +11,7 @@
   {
     "action": "SLAM",
     "description": "basic mace action",
-    "dps": "100%",
+    "dps": "120%",
     "numberOfHits": "1",
     "damage": "120%",
     "speed": "1.00",
@@ -20,16 +20,16 @@
   {
     "action": "STRIKE",
     "description": "basic sword action",
-    "dps": "100%",
+    "dps": "160%",
     "numberOfHits": "2",
-    "damage": "100%",
+    "damage": "80%",
     "speed": "1.00",
     "tags": "startingweapon, sword, weapon_basic, required"
   },
   {
     "action": "STAB",
     "description": "basic dagger action",
-    "dps": "100%",
+    "dps": "83%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.20",
@@ -46,7 +46,8 @@
   },
   {
     "action": "TURN BONUS",
-    "description": "NEXT ATTACK BONUS",
+    "description": "NEXT TURN BONUS",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -59,6 +60,7 @@
   {
     "action": "ACTION BONUS",
     "description": "NEXT ACTION BONUS",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -66,12 +68,12 @@
     "duration": "3",
     "cadence": "ACTION",
     "mechanics": "hero_next_action_damage",
-    "damageMod": "25",
-    "tags": "bludgeon"
+    "damageMod": "25"
   },
   {
     "action": "FIGHT BONUS",
     "description": "FOR FIGHT BONUS",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -84,6 +86,7 @@
   {
     "action": "DUNGEON BONUS",
     "description": "FOR DUNGEON BONUS",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -96,6 +99,8 @@
   {
     "action": "LUCKY CHARM",
     "description": "\u002B1 ACCURACY",
+    "rarity": "RARE",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -108,6 +113,8 @@
   {
     "action": "CONCENTRATION",
     "description": "\u002B1 HIT",
+    "rarity": "COMMON",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -120,6 +127,8 @@
   {
     "action": "MEASURED ADVANCE",
     "description": "\u002B1 COMBO",
+    "rarity": "COMMON",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -132,6 +141,8 @@
   {
     "action": "CRITICAL ATTACK",
     "description": "\u002B1 CRIT",
+    "rarity": "RARE",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -142,8 +153,40 @@
     "heroCrit": "1"
   },
   {
+    "action": "EXTRA EFFORT",
+    "description": "Gain 1 STR next TURN",
+    "rarity": "COMMON",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "TURN",
+    "mechanics": "hero_stat_bonus",
+    "heroSTR": "1",
+    "tags": "class, barbarian"
+  },
+  {
+    "action": "FIGHTER",
+    "description": "Gain 1 STR for the duration of this fight",
+    "rarity": "COMMON",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "FIGHT",
+    "mechanics": "hero_stat_bonus",
+    "heroSTR": "1",
+    "tags": "class, barbarian"
+  },
+  {
     "action": "MOMENTUM BASH",
     "description": "Gain 1 STR for the duration of this dungeon",
+    "rarity": "COMMON",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -152,11 +195,43 @@
     "cadence": "DUNGEON",
     "mechanics": "hero_stat_bonus",
     "heroSTR": "1",
-    "tags": "class"
+    "tags": "class, barbarian"
+  },
+  {
+    "action": "REACTION TRAINING",
+    "description": "Gain 1 AGI next TURN",
+    "rarity": "COMMON",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "TURN",
+    "mechanics": "hero_stat_bonus",
+    "heroAGI": "1",
+    "tags": "class, warrior"
+  },
+  {
+    "action": "DEEP BREATHING",
+    "description": "Gain 1 AGI for the duration of this fight",
+    "rarity": "COMMON",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "FIGHT",
+    "mechanics": "hero_stat_bonus",
+    "heroAGI": "1",
+    "tags": "class, warrior"
   },
   {
     "action": "DANCE",
     "description": "Gain 1 AGI for the duration of this dungeon",
+    "rarity": "COMMON",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -165,11 +240,43 @@
     "cadence": "DUNGEON",
     "mechanics": "hero_stat_bonus",
     "heroAGI": "1",
-    "tags": "class"
+    "tags": "class, warrior"
+  },
+  {
+    "action": "TAKING AIM",
+    "description": "Gain 1 TECH next TURN",
+    "rarity": "COMMON",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "TURN",
+    "mechanics": "hero_stat_bonus",
+    "heroTECH": "1",
+    "tags": "class, rogue"
+  },
+  {
+    "action": "QUIET MIND",
+    "description": "Gain 1 TECH for the duration of this fight",
+    "rarity": "COMMON",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "FIGHT",
+    "mechanics": "hero_stat_bonus",
+    "heroTECH": "1",
+    "tags": "class, rogue"
   },
   {
     "action": "FOCUS",
     "description": "Gain 1 TECH for the duration of this dungeon",
+    "rarity": "COMMON",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -178,11 +285,43 @@
     "cadence": "DUNGEON",
     "mechanics": "hero_stat_bonus",
     "heroTECH": "1",
-    "tags": "class"
+    "tags": "class, rogue"
   },
   {
     "action": "READ BOOK",
+    "description": "Gain 1 INT next TURN",
+    "rarity": "COMMON",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "TURN",
+    "mechanics": "hero_stat_bonus",
+    "heroINT": "1",
+    "tags": "class, wizard"
+  },
+  {
+    "action": "PRE-FIGHT PLANNING",
+    "description": "Gain 1 INT for the duration of this fight",
+    "rarity": "COMMON",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "FIGHT",
+    "mechanics": "hero_stat_bonus",
+    "heroINT": "1",
+    "tags": "class, wizard"
+  },
+  {
+    "action": "DUNGEON ANALYSIS",
     "description": "Gain 1 INT for the duration of this dungeon",
+    "rarity": "COMMON",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -191,11 +330,25 @@
     "cadence": "DUNGEON",
     "mechanics": "hero_stat_bonus",
     "heroINT": "1",
-    "tags": "class"
+    "tags": "class, wizard"
   },
   {
-    "action": "FASTER",
-    "description": "\u002B1 SPEED",
+    "action": "SPRINT",
+    "description": "\u002B5% SPEED",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "TURN",
+    "mechanics": "hero_next_action_speed",
+    "speedMod": "5"
+  },
+  {
+    "action": "RUSH",
+    "description": "\u002B5% SPEED",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -203,12 +356,38 @@
     "duration": "1",
     "cadence": "ACTION",
     "mechanics": "hero_next_action_speed",
-    "speedMod": "1",
-    "tags": "swift"
+    "speedMod": "1"
+  },
+  {
+    "action": "MOMENTUM",
+    "description": "\u002B1% SPEED",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "FIGHT",
+    "mechanics": "hero_next_action_speed",
+    "speedMod": "5"
+  },
+  {
+    "action": "MARATHON",
+    "description": "\u002B0.5% SPEED",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "DUNGEON",
+    "mechanics": "hero_next_action_speed",
+    "speedMod": "0.5"
   },
   {
     "action": "STRONGER",
-    "description": "\u002B1 DAMAGE",
+    "description": "\u002B5% DAMAGE",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -216,12 +395,12 @@
     "duration": "1",
     "cadence": "ACTION",
     "mechanics": "hero_next_action_damage",
-    "damageMod": "1",
-    "tags": "class, warrior, bludgeon"
+    "damageMod": "5"
   },
   {
-    "action": "BETTER",
+    "action": "RAPID STRIKE",
     "description": "\u002B1 MULTIHIT",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -229,12 +408,12 @@
     "duration": "1",
     "cadence": "ACTION",
     "mechanics": "hero_next_action_multihit",
-    "multiHitMod": "1",
-    "tags": "class, wizard"
+    "multiHitMod": "1"
   },
   {
-    "action": "HARDER",
-    "description": "\u002B1 AMP",
+    "action": "EMPOWERED",
+    "description": "\u002B.05 AMP",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -242,34 +421,108 @@
     "duration": "1",
     "cadence": "ACTION",
     "mechanics": "hero_next_action_amp",
-    "ampMod": "1",
-    "tags": "focus"
+    "ampMod": "0.1"
+  },
+  {
+    "action": "SHARPEN",
+    "description": "\u002B5 WEAPON DAMAGE",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "TURN",
+    "mechanics": "weapon_damage"
+  },
+  {
+    "action": "TWISTING STRIKE",
+    "description": "\u002B1 WEAPON DAMAGE",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "FIGHT",
+    "mechanics": "weapon_damage"
+  },
+  {
+    "action": "WHIRLWIND",
+    "description": "\u002B1 WEAPON DAMAGE",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "DUNGEON",
+    "mechanics": "weapon_damage"
+  },
+  {
+    "action": "LOOSE GRIP",
+    "description": "\u002B1 WEAPON SPEED",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "TURN",
+    "mechanics": "weapon_damage"
+  },
+  {
+    "action": "JUICED",
+    "description": "\u002B1 WEAPON SPEED",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "FIGHT",
+    "mechanics": "weapon_damage"
+  },
+  {
+    "action": "BLUR",
+    "description": "\u002B1 WEAPON SPEED",
+    "tier": 1,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "duration": "1",
+    "cadence": "DUNGEON",
+    "mechanics": "weapon_damage"
   },
   {
     "action": "OPENER",
     "description": "OPENER",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
     "mechanics": "opener",
-    "opener": "true",
+    "opener": "1",
     "tags": "opener"
   },
   {
     "action": "FINISHER",
     "description": "FINISHER",
+    "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
     "mechanics": "finisher",
-    "finisher": "true",
+    "finisher": "1",
     "tags": "finisher"
   },
   {
     "action": "PHANTOM FOLLOW-UP",
     "description": "CHAIN LENGTH \u002B1",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -277,24 +530,12 @@
     "duration": "1",
     "cadence": "ACTION",
     "mechanics": "hero_combo_threshold",
-    "heroCombo": "1",
-    "tags": "class"
-  },
-  {
-    "action": "EXPOSE",
-    "description": "INCREASE DAMAGE TAKEN BY ENEMY",
-    "dps": "100%",
-    "numberOfHits": "1",
-    "damage": "100%",
-    "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "mechanics": "expose",
-    "expose": "1"
+    "heroCombo": "1"
   },
   {
     "action": "WEAKEN",
     "description": "DECREASE DAMAGE DONE BY ENEMY",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -305,6 +546,7 @@
   {
     "action": "SLOW",
     "description": "SLOWS THE ENEMY DOWN",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -315,6 +557,7 @@
   {
     "action": "VULNERABILITY",
     "description": "TAKES EXTRA DAMAGE",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -325,6 +568,7 @@
   {
     "action": "HARDEN",
     "description": "TAKE LESS DAMAGE",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -336,6 +580,7 @@
   {
     "action": "PIERCE",
     "description": "ATTACK IGNORES ARMOR",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -346,6 +591,7 @@
   {
     "action": "CONFUSE",
     "description": "RANDOMIZE TARGET",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -356,6 +602,7 @@
   {
     "action": "SELF TARGET",
     "description": "TARGET YOURSELF",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -365,6 +612,7 @@
   {
     "action": "LUCK",
     "description": "ROLL FROM ADVANTAGE",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -374,6 +622,7 @@
   {
     "action": "UNLUCK",
     "description": "ROLL WITH DISADVANTAGE",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -383,15 +632,38 @@
   {
     "action": "JAB",
     "description": "RESET ENEMY ACTION CHAIN",
+    "tier": 2,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00"
+  },
+  {
+    "action": "EXPOSE",
+    "description": "INCREASE DAMAGE TAKEN BY ENEMY",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "tags": "class, rogue"
+    "duration": "1",
+    "cadence": "TURN",
+    "mechanics": "expose"
+  },
+  {
+    "action": "ACID BURN",
+    "description": "ACID BURN DOT",
+    "tier": 2,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "mechanics": "acid"
   },
   {
     "action": "STUN",
     "description": "STUNS THE ENEMY FOR 1 TURN",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -402,6 +674,7 @@
   {
     "action": "POISON",
     "description": "POISON DOT ON THE ENEMY",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -412,6 +685,7 @@
   {
     "action": "BURN",
     "description": "BURN DOT ON THE ENEMY",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -422,6 +696,7 @@
   {
     "action": "BLEED",
     "description": "BLEED DOT ON THE ENEMY",
+    "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -432,6 +707,7 @@
   {
     "action": "SET BONUS",
     "description": "\u002B1 DAMAGE per X tag",
+    "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -440,6 +716,8 @@
   {
     "action": "FLIP ROOM SWITCH",
     "description": "triggers environment action",
+    "tier": 3,
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00"
@@ -447,6 +725,8 @@
   {
     "action": "BERZERKER",
     "description": "below 50% health gives you a 25% damage bonus",
+    "tier": 3,
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00"
@@ -454,6 +734,7 @@
   {
     "action": "ANGRY ENRAGE",
     "description": "TURN(x3):\u002B5 combo",
+    "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -466,6 +747,8 @@
   {
     "action": "GAMBLERS BLESSING",
     "description": "If you roll a above X you take another action",
+    "tier": 3,
+    "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00"
@@ -473,9 +756,10 @@
   {
     "action": "HAYMAKER",
     "description": "FOR NEXT ACTION: -14 ACCURACY, \u002B500% Damage",
-    "dps": "33%",
+    "tier": 3,
+    "dps": "167%",
     "numberOfHits": "1",
-    "damage": "100%",
+    "damage": "500%",
     "speed": "3.00",
     "duration": "1",
     "cadence": "ACTION",
@@ -486,6 +770,7 @@
   {
     "action": "TAUNT",
     "description": "FOR FIGHT (ENEMY): -1 STR, \u002B1 AGI",
+    "tier": 3,
     "dps": "20%",
     "numberOfHits": "1",
     "damage": "10%",

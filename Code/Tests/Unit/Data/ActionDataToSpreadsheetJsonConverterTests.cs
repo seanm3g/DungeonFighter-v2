@@ -23,6 +23,7 @@ namespace RPGGame.Tests.Unit.Data
 
             TestMergeWithNoBaseRow();
             TestMergeWithBaseRow();
+            TestMergeTierRoundTrip();
             TestConvertListPreservesOrderAndMerges();
             TestMergeEmptyTagsOverridesBaseRow();
             TestMergeOpenerFinisherRoundTrip();
@@ -123,6 +124,33 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual("WEAPON", row.Rarity, "Rarity overwritten", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("", row.HeroAccuracy, "HeroAccuracy from ActionData when RollBonus is 0 (not base row)", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("", row.EnemyCrit, "EnemyCrit cleared when ActionData enemy crit adjustment is 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestMergeTierRoundTrip()
+        {
+            System.Console.WriteLine("--- Merge Tier round-trip ---");
+            var data = new ActionData
+            {
+                Name = "WORKSHOP BLAST",
+                Description = "high tier workshop",
+                Tier = 3,
+                DamageMultiplier = 1.0,
+                Length = 1.0,
+                MultiHitCount = 1
+            };
+            var row = ActionDataToSpreadsheetJsonConverter.Merge(data, null);
+            TestBase.AssertEqual(3, row.Tier, "Merge writes Tier", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var roundTrip = SpreadsheetToActionDataConverter.Convert(row);
+            TestBase.AssertEqual(3, roundTrip.Tier, "Convert preserves Tier", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var fromJson = SpreadsheetActionJson.FromSpreadsheetActionData(row.ToSpreadsheetActionData());
+            TestBase.AssertEqual(3, fromJson.Tier, "FromSpreadsheetActionData preserves Tier", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var zeroTier = ActionDataToSpreadsheetJsonConverter.Merge(
+                new ActionData { Name = "PUNCH", DamageMultiplier = 1, Length = 1, MultiHitCount = 1, Tier = 0 },
+                null);
+            TestBase.AssertEqual(0, zeroTier.Tier, "Tier 0 defaults", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestConvertListPreservesOrderAndMerges()
@@ -430,7 +458,7 @@ namespace RPGGame.Tests.Unit.Data
             };
             var data = SpreadsheetToActionDataConverter.Convert(sheet);
             TestBase.AssertTrue(data.WeaponTypes == null || data.WeaponTypes.Count == 0, "WeaponTypes cleared for enemy row", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("TURN", data.Type, "Enemy strike remains Attack by default", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Attack", data.Type, "Enemy strike remains Attack by default", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

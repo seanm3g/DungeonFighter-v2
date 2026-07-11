@@ -18,7 +18,7 @@ namespace RPGGame.Combat.Calculators
         {
             // Check if action can cause any status effect (basic or advanced)
             if (!action.CausesBleed && !action.CausesWeaken && !action.CausesSlow && 
-                !action.CausesPoison && !action.CausesStun && !action.CausesBurn &&
+                !action.CausesPoison && !action.CausesStun && !action.CausesBurn && !action.CausesAcid &&
                 !action.CausesVulnerability && !action.CausesHarden &&
                 !action.CausesFocus && !action.CausesExpose && !action.CausesHPRegen &&
                 !action.CausesArmorBreak && !action.CausesPierce &&

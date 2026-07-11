@@ -154,6 +154,20 @@ namespace RPGGame
             return sum;
         }
 
+        /// <summary>Flat acid intensity added on critical hit from weapon <c>weaponAcid</c> mods.</summary>
+        public int GetWeaponAcidPerHit()
+        {
+            int sum = 0;
+            var weapon = slots.Weapon;
+            if (weapon == null) return 0;
+            foreach (var modification in weapon.Modifications)
+            {
+                if (modification.Effect == "weaponAcid")
+                    sum += (int)Math.Round(modification.RolledValue);
+            }
+            return sum;
+        }
+
         /// <summary>
         /// Gets freeze chance from modifications.
         /// Only weapons can provide status effect chances.

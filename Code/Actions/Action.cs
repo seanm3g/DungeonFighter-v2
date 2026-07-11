@@ -49,11 +49,14 @@ namespace RPGGame
         public bool CausesSlow { get; set; }
         public bool CausesPoison { get; set; }
         public bool CausesBurn { get; set; }
+        public bool CausesAcid { get; set; }
         public bool CausesStun { get; set; }
         /// <summary>% of max HP added per poison application; 0 with CausesPoison uses default 1.</summary>
         public double PoisonPercentToAdd { get; set; }
         /// <summary>Burn intensity added per application; 0 with CausesBurn uses default 1.</summary>
         public int BurnAmountToAdd { get; set; }
+        /// <summary>Acid intensity added per application; 0 with CausesAcid uses default 1.</summary>
+        public int AcidAmountToAdd { get; set; }
         /// <summary>Bleed intensity added per application; 0 with CausesBleed uses default 1.</summary>
         public int BleedAmountToAdd { get; set; }
         

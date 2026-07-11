@@ -43,7 +43,7 @@ namespace RPGGame.Data
         /// <summary>DoT/control IDs granted by item mods, not authored on the ACTIONS MECHANICS column.</summary>
         public static IReadOnlyList<string> ItemAppliedStatusEffectIds { get; } = new[]
         {
-            "stun", "poison", "burn", "bleed",
+            "stun", "poison", "burn", "acid", "bleed",
         };
         private static readonly Dictionary<string, MechanicCadenceProfile> Profiles = BuildProfiles();
 
@@ -572,7 +572,7 @@ namespace RPGGame.Data
             P("advantage", true, false, true, true, true, MechanicStatus.Good);
             P("disadvantage", true, false, true, true, true, MechanicStatus.Good);
 
-            P("pierce", true, false, false, false, false, MechanicStatus.Good);
+            P("pierce", true, false, false, false, true, MechanicStatus.Good);
             P("opener", false, false, false, false, false, MechanicStatus.Good);
             P("finisher", false, false, false, false, false, MechanicStatus.Good);
 

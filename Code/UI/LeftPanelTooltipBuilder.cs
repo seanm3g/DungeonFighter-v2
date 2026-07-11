@@ -136,6 +136,9 @@ namespace RPGGame
                 case "stat:burn":
                     AppendSimpleStat(character, "BURN", $"+{character.GetWeaponBurnPerHit()} on critical hit from weapon mods.", result, AddWrapped, maxLines);
                     break;
+                case "stat:acid":
+                    AppendSimpleStat(character, "ACID", $"+{character.GetWeaponAcidPerHit()} on critical hit from weapon mods.", result, AddWrapped, maxLines);
+                    break;
                 case "stat:poison":
                     AppendSimpleStat(character, "POISON", $"+{character.GetWeaponPoisonPercentPerHit():0.#}% max HP on critical hit from weapon mods.", result, AddWrapped, maxLines);
                     break;

@@ -30,6 +30,7 @@ namespace RPGGame.Tests.Unit.Data
             TestTagsColumn_PushLayoutColumnE(ref testsRun, ref testsPassed, ref testsFailed);
             TestLayerSectionMarkerRow_SkippedOnParse(ref testsRun, ref testsPassed, ref testsFailed);
             TestTierSectionMarkerRow_SkippedOnParse(ref testsRun, ref testsPassed, ref testsFailed);
+            TestTierSectionMarkers_StampMultipleTiers(ref testsRun, ref testsPassed, ref testsFailed);
             TestColumnUsage_IgnoredLabelsOnPull(ref testsRun, ref testsPassed, ref testsFailed);
             TestTargetColumn_IngestsEnemySelfEnvironment(ref testsRun, ref testsPassed, ref testsFailed);
             TestHeroHealAndStatusColumns_ConvertToActionData(ref testsRun, ref testsPassed, ref testsFailed);
@@ -382,6 +383,38 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual(2, result.Actions.Count, "two actions ingested (tier skipped)", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual("JAB", result.Actions[0].Action, "first action", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual("TAUNT", result.Actions[1].Action, "second action after tier break", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(0, result.Actions[0].Tier, "pre-marker action is tier 0", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(2, result.Actions[1].Tier, "post TIER 2 action is tier 2", ref testsRun, ref testsPassed, ref testsFailed);
+
+            TestBase.AssertTrue(SpreadsheetActionData.TryParseTierSectionNumber("TIER 2 ACTIONS", out int parsed),
+                "parses tier number from marker", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(2, parsed, "parsed tier is 2", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(!SpreadsheetActionData.TryParseTierSectionNumber("JAB", out _),
+                "non-marker does not parse tier", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var converted = SpreadsheetToActionDataConverter.Convert(result.Actions[1]);
+            TestBase.AssertEqual(2, converted.Tier, "converter preserves stamped tier", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestTierSectionMarkers_StampMultipleTiers(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestTierSectionMarkers_StampMultipleTiers));
+
+            const string csv = ""
+                + "ACTION,DESCRIPTION\n"
+                + "PUNCH,base\n"
+                + "TIER 1 ACTIONS,\n"
+                + "JAB,t1\n"
+                + "TIER 3 ACTIONS,\n"
+                + "WORKSHOP BLAST,t3\n";
+
+            var result = SpreadsheetActionParser.ParseCsvContent(csv);
+            TestBase.AssertEqual(3, result.Actions.Count, "three actions", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(0, result.Actions[0].Tier, "PUNCH tier 0", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(1, result.Actions[1].Tier, "JAB tier 1", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(3, result.Actions[2].Tier, "WORKSHOP BLAST tier 3", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(result.Actions.TrueForAll(a => !SpreadsheetActionData.IsTierSectionMarkerRow(a.Action)),
+                "no marker rows in result", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
         private static void TestColumnUsage_IgnoredLabelsOnPull(ref int testsRun, ref int testsPassed, ref int testsFailed)

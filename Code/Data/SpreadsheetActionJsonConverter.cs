@@ -26,6 +26,7 @@ namespace RPGGame.Data
             action.ColumnC = GetStringValue(root, "columnC");
             action.Rarity = GetStringValue(root, "rarity");
             action.Category = GetStringValue(root, "category");
+            action.Tier = GetIntValue(root, "tier");
             action.DPS = GetStringValue(root, "dps");
             action.NumberOfHits = GetStringValue(root, "numberOfHits");
             action.Damage = GetStringValue(root, "damage");
@@ -137,6 +138,17 @@ namespace RPGGame.Data
             }
             return "";
         }
+
+        private static int GetIntValue(JsonElement element, string propertyName)
+        {
+            if (!element.TryGetProperty(propertyName, out var prop))
+                return 0;
+            if (prop.ValueKind == JsonValueKind.Number && prop.TryGetInt32(out int n))
+                return n;
+            if (prop.ValueKind == JsonValueKind.String && int.TryParse(prop.GetString(), out int fromString))
+                return fromString;
+            return 0;
+        }
         
         public override void Write(Utf8JsonWriter writer, SpreadsheetActionJson value, JsonSerializerOptions options)
         {
@@ -148,6 +160,8 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "columnC", value.ColumnC);
             WriteIfNotEmpty(writer, "rarity", value.Rarity);
             WriteIfNotEmpty(writer, "category", value.Category);
+            if (value.Tier > 0)
+                writer.WriteNumber("tier", value.Tier);
             WriteIfNotEmpty(writer, "dps", value.DPS);
             WriteIfNotEmpty(writer, "numberOfHits", value.NumberOfHits);
             WriteIfNotEmpty(writer, "damage", value.Damage);

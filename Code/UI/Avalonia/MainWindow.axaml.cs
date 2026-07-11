@@ -134,7 +134,8 @@ namespace RPGGame.UI.Avalonia
                     e.Handled = true;
                     await initializationHandler.Game.StartActionInteractionLabAsync(
                         canvasUiForLab,
-                        GameCoordinator.GetBarbarianStarterWeaponChoice1Based()).ConfigureAwait(true);
+                        GameCoordinator.GetBarbarianStarterWeaponChoice1Based(),
+                        alsoOpenSettingsWindow: true).ConfigureAwait(true);
                     return;
                 }
 

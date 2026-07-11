@@ -60,6 +60,7 @@ namespace RPGGame.Tests.Unit.Data
                 if (action.CausesBleed) inventory.StatusEffects.Add("Bleed");
                 if (action.CausesPoison) inventory.StatusEffects.Add("Poison");
                 if (action.CausesBurn) inventory.StatusEffects.Add("Burn");
+                if (action.CausesAcid) inventory.StatusEffects.Add("Acid");
                 if (action.CausesWeaken) inventory.StatusEffects.Add("Weaken");
                 if (action.CausesSlow) inventory.StatusEffects.Add("Slow");
                 if (action.CausesStun) inventory.StatusEffects.Add("Stun");
@@ -293,6 +294,7 @@ namespace RPGGame.Tests.Unit.Data
                 ("Bleed", (Func<Action, bool>)(a => a.CausesBleed)),
                 ("Poison", (Func<Action, bool>)(a => a.CausesPoison)),
                 ("Burn", (Func<Action, bool>)(a => a.CausesBurn)),
+                ("Acid", (Func<Action, bool>)(a => a.CausesAcid)),
                 ("Weaken", (Func<Action, bool>)(a => a.CausesWeaken)),
                 ("Slow", (Func<Action, bool>)(a => a.CausesSlow)),
                 ("Stun", (Func<Action, bool>)(a => a.CausesStun)),

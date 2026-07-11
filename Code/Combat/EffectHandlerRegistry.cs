@@ -31,7 +31,8 @@ namespace RPGGame
                 { "slow", new SlowEffectHandler() },
                 { "poison", new PoisonEffectHandler() },
                 { "stun", new StunEffectHandler() },
-                { "burn", new BurnEffectHandler() }
+                { "burn", new BurnEffectHandler() },
+                { "acid", new AcidEffectHandler() }
             };
             foreach (var kv in StackTurnEffectHandler.CreateRegistryEntries())
                 _handlers[kv.Key] = kv.Value;
@@ -89,6 +90,8 @@ namespace RPGGame
                 "poisoning" => action.CausesPoison,
                 "stunning" => action.CausesStun,
                 "burning" => action.CausesBurn,
+                "acid" => action.CausesAcid,
+                "corroding" => action.CausesAcid,
                 "vulnerability" => action.CausesVulnerability,
                 "harden" => action.CausesHarden,
                 "focus" => action.CausesFocus,
@@ -241,6 +244,26 @@ namespace RPGGame
         }
 
         public string GetEffectType() => "Burning";
+    }
+
+    /// <summary>
+    /// Handler for acid DoT (intensity + armor shred on tick).
+    /// </summary>
+    public class AcidEffectHandler : IEffectHandler
+    {
+        public bool Apply(Actor target, Action action, List<string> results)
+        {
+            if (action.CausesAcid)
+            {
+                int amount = action.AcidAmountToAdd > 0 ? action.AcidAmountToAdd : 1;
+                target.QueueAcidFromHit(amount);
+                StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "corroding");
+                return true;
+            }
+            return false;
+        }
+
+        public string GetEffectType() => "Acid";
     }
 
     /// <summary>Fortify: stacking flat armor bonus (sheet FORTIFY / SELF TARGET).</summary>

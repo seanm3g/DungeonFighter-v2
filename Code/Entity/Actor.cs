@@ -32,6 +32,13 @@ namespace RPGGame
         public int PendingBurnFromHits { get; set; }
         public double LastBurnTickTime { get; set; }
 
+        /// <summary>Acid intensity: global tick deals this much damage and shreds armor by the same amount, then decays like burn.</summary>
+        public int AcidIntensity { get; set; }
+        public int PendingAcidFromHits { get; set; }
+        public double LastAcidTickTime { get; set; }
+        /// <summary>Cumulative flat armor shredded by acid ticks this encounter (cleared with temp effects).</summary>
+        public int AcidArmorReduction { get; set; }
+
         /// <summary>Bleed intensity: same decay math as burn, resolved when the afflicted actor takes an action.</summary>
         public int BleedIntensity { get; set; }
         public int PendingBleedFromHits { get; set; }
@@ -264,6 +271,14 @@ namespace RPGGame
                 if (CriticalMissPenaltyTurns == 0)
                     HasCriticalMissPenalty = false;
             }
+
+            // Pierce: incoming attacks ignore flat armor while turns remain
+            if (PierceTurns > 0)
+            {
+                PierceTurns = Math.Max(0, PierceTurns - (int)Math.Ceiling(turnsPassed));
+                if (PierceTurns == 0)
+                    HasPierce = false;
+            }
         }
         
         /// <summary>Max HP used for poison % damage ticks (character/enemy override).</summary>
@@ -318,6 +333,32 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Acid: on global tick, deal current intensity damage, add that amount to <see cref="AcidArmorReduction"/>,
+        /// then intensity = max(0, intensity - 1) + pending (same decay as burn).
+        /// </summary>
+        public virtual int ProcessAcid(double currentTime)
+        {
+            if (AcidIntensity <= 0 && PendingAcidFromHits <= 0)
+                return 0;
+            double interval = GetStatusDotTickIntervalSeconds();
+            if (LastAcidTickTime > currentTime)
+                LastAcidTickTime = 0;
+            if (currentTime - LastAcidTickTime < interval)
+                return 0;
+            LastAcidTickTime = currentTime;
+            int pending = PendingAcidFromHits;
+            PendingAcidFromHits = 0;
+            int damage = AcidIntensity > 0 ? AcidIntensity : pending;
+            if (damage > 0)
+                AcidArmorReduction += damage;
+            if (AcidIntensity > 0)
+                AcidIntensity = Math.Max(0, AcidIntensity - 1) + pending;
+            else
+                AcidIntensity = Math.Max(0, damage - 1);
+            return damage;
+        }
+
+        /// <summary>
         /// Bleed: same intensity math as burn, invoked when the afflicted actor finishes taking an action (not global tick).
         /// </summary>
         public virtual int ProcessBleedOnAction()
@@ -350,6 +391,12 @@ namespace RPGGame
             PendingBurnFromHits += amount;
         }
 
+        public virtual void QueueAcidFromHit(int amount)
+        {
+            if (amount <= 0) return;
+            PendingAcidFromHits += amount;
+        }
+
         public virtual void QueueBleedFromHit(int amount)
         {
             if (amount <= 0) return;
@@ -374,6 +421,14 @@ namespace RPGGame
             int s = Math.Max(1, stacks);
             QueueBurnFromHit(d * s);
         }
+
+        /// <summary>Legacy entry: maps to <see cref="QueueAcidFromHit"/>.</summary>
+        public virtual void ApplyAcid(int damage, int stacks = 1)
+        {
+            int d = Math.Max(1, damage);
+            int s = Math.Max(1, stacks);
+            QueueAcidFromHit(d * s);
+        }
         
         /// <summary>
         /// Applies weaken debuff to the actor
@@ -395,6 +450,10 @@ namespace RPGGame
             BurnIntensity = 0;
             PendingBurnFromHits = 0;
             LastBurnTickTime = 0;
+            AcidIntensity = 0;
+            PendingAcidFromHits = 0;
+            LastAcidTickTime = 0;
+            AcidArmorReduction = 0;
             BleedIntensity = 0;
             PendingBleedFromHits = 0;
             

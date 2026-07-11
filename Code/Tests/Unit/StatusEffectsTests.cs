@@ -93,6 +93,15 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(enemy.PendingBurnFromHits > 0,
                 $"Burn should queue pending: pending={enemy.PendingBurnFromHits}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Test Acid
+            var acidAction = TestDataBuilders.CreateMockAction("AcidAction");
+            acidAction.CausesAcid = true;
+            var acidResults = new List<string>();
+            registry.ApplyEffect("acid", enemy, acidAction, acidResults);
+            TestBase.AssertTrue(enemy.PendingAcidFromHits > 0,
+                $"Acid should queue pending: pending={enemy.PendingAcidFromHits}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestAdvancedStatusEffects()
