@@ -43,6 +43,8 @@ namespace RPGGame.Tests.Unit.Config
             TestItemAffixOmittedActionMaxDefaultsToOneWhenMinZero();
             TestItemAffixRollAxis();
             TestItemAffixPerItemTypeOverridesPerRarity();
+            TestItemAffixScratchBuilderDeepClonesPerSlot();
+            TestItemAffixScratchBuilderResolvesSlotKey();
 
             TestBase.PrintSummary("ItemConfig Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -387,6 +389,72 @@ namespace RPGGame.Tests.Unit.Config
             var chestRule = ItemAffixByRaritySettings.GetResolvedAffixRule("Common", commonRow, tuning, ItemType.Chest);
             TestBase.AssertEqual(1, chestRule.PrefixMin, "chest uses PerRarity", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(1, chestRule.StatMin, "chest stat", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestItemAffixScratchBuilderDeepClonesPerSlot()
+        {
+            Console.WriteLine("\n--- Testing ItemAffixScratchBuilder deep-clones per slot ---");
+
+            var tuning = new ItemAffixByRaritySettings
+            {
+                PerItemType = new Dictionary<string, Dictionary<string, ItemAffixPerRarityEntry>>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["Head"] = new Dictionary<string, ItemAffixPerRarityEntry>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["Common"] = new ItemAffixPerRarityEntry { PrefixSlots = 1, StatSuffixes = 0, ActionBonuses = 0 },
+                        ["Uncommon"] = new ItemAffixPerRarityEntry { PrefixSlots = 2, StatSuffixes = 2, ActionBonuses = 1 },
+                        ["Rare"] = new ItemAffixPerRarityEntry { PrefixSlots = 3, StatSuffixes = 3, ActionBonuses = 2 },
+                        ["Epic"] = new ItemAffixPerRarityEntry { PrefixSlots = 3, StatSuffixes = 3, ActionBonuses = 2 },
+                        ["Legendary"] = new ItemAffixPerRarityEntry { PrefixSlots = 3, StatSuffixes = 3, ActionBonuses = 2 },
+                        ["Mythic"] = new ItemAffixPerRarityEntry { PrefixSlots = 3, StatSuffixes = 4, ActionBonuses = 3 }
+                    },
+                    ["Chest"] = new Dictionary<string, ItemAffixPerRarityEntry>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["Common"] = new ItemAffixPerRarityEntry { PrefixSlots = 0, StatSuffixes = 0, ActionBonuses = 0 },
+                        ["Uncommon"] = new ItemAffixPerRarityEntry { PrefixSlots = 1, StatSuffixes = 0, ActionBonuses = 0 },
+                        ["Rare"] = new ItemAffixPerRarityEntry { PrefixSlots = 2, StatSuffixes = 1, ActionBonuses = 0 },
+                        ["Epic"] = new ItemAffixPerRarityEntry { PrefixSlots = 2, StatSuffixes = 1, ActionBonuses = 1 },
+                        ["Legendary"] = new ItemAffixPerRarityEntry { PrefixSlots = 3, StatSuffixes = 2, ActionBonuses = 1 },
+                        ["Mythic"] = new ItemAffixPerRarityEntry { PrefixSlots = 3, StatSuffixes = 2, ActionBonuses = 2 }
+                    }
+                }
+            };
+
+            var scratch = ItemAffixScratchBuilder.BuildFromTuning(tuning, rarityData: null);
+            TestBase.AssertTrue(scratch.ContainsKey("Head") && scratch.ContainsKey("Chest"),
+                "scratch has Head and Chest", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertEqual(1, scratch["Head"]["Uncommon"].PrefixSlots,
+                "Head Uncommon prefix from tuning", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, scratch["Chest"]["Uncommon"].PrefixSlots,
+                "Chest Uncommon prefix differs from Head", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Mutating scratch must not alias live tuning or the other slot.
+            scratch["Head"]["Uncommon"].PrefixSlots = 0;
+            TestBase.AssertEqual(2, tuning.PerItemType["Head"]["Uncommon"].PrefixSlots,
+                "scratch mutation does not change live tuning", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, scratch["Chest"]["Uncommon"].PrefixSlots,
+                "Head mutation does not change Chest scratch", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestItemAffixScratchBuilderResolvesSlotKey()
+        {
+            Console.WriteLine("\n--- Testing ItemAffixScratchBuilder.TryResolveSlotKey ---");
+
+            TestBase.AssertTrue(ItemAffixScratchBuilder.TryResolveSlotKey("Chest", -1, out string chest),
+                "string Chest resolves", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Chest", chest, "Chest key", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertTrue(ItemAffixScratchBuilder.TryResolveSlotKey(null, 4, out string weapon),
+                "index 4 is Weapon", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Weapon", weapon, "Weapon key", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertTrue(ItemAffixScratchBuilder.TryResolveSlotKey("feet", -1, out string feet),
+                "case-insensitive feet", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Feet", feet, "Feet canonical key", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertFalse(ItemAffixScratchBuilder.TryResolveSlotKey("Bag", -1, out _),
+                "unknown slot rejected", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

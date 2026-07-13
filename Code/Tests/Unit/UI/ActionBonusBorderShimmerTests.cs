@@ -1,0 +1,173 @@
+using System;
+using Avalonia.Media;
+using RPGGame;
+using RPGGame.Data;
+using RPGGame.Tests;
+using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.Feedback;
+
+namespace RPGGame.Tests.Unit.UI
+{
+    /// <summary>
+    /// Tests for <see cref="ActionBonusBorderShimmer"/>.
+    /// </summary>
+    public static class ActionBonusBorderShimmerTests
+    {
+        public static void RunAllTests()
+        {
+            Console.WriteLine("=== ActionBonusBorderShimmer Tests ===\n");
+            int run = 0, passed = 0, failed = 0;
+
+            TestCueDetectsBonusGroups(ref run, ref passed, ref failed);
+            TestCueIgnoresEmptyGroups(ref run, ref passed, ref failed);
+            TestBorderColorLerpsUnselected(ref run, ref passed, ref failed);
+            TestSelectedBorderUsesWhiteEnd(ref run, ref passed, ref failed);
+            TestWaveTInUnitInterval(ref run, ref passed, ref failed);
+            TestPerimeterCellCount(ref run, ref passed, ref failed);
+            TestTravelHighlightCount(ref run, ref passed, ref failed);
+            TestTravelHighlightMovesWithTime(ref run, ref passed, ref failed);
+
+            TestBase.PrintSummary("ActionBonusBorderShimmer Tests", run, passed, failed);
+        }
+
+        private static Action MakeBonusAction()
+        {
+            return new Action("SHIMMER TEST")
+            {
+                ActionAttackBonuses = new ActionAttackBonuses
+                {
+                    BonusGroups = new System.Collections.Generic.List<ActionAttackBonusGroup>
+                    {
+                        new ActionAttackBonusGroup
+                        {
+                            CadenceType = "ACTION",
+                            Count = 1,
+                            Bonuses = new System.Collections.Generic.List<ActionAttackBonusItem>
+                            {
+                                new ActionAttackBonusItem { Type = "COMBO", Value = 2 }
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        private static void TestCueDetectsBonusGroups(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.AssertTrue(
+                ActionBonusBorderShimmer.ActionHasBonusCue(MakeBonusAction()),
+                "Cue true when ActionAttackBonuses has items",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                Action.HasActionAttackBonusGroups(MakeBonusAction()),
+                "Action.HasActionAttackBonusGroups matches cue",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void TestCueIgnoresEmptyGroups(ref int run, ref int passed, ref int failed)
+        {
+            var empty = new Action("NO BONUS");
+            TestBase.AssertTrue(
+                !ActionBonusBorderShimmer.ActionHasBonusCue(empty),
+                "Cue false with no bonuses",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                !ActionBonusBorderShimmer.ActionHasBonusCue(null),
+                "Cue false for null action",
+                ref run, ref passed, ref failed);
+
+            var blankGroup = new Action("BLANK GROUP")
+            {
+                ActionAttackBonuses = new ActionAttackBonuses
+                {
+                    BonusGroups = new System.Collections.Generic.List<ActionAttackBonusGroup>
+                    {
+                        new ActionAttackBonusGroup
+                        {
+                            CadenceType = "ACTION",
+                            Bonuses = new System.Collections.Generic.List<ActionAttackBonusItem>()
+                        }
+                    }
+                }
+            };
+            TestBase.AssertTrue(
+                !ActionBonusBorderShimmer.ActionHasBonusCue(blankGroup),
+                "Cue false for empty bonus list",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void TestBorderColorLerpsUnselected(ref int run, ref int passed, ref int failed)
+        {
+            // phase such that sin≈-1 → wave near 0 → DimCyan
+            var low = DateTimeOffset.FromUnixTimeMilliseconds(0);
+            Color cLow = ActionBonusBorderShimmer.GetBorderColor(isSelected: false, low);
+            TestBase.AssertTrue(
+                cLow.R <= ActionBonusBorderShimmer.BrightCyan.R
+                && cLow.B <= ActionBonusBorderShimmer.BrightCyan.B,
+                "Unselected shimmer stays within cyan range",
+                ref run, ref passed, ref failed);
+
+            var highPhaseMs = (long)(ActionBonusBorderShimmer.ColorPhaseMs * (Math.PI / 2.0));
+            var high = DateTimeOffset.FromUnixTimeMilliseconds(highPhaseMs);
+            Color cHigh = ActionBonusBorderShimmer.GetBorderColor(isSelected: false, high);
+            TestBase.AssertTrue(
+                cHigh.G >= cLow.G || cHigh.B >= cLow.B || cHigh.R >= cLow.R,
+                "Shimmer brightens across phase",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void TestSelectedBorderUsesWhiteEnd(ref int run, ref int passed, ref int failed)
+        {
+            var t0 = DateTimeOffset.FromUnixTimeMilliseconds(0);
+            Color c = ActionBonusBorderShimmer.GetBorderColor(isSelected: true, t0);
+            TestBase.AssertTrue(
+                c.R >= 200 && c.G >= 200 && c.B >= 200,
+                "Selected shimmer stays near white",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void TestWaveTInUnitInterval(ref int run, ref int passed, ref int failed)
+        {
+            for (double p = 0; p < Math.PI * 4; p += 0.2)
+            {
+                double t = ActionBonusBorderShimmer.GetWaveT(p);
+                if (t < 0 || t > 1)
+                {
+                    TestBase.AssertTrue(false, $"WaveT({p}) in [0,1]", ref run, ref passed, ref failed);
+                    return;
+                }
+            }
+            TestBase.AssertTrue(true, "WaveT stays in [0,1] over several cycles", ref run, ref passed, ref failed);
+        }
+
+        private static void TestPerimeterCellCount(ref int run, ref int passed, ref int failed)
+        {
+            // 4x3 rect: perimeter = 2*(4+3)-4 = 10
+            var cells = ActionBonusBorderShimmer.BuildPerimeterCells(0, 0, 4, 3);
+            TestBase.AssertEqual(10, cells.Count, "4x3 perimeter cell count", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(cells[0] == (0, 0), "Perimeter starts at top-left", ref run, ref passed, ref failed);
+        }
+
+        private static void TestTravelHighlightCount(ref int run, ref int passed, ref int failed)
+        {
+            var rects = ActionBonusBorderShimmer.GetTravelHighlightRects(2, 2, 6, 4, DateTimeOffset.FromUnixTimeMilliseconds(0));
+            TestBase.AssertEqual(
+                ActionBonusBorderShimmer.TravelHighlightLength,
+                rects.Count,
+                "Travel highlight length",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void TestTravelHighlightMovesWithTime(ref int run, ref int passed, ref int failed)
+        {
+            var a = ActionBonusBorderShimmer.GetTravelHighlightRects(0, 0, 5, 5, DateTimeOffset.FromUnixTimeMilliseconds(0));
+            var b = ActionBonusBorderShimmer.GetTravelHighlightRects(
+                0, 0, 5, 5,
+                DateTimeOffset.FromUnixTimeMilliseconds((long)(ActionBonusBorderShimmer.TravelLapMs * 0.25)));
+            TestBase.AssertTrue(
+                a.Count > 0 && b.Count > 0 && (a[0].X != b[0].X || a[0].Y != b[0].Y),
+                "Travel highlight head moves over a quarter lap",
+                ref run, ref passed, ref failed);
+        }
+    }
+}

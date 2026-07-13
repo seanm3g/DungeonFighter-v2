@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using RPGGame;
 using RPGGame.Actions;
 using RPGGame.Actions.Execution;
+using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Calculators;
 using RPGGame.Tests;
 
@@ -34,6 +36,7 @@ namespace RPGGame.Tests.Unit
             TestMultiHitWithSelfAndTarget();
             TestMultiHitAppliesRollPenaltyPerDamageTick();
             TestMultiHitModAppliesToNextAction();
+            TestActionCadenceMultiHitSurvivesMissUntilCombo();
 
             TestBase.PrintSummary("Multi-Hit Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -512,6 +515,128 @@ namespace RPGGame.Tests.Unit
                 var remaining = hero.Effects.PeekTurnBonuses();
                 TestBase.AssertTrue(!remaining.Any(b => string.Equals(b.Type, "MULTIHIT_MOD", StringComparison.OrdinalIgnoreCase)),
                     "After follow: MULTIHIT_MOD should be consumed from the queue",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        /// <summary>
+        /// ACTION cadence MULTIHIT_MOD stays on the next combo slot across a miss, updates strip preview,
+        /// and only redeems (extra hits) when a later roll is hit+combo.
+        /// </summary>
+        private static void TestActionCadenceMultiHitSurvivesMissUntilCombo()
+        {
+            Console.WriteLine("\n--- ACTION cadence MULTIHIT_MOD survives miss until combo ---");
+
+            var lastUsed = new System.Collections.Generic.Dictionary<Actor, Action>();
+            var lastCritMiss = new System.Collections.Generic.Dictionary<Actor, bool>();
+            int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMin <= 0) comboMin = 14;
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+
+                var hero = TestDataBuilders.Character()
+                    .WithName("MultiHitMissHero")
+                    .WithLevel(1)
+                    .WithStats(12, 10, 10, 10)
+                    .Build();
+                hero.Effects.ClearAllTempEffects();
+
+                var rapid = new Action
+                {
+                    Name = "RAPID STRIKE",
+                    Type = ActionType.Attack,
+                    DamageMultiplier = 1.0,
+                    IsComboAction = true,
+                    ComboOrder = 1,
+                    Cadence = "ACTION",
+                    MultiHitMod = "1",
+                    Advanced = new AdvancedMechanicsProperties { MultiHitCount = 1 }
+                };
+                var slam = new Action
+                {
+                    Name = "SLAM",
+                    Type = ActionType.Attack,
+                    DamageMultiplier = 1.0,
+                    IsComboAction = true,
+                    ComboOrder = 2,
+                    Advanced = new AdvancedMechanicsProperties { MultiHitCount = 1 }
+                };
+                hero.AddAction(rapid, 1.0);
+                hero.AddAction(slam, 1.0);
+                hero.Actions.AddToCombo(rapid);
+                hero.Actions.AddToCombo(slam);
+                hero.ComboStep = 0;
+
+                var enemy = TestDataBuilders.Enemy()
+                    .WithName("MissBag")
+                    .WithLevel(1)
+                    .WithHealth(500)
+                    .WithStats(5, 5, 5, 5)
+                    .Build();
+
+                Dice.SetTestRoll(Math.Max(comboMin + 1, 15));
+                var setup = ActionExecutionFlow.Execute(hero, enemy, null, null, rapid, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(setup.Hit && setup.IsCombo,
+                    "Setup RAPID STRIKE must hit+combo to queue MULTIHIT",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var slotPending = hero.Effects.GetPendingActionBonusesForSlot(1);
+                TestBase.AssertTrue(slotPending.Any(b =>
+                        string.Equals(b.Type, "MULTIHIT_MOD", StringComparison.OrdinalIgnoreCase) && Math.Abs(b.Value - 1) < 0.01),
+                    "MULTIHIT_MOD queued on next combo slot",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                int previewHits = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(slam, hero, 1);
+                TestBase.AssertEqual(2, previewHits,
+                    "Strip preview: Slam shows base 1 + pending MULTIHIT +1",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // Drop attack bonuses so a natural 1 cannot still clear HIT via STR/roll bonus.
+                hero.Stats.Strength = 0;
+                hero.Stats.Agility = 0;
+                hero.Stats.Technique = 0;
+                hero.Stats.Intelligence = 0;
+                hero.ComboStep = 1;
+                Dice.SetTestRoll(1);
+                ActionSelector.SetStoredActionRoll(hero, 1);
+                var miss = ActionExecutionFlow.Execute(hero, enemy, null, null, slam, null, lastUsed, lastCritMiss);
+                TestBase.AssertFalse(miss.Hit,
+                    "Forced miss on Slam",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                slotPending = hero.Effects.GetPendingActionBonusesForSlot(1);
+                TestBase.AssertTrue(slotPending.Any(b =>
+                        string.Equals(b.Type, "MULTIHIT_MOD", StringComparison.OrdinalIgnoreCase) && Math.Abs(b.Value - 1) < 0.01),
+                    "After miss: MULTIHIT_MOD still pending on Slam slot",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(0, hero.Effects.ConsumedMultiHitMod,
+                    "Miss must not redeem ConsumedMultiHitMod",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                hero.ComboStep = 1;
+                int enemyHealthBefore = enemy.CurrentHealth;
+                Dice.SetTestRoll(Math.Max(comboMin + 1, 15));
+                ActionSelector.SetStoredActionRoll(hero, Math.Max(comboMin + 1, 15));
+                var comboHit = ActionExecutionFlow.Execute(hero, enemy, null, null, slam, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(comboHit.Hit && comboHit.IsCombo,
+                    "Slam hit+combo redeems MULTIHIT",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                double dmgMult = ActionUtilities.CalculateDamageMultiplier(hero, slam);
+                int oneHit = CombatCalculator.CalculateDamage(hero, enemy, slam, dmgMult, 1.0, 0, Math.Max(comboMin + 1, 15));
+                int actual = enemyHealthBefore - enemy.CurrentHealth;
+                TestBase.AssertEqual(oneHit * 2, actual,
+                    "Redeemed MULTIHIT deals 2-hit damage",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(hero.Effects.GetPendingActionBonusesForSlot(1).Count == 0,
+                    "After combo: slot MULTIHIT consumed",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally

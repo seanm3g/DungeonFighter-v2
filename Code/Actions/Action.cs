@@ -267,5 +267,27 @@ namespace RPGGame
             }
             return false;
         }
+
+        /// <summary>
+        /// True if <see cref="ActionAttackBonuses"/> has at least one group with a bonus item (strip card border shimmer cue).
+        /// </summary>
+        public static bool HasActionAttackBonusGroups(Action? action)
+        {
+            if (action?.ActionAttackBonuses?.BonusGroups == null)
+                return false;
+
+            foreach (var group in action.ActionAttackBonuses.BonusGroups)
+            {
+                if (group?.Bonuses == null || group.Bonuses.Count == 0)
+                    continue;
+                foreach (var bonus in group.Bonuses)
+                {
+                    if (bonus != null)
+                        return true;
+                }
+            }
+
+            return false;
+        }
     }
 } 

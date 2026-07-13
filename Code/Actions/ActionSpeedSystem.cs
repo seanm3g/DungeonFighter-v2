@@ -68,7 +68,8 @@ namespace RPGGame
             return bestEntity?.Entity;
         }
 
-        // Add method to advance an entity's turn even when stunned
+        // Fallback when an entity must move forward but has no real action (empty pool, unknown entity).
+        // Snaps to global time — prefer AdvanceOwnTimeline / ExecuteAction for combat participants.
         public void AdvanceEntityTurn(Actor entity, double turnDuration = 1.0)
         {
             var combatEntity = entities.FirstOrDefault(e => e.Entity == entity);
@@ -84,6 +85,23 @@ namespace RPGGame
 
             if (turnDuration > 0)
                 GameTicker.Instance.AdvanceGameTime(turnDuration);
+        }
+
+        /// <summary>
+        /// Advances readiness by <paramref name="duration"/> from the entity's own NextActionTime
+        /// (same contract as <see cref="ExecuteAction"/>). Does not snap to global game time.
+        /// Stun skips use this so one stun turn equals one attack-time slot for that entity.
+        /// </summary>
+        public void AdvanceOwnTimeline(Actor entity, double duration)
+        {
+            var combatEntity = entities.FirstOrDefault(e => e.Entity == entity);
+            if (combatEntity == null) return;
+
+            double readyWhen = combatEntity.NextActionTime;
+            combatEntity.NextActionTime = readyWhen + duration;
+
+            if (duration > 0)
+                GameTicker.Instance.AdvanceGameTime(duration);
         }
 
         public double ExecuteAction(Actor entity, Action action, bool isCriticalMiss = false)

@@ -26,7 +26,7 @@ namespace RPGGame.Tests.Unit.Data
         {
             Console.WriteLine("=== Action Bonus Mechanics Tests ===\n");
             Console.WriteLine("Cadence types:");
-            Console.WriteLine("  - For next ACTION: Buffs bank when source action hit+combos. Duration stacks additively. Full bank redeems on the next hit+combo. Cleared when the room ends.");
+            Console.WriteLine("  - For next ACTION: Buffs bank when source action hit+combos. Duration stacks additively. Full bank redeems on the next hit+combo. Miss / non-combo hit keep the bank pending. Cleared when the room ends.");
             Console.WriteLine("  - For Next turn: Buffs apply to the next roll. Consumed on every roll. Stat bonuses (STR/AGI/etc) apply ONLY on hit.\n");
 
             _testsRun = 0;
@@ -46,8 +46,8 @@ namespace RPGGame.Tests.Unit.Data
             TestActionGrantRequiresCombo();
             TestActionBonusClipAtFinisher();
             TestActionBonusClipMidCombo();
-            TestActionBonusMissForfeitsLayer();
-            TestActionBonusHitNoComboForfeitsLayer();
+            TestActionBonusMissKeepsLayer();
+            TestActionBonusHitNoComboKeepsLayer();
             TestActionBonusComboConsumesLayer();
             TestThreeActionComboDamageModBuffsRemainingSlots();
             TestActionBonusDurationFollowsComboBonusDurationWhenGroupCountStale();
@@ -441,9 +441,9 @@ namespace RPGGame.Tests.Unit.Data
             }
         }
 
-        private static void TestActionBonusMissForfeitsLayer()
+        private static void TestActionBonusMissKeepsLayer()
         {
-            Console.WriteLine("\n--- ACTION consume: miss forfeits FIFO layer ---\n");
+            Console.WriteLine("\n--- ACTION consume: miss keeps FIFO layer ---\n");
 
             var lastUsed = new Dictionary<Actor, Action>();
             var lastCritMiss = new Dictionary<Actor, bool>();
@@ -466,8 +466,12 @@ namespace RPGGame.Tests.Unit.Data
                 TestBase.AssertFalse(result.Hit,
                     "Forced miss",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "Miss must forfeit pending ACTION layer",
+                TestBase.AssertEqual(1, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "Miss must keep pending ACTION layer until hit+combo",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(character.Effects.PeekPendingActionBonusesNextHeroRoll()
+                        .Any(b => string.Equals(b.Type, "COMBO", StringComparison.OrdinalIgnoreCase) && b.Value == 3),
+                    "Miss must leave COMBO bonus in the bank",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
@@ -477,9 +481,9 @@ namespace RPGGame.Tests.Unit.Data
             }
         }
 
-        private static void TestActionBonusHitNoComboForfeitsLayer()
+        private static void TestActionBonusHitNoComboKeepsLayer()
         {
-            Console.WriteLine("\n--- ACTION consume: hit without combo forfeits FIFO layer ---\n");
+            Console.WriteLine("\n--- ACTION consume: hit without combo keeps FIFO layer ---\n");
 
             var lastUsed = new Dictionary<Actor, Action>();
             var lastCritMiss = new Dictionary<Actor, bool>();
@@ -512,8 +516,11 @@ namespace RPGGame.Tests.Unit.Data
                 TestBase.AssertTrue(result.Hit && !result.IsCombo,
                     "Hit without combo",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "Hit without combo must forfeit pending ACTION layer",
+                TestBase.AssertEqual(1, character.Effects.GetPendingActionCadenceLayerCount(),
+                    "Hit without combo must keep pending ACTION layer until hit+combo",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(0, character.Effects.ConsumedSpeedModPercent,
+                    "SPEED_MOD must not redeem on non-combo hit",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally

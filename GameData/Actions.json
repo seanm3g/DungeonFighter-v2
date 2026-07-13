@@ -55,7 +55,8 @@
     "duration": "3",
     "cadence": "TURN",
     "mechanics": "hero_accuracy",
-    "heroAccuracy": "3"
+    "heroAccuracy": "3",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022ACCURACY\u0022,\u0022value\u0022:3}],\u0022durationType\u0022:\u0022TURN\u0022}]}"
   },
   {
     "action": "ACTION BONUS",
@@ -68,7 +69,9 @@
     "duration": "3",
     "cadence": "ACTION",
     "mechanics": "hero_next_action_damage",
-    "damageMod": "25"
+    "damageMod": "25",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:25}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
+    "tags": "bludgeon"
   },
   {
     "action": "FIGHT BONUS",
@@ -81,7 +84,8 @@
     "duration": "1",
     "cadence": "FIGHT",
     "mechanics": "hero_accuracy",
-    "heroAccuracy": "1"
+    "heroAccuracy": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022ACCURACY\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}"
   },
   {
     "action": "DUNGEON BONUS",
@@ -94,7 +98,8 @@
     "duration": "1",
     "cadence": "DUNGEON",
     "mechanics": "hero_accuracy",
-    "heroAccuracy": "1"
+    "heroAccuracy": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022ACCURACY\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}"
   },
   {
     "action": "LUCKY CHARM",
@@ -108,7 +113,9 @@
     "duration": "1",
     "cadence": "TURN",
     "mechanics": "hero_accuracy",
-    "heroAccuracy": "1"
+    "heroAccuracy": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022ACCURACY\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "rare"
   },
   {
     "action": "CONCENTRATION",
@@ -122,7 +129,9 @@
     "duration": "1",
     "cadence": "TURN",
     "mechanics": "hero_hit_threshold",
-    "heroHit": "1"
+    "heroHit": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022HIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "common"
   },
   {
     "action": "MEASURED ADVANCE",
@@ -136,7 +145,9 @@
     "duration": "1",
     "cadence": "TURN",
     "mechanics": "hero_combo_threshold",
-    "heroCombo": "1"
+    "heroCombo": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022COMBO\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "common"
   },
   {
     "action": "CRITICAL ATTACK",
@@ -150,7 +161,9 @@
     "duration": "1",
     "cadence": "TURN",
     "mechanics": "hero_crit_threshold",
-    "heroCrit": "1"
+    "heroCrit": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022CRIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "rare"
   },
   {
     "action": "EXTRA EFFORT",
@@ -165,7 +178,8 @@
     "cadence": "TURN",
     "mechanics": "hero_stat_bonus",
     "heroSTR": "1",
-    "tags": "class, barbarian"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022STR\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "common, class, barbarian"
   },
   {
     "action": "FIGHTER",
@@ -180,7 +194,8 @@
     "cadence": "FIGHT",
     "mechanics": "hero_stat_bonus",
     "heroSTR": "1",
-    "tags": "class, barbarian"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022STR\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
+    "tags": "common, class, barbarian"
   },
   {
     "action": "MOMENTUM BASH",
@@ -195,7 +210,8 @@
     "cadence": "DUNGEON",
     "mechanics": "hero_stat_bonus",
     "heroSTR": "1",
-    "tags": "class, barbarian"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022STR\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
+    "tags": "common, class, barbarian"
   },
   {
     "action": "REACTION TRAINING",
@@ -210,7 +226,8 @@
     "cadence": "TURN",
     "mechanics": "hero_stat_bonus",
     "heroAGI": "1",
-    "tags": "class, warrior"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AGI\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "common, class, warrior"
   },
   {
     "action": "DEEP BREATHING",
@@ -225,7 +242,8 @@
     "cadence": "FIGHT",
     "mechanics": "hero_stat_bonus",
     "heroAGI": "1",
-    "tags": "class, warrior"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AGI\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
+    "tags": "common, class, warrior"
   },
   {
     "action": "DANCE",
@@ -240,7 +258,8 @@
     "cadence": "DUNGEON",
     "mechanics": "hero_stat_bonus",
     "heroAGI": "1",
-    "tags": "class, warrior"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AGI\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
+    "tags": "common, class, warrior"
   },
   {
     "action": "TAKING AIM",
@@ -255,7 +274,8 @@
     "cadence": "TURN",
     "mechanics": "hero_stat_bonus",
     "heroTECH": "1",
-    "tags": "class, rogue"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022TECH\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "common, class, rogue"
   },
   {
     "action": "QUIET MIND",
@@ -270,7 +290,8 @@
     "cadence": "FIGHT",
     "mechanics": "hero_stat_bonus",
     "heroTECH": "1",
-    "tags": "class, rogue"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022TECH\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
+    "tags": "common, class, rogue"
   },
   {
     "action": "FOCUS",
@@ -285,7 +306,8 @@
     "cadence": "DUNGEON",
     "mechanics": "hero_stat_bonus",
     "heroTECH": "1",
-    "tags": "class, rogue"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022TECH\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
+    "tags": "common, class, rogue"
   },
   {
     "action": "READ BOOK",
@@ -300,7 +322,8 @@
     "cadence": "TURN",
     "mechanics": "hero_stat_bonus",
     "heroINT": "1",
-    "tags": "class, wizard"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022INT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "common, class, wizard"
   },
   {
     "action": "PRE-FIGHT PLANNING",
@@ -315,7 +338,8 @@
     "cadence": "FIGHT",
     "mechanics": "hero_stat_bonus",
     "heroINT": "1",
-    "tags": "class, wizard"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022INT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
+    "tags": "common, class, wizard"
   },
   {
     "action": "DUNGEON ANALYSIS",
@@ -330,7 +354,8 @@
     "cadence": "DUNGEON",
     "mechanics": "hero_stat_bonus",
     "heroINT": "1",
-    "tags": "class, wizard"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022INT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
+    "tags": "common, class, wizard"
   },
   {
     "action": "SPRINT",
@@ -343,7 +368,9 @@
     "duration": "1",
     "cadence": "TURN",
     "mechanics": "hero_next_action_speed",
-    "speedMod": "5"
+    "speedMod": "5",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "swift"
   },
   {
     "action": "RUSH",
@@ -356,7 +383,9 @@
     "duration": "1",
     "cadence": "ACTION",
     "mechanics": "hero_next_action_speed",
-    "speedMod": "1"
+    "speedMod": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
+    "tags": "swift"
   },
   {
     "action": "MOMENTUM",
@@ -369,7 +398,9 @@
     "duration": "1",
     "cadence": "FIGHT",
     "mechanics": "hero_next_action_speed",
-    "speedMod": "5"
+    "speedMod": "5",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
+    "tags": "swift"
   },
   {
     "action": "MARATHON",
@@ -382,7 +413,9 @@
     "duration": "1",
     "cadence": "DUNGEON",
     "mechanics": "hero_next_action_speed",
-    "speedMod": "0.5"
+    "speedMod": "0.5",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:0.5}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
+    "tags": "swift"
   },
   {
     "action": "STRONGER",
@@ -395,7 +428,9 @@
     "duration": "1",
     "cadence": "ACTION",
     "mechanics": "hero_next_action_damage",
-    "damageMod": "5"
+    "damageMod": "5",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
+    "tags": "bludgeon"
   },
   {
     "action": "RAPID STRIKE",
@@ -408,7 +443,8 @@
     "duration": "1",
     "cadence": "ACTION",
     "mechanics": "hero_next_action_multihit",
-    "multiHitMod": "1"
+    "multiHitMod": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022MULTIHIT_MOD\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022ACTION\u0022}]}"
   },
   {
     "action": "EMPOWERED",
@@ -421,7 +457,9 @@
     "duration": "1",
     "cadence": "ACTION",
     "mechanics": "hero_next_action_amp",
-    "ampMod": "0.1"
+    "ampMod": "0.1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AMP_MOD\u0022,\u0022value\u0022:0.1}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
+    "tags": "focus"
   },
   {
     "action": "SHARPEN",
@@ -432,8 +470,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "TURN",
-    "mechanics": "weapon_damage"
+    "cadence": "TURN"
   },
   {
     "action": "TWISTING STRIKE",
@@ -444,8 +481,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "FIGHT",
-    "mechanics": "weapon_damage"
+    "cadence": "FIGHT"
   },
   {
     "action": "WHIRLWIND",
@@ -456,8 +492,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "DUNGEON",
-    "mechanics": "weapon_damage"
+    "cadence": "DUNGEON"
   },
   {
     "action": "LOOSE GRIP",
@@ -468,8 +503,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "TURN",
-    "mechanics": "weapon_damage"
+    "cadence": "TURN"
   },
   {
     "action": "JUICED",
@@ -480,8 +514,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "FIGHT",
-    "mechanics": "weapon_damage"
+    "cadence": "FIGHT"
   },
   {
     "action": "BLUR",
@@ -492,8 +525,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "DUNGEON",
-    "mechanics": "weapon_damage"
+    "cadence": "DUNGEON"
   },
   {
     "action": "OPENER",
@@ -503,8 +535,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "mechanics": "opener",
-    "opener": "1",
+    "opener": "true",
     "tags": "opener"
   },
   {
@@ -515,8 +546,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "mechanics": "finisher",
-    "finisher": "1",
+    "finisher": "true",
     "tags": "finisher"
   },
   {
@@ -530,7 +560,8 @@
     "duration": "1",
     "cadence": "ACTION",
     "mechanics": "hero_combo_threshold",
-    "heroCombo": "1"
+    "heroCombo": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022COMBO\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022ACTION\u0022}]}"
   },
   {
     "action": "WEAKEN",
@@ -617,7 +648,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadence": "ACTION"
+    "cadence": "ACTION",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022ADVANTAGE\u0022,\u0022value\u0022:2}],\u0022durationType\u0022:\u0022ACTION\u0022}]}"
   },
   {
     "action": "UNLUCK",
@@ -627,7 +659,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadence": "ACTION"
+    "cadence": "ACTION",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DISADVANTAGE\u0022,\u0022value\u0022:2}],\u0022durationType\u0022:\u0022ACTION\u0022}]}"
   },
   {
     "action": "JAB",
@@ -647,8 +680,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "TURN",
-    "mechanics": "expose"
+    "cadence": "TURN"
   },
   {
     "action": "ACID BURN",
@@ -657,8 +689,7 @@
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
-    "speed": "1.00",
-    "mechanics": "acid"
+    "speed": "1.00"
   },
   {
     "action": "STUN",
@@ -668,7 +699,6 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "mechanics": "stun",
     "stun": "1"
   },
   {
@@ -679,7 +709,6 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "mechanics": "poison",
     "poison": "1"
   },
   {
@@ -690,7 +719,6 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "mechanics": "burn",
     "burn": "1"
   },
   {
@@ -701,7 +729,6 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "mechanics": "bleed",
     "bleed": "1"
   },
   {
@@ -742,7 +769,8 @@
     "duration": "3",
     "cadence": "ATTACK",
     "mechanics": "hero_combo_threshold",
-    "heroCombo": "5"
+    "heroCombo": "5",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022COMBO\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022TURN\u0022}]}"
   },
   {
     "action": "GAMBLERS BLESSING",
@@ -765,6 +793,7 @@
     "cadence": "ACTION",
     "mechanics": "hero_accuracy",
     "heroAccuracy": "-14",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022ACCURACY\u0022,\u0022value\u0022:-14}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
     "tags": "class"
   },
   {
@@ -777,10 +806,11 @@
     "speed": "0.50",
     "duration": "1",
     "cadence": "ACTION",
-    "mechanics": "damage, enemy_stat_bonus, hero_accuracy",
+    "mechanics": "enemy_stat_bonus, hero_accuracy",
     "heroAccuracy": "1",
     "enemySTR": "-1",
     "enemyAGI": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022ACCURACY\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
     "tags": "class, barbarian"
   }
 ]

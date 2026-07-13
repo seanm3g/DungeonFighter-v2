@@ -14,14 +14,14 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
     /// </summary>
     public sealed class ItemGenerationPanelHandler : ISettingsPanelHandler
     {
-        private static readonly string[] AffixSlotKeys = { "Head", "Chest", "Legs", "Feet", "Weapon" };
-
         private readonly Action<string, bool>? showStatusMessage;
 
         /// <summary>Scratch copy: outer key Head/Chest/Legs/Feet/Weapon, inner rarity → entry.</summary>
         private Dictionary<string, Dictionary<string, ItemAffixPerRarityEntry>>? _affixScratch;
 
         private string _activeAffixSlot = "Head";
+        private ItemGenerationSettingsPanel? _wiredPanel;
+        private bool _suppressAffixSlotChange;
 
         public ItemGenerationPanelHandler(Action<string, bool>? showStatusMessage = null)
         {
@@ -34,16 +34,26 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
         {
             if (panel is not ItemGenerationSettingsPanel p) return;
 
+            _wiredPanel = p;
             LoadSettings(panel);
             WireLootCapFieldsToConfiguration(p);
 
             var slotCombo = p.FindControl<ComboBox>("AffixSlotCombo");
             if (slotCombo != null)
             {
-                slotCombo.ItemsSource = AffixSlotKeys.ToList();
-                slotCombo.SelectedItem = _activeAffixSlot;
-                if (slotCombo.SelectedIndex < 0 && AffixSlotKeys.Length > 0)
-                    slotCombo.SelectedIndex = 0;
+                _suppressAffixSlotChange = true;
+                try
+                {
+                    slotCombo.ItemsSource = ItemAffixScratchBuilder.AffixSlotKeys.ToList();
+                    slotCombo.SelectedItem = _activeAffixSlot;
+                    if (slotCombo.SelectedIndex < 0 && ItemAffixScratchBuilder.AffixSlotKeys.Length > 0)
+                        slotCombo.SelectedIndex = 0;
+                }
+                finally
+                {
+                    _suppressAffixSlotChange = false;
+                }
+
                 slotCombo.SelectionChanged -= OnAffixSlotChanged;
                 slotCombo.SelectionChanged += OnAffixSlotChanged;
             }
@@ -51,10 +61,27 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
         private void OnAffixSlotChanged(object? sender, SelectionChangedEventArgs e)
         {
-            if (sender is not ComboBox cb || cb.SelectedItem is not string next)
+            if (_suppressAffixSlotChange)
+                return;
+            if (sender is not ComboBox cb)
                 return;
 
-            var panel = FindPanelHost(cb);
+            if (!ItemAffixScratchBuilder.TryResolveSlotKey(cb.SelectedItem, cb.SelectedIndex, out string next))
+            {
+                // Avalonia sometimes reports the new item only in AddedItems during the event.
+                if (e.AddedItems.Count > 0 &&
+                    ItemAffixScratchBuilder.TryResolveSlotKey(e.AddedItems[0], -1, out next))
+                {
+                    // resolved via AddedItems
+                }
+                else
+                    return;
+            }
+
+            if (string.Equals(next, _activeAffixSlot, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            var panel = _wiredPanel;
             if (panel == null || _affixScratch == null)
                 return;
 
@@ -63,39 +90,35 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             PaintUiFromScratch(panel, _activeAffixSlot);
         }
 
-        private static ItemGenerationSettingsPanel? FindPanelHost(ComboBox cb)
-        {
-            Control? c = cb;
-            while (c != null)
-            {
-                if (c is ItemGenerationSettingsPanel p)
-                    return p;
-                c = c.Parent as Control;
-            }
-
-            return null;
-        }
-
         public void LoadSettings(UserControl panel)
         {
             if (panel is not ItemGenerationSettingsPanel p) return;
 
+            _wiredPanel = p;
             var cache = LootDataCache.Load();
             var tuning = GameConfiguration.Instance.ItemAffixByRarity;
-            _affixScratch = BuildScratchFromTuning(tuning, cache);
+            _affixScratch = ItemAffixScratchBuilder.BuildFromTuning(tuning, cache.RarityData);
             _activeAffixSlot = "Head";
 
-            var slotCombo = p.FindControl<ComboBox>("AffixSlotCombo");
-            if (slotCombo != null)
+            _suppressAffixSlotChange = true;
+            try
             {
-                if (slotCombo.ItemsSource == null)
-                    slotCombo.ItemsSource = AffixSlotKeys.ToList();
-                slotCombo.SelectedItem = _activeAffixSlot;
-                if (slotCombo.SelectedIndex < 0)
-                    slotCombo.SelectedIndex = 0;
-            }
+                var slotCombo = p.FindControl<ComboBox>("AffixSlotCombo");
+                if (slotCombo != null)
+                {
+                    if (slotCombo.ItemsSource == null)
+                        slotCombo.ItemsSource = ItemAffixScratchBuilder.AffixSlotKeys.ToList();
+                    slotCombo.SelectedItem = _activeAffixSlot;
+                    if (slotCombo.SelectedIndex < 0)
+                        slotCombo.SelectedIndex = 0;
+                }
 
-            PaintUiFromScratch(p, _activeAffixSlot);
+                PaintUiFromScratch(p, _activeAffixSlot);
+            }
+            finally
+            {
+                _suppressAffixSlotChange = false;
+            }
 
             var loot = GameConfiguration.Instance.LootSystem;
             SetInt(p, "ComboSeqBaseMaxText", loot?.ComboSequenceBaseMax ?? 2);
@@ -145,93 +168,19 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             {
                 if (kv.Value == null)
                     continue;
-                o[kv.Key] = new Dictionary<string, ItemAffixPerRarityEntry>(kv.Value, StringComparer.OrdinalIgnoreCase);
+                var inner = new Dictionary<string, ItemAffixPerRarityEntry>(StringComparer.OrdinalIgnoreCase);
+                foreach (var row in kv.Value)
+                {
+                    if (row.Value == null)
+                        continue;
+                    inner[row.Key] = ItemAffixScratchBuilder.CloneEntry(row.Value);
+                }
+
+                o[kv.Key] = inner;
             }
 
             return o;
         }
-
-        private static Dictionary<string, Dictionary<string, ItemAffixPerRarityEntry>> BuildScratchFromTuning(
-            ItemAffixByRaritySettings? tuning,
-            LootDataCache cache)
-        {
-            var scratch = new Dictionary<string, Dictionary<string, ItemAffixPerRarityEntry>>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (string slot in AffixSlotKeys)
-            {
-                var dict = new Dictionary<string, ItemAffixPerRarityEntry>(StringComparer.OrdinalIgnoreCase);
-                ItemType it = SlotKeyToItemType(slot);
-
-                foreach (string rarity in ItemAffixByRaritySettings.StandardLootRarities)
-                {
-                    var tableRow = cache.RarityData?.FirstOrDefault(r =>
-                        r.Name.Equals(rarity, StringComparison.OrdinalIgnoreCase));
-
-                    if (tuning != null && tuning.TryGetForItemTypeAndRarity(it, rarity, out var typed))
-                        dict[rarity] = CloneEntry(typed);
-                    else if (tuning != null && tuning.TryGetForRarity(rarity, out var legacy))
-                        dict[rarity] = CloneEntry(legacy);
-                    else
-                    {
-                        var rule = ItemAffixByRaritySettings.GetResolvedAffixRule(rarity, tableRow, null, it);
-                        dict[rarity] = new ItemAffixPerRarityEntry
-                        {
-                            PrefixSlots = rule.PrefixMin,
-                            PrefixExtraChance = 0,
-                            PrefixSlotsMax = null,
-                            StatSuffixes = rule.StatMin,
-                            StatSuffixExtraChance = 0,
-                            StatSuffixesMax = null,
-                            ActionBonuses = rule.ActionMin,
-                            ActionExtraChance = 0,
-                            ActionBonusesMax = null,
-                            ExtraComboSlots = rule.ExtraComboSlotsMin,
-                            ExtraComboSlotsExtraChance = 0,
-                            ExtraComboSlotsMax = null
-                        };
-                    }
-                }
-
-                scratch[slot] = dict;
-            }
-
-            if (tuning?.PerItemType != null)
-            {
-                foreach (var kv in tuning.PerItemType)
-                {
-                    if (kv.Value == null || kv.Value.Count == 0)
-                        continue;
-                    string key = AffixSlotKeys.FirstOrDefault(s => s.Equals(kv.Key, StringComparison.OrdinalIgnoreCase)) ?? kv.Key;
-                    scratch[key] = new Dictionary<string, ItemAffixPerRarityEntry>(kv.Value, StringComparer.OrdinalIgnoreCase);
-                }
-            }
-
-            return scratch;
-        }
-
-        private static ItemType SlotKeyToItemType(string slot) =>
-            slot.Equals("Head", StringComparison.OrdinalIgnoreCase) ? ItemType.Head :
-            slot.Equals("Chest", StringComparison.OrdinalIgnoreCase) ? ItemType.Chest :
-            slot.Equals("Legs", StringComparison.OrdinalIgnoreCase) ? ItemType.Legs :
-            slot.Equals("Feet", StringComparison.OrdinalIgnoreCase) ? ItemType.Feet :
-            ItemType.Weapon;
-
-        private static ItemAffixPerRarityEntry CloneEntry(ItemAffixPerRarityEntry e) =>
-            new()
-            {
-                PrefixSlots = e.PrefixSlots,
-                PrefixExtraChance = e.PrefixExtraChance,
-                PrefixSlotsMax = e.PrefixSlotsMax,
-                StatSuffixes = e.StatSuffixes,
-                StatSuffixExtraChance = e.StatSuffixExtraChance,
-                StatSuffixesMax = e.StatSuffixesMax,
-                ActionBonuses = e.ActionBonuses,
-                ActionExtraChance = e.ActionExtraChance,
-                ActionBonusesMax = e.ActionBonusesMax,
-                ExtraComboSlots = e.ExtraComboSlots,
-                ExtraComboSlotsExtraChance = e.ExtraComboSlotsExtraChance,
-                ExtraComboSlotsMax = e.ExtraComboSlotsMax
-            };
 
         /// <summary>
         /// When combo cap TextBoxes lose focus, push valid values into <see cref="GameConfiguration.Instance"/> so any later
@@ -298,6 +247,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
         {
             if (_affixScratch == null || !_affixScratch.TryGetValue(slotKey, out var dict) || dict == null)
                 return;
+
+            var label = p.FindControl<TextBlock>("AffixActiveSlotLabel");
+            if (label != null)
+                label.Text = $"Showing table for: {slotKey}";
 
             foreach (string rarity in ItemAffixByRaritySettings.StandardLootRarities)
             {

@@ -387,12 +387,17 @@ namespace RPGGame.Actions.Execution
         }
 
         /// <summary>
-        /// ACTION cadence slot + bank: peeked during roll prep; modifiers apply only on hit+combo,
-        /// forfeited on hit without combo or miss.
+        /// ACTION cadence slot + bank: peeked during roll prep for threshold/roll help.
+        /// Redeemed (consumed + applied) only on hit+combo. Miss and non-combo hit leave
+        /// pending bonuses in place so the next-action strip stays updated until a combo lands.
         /// </summary>
         private static void ResolvePendingActionCadenceBonuses(Character hero, Action selectedAction, ActionExecutionResult result)
         {
             if (!result.PendingActionCadenceLayerPeekedForRoll)
+                return;
+
+            // Stay pending across misses / normal hits; only combo redeems the bank and slot.
+            if (!result.IsCombo)
                 return;
 
             var slotConsumed = new List<ActionAttackBonusItem>();
@@ -404,14 +409,11 @@ namespace RPGGame.Actions.Execution
             }
             var bankConsumed = hero.Effects.ConsumePendingActionBonusesNextHeroRoll();
 
-            if (result.IsCombo)
-            {
-                int duration = CadenceToStatBonusDuration(CadenceKeywords.Action);
-                ApplyStatBonusesFromCadenceItems(hero, slotConsumed, duration);
-                ApplyStatBonusesFromCadenceItems(hero, bankConsumed, duration);
-                hero.Effects.AccumulateConsumedModifierBonuses(slotConsumed);
-                hero.Effects.AccumulateConsumedModifierBonuses(bankConsumed);
-            }
+            int duration = CadenceToStatBonusDuration(CadenceKeywords.Action);
+            ApplyStatBonusesFromCadenceItems(hero, slotConsumed, duration);
+            ApplyStatBonusesFromCadenceItems(hero, bankConsumed, duration);
+            hero.Effects.AccumulateConsumedModifierBonuses(slotConsumed);
+            hero.Effects.AccumulateConsumedModifierBonuses(bankConsumed);
         }
 
         /// <summary>

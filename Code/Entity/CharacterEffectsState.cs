@@ -110,8 +110,9 @@ namespace RPGGame
         /// <summary>ACTION cadence: slot-based. Key = combo slot index; value = bonuses to apply when that slot executes.</summary>
         public Dictionary<int, List<ActionAttackBonusItem>> PendingActionBonusesBySlot { get; set; } = new Dictionary<int, List<ActionAttackBonusItem>>();
         /// <summary>
-        /// ACTION cadence: additive bank. Multiple deposits sum by bonus type; the full bank redeems on the next hit+combo
-        /// or is forfeited on hit without combo or miss. Cleared when the room ends (<see cref="ClearActionBonus"/>).
+        /// ACTION cadence: additive bank. Multiple deposits sum by bonus type; the full bank redeems on the next hit+combo.
+        /// Miss and non-combo hits leave the bank pending (strip stays updated until a combo lands).
+        /// Cleared when the room ends (<see cref="ClearActionBonus"/>).
         /// </summary>
         public List<ActionAttackBonusItem> PendingActionCadenceBonusBank { get; set; } = new List<ActionAttackBonusItem>();
         /// <summary>Number of deposit events stacked into <see cref="PendingActionCadenceBonusBank"/> (for HUD).</summary>
@@ -302,7 +303,7 @@ namespace RPGGame
 
         public bool HasPendingActionCadenceBank() => PendingActionCadenceBonusBank.Count > 0;
 
-        /// <summary>Peek the full additive ACTION bank (roll help until hit+combo redeems or hit/miss forfeits).</summary>
+        /// <summary>Peek the full additive ACTION bank (roll help until hit+combo redeems; miss keeps pending).</summary>
         public List<ActionAttackBonusItem> PeekPendingActionBonusesNextHeroRoll() =>
             ActionCadenceBonusBank.Copy(PendingActionCadenceBonusBank);
 

@@ -16,13 +16,13 @@ namespace RPGGame
         /// <summary>At MF 100, affix-line tier weights for prefix/suffix pool rolls scale up to this multiplier on the highest tier index present in the pool (Common stays 1×).</summary>
         public double AffixMagicFindMaxWeightBoost { get; set; } = 2.0;
 
-        /// <summary>At MF 100, optional affix *extra* chances (prefix/stat/action) multiply by this value before capping at 1.0 per step.</summary>
+        /// <summary>At MF 100, optional affix *extra* chances (prefix/stat/action/extra combo slots) multiply by this value before capping at 1.0 per step.</summary>
         public double AffixMagicFindMaxExtraChanceBoost { get; set; } = 2.0;
 
-        /// <summary>Default maximum number of actions in the player combo sequence before feet bonuses.</summary>
+        /// <summary>Starting combo sequence length before gear <see cref="Item.ExtraActionSlots"/>, named class-tier upgrades, and Wand intrinsic bonus.</summary>
         public int ComboSequenceBaseMax { get; set; } = 2;
 
-        /// <summary>Hard cap on combo sequence length after equipment <see cref="Item.ExtraActionSlots"/> and <c>ExtraActionSlots</c> affixes.</summary>
+        /// <summary>Hard cap on combo sequence length after gear ExtraActionSlots (catalog + affix + StatBonuses), class-tier upgrades, and Wand intrinsic bonus (<see cref="ComboSequenceMaxHelper"/>).</summary>
         public int ComboSequenceAbsoluteMax { get; set; } = 8;
 
         /// <summary>INT threshold for combo sequence unlocks (see <see cref="GameConstants.ComboSequenceIntelligenceThreshold"/>).</summary>

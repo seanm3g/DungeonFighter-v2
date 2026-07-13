@@ -58,12 +58,12 @@ namespace RPGGame.Actions.Execution
             if (source is Character character && !(character is Enemy) && forcedAction == null)
                 result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
 
-            // Roll and threshold bonuses: TURN (consumed per roll), ACTION (peek slot + bank; redeem on hit+combo, forfeit otherwise)
+            // Roll and threshold bonuses: TURN (consumed per roll), ACTION (peek slot + bank; redeem on hit+combo only — miss/non-combo keep pending)
             int actionBonusAccumulator = 0, actionBonusHit = 0, actionBonusCombo = 0, actionBonusCrit = 0, actionBonusCritMiss = 0;
             bool pendingAdvantage = false, pendingDisadvantage = false;
             if (source is Character actionBonusCharacter && !(actionBonusCharacter is Enemy))
             {
-                // 1. ACTION cadence: legacy slot-based pending (peeked per roll) + FIFO bank peeked until hit+combo redeems or hit/miss forfeits
+                // 1. ACTION cadence: legacy slot-based pending (peeked per roll) + bank peeked until hit+combo redeems (miss keeps pending)
                 var comboActions = ActionUtilities.GetComboActions(actionBonusCharacter);
                 int comboLength = comboActions.Count;
                 var pendingActionRollBonuses = new List<ActionAttackBonusItem>();

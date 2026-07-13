@@ -119,34 +119,40 @@
                                                Foreground="#FFCCCCCC"
                                                TextWrapping="Wrap"
                                                LineHeight="15"
-                                               Text="Per-rarity matrix used when rolling items: prefix slot count, StatBonuses suffix lines, and granted action-bonus lines. Applies to real dungeon loot and to batches generated here (LootBonusApplier resolves the row for the concrete item type)."/>
+                                               Text="Per-rarity matrix used when rolling items: prefix slot count, StatBonuses suffix lines, granted action-bonus lines, and extra combo-strip slots. Applies to real dungeon loot and to batches generated here (LootBonusApplier resolves the row for the concrete item type)."/>
                                     <TextBlock FontSize="11"
                                                Classes="settings-muted"
                                                TextWrapping="Wrap"
                                                LineHeight="15"
-                                               Text="Prefix — Quality / Adjective / Material modification slots (0–3; Modifications.json, prefixCategory). Suffix — extra lines from StatBonuses.json (rolled “of …” stats), not the same as prefix modification names. Actions — additional granted-action lines on the item."/>
+                                               Text="Prefix — Quality / Adjective / Material modification slots (0–3; Modifications.json, prefixCategory). Suffix — extra lines from StatBonuses.json (rolled “of …” stats), not the same as prefix modification names. Actions — additional granted-action lines on the item. Extra slots — additional Item.ExtraActionSlots from the affix pass (on top of catalog extraActionSlots)."/>
                                     <TextBlock FontSize="11"
                                                Classes="settings-muted"
                                                TextWrapping="Wrap"
                                                LineHeight="15"
-                                               Text="Affix rules for: Head, Chest, Legs, Feet, or Weapon each has its own table. Save writes all five under perItemType; the Weapon row is also copied to perRarity for older configs that only read the flat map."/>
+                                               Text="Head, Chest, Legs, Feet, and Weapon each have their own table under itemAffixByRarity.perItemType. Save writes all five there; LootBonusApplier prefers the slot table, then falls back to flat perRarity. Save also mirrors the Weapon table into perRarity so that fallback stays populated. Shipped defaults are often identical across slots — edit one slot to see the grid change when you switch back."/>
                                 </StackPanel>
                                 </Border>
                                 <StackPanel Orientation="Horizontal" Spacing="12">
                                 <TextBlock Text="Affix rules for:" VerticalAlignment="Center" Foreground="#FFCCCCCC" FontSize="11"/>
                                 <ComboBox x:Name="AffixSlotCombo" Width="120" Classes="ParamCombo" MinHeight="28"/>
+                                <TextBlock x:Name="AffixActiveSlotLabel"
+                                           Text="Showing table for: Head"
+                                           VerticalAlignment="Center"
+                                           Foreground="#FF9CDCFE"
+                                           FontSize="10"
+                                           Margin="8,0,0,0"/>
                                 <TextBlock Text="Combo max (base)" VerticalAlignment="Center" Classes="settings-muted" FontSize="10" Margin="16,0,0,0"/>
                                 <TextBox x:Name="ComboSeqBaseMaxText" Width="44" Classes="ParamField" MaxLength="2"
-                                         ToolTip.Tip="LootSystemConfig.ComboSequenceBaseMax → JSON lootSystem.comboSequenceBaseMax. Default max combo actions before gear extra slots; must be ≤ hard cap."/>
+                                         ToolTip.Tip="LootSystemConfig.ComboSequenceBaseMax → JSON lootSystem.comboSequenceBaseMax. Starting combo length before gear ExtraActionSlots, named class-tier upgrades, and Wand intrinsic slot bonus; must be ≤ hard cap."/>
                                 <TextBlock Text="hard cap" VerticalAlignment="Center" Classes="settings-muted" FontSize="10"/>
                                 <TextBox x:Name="ComboSeqAbsMaxText" Width="44" Classes="ParamField" MaxLength="2"
-                                         ToolTip.Tip="LootSystemConfig.ComboSequenceAbsoluteMax → JSON lootSystem.comboSequenceAbsoluteMax. Hard ceiling; effective max is min(this, base + sum of equipped head/chest/legs/feet/weapon: catalog Item.ExtraActionSlots plus StatBonuses typed ExtraActionSlots)."/>
+                                         ToolTip.Tip="LootSystemConfig.ComboSequenceAbsoluteMax → JSON lootSystem.comboSequenceAbsoluteMax. Hard ceiling. Effective max = min(this, base + equipped ExtraActionSlots [catalog + affix pass + StatBonuses typed ExtraActionSlots] + named class-tier upgrades + Wand intrinsic bonus)."/>
                                 </StackPanel>
                                 <TextBlock FontSize="10"
                                        Foreground="#FF888888"
                                        TextWrapping="Wrap"
                                        LineHeight="13"
-                                       Text="Combo caps live on lootSystem in the same TuningConfig file (not inside itemAffixByRarity). Saved together when you use Save on this settings screen."/>
+                                       Text="Each slot has its own table (shipped balance often uses the same mins for every slot until you edit one — change a Min on Head, switch to Chest, then back to Head to confirm independence). Combo caps live on lootSystem in the same TuningConfig file (not inside itemAffixByRarity). Saved together when you use Save on this settings screen."/>
                             <ScrollViewer MaxHeight="420"
                                           VerticalScrollBarVisibility="Auto"
                                           HorizontalScrollBarVisibility="Disabled">

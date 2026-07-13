@@ -88,6 +88,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// Renders the action-info strip at the top of the center column (combat, inventory, etc.), above the combat log.
         /// Shows at least <see cref="LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT"/> panels (empty placeholders when the combo is shorter or empty);
         /// selected (next combo step) panel border is white when the sequence is non-empty; other filled slots use neutral gray darkened 50%; brief pulsing red/green/gold border after each hero swing is handled by <see cref="RPGGame.UI.Avalonia.Feedback.HeroActionStripFeedback"/> (thicker stroke for the flashing panel during the sequence).
+        /// Cards with <see cref="Action.ActionAttackBonuses"/> shimmer via <see cref="RPGGame.UI.Avalonia.Feedback.ActionBonusBorderShimmer"/> (flash still overrides).
         /// Panels at indices ≥ <see cref="ComboSequenceMaxHelper.GetEffectiveMax(Character?)"/> use a black border so unused strip capacity matches the character’s combo slot limit.
         /// When player is null, strip is cleared.
         /// </summary>
@@ -111,19 +112,42 @@ namespace RPGGame.UI.Avalonia.Renderers
             int displayCount = ActionInfoStripLayout.GetDisplayPanelCount(filled);
             int selectedIndex = filled > 0 ? player.ComboStep % filled : -1;
             int effectiveMaxSlots = ComboSequenceMaxHelper.GetEffectiveMax(player);
+            bool anyBonusShimmer = false;
+            var shimmerNow = DateTimeOffset.UtcNow;
 
             for (int i = 0; i < displayCount; i++)
             {
                 ActionInfoStripLayout.GetPanelRect(i, displayCount, out int px, out int py, out int pw, out int panelH);
                 bool isEmptySlot = i >= filled;
                 var baseBorder = ActionInfoStripLayout.GetPanelBorderColor(i, filled, selectedIndex, effectiveMaxSlots);
-                var borderColor = HeroActionStripFeedback.TryGetBorderOverride(i, out var flashColor)
-                    ? flashColor
-                    : baseBorder;
+                bool flashActive = HeroActionStripFeedback.TryGetBorderOverride(i, out var flashColor);
+                bool isSelected = !isEmptySlot && selectedIndex >= 0 && i == selectedIndex;
+                bool bonusCue = !isEmptySlot && i < effectiveMaxSlots
+                    && i < comboForStrip.Count
+                    && ActionBonusBorderShimmer.ActionHasBonusCue(comboForStrip[i]);
+
+                Color borderColor;
+                if (flashActive)
+                    borderColor = flashColor;
+                else if (bonusCue)
+                {
+                    anyBonusShimmer = true;
+                    borderColor = ActionBonusBorderShimmer.GetBorderColor(isSelected, shimmerNow);
+                }
+                else
+                    borderColor = baseBorder;
+
                 int borderThick = HeroActionStripFeedback.IsFlashEmphasisActive(i)
                     ? HeroActionStripFeedback.FlashBorderThicknessPixels
                     : 1;
                 canvas.AddBorder(px, py, pw, panelH, borderColor, borderThick);
+
+                if (bonusCue && !flashActive)
+                {
+                    var highlight = ActionBonusBorderShimmer.GetTravelHighlightColor(shimmerNow);
+                    foreach (var (hx, hy, hw, hh) in ActionBonusBorderShimmer.GetTravelHighlightRects(px, py, pw, panelH, shimmerNow))
+                        canvas.AddBorder(hx, hy, hw, hh, highlight, 2);
+                }
 
                 if (isEmptySlot || i >= effectiveMaxSlots)
                     continue;
@@ -186,6 +210,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                     canvas.AddText(contentX, contentY, thresholdLine, AsciiArtAssets.Colors.Cyan);
                 }
             }
+
+            if (anyBonusShimmer)
+                ActionBonusBorderShimmer.KeepAlive();
 
             if (drawHoverDetailOverlay)
                 RenderActionStripTooltipOverlay(player, filled, displayCount, damageLineMode);

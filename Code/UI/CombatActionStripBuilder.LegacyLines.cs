@@ -79,7 +79,7 @@ namespace RPGGame
 
             var lines = new List<string>();
 
-            // Pending ACTION additive bank for the next hit+combo redeem
+            // Pending ACTION additive bank for the next hit+combo redeem (miss keeps pending)
             var nextRollBonuses = character.Effects.PeekPendingActionBonusesNextHeroRoll();
             int layerCount = character.Effects.GetPendingActionCadenceLayerCount();
             if (nextRollBonuses.Count > 0)

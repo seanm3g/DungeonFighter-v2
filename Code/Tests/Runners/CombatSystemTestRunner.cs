@@ -52,6 +52,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             CombatEffectsSimplifiedTests.RunAllTests();
             Console.WriteLine();
+            StunProcessorTests.RunAllTests();
+            Console.WriteLine();
             ActionEffectTargetTests.RunAllTests();
             Console.WriteLine();
             HealthBarDeltaDamageHintTests.RunAllTests();

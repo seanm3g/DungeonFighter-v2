@@ -38,7 +38,7 @@ DungeonFighter/
 - **`Code/Combat/CombatCalculator.cs`** - Centralized damage, speed, and stat calculations
 - **`Code/Combat/CombatEffectsSimplified.cs`** - Simplified status effects management (optimized effects system)
 - **`Code/Combat/EffectHandlerRegistry.cs`** - Strategy pattern for handling different combat effects
-- **`Code/Combat/StunProcessor.cs`** - Generic stun processing logic
+- **`Code/Combat/StunProcessor.cs`** - Stun skips: one turn = victim `GetTotalAttackSpeed()`, scheduled via `ActionSpeedSystem.AdvanceOwnTimeline`
 - **`Code/Combat/CombatResults.cs`** - Handles UI display and result formatting
 - **`Code/Combat/TurnManager.cs`** - Manages turn-based combat logic
 - **`Code/Combat/BattleNarrative.cs`** - Event-driven battle descriptions
@@ -549,7 +549,7 @@ The `Scripts/count-cs-lines-no-tests.ps1` script flags `.cs` files over **400 li
 - **`RandomUtility`**, **`GameConstants`** - Shared resources and constants
 - **`ActionUtilities`** - Shared utilities for action-related operations
 - **`ItemDisplayFormatter`** - Centralized item display formatting
-- **`StunProcessor`** - Generic stun processing logic
+- **`StunProcessor`** - Stun turn = victim attack time; own-timeline recovery (not global snap)
 
 ### **10. Configuration Pattern**
 - **`GameConfiguration`** - Centralized game balance with 8 configurable systems

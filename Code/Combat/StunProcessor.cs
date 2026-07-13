@@ -82,35 +82,32 @@ namespace RPGGame
 
         private static void ApplyStunTurnUpdates<T>(T entity, CombatStateManager stateManager) where T : Actor
         {
-            double entityActionSpeed = GetEntityActionSpeed(entity);
-            entity.UpdateTempEffects(entityActionSpeed / 10.0);
+            // One stun "turn" = one of this entity's attack-time periods (GetTotalAttackSpeed).
+            double attackTime = GetEntityAttackTime(entity);
+            entity.UpdateTempEffects(Character.DEFAULT_ACTION_LENGTH);
+
             var currentSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
             if (currentSpeedSystem != null)
             {
-                currentSpeedSystem.AdvanceEntityTurn(entity, entityActionSpeed);
+                // Schedule from the entity's own readiness (not global time) so a long env/other
+                // action does not stretch one stun turn into many enemy catch-up swings.
+                currentSpeedSystem.AdvanceOwnTimeline(entity, attackTime);
             }
         }
 
         /// <summary>
-        /// Gets the action speed for different entity types
+        /// Attack time in seconds for the stunned entity (one stun turn's wall-clock length).
         /// </summary>
-        /// <typeparam name="T">Type of entity</typeparam>
-        /// <param name="entity">The entity</param>
-        /// <returns>Action speed value</returns>
-        private static double GetEntityActionSpeed<T>(T entity) where T : Actor
+        internal static double GetEntityAttackTime<T>(T entity) where T : Actor
         {
             // Enemy before Character (Enemy subclasses Character; see ActionSpeedCalculator / ActionSpeedSystem).
             if (entity is Enemy enemy)
-            {
-                return enemy.GetTotalAttackSpeed();
-            }
-            
+                return Math.Max(0.01, enemy.GetTotalAttackSpeed());
+
             if (entity is Character character)
-            {
-                return character.GetTotalAttackSpeed();
-            }
-            
-            return 1.0; // Default fallback
+                return Math.Max(0.01, character.GetTotalAttackSpeed());
+
+            return Character.DEFAULT_ACTION_LENGTH;
         }
     }
 }

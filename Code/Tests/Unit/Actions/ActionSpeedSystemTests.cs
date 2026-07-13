@@ -29,6 +29,7 @@ namespace RPGGame.Tests.Unit.Actions
             TestSetEntityActionTime();
             TestGetNextEntityToAct();
             TestAdvanceEntityTurn();
+            TestAdvanceOwnTimeline();
             TestExecuteAction();
             TestFastActorGetsMultipleActionsDuringSlowRecovery();
 
@@ -141,6 +142,42 @@ namespace RPGGame.Tests.Unit.Actions
             TestBase.AssertTrue(true,
                 "AdvanceEntityTurn should complete without errors",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// AdvanceOwnTimeline schedules from the entity's NextActionTime (ExecuteAction contract),
+        /// not from max(global, self) like AdvanceEntityTurn.
+        /// </summary>
+        private static void TestAdvanceOwnTimeline()
+        {
+            Console.WriteLine("\n--- Testing AdvanceOwnTimeline ---");
+
+            using (GameTicker.BeginIsolatedEncounterGameTime())
+            {
+                GameTicker.Instance.Reset();
+
+                var system = new ActionSpeedSystem();
+                var character = TestDataBuilders.Character()
+                    .WithName("TimelineHero")
+                    .WithLevel(1)
+                    .Build();
+
+                system.AddEntity(character, 1.0);
+                system.SetEntityActionTime(character, 5.0);
+                GameTicker.Instance.AdvanceGameTime(20.0);
+
+                system.AdvanceOwnTimeline(character, 4.0);
+
+                // Own timeline: next = 5 + 4 = 9; global ≈ 24. Entity is still ready (catch-up).
+                TestBase.AssertTrue(system.IsEntityReady(character),
+                    "After AdvanceOwnTimeline from early ready time, entity should remain catch-up ready",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                double until = system.GetTimeUntilReady(character);
+                TestBase.AssertTrue(until <= 0.0,
+                    $"Expected ready now (until<=0), got {until}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
         }
 
         #endregion

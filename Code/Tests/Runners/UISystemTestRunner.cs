@@ -59,6 +59,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             HeroActionStripFeedbackTests.RunAllTests();
             Console.WriteLine();
+            ActionBonusBorderShimmerTests.RunAllTests();
+            Console.WriteLine();
             ThresholdBarFeedbackTests.RunAllTests();
             Console.WriteLine();
             AudioCueDispatcherTests.RunAllTests();

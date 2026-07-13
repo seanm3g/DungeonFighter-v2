@@ -3,7 +3,7 @@
     {
       "tier": 1,
       "classKey": "Barbarian",
-      "actionName": "PUNCH HARD",
+      "actionName": "EXTRA EFFORT",
       "minClassPoints": null
     },
     {
@@ -27,13 +27,7 @@
     {
       "tier": 1,
       "classKey": "Warrior",
-      "actionName": "JAB",
-      "minClassPoints": null
-    },
-    {
-      "tier": 1,
-      "classKey": "Warrior",
-      "actionName": "TAUNT",
+      "actionName": "REACTION TRAINING",
       "minClassPoints": null
     },
     {
@@ -75,13 +69,7 @@
     {
       "tier": 1,
       "classKey": "Rogue",
-      "actionName": "JAB",
-      "minClassPoints": null
-    },
-    {
-      "tier": 1,
-      "classKey": "Rogue",
-      "actionName": "TAUNT",
+      "actionName": "TAKING AIM",
       "minClassPoints": null
     },
     {
@@ -122,20 +110,20 @@
     },
     {
       "tier": 1,
-      "classKey": "Wizard",
-      "actionName": "JAB",
-      "minClassPoints": null
-    },
-    {
-      "tier": 1,
-      "classKey": "Wizard",
-      "actionName": "TAUNT",
-      "minClassPoints": null
-    },
-    {
-      "tier": 2,
       "classKey": "Wizard",
       "actionName": "CAST",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Wizard",
+      "actionName": "JAB",
+      "minClassPoints": null
+    },
+    {
+      "tier": 2,
+      "classKey": "Wizard",
+      "actionName": "TAUNT",
       "minClassPoints": null
     },
     {

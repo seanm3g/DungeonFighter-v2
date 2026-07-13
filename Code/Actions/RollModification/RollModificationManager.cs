@@ -380,16 +380,60 @@ namespace RPGGame.Actions.RollModification
         /// <summary>
         /// Same as <see cref="GetEffectiveMultiHitCountForModifierScaling(Action, Actor)"/>, but uses <paramref name="chainPositionComboStep"/>
         /// when evaluating chain-position multi-hit deltas (e.g. per combo slot on the action strip).
+        /// Includes pending ACTION cadence <c>MULTIHIT_MOD</c> (slot + bank for the current step) so the strip
+        /// stays updated until hit+combo redeems those bonuses.
         /// </summary>
         public static int GetEffectiveMultiHitCountForModifierScaling(Action action, Actor source, int chainPositionComboStep)
         {
             int n = action.Advanced?.MultiHitCount ?? 1;
             if (n <= 0) n = 1;
-            if (source is Character character && character.Effects.ConsumedMultiHitMod != 0)
-                n = Math.Max(1, n + (int)Math.Max(0, character.Effects.ConsumedMultiHitMod));
+            if (source is Character character)
+            {
+                double multiHitMod = character.Effects.ConsumedMultiHitMod;
+                multiHitMod += PeekPendingActionCadenceMultiHitMod(character, chainPositionComboStep);
+                double scopedDamage = 0, scopedSpeed = 0, scopedMulti = 0, scopedAmp = 0;
+                CadenceScopedBuffApplicator.AccumulateModifiers(character, ref scopedDamage, ref scopedSpeed, ref scopedMulti, ref scopedAmp);
+                multiHitMod += scopedMulti;
+                if (multiHitMod != 0)
+                    n = Math.Max(1, n + (int)Math.Max(0, multiHitMod));
+            }
             var combo = ActionUtilities.GetComboActions(source) ?? new List<Action>();
             n = Math.Max(1, n + ChainPositionBonusApplier.GetMultiHitDelta(source, action, combo, chainPositionComboStep));
             return n;
+        }
+
+        /// <summary>
+        /// Pending ACTION <c>MULTIHIT_MOD</c> for strip / preview: slot queue for <paramref name="comboSlot"/>,
+        /// plus the additive bank when that slot is the current combo step.
+        /// </summary>
+        public static double PeekPendingActionCadenceMultiHitMod(Character character, int comboSlot)
+        {
+            if (character?.Effects == null)
+                return 0;
+
+            double sum = 0;
+            foreach (var b in character.Effects.GetPendingActionBonusesForSlot(comboSlot))
+            {
+                if (string.Equals(b.Type, "MULTIHIT_MOD", StringComparison.OrdinalIgnoreCase))
+                    sum += b.Value;
+            }
+
+            var comboActions = ActionUtilities.GetComboActions(character);
+            int actionCount = comboActions?.Count ?? 0;
+            if (actionCount > 0 && character.Effects.HasPendingActionCadenceBank())
+            {
+                int currentStep = character.ComboStep % actionCount;
+                if (comboSlot == currentStep)
+                {
+                    foreach (var b in character.Effects.PeekPendingActionBonusesNextHeroRoll())
+                    {
+                        if (string.Equals(b.Type, "MULTIHIT_MOD", StringComparison.OrdinalIgnoreCase))
+                            sum += b.Value;
+                    }
+                }
+            }
+
+            return sum;
         }
 
         private static MultiDiceRoller.DiceSelectionMode ParseDiceMode(string mode)

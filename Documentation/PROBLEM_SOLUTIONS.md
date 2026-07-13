@@ -4,6 +4,68 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Feature: Action-bonus strip cards shimmer (July 2026)
+**Goal:** Make combo-strip cards that carry `ActionAttackBonuses` (cadence bonus lines) visually distinct at a glance.
+
+**Solutions:**
+1. `ActionBonusBorderShimmer` animates a cyan dual-sine border plus a traveling perimeter highlight while such cards are on-screen
+2. Selected next-slot cards shimmer white↔cool cyan; hit/miss/combo flash from `HeroActionStripFeedback` still overrides
+3. Timer keep-alive stops shortly after the strip no longer needs shimmer (no forever refresh on main menu)
+4. Tests: `ActionBonusBorderShimmerTests`
+
+**Related files:** `ActionBonusBorderShimmer.cs`, `DungeonRenderer.RoomAndCombat.cs`, `Action.cs` (`HasActionAttackBonusGroups`)
+
+### Issue: Next-action Multihit (ACTION cadence) dropped on miss (July 2026)
+**Symptoms:**
+- After **RAPID STRIKE** (or similar) queued **+1 MH** on the next strip action, a **miss** cleared the pending Multihit
+- Strip no longer showed the boosted hit count until a fresh grant
+
+**Root cause:**
+`ResolvePendingActionCadenceBonuses` always **consumed** the ACTION slot queue and additive bank whenever they were peeked for a roll, then only **applied** them on hit+combo — so miss / non-combo hit forfeited the pending mods.
+
+**Solutions:**
+1. Redeem (consume + apply) **only when `result.IsCombo`**; miss and non-combo hit leave pending in place
+2. Strip preview includes pending `MULTIHIT_MOD` via `RollModificationManager.GetEffectiveMultiHitCountForModifierScaling` / `PeekPendingActionCadenceMultiHitMod`
+3. Tests: `ActionBonusMechanicsTests` miss/non-combo keep; `MultiHitTests.TestActionCadenceMultiHitSurvivesMissUntilCombo`
+
+**Related files:** `ActionExecutionFlow.Outcomes.cs`, `RollModificationManager.cs`, `CharacterEffectsState.cs`
+
+### Issue: Item Generation affix slot dropdown looked broken (July 2026)
+**Symptoms:**
+- Changing **Affix rules for:** (Head / Chest / Legs / Feet / Weapon) did not appear to change the grid
+- Users assumed the control was disconnected
+
+**Root cause:**
+1. Shipped balance `itemAffixByRarity.perItemType` tables are **identical** across all five slots, so a correct switch still shows the same mins
+2. Scratch build shallow-copied `PerItemType` entry objects (risk of aliasing live tuning)
+3. Slot `SelectionChanged` could no-op if `SelectedItem` was not a plain `string`, or if parent walk failed; LoadSettings could also re-enter the handler while resetting to Head
+
+**Solutions:**
+1. `ItemAffixScratchBuilder` deep-clones per-slot rows; resolves slot from SelectedItem, SelectedIndex, or AddedItems
+2. Handler keeps a wired panel ref, suppresses SelectionChanged during LoadSettings, paints a **Showing table for:** label
+3. UI copy notes that shipped defaults often match until you edit a slot
+4. Tests: `ItemConfigTests.TestItemAffixScratchBuilderDeepClonesPerSlot`, `TestItemAffixScratchBuilderResolvesSlotKey`
+
+**Related files:** `ItemAffixScratchBuilder.cs`, `ItemGenerationPanelHandler.cs`, `ItemGenerationSettingsPanel.axaml`
+
+### Issue: Stun lasted many enemy turns after Room Collapse (July 2026)
+**Symptoms:**
+- Combat log showed `STUN for 1 turn` then ~8–10 enemy swings before the hero acted again
+- Felt like stun duration ignored the hero's attack time
+
+**Root cause:**
+1. Stun skips called `AdvanceEntityTurn`, which **snaps** readiness to global game time then adds attack speed
+2. Environment actions cost `15 × action.Length` seconds (Room Collapse ≈ 30s), creating huge catch-up debt for the foe
+3. Snapping the stunned hero to "now" parked them at the end of that debt while the foe resolved catch-up from their old timeline
+4. Duration tick used `attackSpeed / 10.0` instead of one discrete stun turn per skip
+
+**Solutions:**
+1. `StunProcessor` consumes **one stun turn** per skip (`UpdateTempEffects(DEFAULT_ACTION_LENGTH)`)
+2. Skip recovery advances by the victim's **`GetTotalAttackSpeed()`** via `ActionSpeedSystem.AdvanceOwnTimeline` (same own-timeline contract as `ExecuteAction`)
+3. Tests: `StunProcessorTests`, `ActionSpeedSystemTests.TestAdvanceOwnTimeline`
+
+**Related files:** `StunProcessor.cs`, `ActionSpeedSystem.cs`
+
 ### Issue: Combat Reliability Phase 4 — Closeout (July 2026)
 **Symptoms:**
 - Repeated lab encounter sims could leak `OneShotKillOccurred` subscriptions
