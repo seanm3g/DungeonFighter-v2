@@ -4,6 +4,8 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **UI / Action strip — ACTION grant stays on grantor:** Authored `ACTION (Nx)` / Multihit grant lines stay on the grantor (e.g. Rapid Strike); recipient (Slam) does not paint pending ACTION/Multihit text — `Nx` damage + cyan shimmer carry the cue. `ACTION` is next-action wording only. Tests: `CombatActionStripBuilderTests.TestActionCadenceGrantLinesResetWhenPendingThenRedeemed`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
+
 - [x] **UI / Action Lab — sequence edit resets strip to slot 1:** Catalog add, strip right-click remove, and strip drag reorder call `ResetLabStripPositionToFirstSlot` (`ComboStep` = 0 + catalog sync). Tests: `ActionInteractionLabTests.LabSequenceEdit_ResetsStripPositionToFirstSlot`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
 
 - [x] **Bugfix / Action strip — bank sticky after miss:** ACTION cadence additive bank (`2x`/multihit/shimmer) sticks to the intended recipient strip slot via `PendingActionCadencePreviewSlot` so miss/`ComboStep=0` no longer rebinds cues to the first card. Combat peek gates the same sticky slot. Tests: `CombatActionStripBuilderTests`, `ActionBonusBorderShimmerTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
@@ -12,7 +14,7 @@ This file tracks the work currently in progress. Only items listed here should b
 
 - [x] **UI / Action strip — show AMP on action info:** Combo-strip cards and hover tooltips include the resolved swing amp (`amp: 1.02x`) and a short TECH-baseline calculation line so slot amp is visible alongside damage/speed (same value combat uses). Tests: `CombatActionStripBuilderTests`. Docs: `OVERVIEW.md`.
 
-- [x] **UI / Action strip — ACTION grant lines reset after resolve:** While ACTION bonuses are pending, authored `ACTION (Nx)` grant lines leave the grantor card and show as pending on the recipient; after hit+combo redeem, pending lines clear and grant lines return. Redeemeed `ConsumedMultiHitMod` clears at end of `Execute` and strip preview excludes Consumed* so Multihit/`2x` does not stick after Slam. Tests: `CombatActionStripBuilderTests` (reset), `MultiHitTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
+- [x] **UI / Action strip — ACTION grant lines stay on grantor:** Authored `ACTION (Nx)` grant lines stay on the grantor while pending; recipient uses `Nx` damage + cyan shimmer (no relocated ACTION/Multihit text). Redeemed `ConsumedMultiHitMod` clears at end of `Execute` so Multihit/`2x` does not stick after Slam. Tests: `CombatActionStripBuilderTests` (grant stay), `MultiHitTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
 
 - [x] **UI / Action strip — longer bonus-border trail:** Traveling cyan highlight on buffed action cards covers ~¾ of the perimeter (not a 3-cell spark) so it reads as moving around the frame; always leaves a gap cell. `ActionBonusBorderShimmer.TravelHighlightFraction` / `GetTravelHighlightLength`. Tests: `ActionBonusBorderShimmerTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
 

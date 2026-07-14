@@ -85,15 +85,15 @@ This document contains solutions to common problems encountered during developme
 ### Issue: ACTION bonus lines stick on strip cards after the action (July 2026)
 **Symptoms:**
 - After **RAPID STRIKE** banked Multihit and **SLAM** redeemed it (2 hits), both strip cards still showed **`2x`** damage
-- Rapid Strike still showed authored **`ACTION (1x)` / `MULTIHIT +1`** while Multihit was pending on Slam
+- Slam also painted redundant **`ACTION (Nx)` / `MULTIHIT +N`** while damage already showed `Nx…` (and ACTION should only label next-action grants)
 
 **Root cause:**
 1. Redeemed `ConsumedMultiHitMod` was cleared only at the *start* of the next swing, so strip paint between swings included spent Multihit on every slot
-2. Authored ACTION grant lines were always drawn on the grantor card, even after those bonuses had already been deposited into the pending bank
+2. Pending bank was relocated onto the recipient as `ACTION`/`MULTIHIT` text, hiding grants on Rapid Strike
 
 **Solutions:**
 1. Clear `Consumed*` modifier bonuses at end of `ActionExecutionFlow.Execute`; strip `BuildPanelData` peeks pending Multihit without Consumed*
-2. `BuildActionStripModifierTailLines` hides authored ACTION grant groups while any ACTION pending exists, and draws pending bonuses on the recipient slot instead
+2. `BuildActionStripModifierTailLines` keeps authored ACTION grant groups on the grantor always; omits pending ACTION/Multihit text on the recipient (Nx damage + cyan shimmer carry the cue)
 3. Tests: `CombatActionStripBuilderTests.TestActionCadenceGrantLinesResetWhenPendingThenRedeemed`, `MultiHitTests` post-redeem strip assertions
 
 **Related files:** `ActionExecutionFlow.cs`, `CombatActionStripBuilder.cs`, `RollModificationManager.cs`, `DungeonRenderer.RoomAndCombat.cs`

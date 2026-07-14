@@ -427,8 +427,9 @@ namespace RPGGame
         /// Extra modifier lines for compact action strip cards after the swing (damage/seconds) line: deferred sheet accuracy
         /// (and related lines) so cards match tooltip behavior, compact stat bonuses, and cadence bonus groups.
         /// Current-roll accuracy is shown only under TURN/ACTION cadence headers, not as a standalone Acc line.
-        /// ACTION cadence groups are grantor capability when idle; once deposited they appear as pending on the
-        /// recipient card and clear from grantor cards until redeemed (hit+combo) so spent bonuses reset on the strip.
+        /// ACTION cadence groups on a card describe grantor “next action” capability and stay on the grantor while
+        /// pending. Recipient application is shown via swing numbers (e.g. <c>Nx</c> damage) and cyan shimmer, not
+        /// relocated ACTION/Multihit text — ACTION labels bonuses for the following action, not the current one.
         /// </summary>
         public static List<string> BuildActionStripModifierTailLines(
             Action? action,
@@ -440,6 +441,9 @@ namespace RPGGame
             var lines = new List<string>();
             if (action == null || maxLines <= 0 || maxWidth < 4)
                 return lines;
+
+            // character / comboSlotIndex kept for caller API parity (damage/shimmer use other paths).
+            _ = (character, comboSlotIndex);
 
             bool deferSheet = Action.DefersSheetCombatPackagesToNextHeroRoll(action);
 
@@ -482,20 +486,6 @@ namespace RPGGame
                     add($"Stats: {adv.StatBonusType} {FormatSignedValue(adv.StatBonus)}");
             }
 
-            var pendingForSlot = CollectPendingActionCadenceBonusesForStripSlot(character, comboSlotIndex);
-            if (pendingForSlot.Count > 0)
-            {
-                int displayCount = Math.Max(1, character!.Effects.GetPendingActionCadenceLayerCount());
-                addBlank();
-                foreach (string line in UI.CadenceCardLineFormatter.FormatBlockLines(
-                             CadenceKeywords.Action, displayCount, pendingForSlot))
-                    add(line);
-            }
-
-            bool hideAuthoredActionGrants = character?.Effects != null
-                && (character.Effects.HasPendingActionCadenceBank()
-                    || character.Effects.GetPendingActionBonusSlots().Any());
-
             if (action.ActionAttackBonuses?.BonusGroups != null)
             {
                 foreach (var group in action.ActionAttackBonuses.BonusGroups)
@@ -503,13 +493,6 @@ namespace RPGGame
                     if (lines.Count >= maxLines)
                         break;
                     if (group?.Bonuses == null || group.Bonuses.Count == 0)
-                        continue;
-                    // While ACTION bonuses are pending (awaiting hit+combo redeem), hide authored ACTION
-                    // grant lines on every strip card and show the pending block on the recipient instead.
-                    // After redeem, grant lines return and pending lines clear — spent bonuses reset.
-                    if (hideAuthoredActionGrants && ActionCadenceDurationResolver.IsKeywordCadenceGroup(group)
-                        && CadenceKeywords.IsAction(CadenceKeywords.NormalizeCadenceType(
-                            string.IsNullOrWhiteSpace(group.CadenceType) ? group.Keyword : group.CadenceType)))
                         continue;
                     int displayCount = ActionCadenceDurationResolver.GetDisplayCount(action, group);
                     addBlank();
@@ -519,31 +502,6 @@ namespace RPGGame
             }
 
             return lines;
-        }
-
-        /// <summary>
-        /// Pending ACTION cadence items for a strip card: per-slot queue plus the additive bank when
-        /// <paramref name="comboSlotIndex"/> is the sticky bank recipient (or ComboStep when unset).
-        /// </summary>
-        private static List<ActionAttackBonusItem> CollectPendingActionCadenceBonusesForStripSlot(
-            Character? character,
-            int comboSlotIndex)
-        {
-            var result = new List<ActionAttackBonusItem>();
-            if (character?.Effects == null || comboSlotIndex < 0)
-                return result;
-
-            result.AddRange(character.Effects.GetPendingActionBonusesForSlot(comboSlotIndex));
-
-            var actions = character.GetComboActions();
-            int actionCount = actions?.Count ?? 0;
-            if (actionCount > 0
-                && character.Effects.SlotShowsActionCadenceBank(comboSlotIndex, character.ComboStep, actionCount))
-            {
-                result.AddRange(character.Effects.PeekPendingActionBonusesNextHeroRoll());
-            }
-
-            return result;
         }
 
         /// <summary>

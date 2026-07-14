@@ -532,8 +532,9 @@ namespace RPGGame.Tests.Unit.UI
         }
 
         /// <summary>
-        /// After RAPID STRIKE banks MULTIHIT, grant lines leave Rapid Strike and appear as pending on Slam.
-        /// After Slam redeems, pending clears and Consumed Multihit no longer inflates strip hit counts.
+        /// ACTION grant lines stay on the grantor (Rapid Strike) while Multihit is banked; recipient (Slam)
+        /// does not paint ACTION/Multihit text (Nx damage + shimmer carry that cue). After redeem, Consumed
+        /// Multihit no longer inflates strip hit counts.
         /// </summary>
         private static void TestActionCadenceGrantLinesResetWhenPendingThenRedeemed(ref int run, ref int passed, ref int failed)
         {
@@ -585,17 +586,17 @@ namespace RPGGame.Tests.Unit.UI
             var pendingRapidTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(rapid, 80, 8, hero, 0);
             string pendingRapidJoined = string.Join(" | ", pendingRapidTail);
             TestBase.AssertTrue(
-                !pendingRapidJoined.Contains("ACTION (1x)", StringComparison.Ordinal)
-                && !pendingRapidJoined.Contains("MULTIHIT", StringComparison.Ordinal),
-                "While Multihit is pending, Rapid Strike ACTION grant lines reset off the card",
+                pendingRapidJoined.Contains("ACTION (1x)", StringComparison.Ordinal)
+                && pendingRapidJoined.Contains("MULTIHIT +1", StringComparison.Ordinal),
+                "While Multihit is pending, Rapid Strike keeps authored ACTION grant lines",
                 ref run, ref passed, ref failed);
 
             var pendingSlamTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(slam, 80, 8, hero, 1);
             string pendingSlamJoined = string.Join(" | ", pendingSlamTail);
             TestBase.AssertTrue(
-                pendingSlamJoined.Contains("ACTION (1x)", StringComparison.Ordinal)
-                && pendingSlamJoined.Contains("MULTIHIT +1", StringComparison.Ordinal),
-                "Pending Multihit appears on the recipient Slam card",
+                !pendingSlamJoined.Contains("ACTION", StringComparison.Ordinal)
+                && !pendingSlamJoined.Contains("MULTIHIT", StringComparison.Ordinal),
+                "Recipient Slam does not paint pending ACTION/Multihit text (Nx damage + shimmer)",
                 ref run, ref passed, ref failed);
 
             var panelsPending = CombatActionStripBuilder.BuildPanelData(hero);
@@ -623,14 +624,14 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(
                 resetRapidJoined.Contains("ACTION (1x)", StringComparison.Ordinal)
                 && resetRapidJoined.Contains("MULTIHIT +1", StringComparison.Ordinal),
-                "After redeem: Rapid Strike ACTION grant lines return for the next cycle",
+                "After redeem: Rapid Strike ACTION grant lines remain for the next cycle",
                 ref run, ref passed, ref failed);
 
             var resetSlamTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(slam, 80, 8, hero, 1);
             string resetSlamJoined = string.Join(" | ", resetSlamTail);
             TestBase.AssertTrue(
                 !resetSlamJoined.Contains("MULTIHIT", StringComparison.Ordinal),
-                "After redeem: Slam pending ACTION Multihit lines clear",
+                "After redeem: Slam still has no Multihit ACTION text",
                 ref run, ref passed, ref failed);
         }
 
