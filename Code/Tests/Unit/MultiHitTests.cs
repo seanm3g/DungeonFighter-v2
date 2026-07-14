@@ -768,6 +768,20 @@ namespace RPGGame.Tests.Unit
                 TestBase.AssertEqual(oneHit * 2, actual,
                     "Slam deals 2-hit damage (not 3 from double MULTIHIT grant)",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                TestBase.AssertEqual(0, hero.Effects.ConsumedMultiHitMod,
+                    "After Execute: ConsumedMultiHitMod clears so strip cards reset",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                int rapidAfter = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(
+                    rapid, hero, 0, includeConsumedMods: false);
+                int slamAfter = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(
+                    slam, hero, 1, includeConsumedMods: false);
+                TestBase.AssertEqual(1, rapidAfter,
+                    "After Slam redeem: strip preview Rapid Strike is back to 1 hit",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(1, slamAfter,
+                    "After Slam redeem: strip preview Slam is back to 1 hit",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {

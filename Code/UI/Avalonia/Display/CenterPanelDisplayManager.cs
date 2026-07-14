@@ -398,6 +398,27 @@ namespace RPGGame.UI.Avalonia.Display
             contextManager.ClearCombatLogEnemyAlignmentSticky();
             // Don't trigger a render - let the menu screen handle its own rendering
         }
+
+        /// <summary>
+        /// Replaces the center buffer with captured lab undo lines (bypasses message filters) and forces a render.
+        /// Clears combat-log sticky alignment; caller should re-sync the lab enemy name after restore.
+        /// </summary>
+        public void ReplaceBufferFromLabSnapshot(
+            IReadOnlyList<(List<ColoredText> Segments, UIMessageType MessageType)> lines,
+            bool render = true)
+        {
+            bufferOperations.Clear();
+            renderStateManager.Reset();
+            contextManager.ClearCombatLogEnemyAlignmentSticky();
+            if (lines != null)
+            {
+                foreach (var (segments, messageType) in lines)
+                    buffer.Add(segments ?? new List<ColoredText>(), messageType);
+            }
+
+            if (render)
+                ForceRender();
+        }
         
         /// <summary>
         /// Scrolls the display up

@@ -7,7 +7,9 @@ using RPGGame.BattleStatistics;
 using RPGGame.Combat;
 using RPGGame.Data;
 using RPGGame.Entity.Services;
+using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.ActionInteractionLab
 {
@@ -24,14 +26,22 @@ namespace RPGGame.ActionInteractionLab
 
         private readonly CombatManager _combatManager;
         private readonly System.Action _refreshCombatUi;
-        /// <summary>Clear/reseed center panel before rebuilding log during undo replay (optional).</summary>
+        /// <summary>Clear/reseed center panel to the lab intro line (undo with empty history, Reset).</summary>
         private readonly System.Action? _prepareLabHistoryReplay;
+        /// <summary>Optional: capture center combat log after each interactive Step for instant undo restore.</summary>
+        private readonly Func<LabCombatLogSnapshot?>? _captureLabCombatLog;
+        /// <summary>Optional: restore a prior combat-log snapshot after silent undo replay.</summary>
+        private readonly Action<LabCombatLogSnapshot?>? _restoreLabCombatLog;
         private string _initialPlayerJson;
         private readonly List<LabStep> _history = new();
+        /// <summary>Center-log snapshots parallel to <see cref="_history"/> (one per recorded Step).</summary>
+        private readonly List<LabCombatLogSnapshot> _combatLogSnapshots = new();
         /// <summary>Sum of per-encounter turn counts from completed batch simulations (off-thread fights).</summary>
         private int _simulatedCombatTurnAccumulator;
         /// <summary>Serializes Step / Undo / replay so two UI actions cannot interleave async combat (shared speed system).</summary>
         private readonly SemaphoreSlim _turnGate = new(1, 1);
+        /// <summary>Bumped on undo/reset/history wipe so queued Steps started before that work are dropped.</summary>
+        private int _inputEpoch;
 
         private Character _labPlayer = null!;
         private Enemy _labEnemy = null!;
@@ -92,6 +102,18 @@ namespace RPGGame.ActionInteractionLab
         public int ResolveD20ForNextStep() =>
             UseRandomD20PerStep ? Random.Shared.Next(1, 21) : SelectedD20;
 
+        /// <summary>Monotonic token bumped when undo/reset/history wipe invalidates in-flight Step requests.</summary>
+        public int InputEpoch => _inputEpoch;
+
+        private void BumpInputEpoch() => Interlocked.Increment(ref _inputEpoch);
+
+        private void ClearStepHistoryAndSnapshots()
+        {
+            _history.Clear();
+            _combatLogSnapshots.Clear();
+            BumpInputEpoch();
+        }
+
         private ActionInteractionLabSession(
             CombatManager combatManager,
             Character labPlayer,
@@ -99,7 +121,9 @@ namespace RPGGame.ActionInteractionLab
             Environment labRoom,
             string initialPlayerJson,
             System.Action refreshCombatUi,
-            System.Action? prepareLabHistoryReplay)
+            System.Action? prepareLabHistoryReplay,
+            Func<LabCombatLogSnapshot?>? captureLabCombatLog,
+            Action<LabCombatLogSnapshot?>? restoreLabCombatLog)
         {
             _combatManager = combatManager;
             _labPlayer = labPlayer;
@@ -108,17 +132,23 @@ namespace RPGGame.ActionInteractionLab
             _initialPlayerJson = initialPlayerJson;
             _refreshCombatUi = refreshCombatUi;
             _prepareLabHistoryReplay = prepareLabHistoryReplay;
+            _captureLabCombatLog = captureLabCombatLog;
+            _restoreLabCombatLog = restoreLabCombatLog;
         }
 
         /// <summary>Begins a lab fight from the active character (cloned). Call from UI thread.</summary>
         /// <param name="canvasContext">When set, snapshots and replaces canvas context for combat routing; restored in <see cref="EndSession"/>.</param>
-        /// <param name="prepareLabHistoryReplay">Optional: clear center panel and lab intro line before undo replay rebuilds the combat log.</param>
+        /// <param name="prepareLabHistoryReplay">Optional: clear center panel and write the lab intro line (empty-history undo / Reset).</param>
+        /// <param name="captureLabCombatLog">Optional: snapshot center combat log after each Step for instant undo.</param>
+        /// <param name="restoreLabCombatLog">Optional: restore a prior combat-log snapshot after silent undo replay.</param>
         public static ActionInteractionLabSession Begin(
             Character activePlayer,
             CombatManager combatManager,
             System.Action refreshCombatUi,
             ICanvasContextManager? canvasContext = null,
-            System.Action? prepareLabHistoryReplay = null)
+            System.Action? prepareLabHistoryReplay = null,
+            Func<LabCombatLogSnapshot?>? captureLabCombatLog = null,
+            Action<LabCombatLogSnapshot?>? restoreLabCombatLog = null)
         {
             EndSession();
 
@@ -131,7 +161,9 @@ namespace RPGGame.ActionInteractionLab
             var labEnemy = TestCharacterFactory.CreateTestEnemy(LabCombatSnapshot.DefaultTestEnemyBattleConfig, 0, level: 1);
             var labRoom = TestCharacterFactory.CreateTestEnvironment();
 
-            var session = new ActionInteractionLabSession(combatManager, labPlayer, labEnemy, labRoom, json, refreshCombatUi, prepareLabHistoryReplay);
+            var session = new ActionInteractionLabSession(
+                combatManager, labPlayer, labEnemy, labRoom, json, refreshCombatUi,
+                prepareLabHistoryReplay, captureLabCombatLog, restoreLabCombatLog);
             _current = session;
             session._tickerIsolation = GameTicker.BeginIsolatedEncounterGameTime();
             session._sessionEnemyLoaderType = null;
@@ -178,6 +210,7 @@ namespace RPGGame.ActionInteractionLab
         /// </summary>
         public async Task ResetLabEncounterAsync()
         {
+            BumpInputEpoch();
             await _turnGate.WaitAsync().ConfigureAwait(true);
             try
             {
@@ -273,7 +306,7 @@ namespace RPGGame.ActionInteractionLab
 
         private void ResetLabEncounterCore()
         {
-            _history.Clear();
+            ClearStepHistoryAndSnapshots();
             ResetSimulatedCombatTurnAccumulator();
             PrepareLabCenterPanelAndRestoreCombatLogAlignment();
 
@@ -321,16 +354,16 @@ namespace RPGGame.ActionInteractionLab
             _labRoom = TestCharacterFactory.CreateTestEnvironment();
         }
 
-        /// <summary>Replay history to match <paramref name="steps"/> after undo. Clears center log, re-runs turns with UI to rebuild it.</summary>
+        /// <summary>
+        /// Rebuilds combat state to match <paramref name="steps"/> after undo.
+        /// Entity replay is muted (no turn-by-turn UI); the center log is restored from a prior Step snapshot.
+        /// </summary>
         public async Task ReplayHistoryAsync(IReadOnlyList<LabStep> steps)
         {
-            PrepareLabCenterPanelAndRestoreCombatLogAlignment();
-
             IsReplayingHistory = true;
-            // Allow combat UI while replaying so the center log matches state (scoped so it cannot leak).
             try
             {
-                using (CombatUiMuteScope.Begin(muted: false))
+                using (CombatUiMuteScope.Begin(muted: true))
                 {
                     // Strip edits (catalog add/remove/reorder) live only on the in-memory lab clone; the baseline JSON
                     // is from session start (or gear change). Preserve the current strip across entity restore.
@@ -341,9 +374,11 @@ namespace RPGGame.ActionInteractionLab
                     ReapplyLabHeroComboStrip(comboSnapshot);
                     foreach (var step in steps)
                     {
-                        await ExecuteOneStepCoreAsync(step.D20, step.ForcedActionName, silent: false).ConfigureAwait(true);
+                        await ExecuteOneStepCoreAsync(step.D20, step.ForcedActionName, silent: true).ConfigureAwait(true);
                     }
                 }
+
+                RestoreCombatLogForCurrentHistory();
             }
             finally
             {
@@ -351,6 +386,45 @@ namespace RPGGame.ActionInteractionLab
                 SyncCatalogSelectionToUpcomingActor();
                 _refreshCombatUi();
             }
+        }
+
+        /// <summary>
+        /// After silent undo replay: restore the log from the matching Step snapshot, or reseed the intro when empty.
+        /// </summary>
+        private void RestoreCombatLogForCurrentHistory()
+        {
+            if (_history.Count == 0 || _combatLogSnapshots.Count == 0)
+            {
+                PrepareLabCenterPanelAndRestoreCombatLogAlignment();
+                return;
+            }
+
+            int idx = Math.Min(_history.Count, _combatLogSnapshots.Count) - 1;
+            if (idx < 0)
+            {
+                PrepareLabCenterPanelAndRestoreCombatLogAlignment();
+                return;
+            }
+
+            if (_restoreLabCombatLog != null)
+            {
+                _restoreLabCombatLog(_combatLogSnapshots[idx]);
+                SyncLabEnemyToCanvasContext();
+            }
+            else
+            {
+                // Headless tests / no UI: still clear via prepare if provided so reset paths stay consistent.
+                PrepareLabCenterPanelAndRestoreCombatLogAlignment();
+            }
+        }
+
+        private void CaptureCombatLogSnapshotAfterStep()
+        {
+            var snap = _captureLabCombatLog?.Invoke();
+            if (snap != null)
+                _combatLogSnapshots.Add(snap);
+            else
+                _combatLogSnapshots.Add(new LabCombatLogSnapshot(Array.Empty<(List<ColoredText>, UIMessageType)>()));
         }
 
         /// <summary>
@@ -391,9 +465,14 @@ namespace RPGGame.ActionInteractionLab
         /// <summary>Runs one lab turn with the chosen catalog action name and d20.</summary>
         public async Task<CombatSingleTurnResult> StepAsync(int d20, string forcedActionName)
         {
+            int epochAtEntry = _inputEpoch;
             await _turnGate.WaitAsync().ConfigureAwait(true);
             try
             {
+                // Queued Steps that waited behind undo/reset must not advance the new fight state.
+                if (epochAtEntry != _inputEpoch)
+                    return CombatSingleTurnResult.Advanced;
+
                 if (!CanStepForward)
                 {
                     if (!_labPlayer.IsAlive)
@@ -413,6 +492,7 @@ namespace RPGGame.ActionInteractionLab
                     || result == CombatSingleTurnResult.EnemyDefeated)
                 {
                     _history.Add(step);
+                    CaptureCombatLogSnapshotAfterStep();
                 }
                 SyncCatalogSelectionToUpcomingActor();
                 _refreshCombatUi();
@@ -460,15 +540,18 @@ namespace RPGGame.ActionInteractionLab
             }
         }
 
-        /// <summary>Removes the last step and restores state by replaying the remaining prefix.</summary>
+        /// <summary>Removes the last step and restores state by muted replay of the remaining prefix plus log snapshot restore.</summary>
         public async Task UndoLastStepAsync()
         {
+            BumpInputEpoch();
             await _turnGate.WaitAsync().ConfigureAwait(true);
             try
             {
                 if (_history.Count == 0)
                     return;
                 _history.RemoveAt(_history.Count - 1);
+                if (_combatLogSnapshots.Count > 0)
+                    _combatLogSnapshots.RemoveAt(_combatLogSnapshots.Count - 1);
                 await ReplayHistoryAsync(_history).ConfigureAwait(true);
             }
             finally

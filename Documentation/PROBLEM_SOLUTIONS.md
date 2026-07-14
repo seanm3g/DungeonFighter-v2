@@ -4,6 +4,16 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Feature: Action strip shows AMP + calc on action info (July 2026)
+**Goal:** Slot amp was easy to miss when reading strip cards (only combat log footers showed `amp: 1.02x`), so second-slot damage looked unexplained vs the card number.
+
+**Solutions:**
+1. Strip swing line appends `amp: N.NNx` (combat-footer style) using `Pow(TECH baseline, strip index)` plus pending sheet `AMP_MOD` for that slot
+2. Hover tooltip repeats amp on the `%` swing line and adds `AMP: … = Pow(…)` (with sheet multiplier when pending)
+3. Tests: `CombatActionStripBuilderTests` swing/tooltip amp assertions
+
+**Related files:** `CombatActionStripBuilder.cs`, `CombatActionStripBuilder.Tooltips.cs`, `DungeonRenderer.RoomAndCombat.cs`
+
 ### Feature: Action set filters gameplay + Action Lab (July 2026)
 **Goal:** Settings → Actions **Action set** should control what exists in-game and in Action Lab, not only the workshop list.
 
@@ -41,11 +51,27 @@ This document contains solutions to common problems encountered during developme
 
 **Related files:** `CombatConfig.cs`, `RollFeelVarianceCompression.cs`, balance `default.json`, `DamageCalculator.cs` (consumer)
 
+### Issue: ACTION bonus lines stick on strip cards after the action (July 2026)
+**Symptoms:**
+- After **RAPID STRIKE** banked Multihit and **SLAM** redeemed it (2 hits), both strip cards still showed **`2x`** damage
+- Rapid Strike still showed authored **`ACTION (1x)` / `MULTIHIT +1`** while Multihit was pending on Slam
+
+**Root cause:**
+1. Redeemed `ConsumedMultiHitMod` was cleared only at the *start* of the next swing, so strip paint between swings included spent Multihit on every slot
+2. Authored ACTION grant lines were always drawn on the grantor card, even after those bonuses had already been deposited into the pending bank
+
+**Solutions:**
+1. Clear `Consumed*` modifier bonuses at end of `ActionExecutionFlow.Execute`; strip `BuildPanelData` peeks pending Multihit without Consumed*
+2. `BuildActionStripModifierTailLines` hides authored ACTION grant groups while any ACTION pending exists, and draws pending bonuses on the recipient slot instead
+3. Tests: `CombatActionStripBuilderTests.TestActionCadenceGrantLinesResetWhenPendingThenRedeemed`, `MultiHitTests` post-redeem strip assertions
+
+**Related files:** `ActionExecutionFlow.cs`, `CombatActionStripBuilder.cs`, `RollModificationManager.cs`, `DungeonRenderer.RoomAndCombat.cs`
+
 ### Feature: Action-bonus strip cards shimmer (July 2026)
 **Goal:** Make combo-strip cards that currently have pending ACTION-cadence buffs visually distinct at a glance (recipient cue, not grantor cue).
 
 **Solutions:**
-1. `ActionBonusBorderShimmer` animates a cyan dual-sine border plus a traveling perimeter highlight while such cards are on-screen
+1. `ActionBonusBorderShimmer` animates a cyan dual-sine border plus a traveling perimeter highlight (~¾ of the frame, with a visible gap) while such cards are on-screen
 2. Cue is `SlotHasPendingBonusCue`: per-slot pending queue and/or additive bank on the current `ComboStep` (same peek basis as strip damage preview). Authored `ActionAttackBonuses` alone do not shimmer
 3. Selected next-slot cards shimmer white↔cool cyan; hit/miss/combo flash from `HeroActionStripFeedback` still overrides
 4. Timer keep-alive stops shortly after the strip no longer needs shimmer (no forever refresh on main menu)

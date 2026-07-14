@@ -375,21 +375,31 @@ namespace RPGGame.Actions.RollModification
         /// Uses the actor's current <see cref="ActionUtilities.GetComboStep"/> for chain-position bonuses.
         /// </summary>
         public static int GetEffectiveMultiHitCountForModifierScaling(Action action, Actor source)
-            => GetEffectiveMultiHitCountForModifierScaling(action, source, ActionUtilities.GetComboStep(source));
+            => GetEffectiveMultiHitCountForModifierScaling(action, source, ActionUtilities.GetComboStep(source), includeConsumedMods: true);
 
         /// <summary>
         /// Same as <see cref="GetEffectiveMultiHitCountForModifierScaling(Action, Actor)"/>, but uses <paramref name="chainPositionComboStep"/>
         /// when evaluating chain-position multi-hit deltas (e.g. per combo slot on the action strip).
         /// Includes pending ACTION cadence <c>MULTIHIT_MOD</c> (slot + bank for the current step) so the strip
         /// stays updated until hit+combo redeems those bonuses.
+        /// Pass <paramref name="includeConsumedMods"/> = false for strip / HUD preview so redeemed mods do not
+        /// stick on cards after the swing resolves (Consumed* clears at end of Execute, but preview must not wait).
         /// </summary>
         public static int GetEffectiveMultiHitCountForModifierScaling(Action action, Actor source, int chainPositionComboStep)
+            => GetEffectiveMultiHitCountForModifierScaling(action, source, chainPositionComboStep, includeConsumedMods: true);
+
+        /// <inheritdoc cref="GetEffectiveMultiHitCountForModifierScaling(Action, Actor, int)"/>
+        public static int GetEffectiveMultiHitCountForModifierScaling(
+            Action action,
+            Actor source,
+            int chainPositionComboStep,
+            bool includeConsumedMods)
         {
             int n = action.Advanced?.MultiHitCount ?? 1;
             if (n <= 0) n = 1;
             if (source is Character character)
             {
-                double multiHitMod = character.Effects.ConsumedMultiHitMod;
+                double multiHitMod = includeConsumedMods ? character.Effects.ConsumedMultiHitMod : 0;
                 multiHitMod += PeekPendingActionCadenceMultiHitMod(character, chainPositionComboStep);
                 double scopedDamage = 0, scopedSpeed = 0, scopedMulti = 0, scopedAmp = 0;
                 CadenceScopedBuffApplicator.AccumulateModifiers(character, ref scopedDamage, ref scopedSpeed, ref scopedMulti, ref scopedAmp);

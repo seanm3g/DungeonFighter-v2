@@ -131,6 +131,14 @@ namespace RPGGame.UI.Avalonia.Display
         {
             return storage.GetLastWithMessageTypes(count);
         }
+
+        /// <summary>
+        /// Gets every buffered line with its stored <see cref="UIMessageType"/> (for Action Lab undo snapshots).
+        /// </summary>
+        public List<(List<ColoredText> Segments, UIMessageType MessageType)> GetAllWithMessageTypes()
+        {
+            return storage.GetLastWithMessageTypes(storage.Count);
+        }
         
         /// <summary>
         /// Gets the last N messages as strings (for backwards compatibility during migration)

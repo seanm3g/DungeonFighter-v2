@@ -4,6 +4,12 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **UI / Action strip — show AMP on action info:** Combo-strip cards and hover tooltips include the resolved swing amp (`amp: 1.02x`) and a short TECH-baseline calculation line so slot amp is visible alongside damage/speed (same value combat uses). Tests: `CombatActionStripBuilderTests`. Docs: `OVERVIEW.md`.
+
+- [x] **UI / Action strip — ACTION grant lines reset after resolve:** While ACTION bonuses are pending, authored `ACTION (Nx)` grant lines leave the grantor card and show as pending on the recipient; after hit+combo redeem, pending lines clear and grant lines return. Redeemeed `ConsumedMultiHitMod` clears at end of `Execute` and strip preview excludes Consumed* so Multihit/`2x` does not stick after Slam. Tests: `CombatActionStripBuilderTests` (reset), `MultiHitTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
+
+- [x] **UI / Action strip — longer bonus-border trail:** Traveling cyan highlight on buffed action cards covers ~¾ of the perimeter (not a 3-cell spark) so it reads as moving around the frame; always leaves a gap cell. `ActionBonusBorderShimmer.TravelHighlightFraction` / `GetTravelHighlightLength`. Tests: `ActionBonusBorderShimmerTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
+
 - [x] **UI / Action strip — shimmer on buffed cards only:** Cyan border shimmer (`ActionBonusBorderShimmer`) marks combo-strip slots that currently have pending ACTION-cadence buffs (slot queue / bank on current step), not cards that merely grant `ActionAttackBonuses`. Example: Rapid Strike does not shimmer; Slam does after Multihit is queued onto it. Tests: `ActionBonusBorderShimmerTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
 
 - [x] **Bugfix / Rapid Strike Multihit not self-applied:** ACTION cadence **MULTIHIT_MOD** (e.g. Rapid Strike) no longer inflates the granting swing’s combat-log hit count or deferred accuracy hit-layers. Hit count is captured as `ResolvedMultiHitCount` at damage time before the next-action bank deposit; formatting uses that value. Strip still shows +1 MH on the following sequential slot only. Tests: `MultiHitTests.TestActionCadenceMultiHitDoesNotApplyToGrantingAction`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
@@ -344,6 +350,8 @@ This file tracks the work currently in progress. Only items listed here should b
 - [x] **Bugfix / data:** Partial `baseAttributes` / `growthPerLevel` in `Enemies.json` no longer zeroed unspecified stats (nullable `EnemyAttributeSet` + `EnemyStatCalculator` docs); regression `EnemyAttributeGrowthTests.TestPartialBaseAttributesFallsBackForOmittedStats`; `OVERVIEW.md`
 
 - [x] **UI:** Action Lab — right-panel enemy **level** line shows **hero delta** (`Lvl 9 (-2)` when hero is 11); `ActionLabRightPanelEnemyAdjustment.FormatEnemyLevelCaptionWithHeroDelta`, `RightPanelRenderer`; test `ActionInteractionLabTests.EnemyLevelCaption_ShowsHeroDelta`; `OVERVIEW.md`
+
+- [x] **Bugfix / UI:** Action Lab **[ Back ]** no longer clears the combat log and visibly re-runs remaining steps; undo mutes entity replay and restores a per-step center-log snapshot (`ReplayHistoryAsync`, `LabCombatLogSnapshot`, capture/restore in `Game.EnterActionInteractionLab`). Input single-flight + `InputEpoch` drops queued Steps after Back/Reset. Tests: `ActionInteractionLabTests`; `OVERVIEW.md`
 
 - [x] **UI / Feature:** Action Lab tools — **[ Reset ]** (was “Reset combo”): clears combat log and step/sim counters, refills HP, clears status/temp effects, zeros combo steps; keeps gear, combo strip, and current enemy (`ActionInteractionLabSession.ResetLabEncounterAsync`, `ActionLabControlsRenderer`, `ActionLabInputCoordinator`); tests `ActionInteractionLabTests`; `OVERVIEW.md`
 

@@ -188,6 +188,11 @@ namespace RPGGame.Actions.Execution
             else
                 ApplyMissOutcome(source, combatTarget, result, battleNarrative);
 
+            // Redeemed DAMAGE/SPEED/MULTIHIT/AMP mods are applied during this swing only.
+            // Clear them before the next strip paint so cards do not keep showing spent ACTION bonuses.
+            if (source is Character clearConsumedAfterSwing)
+                clearConsumedAfterSwing.Effects.ClearConsumedModifierBonuses();
+
             if (stripIndexForFeedback.HasValue && heroForStripFeedback != null)
             {
                 HeroActionStripFlashKind flashKind;

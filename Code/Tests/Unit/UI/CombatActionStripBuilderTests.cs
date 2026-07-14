@@ -219,26 +219,36 @@ namespace RPGGame.Tests.Unit.UI
                 "FormatSwingDamageLine shows multihit as NxN damage",
                 ref run, ref passed, ref failed);
             string stripSwing = CombatActionStripBuilder.FormatStripSwingLine(
-                in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic);
+                in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic, 0);
             TestBase.AssertTrue(
                 stripSwing.StartsWith($"2x{multiFlatDmg} damage | ", StringComparison.Ordinal)
-                && stripSwing.EndsWith("s", StringComparison.Ordinal),
-                "FormatStripSwingLine is NxN damage | seconds",
+                && stripSwing.Contains(" | amp:", StringComparison.Ordinal)
+                && stripSwing.EndsWith("x", StringComparison.Ordinal),
+                "FormatStripSwingLine is NxN damage | seconds | amp: N.NNx",
                 ref run, ref passed, ref failed);
             CombatActionStripBuilder.GetStripSwingDisplayPercents(
                 in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic,
                 out double multiDmgPct, out double multiSpdPct);
+            double multiAmp = CombatActionStripBuilder.GetStripSwingDisplayAmp(charMultiHit, comboMulti[0], 0);
             string tipPercentSwing = CombatActionStripBuilder.FormatStripSwingPercentLine(
-                in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic);
+                in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic, 0);
             TestBase.AssertTrue(
-                tipPercentSwing == $"2x{multiDmgPct:F0}% damage | Spd {multiSpdPct:F0}%",
-                "FormatStripSwingPercentLine is NxN% damage | Spd N%",
+                tipPercentSwing == $"2x{multiDmgPct:F0}% damage | Spd {multiSpdPct:F0}% | amp: {multiAmp:F2}x",
+                "FormatStripSwingPercentLine is NxN% damage | Spd N% | amp: N.NNx",
+                ref run, ref passed, ref failed);
+            string ampCalcLine = CombatActionStripBuilder.FormatSwingAmpCalculationLine(charMultiHit, comboMulti[0], 0);
+            TestBase.AssertTrue(
+                ampCalcLine.StartsWith("AMP:", StringComparison.Ordinal)
+                && ampCalcLine.Contains("Pow(", StringComparison.Ordinal),
+                "FormatSwingAmpCalculationLine shows Pow(baseline, exponent)",
                 ref run, ref passed, ref failed);
             var tipMulti = CombatActionStripBuilder.BuildActionTooltipLines(charMultiHit, 0, 80);
             string tipMultiJoined = tipMulti != null ? string.Join("\n", tipMulti) : "";
             TestBase.AssertTrue(tipMultiJoined.Contains($"2x{multiDmgPct:F0}% damage", StringComparison.Ordinal)
-                && tipMultiJoined.Contains($"Spd {multiSpdPct:F0}%", StringComparison.Ordinal),
-                "BuildActionTooltipLines includes multihit % damage/speed segment",
+                && tipMultiJoined.Contains($"Spd {multiSpdPct:F0}%", StringComparison.Ordinal)
+                && tipMultiJoined.Contains("amp:", StringComparison.Ordinal)
+                && tipMultiJoined.Contains("AMP:", StringComparison.Ordinal),
+                "BuildActionTooltipLines includes multihit % damage/speed, amp, and AMP calc",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(!tipJoined.Contains("(Normal)", StringComparison.Ordinal),
                 "BuildActionTooltipLines omits speed flavor labels from action details",
@@ -394,7 +404,171 @@ namespace RPGGame.Tests.Unit.UI
                 "BuildActionStripModifierTailLines uses two-line cadence format",
                 ref run, ref passed, ref failed);
 
+            TestActionCadenceGrantLinesResetWhenPendingThenRedeemed(ref run, ref passed, ref failed);
+            TestStripSwingShowsSlotAmpCalculation(ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("CombatActionStripBuilder Tests", run, passed, failed);
+        }
+
+        /// <summary>
+        /// Second combo slot shows TECH baseline^1 amp on the swing line and Pow() in the tooltip calc.
+        /// </summary>
+        private static void TestStripSwingShowsSlotAmpCalculation(ref int run, ref int passed, ref int failed)
+        {
+            var hero = TestDataBuilders.Character().WithName("AmpStripHero").WithStats(10, 10, 20, 10).Build();
+            var a = TestDataBuilders.CreateMockAction("OPENER", ActionType.Attack);
+            a.IsComboAction = true;
+            a.ComboOrder = 1;
+            a.DamageMultiplier = 1.0;
+            var b = TestDataBuilders.CreateMockAction("FOLLOW", ActionType.Attack);
+            b.IsComboAction = true;
+            b.ComboOrder = 2;
+            b.DamageMultiplier = 1.0;
+            hero.AddAction(a, 1.0);
+            hero.AddAction(b, 1.0);
+            hero.Actions.AddToCombo(a);
+            hero.Actions.AddToCombo(b);
+
+            double baseline = hero.GetComboAmplifier();
+            double slot0 = CombatActionStripBuilder.GetStripSwingDisplayAmp(hero, a, 0);
+            double slot1 = CombatActionStripBuilder.GetStripSwingDisplayAmp(hero, b, 1);
+            TestBase.AssertTrue(Math.Abs(slot0 - 1.0) < 0.0001,
+                "Slot 0 amp is 1.00x (Pow base, 0)",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(Math.Abs(slot1 - baseline) < 0.0001,
+                "Slot 1 amp equals TECH baseline",
+                ref run, ref passed, ref failed);
+
+            var panels = CombatActionStripBuilder.BuildPanelData(hero);
+            var slot1Info = panels[1];
+            string swing1 = CombatActionStripBuilder.FormatStripSwingLine(
+                in slot1Info, hero, b, ActionStripDamageLineMode.EffectiveWithComboAmp, 1);
+            TestBase.AssertTrue(
+                swing1.Contains($"amp: {slot1:F2}x", StringComparison.Ordinal),
+                "Second-slot strip swing line includes resolved amp",
+                ref run, ref passed, ref failed);
+
+            string calc1 = CombatActionStripBuilder.FormatSwingAmpCalculationLine(hero, b, 1);
+            TestBase.AssertTrue(
+                calc1.Contains($"Pow({baseline:F2}, 1)", StringComparison.Ordinal)
+                && calc1.Contains($"AMP: {slot1:F2}x", StringComparison.Ordinal),
+                "AMP calc line shows Pow(baseline, 1) for second strip slot",
+                ref run, ref passed, ref failed);
+
+            hero.Effects.AddPendingActionBonuses(1, new List<ActionAttackBonusItem>
+            {
+                new ActionAttackBonusItem { Type = "AMP_MOD", Value = 10 }
+            });
+            double withSheet = CombatActionStripBuilder.GetStripSwingDisplayAmp(hero, b, 1);
+            string calcSheet = CombatActionStripBuilder.FormatSwingAmpCalculationLine(hero, b, 1);
+            TestBase.AssertTrue(
+                withSheet > slot1 + 0.05
+                && calcSheet.Contains("sheet", StringComparison.Ordinal),
+                "Pending AMP_MOD folds into strip amp and calc line",
+                ref run, ref passed, ref failed);
+        }
+
+        /// <summary>
+        /// After RAPID STRIKE banks MULTIHIT, grant lines leave Rapid Strike and appear as pending on Slam.
+        /// After Slam redeems, pending clears and Consumed Multihit no longer inflates strip hit counts.
+        /// </summary>
+        private static void TestActionCadenceGrantLinesResetWhenPendingThenRedeemed(ref int run, ref int passed, ref int failed)
+        {
+            var hero = TestDataBuilders.Character().WithName("StripResetHero").WithStats(12, 10, 10, 10).Build();
+            hero.Effects.ClearAllTempEffects();
+
+            var rapid = TestDataBuilders.CreateMockAction("RAPID STRIKE", ActionType.Attack);
+            rapid.IsComboAction = true;
+            rapid.ComboOrder = 1;
+            rapid.Cadence = "ACTION";
+            rapid.Advanced.MultiHitCount = 1;
+            rapid.ActionAttackBonuses = new ActionAttackBonuses();
+            rapid.ActionAttackBonuses.BonusGroups.Add(new ActionAttackBonusGroup
+            {
+                Keyword = "ACTION",
+                CadenceType = "ACTION",
+                Count = 1,
+                Bonuses = new List<ActionAttackBonusItem>
+                {
+                    new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = 1 }
+                }
+            });
+
+            var slam = TestDataBuilders.CreateMockAction("SLAM", ActionType.Attack);
+            slam.IsComboAction = true;
+            slam.ComboOrder = 2;
+            slam.Advanced.MultiHitCount = 1;
+
+            hero.AddAction(rapid, 1.0);
+            hero.AddAction(slam, 1.0);
+            hero.Actions.AddToCombo(rapid);
+            hero.Actions.AddToCombo(slam);
+            hero.ComboStep = 0;
+
+            var idleRapidTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(rapid, 80, 8, hero, 0);
+            string idleRapidJoined = string.Join(" | ", idleRapidTail);
+            TestBase.AssertTrue(
+                idleRapidJoined.Contains("ACTION (1x)", StringComparison.Ordinal)
+                && idleRapidJoined.Contains("MULTIHIT +1", StringComparison.Ordinal),
+                "Idle Rapid Strike card shows authored ACTION Multihit grant",
+                ref run, ref passed, ref failed);
+
+            hero.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
+            {
+                new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = 1 }
+            });
+            hero.ComboStep = 1;
+
+            var pendingRapidTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(rapid, 80, 8, hero, 0);
+            string pendingRapidJoined = string.Join(" | ", pendingRapidTail);
+            TestBase.AssertTrue(
+                !pendingRapidJoined.Contains("ACTION (1x)", StringComparison.Ordinal)
+                && !pendingRapidJoined.Contains("MULTIHIT", StringComparison.Ordinal),
+                "While Multihit is pending, Rapid Strike ACTION grant lines reset off the card",
+                ref run, ref passed, ref failed);
+
+            var pendingSlamTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(slam, 80, 8, hero, 1);
+            string pendingSlamJoined = string.Join(" | ", pendingSlamTail);
+            TestBase.AssertTrue(
+                pendingSlamJoined.Contains("ACTION (1x)", StringComparison.Ordinal)
+                && pendingSlamJoined.Contains("MULTIHIT +1", StringComparison.Ordinal),
+                "Pending Multihit appears on the recipient Slam card",
+                ref run, ref passed, ref failed);
+
+            var panelsPending = CombatActionStripBuilder.BuildPanelData(hero);
+            TestBase.AssertEqual(1, panelsPending[0].EffectiveMultiHitCount,
+                "Grantor strip hit count stays 1 while Multihit is pending on Slam",
+                ref run, ref passed, ref failed);
+            TestBase.AssertEqual(2, panelsPending[1].EffectiveMultiHitCount,
+                "Recipient strip hit count is 2 while Multihit is pending",
+                ref run, ref passed, ref failed);
+
+            _ = hero.Effects.ConsumePendingActionBonusesNextHeroRoll();
+            hero.Effects.ConsumedMultiHitMod = 1; // Simulate mid-swing sticky consumed value
+            hero.ComboStep = 0;
+
+            var panelsAfterRedeem = CombatActionStripBuilder.BuildPanelData(hero);
+            TestBase.AssertEqual(1, panelsAfterRedeem[0].EffectiveMultiHitCount,
+                "After redeem: strip ignores sticky ConsumedMultiHitMod on Rapid Strike",
+                ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, panelsAfterRedeem[1].EffectiveMultiHitCount,
+                "After redeem: strip ignores sticky ConsumedMultiHitMod on Slam",
+                ref run, ref passed, ref failed);
+
+            var resetRapidTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(rapid, 80, 8, hero, 0);
+            string resetRapidJoined = string.Join(" | ", resetRapidTail);
+            TestBase.AssertTrue(
+                resetRapidJoined.Contains("ACTION (1x)", StringComparison.Ordinal)
+                && resetRapidJoined.Contains("MULTIHIT +1", StringComparison.Ordinal),
+                "After redeem: Rapid Strike ACTION grant lines return for the next cycle",
+                ref run, ref passed, ref failed);
+
+            var resetSlamTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(slam, 80, 8, hero, 1);
+            string resetSlamJoined = string.Join(" | ", resetSlamTail);
+            TestBase.AssertTrue(
+                !resetSlamJoined.Contains("MULTIHIT", StringComparison.Ordinal),
+                "After redeem: Slam pending ACTION Multihit lines clear",
+                ref run, ref passed, ref failed);
         }
 
         private static Character CreateCharacterWithComboAction(double damageMultiplier = 1.0)

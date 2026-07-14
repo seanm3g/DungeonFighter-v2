@@ -31,8 +31,11 @@ namespace RPGGame.UI.Avalonia.Feedback
         /// <summary>Milliseconds for one full lap of the traveling highlight around the card.</summary>
         internal const double TravelLapMs = 1600.0;
 
-        /// <summary>How many perimeter cells the bright comet covers.</summary>
-        internal const int TravelHighlightLength = 3;
+        /// <summary>
+        /// Fraction of the panel perimeter covered by the bright traveling segment
+        /// (≈¾ so a clear gap remains and the trail reads as moving around the frame).
+        /// </summary>
+        internal const double TravelHighlightFraction = 0.75;
 
         private static System.Action? _requestInvalidate;
         private static DispatcherTimer? _timer;
@@ -139,7 +142,7 @@ namespace RPGGame.UI.Avalonia.Feedback
             double lap = ((now ?? Now()).ToUnixTimeMilliseconds() / TravelLapMs) % 1.0;
             if (lap < 0) lap += 1.0;
             int head = (int)Math.Floor(lap * perimeter.Count) % perimeter.Count;
-            int length = Math.Min(TravelHighlightLength, perimeter.Count);
+            int length = GetTravelHighlightLength(perimeter.Count);
 
             for (int i = 0; i < length; i++)
             {
@@ -149,6 +152,22 @@ namespace RPGGame.UI.Avalonia.Feedback
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Cell count for the traveling highlight: ~¾ of the perimeter, always leaving at least one gap cell.
+        /// </summary>
+        internal static int GetTravelHighlightLength(int perimeterCellCount)
+        {
+            if (perimeterCellCount <= 0)
+                return 0;
+            if (perimeterCellCount == 1)
+                return 1;
+
+            int length = (int)Math.Round(perimeterCellCount * TravelHighlightFraction);
+            // Keep a visible gap so motion around the frame stays readable.
+            length = Math.Clamp(length, 1, perimeterCellCount - 1);
+            return length;
         }
 
         /// <summary>

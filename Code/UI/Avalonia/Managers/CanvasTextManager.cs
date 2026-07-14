@@ -141,6 +141,20 @@ namespace RPGGame.UI.Avalonia.Managers
             string key = ResolveDisplayManagerKey(character);
             currentDisplayManager = GetOrCreateDisplayManager(key);
         }
+
+        /// <summary>Deep-clones the lab hero center buffer for Action Lab instant undo.</summary>
+        public LabCombatLogSnapshot CaptureLabCombatLogSnapshot(Character labPlayer)
+        {
+            var dm = GetDisplayManagerForCharacter(labPlayer);
+            return LabCombatLogSnapshot.CloneFrom(dm.Buffer.GetAllWithMessageTypes());
+        }
+
+        /// <summary>Restores a prior Action Lab combat-log snapshot onto the lab hero buffer.</summary>
+        public void RestoreLabCombatLogSnapshot(Character labPlayer, LabCombatLogSnapshot snapshot)
+        {
+            SwitchToCharacterDisplayManager(labPlayer);
+            GetDisplayManagerForCharacter(labPlayer).ReplaceBufferFromLabSnapshot(snapshot.Lines, render: true);
+        }
         
         /// <summary>
         /// Gets the display manager for a specific character

@@ -196,11 +196,11 @@ namespace RPGGame.UI.Avalonia.Renderers
                     : speedDiffersFromIntrinsic
                         ? (speedDisplayPct > info.SpeedBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
                         : AsciiArtAssets.Colors.White;
-                string swingLine = CombatActionStripBuilder.FormatStripSwingLine(in info, player, action, damageLineMode);
+                string swingLine = CombatActionStripBuilder.FormatStripSwingLine(in info, player, action, damageLineMode, i);
                 drawLine(swingLine, swingLineColor);
 
                 int tailBudget = Math.Max(0, panelBottomExclusive - contentY - reserveBottomRows);
-                var tailLines = CombatActionStripBuilder.BuildActionStripModifierTailLines(action, contentW, tailBudget);
+                var tailLines = CombatActionStripBuilder.BuildActionStripModifierTailLines(action, contentW, tailBudget, player, i);
                 foreach (var tl in tailLines)
                     drawLine(tl, AsciiArtAssets.Colors.White);
 

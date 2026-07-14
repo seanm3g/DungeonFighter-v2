@@ -24,7 +24,7 @@ namespace RPGGame
                 if (panelIndex < panels.Count)
                 {
                     var info = panels[panelIndex];
-                    return FormatStripSwingPercentLine(in info, character, action, mode);
+                    return FormatStripSwingPercentLine(in info, character, action, mode, panelIndex);
                 }
             }
 
@@ -36,7 +36,10 @@ namespace RPGGame
             double baseSpeedPct = action.Length > 0
                 ? ActionDisplayFormatter.CalculateActionSpeedPercentage(action)
                 : 0;
-            return $"{FormatSwingDamagePercentLine(hits, baseDamagePct)} | {FormatSwingSpeedPercentLine(baseSpeedPct)}";
+            double amp = character != null
+                ? GetStripSwingDisplayAmp(character, action, panelIndex)
+                : 1.0;
+            return $"{FormatSwingDamagePercentLine(hits, baseDamagePct)} | {FormatSwingSpeedPercentLine(baseSpeedPct)} | {FormatSwingAmpLine(amp)}";
         }
 
         private static string FormatTooltipActionName(string? name)
@@ -459,6 +462,12 @@ namespace RPGGame
             AppendComboRoleAndWeaponRequirementNotation(segments, character, action);
             AppendDeclaredMechanicsLine(segments, action);
             segments.Add(BuildTooltipSwingModsLine(character, action, panelIndex, swingLineMode));
+            if (character != null)
+            {
+                string ampCalc = FormatSwingAmpCalculationLine(character, action, panelIndex);
+                if (!string.IsNullOrEmpty(ampCalc))
+                    segments.Add(ampCalc);
+            }
             AppendAccuracyLines(segments, action);
             segments.AddRange(BuildSpreadsheetFriendlyModLines(action));
 

@@ -27,7 +27,7 @@ namespace RPGGame
         public string ThresholdText { get; }
         /// <summary>Total roll bonus for this combo slot (same basis as hover tooltip / <see cref="CombatCalculator.CalculateRollBonus"/>).</summary>
         public int AccuracyRollBonus { get; }
-        /// <summary>Effective number of damage ticks (base multi-hit + consumed mod + chain position), same basis as combat execution.</summary>
+        /// <summary>Effective number of damage ticks for strip preview (base multi-hit + pending ACTION cadence + chain), excluding redeemed Consumed* so cards reset after the swing.</summary>
         public int EffectiveMultiHitCount { get; }
 
         public ActionPanelInfo(string name, double damageBase, double damageModified, double speedBase, double speedModified, string thresholdText, int accuracyRollBonus, int effectiveMultiHitCount)
@@ -197,7 +197,9 @@ namespace RPGGame
 
                 int accuracyRollBonus = CombatCalculator.CalculateRollBonus(character, action, actions, i, consumeTempBonus: false);
 
-                int effectiveHits = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(action, character, i);
+                // Strip preview: pending ACTION cadence only — not Consumed* from a just-resolved swing.
+                int effectiveHits = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(
+                    action, character, i, includeConsumedMods: false);
 
                 list.Add(new ActionPanelInfo(name, baseDamagePct, modifiedDamagePct, baseSpeedPct, modifiedSpeedPct, thresholdText, accuracyRollBonus, effectiveHits));
             }
@@ -244,30 +246,149 @@ namespace RPGGame
             $"Spd {speedPercentForDisplay:F0}%";
 
         /// <summary>
-        /// Full swing readout for strip cards: <c>25 damage | 8.3s</c> (or multihit <c>2x25 damage | 8.3s</c>).
+        /// Compact amp segment matching combat roll footers (e.g. <c>amp: 1.02x</c>).
+        /// </summary>
+        public static string FormatSwingAmpLine(double ampForDisplay) =>
+            $"amp: {ampForDisplay.ToString("0.00", CultureInfo.InvariantCulture)}x";
+
+        /// <summary>
+        /// Resolves the combo-slot amp used for this strip action (TECH baseline^strip index),
+        /// then multiplies by pending sheet <c>AMP_MOD</c> for the slot the same way combat stacks consumed amp.
+        /// </summary>
+        /// <param name="comboSlotIndex">0-based strip index; when negative, resolve by action identity in the combo list.</param>
+        public static double GetStripSwingDisplayAmp(Character character, Action action, int comboSlotIndex = -1)
+        {
+            if (character == null || action == null)
+                return 1.0;
+
+            int slot = comboSlotIndex;
+            var combo = character.GetComboActions();
+            if (slot < 0 && combo != null)
+            {
+                for (int i = 0; i < combo.Count; i++)
+                {
+                    if (ReferenceEquals(combo[i], action))
+                    {
+                        slot = i;
+                        break;
+                    }
+                }
+            }
+
+            double slotMult = ActionUtilities.CalculateDamageMultiplier(character, action);
+            double ampModPct = PeekAmpModPercentForStripSlot(character, slot);
+            if (Math.Abs(ampModPct) < 0.0001)
+                return slotMult;
+
+            // Match DamageCalculator.GetDisplayedComboMultiplier / CalculateRawDamage amp-mod path.
+            double baseline = slotMult;
+            if (action.IsComboAction)
+                baseline = Math.Max(baseline, character.GetComboAmplifier());
+            return baseline * (1.0 + ampModPct / 100.0);
+        }
+
+        /// <summary>
+        /// Tooltip breakdown of strip amp: TEC baseline, strip exponent, optional pending sheet AMP_MOD.
+        /// </summary>
+        public static string FormatSwingAmpCalculationLine(Character character, Action action, int comboSlotIndex = -1)
+        {
+            if (character == null || action == null)
+                return "";
+
+            double baseline = character.GetComboAmplifier();
+            var combo = character.GetComboActions() ?? new List<Action>();
+            int slot = comboSlotIndex;
+            if (slot < 0)
+            {
+                for (int i = 0; i < combo.Count; i++)
+                {
+                    if (ReferenceEquals(combo[i], action))
+                    {
+                        slot = i;
+                        break;
+                    }
+                }
+            }
+
+            int exponent = 0;
+            if (action.IsComboAction && combo.Count > 0 && slot >= 0)
+                exponent = ActionUtilities.GetComboAmplificationExponent(character, action, combo);
+            else if (!action.IsComboAction)
+                exponent = 0;
+
+            double ampModPct = PeekAmpModPercentForStripSlot(character, slot);
+            double finalAmp = GetStripSwingDisplayAmp(character, action, slot);
+
+            string powPart = action.IsComboAction
+                ? $"Pow({baseline.ToString("0.00", CultureInfo.InvariantCulture)}, {Math.Max(0, exponent)})"
+                : "1.00 (not combo)";
+
+            if (Math.Abs(ampModPct) < 0.0001)
+                return $"AMP: {finalAmp.ToString("0.00", CultureInfo.InvariantCulture)}x = {powPart}";
+
+            string sheetPart = ampModPct >= 0
+                ? $"+{ampModPct.ToString("0.#", CultureInfo.InvariantCulture)}% sheet"
+                : $"{ampModPct.ToString("0.#", CultureInfo.InvariantCulture)}% sheet";
+            return $"AMP: {finalAmp.ToString("0.00", CultureInfo.InvariantCulture)}x = {powPart} × ({sheetPart})";
+        }
+
+        private static double PeekAmpModPercentForStripSlot(Character character, int comboSlotIndex)
+        {
+            if (character?.Effects == null || comboSlotIndex < 0)
+                return 0;
+
+            double sum = 0;
+            foreach (var b in character.Effects.GetPendingActionBonusesForSlot(comboSlotIndex))
+            {
+                if (string.Equals(b.Type, "AMP_MOD", StringComparison.OrdinalIgnoreCase))
+                    sum += b.Value;
+            }
+
+            var actions = character.GetComboActions();
+            int actionCount = actions?.Count ?? 0;
+            if (actionCount > 0
+                && character.Effects.HasPendingActionCadenceBank()
+                && comboSlotIndex == (character.ComboStep % actionCount))
+            {
+                foreach (var b in character.Effects.PeekPendingActionBonusesNextHeroRoll())
+                {
+                    if (string.Equals(b.Type, "AMP_MOD", StringComparison.OrdinalIgnoreCase))
+                        sum += b.Value;
+                }
+            }
+
+            return sum;
+        }
+
+        /// <summary>
+        /// Full swing readout for strip cards: <c>25 damage | 8.3s | amp: 1.00x</c> (or multihit <c>2x25 damage | …</c>).
         /// </summary>
         public static string FormatStripSwingLine(
             in ActionPanelInfo info,
             Character character,
             Action action,
-            ActionStripDamageLineMode mode)
+            ActionStripDamageLineMode mode,
+            int comboSlotIndex = -1)
         {
             GetStripSwingDisplayValues(in info, character, action, mode, out int damage, out double seconds);
-            return $"{FormatSwingDamageLine(info.EffectiveMultiHitCount, damage)} | {FormatSwingSpeedLine(seconds)}";
+            double amp = GetStripSwingDisplayAmp(character, action, comboSlotIndex);
+            return $"{FormatSwingDamageLine(info.EffectiveMultiHitCount, damage)} | {FormatSwingSpeedLine(seconds)} | {FormatSwingAmpLine(amp)}";
         }
 
         /// <summary>
-        /// Full swing readout for hover tooltips: <c>Dmg 50% | Spd 100%</c> (or multihit <c>2x50% damage | Spd 100%</c>).
+        /// Full swing readout for hover tooltips: <c>Dmg 50% | Spd 100% | amp: 1.00x</c> (or multihit <c>2x50% damage | …</c>).
         /// Uses the same base / effective+amp percents as strip cards.
         /// </summary>
         public static string FormatStripSwingPercentLine(
             in ActionPanelInfo info,
             Character character,
             Action action,
-            ActionStripDamageLineMode mode)
+            ActionStripDamageLineMode mode,
+            int comboSlotIndex = -1)
         {
             GetStripSwingDisplayPercents(in info, character, action, mode, out double damagePct, out double speedPct);
-            return $"{FormatSwingDamagePercentLine(info.EffectiveMultiHitCount, damagePct)} | {FormatSwingSpeedPercentLine(speedPct)}";
+            double amp = GetStripSwingDisplayAmp(character, action, comboSlotIndex);
+            return $"{FormatSwingDamagePercentLine(info.EffectiveMultiHitCount, damagePct)} | {FormatSwingSpeedPercentLine(speedPct)} | {FormatSwingAmpLine(amp)}";
         }
 
         private static string GetThresholdText(Action action)
@@ -307,8 +428,15 @@ namespace RPGGame
         /// Extra modifier lines for compact action strip cards after the swing (damage/seconds) line: deferred sheet accuracy
         /// (and related lines) so cards match tooltip behavior, compact stat bonuses, and cadence bonus groups.
         /// Current-roll accuracy is shown only under TURN/ACTION cadence headers, not as a standalone Acc line.
+        /// ACTION cadence groups are grantor capability when idle; once deposited they appear as pending on the
+        /// recipient card and clear from grantor cards until redeemed (hit+combo) so spent bonuses reset on the strip.
         /// </summary>
-        public static List<string> BuildActionStripModifierTailLines(Action? action, int maxWidth, int maxLines)
+        public static List<string> BuildActionStripModifierTailLines(
+            Action? action,
+            int maxWidth,
+            int maxLines,
+            Character? character = null,
+            int comboSlotIndex = -1)
         {
             var lines = new List<string>();
             if (action == null || maxLines <= 0 || maxWidth < 4)
@@ -355,6 +483,20 @@ namespace RPGGame
                     add($"Stats: {adv.StatBonusType} {FormatSignedValue(adv.StatBonus)}");
             }
 
+            var pendingForSlot = CollectPendingActionCadenceBonusesForStripSlot(character, comboSlotIndex);
+            if (pendingForSlot.Count > 0)
+            {
+                int displayCount = Math.Max(1, character!.Effects.GetPendingActionCadenceLayerCount());
+                addBlank();
+                foreach (string line in UI.CadenceCardLineFormatter.FormatBlockLines(
+                             CadenceKeywords.Action, displayCount, pendingForSlot))
+                    add(line);
+            }
+
+            bool hideAuthoredActionGrants = character?.Effects != null
+                && (character.Effects.HasPendingActionCadenceBank()
+                    || character.Effects.GetPendingActionBonusSlots().Any());
+
             if (action.ActionAttackBonuses?.BonusGroups != null)
             {
                 foreach (var group in action.ActionAttackBonuses.BonusGroups)
@@ -362,6 +504,13 @@ namespace RPGGame
                     if (lines.Count >= maxLines)
                         break;
                     if (group?.Bonuses == null || group.Bonuses.Count == 0)
+                        continue;
+                    // While ACTION bonuses are pending (awaiting hit+combo redeem), hide authored ACTION
+                    // grant lines on every strip card and show the pending block on the recipient instead.
+                    // After redeem, grant lines return and pending lines clear — spent bonuses reset.
+                    if (hideAuthoredActionGrants && ActionCadenceDurationResolver.IsKeywordCadenceGroup(group)
+                        && CadenceKeywords.IsAction(CadenceKeywords.NormalizeCadenceType(
+                            string.IsNullOrWhiteSpace(group.CadenceType) ? group.Keyword : group.CadenceType)))
                         continue;
                     int displayCount = ActionCadenceDurationResolver.GetDisplayCount(action, group);
                     addBlank();
@@ -371,6 +520,32 @@ namespace RPGGame
             }
 
             return lines;
+        }
+
+        /// <summary>
+        /// Pending ACTION cadence items for a strip card: per-slot queue plus the additive bank when
+        /// <paramref name="comboSlotIndex"/> is the current <see cref="Character.ComboStep"/>.
+        /// </summary>
+        private static List<ActionAttackBonusItem> CollectPendingActionCadenceBonusesForStripSlot(
+            Character? character,
+            int comboSlotIndex)
+        {
+            var result = new List<ActionAttackBonusItem>();
+            if (character?.Effects == null || comboSlotIndex < 0)
+                return result;
+
+            result.AddRange(character.Effects.GetPendingActionBonusesForSlot(comboSlotIndex));
+
+            var actions = character.GetComboActions();
+            int actionCount = actions?.Count ?? 0;
+            if (actionCount > 0
+                && character.Effects.HasPendingActionCadenceBank()
+                && comboSlotIndex == (character.ComboStep % actionCount))
+            {
+                result.AddRange(character.Effects.PeekPendingActionBonusesNextHeroRoll());
+            }
+
+            return result;
         }
 
         /// <summary>

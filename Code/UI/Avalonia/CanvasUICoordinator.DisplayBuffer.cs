@@ -4,6 +4,7 @@ using System.Linq;
 using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
@@ -135,6 +136,26 @@ namespace RPGGame.UI.Avalonia
         {
             if (textManager is CanvasTextManager ctm)
                 ctm.SwitchToCharacterDisplayManager(character);
+        }
+
+        /// <summary>
+        /// Captures a deep-cloned Action Lab combat-log snapshot for the lab hero buffer (used by instant undo).
+        /// </summary>
+        public LabCombatLogSnapshot? CaptureLabCombatLogSnapshot(Character? labPlayer)
+        {
+            if (textManager is not CanvasTextManager ctm || labPlayer == null)
+                return null;
+            return ctm.CaptureLabCombatLogSnapshot(labPlayer);
+        }
+
+        /// <summary>
+        /// Restores an Action Lab combat-log snapshot onto the lab hero buffer (instant undo after silent replay).
+        /// </summary>
+        public void RestoreLabCombatLogSnapshot(Character? labPlayer, LabCombatLogSnapshot? snapshot)
+        {
+            if (textManager is not CanvasTextManager ctm || labPlayer == null || snapshot == null)
+                return;
+            ctm.RestoreLabCombatLogSnapshot(labPlayer, snapshot);
         }
 
         /// <summary>

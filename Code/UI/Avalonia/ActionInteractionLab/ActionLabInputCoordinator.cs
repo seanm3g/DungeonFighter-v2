@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
@@ -11,6 +12,9 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
     /// </summary>
     public static class ActionLabInputCoordinator
     {
+        /// <summary>Prevents fire-and-forget clicks from stacking concurrent Step/Undo/Reset work.</summary>
+        private static int _labControlInFlight;
+
         /// <summary>
         /// Maps Page Up / Page Down to lab step / undo tokens (<c>lab_step</c>, <c>lab_undo</c>).
         /// </summary>
@@ -99,6 +103,21 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
         public static async Task HandleLabControlAsync(string value, CanvasUICoordinator? canvasUI, GameCoordinator? game)
         {
             if (canvasUI == null || game == null) return;
+            if (Interlocked.CompareExchange(ref _labControlInFlight, 1, 0) != 0)
+                return;
+
+            try
+            {
+                await HandleLabControlCoreAsync(value, canvasUI, game).ConfigureAwait(true);
+            }
+            finally
+            {
+                Interlocked.Exchange(ref _labControlInFlight, 0);
+            }
+        }
+
+        private static async Task HandleLabControlCoreAsync(string value, CanvasUICoordinator canvasUI, GameCoordinator game)
+        {
             var session = ActionInteractionLabSession.Current;
             if (session == null) return;
 

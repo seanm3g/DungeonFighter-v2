@@ -11,6 +11,7 @@ using RPGGame.UI;
 using RPGGame.UI.Avalonia.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.ColorSystem;
 using RPGGame.Utils;
 
 namespace RPGGame.Tests.Unit
@@ -42,6 +43,11 @@ namespace RPGGame.Tests.Unit
             LabRemoveFromComboShrinksSequence(ref run, ref passed, ref failed);
             EnemyComboSelectionUsesComboStepIndex(ref run, ref passed, ref failed);
             LabEnemyUsesPlayerComboStripForAmplification(ref run, ref passed, ref failed);
+            UndoReplayPreservesComboStripEdits(ref run, ref passed, ref failed);
+            UndoReplayPreservesLabStatEdits(ref run, ref passed, ref failed);
+            UndoLastStep_RemovesOneStepFromMultiStepHistory(ref run, ref passed, ref failed);
+            UndoLastStep_BumpsInputEpochSoQueuedStepsCanBeDropped(ref run, ref passed, ref failed);
+            LabCombatLogSnapshot_CloneFromDeepCopiesLines(ref run, ref passed, ref failed);
             ActionLabCatalogSync_EnemyNextUsesPlayerStrip(ref run, ref passed, ref failed);
             ActionLabCatalogSync_EnemyNextUsesPlayerStripWhenEnemyHasCombo(ref run, ref passed, ref failed);
             LabSessionSyncCatalogMatchesComputeHelper(ref run, ref passed, ref failed);
@@ -55,8 +61,6 @@ namespace RPGGame.Tests.Unit
             LabNudgeComboStepClampsStrip(ref run, ref passed, ref failed);
             AddSelectedCatalogToStripHelperAddsAction(ref run, ref passed, ref failed);
             AddSelectedCatalogToStrip_AppendsToEnd(ref run, ref passed, ref failed);
-            UndoReplayPreservesComboStripEdits(ref run, ref passed, ref failed);
-            UndoReplayPreservesLabStatEdits(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_StrArmorAndFloors(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_ActionSlots(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_HeroHpDamageAndHeal(ref run, ref passed, ref failed);
@@ -1307,8 +1311,12 @@ namespace RPGGame.Tests.Unit
 
             hero.ComboStep = 1;
             string? pick = ActionLabCatalogSync.ComputeSelectedCatalogName(enemy, hero, enemy);
+            var heroStrip = hero.GetComboActions();
+            TestBase.AssertTrue(heroStrip.Count >= 2, "ActionLabCatalogSync_EnemyNext player strip has 2 actions", ref run, ref passed, ref failed);
+            if (heroStrip.Count < 2)
+                return;
             TestBase.AssertTrue(
-                pick != null && string.Equals(pick, hero.GetComboActions()[1].Name, StringComparison.OrdinalIgnoreCase),
+                pick != null && string.Equals(pick, heroStrip[1].Name, StringComparison.OrdinalIgnoreCase),
                 "ComputeSelectedCatalogName uses player strip when enemy next and enemy strip empty",
                 ref run, ref passed, ref failed);
         }
@@ -1360,8 +1368,12 @@ namespace RPGGame.Tests.Unit
             hero.ComboStep = 1;
             enemy.ComboStep = 0;
             string? pick = ActionLabCatalogSync.ComputeSelectedCatalogName(enemy, hero, enemy);
+            var heroStrip = hero.GetComboActions();
+            TestBase.AssertTrue(heroStrip.Count >= 2, "ActionLabCatalogSync_EnemyHasCombo player strip has 2 actions", ref run, ref passed, ref failed);
+            if (heroStrip.Count < 2)
+                return;
             TestBase.AssertTrue(
-                pick != null && string.Equals(pick, hero.GetComboActions()[1].Name, StringComparison.OrdinalIgnoreCase),
+                pick != null && string.Equals(pick, heroStrip[1].Name, StringComparison.OrdinalIgnoreCase),
                 "ComputeSelectedCatalogName ignores enemy strip when enemy has combo; uses hero step",
                 ref run, ref passed, ref failed);
         }
@@ -1712,6 +1724,11 @@ namespace RPGGame.Tests.Unit
 
             var strip = lab.LabPlayer.GetComboActions();
             TestBase.AssertEqual(2, strip.Count, "AddSelectedCatalogToStrip_AppendsToEnd strip length", ref run, ref passed, ref failed);
+            if (strip.Count < 2)
+            {
+                ActionInteractionLabSession.EndSession();
+                return;
+            }
             TestBase.AssertTrue(
                 string.Equals(strip[0].Name, firstName, StringComparison.OrdinalIgnoreCase),
                 "AddSelectedCatalogToStrip_AppendsToEnd keeps first action at slot 0",
@@ -1771,6 +1788,106 @@ namespace RPGGame.Tests.Unit
             }
 
             ActionInteractionLabSession.EndSession();
+        }
+
+        /// <summary>
+        /// Back removes only the last interactive step; remaining history length and fighters stay consistent after muted replay.
+        /// </summary>
+        private static void UndoLastStep_RemovesOneStepFromMultiStepHistory(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var names = ActionLoader.GetAllActionNames();
+            if (names.Count == 0)
+            {
+                TestBase.AssertTrue(true, "UndoLastStep_RemovesOneStep skipped (no actions)", ref run, ref passed, ref failed);
+                return;
+            }
+
+            names.Sort(StringComparer.OrdinalIgnoreCase);
+            var hero = TestDataBuilders.Character().WithName("LabUndoMulti").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "UndoLastStep_RemovesOneStep: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            string pick = names[names.Count > 1 ? 1 : 0];
+            lab.SelectedCatalogActionName = pick;
+            lab.AddSelectedCatalogActionToComboStrip();
+            lab.SelectedD20 = 16;
+            lab.UseRandomD20PerStep = false;
+
+            for (int i = 0; i < 3; i++)
+                lab.StepAsync(lab.ResolveD20ForNextStep(), lab.SelectedCatalogActionName).GetAwaiter().GetResult();
+
+            int historyAfterSteps = lab.History.Count;
+            TestBase.AssertTrue(historyAfterSteps >= 1, "Undo multi: at least one step recorded", ref run, ref passed, ref failed);
+
+            lab.UndoLastStepAsync().GetAwaiter().GetResult();
+            TestBase.AssertEqual(historyAfterSteps - 1, lab.History.Count, "Undo removes exactly one history step", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!lab.IsReplayingHistory, "Undo leaves IsReplayingHistory false", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(lab.CanStepForward, "Undo leaves CanStepForward true when both alive", ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
+        }
+
+        /// <summary>
+        /// Undo bumps <see cref="ActionInteractionLabSession.InputEpoch"/> so Steps that waited behind the gate can be dropped.
+        /// </summary>
+        private static void UndoLastStep_BumpsInputEpochSoQueuedStepsCanBeDropped(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var names = ActionLoader.GetAllActionNames();
+            if (names.Count == 0)
+            {
+                TestBase.AssertTrue(true, "UndoLastStep_BumpsInputEpoch skipped (no actions)", ref run, ref passed, ref failed);
+                return;
+            }
+
+            names.Sort(StringComparer.OrdinalIgnoreCase);
+            var hero = TestDataBuilders.Character().WithName("LabUndoEpoch").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "UndoLastStep_BumpsInputEpoch: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            string pick = names[names.Count > 1 ? 1 : 0];
+            lab.SelectedCatalogActionName = pick;
+            lab.AddSelectedCatalogActionToComboStrip();
+            lab.StepAsync(16, lab.SelectedCatalogActionName).GetAwaiter().GetResult();
+
+            int epochBeforeUndo = lab.InputEpoch;
+            lab.UndoLastStepAsync().GetAwaiter().GetResult();
+            TestBase.AssertTrue(lab.InputEpoch > epochBeforeUndo, "Undo bumps InputEpoch", ref run, ref passed, ref failed);
+
+            int epochBeforeReset = lab.InputEpoch;
+            lab.StepAsync(16, lab.SelectedCatalogActionName).GetAwaiter().GetResult();
+            lab.ResetLabEncounterAsync().GetAwaiter().GetResult();
+            TestBase.AssertTrue(lab.InputEpoch > epochBeforeReset, "Reset bumps InputEpoch", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, lab.History.Count, "Reset clears history after epoch bump", ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
+        }
+
+        private static void LabCombatLogSnapshot_CloneFromDeepCopiesLines(ref int run, ref int passed, ref int failed)
+        {
+            var originalSeg = new ColoredText("hit", Avalonia.Media.Colors.Red);
+            var source = new List<(List<ColoredText>, UIMessageType)>
+            {
+                (new List<ColoredText> { originalSeg }, UIMessageType.System)
+            };
+            var snap = LabCombatLogSnapshot.CloneFrom(source);
+            TestBase.AssertEqual(1, snap.Lines.Count, "CloneFrom keeps line count", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("hit", snap.Lines[0].Segments[0].Text, "CloneFrom copies text", ref run, ref passed, ref failed);
+            originalSeg.Text = "mutated";
+            TestBase.AssertEqual("hit", snap.Lines[0].Segments[0].Text, "CloneFrom deep-copies ColoredText", ref run, ref passed, ref failed);
         }
 
         /// <summary>

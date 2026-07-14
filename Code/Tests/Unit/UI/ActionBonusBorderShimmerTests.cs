@@ -189,11 +189,14 @@ namespace RPGGame.Tests.Unit.UI
 
         private static void TestTravelHighlightCount(ref int run, ref int passed, ref int failed)
         {
+            // 6x4 rect: perimeter = 2*(6+4)-4 = 16; ~¾ ≈ 12 with a 4-cell gap
             var rects = ActionBonusBorderShimmer.GetTravelHighlightRects(2, 2, 6, 4, DateTimeOffset.FromUnixTimeMilliseconds(0));
-            TestBase.AssertEqual(
-                ActionBonusBorderShimmer.TravelHighlightLength,
-                rects.Count,
-                "Travel highlight length",
+            int expected = ActionBonusBorderShimmer.GetTravelHighlightLength(16);
+            TestBase.AssertEqual(12, expected, "¾ of 16-cell perimeter is 12", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(expected, rects.Count, "Travel highlight covers ~¾ of perimeter", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                expected < 16,
+                "Travel highlight leaves a gap so motion stays readable",
                 ref run, ref passed, ref failed);
         }
 

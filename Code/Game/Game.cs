@@ -467,6 +467,18 @@ namespace RPGGame
                     canvasUI.SwitchDisplayBufferToCharacter(s.LabPlayer);
                     canvasUI.ClearDisplayBufferWithoutRender();
                     UIManager.WriteLine("Action Lab — select d20 and action, then Step.", UIMessageType.System);
+                },
+                captureLabCombatLog: () =>
+                {
+                    var s = ActionInteractionLabSession.Current;
+                    if (s == null) return null;
+                    return canvasUI.CaptureLabCombatLogSnapshot(s.LabPlayer);
+                },
+                restoreLabCombatLog: snap =>
+                {
+                    var s = ActionInteractionLabSession.Current;
+                    if (s == null || snap == null) return;
+                    canvasUI.RestoreLabCombatLogSnapshot(s.LabPlayer, snap);
                 });
             // Ensure at least one line is in the combat buffer so the center panel is visibly live (buffer was cleared with settings).
             UIManager.WriteLine("Action Lab — select d20 and action, then Step.", UIMessageType.System);

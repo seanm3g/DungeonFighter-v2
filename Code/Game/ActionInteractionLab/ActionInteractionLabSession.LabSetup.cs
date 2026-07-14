@@ -114,7 +114,7 @@ namespace RPGGame.ActionInteractionLab
                 return false;
             }
 
-            _history.Clear();
+            ClearStepHistoryAndSnapshots();
             ResetSimulatedCombatTurnAccumulator();
             ResetLabPanelDeltas();
             BootstrapCombatState();
@@ -163,7 +163,7 @@ namespace RPGGame.ActionInteractionLab
                     throw new ArgumentException("Slot must be weapon, head, body, legs, or feet.", nameof(slot));
             }
 
-            _history.Clear();
+            ClearStepHistoryAndSnapshots();
             ResetSimulatedCombatTurnAccumulator();
             ResetLabPanelDeltas();
             BootstrapCombatState();
@@ -267,7 +267,7 @@ namespace RPGGame.ActionInteractionLab
             _labEnemyBaseLevel = Math.Clamp(level, 1, 99);
             _labPanelEnemyLevelDelta = 0;
             _labEnemy = created;
-            _history.Clear();
+            ClearStepHistoryAndSnapshots();
             ResetSimulatedCombatTurnAccumulator();
             BootstrapCombatState();
             SyncCatalogSelectionToUpcomingActor();
@@ -288,7 +288,7 @@ namespace RPGGame.ActionInteractionLab
                 return;
             _labPanelEnemyLevelDelta = next - _labEnemyBaseLevel;
             BuildLabEnemyFromPanelState();
-            _history.Clear();
+            ClearStepHistoryAndSnapshots();
             ResetSimulatedCombatTurnAccumulator();
             BootstrapCombatState();
             SyncCatalogSelectionToUpcomingActor();
