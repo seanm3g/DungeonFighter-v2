@@ -158,7 +158,7 @@
     "criticalHitChance": 0,
     "criticalHitDamageMultiplier": 1.59,
     "rollDamageMultipliers": {
-      "comboRollDamageMultiplier": 1.5,
+      "comboRollDamageMultiplier": 1.0,
       "basicRollDamageMultiplier": 1.0408329997330663,
       "comboAmplificationScalingMultiplier": 1,
       "tierScalingFallbackMultiplier": 1

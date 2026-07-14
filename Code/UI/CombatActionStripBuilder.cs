@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using RPGGame.Actions;
 using RPGGame.Actions.RollModification;
@@ -49,7 +50,7 @@ namespace RPGGame
     public static partial class CombatActionStripBuilder
     {
         /// <summary>
-        /// Resolves damage % and speed % shown on strip cards and matching hover swing line for <paramref name="mode"/>.
+        /// Resolves damage % and speed % factors for <paramref name="mode"/> (used for color diffs and to derive flat/seconds display).
         /// Effective mode: damage is slot-modified % × combo amplification for the action's strip index (see combat raw damage pipeline).
         /// </summary>
         public static void GetStripSwingDisplayPercents(
@@ -70,6 +71,70 @@ namespace RPGGame
             double amp = ActionUtilities.CalculateDamageMultiplier(character, action);
             damagePercentForDisplay = info.DamageModified * amp;
             speedPercentForDisplay = info.SpeedModified;
+        }
+
+        /// <summary>
+        /// Resolves flat damage and wall-clock seconds shown on strip cards / hover swing line for <paramref name="mode"/>.
+        /// </summary>
+        public static void GetStripSwingDisplayValues(
+            in ActionPanelInfo info,
+            Character character,
+            Action action,
+            ActionStripDamageLineMode mode,
+            out int damageForDisplay,
+            out double secondsForDisplay)
+        {
+            GetStripSwingDisplayPercents(in info, character, action, mode, out double damagePercent, out double speedPercent);
+            damageForDisplay = ConvertDamagePercentToFlat(character, action, damagePercent);
+            secondsForDisplay = ConvertSpeedPercentToSeconds(character, action, info.SpeedBase, speedPercent);
+        }
+
+        /// <summary>
+        /// Hero base attack × sheet/mod/amp percent factors, plus early-game starting-action and class weapon multipliers
+        /// (same legs as <see cref="Combat.Calculators.DamageCalculator.CalculateRawDamage"/> without consuming next-attack state or applying roll bands).
+        /// </summary>
+        public static int ConvertDamagePercentToFlat(Character character, Action action, double damagePercentForDisplay)
+        {
+            int baseDamage = character.Combat.GetTotalDamage();
+            if (baseDamage <= 0)
+                baseDamage = 1;
+
+            double total = baseDamage * (damagePercentForDisplay / 100.0);
+            total *= EarlyGameBalanceHelper.GetStartingActionDamageMultiplier(character, action);
+            if (character.Weapon is WeaponItem classWeapon)
+                total *= ClassBalanceHelper.GetDamageMultiplier(classWeapon.WeaponType);
+
+            int result = (int)total;
+            int maxCap = Math.Max(1, GameConfiguration.Instance.Combat.MaximumDamageCap);
+            if (result > maxCap)
+                result = maxCap;
+            if (result <= 0)
+                result = 1;
+            return result;
+        }
+
+        /// <summary>
+        /// Wall-clock swing time: <see cref="Character.GetTotalAttackSpeed"/> × action length, scaled by speed-% ratio
+        /// so pending SPEED_MOD matches <see cref="Combat.Formatting.ActionSpeedCalculator"/> (higher % ⇒ shorter seconds).
+        /// </summary>
+        public static double ConvertSpeedPercentToSeconds(
+            Character character,
+            Action action,
+            double intrinsicSpeedPercent,
+            double speedPercentForDisplay)
+        {
+            if (action == null || action.Length <= 0)
+                return 0;
+
+            double attackSpeed = character.GetTotalAttackSpeed();
+            double length = action.Length;
+            if (intrinsicSpeedPercent > 0 && speedPercentForDisplay > 0
+                && Math.Abs(speedPercentForDisplay - intrinsicSpeedPercent) > 0.0001)
+            {
+                length = length * (intrinsicSpeedPercent / speedPercentForDisplay);
+            }
+
+            return attackSpeed * length;
         }
 
         /// <summary>
@@ -140,14 +205,69 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Compact damage line for the action strip and matching tooltip swing segment: multihit uses <c>2x50% damage</c>; single hit uses <c>Dmg 50%</c>.
+        /// Compact damage segment for strip cards: multihit uses <c>2x25 damage</c>; single hit uses <c>25 damage</c>.
         /// </summary>
-        public static string FormatSwingDamageLine(int effectiveHitCount, double damagePercentForDisplay)
+        public static string FormatSwingDamageLine(int effectiveHitCount, int damageForDisplay)
+        {
+            int hits = Math.Max(1, effectiveHitCount);
+            int dmg = Math.Max(0, damageForDisplay);
+            return hits > 1
+                ? $"{hits}x{dmg} damage"
+                : $"{dmg} damage";
+        }
+
+        /// <summary>
+        /// Compact speed segment for strip cards: wall-clock seconds (e.g. <c>8.3s</c>).
+        /// </summary>
+        public static string FormatSwingSpeedLine(double secondsForDisplay)
+        {
+            if (secondsForDisplay < 0)
+                secondsForDisplay = 0;
+            return $"{secondsForDisplay.ToString("0.#", CultureInfo.InvariantCulture)}s";
+        }
+
+        /// <summary>
+        /// Compact damage segment for hover tooltips: multihit uses <c>2x50% damage</c>; single hit uses <c>Dmg 50%</c>.
+        /// </summary>
+        public static string FormatSwingDamagePercentLine(int effectiveHitCount, double damagePercentForDisplay)
         {
             int hits = Math.Max(1, effectiveHitCount);
             return hits > 1
                 ? $"{hits}x{damagePercentForDisplay:F0}% damage"
                 : $"Dmg {damagePercentForDisplay:F0}%";
+        }
+
+        /// <summary>
+        /// Compact speed segment for hover tooltips (e.g. <c>Spd 100%</c>).
+        /// </summary>
+        public static string FormatSwingSpeedPercentLine(double speedPercentForDisplay) =>
+            $"Spd {speedPercentForDisplay:F0}%";
+
+        /// <summary>
+        /// Full swing readout for strip cards: <c>25 damage | 8.3s</c> (or multihit <c>2x25 damage | 8.3s</c>).
+        /// </summary>
+        public static string FormatStripSwingLine(
+            in ActionPanelInfo info,
+            Character character,
+            Action action,
+            ActionStripDamageLineMode mode)
+        {
+            GetStripSwingDisplayValues(in info, character, action, mode, out int damage, out double seconds);
+            return $"{FormatSwingDamageLine(info.EffectiveMultiHitCount, damage)} | {FormatSwingSpeedLine(seconds)}";
+        }
+
+        /// <summary>
+        /// Full swing readout for hover tooltips: <c>Dmg 50% | Spd 100%</c> (or multihit <c>2x50% damage | Spd 100%</c>).
+        /// Uses the same base / effective+amp percents as strip cards.
+        /// </summary>
+        public static string FormatStripSwingPercentLine(
+            in ActionPanelInfo info,
+            Character character,
+            Action action,
+            ActionStripDamageLineMode mode)
+        {
+            GetStripSwingDisplayPercents(in info, character, action, mode, out double damagePct, out double speedPct);
+            return $"{FormatSwingDamagePercentLine(info.EffectiveMultiHitCount, damagePct)} | {FormatSwingSpeedPercentLine(speedPct)}";
         }
 
         private static string GetThresholdText(Action action)
@@ -184,7 +304,7 @@ namespace RPGGame
             action == null ? "" : BuildActionMetadataLine(action);
 
         /// <summary>
-        /// Extra modifier lines for compact action strip cards after the swing (Dmg/Spd) line: deferred sheet accuracy
+        /// Extra modifier lines for compact action strip cards after the swing (damage/seconds) line: deferred sheet accuracy
         /// (and related lines) so cards match tooltip behavior, compact stat bonuses, and cadence bonus groups.
         /// Current-roll accuracy is shown only under TURN/ACTION cadence headers, not as a standalone Acc line.
         /// </summary>

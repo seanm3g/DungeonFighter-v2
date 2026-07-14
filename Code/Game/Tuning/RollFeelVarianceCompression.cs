@@ -28,8 +28,9 @@ namespace RPGGame.Tuning
         // Chaotic (0) endpoints
         private const double ChaoticCritMult = 2.5;
         private const double RegularCritMult = 1.2;
-        private const double ChaoticComboMult = 1.5;
-        private const double RegularComboMult = 1.1;
+        // Combo-band raw multiplier stays 1.0 at both ends; combo power is AMP/actions/crit.
+        private const double ChaoticComboMult = 1.0;
+        private const double RegularComboMult = 1.0;
         private const double BasicRollMult = 1.0;
         private const int ChaoticPlayerArmor = 0;
         private const int RegularPlayerArmor = 12;

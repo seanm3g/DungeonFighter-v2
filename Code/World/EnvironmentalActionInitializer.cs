@@ -59,7 +59,7 @@ namespace RPGGame
                 var themeKey = (theme ?? "").Trim();
                 var themeToken = themeKey.Length > 0 ? themeKey.ToLowerInvariant() : "";
 
-                foreach (var actionData in ActionLoader.GetAllActionData())
+                foreach (var actionData in ActionLoader.GetActiveSetActionData())
                 {
                     if (actionData.Tags == null || actionData.Tags.Count == 0)
                         continue;

@@ -30,7 +30,7 @@ namespace RPGGame.Tuning.Suggesters
             }
             else if (analysis.AverageComboStreak < 2.0)
             {
-                var comboMult = config.CombatBalance.RollDamageMultipliers?.ComboRollDamageMultiplier ?? 1.2;
+                var comboMult = config.CombatBalance.RollDamageMultipliers?.ComboRollDamageMultiplier ?? 1.0;
                 double target = System.Math.Max(1.0, comboMult - 0.05);
                 suggestions.Add(new TuningSuggestion
                 {

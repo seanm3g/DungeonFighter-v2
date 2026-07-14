@@ -741,7 +741,7 @@ namespace RPGGame.Tuning
                 v => cfg().CombatBalance.CriticalHitDamageMultiplier = v));
 
             list.Add(DoubleParam("comboRollDamageMult", tab, layer, group,
-                "Combo roll damage multiplier", "Damage on combo-tier rolls", 0.5, 3.0, 0.05,
+                "Combo roll damage multiplier", "Raw damage on combo-tier rolls (1.0 = no band amplify)", 0.5, 3.0, 0.05,
                 () => cfg().CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier,
                 v => cfg().CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier = v));
 

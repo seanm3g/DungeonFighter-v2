@@ -188,15 +188,17 @@ namespace RPGGame.Tests.Unit.UI
                 "BuildActionTooltipLines has no accuracy / effective combat-readout lines",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(
-                (tipJoined.Contains("Dmg ", StringComparison.Ordinal) || tipJoined.Contains("% damage", StringComparison.Ordinal))
-                && tipJoined.Contains("Spd ", StringComparison.Ordinal),
-                "BuildActionTooltipLines uses strip-style damage line and Spd percentage",
+                tipJoined.Contains("Dmg ", StringComparison.Ordinal)
+                && tipJoined.Contains("%", StringComparison.Ordinal)
+                && tipJoined.Contains("Spd ", StringComparison.Ordinal)
+                && !tipJoined.Contains(" damage | ", StringComparison.Ordinal),
+                "BuildActionTooltipLines uses % damage/speed (not flat damage | seconds)",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(tipOk != null && tipOk.Count >= 3 && tipOk[1] == "",
                 "BuildActionTooltipLines inserts a blank line after action title",
                 ref run, ref passed, ref failed);
 
-            // Multihit: strip panel + tooltip use NxPct% damage (matches combat tick count basis)
+            // Multihit: strip panel uses NxN flat damage; tooltip uses NxN% damage
             var charMultiHit = CreateCharacterWithComboAction();
             var comboMulti = charMultiHit.GetComboActions();
             if (comboMulti != null && comboMulti.Count > 0)
@@ -205,14 +207,38 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(panelMulti != null && panelMulti.Count >= 1 && panelMulti[0].EffectiveMultiHitCount == 2,
                 "BuildPanelData: MultiHitCount 2 yields EffectiveMultiHitCount 2",
                 ref run, ref passed, ref failed);
-            string stripDmgLine = CombatActionStripBuilder.FormatSwingDamageLine(panelMulti![0].EffectiveMultiHitCount, panelMulti[0].DamageBase);
-            TestBase.AssertTrue(stripDmgLine == "2x100% damage",
-                "FormatSwingDamageLine shows multihit as NxPct% damage",
+            var multiInfo = panelMulti![0];
+            CombatActionStripBuilder.GetStripSwingDisplayValues(
+                in multiInfo, charMultiHit, comboMulti![0], ActionStripDamageLineMode.BaseIntrinsic,
+                out int multiFlatDmg, out double multiSeconds);
+            TestBase.AssertTrue(multiFlatDmg > 0 && multiSeconds > 0,
+                "GetStripSwingDisplayValues yields positive flat damage and seconds",
+                ref run, ref passed, ref failed);
+            string stripDmgLine = CombatActionStripBuilder.FormatSwingDamageLine(multiInfo.EffectiveMultiHitCount, multiFlatDmg);
+            TestBase.AssertTrue(stripDmgLine == $"2x{multiFlatDmg} damage",
+                "FormatSwingDamageLine shows multihit as NxN damage",
+                ref run, ref passed, ref failed);
+            string stripSwing = CombatActionStripBuilder.FormatStripSwingLine(
+                in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic);
+            TestBase.AssertTrue(
+                stripSwing.StartsWith($"2x{multiFlatDmg} damage | ", StringComparison.Ordinal)
+                && stripSwing.EndsWith("s", StringComparison.Ordinal),
+                "FormatStripSwingLine is NxN damage | seconds",
+                ref run, ref passed, ref failed);
+            CombatActionStripBuilder.GetStripSwingDisplayPercents(
+                in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic,
+                out double multiDmgPct, out double multiSpdPct);
+            string tipPercentSwing = CombatActionStripBuilder.FormatStripSwingPercentLine(
+                in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic);
+            TestBase.AssertTrue(
+                tipPercentSwing == $"2x{multiDmgPct:F0}% damage | Spd {multiSpdPct:F0}%",
+                "FormatStripSwingPercentLine is NxN% damage | Spd N%",
                 ref run, ref passed, ref failed);
             var tipMulti = CombatActionStripBuilder.BuildActionTooltipLines(charMultiHit, 0, 80);
             string tipMultiJoined = tipMulti != null ? string.Join("\n", tipMulti) : "";
-            TestBase.AssertTrue(tipMultiJoined.Contains("2x100% damage", StringComparison.Ordinal),
-                "BuildActionTooltipLines includes multihit damage segment",
+            TestBase.AssertTrue(tipMultiJoined.Contains($"2x{multiDmgPct:F0}% damage", StringComparison.Ordinal)
+                && tipMultiJoined.Contains($"Spd {multiSpdPct:F0}%", StringComparison.Ordinal),
+                "BuildActionTooltipLines includes multihit % damage/speed segment",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(!tipJoined.Contains("(Normal)", StringComparison.Ordinal),
                 "BuildActionTooltipLines omits speed flavor labels from action details",
@@ -256,9 +282,15 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
 
             var charFinisher = CreateCharacterWithTaggedComboAction(isOpener: false, isFinisher: true, name: "ClosingMove");
-            string tipFinisher = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charFinisher, 0, 80));
+            var finisherCombo = charFinisher.GetComboActions();
+            int finisherIdx = finisherCombo.FindIndex(a => a.ComboRouting?.IsFinisher == true);
+            string tipFinisher = finisherIdx >= 0
+                ? string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charFinisher, finisherIdx, 80))
+                : "";
             TestBase.AssertTrue(
-                tipFinisher.Contains("Finisher", StringComparison.Ordinal) && tipFinisher.Contains("last combo slot", StringComparison.Ordinal),
+                finisherIdx >= 0
+                && tipFinisher.Contains("Finisher", StringComparison.Ordinal)
+                && tipFinisher.Contains("last combo slot", StringComparison.Ordinal),
                 "BuildActionTooltipLines notes finisher role",
                 ref run, ref passed, ref failed);
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame;
 using RPGGame.Data;
@@ -18,8 +19,10 @@ namespace RPGGame.Tests.Unit.UI
             Console.WriteLine("=== ActionBonusBorderShimmer Tests ===\n");
             int run = 0, passed = 0, failed = 0;
 
-            TestCueDetectsBonusGroups(ref run, ref passed, ref failed);
-            TestCueIgnoresEmptyGroups(ref run, ref passed, ref failed);
+            TestCueRequiresPendingBuffNotGrantingAction(ref run, ref passed, ref failed);
+            TestCueTrueForSlotQueuedBuff(ref run, ref passed, ref failed);
+            TestCueTrueForBankOnCurrentStepOnly(ref run, ref passed, ref failed);
+            TestCueFalseWhenNoPending(ref run, ref passed, ref failed);
             TestBorderColorLerpsUnselected(ref run, ref passed, ref failed);
             TestSelectedBorderUsesWhiteEnd(ref run, ref passed, ref failed);
             TestWaveTInUnitInterval(ref run, ref passed, ref failed);
@@ -30,69 +33,105 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.PrintSummary("ActionBonusBorderShimmer Tests", run, passed, failed);
         }
 
-        private static Action MakeBonusAction()
+        private static Character CreateHeroWithTwoComboSlots(out Action grantAction)
         {
-            return new Action("SHIMMER TEST")
+            var hero = TestDataBuilders.Character().WithName("ShimmerHero").WithStats(10, 10, 10, 10).Build();
+            grantAction = TestDataBuilders.CreateMockAction("ShimmerGrant", ActionType.Attack);
+            grantAction.IsComboAction = true;
+            grantAction.ActionAttackBonuses = new ActionAttackBonuses
             {
-                ActionAttackBonuses = new ActionAttackBonuses
+                BonusGroups = new List<ActionAttackBonusGroup>
                 {
-                    BonusGroups = new System.Collections.Generic.List<ActionAttackBonusGroup>
+                    new ActionAttackBonusGroup
                     {
-                        new ActionAttackBonusGroup
+                        CadenceType = "ACTION",
+                        Count = 1,
+                        Bonuses = new List<ActionAttackBonusItem>
                         {
-                            CadenceType = "ACTION",
-                            Count = 1,
-                            Bonuses = new System.Collections.Generic.List<ActionAttackBonusItem>
-                            {
-                                new ActionAttackBonusItem { Type = "COMBO", Value = 2 }
-                            }
+                            new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = 1 }
                         }
                     }
                 }
             };
+            var followUp = TestDataBuilders.CreateMockAction("ShimmerFollow", ActionType.Attack);
+            followUp.IsComboAction = true;
+            hero.AddAction(grantAction, 1.0);
+            hero.AddAction(followUp, 1.0);
+            hero.Actions.AddToCombo(grantAction);
+            hero.Actions.AddToCombo(followUp);
+            hero.ComboStep = 0;
+            return hero;
         }
 
-        private static void TestCueDetectsBonusGroups(ref int run, ref int passed, ref int failed)
+        private static void TestCueRequiresPendingBuffNotGrantingAction(ref int run, ref int passed, ref int failed)
         {
+            var hero = CreateHeroWithTwoComboSlots(out var grant);
             TestBase.AssertTrue(
-                ActionBonusBorderShimmer.ActionHasBonusCue(MakeBonusAction()),
-                "Cue true when ActionAttackBonuses has items",
+                Action.HasActionAttackBonusGroups(grant),
+                "Setup: granting action has authored ActionAttackBonuses",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(
-                Action.HasActionAttackBonusGroups(MakeBonusAction()),
-                "Action.HasActionAttackBonusGroups matches cue",
+                !ActionBonusBorderShimmer.SlotHasPendingBonusCue(hero, 0),
+                "Cue false on granting action with no pending buff applied",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                !ActionBonusBorderShimmer.SlotHasPendingBonusCue(hero, 1),
+                "Cue false on follow-up before buff is applied",
                 ref run, ref passed, ref failed);
         }
 
-        private static void TestCueIgnoresEmptyGroups(ref int run, ref int passed, ref int failed)
+        private static void TestCueTrueForSlotQueuedBuff(ref int run, ref int passed, ref int failed)
         {
-            var empty = new Action("NO BONUS");
-            TestBase.AssertTrue(
-                !ActionBonusBorderShimmer.ActionHasBonusCue(empty),
-                "Cue false with no bonuses",
-                ref run, ref passed, ref failed);
-            TestBase.AssertTrue(
-                !ActionBonusBorderShimmer.ActionHasBonusCue(null),
-                "Cue false for null action",
-                ref run, ref passed, ref failed);
-
-            var blankGroup = new Action("BLANK GROUP")
+            var hero = CreateHeroWithTwoComboSlots(out _);
+            hero.Effects.AddPendingActionBonuses(1, new List<ActionAttackBonusItem>
             {
-                ActionAttackBonuses = new ActionAttackBonuses
-                {
-                    BonusGroups = new System.Collections.Generic.List<ActionAttackBonusGroup>
-                    {
-                        new ActionAttackBonusGroup
-                        {
-                            CadenceType = "ACTION",
-                            Bonuses = new System.Collections.Generic.List<ActionAttackBonusItem>()
-                        }
-                    }
-                }
-            };
+                new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = 1 }
+            });
+
             TestBase.AssertTrue(
-                !ActionBonusBorderShimmer.ActionHasBonusCue(blankGroup),
-                "Cue false for empty bonus list",
+                ActionBonusBorderShimmer.SlotHasPendingBonusCue(hero, 1),
+                "Cue true on slot with queued pending Multihit",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                !ActionBonusBorderShimmer.SlotHasPendingBonusCue(hero, 0),
+                "Cue still false on granting slot without its own pending buff",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void TestCueTrueForBankOnCurrentStepOnly(ref int run, ref int passed, ref int failed)
+        {
+            var hero = CreateHeroWithTwoComboSlots(out _);
+            hero.ComboStep = 1;
+            hero.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
+            {
+                new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = 25 }
+            });
+
+            TestBase.AssertTrue(
+                ActionBonusBorderShimmer.SlotHasPendingBonusCue(hero, 1),
+                "Cue true on current combo step when ACTION bank is pending",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                !ActionBonusBorderShimmer.SlotHasPendingBonusCue(hero, 0),
+                "Cue false on non-current step while bank applies to current only",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void TestCueFalseWhenNoPending(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.AssertTrue(
+                !ActionBonusBorderShimmer.SlotHasPendingBonusCue(null, 0),
+                "Cue false for null character",
+                ref run, ref passed, ref failed);
+
+            var empty = TestDataBuilders.Character().WithName("NoCombo").Build();
+            TestBase.AssertTrue(
+                !ActionBonusBorderShimmer.SlotHasPendingBonusCue(empty, 0),
+                "Cue false with empty combo and no bank",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                !ActionBonusBorderShimmer.SlotHasPendingBonusCue(empty, -1),
+                "Cue false for negative slot",
                 ref run, ref passed, ref failed);
         }
 

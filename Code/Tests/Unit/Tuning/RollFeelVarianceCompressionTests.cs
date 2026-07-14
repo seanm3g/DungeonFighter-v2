@@ -65,8 +65,8 @@ namespace RPGGame.Tests.Unit.Tuning
                     "Stores compression value", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(2.5, cfg.CombatBalance.CriticalHitDamageMultiplier,
                     "Chaotic crit multiplier", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(1.5, cfg.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier,
-                    "Chaotic combo multiplier", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(1.0, cfg.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier,
+                    "Chaotic combo multiplier stays 1.0 (no raw band amplify)", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(1.0, cfg.CombatBalance.RollDamageMultipliers.BasicRollDamageMultiplier,
                     "Basic roll multiplier stays 1.0", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(0, cfg.Combat.PlayerBaseArmor,
@@ -94,8 +94,8 @@ namespace RPGGame.Tests.Unit.Tuning
                 RollFeelVarianceCompression.Apply(1, cfg);
                 TestBase.AssertEqual(1.2, cfg.CombatBalance.CriticalHitDamageMultiplier,
                     "Regular crit multiplier", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(1.1, cfg.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier,
-                    "Regular combo multiplier", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(1.0, cfg.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier,
+                    "Regular combo multiplier stays 1.0 (no raw band amplify)", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(12, cfg.Combat.PlayerBaseArmor,
                     "Regular player armor baseline", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(1.5, cfg.EnemySystem.GlobalMultipliers.ArmorMultiplier,
@@ -121,8 +121,8 @@ namespace RPGGame.Tests.Unit.Tuning
                 RollFeelVarianceCompression.Apply(0.5, cfg);
                 TestBase.AssertEqual(1.85, cfg.CombatBalance.CriticalHitDamageMultiplier,
                     "Midpoint crit multiplier", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(1.3, cfg.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier,
-                    "Midpoint combo multiplier", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(1.0, cfg.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier,
+                    "Midpoint combo multiplier stays 1.0 (no raw band amplify)", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(6, cfg.Combat.PlayerBaseArmor,
                     "Midpoint player armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }

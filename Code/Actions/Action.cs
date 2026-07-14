@@ -269,7 +269,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// True if <see cref="ActionAttackBonuses"/> has at least one group with a bonus item (strip card border shimmer cue).
+        /// True if <see cref="ActionAttackBonuses"/> has at least one group with a bonus item.
         /// </summary>
         public static bool HasActionAttackBonusGroups(Action? action)
         {

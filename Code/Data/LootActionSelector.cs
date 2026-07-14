@@ -121,7 +121,7 @@ namespace RPGGame
 
         private List<string> GetTagBasedItemActions()
         {
-            return ActionLoader.GetAllActionData()
+            return ActionLoader.GetActiveSetActionData()
                 .Where(a => a.Tags != null &&
                             GameDataTagHelper.HasItemPoolTag(a.Tags) &&
                             GameDataTagHelper.IsGrantableOnHeroGear(a.Tags) &&
@@ -133,7 +133,7 @@ namespace RPGGame
 
         private List<string> GetTagBasedClassActions()
         {
-            return ActionLoader.GetAllActionData()
+            return ActionLoader.GetActiveSetActionData()
                 .Where(a => a.Tags != null &&
                             GameDataTagHelper.HasActionPoolTag(a.Tags) &&
                             GameDataTagHelper.IsGrantableOnHeroGear(a.Tags) &&
@@ -226,7 +226,7 @@ namespace RPGGame
         {
             var weaponTag = weaponType.ToLower();
             var weaponTypeName = weaponType; // Keep original case for WeaponTypes property
-            var allActionData = ActionLoader.GetAllActionData();
+            var allActionData = ActionLoader.GetActiveSetActionData();
 
             var weaponActions = new List<string>();
 
@@ -346,7 +346,7 @@ namespace RPGGame
         public List<string> GetStartingWeaponActions(string weaponType)
         {
             var weaponTag = weaponType.ToLower();
-            var allActionData = ActionLoader.GetAllActionData();
+            var allActionData = ActionLoader.GetActiveSetActionData();
 
             var fromStartingTag = allActionData
                 .Where(a => a.Tags != null &&

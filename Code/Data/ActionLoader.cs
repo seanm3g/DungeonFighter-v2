@@ -358,7 +358,8 @@ namespace RPGGame
 
                 var resolvedName = ResolveActionNameCore(actionName);
                 if (_actions != null && !string.IsNullOrEmpty(resolvedName) &&
-                    _actions.TryGetValue(resolvedName, out var actionData))
+                    _actions.TryGetValue(resolvedName, out var actionData) &&
+                    ActionSetVisibility.IsIncluded(actionData))
                     return ActionDataToActionMapper.CreateAction(actionData);
 
                 return null;
@@ -367,6 +368,7 @@ namespace RPGGame
 
         /// <summary>
         /// Raw action definition from the last load (tags, weapon types, etc.) without building a runtime <see cref="Action"/>.
+        /// Does not apply the active Action set filter (definitions remain available for editors/tag checks).
         /// </summary>
         public static ActionData? GetActionData(string actionName)
         {
@@ -427,12 +429,38 @@ namespace RPGGame
                     LoadActions();
 
                 var resolvedName = ResolveActionNameCore(actionName);
-                return !string.IsNullOrEmpty(resolvedName) &&
-                       (_actions?.ContainsKey(resolvedName) ?? false);
+                if (string.IsNullOrEmpty(resolvedName) || _actions == null)
+                    return false;
+                if (!_actions.TryGetValue(resolvedName, out var data))
+                    return false;
+                return ActionSetVisibility.IsIncluded(data);
             }
         }
 
+        /// <summary>
+        /// Action names available under the active Action set (gameplay / Action Lab catalog).
+        /// </summary>
         public static List<string> GetAllActionNames()
+        {
+            lock (ActionsLock)
+            {
+                if (_actions == null)
+                    LoadActions();
+
+                if (_actions == null)
+                    return new List<string>();
+
+                return _actions
+                    .Where(kv => ActionSetVisibility.IsIncluded(kv.Value))
+                    .Select(kv => kv.Key)
+                    .ToList();
+            }
+        }
+
+        /// <summary>
+        /// Every loaded action name (ignores the active Action set). Use for sheet/data validation.
+        /// </summary>
+        public static List<string> GetAllLoadedActionNames()
         {
             lock (ActionsLock)
             {
@@ -443,6 +471,9 @@ namespace RPGGame
             }
         }
 
+        /// <summary>
+        /// Runtime actions available under the active Action set.
+        /// </summary>
         public static List<Action> GetAllActions()
         {
             lock (ActionsLock)
@@ -454,6 +485,8 @@ namespace RPGGame
                 {
                     foreach (var actionData in _actions.Values)
                     {
+                        if (!ActionSetVisibility.IsIncluded(actionData))
+                            continue;
                         actions.Add(ActionDataToActionMapper.CreateAction(actionData));
                     }
                 }
@@ -462,7 +495,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets all ActionData objects (for editing purposes)
+        /// Gets all ActionData objects (for editing / validation). Includes tiers outside the active Action set.
         /// </summary>
         public static List<ActionData> GetAllActionData()
         {
@@ -471,6 +504,21 @@ namespace RPGGame
                 if (_actions == null)
                     LoadActions();
                 return _actions?.Values.ToList() ?? new List<ActionData>();
+            }
+        }
+
+        /// <summary>
+        /// ActionData rows included in the active Action set (gameplay, loot, defaults, environments).
+        /// </summary>
+        public static List<ActionData> GetActiveSetActionData()
+        {
+            lock (ActionsLock)
+            {
+                if (_actions == null)
+                    LoadActions();
+                if (_actions == null)
+                    return new List<ActionData>();
+                return _actions.Values.Where(ActionSetVisibility.IsIncluded).ToList();
             }
         }
 
@@ -524,6 +572,8 @@ namespace RPGGame
                 {
                     foreach (var actionData in _actions.Values)
                     {
+                        if (!ActionSetVisibility.IsIncluded(actionData))
+                            continue;
                         if (actionData.Type.Equals(type.ToString(), StringComparison.OrdinalIgnoreCase))
                         {
                             actionsOfType.Add(actionData.Name);

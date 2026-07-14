@@ -6,6 +6,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.ActionInteractionLab;
 using RPGGame.Actions;
 using RPGGame.Combat.Calculators;
 using RPGGame.Data;
@@ -43,6 +44,9 @@ namespace RPGGame.UI.Avalonia.Managers
         private ComboBox? cadenceFilterComboBox;
         private ComboBox? tagFilterComboBox;
         private ComboBox? tierSetFilterComboBox;
+        private bool _suppressActiveSetPersist;
+        private int? _lastPersistedActiveSetMaxTier;
+        private GameStateManager? _gameStateManager;
         private TextBlock? selectedActionTagsPreview;
         private Action<string, bool>? showStatusMessage;
 
@@ -107,6 +111,12 @@ namespace RPGGame.UI.Avalonia.Managers
                 tagFilterComboBox.SelectionChanged += (s, e) => ApplyFilter();
 
             AttachActionsListTypeAheadHandlers(actionsListBox);
+        }
+
+        /// <summary>Optional; used to refresh the live hero pool when the Action set changes.</summary>
+        public void SetGameStateManager(GameStateManager? stateManager)
+        {
+            _gameStateManager = stateManager;
         }
 
         /// <summary>
@@ -374,16 +384,30 @@ namespace RPGGame.UI.Avalonia.Managers
             {
                 string? previous = tierSetFilterComboBox.SelectedItem as string;
                 tierSetFilterComboBox.ItemsSource = tierOptions;
-                // Default to max tier (show everything) unless a still-valid prior selection remains.
                 int selectIndex = tierOptions.Count - 1;
+                int storedOrMax = ActionSetVisibility.ResolveInitialSelection(
+                    maxTier,
+                    GameSettings.Instance.ActionsActiveSetMaxTier);
+                int storedIndex = tierOptions.FindIndex(o =>
+                    TryParseTierSetOption(o, out int t) && t == storedOrMax);
+                if (storedIndex >= 0)
+                    selectIndex = storedIndex;
                 if (!string.IsNullOrEmpty(previous))
                 {
                     int prior = tierOptions.FindIndex(o => string.Equals(o, previous, StringComparison.OrdinalIgnoreCase));
                     if (prior >= 0)
                         selectIndex = prior;
                 }
-                if (selectIndex >= 0)
-                    tierSetFilterComboBox.SelectedIndex = selectIndex;
+                _suppressActiveSetPersist = true;
+                try
+                {
+                    if (selectIndex >= 0)
+                        tierSetFilterComboBox.SelectedIndex = selectIndex;
+                }
+                finally
+                {
+                    _suppressActiveSetPersist = false;
+                }
             }
             if (rarityFilterComboBox != null) rarityFilterComboBox.ItemsSource = allRarity;
             if (categoryFilterComboBox != null) categoryFilterComboBox.ItemsSource = allCategory;
@@ -404,6 +428,7 @@ namespace RPGGame.UI.Avalonia.Managers
             bool filterByCategory = !string.IsNullOrEmpty(selectedCategory) && selectedCategory != FilterAll;
             bool filterByCadence = !string.IsNullOrEmpty(selectedCadence) && selectedCadence != FilterAll;
             bool filterByTag = !string.IsNullOrEmpty(selectedTag) && selectedTag != FilterAll;
+            PersistActiveSetFromSelection(filterByTierSet, maxTierInclusive);
             _actionsListTypeAheadBuffer = "";
             var actions = actionEditor?.GetActions() ?? new List<ActionData>();
             var filtered = actions
@@ -418,6 +443,32 @@ namespace RPGGame.UI.Avalonia.Managers
                 .ToList();
             actionsListBox.ItemsSource = filtered;
             UpdateTagsPreviewForCurrentSelection();
+        }
+
+        private void PersistActiveSetFromSelection(bool filterByTierSet, int maxTierInclusive)
+        {
+            if (_suppressActiveSetPersist)
+                return;
+
+            int? next = filterByTierSet ? maxTierInclusive : null;
+            // Selecting Through Tier at data max is equivalent to "all" for storage when it matches prior null,
+            // but we still persist the explicit int so the dropdown restores correctly after restart.
+            if (_lastPersistedActiveSetMaxTier == next &&
+                GameSettings.Instance.ActionsActiveSetMaxTier == next)
+                return;
+
+            _lastPersistedActiveSetMaxTier = next;
+            ActionSetVisibility.SetMaxTierInclusive(next, persist: true);
+
+            try
+            {
+                RefreshCurrentPlayerActionPool(_gameStateManager?.CurrentPlayer);
+                ActionInteractionLabSession.Current?.OnActiveActionSetChanged();
+            }
+            catch
+            {
+                // Best effort — settings / lab may not have an active character yet.
+            }
         }
 
         private void UpdateTagsPreviewForCurrentSelection()

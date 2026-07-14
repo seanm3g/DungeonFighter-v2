@@ -103,7 +103,7 @@ namespace RPGGame.Data
                 try { resolvedOut = Path.GetFullPath(outputPath); } catch { }
 
                 ActionLoader.ReloadActions(resolvedOut);
-                int loadedCount = ActionLoader.GetAllActionNames().Count;
+                int loadedCount = ActionLoader.GetAllLoadedActionNames().Count;
                 Console.WriteLine($"Successfully updated {resolvedOut} from Google Sheets ({loadedCount} actions loaded)");
             }
             catch (Exception ex)

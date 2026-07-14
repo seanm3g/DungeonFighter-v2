@@ -17,7 +17,7 @@ namespace RPGGame
         /// </summary>
         public void AddDefaultActions(Actor entity)
         {
-            var allActionData = ActionLoader.GetAllActionData();
+            var allActionData = ActionLoader.GetActiveSetActionData();
             
             foreach (var actionData in allActionData)
             {

@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
 using RPGGame.Actions;
 using RPGGame.Actions.Execution;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Calculators;
+using RPGGame.Data;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit
@@ -37,6 +39,8 @@ namespace RPGGame.Tests.Unit
             TestMultiHitAppliesRollPenaltyPerDamageTick();
             TestMultiHitModAppliesToNextAction();
             TestActionCadenceMultiHitSurvivesMissUntilCombo();
+            TestActionCadenceMultiHitNotDoubleAppliedFromSheetAndBonuses();
+            TestActionCadenceMultiHitDoesNotApplyToGrantingAction();
 
             TestBase.PrintSummary("Multi-Hit Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -637,6 +641,251 @@ namespace RPGGame.Tests.Unit
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(hero.Effects.GetPendingActionBonusesForSlot(1).Count == 0,
                     "After combo: slot MULTIHIT consumed",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        /// <summary>
+        /// Regression: RAPID STRIKE ships both multiHitMod and ActionAttackBonuses MULTIHIT_MOD.
+        /// Those must grant +1 once (bank), not stack to +2 (3 hits on the follow-up).
+        /// </summary>
+        private static void TestActionCadenceMultiHitNotDoubleAppliedFromSheetAndBonuses()
+        {
+            Console.WriteLine("\n--- ACTION cadence MULTIHIT: sheet + ActionAttackBonuses do not double ---");
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMin <= 0) comboMin = 14;
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+
+                var hero = TestDataBuilders.Character()
+                    .WithName("MultiHitDualAuthorHero")
+                    .WithLevel(1)
+                    .WithStats(12, 10, 10, 10)
+                    .Build();
+                hero.Effects.ClearAllTempEffects();
+
+                var rapid = new Action
+                {
+                    Name = "RAPID STRIKE",
+                    Type = ActionType.Attack,
+                    DamageMultiplier = 1.0,
+                    IsComboAction = true,
+                    ComboOrder = 1,
+                    Cadence = "ACTION",
+                    MultiHitMod = "1",
+                    Advanced = new AdvancedMechanicsProperties { MultiHitCount = 1 },
+                    ActionAttackBonuses = new ActionAttackBonuses
+                    {
+                        BonusGroups = new List<ActionAttackBonusGroup>
+                        {
+                            new ActionAttackBonusGroup
+                            {
+                                Keyword = "ACTION",
+                                CadenceType = "ACTION",
+                                Count = 1,
+                                DurationType = "ACTION",
+                                Bonuses = new List<ActionAttackBonusItem>
+                                {
+                                    new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = 1 }
+                                }
+                            }
+                        }
+                    }
+                };
+                var slam = new Action
+                {
+                    Name = "SLAM",
+                    Type = ActionType.Attack,
+                    DamageMultiplier = 1.0,
+                    IsComboAction = true,
+                    ComboOrder = 2,
+                    Advanced = new AdvancedMechanicsProperties { MultiHitCount = 1 }
+                };
+                hero.AddAction(rapid, 1.0);
+                hero.AddAction(slam, 1.0);
+                hero.Actions.AddToCombo(rapid);
+                hero.Actions.AddToCombo(slam);
+                hero.ComboStep = 0;
+
+                var enemy = TestDataBuilders.Enemy()
+                    .WithName("DualAuthorFoe")
+                    .WithLevel(1)
+                    .WithHealth(500)
+                    .WithStats(5, 5, 5, 5)
+                    .Build();
+
+                Dice.SetTestRoll(Math.Max(comboMin + 1, 15));
+                var setup = ActionExecutionFlow.Execute(hero, enemy, null, null, rapid, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(setup.Hit && setup.IsCombo,
+                    "RAPID STRIKE must hit+combo to queue MULTIHIT",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                TestBase.AssertEqual(1, setup.ResolvedMultiHitCount,
+                    "RAPID STRIKE itself resolves as 1 hit (queued MULTIHIT_MOD does not apply to the grantor)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                TestBase.AssertTrue(hero.Effects.GetPendingActionBonusesForSlot(1).Count == 0,
+                    "Sheet multiHitMod must not also enqueue onto next combo slot when ActionAttackBonuses covers MULTIHIT_MOD",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                double pendingMh = RollModificationManager.PeekPendingActionCadenceMultiHitMod(hero, 1);
+                TestBase.AssertEqual(1.0, pendingMh,
+                    "Pending MULTIHIT for Slam is +1 (not +2 from dual authorship)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                int rapidPreview = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(rapid, hero, 0);
+                TestBase.AssertEqual(1, rapidPreview,
+                    "Strip preview: Rapid Strike stays 1 hit after queuing Multihit for the next slot",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                int previewHits = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(slam, hero, 1);
+                TestBase.AssertEqual(2, previewHits,
+                    "Strip preview: Slam is 2 hits (base 1 + pending +1)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                hero.ComboStep = 1;
+                int enemyHealthBefore = enemy.CurrentHealth;
+                Dice.SetTestRoll(Math.Max(comboMin + 1, 15));
+                ActionSelector.SetStoredActionRoll(hero, Math.Max(comboMin + 1, 15));
+                var comboHit = ActionExecutionFlow.Execute(hero, enemy, null, null, slam, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(comboHit.Hit && comboHit.IsCombo,
+                    "Slam hit+combo redeems MULTIHIT",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                double dmgMult = ActionUtilities.CalculateDamageMultiplier(hero, slam);
+                int oneHit = CombatCalculator.CalculateDamage(hero, enemy, slam, dmgMult, 1.0, 0, Math.Max(comboMin + 1, 15));
+                int actual = enemyHealthBefore - enemy.CurrentHealth;
+                TestBase.AssertEqual(oneHit * 2, actual,
+                    "Slam deals 2-hit damage (not 3 from double MULTIHIT grant)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        /// <summary>
+        /// Regression: RAPID STRIKE's ACTION cadence +1 MULTIHIT must not inflate that same swing's resolved
+        /// hit count or combat-log "N hits" label — only the following sequential combo action receives it.
+        /// </summary>
+        private static void TestActionCadenceMultiHitDoesNotApplyToGrantingAction()
+        {
+            Console.WriteLine("\n--- ACTION cadence MULTIHIT: grantor swing stays 1 hit ---");
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMin <= 0) comboMin = 14;
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+
+                var hero = TestDataBuilders.Character()
+                    .WithName("MultiHitGrantorHero")
+                    .WithLevel(1)
+                    .WithStats(12, 10, 10, 10)
+                    .Build();
+                hero.Effects.ClearAllTempEffects();
+
+                var rapid = new Action
+                {
+                    Name = "RAPID STRIKE",
+                    Type = ActionType.Attack,
+                    DamageMultiplier = 1.0,
+                    IsComboAction = true,
+                    ComboOrder = 1,
+                    Cadence = "ACTION",
+                    MultiHitMod = "1",
+                    Advanced = new AdvancedMechanicsProperties { MultiHitCount = 1 },
+                    ActionAttackBonuses = new ActionAttackBonuses
+                    {
+                        BonusGroups = new List<ActionAttackBonusGroup>
+                        {
+                            new ActionAttackBonusGroup
+                            {
+                                Keyword = "ACTION",
+                                CadenceType = "ACTION",
+                                Count = 1,
+                                DurationType = "ACTION",
+                                Bonuses = new List<ActionAttackBonusItem>
+                                {
+                                    new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = 1 }
+                                }
+                            }
+                        }
+                    }
+                };
+                var slam = new Action
+                {
+                    Name = "SLAM",
+                    Type = ActionType.Attack,
+                    DamageMultiplier = 1.0,
+                    IsComboAction = true,
+                    ComboOrder = 2,
+                    Advanced = new AdvancedMechanicsProperties { MultiHitCount = 1 }
+                };
+                hero.AddAction(rapid, 1.0);
+                hero.AddAction(slam, 1.0);
+                hero.Actions.AddToCombo(rapid);
+                hero.Actions.AddToCombo(slam);
+                hero.ComboStep = 0;
+
+                var enemy = TestDataBuilders.Enemy()
+                    .WithName("GrantorFoe")
+                    .WithLevel(1)
+                    .WithHealth(500)
+                    .WithStats(5, 5, 5, 5)
+                    .Build();
+
+                int enemyHealthBefore = enemy.CurrentHealth;
+                int roll = Math.Max(comboMin + 1, 15);
+                Dice.SetTestRoll(roll);
+                var setup = ActionExecutionFlow.Execute(hero, enemy, null, null, rapid, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(setup.Hit && setup.IsCombo,
+                    "RAPID STRIKE must hit+combo",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                TestBase.AssertEqual(1, setup.ResolvedMultiHitCount,
+                    "Grantor ResolvedMultiHitCount is 1 (Multihit not self-applied)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                double dmgMult = ActionUtilities.CalculateDamageMultiplier(hero, rapid);
+                int oneHit = CombatCalculator.CalculateDamage(hero, enemy, rapid, dmgMult, 1.0, 0, roll);
+                int actual = enemyHealthBefore - enemy.CurrentHealth;
+                TestBase.AssertEqual(oneHit, actual,
+                    "RAPID STRIKE deals single-hit damage (Multihit is for the next sequential action only)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // After ComboStep advances, strip must show Multihit on Slam only.
+                int rapidSlotHits = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(rapid, hero, 0);
+                int slamSlotHits = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(slam, hero, 1);
+                TestBase.AssertEqual(1, rapidSlotHits,
+                    "Strip: Rapid Strike remains 1 hit after grant",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(2, slamSlotHits,
+                    "Strip: Slam previews 2 hits (base + pending Multihit)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // Post-grant peek at ComboStep must not claim Rapid Strike is a 2-hit swing for formatting.
+                int wronglyAttributed = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(rapid, hero);
+                TestBase.AssertTrue(wronglyAttributed >= 2,
+                    "Sanity: GetEffective without resolved count can still peek next-slot Multihit after advance",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(setup.ResolvedMultiHitCount < wronglyAttributed,
+                    "ResolvedMultiHitCount must stay below post-deposit GetEffective(grantor) peek",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally

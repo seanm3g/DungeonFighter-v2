@@ -48,6 +48,13 @@ namespace RPGGame
 
         /// <summary>Half-period for success pulse: gold for this long, then normal border for this long, repeating until <see cref="ActionStripSuccessFlashDurationMs"/> elapses.</summary>
         public int ActionStripSuccessFlashPulseHalfPeriodMs { get; set; } = 150;
+
+        /// <summary>
+        /// Active Actions workshop set for gameplay and Action Lab: only actions with
+        /// <c>tier ≤</c> this value are available. <c>null</c> = no filter (all ingested tiers).
+        /// Settings → Actions dropdown binds to this; higher-tier rows stay on disk for editing when the set is raised.
+        /// </summary>
+        public int? ActionsActiveSetMaxTier { get; set; }
         
         // Appearance/Color Settings
         public string PanelBackgroundColor { get; set; } = "#FFFFFF"; // White
@@ -203,6 +210,9 @@ namespace RPGGame
             ActionStripMissFlashDurationMs = Math.Clamp(ActionStripMissFlashDurationMs, 200, 8000);
             ActionStripSuccessFlashDurationMs = Math.Clamp(ActionStripSuccessFlashDurationMs, 500, 15000);
             ActionStripSuccessFlashPulseHalfPeriodMs = Math.Clamp(ActionStripSuccessFlashPulseHalfPeriodMs, 50, 2000);
+
+            if (ActionsActiveSetMaxTier.HasValue && ActionsActiveSetMaxTier.Value < 0)
+                ActionsActiveSetMaxTier = null;
         }
         
         /// <summary>
@@ -260,6 +270,7 @@ namespace RPGGame
             ActionStripMissFlashDurationMs = 1200;
             ActionStripSuccessFlashDurationMs = 3000;
             ActionStripSuccessFlashPulseHalfPeriodMs = 150;
+            ActionsActiveSetMaxTier = null;
             PanelBackgroundColor = "#FFFFFF";
             PanelBorderColor = "#404040";
             PanelTextColor = "#000000";

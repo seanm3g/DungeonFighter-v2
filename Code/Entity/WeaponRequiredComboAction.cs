@@ -28,7 +28,7 @@ namespace RPGGame
         public static string? TryGetRequiredBasicActionName(WeaponType weaponType)
         {
             var typeName = weaponType.ToString();
-            foreach (var data in ActionLoader.GetAllActionData())
+            foreach (var data in ActionLoader.GetActiveSetActionData())
             {
                 if (data.Tags == null || data.WeaponTypes == null)
                     continue;

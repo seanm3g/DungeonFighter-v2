@@ -20,7 +20,7 @@ namespace RPGGame.Data.Validation
             
             // Load valid action names for reference validation
             _validActionNames = new HashSet<string>(
-                ActionLoader.GetAllActionNames(), 
+                ActionLoader.GetAllLoadedActionNames(), 
                 StringComparer.OrdinalIgnoreCase);
 
             _validRarityNames = LoadValidRarityNames();

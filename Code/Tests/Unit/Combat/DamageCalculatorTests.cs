@@ -40,6 +40,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestDamageWithArmor();
             TestResolveTargetArmor_SubtractsAcidArmorReduction();
             TestPierceIgnoresArmor();
+            TestComboBandRollDoesNotAmplifyRawDamage();
             TestDamageWithMultipliers();
 
             TestBase.PrintSummary("DamageCalculator Tests", _testsRun, _testsPassed, _testsFailed);
@@ -350,6 +351,43 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertEqual(8, DamageCalculator.ResolveTargetArmor(heroTarget),
                 "armor applies again after pierce expires",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Combo-tier rolls (default 14+) unlock named combo actions / AMP; they must not multiply raw damage.
+        /// </summary>
+        private static void TestComboBandRollDoesNotAmplifyRawDamage()
+        {
+            Console.WriteLine("\n--- Testing combo-band roll does not amplify raw damage ---");
+
+            var balance = GameConfiguration.Instance.CombatBalance;
+                balance.RollDamageMultipliers ??= new RollDamageMultipliersConfig();
+            double previousCombo = balance.RollDamageMultipliers.ComboRollDamageMultiplier;
+            double previousBasic = balance.RollDamageMultipliers.BasicRollDamageMultiplier;
+            try
+            {
+                balance.RollDamageMultipliers.ComboRollDamageMultiplier = 1.0;
+                balance.RollDamageMultipliers.BasicRollDamageMultiplier = 1.0;
+
+                var attacker = TestDataBuilders.Character()
+                    .WithName("RollBand")
+                    .WithStats(10, 10, 10, 10)
+                    .Build();
+                attacker.EquipItem(new WeaponItem("TestSword", 1, 20), "weapon");
+                var action = TestDataBuilders.CreateMockAction("PIERCE");
+                action.DamageMultiplier = 1.0;
+
+                int basicBand = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
+                int comboBand = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 16);
+                TestBase.AssertEqual(basicBand, comboBand,
+                    "roll 16 (combo band) raw damage equals roll 10 (basic band) at 1.0× multipliers",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                balance.RollDamageMultipliers.ComboRollDamageMultiplier = previousCombo;
+                balance.RollDamageMultipliers.BasicRollDamageMultiplier = previousBasic;
+            }
         }
 
         private static void TestDamageWithMultipliers()

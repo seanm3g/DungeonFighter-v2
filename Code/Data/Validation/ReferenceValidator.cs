@@ -15,7 +15,7 @@ namespace RPGGame.Data.Validation
             result.IncrementStatistic("Reference Checks");
 
             // Ensure all data is loaded
-            if (ActionLoader.GetAllActions().Count == 0)
+            if (ActionLoader.GetAllLoadedActionNames().Count == 0)
             {
                 ActionLoader.LoadActions();
             }
@@ -27,7 +27,7 @@ namespace RPGGame.Data.Validation
 
             // Build reference sets
             var validActionNames = new HashSet<string>(
-                ActionLoader.GetAllActionNames(), 
+                ActionLoader.GetAllLoadedActionNames(), 
                 StringComparer.OrdinalIgnoreCase);
             
             var validEnemyNames = new HashSet<string>(

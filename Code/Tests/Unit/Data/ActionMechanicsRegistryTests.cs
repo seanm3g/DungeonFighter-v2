@@ -19,6 +19,8 @@ namespace RPGGame.Tests.Unit.Data
             TestLegacyAliasNormalization();
             TestAllMechanicIdsTrimmedToGoodOnActions();
             TestEditorMechanicOrderHeroBeforeEnemy();
+            TestCadenceAgnosticMechanicsAppearInDropdown();
+            TestEditorDropdownLabelsActionSetStyle();
             TestItemOnlyStatusNotAppliedOnConvert();
             TestFortifyAndMaxHealthAppliedOnConvert();
         }
@@ -131,7 +133,7 @@ namespace RPGGame.Tests.Unit.Data
 
         private static void TestAllMechanicIdsTrimmedToGoodOnActions()
         {
-            TestHarnessBase.AssertEqual(33, ActionMechanicsRegistry.AllMechanicIds.Count, "MECHANIC_LIST has 33 GOOD+ON ACTIONS IDs");
+            TestHarnessBase.AssertEqual(34, ActionMechanicsRegistry.AllMechanicIds.Count, "MECHANIC_LIST has 34 GOOD+ON ACTIONS IDs");
             TestHarnessBase.AssertFalse(ActionMechanicsRegistry.AllMechanicIds.Contains("damage"), "REDUNDANT damage excluded");
             TestHarnessBase.AssertFalse(ActionMechanicsRegistry.AllMechanicIds.Contains("silence"), "CUT silence excluded");
             TestHarnessBase.AssertFalse(ActionMechanicsRegistry.AllMechanicIds.Contains("stun"), "item-only stun excluded from MECHANIC_LIST");
@@ -153,6 +155,37 @@ namespace RPGGame.Tests.Unit.Data
             TestHarnessBase.AssertTrue(
                 ActionMechanicsRegistry.CompareMechanicIdsForEditor("weaken", "enemy_accuracy") < 0,
                 "neutral mechanics sort between hero and enemy groups");
+        }
+
+        private static void TestCadenceAgnosticMechanicsAppearInDropdown()
+        {
+            Console.WriteLine("--- Timing-agnostic mechanics stay in every cadence dropdown ---");
+            foreach (string cadence in ActionMechanicsRegistry.EditorCadenceOptions)
+            {
+                var ids = ActionMechanicsRegistry.GetMechanicIdsForCadence(cadence);
+                TestHarnessBase.AssertTrue(ids.Contains("heal"), $"heal listed for {cadence}");
+                TestHarnessBase.AssertTrue(ids.Contains("disrupt"), $"disrupt listed for {cadence}");
+            }
+
+            var turnIds = ActionMechanicsRegistry.GetMechanicIdsForCadence("Turn");
+            TestHarnessBase.AssertTrue(turnIds.Contains("hero_accuracy"), "TURN lists hero_accuracy");
+
+            var actionIds = ActionMechanicsRegistry.GetMechanicIdsForCadence("Action");
+            TestHarnessBase.AssertTrue(actionIds.Contains("hero_next_action_damage"), "ACTION lists hero_next_action_damage");
+            TestHarnessBase.AssertFalse(actionIds.Contains("hero_accuracy"), "ACTION does not list turn-only hero_accuracy");
+        }
+
+        private static void TestEditorDropdownLabelsActionSetStyle()
+        {
+            Console.WriteLine("--- Editor dropdown labels match Action-set short style ---");
+            TestHarnessBase.AssertEqual("Hero ACC", ActionMechanicsRegistry.GetEditorDropdownLabel("hero_accuracy"),
+                "hero accuracy short label");
+            TestHarnessBase.AssertEqual("Enemy DAMAGE", ActionMechanicsRegistry.GetEditorDropdownLabel("enemy_next_action_damage"),
+                "enemy damage short label");
+            TestHarnessBase.AssertEqual("WEAKEN", ActionMechanicsRegistry.GetEditorDropdownLabel("weaken"),
+                "neutral short label");
+            TestHarnessBase.AssertEqual("Hero STR", ActionMechanicsRegistry.GetEditorDropdownLabel("hero_stat_bonus", "STR"),
+                "stat subtype in short label");
         }
 
         private static void TestItemOnlyStatusNotAppliedOnConvert()

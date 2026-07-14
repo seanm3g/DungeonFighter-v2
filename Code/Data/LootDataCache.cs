@@ -145,7 +145,7 @@ namespace RPGGame
         {
             // Use ActionLoader so format is handled in one place (legacy ActionData and spreadsheet format).
             ActionLoader.LoadActions();
-            var actionDataList = ActionLoader.GetAllActionData();
+            var actionDataList = ActionLoader.GetActiveSetActionData();
             if (actionDataList != null && actionDataList.Count > 0)
             {
                 ActionBonuses = actionDataList

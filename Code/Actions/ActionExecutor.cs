@@ -30,6 +30,11 @@ namespace RPGGame
         public bool Hit { get; set; }
         public int Damage { get; set; }
         public int HealAmount { get; set; }
+        /// <summary>
+        /// Hit/tick count used when dealing damage for this swing (base MultiHitCount + redeemed ConsumedMultiHitMod + chain).
+        /// Set before ACTION cadence next-action Multihit is deposited so combat-log formatting does not peek the grant's own Multihit.
+        /// </summary>
+        public int ResolvedMultiHitCount { get; set; } = 1;
         public List<string> StatusEffectMessages { get; set; } = new List<string>();
         public List<List<ColoredText>> ColoredStatusEffects { get; set; } = new List<List<ColoredText>>();
         public bool WasOneShotKill { get; set; }
@@ -86,8 +91,8 @@ namespace RPGGame
                 if (result.SelectedAction.Type == ActionType.Attack || result.SelectedAction.Type == ActionType.Spell)
                 {
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
-                    // Get multi-hit count for display formatting
-                    int multiHitCount = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(result.SelectedAction, source);
+                    // Use the hit count resolved for this swing — not strip peek after next-action Multihit was queued.
+                    int multiHitCount = Math.Max(1, result.ResolvedMultiHitCount);
                     var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, displayTarget, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, result.IsCriticalMiss, result.IsCritical, result.MultiDiceRollDetail);
                     return (damageText, rollInfo);
                 }
@@ -166,8 +171,7 @@ namespace RPGGame
                 if (result.SelectedAction.Type == ActionType.Attack || result.SelectedAction.Type == ActionType.Spell)
                 {
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
-                    // Get multi-hit count for display formatting
-                    int multiHitCount = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(result.SelectedAction, source);
+                    int multiHitCount = Math.Max(1, result.ResolvedMultiHitCount);
                     var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, false, result.IsCritical, result.MultiDiceRollDetail);
                     string damageString = ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + ColoredTextRenderer.RenderAsMarkup(rollInfo);
                     results.Add(damageString);

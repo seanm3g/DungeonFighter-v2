@@ -32,7 +32,7 @@ namespace RPGGame.UI.Avalonia.Builders
 
             stack.Children.Add(new TextBlock
             {
-                Text = "Each block mirrors card text: cadence header, then one mechanic per line.",
+                Text = "Each block mirrors card text: pick a cadence, then add mechanics from the dropdown (same style as Action set on the left).",
                 FontSize = 12,
                 Foreground = SettingsThemeBrushes.TextMuted,
                 TextWrapping = TextWrapping.Wrap,
@@ -99,11 +99,11 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 ItemsSource = ActionMechanicsRegistry.EditorCadenceOptions,
                 SelectedItem = ActionFormOptions.NormalizeCadence(block.Cadence),
-                FontSize = 14,
-                Background = SettingsThemeBrushes.InputBackground,
-                Foreground = SettingsThemeBrushes.TextPrimary,
-                BorderBrush = SettingsThemeBrushes.InputBorder
+                PlaceholderText = "Cadence…",
+                MinHeight = 32,
+                FontSize = 14
             };
+            SettingsInputApplier.ApplyComboBox(cadenceCombo);
             if (cadenceCombo.SelectedItem == null && !string.IsNullOrWhiteSpace(block.Cadence))
                 cadenceCombo.SelectedItem = block.Cadence;
             cadenceCombo.SelectionChanged += (_, _) =>
@@ -123,11 +123,10 @@ namespace RPGGame.UI.Avalonia.Builders
                 Text = block.Duration.ToString(),
                 Watermark = "Duration",
                 FontSize = 14,
-                Background = SettingsThemeBrushes.InputBackground,
-                Foreground = SettingsThemeBrushes.TextPrimary,
-                BorderBrush = SettingsThemeBrushes.InputBorder,
+                MinHeight = 32,
                 Margin = new Thickness(8, 0, 0, 0)
             };
+            SettingsInputApplier.ApplyTextBox(durationBox);
             void SyncDurationFromText()
             {
                 if (int.TryParse(durationBox.Text, out int d) && d >= 1)
@@ -216,21 +215,33 @@ namespace RPGGame.UI.Avalonia.Builders
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });
 
-            var mechanicOptions = ActionMechanicsRegistry.GetMechanicIdsForCadence(block.Cadence)
-                .Select(id => (id, label: $"{ActionMechanicsRegistry.GetDisplayLabel(id)} ({id})"))
+            var mechanicIds = ActionMechanicsRegistry.GetMechanicIdsForCadence(block.Cadence).ToList();
+            // Keep any already-authored mechanic visible even if cadence filter would hide it.
+            if (!string.IsNullOrWhiteSpace(row.MechanicId)
+                && !mechanicIds.Any(id => string.Equals(id, row.MechanicId, StringComparison.OrdinalIgnoreCase)))
+            {
+                mechanicIds.Insert(0, ActionMechanicsRegistry.NormalizeMechanicId(row.MechanicId));
+            }
+
+            var mechanicOptions = mechanicIds
+                .Select(id => (id, label: ActionMechanicsRegistry.GetEditorDropdownLabel(id)))
+                .Where(m => !string.IsNullOrWhiteSpace(m.label))
                 .ToList();
 
             var mechanicCombo = new ComboBox
             {
                 ItemsSource = mechanicOptions.Select(m => m.label).ToList(),
+                PlaceholderText = "Pick mechanic…",
+                MinHeight = 32,
                 FontSize = 13,
-                Background = SettingsThemeBrushes.InputBackground,
-                Foreground = SettingsThemeBrushes.TextPrimary,
-                BorderBrush = SettingsThemeBrushes.InputBorder
+                HorizontalAlignment = HorizontalAlignment.Stretch
             };
+            SettingsInputApplier.ApplyComboBox(mechanicCombo);
             if (!string.IsNullOrWhiteSpace(row.MechanicId))
             {
-                string match = mechanicOptions.FirstOrDefault(m => string.Equals(m.id, row.MechanicId, StringComparison.OrdinalIgnoreCase)).label;
+                string match = mechanicOptions
+                    .FirstOrDefault(m => string.Equals(m.id, row.MechanicId, StringComparison.OrdinalIgnoreCase))
+                    .label;
                 if (!string.IsNullOrEmpty(match))
                     mechanicCombo.SelectedItem = match;
             }
@@ -241,19 +252,22 @@ namespace RPGGame.UI.Avalonia.Builders
             {
                 ItemsSource = StatSubTypeOptions,
                 SelectedItem = string.IsNullOrWhiteSpace(row.StatSubType) ? "STR" : row.StatSubType.ToUpperInvariant(),
+                PlaceholderText = "Stat…",
+                MinHeight = 32,
                 FontSize = 13,
                 IsVisible = ActionMechanicsRegistry.RequiresStatSubType(row.MechanicId),
-                Background = SettingsThemeBrushes.InputBackground,
-                Foreground = SettingsThemeBrushes.TextPrimary,
-                BorderBrush = SettingsThemeBrushes.InputBorder,
                 Margin = new Thickness(6, 0, 0, 0)
             };
+            SettingsInputApplier.ApplyComboBox(statCombo);
             mechanicCombo.SelectionChanged += (_, _) =>
             {
                 if (mechanicCombo.SelectedItem is string label)
                 {
                     var picked = mechanicOptions.FirstOrDefault(m => m.label == label);
-                    row.MechanicId = picked.id ?? "";
+                    if (string.IsNullOrEmpty(picked.id))
+                        picked = mechanicOptions.FirstOrDefault(m =>
+                            string.Equals(m.label, label, StringComparison.OrdinalIgnoreCase));
+                    row.MechanicId = picked.id ?? ResolveMechanicIdFromDropdownLabel(label) ?? "";
                     statCombo.IsVisible = ActionMechanicsRegistry.RequiresStatSubType(row.MechanicId);
                     _ctx.NotifyCadenceBlocksChanged();
                 }
@@ -274,11 +288,10 @@ namespace RPGGame.UI.Avalonia.Builders
                 Text = row.Quantity == 0 ? "" : row.Quantity.ToString("0.##"),
                 Watermark = "Qty",
                 FontSize = 13,
-                Background = SettingsThemeBrushes.InputBackground,
-                Foreground = SettingsThemeBrushes.TextPrimary,
-                BorderBrush = SettingsThemeBrushes.InputBorder,
+                MinHeight = 32,
                 Margin = new Thickness(6, 0, 0, 0)
             };
+            SettingsInputApplier.ApplyTextBox(qtyBox);
             void SyncQtyFromText()
             {
                 row.Quantity = double.TryParse(qtyBox.Text, out double v) ? v : 0;
@@ -308,7 +321,13 @@ namespace RPGGame.UI.Avalonia.Builders
             _ctx.RegisterCadenceFlush(() =>
             {
                 if (mechanicCombo.SelectedItem is string label)
-                    row.MechanicId = ParseMechanicIdFromEditorLabel(label) ?? "";
+                {
+                    var picked = mechanicOptions.FirstOrDefault(m =>
+                        string.Equals(m.label, label, StringComparison.OrdinalIgnoreCase));
+                    row.MechanicId = !string.IsNullOrEmpty(picked.id)
+                        ? picked.id
+                        : ResolveMechanicIdFromDropdownLabel(label) ?? "";
+                }
                 if (statCombo.SelectedItem is string stat)
                     row.StatSubType = stat;
                 row.Quantity = double.TryParse(qtyBox.Text, out double v) ? v : 0;
@@ -317,15 +336,26 @@ namespace RPGGame.UI.Avalonia.Builders
             return grid;
         }
 
-        private static string? ParseMechanicIdFromEditorLabel(string? label)
+        /// <summary>Maps Action-set-style labels ("Hero ACC") or legacy "Label (id)" back to a mechanic id.</summary>
+        private static string? ResolveMechanicIdFromDropdownLabel(string? label)
         {
             if (string.IsNullOrWhiteSpace(label))
                 return null;
+
+            // Legacy compact form: "ACC (hero_accuracy)"
             int open = label.LastIndexOf('(');
             int close = label.LastIndexOf(')');
             if (open >= 0 && close > open)
                 return ActionMechanicsRegistry.NormalizeMechanicId(label.Substring(open + 1, close - open - 1));
-            return ActionMechanicsRegistry.NormalizeMechanicId(label);
+
+            string trimmed = label.Trim();
+            foreach (string id in ActionMechanicsRegistry.AllMechanicIds)
+            {
+                if (string.Equals(ActionMechanicsRegistry.GetEditorDropdownLabel(id), trimmed, StringComparison.OrdinalIgnoreCase))
+                    return id;
+            }
+
+            return ActionMechanicsRegistry.NormalizeMechanicId(trimmed);
         }
 
         private void RefreshCadencePreview()

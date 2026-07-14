@@ -468,6 +468,7 @@ namespace RPGGame.UI.Avalonia
             canvasUI = ui;
             gameStateManager = stateManager;
             gameVariablesTabManager?.SetGameStateManager(stateManager);
+            actionsTabManager?.SetGameStateManager(stateManager);
             
             if (canvasUI == null)
             {

@@ -322,15 +322,38 @@ namespace RPGGame.Data
         public static readonly string[] EditorCadenceOptions = { "Turn", "Action", "Fight", "Dungeon" };
 
         /// <summary>Mechanic IDs eligible for a cadence in the editor (GOOD + ON ACTIONS). Hero mods list before enemy mods.</summary>
+        /// <remarks>
+        /// Timing-agnostic mechanics (empty allowed-cadence set, e.g. heal / disrupt) stay available for every cadence
+        /// so the Actions-settings mechanic dropdown can always add them.
+        /// </remarks>
         public static IReadOnlyList<string> GetMechanicIdsForCadence(string? cadence)
         {
             string normalized = CadenceKeywords.Normalize(cadence ?? "");
             if (string.IsNullOrEmpty(normalized))
                 normalized = CadenceKeywords.Turn;
             return AllMechanicIds
-                .Where(id => GetAllowedCadencesForMechanic(id).Contains(normalized))
+                .Where(id =>
+                {
+                    var allowed = GetAllowedCadencesForMechanic(id);
+                    return allowed.Count == 0 || allowed.Contains(normalized);
+                })
                 .OrderBy(id => id, Comparer<string>.Create(CompareMechanicIdsForEditor))
                 .ToList();
+        }
+
+        /// <summary>Short Action-set-style label for the mechanics dropdown (e.g. "Hero ACC", "WEAKEN").</summary>
+        public static string GetEditorDropdownLabel(string? mechanicId, string? statSubType = null)
+        {
+            string id = NormalizeMechanicId(mechanicId ?? "");
+            if (string.IsNullOrEmpty(id))
+                return "";
+
+            string core = GetDisplayLabel(id, statSubType);
+            if (id.StartsWith("hero_", StringComparison.OrdinalIgnoreCase))
+                return string.IsNullOrEmpty(core) ? id : $"Hero {core}";
+            if (id.StartsWith("enemy_", StringComparison.OrdinalIgnoreCase))
+                return string.IsNullOrEmpty(core) ? id : $"Enemy {core}";
+            return string.IsNullOrEmpty(core) ? id : core;
         }
 
         /// <summary>Editor sort: hero_* first, then neutral mechanics, then enemy_*; alphabetical within each group.</summary>

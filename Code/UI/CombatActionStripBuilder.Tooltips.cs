@@ -13,7 +13,7 @@ namespace RPGGame
     public static partial class CombatActionStripBuilder
     {
         /// <summary>
-        /// Swing line for tooltips: same effective Dmg/Spd percentages as the action strip cards
+        /// Swing line for tooltips: sheet % damage/speed (base or effective+amp), not flat/seconds on the strip cards
         /// (<see cref="BuildPanelData"/> when <paramref name="panelIndex"/> is a valid combo slot; otherwise intrinsic action only).
         /// </summary>
         private static string BuildTooltipSwingModsLine(Character? character, Action action, int panelIndex, ActionStripDamageLineMode mode)
@@ -24,19 +24,19 @@ namespace RPGGame
                 if (panelIndex < panels.Count)
                 {
                     var info = panels[panelIndex];
-                    GetStripSwingDisplayPercents(in info, character, action, mode, out double damageDisplay, out double speedDisplay);
-                    return $"{FormatSwingDamageLine(info.EffectiveMultiHitCount, damageDisplay)} | Spd {speedDisplay:F0}%";
+                    return FormatStripSwingPercentLine(in info, character, action, mode);
                 }
             }
+
+            int hits = character != null
+                ? RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(action, character)
+                : Math.Max(1, action.Advanced?.MultiHitCount ?? 1);
 
             double baseDamagePct = action.DamageMultiplier * 100.0;
             double baseSpeedPct = action.Length > 0
                 ? ActionDisplayFormatter.CalculateActionSpeedPercentage(action)
                 : 0;
-            int hits = character != null
-                ? RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(action, character)
-                : Math.Max(1, action.Advanced?.MultiHitCount ?? 1);
-            return $"{FormatSwingDamageLine(hits, baseDamagePct)} | Spd {baseSpeedPct:F0}%";
+            return $"{FormatSwingDamagePercentLine(hits, baseDamagePct)} | {FormatSwingSpeedPercentLine(baseSpeedPct)}";
         }
 
         private static string FormatTooltipActionName(string? name)
@@ -451,7 +451,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Ordered mechanical segments after the title line: swing Dmg/Spd, then each spreadsheet / keyword / roll / status block.
+        /// Ordered mechanical segments after the title line: swing % damage/speed, then each spreadsheet / keyword / roll / status block.
         /// </summary>
         private static List<string> BuildMechanicalDetailSegments(Character? character, Action action, int panelIndex, ActionStripDamageLineMode swingLineMode)
         {
@@ -485,7 +485,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Builds wrapped lines for the action strip hover tooltip: title-cased name, then Dmg/Spd on its own line,
+        /// Builds wrapped lines for the action strip hover tooltip: title-cased name, then % damage/speed on its own line,
         /// then one line per spreadsheet mod and other mechanical details (no narrative <see cref="Action.Description"/>).
         /// </summary>
         /// <param name="character">Player whose combo is shown.</param>

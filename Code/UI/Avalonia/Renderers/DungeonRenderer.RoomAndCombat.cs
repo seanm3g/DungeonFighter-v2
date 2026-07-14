@@ -88,7 +88,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// Renders the action-info strip at the top of the center column (combat, inventory, etc.), above the combat log.
         /// Shows at least <see cref="LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT"/> panels (empty placeholders when the combo is shorter or empty);
         /// selected (next combo step) panel border is white when the sequence is non-empty; other filled slots use neutral gray darkened 50%; brief pulsing red/green/gold border after each hero swing is handled by <see cref="RPGGame.UI.Avalonia.Feedback.HeroActionStripFeedback"/> (thicker stroke for the flashing panel during the sequence).
-        /// Cards with <see cref="Action.ActionAttackBonuses"/> shimmer via <see cref="RPGGame.UI.Avalonia.Feedback.ActionBonusBorderShimmer"/> (flash still overrides).
+        /// Cards with pending ACTION-cadence buffs (slot queue / bank on current step) shimmer via <see cref="RPGGame.UI.Avalonia.Feedback.ActionBonusBorderShimmer"/> (flash still overrides). Granting actions alone do not shimmer.
         /// Panels at indices ≥ <see cref="ComboSequenceMaxHelper.GetEffectiveMax(Character?)"/> use a black border so unused strip capacity matches the character’s combo slot limit.
         /// When player is null, strip is cleared.
         /// </summary>
@@ -124,7 +124,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 bool isSelected = !isEmptySlot && selectedIndex >= 0 && i == selectedIndex;
                 bool bonusCue = !isEmptySlot && i < effectiveMaxSlots
                     && i < comboForStrip.Count
-                    && ActionBonusBorderShimmer.ActionHasBonusCue(comboForStrip[i]);
+                    && ActionBonusBorderShimmer.SlotHasPendingBonusCue(player, i);
 
                 Color borderColor;
                 if (flashActive)
@@ -186,17 +186,17 @@ namespace RPGGame.UI.Avalonia.Renderers
                 foreach (var roleLine in CombatActionStripBuilder.BuildActionStripComboRoleLines(player, action))
                     drawLine(roleLine, AsciiArtAssets.Colors.White);
 
-                // Dmg | Spd on one line (matches hover tooltip swing segment for damageLineMode)
+                // Calculated damage | seconds on cards; hover tip uses % damage/speed for the same damageLineMode
                 const double cmpEps = 0.0001;
-                CombatActionStripBuilder.GetStripSwingDisplayPercents(in info, player, action, damageLineMode, out double damageDisplay, out double speedDisplay);
-                bool damageDiffersFromIntrinsic = Math.Abs(damageDisplay - info.DamageBase) > cmpEps;
-                bool speedDiffersFromIntrinsic = Math.Abs(speedDisplay - info.SpeedBase) > cmpEps;
+                CombatActionStripBuilder.GetStripSwingDisplayPercents(in info, player, action, damageLineMode, out double damageDisplayPct, out double speedDisplayPct);
+                bool damageDiffersFromIntrinsic = Math.Abs(damageDisplayPct - info.DamageBase) > cmpEps;
+                bool speedDiffersFromIntrinsic = Math.Abs(speedDisplayPct - info.SpeedBase) > cmpEps;
                 var swingLineColor = damageDiffersFromIntrinsic
-                    ? (damageDisplay > info.DamageBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
+                    ? (damageDisplayPct > info.DamageBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
                     : speedDiffersFromIntrinsic
-                        ? (speedDisplay > info.SpeedBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
+                        ? (speedDisplayPct > info.SpeedBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
                         : AsciiArtAssets.Colors.White;
-                string swingLine = $"{CombatActionStripBuilder.FormatSwingDamageLine(info.EffectiveMultiHitCount, damageDisplay)} | Spd {speedDisplay:F0}%";
+                string swingLine = CombatActionStripBuilder.FormatStripSwingLine(in info, player, action, damageLineMode);
                 drawLine(swingLine, swingLineColor);
 
                 int tailBudget = Math.Max(0, panelBottomExclusive - contentY - reserveBottomRows);

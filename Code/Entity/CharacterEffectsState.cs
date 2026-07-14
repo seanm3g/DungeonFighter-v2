@@ -199,6 +199,36 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// ACTION-cadence <see cref="ActionAttackBonuses"/> already banks SPEED/DAMAGE/MULTIHIT/AMP mods.
+        /// Sheet columns (<c>multiHitMod</c>, etc.) mirror the same grant for editor/sheets compatibility —
+        /// do not also enqueue them onto the next combo slot or they stack (e.g. RAPID STRIKE +1 → +2).
+        /// </summary>
+        internal static HashSet<string> GetActionCadenceSheetModTypesCoveredByBonuses(Action? action)
+        {
+            var covered = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (action?.ActionAttackBonuses?.BonusGroups == null)
+                return covered;
+
+            foreach (var group in action.ActionAttackBonuses.BonusGroups)
+            {
+                if (group?.Bonuses == null || group.Bonuses.Count == 0)
+                    continue;
+                var ct = CadenceKeywords.NormalizeCadenceType(
+                    string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType);
+                if (!CadenceKeywords.IsAction(ct))
+                    continue;
+                foreach (var b in group.Bonuses)
+                {
+                    string t = (b.Type ?? "").Trim().ToUpperInvariant();
+                    if (t is "SPEED_MOD" or "DAMAGE_MOD" or "MULTIHIT_MOD" or "AMP_MOD")
+                        covered.Add(t);
+                }
+            }
+
+            return covered;
+        }
+
+        /// <summary>
         /// Adds modifier bonuses from an action (hero fields by default; enemy AD–AG when <paramref name="useEnemySpreadsheetMods"/>).
         /// When <paramref name="nextComboSlot"/> is provided, adds to that combo slot pending queue.
         /// </summary>
@@ -208,6 +238,12 @@ namespace RPGGame
             if (!useEnemySpreadsheetMods && CadenceKeywords.IsAction(action.Cadence) && !nextComboSlot.HasValue)
                 return;
             var bonuses = BuildModifierBonusesFromActionFields(action, useEnemySpreadsheetMods);
+            if (!useEnemySpreadsheetMods && bonuses.Count > 0)
+            {
+                var covered = GetActionCadenceSheetModTypesCoveredByBonuses(action);
+                if (covered.Count > 0)
+                    bonuses = bonuses.Where(b => !covered.Contains((b.Type ?? "").Trim())).ToList();
+            }
             if (bonuses.Count == 0) return;
 
             if (nextComboSlot.HasValue)

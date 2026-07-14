@@ -4,16 +4,83 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Feature: Action set filters gameplay + Action Lab (July 2026)
+**Goal:** Settings → Actions **Action set** should control what exists in-game and in Action Lab, not only the workshop list.
+
+**Solutions:**
+1. Persist selection as `GameSettings.ActionsActiveSetMaxTier` (`null` = all tiers)
+2. `ActionSetVisibility` + filtered `ActionLoader.GetAllActionNames` / `GetAllActions` / `GetAction` / `HasAction` / `GetActiveSetActionData`
+3. Gear, loot, defaults, environments, and lab catalog consume the active set; Settings editor still uses full `GetAllActionData`
+4. Changing the dropdown refreshes the live hero pool and lab catalog; tests: `ActionSetVisibilityTests`
+
+**Related files:** `ActionSetVisibility.cs`, `ActionLoader.cs`, `ActionsTabManager.cs`, `GameSettings.cs`
+
+### Feature: Actions cadence mechanic dropdown (Action-set style) (July 2026)
+**Goal:** Restore a clear Action-set-style dropdown for adding mechanics on ability/action rows in Settings → Actions.
+
+**Solutions:**
+1. Mechanic ComboBox uses short labels (`Hero ACC`, `WEAKEN`), `Pick mechanic…` placeholder, and `SettingsInputApplier` chrome
+2. Timing-agnostic mechanics (`heal`, `disrupt`) remain in every cadence’s dropdown list
+3. Already-authored mechanic IDs stay in the ItemsSource even when the cadence filter would hide them
+4. Tests: `ActionMechanicsRegistryTests` (cadence-agnostic list + dropdown labels)
+
+**Related files:** `ActionFormSectionBuilders.CadenceMechanics.cs`, `ActionMechanicsRegistry.cs`
+
+### Issue: Combo-band rolls (14+) amplified raw damage by 1.5× (July 2026)
+**Symptoms:**
+- Hero panel Damage showed **16**, but a combo-tier swing (`roll: 16`) dealt **24** (`attack 24`) even with `amp: 1.00x`
+- Players expected 14+ only to unlock combo actions / strip AMP, not multiply raw damage
+
+**Root cause:**
+`CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier` defaulted to **1.5** (and balance `default.json` / variance-compression endpoints reintroduced values > 1.0)
+
+**Solutions:**
+1. Ship default + unset repair = **1.0**; active balance patches `GameData/Patches/Balance/default.json` and `Code/Patches/Balance/default.json` set to **1.0**
+2. Variance compression chaotic/regular combo-band endpoints both **1.0** so the master slider cannot reintroduce band amplify
+3. Regression: `DamageCalculatorTests.TestComboBandRollDoesNotAmplifyRawDamage`
+
+**Related files:** `CombatConfig.cs`, `RollFeelVarianceCompression.cs`, balance `default.json`, `DamageCalculator.cs` (consumer)
+
 ### Feature: Action-bonus strip cards shimmer (July 2026)
-**Goal:** Make combo-strip cards that carry `ActionAttackBonuses` (cadence bonus lines) visually distinct at a glance.
+**Goal:** Make combo-strip cards that currently have pending ACTION-cadence buffs visually distinct at a glance (recipient cue, not grantor cue).
 
 **Solutions:**
 1. `ActionBonusBorderShimmer` animates a cyan dual-sine border plus a traveling perimeter highlight while such cards are on-screen
-2. Selected next-slot cards shimmer white↔cool cyan; hit/miss/combo flash from `HeroActionStripFeedback` still overrides
-3. Timer keep-alive stops shortly after the strip no longer needs shimmer (no forever refresh on main menu)
-4. Tests: `ActionBonusBorderShimmerTests`
+2. Cue is `SlotHasPendingBonusCue`: per-slot pending queue and/or additive bank on the current `ComboStep` (same peek basis as strip damage preview). Authored `ActionAttackBonuses` alone do not shimmer
+3. Selected next-slot cards shimmer white↔cool cyan; hit/miss/combo flash from `HeroActionStripFeedback` still overrides
+4. Timer keep-alive stops shortly after the strip no longer needs shimmer (no forever refresh on main menu)
+5. Tests: `ActionBonusBorderShimmerTests`
 
-**Related files:** `ActionBonusBorderShimmer.cs`, `DungeonRenderer.RoomAndCombat.cs`, `Action.cs` (`HasActionAttackBonusGroups`)
+**Related files:** `ActionBonusBorderShimmer.cs`, `DungeonRenderer.RoomAndCombat.cs`
+
+### Issue: Rapid Strike Multihit applied to itself in combat log (July 2026)
+**Symptoms:**
+- After **RAPID STRIKE** combo hit, combat log showed `(2 hits)` and strip/readouts looked like Multihit applied on Rapid Strike
+- Log also correctly showed `(Next action: +1 MH)` for Slam
+
+**Root cause:**
+ACTION cadence Multihit is deposited into the next-action bank **after** damage, then combat-log formatting and deferred accuracy scaling called `GetEffectiveMultiHitCountForModifierScaling`, which peeked that just-queued Multihit (and/or the next combo step’s pending Multihit) and attributed it to the granting swing.
+
+**Solutions:**
+1. Record `ActionExecutionResult.ResolvedMultiHitCount` at damage time (before bank deposit)
+2. Combat-log formatting and deferred sheet accuracy hit-layers use that count, not a post-deposit peek
+3. Tests: `MultiHitTests.TestActionCadenceMultiHitDoesNotApplyToGrantingAction` (+ assertions on dual-authorship test)
+
+**Related files:** `ActionExecutor.cs`, `ActionExecutionFlow.Outcomes.cs`, `MultiHitTests.cs`
+
+### Issue: Rapid Strike MULTIHIT_MOD applied twice (July 2026)
+**Symptoms:**
+- **RAPID STRIKE** logged `(3 hits)` and queued `+1 MH`, while **SLAM** strip showed **`3x`** damage (as if +2 Multihit)
+- Intended grant is **+1 Multihit** on the next action only (Rapid Strike itself is 1 hit)
+
+**Root cause:**
+RAPID STRIKE (and similar Settings-authored next-action rows) store the same grant in **both** `multiHitMod` and `actionAttackBonusesJson` (`MULTIHIT_MOD`). On hit+combo the bank path queued from `ActionAttackBonuses` and `AddModifierBonusesFromAction` also enqueued the sheet column onto the next combo slot. Strip peek + redeem **summed** slot + bank → **+2**.
+
+**Solutions:**
+1. When ACTION `ActionAttackBonuses` already cover SPEED/DAMAGE/MULTIHIT/AMP mod types, skip those sheet columns in `AddModifierBonusesFromAction` (bank remains authoritative)
+2. Test: `MultiHitTests.TestActionCadenceMultiHitNotDoubleAppliedFromSheetAndBonuses`
+
+**Related files:** `CharacterEffectsState.cs`, `MultiHitTests.cs`
 
 ### Issue: Next-action Multihit (ACTION cadence) dropped on miss (July 2026)
 **Symptoms:**

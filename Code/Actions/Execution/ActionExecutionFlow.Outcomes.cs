@@ -43,6 +43,8 @@ namespace RPGGame.Actions.Execution
                 if (source is Character multiHitCharacter && multiHitCharacter.Effects.ConsumedMultiHitMod != 0)
                     multiHitCount = Math.Max(1, multiHitCount + (int)Math.Max(0, multiHitCharacter.Effects.ConsumedMultiHitMod));
                 multiHitCount = Math.Max(1, multiHitCount + ChainPositionBonusApplier.GetMultiHitDelta(source, selected, ActionUtilities.GetComboActions(source), ActionUtilities.GetComboStep(source)));
+                // Capture before ACTION cadence deposits next-action Multihit (must not inflate this swing's log / deferred layers).
+                result.ResolvedMultiHitCount = multiHitCount;
                 if (multiHitCount > 1)
                 {
                     result.Damage = MultiHitProcessor.ProcessMultiHit(
@@ -159,8 +161,8 @@ namespace RPGGame.Actions.Execution
                     }
                 }
 
-                int hitLayers = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(selected, source);
-                if (hitLayers < 1) hitLayers = 1;
+                // Use this swing's resolved hit count — not strip peek after bank deposit (would apply Rapid Strike's +1 MH to itself).
+                int hitLayers = Math.Max(1, result.ResolvedMultiHitCount);
 
                 if (selected.Advanced.RollBonus != 0 && accTurns > 0)
                 {

@@ -133,10 +133,11 @@ namespace RPGGame
 
         public void EnsurePositiveMultipliers()
         {
-            // Defaults should preserve the classic "combo hits harder than basic" ladder
-            // even when tuning JSON uses 0 as "unset".
+            // Combo-band rolls (default 14+) are 1.0× raw damage; combo power comes from
+            // named combo actions / strip AMP / crit — not from a roll-band raw multiplier.
+            // Treat 0 in tuning JSON as "unset" and repair to these defaults.
             if (ComboRollDamageMultiplier <= 0)
-                ComboRollDamageMultiplier = 1.5;
+                ComboRollDamageMultiplier = 1.0;
             if (BasicRollDamageMultiplier <= 0)
                 BasicRollDamageMultiplier = 1.0;
             if (ComboAmplificationScalingMultiplier <= 0)

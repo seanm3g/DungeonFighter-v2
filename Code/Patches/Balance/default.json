@@ -139,7 +139,7 @@
     "critMissComfortShift": -2,
     "rollFeelVarianceCompression": 0.5,
     "rollDamageMultipliers": {
-      "comboRollDamageMultiplier": 1.5,
+      "comboRollDamageMultiplier": 1.0,
       "basicRollDamageMultiplier": 1,
       "comboAmplificationScalingMultiplier": 1,
       "tierScalingFallbackMultiplier": 1

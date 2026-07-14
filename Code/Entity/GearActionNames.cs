@@ -148,7 +148,7 @@ namespace RPGGame
         {
             var weaponTag = weaponType.ToString().ToLowerInvariant();
             var weaponTypeName = weaponType.ToString();
-            var allActionData = ActionLoader.GetAllActionData();
+            var allActionData = ActionLoader.GetActiveSetActionData();
             var weaponActions = new List<string>();
 
             foreach (var actionData in allActionData)

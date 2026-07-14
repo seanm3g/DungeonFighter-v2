@@ -15,6 +15,7 @@ namespace RPGGame.Tests.Runners
         private static readonly (string Name, System.Action Execute)[] Suites =
         {
             ("ActionLoader", () => ActionLoaderTests.RunAllTests()),
+            ("ActionSetVisibility", () => ActionSetVisibilityTests.RunAllTests()),
             ("ActionDataToSpreadsheetJsonConverter", () => ActionDataToSpreadsheetJsonConverterTests.RunAllTests()),
             ("SpreadsheetActionDataSheetRowSerializer", () => SpreadsheetActionDataSheetRowSerializerTests.RunAllTests()),
             ("SheetsPushConfig", () => SheetsPushConfigTests.RunAllTests()),

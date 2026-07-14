@@ -249,6 +249,19 @@ namespace RPGGame.ActionInteractionLab
         }
 
         /// <summary>
+        /// After Settings → Action set changes: keep catalog pick in the active set and rebuild lab gear pools.
+        /// </summary>
+        public void OnActiveActionSetChanged()
+        {
+            var comboSnapshot = _labPlayer.GetComboActions().Select(a => a.Name).ToList();
+            CharacterSerializer.RebuildCharacterActions(_labPlayer, preserveComboSequence: false);
+            ReapplyLabHeroComboStrip(comboSnapshot);
+            EnsureValidCatalogSelection();
+            SyncCatalogSelectionToUpcomingActor();
+            _refreshCombatUi();
+        }
+
+        /// <summary>
         /// Clears/reseeds the center combat log (undo/replay/reset) and restores enemy-name sticky alignment
         /// cleared by <see cref="CenterPanelDisplayManager.ClearWithoutRender"/>.
         /// </summary>

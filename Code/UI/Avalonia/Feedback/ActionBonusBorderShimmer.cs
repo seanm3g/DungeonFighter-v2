@@ -3,14 +3,19 @@ using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Threading;
+using RPGGame;
+using RPGGame.Data;
+using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia.Feedback
 {
     /// <summary>
-    /// Continuous border shimmer for combo-strip cards whose action carries
-    /// <see cref="ActionAttackBonuses"/> groups (ACTION/TURN cadence lines on the card).
-    /// Hit/miss flash from <see cref="HeroActionStripFeedback"/> still overrides the border.
+    /// Continuous border shimmer for combo-strip cards that currently have pending ACTION-cadence
+    /// buffs applied to them (slot queue and/or additive bank on the current combo step).
+    /// Granting actions (authored <see cref="ActionAttackBonuses"/>) do not shimmer unless they
+    /// also carry pending buffs from a prior action. Hit/miss flash from
+    /// <see cref="HeroActionStripFeedback"/> still overrides the border.
     /// </summary>
     public static class ActionBonusBorderShimmer
     {
@@ -44,15 +49,33 @@ namespace RPGGame.UI.Avalonia.Feedback
         /// <summary>Bright cyan used at the high end of the shimmer wave.</summary>
         internal static readonly Color BrightCyan = Color.FromRgb(140, 240, 255);
 
-        /// <summary>Cool white used when the next-slot card also has bonuses (keeps the white “next” cue).</summary>
+        /// <summary>Cool white used when the next-slot card also has pending buffs (keeps the white “next” cue).</summary>
         internal static readonly Color SelectedBright = Color.FromRgb(230, 250, 255);
 
         public static void SetRequestInvalidate(System.Action? invalidate) => _requestInvalidate = invalidate;
 
         /// <summary>
-        /// True when the action should get a shimmering strip border (any non-empty attack-bonus group).
+        /// True when this combo-strip slot currently has pending ACTION-cadence buffs applied to it
+        /// (per-slot queue, or the additive bank previewed on the current <see cref="Character.ComboStep"/>).
+        /// Same peek basis as <see cref="CombatActionStripBuilder.BuildPanelData"/>.
         /// </summary>
-        public static bool ActionHasBonusCue(Action? action) => Action.HasActionAttackBonusGroups(action);
+        public static bool SlotHasPendingBonusCue(Character? character, int slotIndex)
+        {
+            if (character?.Effects == null || slotIndex < 0)
+                return false;
+
+            if (character.Effects.GetPendingActionBonusesForSlot(slotIndex).Count > 0)
+                return true;
+
+            if (!character.Effects.HasPendingActionCadenceBank())
+                return false;
+
+            var actions = character.GetComboActions();
+            if (actions == null || actions.Count == 0)
+                return false;
+
+            return slotIndex == (character.ComboStep % actions.Count);
+        }
 
         /// <summary>
         /// Call once per strip render when at least one filled panel needs shimmer so the invalidate timer stays armed.
