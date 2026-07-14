@@ -42,15 +42,10 @@ namespace RPGGame.Actions.Execution
             multiHitCount = Math.Max(1, multiHitCount + ChainPositionBonusApplier.GetMultiHitDelta(source, action, ActionUtilities.GetComboActions(source), ActionUtilities.GetComboStep(source)));
             int totalDamage = 0;
 
-            // Process each hit
+            // Always resolve every planned tick so combat-log totals match (attack − armor) × hits
+            // (and the `(N hits)` label). TakeDamage already clamps HP at 0; remaining ticks overkill.
             for (int hit = 0; hit < multiHitCount; hit++)
             {
-                // Check if target is still alive
-                if (target is Character targetChar && targetChar.CurrentHealth <= 0)
-                    break;
-                if (target is Enemy hitTargetEnemy && hitTargetEnemy.CurrentHealth <= 0)
-                    break;
-
                 // Roll-based damage: apply RollPenalty per hit (hit 0 uses the same total as the hit roll; later hits stack the debuff again)
                 int perHitTotalRoll = GetMultihitDamageTotalRoll(totalRoll, source, hit);
                 int hitDamage = action.DamageMultiplier > 0

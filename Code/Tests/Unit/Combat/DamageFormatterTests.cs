@@ -157,9 +157,28 @@ namespace RPGGame.Tests.Unit.Combat
             var builder = new ColoredTextBuilder();
             DamageFormatter.AddAttackVsArmor(builder, 15, 5);
             var result = builder.Build();
+            string plain = ColoredTextRenderer.RenderAsPlainText(result);
 
             TestBase.AssertTrue(result.Count > 0,
                 "AddAttackVsArmor should add text to builder",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(plain.Contains("attack:", StringComparison.Ordinal),
+                "AddAttackVsArmor should use attack: label",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(plain.Contains("15 - 5 armor = 10", StringComparison.Ordinal),
+                "AddAttackVsArmor should show raw - armor = net",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var multiBuilder = new ColoredTextBuilder();
+            DamageFormatter.AddAttackVsArmor(multiBuilder, 23, 1, multiHitCount: 3);
+            string multiPlain = ColoredTextRenderer.RenderAsPlainText(multiBuilder.Build());
+            TestBase.AssertTrue(multiPlain.Contains("23 - 1 armor = 22 × 3", StringComparison.Ordinal),
+                "AddAttackVsArmor multihit should show net × hit count",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string zeroArmor = DamageFormatter.FormatAttackVsArmorPlain(23, 0, 3);
+            TestBase.AssertEqual("attack: 23 × 3", zeroArmor,
+                "FormatAttackVsArmorPlain with 0 armor should omit DR clause",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

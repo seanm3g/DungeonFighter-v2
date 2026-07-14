@@ -4,6 +4,10 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Bug fix / Multihit shortfall on kill:** Multihit stopped summing ticks when the target hit 0 HP, so logs like `(4 hits) for 45` under-counted vs `(attack − armor) × N` (e.g. 88). Always resolve every planned tick; overkill clamps HP. Tests: `MultiHitTests.TestMultiHitFullDamageWhenTargetDiesMidSwing`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
+
+- [x] **UI / Combat log — attack/armor footer clarity:** Roll detail `attack 23 - 1 armor` looked arbitrary next to multihit totals. Format as `attack: X - Y armor = Z` (and `× N` when multihit) via `DamageFormatter.AddAttackVsArmor` / `RollInfoFormatter` / plain `CombatResults`. Tests: `DamageFormatterTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`, `COMBAT_LOG_SPACING_STANDARD.md`.
+
 - [x] **UI / Action strip — ACTION grant stays on grantor:** Authored `ACTION (Nx)` / Multihit grant lines stay on the grantor (e.g. Rapid Strike); recipient (Slam) does not paint pending ACTION/Multihit text — `Nx` damage + cyan shimmer carry the cue. `ACTION` is next-action wording only. Tests: `CombatActionStripBuilderTests.TestActionCadenceGrantLinesResetWhenPendingThenRedeemed`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
 
 - [x] **UI / Action Lab — sequence edit resets strip to slot 1:** Catalog add, strip right-click remove, and strip drag reorder call `ResetLabStripPositionToFirstSlot` (`ComboStep` = 0 + catalog sync). Tests: `ActionInteractionLabTests.LabSequenceEdit_ResetsStripPositionToFirstSlot`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.

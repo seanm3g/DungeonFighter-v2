@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame;
@@ -117,17 +118,45 @@ namespace RPGGame.Combat.Formatting
         }
         
         /// <summary>
-        /// Adds "attack X - Y armor" pattern to a ColoredTextBuilder with proper spacing
+        /// Adds attack vs armor to a roll footer: <c>attack: X - Y armor = Z</c>, or with multihit <c>… = Z × N</c>.
+        /// When armor is 0, omits the DR clause (<c>attack: X</c>, optional <c>× N</c>).
         /// </summary>
-        public static void AddAttackVsArmor(ColoredTextBuilder builder, int attack, int armor)
+        public static void AddAttackVsArmor(ColoredTextBuilder builder, int attack, int armor, int multiHitCount = 1)
         {
+            int net = Math.Max(0, attack - Math.Max(0, armor));
             builder.Add(" | ", Colors.Gray);
-            builder.Add("attack", ColorPalette.Info);
+            builder.Add("attack:", ColorPalette.Info);
             builder.AddSpace();
             builder.Add(attack.ToString(), Colors.White);
-            builder.Add(" - ", Colors.White);
-            builder.Add(armor.ToString(), Colors.White);
-            builder.Add(" armor", Colors.White);
+            if (armor > 0)
+            {
+                builder.Add(" - ", Colors.White);
+                builder.Add(armor.ToString(), Colors.White);
+                builder.Add(" armor", Colors.White);
+                builder.Add(" = ", Colors.White);
+                builder.Add(net.ToString(), Colors.White);
+            }
+            if (multiHitCount > 1)
+            {
+                builder.Add(" × ", Colors.White);
+                builder.Add(multiHitCount.ToString(), ColorPalette.Info);
+            }
+        }
+
+        /// <summary>
+        /// Plain-text equivalent of <see cref="AddAttackVsArmor"/> for non-colored roll footers.
+        /// </summary>
+        public static string FormatAttackVsArmorPlain(int attack, int armor, int multiHitCount = 1)
+        {
+            int net = Math.Max(0, attack - Math.Max(0, armor));
+            if (armor > 0)
+            {
+                string core = $"attack: {attack} - {armor} armor = {net}";
+                return multiHitCount > 1 ? $"{core} × {multiHitCount}" : core;
+            }
+
+            string noArmor = $"attack: {attack}";
+            return multiHitCount > 1 ? $"{noArmor} × {multiHitCount}" : noArmor;
         }
         
         /// <summary>
@@ -425,7 +454,9 @@ namespace RPGGame.Combat.Formatting
                 actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(attacker, action, isCriticalMiss);
             }
             
-            var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, actualRawDamage, targetDefense, actualSpeed, rollInfoCombo, action, multiDiceDetail: multiDiceDetail);
+            var rollInfo = RollInfoFormatter.FormatRollInfoColored(
+                roll, rollBonus, actualRawDamage, targetDefense, actualSpeed, rollInfoCombo, action,
+                multiDiceDetail: multiDiceDetail, multiHitCount: multiHitCount);
             
             return (damageText, rollInfo);
         }

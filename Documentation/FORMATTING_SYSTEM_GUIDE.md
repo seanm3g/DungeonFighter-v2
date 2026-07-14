@@ -378,7 +378,7 @@ var actionText = new ColoredTextBuilder()
     .Build();
 
 var rollInfo = new ColoredTextBuilder()
-    .Add($"     (roll: {roll} | attack {attack} - {armor} armor)", Colors.White)
+    .Add($"     (roll: {roll} | attack: {attack} - {armor} armor = {Math.Max(0, attack - armor)})", Colors.White)
     .Build();
 
 BlockDisplayManager.DisplayActionBlock(actionText, rollInfo);

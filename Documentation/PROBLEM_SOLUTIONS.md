@@ -4,6 +4,26 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bugfix: Multihit under-counted when target died mid-swing (July 2026)
+**Problem:** Slam (or any Multihit) could log `(4 hits) for 45 damage` while a healthy target got the correct product (e.g. `(23 − 1) × 4 = 88`). Early-exit in `MultiHitProcessor` / `AttackActionExecutor` stopped remaining ticks at 0 HP, so the planned hit count and totaled damage diverged.
+
+**Solutions:**
+1. Always resolve every planned Multihit tick and sum `totalDamage`; `TakeDamage` already clamps HP at 0 (overkill)
+2. Colored attack path uses the planned `multiHitCount` for the `(N hits)` label (not a truncated `actualHits`)
+3. Test: `MultiHitTests.TestMultiHitFullDamageWhenTargetDiesMidSwing`
+
+**Related files:** `MultiHitProcessor.cs`, `AttackActionExecutor.cs`, `MultiHitTests.cs`
+
+### Bugfix: Combat roll footer attack/armor looked random (July 2026)
+**Problem:** Lines like `attack 23 - 1 armor` beside a multihit total (e.g. **66** from **3 hits**) looked arbitrary — raw and armor were shown without the net or hit multiplier that relates to the damage line.
+
+**Solutions:**
+1. `AddAttackVsArmor` / `FormatAttackVsArmorPlain` use `attack: X - Y armor = Z`, and when multihit `… = Z × N`
+2. Zero armor omits the DR clause (`attack: X` or `attack: X × N`) so the segment stays consistent with `roll:` / `speed:` / `amp:`
+3. Tests: `DamageFormatterTests.TestAddAttackVsArmor`
+
+**Related files:** `DamageFormatter.cs`, `RollInfoFormatter.cs`, `CombatResults.cs`, `COMBAT_LOG_SPACING_STANDARD.md`
+
 ### Feature: Action Lab sequence edit resets strip to first slot (July 2026)
 **Goal:** After changing actions in the Action Lab combo sequence, the strip highlight / next-step pointer should return to slot 1 instead of keeping a mid-sequence `ComboStep`.
 

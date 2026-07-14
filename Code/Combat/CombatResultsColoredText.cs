@@ -79,7 +79,7 @@ namespace RPGGame
                 builder.Add(totalRoll.ToString(), ColorPalette.Warning);
             }
             
-            // Attack vs Defense
+            // Attack vs Defense (net so footer reads against the damage line)
             AddAttackVsArmor(builder, attack, defense);
             
             // Speed information

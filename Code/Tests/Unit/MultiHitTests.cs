@@ -32,7 +32,7 @@ namespace RPGGame.Tests.Unit
 
             TestMultiHitActionCreation();
             TestMultiHitDamageApplication();
-            TestMultiHitEarlyTermination();
+            TestMultiHitFullDamageWhenTargetDiesMidSwing();
             TestMultiHitDifferentCounts();
             TestMultiHitDamageCalculation();
             TestMultiHitWithSelfAndTarget();
@@ -135,9 +135,13 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestMultiHitEarlyTermination()
+        /// <summary>
+        /// Regression: Multihit must credit full (per-hit × N) even when the target dies mid-swing.
+        /// Otherwise combat log can show `(4 hits) for 45` instead of `(23-1)×4 = 88`-style totals.
+        /// </summary>
+        private static void TestMultiHitFullDamageWhenTargetDiesMidSwing()
         {
-            Console.WriteLine("\n--- Testing Multi-Hit Early Termination ---");
+            Console.WriteLine("\n--- Regression: Multi-Hit full damage when target dies mid-swing ---");
 
             var character = TestDataBuilders.Character()
                 .WithName("TestHero")
@@ -145,15 +149,13 @@ namespace RPGGame.Tests.Unit
                 .WithStats(20, 10, 10, 10)
                 .Build();
 
-            // Create enemy with low health that will die before all hits
+            // Low health so the first tick kills; remaining ticks must still count toward totalDamage.
             var enemy = TestDataBuilders.Enemy()
                 .WithName("WeakEnemy")
                 .WithLevel(1)
-                .WithHealth(15) // Low health
+                .WithHealth(15)
                 .WithStats(5, 5, 5, 5)
                 .Build();
-
-            int initialHealth = enemy.CurrentHealth;
 
             var action = new Action
             {
@@ -168,21 +170,21 @@ namespace RPGGame.Tests.Unit
 
             double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(character, action);
             int rollBonus = 0;
-            int totalRoll = 15; // High roll to ensure damage
+            int totalRoll = 15;
 
-            // Process multi-hit - should stop when enemy dies
+            int singleHitDamage = CombatCalculator.CalculateDamage(
+                character, enemy, action, damageMultiplier, 1.0, rollBonus, totalRoll);
+
             int totalDamage = MultiHitProcessor.ProcessMultiHit(
                 character, enemy, action, damageMultiplier, totalRoll,
                 totalRoll, rollBonus, 15, null);
 
-            int finalHealth = enemy.CurrentHealth;
-
-            TestBase.AssertTrue(finalHealth <= 0,
-                $"Enemy should be dead after multi-hit, health: {finalHealth}",
+            TestBase.AssertTrue(enemy.CurrentHealth <= 0,
+                $"Enemy should be dead after multi-hit, health: {enemy.CurrentHealth}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            TestBase.AssertTrue(totalDamage > 0,
-                $"Multi-hit should deal damage before termination, dealt {totalDamage}",
+            TestBase.AssertEqual(singleHitDamage * 4, totalDamage,
+                $"Multi-hit total should be per-hit × 4 even after kill (got {totalDamage}, per-hit {singleHitDamage})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

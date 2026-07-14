@@ -76,10 +76,10 @@ namespace RPGGame
             // If rollBonus is 0, don't add the = total part (totalRoll will equal roll)
             rollInfo.Add($"roll: {rollDisplay}");
             
-            // Attack vs Defense information
+            // Attack vs Defense information (net shown so footer matches headline damage)
             int targetDefense = DamageCalculator.ResolveTargetArmor(target, action);
             int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, totalRoll, rollBonus);
-            rollInfo.Add($"attack {actualRawDamage} - {targetDefense} armor");
+            rollInfo.Add(DamageFormatter.FormatAttackVsArmorPlain(actualRawDamage, targetDefense));
             
             // Speed information - calculate actual action speed
             if (action != null && action.Length > 0)

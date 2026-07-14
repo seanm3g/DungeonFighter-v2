@@ -145,11 +145,12 @@ string text = CombatLogSpacingManager.FormatWithSpacing(
 ```csharp
 string rollInfo = CombatLogSpacingManager.FormatRollInfo(
     rollText: "9 + 2 = 11",
-    attackText: "attack 4 - 2 armor",
+    attackText: "attack: 4 - 2 armor = 2",
     speedText: "8.5s",
     amplifierText: "1.5x"
 );
-// Result: "     (roll: 9 + 2 = 11 | attack 4 - 2 armor | speed: 8.5s | amp: 1.5x)"
+// Result: "     (roll: 9 + 2 = 11 | attack: 4 - 2 armor = 2 | speed: 8.5s | amp: 1.5x)"
+// Multihit example attackText: "attack: 23 - 1 armor = 22 × 3"
 ```
 
 **Benefits:**
@@ -198,11 +199,12 @@ TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction)
 ```csharp
 // Correct
 "hits target for 42 damage!"
-"roll: 9 | attack 4 - 2 armor"
+"roll: 9 | attack: 4 - 2 armor = 2"
 
 // Incorrect
 "hits target for 42 damage !"  // Space before punctuation
-"roll : 9 | attack 4 - 2 armor"  // Space after colon
+"roll : 9 | attack: 4 - 2 armor = 2"  // Space after colon
+"roll: 9 | attack 4 - 2 armor"  // Missing colon / net after DR
 ```
 
 ### Vertical Spacing Rules

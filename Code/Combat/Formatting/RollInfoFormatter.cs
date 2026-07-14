@@ -83,7 +83,8 @@ namespace RPGGame.Combat.Formatting
             double actualSpeed, 
             double? comboAmplifier = null, 
             Action? action = null,
-            MultiDiceRollDetail multiDiceDetail = default)
+            MultiDiceRollDetail multiDiceDetail = default,
+            int multiHitCount = 1)
         {
             var builder = new ColoredTextBuilder();
             builder.Add("     (", Colors.Gray);
@@ -107,10 +108,10 @@ namespace RPGGame.Combat.Formatting
                 builder.Add((roll + rollBonus).ToString(), Colors.White);
             }
             
-            // Attack vs Defense
+            // Attack vs Defense (net + optional × hits so footer matches the damage line)
             if (rawDamage > 0 || targetDefense > 0)
             {
-                AddAttackVsArmor(builder, rawDamage, targetDefense);
+                AddAttackVsArmor(builder, rawDamage, targetDefense, multiHitCount);
             }
             
             // Speed information

@@ -52,6 +52,14 @@ DungeonFighter v2 is a turn-based RPG written in C# (.NET) with a data-driven co
 
 ## Current focus area (for this change)
 
+### Combat — Multihit always sums full planned ticks
+
+Multihit (base hits + redeemed `MULTIHIT_MOD` / Rapid Strike banks) always resolves **every** planned tick and adds each tick to the swing total, even after the target reaches 0 HP. Combat log `(N hits)` and damage therefore match `(attack − armor) × N` (extra ticks overkill; HP stays clamped at 0). Previously, early-exit on death could show e.g. `(4 hits) for 45` instead of the full product. Scope: `MultiHitProcessor`, `AttackActionExecutor`; tests: `MultiHitTests.TestMultiHitFullDamageWhenTargetDiesMidSwing`.
+
+### Combat log — attack vs armor footer readability
+
+Hit roll footers used `attack 23 - 1 armor`, which looked disconnected from the headline damage (especially multihit totals like **66** from **3 hits**). The footer now uses the same `label:` style as roll/speed/amp and shows the net: **`attack: 23 - 1 armor = 22`**, and with multihit **`… = 22 × 3`** so per-hit raw, flat armor DR, and the total line up. Scope: `DamageFormatter.AddAttackVsArmor`, `RollInfoFormatter`, plain `CombatResults` path; tests: `DamageFormatterTests`.
+
 ### UI — action strip cards show calculated damage; hover shows %
 
 Combo-strip **cards** (combat and inventory) show **resolved** values: e.g. **`25 damage | 8.3s`** (multihit: **`2x25 damage | 8.3s`**). Damage is hero base attack × the same action/mod/amp factors used for `%` preview (plus early-game starting-action and class weapon multipliers)—including the TECH combo-slot multiplier (`Pow(baseline, strip index)`) and any pending sheet **AMP_MOD**. Speed is wall-clock swing time from `GetTotalAttackSpeed() × action Length`, including pending slot **SPEED_MOD**. Cards omit a separate `amp:` segment; hover tooltips show sheet percentages (**`Dmg N% | Spd N%`**, multihit **`NxN% damage`**) and an **AMP calc** line (e.g. `AMP: 1.02x = Pow(1.02, 1)`). Click-to-toggle **base** vs **effective+combo amp** still applies to damage/speed; green/red tint on cards when those modes differ from intrinsic. Scope: `CombatActionStripBuilder`, `DungeonRenderer` strip paint; tests: `CombatActionStripBuilderTests`.
@@ -82,7 +90,7 @@ After Phase 1 (display pacing, awaited combat batches, scoped mute/room, cancel/
 
 ### Combat — armor is flat damage reduction (not a consumable pool)
 
-Hero armor from equipped gear (plus fortify / armor-break / expose / acid adjustments) is a **persistent flat damage reduction** on incoming attack damage, matching enemy armor. It is **not** consumed by hits and is **not** refilled each fight or room. `DamageCalculator` subtracts effective armor before HP loss; `TakeDamage` no longer depletes a room armor pool. The left-panel HUD shows a single armor value (not current/max), and combat roll footers use the same `attack X - Y armor` format for heroes and enemies.
+Hero armor from equipped gear (plus fortify / armor-break / expose / acid adjustments) is a **persistent flat damage reduction** on incoming attack damage, matching enemy armor. It is **not** consumed by hits and is **not** refilled each fight or room. `DamageCalculator` subtracts effective armor before HP loss; `TakeDamage` no longer depletes a room armor pool. The left-panel HUD shows a single armor value (not current/max), and combat roll footers use `attack: X - Y armor = Z` (multihit: `… = Z × N`) for heroes and enemies so raw, DR, and net are readable against the damage line.
 
 ### Combat — Pierce ignores flat armor
 
@@ -316,4 +324,4 @@ Headless runs can enable **CombatHotPathMetrics** to measure wall-clock time in 
 
 ### MultiHit Mod (Hero base stats → next action)
 
-The settings UI exposes **Hero base stats** including action speed %, action damage %, **MultiHit mod**, and amp mod %. Spreadsheet / ACTION-cadence **MULTIHIT_MOD** (e.g. **RAPID STRIKE**) queues onto the next combo slot / bank; the action strip previews the extra hits until the follow-up is rolled. The granting swing itself stays at its intrinsic hit count (combat log uses `ResolvedMultiHitCount` captured before the grant is banked — Multihit is **not** applied to Rapid Strike). Pending Multihit **survives misses** (and non-combo hits) and is **consumed only when that follow-up lands as a combo**. When the same grant is authored in both sheet columns (`multiHitMod`) and `ActionAttackBonuses` (Settings cadence mechanics), only the ACTION bonus bank applies — sheet enqueue skips those overlapping types so **+1 MH** does not stack to **+2**.
+The settings UI exposes **Hero base stats** including action speed %, action damage %, **MultiHit mod**, and amp mod %. Spreadsheet / ACTION-cadence **MULTIHIT_MOD** (e.g. **RAPID STRIKE**) queues onto the next combo slot / bank; the action strip previews the extra hits until the follow-up is rolled. The granting swing itself stays at its intrinsic hit count (combat log uses `ResolvedMultiHitCount` captured before the grant is banked — Multihit is **not** applied to Rapid Strike). Pending Multihit **survives misses** (and non-combo hits) and is **consumed only when that follow-up lands as a combo**. When the same grant is authored in both sheet columns (`multiHitMod`) and `ActionAttackBonuses` (Settings cadence mechanics), only the ACTION bonus bank applies — sheet enqueue skips those overlapping types so **+1 MH** does not stack to **+2**. Damage for the redeemed swing always sums **all** planned ticks (including overkill after the target hits 0 HP) so `(N hits)` matches `(attack − armor) × N`.

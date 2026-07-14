@@ -46,24 +46,16 @@ namespace RPGGame.Actions.Execution
             if (multiHitCount > 1)
             {
                 int totalDamage = 0;
-                int actualHits = 0;
-                
-                // Process each hit to calculate total damage
+
+                // Always resolve every planned tick so totals match (attack − armor) × hits.
                 for (int hit = 0; hit < multiHitCount; hit++)
                 {
-                    // Check if target is still alive
-                    if (target is Character targetChar && targetChar.CurrentHealth <= 0)
-                        break;
-                    if (target is Enemy hitTargetEnemy && hitTargetEnemy.CurrentHealth <= 0)
-                        break;
-                    
                     int perHitTotalRoll = MultiHitProcessor.GetMultihitDamageTotalRoll(totalRoll, source, hit);
                     int hitDamage = CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, perHitTotalRoll);
                     
                     // Apply damage
                     ActionUtilities.ApplyDamage(target, hitDamage);
                     totalDamage += hitDamage;
-                    actualHits++;
                     
                     if (!ActionExecutor.DisableCombatDebugOutput)
                     {
@@ -79,7 +71,7 @@ namespace RPGGame.Actions.Execution
                 // Show total damage with hit count indicator
                 // Check if this is a critical miss (natural roll <= 1 is typically critical miss)
                 bool isCriticalMiss = naturalRoll <= 1;
-                var (allDamageText, allRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, totalDamage, totalDamage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, actualHits, isCriticalMiss, isCriticalHit);
+                var (allDamageText, allRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, totalDamage, totalDamage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, multiHitCount, isCriticalMiss, isCriticalHit);
                 
                 // Track statistics for total damage
                 if (source is Character character)
