@@ -51,7 +51,7 @@ namespace RPGGame
     {
         /// <summary>
         /// Resolves damage % and speed % factors for <paramref name="mode"/> (used for color diffs and to derive flat/seconds display).
-        /// Effective mode: damage is slot-modified % × combo amplification for the action's strip index (see combat raw damage pipeline).
+        /// Effective mode: damage is slot-modified % × strip amp (TECH combo-slot multiplier + pending sheet AMP_MOD).
         /// </summary>
         public static void GetStripSwingDisplayPercents(
             in ActionPanelInfo info,
@@ -59,7 +59,8 @@ namespace RPGGame
             Action action,
             ActionStripDamageLineMode mode,
             out double damagePercentForDisplay,
-            out double speedPercentForDisplay)
+            out double speedPercentForDisplay,
+            int comboSlotIndex = -1)
         {
             if (mode == ActionStripDamageLineMode.BaseIntrinsic)
             {
@@ -68,7 +69,7 @@ namespace RPGGame
                 return;
             }
 
-            double amp = ActionUtilities.CalculateDamageMultiplier(character, action);
+            double amp = GetStripSwingDisplayAmp(character, action, comboSlotIndex);
             damagePercentForDisplay = info.DamageModified * amp;
             speedPercentForDisplay = info.SpeedModified;
         }
@@ -82,9 +83,10 @@ namespace RPGGame
             Action action,
             ActionStripDamageLineMode mode,
             out int damageForDisplay,
-            out double secondsForDisplay)
+            out double secondsForDisplay,
+            int comboSlotIndex = -1)
         {
-            GetStripSwingDisplayPercents(in info, character, action, mode, out double damagePercent, out double speedPercent);
+            GetStripSwingDisplayPercents(in info, character, action, mode, out double damagePercent, out double speedPercent, comboSlotIndex);
             damageForDisplay = ConvertDamagePercentToFlat(character, action, damagePercent);
             secondsForDisplay = ConvertSpeedPercentToSeconds(character, action, info.SpeedBase, speedPercent);
         }
@@ -161,14 +163,13 @@ namespace RPGGame
                 // Damage line: multiplier as % of character base (matches Spd line style), not raw HP output.
                 double baseDamagePct = action.DamageMultiplier * 100.0;
 
-                // Pending bonuses for this slot (peek, do not consume). ACTION bank applies to the current combo step only.
+                // Pending bonuses for this slot (peek, do not consume). ACTION bank sticks to preview slot.
                 var slotBonuses = new List<ActionAttackBonusItem>(character.Effects.GetPendingActionBonusesForSlot(i));
                 int actionCount = actions.Count;
-                if (actionCount > 0 && character.Effects.HasPendingActionCadenceBank())
+                if (actionCount > 0
+                    && character.Effects.SlotShowsActionCadenceBank(i, character.ComboStep, actionCount))
                 {
-                    int currentStep = character.ComboStep % actionCount;
-                    if (i == currentStep)
-                        slotBonuses.AddRange(character.Effects.PeekPendingActionBonusesNextHeroRoll());
+                    slotBonuses.AddRange(character.Effects.PeekPendingActionBonusesNextHeroRoll());
                 }
                 double damageModPercent = 0;
                 double speedModPercent = 0;
@@ -347,8 +348,7 @@ namespace RPGGame
             var actions = character.GetComboActions();
             int actionCount = actions?.Count ?? 0;
             if (actionCount > 0
-                && character.Effects.HasPendingActionCadenceBank()
-                && comboSlotIndex == (character.ComboStep % actionCount))
+                && character.Effects.SlotShowsActionCadenceBank(comboSlotIndex, character.ComboStep, actionCount))
             {
                 foreach (var b in character.Effects.PeekPendingActionBonusesNextHeroRoll())
                 {
@@ -361,7 +361,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Full swing readout for strip cards: <c>25 damage | 8.3s | amp: 1.00x</c> (or multihit <c>2x25 damage | …</c>).
+        /// Full swing readout for strip cards: <c>25 damage | 8.3s</c> (or multihit <c>2x25 damage | …</c>).
+        /// Combo amp is baked into the damage number; the separate amp label is omitted on cards.
         /// </summary>
         public static string FormatStripSwingLine(
             in ActionPanelInfo info,
@@ -370,14 +371,13 @@ namespace RPGGame
             ActionStripDamageLineMode mode,
             int comboSlotIndex = -1)
         {
-            GetStripSwingDisplayValues(in info, character, action, mode, out int damage, out double seconds);
-            double amp = GetStripSwingDisplayAmp(character, action, comboSlotIndex);
-            return $"{FormatSwingDamageLine(info.EffectiveMultiHitCount, damage)} | {FormatSwingSpeedLine(seconds)} | {FormatSwingAmpLine(amp)}";
+            GetStripSwingDisplayValues(in info, character, action, mode, out int damage, out double seconds, comboSlotIndex);
+            return $"{FormatSwingDamageLine(info.EffectiveMultiHitCount, damage)} | {FormatSwingSpeedLine(seconds)}";
         }
 
         /// <summary>
-        /// Full swing readout for hover tooltips: <c>Dmg 50% | Spd 100% | amp: 1.00x</c> (or multihit <c>2x50% damage | …</c>).
-        /// Uses the same base / effective+amp percents as strip cards.
+        /// Full swing readout for hover tooltips: <c>Dmg 50% | Spd 100%</c> (or multihit <c>2x50% damage | …</c>).
+        /// Amp is baked into Effective damage %; hover still shows a separate AMP calc line elsewhere.
         /// </summary>
         public static string FormatStripSwingPercentLine(
             in ActionPanelInfo info,
@@ -386,9 +386,8 @@ namespace RPGGame
             ActionStripDamageLineMode mode,
             int comboSlotIndex = -1)
         {
-            GetStripSwingDisplayPercents(in info, character, action, mode, out double damagePct, out double speedPct);
-            double amp = GetStripSwingDisplayAmp(character, action, comboSlotIndex);
-            return $"{FormatSwingDamagePercentLine(info.EffectiveMultiHitCount, damagePct)} | {FormatSwingSpeedPercentLine(speedPct)} | {FormatSwingAmpLine(amp)}";
+            GetStripSwingDisplayPercents(in info, character, action, mode, out double damagePct, out double speedPct, comboSlotIndex);
+            return $"{FormatSwingDamagePercentLine(info.EffectiveMultiHitCount, damagePct)} | {FormatSwingSpeedPercentLine(speedPct)}";
         }
 
         private static string GetThresholdText(Action action)
@@ -524,7 +523,7 @@ namespace RPGGame
 
         /// <summary>
         /// Pending ACTION cadence items for a strip card: per-slot queue plus the additive bank when
-        /// <paramref name="comboSlotIndex"/> is the current <see cref="Character.ComboStep"/>.
+        /// <paramref name="comboSlotIndex"/> is the sticky bank recipient (or ComboStep when unset).
         /// </summary>
         private static List<ActionAttackBonusItem> CollectPendingActionCadenceBonusesForStripSlot(
             Character? character,
@@ -539,8 +538,7 @@ namespace RPGGame
             var actions = character.GetComboActions();
             int actionCount = actions?.Count ?? 0;
             if (actionCount > 0
-                && character.Effects.HasPendingActionCadenceBank()
-                && comboSlotIndex == (character.ComboStep % actionCount))
+                && character.Effects.SlotShowsActionCadenceBank(comboSlotIndex, character.ComboStep, actionCount))
             {
                 result.AddRange(character.Effects.PeekPendingActionBonusesNextHeroRoll());
             }

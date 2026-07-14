@@ -59,7 +59,7 @@ namespace RPGGame.UI.Avalonia.Feedback
 
         /// <summary>
         /// True when this combo-strip slot currently has pending ACTION-cadence buffs applied to it
-        /// (per-slot queue, or the additive bank previewed on the current <see cref="Character.ComboStep"/>).
+        /// (per-slot queue, or the additive bank on its sticky preview slot — not live <see cref="Character.ComboStep"/>).
         /// Same peek basis as <see cref="CombatActionStripBuilder.BuildPanelData"/>.
         /// </summary>
         public static bool SlotHasPendingBonusCue(Character? character, int slotIndex)
@@ -77,7 +77,8 @@ namespace RPGGame.UI.Avalonia.Feedback
             if (actions == null || actions.Count == 0)
                 return false;
 
-            return slotIndex == (character.ComboStep % actions.Count);
+            int paintSlot = character.Effects.GetActionCadenceBankPaintSlot(character.ComboStep, actions.Count);
+            return slotIndex == paintSlot;
         }
 
         /// <summary>

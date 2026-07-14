@@ -36,10 +36,9 @@ namespace RPGGame
             double baseSpeedPct = action.Length > 0
                 ? ActionDisplayFormatter.CalculateActionSpeedPercentage(action)
                 : 0;
-            double amp = character != null
-                ? GetStripSwingDisplayAmp(character, action, panelIndex)
-                : 1.0;
-            return $"{FormatSwingDamagePercentLine(hits, baseDamagePct)} | {FormatSwingSpeedPercentLine(baseSpeedPct)} | {FormatSwingAmpLine(amp)}";
+            if (mode == ActionStripDamageLineMode.EffectiveWithComboAmp && character != null)
+                baseDamagePct *= GetStripSwingDisplayAmp(character, action, panelIndex);
+            return $"{FormatSwingDamagePercentLine(hits, baseDamagePct)} | {FormatSwingSpeedPercentLine(baseSpeedPct)}";
         }
 
         private static string FormatTooltipActionName(string? name)

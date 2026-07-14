@@ -78,11 +78,30 @@ namespace RPGGame.Actions.Execution
                         pendingActionRollBonuses.AddRange(slotBonuses);
                     }
                 }
-                var fifoPeeked = actionBonusCharacter.Effects.PeekPendingActionBonusesNextHeroRoll();
-                if (fifoPeeked.Count > 0)
+                // Additive bank sticks to PendingActionCadencePreviewSlot so miss→ComboStep=0
+                // does not redeem on the wrong strip action (e.g. Rapid Strike after failing Slam).
+                if (comboLength > 0)
                 {
-                    result.PendingActionCadenceLayerPeekedForRoll = true;
-                    pendingActionRollBonuses.AddRange(fifoPeeked);
+                    int currentSlotForBank = ActionUtilities.GetComboSlotForPendingBonuses(
+                        actionBonusCharacter, result.SelectedAction, comboActions);
+                    if (actionBonusCharacter.Effects.ShouldPeekActionCadenceBankForExecutedSlot(currentSlotForBank))
+                    {
+                        var fifoPeeked = actionBonusCharacter.Effects.PeekPendingActionBonusesNextHeroRoll();
+                        if (fifoPeeked.Count > 0)
+                        {
+                            result.PendingActionCadenceLayerPeekedForRoll = true;
+                            pendingActionRollBonuses.AddRange(fifoPeeked);
+                        }
+                    }
+                }
+                else
+                {
+                    var fifoPeeked = actionBonusCharacter.Effects.PeekPendingActionBonusesNextHeroRoll();
+                    if (fifoPeeked.Count > 0)
+                    {
+                        result.PendingActionCadenceLayerPeekedForRoll = true;
+                        pendingActionRollBonuses.AddRange(fifoPeeked);
+                    }
                 }
                 if (pendingActionRollBonuses.Count > 0)
                 {

@@ -59,6 +59,7 @@ namespace RPGGame.Tests.Unit
             LabTotalActionTicks_StepUndoSimAndFightReset(ref run, ref passed, ref failed);
             LabCatalogSyncShowsSecondSlotWhenComboStepOne(ref run, ref passed, ref failed);
             LabNudgeComboStepClampsStrip(ref run, ref passed, ref failed);
+            LabSequenceEdit_ResetsStripPositionToFirstSlot(ref run, ref passed, ref failed);
             AddSelectedCatalogToStripHelperAddsAction(ref run, ref passed, ref failed);
             AddSelectedCatalogToStrip_AppendsToEnd(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_StrArmorAndFloors(ref run, ref passed, ref failed);
@@ -1634,6 +1635,73 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(1, lab.LabPlayer.ComboStep % n, "Nudge +1 from last slot stays on last slot", ref run, ref passed, ref failed);
             lab.NudgeLabPlayerComboStep(-1);
             TestBase.AssertEqual(0, lab.LabPlayer.ComboStep % n, "Nudge -1 from last slot returns to first", ref run, ref passed, ref failed);
+
+            ActionInteractionLabSession.EndSession();
+        }
+
+        private static void LabSequenceEdit_ResetsStripPositionToFirstSlot(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var names = ActionLoader.GetAllActionNames();
+            if (names.Count < 2)
+            {
+                TestBase.AssertTrue(true, "LabSequenceEdit_ResetsStripPosition skipped (need 2+ actions)", ref run, ref passed, ref failed);
+                return;
+            }
+
+            names.Sort(StringComparer.OrdinalIgnoreCase);
+            var hero = TestDataBuilders.Character().WithName("LabStripReset").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "LabSequenceEdit_ResetsStripPosition: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            lab.LabPlayer.ActionLabActionSlotBonus = 8;
+            lab.IgnoreActionRequirements = true;
+            foreach (var a in lab.LabPlayer.GetComboActions().ToList())
+                lab.LabPlayer.RemoveFromCombo(a, ignoreWeaponRequirement: true);
+
+            lab.SelectedCatalogActionName = names[0];
+            lab.AddSelectedCatalogActionToComboStrip();
+            lab.SelectedCatalogActionName = names[1];
+            lab.AddSelectedCatalogActionToComboStrip();
+            int stripCount = lab.LabPlayer.GetComboActions().Count;
+            TestBase.AssertTrue(stripCount >= 2, $"LabSequenceEdit: strip has 2+ actions (got {stripCount})", ref run, ref passed, ref failed);
+            if (stripCount < 2)
+            {
+                ActionInteractionLabSession.EndSession();
+                return;
+            }
+
+            lab.LabPlayer.ComboStep = 1;
+            lab.SelectedCatalogActionName = names[0];
+            lab.AddSelectedCatalogActionToComboStrip();
+            TestBase.AssertEqual(0, lab.LabPlayer.ComboStep, "Add to sequence resets ComboStep to first slot", ref run, ref passed, ref failed);
+
+            lab.LabPlayer.ComboStep = 1;
+            var strip = lab.LabPlayer.GetComboActions();
+            Action? removeTarget = strip[strip.Count - 1];
+            TestBase.AssertTrue(
+                lab.TryRemoveFromLabCombo(removeTarget),
+                "TryRemoveFromLabCombo succeeds for removable strip action",
+                ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, lab.LabPlayer.ComboStep, "Remove from sequence resets ComboStep to first slot", ref run, ref passed, ref failed);
+
+            lab.LabPlayer.ComboStep = 1;
+            lab.ResetLabStripPositionToFirstSlot();
+            TestBase.AssertEqual(0, lab.LabPlayer.ComboStep, "ResetLabStripPositionToFirstSlot zeros ComboStep", ref run, ref passed, ref failed);
+            var stripAfter = lab.LabPlayer.GetComboActions();
+            if (stripAfter.Count > 0)
+            {
+                TestBase.AssertTrue(
+                    string.Equals(lab.SelectedCatalogActionName, stripAfter[0].Name, StringComparison.OrdinalIgnoreCase),
+                    "ResetLabStripPosition syncs catalog to first strip action",
+                    ref run, ref passed, ref failed);
+            }
 
             ActionInteractionLabSession.EndSession();
         }

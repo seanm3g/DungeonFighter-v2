@@ -155,7 +155,8 @@ namespace RPGGame.UI.Avalonia.Handlers
                 if (game.StateManager?.CurrentState == GameState.ActionInteractionLab
                     && ActionInteractionLabSession.Current is { } labSession)
                 {
-                    canvasUI.RenderCombat(labSession.LabPlayer, labSession.LabEnemy, new List<string>());
+                    // Sequence edit: always return the strip highlight to slot 1.
+                    labSession.ResetLabStripPositionToFirstSlot();
                 }
                 else
                 {

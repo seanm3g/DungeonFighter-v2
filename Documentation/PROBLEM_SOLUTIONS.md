@@ -4,12 +4,43 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Feature: Action Lab sequence edit resets strip to first slot (July 2026)
+**Goal:** After changing actions in the Action Lab combo sequence, the strip highlight / next-step pointer should return to slot 1 instead of keeping a mid-sequence `ComboStep`.
+
+**Solutions:**
+1. `ActionInteractionLabSession.ResetLabStripPositionToFirstSlot` sets `ComboStep = 0`, syncs the catalog pick, and refreshes UI
+2. Called from catalog add, `TryRemoveFromLabCombo`, and Action Lab strip drag-reorder completion
+3. Test: `LabSequenceEdit_ResetsStripPositionToFirstSlot`
+
+**Related files:** `ActionInteractionLabSession.LabSetup.cs`, `MouseInteractionHandler.cs`, `ActionInteractionLabTests.cs`
+
+### Bugfix: ACTION bank sticky on recipient after miss (July 2026)
+**Problem:** After Rapid Strike queued Multihit/`DAMAGE_MOD` onto Slam, a miss reset `ComboStep` to 0 and the strip/`2x`/cyan shimmer jumped to Rapid Strike even though the bank was still pending for Slam.
+
+**Solutions:**
+1. `PendingActionCadencePreviewSlot` records the intended recipient on bank deposit (`GetNextComboSlotForPendingBonuses`)
+2. Strip preview, shimmer, MH/AMP peeks paint the bank on that sticky slot (not live `ComboStep`)
+3. Combat Selection peeks/redeems the bank only when the executed action’s combo slot matches the sticky recipient
+4. Tests: `TestActionCadenceBankStaysOnRecipientAfterMiss`, `TestCueBankStaysOnStickySlotAfterComboStepReset`
+
+**Related files:** `CharacterEffectsState.cs`, `CombatActionStripBuilder.cs`, `ActionBonusBorderShimmer.cs`, `ActionExecutionFlow.Selection.cs`, `RollModificationManager.cs`
+
+### Feature: Strip cards bake amp into damage (no amp: label) (July 2026)
+**Goal:** Card swing lines no longer append `| amp: N.NNx`; Effective damage already includes TECH slot amp (and pending sheet `AMP_MOD`). Hover keeps `AMP: … = Pow(…)`. Combat-log amp footers unchanged.
+
+**Solutions:**
+1. `FormatStripSwingLine` / compact `%` line: damage | speed only
+2. `GetStripSwingDisplayPercents` Effective mode uses `GetStripSwingDisplayAmp` (slot TECH + pending AMP_MOD)
+3. Tests: `CombatActionStripBuilderTests` (no `amp:` on card; damage rises with amp)
+
+**Related files:** `CombatActionStripBuilder.cs`, `CombatActionStripBuilder.Tooltips.cs`
+
 ### Feature: Action strip shows AMP + calc on action info (July 2026)
 **Goal:** Slot amp was easy to miss when reading strip cards (only combat log footers showed `amp: 1.02x`), so second-slot damage looked unexplained vs the card number.
 
 **Solutions:**
-1. Strip swing line appends `amp: N.NNx` (combat-footer style) using `Pow(TECH baseline, strip index)` plus pending sheet `AMP_MOD` for that slot
-2. Hover tooltip repeats amp on the `%` swing line and adds `AMP: … = Pow(…)` (with sheet multiplier when pending)
+1. Strip Effective damage multiplies `Pow(TECH baseline, strip index)` plus pending sheet `AMP_MOD` (card no longer shows a separate `amp:` segment; hover still has AMP calc)
+2. Hover tooltip adds `AMP: … = Pow(…)` (with sheet multiplier when pending)
 3. Tests: `CombatActionStripBuilderTests` swing/tooltip amp assertions
 
 **Related files:** `CombatActionStripBuilder.cs`, `CombatActionStripBuilder.Tooltips.cs`, `DungeonRenderer.RoomAndCombat.cs`

@@ -327,7 +327,11 @@ namespace RPGGame.Actions.RollModification
                 }
                 else
                 {
-                    ch.Effects.AccumulatePendingActionCadenceBank(copy, layerCount);
+                    int? preview = null;
+                    var combo = ActionUtilities.GetComboActions(ch);
+                    if (combo != null && combo.Count > 0)
+                        preview = ActionUtilities.GetNextComboSlotForPendingBonuses(ch, action, combo);
+                    ch.Effects.AccumulatePendingActionCadenceBank(copy, layerCount, preview);
                 }
             }
 
@@ -414,7 +418,7 @@ namespace RPGGame.Actions.RollModification
 
         /// <summary>
         /// Pending ACTION <c>MULTIHIT_MOD</c> for strip / preview: slot queue for <paramref name="comboSlot"/>,
-        /// plus the additive bank when that slot is the current combo step.
+        /// plus the additive bank when that slot is the sticky bank recipient.
         /// </summary>
         public static double PeekPendingActionCadenceMultiHitMod(Character character, int comboSlot)
         {
@@ -430,16 +434,12 @@ namespace RPGGame.Actions.RollModification
 
             var comboActions = ActionUtilities.GetComboActions(character);
             int actionCount = comboActions?.Count ?? 0;
-            if (actionCount > 0 && character.Effects.HasPendingActionCadenceBank())
+            if (actionCount > 0 && character.Effects.SlotShowsActionCadenceBank(comboSlot, character.ComboStep, actionCount))
             {
-                int currentStep = character.ComboStep % actionCount;
-                if (comboSlot == currentStep)
+                foreach (var b in character.Effects.PeekPendingActionBonusesNextHeroRoll())
                 {
-                    foreach (var b in character.Effects.PeekPendingActionBonusesNextHeroRoll())
-                    {
-                        if (string.Equals(b.Type, "MULTIHIT_MOD", StringComparison.OrdinalIgnoreCase))
-                            sum += b.Value;
-                    }
+                    if (string.Equals(b.Type, "MULTIHIT_MOD", StringComparison.OrdinalIgnoreCase))
+                        sum += b.Value;
                 }
             }
 

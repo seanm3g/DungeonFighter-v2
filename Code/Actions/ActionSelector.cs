@@ -161,9 +161,17 @@ namespace RPGGame
                 int currentSlot = c.ComboStep % comboLength;
                 foreach (var bonus in c.Effects.GetPendingActionBonusesForSlot(currentSlot))
                     AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
+                if (c.Effects.SlotShowsActionCadenceBank(currentSlot, c.ComboStep, comboLength))
+                {
+                    foreach (var bonus in c.Effects.PeekPendingActionBonusesNextHeroRoll())
+                        AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
+                }
             }
-            foreach (var bonus in c.Effects.PeekPendingActionBonusesNextHeroRoll())
-                AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
+            else
+            {
+                foreach (var bonus in c.Effects.PeekPendingActionBonusesNextHeroRoll())
+                    AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
+            }
             foreach (var bonus in c.Effects.PeekTurnBonuses())
                 AccumulatePendingThresholdHudShift(bonus, ref acc, ref combo, ref hit, ref crit, ref critMiss);
             CadenceScopedBuffApplicator.AccumulateRollBonuses(c, ref acc, ref hit, ref combo, ref crit, ref critMiss);
@@ -221,13 +229,27 @@ namespace RPGGame
                         case "COMBO": effectComboBonus += (int)bonus.Value; break;
                     }
                 }
-            }
-            foreach (var bonus in c.Effects.PeekPendingActionBonusesNextHeroRoll())
-            {
-                switch ((bonus.Type ?? "").ToUpper())
+                if (c.Effects.SlotShowsActionCadenceBank(currentSlot, c.ComboStep, comboLength))
                 {
-                    case "ACCURACY": accuracyAccumulator += (int)bonus.Value; break;
-                    case "COMBO": effectComboBonus += (int)bonus.Value; break;
+                    foreach (var bonus in c.Effects.PeekPendingActionBonusesNextHeroRoll())
+                    {
+                        switch ((bonus.Type ?? "").ToUpper())
+                        {
+                            case "ACCURACY": accuracyAccumulator += (int)bonus.Value; break;
+                            case "COMBO": effectComboBonus += (int)bonus.Value; break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (var bonus in c.Effects.PeekPendingActionBonusesNextHeroRoll())
+                {
+                    switch ((bonus.Type ?? "").ToUpper())
+                    {
+                        case "ACCURACY": accuracyAccumulator += (int)bonus.Value; break;
+                        case "COMBO": effectComboBonus += (int)bonus.Value; break;
+                    }
                 }
             }
             foreach (var bonus in c.Effects.PeekTurnBonuses())
@@ -293,9 +315,17 @@ namespace RPGGame
                     : c.ComboStep % comboLength;
                 RollModificationManager.CollectAdvantageFlags(
                     c.Effects.GetPendingActionBonusesForSlot(currentSlot), ref advantage, ref disadvantage);
+                if (c.Effects.SlotShowsActionCadenceBank(currentSlot, c.ComboStep, comboLength))
+                {
+                    RollModificationManager.CollectAdvantageFlags(
+                        c.Effects.PeekPendingActionBonusesNextHeroRoll(), ref advantage, ref disadvantage);
+                }
             }
-            RollModificationManager.CollectAdvantageFlags(
-                c.Effects.PeekPendingActionBonusesNextHeroRoll(), ref advantage, ref disadvantage);
+            else
+            {
+                RollModificationManager.CollectAdvantageFlags(
+                    c.Effects.PeekPendingActionBonusesNextHeroRoll(), ref advantage, ref disadvantage);
+            }
             RollModificationManager.CollectAdvantageFlags(
                 c.Effects.PeekTurnBonuses(), ref advantage, ref disadvantage);
             CadenceScopedBuffApplicator.CollectAdvantageFlags(c, ref advantage, ref disadvantage);

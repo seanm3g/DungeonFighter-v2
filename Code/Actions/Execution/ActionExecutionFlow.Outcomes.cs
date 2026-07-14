@@ -122,6 +122,8 @@ namespace RPGGame.Actions.Execution
                     var comboActions = ActionUtilities.GetComboActions(bonusSourceCharacter);
                     if (comboActions.Count > 0)
                     {
+                        int previewSlot = ActionUtilities.GetNextComboSlotForPendingBonuses(
+                            bonusSourceCharacter, selected, comboActions);
                         foreach (var group in selected.ActionAttackBonuses.BonusGroups)
                         {
                             var ct = CadenceKeywords.NormalizeCadenceType(
@@ -131,7 +133,7 @@ namespace RPGGame.Actions.Execution
                             int layers = ActionCadenceDurationResolver.ResolveGrantedLayers(selected, group, comboActions, selected);
                             if (layers <= 0) continue;
                             var payload = CloneActionAttackBonusItems(group.Bonuses);
-                            bonusSourceCharacter.Effects.AccumulatePendingActionCadenceBank(payload, layers);
+                            bonusSourceCharacter.Effects.AccumulatePendingActionCadenceBank(payload, layers, previewSlot);
                         }
                     }
                 }
@@ -179,10 +181,14 @@ namespace RPGGame.Actions.Execution
                         }
                         else
                         {
+                            int? accPreview = null;
+                            var accCombo = ActionUtilities.GetComboActions(heroAcc);
+                            if (accCombo.Count > 0)
+                                accPreview = ActionUtilities.GetNextComboSlotForPendingBonuses(heroAcc, selected, accCombo);
                             heroAcc.Effects.AccumulatePendingActionCadenceBank(new List<ActionAttackBonusItem>
                             {
                                 new ActionAttackBonusItem { Type = "ACCURACY", Value = scaledRollBonus }
-                            }, accTurns);
+                            }, accTurns, accPreview);
                         }
                     }
                     else if (source is Enemy enemyAcc)
@@ -403,13 +409,19 @@ namespace RPGGame.Actions.Execution
                 return;
 
             var slotConsumed = new List<ActionAttackBonusItem>();
+            var bankConsumed = new List<ActionAttackBonusItem>();
             var comboActions = ActionUtilities.GetComboActions(hero);
             if (comboActions.Count > 0)
             {
                 int currentSlot = ActionUtilities.GetComboSlotForPendingBonuses(hero, selectedAction, comboActions);
                 slotConsumed = hero.Effects.ConsumePendingActionBonusesForSlot(currentSlot);
+                if (hero.Effects.ShouldPeekActionCadenceBankForExecutedSlot(currentSlot))
+                    bankConsumed = hero.Effects.ConsumePendingActionBonusesNextHeroRoll();
             }
-            var bankConsumed = hero.Effects.ConsumePendingActionBonusesNextHeroRoll();
+            else if (hero.Effects.ShouldPeekActionCadenceBankForExecutedSlot(0))
+            {
+                bankConsumed = hero.Effects.ConsumePendingActionBonusesNextHeroRoll();
+            }
 
             int duration = CadenceToStatBonusDuration(CadenceKeywords.Action);
             ApplyStatBonusesFromCadenceItems(hero, slotConsumed, duration);

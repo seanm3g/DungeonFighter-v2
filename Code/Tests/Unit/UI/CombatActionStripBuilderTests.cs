@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using RPGGame;
+using RPGGame.Actions;
 using RPGGame.Data;
 using RPGGame.Tests;
+using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame.Tests.Unit.UI
@@ -222,19 +224,17 @@ namespace RPGGame.Tests.Unit.UI
                 in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic, 0);
             TestBase.AssertTrue(
                 stripSwing.StartsWith($"2x{multiFlatDmg} damage | ", StringComparison.Ordinal)
-                && stripSwing.Contains(" | amp:", StringComparison.Ordinal)
-                && stripSwing.EndsWith("x", StringComparison.Ordinal),
-                "FormatStripSwingLine is NxN damage | seconds | amp: N.NNx",
+                && !stripSwing.Contains("amp:", StringComparison.Ordinal),
+                "FormatStripSwingLine is NxN damage | seconds (no amp label)",
                 ref run, ref passed, ref failed);
             CombatActionStripBuilder.GetStripSwingDisplayPercents(
                 in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic,
                 out double multiDmgPct, out double multiSpdPct);
-            double multiAmp = CombatActionStripBuilder.GetStripSwingDisplayAmp(charMultiHit, comboMulti[0], 0);
             string tipPercentSwing = CombatActionStripBuilder.FormatStripSwingPercentLine(
                 in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic, 0);
             TestBase.AssertTrue(
-                tipPercentSwing == $"2x{multiDmgPct:F0}% damage | Spd {multiSpdPct:F0}% | amp: {multiAmp:F2}x",
-                "FormatStripSwingPercentLine is NxN% damage | Spd N% | amp: N.NNx",
+                tipPercentSwing == $"2x{multiDmgPct:F0}% damage | Spd {multiSpdPct:F0}%",
+                "FormatStripSwingPercentLine is NxN% damage | Spd N%",
                 ref run, ref passed, ref failed);
             string ampCalcLine = CombatActionStripBuilder.FormatSwingAmpCalculationLine(charMultiHit, comboMulti[0], 0);
             TestBase.AssertTrue(
@@ -246,9 +246,9 @@ namespace RPGGame.Tests.Unit.UI
             string tipMultiJoined = tipMulti != null ? string.Join("\n", tipMulti) : "";
             TestBase.AssertTrue(tipMultiJoined.Contains($"2x{multiDmgPct:F0}% damage", StringComparison.Ordinal)
                 && tipMultiJoined.Contains($"Spd {multiSpdPct:F0}%", StringComparison.Ordinal)
-                && tipMultiJoined.Contains("amp:", StringComparison.Ordinal)
+                && !tipMultiJoined.Contains("amp:", StringComparison.Ordinal)
                 && tipMultiJoined.Contains("AMP:", StringComparison.Ordinal),
-                "BuildActionTooltipLines includes multihit % damage/speed, amp, and AMP calc",
+                "BuildActionTooltipLines includes multihit % damage/speed and AMP calc (no compact amp:)",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(!tipJoined.Contains("(Normal)", StringComparison.Ordinal),
                 "BuildActionTooltipLines omits speed flavor labels from action details",
@@ -406,12 +406,64 @@ namespace RPGGame.Tests.Unit.UI
 
             TestActionCadenceGrantLinesResetWhenPendingThenRedeemed(ref run, ref passed, ref failed);
             TestStripSwingShowsSlotAmpCalculation(ref run, ref passed, ref failed);
+            TestActionCadenceBankStaysOnRecipientAfterMiss(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("CombatActionStripBuilder Tests", run, passed, failed);
         }
 
         /// <summary>
-        /// Second combo slot shows TECH baseline^1 amp on the swing line and Pow() in the tooltip calc.
+        /// After Rapid Strike banks DAMAGE/MULTIHIT onto Slam, a miss that resets ComboStep must not
+        /// move the strip 2x / pending bank preview onto Rapid Strike.
+        /// </summary>
+        private static void TestActionCadenceBankStaysOnRecipientAfterMiss(ref int run, ref int passed, ref int failed)
+        {
+            var hero = CreateCharacterWithTwoComboActions();
+            hero.ComboStep = 1;
+            hero.Effects.AddPendingActionBonusesNextHeroRoll(
+                new List<ActionAttackBonusItem>
+                {
+                    new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = 100 },
+                    new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = 1 }
+                },
+                previewSlot: 1);
+
+            var panelsBefore = CombatActionStripBuilder.BuildPanelData(hero);
+            TestBase.AssertTrue(
+                panelsBefore.Count >= 2
+                && panelsBefore[1].DamageModified > panelsBefore[1].DamageBase
+                && panelsBefore[1].EffectiveMultiHitCount >= 2
+                && Math.Abs(panelsBefore[0].DamageModified - panelsBefore[0].DamageBase) < 0.01
+                && panelsBefore[0].EffectiveMultiHitCount == 1,
+                "Before miss: bank paints 2x/DAMAGE_MOD on Slam (slot 1), not Rapid Strike",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                ActionBonusBorderShimmer.SlotHasPendingBonusCue(hero, 1)
+                && !ActionBonusBorderShimmer.SlotHasPendingBonusCue(hero, 0),
+                "Before miss: shimmer cue on Slam only",
+                ref run, ref passed, ref failed);
+
+            hero.ComboStep = 0; // miss / combo-break reset
+            var panelsAfter = CombatActionStripBuilder.BuildPanelData(hero);
+            TestBase.AssertTrue(
+                panelsAfter.Count >= 2
+                && panelsAfter[1].DamageModified > panelsAfter[1].DamageBase
+                && panelsAfter[1].EffectiveMultiHitCount >= 2
+                && Math.Abs(panelsAfter[0].DamageModified - panelsAfter[0].DamageBase) < 0.01
+                && panelsAfter[0].EffectiveMultiHitCount == 1,
+                "After ComboStep=0: bank still on Slam, not moved to Rapid Strike",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                ActionBonusBorderShimmer.SlotHasPendingBonusCue(hero, 1)
+                && !ActionBonusBorderShimmer.SlotHasPendingBonusCue(hero, 0),
+                "After ComboStep=0: shimmer cue remains on Slam",
+                ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, hero.Effects.PendingActionCadencePreviewSlot,
+                "Sticky preview slot survives ComboStep reset",
+                ref run, ref passed, ref failed);
+        }
+
+        /// <summary>
+        /// Second combo slot bakes TECH baseline^1 amp into effective damage; hover keeps Pow() calc.
         /// </summary>
         private static void TestStripSwingShowsSlotAmpCalculation(ref int run, ref int passed, ref int failed)
         {
@@ -441,11 +493,18 @@ namespace RPGGame.Tests.Unit.UI
 
             var panels = CombatActionStripBuilder.BuildPanelData(hero);
             var slot1Info = panels[1];
+            CombatActionStripBuilder.GetStripSwingDisplayValues(
+                in slot1Info, hero, b, ActionStripDamageLineMode.EffectiveWithComboAmp,
+                out int effDmg, out _, 1);
+            CombatActionStripBuilder.GetStripSwingDisplayValues(
+                in slot1Info, hero, b, ActionStripDamageLineMode.BaseIntrinsic,
+                out int baseDmg, out _, 1);
             string swing1 = CombatActionStripBuilder.FormatStripSwingLine(
                 in slot1Info, hero, b, ActionStripDamageLineMode.EffectiveWithComboAmp, 1);
             TestBase.AssertTrue(
-                swing1.Contains($"amp: {slot1:F2}x", StringComparison.Ordinal),
-                "Second-slot strip swing line includes resolved amp",
+                !swing1.Contains("amp:", StringComparison.Ordinal)
+                && effDmg > baseDmg,
+                "Second-slot strip swing omits amp label but Effective damage includes slot amp",
                 ref run, ref passed, ref failed);
 
             string calc1 = CombatActionStripBuilder.FormatSwingAmpCalculationLine(hero, b, 1);
@@ -460,11 +519,15 @@ namespace RPGGame.Tests.Unit.UI
                 new ActionAttackBonusItem { Type = "AMP_MOD", Value = 10 }
             });
             double withSheet = CombatActionStripBuilder.GetStripSwingDisplayAmp(hero, b, 1);
+            CombatActionStripBuilder.GetStripSwingDisplayValues(
+                in slot1Info, hero, b, ActionStripDamageLineMode.EffectiveWithComboAmp,
+                out int withSheetDmg, out _, 1);
             string calcSheet = CombatActionStripBuilder.FormatSwingAmpCalculationLine(hero, b, 1);
             TestBase.AssertTrue(
                 withSheet > slot1 + 0.05
+                && withSheetDmg > effDmg
                 && calcSheet.Contains("sheet", StringComparison.Ordinal),
-                "Pending AMP_MOD folds into strip amp and calc line",
+                "Pending AMP_MOD folds into strip damage and calc line",
                 ref run, ref passed, ref failed);
         }
 

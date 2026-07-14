@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using RPGGame.Actions;
 using RPGGame.Data;
 
 namespace RPGGame.Combat
@@ -31,7 +32,13 @@ namespace RPGGame.Combat
                 bonuses.Add(new ActionAttackBonusItem { Type = "ACCURACY", Value = InsightAccuracy });
 
             if (bonuses.Count > 0)
-                character.Effects.AddPendingActionBonusesNextHeroRoll(bonuses);
+            {
+                var combo = character.GetComboActions();
+                int? preview = null;
+                if (combo != null && combo.Count > 0)
+                    preview = ActionUtilities.GetNextComboSlotForPendingBonuses(character, action, combo);
+                character.Effects.AddPendingActionBonusesNextHeroRoll(bonuses, preview);
+            }
         }
     }
 }

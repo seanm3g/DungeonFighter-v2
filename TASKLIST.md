@@ -4,6 +4,12 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **UI / Action Lab — sequence edit resets strip to slot 1:** Catalog add, strip right-click remove, and strip drag reorder call `ResetLabStripPositionToFirstSlot` (`ComboStep` = 0 + catalog sync). Tests: `ActionInteractionLabTests.LabSequenceEdit_ResetsStripPositionToFirstSlot`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
+
+- [x] **Bugfix / Action strip — bank sticky after miss:** ACTION cadence additive bank (`2x`/multihit/shimmer) sticks to the intended recipient strip slot via `PendingActionCadencePreviewSlot` so miss/`ComboStep=0` no longer rebinds cues to the first card. Combat peek gates the same sticky slot. Tests: `CombatActionStripBuilderTests`, `ActionBonusBorderShimmerTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
+
+- [x] **UI / Action strip — amp baked into damage (no card amp: label):** Strip cards and compact tooltip `%` swing lines show **`N damage | X.Ys`** (no `| amp:`); Effective mode multiplies TECH slot amp + pending sheet `AMP_MOD` into the damage number. Hover keeps separate `AMP: … = Pow(…)` calc. Combat log amp unchanged. Tests: `CombatActionStripBuilderTests`. Docs: `OVERVIEW.md`.
+
 - [x] **UI / Action strip — show AMP on action info:** Combo-strip cards and hover tooltips include the resolved swing amp (`amp: 1.02x`) and a short TECH-baseline calculation line so slot amp is visible alongside damage/speed (same value combat uses). Tests: `CombatActionStripBuilderTests`. Docs: `OVERVIEW.md`.
 
 - [x] **UI / Action strip — ACTION grant lines reset after resolve:** While ACTION bonuses are pending, authored `ACTION (Nx)` grant lines leave the grantor card and show as pending on the recipient; after hit+combo redeem, pending lines clear and grant lines return. Redeemeed `ConsumedMultiHitMod` clears at end of `Execute` and strip preview excludes Consumed* so Multihit/`2x` does not stick after Slam. Tests: `CombatActionStripBuilderTests` (reset), `MultiHitTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.

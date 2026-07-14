@@ -117,6 +117,11 @@ namespace RPGGame
         public List<ActionAttackBonusItem> PendingActionCadenceBonusBank { get; set; } = new List<ActionAttackBonusItem>();
         /// <summary>Number of deposit events stacked into <see cref="PendingActionCadenceBonusBank"/> (for HUD).</summary>
         public int PendingActionCadenceDepositCount { get; set; }
+        /// <summary>
+        /// Strip / combat recipient for the additive bank. Sticky across miss so bonuses do not rebind to
+        /// <see cref="ComboStep"/> after a failed attempt. <c>-1</c> when the bank is empty (or unset).
+        /// </summary>
+        public int PendingActionCadencePreviewSlot { get; set; } = -1;
         public double ConsumedDamageModPercent { get; set; }
         public double ConsumedSpeedModPercent { get; set; }
         public double ConsumedMultiHitMod { get; set; }
@@ -288,6 +293,7 @@ namespace RPGGame
             PendingActionBonusesBySlot.Clear();
             PendingActionCadenceBonusBank.Clear();
             PendingActionCadenceDepositCount = 0;
+            PendingActionCadencePreviewSlot = -1;
             ConsumedDamageModPercent = 0;
             ConsumedSpeedModPercent = 0;
             ConsumedMultiHitMod = 0;
@@ -316,28 +322,60 @@ namespace RPGGame
             PendingActionBonusesBySlot.Clear();
             PendingActionCadenceBonusBank.Clear();
             PendingActionCadenceDepositCount = 0;
+            PendingActionCadencePreviewSlot = -1;
         }
 
         /// <summary>Adds ACTION cadence bonuses to the additive bank (one deposit).</summary>
-        public void AddPendingActionBonusesNextHeroRoll(List<ActionAttackBonusItem>? bonuses) =>
-            AccumulatePendingActionCadenceBank(bonuses, 1);
+        public void AddPendingActionBonusesNextHeroRoll(List<ActionAttackBonusItem>? bonuses, int? previewSlot = null) =>
+            AccumulatePendingActionCadenceBank(bonuses, 1, previewSlot);
 
         /// <summary>Legacy name: one additive deposit.</summary>
-        public void EnqueuePendingActionCadenceLayer(List<ActionAttackBonusItem>? bonuses) =>
-            AccumulatePendingActionCadenceBank(bonuses, 1);
+        public void EnqueuePendingActionCadenceLayer(List<ActionAttackBonusItem>? bonuses, int? previewSlot = null) =>
+            AccumulatePendingActionCadenceBank(bonuses, 1, previewSlot);
 
         /// <summary>
         /// Merges bonuses into the ACTION bank. <paramref name="stackTimes"/> multiplies each value
         /// (spreadsheet duration on a single grant).
+        /// When <paramref name="previewSlot"/> is set, sticks strip/combat attribution to that combo index
+        /// so miss resetting <see cref="ComboStep"/> does not move the bank to another card.
         /// </summary>
-        public void AccumulatePendingActionCadenceBank(List<ActionAttackBonusItem>? bonuses, int stackTimes = 1)
+        public void AccumulatePendingActionCadenceBank(List<ActionAttackBonusItem>? bonuses, int stackTimes = 1, int? previewSlot = null)
         {
             if (bonuses == null || bonuses.Count == 0 || stackTimes < 1) return;
             ActionCadenceBonusBank.MergeAdditively(PendingActionCadenceBonusBank, bonuses, stackTimes);
             PendingActionCadenceDepositCount += stackTimes;
+            if (previewSlot.HasValue && previewSlot.Value >= 0)
+                PendingActionCadencePreviewSlot = previewSlot.Value;
         }
 
         public bool HasPendingActionCadenceBank() => PendingActionCadenceBonusBank.Count > 0;
+
+        /// <summary>
+        /// Combo-strip index that should show/apply the additive bank.
+        /// Falls back to <paramref name="comboStepFallback"/> when no sticky slot was recorded.
+        /// </summary>
+        public int GetActionCadenceBankPaintSlot(int comboStepFallback, int actionCount)
+        {
+            if (actionCount <= 0)
+                return 0;
+            if (PendingActionCadencePreviewSlot >= 0)
+                return PendingActionCadencePreviewSlot % actionCount;
+            return ((comboStepFallback % actionCount) + actionCount) % actionCount;
+        }
+
+        /// <summary>
+        /// Strip / MH / amp preview: bank paints on the sticky recipient (or ComboStep when unset).
+        /// </summary>
+        public bool SlotShowsActionCadenceBank(int comboSlot, int comboStepFallback, int actionCount) =>
+            HasPendingActionCadenceBank()
+            && comboSlot == GetActionCadenceBankPaintSlot(comboStepFallback, actionCount);
+
+        /// <summary>
+        /// Combat roll peek: sticky slot must match the executed action; unset sticky keeps legacy next-roll peek.
+        /// </summary>
+        public bool ShouldPeekActionCadenceBankForExecutedSlot(int comboSlot) =>
+            HasPendingActionCadenceBank()
+            && (PendingActionCadencePreviewSlot < 0 || PendingActionCadencePreviewSlot == comboSlot);
 
         /// <summary>Peek the full additive ACTION bank (roll help until hit+combo redeems; miss keeps pending).</summary>
         public List<ActionAttackBonusItem> PeekPendingActionBonusesNextHeroRoll() =>
@@ -359,6 +397,7 @@ namespace RPGGame
             var result = ActionCadenceBonusBank.Copy(PendingActionCadenceBonusBank);
             PendingActionCadenceBonusBank.Clear();
             PendingActionCadenceDepositCount = 0;
+            PendingActionCadencePreviewSlot = -1;
             return result;
         }
         public void SetConsumedTurnBonusesThisRoll(List<ActionAttackBonusItem> bonuses) { ConsumedTurnBonusesThisRoll = bonuses ?? new List<ActionAttackBonusItem>(); }

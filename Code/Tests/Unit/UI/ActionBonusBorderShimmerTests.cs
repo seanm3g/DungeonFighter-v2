@@ -22,6 +22,7 @@ namespace RPGGame.Tests.Unit.UI
             TestCueRequiresPendingBuffNotGrantingAction(ref run, ref passed, ref failed);
             TestCueTrueForSlotQueuedBuff(ref run, ref passed, ref failed);
             TestCueTrueForBankOnCurrentStepOnly(ref run, ref passed, ref failed);
+            TestCueBankStaysOnStickySlotAfterComboStepReset(ref run, ref passed, ref failed);
             TestCueFalseWhenNoPending(ref run, ref passed, ref failed);
             TestBorderColorLerpsUnselected(ref run, ref passed, ref failed);
             TestSelectedBorderUsesWhiteEnd(ref run, ref passed, ref failed);
@@ -105,7 +106,7 @@ namespace RPGGame.Tests.Unit.UI
             hero.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
             {
                 new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = 25 }
-            });
+            }, previewSlot: 1);
 
             TestBase.AssertTrue(
                 ActionBonusBorderShimmer.SlotHasPendingBonusCue(hero, 1),
@@ -114,6 +115,26 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(
                 !ActionBonusBorderShimmer.SlotHasPendingBonusCue(hero, 0),
                 "Cue false on non-current step while bank applies to current only",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void TestCueBankStaysOnStickySlotAfterComboStepReset(ref int run, ref int passed, ref int failed)
+        {
+            var hero = CreateHeroWithTwoComboSlots(out _);
+            hero.ComboStep = 1;
+            hero.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
+            {
+                new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = 25 }
+            }, previewSlot: 1);
+            hero.ComboStep = 0;
+
+            TestBase.AssertTrue(
+                ActionBonusBorderShimmer.SlotHasPendingBonusCue(hero, 1),
+                "After miss ComboStep reset, cue stays on sticky recipient slot",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                !ActionBonusBorderShimmer.SlotHasPendingBonusCue(hero, 0),
+                "After miss ComboStep reset, cue does not move to slot 0",
                 ref run, ref passed, ref failed);
         }
 

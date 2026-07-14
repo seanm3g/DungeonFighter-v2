@@ -127,9 +127,26 @@ namespace RPGGame.ActionInteractionLab
 
         /// <summary>
         /// Removes an action from the lab hero combo strip, honoring <see cref="IgnoreActionRequirements"/>.
+        /// On success, resets the strip pointer to the first slot (same as add/reorder).
         /// </summary>
-        public bool TryRemoveFromLabCombo(Action action) =>
-            _labPlayer.RemoveFromCombo(action, ignoreWeaponRequirement: IgnoreActionRequirements);
+        public bool TryRemoveFromLabCombo(Action action)
+        {
+            if (!_labPlayer.RemoveFromCombo(action, ignoreWeaponRequirement: IgnoreActionRequirements))
+                return false;
+            ResetLabStripPositionToFirstSlot();
+            return true;
+        }
+
+        /// <summary>
+        /// After the lab hero combo sequence changes (add / remove / reorder), move the strip pointer back to slot 1
+        /// (<see cref="Character.ComboStep"/> = 0) and sync the catalog pick to that slot.
+        /// </summary>
+        public void ResetLabStripPositionToFirstSlot()
+        {
+            _labPlayer.ComboStep = 0;
+            SyncCatalogSelectionToUpcomingActor();
+            _refreshCombatUi();
+        }
 
         /// <summary>
         /// Same as <see cref="TryApplyLabGear"/> but throws <see cref="InvalidOperationException"/> when requirements block equip.
@@ -334,7 +351,10 @@ namespace RPGGame.ActionInteractionLab
             _refreshCombatUi();
         }
 
-        /// <summary>Adds the current <see cref="SelectedCatalogActionName"/> to the lab hero combo strip (combo-eligible).</summary>
+        /// <summary>
+        /// Adds the current <see cref="SelectedCatalogActionName"/> to the lab hero combo strip (combo-eligible).
+        /// Resets the strip pointer to the first slot after a successful add.
+        /// </summary>
         public void AddSelectedCatalogActionToComboStrip()
         {
             if (string.IsNullOrWhiteSpace(SelectedCatalogActionName)) return;
@@ -350,8 +370,7 @@ namespace RPGGame.ActionInteractionLab
             int nextSlot = existing.Count > 0 ? existing.Max(a => a.ComboOrder) + 1 : 1;
             action.ComboOrder = nextSlot;
             _labPlayer.AddToCombo(action);
-            SyncCatalogSelectionToUpcomingActor();
-            _refreshCombatUi();
+            ResetLabStripPositionToFirstSlot();
         }
 
         /// <summary>

@@ -147,10 +147,24 @@ namespace RPGGame
         public List<ActionAttackBonusItem> GetPendingActionBonusesForSlot(int slot) => _state.GetPendingActionBonusesForSlot(slot);
         public IEnumerable<int> GetPendingActionBonusSlots() => _state.GetPendingActionBonusSlots();
         public void ClearPendingActionBonuses() => _state.ClearPendingActionBonuses();
-        public void AddPendingActionBonusesNextHeroRoll(List<ActionAttackBonusItem>? bonuses) => _state.AddPendingActionBonusesNextHeroRoll(bonuses);
-        public void AccumulatePendingActionCadenceBank(List<ActionAttackBonusItem>? bonuses, int stackTimes = 1) => _state.AccumulatePendingActionCadenceBank(bonuses, stackTimes);
-        public void EnqueuePendingActionCadenceLayer(List<ActionAttackBonusItem>? bonuses) => _state.EnqueuePendingActionCadenceLayer(bonuses);
+        public int PendingActionCadencePreviewSlot
+        {
+            get => _state.PendingActionCadencePreviewSlot;
+            set => _state.PendingActionCadencePreviewSlot = value;
+        }
+        public void AddPendingActionBonusesNextHeroRoll(List<ActionAttackBonusItem>? bonuses, int? previewSlot = null) =>
+            _state.AddPendingActionBonusesNextHeroRoll(bonuses, previewSlot);
+        public void AccumulatePendingActionCadenceBank(List<ActionAttackBonusItem>? bonuses, int stackTimes = 1, int? previewSlot = null) =>
+            _state.AccumulatePendingActionCadenceBank(bonuses, stackTimes, previewSlot);
+        public void EnqueuePendingActionCadenceLayer(List<ActionAttackBonusItem>? bonuses, int? previewSlot = null) =>
+            _state.EnqueuePendingActionCadenceLayer(bonuses, previewSlot);
         public bool HasPendingActionCadenceBank() => _state.HasPendingActionCadenceBank();
+        public int GetActionCadenceBankPaintSlot(int comboStepFallback, int actionCount) =>
+            _state.GetActionCadenceBankPaintSlot(comboStepFallback, actionCount);
+        public bool SlotShowsActionCadenceBank(int comboSlot, int comboStepFallback, int actionCount) =>
+            _state.SlotShowsActionCadenceBank(comboSlot, comboStepFallback, actionCount);
+        public bool ShouldPeekActionCadenceBankForExecutedSlot(int comboSlot) =>
+            _state.ShouldPeekActionCadenceBankForExecutedSlot(comboSlot);
         public int GetPendingActionCadenceLayerCount() => _state.GetPendingActionCadenceLayerCount();
         public List<ActionAttackBonusItem> PeekPendingActionBonusesNextHeroRoll() => _state.PeekPendingActionBonusesNextHeroRoll();
         public List<ActionAttackBonusItem> PeekPendingActionCadenceLayerAt(int layerIndex) => _state.PeekPendingActionCadenceLayerAt(layerIndex);
