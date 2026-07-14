@@ -92,15 +92,32 @@ namespace RPGGame.ActionInteractionLab
         /// <summary>Catalog action name for the next Step (full list from <see cref="ActionLoader"/>).</summary>
         public string SelectedCatalogActionName { get; set; } = "";
 
-        /// <summary>Chosen natural d20 (1–20) used when <see cref="UseRandomD20PerStep"/> is false.</summary>
+        /// <summary>Chosen natural d20 (1–20) used when neither random nor seeded mode is active.</summary>
         public int SelectedD20 { get; set; } = 16;
 
-        /// <summary>When true, each Step uses a fresh random 1–20; when false, <see cref="SelectedD20"/> is used.</summary>
+        /// <summary>When true, each Step uses a fresh random 1–20 (unless <see cref="UseSeededD20"/>).</summary>
         public bool UseRandomD20PerStep { get; set; }
 
-        /// <summary>Returns the d20 value for the next Step (random or fixed per <see cref="UseRandomD20PerStep"/>).</summary>
-        public int ResolveD20ForNextStep() =>
-            UseRandomD20PerStep ? Random.Shared.Next(1, 21) : SelectedD20;
+        /// <summary>When true, each Step draws the next value from a rewindable seeded RNG stream.</summary>
+        public bool UseSeededD20 { get; set; }
+
+        /// <summary>Seed for the Action Lab Seed d20 stream (rewound on Reset / room enter).</summary>
+        public int D20SequenceSeed { get; set; } = 42;
+
+        private Random _seededD20Rng = new(42);
+
+        /// <summary>Restarts the seeded d20 stream from <see cref="D20SequenceSeed"/>.</summary>
+        public void RewindSeededD20Stream() => _seededD20Rng = new Random(D20SequenceSeed);
+
+        /// <summary>Returns the d20 value for the next Step (seeded / random / fixed).</summary>
+        public int ResolveD20ForNextStep()
+        {
+            if (UseSeededD20)
+                return _seededD20Rng.Next(1, 21);
+            if (UseRandomD20PerStep)
+                return Random.Shared.Next(1, 21);
+            return SelectedD20;
+        }
 
         /// <summary>Monotonic token bumped when undo/reset/history wipe invalidates in-flight Step requests.</summary>
         public int InputEpoch => _inputEpoch;
@@ -148,7 +165,8 @@ namespace RPGGame.ActionInteractionLab
             ICanvasContextManager? canvasContext = null,
             System.Action? prepareLabHistoryReplay = null,
             Func<LabCombatLogSnapshot?>? captureLabCombatLog = null,
-            Action<LabCombatLogSnapshot?>? restoreLabCombatLog = null)
+            Action<LabCombatLogSnapshot?>? restoreLabCombatLog = null,
+            IReadOnlyList<string>? comboStripActionNames = null)
         {
             EndSession();
 
@@ -157,6 +175,8 @@ namespace RPGGame.ActionInteractionLab
             string json = serializer.Serialize(activePlayer);
             var data = serializer.Deserialize(json) ?? throw new InvalidOperationException("Lab: failed to deserialize character clone payload.");
             var labPlayer = serializer.CreateCharacterFromSaveData(data);
+            if (comboStripActionNames != null && comboStripActionNames.Count > 0)
+                LabCombatEntityFactory.ReapplyComboStrip(labPlayer, comboStripActionNames, preferActionPool: true);
 
             var labEnemy = TestCharacterFactory.CreateTestEnemy(LabCombatSnapshot.DefaultTestEnemyBattleConfig, 0, level: 1);
             var labRoom = TestCharacterFactory.CreateTestEnvironment();
@@ -174,6 +194,9 @@ namespace RPGGame.ActionInteractionLab
                 session.SelectedCatalogActionName = names[0];
             session.SelectedD20 = 16;
             session.UseRandomD20PerStep = false;
+            session.UseSeededD20 = false;
+            session.D20SequenceSeed = 42;
+            session.RewindSeededD20Stream();
             session.CatalogScrollOffset = 0;
             session.EnemyCatalogScrollOffset = 0;
             TryBeginWithDefaultCatalogEnemy(session);
@@ -190,6 +213,32 @@ namespace RPGGame.ActionInteractionLab
             session.SyncCatalogSelectionToUpcomingActor();
             refreshCombatUi();
             return session;
+        }
+
+        /// <summary>
+        /// Starts a session from an on-disk lab character snapshot (stats/gear JSON + combo strip).
+        /// </summary>
+        public static ActionInteractionLabSession BeginFromSnapshot(
+            CharacterLabSnapshotData snapshot,
+            CombatManager combatManager,
+            System.Action refreshCombatUi,
+            ICanvasContextManager? canvasContext = null,
+            System.Action? prepareLabHistoryReplay = null,
+            Func<LabCombatLogSnapshot?>? captureLabCombatLog = null,
+            Action<LabCombatLogSnapshot?>? restoreLabCombatLog = null)
+        {
+            if (snapshot == null)
+                throw new ArgumentNullException(nameof(snapshot));
+            var hero = CharacterLabSnapshotService.CreateCharacter(snapshot);
+            return Begin(
+                hero,
+                combatManager,
+                refreshCombatUi,
+                canvasContext,
+                prepareLabHistoryReplay,
+                captureLabCombatLog,
+                restoreLabCombatLog,
+                snapshot.ComboStripActionNames);
         }
 
         /// <summary>
@@ -308,6 +357,8 @@ namespace RPGGame.ActionInteractionLab
         {
             ClearStepHistoryAndSnapshots();
             ResetSimulatedCombatTurnAccumulator();
+            if (UseSeededD20)
+                RewindSeededD20Stream();
             PrepareLabCenterPanelAndRestoreCombatLogAlignment();
 
             _labPlayer.Facade.ClearAllTempEffects();

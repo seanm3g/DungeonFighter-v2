@@ -94,6 +94,12 @@ namespace RPGGame.Tests.Unit
             TestCharacterFactory_DirectEnemy_ScalesByLevel(ref run, ref passed, ref failed);
             DirectStatEnemy_GetEffectiveStrengthUsesDamage(ref run, ref passed, ref failed);
             DirectStatEnemy_CombatLogSpeedMatchesPanelSeconds(ref run, ref passed, ref failed);
+            CharacterLabSnapshot_RoundTripIncludesGearAndStrip(ref run, ref passed, ref failed);
+            LoadCharacterSnapshot_ReplacesLabHeroBaseline(ref run, ref passed, ref failed);
+            SeededDungeonGenerate_IsDeterministic(ref run, ref passed, ref failed);
+            SetLabDungeonSeed_UpdatesSessionSeed(ref run, ref passed, ref failed);
+            SeededD20_RepeatsSequenceAfterReset(ref run, ref passed, ref failed);
+            DungeonSim_SingleRunCompletes(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ActionInteractionLabTests", run, passed, failed);
         }
@@ -189,10 +195,13 @@ namespace RPGGame.Tests.Unit
             types.Sort(StringComparer.OrdinalIgnoreCase);
             int idx = types.FindIndex(t => string.Equals(t, snap.SessionEnemyLoaderType, StringComparison.OrdinalIgnoreCase));
             TestBase.AssertTrue(idx >= 0, "Selected type in sorted list", ref run, ref passed, ref failed);
-            int maxScroll = Math.Max(0, types.Count - ActionInteractionLabSession.EnemyCatalogVisibleRowCount);
+            int visible = lab.LastEnemyCatalogVisibleRowCount > 0
+                ? lab.LastEnemyCatalogVisibleRowCount
+                : ActionInteractionLabSession.EnemyCatalogVisibleRowCount;
+            int maxScroll = Math.Max(0, types.Count - visible);
             TestBase.AssertTrue(lab.EnemyCatalogScrollOffset >= 0 && lab.EnemyCatalogScrollOffset <= maxScroll, "Enemy scroll offset clamped", ref run, ref passed, ref failed);
             TestBase.AssertTrue(
-                lab.EnemyCatalogScrollOffset <= idx && idx < lab.EnemyCatalogScrollOffset + ActionInteractionLabSession.EnemyCatalogVisibleRowCount,
+                lab.EnemyCatalogScrollOffset <= idx && idx < lab.EnemyCatalogScrollOffset + visible,
                 "Selected enemy row is in visible scroll window",
                 ref run, ref passed, ref failed);
 
@@ -294,7 +303,8 @@ namespace RPGGame.Tests.Unit
                 return;
             }
 
-            int visible = ActionInteractionLabSession.EnemyCatalogVisibleRowCount;
+            lab.LastEnemyCatalogVisibleRowCount = 10;
+            int visible = 10;
             int maxScroll = Math.Max(0, enemyTypes.Count - visible);
             lab.EnemyCatalogScrollOffset = 0;
             ActionLabInputCoordinator.ApplyEnemyCatalogScrollOffsetDelta(lab, -5, null);
@@ -2222,6 +2232,183 @@ namespace RPGGame.Tests.Unit
 
             Dice.ClearTestRoll();
             ActionSelector.ClearStoredRolls();
+        }
+
+        private static void CharacterLabSnapshot_RoundTripIncludesGearAndStrip(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            string snapName = "UnitTest_LabSnap_" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            try
+            {
+                var hero = TestDataBuilders.Character().WithName("SnapHero").WithLevel(5).Build();
+                var names = ActionLoader.GetAllActionNames();
+                names.Sort(StringComparer.OrdinalIgnoreCase);
+                if (names.Count == 0)
+                {
+                    TestBase.AssertTrue(false, "Need actions for snapshot strip test", ref run, ref passed, ref failed);
+                    return;
+                }
+
+                var act = ActionLoader.GetAction(names[0]);
+                if (act != null)
+                {
+                    act.IsComboAction = true;
+                    hero.AddToCombo(act);
+                }
+
+                CharacterLabSnapshotService.SaveFromCharacter(hero, snapName, overwrite: true);
+                var loaded = CharacterLabSnapshotService.Load(snapName);
+                TestBase.AssertTrue(loaded != null, "Snapshot loads from disk", ref run, ref passed, ref failed);
+                TestBase.AssertTrue(loaded!.ComboStripActionNames.Count > 0, "Snapshot stores combo strip", ref run, ref passed, ref failed);
+                var restored = CharacterLabSnapshotService.CreateCharacter(loaded);
+                TestBase.AssertEqual(5, restored.Level, "Snapshot restores level", ref run, ref passed, ref failed);
+                TestBase.AssertTrue(
+                    restored.GetComboActions().Select(a => a.Name).SequenceEqual(loaded.ComboStripActionNames),
+                    "Snapshot restores strip names",
+                    ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                CharacterLabSnapshotService.Delete(snapName);
+            }
+        }
+
+        private static void LoadCharacterSnapshot_ReplacesLabHeroBaseline(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            string snapName = "UnitTest_LabLoad_" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            CombatManager? cm = null;
+            try
+            {
+                var donor = TestDataBuilders.Character().WithName("Donor").WithLevel(7).Build();
+                CharacterLabSnapshotService.SaveFromCharacter(donor, snapName, overwrite: true);
+                var data = CharacterLabSnapshotService.Load(snapName)!;
+
+                var starter = TestDataBuilders.Character().WithName("Starter").WithLevel(1).Build();
+                cm = new CombatManager();
+                ActionInteractionLabSession.Begin(starter, cm, () => { }, null);
+                var lab = ActionInteractionLabSession.Current!;
+                lab.LoadCharacterSnapshot(data);
+                TestBase.AssertEqual(7, lab.LabPlayer.Level, "Load snapshot replaces lab hero level", ref run, ref passed, ref failed);
+                TestBase.AssertTrue(
+                    string.Equals(lab.LabPlayer.Name, "Donor", StringComparison.Ordinal),
+                    "Load snapshot replaces lab hero name",
+                    ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                ActionInteractionLabSession.EndSession();
+                CharacterLabSnapshotService.Delete(snapName);
+            }
+        }
+
+        private static void SeededDungeonGenerate_IsDeterministic(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            EnemyLoader.LoadEnemies();
+            const int seed = 424242;
+            var names = ActionLabDungeonFactory.ListCatalogDungeonNames();
+            string key = names.Count > 0 ? names[0] : "Forest";
+            var a = ActionLabDungeonFactory.Generate(key, dungeonLevel: 3, seed: seed);
+            var b = ActionLabDungeonFactory.Generate(key, dungeonLevel: 3, seed: seed);
+            TestBase.AssertEqual(a.Dungeon.Rooms.Count, b.Dungeon.Rooms.Count, "Same seed → same room count", ref run, ref passed, ref failed);
+            for (int i = 0; i < a.Dungeon.Rooms.Count && i < b.Dungeon.Rooms.Count; i++)
+            {
+                TestBase.AssertEqual(a.Dungeon.Rooms[i].Name, b.Dungeon.Rooms[i].Name, $"Room {i} name match", ref run, ref passed, ref failed);
+                var ea = a.Dungeon.Rooms[i].GetEnemies();
+                var eb = b.Dungeon.Rooms[i].GetEnemies();
+                TestBase.AssertEqual(ea.Count, eb.Count, $"Room {i} enemy count", ref run, ref passed, ref failed);
+                for (int j = 0; j < ea.Count && j < eb.Count; j++)
+                {
+                    TestBase.AssertEqual(ea[j].Name, eb[j].Name, $"Room {i} enemy {j} name", ref run, ref passed, ref failed);
+                    TestBase.AssertEqual(ea[j].Level, eb[j].Level, $"Room {i} enemy {j} level", ref run, ref passed, ref failed);
+                }
+            }
+        }
+
+        private static void SetLabDungeonSeed_UpdatesSessionSeed(ref int run, ref int passed, ref int failed)
+        {
+            try
+            {
+                var hero = TestDataBuilders.Character().WithName("SeedHero").WithLevel(1).Build();
+                var cm = new CombatManager();
+                ActionInteractionLabSession.Begin(hero, cm, () => { }, null);
+                var lab = ActionInteractionLabSession.Current!;
+                lab.SetLabDungeonSeed(987654321);
+                TestBase.AssertEqual(987654321, lab.LabDungeonSeed, "SetLabDungeonSeed stores typed seed", ref run, ref passed, ref failed);
+                lab.SetLabDungeonSeed(-42);
+                TestBase.AssertEqual(-42, lab.LabDungeonSeed, "SetLabDungeonSeed accepts negative ints", ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                ActionInteractionLabSession.EndSession();
+            }
+        }
+
+        private static void SeededD20_RepeatsSequenceAfterReset(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var hero = TestDataBuilders.Character().WithName("SeedD20").Build();
+            var cm = new CombatManager();
+            try
+            {
+                ActionInteractionLabSession.Begin(hero, cm, () => { }, null);
+                var lab = ActionInteractionLabSession.Current!;
+                lab.UseSeededD20 = true;
+                lab.UseRandomD20PerStep = false;
+                lab.D20SequenceSeed = 99;
+                lab.RewindSeededD20Stream();
+                var first = new List<int>();
+                for (int i = 0; i < 5; i++)
+                    first.Add(lab.ResolveD20ForNextStep());
+                lab.RewindSeededD20Stream();
+                var second = new List<int>();
+                for (int i = 0; i < 5; i++)
+                    second.Add(lab.ResolveD20ForNextStep());
+                TestBase.AssertTrue(first.SequenceEqual(second), "Seeded d20 rewinds to same sequence", ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                ActionInteractionLabSession.EndSession();
+            }
+        }
+
+        private static void DungeonSim_SingleRunCompletes(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            EnemyLoader.LoadEnemies();
+            var hero = TestDataBuilders.Character().WithName("DungSim").WithLevel(5).Build();
+            var names = ActionLoader.GetAllActionNames();
+            names.Sort(StringComparer.OrdinalIgnoreCase);
+            string pick = names.FirstOrDefault(n =>
+            {
+                var a = ActionLoader.GetAction(n);
+                return a != null && a.IsComboAction;
+            }) ?? (names.Count > 0 ? names[0] : "");
+            if (string.IsNullOrEmpty(pick))
+            {
+                TestBase.AssertTrue(false, "Need a catalog action for dungeon sim", ref run, ref passed, ref failed);
+                return;
+            }
+
+            var act = ActionLoader.GetAction(pick)!;
+            act.IsComboAction = true;
+            hero.AddToCombo(act);
+            var serializer = new CharacterSerializer();
+            string json = serializer.Serialize(hero);
+            var snapshot = new LabCombatSnapshot(
+                json, 0, 0, 0, 0, 0, 0, 0, null, 1,
+                hero.GetComboActions().Select(a => a.Name).ToList(),
+                pick);
+            var catalog = ActionLabDungeonFactory.ListCatalogDungeonNames();
+            string key = catalog.Count > 0 ? catalog[0] : "Forest";
+            var report = ActionLabDungeonSimulator.RunBatchAsync(
+                snapshot, key, dungeonLevel: 2, baseSeed: 777, runCount: 1, varySeedPerRun: false, maxDegreeOfParallelism: 1)
+                .GetAwaiter().GetResult();
+            TestBase.AssertEqual(1, report.Runs.Count, "Dungeon sim produces one run", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(string.IsNullOrEmpty(report.Runs[0].ErrorMessage),
+                "Dungeon sim run has no error: " + (report.Runs[0].ErrorMessage ?? ""),
+                ref run, ref passed, ref failed);
         }
     }
 }

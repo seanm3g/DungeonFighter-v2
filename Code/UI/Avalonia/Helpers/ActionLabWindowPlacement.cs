@@ -49,9 +49,14 @@ namespace RPGGame.UI.Avalonia.Helpers
             Math.Max(1, (int)Math.Ceiling(w.Height * Math.Max(1.0, w.RenderScaling)));
 
         /// <summary>
-        /// Applies desktop layout after both windows exist (call from UI thread after first layout).
+        /// Applies desktop layout after lab windows exist (call from UI thread after first layout).
+        /// Centers the main game window, right-docks tools, places the catalog immediately left of tools,
+        /// and tucks Settings to the left on the same monitor when open.
         /// </summary>
-        public static void ApplyActionLabOpenMultiWindowLayout(Window mainGameWindow, Window actionLabControlsWindow)
+        public static void ApplyActionLabOpenMultiWindowLayout(
+            Window mainGameWindow,
+            Window actionLabControlsWindow,
+            Window? actionLabCatalogWindow = null)
         {
             var screens = mainGameWindow.Screens;
             if (screens == null)
@@ -73,6 +78,18 @@ namespace RPGGame.UI.Avalonia.Helpers
                 GetWindowPixelWidth(actionLabControlsWindow),
                 GetWindowPixelHeight(actionLabControlsWindow),
                 EdgeMarginPixels);
+
+            if (actionLabCatalogWindow != null)
+            {
+                int catalogW = GetWindowPixelWidth(actionLabCatalogWindow);
+                int catalogH = GetWindowPixelHeight(actionLabCatalogWindow);
+                int toolsX = actionLabControlsWindow.Position.X;
+                int x = toolsX - catalogW - EdgeMarginPixels;
+                if (x < wa.X)
+                    x = wa.X;
+                int y = wa.Y + Math.Max(0, (wa.Height - catalogH) / 2);
+                actionLabCatalogWindow.Position = new PixelPoint(x, y);
+            }
 
             if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
                 return;

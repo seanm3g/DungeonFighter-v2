@@ -11,21 +11,24 @@ namespace RPGGame.ActionInteractionLab
         public int EnemyCatalogScrollOffset { get; set; }
 
         /// <summary>
-        /// Visible enemy-type rows between ▲/▼ in the Action Lab tools panel.
-        /// Keep in sync with <see cref="RPGGame.UI.Avalonia.ActionInteractionLab.ActionLabControlsRenderer"/> layout.
+        /// Fallback visible enemy-type rows when the catalog window has not rendered yet (scroll math).
+        /// Live row count comes from <see cref="LastEnemyCatalogVisibleRowCount"/> after layout.
         /// </summary>
-        public const int EnemyCatalogVisibleRowCount = 5;
+        public const int EnemyCatalogVisibleRowCount = 10;
 
         /// <summary>Fallback visible catalog rows when layout has not rendered yet (scroll math).</summary>
         public const int LabCatalogVisibleNameRows = 4;
 
-        /// <summary>Set each frame by <see cref="RPGGame.UI.Avalonia.ActionInteractionLab.ActionLabControlsRenderer"/>; rows shown between ▲/▼.</summary>
+        /// <summary>Set each frame by the catalog renderer; action rows shown between ▲/▼.</summary>
         public int LastCatalogVisibleRowCount { get; set; }
 
-        /// <summary>Inclusive grid X bounds for wheel-scrolling the action catalog in the tools panel; <c>-1</c> when unset.</summary>
+        /// <summary>Set each frame by the catalog renderer; foe-type rows shown between ▲/▼.</summary>
+        public int LastEnemyCatalogVisibleRowCount { get; set; }
+
+        /// <summary>Inclusive grid X bounds for wheel-scrolling the action catalog in the catalog window; <c>-1</c> when unset.</summary>
         public int LastCatalogWheelMinGridX { get; set; } = -1;
 
-        /// <summary>Inclusive grid X bounds for wheel-scrolling the action catalog in the tools panel; <c>-1</c> when unset.</summary>
+        /// <summary>Inclusive grid X bounds for wheel-scrolling the action catalog in the catalog window; <c>-1</c> when unset.</summary>
         public int LastCatalogWheelMaxGridX { get; set; } = -1;
 
         /// <summary>Inclusive grid Y bounds (▲ more through ▼ more) for wheel-scrolling the catalog; <c>-1</c> when unset.</summary>
@@ -34,10 +37,10 @@ namespace RPGGame.ActionInteractionLab
         /// <summary>Inclusive grid Y bounds for wheel-scrolling the catalog; <c>-1</c> when unset.</summary>
         public int LastCatalogWheelMaxGridY { get; set; } = -1;
 
-        /// <summary>Inclusive grid X bounds for wheel-scrolling the enemy type list in the tools panel; <c>-1</c> when unset.</summary>
+        /// <summary>Inclusive grid X bounds for wheel-scrolling the enemy type list in the catalog window; <c>-1</c> when unset.</summary>
         public int LastEnemyCatalogWheelMinGridX { get; set; } = -1;
 
-        /// <summary>Inclusive grid X bounds for wheel-scrolling the enemy type list in the tools panel; <c>-1</c> when unset.</summary>
+        /// <summary>Inclusive grid X bounds for wheel-scrolling the enemy type list in the catalog window; <c>-1</c> when unset.</summary>
         public int LastEnemyCatalogWheelMaxGridX { get; set; } = -1;
 
         /// <summary>Inclusive grid Y bounds (▲ types through ▼ types) for wheel-scrolling the enemy list; <c>-1</c> when unset.</summary>
@@ -48,6 +51,18 @@ namespace RPGGame.ActionInteractionLab
 
         /// <summary>Batch size for Action Lab encounter simulation (wheel over the sim row steps 1 / 10 / 100 / 1000, clamped at ends).</summary>
         public int EncounterSimulationBatchCount { get; set; } = ActionLabEncounterSimulator.DefaultBatchEncounterCount;
+
+        /// <summary>Visible snapshot rows in the tools panel list.</summary>
+        public const int SnapshotListVisibleRowCount = 3;
+
+        /// <summary>First visible index into <see cref="CharacterLabSnapshotService.ListNames"/>.</summary>
+        public int SnapshotScrollOffset { get; set; }
+
+        /// <summary>Currently highlighted snapshot display name (for Load).</summary>
+        public string? SelectedSnapshotName { get; set; }
+
+        /// <summary>Status line shown under the Snapshots block (load/save feedback).</summary>
+        public string SnapshotStatusMessage { get; set; } = "";
 
         /// <summary>
         /// When true, batch encounter simulation uses parallel workers (<c>maxDegreeOfParallelism: -1</c> in <see cref="ActionLabEncounterSimulator.RunBatchAsync"/>).

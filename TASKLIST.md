@@ -4,6 +4,18 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **UI / Action Lab — typed dungeon seed:** Click cyan `[seed]` beside Δlvl to type an integer (replaces `[seed+]`); `SetLabDungeonSeed`. Docs: `OVERVIEW.md`. Verify: `dotnet run -- --run-test-filter ActionInteractionLab`.
+
+- [x] **UI / Action Lab — foes list fills catalog height:** Enemy type picker in `ActionLabCatalogWindow` uses remaining column height (same as the actions column) instead of a fixed 10-row cap; scroll uses `LastEnemyCatalogVisibleRowCount`. Docs: `OVERVIEW.md`. Verify: `dotnet run -- --run-test-filter ActionInteractionLab`.
+
+- [x] **UI / Action Lab — tools panel section spacing:** Blank row between Snapshots / Dungeon / turn / d20; footer flows under d20 pad (no bottom pin / middle dead space). `ActionLabControlsRenderer`. Docs: `OVERVIEW.md`. Verify: `dotnet build`.
+
+- [x] **UI / Action Lab — foes + actions in secondary window:** Keep Snapshots / Dungeon / turn / d20 / Step-Sim footer in the tools window; move foe type list + action catalog into `ActionLabCatalogWindow`. Open/refresh/close with tools; placement left of tools. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`. Verify: `dotnet build`.
+
+- [x] **UI / Action Lab — two-column tools layout:** Widen tools aux grid (~72×54) and default window (~920×960); left column = Snapshots / Dungeon / Foe / turn / d20; right column = action catalog; full-width footer for Step/Sim/Exit. Keep existing click tokens and wheel hit boxes. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`. Verify: `dotnet build` on `Code/Code.csproj`.
+
+- [x] **Feature / Action Lab — character snapshots + seeded dungeon tooling:** Named `GameData/LabSnapshots/` presets (stats/gear/combo strip) from Inventory + Settings → Testing; lab Load; seeded `Dungeon.Generate` + room-by-room Step play; Seed d20 mode; **[ Dungeon Sim N ]** batch reports; wider tools window. Tests: `ActionInteractionLabTests` snapshot/seed/dungeon cases. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
+
 - [x] **Bug fix / Multihit shortfall on kill:** Multihit stopped summing ticks when the target hit 0 HP, so logs like `(4 hits) for 45` under-counted vs `(attack − armor) × N` (e.g. 88). Always resolve every planned tick; overkill clamps HP. Tests: `MultiHitTests.TestMultiHitFullDamageWhenTargetDiesMidSwing`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
 
 - [x] **UI / Combat log — attack/armor footer clarity:** Roll detail `attack 23 - 1 armor` looked arbitrary next to multihit totals. Format as `attack: X - Y armor = Z` (and `× N` when multihit) via `DamageFormatter.AddAttackVsArmor` / `RollInfoFormatter` / plain `CombatResults`. Tests: `DamageFormatterTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`, `COMBAT_LOG_SPACING_STANDARD.md`.

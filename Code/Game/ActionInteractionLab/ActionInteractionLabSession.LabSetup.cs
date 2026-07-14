@@ -55,7 +55,10 @@ namespace RPGGame.ActionInteractionLab
             session._sessionEnemyLoaderType = pick;
             session._labEnemyBaseLevel = 1;
             session._labPanelEnemyLevelDelta = 0;
-            int maxScroll = Math.Max(0, enemyTypes.Count - EnemyCatalogVisibleRowCount);
+            int visible = session.LastEnemyCatalogVisibleRowCount > 0
+                ? session.LastEnemyCatalogVisibleRowCount
+                : EnemyCatalogVisibleRowCount;
+            int maxScroll = Math.Max(0, enemyTypes.Count - visible);
             session.EnemyCatalogScrollOffset = Math.Clamp(pickIdx, 0, maxScroll);
         }
 
@@ -155,6 +158,46 @@ namespace RPGGame.ActionInteractionLab
         {
             if (!TryApplyLabGear(item, slot, out var err))
                 throw new InvalidOperationException(err ?? "Cannot equip item in Action Lab.");
+        }
+
+        /// <summary>
+        /// Replaces the lab hero with an on-disk character snapshot (stats/gear + combo strip), clears panel deltas
+        /// and step history, and re-bases the undo JSON. Enemy and dungeon room scenario state are left unchanged.
+        /// </summary>
+        public void LoadCharacterSnapshot(CharacterLabSnapshotData snapshot)
+        {
+            if (snapshot == null)
+                throw new ArgumentNullException(nameof(snapshot));
+
+            var hero = CharacterLabSnapshotService.CreateCharacter(snapshot);
+            _labPlayer = hero;
+            var serializer = new CharacterSerializer();
+            _initialPlayerJson = serializer.Serialize(_labPlayer);
+            ClearStepHistoryAndSnapshots();
+            ResetSimulatedCombatTurnAccumulator();
+            ResetLabPanelDeltas();
+            BootstrapCombatState();
+            ReapplyLabHeroComboStrip(snapshot.ComboStripActionNames ?? new List<string>());
+            SyncCatalogSelectionToUpcomingActor();
+            SyncLabEnemyToCanvasContext();
+            if (_restoreTarget != null)
+                ApplyLabToCanvasContext(_restoreTarget);
+            _refreshCombatUi();
+        }
+
+        /// <summary>Loads a named snapshot from <c>GameData/LabSnapshots/</c>.</summary>
+        public bool TryLoadCharacterSnapshotByName(string displayName, out string? error)
+        {
+            error = null;
+            var data = CharacterLabSnapshotService.Load(displayName);
+            if (data == null)
+            {
+                error = $"Snapshot not found: {displayName}";
+                return false;
+            }
+
+            LoadCharacterSnapshot(data);
+            return true;
         }
 
         /// <summary>

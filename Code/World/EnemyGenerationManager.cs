@@ -16,17 +16,20 @@ namespace RPGGame
         private readonly string theme;
         private readonly bool isHostile;
         private readonly IReadOnlyList<RoomEnemyData>? roomEnemySpawnPool;
-        private readonly Random random;
+        private Random random;
         private List<Enemy> enemies;
 
-        public EnemyGenerationManager(string theme, bool isHostile, IReadOnlyList<RoomEnemyData>? roomEnemySpawnPool = null)
+        public EnemyGenerationManager(string theme, bool isHostile, IReadOnlyList<RoomEnemyData>? roomEnemySpawnPool = null, Random? random = null)
         {
             this.theme = theme;
             this.isHostile = isHostile;
             this.roomEnemySpawnPool = roomEnemySpawnPool;
-            this.random = new Random();
+            this.random = random ?? new Random();
             this.enemies = new List<Enemy>();
         }
+
+        /// <summary>Replaces the RNG used for subsequent <see cref="GenerateEnemies"/> calls (seeded dungeon generation).</summary>
+        public void SetRandom(Random rng) => random = rng ?? throw new ArgumentNullException(nameof(rng));
 
         /// <summary>
         /// Gets all enemies in this environment.

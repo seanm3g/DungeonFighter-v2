@@ -3,8 +3,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
-using Avalonia.Threading;
-using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Helpers;
 using RPGGame.UI.Avalonia.Managers;
@@ -12,23 +10,22 @@ using RPGGame.UI.Avalonia.Managers;
 namespace RPGGame.UI.Avalonia.ActionInteractionLab
 {
     /// <summary>
-    /// Pop-out window for Action Lab session tools (snapshots, dungeon, d20, step/sim).
-    /// Foe types and the action catalog open in <see cref="ActionLabCatalogWindow"/>.
+    /// Pop-out for Action Lab foe type picker and action catalog.
+    /// Opened alongside <see cref="ActionLabControlsWindow"/>; closing this alone does not exit the lab.
     /// </summary>
-    public sealed class ActionLabControlsWindow : Window
+    public sealed class ActionLabCatalogWindow : Window
     {
-        private static ActionLabControlsWindow? _instance;
+        private static ActionLabCatalogWindow? _instance;
 
         private readonly GameCanvasControl _canvas;
         private readonly CanvasInteractionManager _interaction = new();
         private CanvasUICoordinator? _canvasUi;
-        private GameCoordinator? _game;
+        private GameCoordinator? _game; // kept for same HandleLabControlAsync signature as tools window
 
-        private ActionLabControlsWindow()
+        private ActionLabCatalogWindow()
         {
-            Title = "Action Lab — tools";
-            // Single-column tools: snapshots / dungeon / turn / d20 / footer.
-            _canvas = new GameCanvasControl(isAuxiliaryLayoutCanvas: true, auxiliaryGridWidth: 38, auxiliaryGridHeight: 44);
+            Title = "Action Lab — foes & actions";
+            _canvas = new GameCanvasControl(isAuxiliaryLayoutCanvas: true, auxiliaryGridWidth: 72, auxiliaryGridHeight: 48);
             _canvas.Focusable = true;
             _canvas.PointerPressed += OnCanvasPointerPressed;
             _canvas.PointerMoved += OnCanvasPointerMoved;
@@ -42,73 +39,35 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 Child = _canvas,
             };
 
-            Width = 480;
-            Height = 820;
-            WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            Width = 720;
+            Height = 880;
+            WindowStartupLocation = WindowStartupLocation.Manual;
             CanResize = true;
-            MinWidth = 360;
+            MinWidth = 480;
             MinHeight = 480;
 
             Closed += OnClosed;
-            KeyDown += OnKeyDown;
         }
 
         public static void Open(Window? owner, CanvasUICoordinator canvasUi, GameCoordinator game)
         {
             CloseIfOpen();
-            var w = new ActionLabControlsWindow
+            var w = new ActionLabCatalogWindow
             {
                 _canvasUi = canvasUi,
                 _game = game,
             };
             _instance = w;
             var effectiveOwner = WindowOwnerResolver.ResolveUsableOwnerWindow(owner);
-
-            ActionLabCatalogWindow.Open(effectiveOwner ?? owner, canvasUi, game);
-
             if (effectiveOwner != null)
-            {
-                w.WindowStartupLocation = WindowStartupLocation.Manual;
-                EventHandler? layoutOnce = null;
-                layoutOnce = (_, _) =>
-                {
-                    w.Opened -= layoutOnce!;
-                    Dispatcher.UIThread.Post(
-                        () =>
-                        {
-                            try
-                            {
-                                ActionLabWindowPlacement.ApplyActionLabOpenMultiWindowLayout(
-                                    effectiveOwner,
-                                    w,
-                                    ActionLabCatalogWindow.CurrentInstance);
-                            }
-                            catch
-                            {
-                                /* best-effort layout */
-                            }
-                        },
-                        DispatcherPriority.Loaded);
-                };
-                w.Opened += layoutOnce;
                 w.Show(effectiveOwner);
-            }
             else
-            {
-                w.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 w.Show();
-            }
-
             w.RefreshFromSession();
-            ActionLabCatalogWindow.RefreshIfOpen();
         }
-
-        /// <summary>Open tools pop-out, if any (dialog owner for lab prompts).</summary>
-        public static ActionLabControlsWindow? CurrentInstance => _instance;
 
         public static void CloseIfOpen()
         {
-            ActionLabCatalogWindow.CloseIfOpen();
             if (_instance == null)
                 return;
             var w = _instance;
@@ -126,32 +85,27 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
         public static void RefreshIfOpen()
         {
             _instance?.RefreshFromSession();
-            ActionLabCatalogWindow.RefreshIfOpen();
         }
+
+        public static Window? CurrentInstance => _instance;
 
         private void OnClosed(object? sender, EventArgs e)
         {
             if (ReferenceEquals(_instance, this))
                 _instance = null;
-            // Closing tools while ExitActionInteractionLab is already tearing down would double-close.
-            // Still exit the lab when the user closes the tools window directly.
-            ActionLabCatalogWindow.CloseIfOpen();
-            if (_game?.StateManager?.CurrentState == GameState.ActionInteractionLab)
-                _game.ExitActionInteractionLab();
-        }
-
-        private async void OnKeyDown(object? sender, KeyEventArgs e)
-        {
-            if (e.Key != Key.PageUp && e.Key != Key.PageDown)
-                return;
-
-            string? input = e.Key == Key.PageUp ? "pageup" : "pagedown";
-            string? labToken = ActionLabInputCoordinator.MapPageStepInput(input);
-            if (labToken == null)
-                return;
-
-            e.Handled = true;
-            await ActionLabInputCoordinator.HandleLabControlAsync(labToken, _canvasUi, _game).ConfigureAwait(true);
+            // Clearing catalog wheel hit boxes so the tools window cannot mis-route wheel events.
+            var session = ActionInteractionLabSession.Current;
+            if (session != null)
+            {
+                session.LastCatalogWheelMinGridX = -1;
+                session.LastCatalogWheelMaxGridX = -1;
+                session.LastCatalogWheelMinGridY = -1;
+                session.LastCatalogWheelMaxGridY = -1;
+                session.LastEnemyCatalogWheelMinGridX = -1;
+                session.LastEnemyCatalogWheelMaxGridX = -1;
+                session.LastEnemyCatalogWheelMinGridY = -1;
+                session.LastEnemyCatalogWheelMaxGridY = -1;
+            }
         }
 
         private void OnCanvasPointerReleased(object? sender, PointerReleasedEventArgs e)
@@ -174,7 +128,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
 
             _canvas.Clear();
             _interaction.ClearClickableElements();
-            ActionLabControlsRenderer.Render(_canvas, _interaction, session);
+            ActionLabCatalogRenderer.Render(_canvas, _interaction, session);
             _canvas.Refresh();
         }
 
@@ -194,15 +148,28 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             var pt = e.GetCurrentPoint(_canvas);
             var g = ScreenToGrid(pt.Position);
 
-            if (!session.IsEncounterSimulationRunning
-                && session.LastSimBatchWheelGridY >= 0
-                && g.Y == session.LastSimBatchWheelGridY
-                && g.X >= session.LastSimBatchWheelMinGridX
-                && g.X <= session.LastSimBatchWheelMaxGridX)
+            var delta = e.Delta.Y;
+            if (Math.Abs(delta) < 0.1) return;
+
+            int steps = Math.Max(1, (int)(Math.Abs(delta) / 50.0));
+            if (steps > 30) steps = 30;
+            int signed = delta > 0 ? -steps : steps;
+
+            if (session.LastEnemyCatalogWheelMinGridY >= 0 && session.LastEnemyCatalogWheelMinGridX >= 0
+                && g.X >= session.LastEnemyCatalogWheelMinGridX && g.X <= session.LastEnemyCatalogWheelMaxGridX
+                && g.Y >= session.LastEnemyCatalogWheelMinGridY && g.Y <= session.LastEnemyCatalogWheelMaxGridY)
             {
-                ActionLabInputCoordinator.ApplyEncounterSimulationBatchWheel(session, e.Delta.Y, _canvasUi);
+                ActionLabInputCoordinator.ApplyEnemyCatalogScrollOffsetDelta(session, signed, _canvasUi);
                 e.Handled = true;
+                return;
             }
+
+            if (session.LastCatalogWheelMinGridY < 0 || session.LastCatalogWheelMinGridX < 0) return;
+            if (g.X < session.LastCatalogWheelMinGridX || g.X > session.LastCatalogWheelMaxGridX) return;
+            if (g.Y < session.LastCatalogWheelMinGridY || g.Y > session.LastCatalogWheelMaxGridY) return;
+
+            ActionLabInputCoordinator.ApplyCatalogScrollOffsetDelta(session, signed, _canvasUi);
+            e.Handled = true;
         }
 
         private void OnCanvasPointerPressed(object? sender, PointerPressedEventArgs e)

@@ -4,6 +4,46 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### UI: Action Lab foes list fills catalog height (July 2026)
+**Problem:** The foes column in the Action Lab catalog window stopped after a fixed 10 type rows while the actions column filled down to the window bottom, leaving empty space under the enemy list.
+
+**Solutions:**
+1. `ActionLabCatalogRenderer.RenderFoeColumn` sizes type rows from remaining panel height (`panelBottom - y - 1`), matching the actions column
+2. Scroll clamp / wheel use `LastEnemyCatalogVisibleRowCount` (fallback `EnemyCatalogVisibleRowCount` before first paint)
+
+**Related files:** `ActionLabCatalogRenderer.cs`, `ActionInteractionLabSession.UiState.cs`, `ActionLabInputCoordinator.cs`
+
+### UI: Action Lab foes + actions secondary window (July 2026)
+**Problem:** Even after a two-column tools layout, foe types and the long action catalog still crowded the session tools (snapshots, dungeon, d20, Step/Sim).
+
+**Solutions:**
+1. New `ActionLabCatalogWindow` + `ActionLabCatalogRenderer` (foes left, actions right)
+2. Tools window keeps only Snapshots / Dungeon / turn / d20 / footer; opens/refreshes/closes the catalog with it
+3. Placement docks catalog immediately left of right-anchored tools; closing catalog alone does not exit the lab
+
+**Related files:** `ActionLabCatalogWindow.cs`, `ActionLabCatalogRenderer.cs`, `ActionLabControlsWindow.cs`, `ActionLabControlsRenderer.cs`, `ActionLabWindowPlacement.cs`
+
+### UI: Action Lab two-column tools layout (July 2026)
+**Problem:** The Action Lab tools pop-out stacked Snapshots, Dungeon, foe types, turn/d20, and the long action catalog in one narrow column, producing a tall unreadable checklist.
+
+**Solutions:**
+1. Widen aux canvas to ~72×54 and default window ~920×960
+2. Left column = setup/state (snapshots, dungeon, foe, turn, d20); right = action catalog; full-width footer for Step/Sim/Exit
+3. Preserve existing click tokens and session wheel hit-box ranges so input/coordinator stays unchanged
+
+**Related files:** `ActionLabControlsRenderer.cs`, `ActionLabControlsWindow.cs`
+
+### Feature: Action Lab character snapshots + seeded dungeon tooling (July 2026)
+**Problem:** Real characters could not be copied into the Action Lab with gear/strip for replaying dungeon layouts; dungeon generation was unseeded and lab d20 was only fixed or free-random.
+
+**Solutions:**
+1. `CharacterLabSnapshotService` writes `GameData/LabSnapshots/*.json` (character JSON + combo strip); Inventory **5** and Settings → Testing manage/load
+2. `Dungeon(..., generationSeed)` + `RoomGenerator`/`EnemyGenerationManager` RNG plumbing; `ActionLabDungeonFactory` for lab Gen
+3. Lab **Seed** d20 stream (`UseSeededD20` / `D20SequenceSeed`) rewound on Reset/room enter; room nav + `ActionLabDungeonSimulator` for batch clears
+4. Tests: snapshot round-trip, deterministic generate, seeded d20, dungeon sim smoke
+
+**Related files:** `CharacterLabSnapshotService.cs`, `ActionLabDungeonFactory.cs`, `ActionLabDungeonSimulator.cs`, `ActionInteractionLabSession*.cs`, `Dungeon.cs`, `RoomGenerator.cs`
+
 ### Bugfix: Multihit under-counted when target died mid-swing (July 2026)
 **Problem:** Slam (or any Multihit) could log `(4 hits) for 45 damage` while a healthy target got the correct product (e.g. `(23 − 1) × 4 = 88`). Early-exit in `MultiHitProcessor` / `AttackActionExecutor` stopped remaining ticks at 0 HP, so the planned hit count and totaled damage diverged.
 

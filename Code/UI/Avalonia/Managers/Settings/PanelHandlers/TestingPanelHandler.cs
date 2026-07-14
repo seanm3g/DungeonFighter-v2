@@ -11,6 +11,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using RPGGame.ActionInteractionLab;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Resources;
@@ -47,8 +48,57 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
             WireUpTestButtons(testingPanel);
             WireUpActionLabButton(testingPanel);
+            WireUpLabSnapshotsUi(testingPanel);
             WireUpBalanceWorkbenchButton(testingPanel);
             WireUpScriptsSubsection(testingPanel);
+        }
+
+        private void WireUpLabSnapshotsUi(TestingSettingsPanel panel)
+        {
+            if (canvasUI == null) return;
+            var list = panel.FindControl<ListBox>("LabSnapshotsListBox");
+            var refresh = panel.FindControl<Button>("RefreshLabSnapshotsButton");
+            var load = panel.FindControl<Button>("LoadLabSnapshotButton");
+            var delete = panel.FindControl<Button>("DeleteLabSnapshotButton");
+
+            void ReloadList()
+            {
+                if (list == null) return;
+                list.ItemsSource = CharacterLabSnapshotService.ListNames();
+            }
+
+            ReloadList();
+            if (refresh != null)
+                refresh.Click += (_, _) => ReloadList();
+            if (load != null)
+            {
+                load.Click += async (_, _) =>
+                {
+                    string? name = list?.SelectedItem as string;
+                    if (string.IsNullOrWhiteSpace(name))
+                        return;
+                    var game = canvasUI.GetGame();
+                    if (game == null) return;
+                    canvasUI.GetMainWindow()?.Activate();
+                    await game.StartActionInteractionLabFromSnapshotAsync(canvasUI, name).ConfigureAwait(true);
+                };
+            }
+
+            if (delete != null)
+            {
+                delete.Click += async (_, _) =>
+                {
+                    string? name = list?.SelectedItem as string;
+                    if (string.IsNullOrWhiteSpace(name))
+                        return;
+                    var owner = (panel.GetVisualRoot() as Window) ?? canvasUI.GetMainWindow();
+                    bool ok = await ConfirmationDialog.ShowAsync(owner, "Delete snapshot?", $"Delete lab snapshot \"{name}\"?")
+                        .ConfigureAwait(true);
+                    if (!ok) return;
+                    CharacterLabSnapshotService.Delete(name);
+                    ReloadList();
+                };
+            }
         }
 
         private void WireUpBalanceWorkbenchButton(TestingSettingsPanel panel)

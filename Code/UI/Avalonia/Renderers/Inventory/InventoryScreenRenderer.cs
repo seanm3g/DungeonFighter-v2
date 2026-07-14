@@ -313,9 +313,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             var unequipButton = InventoryButtonFactory.CreateButton(x + 32, y, 28, 1, "2", MenuOptionFormatter.Format(2, UIConstants.MenuOptions.UnequipItem), Prefix + "menu:unequip");
             var discardButton = InventoryButtonFactory.CreateButton(x + 2, y + 1, 28, 1, "3", MenuOptionFormatter.Format(3, UIConstants.MenuOptions.DiscardItem), Prefix + "menu:discard");
             var tradeUpButton = InventoryButtonFactory.CreateButton(x + 32, y + 1, 28, 1, "4", MenuOptionFormatter.Format(4, UIConstants.MenuOptions.TradeUpItems), Prefix + "menu:tradeup");
-            var exitButton = InventoryButtonFactory.CreateButton(x + 2, y + 2, 28, 1, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.ReturnToGameMenu), Prefix + "menu:exit");
+            var snapshotButton = InventoryButtonFactory.CreateButton(x + 2, y + 2, 40, 1, "5", MenuOptionFormatter.Format(5, UIConstants.MenuOptions.SnapshotForActionLab), Prefix + "menu:snapshot");
+            var exitButton = InventoryButtonFactory.CreateButton(x + 2, y + 3, 28, 1, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.ReturnToGameMenu), Prefix + "menu:exit");
             
-            clickableElements.AddRange(new[] { equipButton, unequipButton, discardButton, tradeUpButton, exitButton });
+            clickableElements.AddRange(new[] { equipButton, unequipButton, discardButton, tradeUpButton, snapshotButton, exitButton });
             
             canvas.AddMenuOption(x + 2, y, 1, UIConstants.MenuOptions.EquipItem, AsciiArtAssets.Colors.White, equipButton.IsHovered);
             canvas.AddMenuOption(x + 32, y, 2, UIConstants.MenuOptions.UnequipItem, AsciiArtAssets.Colors.White, unequipButton.IsHovered);
@@ -323,13 +324,15 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             canvas.AddMenuOption(x + 2, y + 1, 3, UIConstants.MenuOptions.DiscardItem, AsciiArtAssets.Colors.White, discardButton.IsHovered);
             canvas.AddMenuOption(x + 32, y + 1, 4, UIConstants.MenuOptions.TradeUpItems, AsciiArtAssets.Colors.White, tradeUpButton.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(x + 2, y + 2, 0, UIConstants.MenuOptions.ReturnToGameMenu, AsciiArtAssets.Colors.White, exitButton.IsHovered);
+            canvas.AddMenuOption(x + 2, y + 2, 5, UIConstants.MenuOptions.SnapshotForActionLab, AsciiArtAssets.Colors.White, snapshotButton.IsHovered);
+            currentLineCount++;
+            canvas.AddMenuOption(x + 2, y + 3, 0, UIConstants.MenuOptions.ReturnToGameMenu, AsciiArtAssets.Colors.White, exitButton.IsHovered);
             currentLineCount++;
 
             string shortcutHint = GetNumpadShortcutHint(width - 4);
             if (!string.IsNullOrEmpty(shortcutHint))
             {
-                canvas.AddText(x + 2, y + 4, shortcutHint, AsciiArtAssets.Colors.DarkGray);
+                canvas.AddText(x + 2, y + 5, shortcutHint, AsciiArtAssets.Colors.DarkGray);
                 currentLineCount++;
             }
             
@@ -568,7 +571,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         public static int GetBottomMenuStartY(int contentStartY, int contentHeight, bool hasConfirmationBlock)
         {
             int confirmationRows = hasConfirmationBlock ? 6 : 0;
-            return contentStartY + contentHeight - 10 - confirmationRows;
+            // Header + 4 action rows (equip/unequip, discard/trade-up, snapshot, exit) + shortcut hint padding.
+            return contentStartY + contentHeight - 12 - confirmationRows;
         }
 
         public static int ClampFirstVisibleIndex(int requestedFirstIndex, int itemCount)

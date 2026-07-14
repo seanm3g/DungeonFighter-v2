@@ -218,6 +218,10 @@ namespace RPGGame
                 case "menu:tradeup":
                     AddWrapped("Combine five items of one rarity into one item of the next rarity.");
                     break;
+                case "menu:snapshot":
+                    AddWrapped("Save this character's stats, gear, and combo strip as an Action Lab snapshot.");
+                    AddWrapped("Load it later from the Action Lab tools panel or Settings → Testing.");
+                    break;
                 case "menu:exit":
                     AddWrapped("Return to the game menu (same as 0).");
                     break;

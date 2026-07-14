@@ -37,6 +37,7 @@ namespace RPGGame.UI.Avalonia
             public const string DiscardItem = "Discard Item";
             public const string ManageComboActions = "Edit actions (sequence & pool)";
             public const string TradeUpItems = "Trade Up Items";
+            public const string SnapshotForActionLab = "Snapshot for Action Lab";
             public const string ContinueToDungeon = "Continue to Dungeon";
             /// <summary>In-game hub: dungeon, inventory, back to main menu.</summary>
             public const string ReturnToGameMenu = "Return to game menu";

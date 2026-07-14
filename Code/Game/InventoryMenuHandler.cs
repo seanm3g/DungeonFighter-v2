@@ -394,12 +394,19 @@ namespace RPGGame
                     ShowMessageEvent?.Invoke(GetMutatingMenuConfirmMessage(input));
                     ShowInventoryEvent?.Invoke();
                     break;
+                case "5":
+                    if (stateTracker.WaitingForComparisonChoice || stateTracker.WaitingForItemSelection
+                        || stateTracker.WaitingForSlotSelection || stateTracker.WaitingForRaritySelection
+                        || stateTracker.WaitingForTradeUpConfirmation)
+                        return;
+                    RequestLabSnapshotCapture();
+                    break;
                 case "0":
                     stateManager.TransitionToState(GameState.GameLoop);
                     ShowGameLoopEvent?.Invoke();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-4, * (auto-equip), + (sort), - (requirements filter), / (cycle slot filter), 0 (Return to game menu), or ESC to go back.");
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-5, * (auto-equip), + (sort), - (requirements filter), / (cycle slot filter), 0 (Return to game menu), or ESC to go back.");
                     break;
             }
         }
@@ -561,6 +568,24 @@ namespace RPGGame
                 default:
                     return false;
             }
+        }
+
+        private void RequestLabSnapshotCapture()
+        {
+            if (customUIManager is not CanvasUICoordinator canvasUI)
+            {
+                ShowMessageEvent?.Invoke("Snapshot requires the Avalonia UI.");
+                return;
+            }
+
+            var game = canvasUI.GetGame();
+            if (game == null)
+            {
+                ShowMessageEvent?.Invoke("Snapshot failed: game not available.");
+                return;
+            }
+
+            _ = game.CaptureLabCharacterSnapshotAsync(canvasUI);
         }
 
         /// <summary>

@@ -19,8 +19,9 @@ namespace RPGGame
         /// <param name="playerLevel">The player's level for scaling</param>
         /// <param name="isHostile">Whether the room should be hostile</param>
         /// <returns>A generated Environment object</returns>
-        public static Environment GenerateRoom(string dungeonTheme, int playerLevel, bool isHostile = true)
+        public static Environment GenerateRoom(string dungeonTheme, int playerLevel, bool isHostile = true, Random? rng = null)
         {
+            var r = rng ?? random;
             // First try to get a theme-specific room from the JSON data
             var themeRooms = RoomLoader.GetRoomsByTheme(dungeonTheme);
             var hostileRooms = themeRooms.Where(roomName => 
@@ -32,23 +33,23 @@ namespace RPGGame
             if (hostileRooms.Count > 0)
             {
                 // Use a theme-specific room from JSON that matches the desired hostility
-                string selectedRoomName = hostileRooms[random.Next(hostileRooms.Count)];
-                return RoomLoader.CreateRoom(selectedRoomName, dungeonTheme, isHostile);
+                string selectedRoomName = hostileRooms[r.Next(hostileRooms.Count)];
+                return RoomLoader.CreateRoom(selectedRoomName, dungeonTheme, isHostile, r);
             }
             else if (themeRooms.Count > 0)
             {
                 // Use any theme-specific room but override hostility to match what was requested
-                string selectedRoomName = themeRooms[random.Next(themeRooms.Count)];
-                return RoomLoader.CreateRoom(selectedRoomName, dungeonTheme, isHostile);
+                string selectedRoomName = themeRooms[r.Next(themeRooms.Count)];
+                return RoomLoader.CreateRoom(selectedRoomName, dungeonTheme, isHostile, r);
             }
             else
             {
                 // Fallback to generated room if no theme-specific rooms exist
-                string roomType = GenerateRoomType();
-                string roomName = GenerateRoomName(dungeonTheme, roomType);
-                string description = GenerateRoomDescription(dungeonTheme, roomType, isHostile);
+                string roomType = GenerateRoomType(r);
+                string roomName = GenerateRoomName(dungeonTheme, roomType, r);
+                string description = GenerateRoomDescription(dungeonTheme, roomType, isHostile, r);
                 
-                var environment = new Environment(roomName, description, isHostile, dungeonTheme, roomType);
+                var environment = new Environment(roomName, description, isHostile, dungeonTheme, roomType, random: r);
                 
                 // Apply room-specific effects
                 ApplyRoomEffects(environment, dungeonTheme, roomType, playerLevel);
@@ -62,7 +63,7 @@ namespace RPGGame
         /// Generates a random room type
         /// </summary>
         /// <returns>A room type string</returns>
-        private static string GenerateRoomType()
+        private static string GenerateRoomType(Random r)
         {
             var roomTypes = new[]
             {
@@ -72,7 +73,7 @@ namespace RPGGame
                 "Catacomb", "Shrine", "Laboratory", "Observatory", "Throne"
             };
             
-            return roomTypes[random.Next(roomTypes.Length)];
+            return roomTypes[r.Next(roomTypes.Length)];
         }
 
         /// <summary>
@@ -81,10 +82,10 @@ namespace RPGGame
         /// <param name="theme">The dungeon theme</param>
         /// <param name="roomType">The room type</param>
         /// <returns>A formatted room name</returns>
-        private static string GenerateRoomName(string theme, string roomType)
+        private static string GenerateRoomName(string theme, string roomType, Random r)
         {
             var themeAdjectives = GetThemeAdjectives(theme);
-            var adjective = themeAdjectives[random.Next(themeAdjectives.Length)];
+            var adjective = themeAdjectives[r.Next(themeAdjectives.Length)];
             
             return $"{adjective} {roomType}";
         }
@@ -96,10 +97,10 @@ namespace RPGGame
         /// <param name="roomType">The room type</param>
         /// <param name="isHostile">Whether the room is hostile</param>
         /// <returns>A descriptive text for the room</returns>
-        private static string GenerateRoomDescription(string theme, string roomType, bool isHostile)
+        private static string GenerateRoomDescription(string theme, string roomType, bool isHostile, Random r)
         {
             var descriptions = GetRoomDescriptions(theme, roomType, isHostile);
-            return descriptions[random.Next(descriptions.Length)];
+            return descriptions[r.Next(descriptions.Length)];
         }
 
         /// <summary>

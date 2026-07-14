@@ -37,6 +37,45 @@
                     FontSize="14"
                     FontWeight="SemiBold"
                     HorizontalAlignment="Left"/>
+            <TextBlock Text="Lab character snapshots (stats, gear, combo strip) saved from Inventory → Snapshot for Action Lab."
+                       Classes="settings-muted"
+                       FontSize="13"
+                       TextWrapping="Wrap"
+                       MaxWidth="900"
+                       Margin="0,8,0,0"/>
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <ListBox x:Name="LabSnapshotsListBox"
+                         Width="360"
+                         Height="120"
+                         Background="#FF2A2A2A"
+                         Foreground="White"/>
+                <StackPanel Spacing="8" VerticalAlignment="Top">
+                    <Button x:Name="RefreshLabSnapshotsButton"
+                            Content="Refresh list"
+                            Width="180"
+                            Height="32"
+                            Background="#FF555555"
+                            Foreground="White"
+                            BorderThickness="0"
+                            CornerRadius="4"/>
+                    <Button x:Name="LoadLabSnapshotButton"
+                            Content="Open lab with snapshot"
+                            Width="180"
+                            Height="32"
+                            Background="#FF6B2C"
+                            Foreground="White"
+                            BorderThickness="0"
+                            CornerRadius="4"/>
+                    <Button x:Name="DeleteLabSnapshotButton"
+                            Content="Delete snapshot"
+                            Width="180"
+                            Height="32"
+                            Background="#FF8B0000"
+                            Foreground="White"
+                            BorderThickness="0"
+                            CornerRadius="4"/>
+                </StackPanel>
+            </StackPanel>
 
             <TextBlock Text="BALANCE TUNING WORKBENCH"
                        FontSize="16"

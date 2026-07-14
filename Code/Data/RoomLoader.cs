@@ -410,7 +410,7 @@ namespace RPGGame
 
 
 
-        public static Environment CreateRoom(string roomName, string dungeonTheme, bool? overrideIsHostile = null)
+        public static Environment CreateRoom(string roomName, string dungeonTheme, bool? overrideIsHostile = null, Random? random = null)
 
         {
 
@@ -440,7 +440,9 @@ namespace RPGGame
 
                     roomType: "",
 
-                    roomEnemySpawnPool: enemyPool
+                    roomEnemySpawnPool: enemyPool,
+
+                    random: random
 
                 );
 

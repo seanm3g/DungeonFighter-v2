@@ -1,30 +1,27 @@
 using System;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
-using RPGGame.Tuning;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers.Inventory;
+
 namespace RPGGame.UI.Avalonia.ActionInteractionLab
 {
     /// <summary>
-    /// Renders Action Lab tooling (catalog, d20, step controls) on a canvas — typically the auxiliary Action Lab pop-out window.
+    /// Renders Action Lab session tools: snapshots, dungeon, turn/d20, and step/sim footer.
+    /// Foe types and the action catalog live in <see cref="ActionLabCatalogRenderer"/>.
     /// </summary>
     public static class ActionLabControlsRenderer
     {
+        private const int ColX = 2;
+        private const int ColWidth = 34;
+
         public static void Render(GameCanvasControl canvas, ICanvasInteractionManager? interactionManager, ActionInteractionLabSession lab)
         {
-            int x = 2;
-            int y = 1;
-            int panelBottom = Math.Max(y + 1, canvas.GridHeight - 2);
-            int rowWidth = Math.Max(8, canvas.GridWidth - 4);
             bool interactive = interactionManager != null;
-
-            var names = ActionLoader.GetAllActionNames();
-            names.Sort(StringComparer.OrdinalIgnoreCase);
-
-            const int footerRows = 8;
-            int footerTopY = panelBottom - footerRows + 1;
+            int x = ColX;
+            int rowWidth = ColWidth;
+            int y = 1;
 
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("ACTION LAB"), AsciiArtAssets.Colors.Gold);
             y++;
@@ -37,76 +34,150 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             else
                 canvas.AddText(x, y, "[ Refresh data ]", AsciiArtAssets.Colors.DarkGray);
             y++;
+            y++; // blank before Snapshots
 
-            var enemyTypes = EnemyLoader.GetAllEnemyTypes();
-            enemyTypes.Sort(StringComparer.OrdinalIgnoreCase);
-            // Visible enemy-type rows between ▲/▼ (taller list steals space from the scrollable action catalog below).
-            int enemyVisible = ActionInteractionLabSession.EnemyCatalogVisibleRowCount;
-            if (enemyTypes.Count > enemyVisible)
-                lab.EnemyCatalogScrollOffset = Math.Max(0, Math.Min(lab.EnemyCatalogScrollOffset, enemyTypes.Count - enemyVisible));
+            // Character snapshots
+            canvas.AddText(x, y, "Snapshots", AsciiArtAssets.Colors.Gold);
+            y++;
+            var snapNames = CharacterLabSnapshotService.ListNames();
+            int snapVisible = ActionInteractionLabSession.SnapshotListVisibleRowCount;
+            if (snapNames.Count > snapVisible)
+                lab.SnapshotScrollOffset = Math.Max(0, Math.Min(lab.SnapshotScrollOffset, snapNames.Count - snapVisible));
             else
-                lab.EnemyCatalogScrollOffset = 0;
-
-            string enemyLabel = lab.LabEnemy.Name;
-            if (enemyLabel.Length > 22)
-                enemyLabel = enemyLabel.Substring(0, 19) + "...";
-            canvas.AddText(x, y, "Foe: " + enemyLabel, AsciiArtAssets.Colors.Magenta);
-            y++;
-            var labEnemy = lab.LabEnemy;
-            canvas.AddText(x, y,
-                $"HP: {labEnemy.CurrentHealth}/{labEnemy.MaxHealth}",
-                AsciiArtAssets.Colors.White);
-            y++;
-            var enemyData = EnemyLoader.GetEnemyData(labEnemy.Name);
-            if (enemyData != null)
+                lab.SnapshotScrollOffset = 0;
+            if (interactive && snapNames.Count > snapVisible)
             {
-                var hpBreakdown = EnemyProgressionCurveEvaluator.GetHealthBreakdown(enemyData, labEnemy.Level);
-                string factorsLine = hpBreakdown.FormatCompactLine();
-                if (factorsLine.Length > rowWidth)
-                    factorsLine = factorsLine.Substring(0, Math.Max(0, rowWidth - 1)) + "…";
-                canvas.AddText(x, y, factorsLine, AsciiArtAssets.Colors.DarkGray);
-                y++;
-            }
-            int enemyWheelMinY = y;
-            if (interactive && enemyTypes.Count > 0)
-            {
-                var eUp = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_enemy_up", "▲ types");
-                interactionManager!.AddClickableElement(eUp);
-                canvas.AddText(x, y, "▲ types", AsciiArtAssets.Colors.Gray);
+                var sUp = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_snap_up", "▲ snaps");
+                interactionManager!.AddClickableElement(sUp);
+                canvas.AddText(x, y, "▲ snaps", AsciiArtAssets.Colors.Gray);
             }
             else
-                canvas.AddText(x, y, "▲", AsciiArtAssets.Colors.DarkGray);
+                canvas.AddText(x, y, "▲ snaps", AsciiArtAssets.Colors.DarkGray);
             y++;
-            for (int i = 0; i < enemyVisible && lab.EnemyCatalogScrollOffset + i < enemyTypes.Count; i++)
+            for (int i = 0; i < snapVisible; i++)
             {
-                int idx = lab.EnemyCatalogScrollOffset + i;
-                string t = enemyTypes[idx];
-                string line = t.Length > 24 ? t.Substring(0, 21) + "..." : t;
+                int idx = lab.SnapshotScrollOffset + i;
+                if (idx >= snapNames.Count)
+                {
+                    canvas.AddText(x, y, "(empty)", AsciiArtAssets.Colors.DarkGray);
+                    y++;
+                    continue;
+                }
+
+                string sn = snapNames[idx];
+                string line = sn.Length > 24 ? sn.Substring(0, 21) + "..." : sn;
+                bool picked = string.Equals(sn, lab.SelectedSnapshotName, StringComparison.OrdinalIgnoreCase);
                 if (interactive)
                 {
-                    var btn = InventoryButtonFactory.CreateButton(x, y, rowWidth, $"lab_enemy:{idx}", line);
+                    var btn = InventoryButtonFactory.CreateButton(x, y, rowWidth, $"lab_snap:{idx}", line);
                     interactionManager!.AddClickableElement(btn);
-                    canvas.AddText(x, y, line, AsciiArtAssets.Colors.White);
+                    canvas.AddText(x, y, line, picked ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White);
                 }
                 else
-                    canvas.AddText(x, y, line, AsciiArtAssets.Colors.White);
+                    canvas.AddText(x, y, line, picked ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White);
                 y++;
             }
-            if (interactive && enemyTypes.Count > enemyVisible)
+            if (interactive && snapNames.Count > snapVisible)
             {
-                var eDn = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_enemy_down", "▼ types");
-                interactionManager!.AddClickableElement(eDn);
-                canvas.AddText(x, y, "▼ types", AsciiArtAssets.Colors.Gray);
+                var sDn = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_snap_down", "▼ snaps");
+                interactionManager!.AddClickableElement(sDn);
+                canvas.AddText(x, y, "▼ snaps", AsciiArtAssets.Colors.Gray);
             }
-            else if (enemyTypes.Count > enemyVisible)
-                canvas.AddText(x, y, "▼", AsciiArtAssets.Colors.DarkGray);
-            int enemyWheelMaxY = y;
+            else
+                canvas.AddText(x, y, "▼ snaps", AsciiArtAssets.Colors.DarkGray);
             y++;
+            if (interactive)
+            {
+                var loadSnap = InventoryButtonFactory.CreateButton(x, y, 12, "lab_snap_load", "[ Load ]");
+                interactionManager!.AddClickableElement(loadSnap);
+                canvas.AddText(x, y, "[ Load ]", AsciiArtAssets.Colors.Cyan);
+                var refSnap = InventoryButtonFactory.CreateButton(x + 13, y, 12, "lab_snap_refresh", "[ List ]");
+                interactionManager!.AddClickableElement(refSnap);
+                canvas.AddText(x + 13, y, "[ List ]", AsciiArtAssets.Colors.Gray);
+            }
+            else
+                canvas.AddText(x, y, "[ Load ]  [ List ]", AsciiArtAssets.Colors.DarkGray);
+            y++;
+            if (!string.IsNullOrEmpty(lab.SnapshotStatusMessage))
+            {
+                string st = lab.SnapshotStatusMessage;
+                if (st.Length > rowWidth)
+                    st = st.Substring(0, Math.Max(0, rowWidth - 1)) + "…";
+                canvas.AddText(x, y, st, AsciiArtAssets.Colors.DarkGray);
+                y++;
+            }
+            y++; // blank before Dungeon
 
-            lab.LastEnemyCatalogWheelMinGridX = x;
-            lab.LastEnemyCatalogWheelMaxGridX = x + rowWidth - 1;
-            lab.LastEnemyCatalogWheelMinGridY = enemyWheelMinY;
-            lab.LastEnemyCatalogWheelMaxGridY = enemyWheelMaxY;
+            // Seeded dungeon scenario
+            canvas.AddText(x, y, "Dungeon", AsciiArtAssets.Colors.Gold);
+            y++;
+            if (string.IsNullOrWhiteSpace(lab.LabDungeonCatalogKey))
+            {
+                var dungCatalog = ActionLabDungeonFactory.ListCatalogDungeonNames();
+                if (dungCatalog.Count > 0)
+                    lab.LabDungeonCatalogKey = dungCatalog[0];
+            }
+            string dungName = lab.LabDungeonCatalogKey;
+            if (dungName.Length > 22)
+                dungName = dungName.Substring(0, 19) + "...";
+            canvas.AddText(x, y, dungName, AsciiArtAssets.Colors.White);
+            if (interactive)
+            {
+                var prevD = InventoryButtonFactory.CreateButton(x + rowWidth - 7, y, 3, "lab_dung_prev", "[<]");
+                interactionManager!.AddClickableElement(prevD);
+                canvas.AddText(x + rowWidth - 7, y, "[<]", AsciiArtAssets.Colors.Cyan);
+                var nextD = InventoryButtonFactory.CreateButton(x + rowWidth - 3, y, 3, "lab_dung_next", "[>]");
+                interactionManager!.AddClickableElement(nextD);
+                canvas.AddText(x + rowWidth - 3, y, "[>]", AsciiArtAssets.Colors.Cyan);
+            }
+            y++;
+            string deltaSeedPrefix = $"Δlvl {lab.LabDungeonLevelDelta:+#;-#;0}  seed ";
+            canvas.AddText(x, y, deltaSeedPrefix, AsciiArtAssets.Colors.DarkGray);
+            string dungSeedLabel = $"[{lab.LabDungeonSeed}]";
+            int seedX = x + deltaSeedPrefix.Length;
+            if (interactive)
+            {
+                int seedW = Math.Clamp(dungSeedLabel.Length, 5, Math.Max(5, rowWidth - deltaSeedPrefix.Length));
+                if (dungSeedLabel.Length > seedW)
+                    dungSeedLabel = dungSeedLabel.Substring(0, seedW);
+                var seedBtn = InventoryButtonFactory.CreateButton(seedX, y, seedW, "lab_dung_seed_edit", dungSeedLabel);
+                interactionManager!.AddClickableElement(seedBtn);
+                canvas.AddText(seedX, y, dungSeedLabel, AsciiArtAssets.Colors.Cyan);
+            }
+            else
+                canvas.AddText(seedX, y, dungSeedLabel, AsciiArtAssets.Colors.DarkGray);
+            y++;
+            if (interactive)
+            {
+                var dUp = InventoryButtonFactory.CreateButton(x, y, 6, "lab_dung_lv_up", "[+Δ]");
+                interactionManager!.AddClickableElement(dUp);
+                canvas.AddText(x, y, "[+Δ]", AsciiArtAssets.Colors.Gray);
+                var dDn = InventoryButtonFactory.CreateButton(x + 7, y, 6, "lab_dung_lv_dn", "[-Δ]");
+                interactionManager!.AddClickableElement(dDn);
+                canvas.AddText(x + 7, y, "[-Δ]", AsciiArtAssets.Colors.Gray);
+            }
+            y++;
+            if (interactive)
+            {
+                var gen = InventoryButtonFactory.CreateButton(x, y, 10, "lab_dung_gen", "[ Gen ]");
+                interactionManager!.AddClickableElement(gen);
+                canvas.AddText(x, y, "[ Gen ]", AsciiArtAssets.Colors.Cyan);
+                var rPrev = InventoryButtonFactory.CreateButton(x + 11, y, 8, "lab_dung_room_prev", "[◀ Rm]");
+                interactionManager!.AddClickableElement(rPrev);
+                canvas.AddText(x + 11, y, "[◀ Rm]", AsciiArtAssets.Colors.Orange);
+                var rNext = InventoryButtonFactory.CreateButton(x + 20, y, 8, "lab_dung_room_next", "[Rm ▶]");
+                interactionManager!.AddClickableElement(rNext);
+                canvas.AddText(x + 20, y, "[Rm ▶]", AsciiArtAssets.Colors.Orange);
+            }
+            else
+                canvas.AddText(x, y, "[ Gen ] [◀ Rm] [Rm ▶]", AsciiArtAssets.Colors.DarkGray);
+            y++;
+            string roomCap = lab.FormatLabDungeonRoomCaption();
+            if (roomCap.Length > rowWidth)
+                roomCap = roomCap.Substring(0, Math.Max(0, rowWidth - 1)) + "…";
+            canvas.AddText(x, y, roomCap, AsciiArtAssets.Colors.White);
+            y++;
+            y++; // blank before turn info
 
             var next = lab.GetNextActorToAct();
             string who = next == null ? "(time...)" : next == lab.LabPlayer ? "Player" : next == lab.LabEnemy ? "Enemy" : "Env";
@@ -125,32 +196,70 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             y++;
             canvas.AddText(x, y, "Slot/roll mods: Next Player", AsciiArtAssets.Colors.DarkGray);
             y++;
+            y++; // blank before d20
 
-            const string d20Prefix = "d20 sel: ";
+            const string d20Prefix = "d20: ";
             canvas.AddText(x, y, d20Prefix, AsciiArtAssets.Colors.White);
             int afterPrefixX = x + d20Prefix.Length;
-            if (lab.UseRandomD20PerStep)
+            if (lab.UseSeededD20)
+            {
+                string seedLabel = "Seed";
+                if (interactive)
+                {
+                    var seedBtn = InventoryButtonFactory.CreateButton(afterPrefixX, y, 4, "lab_d20_seed", seedLabel);
+                    interactionManager!.AddClickableElement(seedBtn);
+                }
+                canvas.AddText(afterPrefixX, y, seedLabel, AsciiArtAssets.Colors.Yellow);
+                int rndX = afterPrefixX + 5;
+                if (interactive)
+                {
+                    var rndBtn = InventoryButtonFactory.CreateButton(rndX, y, 3, "lab_d20_random", "Rnd");
+                    interactionManager!.AddClickableElement(rndBtn);
+                }
+                canvas.AddText(rndX, y, "Rnd", AsciiArtAssets.Colors.Gray);
+            }
+            else if (lab.UseRandomD20PerStep)
             {
                 if (interactive)
                 {
-                    var rndBtn = InventoryButtonFactory.CreateButton(afterPrefixX, y, 3, "lab_d20_random", "Rnd");
+                    var seedBtn = InventoryButtonFactory.CreateButton(afterPrefixX, y, 4, "lab_d20_seed", "Seed");
+                    interactionManager!.AddClickableElement(seedBtn);
+                    canvas.AddText(afterPrefixX, y, "Seed", AsciiArtAssets.Colors.Gray);
+                    var rndBtn = InventoryButtonFactory.CreateButton(afterPrefixX + 5, y, 3, "lab_d20_random", "Rnd");
                     interactionManager!.AddClickableElement(rndBtn);
                 }
-                canvas.AddText(afterPrefixX, y, "Rnd", AsciiArtAssets.Colors.Yellow);
+                canvas.AddText(afterPrefixX + 5, y, "Rnd", AsciiArtAssets.Colors.Yellow);
             }
             else
             {
                 string numStr = lab.SelectedD20.ToString();
                 canvas.AddText(afterPrefixX, y, numStr, AsciiArtAssets.Colors.White);
+                int modeX = afterPrefixX + numStr.Length + 1;
                 if (interactive)
                 {
-                    int rndX = afterPrefixX + numStr.Length + 1;
-                    var rndBtn = InventoryButtonFactory.CreateButton(rndX, y, 3, "lab_d20_random", "Rnd");
+                    var seedBtn = InventoryButtonFactory.CreateButton(modeX, y, 4, "lab_d20_seed", "Seed");
+                    interactionManager!.AddClickableElement(seedBtn);
+                    canvas.AddText(modeX, y, "Seed", AsciiArtAssets.Colors.Gray);
+                    var rndBtn = InventoryButtonFactory.CreateButton(modeX + 5, y, 3, "lab_d20_random", "Rnd");
                     interactionManager!.AddClickableElement(rndBtn);
-                    canvas.AddText(rndX, y, "Rnd", AsciiArtAssets.Colors.Gray);
+                    canvas.AddText(modeX + 5, y, "Rnd", AsciiArtAssets.Colors.Gray);
                 }
             }
             y++;
+            if (lab.UseSeededD20)
+            {
+                string seedLine = $"seq seed: {lab.D20SequenceSeed}";
+                if (seedLine.Length > rowWidth)
+                    seedLine = seedLine.Substring(0, rowWidth);
+                canvas.AddText(x, y, seedLine, AsciiArtAssets.Colors.DarkGray);
+                if (interactive)
+                {
+                    var rew = InventoryButtonFactory.CreateButton(x + Math.Min(rowWidth - 8, 16), y, 8, "lab_d20_seed_rewind", "[Rewind]");
+                    interactionManager!.AddClickableElement(rew);
+                    canvas.AddText(x + Math.Min(rowWidth - 8, 16), y, "[Rewind]", AsciiArtAssets.Colors.Cyan);
+                }
+                y++;
+            }
             int d20Row = y;
             for (int row = 0; row < 4; row++)
             {
@@ -161,7 +270,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                     if (n > 20) break;
                     string label = n.ToString().PadLeft(2);
                     int colX = x + c * 6;
-                    bool sel = !lab.UseRandomD20PerStep && lab.SelectedD20 == n;
+                    bool sel = !lab.UseRandomD20PerStep && !lab.UseSeededD20 && lab.SelectedD20 == n;
                     if (interactive)
                     {
                         var btn = InventoryButtonFactory.CreateButton(colX, colY, 5, $"lab_d20:{n}", label);
@@ -172,64 +281,22 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                         canvas.AddText(colX, colY, label, sel ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White);
                 }
             }
-            y = d20Row + 5;
 
-            string selName = lab.SelectedCatalogActionName;
-            if (selName.Length > 24)
-                selName = selName.Substring(0, 21) + "...";
-            canvas.AddText(x, y, "Sel: " + selName, AsciiArtAssets.Colors.Silver);
-            y++;
+            // Flow footer directly under the d20 pad (one blank row).
+            int footerTopY = d20Row + 4 + 1;
+            RenderFooter(canvas, interactionManager, lab, interactive, footerTopY);
+        }
 
-            int catalogWheelMinY = y;
-            if (interactive)
-            {
-                var upBtn = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_scrl:up", "▲ more");
-                interactionManager!.AddClickableElement(upBtn);
-                canvas.AddText(x, y, "▲ more", AsciiArtAssets.Colors.Gray);
-            }
-            else
-                canvas.AddText(x, y, "▲", AsciiArtAssets.Colors.Gray);
-            y++;
+        private static void RenderFooter(
+            GameCanvasControl canvas,
+            ICanvasInteractionManager? interactionManager,
+            ActionInteractionLabSession lab,
+            bool interactive,
+            int footerTopY)
+        {
+            int x = ColX;
+            int y = footerTopY;
 
-            int catalogSlotCount = Math.Max(0, footerTopY - y - 1);
-            int maxScroll = Math.Max(0, names.Count - catalogSlotCount);
-            lab.CatalogScrollOffset = Math.Max(0, Math.Min(lab.CatalogScrollOffset, maxScroll));
-            int maxLines = Math.Min(catalogSlotCount, Math.Max(0, names.Count - lab.CatalogScrollOffset));
-            lab.LastCatalogVisibleRowCount = maxLines;
-            for (int i = 0; i < maxLines && lab.CatalogScrollOffset + i < names.Count; i++)
-            {
-                int idx = lab.CatalogScrollOffset + i;
-                string nm = names[idx];
-                string line = nm.Length > 26 ? nm.Substring(0, 23) + "..." : nm;
-                bool picked = string.Equals(names[idx], lab.SelectedCatalogActionName, StringComparison.Ordinal);
-                if (interactive)
-                {
-                    var btn = InventoryButtonFactory.CreateButton(x, y, rowWidth, $"lab_act:{idx}", line);
-                    interactionManager!.AddClickableElement(btn);
-                    canvas.AddText(x, y, line, picked ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White);
-                }
-                else
-                    canvas.AddText(x, y, line, picked ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White);
-                y++;
-            }
-
-            if (interactive)
-            {
-                var dnBtn = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_scrl:down", "▼ more");
-                interactionManager!.AddClickableElement(dnBtn);
-                canvas.AddText(x, y, "▼ more", AsciiArtAssets.Colors.Gray);
-            }
-            else
-                canvas.AddText(x, y, "▼", AsciiArtAssets.Colors.Gray);
-            int catalogWheelMaxY = y;
-            y++;
-
-            lab.LastCatalogWheelMinGridX = x;
-            lab.LastCatalogWheelMaxGridX = x + rowWidth - 1;
-            lab.LastCatalogWheelMinGridY = catalogWheelMinY;
-            lab.LastCatalogWheelMaxGridY = catalogWheelMaxY;
-
-            y = footerTopY;
             if (interactive)
             {
                 var stripPrev = InventoryButtonFactory.CreateButton(x, y, 13, "lab_combo_prev", "[◀ strip]");
@@ -253,7 +320,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                     canvas.AddText(x + 14, y, "[ Step ]", AsciiArtAssets.Colors.DarkGray);
                 y++;
                 y++;
-                var resetCombo = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_reset_combo", "[ Reset ]");
+                var resetCombo = InventoryButtonFactory.CreateButton(x, y, 20, "lab_reset_combo", "[ Reset ]");
                 interactionManager!.AddClickableElement(resetCombo);
                 canvas.AddText(x, y, "[ Reset ]", AsciiArtAssets.Colors.Yellow);
                 y++;
@@ -262,26 +329,36 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 var simColor = simBusy ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.Green;
                 string simLabel = $"[ Sim {lab.EncounterSimulationBatchCount} ]";
                 lab.LastSimBatchWheelMinGridX = x;
-                lab.LastSimBatchWheelMaxGridX = x + rowWidth - 1;
+                lab.LastSimBatchWheelMaxGridX = x + Math.Max(simLabel.Length, 18) - 1;
                 lab.LastSimBatchWheelGridY = simBusy ? -1 : y;
                 if (simBusy)
                     canvas.AddText(x, y, simLabel, simColor);
                 else
                 {
-                    var simBtn = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_sim_run", simLabel);
+                    var simBtn = InventoryButtonFactory.CreateButton(x, y, Math.Max(simLabel.Length, 18), "lab_sim_run", simLabel);
                     interactionManager!.AddClickableElement(simBtn);
                     canvas.AddText(x, y, simLabel, simColor);
                 }
 
+                string dungSimLabel = $"[ Dungeon Sim {lab.EncounterSimulationBatchCount} ]";
+                // Narrow tools column: dungeon sim on next row.
+                y++;
+                if (simBusy)
+                    canvas.AddText(x, y, dungSimLabel, AsciiArtAssets.Colors.DarkGray);
+                else
+                {
+                    var dungSim = InventoryButtonFactory.CreateButton(x, y, Math.Max(dungSimLabel.Length, 22), "lab_dung_sim_run", dungSimLabel);
+                    interactionManager!.AddClickableElement(dungSim);
+                    canvas.AddText(x, y, dungSimLabel, AsciiArtAssets.Colors.Magenta);
+                }
+
                 if (simBusy)
                 {
+                    y++;
                     string running = $"Running {lab.EncounterSimulationBatchCount}…";
-                    int runX = x + simLabel.Length + 1;
-                    int maxRunLen = rowWidth - (runX - x);
-                    if (running.Length > maxRunLen && maxRunLen > 0)
-                        running = running.Substring(0, Math.Max(0, maxRunLen - 1)) + "…";
-                    if (maxRunLen > 0 && running.Length > 0)
-                        canvas.AddText(runX, y, running, simColor);
+                    if (running.Length > ColWidth)
+                        running = running.Substring(0, ColWidth - 1) + "…";
+                    canvas.AddText(x, y, running, simColor);
                 }
 
                 y++;
@@ -300,7 +377,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                     canvas.AddText(reqX, y, reqLabel, reqColor);
                     y++;
                 }
-                var exit = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_exit", "[ Exit lab ]");
+                var exit = InventoryButtonFactory.CreateButton(x, y, 20, "lab_exit", "[ Exit lab ]");
                 interactionManager!.AddClickableElement(exit);
                 canvas.AddText(x, y, "[ Exit lab ]", AsciiArtAssets.Colors.Red);
             }
@@ -317,10 +394,12 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 y++;
                 canvas.AddText(x, y, $"[ Sim {lab.EncounterSimulationBatchCount} ]", AsciiArtAssets.Colors.DarkGray);
                 y++;
-                string threadHint = lab.UseParallelEncounterSimulation ? "[ Par ] sim threads" : "[ 1T ] sim threads";
+                canvas.AddText(x, y, $"[ Dungeon Sim {lab.EncounterSimulationBatchCount} ]", AsciiArtAssets.Colors.DarkGray);
+                y++;
+                string threadHint = lab.UseParallelEncounterSimulation ? "[ Par ]" : "[ 1T ]";
                 canvas.AddText(x, y, threadHint, AsciiArtAssets.Colors.DarkGray);
                 int reqHintX = x + threadHint.Length + 1;
-                string reqHint = lab.IgnoreActionRequirements ? "[ !Req ] bypass" : "[ Req ] enforce";
+                string reqHint = lab.IgnoreActionRequirements ? "[ !Req ]" : "[ Req ]";
                 canvas.AddText(reqHintX, y, reqHint, AsciiArtAssets.Colors.DarkGray);
                 y++;
                 canvas.AddText(x, y, "[ Exit lab ]", AsciiArtAssets.Colors.DarkGray);

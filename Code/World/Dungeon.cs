@@ -11,11 +11,14 @@ namespace RPGGame
         public ColorOverride? ColorOverride { get; private set; }
         /// <summary>Player region id when the dungeon was generated; used for enemy spawn filtering.</summary>
         public string? SpawnRegionId { get; private set; }
+        /// <summary>Seed used for <see cref="Generate"/> when provided; null means non-deterministic.</summary>
+        public int? GenerationSeed { get; private set; }
         private Random random;
 
-        public Dungeon(string name, int minLevel, int maxLevel, string theme, List<string>? possibleEnemies = null, ColorOverride? colorOverride = null, string? spawnRegionId = null)
+        public Dungeon(string name, int minLevel, int maxLevel, string theme, List<string>? possibleEnemies = null, ColorOverride? colorOverride = null, string? spawnRegionId = null, int? generationSeed = null)
         {
-            random = new Random();
+            GenerationSeed = generationSeed;
+            random = generationSeed.HasValue ? new Random(generationSeed.Value) : new Random();
             Name = name;
             MinLevel = minLevel;
             MaxLevel = maxLevel;
@@ -96,7 +99,7 @@ namespace RPGGame
                     // Use RoomGenerator to create theme-appropriate rooms
                     try
                     {
-                        room = RoomGenerator.GenerateRoom(Theme, roomLevel, isHostile);
+                        room = RoomGenerator.GenerateRoom(Theme, roomLevel, isHostile, random);
                     }
                     catch (Exception ex)
                     {
@@ -124,7 +127,7 @@ namespace RPGGame
                     try
                     {
                         var spawnCtx = EnemySpawnFilter.BuildSpawnContext(room, SpawnRegionId, Theme);
-                        room.GenerateEnemies(roomLevel, PossibleEnemies, MinLevel, MaxLevel, spawnCtx, spawnRegion);
+                        room.GenerateEnemies(roomLevel, PossibleEnemies, MinLevel, MaxLevel, spawnCtx, spawnRegion, random);
                     }
                     catch (Exception ex)
                     {
@@ -158,7 +161,7 @@ namespace RPGGame
                         try
                         {
                             var spawnCtx = EnemySpawnFilter.BuildSpawnContext(fallbackRoom, SpawnRegionId, Theme);
-                            fallbackRoom.GenerateEnemies(roomLevel, PossibleEnemies, MinLevel, MaxLevel, spawnCtx, spawnRegion);
+                            fallbackRoom.GenerateEnemies(roomLevel, PossibleEnemies, MinLevel, MaxLevel, spawnCtx, spawnRegion, random);
                         }
                         catch
                         {
@@ -193,7 +196,7 @@ namespace RPGGame
                         theme: Theme
                     );
                     var spawnCtx = EnemySpawnFilter.BuildSpawnContext(fallbackRoom, SpawnRegionId, Theme);
-                    fallbackRoom.GenerateEnemies(roomLevel, PossibleEnemies, MinLevel, MaxLevel, spawnCtx, spawnRegion);
+                    fallbackRoom.GenerateEnemies(roomLevel, PossibleEnemies, MinLevel, MaxLevel, spawnCtx, spawnRegion, random);
                     Rooms.Add(fallbackRoom);
                 }
                 catch (Exception)

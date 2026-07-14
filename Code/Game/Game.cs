@@ -451,6 +451,84 @@ namespace RPGGame
             }
 
             initializationManager.ApplyGameSettings(player);
+            EnterActionInteractionLabCore(canvasUI, player, comboStripActionNames: null, alsoOpenSettingsWindow);
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Opens Action Lab with a named on-disk character snapshot (stats, gear, combo strip).
+        /// </summary>
+        public async Task StartActionInteractionLabFromSnapshotAsync(
+            CanvasUICoordinator canvasUI,
+            string snapshotDisplayName,
+            bool alsoOpenSettingsWindow = false)
+        {
+            if (combatManager == null) return;
+            var snapshot = CharacterLabSnapshotService.Load(snapshotDisplayName);
+            if (snapshot == null)
+            {
+                UIManager.WriteLine($"Lab snapshot not found: {snapshotDisplayName}", UIMessageType.System);
+                return;
+            }
+
+            var player = CharacterLabSnapshotService.CreateCharacter(snapshot);
+            EnterActionInteractionLabCore(
+                canvasUI,
+                player,
+                snapshot.ComboStripActionNames,
+                alsoOpenSettingsWindow);
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Prompts for a snapshot name and writes the current player (stats, gear, combo strip) to LabSnapshots.
+        /// </summary>
+        public async Task<bool> CaptureLabCharacterSnapshotAsync(CanvasUICoordinator canvasUI)
+        {
+            var player = stateManager.CurrentPlayer;
+            if (player == null)
+            {
+                UIManager.WriteLine("No character to snapshot.", UIMessageType.System);
+                return false;
+            }
+
+            var owner = canvasUI.GetMainWindow();
+            if (owner == null)
+            {
+                UIManager.WriteLine("Cannot open snapshot dialog (no main window).", UIMessageType.System);
+                return false;
+            }
+
+            string? name = await LabSnapshotNameDialog.PromptAsync(
+                owner,
+                "Snapshot for Action Lab",
+                CharacterLabSnapshotService.SuggestDefaultName(player)).ConfigureAwait(true);
+            if (string.IsNullOrWhiteSpace(name))
+                return false;
+
+            if (System.IO.File.Exists(CharacterLabSnapshotService.GetFilePath(name)))
+            {
+                bool overwrite = await ConfirmationDialog.ShowAsync(
+                    owner,
+                    "Overwrite snapshot?",
+                    $"Snapshot \"{name}\" already exists. Replace it?").ConfigureAwait(true);
+                if (!overwrite)
+                    return false;
+            }
+
+            CharacterLabSnapshotService.SaveFromCharacter(player, name, overwrite: true);
+            UIManager.WriteLine($"Saved Action Lab snapshot: {name}", UIMessageType.System);
+            ShowInvalidKeyMessageSafe(canvasUI, $"Saved lab snapshot: {name}");
+            return true;
+        }
+
+        private void EnterActionInteractionLabCore(
+            CanvasUICoordinator canvasUI,
+            Character player,
+            IReadOnlyList<string>? comboStripActionNames,
+            bool alsoOpenSettingsWindow)
+        {
+            if (combatManager == null) return;
 
             canvasUI.ResetForNewBattle();
             stateManager.TransitionToState(GameState.ActionInteractionLab);
@@ -479,8 +557,8 @@ namespace RPGGame
                     var s = ActionInteractionLabSession.Current;
                     if (s == null || snap == null) return;
                     canvasUI.RestoreLabCombatLogSnapshot(s.LabPlayer, snap);
-                });
-            // Ensure at least one line is in the combat buffer so the center panel is visibly live (buffer was cleared with settings).
+                },
+                comboStripActionNames: comboStripActionNames);
             UIManager.WriteLine("Action Lab — select d20 and action, then Step.", UIMessageType.System);
             if (alsoOpenSettingsWindow)
                 ShowSettings();
@@ -492,6 +570,18 @@ namespace RPGGame
             catch
             {
                 // ignore focus failures
+            }
+        }
+
+        private static void ShowInvalidKeyMessageSafe(CanvasUICoordinator canvasUI, string message)
+        {
+            try
+            {
+                canvasUI.ShowInvalidKeyMessage(message);
+            }
+            catch
+            {
+                // best-effort UI hint
             }
         }
 

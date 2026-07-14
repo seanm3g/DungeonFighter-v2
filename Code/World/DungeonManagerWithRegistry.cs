@@ -20,10 +20,10 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Loads all dungeons from Dungeons.json file
+        /// Loads all dungeons from Dungeons.json file (public for Action Lab seeded dungeon tooling).
         /// </summary>
         /// <returns>List of all available dungeons</returns>
-        private List<DungeonData> LoadAllDungeons()
+        public List<DungeonData> LoadAllDungeons()
         {
             if (allDungeons != null) return allDungeons;
 
