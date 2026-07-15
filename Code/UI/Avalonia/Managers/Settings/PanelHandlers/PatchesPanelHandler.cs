@@ -125,7 +125,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
                 string sourcePath = picked[0].Path.LocalPath;
                 string defaultName = Path.GetFileNameWithoutExtension(sourcePath) ?? "imported-patch";
-                string? patchName = await PromptPatchNameAsync(top, $"Import {PatchProfileService.GetCategoryDisplayName(category)} patch", defaultName);
+                string? patchName = await PatchNameInputDialog.ShowAsync(
+                    top as Window,
+                    $"Import {PatchProfileService.GetCategoryDisplayName(category)} patch",
+                    defaultName);
                 if (string.IsNullOrWhiteSpace(patchName))
                     return;
 
@@ -221,76 +224,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             PatchCategory.Balance => panel.FindControl<ComboBox>("BalancePatchCombo")?.SelectedItem as string,
             _ => PatchProfile.DefaultPatchName
         };
-
-        private static async Task<string?> PromptPatchNameAsync(TopLevel top, string title, string defaultName)
-        {
-            var input = new TextBox
-            {
-                Text = defaultName,
-                Width = 360
-            };
-            var dialog = new Window
-            {
-                Title = title,
-                Width = 420,
-                Height = 180,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Background = global::Avalonia.Media.Brushes.Black,
-                Content = new StackPanel
-                {
-                    Margin = new global::Avalonia.Thickness(20),
-                    Spacing = 12,
-                    Children =
-                    {
-                        new TextBlock
-                        {
-                            Text = "Patch name (letters, numbers, hyphens):",
-                            Foreground = global::Avalonia.Media.Brushes.White,
-                            TextWrapping = global::Avalonia.Media.TextWrapping.Wrap
-                        },
-                        input,
-                        new StackPanel
-                        {
-                            Orientation = global::Avalonia.Layout.Orientation.Horizontal,
-                            HorizontalAlignment = global::Avalonia.Layout.HorizontalAlignment.Right,
-                            Spacing = 8,
-                            Children =
-                            {
-                                new Button { Content = "OK", Width = 90 },
-                                new Button { Content = "Cancel", Width = 90 }
-                            }
-                        }
-                    }
-                }
-            };
-
-            var buttons = ((StackPanel)((StackPanel)dialog.Content!).Children[2]).Children;
-            var okBtn = (Button)buttons[0]!;
-            var cancelBtn = (Button)buttons[1]!;
-
-            string? result = null;
-            okBtn.Click += (_, _) =>
-            {
-                try
-                {
-                    result = PatchProfileService.SanitizePatchName(input.Text ?? string.Empty);
-                    dialog.Close(true);
-                }
-                catch (Exception ex)
-                {
-                    result = null;
-                    _ = ConfirmationDialog.ShowAsync(dialog, "Invalid name", ex.Message);
-                }
-            };
-            cancelBtn.Click += (_, _) => dialog.Close(false);
-
-            Window? owner = top as Window;
-            if (owner == null)
-                return null;
-
-            bool ok = await dialog.ShowDialog<bool>(owner);
-            return ok ? result : null;
-        }
 
         private void ApplySelection(PatchesSettingsPanel panel)
         {

@@ -209,6 +209,20 @@
         <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
     </Style>
 
+    <Style Selector=".settings-ui Button">
+        <Setter Property="Background" Value="{StaticResource SettingsSidebarItem}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="FontSize" Value="{StaticResource SettingsFontSizeBody}"/>
+    </Style>
+    <Style Selector=".settings-ui Button:pointerover">
+        <Setter Property="Background" Value="{StaticResource SettingsInputHoverBackground}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
     <Style Selector=".settings-ui Button.settings-primary-button">
         <Setter Property="Background" Value="{StaticResource SettingsInputFocusBorder}"/>
         <Setter Property="Foreground" Value="White"/>
