@@ -36,6 +36,7 @@ namespace RPGGame.Tests.Unit.UI
             TestInventoryRenderingMethods();
             TestItemComparisonHoverIds();
             TestInventoryItemScrollRange();
+            TestInventoryScrollIndicators();
             TestInventoryNumpadShortcutHint();
             TestInventoryViewSummaryHighlightColors();
             TestInventoryDisplaySortAndFilterUsesVisibleNumbers();
@@ -107,6 +108,27 @@ namespace RPGGame.Tests.Unit.UI
 
             bool needsStatus = InventoryItemScrollLayout.RequiresScrollStatus(rowHeights, availableRows: 7, firstVisibleIndex: 0);
             TestBase.AssertTrue(needsStatus, "inventory scroll status appears when rows exceed viewport", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestInventoryScrollIndicators()
+        {
+            Console.WriteLine("\n--- Testing Inventory Scroll Indicators ---");
+
+            TestBase.AssertEqual(1, InventoryItemScrollLayout.GetReservedIndicatorRows(firstVisibleIndex: 0, requiresScrollStatus: true),
+                "inventory reserves one row for bottom hint on first page", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, InventoryItemScrollLayout.GetReservedIndicatorRows(firstVisibleIndex: 2, requiresScrollStatus: true),
+                "inventory reserves top and bottom rows when scrolled", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, InventoryItemScrollLayout.GetReservedIndicatorRows(firstVisibleIndex: 0, requiresScrollStatus: false),
+                "inventory reserves no rows when everything fits", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string topHint = InventoryItemScrollLayout.BuildTopScrollHint(hiddenItemCount: 2);
+            TestBase.AssertTrue(topHint.Contains("▲") && topHint.Contains("2 items above"),
+                "inventory top hint names hidden items above", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var firstPage = new InventoryItemVisibleRange(firstIndex: 0, lastExclusiveIndex: 4, usedRows: 6, itemCount: 5);
+            string bottomHint = InventoryItemScrollLayout.BuildBottomScrollHint(firstPage, firstDisplay: 1, lastDisplay: 4);
+            TestBase.AssertTrue(bottomHint.Contains("▼") && bottomHint.Contains("1 more item below") && bottomHint.Contains("scroll down"),
+                "inventory bottom hint calls out hidden items below", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestInventoryNumpadShortcutHint()

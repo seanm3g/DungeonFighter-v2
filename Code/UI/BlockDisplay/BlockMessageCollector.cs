@@ -99,7 +99,8 @@ namespace RPGGame.UI.BlockDisplay
             // Add status effects
             // Multiple status effects from one action should be grouped together:
             // - No blank lines between them
-            // - All effects use 5-space indentation to match roll info
+            // - Combat blocks: 5-space indentation to match roll info
+            // - Environmental blocks: no indent (lines are center-aligned as a group)
             // Note: Blank line after status effects removed - TextSpacingSystem handles spacing between action blocks
             if (statusEffects != null && statusEffects.Count > 0)
             {
@@ -117,7 +118,9 @@ namespace RPGGame.UI.BlockDisplay
                         }
                         
                         // Process the effect to handle indentation
-                        var processedEffect = ProcessStatusEffectIndentation(effect, isFirst);
+                        var processedEffect = environmentalBlock
+                            ? effect
+                            : ProcessStatusEffectIndentation(effect, isFirst);
                         combinedStatusEffects.AddRange(processedEffect);
                         
                         isFirst = false;
@@ -170,6 +173,37 @@ namespace RPGGame.UI.BlockDisplay
         /// Standard indentation for action block subsequent lines (roll info, effects, etc.)
         /// </summary>
         public const string ActionBlockSubsequentIndent = "     "; // 5 spaces
+
+        /// <summary>
+        /// Removes the standard action-block subsequent-line indent from the start of colored segments.
+        /// Used when center-aligning lines that should not carry left-indent padding (e.g. environmental follow-ups).
+        /// </summary>
+        public static List<ColoredText> StripLeadingActionBlockIndent(List<ColoredText> segments)
+        {
+            if (segments == null || segments.Count == 0)
+                return segments ?? new List<ColoredText>();
+
+            var result = new List<ColoredText>(segments);
+            var first = result[0];
+            string firstText = first.Text ?? string.Empty;
+
+            if (firstText == ActionBlockSubsequentIndent)
+            {
+                result.RemoveAt(0);
+                return result;
+            }
+
+            if (firstText.StartsWith(ActionBlockSubsequentIndent, StringComparison.Ordinal))
+            {
+                string remaining = firstText.Substring(ActionBlockSubsequentIndent.Length);
+                if (string.IsNullOrEmpty(remaining))
+                    result.RemoveAt(0);
+                else
+                    result[0] = new ColoredText(remaining, first.Color, first.SourceTemplate, first.ColorReadyForCanvas);
+            }
+
+            return result;
+        }
         
         /// <summary>
         /// Processes status effect indentation:

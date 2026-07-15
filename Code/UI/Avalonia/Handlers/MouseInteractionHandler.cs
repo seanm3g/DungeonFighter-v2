@@ -86,11 +86,6 @@ namespace RPGGame.UI.Avalonia.Handlers
             {
                 if (TryBeginComboStripDrag(e, point.Position))
                     return;
-                if (TryCycleActionStripDamageLineMode(point.Position))
-                {
-                    e.Handled = true;
-                    return;
-                }
                 HandleMouseClick(point.Position);
             }
         }
@@ -141,13 +136,8 @@ namespace RPGGame.UI.Avalonia.Handlers
             if (toIdx >= snapshot.Count)
                 return;
 
-            // Press+release on the same panel without reordering: cycle intrinsic vs effective damage line
-            // (combat does this on press because strip drag is unavailable there).
             if (toIdx == fromIdx)
-            {
-                TryCycleActionStripDamageLineMode(releasePoint.Position);
                 return;
-            }
 
             var player = GetCharacterForActionStrip();
             if (player != null && ComboReorderer.ApplyReorderMove(player, snapshot, fromIdx, toIdx))
@@ -563,43 +553,6 @@ namespace RPGGame.UI.Avalonia.Handlers
                 return game.TryHandleInventoryStripRightClickRemove(idx);
 
             return false;
-        }
-
-        /// <summary>
-        /// Left-click a filled action strip panel cycles intrinsic vs slot-modified damage with combo amp (all panels).
-        /// When combo reorder is enabled (inventory, Action Lab), pointer press starts a reorder gesture; same-slot
-        /// <see cref="HandlePointerReleased"/> calls this so a click still toggles the strip numbers.
-        /// </summary>
-        private bool TryCycleActionStripDamageLineMode(Point position)
-        {
-            if (canvasUI == null || game?.StateManager == null)
-                return false;
-
-            var stats = GetActiveStatsPanelState();
-            if (stats == null)
-                return false;
-
-            var player = GetCharacterForActionStrip();
-            if (player == null)
-                return false;
-            var combo = player.GetComboActions();
-            if (combo == null || combo.Count == 0)
-                return false;
-
-            var grid = ScreenToGrid(position);
-            int displayCount = ActionInfoStripLayout.GetDisplayPanelCount(combo.Count);
-            if (!ActionInfoStripLayout.TryGetPanelIndex(grid.X, grid.Y, displayCount, out int idx))
-                return false;
-            if (idx < 0 || idx >= combo.Count)
-                return false;
-
-            int stripCap = ComboSequenceMaxHelper.GetEffectiveMax(player);
-            if (idx >= stripCap)
-                return false;
-
-            stats.CycleActionStripDamageLineMode();
-            game.RefreshPersistentChromeAfterStatsToggle();
-            return true;
         }
 
         /// <summary>

@@ -29,6 +29,7 @@ namespace RPGGame.Tests.Unit.UI
             TestSpeedEqualBaselineWhite();
             TestSpeedNoBaselineWhite();
             TestSpeedNonWeaponDisplayedStaysWhite();
+            TestAttackSpeedLabelFasterThanBaselineGreen();
 
             TestDamageHigherThanBaselineGreen();
             TestDamageLowerThanBaselineRed();
@@ -155,6 +156,19 @@ namespace RPGGame.Tests.Unit.UI
             var valueSeg = FindSpeedValueSegment(segments);
             var ok = valueSeg != null && valueSeg.Color == new ColoredText("x", Colors.White).Color;
             if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: non-weapon line should not apply weapon compare"); }
+        }
+
+        private static void TestAttackSpeedLabelFasterThanBaselineGreen()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestAttackSpeedLabelFasterThanBaselineGreen ---");
+            var faster = new WeaponItem("Fast", 1, 10, 0.5, WeaponType.Sword) { Rarity = "Rare" };
+            var slower = new WeaponItem("Slow", 1, 10, 1.0, WeaponType.Sword) { Rarity = "Rare" };
+            string stat = $"Attack speed: {faster.GetTotalAttackSpeed():F2}×";
+            var segments = ItemStatFormatter.FormatStatLine(stat, faster, slower);
+            var valueSeg = FindSpeedValueSegment(segments);
+            var ok = valueSeg != null && valueSeg.Color == ExpectedPaletteColor(ColorPalette.Success);
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: expected success color for faster weapon with Attack speed label"); }
         }
 
         private static void TestDamageHigherThanBaselineGreen()

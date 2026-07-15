@@ -1,7 +1,7 @@
 {
   "character": {
     "playerBaseHealth": 250,
-    "healthPerLevel": 3,
+    "healthPerLevel": 10,
     "enemyHealthPerLevel": 0
   },
   "attributes": {
@@ -386,7 +386,7 @@
       "description": ""
     },
     "scalingPerLevel": {
-      "health": 0,
+      "health": 10,
       "attributes": 0,
       "armor": 0
     },

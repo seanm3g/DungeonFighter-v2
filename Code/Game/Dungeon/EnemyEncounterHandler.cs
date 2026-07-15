@@ -215,6 +215,9 @@ namespace RPGGame
                     healthBuilder.Add(healthMsg, ColorPalette.Gold);
                     displayManager.AddCombatEvent(ColoredTextRenderer.RenderAsMarkup(healthBuilder.Build()));
                 }
+
+                // Record defeat block so the next enemy's "appears" line gets a separating blank line
+                TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyDefeated);
             }
             
             // Wait for any reactive renders triggered by AddCombatEvent to complete before final render

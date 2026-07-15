@@ -1,4 +1,5 @@
 using Avalonia.Media;
+using RPGGame.UI.BlockDisplay;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Avalonia.Renderers.Text;
 using System;
@@ -175,13 +176,17 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 if (lineSegments != null && lineSegments.Count > 0)
                 {
-                    ColoredTextRenderer.TrimTrailingWhitespaceFromSegments(lineSegments);
-                    if (lineSegments.Count > 0)
+                    var segmentsToRender = lineSegments;
+                    if (lineAlignment == ColoredLineAlignment.Center)
+                        segmentsToRender = BlockMessageCollector.StripLeadingActionBlockIndent(lineSegments);
+
+                    ColoredTextRenderer.TrimTrailingWhitespaceFromSegments(segmentsToRender);
+                    if (segmentsToRender.Count > 0)
                     {
                         int lineX = x;
                         if (lineAlignment != ColoredLineAlignment.Left)
                         {
-                            int len = ColoredTextRenderer.GetDisplayLength(lineSegments);
+                            int len = ColoredTextRenderer.GetDisplayLength(segmentsToRender);
                             if (len < maxWidth)
                             {
                                 if (lineAlignment == ColoredLineAlignment.Right)
@@ -190,7 +195,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                                     lineX = x + (maxWidth - len) / 2;
                             }
                         }
-                        RenderSegments(lineSegments, lineX, currentY);
+                        RenderSegments(segmentsToRender, lineX, currentY);
                     }
                 }
                 // Always advance Y, even for empty line segments (blank lines within wrapped text)

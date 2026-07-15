@@ -192,9 +192,19 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 bool showScrollStatus = InventoryItemScrollLayout.RequiresScrollStatus(itemLineCounts, availableItemRows, clampedScrollOffset);
                 if (!showScrollStatus)
                     clampedScrollOffset = 0;
-                int renderRowsAvailable = showScrollStatus ? Math.Max(0, availableItemRows - 1) : availableItemRows;
+                int indicatorRowsReserved = InventoryItemScrollLayout.GetReservedIndicatorRows(clampedScrollOffset, showScrollStatus);
+                int renderRowsAvailable = Math.Max(0, availableItemRows - indicatorRowsReserved);
                 var visibleRange = InventoryItemScrollLayout.CalculateVisibleRange(itemLineCounts, clampedScrollOffset, renderRowsAvailable);
                 bool blockRowClicks = pendingMutatingInventoryMenuAction != null;
+                if (showScrollStatus && visibleRange.HasItemsAbove)
+                {
+                    string topHint = InventoryItemScrollLayout.BuildTopScrollHint(visibleRange.FirstIndex);
+                    canvas.AddText(x + 2, y, topHint, AsciiArtAssets.Colors.Gray);
+                    canvas.AddText(x + width - 3, y, AsciiArtAssets.UIElements.ArrowUp, AsciiArtAssets.Colors.Gray);
+                    y++;
+                    currentLineCount++;
+                }
+
                 for (int displayIndex = visibleRange.FirstIndex; displayIndex < visibleRange.LastExclusiveIndex; displayIndex++)
                 {
                     var entry = displayEntries[displayIndex];
@@ -260,11 +270,18 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 {
                     int firstDisplay = visibleRange.VisibleItemCount > 0 ? visibleRange.FirstIndex + 1 : 0;
                     int lastDisplay = visibleRange.VisibleItemCount > 0 ? visibleRange.LastExclusiveIndex : 0;
-                    string status = $"Showing {firstDisplay}-{lastDisplay} of {displayEntries.Count} - scroll Up/Down";
+                    string status = InventoryItemScrollLayout.BuildBottomScrollHint(visibleRange, firstDisplay, lastDisplay);
                     if (status.Length > width - 4)
                         status = status.Substring(0, Math.Max(0, width - 7)) + "...";
                     int statusY = actionsStartY - 2;
-                    canvas.AddText(x + 2, statusY, status, AsciiArtAssets.Colors.DarkGray);
+                    var statusColor = visibleRange.HasItemsBelow
+                        ? AsciiArtAssets.Colors.Gray
+                        : AsciiArtAssets.Colors.DarkGray;
+                    canvas.AddText(x + 2, statusY, status, statusColor);
+                    if (visibleRange.HasItemsBelow)
+                        canvas.AddText(x + width - 3, statusY, AsciiArtAssets.UIElements.ArrowDown, AsciiArtAssets.Colors.Yellow);
+                    else if (visibleRange.HasItemsAbove)
+                        canvas.AddText(x + width - 3, statusY, AsciiArtAssets.UIElements.ArrowUp, AsciiArtAssets.Colors.Gray);
                     currentLineCount++;
                 }
             }
@@ -592,6 +609,41 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 totalRows += Math.Max(1, itemLineCounts[i]);
 
             return totalRows > availableRows;
+        }
+
+        /// <summary>Rows reserved for scroll hints: one at the bottom when scrolling is needed, plus one at the top when scrolled down.</summary>
+        public static int GetReservedIndicatorRows(int firstVisibleIndex, bool requiresScrollStatus)
+        {
+            if (!requiresScrollStatus)
+                return 0;
+
+            return firstVisibleIndex > 0 ? 2 : 1;
+        }
+
+        public static string BuildTopScrollHint(int hiddenItemCount)
+        {
+            string arrow = AsciiArtAssets.UIElements.ArrowUp;
+            return hiddenItemCount == 1
+                ? $"{arrow} 1 item above — scroll up"
+                : $"{arrow} {hiddenItemCount} items above — scroll up";
+        }
+
+        public static string BuildBottomScrollHint(InventoryItemVisibleRange visibleRange, int firstDisplay, int lastDisplay)
+        {
+            string arrowDown = AsciiArtAssets.UIElements.ArrowDown;
+            string arrowUp = AsciiArtAssets.UIElements.ArrowUp;
+            int hiddenBelow = visibleRange.ItemCount - visibleRange.LastExclusiveIndex;
+
+            if (visibleRange.HasItemsBelow)
+            {
+                string hiddenText = hiddenBelow == 1 ? "1 more item below" : $"{hiddenBelow} more items below";
+                return $"{arrowDown} {hiddenText} — scroll down ({firstDisplay}-{lastDisplay} of {visibleRange.ItemCount})";
+            }
+
+            if (visibleRange.HasItemsAbove)
+                return $"{arrowUp} End of list ({firstDisplay}-{lastDisplay} of {visibleRange.ItemCount}) — scroll up";
+
+            return $"Showing {firstDisplay}-{lastDisplay} of {visibleRange.ItemCount}";
         }
 
         public static InventoryItemVisibleRange CalculateVisibleRange(IReadOnlyList<int> itemLineCounts, int requestedFirstIndex, int availableRows)

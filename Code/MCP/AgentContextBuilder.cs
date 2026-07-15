@@ -145,7 +145,7 @@ namespace RPGGame.MCP
                 GameState.TrainingGroundOffer => "Skip training (2) for faster progression unless testing tutorial.",
                 GameState.DungeonSelection => $"Pick a dungeon near level {game.CurrentPlayer?.Level ?? 1}; avoid custom level unless testing.",
                 GameState.DungeonCompletion => "Continue to dungeon selection or check inventory for upgrades.",
-                GameState.Death => "Return to main menu or reset_game for a fresh run.",
+                GameState.Death => "Clone, resurrect [Dev], return to main menu, or reset_game for a fresh run.",
                 GameState.Combat => "Use combo actions; prefer attacks when health is high.",
                 _ => "Call handle_input with a choice input key from the choices list."
             };

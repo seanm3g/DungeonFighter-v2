@@ -145,14 +145,10 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>
-        /// Per-character display manager holds strip intrinsic vs amped toggle (same for all strip panels).
+        /// Action strip cards always show slot-modified damage with combo-slot amplification.
         /// </summary>
-        private ActionStripDamageLineMode ResolveActionStripDamageLineMode(Character? stripPlayer)
-        {
-            if (textManager is not CanvasTextManager ctm)
-                return ActionStripDamageLineMode.EffectiveWithComboAmp;
-            return ctm.GetDisplayManagerForCharacter(stripPlayer).StatsPanelStateManager.ActionStripDamageLineMode;
-        }
+        private static ActionStripDamageLineMode ResolveActionStripDamageLineMode(Character? stripPlayer) =>
+            ActionStripDamageLineMode.EffectiveWithComboAmp;
 
         private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas = true, bool usePersistentChrome = true, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false)
         {

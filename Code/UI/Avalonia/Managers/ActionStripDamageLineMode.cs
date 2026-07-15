@@ -1,9 +1,8 @@
 namespace RPGGame.UI.Avalonia.Managers
 {
     /// <summary>
-    /// Global display mode for combo action strip cards (all panels use the same mode).
-    /// Toggled by left-clicking any filled strip panel when strip reorder drag is not active.
-    /// Both modes render as calculated flat damage and wall-clock seconds (not sheet %).
+    /// Display mode for combo action strip swing lines (flat damage and wall-clock seconds).
+    /// UI always uses <see cref="EffectiveWithComboAmp"/>; <see cref="BaseIntrinsic"/> remains for comparisons/tests.
     /// </summary>
     public enum ActionStripDamageLineMode : byte
     {

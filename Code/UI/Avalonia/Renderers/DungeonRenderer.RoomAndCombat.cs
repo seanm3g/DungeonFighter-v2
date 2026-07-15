@@ -93,7 +93,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// When player is null, strip is cleared.
         /// </summary>
         /// <param name="drawHoverDetailOverlay">When false, skips the large center tooltip (e.g. character creation narrative occupies the same cells; clearing would erase it).</param>
-        /// <param name="damageLineMode">Intrinsic vs slot-modified damage with combo-slot amp (global toggle; same for all panels).</param>
+        /// <param name="damageLineMode">Slot-modified damage with combo-slot amp (always <see cref="ActionStripDamageLineMode.EffectiveWithComboAmp"/> in play).</param>
         public void RenderActionInfoStrip(Character? player, bool drawHoverDetailOverlay = true, ActionStripDamageLineMode damageLineMode = ActionStripDamageLineMode.EffectiveWithComboAmp)
         {
             int stripX = LayoutConstants.ACTION_INFO_X;

@@ -115,7 +115,9 @@ namespace RPGGame.MCP
                 },
                 GameState.Death => new List<AgentChoice>
                 {
-                    new() { Input = "1", Label = "Return to main menu", Recommended = true }
+                    new() { Input = "2", Label = "Resurrect with no penalty [Dev]", Recommended = true },
+                    new() { Input = "1", Label = "Clone this hero (loses equipped gear)" },
+                    new() { Input = "0", Label = "Return to main menu (tombstone)" }
                 },
                 GameState.Combat => BuildCombatChoices(game),
                 GameState.Inventory => BuildNumberedChoices("Inventory action", 6, includeZero: true, zeroLabel: "Back"),

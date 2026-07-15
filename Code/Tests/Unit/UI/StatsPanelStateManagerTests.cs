@@ -21,7 +21,6 @@ namespace RPGGame.Tests.Unit.UI
             TestToggleThresholdsCollapsed(ref run, ref passed, ref failed);
             TestToggleThresholdsDisplayMode(ref run, ref passed, ref failed);
             TestChancesFlashClearsWhenLeavingChancesView(ref run, ref passed, ref failed);
-            TestCycleActionStripDamageLineMode(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("StatsPanelStateManager Tests", run, passed, failed);
         }
@@ -107,28 +106,6 @@ namespace RPGGame.Tests.Unit.UI
                 "sanity: back to ladder",
                 ref run, ref passed, ref failed);
             TestBase.AssertFalse(m.IsThresholdsChancesFlashActive(), "leaving CHANCES view clears flash timer", ref run, ref passed, ref failed);
-        }
-
-        private static void TestCycleActionStripDamageLineMode(ref int run, ref int passed, ref int failed)
-        {
-            var m = new StatsPanelStateManager();
-            TestBase.AssertEqual(
-                (int)ActionStripDamageLineMode.EffectiveWithComboAmp,
-                (int)m.ActionStripDamageLineMode,
-                "ActionStripDamageLineMode defaults to EffectiveWithComboAmp",
-                ref run, ref passed, ref failed);
-            m.CycleActionStripDamageLineMode();
-            TestBase.AssertEqual(
-                (int)ActionStripDamageLineMode.BaseIntrinsic,
-                (int)m.ActionStripDamageLineMode,
-                "CycleActionStripDamageLineMode switches to BaseIntrinsic",
-                ref run, ref passed, ref failed);
-            m.CycleActionStripDamageLineMode();
-            TestBase.AssertEqual(
-                (int)ActionStripDamageLineMode.EffectiveWithComboAmp,
-                (int)m.ActionStripDamageLineMode,
-                "Second cycle returns to EffectiveWithComboAmp",
-                ref run, ref passed, ref failed);
         }
     }
 }

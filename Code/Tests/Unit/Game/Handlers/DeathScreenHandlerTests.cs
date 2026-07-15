@@ -31,6 +31,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             TestShowDeathScreen_NullCharacter();
             TestHandleMenuInput();
             TestHandleMenuInput_CloneChoice();
+            TestHandleMenuInput_ResurrectDevChoice();
             TestHandleMenuInput_NoCharacter();
 
             TestBase.PrintSummary("DeathScreenHandler Tests", _testsRun, _testsPassed, _testsFailed);
@@ -141,6 +142,40 @@ namespace RPGGame.Tests.Unit.Game.Handlers
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(character.Weapon == null && character.IsAlive,
                     "Clone choice should strip equipped weapon and revive",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                CleanupSaveFiles(testId);
+            }
+        }
+
+        private static void TestHandleMenuInput_ResurrectDevChoice()
+        {
+            Console.WriteLine("\n--- Testing HandleMenuInput - Dev Resurrect Choice ---");
+
+            var stateManager = new GameStateManager();
+            var character = new Character("ResurrectHero", 2);
+            character.Equipment.Weapon = new WeaponItem("Kept Blade", 1) { WeaponType = WeaponType.Sword };
+            character.CurrentHealth = 0;
+            const string testId = "__test_death_resurrect__";
+            CleanupSaveFiles(testId);
+
+            try
+            {
+                stateManager.AddCharacter(character, testId);
+                var handler = new DeathScreenHandler(stateManager);
+
+                Task.Run(async () => await handler.HandleMenuInput("2")).Wait();
+
+                TestBase.AssertEqualEnum(GameState.GameLoop, stateManager.CurrentState,
+                    "Dev resurrect choice should transition to GameLoop",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual("ResurrectHero", character.Name,
+                    "Dev resurrect choice should keep character name",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(character.Weapon != null && character.IsAlive,
+                    "Dev resurrect choice should keep equipped gear and revive",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally

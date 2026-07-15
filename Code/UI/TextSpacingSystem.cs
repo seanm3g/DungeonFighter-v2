@@ -32,6 +32,7 @@ namespace RPGGame
             HeroStats,          // Hero Stats - Health: X/Y, Armor: Z
             
             // Combat blocks
+            EnemyDefeated,      // "{Enemy} has been defeated!" + remaining health summary
             CombatAction,       // "Actor hits Target for X damage" + roll info
             EnvironmentalAction, // "Room uses Action on Target!"
             StatusEffect,       // Status effect messages (part of action block)
@@ -107,6 +108,7 @@ namespace RPGGame
             { (BlockType.RoomInfo, BlockType.RoomHeader), 1 },  // Subsequent rooms after first room
             { (BlockType.RoomCleared, BlockType.RoomHeader), 1 },  // After room cleared, next room
             { (BlockType.RoomInfo, BlockType.EnemyAppearance), 1 },
+            { (BlockType.EnemyDefeated, BlockType.EnemyAppearance), 1 }, // Next enemy in same room
             { (BlockType.EnemyAppearance, BlockType.EnemyStats), 1 },
             { (BlockType.EnemyAppearance, BlockType.CombatAction), 1 }, // First combat after encounter (no stats lines)
             { (BlockType.EnemyStats, BlockType.CombatAction), 1 },  // First combat action

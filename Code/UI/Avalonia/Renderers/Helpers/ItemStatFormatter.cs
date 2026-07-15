@@ -192,32 +192,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                     builder.Add(stat, Colors.White);
                 }
             }
-            else if (stat.StartsWith("Speed: "))
+            else if (TryFormatWeaponAttackSpeedLine(stat, builder, displayedItem, weaponSpeedBaseline))
             {
-                var parts = stat.Split(new[] { ": " }, StringSplitOptions.None);
-                if (parts.Length == 2)
-                {
-                    builder.Add("Speed: ", ColorPalette.Info);
-                    if (displayedItem is WeaponItem w && weaponSpeedBaseline != null)
-                    {
-                        double mine = w.GetTotalAttackSpeed();
-                        double baseline = weaponSpeedBaseline.GetTotalAttackSpeed();
-                        if (mine < baseline)
-                            builder.Add(parts[1], ColorPalette.Success);
-                        else if (mine > baseline)
-                            builder.Add(parts[1], ColorPalette.Error);
-                        else
-                            builder.Add(parts[1], Colors.White);
-                    }
-                    else
-                    {
-                        builder.Add(parts[1], Colors.White);
-                    }
-                }
-                else
-                {
-                    builder.Add(stat, Colors.White);
-                }
             }
             else if (TryFormatAttributeStyleLine(stat, builder))
             {
@@ -253,6 +229,47 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             }
             
             return builder.Build();
+        }
+
+        private static bool TryFormatWeaponAttackSpeedLine(
+            string stat,
+            ColoredTextBuilder builder,
+            Item? displayedItem,
+            WeaponItem? weaponSpeedBaseline)
+        {
+            string labelPrefix;
+            if (stat.StartsWith("Attack speed: ", StringComparison.Ordinal))
+                labelPrefix = "Attack speed: ";
+            else if (stat.StartsWith("Speed: ", StringComparison.Ordinal))
+                labelPrefix = "Speed: ";
+            else
+                return false;
+
+            string valuePart = stat.Substring(labelPrefix.Length);
+            if (valuePart.Length == 0)
+            {
+                builder.Add(stat, Colors.White);
+                return true;
+            }
+
+            builder.Add(labelPrefix, ColorPalette.Info);
+            if (displayedItem is WeaponItem w && weaponSpeedBaseline != null)
+            {
+                double mine = w.GetTotalAttackSpeed();
+                double baseline = weaponSpeedBaseline.GetTotalAttackSpeed();
+                if (mine < baseline)
+                    builder.Add(valuePart, ColorPalette.Success);
+                else if (mine > baseline)
+                    builder.Add(valuePart, ColorPalette.Error);
+                else
+                    builder.Add(valuePart, Colors.White);
+            }
+            else
+            {
+                builder.Add(valuePart, Colors.White);
+            }
+
+            return true;
         }
 
         private static bool TryFormatAttributeStyleLine(string stat, ColoredTextBuilder builder)

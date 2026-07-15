@@ -34,6 +34,7 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
             TestCollectActionBlockMessages_WithStatusEffects();
             TestCollectActionBlockMessages_EmptyInput();
             TestCollectActionBlockMessages_EnvironmentalBlockUsesEnvironmentalLineTypes();
+            TestCollectActionBlockMessages_EnvironmentalStatusEffectsSkipIndent();
 
             TestBase.PrintSummary("BlockMessageCollector Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -123,6 +124,54 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
                 && result[0].messageType == UIMessageType.Environmental
                 && result[1].messageType == UIMessageType.Environmental,
                 "Environmental action block should tag action and roll lines as UIMessageType.Environmental",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCollectActionBlockMessages_EnvironmentalStatusEffectsSkipIndent()
+        {
+            Console.WriteLine("\n--- Testing CollectActionBlockMessages - Environmental status effects skip indent ---");
+
+            var actionText = new List<ColoredText> { new ColoredText("Boss Chamber uses Room Collapse!", Colors.Green) };
+            var effectBuilder = new ColoredTextBuilder();
+            effectBuilder.Add("Zombie", ColorPalette.DarkGreen);
+            effectBuilder.AddSpace();
+            effectBuilder.Add("affected", Colors.White);
+            effectBuilder.AddSpace();
+            effectBuilder.Add("by STUN for 1 turn", Colors.White);
+            var statusEffects = new List<List<ColoredText>> { effectBuilder.Build() };
+
+            var result = BlockMessageCollector.CollectActionBlockMessages(
+                actionText,
+                null,
+                statusEffects,
+                null,
+                null,
+                TextSpacingSystem.BlockType.EnvironmentalAction);
+
+            TestBase.AssertTrue(
+                result.Count >= 2,
+                "Environmental block should include action and effect lines",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string effectPlain = ColoredTextRenderer.RenderAsPlainText(result[1].segments);
+            TestBase.AssertFalse(
+                effectPlain.StartsWith(BlockMessageCollector.ActionBlockSubsequentIndent, StringComparison.Ordinal),
+                "Center-aligned environmental effect lines should not get combat-block indent",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(
+                effectPlain.Contains("Zombie  affected", StringComparison.Ordinal),
+                "Effect line should not contain double space after target name",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var stripped = BlockMessageCollector.StripLeadingActionBlockIndent(new List<ColoredText>
+            {
+                new ColoredText(BlockMessageCollector.ActionBlockSubsequentIndent + "Zombie affected", Colors.White)
+            });
+            string strippedPlain = ColoredTextRenderer.RenderAsPlainText(stripped);
+            TestBase.AssertEqual(
+                "Zombie affected",
+                strippedPlain,
+                "StripLeadingActionBlockIndent removes leading padding",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

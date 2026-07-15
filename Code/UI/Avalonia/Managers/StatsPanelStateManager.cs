@@ -24,7 +24,6 @@ namespace RPGGame.UI.Avalonia.Managers
         private bool thresholdsCollapsed;
         private ThresholdsHudMode thresholdsHudMode = ThresholdsHudMode.Ladder;
         private DateTimeOffset? thresholdsChancesFlashUntilUtc;
-        private ActionStripDamageLineMode actionStripDamageLineMode = ActionStripDamageLineMode.EffectiveWithComboAmp;
         private int statsAreaX = -1;
         private int statsAreaY = -1;
         private int statsAreaWidth = -1;
@@ -97,25 +96,6 @@ namespace RPGGame.UI.Avalonia.Managers
         public bool IsThresholdsChancesFlashActive() =>
             thresholdsChancesFlashUntilUtc.HasValue && DateTimeOffset.UtcNow < thresholdsChancesFlashUntilUtc.Value;
 
-        /// <summary>
-        /// Combo strip cards: intrinsic % vs slot-modified damage with combo amplification (shared by all panels).
-        /// </summary>
-        public ActionStripDamageLineMode ActionStripDamageLineMode
-        {
-            get => actionStripDamageLineMode;
-            set => actionStripDamageLineMode = value;
-        }
-
-        /// <summary>
-        /// Cycles <see cref="ActionStripDamageLineMode"/> Base ↔ Effective+amp (same idea as threshold row click cycling chances).
-        /// </summary>
-        public void CycleActionStripDamageLineMode()
-        {
-            actionStripDamageLineMode = actionStripDamageLineMode == ActionStripDamageLineMode.BaseIntrinsic
-                ? ActionStripDamageLineMode.EffectiveWithComboAmp
-                : ActionStripDamageLineMode.BaseIntrinsic;
-        }
-        
         /// <summary>
         /// Sets the stats area bounds for click detection
         /// </summary>

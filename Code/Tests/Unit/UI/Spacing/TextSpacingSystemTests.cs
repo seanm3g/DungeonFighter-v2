@@ -31,6 +31,7 @@ namespace RPGGame.Tests.Unit.UI.Spacing
             TestRecordBlockDisplayed();
             TestReset();
             TestResetActingEntityContextPreservesEncounterToCombatSpacing();
+            TestEnemyDefeatedToNextEncounterSpacing();
 
             TestBase.PrintSummary("TextSpacingSystem Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -190,6 +191,19 @@ namespace RPGGame.Tests.Unit.UI.Spacing
             int beforeFirstHeroSwing = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.CombatAction, "Hero");
             TestBase.AssertEqual(1, beforeFirstHeroSwing,
                 "after acting-entity reset, first combat line after encounter headline still gets one blank line",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEnemyDefeatedToNextEncounterSpacing()
+        {
+            Console.WriteLine("\n--- Testing EnemyDefeated → EnemyAppearance spacing ---");
+
+            TextSpacingSystem.Reset();
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyDefeated);
+
+            int spacing = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.EnemyAppearance);
+            TestBase.AssertEqual(1, spacing,
+                "one blank line before next enemy appearance after defeat summary",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
