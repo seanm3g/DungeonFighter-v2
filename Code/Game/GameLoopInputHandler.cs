@@ -66,14 +66,17 @@ namespace RPGGame
                     ShowCharacterSelectionEvent?.Invoke();
                     break;
                 case "0":
-                    // Save & Return to Main Menu (async save so exit is not blocked on hung IO)
+                    // Save & Return to Main Menu (async save so exit is not blocked on hung IO).
+                    // Must ConfigureAwait(true): after WriteAllTextAsync the continuation would otherwise
+                    // run off the UI thread, TransitionToState would still succeed, but ShowMainMenu
+                    // would fail to paint — then a second "0" is Quit and the app closes.
                     var activeCharacter = stateManager.GetActiveCharacter();
                     if (activeCharacter != null)
                     {
                         try
                         {
                             var characterId = stateManager.GetCharacterId(activeCharacter);
-                            await activeCharacter.SaveCharacterAsync(characterId).ConfigureAwait(false);
+                            await activeCharacter.SaveCharacterAsync(characterId).ConfigureAwait(true);
                         }
                         catch (Exception)
                         {

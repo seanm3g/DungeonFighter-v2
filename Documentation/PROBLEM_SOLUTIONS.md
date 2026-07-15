@@ -4,6 +4,19 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: Return to main menu after character snapshot appeared to quit (July 2026)
+**Problem:** After Inventory → Snapshot for Action Lab, returning to the main menu (Game Loop → **0**) did nothing on screen, then another **0** closed the app.
+
+**Root cause:** `GameLoopInputHandler` awaited `SaveCharacterAsync` with `ConfigureAwait(false)`, so `ShowMainMenuEvent` could run off the Avalonia UI thread. `TransitionToState(MainMenu)` still succeeded; paint failed; a second **0** was Quit.
+
+**Solutions:**
+1. Use `ConfigureAwait(true)` after save (same contract as `SettingsMenuHandler.SaveGameAsync`)
+2. After the snapshot name dialog, `Activate` the owner window and `FocusCanvas`
+3. Inventory snapshot capture uses a safe await path instead of bare fire-and-forget
+4. Test: `GameLoopInputHandlerTests`
+
+**Related files:** `GameLoopInputHandler.cs`, `Game.cs`, `InventoryMenuHandler.cs`
+
 ### UI: Action Lab foes list fills catalog height (July 2026)
 **Problem:** The foes column in the Action Lab catalog window stopped after a fixed 10 type rows while the actions column filled down to the window bottom, leaving empty space under the enemy list.
 

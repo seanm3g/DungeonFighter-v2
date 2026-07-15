@@ -499,27 +499,43 @@ namespace RPGGame
                 return false;
             }
 
-            string? name = await LabSnapshotNameDialog.PromptAsync(
-                owner,
-                "Snapshot for Action Lab",
-                CharacterLabSnapshotService.SuggestDefaultName(player)).ConfigureAwait(true);
-            if (string.IsNullOrWhiteSpace(name))
-                return false;
-
-            if (System.IO.File.Exists(CharacterLabSnapshotService.GetFilePath(name)))
+            try
             {
-                bool overwrite = await ConfirmationDialog.ShowAsync(
+                string? name = await LabSnapshotNameDialog.PromptAsync(
                     owner,
-                    "Overwrite snapshot?",
-                    $"Snapshot \"{name}\" already exists. Replace it?").ConfigureAwait(true);
-                if (!overwrite)
+                    "Snapshot for Action Lab",
+                    CharacterLabSnapshotService.SuggestDefaultName(player)).ConfigureAwait(true);
+                if (string.IsNullOrWhiteSpace(name))
                     return false;
-            }
 
-            CharacterLabSnapshotService.SaveFromCharacter(player, name, overwrite: true);
-            UIManager.WriteLine($"Saved Action Lab snapshot: {name}", UIMessageType.System);
-            ShowInvalidKeyMessageSafe(canvasUI, $"Saved lab snapshot: {name}");
-            return true;
+                if (System.IO.File.Exists(CharacterLabSnapshotService.GetFilePath(name)))
+                {
+                    bool overwrite = await ConfirmationDialog.ShowAsync(
+                        owner,
+                        "Overwrite snapshot?",
+                        $"Snapshot \"{name}\" already exists. Replace it?").ConfigureAwait(true);
+                    if (!overwrite)
+                        return false;
+                }
+
+                CharacterLabSnapshotService.SaveFromCharacter(player, name, overwrite: true);
+                UIManager.WriteLine($"Saved Action Lab snapshot: {name}", UIMessageType.System);
+                ShowInvalidKeyMessageSafe(canvasUI, $"Saved lab snapshot: {name}");
+                return true;
+            }
+            finally
+            {
+                // Modal dialogs steal focus; restore so Esc / 0 / clicks reach the game again.
+                try
+                {
+                    owner.Activate();
+                    canvasUI.FocusCanvas();
+                }
+                catch
+                {
+                    // best-effort focus restore
+                }
+            }
         }
 
         private void EnterActionInteractionLabCore(

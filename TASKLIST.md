@@ -4,6 +4,8 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Bug fix / Return to main menu after lab snapshot:** Game loop option **0** used `ConfigureAwait(false)` after async character save, so `ShowMainMenu` could run off the UI thread — state became Main Menu (next **0** quit) while the screen stayed stuck. Also restore focus after the inventory snapshot dialog. Tests: `GameLoopInputHandlerTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
+
 - [x] **UI / Action Lab — typed dungeon seed:** Click cyan `[seed]` beside Δlvl to type an integer (replaces `[seed+]`); `SetLabDungeonSeed`. Docs: `OVERVIEW.md`. Verify: `dotnet run -- --run-test-filter ActionInteractionLab`.
 
 - [x] **UI / Action Lab — foes list fills catalog height:** Enemy type picker in `ActionLabCatalogWindow` uses remaining column height (same as the actions column) instead of a fixed 10-row cap; scroll uses `LastEnemyCatalogVisibleRowCount`. Docs: `OVERVIEW.md`. Verify: `dotnet run -- --run-test-filter ActionInteractionLab`.

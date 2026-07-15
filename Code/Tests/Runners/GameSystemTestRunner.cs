@@ -38,6 +38,7 @@ namespace RPGGame.Tests.Runners
             ("RegionTravelHandler", () => RegionTravelHandlerTests.RunAllTests()),
             ("TravelRouteColoredTextFormatter", () => TravelRouteColoredTextFormatterTests.RunAllTests()),
             ("DungeonCompletionHandler", () => DungeonCompletionHandlerTests.RunAllTests()),
+            ("GameLoopInputHandler", () => GameLoopInputHandlerTests.RunAllTests()),
             ("DeathScreenHandler", () => DeathScreenHandlerTests.RunAllTests()),
             ("LoadCharacterSelectionHandler", () => LoadCharacterSelectionHandlerTests.RunAllTests()),
             ("DungeonExitChoiceHandler", () => DungeonExitChoiceHandlerTests.RunAllTests()),

@@ -3,6 +3,7 @@ namespace RPGGame
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Renderers.Inventory;
     using RPGGame.Handlers.Inventory;
@@ -585,7 +586,20 @@ namespace RPGGame
                 return;
             }
 
-            _ = game.CaptureLabCharacterSnapshotAsync(canvasUI);
+            _ = CaptureLabSnapshotSafeAsync(game, canvasUI);
+        }
+
+        private async Task CaptureLabSnapshotSafeAsync(GameCoordinator game, CanvasUICoordinator canvasUI)
+        {
+            try
+            {
+                await game.CaptureLabCharacterSnapshotAsync(canvasUI).ConfigureAwait(true);
+            }
+            catch (Exception ex)
+            {
+                ShowMessageEvent?.Invoke($"Snapshot failed: {ex.Message}");
+                ShowInventoryEvent?.Invoke();
+            }
         }
 
         /// <summary>

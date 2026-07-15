@@ -23,7 +23,7 @@
     "actionStripMissFlashDurationMs": 500,
     "actionStripSuccessFlashDurationMs": 1000,
     "actionStripSuccessFlashPulseHalfPeriodMs": 150,
-    "actionsActiveSetMaxTier": 0,
+    "actionsActiveSetMaxTier": null,
     "panelBackgroundColor": "#FFFFFF",
     "panelBorderColor": "#404040",
     "panelTextColor": "#000000",
