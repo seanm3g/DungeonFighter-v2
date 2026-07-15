@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Avalonia.Media;
+using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem;
@@ -20,11 +21,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
 
         private const double PhaseMillisecondsDivisor = 320.0;
 
+        private readonly GameCanvasControl canvas;
         private readonly ICanvasTextManager textManager;
 
         public PreWeaponPathIntroRenderer(GameCanvasControl canvas, ICanvasTextManager textManager)
         {
-            _ = canvas ?? throw new ArgumentNullException(nameof(canvas));
+            this.canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
             this.textManager = textManager ?? throw new ArgumentNullException(nameof(textManager));
         }
 
@@ -34,7 +36,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             int lineX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, QuestLine.Length);
 
             textManager.WriteLineColoredSegments(BuildQuestLineSegments(GetCurrentPhase()), lineX, lineY);
-            return 1;
+
+            string continuePrompt = UIConstants.Messages.PressAnyKey;
+            int promptY = lineY + 2;
+            int promptX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, continuePrompt.Length);
+            canvas.AddText(promptX, promptY, continuePrompt, AsciiArtAssets.Colors.Gray);
+
+            return 3;
         }
 
         internal static List<ColoredText> BuildQuestLineSegments(double phase)
