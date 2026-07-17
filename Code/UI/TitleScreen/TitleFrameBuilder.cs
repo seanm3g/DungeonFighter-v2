@@ -149,27 +149,6 @@ namespace RPGGame.UI.TitleScreen
         }
 
         /// <summary>
-        /// Prepends spaces to a list of ColoredText segments.
-        /// Uses a solid-color segment so the spacing is rendered consistently.
-        /// </summary>
-        private List<ColoredText> PrependSpaces(List<ColoredText> segments, int spaceCount)
-        {
-            var result = new List<ColoredText>();
-            
-            if (spaceCount > 0)
-            {
-                result.Add(new ColoredText(new string(' ', spaceCount), ColorTemplateLibrary.ColorCodeToColor("Y")));
-            }
-            
-            if (segments != null)
-            {
-                result.AddRange(segments);
-            }
-            
-            return result;
-        }
-
-        /// <summary>
         /// Builds the complete frame layout with padding, decoration, and tagline
         /// </summary>
         private List<ColoredText>[] BuildFrameLayout(List<ColoredText>[] dungeonLines, List<ColoredText>[] fighterLines)
@@ -210,11 +189,9 @@ namespace RPGGame.UI.TitleScreen
             frameList.Add(new List<ColoredText>());
             frameList.Add(new List<ColoredText>());
 
-            // Tagline - use white color
+            // Tagline - use white color (centered by renderer; no artificial indent)
             var taglineSegments = TitleColorApplicator.ApplySolidColor(TitleArtAssets.Tagline, "Y");
-            // Add 6 spaces to the right to move the tagline
-            var taglineWithIndent = PrependSpaces(taglineSegments, 6);
-            frameList.Add(taglineWithIndent);
+            frameList.Add(taglineSegments);
 
             // Final spacing
             frameList.Add(new List<ColoredText>());

@@ -52,6 +52,8 @@ Runtime `TextBoxColorManager` and `BorderColorManager` no longer walk panel cont
 3. If settings persist via handler: implement `ISettingsPanelHandler`, register in `SettingsPanel.InitializeManagers()`, set `SavesViaHandler: true` on descriptor (and ensure tag is in `HandlerSaveCategoryTags` order if balance-related).
 4. If CRUD/tab UI: add `panelInitializers` entry keyed by `Tag`.
 
+**Flavor Text (Developer):** `FlavorTextSettingsPanel` + `FlavorTextPanelHandler` author forms with `<category>` placeholders, generate samples via `FlavorTextBankCatalog.GenerateFormMany` (Generate section at top), edit global `categories` lists, and keep legacy banks in a collapsed expander. **EXPAND** / **CONTRACT** reparents Forms, Form template, Categories, and Legacy banks into four non-modal windows (`FlavorTextSectionWindow`); `FlavorTextWindowPlacement` auto-arranges them from the Settings monitor working area with Settings/Generate centered. Tag `FlavorText` is in `HandlerSaveCategoryTags` (saves to `FlavorText.json`).
+
 Sidebar and `LoadCategoryPanel` routing are generated from the catalog — no manual `ListBoxItem` or special-case branches. Group headers are rendered automatically from `SettingsSidebarGroups.OrderedGroups`.
 
 ## Grouped sidebar

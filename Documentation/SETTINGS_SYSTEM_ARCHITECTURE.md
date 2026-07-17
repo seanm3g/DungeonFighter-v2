@@ -52,7 +52,7 @@ SettingsPanel (UI)
 | Group | Panels |
 |-------|--------|
 | **Player Settings** | Gameplay, Travel, Audio, Text & Animation, Appearance |
-| **Developer Settings** | Game Variables, Actions, Status Effects, Enemies, Items, Item Affixes, Patches, Spreadsheet Import |
+| **Developer Settings** | Game Variables, Actions, Status Effects, Enemies, Items, Item Affixes, Patches, Flavor Text, Spreadsheet Import |
 | **Balance & Tuning** | Combat Tuning, Enemy Tuning, Classes, Item Generation |
 | **Testing** | Testing (includes Action Lab launcher) |
 | **About** | About (ungrouped at bottom) |
@@ -79,7 +79,7 @@ SettingsPanel (UI)
 #### 4. SettingsSaveOrchestrator (Persistence coordination)
 - **File**: `Code/UI/Avalonia/Managers/Settings/SettingsSaveOrchestrator.cs`
 - **Responsibility**: Save all loaded panels in a defined order; delegate to handlers or tab managers. Uses a single **panel resolver** (`GetPanelForCategoryResolver`) so "displayed or cached" is resolved in one place (SettingsPanel.GetPanelForCategory).
-- **Save order**: Game Variables → Gameplay (handler) → handler categories from `HandlerSaveCategoryTags` (`Travel`, `TextAndAnimation`, `Appearance`, `BalanceTuning`, `ItemGeneration`, `CombatTuning`, `Classes`, `Audio`) → ItemModifiers + ItemSuffixes tab managers → Items → Enemies (if loaded) → Actions flush → balance/audio patch dialogs → GameSettings patch
+- **Save order**: Game Variables → Gameplay (handler) → handler categories from `HandlerSaveCategoryTags` (`Travel`, `TextAndAnimation`, `Appearance`, `FlavorText`, `BalanceTuning`, `ItemGeneration`, `CombatTuning`, `Classes`, `Audio`) → ItemModifiers + ItemSuffixes tab managers → Items → Enemies (if loaded) → Actions flush → balance/audio patch dialogs → GameSettings patch
 - **Returns**: `SettingsSaveResult` (Success, ActionsSaved, TextDelaysSaved) so the panel can run post-save apply
 - **Table-driven**: Handler-based categories are in `HandlerSaveCategoryTags`; add a new handler-based panel by registering the handler and adding its tag to that list.
 
@@ -150,6 +150,7 @@ User clicks Save
 | Items | Developer | ItemsTabManager | Tab manager |
 | ItemAffixes | Developer | ItemModifiersTabManager + ItemSuffixesTabManager | Tab managers |
 | Patches | Developer | PatchesPanelHandler | Apply button (immediate) |
+| FlavorText | Developer | FlavorTextPanelHandler | Handler → FlavorText.json (forms + categories + legacy banks) |
 | BalanceTuning | Developer | BalanceTuningPanelHandler | Handler + sheets |
 | CombatTuning | Balance | CombatAndEnemyTuningPanelHandler (Combat + Enemy child panels) | Handler (balance patch) |
 | Classes | Balance | ClassesPanelHandler | Handler (balance patch) |

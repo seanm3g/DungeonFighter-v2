@@ -7,7 +7,7 @@ namespace RPGGame
     public class LegacyMultipliers
     {
         public double Title { get; set; } = 15.0;
-        public double MainTitle { get; set; } = 20.0;
+        public double MainTitle { get; set; } = 0.0;
         public double System { get; set; } = 1.0;
         public double Combat { get; set; } = 0.5;
         public double Environmental { get; set; } = 1.5;

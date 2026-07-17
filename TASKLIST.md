@@ -4,6 +4,14 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **UI / Title screen — no timed delay before any-key:** Removed the final hold / Main Title message delay on the boot title screen (`FinalHoldDuration` and `MainTitle` delay = 0). Zero-duration animation steps skip the min-frame pause so “Press any key…” can appear immediately. Tests: `TitleScreenAsciiSpacingTests`; docs: `OVERVIEW.md`.
+
+- [x] **UI / Flavor Text EXPAND auto-arrange:** On EXPAND, `FlavorTextWindowPlacement` sizes/places the four section windows from the Settings monitor working area with Settings (Generate) centered; left column Forms+Categories, right column Template+Legacy. Tests: `FlavorTextWindowPlacementTests`. Docs: `OVERVIEW.md`, `SETTINGS_UI_GUIDE.md`.
+
+- [x] **UI / Flavor Text Generate-first + EXPAND/CONTRACT:** Generate section at top of Developer → Flavor Text; **EXPAND** reparents Forms / Form template / Categories / Legacy banks into four non-modal windows; **CONTRACT** (or panel unload) re-docks. Docs: `OVERVIEW.md`, `SETTINGS_UI_GUIDE.md`.
+
+- [x] **Settings / Flavor Text forms composer:** Developer panel authors forms with `<category>` placeholders, Generate at top, global shared category lists at bottom, Add Form/Category; legacy banks in collapsed expander. Persist `forms` + `categories` in `FlavorText.json` (authoring-only; not wired to live call sites yet). APIs: `ExpandFormTemplate` / `GenerateFormMany`. Tests: `FlavorTextBankCatalogTests`. Docs: `OVERVIEW.md`, `SETTINGS_UI_GUIDE.md`.
+
 - [x] **Bug fix / Return to main menu after lab snapshot:** Game loop option **0** used `ConfigureAwait(false)` after async character save, so `ShowMainMenu` could run off the UI thread — state became Main Menu (next **0** quit) while the screen stayed stuck. Also restore focus after the inventory snapshot dialog. Tests: `GameLoopInputHandlerTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
 
 - [x] **UI / Action Lab — typed dungeon seed:** Click cyan `[seed]` beside Δlvl to type an integer (replaces `[seed+]`); `SetLabDungeonSeed`. Docs: `OVERVIEW.md`. Verify: `dotnet run -- --run-test-filter ActionInteractionLab`.
@@ -268,7 +276,9 @@ This file tracks the work currently in progress. Only items listed here should b
 
 - [x] **Bugfix / Equipment — armor unequippable due to `techinque` typo + dict-key normalization:** `GameData/Armor.json` had 48 entries whose `attributeRequirements` dictionary used `"techinque"` instead of `"technique"`. `Item.GetEffectiveValueForRequirementKey` only matches the canonical lowercase keys (`strength`/`agility`/`technique`/`intelligence`) and returns **0** otherwise, so every affected armor piece reported the player had **0** of that stat and refused to equip — regardless of actual technique. Fixed the data, and made `GameDataJsonNormalizer.MergeSheetAbbrevAttributeRequirementsIfPresent` canonicalize **dictionary** `attributeRequirements` keys too (abbrev `STR`/`AGI`/`TEC`/`INT` and known typos like `techinque` → `technique`, `inteligence` → `intelligence`, etc.). Test: `ItemGeneratorTests.TestArmorData_NormalizerCanonicalizesAttributeRequirementKeys`. `OVERVIEW.md`.
 
-- [ ] **Bugfix / UI — title screen ASCII spacing:** Title word glyphs (e.g. top line of **DEMON**) render with incorrect spacing when colored segments are stitched together. Fix title frame building so segment concatenation preserves the original ASCII art without injecting extra spaces; add a regression unit test under UI test suite.
+- [x] **Bugfix / UI — title screen DEMON bottom piping + centering:** DEMON’s bottom 3D footing row now matches the customized top (3-pillar **M**, wide-gap **N**, length 46). Removed hard-coded left shifts (`globalLeftShift` / `titleOffset` / tagline indent / press-key `-6`) so title words, decorator, tagline, and “Press any key…” are true center-justify. Tests: `TitleScreenAsciiSpacingTests`; `OVERVIEW.md`.
+
+- [x] **Bugfix / UI — title screen ASCII spacing:** Title word glyphs (e.g. top line of **DEMON**) render with incorrect spacing when colored segments are stitched together. Fix title frame building so segment concatenation preserves the original ASCII art without injecting extra spaces; add a regression unit test under UI test suite.
 
 - [x] **Data / Sheets — ENEMIES layout A–U + spawn system:** Updated `JsonArraySheetConverter` for Region-first two-row headers, separate `HEALTH` band, and mixed-case normalization. Added `region`/`biome`/`location`/`rarity` on `EnemyData`; `EnemySpawnFilter` filters by placement and rarity-weighted picks; `EnemyRarityRewardHelper` scales gold/XP; `Dungeon` threads `SpawnRegionId`. Tests: `JsonArraySheetConverterTests.EnemiesNewSheetLayoutImport`, `EnemySpawnFilterTests`, `EnemyRarityRewardTests`; `OVERVIEW.md`.
 

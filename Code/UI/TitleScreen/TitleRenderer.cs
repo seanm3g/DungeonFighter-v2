@@ -64,16 +64,6 @@ namespace RPGGame.UI.TitleScreen
                 _canvasUI.Clear();
 
                 int startY = TitleArtAssets.TitleStartY;
-                
-                // Calculate title line ranges in the frame
-                // Frame structure: 15 top padding + 2 blank + 6 DUNGEON + 1 blank + 1 decorator + 1 blank + 6 FIGHTERS + ...
-                const int dungeonStartIndex = 16; // 15 padding + 2 blank lines
-                const int dungeonEndIndex = 22;    // dungeonStartIndex + 6 lines - 1
-                // const int decoratorIndex = 24; // dungeonEndIndex + 1 blank + 1 (reserved for future use)
-                const int fighterStartIndex = 26; // decoratorIndex + 1 blank + 1
-                const int fighterEndIndex = 31;   // fighterStartIndex + 6 lines - 1
-                const int titleOffset = 2; // Offset to shift title right
-                const int globalLeftShift = -6; // Shift all lines 6 spaces to the left
 
                 for (int i = 0; i < frame.Lines.Length; i++)
                 {
@@ -82,34 +72,14 @@ namespace RPGGame.UI.TitleScreen
                     
                     if (lineSegments != null && lineSegments.Count > 0)
                     {
-                        // Calculate visible length from segments (excluding leading spaces for centering)
+                        // Calculate visible length from segments for true center-justify
                         int visibleLength = 0;
-                        bool isTitleLine = (i >= dungeonStartIndex && i <= dungeonEndIndex) || 
-                                         (i >= fighterStartIndex && i <= fighterEndIndex);
-                        
                         foreach (var segment in lineSegments)
                         {
                             visibleLength += segment.Text?.Length ?? 0;
                         }
 
-                        // Center each line horizontally based on its visible length
                         int centerX = Math.Max(0, _canvasUI.CenterX - (visibleLength / 2));
-                        
-                        // Apply global left shift to all lines
-                        centerX += globalLeftShift;
-                        
-                        // Add offset for title lines to shift them right
-                        if (isTitleLine)
-                        {
-                            centerX += titleOffset;
-                            // Move FIGHTERS one character to the left (relative to DUNGEON)
-                            if (i >= fighterStartIndex && i <= fighterEndIndex)
-                            {
-                                centerX -= 1;
-                            }
-                        }
-                        
-                        // Render the colored text segments
                         _canvasUI.WriteLineColoredSegments(lineSegments, centerX, currentY);
                     }
                 }

@@ -36,9 +36,9 @@ namespace RPGGame
         public double Title { get; set; } = 10.0;
         
         /// <summary>
-        /// Main title screens - 20 beats (extra dramatic pause for main game title)
+        /// Main title screens - 0 beats (any-key-to-continue; no timed pause)
         /// </summary>
-        public double MainTitle { get; set; } = 20.0;
+        public double MainTitle { get; set; } = 0.0;
         
         /// <summary>
         /// Encounter messages - 0.67 beats (dramatic pause after encountering enemies)

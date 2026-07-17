@@ -4,7 +4,7 @@
     "System": 1,
     "Menu": 1,
     "Title": 200,
-    "MainTitle": 50,
+    "MainTitle": 0,
     "Environmental": 250,
     "EffectMessage": 30,
     "DamageOverTime": 150,

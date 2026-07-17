@@ -37,10 +37,12 @@ namespace RPGGame.UI.TitleScreen
             {
                 // Render the frame (this will wait for UI thread to complete)
                 _renderer.RenderFrame(step.Frame);
-                
-                // Wait for the specified duration before next frame
-                // Ensure minimum delay of 50ms to allow UI thread to process and display the frame
-                // This prevents frames from being skipped due to UI thread being busy
+
+                // Zero-duration steps (e.g. FinalHold when waiting for any key) must not pause.
+                // Otherwise enforce a minimum so the UI thread can paint each frame.
+                if (step.DurationMs <= 0)
+                    continue;
+
                 int delayMs = Math.Max(step.DurationMs, 50);
                 await System.Threading.Tasks.Task.Delay(delayMs);
             }

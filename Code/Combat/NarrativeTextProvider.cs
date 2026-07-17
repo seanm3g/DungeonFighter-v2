@@ -25,36 +25,16 @@ namespace RPGGame
         {
             try
             {
-                var flavorData = FlavorText.GetData();
-
-                // Use reflection to get the combat narratives
-                var combatNarrativesProperty = flavorData.GetType().GetProperty("CombatNarratives");
-                if (combatNarrativesProperty == null)
+                var combatNarratives = FlavorText.GetData().CombatNarratives;
+                if (combatNarratives != null
+                    && combatNarratives.TryGetValue(eventType, out string[]? narratives)
+                    && narratives != null
+                    && narratives.Length > 0)
                 {
-                    return GetFallbackNarrative(eventType);
+                    return narratives[narrativeRandom.Next(narratives.Length)];
                 }
 
-                var combatNarratives = combatNarrativesProperty.GetValue(flavorData);
-                if (combatNarratives == null)
-                {
-                    return GetFallbackNarrative(eventType);
-                }
-
-                // Get the specific event type array
-                var eventProperty = combatNarratives.GetType().GetProperty(eventType);
-                if (eventProperty == null)
-                {
-                    return GetFallbackNarrative(eventType);
-                }
-
-                var narratives = eventProperty.GetValue(combatNarratives) as string[];
-                if (narratives == null || narratives.Length == 0)
-                {
-                    return GetFallbackNarrative(eventType);
-                }
-
-                // Return a random narrative
-                return narratives[narrativeRandom.Next(narratives.Length)];
+                return GetFallbackNarrative(eventType);
             }
             catch (Exception)
             {

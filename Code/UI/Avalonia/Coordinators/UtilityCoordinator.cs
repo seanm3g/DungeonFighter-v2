@@ -149,21 +149,18 @@ namespace RPGGame.UI.Avalonia.Coordinators
         
         /// <summary>
         /// Shows press key message without clearing the existing display
-        /// (preserves the title screen or other content)
-        /// Applies the same -6 left shift as the title screen for consistency
+        /// (preserves the title screen or other content). Centered with the same
+        /// CenterX - length/2 math as the title screen (no horizontal bias).
         /// </summary>
         public void ShowPressKeyMessage()
         {
             // Don't clear - just add the message to the bottom of the existing display
             // This preserves the title screen that was just rendered
-            const int globalLeftShift = -6; // Match the title screen left shift
             string message = "Press any key to continue...";
             
-            // Calculate centered position and apply left shift
             var segments = ColoredTextParser.Parse(message);
             int displayLength = ColoredTextRenderer.GetDisplayLength(segments);
             int centerX = Math.Max(0, canvas.CenterX - (displayLength / 2));
-            centerX += globalLeftShift;
             
             canvas.AddText(centerX, 50, message, AsciiArtAssets.Colors.Gray);
             canvas.Refresh();

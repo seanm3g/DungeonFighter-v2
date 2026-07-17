@@ -44,6 +44,7 @@ namespace RPGGame.Tests.Runners
             ActionInteractionLabTests.RunAllTests();
             Console.WriteLine();
             ActionLabWindowPlacementTests.RunAllTests();
+            FlavorTextWindowPlacementTests.RunAllTests();
             Console.WriteLine();
             MainWindowStartupSizingTests.RunAllTests();
             Console.WriteLine();

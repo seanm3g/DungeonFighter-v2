@@ -28,7 +28,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             new("Items", "Items", () => new ItemsSettingsPanel(), SettingsContentArea.MainScroll, typeof(ItemsSettingsPanel), UsesTabManager: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 5),
             new("ItemAffixes", "Item Affixes", () => new ItemAffixesSettingsPanel(), SettingsContentArea.MainScroll, typeof(ItemAffixesSettingsPanel), UsesTabManager: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 6),
             new("Patches", "Patches", () => new PatchesSettingsPanel(), SettingsContentArea.MainScroll, typeof(PatchesSettingsPanel), UsesHandler: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 7),
-            new("BalanceTuning", "Spreadsheet Import", () => new BalanceTuningSettingsPanel(), SettingsContentArea.MainScroll, typeof(BalanceTuningSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 8),
+            new("FlavorText", "Flavor Text", () => new FlavorTextSettingsPanel(), SettingsContentArea.Actions, typeof(FlavorTextSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 8),
+            new("BalanceTuning", "Spreadsheet Import", () => new BalanceTuningSettingsPanel(), SettingsContentArea.MainScroll, typeof(BalanceTuningSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 9),
 
             // Balance & Tuning
             new("CombatTuning", "Combat Tuning", () => new CombatAndEnemyTuningSettingsPanel(), SettingsContentArea.MainScroll, typeof(CombatAndEnemyTuningSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Balance, Order: 1),
@@ -45,7 +46,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         /// <summary>Handler save order — ItemGeneration before Classes for balance patch consistency.</summary>
         public static readonly IReadOnlyList<string> HandlerSaveCategoryTags = new[]
         {
-            "Travel", "TextAndAnimation", "Appearance",
+            "Travel", "TextAndAnimation", "Appearance", "FlavorText",
             "BalanceTuning", "ItemGeneration", "CombatTuning", "Classes", "Audio"
         };
 

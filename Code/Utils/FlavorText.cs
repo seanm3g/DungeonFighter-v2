@@ -1,8 +1,18 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using RPGGame.Data;
 
 namespace RPGGame
 {
+    /// <summary>Authoring form: template text with &lt;category&gt; placeholders (id = dictionary key).</summary>
+    public class FlavorFormDefinition
+    {
+        [JsonPropertyName("displayName")]
+        public string DisplayName { get; set; } = "";
+        [JsonPropertyName("template")]
+        public string Template { get; set; } = "";
+    }
+
     public class FlavorTextData
     {
         [JsonPropertyName("names")]
@@ -13,8 +23,15 @@ namespace RPGGame
         public EnvironmentsData Environments { get; set; } = new();
         [JsonPropertyName("classQualifiers")]
         public ClassQualifiersData ClassQualifiers { get; set; } = new();
+        /// <summary>Event key → narrative templates (preserves all JSON keys on round-trip).</summary>
         [JsonPropertyName("combatNarratives")]
-        public CombatNarrativesData CombatNarratives { get; set; } = new();
+        public Dictionary<string, string[]> CombatNarratives { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Authoring forms keyed by id (not yet wired into live game call sites).</summary>
+        [JsonPropertyName("forms")]
+        public Dictionary<string, FlavorFormDefinition> Forms { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Global shared category lists referenced by form templates as &lt;key&gt;.</summary>
+        [JsonPropertyName("categories")]
+        public Dictionary<string, string[]> Categories { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     }
 
     public class NamesData
@@ -73,29 +90,19 @@ namespace RPGGame
         public string[] Fighter { get; set; } = Array.Empty<string>();
     }
 
-    public class CombatNarrativesData
-    {
-        [JsonPropertyName("firstBlood")]
-        public string[] FirstBlood { get; set; } = Array.Empty<string>();
-        [JsonPropertyName("healthRecovery")]
-        public string[] HealthRecovery { get; set; } = Array.Empty<string>();
-        [JsonPropertyName("below50Percent")]
-        public string[] Below50Percent { get; set; } = Array.Empty<string>();
-        [JsonPropertyName("below10Percent")]
-        public string[] Below10Percent { get; set; } = Array.Empty<string>();
-        [JsonPropertyName("criticalHit")]
-        public string[] CriticalHit { get; set; } = Array.Empty<string>();
-        [JsonPropertyName("enemyDefeated")]
-        public string[] EnemyDefeated { get; set; } = Array.Empty<string>();
-        [JsonPropertyName("playerDefeated")]
-        public string[] PlayerDefeated { get; set; } = Array.Empty<string>();
-    }
-
     public static class FlavorText
     {
         private static FlavorTextData? _data;
+        private static string? _resolvedPath;
         private static readonly object _lock = new object();
         private static readonly Random _random = new Random();
+
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = null,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
 
         public static FlavorTextData GetData()
         {
@@ -112,43 +119,154 @@ namespace RPGGame
             return _data!;
         }
 
+        /// <summary>Clears the cache and reloads from disk.</summary>
+        public static void Reload()
+        {
+            lock (_lock)
+            {
+                _data = null;
+                _resolvedPath = null;
+                LoadData();
+            }
+        }
+
+        /// <summary>Absolute or relative path used for the last successful load, or best candidate for save.</summary>
+        public static string? GetResolvedFilePath()
+        {
+            if (!string.IsNullOrEmpty(_resolvedPath) && File.Exists(_resolvedPath))
+                return _resolvedPath;
+
+            string? existing = GameConstants.TryGetExistingGameDataFilePath(GameConstants.FlavorTextJson);
+            if (existing != null)
+                return existing;
+
+            return JsonLoader.FindGameDataFile(GameConstants.FlavorTextJson);
+        }
+
+        /// <summary>Writes <paramref name="data"/> to FlavorText.json and replaces the live cache.</summary>
+        public static void SaveData(FlavorTextData data)
+        {
+            if (data == null) throw new ArgumentNullException(nameof(data));
+
+            string? path = GetResolvedFilePath();
+            if (string.IsNullOrEmpty(path))
+            {
+                string? settingsDir = GameConstants.GetSettingsDirectory();
+                path = settingsDir != null
+                    ? Path.Combine(settingsDir, GameConstants.FlavorTextJson)
+                    : Path.Combine("GameData", GameConstants.FlavorTextJson);
+            }
+
+            string? directory = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(directory))
+                Directory.CreateDirectory(directory);
+
+            NormalizeData(data);
+            string json = JsonSerializer.Serialize(data, JsonOptions);
+            File.WriteAllText(path, json);
+
+            lock (_lock)
+            {
+                _resolvedPath = path;
+                _data = data;
+            }
+        }
+
         private static void LoadData()
         {
             try
             {
-                // Try multiple possible paths for the JSON file
-                string[] possiblePaths = {
-                    Path.Combine("GameData", "FlavorText.json"),
-                    Path.Combine("..", "GameData", "FlavorText.json"),
-                    Path.Combine("..", "..", "GameData", "FlavorText.json"),
-                    "FlavorText.json"
-                };
-                
-                string? foundPath = null;
-                foreach (string path in possiblePaths)
+                string? foundPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.FlavorTextJson);
+                if (foundPath == null)
                 {
-                    if (File.Exists(path))
+                    foreach (string path in new[]
                     {
-                        foundPath = path;
-                        break;
+                        Path.Combine("GameData", GameConstants.FlavorTextJson),
+                        Path.Combine("..", "GameData", GameConstants.FlavorTextJson),
+                        Path.Combine("..", "..", "GameData", GameConstants.FlavorTextJson),
+                        GameConstants.FlavorTextJson
+                    })
+                    {
+                        if (File.Exists(path))
+                        {
+                            foundPath = path;
+                            break;
+                        }
                     }
                 }
-                
+
                 if (foundPath != null)
                 {
                     string jsonContent = File.ReadAllText(foundPath);
-                    _data = JsonSerializer.Deserialize<FlavorTextData>(jsonContent);
+                    var loaded = JsonSerializer.Deserialize<FlavorTextData>(jsonContent, JsonOptions);
+                    NormalizeData(loaded);
+                    _data = loaded ?? new FlavorTextData();
+                    _resolvedPath = foundPath;
                 }
                 else
                 {
                     UIManager.WriteSystemLine("Warning: FlavorText.json not found in any expected location");
                     _data = new FlavorTextData();
+                    _resolvedPath = null;
                 }
             }
             catch (Exception ex)
             {
                 UIManager.WriteSystemLine($"Warning: Could not load FlavorText.json: {ex.Message}");
                 _data = new FlavorTextData();
+                _resolvedPath = null;
+            }
+        }
+
+        private static void NormalizeData(FlavorTextData? data)
+        {
+            if (data == null) return;
+            data.Names ??= new NamesData();
+            data.Items ??= new ItemsData();
+            data.Environments ??= new EnvironmentsData();
+            data.ClassQualifiers ??= new ClassQualifiersData();
+            data.ClassQualifiers.ClassNames ??= new ClassNamesData();
+            data.Environments.LocationDescriptions ??= new Dictionary<string, string[]>();
+            data.Environments.RoomContexts ??= new Dictionary<string, Dictionary<string, string[]>>();
+            if (data.CombatNarratives == null || data.CombatNarratives.Comparer != StringComparer.OrdinalIgnoreCase)
+            {
+                var source = data.CombatNarratives ?? new Dictionary<string, string[]>();
+                data.CombatNarratives = new Dictionary<string, string[]>(source, StringComparer.OrdinalIgnoreCase);
+            }
+            if (data.Forms == null || data.Forms.Comparer != StringComparer.OrdinalIgnoreCase)
+            {
+                var source = data.Forms ?? new Dictionary<string, FlavorFormDefinition>();
+                data.Forms = new Dictionary<string, FlavorFormDefinition>(source, StringComparer.OrdinalIgnoreCase);
+            }
+            foreach (var kvp in data.Forms.ToList())
+            {
+                if (kvp.Value == null)
+                    data.Forms[kvp.Key] = new FlavorFormDefinition();
+                else
+                {
+                    kvp.Value.DisplayName ??= "";
+                    kvp.Value.Template ??= "";
+                    if (string.IsNullOrWhiteSpace(kvp.Value.DisplayName))
+                        kvp.Value.DisplayName = kvp.Key;
+                }
+            }
+            if (data.Categories == null || data.Categories.Comparer != StringComparer.OrdinalIgnoreCase)
+            {
+                var source = data.Categories ?? new Dictionary<string, string[]>();
+                data.Categories = new Dictionary<string, string[]>(source, StringComparer.OrdinalIgnoreCase);
+            }
+            foreach (var key in data.Categories.Keys.ToList())
+            {
+                var entries = data.Categories[key];
+                if (entries == null)
+                {
+                    data.Categories[key] = Array.Empty<string>();
+                    continue;
+                }
+                data.Categories[key] = entries
+                    .Where(e => !string.IsNullOrWhiteSpace(e))
+                    .Select(e => e.TrimEnd())
+                    .ToArray();
             }
         }
 
@@ -175,10 +293,9 @@ namespace RPGGame
         public static string GenerateLocationDescription()
         {
             var data = GetData();
-            // Get a random theme and then a random description from that theme
             var themes = data.Environments.LocationDescriptions.Keys.ToArray();
             if (themes.Length == 0) return "A mysterious location.";
-            
+
             string randomTheme = GetRandomName(themes);
             return GenerateLocationDescription(randomTheme);
         }
@@ -190,13 +307,12 @@ namespace RPGGame
             {
                 return GetRandomName(descriptions);
             }
-            
-            // Fallback to generic descriptions if theme not found
+
             if (data.Environments.LocationDescriptions.TryGetValue("Generic", out string[]? genericDescriptions) && genericDescriptions.Length > 0)
             {
                 return GetRandomName(genericDescriptions);
             }
-            
+
             return "A mysterious location.";
         }
 
@@ -251,8 +367,7 @@ namespace RPGGame
         public static string GenerateRoomContext(string theme, string roomType)
         {
             var data = GetData();
-            
-            // Try to get theme-specific room context
+
             if (data.Environments.RoomContexts.TryGetValue(theme, out var themeContexts))
             {
                 if (themeContexts.TryGetValue(roomType.ToLower(), out string[]? contexts) && contexts.Length > 0)
@@ -260,8 +375,7 @@ namespace RPGGame
                     return GetRandomName(contexts);
                 }
             }
-            
-            // Fallback to generic room context
+
             if (data.Environments.RoomContexts.TryGetValue("Generic", out var genericContexts))
             {
                 if (genericContexts.TryGetValue(roomType.ToLower(), out string[]? genericContext) && genericContext.Length > 0)
@@ -269,8 +383,8 @@ namespace RPGGame
                     return GetRandomName(genericContext);
                 }
             }
-            
-            return ""; // Return empty string if no context found
+
+            return "";
         }
     }
-} 
+}

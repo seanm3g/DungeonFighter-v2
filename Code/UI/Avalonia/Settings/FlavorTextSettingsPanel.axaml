@@ -1,0 +1,340 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="900"
+             x:Class="RPGGame.UI.Avalonia.Settings.FlavorTextSettingsPanel"
+             Classes="settings-ui"
+             Background="Transparent"
+             VerticalAlignment="Stretch">
+    <Grid Margin="12" RowDefinitions="Auto,*,Auto,*,*,Auto" VerticalAlignment="Stretch">
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,0,0,10">
+            <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Text="Flavor Text"
+                           Classes="settings-title"
+                           FontSize="18"
+                           FontWeight="Bold"/>
+                <TextBlock Text="Generate samples from the selected form, then tweak forms and shared category lists."
+                           Classes="settings-muted"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           MaxWidth="720"/>
+                <TextBlock x:Name="FlavorTextStatusText"
+                           Classes="settings-muted"
+                           FontSize="11"
+                           TextWrapping="Wrap"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
+            <Button x:Name="ExpandFlavorTextSectionsButton"
+                    Grid.Column="1"
+                    Content="EXPAND"
+                    Width="110"
+                    Height="36"
+                    Margin="8,0,0,0"
+                    VerticalAlignment="Top"
+                    Background="#FF555555"
+                    Foreground="White"
+                    BorderThickness="0"
+                    CornerRadius="4"
+                    FontSize="12"
+                    FontWeight="SemiBold"/>
+            <Button x:Name="ReloadFlavorTextButton"
+                    Grid.Column="2"
+                    Content="Reload"
+                    Width="100"
+                    Height="36"
+                    Margin="8,0,8,0"
+                    VerticalAlignment="Top"
+                    BorderThickness="0"
+                    CornerRadius="4"
+                    FontSize="12"/>
+            <Button x:Name="SaveFlavorTextButton"
+                    Grid.Column="3"
+                    Content="Save JSON"
+                    Width="110"
+                    Height="36"
+                    VerticalAlignment="Top"
+                    Background="#FF0078D4"
+                    Foreground="White"
+                    BorderThickness="0"
+                    CornerRadius="4"
+                    FontSize="12"
+                    FontWeight="SemiBold"/>
+        </Grid>
+
+        <!-- Generate (top stretch) -->
+        <ContentControl x:Name="FlavorTextGenerateHost"
+                        Grid.Row="1"
+                        Margin="0,0,0,10"
+                        VerticalAlignment="Stretch"
+                        HorizontalAlignment="Stretch">
+            <Border BorderBrush="#555555"
+                    BorderThickness="1"
+                    Padding="10"
+                    VerticalAlignment="Stretch">
+                <Grid RowDefinitions="Auto,Auto,*" MinHeight="140">
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,8">
+                        <TextBlock Grid.Column="0"
+                                   Text="Generate"
+                                   Classes="settings-section-header"
+                                   VerticalAlignment="Center"/>
+                        <Button x:Name="GenerateFlavorTextButton"
+                                Grid.Column="1"
+                                Content="Generate"
+                                Width="100"
+                                Height="32"
+                                Margin="0,0,8,0"
+                                Background="#FF28A745"
+                                Foreground="White"
+                                BorderThickness="0"
+                                CornerRadius="4"
+                                FontSize="12"/>
+                        <Button x:Name="GenerateFlavorTextx10Button"
+                                Grid.Column="2"
+                                Content="×10"
+                                Width="64"
+                                Height="32"
+                                Background="#FF555555"
+                                Foreground="White"
+                                BorderThickness="0"
+                                CornerRadius="4"
+                                FontSize="12"/>
+                    </Grid>
+                    <TextBlock Grid.Row="1"
+                               Text="Fills &lt;category&gt; tags from global lists (and sample {name}/{player}/{enemy}/{effect})."
+                               Classes="settings-muted"
+                               FontSize="11"
+                               Margin="0,0,0,6"
+                               TextWrapping="Wrap"/>
+                    <TextBox x:Name="FlavorTextGenerateOutputTextBox"
+                             Grid.Row="2"
+                             IsReadOnly="True"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             FontFamily="Consolas,Courier New,monospace"
+                             FontSize="12"
+                             MinHeight="72"
+                             VerticalAlignment="Stretch"
+                             VerticalContentAlignment="Top"
+                             Watermark="Generated samples appear here"/>
+                </Grid>
+            </Border>
+        </ContentControl>
+
+        <!-- Forms -->
+        <ContentControl x:Name="FlavorTextFormsHost"
+                        Grid.Row="2"
+                        Margin="0,0,0,10">
+            <Border BorderBrush="#555555"
+                    BorderThickness="1"
+                    Padding="10">
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,*">
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="0"
+                               Text="Forms"
+                               Classes="settings-section-header"
+                               Margin="0,0,0,8"/>
+                    <Button x:Name="AddFlavorTextFormButton"
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Content="Add Form"
+                            Width="100"
+                            Height="28"
+                            Margin="8,0,0,8"
+                            VerticalAlignment="Top"
+                            Background="#FF555555"
+                            Foreground="White"
+                            BorderThickness="0"
+                            CornerRadius="4"
+                            FontSize="12"/>
+                    <ListBox x:Name="FlavorTextFormsListBox"
+                             Grid.Row="1"
+                             Grid.Column="0"
+                             Grid.ColumnSpan="2"
+                             Height="72"
+                             Background="Transparent"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                             ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="4"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                    </ListBox>
+                </Grid>
+            </Border>
+        </ContentControl>
+
+        <!-- Form template -->
+        <ContentControl x:Name="FlavorTextTemplateHost"
+                        Grid.Row="3"
+                        Margin="0,0,0,10"
+                        MinHeight="120"
+                        VerticalAlignment="Stretch"
+                        HorizontalAlignment="Stretch">
+            <Border BorderBrush="#555555"
+                    BorderThickness="1"
+                    Padding="10"
+                    MinHeight="120"
+                    VerticalAlignment="Stretch">
+                <Grid RowDefinitions="Auto,*,Auto" VerticalAlignment="Stretch">
+                    <TextBlock x:Name="FlavorTextFormTemplateLabel"
+                               Grid.Row="0"
+                               Text="Form template"
+                               Classes="settings-section-header"
+                               Margin="0,0,0,8"/>
+                    <TextBox x:Name="FlavorTextFormTemplateTextBox"
+                             Grid.Row="1"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             FontFamily="Consolas,Courier New,monospace"
+                             FontSize="12"
+                             VerticalAlignment="Stretch"
+                             MinHeight="80"
+                             VerticalContentAlignment="Top"
+                             Watermark="Write a scenario. Use &lt;intro&gt;, &lt;detail&gt;, etc. to reference category lists."/>
+                    <TextBlock Grid.Row="2"
+                               Text="Anything inside &lt;…&gt; references a global category list below. Missing lists are created when you generate or leave the template."
+                               Classes="settings-muted"
+                               FontSize="11"
+                               Margin="0,8,0,0"
+                               TextWrapping="Wrap"/>
+                </Grid>
+            </Border>
+        </ContentControl>
+
+        <!-- Categories -->
+        <ContentControl x:Name="FlavorTextCategoriesHost"
+                        Grid.Row="4"
+                        Margin="0,0,0,10"
+                        MinHeight="160"
+                        VerticalAlignment="Stretch"
+                        HorizontalAlignment="Stretch">
+            <Border BorderBrush="#555555"
+                    BorderThickness="1"
+                    Padding="10"
+                    MinHeight="160"
+                    VerticalAlignment="Stretch">
+                <Grid ColumnDefinitions="240,*" VerticalAlignment="Stretch">
+                    <Grid Grid.Column="0" RowDefinitions="Auto,Auto,*" Margin="0,0,10,0">
+                        <TextBlock Grid.Row="0"
+                                   Text="Categories"
+                                   Classes="settings-section-header"
+                                   Margin="0,0,0,8"/>
+                        <Button x:Name="AddFlavorTextCategoryButton"
+                                Grid.Row="1"
+                                Content="Add Category"
+                                Height="28"
+                                Margin="0,0,0,8"
+                                HorizontalAlignment="Stretch"
+                                Background="#FF555555"
+                                Foreground="White"
+                                BorderThickness="0"
+                                CornerRadius="4"
+                                FontSize="12"/>
+                        <ListBox x:Name="FlavorTextCategoriesListBox"
+                                 Grid.Row="2"
+                                 Background="Transparent"
+                                 VerticalAlignment="Stretch"
+                                 MinHeight="0"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                    </Grid>
+                    <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
+                        <TextBlock x:Name="FlavorTextCategoryPathLabel"
+                                   Grid.Row="0"
+                                   Text="Select a category"
+                                   Classes="settings-field-label"
+                                   FontSize="12"
+                                   Margin="0,0,0,8"
+                                   TextWrapping="Wrap"/>
+                        <TextBox x:Name="FlavorTextCategoryEntriesTextBox"
+                                 Grid.Row="1"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 FontFamily="Consolas,Courier New,monospace"
+                                 FontSize="12"
+                                 VerticalAlignment="Stretch"
+                                 MinHeight="0"
+                                 VerticalContentAlignment="Top"
+                                 Watermark="One entry per line"/>
+                        <TextBlock Grid.Row="2"
+                                   Text="Shared across all forms. One phrase/word per line."
+                                   Classes="settings-muted"
+                                   FontSize="11"
+                                   Margin="0,8,0,0"
+                                   TextWrapping="Wrap"/>
+                    </Grid>
+                </Grid>
+            </Border>
+        </ContentControl>
+
+        <!-- Legacy banks -->
+        <ContentControl x:Name="FlavorTextLegacyHost"
+                        Grid.Row="5">
+            <Expander Header="Legacy banks (names, combat, environments…)"
+                      IsExpanded="False"
+                      Margin="0,0,0,0">
+                <Border BorderBrush="#555555"
+                        BorderThickness="1"
+                        Padding="8"
+                        Margin="0,8,0,0"
+                        MinHeight="220">
+                    <Grid ColumnDefinitions="320,*" MinHeight="200">
+                        <Border Grid.Column="0"
+                                BorderBrush="#444444"
+                                BorderThickness="1"
+                                Margin="0,0,10,0"
+                                Padding="8">
+                            <Grid RowDefinitions="Auto,*">
+                                <TextBlock Grid.Row="0"
+                                           Text="Banks"
+                                           Classes="settings-section-header"
+                                           Margin="0,0,0,8"/>
+                                <ListBox x:Name="FlavorTextBanksListBox"
+                                         Grid.Row="1"
+                                         Background="Transparent"
+                                         VerticalAlignment="Stretch"
+                                         MinHeight="140"
+                                         MaxHeight="280"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Column="1"
+                                BorderBrush="#444444"
+                                BorderThickness="1"
+                                Padding="8">
+                            <Grid RowDefinitions="Auto,*,Auto">
+                                <TextBlock x:Name="FlavorTextBankPathLabel"
+                                           Grid.Row="0"
+                                           Text="Select a bank"
+                                           Classes="settings-field-label"
+                                           FontSize="12"
+                                           Margin="0,0,0,8"
+                                           TextWrapping="Wrap"/>
+                                <TextBox x:Name="FlavorTextEntriesTextBox"
+                                         Grid.Row="1"
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         FontFamily="Consolas,Courier New,monospace"
+                                         FontSize="12"
+                                         MinHeight="120"
+                                         MaxHeight="260"
+                                         VerticalContentAlignment="Top"
+                                         Watermark="One entry per line"/>
+                                <TextBlock Grid.Row="2"
+                                           Text="Legacy game banks. Combat templates may use {name}, {player}, {enemy}, {effect}."
+                                           Classes="settings-muted"
+                                           FontSize="11"
+                                           Margin="0,8,0,0"
+                                           TextWrapping="Wrap"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Expander>
+        </ContentControl>
+    </Grid>
+</UserControl>

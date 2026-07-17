@@ -27,8 +27,30 @@ namespace RPGGame.Tests.Unit.UI
             AudioPanel_Is_Main_Content_And_Tag_Resolves();
             BalanceTuning_DisplayName_Is_SpreadsheetImport();
             HandlerSaveTags_Match_Descriptor_Flags();
+            FlavorText_Is_Developer_Panel_With_Handler_Save();
 
             TestBase.PrintSummary("SettingsPanelCatalog Tests", _testsRun, _testsPassed, _testsFailed);
+        }
+
+        private static void FlavorText_Is_Developer_Panel_With_Handler_Save()
+        {
+            Console.WriteLine("--- FlavorText panel registration ---");
+
+            var descriptor = SettingsPanelCatalog.GetDescriptor("FlavorText");
+            TestBase.AssertTrue(descriptor != null, "FlavorText descriptor should exist",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Flavor Text", descriptor!.DisplayName,
+                "FlavorText display name",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(SettingsSidebarGroups.Developer, descriptor.SidebarGroup,
+                "FlavorText should be under Developer",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(descriptor.UsesHandler && descriptor.SavesViaHandler,
+                "FlavorText should use handler save",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(descriptor.PanelType == typeof(FlavorTextSettingsPanel),
+                "FlavorText panel type should be FlavorTextSettingsPanel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void AllDescriptors_Have_Unique_Tags_And_Valid_Factories()
@@ -199,9 +221,10 @@ namespace RPGGame.Tests.Unit.UI
 
             TestBase.AssertTrue(
                 SettingsPanelCatalog.HandlerSaveCategoryTags.Contains("TextAndAnimation") &&
+                SettingsPanelCatalog.HandlerSaveCategoryTags.Contains("FlavorText") &&
                 !SettingsPanelCatalog.HandlerSaveCategoryTags.Contains("TextDelays") &&
                 !SettingsPanelCatalog.HandlerSaveCategoryTags.Contains("EnemyTuning"),
-                "Handler save list should use TextAndAnimation instead of TextDelays and CombatTuning instead of EnemyTuning",
+                "Handler save list should include FlavorText and TextAndAnimation, not TextDelays/EnemyTuning",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var itemGenIndex = SettingsPanelCatalog.HandlerSaveCategoryTags

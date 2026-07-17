@@ -129,9 +129,13 @@ namespace RPGGame.Tests.Runners
             list.AddRange(DataSystemTestRunner.GetSuiteEntries());
             list.AddRange(MCPSystemTestRunner.GetSuiteEntries());
             list.Add(new TestSuiteEntry("data", "ActionBonusMechanics", () => RPGGame.Tests.Unit.Data.ActionBonusMechanicsTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("data", "ActionBonusMechanicsFlow", RunActionBonusMechanicsFlow));
+            list.Add(new TestSuiteEntry("data", "JsonArraySheetConverterEnemies", RunJsonArraySheetConverterEnemies));
+            list.Add(new TestSuiteEntry("data", "JsonArraySheetConverterWeapons", RunJsonArraySheetConverterWeapons));
             list.Add(new TestSuiteEntry("data", "ActionCadenceEditorSync", () => RPGGame.Tests.Unit.Data.ActionCadenceEditorSyncTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CadenceCardLineFormatter", () => RPGGame.Tests.Unit.UI.CadenceCardLineFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatActionStripBuilder", () => RPGGame.Tests.Unit.UI.CombatActionStripBuilderTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "TitleScreenAsciiSpacing", () => RPGGame.Tests.Unit.UI.TitleScreen.TitleScreenAsciiSpacingTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionBonusBorderShimmer", () => RPGGame.Tests.Unit.UI.ActionBonusBorderShimmerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionsTabManager", () => RPGGame.Tests.Unit.UI.ActionsTabManagerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "ActionSetVisibility", () => RPGGame.Tests.Unit.Data.ActionSetVisibilityTests.RunAllTests()));
@@ -152,12 +156,47 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("entity", "ActorClearTempEffects", () => RPGGame.Tests.Unit.Entity.ActorClearTempEffectsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "DeveloperSimMode", () => RPGGame.Tests.Unit.Tuning.DeveloperSimModeTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "ActionInteractionLab", () => RPGGame.Tests.Unit.ActionInteractionLabTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("game", "ActionInteractionLabCatalog", RunActionInteractionLabCatalog));
+            list.Add(new TestSuiteEntry("game", "ActionInteractionLabSession", RunActionInteractionLabSession));
+            list.Add(new TestSuiteEntry("data", "FlavorText", () => RPGGame.Tests.Unit.FlavorTextBankCatalogTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "FlavorTextWindowPlacement", () => RPGGame.Tests.Unit.UI.FlavorTextWindowPlacementTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ActionLabWindowPlacement", () => RPGGame.Tests.Unit.UI.ActionLabWindowPlacementTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "SettingsMenuHandler", () => RPGGame.Tests.Unit.Game.Handlers.SettingsMenuHandlerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "BlockDisplayManager", () => RPGGame.Tests.Unit.UI.BlockDisplayManagerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "GameStateManagerMultiCharacter", () => RPGGame.Tests.Unit.GameStateManagerMultiCharacterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("persistence", "SaveLoad", () => RPGGame.Tests.Unit.SaveLoadSystemTests.RunAllTests()));
             list.Add(new TestSuiteEntry("comprehensive", "Comprehensive", () => ComprehensiveTestRunner.RunAllTests()));
             return list;
+        }
+
+        private static void RunActionBonusMechanicsFlow()
+        {
+            int run = 0, pass = 0, fail = 0;
+            RPGGame.Tests.Unit.Data.ActionBonusMechanics.ActionBonusMechanicsFlowTests.RunAll(ref run, ref pass, ref fail);
+        }
+
+        private static void RunJsonArraySheetConverterEnemies()
+        {
+            int run = 0, pass = 0, fail = 0;
+            RPGGame.Tests.Unit.Data.JsonArraySheetConverter.JsonArraySheetConverterEnemiesTests.RunAll(ref run, ref pass, ref fail);
+        }
+
+        private static void RunJsonArraySheetConverterWeapons()
+        {
+            int run = 0, pass = 0, fail = 0;
+            RPGGame.Tests.Unit.Data.JsonArraySheetConverter.JsonArraySheetConverterWeaponsTests.RunAll(ref run, ref pass, ref fail);
+        }
+
+        private static void RunActionInteractionLabCatalog()
+        {
+            int run = 0, pass = 0, fail = 0;
+            RPGGame.Tests.Unit.ActionInteractionLab.ActionInteractionLabCatalogTests.RunAll(ref run, ref pass, ref fail);
+        }
+
+        private static void RunActionInteractionLabSession()
+        {
+            int run = 0, pass = 0, fail = 0;
+            RPGGame.Tests.Unit.ActionInteractionLab.ActionInteractionLabSessionTests.RunAll(ref run, ref pass, ref fail);
         }
     }
 }

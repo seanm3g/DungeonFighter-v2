@@ -253,7 +253,7 @@ namespace RPGGame
                     config.BeatTiming.BeatMultipliers.EffectMessage = 0.4; // 0.4 beats = 20ms
                     config.BeatTiming.BeatMultipliers.DamageOverTime = 0.4; // 0.4 beats = 20ms
                     config.BeatTiming.BeatMultipliers.Title = 2.0; // 2 beats = 100ms
-                    config.BeatTiming.BeatMultipliers.MainTitle = 4.0; // 4 beats = 200ms
+                    config.BeatTiming.BeatMultipliers.MainTitle = 0; // any-key title screen — no timed pause
                     config.BeatTiming.BeatMultipliers.Encounter = 0.67; // 0.67 beats = 33.5ms
                     config.BeatTiming.BeatMultipliers.RollInfo = 0.05; // 0.05 beats = 2.5ms
                     break;
@@ -269,7 +269,7 @@ namespace RPGGame
                     config.BeatTiming.BeatMultipliers.EffectMessage = 0.7; // 0.7 beats = 105ms
                     config.BeatTiming.BeatMultipliers.DamageOverTime = 0.7; // 0.7 beats = 105ms
                     config.BeatTiming.BeatMultipliers.Title = 5.0; // 5 beats = 750ms
-                    config.BeatTiming.BeatMultipliers.MainTitle = 10.0; // 10 beats = 1500ms
+                    config.BeatTiming.BeatMultipliers.MainTitle = 0; // any-key title screen — no timed pause
                     config.BeatTiming.BeatMultipliers.Encounter = 0.67; // 0.67 beats = 100.5ms
                     config.BeatTiming.BeatMultipliers.RollInfo = 0.2; // 0.2 beats = 30ms
                     break;

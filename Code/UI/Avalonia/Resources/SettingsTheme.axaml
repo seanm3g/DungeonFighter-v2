@@ -135,8 +135,57 @@
         <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
     </Style>
 
+    <Style Selector=".settings-ui ComboBox /template/ Border#Background">
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+    </Style>
+    <Style Selector=".settings-ui ComboBox:pointerover /template/ Border#Background">
+        <Setter Property="Background" Value="{StaticResource SettingsInputHoverBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+    </Style>
+    <Style Selector=".settings-ui ComboBox /template/ Path#DropDownGlyph">
+        <Setter Property="Fill" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
+    <Style Selector=".settings-ui ComboBox:pointerover /template/ Path#DropDownGlyph">
+        <Setter Property="Fill" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
+    <!-- Popup renders in overlay; template selectors keep dropdown readable on all OS themes -->
+    <Style Selector=".settings-ui ComboBox /template/ Border#PopupBorder">
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+    </Style>
+    <Style Selector=".settings-ui ComboBox:dropdownopen /template/ Border#PopupBorder">
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+    </Style>
     <Style Selector=".settings-ui ComboBox:pointerover">
         <Setter Property="Background" Value="{StaticResource SettingsInputHoverBackground}"/>
+    </Style>
+
+    <Style Selector=".settings-ui ComboBoxItem">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>
+        <Setter Property="Padding" Value="8,6"/>
+    </Style>
+    <Style Selector=".settings-ui ComboBoxItem /template/ ContentPresenter">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector=".settings-ui ComboBoxItem:pointerover">
+        <Setter Property="Background" Value="{StaticResource SettingsInputHoverBackground}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+    </Style>
+    <Style Selector=".settings-ui ComboBoxItem:pointerover /template/ ContentPresenter">
+        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="Background" Value="{StaticResource SettingsInputHoverBackground}"/>
+    </Style>
+    <Style Selector=".settings-ui ComboBoxItem:selected">
+        <Setter Property="Background" Value="{StaticResource SettingsSidebarSelected}"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector=".settings-ui ComboBoxItem:selected /template/ ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="{StaticResource SettingsSidebarSelected}"/>
     </Style>
 
     <Style Selector=".settings-ui NumericUpDown">
@@ -211,7 +260,7 @@
 
     <Style Selector=".settings-ui Button">
         <Setter Property="Background" Value="{StaticResource SettingsSidebarItem}"/>
-        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="Foreground" Value="White"/>
         <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="MinHeight" Value="32"/>
@@ -219,9 +268,43 @@
         <Setter Property="CornerRadius" Value="4"/>
         <Setter Property="FontSize" Value="{StaticResource SettingsFontSizeBody}"/>
     </Style>
+    <Style Selector=".settings-ui Button /template/ Border#RootBorder">
+        <Setter Property="Background" Value="{StaticResource SettingsSidebarItem}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+    </Style>
+    <Style Selector=".settings-ui Button /template/ Border#NormalRectangle">
+        <Setter Property="Background" Value="{StaticResource SettingsSidebarItem}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+    </Style>
+    <Style Selector=".settings-ui Button /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector=".settings-ui Button /template/ ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
     <Style Selector=".settings-ui Button:pointerover">
         <Setter Property="Background" Value="{StaticResource SettingsInputHoverBackground}"/>
-        <Setter Property="Foreground" Value="{StaticResource SettingsTextPrimary}"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector=".settings-ui Button:pointerover /template/ Border#RootBorder">
+        <Setter Property="Background" Value="{StaticResource SettingsInputHoverBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+    </Style>
+    <Style Selector=".settings-ui Button:pointerover /template/ Border#NormalRectangle">
+        <Setter Property="Background" Value="{StaticResource SettingsInputHoverBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SettingsInputBorder}"/>
+    </Style>
+    <Style Selector=".settings-ui Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector=".settings-ui Button:pointerover /template/ ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector=".settings-ui Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector=".settings-ui Button:pressed /template/ ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
     </Style>
     <Style Selector=".settings-ui Button.settings-primary-button">
         <Setter Property="Background" Value="{StaticResource SettingsInputFocusBorder}"/>
@@ -230,8 +313,27 @@
         <Setter Property="Padding" Value="16,8"/>
         <Setter Property="CornerRadius" Value="4"/>
     </Style>
+    <Style Selector=".settings-ui Button.settings-primary-button /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector=".settings-ui Button.settings-primary-button /template/ ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
     <Style Selector=".settings-ui Button.settings-primary-button:pointerover">
         <Setter Property="Background" Value="#1A8AE6"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector=".settings-ui Button.settings-primary-button:pointerover /template/ Border#RootBorder">
+        <Setter Property="Background" Value="#1A8AE6"/>
+    </Style>
+    <Style Selector=".settings-ui Button.settings-primary-button:pointerover /template/ Border#NormalRectangle">
+        <Setter Property="Background" Value="#1A8AE6"/>
+    </Style>
+    <Style Selector=".settings-ui Button.settings-primary-button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector=".settings-ui Button.settings-primary-button:pointerover /template/ ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
     </Style>
     <Style Selector=".settings-ui TextBox.settings-console-output">
         <Setter Property="Background" Value="{StaticResource SettingsInputBackground}"/>

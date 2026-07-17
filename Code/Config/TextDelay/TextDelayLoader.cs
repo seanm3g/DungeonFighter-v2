@@ -141,7 +141,7 @@ namespace RPGGame.Config.TextDelay
                 configData.MessageTypeDelays[UIMessageType.System] = 100;
                 configData.MessageTypeDelays[UIMessageType.Menu] = 25;
                 configData.MessageTypeDelays[UIMessageType.Title] = 400;
-                configData.MessageTypeDelays[UIMessageType.MainTitle] = 400;
+                configData.MessageTypeDelays[UIMessageType.MainTitle] = 0;
                 configData.MessageTypeDelays[UIMessageType.Environmental] = 150;
                 configData.MessageTypeDelays[UIMessageType.EffectMessage] = 50;
                 configData.MessageTypeDelays[UIMessageType.DamageOverTime] = 50;

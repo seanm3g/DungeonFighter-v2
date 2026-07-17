@@ -2,7 +2,7 @@
   "FramesPerSecond": 30,
   "WhiteLightHoldFrames": 3,
   "FinalTransitionFrames": 51,
-  "FinalHoldDuration": 1000,
+  "FinalHoldDuration": 0,
   "ColorScheme": {
     "InitialColor": "k",
     "FlashColor1": "W",

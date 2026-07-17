@@ -24,9 +24,10 @@ namespace RPGGame.UI.TitleScreen
         public int FinalTransitionFrames { get; set; } = 45;
 
         /// <summary>
-        /// Duration to hold final frame before showing "press key" message (milliseconds)
+        /// Duration to hold final frame before showing "press key" message (milliseconds).
+        /// Default 0: the title screen waits for any key, so no timed hold is needed.
         /// </summary>
-        public int FinalHoldDuration { get; set; } = 1000;
+        public int FinalHoldDuration { get; set; } = 0;
 
         /// <summary>
         /// Color scheme for the animation

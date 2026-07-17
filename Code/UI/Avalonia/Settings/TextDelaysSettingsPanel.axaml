@@ -169,7 +169,7 @@
                         
                         <TextBlock Grid.Row="4" Grid.Column="0" Text="Main Title:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="4" Grid.Column="1" Classes="setting-example"
-                                   Text="Example: &quot;DUNGEON FIGHTER&quot; — main title screen and other large centered headings."/>
+                                   Text="Example: boot title screen — keep 0; it waits for any key rather than a timed pause."/>
                         <TextBox x:Name="MainTitleDelayTextBox" Grid.Row="4" Grid.Column="2" Width="90" Height="28" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                         
