@@ -63,9 +63,9 @@ namespace RPGGame.UI.TitleScreen
         public int PaletteShiftIntervalMs { get; set; } = 3000;
 
         /// <summary>
-        /// Duration of the RGB crossfade between idle color sequences, in milliseconds (default 600).
+        /// Duration of the RGB crossfade between idle color sequences, in milliseconds (default 1500).
         /// </summary>
-        public int PaletteTransitionMs { get; set; } = 600;
+        public int PaletteTransitionMs { get; set; } = 1500;
 
         /// <summary>
         /// Duration to hold final frame before showing "press key" message (milliseconds).

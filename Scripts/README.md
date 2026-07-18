@@ -12,6 +12,18 @@ Use `df` as the single entrypoint for common workflows.
 .\Scripts\df.bat metrics
 ```
 
+## Quick start (Linux / macOS)
+
+From the **repo root** (not `Scripts/`):
+
+```bash
+./"Dungeon Fighter(Linux).sh"   # Linux
+./"Dungeon Fighter(Mac).sh"     # macOS
+bash Scripts/install-dotnet.sh  # install .NET 8 if needed
+```
+
+See `LINUX_SETUP_GUIDE.md` for Linux details.
+
 ## Commands
 
 - **`run`**: publish Release (self-contained single file) to `dist/` and start `dist/DF.exe`

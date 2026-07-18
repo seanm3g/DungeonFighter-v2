@@ -58,7 +58,7 @@ Settings → **Developer → Flavor Text** is a forms-first authoring lab for `G
 
 ### UI — title screen idle-first + muted palette
 
-Boot skips the fade/POP/settle intro and goes straight to the **cancelable idle undulation** on DEMON/FIGHTER (`TitleScreenController.ShowAnimatedTitleScreenAsync` → `RunIdleCycleAsync`). Idle uses the same `TextAnimationCompositor` preset **`dungeonSelection`** and `DungeonSelectionAnimationState` as the dungeon selection screen. Title idle palettes are the dedicated **`title_neon_*`** templates in `ColorTemplates.json` (cyber / acid / plasma / hyper), built from bright **`neon_*`** codes in `ColorCodes.json`; `TitleIdlePalettePicker` prefers those when present (FIGHTER reversed). Each palette **holds** for **`PaletteShiftIntervalMs`** (default **3000**), then **RGB-crossfades** into the next over **`PaletteTransitionMs`** (default **600**) via `TitleFrameBuilder.LerpColoredLines`. Backdrop stays **black** (no complementary fill). DEMON/FIGHTER palette colors are scaled by **`IdleSaturationScale`** (default **1.5**, +50% saturation) from `TitleAnimationConfig.json`. Decorator, tagline stay static. “Press any key…” is painted in the **same UI pass** as each idle frame (no clear→refresh→redraw flicker). Intro sequence generator remains available for tests/tools. Tests: `TitleScreenAsciiSpacingTests`, `TitleScreenAnimationTests`.
+Boot skips the fade/POP/settle intro and goes straight to the **cancelable idle undulation** on DEMON/FIGHTER (`TitleScreenController.ShowAnimatedTitleScreenAsync` → `RunIdleCycleAsync`). Idle uses the same `TextAnimationCompositor` preset **`dungeonSelection`** and `DungeonSelectionAnimationState` as the dungeon selection screen. Title idle palettes are the dedicated **`title_neon_*`** templates in `ColorTemplates.json` (cyber / acid / plasma / hyper), built from bright **`neon_*`** codes in `ColorCodes.json`; `TitleIdlePalettePicker` prefers those when present (FIGHTER reversed). Each palette **holds** for **`PaletteShiftIntervalMs`** (default **3000**), then **RGB-crossfades** into the next over **`PaletteTransitionMs`** (default **1500**) via `TitleFrameBuilder.LerpColoredLines`. Backdrop stays **black** (no complementary fill). DEMON/FIGHTER palette colors are scaled by **`IdleSaturationScale`** (default **1.5**, +50% saturation) from `TitleAnimationConfig.json`. Decorator, tagline stay static. “Press any key…” is painted in the **same UI pass** as each idle frame (no clear→refresh→redraw flicker). Intro sequence generator remains available for tests/tools. Tests: `TitleScreenAsciiSpacingTests`, `TitleScreenAnimationTests`.
 
 ### Action Lab — character snapshots + seeded dungeon tooling
 
@@ -115,6 +115,10 @@ Region travel rolls **4d4 once** at the start of a trip to set how many route ev
 ### Bugfix — Windows launcher SDK detection
 
 The Windows PC launcher should detect an already installed .NET 8 SDK using the SDK list, not just the default `dotnet --version` value. If .NET 8 is installed, including under the common Program Files dotnet locations before PATH is refreshed, the launcher and helper install script should skip the SDK installation step and continue to build normally.
+
+### Platform — Linux launcher
+
+Linux players can run from the repo root with `./Dungeon Fighter(Linux).sh` (after `chmod +x`). The script ensures a .NET **8.x** SDK (`Scripts/install-dotnet.sh`: apt when available, else Microsoft’s installer into `~/.dotnet`), builds Debug, and runs in the foreground by default (`--bg` for background). See `LINUX_SETUP_GUIDE.md`. Companion launchers: `Dungeon Fighter(PC).bat` (Windows), `Dungeon Fighter(Mac).sh` (macOS).
 
 ### UI — action mechanical descriptions
 

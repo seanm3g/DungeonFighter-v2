@@ -4,7 +4,9 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
-- [x] **UI / Title screen black bg + palette crossfade:** Idle backdrop stays black; neon sequences hold then RGB-lerp over `PaletteTransitionMs` (600). Tests: `TitleScreenAnimationTests`. Docs: `OVERVIEW.md`.
+- [x] **Platform / Linux launcher:** Added `Dungeon Fighter(Linux).sh` (build + run; optional `--bg`), made `Scripts/install-dotnet.sh` work on Linux (apt + official installer), fixed `play.sh` / `play-automated.sh` hardcoded Windows paths. Docs: `LINUX_SETUP_GUIDE.md`, `README.md`, `OVERVIEW.md`.
+
+- [x] **UI / Title screen black bg + palette crossfade:** Idle backdrop stays black; neon sequences hold then RGB-lerp over `PaletteTransitionMs` (1500). Tests: `TitleScreenAnimationTests`. Docs: `OVERVIEW.md`.
 
 - [x] **UI / Title screen vibrant complementary bg:** Backdrop uses `ComplementaryVibrantBackground` (high S/V neon fill) instead of the dark tint. Tests: `TitleScreenAnimationTests`. Docs: `OVERVIEW.md`.
 

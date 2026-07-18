@@ -4,12 +4,25 @@ Turn-based RPG in C# (.NET) with a data-driven action/combat system and an Avalo
 
 ## Quick start
 
-- **Build**:
-  - `cd Code`
-  - `dotnet build`
-- **Run**:
-  - `cd Code`
-  - `dotnet run`
+Requires **.NET 8 SDK** and a desktop session for the Avalonia window.
+
+### Launchers (recommended)
+
+| Platform | From repo root |
+|---|---|
+| **Windows** | Double-click `Dungeon Fighter(PC).bat` |
+| **Linux** | `chmod +x "Dungeon Fighter(Linux).sh"` then `./"Dungeon Fighter(Linux).sh"` |
+| **macOS** | `chmod +x "Dungeon Fighter(Mac).sh"` then `./"Dungeon Fighter(Mac).sh"` |
+
+Linux details: [LINUX_SETUP_GUIDE.md](LINUX_SETUP_GUIDE.md) · Windows details: [WINDOWS_SETUP_GUIDE.md](WINDOWS_SETUP_GUIDE.md)
+
+### Manual build / run
+
+```bash
+cd Code
+dotnet build
+dotnet run
+```
 
 ## Where things are
 
