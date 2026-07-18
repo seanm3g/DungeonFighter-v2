@@ -111,6 +111,66 @@
       "name": "white",
       "rgb": [255, 255, 255],
       "hex": "#ffffff"
+    },
+    {
+      "code": "neon_pink",
+      "name": "neon pink",
+      "rgb": [255, 16, 240],
+      "hex": "#ff10f0"
+    },
+    {
+      "code": "neon_cyan",
+      "name": "neon cyan",
+      "rgb": [0, 255, 255],
+      "hex": "#00ffff"
+    },
+    {
+      "code": "neon_lime",
+      "name": "neon lime",
+      "rgb": [57, 255, 20],
+      "hex": "#39ff14"
+    },
+    {
+      "code": "neon_yellow",
+      "name": "neon yellow",
+      "rgb": [255, 255, 51],
+      "hex": "#ffff33"
+    },
+    {
+      "code": "neon_orange",
+      "name": "neon orange",
+      "rgb": [255, 95, 31],
+      "hex": "#ff5f1f"
+    },
+    {
+      "code": "neon_blue",
+      "name": "neon electric blue",
+      "rgb": [30, 144, 255],
+      "hex": "#1e90ff"
+    },
+    {
+      "code": "neon_purple",
+      "name": "neon purple",
+      "rgb": [191, 0, 255],
+      "hex": "#bf00ff"
+    },
+    {
+      "code": "neon_magenta",
+      "name": "neon magenta",
+      "rgb": [255, 0, 255],
+      "hex": "#ff00ff"
+    },
+    {
+      "code": "neon_red",
+      "name": "neon hot red",
+      "rgb": [255, 0, 60],
+      "hex": "#ff003c"
+    },
+    {
+      "code": "neon_green",
+      "name": "neon green",
+      "rgb": [0, 255, 102],
+      "hex": "#00ff66"
     }
   ],
   
@@ -1283,6 +1343,34 @@
       "shaderType": "sequence",
       "colors": ["O", "W", "O", "W"],
       "description": "Title screen FIGHTER - orange and yellow gradient (no white)"
+    },
+    {
+      "name": "title_neon_cyber",
+      "shaderType": "sequence",
+      "colors": ["neon_cyan", "neon_magenta", "neon_pink", "neon_blue", "neon_cyan"],
+      "description": "Title idle neon — cyber cyan/magenta/pink/blue",
+      "undulate": true
+    },
+    {
+      "name": "title_neon_acid",
+      "shaderType": "sequence",
+      "colors": ["neon_lime", "neon_yellow", "neon_orange", "neon_green", "neon_lime"],
+      "description": "Title idle neon — acid lime/yellow/orange/green",
+      "undulate": true
+    },
+    {
+      "name": "title_neon_plasma",
+      "shaderType": "sequence",
+      "colors": ["neon_purple", "neon_pink", "neon_magenta", "neon_cyan", "neon_purple"],
+      "description": "Title idle neon — plasma purple/pink/magenta/cyan",
+      "undulate": true
+    },
+    {
+      "name": "title_neon_hyper",
+      "shaderType": "sequence",
+      "colors": ["neon_red", "neon_orange", "neon_yellow", "neon_lime", "neon_cyan", "neon_blue", "neon_magenta"],
+      "description": "Title idle neon — full hyper-spectrum rainbow",
+      "undulate": true
     },
     {
       "name": "weapon_class",

@@ -122,6 +122,7 @@ namespace RPGGame.Tests.Runners
             TextAnimationCompositorTests.RunAllTests();
             Console.WriteLine();
             TitleScreenAsciiSpacingTests.RunAllTests();
+            TitleScreenAnimationTests.RunAllTests();
             Console.WriteLine();
             
             // Spacing System Tests

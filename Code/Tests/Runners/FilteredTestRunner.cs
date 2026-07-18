@@ -136,6 +136,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "CadenceCardLineFormatter", () => RPGGame.Tests.Unit.UI.CadenceCardLineFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatActionStripBuilder", () => RPGGame.Tests.Unit.UI.CombatActionStripBuilderTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TitleScreenAsciiSpacing", () => RPGGame.Tests.Unit.UI.TitleScreen.TitleScreenAsciiSpacingTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "TitleScreenAnimation", () => RPGGame.Tests.Unit.UI.TitleScreen.TitleScreenAnimationTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionBonusBorderShimmer", () => RPGGame.Tests.Unit.UI.ActionBonusBorderShimmerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionsTabManager", () => RPGGame.Tests.Unit.UI.ActionsTabManagerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "ActionSetVisibility", () => RPGGame.Tests.Unit.Data.ActionSetVisibilityTests.RunAllTests()));

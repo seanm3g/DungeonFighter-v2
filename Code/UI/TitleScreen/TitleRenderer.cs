@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Threading;
+using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame.UI.Avalonia;
-using RPGGame.UI.ColorSystem;
 using RPGGame.Utils;
 
 namespace RPGGame.UI.TitleScreen
@@ -15,9 +13,17 @@ namespace RPGGame.UI.TitleScreen
     public interface ITitleRenderer
     {
         /// <summary>
-        /// Renders a title frame to the output
+        /// Renders a title frame to the output.
+        /// When <paramref name="includePressKey"/> is true, draws the press-key prompt
+        /// in the same paint pass (before a single refresh) to avoid flicker.
+        /// When <paramref name="backgroundColor"/> is set, updates the canvas clear fill.
         /// </summary>
-        void RenderFrame(TitleFrame frame);
+        void RenderFrame(TitleFrame frame, bool includePressKey = false, Color? backgroundColor = null);
+
+        /// <summary>
+        /// Restores the default black canvas background (after title idle ends).
+        /// </summary>
+        void ResetBackground();
 
         /// <summary>
         /// Clears the display
@@ -48,7 +54,7 @@ namespace RPGGame.UI.TitleScreen
             _canvasUI = canvasUI ?? throw new ArgumentNullException(nameof(canvasUI));
         }
 
-        public void RenderFrame(TitleFrame frame)
+        public void RenderFrame(TitleFrame frame, bool includePressKey = false, Color? backgroundColor = null)
         {
             if (frame?.Lines == null)
             {
@@ -59,6 +65,9 @@ namespace RPGGame.UI.TitleScreen
             // This blocks until the UI thread has processed the render
             Dispatcher.UIThread.Invoke(() =>
             {
+                if (backgroundColor.HasValue)
+                    _canvasUI.SetClearBackgroundColor(backgroundColor.Value);
+
                 // Clear the entire canvas for title screen animation
                 // This ensures no text from previous frames remains
                 _canvasUI.Clear();
@@ -84,6 +93,10 @@ namespace RPGGame.UI.TitleScreen
                     }
                 }
 
+                // Paint press-key in the same pass before one Refresh (avoids clear→missing→redraw flicker)
+                if (includePressKey)
+                    _canvasUI.ShowPressKeyMessage(refresh: false);
+
                 // Refresh to display the new frame
                 // InvalidateVisual() schedules a render, but we need to ensure it happens
                 _canvasUI.Refresh();
@@ -92,6 +105,11 @@ namespace RPGGame.UI.TitleScreen
                 // This helps ensure the frame is actually rendered before we continue
                 Dispatcher.UIThread.RunJobs(DispatcherPriority.Render);
             });
+        }
+
+        public void ResetBackground()
+        {
+            Dispatcher.UIThread.Invoke(() => _canvasUI.ResetClearBackgroundColor());
         }
 
         public void Clear()
@@ -116,7 +134,7 @@ namespace RPGGame.UI.TitleScreen
     /// </summary>
     public class ConsoleTitleRenderer : ITitleRenderer
     {
-        public void RenderFrame(TitleFrame frame)
+        public void RenderFrame(TitleFrame frame, bool includePressKey = false, Color? backgroundColor = null)
         {
             if (frame?.Lines == null)
             {
@@ -138,7 +156,12 @@ namespace RPGGame.UI.TitleScreen
                     Console.WriteLine();
                 }
             }
+
+            if (includePressKey)
+                ShowPressKeyMessage();
         }
+
+        public void ResetBackground() { }
 
         public void Clear()
         {
@@ -162,10 +185,10 @@ namespace RPGGame.UI.TitleScreen
     /// </summary>
     public class NullTitleRenderer : ITitleRenderer
     {
-        public void RenderFrame(TitleFrame frame) { }
+        public void RenderFrame(TitleFrame frame, bool includePressKey = false, Color? backgroundColor = null) { }
+        public void ResetBackground() { }
         public void Clear() { }
         public void Refresh() { }
         public void ShowPressKeyMessage() { }
     }
 }
-

@@ -111,6 +111,66 @@
       "name": "white",
       "rgb": [255, 255, 255],
       "hex": "#ffffff"
+    },
+    {
+      "code": "neon_pink",
+      "name": "neon pink",
+      "rgb": [255, 16, 240],
+      "hex": "#ff10f0"
+    },
+    {
+      "code": "neon_cyan",
+      "name": "neon cyan",
+      "rgb": [0, 255, 255],
+      "hex": "#00ffff"
+    },
+    {
+      "code": "neon_lime",
+      "name": "neon lime",
+      "rgb": [57, 255, 20],
+      "hex": "#39ff14"
+    },
+    {
+      "code": "neon_yellow",
+      "name": "neon yellow",
+      "rgb": [255, 255, 51],
+      "hex": "#ffff33"
+    },
+    {
+      "code": "neon_orange",
+      "name": "neon orange",
+      "rgb": [255, 95, 31],
+      "hex": "#ff5f1f"
+    },
+    {
+      "code": "neon_blue",
+      "name": "neon electric blue",
+      "rgb": [30, 144, 255],
+      "hex": "#1e90ff"
+    },
+    {
+      "code": "neon_purple",
+      "name": "neon purple",
+      "rgb": [191, 0, 255],
+      "hex": "#bf00ff"
+    },
+    {
+      "code": "neon_magenta",
+      "name": "neon magenta",
+      "rgb": [255, 0, 255],
+      "hex": "#ff00ff"
+    },
+    {
+      "code": "neon_red",
+      "name": "neon hot red",
+      "rgb": [255, 0, 60],
+      "hex": "#ff003c"
+    },
+    {
+      "code": "neon_green",
+      "name": "neon green",
+      "rgb": [0, 255, 102],
+      "hex": "#00ff66"
     }
   ]
 }

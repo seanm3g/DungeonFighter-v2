@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI;
@@ -42,6 +43,29 @@ namespace RPGGame.UI.Avalonia
             
             // Initialize the game and UI
             InitializeGame();
+        }
+
+        /// <summary>
+        /// Fills window letterbox regions (outside the character-grid canvas) with a solid color.
+        /// Pass null to restore the default transparent hit-surface + black window chrome.
+        /// </summary>
+        public void SetShellBackgroundColor(Color? color)
+        {
+            if (color.HasValue)
+            {
+                var brush = new SolidColorBrush(color.Value);
+                Background = brush;
+                if (Content is Panel rootPanel)
+                    rootPanel.Background = brush;
+                GameCanvasHitSurface.Background = brush;
+            }
+            else
+            {
+                Background = Brushes.Black;
+                if (Content is Panel rootPanel)
+                    rootPanel.Background = Brushes.Black;
+                GameCanvasHitSurface.Background = Brushes.Transparent;
+            }
         }
 
         private void OnMainWindowOpened(object? sender, EventArgs e)

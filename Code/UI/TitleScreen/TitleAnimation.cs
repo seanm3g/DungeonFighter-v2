@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame.UI.TitleScreen
 {
@@ -8,11 +9,15 @@ namespace RPGGame.UI.TitleScreen
     /// </summary>
     public enum AnimationPhase
     {
-        BlackScreen,        // Initial black screen
-        WhiteFlash,         // Brief flash of warm white
-        WhiteHold,          // Hold white light
-        ColorTransition,    // Transition to final colors
-        FinalHold          // Hold on final colors
+        BlackScreen,
+        FadeIn,
+        WhiteFlash,
+        WhiteHold,
+        Pop,
+        ColorTransition,
+        Settle,
+        FinalHold,
+        IdleCycle
     }
 
     /// <summary>
@@ -35,78 +40,119 @@ namespace RPGGame.UI.TitleScreen
     /// <summary>
     /// Generates the title screen animation sequence
     /// Testable class that contains only animation logic, no rendering
-    /// Follows the Strategy pattern for generating different animation sequences
     /// </summary>
     public class TitleAnimation
     {
         private readonly TitleAnimationConfig _config;
         private readonly TitleFrameBuilder _frameBuilder;
+        private TitleIdlePalette _palette;
 
-        public TitleAnimation(TitleAnimationConfig config)
+        public TitleAnimation(TitleAnimationConfig config, TitleIdlePalette? palette = null)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _frameBuilder = new TitleFrameBuilder(config);
+            _palette = palette ?? TitleIdlePalettePicker.CreateFallback();
+        }
+
+        public TitleIdlePalette Palette => _palette;
+
+        /// <summary>
+        /// Swaps the idle color pattern mid-loop (e.g. every few seconds).
+        /// </summary>
+        public void SetPalette(TitleIdlePalette palette)
+        {
+            _palette = palette ?? throw new ArgumentNullException(nameof(palette));
         }
 
         /// <summary>
-        /// Generates the complete animation sequence as a series of steps
-        /// This method is pure logic and can be unit tested
+        /// Generates the intro animation sequence (fade → pop → settle). Idle is separate.
         /// </summary>
-        /// <returns>Enumerable of animation steps to be rendered</returns>
         public IEnumerable<AnimationStep> GenerateAnimationSequence()
         {
             var scheme = _config.ColorScheme;
             int frameDuration = _config.FrameDurationMs;
 
-            // Phase 1: Black screen (1 frame)
-            yield return CreateSolidColorStep(
-                AnimationPhase.BlackScreen,
-                scheme.InitialColor,
-                scheme.InitialColor,
-                frameDuration
-            );
+            int blackFrames = Math.Max(1, _config.BlackScreenFrames);
+            for (int i = 0; i < blackFrames; i++)
+            {
+                yield return CreateSolidColorStep(
+                    AnimationPhase.BlackScreen,
+                    scheme.InitialColor,
+                    scheme.InitialColor,
+                    frameDuration);
+            }
 
-            // Phase 2: Flash of warm white (1 frame)
+            int fadeFrames = Math.Max(1, _config.FadeInFrames);
+            for (int frame = 0; frame < fadeFrames; frame++)
+            {
+                float progress = fadeFrames <= 1 ? 1f : (float)(frame + 1) / fadeFrames;
+                string color = progress < 0.5f ? scheme.FlashColor1 : scheme.HoldColor;
+                yield return CreateSolidColorStep(
+                    AnimationPhase.FadeIn,
+                    color,
+                    color,
+                    frameDuration);
+            }
+
+            // Brief legacy white flash/hold for compatibility with older timing knobs
             yield return CreateSolidColorStep(
                 AnimationPhase.WhiteFlash,
                 scheme.FlashColor1,
                 scheme.FlashColor2,
-                frameDuration
-            );
+                frameDuration);
 
-            // Phase 3: Hold white light (configurable frames)
-            for (int i = 0; i < _config.WhiteLightHoldFrames; i++)
+            int holdFrames = Math.Max(0, _config.WhiteLightHoldFrames);
+            for (int i = 0; i < holdFrames; i++)
             {
                 yield return CreateSolidColorStep(
                     AnimationPhase.WhiteHold,
                     scheme.HoldColor,
                     scheme.HoldColor,
-                    frameDuration
-                );
+                    frameDuration);
             }
 
-            // Phase 4: Transition to final colors (configurable frames)
-            for (int frame = 0; frame <= _config.FinalTransitionFrames; frame++)
+            int popFrames = Math.Max(1, _config.PopFrames);
+            string popColor = string.IsNullOrWhiteSpace(scheme.PopColor) ? "Y" : scheme.PopColor;
+            for (int i = 0; i < popFrames; i++)
             {
-                float progress = (float)frame / _config.FinalTransitionFrames;
-                yield return CreateTransitionStep(
-                    AnimationPhase.ColorTransition,
-                    progress,
-                    frameDuration
-                );
+                yield return CreateSolidColorStep(
+                    AnimationPhase.Pop,
+                    popColor,
+                    popColor,
+                    frameDuration);
             }
 
-            // Phase 5: Final hold (render one more time with full progress)
-            yield return CreateTransitionStep(
+            int settleFrames = Math.Max(1, _config.EffectiveSettleFrames);
+            for (int frame = 0; frame <= settleFrames; frame++)
+            {
+                float progress = (float)frame / settleFrames;
+                yield return new AnimationStep(
+                    AnimationPhase.Settle,
+                    _frameBuilder.BuildSettleFrame(_palette, progress),
+                    frameDuration);
+            }
+
+            yield return new AnimationStep(
                 AnimationPhase.FinalHold,
-                1.0f,
-                _config.FinalHoldDuration
-            );
+                _frameBuilder.BuildPhasedPaletteFrame(_palette, 0),
+                _config.FinalHoldDuration);
         }
 
         /// <summary>
-        /// Creates an animation step with solid colors
+        /// Builds a single idle-cycle frame using the dungeon-selection undulation compositor.
+        /// Optionally crossfades glyph colors from <paramref name="blendFrom"/> into the current
+        /// (or <paramref name="blendTo"/>) palette.
         /// </summary>
+        public TitleFrame BuildIdleFrame(
+            BaseAnimationState? animationState = null,
+            TitleIdlePalette? blendFrom = null,
+            TitleIdlePalette? blendTo = null,
+            float blendProgress = 1f)
+        {
+            var target = blendTo ?? _palette;
+            return _frameBuilder.BuildComposedIdleFrame(target, animationState, blendFrom, blendProgress);
+        }
+
         private AnimationStep CreateSolidColorStep(
             AnimationPhase phase,
             string dungeonColor,
@@ -117,43 +163,29 @@ namespace RPGGame.UI.TitleScreen
             return new AnimationStep(phase, frame, durationMs);
         }
 
-        /// <summary>
-        /// Creates an animation step with transition colors
-        /// </summary>
-        private AnimationStep CreateTransitionStep(
-            AnimationPhase phase,
-            float progress,
-            int durationMs)
-        {
-            var frame = _frameBuilder.BuildTransitionFrame(progress);
-            return new AnimationStep(phase, frame, durationMs);
-        }
-
-        /// <summary>
-        /// Gets the total animation duration in milliseconds
-        /// Useful for testing and progress indicators
-        /// </summary>
         public int GetTotalDurationMs()
         {
             int frameDuration = _config.FrameDurationMs;
-            int frameCount = 1 + // Black screen
-                            1 + // White flash
-                            _config.WhiteLightHoldFrames + // White hold
-                            (_config.FinalTransitionFrames + 1); // Transition frames
+            int frameCount =
+                Math.Max(1, _config.BlackScreenFrames) +
+                Math.Max(1, _config.FadeInFrames) +
+                1 + // White flash
+                Math.Max(0, _config.WhiteLightHoldFrames) +
+                Math.Max(1, _config.PopFrames) +
+                (Math.Max(1, _config.EffectiveSettleFrames) + 1); // settle including progress 1.0
 
             return (frameCount * frameDuration) + _config.FinalHoldDuration;
         }
 
-        /// <summary>
-        /// Gets the number of frames in the animation
-        /// </summary>
         public int GetFrameCount()
         {
-            return 2 + // Black + flash
-                   _config.WhiteLightHoldFrames +
-                   (_config.FinalTransitionFrames + 1) +
+            return Math.Max(1, _config.BlackScreenFrames) +
+                   Math.Max(1, _config.FadeInFrames) +
+                   1 +
+                   Math.Max(0, _config.WhiteLightHoldFrames) +
+                   Math.Max(1, _config.PopFrames) +
+                   (Math.Max(1, _config.EffectiveSettleFrames) + 1) +
                    1; // Final hold
         }
     }
 }
-

@@ -1,16 +1,24 @@
 {
-  "FramesPerSecond": 30,
-  "WhiteLightHoldFrames": 3,
-  "FinalTransitionFrames": 51,
+  "FramesPerSecond": 10,
+  "BlackScreenFrames": 8,
+  "FadeInFrames": 15,
+  "PopFrames": 3,
+  "WhiteLightHoldFrames": 4,
+  "SettleFrames": 20,
+  "FinalTransitionFrames": 20,
+  "IdleWaveLength": 12,
+  "IdleSaturationScale": 1.5,
+  "PaletteShiftIntervalMs": 3000,
+  "PaletteTransitionMs": 600,
   "FinalHoldDuration": 0,
   "ColorScheme": {
     "InitialColor": "k",
     "FlashColor1": "W",
     "FlashColor2": "Y",
     "HoldColor": "Y",
-    "DungeonFinalColor": "X",
-    "FighterFinalColor": "Y",
+    "PopColor": "Y",
+    "DungeonFinalColor": "W",
+    "FighterFinalColor": "O",
     "TransitionFromColor": "Y"
   }
 }
-

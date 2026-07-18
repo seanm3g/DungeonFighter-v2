@@ -16,13 +16,21 @@ namespace RPGGame.UI.ColorSystem
         /// Creates multi-color text by alternating colors for each character
         /// Merges consecutive characters with the same color to reduce segments and prevent spacing issues
         /// </summary>
-        private static List<ColoredText> CreateMultiColorText(string text, Color[] colors, string? sourceTemplate = null)
+        /// <param name="colorStartOffset">Character-space phase for traveling gradients (shifts which glyph starts the band pattern).</param>
+        /// <param name="charsPerBand">How many non-whitespace glyphs share each color before advancing (1 = tight stripes).</param>
+        private static List<ColoredText> CreateMultiColorText(
+            string text,
+            Color[] colors,
+            string? sourceTemplate = null,
+            int colorStartOffset = 0,
+            int charsPerBand = 1)
         {
             if (string.IsNullOrEmpty(text))
                 return new List<ColoredText>();
-            
+
+            int band = Math.Max(1, charsPerBand);
             var segments = new List<ColoredText>();
-            var colorIndex = 0;
+            int position = colorStartOffset;
             
             // Determine the color to use for whitespace
             // For title screen templates (yellow/orange), use the first color instead of white
@@ -46,15 +54,19 @@ namespace RPGGame.UI.ColorSystem
                 if (char.IsWhiteSpace(c))
                 {
                     // Use the determined whitespace color (white if template has white, otherwise first color)
-                    // IMPORTANT: Whitespace should NOT increment colorIndex to preserve color sequence for non-whitespace chars
+                    // IMPORTANT: Whitespace should NOT increment position to preserve color sequence for non-whitespace chars
                     segments.Add(new ColoredText(c.ToString(), whitespaceColor, sourceTemplate));
                 }
                 else
                 {
-                    // Use next color in sequence
-                    var color = colors[colorIndex % colors.Length];
+                    Color color = Colors.White;
+                    if (colors.Length > 0)
+                    {
+                        int colorIndex = ((position / band) % colors.Length + colors.Length) % colors.Length;
+                        color = colors[colorIndex];
+                    }
                     segments.Add(new ColoredText(c.ToString(), color, sourceTemplate));
-                    colorIndex++;
+                    position++;
                 }
             }
             
@@ -245,7 +257,7 @@ namespace RPGGame.UI.ColorSystem
         /// Gets a template by name (case-insensitive)
         /// Loads template data from GameData/ColorTemplates.json
         /// </summary>
-        public static List<ColoredText> GetTemplate(string templateName, string text)
+        public static List<ColoredText> GetTemplate(string templateName, string text, int colorStartOffset = 0, int charsPerBand = 1)
         {
             if (string.IsNullOrEmpty(templateName))
                 return SingleColor(text, Colors.White, null);
@@ -254,17 +266,43 @@ namespace RPGGame.UI.ColorSystem
             var templateData = ColorTemplateLoader.GetTemplate(templateName);
             if (templateData != null)
             {
-                return ApplyTemplate(templateData, text, templateName);
+                return ApplyTemplate(templateData, text, templateName, colorStartOffset, charsPerBand);
             }
             
             // Fallback to default white if template not found
             return SingleColor(text, Colors.White, null);
         }
+
+        /// <summary>
+        /// Applies an explicit color-code sequence with an optional traveling-gradient offset.
+        /// </summary>
+        /// <param name="charsPerBand">Non-whitespace glyphs per color before the palette advances (larger = wider wave).</param>
+        public static List<ColoredText> ApplyColorSequence(
+            string text,
+            IReadOnlyList<string> colorCodes,
+            string? sourceTemplate = null,
+            int colorStartOffset = 0,
+            int charsPerBand = 1)
+        {
+            if (string.IsNullOrEmpty(text))
+                return new List<ColoredText>();
+
+            if (colorCodes == null || colorCodes.Count == 0)
+                return SingleColor(text, Colors.White, sourceTemplate);
+
+            var colors = ConvertColorCodesToColors(colorCodes.ToList());
+            return CreateMultiColorText(text, colors, sourceTemplate, colorStartOffset, charsPerBand);
+        }
         
         /// <summary>
         /// Applies a template data structure to text
         /// </summary>
-        private static List<ColoredText> ApplyTemplate(ColorTemplateData templateData, string text, string? templateName = null)
+        private static List<ColoredText> ApplyTemplate(
+            ColorTemplateData templateData,
+            string text,
+            string? templateName = null,
+            int colorStartOffset = 0,
+            int charsPerBand = 1)
         {
             if (templateData.Colors == null || templateData.Colors.Count == 0)
             {
@@ -290,7 +328,7 @@ namespace RPGGame.UI.ColorSystem
                 default:
                     // Both sequence and alternation use the same multi-color logic
                     // (alternation could be enhanced later if needed)
-                    return CreateMultiColorText(text, colors, templateName);
+                    return CreateMultiColorText(text, colors, templateName, colorStartOffset, charsPerBand);
             }
         }
     }

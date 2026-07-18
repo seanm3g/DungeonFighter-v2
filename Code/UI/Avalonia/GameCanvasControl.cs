@@ -79,6 +79,12 @@ namespace RPGGame.UI.Avalonia
         // Center point (half of GridWidth)
         public int CenterX => GridWidth / 2;
 
+        /// <summary>
+        /// Solid fill drawn under all canvas elements each frame (default black).
+        /// Title screen sets a dark complementary tint during idle; reset to black afterward.
+        /// </summary>
+        public Color ClearBackgroundColor { get; set; } = Colors.Black;
+
         /// <summary>Main game canvas (XAML and default construction).</summary>
         public GameCanvasControl()
             : this(false, 30, 54)
@@ -278,7 +284,8 @@ namespace RPGGame.UI.Avalonia
                 elementManager.TextElements.ToList(),
                 elementManager.BoxElements.ToList(),
                 elementManager.ProgressBars.ToList(),
-                elementManager.SegmentedBars.ToList());
+                elementManager.SegmentedBars.ToList(),
+                ClearBackgroundColor);
         }
 
         // Public methods for adding elements

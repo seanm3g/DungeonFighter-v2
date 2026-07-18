@@ -8,6 +8,7 @@ using RPGGame.UI.Avalonia.Handlers;
 using RPGGame.UI.TitleScreen;
 using RPGGame.Utils;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RPGGame.UI.Avalonia.Handlers
@@ -25,6 +26,7 @@ namespace RPGGame.UI.Avalonia.Handlers
         private MouseInteractionHandler? mouseHandler;
         private bool isInitialized = false;
         private bool waitingForKeyAfterAnimation = false;
+        private CancellationTokenSource? titleIdleCts;
 
         public GameInitializationHandler(GameCanvasControl gameCanvas, MainWindow mainWindow)
         {
@@ -72,18 +74,15 @@ namespace RPGGame.UI.Avalonia.Handlers
                     mouseHandler = new MouseInteractionHandler(gameCanvas, canvasUIForMouse, null);
                 }
 
-                // Show static title screen (no animation)
+                // Animated title: fade → POP → settle → idle gradient until any key
                 if (canvasUIManager is CanvasUICoordinator canvasUI2)
                 {
                     // Suppress display buffer rendering to prevent it from clearing the title screen
                     canvasUI2.SuppressDisplayBufferRendering();
                     canvasUI2.ClearDisplayBufferWithoutRender();
-                    
-                    // Show the static title screen immediately
+
                     try
                     {
-                        TitleScreenHelper.ShowStaticTitleScreen();
-
                         try
                         {
                             AudioBootstrap.InitializeTitleScreenMusic();
@@ -93,17 +92,48 @@ namespace RPGGame.UI.Avalonia.Handlers
                             DebugLogger.Log("GameInitializationHandler", $"InitializeTitleScreenMusic: {ex.Message}");
                         }
 
-                        // Set flag to wait for key press
-                        waitingForKeyAfterAnimation = true;
+                        titleIdleCts?.Cancel();
+                        titleIdleCts?.Dispose();
+                        titleIdleCts = new CancellationTokenSource();
+                        var idleToken = titleIdleCts.Token;
+
+                        _ = Task.Run(async () =>
+                        {
+                            try
+                            {
+                                await TitleScreenHelper.ShowAnimatedTitleScreenAsync(
+                                    idleToken,
+                                    onReadyForKey: () =>
+                                    {
+                                        waitingForKeyAfterAnimation = true;
+                                    }).ConfigureAwait(false);
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                // Expected when the player presses a key during idle.
+                            }
+                            catch (Exception ex)
+                            {
+                                DebugLogger.Log("GameInitializationHandler",
+                                    $"Title animation failed: {ex.Message}");
+                                await Dispatcher.UIThread.InvokeAsync(() =>
+                                {
+                                    if (!waitingForKeyAfterAnimation && !isInitialized)
+                                    {
+                                        updateStatus($"Error displaying title screen: {ex.Message}");
+                                        InitializeGameAfterAnimation(updateStatus);
+                                    }
+                                });
+                            }
+                        });
                     }
                     catch (Exception ex)
                     {
                         updateStatus($"Error displaying title screen: {ex.Message}");
-                        // If title screen fails, proceed to main menu
                         InitializeGameAfterAnimation(updateStatus);
                     }
 
-                    // Don't proceed to main menu yet - wait for key press
+                    // Don't proceed to main menu yet - wait for key press after intro
                     return;
                 }
 
@@ -416,6 +446,14 @@ namespace RPGGame.UI.Avalonia.Handlers
             if (waitingForKeyAfterAnimation)
             {
                 waitingForKeyAfterAnimation = false;
+                try
+                {
+                    titleIdleCts?.Cancel();
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Ignore — idle already stopped.
+                }
                 InitializeGameAfterAnimation(updateStatus);
             }
         }

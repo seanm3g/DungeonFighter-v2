@@ -221,6 +221,38 @@ namespace RPGGame.UI.ColorSystem
             return HsvToColor(H, s2, V);
         }
 
+        /// <summary>
+        /// Vibrant complementary fill for title-screen backdrop: hue +180°, high saturation and value.
+        /// </summary>
+        /// <param name="accent">Reference accent (e.g. first palette color).</param>
+        /// <param name="value">HSV value for the background (0–1); default ~0.62 (bright).</param>
+        /// <param name="saturationScale">Multiplies accent saturation; default 1.2 for neon punch.</param>
+        public static Color ComplementaryVibrantBackground(
+            Color accent,
+            double value = 0.62,
+            double saturationScale = 1.2)
+        {
+            var (H, S, _) = RgbToHsv(accent.R, accent.G, accent.B);
+            double h2 = H + 180.0;
+            while (h2 >= 360) h2 -= 360;
+            while (h2 < 0) h2 += 360;
+            // Force a saturated neon tint even when the accent is pale.
+            double s2 = Math.Clamp(Math.Max(S, 0.85) * saturationScale, 0, 1);
+            double v2 = Math.Clamp(value, 0, 1);
+            return HsvToColor(h2, s2, v2);
+        }
+
+        /// <summary>
+        /// Dark complementary fill (legacy). Prefer <see cref="ComplementaryVibrantBackground"/> for title idle.
+        /// </summary>
+        public static Color ComplementaryDarkBackground(
+            Color accent,
+            double value = 0.16,
+            double saturationScale = 0.825)
+        {
+            return ComplementaryVibrantBackground(accent, value, saturationScale);
+        }
+
         /// <summary>Linear RGB blend; <paramref name="t"/> in [0,1].</summary>
         public static Color LerpRgb(Color start, Color end, double t)
         {

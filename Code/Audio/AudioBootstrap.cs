@@ -44,7 +44,7 @@ namespace RPGGame.Audio
         }
 
         /// <summary>
-        /// Starts the main-menu theme as soon as the static title screen is visible (before <see cref="GameCoordinator"/> exists).
+        /// Starts the main-menu theme as soon as the title screen animation begins (before <see cref="GameCoordinator"/> exists).
         /// Later <see cref="Initialize(GameStateManager?)"/> only attaches the state manager; <see cref="MusicController"/> keeps the same cue if still MainMenu.
         /// </summary>
         public static void InitializeTitleScreenMusic()

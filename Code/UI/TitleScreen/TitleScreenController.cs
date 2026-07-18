@@ -1,15 +1,16 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using RPGGame;
-using RPGGame.UI.Avalonia;
 using RPGGame.Data;
+using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame.UI.TitleScreen
 {
     /// <summary>
-    /// Main controller for the title screen animation
-    /// Orchestrates the animation sequence and rendering
-    /// Replaces the legacy TitleScreenAnimator with a cleaner, more maintainable architecture
+    /// Main controller for the title screen
+    /// Boot skips intro and runs cancelable idle gradient with atomic press-key paint
     /// </summary>
     public class TitleScreenController
     {
@@ -17,53 +18,153 @@ namespace RPGGame.UI.TitleScreen
         private readonly TitleAnimation _animation;
         private readonly ITitleRenderer _renderer;
 
-        /// <summary>
-        /// Creates a new title screen controller with specified configuration and renderer
-        /// </summary>
-        public TitleScreenController(TitleAnimationConfig config, ITitleRenderer renderer)
+        public TitleScreenController(
+            TitleAnimationConfig config,
+            ITitleRenderer renderer,
+            TitleIdlePalette? palette = null)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
-            _animation = new TitleAnimation(config);
+            _animation = new TitleAnimation(config, palette);
         }
 
+        public TitleIdlePalette Palette => _animation.Palette;
+
         /// <summary>
-        /// Plays the complete title screen animation sequence
-        /// Uses async/await for proper timing with UI thread
+        /// Plays the intro animation sequence only.
         /// </summary>
-        public async System.Threading.Tasks.Task PlayAnimationAsync()
+        public async Task PlayAnimationAsync()
         {
             foreach (var step in _animation.GenerateAnimationSequence())
             {
-                // Render the frame (this will wait for UI thread to complete)
                 _renderer.RenderFrame(step.Frame);
 
-                // Zero-duration steps (e.g. FinalHold when waiting for any key) must not pause.
-                // Otherwise enforce a minimum so the UI thread can paint each frame.
                 if (step.DurationMs <= 0)
                     continue;
 
-                int delayMs = Math.Max(step.DurationMs, 50);
-                await System.Threading.Tasks.Task.Delay(delayMs);
+                int delayMs = Math.Max(step.DurationMs, 16);
+                await Task.Delay(delayMs).ConfigureAwait(false);
             }
         }
 
         /// <summary>
-        /// Shows the complete animated title screen with press key message
-        /// This is the main entry point for displaying the title screen
+        /// Skips the intro sequence and runs idle gradient with press-key until cancelled.
         /// </summary>
-        public async System.Threading.Tasks.Task ShowAnimatedTitleScreenAsync()
+        /// <param name="onReadyForKey">Invoked after the first idle frame (with press-key) is shown.</param>
+        public async Task ShowAnimatedTitleScreenAsync(
+            CancellationToken idleCancellationToken = default,
+            System.Action? onReadyForKey = null)
         {
-            // Play the animation sequence
-            await PlayAnimationAsync();
-
-            // Show press key message
-            _renderer.ShowPressKeyMessage();
+            await RunIdleCycleAsync(idleCancellationToken, onReadyForKey).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Gets the total animation duration (useful for progress tracking)
+        /// Loops dungeon-selection undulation on DEMON/FIGHTER until cancellation.
+        /// Holds each neon palette for <see cref="TitleAnimationConfig.PaletteShiftIntervalMs"/>,
+        /// then RGB-crossfades into the next over <see cref="TitleAnimationConfig.PaletteTransitionMs"/>.
+        /// Backdrop stays black. Press-key is painted in the same UI pass as each frame.
         /// </summary>
+        public async Task RunIdleCycleAsync(
+            CancellationToken cancellationToken,
+            System.Action? onReadyForKey = null)
+        {
+            var animConfig = UIConfiguration.LoadFromFile().DungeonSelectionAnimation
+                ?? new DungeonSelectionAnimationConfig();
+            int undulationMs = Math.Max(16, animConfig.UndulationIntervalMs);
+            int maskIntervalMs = Math.Max(undulationMs, animConfig.BrightnessMask.UpdateIntervalMs);
+            bool maskEnabled = animConfig.BrightnessMask.Enabled;
+            int paletteHoldMs = Math.Max(undulationMs, _config.PaletteShiftIntervalMs);
+            int transitionMs = Math.Max(undulationMs, _config.PaletteTransitionMs);
+
+            var state = DungeonSelectionAnimationState.Instance;
+            int maskAccumMs = 0;
+            int holdAccumMs = 0;
+            int transitionAccumMs = 0;
+            bool notifiedReady = false;
+
+            TitleIdlePalette current = _animation.Palette;
+            TitleIdlePalette? next = null;
+
+            // Ensure letterbox / clear fill stay black for the whole idle loop.
+            _renderer.ResetBackground();
+
+            try
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    float blendProgress = 1f;
+                    TitleIdlePalette? blendFrom = null;
+                    TitleIdlePalette blendTo = current;
+
+                    if (next != null)
+                    {
+                        transitionAccumMs += undulationMs;
+                        blendProgress = Math.Clamp(transitionAccumMs / (float)transitionMs, 0f, 1f);
+                        blendFrom = current;
+                        blendTo = next;
+
+                        if (blendProgress >= 1f)
+                        {
+                            current = next;
+                            _animation.SetPalette(current);
+                            next = null;
+                            transitionAccumMs = 0;
+                            holdAccumMs = 0;
+                            blendFrom = null;
+                            blendTo = current;
+                            blendProgress = 1f;
+                        }
+                    }
+                    else
+                    {
+                        holdAccumMs += undulationMs;
+                        if (holdAccumMs >= paletteHoldMs)
+                        {
+                            next = TitleIdlePalettePicker.PickRandomExcept(current.TemplateName);
+                            transitionAccumMs = 0;
+                            holdAccumMs = 0;
+                            blendFrom = current;
+                            blendTo = next;
+                            blendProgress = 0f;
+                        }
+                    }
+
+                    state.AdvanceUndulation();
+                    if (maskEnabled)
+                    {
+                        maskAccumMs += undulationMs;
+                        if (maskAccumMs >= maskIntervalMs)
+                        {
+                            state.AdvanceBrightnessMask();
+                            maskAccumMs = 0;
+                        }
+                    }
+
+                    var frame = _animation.BuildIdleFrame(state, blendFrom, blendTo, blendProgress);
+                    _renderer.RenderFrame(frame, includePressKey: true);
+
+                    if (!notifiedReady)
+                    {
+                        onReadyForKey?.Invoke();
+                        notifiedReady = true;
+                    }
+
+                    try
+                    {
+                        await Task.Delay(undulationMs, cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                _renderer.ResetBackground();
+            }
+        }
+
         public int GetAnimationDuration()
         {
             return _animation.GetTotalDurationMs();
@@ -72,15 +173,11 @@ namespace RPGGame.UI.TitleScreen
 
     /// <summary>
     /// Static helper class for easy title screen display
-    /// Provides backward compatibility with legacy TitleScreenAnimator API
     /// </summary>
     public static class TitleScreenHelper
     {
         private static TitleAnimationConfig? _cachedConfig;
 
-        /// <summary>
-        /// Gets or loads the title animation configuration
-        /// </summary>
         private static TitleAnimationConfig GetConfig()
         {
             if (_cachedConfig == null)
@@ -90,92 +187,75 @@ namespace RPGGame.UI.TitleScreen
             return _cachedConfig;
         }
 
-        /// <summary>
-        /// Reloads the configuration from file
-        /// </summary>
         public static void ReloadConfiguration()
         {
             _cachedConfig = null;
         }
 
         /// <summary>
-        /// Shows the animated title screen using the appropriate renderer
-        /// Automatically detects whether to use Canvas or Console renderer
+        /// Shows the animated title screen with random idle palette and cancelable idle loop.
         /// </summary>
-        public static async System.Threading.Tasks.Task ShowAnimatedTitleScreenAsync()
+        public static async Task ShowAnimatedTitleScreenAsync(
+            CancellationToken idleCancellationToken = default,
+            System.Action? onReadyForKey = null)
         {
             var config = GetConfig();
             var renderer = CreateRenderer();
+            var palette = TitleIdlePalettePicker.PickRandom();
 
             if (renderer != null)
             {
-                var controller = new TitleScreenController(config, renderer);
-                await controller.ShowAnimatedTitleScreenAsync();
+                var controller = new TitleScreenController(config, renderer, palette);
+                await controller.ShowAnimatedTitleScreenAsync(idleCancellationToken, onReadyForKey)
+                    .ConfigureAwait(false);
             }
             else
             {
-                // No renderer available - skip title screen
-                ErrorHandler.LogWarning("TitleScreenHelper.ShowAnimatedTitleScreen", 
+                ErrorHandler.LogWarning("TitleScreenHelper.ShowAnimatedTitleScreen",
                     "No renderer available, skipping title screen");
+                onReadyForKey?.Invoke();
             }
         }
 
-        /// <summary>
-        /// Animates just the title screen without the press key message
-        /// </summary>
-        public static async System.Threading.Tasks.Task AnimateTitleScreenAsync()
+        public static async Task AnimateTitleScreenAsync()
         {
             var config = GetConfig();
             var renderer = CreateRenderer();
+            var palette = TitleIdlePalettePicker.PickRandom();
 
             if (renderer != null)
             {
-                var controller = new TitleScreenController(config, renderer);
-                await controller.PlayAnimationAsync();
+                var controller = new TitleScreenController(config, renderer, palette);
+                await controller.PlayAnimationAsync().ConfigureAwait(false);
             }
         }
 
         /// <summary>
-        /// Shows a static title screen (final frame) without animation
-        /// Displays the final colored title screen immediately
-        /// Yellow text for DUNGEON, red text for FIGHTERS
+        /// Shows a static title screen (final frame) without animation.
         /// </summary>
         public static void ShowStaticTitleScreen()
         {
-            // Preload color codes to ensure they're available before rendering
-            // This prevents white default colors from appearing initially
-            _ = RPGGame.Data.ColorCodeLoader.GetColor("W"); // Preload yellow
-            _ = RPGGame.Data.ColorCodeLoader.GetColor("o"); // Preload dark orange (orange-red)
-            
+            _ = RPGGame.Data.ColorCodeLoader.GetColor("W");
+            _ = RPGGame.Data.ColorCodeLoader.GetColor("o");
+
             var config = GetConfig();
             var renderer = CreateRenderer();
 
             if (renderer != null)
             {
-                // Clear any existing content first
                 renderer.Clear();
-                
-                // Build the static frame with solid colors: yellow (W) for DUNGEON, dark orange (o) for FIGHTERS
+                var palette = TitleIdlePalettePicker.PickRandom();
                 var frameBuilder = new TitleFrameBuilder(config);
-                var finalFrame = frameBuilder.BuildSolidColorFrame("W", "o");
-                
-                // Render the final frame
-                renderer.RenderFrame(finalFrame);
-                
-                // Show press key message
-                renderer.ShowPressKeyMessage();
+                var finalFrame = frameBuilder.BuildPhasedPaletteFrame(palette, 0);
+                renderer.RenderFrame(finalFrame, includePressKey: true);
             }
             else
             {
-                // No renderer available - skip title screen
-                ErrorHandler.LogWarning("TitleScreenHelper.ShowStaticTitleScreen", 
+                ErrorHandler.LogWarning("TitleScreenHelper.ShowStaticTitleScreen",
                     "No renderer available, skipping title screen");
             }
         }
 
-        /// <summary>
-        /// Creates the appropriate renderer based on available UI manager
-        /// </summary>
         private static ITitleRenderer? CreateRenderer()
         {
             var uiManager = UIManager.GetCustomUIManager();
@@ -186,7 +266,6 @@ namespace RPGGame.UI.TitleScreen
             }
             else if (uiManager == null)
             {
-                // Console mode
                 return new ConsoleTitleRenderer();
             }
 
@@ -201,14 +280,10 @@ namespace RPGGame.UI.TitleScreen
     {
         private const string ConfigFileName = "TitleAnimationConfig.json";
 
-        /// <summary>
-        /// Loads configuration from JSON file or returns default configuration
-        /// </summary>
         public static TitleAnimationConfig LoadOrDefault()
         {
             try
             {
-                // Use JsonLoader to find the file in the correct GameData directory
                 string? configPath = JsonLoader.FindGameDataFile(ConfigFileName);
 
                 if (configPath != null && System.IO.File.Exists(configPath))
@@ -218,8 +293,13 @@ namespace RPGGame.UI.TitleScreen
 
                     if (config != null)
                     {
+                        // Prefer SettleFrames; sync from FinalTransitionFrames when settle unset.
+                        if (config.SettleFrames <= 0 && config.FinalTransitionFrames > 0)
+                            config.SettleFrames = config.FinalTransitionFrames;
+                        else if (config.FinalTransitionFrames <= 0 && config.SettleFrames > 0)
+                            config.FinalTransitionFrames = config.SettleFrames;
+
                         System.Diagnostics.Debug.WriteLine($"[DEBUG] Loaded TitleAnimationConfig from: {configPath}");
-                        System.Diagnostics.Debug.WriteLine($"[DEBUG] FighterFinalColor: {config.ColorScheme.FighterFinalColor}");
                         return config;
                     }
                 }
@@ -230,30 +310,24 @@ namespace RPGGame.UI.TitleScreen
             }
             catch (Exception ex)
             {
-                ErrorHandler.LogWarning("TitleAnimationConfigLoader.LoadOrDefault", 
+                ErrorHandler.LogWarning("TitleAnimationConfigLoader.LoadOrDefault",
                     $"Failed to load title animation config: {ex.Message}. Using defaults.");
             }
 
-            // Return default configuration
             return new TitleAnimationConfig();
         }
 
-        /// <summary>
-        /// Saves configuration to JSON file
-        /// </summary>
         public static void Save(TitleAnimationConfig config)
         {
             try
             {
-                // Use JsonLoader to find the correct GameData directory
                 string? configPath = JsonLoader.FindGameDataFile(ConfigFileName);
-                
+
                 if (configPath == null)
                 {
-                    // If not found, create in default GameData folder
                     configPath = System.IO.Path.Combine("GameData", ConfigFileName);
                 }
-                
+
                 var options = new System.Text.Json.JsonSerializerOptions
                 {
                     WriteIndented = true
@@ -261,15 +335,14 @@ namespace RPGGame.UI.TitleScreen
 
                 var json = System.Text.Json.JsonSerializer.Serialize(config, options);
                 System.IO.File.WriteAllText(configPath, json);
-                
+
                 System.Diagnostics.Debug.WriteLine($"[DEBUG] Saved TitleAnimationConfig to: {configPath}");
             }
             catch (Exception ex)
             {
-                ErrorHandler.LogError(ex, "TitleAnimationConfigLoader.Save", 
+                ErrorHandler.LogError(ex, "TitleAnimationConfigLoader.Save",
                     "Failed to save title animation config");
             }
         }
     }
 }
-

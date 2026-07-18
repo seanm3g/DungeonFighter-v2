@@ -549,9 +549,28 @@ namespace RPGGame.UI.Avalonia
         /// <summary>
         /// Shows press key message at the bottom (e.g. "Press any key to continue").
         /// </summary>
-        public void ShowPressKeyMessage()
+        public void ShowPressKeyMessage(bool refresh = true)
         {
-            utilityCoordinator.ShowPressKeyMessage();
+            utilityCoordinator.ShowPressKeyMessage(refresh);
+        }
+
+        /// <summary>
+        /// Sets the solid canvas clear/fill color (title idle complementary backdrop)
+        /// and mirrors it onto the window shell so letterbox bars match.
+        /// </summary>
+        public void SetClearBackgroundColor(Color color)
+        {
+            canvas.ClearBackgroundColor = color;
+            GetMainWindow()?.SetShellBackgroundColor(color);
+        }
+
+        /// <summary>
+        /// Restores the default black canvas clear color and window letterbox chrome.
+        /// </summary>
+        public void ResetClearBackgroundColor()
+        {
+            canvas.ClearBackgroundColor = Colors.Black;
+            GetMainWindow()?.SetShellBackgroundColor(null);
         }
 
         /// <summary>

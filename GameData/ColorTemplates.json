@@ -1459,6 +1459,60 @@
       "description": "Title screen FIGHTER - orange and yellow gradient (no white)"
     },
     {
+      "name": "title_neon_cyber",
+      "shaderType": "sequence",
+      "colors": [
+        "neon_cyan",
+        "neon_magenta",
+        "neon_pink",
+        "neon_blue",
+        "neon_cyan"
+      ],
+      "description": "Title idle neon — cyber cyan/magenta/pink/blue",
+      "undulate": true
+    },
+    {
+      "name": "title_neon_acid",
+      "shaderType": "sequence",
+      "colors": [
+        "neon_lime",
+        "neon_yellow",
+        "neon_orange",
+        "neon_green",
+        "neon_lime"
+      ],
+      "description": "Title idle neon — acid lime/yellow/orange/green",
+      "undulate": true
+    },
+    {
+      "name": "title_neon_plasma",
+      "shaderType": "sequence",
+      "colors": [
+        "neon_purple",
+        "neon_pink",
+        "neon_magenta",
+        "neon_cyan",
+        "neon_purple"
+      ],
+      "description": "Title idle neon — plasma purple/pink/magenta/cyan",
+      "undulate": true
+    },
+    {
+      "name": "title_neon_hyper",
+      "shaderType": "sequence",
+      "colors": [
+        "neon_red",
+        "neon_orange",
+        "neon_yellow",
+        "neon_lime",
+        "neon_cyan",
+        "neon_blue",
+        "neon_magenta"
+      ],
+      "description": "Title idle neon — full hyper-spectrum rainbow",
+      "undulate": true
+    },
+    {
       "name": "weapon_class",
       "shaderType": "sequence",
       "colors": [

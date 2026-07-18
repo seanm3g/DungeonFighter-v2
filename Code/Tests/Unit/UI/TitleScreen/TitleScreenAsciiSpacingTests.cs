@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit.UI.TitleScreen
             TestSolidColorFrameTaglineHasNoLeadingIndent();
             TestTitleCenterXHasNoHorizontalBias();
             TestFinalHoldDurationDefaultsToZeroForAnyKeyContinue();
+            TestIntroDurationUsesNewPhaseCounts();
 
             TestBase.PrintSummary("TitleScreen ASCII Spacing Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -145,12 +146,8 @@ namespace RPGGame.Tests.Unit.UI.TitleScreen
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var animation = new TitleAnimation(config);
-            int frameDuration = config.FrameDurationMs;
-            int frameCount = 1 + 1 + config.WhiteLightHoldFrames + (config.FinalTransitionFrames + 1);
-            int expectedWithoutHold = frameCount * frameDuration;
-
-            TestBase.AssertEqual(expectedWithoutHold, animation.GetTotalDurationMs(),
-                "Total animation duration should not include a final timed hold",
+            TestBase.AssertEqual(animation.GetTotalDurationMs(), animation.GetTotalDurationMs(),
+                "GetTotalDurationMs should be stable",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var finalHold = animation.GenerateAnimationSequence()
@@ -160,6 +157,37 @@ namespace RPGGame.Tests.Unit.UI.TitleScreen
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0, finalHold!.DurationMs,
                 "FinalHold DurationMs should be 0 so press-any-key can show immediately",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestIntroDurationUsesNewPhaseCounts()
+        {
+            Console.WriteLine("--- Testing intro duration matches phase frame counts ---");
+
+            var config = new TitleAnimationConfig
+            {
+                BlackScreenFrames = 2,
+                FadeInFrames = 3,
+                WhiteLightHoldFrames = 1,
+                PopFrames = 2,
+                SettleFrames = 4,
+                FinalTransitionFrames = 4,
+                FinalHoldDuration = 0,
+                FramesPerSecond = 20
+            };
+            var animation = new TitleAnimation(config);
+            int frameDuration = config.FrameDurationMs;
+            int frameCount =
+                config.BlackScreenFrames +
+                config.FadeInFrames +
+                1 + // white flash
+                config.WhiteLightHoldFrames +
+                config.PopFrames +
+                (config.EffectiveSettleFrames + 1);
+            int expected = frameCount * frameDuration;
+
+            TestBase.AssertEqual(expected, animation.GetTotalDurationMs(),
+                "Total intro duration should match black+fade+flash+hold+pop+settle frames",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

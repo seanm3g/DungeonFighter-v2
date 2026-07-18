@@ -4,6 +4,24 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **UI / Title screen black bg + palette crossfade:** Idle backdrop stays black; neon sequences hold then RGB-lerp over `PaletteTransitionMs` (600). Tests: `TitleScreenAnimationTests`. Docs: `OVERVIEW.md`.
+
+- [x] **UI / Title screen vibrant complementary bg:** Backdrop uses `ComplementaryVibrantBackground` (high S/V neon fill) instead of the dark tint. Tests: `TitleScreenAnimationTests`. Docs: `OVERVIEW.md`.
+
+- [x] **UI / Title screen neon palettes:** Added `neon_*` color codes and `title_neon_cyber|acid|plasma|hyper` templates; title idle picker prefers `title_neon_*` only. Tests: `TitleScreenAnimationTests`. Docs: `OVERVIEW.md`.
+
+- [x] **UI / Title screen bg same phase as text:** Complementary backdrop shifts with the text palette (same interval/phase), not offset. Tests: `TitleScreenAnimationTests`. Docs: `OVERVIEW.md`.
+
+- [x] **UI / Title screen bg 50% out of phase:** Complementary backdrop shifts on the same interval as text palettes but starts at half-period offset (independent accent palette). Tests: `TitleScreenAnimationTests`. Docs: `OVERVIEW.md`.
+
+- [x] **UI / Title screen full-bleed bg + sat +50%:** Complementary backdrop fills window letterbox (`SetShellBackgroundColor`); `IdleSaturationScale` 1.5; richer complementary tint. Tests: `TitleScreenAnimationTests`. Docs: `OVERVIEW.md`.
+
+- [x] **UI / Title screen palette shift + complementary bg:** Idle color pattern changes every `PaletteShiftIntervalMs` (default 3s); canvas clear fill uses dark complementary of accent, reset to black on exit. Tests: `TitleScreenAnimationTests`. Docs: `OVERVIEW.md`.
+
+- [x] **UI / Title screen idle-first tweaks:** Boot skips fade→POP→settle and starts on random idle undulation; DEMON/FIGHTER colors use `IdleSaturationScale` 0.75 (−25%); press-key painted in same UI pass as each idle frame (no flicker). Tests: `TitleScreenAnimationTests`. Docs: `OVERVIEW.md`.
+
+- [x] **UI / Title screen animation + random idle gradient:** Boot plays fade → POP → settle, then cancelable idle undulation via the same `dungeonSelection` `TextAnimationCompositor` + `DungeonSelectionAnimationState` as dungeon selection; per-launch random base palette (`TitleIdlePalettePicker`). Tests: `TitleScreenAnimationTests`, `TitleScreenAsciiSpacingTests`. Docs: `OVERVIEW.md`.
+
 - [x] **UI / Title screen — no timed delay before any-key:** Removed the final hold / Main Title message delay on the boot title screen (`FinalHoldDuration` and `MainTitle` delay = 0). Zero-duration animation steps skip the min-frame pause so “Press any key…” can appear immediately. Tests: `TitleScreenAsciiSpacingTests`; docs: `OVERVIEW.md`.
 
 - [x] **UI / Flavor Text EXPAND auto-arrange:** On EXPAND, `FlavorTextWindowPlacement` sizes/places the four section windows from the Settings monitor working area with Settings (Generate) centered; left column Forms+Categories, right column Template+Legacy. Tests: `FlavorTextWindowPlacementTests`. Docs: `OVERVIEW.md`, `SETTINGS_UI_GUIDE.md`.

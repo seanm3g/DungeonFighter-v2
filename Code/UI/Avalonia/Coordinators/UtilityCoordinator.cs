@@ -152,7 +152,8 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// (preserves the title screen or other content). Centered with the same
         /// CenterX - length/2 math as the title screen (no horizontal bias).
         /// </summary>
-        public void ShowPressKeyMessage()
+        /// <param name="refresh">When false, only adds the text (caller refreshes once with other content).</param>
+        public void ShowPressKeyMessage(bool refresh = true)
         {
             // Don't clear - just add the message to the bottom of the existing display
             // This preserves the title screen that was just rendered
@@ -163,7 +164,8 @@ namespace RPGGame.UI.Avalonia.Coordinators
             int centerX = Math.Max(0, canvas.CenterX - (displayLength / 2));
             
             canvas.AddText(centerX, 50, message, AsciiArtAssets.Colors.Gray);
-            canvas.Refresh();
+            if (refresh)
+                canvas.Refresh();
         }
         
         /// <summary>

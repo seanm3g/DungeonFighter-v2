@@ -33,10 +33,15 @@ namespace RPGGame.UI.Avalonia.Canvas
             List<CanvasText> textElements,
             List<CanvasBox> boxElements,
             List<CanvasProgressBar> progressBars,
-            List<CanvasSegmentedBar> segmentedBars)
+            List<CanvasSegmentedBar> segmentedBars,
+            Color clearBackground = default)
         {
+            // default(Color) / transparent → solid black (normal game backdrop)
+            if (clearBackground.A == 0)
+                clearBackground = Colors.Black;
+
             // Clear the canvas
-            context.FillRectangle(Brushes.Black, new Rect(0, 0, boundsWidth, boundsHeight));
+            context.FillRectangle(new SolidColorBrush(clearBackground), new Rect(0, 0, boundsWidth, boundsHeight));
             
             RenderBoxes(context, boxElements, overlayPass: false);
             RenderProgressBars(context, progressBars);

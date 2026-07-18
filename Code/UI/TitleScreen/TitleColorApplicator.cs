@@ -15,8 +15,9 @@ namespace RPGGame.UI.TitleScreen
         /// </summary>
         /// <param name="text">Text to colorize</param>
         /// <param name="templateName">Template name (e.g., "golden", "title_fighter")</param>
+        /// <param name="colorStartOffset">Rotates sequence start for traveling gradients</param>
         /// <returns>List of ColoredText segments</returns>
-        public static List<ColoredText> ApplyTemplate(string text, string templateName)
+        public static List<ColoredText> ApplyTemplate(string text, string templateName, int colorStartOffset = 0, int charsPerBand = 1)
         {
             if (string.IsNullOrEmpty(text))
             {
@@ -24,7 +25,26 @@ namespace RPGGame.UI.TitleScreen
             }
 
             // Use the color template library directly
-            return ColorTemplateLibrary.GetTemplate(templateName, text);
+            return ColorTemplateLibrary.GetTemplate(templateName, text, colorStartOffset, charsPerBand);
+        }
+
+        /// <summary>
+        /// Applies an explicit color-code sequence with optional traveling-gradient offset.
+        /// </summary>
+        public static List<ColoredText> ApplyColorSequence(
+            string text,
+            IReadOnlyList<string> colorCodes,
+            string? sourceTemplate = null,
+            int colorStartOffset = 0,
+            int charsPerBand = 1)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return new List<ColoredText>();
+            }
+
+            return ColorTemplateLibrary.ApplyColorSequence(
+                text, colorCodes, sourceTemplate, colorStartOffset, charsPerBand);
         }
 
         /// <summary>
