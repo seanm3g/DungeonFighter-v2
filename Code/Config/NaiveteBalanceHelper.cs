@@ -29,14 +29,19 @@ namespace RPGGame
             return config != null && config.Enabled;
         }
 
+        /// <summary>
+        /// Single-digit naiveté: starts at <see cref="NaiveteConfig.StartingNaivete"/> (default 3)
+        /// and subtracts 1 per hero level after level 1.
+        /// </summary>
         public static int ComputeNaivete(Character character)
         {
             if (!AppliesTo(character))
                 return 0;
 
             var config = GetConfig()!;
-            int attributeSum = GetBaseAttributeSum(character);
-            return Math.Max(0, config.AttributeTotalCap - attributeSum);
+            int level = Math.Max(1, character.Level);
+            int levelPenalty = level - 1;
+            return Math.Max(0, config.StartingNaivete - levelPenalty);
         }
 
         public static int GetHitStepsFromNaivete(int naivete, NaiveteConfig? config = null)
@@ -50,7 +55,7 @@ namespace RPGGame
 
             int pointsPerStep = config.NaivetePointsPerHitStep > 0
                 ? config.NaivetePointsPerHitStep
-                : 2;
+                : 1;
             int steps = naivete / pointsPerStep;
             return Math.Min(config.MaxHitStepsFromNaivete, steps);
         }

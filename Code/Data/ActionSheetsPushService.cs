@@ -125,6 +125,42 @@ namespace RPGGame.Data
             if (header == null)
                 throw new InvalidOperationException("Could not parse header rows. Set actionsSheetUrl in GameData/SheetsConfig.json to match the published CSV used for pull, or check actionsSheetTabName and header rows on the tab.");
 
+            header = await RemoveLegacyCadenceColumnsIfPresentAsync(
+                    service, cfg, header, cancellationToken)
+                .ConfigureAwait(false);
+
+            var ensuredTriggers = ActionTriggerSheetColumns.EnsureHeader(header);
+            header = ensuredTriggers.Header;
+            bool headerExpanded = ensuredTriggers.ColumnsAdded;
+
+            var ensuredCadences = ActionCadenceSheetColumns.EnsureHeader(header);
+            header = ensuredCadences.Header;
+            headerExpanded = headerExpanded || ensuredCadences.ColumnsAdded;
+
+            var ensuredReserve = ActionReservePoolSheetColumns.EnsureHeader(header);
+            header = ensuredReserve.Header;
+            headerExpanded = headerExpanded || ensuredReserve.ColumnsAdded;
+
+            if (headerExpanded)
+            {
+                await WriteHeaderRowsAsync(service, cfg, sheet, header, cancellationToken).ConfigureAwait(false);
+                Console.WriteLine(
+                    $"Sheets push: appended TRIGGERS / CADENCES / RESERVE POOL columns to tab {cfg.ActionsSheetTabName} header.");
+            }
+
+            try
+            {
+                await ActionSheetsAnnotationPush.PushReferenceTabsAndHeaderNotesAsync(
+                        service, cfg.SpreadsheetId, cfg.ActionsSheetTabName.Trim(), header, cancellationToken)
+                    .ConfigureAwait(false);
+                Console.WriteLine(
+                    "Sheets push: refreshed CADENCE_LIST + MECHANIC_LIST (full TURN/ACTION/FIGHT/DUNGEON + mechanic hover notes).");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Sheets push: reference tabs / header notes skipped ({ex.Message}).");
+            }
+
             var existingSheetRows = await FetchExistingDataRowsAsync(
                     service, cfg, sheet, firstDataRowOneBased, cancellationToken)
                 .ConfigureAwait(false);
@@ -215,6 +251,123 @@ namespace RPGGame.Data
                 $"column F left unchanged for sheet formulas; TAGS column E included; API reports TotalUpdatedRows={updated}, TotalUpdatedCells={updatedCells}).");
 
             return new ActionSheetsPushOutcome(bodyRows.Count, firstDataRowOneBased, updated, updatedCells);
+        }
+
+        /// <summary>
+        /// Deletes legacy cadence columns (old <c>* CADENCE</c> triples + compact DURATION/CADENCE/MECHANICS,
+        /// typically sheet columns K–Y) via Sheets API, then returns an in-memory header with those columns removed.
+        /// </summary>
+        private static async Task<SpreadsheetHeader> RemoveLegacyCadenceColumnsIfPresentAsync(
+            SheetsService service,
+            SheetsPushConfig cfg,
+            SpreadsheetHeader header,
+            CancellationToken cancellationToken)
+        {
+            var legacyIndices = ActionCadenceSheetColumns.CollectLegacyColumnIndicesToRemove(header);
+            if (legacyIndices.Count == 0)
+                return header;
+
+            var ranges = ActionCadenceSheetColumns.BuildDescendingDeleteRanges(legacyIndices);
+            int sheetId = await ResolveActionsSheetIdAsync(service, cfg, cancellationToken).ConfigureAwait(false);
+
+            var requests = new List<Request>(ranges.Count);
+            foreach (var (start, end) in ranges)
+            {
+                requests.Add(new Request
+                {
+                    DeleteDimension = new DeleteDimensionRequest
+                    {
+                        Range = new DimensionRange
+                        {
+                            SheetId = sheetId,
+                            Dimension = "COLUMNS",
+                            StartIndex = start,
+                            EndIndex = end
+                        }
+                    }
+                });
+            }
+
+            await service.Spreadsheets
+                .BatchUpdate(new BatchUpdateSpreadsheetRequest { Requests = requests }, cfg.SpreadsheetId)
+                .ExecuteAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            string letters = string.Join(", ",
+                legacyIndices.Select(SheetsPushUtilities.ColumnIndexToA1Letters));
+            Console.WriteLine(
+                $"Sheets push: deleted {legacyIndices.Count} legacy cadence column(s) on tab {cfg.ActionsSheetTabName} " +
+                $"({letters}; old * CADENCE triples + compact DURATION/CADENCE/MECHANICS).");
+
+            return ActionCadenceSheetColumns.RemoveColumns(header, legacyIndices);
+        }
+
+        private static async Task<int> ResolveActionsSheetIdAsync(
+            SheetsService service,
+            SheetsPushConfig cfg,
+            CancellationToken cancellationToken)
+        {
+            string want = cfg.ActionsSheetTabName.Trim();
+            var req = service.Spreadsheets.Get(cfg.SpreadsheetId);
+            req.Fields = "sheets(properties(sheetId,title))";
+            var meta = await req.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+            if (meta.Sheets != null)
+            {
+                foreach (var s in meta.Sheets)
+                {
+                    if (string.Equals(s.Properties?.Title, want, StringComparison.Ordinal)
+                        && s.Properties?.SheetId != null)
+                        return s.Properties.SheetId.Value;
+                }
+            }
+
+            throw new InvalidOperationException(
+                $"Could not resolve sheetId for ACTIONS tab '{want}' when deleting legacy cadence columns.");
+        }
+
+        private static async Task WriteHeaderRowsAsync(
+            SheetsService service,
+            SheetsPushConfig cfg,
+            string escapedSheetName,
+            SpreadsheetHeader header,
+            CancellationToken cancellationToken)
+        {
+            int labelRowOneBased = header.LabelRowIndex + 1;
+            int endColIndex = Math.Max(0, header.LabelByIndex.Count - 1);
+            string endLetter = SheetsPushUtilities.ColumnIndexToA1Letters(endColIndex);
+
+            var batchData = new List<ValueRange>();
+
+            if (header.LabelRowIndex > 0)
+            {
+                int contextRowOneBased = header.LabelRowIndex; // 0-based LabelRowIndex=1 → context row 1
+                batchData.Add(new ValueRange
+                {
+                    Range = $"{escapedSheetName}!A{contextRowOneBased}:{endLetter}{contextRowOneBased}",
+                    MajorDimension = "ROWS",
+                    Values = new List<IList<object>> { ActionTriggerSheetColumns.BuildHeaderContextRow(header).ToList() }
+                });
+            }
+
+            batchData.Add(new ValueRange
+            {
+                Range = $"{escapedSheetName}!A{labelRowOneBased}:{endLetter}{labelRowOneBased}",
+                MajorDimension = "ROWS",
+                Values = new List<IList<object>> { ActionTriggerSheetColumns.BuildHeaderLabelRow(header).ToList() }
+            });
+
+            SheetsPushUtilities.NormalizeValueRangeGridsForUpload(batchData);
+
+            await service.Spreadsheets.Values
+                .BatchUpdate(
+                    new BatchUpdateValuesRequest
+                    {
+                        ValueInputOption = "RAW",
+                        Data = batchData
+                    },
+                    cfg.SpreadsheetId)
+                .ExecuteAsync(cancellationToken)
+                .ConfigureAwait(false);
         }
 
         private static async Task<(SpreadsheetHeader? Header, int FirstDataRowOneBased)> FetchHeaderFromSheetApiAsync(

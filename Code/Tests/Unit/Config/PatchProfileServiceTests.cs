@@ -20,6 +20,9 @@ namespace RPGGame.Tests.Unit.Config
             TestCreateAndSwitchPatch(ref testsRun, ref testsPassed, ref testsFailed);
             TestCreateAndSwitchBalancePatch(ref testsRun, ref testsPassed, ref testsFailed);
             TestAudioDefaultSeededFromTemplate(ref testsRun, ref testsPassed, ref testsFailed);
+            TestFirstRunUsesShippedBalanceDefault(ref testsRun, ref testsPassed, ref testsFailed);
+            TestShippedDefaultFallsBackWhenPatchMissing(ref testsRun, ref testsPassed, ref testsFailed);
+            TestSetShippedDefaultBalancePersists(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("PatchProfileService Tests", testsRun, testsPassed, testsFailed);
         }
@@ -155,6 +158,93 @@ namespace RPGGame.Tests.Unit.Config
                 PatchProfileService.SetActivePatch(PatchCategory.Balance, "test-balance");
                 TestBase.AssertEqual("test-balance", PatchProfileService.LoadProfile().ActiveBalancePatch,
                     "SetActivePatch succeeds for balance", ref testsRun, ref testsPassed, ref testsFailed);
+            }
+            finally
+            {
+                try { Directory.Delete(root, true); } catch { }
+            }
+        }
+
+        private static void TestFirstRunUsesShippedBalanceDefault(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestFirstRunUsesShippedBalanceDefault));
+            string root = CreateTempGameDataRoot();
+            try
+            {
+                PatchProfileServiceTestHooks.OverrideGameDataRoot(root);
+
+                string balanceDir = Path.Combine(root, "Patches", "Balance");
+                Directory.CreateDirectory(balanceDir);
+                File.WriteAllText(Path.Combine(balanceDir, "default.json"), "{\"combat\":{}}");
+                File.WriteAllText(Path.Combine(balanceDir, "7-11-26.json"), "{\"combat\":{\"shipped\":true}}");
+                File.WriteAllText(Path.Combine(root, ShippedPatchDefaults.FileName),
+                    "{\"defaultBalancePatch\":\"7-11-26\",\"defaultAudioPatch\":\"default\"}");
+
+                var profile = PatchProfileService.LoadProfile();
+                TestBase.AssertEqual("7-11-26", profile.ActiveBalancePatch,
+                    "first-run profile uses shipped balance default", ref testsRun, ref testsPassed, ref testsFailed);
+
+                string active = PatchProfileService.GetActivePatchFilePath(PatchCategory.Balance);
+                TestBase.AssertTrue(active.EndsWith("7-11-26.json", StringComparison.OrdinalIgnoreCase),
+                    "active balance path resolves to shipped default", ref testsRun, ref testsPassed, ref testsFailed);
+            }
+            finally
+            {
+                try { Directory.Delete(root, true); } catch { }
+            }
+        }
+
+        private static void TestShippedDefaultFallsBackWhenPatchMissing(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestShippedDefaultFallsBackWhenPatchMissing));
+            string root = CreateTempGameDataRoot();
+            try
+            {
+                PatchProfileServiceTestHooks.OverrideGameDataRoot(root);
+
+                string balanceDir = Path.Combine(root, "Patches", "Balance");
+                Directory.CreateDirectory(balanceDir);
+                File.WriteAllText(Path.Combine(balanceDir, "default.json"), "{\"combat\":{}}");
+                File.WriteAllText(Path.Combine(root, ShippedPatchDefaults.FileName),
+                    "{\"defaultBalancePatch\":\"missing-patch\",\"defaultAudioPatch\":\"default\"}");
+
+                TestBase.AssertEqual("default", ShippedPatchDefaults.ResolveDefaultBalancePatchName(),
+                    "resolve falls back to default when shipped patch file is missing",
+                    ref testsRun, ref testsPassed, ref testsFailed);
+
+                var profile = PatchProfileService.LoadProfile();
+                TestBase.AssertEqual("default", profile.ActiveBalancePatch,
+                    "first-run uses default when shipped patch is missing",
+                    ref testsRun, ref testsPassed, ref testsFailed);
+            }
+            finally
+            {
+                try { Directory.Delete(root, true); } catch { }
+            }
+        }
+
+        private static void TestSetShippedDefaultBalancePersists(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestSetShippedDefaultBalancePersists));
+            string root = CreateTempGameDataRoot();
+            try
+            {
+                PatchProfileServiceTestHooks.OverrideGameDataRoot(root);
+
+                string balanceDir = Path.Combine(root, "Patches", "Balance");
+                Directory.CreateDirectory(balanceDir);
+                File.WriteAllText(Path.Combine(balanceDir, "default.json"), "{}");
+                File.WriteAllText(Path.Combine(balanceDir, "season-one.json"), "{\"combat\":{}}");
+
+                ShippedPatchDefaults.SetDefaultBalancePatch("season-one");
+                ShippedPatchDefaults.InvalidateCache();
+
+                TestBase.AssertEqual("season-one", ShippedPatchDefaults.Load().DefaultBalancePatch,
+                    "persists shipped default balance name", ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertEqual("season-one", ShippedPatchDefaults.ResolveDefaultBalancePatchName(),
+                    "resolve returns persisted shipped default", ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertTrue(File.Exists(ShippedPatchDefaults.GetFilePath()),
+                    "writes ShippedPatchDefaults.json", ref testsRun, ref testsPassed, ref testsFailed);
             }
             finally
             {

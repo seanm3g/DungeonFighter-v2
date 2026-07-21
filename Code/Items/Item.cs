@@ -163,6 +163,12 @@ namespace RPGGame
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";
         public string Effect { get; set; } = "";
+        /// <summary>
+        /// Optional combat WHEN token for proc mods (e.g. ONCRITICAL, ONCONNECT, ONKILL).
+        /// When blank, <see cref="Effect"/> defaults apply (weaponPoison/Burn/Bleed/Acid ⇒ ONCRITICAL).
+        /// </summary>
+        [JsonPropertyName("triggerWhen")]
+        public string TriggerWhen { get; set; } = "";
         public double MinValue { get; set; } = 0;
         public double MaxValue { get; set; } = 0;
         public double RolledValue { get; set; } = 0; // The actual rolled value between MinValue and MaxValue

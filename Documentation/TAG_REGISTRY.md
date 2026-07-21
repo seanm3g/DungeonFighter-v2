@@ -13,13 +13,14 @@ Authoritative tag vocabulary for actions, items, enemies, and environment matchi
 
 Comparison is **case-insensitive**. Canonical registry lives in `Code/World/Tags/TagDefinitions.cs`.
 
-## Layer 1 — Pool / routing (23)
+## Layer 1 — Pool / routing (24)
 
-- **Pool gates:** `environment`, `enemy`, `weapon`, `class`, `item`, `action`, `unique`, `starter`
+- **Pool gates:** `environment`, `enemy`, `weapon`, `class`, `item`, `action`, `unique`, `starter`, `reserve_pool`
 - **Primary classes:** `warrior`, `barbarian`, `rogue`, `wizard`
 - **Weapon types:** `sword`, `mace`, `dagger`, `wand`
 - **Action rarity (field dup):** `common`, `uncommon`, `rare`, `epic`, `legendary`, `mythic`
 
+`reserve_pool`: action stays in the entity pool for combo strip / explicit picks, but is **excluded from default weighted rolls** (`Actor.SelectAction`). Sheet column **RESERVE POOL** (or the token in **TAGS**) sets this.
 ## Layer 2 — Match / flavor (52)
 
 - **Elements:** `fire`, `earth`, `water`, `air`

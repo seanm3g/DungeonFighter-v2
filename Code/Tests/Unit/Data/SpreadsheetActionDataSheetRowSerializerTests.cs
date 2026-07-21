@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit.Data
             TestHeroBaseStats_ActionSpeedActionDamageHeaders(ref testsRun, ref testsPassed, ref testsFailed);
             TestHeroBaseStats_PrefixedHeroModColumnLabels(ref testsRun, ref testsPassed, ref testsFailed);
             TestEnemyAndHeroBaseStats_SeparateNextActionMods(ref testsRun, ref testsPassed, ref testsFailed);
+            TestHeroAndEnemyBase_WeaponSpeedDamageColumns(ref testsRun, ref testsPassed, ref testsFailed);
             TestTagsColumn_IngestsAndConverts(ref testsRun, ref testsPassed, ref testsFailed);
             TestTagsColumn_PushLayoutColumnE(ref testsRun, ref testsPassed, ref testsFailed);
             TestLayerSectionMarkerRow_SkippedOnParse(ref testsRun, ref testsPassed, ref testsFailed);
@@ -283,6 +284,42 @@ namespace RPGGame.Tests.Unit.Data
             var outRow = SpreadsheetActionDataSheetRowSerializer.ToRow(parsed, header);
             TestBase.AssertEqual("1", outRow[1], "push enemy speed", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual("10", outRow[5], "push hero speed", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        /// <summary>Additional WEAPON SPEED / WEAPON DAMAGE under HERO BASE / ENEMY BASE (not ACTION SPEED/DAMAGE).</summary>
+        private static void TestHeroAndEnemyBase_WeaponSpeedDamageColumns(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestHeroAndEnemyBase_WeaponSpeedDamageColumns));
+            var contextRow = new[]
+            {
+                "", "ENEMY BASE", "ENEMY BASE", "HERO BASE", "HERO BASE"
+            };
+            var labelRow = new[]
+            {
+                "ACTION", "WEAPON SPEED", "WEAPON DAMAGE", "WEAPON SPEED", "WEAPON DAMAGE"
+            };
+            var (header, _) = SpreadsheetActionParser.BuildHeaderFromSheetRows(new List<string[]> { contextRow, labelRow });
+            TestBase.AssertTrue(header != null, "header parsed", ref testsRun, ref testsPassed, ref testsFailed);
+            if (header == null) return;
+
+            var dataRow = new[] { "SHARPEN", "2", "5", "1", "10" };
+            var parsed = SpreadsheetActionData.FromCsvRow(dataRow, header);
+            TestBase.AssertEqual("2", parsed.EnemyWeaponSpeedMod, "enemy WEAPON SPEED", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("5", parsed.EnemyWeaponDamageMod, "enemy WEAPON DAMAGE", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("1", parsed.WeaponSpeedMod, "hero WEAPON SPEED", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("10", parsed.WeaponDamageMod, "hero WEAPON DAMAGE", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(string.IsNullOrEmpty(parsed.SpeedMod), "ACTION SPEED untouched", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(string.IsNullOrEmpty(parsed.DamageMod), "ACTION DAMAGE untouched", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var actionData = SpreadsheetToActionDataConverter.Convert(parsed);
+            TestBase.AssertEqual("1", actionData.WeaponSpeedMod, "ActionData weapon speed", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("10", actionData.WeaponDamageMod, "ActionData weapon damage", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var outRow = SpreadsheetActionDataSheetRowSerializer.ToRow(parsed, header);
+            TestBase.AssertEqual("2", outRow[1], "push enemy weapon speed", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("5", outRow[2], "push enemy weapon damage", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("1", outRow[3], "push hero weapon speed", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("10", outRow[4], "push hero weapon damage", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
         /// <summary>Row-2 <c>TAGS</c> must ingest into <see cref="SpreadsheetActionData.Tags"/> and merge into runtime <see cref="ActionData.Tags"/>.</summary>

@@ -10,7 +10,7 @@ using RPGGame;
 
 namespace RPGGame.Data
 {
-    /// <summary>Pushes Actions plus optional WEAPONS / Prefix (Modifications.json + PrefixMaterialQuality.json when present) / ARMOR / SUFFIXES (StatBonuses) / CONSUMABLES (Consumables.json) / ENEMIES / ENVIRONMENTS / DUNGEONS / CLASSES / CLASS ACTIONS tabs via Sheets API.</summary>
+    /// <summary>Pushes Actions plus optional WEAPONS / Prefix (Modifications.json + PrefixMaterialQuality.json when present) / ARMOR / SUFFIXES (StatBonuses) / CONSUMABLES (Consumables.json) / ENEMIES / ENVIRONMENTS / DUNGEONS / CLASSES / CLASS ACTIONS / flavor (FlavorText.json) tabs via Sheets API.</summary>
     public static class GameDataSheetsPushService
     {
         public static async Task<GameDataSheetsPushResult> PushAllGameDataSheetsAsync(
@@ -28,7 +28,7 @@ namespace RPGGame.Data
                 {
                     cfg.Save(pushConfigPath);
                     result.AddLine(
-                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, Prefix (Modifications.json + PrefixMaterialQuality.json), ARMOR, SUFFIXES, CONSUMABLES, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES, CLASS ACTIONS " +
+                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, Prefix (Modifications.json + PrefixMaterialQuality.json), ARMOR, SUFFIXES, CONSUMABLES, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES, CLASS ACTIONS, flavor " +
                         "(all optional tabs were blank). Edit the file if your sheet uses different tab titles.");
                 }
                 catch (Exception ex)
@@ -114,6 +114,22 @@ namespace RPGGame.Data
                 {
                     result.AddLine(
                         $"Note: could not save SheetsPushConfig after CLASS ACTIONS default ({ex.Message}); push still uses that tab name for this run.");
+                }
+            }
+
+            if (cfg.ApplyDefaultFlavorTabNameIfUnset())
+            {
+                try
+                {
+                    cfg.Save(pushConfigPath);
+                    result.AddLine(
+                        "Set default flavor tab name in SheetsPushConfig.json (flavorSheetTabName was blank). " +
+                        "Edit if your spreadsheet uses a different tab title.");
+                }
+                catch (Exception ex)
+                {
+                    result.AddLine(
+                        $"Note: could not save SheetsPushConfig after flavor default ({ex.Message}); push still uses that tab name for this run.");
                 }
             }
 
@@ -248,6 +264,8 @@ namespace RPGGame.Data
 
             await PushOptionalClassActionsTabAsync(service, cfg, result, cancellationToken).ConfigureAwait(false);
 
+            await PushOptionalFlavorTabAsync(service, cfg, result, cancellationToken).ConfigureAwait(false);
+
             return result;
         }
 
@@ -285,6 +303,9 @@ namespace RPGGame.Data
 
             if (cfg.PushClassActionsTab && !string.IsNullOrWhiteSpace(cfg.ClassActionsSheetTabName))
                 yield return cfg.ClassActionsSheetTabName.Trim();
+
+            if (cfg.PushFlavorTab && !string.IsNullOrWhiteSpace(cfg.FlavorSheetTabName))
+                yield return cfg.FlavorSheetTabName.Trim();
         }
 
         private static async Task PushOptionalJsonArrayTabAsync(
@@ -425,6 +446,35 @@ namespace RPGGame.Data
             await PushRowsAtA1Async(service, cfg.SpreadsheetId, tab, rows, headerRowCount: 1, cancellationToken).ConfigureAwait(false);
             int dataRows = Math.Max(0, rows.Count - 1);
             result.AddLine($"Tab '{tab}' (class actions): {dataRows} data row(s) + header (from ClassActions.json or built-in defaults).");
+        }
+
+        private static async Task PushOptionalFlavorTabAsync(
+            SheetsService service,
+            SheetsPushConfig cfg,
+            GameDataSheetsPushResult result,
+            CancellationToken cancellationToken)
+        {
+            if (!cfg.PushFlavorTab)
+            {
+                if (!string.IsNullOrWhiteSpace(cfg.FlavorSheetTabName))
+                    result.AddLine($"Skipped tab '{cfg.FlavorSheetTabName.Trim()}' (flavor) — push disabled in SheetsPushConfig.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(cfg.FlavorSheetTabName))
+                return;
+
+            string tab = cfg.FlavorSheetTabName.Trim();
+            FlavorTextData data = FlavorText.GetData();
+            var rows = FlavorTextSheetConverter.BuildPushValueRows(data);
+            await PushRowsAtA1Async(service, cfg.SpreadsheetId, tab, rows, headerRowCount: 1, cancellationToken)
+                .ConfigureAwait(false);
+            int dataRows = Math.Max(0, rows.Count - 1);
+            string? path = FlavorText.GetResolvedFilePath();
+            string note = !string.IsNullOrEmpty(path) && File.Exists(path)
+                ? ""
+                : " FlavorText.json was not found — pushed from empty/default banks.";
+            result.AddLine($"Tab '{tab}' (flavor / FlavorText.json): {dataRows} data row(s) + header.{note}");
         }
 
         private static async Task PushRowsAtA1Async(

@@ -72,6 +72,8 @@ namespace RPGGame.UI.TitleScreen
                 charsPerBand: 1);
             ApplyIdleSaturation(dungeonColoredLines);
             ApplyIdleSaturation(fighterColoredLines);
+            ApplyPipingBrightness(dungeonColoredLines);
+            ApplyPipingBrightness(fighterColoredLines);
             var frameLines = BuildFrameLayout(dungeonColoredLines, fighterColoredLines);
             return new TitleFrame(frameLines);
         }
@@ -128,6 +130,10 @@ namespace RPGGame.UI.TitleScreen
                 ApplyIdleSaturation(fighterFrom);
                 ApplyIdleSaturation(dungeonTo);
                 ApplyIdleSaturation(fighterTo);
+                ApplyPipingBrightness(dungeonFrom);
+                ApplyPipingBrightness(fighterFrom);
+                ApplyPipingBrightness(dungeonTo);
+                ApplyPipingBrightness(fighterTo);
 
                 dungeonBase = LerpColoredLines(dungeonFrom, dungeonTo, blendProgress);
                 fighterBase = LerpColoredLines(fighterFrom, fighterTo, blendProgress);
@@ -149,6 +155,8 @@ namespace RPGGame.UI.TitleScreen
 
                 ApplyIdleSaturation(dungeonBase);
                 ApplyIdleSaturation(fighterBase);
+                ApplyPipingBrightness(dungeonBase);
+                ApplyPipingBrightness(fighterBase);
             }
 
             var dungeonAnimated = ComposeLines(dungeonBase, lineOffsetBase: 0, state);
@@ -201,6 +209,8 @@ namespace RPGGame.UI.TitleScreen
 
             ApplyIdleSaturation(dungeonTransitionLines);
             ApplyIdleSaturation(fighterTransitionLines);
+            ApplyPipingBrightness(dungeonTransitionLines);
+            ApplyPipingBrightness(fighterTransitionLines);
 
             return new TitleFrame(BuildFrameLayout(dungeonTransitionLines, fighterTransitionLines));
         }
@@ -320,6 +330,79 @@ namespace RPGGame.UI.TitleScreen
 
                     seg.Color = ColorValidator.ScaleSaturationHsv(seg.Color, scale);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Full block <c>█</c> — the solid forward face of each letter.
+        /// </summary>
+        public const char FullBlockGlyph = '\u2588';
+
+        /// <summary>
+        /// True for box-drawing / outline glyphs that form accent piping (not full-block faces).
+        /// </summary>
+        public static bool IsAccentPipingGlyph(char c) =>
+            !char.IsWhiteSpace(c) && c != FullBlockGlyph;
+
+        /// <summary>
+        /// Dims accent piping glyphs relative to full-block letter faces via HSV Value scale.
+        /// Expands to per-glyph segments so mixed bands keep body bright and edges darker.
+        /// </summary>
+        private void ApplyPipingBrightness(List<ColoredText>[] lines)
+        {
+            double scale = _config.IdlePipingBrightnessScale;
+            if (Math.Abs(scale - 1.0) < 1e-6 || lines == null)
+                return;
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var segments = lines[i];
+                if (segments == null || segments.Count == 0)
+                    continue;
+
+                bool needsDim = false;
+                foreach (var seg in segments)
+                {
+                    if (seg == null || string.IsNullOrEmpty(seg.Text))
+                        continue;
+                    foreach (char c in seg.Text)
+                    {
+                        if (IsAccentPipingGlyph(c))
+                        {
+                            needsDim = true;
+                            break;
+                        }
+                    }
+                    if (needsDim)
+                        break;
+                }
+                if (!needsDim)
+                    continue;
+
+                var rebuilt = new List<ColoredText>(Math.Max(16, segments.Count));
+                foreach (var seg in segments)
+                {
+                    if (seg == null || string.IsNullOrEmpty(seg.Text))
+                        continue;
+
+                    if (seg.Text.Length == 1)
+                    {
+                        var color = IsAccentPipingGlyph(seg.Text[0])
+                            ? ColorValidator.ScaleBrightnessHsv(seg.Color, scale)
+                            : seg.Color;
+                        rebuilt.Add(new ColoredText(seg.Text, color, seg.SourceTemplate));
+                        continue;
+                    }
+
+                    foreach (char c in seg.Text)
+                    {
+                        var color = IsAccentPipingGlyph(c)
+                            ? ColorValidator.ScaleBrightnessHsv(seg.Color, scale)
+                            : seg.Color;
+                        rebuilt.Add(new ColoredText(c.ToString(), color, seg.SourceTemplate));
+                    }
+                }
+                lines[i] = rebuilt;
             }
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using RPGGame.Actions;
+using RPGGame.Actions.Conditional;
 using RPGGame;
 
 namespace RPGGame.Data
@@ -145,6 +146,10 @@ namespace RPGGame.Data
             actionData.EnemyDamageMod = spreadsheet.EnemyDamageMod ?? "";
             actionData.EnemyMultiHitMod = spreadsheet.EnemyMultiHitMod ?? "";
             actionData.EnemyAmpMod = spreadsheet.EnemyAmpMod ?? "";
+            actionData.WeaponSpeedMod = spreadsheet.WeaponSpeedMod ?? "";
+            actionData.WeaponDamageMod = spreadsheet.WeaponDamageMod ?? "";
+            actionData.EnemyWeaponSpeedMod = spreadsheet.EnemyWeaponSpeedMod ?? "";
+            actionData.EnemyWeaponDamageMod = spreadsheet.EnemyWeaponDamageMod ?? "";
 
             // Combo & position (round-trip)
             actionData.ChainPosition = spreadsheet.ChainPosition ?? "";
@@ -156,6 +161,9 @@ namespace RPGGame.Data
             actionData.ResetBlockerBuffer = spreadsheet.ResetBlockerBuffer ?? "";
             actionData.IsOpener = !string.IsNullOrWhiteSpace(spreadsheet.Opener) && spreadsheet.Opener != "0";
             actionData.IsFinisher = !string.IsNullOrWhiteSpace(spreadsheet.Finisher) && spreadsheet.Finisher != "0";
+            actionData.IsReservePool = !string.IsNullOrWhiteSpace(spreadsheet.ReservePool)
+                && spreadsheet.ReservePool != "0"
+                && !string.Equals(spreadsheet.ReservePool.Trim(), "false", StringComparison.OrdinalIgnoreCase);
 
             // Combo properties: hero actions use the combo strip; environment hazards override below.
             actionData.IsComboAction = true;
@@ -202,32 +210,86 @@ namespace RPGGame.Data
             // No duplicate tags: deduplicate (category + rarity + tags string can repeat the same tag)
             actionData.Tags = actionData.Tags.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
+            // TAGS cell alone can mark reserve pool (column may be empty on older sheets).
+            if (GameDataTagHelper.HasReservePoolTag(actionData.Tags))
+                actionData.IsReservePool = true;
+
             ActionTagSyncHelper.SyncCanonicalTags(actionData);
 
             ApplyNonHeroSpreadsheetDefaults(actionData);
             
-            // Trigger conditions (ONHIT, ONMISS, ONCOMBO, ONCRITICAL)
-            actionData.TriggerConditions = new List<string>();
-            if (!string.IsNullOrWhiteSpace(spreadsheet.TriggerConditions))
+            // Trigger conditions (ONHIT, ONCONNECT, ONMISS, ONCOMBO, ONCRITICAL, ONCRITICALMISS, ONKILL, ONROLLVALUE, …)
+            actionData.TriggerConditions = ActionTriggerGate.ParseTriggerConditionList(spreadsheet.TriggerConditions);
+
+            // TRIGGERS triples → bundles; merge enabled WHEN tokens into triggerConditions
+            actionData.TriggerBundles = ActionTriggerSheetColumns.ApplyToActionData(spreadsheet, actionData.TriggerConditions);
+
+            // Exact roll: ON ROLL VALUE column (number) and/or ONROLLVALUE:N in triggerConditions
+            actionData.ExactRollTriggerValue = 0;
+            if (!string.IsNullOrWhiteSpace(spreadsheet.OnRollValue)
+                && int.TryParse(spreadsheet.OnRollValue.Trim(), out int rollFace)
+                && rollFace >= 1 && rollFace <= 20)
             {
-                var parts = spreadsheet.TriggerConditions.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var part in parts)
+                actionData.ExactRollTriggerValue = rollFace;
+                if (!actionData.TriggerConditions.Exists(c =>
+                        c.StartsWith("ONROLLVALUE", StringComparison.OrdinalIgnoreCase)))
+                    actionData.TriggerConditions.Add("ONROLLVALUE");
+            }
+            foreach (var c in actionData.TriggerConditions.ToList())
+            {
+                if (c.StartsWith("ONROLLVALUE:", StringComparison.OrdinalIgnoreCase)
+                    && int.TryParse(c.Substring("ONROLLVALUE:".Length), out int fromToken)
+                    && fromToken >= 1 && fromToken <= 20)
                 {
-                    var upper = part.Trim().ToUpper();
-                    if (upper == "ONHIT" || upper == "ONMISS" || upper == "ONCOMBO" || upper == "ONCRITICAL" || upper == "ONCRIT")
-                    {
-                        actionData.TriggerConditions.Add(upper == "ONCRIT" ? "ONCRITICAL" : upper);
-                    }
+                    actionData.ExactRollTriggerValue = fromToken;
+                }
+            }
+
+            // ON ROOMS CLEARED column: number → ONROOMSCLEARED:N; any other non-empty → every clear
+            actionData.RoomsClearedTriggerValue = 0;
+            if (!string.IsNullOrWhiteSpace(spreadsheet.OnRoomsCleared))
+            {
+                string cell = spreadsheet.OnRoomsCleared.Trim();
+                if (int.TryParse(cell, out int n) && n > 0)
+                {
+                    actionData.RoomsClearedTriggerValue = n;
+                    if (!actionData.TriggerConditions.Exists(c =>
+                            c.StartsWith("ONROOMSCLEARED", StringComparison.OrdinalIgnoreCase)))
+                        actionData.TriggerConditions.Add($"ONROOMSCLEARED:{n}");
+                }
+                else
+                {
+                    if (!actionData.TriggerConditions.Exists(c =>
+                            c.StartsWith("ONROOMSCLEARED", StringComparison.OrdinalIgnoreCase)))
+                        actionData.TriggerConditions.Add("ONROOMSCLEARED");
+                }
+            }
+            foreach (var c in actionData.TriggerConditions.ToList())
+            {
+                if (c.StartsWith("ONROOMSCLEARED:", StringComparison.OrdinalIgnoreCase)
+                    && int.TryParse(c.Substring("ONROOMSCLEARED:".Length), out int roomsN)
+                    && roomsN > 0)
+                {
+                    actionData.RoomsClearedTriggerValue = roomsN;
                 }
             }
             
-            // ACTION/ATTACK bonuses
-            actionData.ActionAttackBonuses = ActionAttackKeywordProcessor.ProcessBonuses(spreadsheet);
-            var persistedBonuses = DeserializeActionAttackBonuses(spreadsheet.ActionAttackBonusesJson);
-            if (persistedBonuses?.BonusGroups != null && persistedBonuses.BonusGroups.Count > 0)
-                actionData.ActionAttackBonuses = persistedBonuses;
-            ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(actionData);
-            EnsureKeywordBonusGroups(actionData, spreadsheet);
+            // ACTION/ATTACK bonuses — prefer CADENCES triples; legacy CADENCE+DURATION+columns as fallback
+            var cadenceBlocks = ActionCadenceSheetColumns.BuildEditorBlocks(spreadsheet);
+            if (cadenceBlocks.Count > 0)
+            {
+                ActionCadenceEditorSync.ApplyBlocks(actionData, cadenceBlocks);
+            }
+            else
+            {
+                actionData.ActionAttackBonuses = ActionAttackKeywordProcessor.ProcessBonuses(spreadsheet);
+                var persistedBonuses = DeserializeActionAttackBonuses(spreadsheet.ActionAttackBonusesJson);
+                if (persistedBonuses?.BonusGroups != null && persistedBonuses.BonusGroups.Count > 0)
+                    actionData.ActionAttackBonuses = persistedBonuses;
+                ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(actionData);
+                EnsureKeywordBonusGroups(actionData, spreadsheet);
+            }
+
             MultiDiceRollMapper.ApplyRollAdvantageBonuses(actionData, spreadsheet);
 
             // Roll bonus fields (form edits these; round-trip from Hero / Enemy columns)
@@ -244,6 +306,7 @@ namespace RPGGame.Data
             actionData.EnemyCriticalMissThresholdAdjustment = SpreadsheetActionData.ParseIntValue(spreadsheet.EnemyCritMiss);
 
             // StatBonuses, Thresholds, Accumulations (JSON round-trip from spreadsheet)
+            actionData.ExplodingDiceThreshold = spreadsheet.ExplodingDiceThreshold ?? "";
             actionData.StatBonuses = DeserializeStatBonuses(spreadsheet.StatBonusesJson);
             actionData.Thresholds = DeserializeThresholds(spreadsheet.ThresholdsJson);
             actionData.Accumulations = DeserializeAccumulations(spreadsheet.AccumulationsJson);
@@ -482,7 +545,11 @@ namespace RPGGame.Data
                 || nz(spreadsheet.SpeedMod)
                 || nz(spreadsheet.DamageMod)
                 || nz(spreadsheet.MultiHitMod)
-                || nz(spreadsheet.AmpMod);
+                || nz(spreadsheet.AmpMod)
+                || nz(spreadsheet.WeaponSpeedMod)
+                || nz(spreadsheet.WeaponDamageMod)
+                || nz(spreadsheet.EnemyWeaponSpeedMod)
+                || nz(spreadsheet.EnemyWeaponDamageMod);
         }
     }
 }

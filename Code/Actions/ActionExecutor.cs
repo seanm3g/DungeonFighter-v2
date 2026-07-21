@@ -21,6 +21,8 @@ namespace RPGGame
         public Action? SelectedAction { get; set; }
         public int BaseRoll { get; set; }
         public int ModifiedBaseRoll { get; set; }
+        /// <summary>Die face after adv/replace/env, before flat roll bonus — used by ONNATURALROLL.</summary>
+        public int NaturalRollValue { get; set; }
         public Actions.RollModification.MultiDiceRollDetail MultiDiceRollDetail { get; set; }
         public int RollBonus { get; set; }
         public int AttackRoll { get; set; }
@@ -28,6 +30,8 @@ namespace RPGGame
         public bool IsCombo { get; set; }
         public bool IsCritical { get; set; }
         public bool Hit { get; set; }
+        /// <summary>True when miss→hit was forced by a fight-scoped salvage_miss charge.</summary>
+        public bool MissSalvaged { get; set; }
         public int Damage { get; set; }
         public int HealAmount { get; set; }
         /// <summary>

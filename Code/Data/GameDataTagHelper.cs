@@ -48,6 +48,13 @@ namespace RPGGame.Data
         }
 
         /// <summary>
+        /// True when the tag list includes <c>reserve_pool</c>. Those actions stay in the entity pool
+        /// for combo strip / explicit picks but are excluded from default weighted rolls.
+        /// </summary>
+        public static bool HasReservePoolTag(IEnumerable<string>? tags) =>
+            HasTag(tags, ActionTagSyncHelper.ReservePoolTag);
+
+        /// <summary>
         /// True when an action may be granted on hero equipment (loot affixes, gear action pool, combo).
         /// Excludes <c>environment</c> (room hazards) and <c>enemy</c> (enemy-only) tags.
         /// </summary>

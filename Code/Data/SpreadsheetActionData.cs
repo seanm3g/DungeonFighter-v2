@@ -50,8 +50,14 @@ namespace RPGGame.Data
         /// <summary>STATUS EFFECT / CADENCE — keyword (ACTION / ATTACK / ABILITY / FIGHT / DUNGEON).</summary>
         public string Cadence { get; set; } = "";
 
-        /// <summary>Declarative comma-separated mechanic IDs (MECHANICS band). Auto-filled on push; validated on pull.</summary>
+        /// <summary>Declarative comma-separated mechanic IDs (MECHANICS band). Legacy compact column — prefer CADENCES triples.</summary>
         public string Mechanics { get; set; } = "";
+
+        /// <summary>
+        /// JSON list of <see cref="ActionCadenceBundle"/> from CADENCES triples
+        /// (enable / duration / mechanic pointers). Replaces compact DURATION+CADENCE+MECHANICS when set.
+        /// </summary>
+        public string CadenceBundlesJson { get; set; } = "";
         
         /// <summary>Legacy JSON alias for <see cref="Duration"/> when round-tripping old Actions.json rows.</summary>
         public string CadenceApplicationCount { get; set; } = "";
@@ -64,6 +70,9 @@ namespace RPGGame.Data
         
         // Column O — FINISHER
         public string Finisher { get; set; } = "";
+
+        /// <summary>RESERVE POOL — truthy excludes from default weighted rolls (tag <c>reserve_pool</c>).</summary>
+        public string ReservePool { get; set; } = "";
         
         // Columns N-Q: Hero bonuses (ACCURACY, HIT, COMBO, CRIT)
         public string HeroAccuracy { get; set; } = "";
@@ -105,6 +114,15 @@ namespace RPGGame.Data
         public string EnemyDamageMod { get; set; } = "";
         public string EnemyMultiHitMod { get; set; } = "";
         public string EnemyAmpMod { get; set; } = "";
+
+        /// <summary>Flat hero weapon speed bonus (row-1 "HERO BASE" / "HERO BASE STATS" → WEAPON SPEED). Cadence-scoped.</summary>
+        public string WeaponSpeedMod { get; set; } = "";
+        /// <summary>Flat hero weapon damage bonus (row-1 "HERO BASE" / "HERO BASE STATS" → WEAPON DAMAGE). Cadence-scoped.</summary>
+        public string WeaponDamageMod { get; set; } = "";
+        /// <summary>Flat enemy weapon speed bonus (row-1 "ENEMY BASE" / "ENEMY BASE STATS" → WEAPON SPEED).</summary>
+        public string EnemyWeaponSpeedMod { get; set; } = "";
+        /// <summary>Flat enemy weapon damage bonus (row-1 "ENEMY BASE" / "ENEMY BASE STATS" → WEAPON DAMAGE).</summary>
+        public string EnemyWeaponDamageMod { get; set; } = "";
         
         // Status effects columns (AH-AO approximately)
         public string Stun { get; set; } = "";
@@ -155,15 +173,21 @@ namespace RPGGame.Data
         public string ModifyBasedOnChainPosition { get; set; } = "";
         public string DistanceFromXSlot { get; set; } = "";
         
-        // Trigger columns
+        // Trigger columns (count/enable cells; SCOPE + → triples live under TRIGGERS band — see TriggerBundlesJson)
         public string OnHit { get; set; } = "";
         public string OnMiss { get; set; } = "";
         public string OnCrit { get; set; } = "";
         public string OnKill { get; set; } = "";
         public string OnRoomsCleared { get; set; } = "";
         public string OnRollValue { get; set; } = "";
+
+        /// <summary>
+        /// JSON list of <see cref="ActionTriggerBundle"/> from TRIGGERS triples
+        /// (count / scope / mechanic pointers). Magnitudes stay in mechanic columns.
+        /// </summary>
+        public string TriggerBundlesJson { get; set; } = "";
         
-        /// <summary>Comma-separated: ONHIT, ONMISS, ONCOMBO, ONCRITICAL. When set, action effects apply only on these outcomes.</summary>
+        /// <summary>Comma-separated: ONHIT, ONCONNECT, ONMISS, ONCOMBO, ONCRITICAL, ONCRITICALMISS, ONKILL, ONROLLVALUE, ONHEALTHTHRESHOLD, ONROOMSCLEARED, ONWIELD:Sword (or Dagger/Mace/Wand). When set, action effects apply only on these outcomes; ONWIELD filters by equipped weapon type (AND; wield-only ⇒ any hit).</summary>
         public string TriggerConditions { get; set; } = "";
 
         /// <summary>JSON-serialized list of StatBonusEntry for round-trip with Actions settings form.</summary>

@@ -24,6 +24,8 @@
 
   "classActionsSheetTabName": "CLASS ACTIONS",
 
+  "flavorSheetTabName": "flavor",
+
   "oauthClientSecretsPath": "secrets/client_secret_desktop.json",
 
   "oauthTokenStorePath": "SheetsOAuthToken",
@@ -50,7 +52,9 @@
 
   "pushClassPresentationTab": true,
 
-  "pushClassActionsTab": true
+  "pushClassActionsTab": true,
+
+  "pushFlavorTab": true
 
 }
 

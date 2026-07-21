@@ -38,6 +38,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             DamageCalculatorTests.RunAllTests();
             Console.WriteLine();
+            WeaponBaseModCadenceTests.RunAllTests();
+            Console.WriteLine();
             CombatHotPathMetricsTests.RunAllTests();
             Console.WriteLine();
             HitCalculatorTests.RunAllTests();
@@ -51,6 +53,12 @@ namespace RPGGame.Tests.Runners
             BattleNarrativeTests.RunAllTests();
             Console.WriteLine();
             CombatEffectsSimplifiedTests.RunAllTests();
+            ActionTriggerGateTests.RunAllTests();
+            ActionTriggerBundleApplicatorTests.RunAllTests();
+            StripMutationTests.RunAllTests();
+            RetriggerTests.RunAllTests();
+            RollProbabilityContentTests.RunAllTests();
+            WeaponModTriggerBridgeTests.RunAllTests();
             Console.WriteLine();
             StunProcessorTests.RunAllTests();
             Console.WriteLine();

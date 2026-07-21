@@ -96,6 +96,10 @@ namespace RPGGame.Combat.Calculators
                     {
                     }
                 }
+                // Flat WEAPON_SPEED cadence points: each point lowers weapon time mult by 0.1 (same as item BonusAttackSpeed).
+                if (charEntity.Effects.ConsumedWeaponSpeedFlat != 0)
+                    weaponTimeMul = Math.Max(0.1, weaponTimeMul - charEntity.Effects.ConsumedWeaponSpeedFlat * 0.1);
+
                 double weaponAdjustedTime = agilityAdjustedTime * weaponTimeMul;
                 
                 // Equipment speed bonus reduces time further
@@ -141,6 +145,8 @@ namespace RPGGame.Combat.Calculators
                 double weaponTimeMul = 1.0;
                 if (enemyEntity.Weapon is WeaponItem w)
                     weaponTimeMul = GetWeaponAttackTimeMultiplier(w);
+                if (enemyEntity.Effects.ConsumedWeaponSpeedFlat != 0)
+                    weaponTimeMul = Math.Max(0.1, weaponTimeMul - enemyEntity.Effects.ConsumedWeaponSpeedFlat * 0.1);
                 double weaponAdjustedTime = agilityAdjustedTime * weaponTimeMul;
                 
                 // Apply archetype speed multiplier

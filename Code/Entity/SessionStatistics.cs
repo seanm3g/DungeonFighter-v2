@@ -52,6 +52,8 @@ namespace RPGGame
         // Dungeon statistics
         public int DungeonsCompleted { get; set; }
         public int RoomsExplored { get; set; }
+        /// <summary>Rooms successfully completed (survived) in the current dungeon run / session.</summary>
+        public int RoomsCleared { get; set; }
         public int EncountersSurvived { get; set; }
         
         // Efficiency metrics
@@ -201,6 +203,12 @@ namespace RPGGame
         public void RecordRoomExplored()
         {
             RoomsExplored++;
+        }
+
+        /// <summary>Increments rooms successfully cleared (survived) for ONROOMSCLEARED triggers.</summary>
+        public void RecordRoomCleared()
+        {
+            RoomsCleared++;
         }
         
         /// <summary>

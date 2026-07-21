@@ -123,6 +123,7 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             TitleScreenAsciiSpacingTests.RunAllTests();
             TitleScreenAnimationTests.RunAllTests();
+            TitleToMenuBootstrapTests.RunAllTests();
             Console.WriteLine();
             
             // Spacing System Tests

@@ -85,6 +85,12 @@ namespace RPGGame.Tests.Runners
             EnvironmentalActionsTests.RunAllTests();
             Console.WriteLine();
             ConditionalTriggersTests.RunAllTests();
+            ActionTriggerGateTests.RunAllTests();
+            ActionTriggerBundleApplicatorTests.RunAllTests();
+            StripMutationTests.RunAllTests();
+            RetriggerTests.RunAllTests();
+            RollProbabilityContentTests.RunAllTests();
+            WeaponModTriggerBridgeTests.RunAllTests();
             Console.WriteLine();
 
             // Phase 3: Display and UI

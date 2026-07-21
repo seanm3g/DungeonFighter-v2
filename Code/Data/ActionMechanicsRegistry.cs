@@ -58,6 +58,7 @@ namespace RPGGame.Data
             "hero_accuracy", "hero_hit_threshold", "hero_combo_threshold", "hero_crit_threshold", "hero_crit_miss_threshold",
             "enemy_accuracy", "enemy_hit_threshold", "enemy_combo_threshold", "enemy_crit_threshold", "enemy_crit_miss_threshold",
             "hero_stat_bonus", "enemy_stat_bonus", "advantage", "disadvantage",
+            "hero_weapon_speed", "hero_weapon_damage", "enemy_weapon_speed", "enemy_weapon_damage",
         };
 
         /// <summary>Maps legacy unprefixed IDs to current hero-prefixed IDs.</summary>
@@ -243,6 +244,11 @@ namespace RPGGame.Data
             if (Nz(row.EnemyMultiHitMod)) ids.Add("enemy_next_action_multihit");
             if (Nz(row.EnemyAmpMod)) ids.Add("enemy_next_action_amp");
 
+            if (Nz(row.WeaponSpeedMod)) ids.Add("hero_weapon_speed");
+            if (Nz(row.WeaponDamageMod)) ids.Add("hero_weapon_damage");
+            if (Nz(row.EnemyWeaponSpeedMod)) ids.Add("enemy_weapon_speed");
+            if (Nz(row.EnemyWeaponDamageMod)) ids.Add("enemy_weapon_damage");
+
             if (Nz(row.HeroSTR) || Nz(row.HeroAGI) || Nz(row.HeroTECH) || Nz(row.HeroINT))
                 ids.Add("hero_stat_bonus");
             if (Nz(row.EnemySTR) || Nz(row.EnemyAGI) || Nz(row.EnemyTECH) || Nz(row.EnemyINT))
@@ -281,19 +287,37 @@ namespace RPGGame.Data
             if (Nz(row.DiceRolls)) ids.Add("multi_dice");
             if (Nz(row.ExplodingDiceThreshold)) ids.Add("exploding_dice");
             if (HasAdvantage(row.HighestLowestRoll)) ids.Add("advantage");
-            if (HasDisadvantage(row.HighestLowestRoll, row.ReplaceNextRoll)) ids.Add("disadvantage");
-            if (Nz(row.ReplaceNextRoll) && !HasDisadvantage(row.HighestLowestRoll, row.ReplaceNextRoll))
-                ids.Add("replace_next_roll");
+            if (HasDisadvantage(row.HighestLowestRoll)) ids.Add("disadvantage");
+            if (Nz(row.ReplaceNextRoll)) ids.Add("replace_next_roll");
             if (Nz(row.Curse)) ids.Add("curse");
 
-            if (Nz(row.OnHit) || TriggerContains(row.TriggerConditions, "ONHIT")) ids.Add("on_hit");
-            if (Nz(row.OnMiss) || TriggerContains(row.TriggerConditions, "ONMISS")) ids.Add("on_miss");
-            if (Nz(row.OnCrit) || TriggerContains(row.TriggerConditions, "ONCRITICAL") || TriggerContains(row.TriggerConditions, "ONCRIT"))
+            if (Nz(row.OnHit) || TriggerContains(row.TriggerConditions, "ONHIT") || BundleWhen(row, "ONHIT"))
+                ids.Add("on_hit");
+            if (Nz(row.OnMiss) || TriggerContains(row.TriggerConditions, "ONMISS") || BundleWhen(row, "ONMISS"))
+                ids.Add("on_miss");
+            if (Nz(row.OnCrit) || TriggerContains(row.TriggerConditions, "ONCRITICAL") || TriggerContains(row.TriggerConditions, "ONCRIT")
+                || BundleWhen(row, "ONCRITICAL"))
                 ids.Add("on_crit");
-            if (TriggerContains(row.TriggerConditions, "ONCOMBO")) ids.Add("on_combo");
-            if (Nz(row.OnKill)) ids.Add("on_kill");
-            if (Nz(row.OnRoomsCleared)) ids.Add("on_rooms_cleared");
-            if (Nz(row.OnRollValue)) ids.Add("on_roll_value");
+            if (TriggerContains(row.TriggerConditions, "ONCOMBO") || BundleWhen(row, "ONCOMBO"))
+                ids.Add("on_combo");
+            if (TriggerContains(row.TriggerConditions, "ONCOMBOEND") || TriggerContains(row.TriggerConditions, "ONCOMBOENDED")
+                || BundleWhen(row, "ONCOMBOEND"))
+                ids.Add("on_combo_end");
+            if (TriggerContains(row.TriggerConditions, "ONCONNECT") || TriggerContains(row.TriggerConditions, "ONANYHIT")
+                || BundleWhen(row, "ONCONNECT"))
+                ids.Add("on_connect");
+            if (TriggerContains(row.TriggerConditions, "ONCRITICALMISS") || TriggerContains(row.TriggerConditions, "ONCRITMISS")
+                || BundleWhen(row, "ONCRITICALMISS"))
+                ids.Add("on_crit_miss");
+            if (Nz(row.OnKill) || TriggerContains(row.TriggerConditions, "ONKILL") || BundleWhen(row, "ONKILL"))
+                ids.Add("on_kill");
+            if (Nz(row.OnRoomsCleared) || BundleWhen(row, "ONROOMSCLEARED"))
+                ids.Add("on_rooms_cleared");
+            if (Nz(row.OnRollValue) || TriggerContains(row.TriggerConditions, "ONROLLVALUE") || BundleWhen(row, "ONROLLVALUE"))
+                ids.Add("on_roll_value");
+            if (TriggerContains(row.TriggerConditions, "ONHEALTHTHRESHOLD")) ids.Add("on_health_threshold");
+            if (BundleWhen(row, "ONFIRSTHIT")) ids.Add("on_first_hit");
+            if (BundleWhen(row, "ONAFTERMISS")) ids.Add("on_after_miss");
 
             if (Nz(row.HeroHeal)) ids.Add("heal");
             if (Nz(row.HeroHealMaxHealth)) ids.Add("max_health");
@@ -404,6 +428,8 @@ namespace RPGGame.Data
                 "hero_next_action_damage" or "enemy_next_action_damage" => "DAMAGE",
                 "hero_next_action_multihit" or "enemy_next_action_multihit" => "MULTIHIT",
                 "hero_next_action_amp" or "enemy_next_action_amp" => "AMP",
+                "hero_weapon_speed" or "enemy_weapon_speed" => "WPN SPD",
+                "hero_weapon_damage" or "enemy_weapon_damage" => "WPN DMG",
                 "hero_stat_bonus" => "STAT",
                 "enemy_stat_bonus" => "ENEMY STAT",
                 "weaken" => "WEAKEN",
@@ -456,6 +482,8 @@ namespace RPGGame.Data
                 case "DAMAGE_MOD": mechanicId = "hero_next_action_damage"; return true;
                 case "MULTIHIT_MOD": mechanicId = "hero_next_action_multihit"; return true;
                 case "AMP_MOD": mechanicId = "hero_next_action_amp"; return true;
+                case "WEAPON_SPEED": mechanicId = "hero_weapon_speed"; return true;
+                case "WEAPON_DAMAGE": mechanicId = "hero_weapon_damage"; return true;
                 case "STR" or "STRENGTH":
                     mechanicId = "hero_stat_bonus"; statSubType = "STR"; return true;
                 case "AGI" or "AGILITY":
@@ -496,6 +524,10 @@ namespace RPGGame.Data
                 case "enemy_next_action_multihit": bonusType = "MULTIHIT_MOD"; return true;
                 case "hero_next_action_amp": bonusType = "AMP_MOD"; return true;
                 case "enemy_next_action_amp": bonusType = "AMP_MOD"; return true;
+                case "hero_weapon_speed":
+                case "enemy_weapon_speed": bonusType = "WEAPON_SPEED"; return true;
+                case "hero_weapon_damage":
+                case "enemy_weapon_damage": bonusType = "WEAPON_DAMAGE"; return true;
                 case "hero_stat_bonus":
                     bonusType = NormalizeStatBonusType(statSubType);
                     return !string.IsNullOrEmpty(bonusType);
@@ -536,13 +568,12 @@ namespace RPGGame.Data
                 || highestLowest.IndexOf("advantage", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        private static bool HasDisadvantage(string? highestLowest, string? replaceNextRoll)
+        private static bool HasDisadvantage(string? highestLowest)
         {
-            if (!string.IsNullOrWhiteSpace(highestLowest)
-                && (highestLowest.IndexOf("low", StringComparison.OrdinalIgnoreCase) >= 0
-                    || highestLowest.IndexOf("disadvantage", StringComparison.OrdinalIgnoreCase) >= 0))
-                return true;
-            return Nz(replaceNextRoll);
+            if (string.IsNullOrWhiteSpace(highestLowest))
+                return false;
+            return highestLowest.IndexOf("low", StringComparison.OrdinalIgnoreCase) >= 0
+                || highestLowest.IndexOf("disadvantage", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static bool TriggerContains(string? triggerConditions, string token)
@@ -551,7 +582,32 @@ namespace RPGGame.Data
                 return false;
             return triggerConditions
                 .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                .Any(p => string.Equals(p.Trim(), token, StringComparison.OrdinalIgnoreCase));
+                .Any(p =>
+                {
+                    string part = p.Trim();
+                    if (string.Equals(part, token, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                    // ONROLLVALUE:15 etc.
+                    int colon = part.IndexOf(':');
+                    if (colon > 0)
+                        part = part.Substring(0, colon).Trim();
+                    return string.Equals(part, token, StringComparison.OrdinalIgnoreCase);
+                });
+        }
+
+        private static bool BundleWhen(SpreadsheetActionData row, string whenToken)
+        {
+            foreach (var b in ActionTriggerSheetColumns.LoadBundles(row))
+            {
+                if (b.IsEnabled
+                    && string.Equals(
+                        ActionTriggerSheetColumns.CanonicalWhen(b.When),
+                        ActionTriggerSheetColumns.CanonicalWhen(whenToken),
+                        StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
         }
 
         private static Dictionary<string, MechanicCadenceProfile> BuildProfiles()
@@ -578,6 +634,12 @@ namespace RPGGame.Data
             P("enemy_next_action_multihit", false, true, false, false, true, MechanicStatus.Good);
             P("enemy_next_action_amp", false, true, false, false, true, MechanicStatus.Good);
 
+            // Flat weapon bonuses (HERO/ENEMY BASE → WEAPON SPEED / WEAPON DAMAGE); all cadences.
+            P("hero_weapon_speed", true, true, true, true, true, MechanicStatus.Good);
+            P("hero_weapon_damage", true, true, true, true, true, MechanicStatus.Good);
+            P("enemy_weapon_speed", true, true, true, true, true, MechanicStatus.Good);
+            P("enemy_weapon_damage", true, true, true, true, true, MechanicStatus.Good);
+
             // stun / poison / burn / bleed — item-applied only; not ACTIONS MECHANICS (see ItemAppliedStatusEffectIds)
 
             // Status — ON ACTIONS
@@ -599,6 +661,25 @@ namespace RPGGame.Data
             P("opener", false, false, false, false, false, MechanicStatus.Good);
             P("finisher", false, false, false, false, false, MechanicStatus.Good);
 
+            // Strip / deck verbs (fight-scoped via StripMutationApplier)
+            foreach (string id in new[]
+            {
+                "strip_jump", "strip_skip", "strip_repeat", "strip_loop", "strip_stop", "strip_random",
+                "strip_disable", "strip_shuffle", "strip_replace_next",
+                "combo_jump", "loop_chain", "shuffle", "replace_action", "skip"
+            })
+                P(id, false, false, false, false, true, MechanicStatus.Good);
+
+            // Retrigger (nested resolve — not Multihit)
+            foreach (string id in new[] { "retrigger_next", "retrigger_opener", "retrigger_finisher", "retrigger_slot" })
+                P(id, false, false, false, false, true, MechanicStatus.Good);
+
+            // Probability-as-content
+            P("salvage_miss", false, false, true, false, true, MechanicStatus.Good);
+            P("crit_face_min", false, false, true, true, true, MechanicStatus.Good);
+            P("replace_next_roll", false, false, false, false, true, MechanicStatus.Good);
+            P("exploding_dice", false, false, false, false, true, MechanicStatus.Good);
+
             // NEEDS IMPROVEMENT
             P("expose", false, false, false, false, false, MechanicStatus.NeedsImprovement);
             P("reflect", true, false, false, false, false, MechanicStatus.NeedsImprovement);
@@ -606,16 +687,17 @@ namespace RPGGame.Data
             P("self_damage", true, true, false, false, true, MechanicStatus.NeedsImprovement);
             foreach (string id in new[]
             {
-                "combo_jump", "chain_length", "chain_position", "chain_position_bonus", "modify_chain_position",
-                "loop_chain", "shuffle", "replace_action", "skip", "grace", "curse",
-                "on_hit", "on_miss", "on_crit", "on_combo", "on_kill", "on_rooms_cleared", "on_roll_value", "modify_room",
+                "chain_length", "chain_position", "chain_position_bonus", "modify_chain_position",
+                "grace", "curse",
+                "on_hit", "on_miss", "on_crit", "on_combo", "on_combo_end", "on_connect", "on_crit_miss", "on_kill",
+                "on_rooms_cleared", "on_roll_value", "on_natural_roll", "on_health_threshold", "modify_room",
             })
                 P(id, false, false, false, false, false, MechanicStatus.NeedsImprovement);
 
             // CUT (runtime kept; excluded from MECHANIC_LIST)
             foreach (string id in new[]
             {
-                "silence", "lifesteal", "consume", "multi_dice", "exploding_dice", "replace_next_roll",
+                "silence", "lifesteal", "consume", "multi_dice",
             })
                 P(id, false, false, false, false, false, MechanicStatus.Cut);
 

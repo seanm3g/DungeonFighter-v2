@@ -1,6 +1,7 @@
 using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.Actions;
+using RPGGame.Actions.Conditional;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
 using RPGGame.Combat.Events;
@@ -27,7 +28,7 @@ namespace RPGGame.Actions.Execution
                 ResolvePendingActionCadenceBonuses(turnBonusCharacter, selected, result);
             }
             var hitEvent = ActionEventPublisher.PublishActionHit(
-                source, target, selected, result.AttackRoll, result.IsCombo, result.IsCritical);
+                source, target, selected, result.AttackRoll, result.IsCombo, result.IsCritical, result.NaturalRollValue);
 
             if (selected.Type == ActionType.Attack || selected.Type == ActionType.Spell)
             {
@@ -166,7 +167,8 @@ namespace RPGGame.Actions.Execution
                 // Use this swing's resolved hit count — not strip peek after bank deposit (would apply Rapid Strike's +1 MH to itself).
                 int hitLayers = Math.Max(1, result.ResolvedMultiHitCount);
 
-                if (selected.Advanced.RollBonus != 0 && accTurns > 0)
+                if (selected.Advanced.RollBonus != 0 && accTurns > 0
+                    && !Actions.Conditional.ActionTriggerBundleApplicator.IsMechanicOwned(selected, "hero_accuracy"))
                 {
                     int scaledRollBonus = selected.Advanced.RollBonus * hitLayers;
                     if (source is Character heroAcc && !(heroAcc is Enemy))
@@ -200,7 +202,8 @@ namespace RPGGame.Actions.Execution
                     }
                 }
 
-                if (!ReferenceEquals(source, target) && selected.Advanced.EnemyRollBonus < 0 && accTurns > 0)
+                if (!ReferenceEquals(source, target) && selected.Advanced.EnemyRollBonus < 0 && accTurns > 0
+                    && !Actions.Conditional.ActionTriggerBundleApplicator.IsMechanicOwned(selected, "enemy_accuracy"))
                     target.ApplyRollPenalty(-selected.Advanced.EnemyRollBonus * hitLayers, accTurns);
                 }
             }
@@ -215,6 +218,8 @@ namespace RPGGame.Actions.Execution
                 }
                 modSourceCharacter.Effects.AddModifierBonusesFromAction(selected, nextComboSlot, useEnemySpreadsheetMods: false, modSourceCharacter);
                 var enemyTargetMods = CharacterEffectsState.BuildModifierBonusesFromActionFields(selected, useEnemySpreadsheetMods: true);
+                enemyTargetMods = Actions.Conditional.ActionTriggerBundleApplicator.FilterOutOwnedSheetMods(
+                    selected, enemyTargetMods, useEnemySpreadsheetMods: true);
                 if (enemyTargetMods.Count > 0 && target is Enemy enemyReceivingMods)
                     enemyReceivingMods.Effects.AddPendingActionBonusesNextHeroRoll(enemyTargetMods);
             }
@@ -289,14 +294,24 @@ namespace RPGGame.Actions.Execution
             if (target is Enemy enemyTarget)
             {
                 if (enemyTarget.CurrentHealth <= 0)
-                    ActionEventPublisher.PublishEnemyDeath(source, target, selected, result.Damage);
+                {
+                    var deathEvent = ActionEventPublisher.PublishEnemyDeath(
+                        source, target, selected, result.Damage, result.AttackRoll);
+                    CombatEffectsSimplified.ApplyStatusEffects(
+                        selected, source, target, result.StatusEffectMessages, deathEvent);
+                }
                 else
                 {
                     double healthPercentage = (double)enemyTarget.CurrentHealth / enemyTarget.MaxHealth;
                     var thresholds = GetHealthThresholds(selected);
                     var candidates = thresholds.Where(t => t >= healthPercentage).OrderBy(t => t).ToList();
                     if (candidates.Count > 0)
-                        ActionEventPublisher.PublishHealthThreshold(source, target, selected, candidates[0]);
+                    {
+                        var thresholdEvent = ActionEventPublisher.PublishHealthThreshold(
+                            source, target, selected, candidates[0], result.AttackRoll);
+                        CombatEffectsSimplified.ApplyStatusEffects(
+                            selected, source, target, result.StatusEffectMessages, thresholdEvent);
+                    }
                 }
             }
 
@@ -345,7 +360,30 @@ namespace RPGGame.Actions.Execution
                     // A completed normal (non-combo) attack breaks the chain â€” start the combo sequence over
                     comboCharacter.ResetCombo();
                 }
+
+                TryApplyComboEndedTriggers(comboCharacter, target, selected, result, comboStepBeforeAdvance);
             }
+
+            CombatTriggerContext.NotifySwingResolved(source, selected, connected: true, missed: false);
+        }
+
+        /// <summary>
+        /// When a combo chain returns to step 0 from a higher step, publish ComboEnded and apply ONCOMBOEND statuses.
+        /// </summary>
+        private static void TryApplyComboEndedTriggers(
+            Character comboCharacter,
+            Actor target,
+            Action selected,
+            ActionExecutionResult result,
+            int comboStepBefore)
+        {
+            if (comboStepBefore <= 0 || comboCharacter.ComboStep != 0)
+                return;
+
+            var ended = ActionEventPublisher.PublishComboEnded(
+                comboCharacter, target, selected, result.AttackRoll, result.IsCombo, result.IsCritical);
+            CombatEffectsSimplified.ApplyStatusEffects(
+                selected, comboCharacter, target, result.StatusEffectMessages, ended);
         }
 
         private static void ApplyMissOutcome(Actor source, Actor target, ActionExecutionResult result, BattleNarrative? battleNarrative)
@@ -386,12 +424,28 @@ namespace RPGGame.Actions.Execution
                     enemyForFumble.Effects.AccumulatePendingActionCadenceBank(payload, layers);
                 }
             }
-            ActionEventPublisher.PublishActionMiss(source, target, result.SelectedAction!, result.AttackRoll, result.IsCriticalMiss);
+            var missEvent = ActionEventPublisher.PublishActionMiss(source, target, result.SelectedAction!, result.AttackRoll, result.IsCriticalMiss);
+            if (result.SelectedAction != null)
+            {
+                CombatEffectsSimplified.ApplyStatusEffects(
+                    result.SelectedAction, source, target, result.StatusEffectMessages, missEvent);
+            }
             if (source is Character characterMiss)
                 ActionStatisticsTracker.RecordMissAction(characterMiss, result.BaseRoll, result.RollBonus);
             if (source is Character comboCharacterMiss)
+            {
+                int stepBeforeMiss = comboCharacterMiss.ComboStep;
                 comboCharacterMiss.ComboStep = 0;
+                if (result.SelectedAction != null && stepBeforeMiss > 0)
+                {
+                    var ended = ActionEventPublisher.PublishComboEnded(
+                        comboCharacterMiss, target, result.SelectedAction, result.AttackRoll, false, false);
+                    CombatEffectsSimplified.ApplyStatusEffects(
+                        result.SelectedAction, comboCharacterMiss, target, result.StatusEffectMessages, ended);
+                }
+            }
             ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction!, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, false, false, 0, 0, false, result.BaseRoll, battleNarrative);
+            CombatTriggerContext.NotifySwingResolved(source, result.SelectedAction, connected: false, missed: true);
         }
 
         /// <summary>

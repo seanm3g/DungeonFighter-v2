@@ -150,6 +150,12 @@ namespace RPGGame.Data
                 }
             }
 
+            if (tabFlags.PushFlavorTab)
+            {
+                Console.WriteLine(
+                    "Skipped flavor tab on PULL (push-only; FlavorText.json is not overwritten from Google Sheets).");
+            }
+
             ReloadRuntimeCachesAfterPull();
         }
 

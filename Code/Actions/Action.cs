@@ -111,6 +111,14 @@ namespace RPGGame
         public string EnemyMultiHitMod { get; set; } = "";
         /// <summary>Enemy next-action amp modifier (%).</summary>
         public string EnemyAmpMod { get; set; } = "";
+        /// <summary>Flat hero weapon speed bonus (HERO BASE → WEAPON SPEED).</summary>
+        public string WeaponSpeedMod { get; set; } = "";
+        /// <summary>Flat hero weapon damage bonus (HERO BASE → WEAPON DAMAGE).</summary>
+        public string WeaponDamageMod { get; set; } = "";
+        /// <summary>Flat enemy weapon speed bonus (ENEMY BASE → WEAPON SPEED).</summary>
+        public string EnemyWeaponSpeedMod { get; set; } = "";
+        /// <summary>Flat enemy weapon damage bonus (ENEMY BASE → WEAPON DAMAGE).</summary>
+        public string EnemyWeaponDamageMod { get; set; } = "";
         
         // Outcome handlers - list of outcome handler type names (e.g., "conditional", "xpGain")
         public List<string> OutcomeHandlers { get; set; } = new List<string>();

@@ -51,6 +51,10 @@ namespace RPGGame.Data
             SpreadsheetDurationSemantics.NormalizeDurationAndCadence(data);
             data.Opener = header.GetValue(columns, null, "OPENER");
             data.Finisher = header.GetValue(columns, null, "FINISHER");
+            data.ReservePool = FirstNonEmpty(
+                header.GetValue(columns, null, ActionTagSyncHelper.ReservePoolColumnLabel),
+                header.GetValue(columns, null, "RESERVEPOOL"),
+                header.GetValue(columns, null, "RESERVE"));
             data.Target = header.GetValue(columns, null, "TARGET");
 
             data.HeroAccuracy = header.GetValue(columns, "HERO DICE ROLL MODIFICATIONS", "ACCUARCY");
@@ -163,6 +167,32 @@ namespace RPGGame.Data
 
             ParseRollMechanics(data, columns, header);
             ParseJumpShiftDisruptMechanics(data, columns, header);
+            ParseTriggerColumns(data, columns, header);
+
+            // CADENCES triples (after detail columns so legacy/fallback can resolve magnitudes)
+            ActionCadenceSheetColumns.ReadFromRow(data, columns, header);
+        }
+
+        private static void ParseTriggerColumns(SpreadsheetActionData data, string[] columns, SpreadsheetHeader header)
+        {
+            data.TriggerConditions = FirstNonEmpty(
+                header.GetValue(columns, null, "TRIGGER CONDITIONS"),
+                header.GetValue(columns, null, "TRIGGERCONDITIONS"),
+                data.TriggerConditions);
+            data.OnRollValue = FirstNonEmpty(
+                header.GetValue(columns, null, "ON ROLL VALUE"),
+                header.GetValue(columns, null, "ONROLLVALUE"),
+                data.OnRollValue);
+            data.OnHit = FirstNonEmpty(header.GetValue(columns, null, "ON HIT"), data.OnHit);
+            data.OnMiss = FirstNonEmpty(header.GetValue(columns, null, "ON MISS"), data.OnMiss);
+            data.OnCrit = FirstNonEmpty(header.GetValue(columns, null, "ON CRIT"), data.OnCrit);
+            data.OnKill = FirstNonEmpty(header.GetValue(columns, null, "ON KILL"), data.OnKill);
+            data.OnRoomsCleared = FirstNonEmpty(
+                header.GetValue(columns, null, "ON ROOMS CLEARED"),
+                data.OnRoomsCleared);
+
+            // TRIGGERS band triples (count / scope / mechanic pointers) → TriggerBundlesJson
+            ActionTriggerSheetColumns.ReadFromRow(data, columns, header);
         }
 
         private static void ParseSelfTargetStatusEffects(SpreadsheetActionData data, string[] columns, SpreadsheetHeader header)
@@ -246,6 +276,20 @@ namespace RPGGame.Data
             data.EnemyAmpMod = FirstNonEmpty(
                 header.GetValue(columns, "ENEMY BASE STATS", "AMP_MOD", null, allowUnscopedLabelFallback),
                 header.GetValue(columns, "ENEMY BASE STATS", "AMP MOD", null, allowUnscopedLabelFallback));
+
+            // Additional WEAPON SPEED / WEAPON DAMAGE under HERO BASE / ENEMY BASE (or … BASE STATS).
+            data.WeaponSpeedMod = FirstNonEmpty(
+                header.GetValue(columns, "HERO BASE", "WEAPON SPEED", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "HERO BASE STATS", "WEAPON SPEED", null, allowUnscopedLabelFallback));
+            data.WeaponDamageMod = FirstNonEmpty(
+                header.GetValue(columns, "HERO BASE", "WEAPON DAMAGE", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "HERO BASE STATS", "WEAPON DAMAGE", null, allowUnscopedLabelFallback));
+            data.EnemyWeaponSpeedMod = FirstNonEmpty(
+                header.GetValue(columns, "ENEMY BASE", "WEAPON SPEED", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "ENEMY BASE STATS", "WEAPON SPEED", null, allowUnscopedLabelFallback));
+            data.EnemyWeaponDamageMod = FirstNonEmpty(
+                header.GetValue(columns, "ENEMY BASE", "WEAPON DAMAGE", null, allowUnscopedLabelFallback),
+                header.GetValue(columns, "ENEMY BASE STATS", "WEAPON DAMAGE", null, allowUnscopedLabelFallback));
         }
 
         private static string FirstNonEmpty(params string[] values)

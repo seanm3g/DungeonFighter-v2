@@ -307,6 +307,13 @@ namespace RPGGame
             {
                 stateManager.CurrentPlayer.ClearEncounterTempEffects();
                 stateManager.CurrentPlayer.RefreshRoomArmor();
+
+                var roomClearMessages = Actions.Execution.RoomClearedTriggerApplicator.ApplyForHero(stateManager.CurrentPlayer);
+                foreach (var line in roomClearMessages)
+                {
+                    if (!string.IsNullOrWhiteSpace(line))
+                        displayManager.AddCombatEvent(line, stateManager.CurrentPlayer);
+                }
             }
             
             return true; // Player survived the room

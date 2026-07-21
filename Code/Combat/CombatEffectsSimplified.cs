@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using RPGGame.Actions.Conditional;
 using RPGGame.Actions.Execution;
 using RPGGame.Combat.Formatting;
 using RPGGame.UI.ColorSystem;
@@ -15,9 +17,34 @@ namespace RPGGame
     {
         private static readonly EffectHandlerRegistry _effectRegistry = new EffectHandlerRegistry();
 
-        /// <summary>Poison, burn, acid, and bleed from weapon stats or weapon <c>StatusEffects</c> apply only on a critical hit.</summary>
-        private static bool ShouldApplyEquipmentDoTFromHit(CombatEvent? combatEvent) =>
-            combatEvent != null && combatEvent.IsCritical;
+        /// <summary>Poison, burn, acid, and bleed from weapon mods use WHEN tokens (default ONCRITICAL).</summary>
+        private static bool ShouldApplyEquipmentDoTFromHit(CombatEvent? combatEvent, string? triggerWhen)
+        {
+            if (combatEvent == null)
+                return false;
+            string when = string.IsNullOrWhiteSpace(triggerWhen) ? "ONCRITICAL" : triggerWhen.Trim();
+            // Ephemeral action carrier so gate can evaluate outcome tokens.
+            var carrier = new Action { Triggers = new ConditionalTriggerProperties() };
+            return ActionTriggerGate.MatchesConditionToken(when, carrier, combatEvent);
+        }
+
+        /// <summary>
+        /// Default WHEN for a weapon mod Effect when <see cref="Modification.TriggerWhen"/> is blank.
+        /// </summary>
+        public static string ResolveWeaponModTriggerWhen(Modification? mod)
+        {
+            if (mod == null)
+                return "ONCRITICAL";
+            if (!string.IsNullOrWhiteSpace(mod.TriggerWhen))
+                return mod.TriggerWhen.Trim();
+            string effect = (mod.Effect ?? "").Trim();
+            if (effect.Equals("weaponPoison", StringComparison.OrdinalIgnoreCase)
+                || effect.Equals("weaponBurn", StringComparison.OrdinalIgnoreCase)
+                || effect.Equals("weaponBleed", StringComparison.OrdinalIgnoreCase)
+                || effect.Equals("weaponAcid", StringComparison.OrdinalIgnoreCase))
+                return "ONCRITICAL";
+            return "ONCRITICAL";
+        }
 
         /// <summary>
         /// When an action has no <see cref="Action.Triggers"/> conditions, poison/burn/acid/bleed from the action itself
@@ -25,10 +52,20 @@ namespace RPGGame
         /// </summary>
         private static bool ShouldApplyUnconditionalActionDoTFromHit(Action action, CombatEvent? combatEvent)
         {
-            var conditions = action.Triggers?.TriggerConditions;
-            if (conditions != null && conditions.Count > 0)
+            if (HasConfiguredStatusTriggers(action))
                 return true;
             return combatEvent?.IsCritical ?? false;
+        }
+
+        private static bool HasConfiguredStatusTriggers(Action action)
+        {
+            if (action.Triggers == null)
+                return false;
+            if (action.Triggers.TriggerConditions != null && action.Triggers.TriggerConditions.Count > 0)
+                return true;
+            if (action.Triggers.ExactRollTriggerValue > 0)
+                return true;
+            return !string.IsNullOrWhiteSpace(action.Triggers.RequiredTag);
         }
 
         private static bool IsDoTStatusEffectType(string effectType) =>
@@ -60,36 +97,16 @@ namespace RPGGame
             
             // Then apply status effects from the action itself
             var effectTypes = StatusEffectActionResolver.GetEffectTypesFromAction(action);
-            
-            // Check if status effects should be conditionally applied
-            bool shouldApplyEffects = true;
-            if (action.Triggers.TriggerConditions != null && action.Triggers.TriggerConditions.Count > 0 && combatEvent != null)
-            {
-                // Check if any condition matches the current event
-                shouldApplyEffects = false;
-                foreach (var conditionStr in action.Triggers.TriggerConditions)
-                {
-                    var upper = conditionStr.ToUpper();
-                    bool matches = upper switch
-                    {
-                        "ONMISS" => combatEvent.IsMiss || combatEvent.Type == CombatEventType.ActionMiss,
-                        "ONHIT" or "ONNORMALHIT" => combatEvent.Type == CombatEventType.ActionHit && !combatEvent.IsCombo && !combatEvent.IsCritical,
-                        "ONCOMBO" or "ONCOMBOHIT" => combatEvent.IsCombo,
-                        "ONCRITICAL" or "ONCRITICALHIT" => combatEvent.IsCritical,
-                        _ => false
-                    };
-                    if (matches)
-                    {
-                        shouldApplyEffects = true;
-                        break; // At least one condition matches
-                    }
-                }
-            }
-            
+
+            bool shouldApplyEffects = ActionTriggerGate.ShouldApplyStatusEffects(action, combatEvent);
+
             if (shouldApplyEffects)
             {
                 foreach (var effectType in effectTypes)
                 {
+                    // TRIGGERS → owned statuses fire only via ActionTriggerBundleApplicator on matching WHEN.
+                    if (ActionTriggerBundleApplicator.IsStatusEffectOwned(action, effectType))
+                        continue;
                     if (IsDoTStatusEffectType(effectType) && !ShouldApplyUnconditionalActionDoTFromHit(action, combatEvent))
                         continue;
                     var effectRecipient = ActionEffectTargetResolver.ResolveStatusEffectRecipient(
@@ -101,6 +118,9 @@ namespace RPGGame
                     }
                 }
             }
+
+            effectsApplied |= ActionTriggerBundleApplicator.ApplyMatchingBundles(
+                action, combatEvent, attacker, target, results);
             
             return effectsApplied;
         }
@@ -122,7 +142,7 @@ namespace RPGGame
             
             foreach (var effectName in statusEffects)
             {
-                if (IsDoTStatusEffectType(effectName) && !ShouldApplyEquipmentDoTFromHit(combatEvent))
+                if (IsDoTStatusEffectType(effectName) && !ShouldApplyEquipmentDoTFromHit(combatEvent, "ONCRITICAL"))
                     continue;
                 var tempAction = StatusEffectActionResolver.CreateActionWithStatusEffect(effectName);
                 if (tempAction != null && _effectRegistry.ApplyEffect(effectName.ToLower(), target, tempAction, results))
@@ -145,34 +165,75 @@ namespace RPGGame
         private static bool ApplyWeaponModificationStatusEffects(Character attacker, Actor target, Action action, List<string> results, CombatEvent? combatEvent)
         {
             bool effectsApplied = false;
-            bool applyWeaponDots = ShouldApplyEquipmentDoTFromHit(combatEvent);
 
-            double poisonPct = attacker.GetWeaponPoisonPercentPerHit();
-            if (applyWeaponDots && poisonPct > 0)
+            // Per-mod WHEN (default ONCRITICAL for weapon* DoTs) — sum magnitudes whose WHEN matches.
+            double poisonPct = 0;
+            int burnAmt = 0, acidAmt = 0, bleedAmt = 0;
+            var weapon = attacker.Weapon;
+            if (weapon?.Modifications != null)
+            {
+                foreach (var mod in weapon.Modifications)
+                {
+                    if (mod == null) continue;
+                    string when = ResolveWeaponModTriggerWhen(mod);
+                    if (!ShouldApplyEquipmentDoTFromHit(combatEvent, when))
+                        continue;
+                    string effect = (mod.Effect ?? "").Trim();
+                    double v = mod.RolledValue;
+                    if (effect.Equals("weaponPoison", StringComparison.OrdinalIgnoreCase))
+                        poisonPct += v;
+                    else if (effect.Equals("weaponBurn", StringComparison.OrdinalIgnoreCase))
+                        burnAmt += (int)Math.Round(v);
+                    else if (effect.Equals("weaponAcid", StringComparison.OrdinalIgnoreCase))
+                        acidAmt += (int)Math.Round(v);
+                    else if (effect.Equals("weaponBleed", StringComparison.OrdinalIgnoreCase))
+                        bleedAmt += (int)Math.Round(v);
+                }
+            }
+
+            // Fallback to calculator aggregates only when the weapon has no weapon* DoT mods listed.
+            bool hasWeaponDotMods = weapon?.Modifications != null
+                && weapon.Modifications.Any(m =>
+                {
+                    if (m == null) return false;
+                    string e = (m.Effect ?? "").Trim();
+                    return e.Equals("weaponPoison", StringComparison.OrdinalIgnoreCase)
+                           || e.Equals("weaponBurn", StringComparison.OrdinalIgnoreCase)
+                           || e.Equals("weaponAcid", StringComparison.OrdinalIgnoreCase)
+                           || e.Equals("weaponBleed", StringComparison.OrdinalIgnoreCase);
+                });
+
+            if (!hasWeaponDotMods
+                && ShouldApplyEquipmentDoTFromHit(combatEvent, "ONCRITICAL"))
+            {
+                poisonPct = attacker.GetWeaponPoisonPercentPerHit();
+                burnAmt = attacker.GetWeaponBurnPerHit();
+                acidAmt = attacker.GetWeaponAcidPerHit();
+                bleedAmt = attacker.GetWeaponBleedPerHit();
+            }
+
+            if (poisonPct > 0)
             {
                 var tempPoison = new Action { CausesPoison = true, PoisonPercentToAdd = poisonPct };
                 if (_effectRegistry.ApplyEffect("poison", target, tempPoison, results))
                     effectsApplied = true;
             }
 
-            int burnAmt = attacker.GetWeaponBurnPerHit();
-            if (applyWeaponDots && burnAmt > 0)
+            if (burnAmt > 0)
             {
                 var tempBurn = new Action { CausesBurn = true, BurnAmountToAdd = burnAmt };
                 if (_effectRegistry.ApplyEffect("burn", target, tempBurn, results))
                     effectsApplied = true;
             }
 
-            int acidAmt = attacker.GetWeaponAcidPerHit();
-            if (applyWeaponDots && acidAmt > 0)
+            if (acidAmt > 0)
             {
                 var tempAcid = new Action { CausesAcid = true, AcidAmountToAdd = acidAmt };
                 if (_effectRegistry.ApplyEffect("acid", target, tempAcid, results))
                     effectsApplied = true;
             }
 
-            int bleedAmt = attacker.GetWeaponBleedPerHit();
-            if (applyWeaponDots && bleedAmt > 0)
+            if (bleedAmt > 0)
             {
                 var tempBleed = new Action { CausesBleed = true, BleedAmountToAdd = bleedAmt };
                 if (_effectRegistry.ApplyEffect("bleed", target, tempBleed, results))

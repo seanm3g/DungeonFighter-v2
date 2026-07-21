@@ -58,14 +58,20 @@ namespace RPGGame.UI.TitleScreen
         public double IdleSaturationScale { get; set; } = 1.5;
 
         /// <summary>
-        /// How long a palette holds before crossfading to the next, in milliseconds (default 3000).
+        /// HSV Value multiplier for accent piping glyphs (box-drawing edges) on DEMON / FIGHTER.
+        /// Full-block <c>█</c> bodies stay at 1.0; piping defaults to 0.275 so faces read brighter than outlines.
         /// </summary>
-        public int PaletteShiftIntervalMs { get; set; } = 3000;
+        public double IdlePipingBrightnessScale { get; set; } = 0.275;
 
         /// <summary>
-        /// Duration of the RGB crossfade between idle color sequences, in milliseconds (default 1500).
+        /// How long a palette holds before crossfading to the next, in milliseconds (default 1000).
         /// </summary>
-        public int PaletteTransitionMs { get; set; } = 1500;
+        public int PaletteShiftIntervalMs { get; set; } = 1000;
+
+        /// <summary>
+        /// Duration of the RGB crossfade between idle color sequences, in milliseconds (default 1000).
+        /// </summary>
+        public int PaletteTransitionMs { get; set; } = 1000;
 
         /// <summary>
         /// Duration to hold final frame before showing "press key" message (milliseconds).

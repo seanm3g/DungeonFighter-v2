@@ -146,7 +146,7 @@ namespace RPGGame.World.Tags
             void Add(string tag, TagLayer layer, TagEntityScope scope) =>
                 list.Add(new TagDefinition(tag, layer, scope));
 
-            foreach (var t in new[] { "environment", "enemy", "weapon", "class", "item", "action", "unique", "starter" })
+            foreach (var t in new[] { "environment", "enemy", "weapon", "class", "item", "action", "unique", "starter", "reserve_pool" })
                 Add(t, TagLayer.PoolGate, TagEntityScope.Action | TagEntityScope.Item);
             foreach (var t in new[] { "warrior", "barbarian", "rogue", "wizard" })
                 Add(t, TagLayer.PoolGate, TagEntityScope.Action | TagEntityScope.Hero | TagEntityScope.Item);

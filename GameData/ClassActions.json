@@ -7,6 +7,12 @@
       "minClassPoints": null
     },
     {
+      "tier": 1,
+      "classKey": "Barbarian",
+      "actionName": "TAUNT",
+      "minClassPoints": null
+    },
+    {
       "tier": 2,
       "classKey": "Barbarian",
       "actionName": "PUNCH HARDER",
@@ -70,6 +76,12 @@
       "tier": 1,
       "classKey": "Rogue",
       "actionName": "TAKING AIM",
+      "minClassPoints": null
+    },
+    {
+      "tier": 1,
+      "classKey": "Rogue",
+      "actionName": "JAB",
       "minClassPoints": null
     },
     {

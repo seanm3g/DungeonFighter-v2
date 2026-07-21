@@ -6,6 +6,7 @@ namespace RPGGame.Config
     /// Local-only active audio and balance patch selection (<c>GameData/PatchProfile.json</c>).
     /// Shared balance patch files live in git under <c>GameData/Patches/Balance/</c>; personal experiments go in <c>local/</c>.
     /// Gameplay/UI prefs and audio bus volume live in gitignored <c>GeneralSettings.json</c>.
+    /// First-run active names come from tracked <see cref="ShippedPatchDefaults"/> (not this file).
     /// </summary>
     public sealed class PatchProfile
     {

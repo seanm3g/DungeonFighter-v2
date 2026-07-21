@@ -52,6 +52,7 @@ These are the canonical authoring links for this repo (also stored in `GameData/
 | DUNGEONS | `1068091644` | `GameData/Dungeons.json` |
 | SUFFIXES (stat bonuses) | `388294050` | `GameData/StatBonuses.json` |
 | CONSUMABLES | `828815998` | `GameData/Consumables.json` |
+| flavor | `825117964` | **PUSH only** → from `GameData/FlavorText.json` (PULL does not overwrite local JSON) |
 
 Example **ACTIONS** tab edit link:  
 https://docs.google.com/spreadsheets/d/1bN3vmkQGdbO_4TkdgRXy_5KeuxUAcPtuarzSOOAyArc/edit?gid=2020359111
@@ -64,7 +65,8 @@ Copy from `SheetsPushConfig.template.json` if needed. Important fields:
 
 - `spreadsheetId` — spreadsheet ID from the edit URL.
 - `actionsSheetTabName` — tab name for actions (must match your sheet; default template uses `ACTIONS`).
-- `weaponsSheetTabName`, `modificationsSheetTabName`, `armorSheetTabName`, `classPresentationSheetTabName` — optional; if set, push writes that tab when the local file exists (weapons / mods / armor) or when `TuningConfig.json` exists (classes). Empty string skips that tab.
+- `weaponsSheetTabName`, `modificationsSheetTabName`, `armorSheetTabName`, `classPresentationSheetTabName`, `flavorSheetTabName` — optional; if set, push writes that tab when the local file exists (weapons / mods / armor / FlavorText) or when `TuningConfig.json` exists (classes). Empty string skips that tab.
+- `pushFlavorTab` — when true (default), OAuth push writes the **flavor** tab from `FlavorText.json` as a long table (`section` / `bank` / `key` / `text`). PULL never reconstructs FlavorText from the sheet.
 - `oauthClientSecretsPath`, `oauthTokenStorePath` — OAuth desktop client and token directory.
 
 ## Tab layouts and headers
@@ -81,13 +83,13 @@ On pull, the console prints a **column usage summary** (see `SpreadsheetActionCo
 
 | Tier | Meaning | Examples |
 |------|---------|----------|
-| **Combat / runtime** | Pulled → `Actions.json` → `ActionData` → `Action` → combat | `ACTION`, `DAMAGE` / `DAMAGE(%)`, `SPEED(x)`, `# OF HITS`, `TARGET` (column **M**: `enemy` / `self` / `environment`; empty = enemy), action-sheet status columns (`WEAKEN`, `CONFUSE`, `DISRUPT`, `LIFESTEAL`, …), hero/enemy dice mods, `CADENCE`+`DURATION` keyword bonuses, `MECHANICS` (declarative; validated on pull), next-action mods under `HERO BASE STATS` / `ENEMY BASE STATS`, `JUMP`/`SHIFT`, `OPENER`/`FINISHER`, `HEAL` (under **HERO HEAL**) |
+| **Combat / runtime** | Pulled → `Actions.json` → `ActionData` → `Action` → combat | `ACTION`, `DAMAGE` / `DAMAGE(%)`, `SPEED(x)`, `# OF HITS`, `TARGET` (column **M**: `enemy` / `self` / `environment`; empty = enemy), action-sheet status columns (`WEAKEN`, `CONFUSE`, `DISRUPT`, `LIFESTEAL`, …), hero/enemy dice mods, `CADENCE`+`DURATION` keyword bonuses, `MECHANICS` (declarative; validated on pull), next-action mods under `HERO BASE STATS` / `ENEMY BASE STATS`, flat **WEAPON SPEED** / **WEAPON DAMAGE** under `HERO BASE` / `ENEMY BASE` (or `… BASE STATS`), `JUMP`/`SHIFT`, `OPENER`/`FINISHER`, `HEAL` (under **HERO HEAL**) |
 | **Loot / pools only** | Pool assignment, not combat math | `RARITY`, `CATEGORY`, `TAGS` |
 | **JSON round-trip / sheet reference** | Stored in `Actions.json`; not applied in combat | `DPS(%)` (authoring reference — combat uses `DAMAGE(%)`), `DESCRIPTION` |
-| **Not ingested on CSV pull** | Push/Settings know these labels; **pull ignores** sheet cells | `WEAPON TYPES`, `CHAIN LENGTH`, `RESET`, `GRACE`, `LOOP CHAIN`, JSON blob columns, `TRIGGER CONDITIONS`, threshold flat columns, … |
+| **Not ingested on CSV pull** | Push/Settings know these labels; **pull ignores** sheet cells | `WEAPON TYPES`, `CHAIN LENGTH`, `RESET`, `GRACE`, `LOOP CHAIN`, JSON blob columns, threshold flat columns, … |
 | **Sheet-only** | Never pulled | Column **F** (formulas) |
 
-**Known gaps (ingested but not wired to combat today):** `CONSUME`, `MAX HEALTH` — stored in `Actions.json` but not mapped to runtime `Action` effects. Hero/enemy `STR`/`AGI`/`TECH`/`INT` only apply as combat bonuses when `CADENCE` is `TURN`/`ACTION`.
+**Known gaps (ingested but not wired to combat today):** `CONSUME` — stored in `Actions.json` but not mapped to runtime `Action` effects. **`MAX HEALTH` is wired** (`ActionData.MaxHealthIncrease` → `Action.Advanced` / trigger bundles / heal path). Hero/enemy `STR`/`AGI`/`TECH`/`INT` only apply as combat bonuses when `CADENCE` is `TURN`/`ACTION`.
 
 **Legacy:** JSON `targetType: "AreaOfEffect"` imports as `Environment`. The removed **SELF DAMAGE** column is deprecated — use `target=self` for self-directed effects instead.
 
@@ -163,23 +165,87 @@ Single header row; columns match `Dungeons.json`: `name`, `theme`, `minLevel`, `
 
 ### ACTIONS — TAGS column
 
-Optional **TAGS** cell (column **E** on the standard layout): comma/semicolon list of extra tokens (pool gates like `environment`, `enemy`, `weapon`, elements, etc.). Category and rarity are merged into runtime tags separately on import. **Push** writes TAGS from `Actions.json`; column **F** (e.g. `e(V)` formulas) is left unchanged.
+Optional **TAGS** cell (column **E** on the standard layout): comma/semicolon list of extra tokens (pool gates like `environment`, `enemy`, `weapon`, `reserve_pool`, elements, etc.). Category and rarity are merged into runtime tags separately on import. **Push** writes TAGS from `Actions.json`; column **F** (e.g. `e(V)` formulas) is left unchanged.
 
-### ACTIONS — CADENCE, DURATION, and MECHANICS
+### ACTIONS — RESERVE POOL column
 
-Three related columns in the cadence band (exact letters follow your sheet headers; labels drive import):
+Optional **RESERVE POOL** column (ensured on ACTIONS push, typically after **FINISHER**): mark with `1` / `true` to put the action in the **reserve pool**. Runtime tag: `reserve_pool` (also accepted in **TAGS** alone).
+
+**Behavior:** the action remains in the entity’s action pool and can still fire from the **combo strip** or other explicit picks, but it is **excluded from default weighted rolls** (`Actor.SelectAction` and enemy non-combo fallback). Settings → Actions has a **Reserve Pool** checkbox that syncs the flag and tag.
+
+### ACTIONS — CADENCES band (replaces compact DURATION / CADENCE / MECHANICS)
+
+Independent cadence bundles are authored as **per-family triples** under row-1 context **`CADENCES`** (push appends missing columns; push **deletes** legacy columns when present — see below):
+
+| Row 2 labels (per family) | Cell meaning |
+|---------------------------|--------------|
+| `TURN` / `ACTION` / `FIGHT` / `DUNGEON` | Enable (usually `1`) |
+| `TURN DURATION` (etc.) | Application count (blank ⇒ 1) |
+| `TURN →` (etc.) | Comma-separated **mechanic IDs**; magnitudes stay in detail columns |
+
+**Example — one action with both TURN and ACTION bundles:**
+
+| TURN | TURN DURATION | TURN → | ACTION | ACTION DURATION | ACTION → | COMBO | DAMAGE MOD |
+|------|---------------|--------|--------|-----------------|----------|-------|------------|
+| `1` | `1` | `hero_combo_threshold` | `1` | `1` | `hero_next_action_damage` | `3` | `10` |
+
+**Legacy columns removed on push (typically K–Y):** Push detects and **deletes** (Sheets `DeleteDimension`):
+
+1. Old per-family contexts **`TURN CADENCE` / `ACTION CADENCE` / `FIGHT CADENCE` / `DUNGEON CADENCE`** (and their duration / `→` siblings) — superseded by the single **`CADENCES`** band.
+2. Compact **`DURATION` / `CADENCE` / `MECHANICS`** (historically K/L/M; later W/X/Y after the old triples were inserted).
+
+The authoritative **`CADENCES`** triples are kept. Pull still accepts compact DURATION/CADENCE/MECHANICS when CADENCES triples are empty (for older CSV snapshots). ATTACK cadence normalizes to TURN.
+
+### ACTIONS — CADENCE, DURATION, and MECHANICS (legacy pull-only)
+
+Three related columns in the old cadence band (**accepted on pull** when CADENCES triples are empty; **deleted on push**):
 
 | Row 1 context | Row 2 label | Content | Role |
 |---------------|-------------|---------|------|
-| `STATUS EFFECT` (existing) | `DURATION` | `1`, `2`, `3` only | Application **count** (not turn length for status effects) |
-| (existing) | `CADENCE` | `TURN`, `ACTION`, … | Application **type** — combined at runtime as `CADENCE` × `DURATION` (legacy `ATTACK`/`ABILITY` accepted on import) |
-| **`MECHANICS`** (new) | **`MECHANICS`** | multi-value list | Declarative checklist of mechanic IDs on this row |
+| `STATUS EFFECT` (existing) | `DURATION` | `1`, `2`, `3` only | Application **count** (legacy) |
+| (existing) | `CADENCE` | `TURN`, `ACTION`, … | Application **type** (legacy) |
+| **`MECHANICS`** | **`MECHANICS`** | multi-value list | Declarative checklist (legacy) |
 
 **Authoring rules:**
 
-- **DURATION** = number only. Do not put `3 ACTION` in DURATION (legacy combined parsing remains as a compat fallback on pull; **push** writes split columns).
-- **CADENCE + DURATION** = timing source of truth when you set them.
-- **MECHANICS** = documents which systems the row touches; auto-filled on **push**; validated on **pull** (warnings when declared IDs do not match detected columns). MECHANICS does **not** drive combat by itself — hero dice, status, and mod columns remain required.
+- Prefer **CADENCES** triples above for new rows.
+- **DURATION** = number only when using legacy columns (pull fallback only).
+- **MECHANICS** does **not** drive combat by itself — hero dice, status, and mod columns remain required.
+
+**Reference tabs (refreshed on ACTIONS push):**
+
+| Tab | Purpose |
+|-----|---------|
+| **CADENCE_LIST** | Four rows — **TURN**, **ACTION**, **FIGHT**, **DUNGEON** — each with SUMMARY + DETAIL (uncompacted). Hover notes on the cadence keyword cells. |
+| **MECHANIC_LIST** | One row per mechanic ID: DESCRIPTION + ALLOWED_CADENCES as full words (`TURN, FIGHT, DUNGEON`, never `T/F/D`). Hover note on each id explains the mechanic and flags redundancies (e.g. `hero_next_action_damage` ≠ swing `DAMAGE(%)`). |
+
+ACTIONS header cells also get Sheets **notes** (hover) for CADENCES triples, TRIGGERS triples, and easy-to-confuse columns like DAMAGE vs DAMAGE MOD.
+
+### ACTIONS — TRIGGERS band (3-column triples)
+
+Independent outcome triggers are authored as **per-family triples** under row-1 context **`TRIGGERS`** (push appends any missing columns on the live header):
+
+| Row 2 labels (per family) | Cell meaning |
+|---------------------------|--------------|
+| `ON KILL` (or `ON HIT`, `ON MISS`, …) | Enable / count (usually `1`). For `ON ROLL VALUE` this is the **attack total**; for `ON NATURAL ROLL` / `ON ROOMS CLEARED` it is the face or Nth-clear target. |
+| `ON KILL SCOPE` | Cadence scope for a **lasting grant**: `TURN` / `ACTION` / `FIGHT` / `DUNGEON`. **Blank = instant** one-shot when the event fires. |
+| `ON KILL →` | Comma-separated **mechanic IDs** pointing at existing columns. Magnitudes stay in those columns (`DAMAGE MOD`, `HEAL`, `WEAKEN`, …) — not in the → cell. |
+
+**Example — on kill, grant fight-scoped +5 action damage:**
+
+| ON KILL | ON KILL SCOPE | ON KILL → | DAMAGE MOD |
+|---------|---------------|-----------|------------|
+| `1` | `FIGHT` | `hero_action_damage` | `5` |
+
+**Example — on miss, heal once (instant):**
+
+| ON MISS | ON MISS SCOPE | ON MISS → | HEAL |
+|---------|---------------|-----------|------|
+| `1` | *(blank)* | `heal` | `10` |
+
+Families ensured on push: ON HIT, ON MISS, ON CRIT, ON KILL, ON CONNECT, ON COMBO, ON COMBO END, ON CRIT MISS, ON FIRST HIT, ON AFTER MISS, ON ROOMS CLEARED, ON ROLL VALUE, ON NATURAL ROLL. Tier 3 `Actions.json` samples cover each family (e.g. `HIT HEAL`, `ROLL FIFTEEN`, `NATURAL SEVEN`).
+
+Pull stores triples as `triggerBundles` / `triggerBundlesJson`. **Combat** (`ActionTriggerBundleApplicator`): each enabled triple with mechanic pointers fires those mechanics only when its WHEN matches; blank SCOPE = instant, otherwise lasting grant via TURN/ACTION/FIGHT/DUNGEON deposit APIs. Magnitudes still come from the pointed columns. Mechanics listed under any TRIGGERS → are skipped by whole-row status / sheet-mod apply (`gate_only_listed`). WHEN with a non-empty `→` is **not** merged into `triggerConditions`; empty-`→` enable cells still merge for legacy whole-row gating. Legacy count-only `ON KILL` / `TRIGGER CONDITIONS` cells keep working. **Constraint:** one magnitude per mechanic column per row — a trigger-attached `DAMAGE MOD` is owned by that trigger for the row.
 
 **Runtime timing (cadence matrix):**
 
@@ -200,7 +266,7 @@ Three related columns in the cadence band (exact letters follow your sheet heade
 
 **MECHANIC_LIST** (~33 IDs): `ActionMechanicsRegistry.AllMechanicIds` — only **GOOD** mechanics with **ON ACTIONS=TRUE**. Excluded from the dropdown but still work in-game: instant status columns, **CUT** mechanics (`silence`, `lifesteal`, `consume`, `multi_dice`, `exploding_dice`, `replace_next_roll`). **REDUNDANT** mechanic IDs removed (`damage`, `multi_hit`, `accumulations`, `threshold_bonus`, `stat_bonuses`) — use core columns instead.
 
-**NEEDS IMPROVEMENT backlog** (not in MECHANIC_LIST): `expose`, `reflect`, `cleanse`, `self_damage`, combo routing (`combo_jump`, `chain_*`, …), triggers (`on_*`), `modify_room`.
+**NEEDS IMPROVEMENT backlog** (not in MECHANIC_LIST): `expose`, `reflect`, `cleanse`, `self_damage`, combo routing (`combo_jump`, `chain_*`, …), `modify_room`. Trigger outcome + filter gates (`on_hit`, `on_connect`, `on_miss`, `on_crit`, `on_crit_miss`, `on_combo`, `on_combo_end`, `on_kill`, `on_roll_value`, `on_health_threshold`, `on_rooms_cleared`, `on_wield:…`, `on_first_hit`, `on_after_miss`, `if_clutch`, `if_same_action`, `if_different_action`, `if_last_enemy`, `if_source/target_under_dot`, `if_*_status`, `if_*_has_tag`) are runtime-wired via `ActionTriggerGate` + Settings/sheet `TRIGGER CONDITIONS` / `ON ROOMS CLEARED`.
 
 **Multi-select in Google Sheets:**
 
@@ -213,6 +279,23 @@ Fallback: type `hero_combo_threshold, weaken` manually if multi-select chips are
 ### WEAPONS / ARMOR — tags
 
 Optional `tags` column: comma-separated registry tags on push (e.g. `undead, boss`); pull also accepts JSON arrays or semicolon/pipe lists. Material prefix names (Bone, Steel, …) live on the **Prefix** tab and map to material tags at loot time.
+
+### flavor (`FlavorText.json`)
+
+**Push only** (gid `825117964`, tab title exactly `flavor`). One header row + one string per data row:
+
+| section | bank | key | text |
+|---------|------|-----|------|
+| names | characterFirstNames | *(empty)* | Aric |
+| environments | locationDescriptions | Forest | A dense forest… |
+| environments | roomContexts | Forest/boss | This ancient grove… |
+| classQualifiers | classNames | barbarian | barbarian |
+| combatNarratives | firstBlood | *(empty)* | The first drop… |
+| forms | roomEnter | displayName | Room Enter |
+| forms | roomEnter | template | You step inside… |
+| categories | intro | *(empty)* | Moss coats the walls. |
+
+Built by `FlavorTextSheetConverter` from `FlavorText.json`. **PULL** leaves local FlavorText unchanged (logs a skip).
 
 ### CLASSES (`classPresentation`)
 

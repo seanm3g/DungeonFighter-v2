@@ -121,9 +121,10 @@
     },
     "naivete": {
       "enabled": true,
-      "attributeTotalCap": 66,
-      "naivetePointsPerHitStep": 2,
-      "maxHitStepsFromNaivete": 4
+      "startingNaivete": 3,
+      "naivetePointsPerHitStep": 1,
+      "maxHitStepsFromNaivete": 3,
+      "attributeTotalCap": 66
     }
   },
   "combat": {

@@ -49,6 +49,9 @@ namespace RPGGame.Data
         [JsonPropertyName("consumablesSheetTabName")]
         public string ConsumablesSheetTabName { get; set; } = "";
 
+        [JsonPropertyName("flavorSheetTabName")]
+        public string FlavorSheetTabName { get; set; } = "";
+
         /// <summary>Path to the OAuth 2.0 Desktop client JSON from Google Cloud Console. Relative paths are resolved from the config file directory.</summary>
         [JsonPropertyName("oauthClientSecretsPath")]
         public string OAuthClientSecretsPath { get; set; } = "";
@@ -95,6 +98,9 @@ namespace RPGGame.Data
         [JsonPropertyName("pushClassActionsTab")]
         public bool PushClassActionsTab { get; set; } = true;
 
+        [JsonPropertyName("pushFlavorTab")]
+        public bool PushFlavorTab { get; set; } = true;
+
         public const string DefaultWeaponsSheetTabName = "WEAPONS";
         public const string DefaultModificationsSheetTabName = "Prefix";
         public const string DefaultArmorSheetTabName = "ARMOR";
@@ -109,8 +115,10 @@ namespace RPGGame.Data
 
         public const string DefaultConsumablesSheetTabName = "CONSUMABLES";
 
+        public const string DefaultFlavorSheetTabName = "flavor";
+
         /// <summary>
-        /// When <b>all</b> optional tab names (weapons / modifications / armor / classes / class actions / enemies / environments / dungeons / stat bonuses / consumables) are blank, assigns the
+        /// When <b>all</b> optional tab names (weapons / modifications / armor / classes / class actions / enemies / environments / dungeons / stat bonuses / consumables / flavor) are blank, assigns the
         /// conventional names from <c>SheetsPushConfig.template.json</c> so a first push can populate those tabs.
         /// </summary>
         /// <returns>True if defaults were applied.</returns>
@@ -125,7 +133,8 @@ namespace RPGGame.Data
                 || !string.IsNullOrWhiteSpace(EnvironmentsSheetTabName)
                 || !string.IsNullOrWhiteSpace(DungeonsSheetTabName)
                 || !string.IsNullOrWhiteSpace(StatBonusesSheetTabName)
-                || !string.IsNullOrWhiteSpace(ConsumablesSheetTabName))
+                || !string.IsNullOrWhiteSpace(ConsumablesSheetTabName)
+                || !string.IsNullOrWhiteSpace(FlavorSheetTabName))
                 return false;
 
             WeaponsSheetTabName = DefaultWeaponsSheetTabName;
@@ -138,6 +147,7 @@ namespace RPGGame.Data
             DungeonsSheetTabName = DefaultDungeonsSheetTabName;
             StatBonusesSheetTabName = DefaultStatBonusesSheetTabName;
             ConsumablesSheetTabName = DefaultConsumablesSheetTabName;
+            FlavorSheetTabName = DefaultFlavorSheetTabName;
             return true;
         }
 
@@ -200,6 +210,15 @@ namespace RPGGame.Data
             if (!string.IsNullOrWhiteSpace(ClassActionsSheetTabName))
                 return false;
             ClassActionsSheetTabName = DefaultClassActionsSheetTabName;
+            return true;
+        }
+
+        /// <summary>Fills <see cref="FlavorSheetTabName"/> when still blank (configs created before flavor push).</summary>
+        public bool ApplyDefaultFlavorTabNameIfUnset()
+        {
+            if (!string.IsNullOrWhiteSpace(FlavorSheetTabName))
+                return false;
+            FlavorSheetTabName = DefaultFlavorSheetTabName;
             return true;
         }
 
@@ -302,6 +321,8 @@ namespace RPGGame.Data
                     cfg.PushClassPresentationTab = true;
                 if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushClassActionsTab"))
                     cfg.PushClassActionsTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushFlavorTab"))
+                    cfg.PushFlavorTab = true;
             }
             catch
             {
@@ -334,6 +355,7 @@ namespace RPGGame.Data
             cfg.PushDungeonsTab = true;
             cfg.PushClassPresentationTab = true;
             cfg.PushClassActionsTab = true;
+            cfg.PushFlavorTab = true;
         }
 
         /// <summary>Writes this config to JSON (indented). Creates parent directory if needed.</summary>

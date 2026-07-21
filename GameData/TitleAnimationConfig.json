@@ -8,8 +8,9 @@
   "FinalTransitionFrames": 20,
   "IdleWaveLength": 12,
   "IdleSaturationScale": 1.5,
-  "PaletteShiftIntervalMs": 3000,
-  "PaletteTransitionMs": 1500,
+  "IdlePipingBrightnessScale": 0.275,
+  "PaletteShiftIntervalMs": 1000,
+  "PaletteTransitionMs": 1000,
   "FinalHoldDuration": 0,
   "ColorScheme": {
     "InitialColor": "k",

@@ -176,6 +176,8 @@ namespace RPGGame.Actions.Execution
                 "SPEED_MOD" => $"{sign}{b.Value:0}% SPD",
                 "MULTIHIT_MOD" => $"{sign}{b.Value:0} MH",
                 "AMP_MOD" => $"{sign}{b.Value:0}% AMP",
+                "WEAPON_SPEED" => $"{sign}{b.Value:0} WPN SPD",
+                "WEAPON_DAMAGE" => $"{sign}{b.Value:0} WPN DMG",
                 _ => $"{sign}{b.Value:0} {type}"
             };
         }

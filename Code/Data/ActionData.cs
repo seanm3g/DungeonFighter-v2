@@ -166,6 +166,9 @@ namespace RPGGame
         public int MultipleDiceCount { get; set; } = 1;
         [JsonPropertyName("multipleDiceMode")]
         public string MultipleDiceMode { get; set; } = "Sum";
+        /// <summary>Sheet EXPLODING DICE THRESHOLD (1–20). Empty = off.</summary>
+        [JsonPropertyName("explodingDiceThreshold")]
+        public string ExplodingDiceThreshold { get; set; } = "";
 
         // Starting action flag
         [JsonPropertyName("isStartingAction")]
@@ -221,6 +224,17 @@ namespace RPGGame
         [JsonPropertyName("enemyAmpMod")]
         public string EnemyAmpMod { get; set; } = "";
 
+        /// <summary>Flat hero weapon speed bonus (HERO BASE → WEAPON SPEED). Cadence-scoped; not ACTION SPEED %.</summary>
+        [JsonPropertyName("weaponSpeedMod")]
+        public string WeaponSpeedMod { get; set; } = "";
+        /// <summary>Flat hero weapon damage bonus (HERO BASE → WEAPON DAMAGE). Cadence-scoped; not ACTION DAMAGE %.</summary>
+        [JsonPropertyName("weaponDamageMod")]
+        public string WeaponDamageMod { get; set; } = "";
+        [JsonPropertyName("enemyWeaponSpeedMod")]
+        public string EnemyWeaponSpeedMod { get; set; } = "";
+        [JsonPropertyName("enemyWeaponDamageMod")]
+        public string EnemyWeaponDamageMod { get; set; } = "";
+
         // Combo & position (round-trip with spreadsheet / Combo & Position section)
         [JsonPropertyName("chainPosition")]
         public string ChainPosition { get; set; } = "";
@@ -245,11 +259,34 @@ namespace RPGGame
         public bool IsFinisher { get; set; }
 
         /// <summary>
-        /// When non-empty, this action's effects apply only when the attack result matches one of these (ONHIT, ONMISS, ONCOMBO, ONCRITICAL).
-        /// Empty = apply on any result.
+        /// Reserve pool: available for combo strip / explicit use, excluded from default weighted action rolls.
+        /// Synced to tag <c>reserve_pool</c> and sheet column <c>RESERVE POOL</c>.
+        /// </summary>
+        [JsonPropertyName("reservePool")]
+        public bool IsReservePool { get; set; }
+
+        /// <summary>
+        /// When non-empty, this action's status effects apply only when the attack result matches one of these
+        /// (ONHIT, ONCONNECT, ONMISS, ONCOMBO, ONCOMBOEND, ONCRITICAL, ONCRITICALMISS, ONKILL, ONROLLVALUE, ONHEALTHTHRESHOLD).
+        /// Empty = apply on successful hit only (not miss/kill).
         /// </summary>
         [JsonPropertyName("triggerConditions")]
         public List<string> TriggerConditions { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Spreadsheet TRIGGERS triples: WHEN + optional SCOPE + mechanic column pointers.
+        /// Magnitudes remain on the referenced mechanic columns. Enabled WHEN tokens also appear in <see cref="TriggerConditions"/>.
+        /// </summary>
+        [JsonPropertyName("triggerBundles")]
+        public List<ActionTriggerBundle> TriggerBundles { get; set; } = new List<ActionTriggerBundle>();
+
+        /// <summary>When &gt; 0, status effects may also apply when the modified attack roll equals this face (with or without an ONROLLVALUE token).</summary>
+        [JsonPropertyName("exactRollTriggerValue")]
+        public int ExactRollTriggerValue { get; set; }
+
+        /// <summary>When &gt; 0 with ONROOMSCLEARED, only the Nth room clear fires; 0 = every clear.</summary>
+        [JsonPropertyName("roomsClearedTriggerValue")]
+        public int RoomsClearedTriggerValue { get; set; }
 
         /// <summary>
         /// Ensures StatBonuses is populated from legacy statBonus/statBonusType when list is empty.

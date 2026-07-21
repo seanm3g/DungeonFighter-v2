@@ -8,6 +8,7 @@ using Avalonia.Threading;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.Actions;
+using RPGGame.Actions.Conditional;
 using RPGGame.Combat.Calculators;
 using RPGGame.Data;
 using RPGGame.Editors;
@@ -612,15 +613,90 @@ namespace RPGGame.UI.Avalonia.Managers
             if (GetBool("Reset") is bool b4) action.Reset = b4 ? "true" : "";
             if (GetBool("Opener") is bool b5) action.IsOpener = b5;
             if (GetBool("Finisher") is bool b6) action.IsFinisher = b6;
+            if (GetBool("Reserve Pool") is bool bReserve)
+            {
+                action.IsReservePool = bReserve;
+                ActionTagSyncHelper.SyncCanonicalTags(action);
+            }
             action.TriggerConditions ??= new List<string>();
-            if (GetBool("On Hit") == true && !action.TriggerConditions.Any(c => string.Equals(c, "ONHIT", StringComparison.OrdinalIgnoreCase))) action.TriggerConditions.Add("ONHIT");
-            if (GetBool("On Hit") == false) action.TriggerConditions.RemoveAll(c => string.Equals(c, "ONHIT", StringComparison.OrdinalIgnoreCase));
-            if (GetBool("On Miss") == true && !action.TriggerConditions.Any(c => string.Equals(c, "ONMISS", StringComparison.OrdinalIgnoreCase))) action.TriggerConditions.Add("ONMISS");
-            if (GetBool("On Miss") == false) action.TriggerConditions.RemoveAll(c => string.Equals(c, "ONMISS", StringComparison.OrdinalIgnoreCase));
-            if (GetBool("On Combo") == true && !action.TriggerConditions.Any(c => string.Equals(c, "ONCOMBO", StringComparison.OrdinalIgnoreCase))) action.TriggerConditions.Add("ONCOMBO");
-            if (GetBool("On Combo") == false) action.TriggerConditions.RemoveAll(c => string.Equals(c, "ONCOMBO", StringComparison.OrdinalIgnoreCase));
-            if (GetBool("On Crit") == true && !action.TriggerConditions.Any(c => string.Equals(c, "ONCRITICAL", StringComparison.OrdinalIgnoreCase))) action.TriggerConditions.Add("ONCRITICAL");
-            if (GetBool("On Crit") == false) action.TriggerConditions.RemoveAll(c => string.Equals(c, "ONCRITICAL", StringComparison.OrdinalIgnoreCase));
+            void SyncTrigger(string label, string token)
+            {
+                if (GetBool(label) == true && !action.TriggerConditions.Any(c => string.Equals(c, token, StringComparison.OrdinalIgnoreCase)))
+                    action.TriggerConditions.Add(token);
+                if (GetBool(label) == false)
+                    action.TriggerConditions.RemoveAll(c => string.Equals(c, token, StringComparison.OrdinalIgnoreCase));
+            }
+            SyncTrigger("On Hit (normal)", "ONHIT");
+            // Legacy label from older forms
+            SyncTrigger("On Hit", "ONHIT");
+            SyncTrigger("On Connect (any hit)", "ONCONNECT");
+            SyncTrigger("On Miss", "ONMISS");
+            SyncTrigger("On Crit Miss", "ONCRITICALMISS");
+            SyncTrigger("On Combo", "ONCOMBO");
+            SyncTrigger("On Combo End", "ONCOMBOEND");
+            SyncTrigger("On Rooms Cleared", "ONROOMSCLEARED");
+            if (GetBool("On Rooms Cleared") == false)
+                action.TriggerConditions.RemoveAll(c => c.StartsWith("ONROOMSCLEARED", StringComparison.OrdinalIgnoreCase));
+            SyncTrigger("On Crit", "ONCRITICAL");
+            SyncTrigger("On Kill", "ONKILL");
+            SyncTrigger("On Health Threshold", "ONHEALTHTHRESHOLD");
+            SyncTrigger("On Exact Roll", "ONROLLVALUE");
+            SyncTrigger("On Wield (Sword)", "ONWIELD:Sword");
+            SyncTrigger("On Wield (Dagger)", "ONWIELD:Dagger");
+            SyncTrigger("On Wield (Mace)", "ONWIELD:Mace");
+            SyncTrigger("On Wield (Wand)", "ONWIELD:Wand");
+            SyncTrigger("On First Blood", "ONFIRSTHIT");
+            SyncTrigger("After Miss", "ONAFTERMISS");
+            SyncTrigger("Clutch (HP ≤ 25%)", "IFCLUTCH");
+            SyncTrigger("Same Action (Mirror)", "IFSAMESACTION");
+            SyncTrigger("Different Action (Switch-up)", "IFDIFFERENTACTION");
+            SyncTrigger("Last Enemy (Last Stand)", "IFLASTENEMY");
+            SyncTrigger("Source Under DoT", "IFSOURCEUNDERDOT");
+            SyncTrigger("Target Under DoT", "IFTARGETUNDERDOT");
+            void SyncPrefixedField(string label, string prefix)
+            {
+                if ((v = GetText(label)) == null)
+                    return;
+                action.TriggerConditions.RemoveAll(c => c.StartsWith(prefix + ":", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(c, prefix, StringComparison.OrdinalIgnoreCase));
+                if (string.IsNullOrWhiteSpace(v))
+                    return;
+                foreach (var part in ActionTriggerGate.ParseTriggerConditionList(
+                             string.Join(",", v.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                                 .Select(p => $"{prefix}:{p.Trim()}"))))
+                {
+                    if (!action.TriggerConditions.Exists(c => string.Equals(c, part, StringComparison.OrdinalIgnoreCase)))
+                        action.TriggerConditions.Add(part);
+                }
+            }
+            SyncPrefixedField("Source status (poison,burn,…)", "IFSOURCESTATUS");
+            SyncPrefixedField("Target status (poison,burn,…)", "IFTARGETSTATUS");
+            SyncPrefixedField("Action tag required", "IFACTIONHASTAG");
+            SyncPrefixedField("Gear tag required", "IFGEARHASTAG");
+            SyncPrefixedField("Target tag required", "IFTARGETHASTAG");
+            SyncPrefixedField("Source HP at/below (0-1 or %)", "IFSOURCEHEALTHBELOW");
+            if ((v = GetText("Exact roll face (1-20)")) != null)
+            {
+                if (string.IsNullOrWhiteSpace(v))
+                    action.ExactRollTriggerValue = 0;
+                else if (int.TryParse(v.Trim(), out int face) && face >= 1 && face <= 20)
+                {
+                    action.ExactRollTriggerValue = face;
+                    if (!action.TriggerConditions.Any(c => c.StartsWith("ONROLLVALUE", StringComparison.OrdinalIgnoreCase)))
+                        action.TriggerConditions.Add("ONROLLVALUE");
+                }
+            }
+            if ((v = GetText("Rooms cleared count (optional N)")) != null)
+            {
+                if (string.IsNullOrWhiteSpace(v))
+                    action.RoomsClearedTriggerValue = 0;
+                else if (int.TryParse(v.Trim(), out int roomsN) && roomsN > 0)
+                {
+                    action.RoomsClearedTriggerValue = roomsN;
+                    action.TriggerConditions.RemoveAll(c => c.StartsWith("ONROOMSCLEARED", StringComparison.OrdinalIgnoreCase));
+                    action.TriggerConditions.Add($"ONROOMSCLEARED:{roomsN}");
+                }
+            }
             if (GetBool("CausesStun") is bool s1) action.CausesStun = s1;
             if (GetBool("CausesPoison") is bool s2) action.CausesPoison = s2;
             if (GetBool("CausesBurn") is bool s3) action.CausesBurn = s3;

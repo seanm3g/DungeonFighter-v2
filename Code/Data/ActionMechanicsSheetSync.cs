@@ -17,6 +17,15 @@ namespace RPGGame.Data
             if (row == null)
                 return;
 
+            // CADENCES triples are authoritative when present — do not refill legacy compact columns.
+            if (!string.IsNullOrWhiteSpace(row.CadenceBundlesJson))
+            {
+                row.Mechanics = "";
+                row.Cadence = "";
+                row.Duration = "";
+                return;
+            }
+
             ApplyCadenceDefaultsForMechanics(row);
             var detected = ActionMechanicsRegistry.DetectFromSpreadsheetRow(row);
             var forColumn = ActionMechanicsRegistry.FilterForMechanicsColumn(detected);

@@ -1,5 +1,6 @@
 using RPGGame;
 using RPGGame.ActionInteractionLab;
+using RPGGame.Actions.Conditional;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
 using RPGGame.Combat.Events;
@@ -51,10 +52,18 @@ namespace RPGGame.Actions.Execution
                 CadenceScopedBuffApplicator.ApplyThresholds(gearCharacter, thresholdManager);
             }
 
-            result.SelectedAction = forcedAction ?? ActionSelector.SelectActionByEntityType(source);
+            if (CombatTriggerContext.TryGetCritFaceMin(source, out int critFaceMin))
+                thresholdManager.SetCriticalHitThreshold(source, critFaceMin);
+
+            Action? selected = forcedAction;
+            if (selected == null && StripMutationApplier.TryConsumeReplaceNext(source, out var stripReplace) && stripReplace != null)
+                selected = stripReplace;
+            result.SelectedAction = selected ?? ActionSelector.SelectActionByEntityType(source);
             if (result.SelectedAction == null) return;
             lastUsedActions[source] = result.SelectedAction;
             result.BaseRoll = ActionSelector.GetActionRoll(source);
+            if (CombatTriggerContext.TryConsumePendingReplaceRollFace(source, out int replacedFace))
+                result.BaseRoll = replacedFace;
             if (source is Character character && !(character is Enemy) && forcedAction == null)
                 result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
 
@@ -225,6 +234,7 @@ namespace RPGGame.Actions.Execution
 
             result.RollBonus = ActionUtilities.CalculateRollBonus(source, result.SelectedAction);
             result.AttackRoll = result.ModifiedBaseRoll + result.RollBonus;
+            result.NaturalRollValue = result.ModifiedBaseRoll;
             int hitThreshold = thresholdManager.GetHitThreshold(source);
             int criticalMissThreshold = thresholdManager.GetCriticalMissThreshold(source);
             // Crit / crit-miss: exclude full roll bonus (stats + temp + chain/sheet terms in bonus) from attack total.
@@ -241,8 +251,17 @@ namespace RPGGame.Actions.Execution
             // Combo flag: combo-slot action and attack total meets combo threshold (avoids "combo" on unnamed normal hits that hit 14+ total)
             result.IsCombo = result.SelectedAction.IsComboAction && result.AttackRoll >= thresholdManager.GetComboThreshold(source);
             result.IsCritical = critThresholdRoll >= thresholdManager.GetCriticalHitThreshold(source);
-            ActionEventPublisher.PublishActionExecuted(source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical);
+            // Natural-face crit override (Balatro-style high faces): ModifiedBaseRoll is the die after adv/replace.
+            if (CombatTriggerContext.TryGetCritFaceMin(source, out int naturalCritMin)
+                && result.ModifiedBaseRoll >= naturalCritMin)
+                result.IsCritical = true;
+            ActionEventPublisher.PublishActionExecuted(source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical, result.NaturalRollValue);
             result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
+            if (!result.Hit && !result.IsCriticalMiss && CombatTriggerContext.TryConsumeMissSalvage(source))
+            {
+                result.Hit = true;
+                result.MissSalvaged = true;
+            }
             // Sheet accuracy + threshold adjustments (and deferred overrides when not TURN cadence) queue for the next application.
             RollModificationManager.EnqueueDeferredRollModThresholdAdjustmentsForNextRoll(result.SelectedAction, source, target);
         }

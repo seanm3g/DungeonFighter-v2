@@ -155,8 +155,17 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/Combat/Events/CombatEventTypes.cs`** - Event type definitions and base event class
 
 #### Conditional Triggers
-- **`Code/Actions/Conditional/ConditionalTriggerEvaluator.cs`** - Evaluates trigger conditions
-- **`Code/Actions/Conditional/TriggerConditions.cs`** - Condition definitions and factory
+- **`Code/Actions/Conditional/ActionTriggerGate.cs`** - Live gate: OR of outcomes (`ONHIT`…`ONROOMSCLEARED`, `ONFIRSTHIT`, `ONAFTERMISS`, `ONNATURALROLL`) AND filters (`ONWIELD`, `IFCLUTCH`/HP, same/diff action, status/DoT, tags, `IFLASTENEMY`); standalone filters ⇒ connect. `ONROLLVALUE` = attack total; `ONNATURALROLL` = die face (`NaturalRollValue`).
+- **`Code/Actions/Conditional/ActionTriggerBundleApplicator.cs`** - Spreadsheet TRIGGERS triples: on matching WHEN, apply listed `→` mechanics (blank SCOPE = instant; TURN/ACTION/FIGHT/DUNGEON = lasting grant); also strip_*, retrigger_*, salvage_miss, crit_face_min, replace_next_roll
+- **`Code/Actions/Conditional/StripMutationState.cs` / `StripMutationApplier.cs`** - Fight-scoped strip disable / shuffle / pending routing / replace-next
+- **`Code/Actions/Conditional/RetriggerScheduler.cs`** - Schedules nested strip re-resolve (depth 1; distinct from Multihit)
+- **`Code/Actions/Conditional/ActionTriggerPredicates.cs`** - Filter classification and evaluation helpers
+- **`Code/Actions/Conditional/CombatTriggerContext.cs`** - Per-fight memory (first connect, after-miss, previous action, living-enemy count, strip state, miss salvage, replace-roll, crit-face-min); reset in `StartBattleNarrative`
+- **`Code/Actions/Execution/RoomClearedTriggerApplicator.cs`** - On dungeon room success: increment `SessionStatistics.RoomsCleared`, publish `RoomCleared`, apply matching pool action statuses
+- **`Code/Actions/Conditional/ConditionalTriggerEvaluator.cs`** - Typed condition evaluator (AND semantics) used by tests and advanced hooks
+- **`Code/Actions/Conditional/TriggerConditions.cs`** - Condition definitions and factory (includes `IfWieldingWeaponType`)
+- Wired from hit/miss/kill/HP-threshold/combo-end/room-clear paths in `ActionExecutionFlow` / `RoomProcessor` / `CombatEffectsSimplified`
+- **Item bridge:** weapon DoT mods use the same WHEN gate (`Modification.TriggerWhen`, default ONCRITICAL)
 
 #### Threshold Management
 - **`Code/Combat/ThresholdManager.cs`** - Dynamic threshold adjustment (crit, combo, hit) per actor
@@ -178,14 +187,17 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/World/Tags/TagModifier.cs`** - Temporary tag addition/removal with duration tracking
 
 #### Combo Routing
-- **`Code/Entity/Actions/ComboRouting/ComboRouter.cs`** - Combo flow control system:
-  - Jump to slot N
-  - Skip next action
-  - Repeat previous action
-  - Loop to slot 1
-  - Stop combo early
-  - Random next action
+- **`Code/Entity/Actions/ComboRouting/ComboRouter.cs`** - Combo flow control:
+  - Jump / relative jump / skip / repeat / loop / stop / random
+  - Disable slot (fight-scoped via `StripMutationState`)
+  - Fight-scoped pending routing + shuffle overlay from trigger mechanics
+  - Skips disabled slots when advancing
 
+#### Target item combat grammar (design)
+- Always-on equip math: `EquipmentBonusCalculator` / suffixes / quality multipliers
+- Combat procs: WHEN × mechanic × SCOPE shared with actions (bridge live for weapon* DoTs)
+- Future: Sheets PREFIX columns for When/Scope; no StatBonus WHEN in current pass
+- ActionBonuses stay “grant a named action that carries its own triggers”
 #### Outcome Handlers
 - **`Code/Combat/Outcomes/OutcomeHandler.cs`** - Base interface for outcome handlers
 - **`Code/Combat/Outcomes/ConditionalOutcomeHandler.cs`** - Handles conditional outcomes:

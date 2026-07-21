@@ -118,7 +118,7 @@ namespace RPGGame.Config
                     catch { /* fall through to default */ }
                 }
 
-                _cachedProfile = new PatchProfile();
+                _cachedProfile = CreateFirstRunProfile();
                 SaveProfile(_cachedProfile);
                 return _cachedProfile;
             }
@@ -187,25 +187,35 @@ namespace RPGGame.Config
                     return path;
             }
 
-            string defaultPath = GetPatchFilePath(category, PatchProfile.DefaultPatchName);
-            if (File.Exists(defaultPath))
+            string fallbackName = ResolveMissingActiveFallbackName(category);
+            string fallbackPath = GetPatchFilePath(category, fallbackName);
+            if (File.Exists(fallbackPath))
             {
                 if (PatchProfile.IsPlayerLocalCategory(category))
                 {
-                    profile.SetActivePatchName(category, PatchProfile.DefaultPatchName);
+                    profile.SetActivePatchName(category, fallbackName);
                     SaveProfile(profile);
                 }
-                return defaultPath;
+                return fallbackPath;
             }
 
             Directory.CreateDirectory(GetCategoryFolder(category));
             if (category == PatchCategory.Audio)
             {
                 EnsureAudioDefaultPatchExists();
-                if (File.Exists(defaultPath))
-                    return defaultPath;
+                string audioDefault = GetPatchFilePath(category, PatchProfile.DefaultPatchName);
+                if (File.Exists(audioDefault))
+                {
+                    if (PatchProfile.IsPlayerLocalCategory(category))
+                    {
+                        profile.SetActivePatchName(category, PatchProfile.DefaultPatchName);
+                        SaveProfile(profile);
+                    }
+                    return audioDefault;
+                }
             }
 
+            string defaultPath = GetPatchFilePath(category, PatchProfile.DefaultPatchName);
             File.WriteAllText(defaultPath, "{}");
             if (PatchProfile.IsPlayerLocalCategory(category))
             {
@@ -358,14 +368,32 @@ namespace RPGGame.Config
                 _cachedProfile = null;
                 _bootstrapDone = false;
             }
+            ShippedPatchDefaults.InvalidateCache();
         }
+
+        /// <summary>
+        /// First-run local profile: active audio/balance come from tracked
+        /// <see cref="ShippedPatchDefaults"/> so new installs match the shipped patch.
+        /// </summary>
+        private static PatchProfile CreateFirstRunProfile() => new()
+        {
+            ActiveAudioPatch = ShippedPatchDefaults.ResolveDefaultAudioPatchName(),
+            ActiveBalancePatch = ShippedPatchDefaults.ResolveDefaultBalancePatchName()
+        };
+
+        private static string ResolveMissingActiveFallbackName(PatchCategory category) => category switch
+        {
+            PatchCategory.Balance => ShippedPatchDefaults.ResolveDefaultBalancePatchName(),
+            PatchCategory.Audio => ShippedPatchDefaults.ResolveDefaultAudioPatchName(),
+            _ => PatchProfile.DefaultPatchName
+        };
 
         private static void NormalizeProfile(PatchProfile profile)
         {
             if (string.IsNullOrWhiteSpace(profile.ActiveAudioPatch))
-                profile.ActiveAudioPatch = PatchProfile.DefaultPatchName;
+                profile.ActiveAudioPatch = ShippedPatchDefaults.ResolveDefaultAudioPatchName();
             if (string.IsNullOrWhiteSpace(profile.ActiveBalancePatch))
-                profile.ActiveBalancePatch = PatchProfile.DefaultPatchName;
+                profile.ActiveBalancePatch = ShippedPatchDefaults.ResolveDefaultBalancePatchName();
         }
 
         private static void EnsureAudioDefaultPatchExists() =>

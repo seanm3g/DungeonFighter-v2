@@ -506,6 +506,7 @@ namespace RPGGame
         public void RecordItemEquipped() => SessionStats.RecordItemEquipped();
         public void RecordDungeonCompleted() => SessionStats.RecordDungeonCompleted();
         public void RecordRoomExplored() => SessionStats.RecordRoomExplored();
+        public void RecordRoomCleared() => SessionStats.RecordRoomCleared();
         public void RecordEncounterSurvived() => SessionStats.RecordEncounterSurvived();
         public void RecordLevelUp(int newLevel) => SessionStats.RecordLevelUp(newLevel);
         public void RecordXPGain(int xp) => SessionStats.RecordXPGain(xp);

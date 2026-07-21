@@ -30,7 +30,7 @@ namespace RPGGame.Tests.Unit.World
         private static void TestKnownTagCount(ref int run, ref int pass, ref int fail)
         {
             TestBase.SetCurrentTestName(nameof(TestKnownTagCount));
-            TestBase.AssertEqual(77, TagDefinitions.AllRegistryTags.Count(), "77 registry tags", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(78, TagDefinitions.AllRegistryTags.Count(), "78 registry tags", ref run, ref pass, ref fail);
         }
 
         private static void TestEnemyArchetypes(ref int run, ref int pass, ref int fail)
@@ -83,6 +83,7 @@ namespace RPGGame.Tests.Unit.World
         {
             TestBase.SetCurrentTestName(nameof(TestElementTags));
             TestBase.AssertTrue(TagDefinitions.IsKnownTag("fire"), "fire", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(TagDefinitions.IsKnownTag("reserve_pool"), "reserve_pool known", ref run, ref pass, ref fail);
             TestBase.AssertFalse(TagDefinitions.IsKnownTag("ice"), "ice not in registry", ref run, ref pass, ref fail);
             TestBase.AssertFalse(TagDefinitions.IsKnownTag("lightning"), "lightning not in registry", ref run, ref pass, ref fail);
         }

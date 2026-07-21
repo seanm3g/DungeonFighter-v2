@@ -124,7 +124,6 @@ namespace RPGGame
                 return Trim(lines, maxLines);
 
             int hitSteps = NaiveteBalanceHelper.GetHitSteps(c);
-            int attributeSum = NaiveteBalanceHelper.GetBaseAttributeSum(c);
             var config = NaiveteBalanceHelper.GetConfig();
 
             AddTitle(lines, "Naiveté");
@@ -136,10 +135,13 @@ namespace RPGGame
             AddNoteLine(lines, "Easier to hit while you are still inexperienced in combat.");
             AddBlank(lines);
             AddSection(lines, "Progress");
-            AddStatRow(lines, "Base attribute total", attributeSum);
+            AddStatRow(lines, "Hero level", c.Level);
             if (config != null)
-                AddStatRow(lines, "Fades at total", config.AttributeTotalCap);
-            AddNoteLine(lines, "Derived from base STR+AGI+TEC+INT. Reaches zero as you grow stronger.");
+            {
+                AddStatRow(lines, "Starts at", config.StartingNaivete);
+                AddStatRow(lines, "Fades by", 1);
+            }
+            AddNoteLine(lines, "Starts as a single digit and drops by 1 each level.");
 
             return Trim(lines, maxLines);
         }

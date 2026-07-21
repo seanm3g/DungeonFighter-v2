@@ -78,6 +78,9 @@ namespace RPGGame.Combat.Calculators
 
                 if (enemy.Weapon is WeaponItem weapon)
                     baseDamage += weapon.GetTotalDamage();
+
+                if (enemy.Effects.ConsumedWeaponDamageFlat != 0)
+                    baseDamage += (int)Math.Round(enemy.Effects.ConsumedWeaponDamageFlat);
             }
             else if (attacker is Character character)
             {
@@ -88,6 +91,10 @@ namespace RPGGame.Combat.Calculators
                 {
                     baseDamage += weapon.GetTotalDamage();
                 }
+
+                // Flat WEAPON_DAMAGE from cadence (HERO BASE → WEAPON DAMAGE)
+                if (character.Effects.ConsumedWeaponDamageFlat != 0)
+                    baseDamage += (int)Math.Round(character.Effects.ConsumedWeaponDamageFlat);
 
                 // Add equipment damage bonus
                 baseDamage += character.GetEquipmentDamageBonus();

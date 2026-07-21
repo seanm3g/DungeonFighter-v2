@@ -77,6 +77,8 @@
                             <TextBox x:Name="ClassPresentationTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
                             <TextBlock Text="CLASS ACTIONS → ClassActions.json (tier / class / action)" FontSize="12" Classes="settings-muted"/>
                             <TextBox x:Name="ClassActionsTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
+                            <TextBlock Text="flavor → FlavorText.json (PUSH only; PULL skips)" FontSize="12" Classes="settings-muted"/>
+                            <TextBox x:Name="FlavorTabGidTextBox" MinHeight="28" Watermark="825117964" FontSize="13" Padding="8" BorderThickness="1"/>
                         </StackPanel>
                     </Expander>
                     <StackPanel Spacing="8" Margin="0,8,0,0">
@@ -84,7 +86,7 @@
                                        FontSize="13"
                                        FontWeight="SemiBold"
                                        Classes="settings-field-label"/>
-                            <TextBlock Text="Only checked tabs are pulled from published CSV URLs or pushed via OAuth. Unchecked tabs are left unchanged on disk and on the sheet. Selections are saved to SheetsPushConfig.json when that file exists."
+                            <TextBlock Text="Only checked tabs are pulled from published CSV URLs or pushed via OAuth. Unchecked tabs are left unchanged on disk and on the sheet. Selections are saved to SheetsPushConfig.json when that file exists. The flavor tab is push-only (checked skips pull)."
                                        FontSize="11"
                                        Classes="settings-muted"
                                        TextWrapping="Wrap"/>
@@ -100,6 +102,7 @@
                                 <CheckBox x:Name="PushDungeonsTabCheckBox" Content="DUNGEONS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushClassPresentationTabCheckBox" Content="CLASSES" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushClassActionsTabCheckBox" Content="CLASS ACTIONS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushFlavorTabCheckBox" Content="flavor" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                             </WrapPanel>
                         </StackPanel>
                     <StackPanel Orientation="Horizontal" Spacing="10">

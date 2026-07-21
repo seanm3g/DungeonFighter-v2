@@ -5,6 +5,8 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using RPGGame;
 using RPGGame.Actions;
+using RPGGame.Actions.Conditional;
+using RPGGame.Data;
 using RPGGame.Editors;
 using RPGGame.UI.Avalonia.Resources;
 using System;
@@ -172,6 +174,8 @@ namespace RPGGame.UI.Avalonia.Builders
             _ctx.Factory.AddFormField(stack, "ACTION DAMAGE [hero] (%)", action.DamageMod ?? "", (value) => action.DamageMod = value ?? "", description: "Column AK. e.g. 10 for 10% more damage on next");
             _ctx.Factory.AddFormField(stack, "MULTIHIT MOD [hero]", action.MultiHitMod ?? "", (value) => action.MultiHitMod = value ?? "", description: "Column AL. e.g. 2 extra hits on next");
             _ctx.Factory.AddFormField(stack, "AMP_MOD [hero] (%)", action.AmpMod ?? "", (value) => action.AmpMod = value ?? "", description: "Column AM. e.g. 10 for 10% combo amp on next");
+            _ctx.Factory.AddFormField(stack, "WEAPON SPEED [hero]", action.WeaponSpeedMod ?? "", (value) => action.WeaponSpeedMod = value ?? "", description: "HERO BASE → WEAPON SPEED. Flat points (each ≈ −0.1 weapon time). Cadence-scoped.");
+            _ctx.Factory.AddFormField(stack, "WEAPON DAMAGE [hero]", action.WeaponDamageMod ?? "", (value) => action.WeaponDamageMod = value ?? "", description: "HERO BASE → WEAPON DAMAGE. Flat damage added to weapon. Cadence-scoped.");
         }
 
         private void BuildEnemyModifiersSection(Panel parent, ActionData action)
@@ -190,6 +194,8 @@ namespace RPGGame.UI.Avalonia.Builders
             _ctx.Factory.AddFormField(stack, "DAMAGE MOD [enemy] (%)", action.EnemyDamageMod ?? "", (value) => action.EnemyDamageMod = value ?? "", description: "Column AE. e.g. 10 for 10% more damage on enemy next");
             _ctx.Factory.AddFormField(stack, "MULTIHIT MOD [enemy]", action.EnemyMultiHitMod ?? "", (value) => action.EnemyMultiHitMod = value ?? "", description: "Column AF. e.g. 2 extra hits on enemy next");
             _ctx.Factory.AddFormField(stack, "AMP_MOD [enemy] (%)", action.EnemyAmpMod ?? "", (value) => action.EnemyAmpMod = value ?? "", description: "Column AG. e.g. 10 for 10% combo amp on enemy next");
+            _ctx.Factory.AddFormField(stack, "WEAPON SPEED [enemy]", action.EnemyWeaponSpeedMod ?? "", (value) => action.EnemyWeaponSpeedMod = value ?? "", description: "ENEMY BASE → WEAPON SPEED. Flat points; cadence-scoped.");
+            _ctx.Factory.AddFormField(stack, "WEAPON DAMAGE [enemy]", action.EnemyWeaponDamageMod ?? "", (value) => action.EnemyWeaponDamageMod = value ?? "", description: "ENEMY BASE → WEAPON DAMAGE. Flat damage; cadence-scoped.");
         }
 
         public void BuildComboAndPositionSection(Panel parent, ActionData action)
@@ -219,6 +225,19 @@ namespace RPGGame.UI.Avalonia.Builders
             });
             _ctx.Factory.AddBooleanField(stack, "Opener", action.IsOpener, (value) => action.IsOpener = value);
             _ctx.Factory.AddBooleanField(stack, "Finisher", action.IsFinisher, (value) => action.IsFinisher = value);
+            stack.Children.Add(new TextBlock
+            {
+                Text = "Reserve Pool: excluded from default weighted rolls; still usable on the combo strip / explicit picks.",
+                FontSize = 12,
+                Foreground = SettingsThemeBrushes.TextMuted,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 4)
+            });
+            _ctx.Factory.AddBooleanField(stack, "Reserve Pool", action.IsReservePool, (value) =>
+            {
+                action.IsReservePool = value;
+                ActionTagSyncHelper.SyncCanonicalTags(action);
+            });
         }
 
         public void BuildRollBonusesSection(Panel parent, ActionData action)
@@ -266,16 +285,113 @@ namespace RPGGame.UI.Avalonia.Builders
             parent.Children.Add(section);
             stack.Children.Add(new TextBlock
             {
-                Text = "When checked, this action's status effects apply only on the selected outcome(s). Leave all unchecked to apply on any result.",
+                Text = "When checked, this action's status effects apply only on the selected outcome(s). Leave all unchecked to apply on any successful hit (not miss/kill). Filters (On Wield, Clutch, DoT, tags, …) AND with outcomes; filter-only ⇒ any hit. Chain punctuation = On Combo End.",
                 FontSize = 12,
                 Foreground = SettingsThemeBrushes.TextMuted,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 8)
             });
-            _ctx.Factory.AddBooleanField(stack, "On Hit", HasTrigger(action, "ONHIT"), (value) => SetTrigger(action, "ONHIT", value));
+            _ctx.Factory.AddBooleanField(stack, "On Hit (normal)", HasTrigger(action, "ONHIT"), (value) => SetTrigger(action, "ONHIT", value));
+            _ctx.Factory.AddBooleanField(stack, "On Connect (any hit)", HasTrigger(action, "ONCONNECT"), (value) => SetTrigger(action, "ONCONNECT", value));
             _ctx.Factory.AddBooleanField(stack, "On Miss", HasTrigger(action, "ONMISS"), (value) => SetTrigger(action, "ONMISS", value));
+            _ctx.Factory.AddBooleanField(stack, "On Crit Miss", HasTrigger(action, "ONCRITICALMISS"), (value) => SetTrigger(action, "ONCRITICALMISS", value));
             _ctx.Factory.AddBooleanField(stack, "On Combo", HasTrigger(action, "ONCOMBO"), (value) => SetTrigger(action, "ONCOMBO", value));
+            _ctx.Factory.AddBooleanField(stack, "On Combo End", HasTrigger(action, "ONCOMBOEND"), (value) => SetTrigger(action, "ONCOMBOEND", value));
+            _ctx.Factory.AddBooleanField(stack, "On Rooms Cleared", HasTrigger(action, "ONROOMSCLEARED") || action.RoomsClearedTriggerValue > 0,
+                (value) =>
+                {
+                    SetTrigger(action, "ONROOMSCLEARED", value);
+                    if (!value) action.RoomsClearedTriggerValue = 0;
+                });
+            void SetRoomsClearedN(string value)
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    action.RoomsClearedTriggerValue = 0;
+                    return;
+                }
+                if (int.TryParse(value.Trim(), out int n) && n > 0)
+                {
+                    action.RoomsClearedTriggerValue = n;
+                    SetTrigger(action, "ONROOMSCLEARED", true);
+                }
+            }
+            _ctx.Factory.AddFormField(stack, "Rooms cleared count (optional N)", action.RoomsClearedTriggerValue > 0 ? action.RoomsClearedTriggerValue.ToString() : "",
+                SetRoomsClearedN, description: "Blank = every room clear; set N to fire only on the Nth clear.", onTextChanged: SetRoomsClearedN);
             _ctx.Factory.AddBooleanField(stack, "On Crit", HasTrigger(action, "ONCRITICAL"), (value) => SetTrigger(action, "ONCRITICAL", value));
+            _ctx.Factory.AddBooleanField(stack, "On Kill", HasTrigger(action, "ONKILL"), (value) => SetTrigger(action, "ONKILL", value));
+            _ctx.Factory.AddBooleanField(stack, "On Health Threshold", HasTrigger(action, "ONHEALTHTHRESHOLD"), (value) => SetTrigger(action, "ONHEALTHTHRESHOLD", value));
+            _ctx.Factory.AddBooleanField(stack, "On Exact Roll", HasTrigger(action, "ONROLLVALUE") || action.ExactRollTriggerValue > 0,
+                (value) =>
+                {
+                    SetTrigger(action, "ONROLLVALUE", value);
+                    if (!value) action.ExactRollTriggerValue = 0;
+                });
+            void SetExactRoll(string value)
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    action.ExactRollTriggerValue = 0;
+                    return;
+                }
+                if (int.TryParse(value.Trim(), out int face) && face >= 1 && face <= 20)
+                {
+                    action.ExactRollTriggerValue = face;
+                    SetTrigger(action, "ONROLLVALUE", true);
+                }
+            }
+            _ctx.Factory.AddFormField(stack, "Exact roll face (1-20)", action.ExactRollTriggerValue > 0 ? action.ExactRollTriggerValue.ToString() : "",
+                SetExactRoll, description: "When set, status effects also apply when the attack roll equals this face.", onTextChanged: SetExactRoll);
+            _ctx.Factory.AddBooleanField(stack, "On Wield (Sword)", HasTrigger(action, "ONWIELD:Sword"), (value) => SetTrigger(action, "ONWIELD:Sword", value));
+            _ctx.Factory.AddBooleanField(stack, "On Wield (Dagger)", HasTrigger(action, "ONWIELD:Dagger"), (value) => SetTrigger(action, "ONWIELD:Dagger", value));
+            _ctx.Factory.AddBooleanField(stack, "On Wield (Mace)", HasTrigger(action, "ONWIELD:Mace"), (value) => SetTrigger(action, "ONWIELD:Mace", value));
+            _ctx.Factory.AddBooleanField(stack, "On Wield (Wand)", HasTrigger(action, "ONWIELD:Wand"), (value) => SetTrigger(action, "ONWIELD:Wand", value));
+            _ctx.Factory.AddBooleanField(stack, "On First Blood", HasTrigger(action, "ONFIRSTHIT"), (value) => SetTrigger(action, "ONFIRSTHIT", value));
+            _ctx.Factory.AddBooleanField(stack, "After Miss", HasTrigger(action, "ONAFTERMISS"), (value) => SetTrigger(action, "ONAFTERMISS", value));
+            _ctx.Factory.AddBooleanField(stack, "Clutch (HP ≤ 25%)", HasTrigger(action, "IFCLUTCH"), (value) => SetTrigger(action, "IFCLUTCH", value));
+            _ctx.Factory.AddBooleanField(stack, "Same Action (Mirror)", HasTrigger(action, "IFSAMESACTION"), (value) => SetTrigger(action, "IFSAMESACTION", value));
+            _ctx.Factory.AddBooleanField(stack, "Different Action (Switch-up)", HasTrigger(action, "IFDIFFERENTACTION"), (value) => SetTrigger(action, "IFDIFFERENTACTION", value));
+            _ctx.Factory.AddBooleanField(stack, "Last Enemy (Last Stand)", HasTrigger(action, "IFLASTENEMY"), (value) => SetTrigger(action, "IFLASTENEMY", value));
+            _ctx.Factory.AddBooleanField(stack, "Source Under DoT", HasTrigger(action, "IFSOURCEUNDERDOT"), (value) => SetTrigger(action, "IFSOURCEUNDERDOT", value));
+            _ctx.Factory.AddBooleanField(stack, "Target Under DoT", HasTrigger(action, "IFTARGETUNDERDOT"), (value) => SetTrigger(action, "IFTARGETUNDERDOT", value));
+            void SetPrefixedTrigger(string prefix, string value)
+            {
+                action.TriggerConditions ??= new List<string>();
+                action.TriggerConditions.RemoveAll(c => c.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+                if (string.IsNullOrWhiteSpace(value))
+                    return;
+                foreach (var part in value.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    string arg = part.Trim();
+                    if (arg.Length == 0) continue;
+                    string token = $"{prefix}:{arg}";
+                    var parsed = ActionTriggerGate.ParseTriggerConditionList(token);
+                    foreach (var p in parsed)
+                        if (!action.TriggerConditions.Exists(c => string.Equals(c, p, StringComparison.OrdinalIgnoreCase)))
+                            action.TriggerConditions.Add(p);
+                }
+            }
+            string JoinPrefixed(string prefix) =>
+                action.TriggerConditions == null
+                    ? ""
+                    : string.Join(", ", action.TriggerConditions
+                        .Where(c => c.StartsWith(prefix + ":", StringComparison.OrdinalIgnoreCase))
+                        .Select(c => c.Substring(prefix.Length + 1)));
+            _ctx.Factory.AddFormField(stack, "Source status (poison,burn,…)", JoinPrefixed("IFSOURCESTATUS"),
+                v => SetPrefixedTrigger("IFSOURCESTATUS", v), description: "Comma-separated; OR within list. Also AND with outcomes / other filters.", onTextChanged: v => SetPrefixedTrigger("IFSOURCESTATUS", v));
+            _ctx.Factory.AddFormField(stack, "Target status (poison,burn,…)", JoinPrefixed("IFTARGETSTATUS"),
+                v => SetPrefixedTrigger("IFTARGETSTATUS", v), description: "Comma-separated statuses required on the target (OR).", onTextChanged: v => SetPrefixedTrigger("IFTARGETSTATUS", v));
+            _ctx.Factory.AddFormField(stack, "Action tag required", JoinPrefixed("IFACTIONHASTAG"),
+                v => SetPrefixedTrigger("IFACTIONHASTAG", v), description: "Tag synergy: action must have this tag.", onTextChanged: v => SetPrefixedTrigger("IFACTIONHASTAG", v));
+            _ctx.Factory.AddFormField(stack, "Gear tag required", JoinPrefixed("IFGEARHASTAG"),
+                v => SetPrefixedTrigger("IFGEARHASTAG", v), description: "Tag synergy: equipped gear must have this tag.", onTextChanged: v => SetPrefixedTrigger("IFGEARHASTAG", v));
+            _ctx.Factory.AddFormField(stack, "Target tag required", JoinPrefixed("IFTARGETHASTAG"),
+                v => SetPrefixedTrigger("IFTARGETHASTAG", v), description: "Tag synergy: enemy tags must include this.", onTextChanged: v => SetPrefixedTrigger("IFTARGETHASTAG", v));
+            _ctx.Factory.AddFormField(stack, "Source HP at/below (0-1 or %)",
+                JoinPrefixed("IFSOURCEHEALTHBELOW"),
+                v => SetPrefixedTrigger("IFSOURCEHEALTHBELOW", v),
+                description: "e.g. 0.25 or 25 for clutch-style gating (in addition to Clutch checkbox).",
+                onTextChanged: v => SetPrefixedTrigger("IFSOURCEHEALTHBELOW", v));
         }
 
         public void BuildStatusSection(Panel parent, ActionData action)

@@ -12,7 +12,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 {
     /// <summary>
     /// Lets the player choose active audio and balance config patches (local-only). Game settings
-    /// always use the repo default patch.
+    /// always use the repo default patch. Developers can also set the shipped first-run balance
+    /// default via <see cref="ShippedPatchDefaults"/>.
     /// </summary>
     public sealed class PatchesPanelHandler : ISettingsPanelHandler
     {
@@ -33,6 +34,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             var apply = p.FindControl<Button>("ApplyPatchesButton");
             var import = p.FindControl<Button>("ImportPatchButton");
             var export = p.FindControl<Button>("ExportPatchButton");
+            var setShipped = p.FindControl<Button>("SetShippedDefaultBalanceButton");
             if (refresh != null)
                 refresh.Click += (_, _) => LoadSettings(panel);
             if (apply != null)
@@ -41,6 +43,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 import.Click += async (_, _) => await ImportPatchAsync(p);
             if (export != null)
                 export.Click += async (_, _) => await ExportPatchAsync(p);
+            if (setShipped != null)
+                setShipped.Click += (_, _) => SetShippedDefaultBalance(p);
 
             LoadSettings(panel);
         }
@@ -54,25 +58,55 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
             var gsLabel = p.FindControl<TextBlock>("GameSettingsPatchLabel");
             if (gsLabel != null)
-                gsLabel.Text = $"local — {GeneralSettingsStore.GetFilePath()}";
+                gsLabel.Text = "Local only";
 
             PopulateCombo(p.FindControl<ComboBox>("AudioPatchCombo"), PatchCategory.Audio, profile.ActiveAudioPatch);
             PopulateCombo(p.FindControl<ComboBox>("BalancePatchCombo"), PatchCategory.Balance, profile.ActiveBalancePatch);
 
-            var pathsBlock = p.FindControl<TextBlock>("ActivePathsTextBlock");
-            if (pathsBlock != null)
-            {
-                pathsBlock.Text =
-                    $"General settings: {GeneralSettingsStore.GetFilePath()}\n" +
-                    $"Audio patch: {PatchProfileService.GetActivePatchFilePath(PatchCategory.Audio)}\n" +
-                    $"Balance: {PatchProfileService.GetActivePatchFilePath(PatchCategory.Balance)}\n" +
-                    $"Profile: {PatchProfileService.GetProfileFilePath()}";
-            }
+            string shippedBalance = ShippedPatchDefaults.Load().DefaultBalancePatch;
+            PopulateCombo(p.FindControl<ComboBox>("ShippedDefaultBalanceCombo"), PatchCategory.Balance, shippedBalance);
+
+            SetPathLabel(p, "GeneralSettingsPathLabel", GeneralSettingsStore.GetFilePath());
+            SetPathLabel(p, "AudioPatchPathLabel", PatchProfileService.GetActivePatchFilePath(PatchCategory.Audio));
+            SetPathLabel(p, "BalancePatchPathLabel", PatchProfileService.GetActivePatchFilePath(PatchCategory.Balance));
+            SetPathLabel(p, "FirstRunDefaultPathLabel", ShippedPatchDefaults.ResolveDefaultBalancePatchName());
+            SetPathLabel(p, "ShippedDefaultsPathLabel", ShippedPatchDefaults.GetFilePath());
+            SetPathLabel(p, "ProfilePathLabel", PatchProfileService.GetProfileFilePath());
         }
 
         public void SaveSettings(UserControl panel)
         {
             // Selection is applied immediately via Apply; nothing to persist on global Save.
+        }
+
+        private void SetShippedDefaultBalance(PatchesSettingsPanel panel)
+        {
+            try
+            {
+                var combo = panel.FindControl<ComboBox>("ShippedDefaultBalanceCombo");
+                if (combo?.SelectedItem is not string selected || string.IsNullOrWhiteSpace(selected))
+                {
+                    showStatusMessage?.Invoke("Select a balance patch for the first-run default.", false);
+                    return;
+                }
+
+                ShippedPatchDefaults.SetDefaultBalancePatch(selected);
+                showStatusMessage?.Invoke(
+                    $"Shipped first-run balance default set to \"{selected}\". Commit ShippedPatchDefaults.json for releases.",
+                    true);
+                LoadSettings(panel);
+            }
+            catch (Exception ex)
+            {
+                showStatusMessage?.Invoke($"Could not set shipped default: {ex.Message}", false);
+            }
+        }
+
+        private static void SetPathLabel(PatchesSettingsPanel panel, string controlName, string? value)
+        {
+            var label = panel.FindControl<TextBlock>(controlName);
+            if (label != null)
+                label.Text = value ?? string.Empty;
         }
 
         private static void PopulateCombo(ComboBox? combo, PatchCategory category, string activeName)

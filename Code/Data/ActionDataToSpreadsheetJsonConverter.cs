@@ -26,6 +26,23 @@ namespace RPGGame.Data
             row.Tier = data.Tier;
             row.Cadence = data.Cadence ?? "";
             row.Duration = data.ComboBonusDuration > 0 ? data.ComboBonusDuration.ToString() : (baseRow?.Duration ?? "");
+
+            // Prefer CADENCES triples from editor blocks; clear legacy compact cells when present
+            var cadenceBlocks = ActionCadenceEditorSync.LoadBlocks(data);
+            if (cadenceBlocks.Count > 0 && cadenceBlocks.Any(b => b.Mechanics.Count > 0))
+            {
+                var sheetData = new SpreadsheetActionData();
+                ActionCadenceSheetColumns.ApplyBundlesToSpreadsheetRow(sheetData, cadenceBlocks);
+                row.CadenceBundlesJson = sheetData.CadenceBundlesJson;
+                row.Cadence = "";
+                row.Duration = "";
+                row.Mechanics = "";
+            }
+            else
+            {
+                row.CadenceBundlesJson = baseRow?.CadenceBundlesJson ?? "";
+            }
+
             row.SpeedMod = data.SpeedMod ?? baseRow?.SpeedMod ?? "";
             row.DamageMod = data.DamageMod ?? baseRow?.DamageMod ?? "";
             row.MultiHitMod = data.MultiHitMod ?? baseRow?.MultiHitMod ?? "";
@@ -34,6 +51,10 @@ namespace RPGGame.Data
             row.EnemyDamageMod = data.EnemyDamageMod ?? baseRow?.EnemyDamageMod ?? "";
             row.EnemyMultiHitMod = data.EnemyMultiHitMod ?? baseRow?.EnemyMultiHitMod ?? "";
             row.EnemyAmpMod = data.EnemyAmpMod ?? baseRow?.EnemyAmpMod ?? "";
+            row.WeaponSpeedMod = data.WeaponSpeedMod ?? baseRow?.WeaponSpeedMod ?? "";
+            row.WeaponDamageMod = data.WeaponDamageMod ?? baseRow?.WeaponDamageMod ?? "";
+            row.EnemyWeaponSpeedMod = data.EnemyWeaponSpeedMod ?? baseRow?.EnemyWeaponSpeedMod ?? "";
+            row.EnemyWeaponDamageMod = data.EnemyWeaponDamageMod ?? baseRow?.EnemyWeaponDamageMod ?? "";
             row.ChainPosition = data.ChainPosition ?? baseRow?.ChainPosition ?? "";
             row.ModifyBasedOnChainPosition = data.ModifyBasedOnChainPosition ?? baseRow?.ModifyBasedOnChainPosition ?? "";
             row.Jump = data.Jump ?? baseRow?.Jump ?? "";
@@ -43,6 +64,7 @@ namespace RPGGame.Data
             row.ResetBlockerBuffer = data.ResetBlockerBuffer ?? baseRow?.ResetBlockerBuffer ?? "";
             row.Opener = data.IsOpener ? "true" : (baseRow?.Opener ?? "");
             row.Finisher = data.IsFinisher ? "true" : (baseRow?.Finisher ?? "");
+            row.ReservePool = data.IsReservePool ? "true" : (baseRow?.ReservePool ?? "");
 
             row.Damage = FormatDamage(data.DamageMultiplier);
             row.Speed = data.Length.ToString("F2");
@@ -60,6 +82,33 @@ namespace RPGGame.Data
 
             // Always use edited TriggerConditions so clearing them persists (no baseRow fallback when empty)
             row.TriggerConditions = data.TriggerConditions != null && data.TriggerConditions.Count > 0 ? string.Join(", ", data.TriggerConditions) : "";
+            row.OnRollValue = data.ExactRollTriggerValue > 0 ? data.ExactRollTriggerValue.ToString() : "";
+            if (data.RoomsClearedTriggerValue > 0)
+                row.OnRoomsCleared = data.RoomsClearedTriggerValue.ToString();
+            else if (data.TriggerConditions != null
+                     && data.TriggerConditions.Exists(c => c.StartsWith("ONROOMSCLEARED", StringComparison.OrdinalIgnoreCase)))
+                row.OnRoomsCleared = "true";
+            else
+                row.OnRoomsCleared = "";
+
+            if (data.TriggerBundles != null && data.TriggerBundles.Count > 0)
+            {
+                var sheetData = new SpreadsheetActionData();
+                ActionTriggerSheetColumns.ApplyBundlesToSpreadsheetRow(sheetData, data.TriggerBundles);
+                row.TriggerBundlesJson = sheetData.TriggerBundlesJson;
+                row.OnHit = sheetData.OnHit;
+                row.OnMiss = sheetData.OnMiss;
+                row.OnCrit = sheetData.OnCrit;
+                row.OnKill = sheetData.OnKill;
+                if (!string.IsNullOrEmpty(sheetData.OnRoomsCleared))
+                    row.OnRoomsCleared = sheetData.OnRoomsCleared;
+                if (!string.IsNullOrEmpty(sheetData.OnRollValue))
+                    row.OnRollValue = sheetData.OnRollValue;
+            }
+            else
+            {
+                row.TriggerBundlesJson = baseRow?.TriggerBundlesJson ?? "";
+            }
 
             // Roll bonuses: ActionData is source of truth (zero → "" so save does not resurrect baseRow values)
             row.HeroAccuracy = data.RollBonus != 0 ? data.RollBonus.ToString() : "";
@@ -154,6 +203,9 @@ namespace RPGGame.Data
                 : "";
 
             var spreadsheetRow = row.ToSpreadsheetActionData();
+            // Preserve CADENCES triples through SyncRow
+            if (!string.IsNullOrWhiteSpace(row.CadenceBundlesJson))
+                spreadsheetRow.CadenceBundlesJson = row.CadenceBundlesJson;
             ActionMechanicsSheetSync.SyncRow(spreadsheetRow);
             return SpreadsheetActionJson.FromSpreadsheetActionData(spreadsheetRow);
         }
