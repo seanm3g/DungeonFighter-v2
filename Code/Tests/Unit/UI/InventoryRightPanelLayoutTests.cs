@@ -27,10 +27,10 @@ namespace RPGGame.Tests.Unit.UI
 
             TestBase.AssertTrue(InventoryRightPanelLayout.TryGetActionPoolRowY(emptyCombo, 0, out int y0),
                 "pool row 0", ref run, ref passed, ref failed);
-            TestBase.AssertEqual(14, y0, "empty combo pool index 0 row", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(12, y0, "empty combo pool index 0 row matches renderer", ref run, ref passed, ref failed);
             TestBase.AssertTrue(InventoryRightPanelLayout.TryGetActionPoolRowY(emptyCombo, 1, out int y1),
                 "pool row 1", ref run, ref passed, ref failed);
-            TestBase.AssertEqual(15, y1, "empty combo pool index 1 row", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(13, y1, "empty combo pool index 1 row matches renderer", ref run, ref passed, ref failed);
             TestBase.AssertTrue(!InventoryRightPanelLayout.TryGetActionPoolRowY(emptyCombo, 2, out _),
                 "pool index OOB", ref run, ref passed, ref failed);
             TestBase.AssertTrue(!InventoryRightPanelLayout.TryGetActionPoolRowY(emptyCombo, -1, out _),
@@ -46,7 +46,7 @@ namespace RPGGame.Tests.Unit.UI
 
             TestBase.AssertTrue(InventoryRightPanelLayout.TryGetActionPoolRowY(withCombo, 0, out int yCombo0),
                 "combo pool row 0", ref run, ref passed, ref failed);
-            TestBase.AssertEqual(15, yCombo0, "one combo line shifts pool row down", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(13, yCombo0, "one combo line shifts pool row down", ref run, ref passed, ref failed);
 
             int anchor = LayoutConstants.RIGHT_PANEL_X;
             int boxW = 52;
@@ -60,11 +60,16 @@ namespace RPGGame.Tests.Unit.UI
             ActionLoader.LoadActions();
             var bagActionCharacter = TestDataBuilders.Character().WithName("LayoutInvPool").Build();
             bagActionCharacter.Inventory.Clear();
+            // Two gear-pool actions so inventory section Y can be checked against the renderer formula.
+            bagActionCharacter.AddAction(TestDataBuilders.CreateMockAction("POOL_A"), 1.0);
+            bagActionCharacter.AddAction(TestDataBuilders.CreateMockAction("POOL_B"), 1.0);
             var bagHead = TestDataBuilders.Armor().WithType(ItemType.Head).Build();
             bagHead.GearAction = "JAB";
             bagActionCharacter.Inventory.Add(bagHead);
             TestBase.AssertTrue(InventoryRightPanelLayout.TryGetInventoryActionPoolRowY(bagActionCharacter, 0, out int invY0),
                 "inventory pool row 0", ref run, ref passed, ref failed);
+            // empty combo + 2 pool rows: pool0@12, then spacing/INVENTORY headers/Total → inv0@20
+            TestBase.AssertEqual(20, invY0, "inventory pool row 0 matches renderer", ref run, ref passed, ref failed);
             TestBase.AssertTrue(invY0 > y0, "inventory pool row appears below gear pool rows", ref run, ref passed, ref failed);
             TestBase.AssertTrue(!InventoryRightPanelLayout.TryGetInventoryActionPoolRowY(bagActionCharacter, 99, out _),
                 "inventory pool index OOB", ref run, ref passed, ref failed);

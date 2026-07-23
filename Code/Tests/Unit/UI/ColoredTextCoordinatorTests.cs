@@ -66,8 +66,8 @@ namespace RPGGame.Tests.Unit.UI
                 coordinator.WriteLineColoredSegments(line, UIMessageType.Title);
             }
 
-            TestBase.AssertEqual(6, textManager.DisplayBuffer.Count,
-                "Exit choice menu should write all six lines including blanks",
+            TestBase.AssertEqual(5, textManager.DisplayBuffer.Count,
+                "Exit choice menu should write all five lines including the leading blank",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("", textManager.DisplayBuffer[0],
                 "Leading blank before top divider must not be swallowed (consumable path has no room-cleared spacer)",
@@ -75,8 +75,8 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, textManager.DisplayBuffer[1],
                 "Top divider should follow the leading blank",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("", textManager.DisplayBuffer[4],
-                "Blank before bottom divider must not be swallowed",
+            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, textManager.DisplayBuffer[4],
+                "Bottom divider should sit flush under option 2 (no blank between)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

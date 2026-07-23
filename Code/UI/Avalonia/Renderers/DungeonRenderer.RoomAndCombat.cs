@@ -227,8 +227,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (player == null)
                 return;
 
-            // Action-pool hover tooltip is drawn in RightPanelRenderer after pool rows (correct z-order).
-            if (RightPanelActionHoverState.HoveredPoolIndex >= 0)
+            // Gear/bag pool hover tooltips are drawn in RightPanelRenderer after pool rows (correct z-order).
+            // Must skip both: inventory strip paint runs after the right panel and would ClearInnerCenterPanelTooltipOverlay,
+            // wiping the item tooltip and leaving straddling overlay fragments in the right column.
+            if (RightPanelActionHoverState.HoveredPoolIndex >= 0
+                || RightPanelActionHoverState.HoveredInventoryPoolIndex >= 0)
                 return;
 
             int innerLeft = LayoutConstants.CENTER_PANEL_X + 1;

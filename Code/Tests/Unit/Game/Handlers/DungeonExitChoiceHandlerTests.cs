@@ -76,8 +76,8 @@ namespace RPGGame.Tests.Unit.Game.Handlers
 
             var lines = DungeonExitChoiceHandler.BuildExitChoiceMenuLines();
 
-            TestBase.AssertEqual(6, lines.Count,
-                "Exit choice menu should contain blank line, top divider, two options, blank line, and bottom divider",
+            TestBase.AssertEqual(5, lines.Count,
+                "Exit choice menu should contain blank line, top divider, two options, and bottom divider",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             TestBase.AssertEqual("", GetPlainText(lines[0]),
@@ -92,11 +92,8 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             TestBase.AssertTrue(GetPlainText(lines[3]).Contains("2 - Leave the dungeon"),
                 "Exit choice menu should draw leave option after continue option",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("", GetPlainText(lines[4]),
-                "Exit choice menu should keep a blank line before the bottom divider",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, GetPlainText(lines[5]),
-                "Exit choice menu should draw a divider below both options",
+            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, GetPlainText(lines[4]),
+                "Exit choice menu should draw a divider immediately below both options",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

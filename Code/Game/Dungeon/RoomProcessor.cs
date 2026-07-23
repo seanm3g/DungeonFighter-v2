@@ -272,7 +272,8 @@ namespace RPGGame
                 var searchMessageColored = DungeonNarrativeColoredText.FormatSearchResult(searchResult);
                 string searchMessageMarkup = ColoredTextRenderer.RenderAsMarkup(searchMessageColored);
                 displayManager.AddCombatEvent(searchMessageMarkup, stateManager.CurrentPlayer, UIMessageType.Environmental);
-                displayManager.AddCombatEvent("", stateManager.CurrentPlayer); // Blank line after search message
+                // No trailing blank after search: the exit menu owns the single blank before its top divider.
+                // When a consumable is used, insert one blank between the find line and the eat/drink line.
                 
                 // Room search finds food/potions only — consumed immediately (not added to inventory).
                 if (searchResult.FoundLoot && searchResult.LootItem != null)
@@ -282,6 +283,7 @@ namespace RPGGame
                     if (SearchConsumableUseService.ApplyImmediately(stateManager.CurrentPlayer, searchResult.LootItem, out string consumeMsg)
                         && !string.IsNullOrWhiteSpace(consumeMsg))
                     {
+                        displayManager.AddCombatEvent("", stateManager.CurrentPlayer);
                         var consumeColored = KeywordColorSystem.Colorize(consumeMsg);
                         string consumeMarkup = ColoredTextRenderer.RenderAsMarkup(consumeColored);
                         displayManager.AddCombatEvent(consumeMarkup, stateManager.CurrentPlayer, UIMessageType.Environmental);

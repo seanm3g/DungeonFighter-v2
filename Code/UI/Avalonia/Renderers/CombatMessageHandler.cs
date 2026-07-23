@@ -118,8 +118,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 textManager.AddToDisplayBuffer(AsciiArtAssets.UIText.RoomClearedMessage, UIMessageType.Title);
             }
-            // Keep separation before follow-up prompts without drawing a second divider.
-            textManager.AddToDisplayBuffer("", UIMessageType.Title);
+            // Exit menu owns the single blank before its top divider — do not add a trailing blank here.
             
             // Record that room cleared was displayed
             TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.RoomCleared);
