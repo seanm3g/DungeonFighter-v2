@@ -21,7 +21,8 @@ namespace RPGGame.Actions.Conditional
                 or "IFACTIONHASTAG" or "IFGEARHASTAG" or "IFTARGETHASTAG"
                 or "IFSOURCESTATUS" or "IFTARGETSTATUS"
                 or "IFSOURCEUNDERDOT" or "IFTARGETUNDERDOT"
-                or "IFLASTENEMY" or "IFLASTSTAND";
+                or "IFLASTENEMY" or "IFLASTSTAND"
+                or "IFSLOT" or "IFUNARMED" or "IFCLASSTAG";
 
         public static bool TryClassifyFilter(string raw, out string family, out string? arg)
         {
@@ -80,15 +81,23 @@ namespace RPGGame.Actions.Conditional
 
             Actor? source = combatEvent?.Source;
             Actor? target = combatEvent?.Target;
+            // Item procs pass a synthetic carrier (ItemProc:…); swing identity lives on the event.
+            Action subject = ResolveSwingSubject(action, combatEvent);
 
             foreach (var kv in byFamily)
             {
-                if (!FamilyPasses(kv.Key, kv.Value, source, target, action, combatEvent))
+                if (!FamilyPasses(kv.Key, kv.Value, source, target, subject, combatEvent))
                     return false;
             }
 
             return true;
         }
+
+        /// <summary>
+        /// Action used for name/tag/mirror filters: combat swing when present, else the evaluated action.
+        /// </summary>
+        public static Action ResolveSwingSubject(Action action, CombatEvent? combatEvent) =>
+            combatEvent?.Action ?? action;
 
         private static bool FamilyPasses(
             string family,
@@ -108,7 +117,7 @@ namespace RPGGame.Actions.Conditional
                 "IFCLUTCH" => HealthBelow(source, args.FirstOrDefault() ?? "0.25"),
                 "IFSAMESACTION" => MatchesSameAction(source, action),
                 "IFDIFFERENTACTION" => MatchesDifferentAction(source, action),
-                "IFACTIONHASTAG" => args.Any(a => ActionHasTag(action, a)),
+                "IFACTIONHASTAG" => args.Any(a => ActionHasTag(source, action, a)),
                 "IFGEARHASTAG" => args.Any(a => GearHasTag(source, a)),
                 "IFTARGETHASTAG" => args.Any(a => TargetHasTag(target, a)),
                 "IFSOURCESTATUS" => args.Any(a => HasStatus(source, a)),
@@ -116,6 +125,9 @@ namespace RPGGame.Actions.Conditional
                 "IFSOURCEUNDERDOT" => HasAnyDot(source),
                 "IFTARGETUNDERDOT" => HasAnyDot(target),
                 "IFLASTENEMY" => CombatTriggerContext.LivingEnemyCountAtFightStart == 1,
+                "IFSLOT" => args.Any(a => MatchesComboSlot(source, a)),
+                "IFUNARMED" => source is Character c && c.Weapon == null,
+                "IFCLASSTAG" => args.Any(a => ClassTagMatches(source, a)),
                 _ => false
             };
         }
@@ -149,21 +161,91 @@ namespace RPGGame.Actions.Conditional
             return !string.Equals(prev, action.Name, StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool ActionHasTag(Action action, string? tag) =>
-            !string.IsNullOrWhiteSpace(tag)
-            && action.Tags != null
-            && action.Tags.Any(t => string.Equals(t, tag, StringComparison.OrdinalIgnoreCase));
+        private static bool ActionHasTag(Actor? source, Action action, string? tag) =>
+            SubjectHasTag(source, action, tag);
+
+        /// <summary>
+        /// True when the subject action has <paramref name="tag"/> on its sheet tags
+        /// or via character <see cref="Character.EquipmentGrantedActionTags"/> overlay.
+        /// </summary>
+        public static bool SubjectHasTag(Actor? source, Action action, string? tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag) || action == null)
+                return false;
+            if (action.Tags != null
+                && action.Tags.Any(t => string.Equals(t, tag, StringComparison.OrdinalIgnoreCase)))
+                return true;
+            if (source is Character character
+                && character.EquipmentGrantedActionTags != null
+                && character.EquipmentGrantedActionTags.Any(t =>
+                    string.Equals(t, tag, StringComparison.OrdinalIgnoreCase)))
+                return true;
+            return false;
+        }
+
+        private static bool MatchesComboSlot(Actor? source, string? arg)
+        {
+            if (source is not Character character || string.IsNullOrWhiteSpace(arg))
+                return false;
+            if (!int.TryParse(arg.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int oneBased)
+                || oneBased < 1)
+                return false;
+            var combo = character.GetComboActions();
+            if (combo == null || combo.Count == 0)
+                return false;
+            int currentOneBased = (character.ComboStep % combo.Count) + 1;
+            return currentOneBased == oneBased;
+        }
+
+        private static bool ClassTagMatches(Actor? source, string? arg)
+        {
+            if (source is not Character || string.IsNullOrWhiteSpace(arg))
+                return false;
+            // Class tag on filter matches if any equipped item carries that tag (item class identity),
+            // or the hero's equipped weapon path class display name matches.
+            string want = arg.Trim();
+            if (GearHasTag(source, want))
+                return true;
+            if (source is Character hero && hero.Weapon is WeaponItem w)
+            {
+                var cp = GameConfiguration.Instance?.ClassPresentation ?? new ClassPresentationConfig();
+                string className = cp.GetDisplayName(w.WeaponType);
+                return string.Equals(className, want, StringComparison.OrdinalIgnoreCase);
+            }
+            return false;
+        }
 
         private static bool GearHasTag(Actor? source, string? tag)
         {
             if (string.IsNullOrWhiteSpace(tag) || source is not Character character)
                 return false;
 
-            return ItemHasTag(character.Weapon, tag)
-                || ItemHasTag(character.Body, tag)
-                || ItemHasTag(character.Head, tag)
-                || ItemHasTag(character.Feet, tag)
-                || ItemHasTag(character.Legs, tag);
+            // Optional count quantifier: gold:count>=2
+            string tagOnly = tag;
+            int? minCount = null;
+            int countSep = tag.IndexOf(":count>=", StringComparison.OrdinalIgnoreCase);
+            if (countSep < 0)
+                countSep = tag.IndexOf(":COUNT>=", StringComparison.OrdinalIgnoreCase);
+            if (countSep > 0)
+            {
+                tagOnly = tag.Substring(0, countSep);
+                string rest = tag.Substring(countSep);
+                int ge = rest.IndexOf(">=", StringComparison.Ordinal);
+                if (ge >= 0
+                    && int.TryParse(rest.Substring(ge + 2).Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int n)
+                    && n > 0)
+                    minCount = n;
+            }
+
+            int count = 0;
+            if (ItemHasTag(character.Weapon, tagOnly)) count++;
+            if (ItemHasTag(character.Body, tagOnly)) count++;
+            if (ItemHasTag(character.Head, tagOnly)) count++;
+            if (ItemHasTag(character.Feet, tagOnly)) count++;
+            if (ItemHasTag(character.Legs, tagOnly)) count++;
+            if (minCount.HasValue)
+                return count >= minCount.Value;
+            return count > 0;
         }
 
         private static bool ItemHasTag(Item? item, string tag) =>

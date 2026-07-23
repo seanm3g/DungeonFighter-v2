@@ -17,9 +17,23 @@ namespace RPGGame.Tests.Unit.Data
             TestSkipsEmptyRequired(ref testsRun, ref testsPassed, ref testsFailed);
             TestMissingTabMessage(ref testsRun, ref testsPassed, ref testsFailed);
             TestCaseSensitive(ref testsRun, ref testsPassed, ref testsFailed);
+            TestBuildTabEditUrl(ref testsRun, ref testsPassed, ref testsFailed);
             TestLoadPushConfigWithSheetsIdSync(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("SheetsPushPreflight Tests", testsRun, testsPassed, testsFailed);
+        }
+
+        private static void TestBuildTabEditUrl(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestBuildTabEditUrl));
+            string url = SheetsPushPreflight.BuildTabEditUrl("1bN3vmkQGdbO_4TkdgRXy_5KeuxUAcPtuarzSOOAyArc", 42970568);
+            TestBase.AssertEqual(
+                "https://docs.google.com/spreadsheets/d/1bN3vmkQGdbO_4TkdgRXy_5KeuxUAcPtuarzSOOAyArc/edit?gid=42970568",
+                url,
+                "triggers gid link",
+                ref testsRun,
+                ref testsPassed,
+                ref testsFailed);
         }
 
         private static void TestAllPresent(ref int testsRun, ref int testsPassed, ref int testsFailed)

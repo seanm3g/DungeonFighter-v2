@@ -28,7 +28,7 @@ namespace RPGGame.Data
                 {
                     cfg.Save(pushConfigPath);
                     result.AddLine(
-                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, Prefix (Modifications.json + PrefixMaterialQuality.json), ARMOR, SUFFIXES, CONSUMABLES, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES, CLASS ACTIONS, flavor " +
+                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, Prefix (Modifications.json + PrefixMaterialQuality.json), ARMOR, SUFFIXES, CONSUMABLES, triggers, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES, CLASS ACTIONS, flavor " +
                         "(all optional tabs were blank). Edit the file if your sheet uses different tab titles.");
                 }
                 catch (Exception ex)
@@ -101,6 +101,22 @@ namespace RPGGame.Data
                 }
             }
 
+            if (cfg.ApplyDefaultTriggersTabNameIfUnset())
+            {
+                try
+                {
+                    cfg.Save(pushConfigPath);
+                    result.AddLine(
+                        "Set default triggers tab name in SheetsPushConfig.json (triggersSheetTabName was blank). " +
+                        "Edit if your spreadsheet uses a different tab title.");
+                }
+                catch (Exception ex)
+                {
+                    result.AddLine(
+                        $"Note: could not save SheetsPushConfig after triggers default ({ex.Message}); push still uses that tab name for this run.");
+                }
+            }
+
             if (cfg.ApplyDefaultClassActionsTabNameIfUnset())
             {
                 try
@@ -136,7 +152,7 @@ namespace RPGGame.Data
             var service = await SheetsPushUtilities.CreateAuthorizedSheetsServiceAsync(cfg, pushConfigPath, cancellationToken)
                 .ConfigureAwait(false);
 
-            await SheetsPushPreflight.EnsureSpreadsheetAccessAndTabsAsync(
+            IReadOnlyDictionary<string, int> tabGids = await SheetsPushPreflight.EnsureSpreadsheetAccessAndTabsAsync(
                     service,
                     cfg.SpreadsheetId,
                     CollectRequiredTabNamesForPush(cfg),
@@ -147,9 +163,11 @@ namespace RPGGame.Data
             {
                 var actionOutcome = await ActionSheetsPushService.PushActionsWithServiceAsync(service, cfg, pushConfigPath, null, cancellationToken)
                     .ConfigureAwait(false);
+                string actionsTab = cfg.ActionsSheetTabName.Trim();
+                string actionsOpen = FormatOpenTabHint(cfg.SpreadsheetId, tabGids, actionsTab);
                 result.AddLine(
-                    $"Actions tab '{cfg.ActionsSheetTabName.Trim()}': {actionOutcome.DataRowCount} data row(s) written starting at row {actionOutcome.FirstDataRowOneBased} " +
-                    $"(API UpdatedRows={actionOutcome.ApiUpdatedRows}, UpdatedCells={actionOutcome.ApiUpdatedCells}).");
+                    $"Actions tab '{actionsTab}': {actionOutcome.DataRowCount} data row(s) written starting at row {actionOutcome.FirstDataRowOneBased} " +
+                    $"(API UpdatedRows={actionOutcome.ApiUpdatedRows}, UpdatedCells={actionOutcome.ApiUpdatedCells}).{actionsOpen}");
             }
             else
                 result.AddLine($"Skipped Actions tab '{cfg.ActionsSheetTabName.Trim()}' (push disabled in SheetsPushConfig).");
@@ -157,6 +175,7 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    tabGids,
                     cfg.PushWeaponsTab,
                     "WEAPONS",
                     cfg.WeaponsSheetTabName,
@@ -170,6 +189,7 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    tabGids,
                     cfg.PushModificationsTab,
                     "PREFIX",
                     cfg.ModificationsSheetTabName,
@@ -185,6 +205,7 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    tabGids,
                     cfg.PushArmorTab,
                     "ARMOR",
                     cfg.ArmorSheetTabName,
@@ -198,6 +219,7 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    tabGids,
                     cfg.PushStatBonusesTab,
                     "SUFFIXES",
                     cfg.StatBonusesSheetTabName,
@@ -211,6 +233,7 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    tabGids,
                     cfg.PushConsumablesTab,
                     "CONSUMABLES",
                     cfg.ConsumablesSheetTabName,
@@ -224,6 +247,21 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    tabGids,
+                    cfg.PushTriggersTab,
+                    "triggers",
+                    cfg.TriggersSheetTabName,
+                    GameConstants.TriggersJson,
+                    GameDataTabularSheetKind.Triggers,
+                    "Triggers.json",
+                    result,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            await PushOptionalJsonArrayTabAsync(
+                    service,
+                    cfg,
+                    tabGids,
                     cfg.PushEnemiesTab,
                     "ENEMIES",
                     cfg.EnemiesSheetTabName,
@@ -237,6 +275,7 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    tabGids,
                     cfg.PushEnvironmentsTab,
                     "ENVIRONMENTS",
                     cfg.EnvironmentsSheetTabName,
@@ -250,6 +289,7 @@ namespace RPGGame.Data
             await PushOptionalJsonArrayTabAsync(
                     service,
                     cfg,
+                    tabGids,
                     cfg.PushDungeonsTab,
                     "DUNGEONS",
                     cfg.DungeonsSheetTabName,
@@ -260,11 +300,11 @@ namespace RPGGame.Data
                     cancellationToken)
                 .ConfigureAwait(false);
 
-            await PushOptionalClassPresentationTabAsync(service, cfg, result, cancellationToken).ConfigureAwait(false);
+            await PushOptionalClassPresentationTabAsync(service, cfg, tabGids, result, cancellationToken).ConfigureAwait(false);
 
-            await PushOptionalClassActionsTabAsync(service, cfg, result, cancellationToken).ConfigureAwait(false);
+            await PushOptionalClassActionsTabAsync(service, cfg, tabGids, result, cancellationToken).ConfigureAwait(false);
 
-            await PushOptionalFlavorTabAsync(service, cfg, result, cancellationToken).ConfigureAwait(false);
+            await PushOptionalFlavorTabAsync(service, cfg, tabGids, result, cancellationToken).ConfigureAwait(false);
 
             return result;
         }
@@ -289,6 +329,9 @@ namespace RPGGame.Data
             if (cfg.PushConsumablesTab && !string.IsNullOrWhiteSpace(cfg.ConsumablesSheetTabName))
                 yield return cfg.ConsumablesSheetTabName.Trim();
 
+            if (cfg.PushTriggersTab && !string.IsNullOrWhiteSpace(cfg.TriggersSheetTabName))
+                yield return cfg.TriggersSheetTabName.Trim();
+
             if (cfg.PushEnemiesTab && !string.IsNullOrWhiteSpace(cfg.EnemiesSheetTabName))
                 yield return cfg.EnemiesSheetTabName.Trim();
 
@@ -308,9 +351,20 @@ namespace RPGGame.Data
                 yield return cfg.FlavorSheetTabName.Trim();
         }
 
+        private static string FormatOpenTabHint(
+            string spreadsheetId,
+            IReadOnlyDictionary<string, int> tabGids,
+            string tabName)
+        {
+            if (tabGids.TryGetValue(tabName, out int gid))
+                return " Open: " + SheetsPushPreflight.BuildTabEditUrl(spreadsheetId, gid);
+            return "";
+        }
+
         private static async Task PushOptionalJsonArrayTabAsync(
             SheetsService service,
             SheetsPushConfig cfg,
+            IReadOnlyDictionary<string, int> tabGids,
             bool pushThisTab,
             string pushKindLabel,
             string? sheetTabName,
@@ -354,7 +408,7 @@ namespace RPGGame.Data
             var rows = JsonArraySheetConverter.BuildPushValueRows(jsonText, kind);
             int headerRows = JsonArraySheetConverter.GetTabularSheetHeaderRowCount(kind);
             int dataRows = Math.Max(0, rows.Count - headerRows);
-            await PushRowsAtA1Async(
+            var (apiUpdatedRows, apiUpdatedCells) = await PushRowsAtA1Async(
                     service,
                     cfg.SpreadsheetId,
                     tab,
@@ -377,12 +431,16 @@ namespace RPGGame.Data
             string mergeNote = mergedSecond && !string.IsNullOrWhiteSpace(mergeSecondDisplayName)
                 ? $" Merged {mergeSecondDisplayName}."
                 : "";
-            result.AddLine($"Tab '{tab}': {dataRows} data row(s), {rows[0].Count} column(s), {headerRows} header row(s).{mergeNote}{fileNote}");
+            string openHint = FormatOpenTabHint(cfg.SpreadsheetId, tabGids, tab);
+            result.AddLine(
+                $"Tab '{tab}': {dataRows} data row(s), {rows[0].Count} column(s), {headerRows} header row(s) " +
+                $"(API UpdatedRows={apiUpdatedRows}, UpdatedCells={apiUpdatedCells}).{mergeNote}{fileNote}{openHint}");
         }
 
         private static async Task PushOptionalClassPresentationTabAsync(
             SheetsService service,
             SheetsPushConfig cfg,
+            IReadOnlyDictionary<string, int> tabGids,
             GameDataSheetsPushResult result,
             CancellationToken cancellationToken)
         {
@@ -417,15 +475,19 @@ namespace RPGGame.Data
                 pres = new ClassPresentationConfig();
 
             var rows = ClassPresentationSheetConverter.BuildPushValueRows(pres);
-            await PushRowsAtA1Async(service, cfg.SpreadsheetId, tab, rows, headerRowCount: 1, cancellationToken).ConfigureAwait(false);
+            var (apiUpdatedRows, apiUpdatedCells) = await PushRowsAtA1Async(service, cfg.SpreadsheetId, tab, rows, headerRowCount: 1, cancellationToken).ConfigureAwait(false);
 
             string note = File.Exists(tuningPath) ? "" : " TuningConfig.json was not found — pushed default empty classPresentation.";
-            result.AddLine($"Tab '{tab}' (class presentation): 1 payload row + header.{note}");
+            string openHint = FormatOpenTabHint(cfg.SpreadsheetId, tabGids, tab);
+            result.AddLine(
+                $"Tab '{tab}' (class presentation): 1 payload row + header " +
+                $"(API UpdatedRows={apiUpdatedRows}, UpdatedCells={apiUpdatedCells}).{note}{openHint}");
         }
 
         private static async Task PushOptionalClassActionsTabAsync(
             SheetsService service,
             SheetsPushConfig cfg,
+            IReadOnlyDictionary<string, int> tabGids,
             GameDataSheetsPushResult result,
             CancellationToken cancellationToken)
         {
@@ -443,14 +505,18 @@ namespace RPGGame.Data
             ClassActionsUnlockConfig unlock = ClassActionsUnlockConfig.TryLoadFromGameDataFile()
                 ?? ClassActionsUnlockConfig.CreateBuiltInDefaults();
             var rows = ClassActionsSheetConverter.BuildPushValueRows(unlock);
-            await PushRowsAtA1Async(service, cfg.SpreadsheetId, tab, rows, headerRowCount: 1, cancellationToken).ConfigureAwait(false);
+            var (apiUpdatedRows, apiUpdatedCells) = await PushRowsAtA1Async(service, cfg.SpreadsheetId, tab, rows, headerRowCount: 1, cancellationToken).ConfigureAwait(false);
             int dataRows = Math.Max(0, rows.Count - 1);
-            result.AddLine($"Tab '{tab}' (class actions): {dataRows} data row(s) + header (from ClassActions.json or built-in defaults).");
+            string openHint = FormatOpenTabHint(cfg.SpreadsheetId, tabGids, tab);
+            result.AddLine(
+                $"Tab '{tab}' (class actions): {dataRows} data row(s) + header (from ClassActions.json or built-in defaults) " +
+                $"(API UpdatedRows={apiUpdatedRows}, UpdatedCells={apiUpdatedCells}).{openHint}");
         }
 
         private static async Task PushOptionalFlavorTabAsync(
             SheetsService service,
             SheetsPushConfig cfg,
+            IReadOnlyDictionary<string, int> tabGids,
             GameDataSheetsPushResult result,
             CancellationToken cancellationToken)
         {
@@ -467,17 +533,20 @@ namespace RPGGame.Data
             string tab = cfg.FlavorSheetTabName.Trim();
             FlavorTextData data = FlavorText.GetData();
             var rows = FlavorTextSheetConverter.BuildPushValueRows(data);
-            await PushRowsAtA1Async(service, cfg.SpreadsheetId, tab, rows, headerRowCount: 1, cancellationToken)
+            var (apiUpdatedRows, apiUpdatedCells) = await PushRowsAtA1Async(service, cfg.SpreadsheetId, tab, rows, headerRowCount: 1, cancellationToken)
                 .ConfigureAwait(false);
             int dataRows = Math.Max(0, rows.Count - 1);
             string? path = FlavorText.GetResolvedFilePath();
             string note = !string.IsNullOrEmpty(path) && File.Exists(path)
                 ? ""
                 : " FlavorText.json was not found — pushed from empty/default banks.";
-            result.AddLine($"Tab '{tab}' (flavor / FlavorText.json): {dataRows} data row(s) + header.{note}");
+            string openHint = FormatOpenTabHint(cfg.SpreadsheetId, tabGids, tab);
+            result.AddLine(
+                $"Tab '{tab}' (flavor / FlavorText.json): {dataRows} data row(s) + header " +
+                $"(API UpdatedRows={apiUpdatedRows}, UpdatedCells={apiUpdatedCells}).{note}{openHint}");
         }
 
-        private static async Task PushRowsAtA1Async(
+        private static async Task<(int? UpdatedRows, int? UpdatedCells)> PushRowsAtA1Async(
             SheetsService service,
             string spreadsheetId,
             string tabName,
@@ -504,7 +573,8 @@ namespace RPGGame.Data
 
             var updateRequest = service.Spreadsheets.Values.Update(valueRange, spreadsheetId, updateRange);
             updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
-            await updateRequest.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+            UpdateValuesResponse response = await updateRequest.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+            return (response.UpdatedRows, response.UpdatedCells);
         }
     }
 }

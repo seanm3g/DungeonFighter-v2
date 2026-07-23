@@ -26,6 +26,15 @@ namespace RPGGame.Actions.Execution
                 // TURN stat bonuses were tentatively applied before the roll (Selection); kept on hit, reverted on miss.
                 turnBonusCharacter.Effects.GetAndClearConsumedTurnBonusesThisRoll();
                 ResolvePendingActionCadenceBonuses(turnBonusCharacter, selected, result);
+                EquippedItemTriggerApplicator.ApplySameSwingDamageMods(
+                    turnBonusCharacter,
+                    target,
+                    selected,
+                    result.NaturalRollValue,
+                    result.ModifiedBaseRoll + result.RollBonus,
+                    result.IsCombo,
+                    result.IsCritical,
+                    result.StatusEffectMessages);
             }
             var hitEvent = ActionEventPublisher.PublishActionHit(
                 source, target, selected, result.AttackRoll, result.IsCombo, result.IsCritical, result.NaturalRollValue);

@@ -19,6 +19,7 @@ namespace RPGGame.Tests.Unit.Data
             JsonSheetConverter.JsonArraySheetConverterDungeonsTests.RunAll(ref run, ref pass, ref fail);
             JsonSheetConverter.JsonArraySheetConverterArmorTests.RunAll(ref run, ref pass, ref fail);
             JsonSheetConverter.JsonArraySheetConverterConsumablesTests.RunAll(ref run, ref pass, ref fail);
+            JsonSheetConverter.JsonArraySheetConverterTriggersTests.RunAll(ref run, ref pass, ref fail);
             TestBase.PrintSummary("JsonArraySheetConverter Tests", run, pass, fail);
         }
     }

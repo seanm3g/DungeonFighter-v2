@@ -69,6 +69,8 @@
                             <TextBox x:Name="StatBonusesTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
                             <TextBlock Text="CONSUMABLES → Consumables.json" FontSize="12" Classes="settings-muted"/>
                             <TextBox x:Name="ConsumablesTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
+                            <TextBlock Text="triggers → Triggers.json (item trigger identities)" FontSize="12" Classes="settings-muted"/>
+                            <TextBox x:Name="TriggersTabGidTextBox" MinHeight="28" Watermark="42970568" FontSize="13" Padding="8" BorderThickness="1"/>
                             <TextBlock Text="ENEMIES → Enemies.json" FontSize="12" Classes="settings-muted"/>
                             <TextBox x:Name="EnemiesTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
                             <TextBlock Text="ENVIRONMENTS → Rooms.json" FontSize="12" Classes="settings-muted"/>
@@ -97,6 +99,7 @@
                                 <CheckBox x:Name="PushArmorTabCheckBox" Content="ARMOR" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushStatBonusesTabCheckBox" Content="SUFFIXES" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushConsumablesTabCheckBox" Content="CONSUMABLES" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushTriggersTabCheckBox" Content="triggers" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushEnemiesTabCheckBox" Content="ENEMIES" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushEnvironmentsTabCheckBox" Content="ENVIRONMENTS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushDungeonsTabCheckBox" Content="DUNGEONS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>

@@ -134,6 +134,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("data", "JsonArraySheetConverterWeapons", RunJsonArraySheetConverterWeapons));
             list.Add(new TestSuiteEntry("data", "ActionCadenceEditorSync", () => RPGGame.Tests.Unit.Data.ActionCadenceEditorSyncTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CadenceCardLineFormatter", () => RPGGame.Tests.Unit.UI.CadenceCardLineFormatterTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ItemTooltipFormatter", () => RPGGame.Tests.Unit.UI.ItemTooltipFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatActionStripBuilder", () => RPGGame.Tests.Unit.UI.CombatActionStripBuilderTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TitleScreenAsciiSpacing", () => RPGGame.Tests.Unit.UI.TitleScreen.TitleScreenAsciiSpacingTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TitleScreenAnimation", () => RPGGame.Tests.Unit.UI.TitleScreen.TitleScreenAnimationTests.RunAllTests()));
@@ -154,6 +155,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "Retrigger", () => RPGGame.Tests.Unit.RetriggerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "RollProbabilityContent", () => RPGGame.Tests.Unit.RollProbabilityContentTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "WeaponModTriggerBridge", () => RPGGame.Tests.Unit.WeaponModTriggerBridgeTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "EquippedItemTrigger", () => RPGGame.Tests.Unit.EquippedItemTriggerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "StunProcessor", () => RPGGame.Tests.Unit.Combat.StunProcessorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("actions", "ActionSpeedSystem", () => RPGGame.Tests.Unit.Actions.ActionSpeedSystemTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "MultiHit", () => RPGGame.Tests.Unit.MultiHitTests.RunAllTests()));

@@ -21,7 +21,7 @@ namespace RPGGame.Actions.Conditional
             "ONMISS", "ONCRITICALMISS", "ONCRITMISS",
             "ONCOMBO", "ONCOMBOHIT", "ONCOMBOEND", "ONCOMBOENDED",
             "ONCRITICAL", "ONCRITICALHIT", "ONCRIT",
-            "ONKILL", "ONROLLVALUE", "ONNATURALROLL",
+            "ONKILL", "ONROLLVALUE", "ONNATURALROLL", "ONEVEN", "ONODD",
             "ONHEALTHTHRESHOLD", "ONENEMYHEALTHTHRESHOLD",
             "ONROOMSCLEARED", "ONROOMCLEARED",
             "ONFIRSTHIT", "ONFIRSTBLOOD", "ONAFTERMISS",
@@ -31,7 +31,8 @@ namespace RPGGame.Actions.Conditional
             "IFSAMESACTION", "IFDIFFERENTACTION", "IFMIRROR", "IFSWITCHUP",
             "IFACTIONHASTAG", "IFGEARHASTAG", "IFTARGETHASTAG",
             "IFSOURCESTATUS", "IFTARGETSTATUS", "IFSOURCEUNDERDOT", "IFTARGETUNDERDOT",
-            "IFLASTENEMY", "IFLASTSTAND"
+            "IFLASTENEMY", "IFLASTSTAND",
+            "IFSLOT", "IFUNARMED", "IFCLASSTAG"
         };
 
         /// <summary>
@@ -62,7 +63,8 @@ namespace RPGGame.Actions.Conditional
             if (!string.IsNullOrWhiteSpace(action.Triggers.RequiredTag))
             {
                 string tag = action.Triggers.RequiredTag!.Trim();
-                if (action.Tags == null || !action.Tags.Contains(tag))
+                Action subject = ActionTriggerPredicates.ResolveSwingSubject(action, combatEvent);
+                if (!ActionTriggerPredicates.SubjectHasTag(combatEvent?.Source, subject, tag))
                     return false;
             }
 
@@ -143,7 +145,8 @@ namespace RPGGame.Actions.Conditional
             if (hasRequiredTag)
             {
                 string tag = action.Triggers.RequiredTag!.Trim();
-                if (action.Tags == null || !action.Tags.Contains(tag))
+                Action subject = ActionTriggerPredicates.ResolveSwingSubject(action, combatEvent);
+                if (!ActionTriggerPredicates.SubjectHasTag(combatEvent?.Source, subject, tag))
                     return false;
             }
 
@@ -185,6 +188,8 @@ namespace RPGGame.Actions.Conditional
                 "ONKILL" => combatEvent.Type == CombatEventType.EnemyDied,
                 "ONROLLVALUE" => MatchesExactRoll(action, combatEvent, arg),
                 "ONNATURALROLL" => MatchesNaturalRoll(action, combatEvent, arg),
+                "ONEVEN" => MatchesRollParity(combatEvent, even: true),
+                "ONODD" => MatchesRollParity(combatEvent, even: false),
                 "ONHEALTHTHRESHOLD" or "ONENEMYHEALTHTHRESHOLD" =>
                     combatEvent.Type == CombatEventType.EnemyHealthThreshold,
                 "ONCOMBOEND" or "ONCOMBOENDED" => combatEvent.Type == CombatEventType.ComboEnded,
@@ -363,8 +368,20 @@ namespace RPGGame.Actions.Conditional
         private static bool IsKnownCanonical(string normalized) =>
             normalized is "ONHIT" or "ONMISS" or "ONCOMBO" or "ONCRITICAL"
                 or "ONCONNECT" or "ONCRITICALMISS" or "ONKILL" or "ONROLLVALUE" or "ONNATURALROLL"
+                or "ONEVEN" or "ONODD"
                 or "ONHEALTHTHRESHOLD" or "ONCOMBOEND" or "ONROOMSCLEARED"
                 or "ONFIRSTHIT" or "ONAFTERMISS";
+
+        private static bool MatchesRollParity(CombatEvent combatEvent, bool even)
+        {
+            int face = combatEvent.NaturalRollValue > 0
+                ? combatEvent.NaturalRollValue
+                : combatEvent.RollValue;
+            if (face <= 0)
+                return false;
+            bool isEven = (face % 2) == 0;
+            return even ? isEven : !isEven;
+        }
 
         private static void AddUnique(List<string> result, string stored)
         {

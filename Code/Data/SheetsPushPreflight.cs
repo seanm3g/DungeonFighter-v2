@@ -13,10 +13,10 @@ namespace RPGGame.Data
     public static class SheetsPushPreflight
     {
         /// <summary>
-        /// Fetches tab titles for <paramref name="spreadsheetId"/>; throws <see cref="InvalidOperationException"/>
-        /// with guidance when the spreadsheet is missing or inaccessible (often HTTP 404).
+        /// Fetches tab title → sheetId (gid) for <paramref name="spreadsheetId"/>; throws
+        /// <see cref="InvalidOperationException"/> when the spreadsheet is missing or inaccessible (often HTTP 404).
         /// </summary>
-        public static async Task<IReadOnlyList<string>> FetchTabTitlesOrThrowAsync(
+        public static async Task<IReadOnlyDictionary<string, int>> FetchTabTitleToSheetIdOrThrowAsync(
             SheetsService service,
             string spreadsheetId,
             CancellationToken cancellationToken)
@@ -24,20 +24,21 @@ namespace RPGGame.Data
             try
             {
                 var req = service.Spreadsheets.Get(spreadsheetId);
-                req.Fields = "sheets(properties/title)";
+                req.Fields = "sheets(properties(title,sheetId))";
                 var meta = await req.ExecuteAsync(cancellationToken).ConfigureAwait(false);
-                var titles = new List<string>();
+                var map = new Dictionary<string, int>(StringComparer.Ordinal);
                 if (meta.Sheets != null)
                 {
                     foreach (var s in meta.Sheets)
                     {
                         string? t = s.Properties?.Title;
-                        if (!string.IsNullOrEmpty(t))
-                            titles.Add(t);
+                        int? id = s.Properties?.SheetId;
+                        if (!string.IsNullOrEmpty(t) && id.HasValue && !map.ContainsKey(t))
+                            map[t] = id.Value;
                     }
                 }
 
-                return titles;
+                return map;
             }
             catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound)
             {
@@ -49,6 +50,24 @@ namespace RPGGame.Data
                     ex);
             }
         }
+
+        /// <summary>
+        /// Fetches tab titles for <paramref name="spreadsheetId"/>; throws <see cref="InvalidOperationException"/>
+        /// with guidance when the spreadsheet is missing or inaccessible (often HTTP 404).
+        /// </summary>
+        public static async Task<IReadOnlyList<string>> FetchTabTitlesOrThrowAsync(
+            SheetsService service,
+            string spreadsheetId,
+            CancellationToken cancellationToken)
+        {
+            var map = await FetchTabTitleToSheetIdOrThrowAsync(service, spreadsheetId, cancellationToken)
+                .ConfigureAwait(false);
+            return map.Keys.ToList();
+        }
+
+        /// <summary>Browser edit URL for one tab (<c>…/edit?gid=…</c>).</summary>
+        public static string BuildTabEditUrl(string spreadsheetId, int sheetId) =>
+            "https://docs.google.com/spreadsheets/d/" + spreadsheetId.Trim() + "/edit?gid=" + sheetId;
 
         /// <summary>Throws if any required tab title is missing (exact match, case-sensitive).</summary>
         public static void EnsureTabsPresent(
@@ -77,15 +96,20 @@ namespace RPGGame.Data
                 "Update actionsSheetTabName and related fields in SheetsPushConfig.json to match tab names exactly (including spaces and capitalization).");
         }
 
-        /// <summary>Fetches metadata then ensures every non-empty required tab exists.</summary>
-        public static async Task EnsureSpreadsheetAccessAndTabsAsync(
+        /// <summary>
+        /// Fetches metadata then ensures every non-empty required tab exists.
+        /// Returns title → sheetId (gid) for building edit links after push.
+        /// </summary>
+        public static async Task<IReadOnlyDictionary<string, int>> EnsureSpreadsheetAccessAndTabsAsync(
             SheetsService service,
             string spreadsheetId,
             IEnumerable<string> requiredTabTitles,
             CancellationToken cancellationToken)
         {
-            var titles = await FetchTabTitlesOrThrowAsync(service, spreadsheetId, cancellationToken).ConfigureAwait(false);
-            EnsureTabsPresent(titles, requiredTabTitles);
+            var map = await FetchTabTitleToSheetIdOrThrowAsync(service, spreadsheetId, cancellationToken)
+                .ConfigureAwait(false);
+            EnsureTabsPresent(map.Keys.ToList(), requiredTabTitles);
+            return map;
         }
     }
 }

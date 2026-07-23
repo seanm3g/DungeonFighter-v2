@@ -193,11 +193,18 @@ The CharacterActions system has been successfully refactored from a 828-line mon
   - Fight-scoped pending routing + shuffle overlay from trigger mechanics
   - Skips disabled slots when advancing
 
-#### Target item combat grammar (design)
-- Always-on equip math: `EquipmentBonusCalculator` / suffixes / quality multipliers
-- Combat procs: WHEN × mechanic × SCOPE shared with actions (bridge live for weapon* DoTs)
-- Future: Sheets PREFIX columns for When/Scope; no StatBonus WHEN in current pass
-- ActionBonuses stay “grant a named action that carries its own triggers”
+- **Target item combat grammar**
+  - Always-on equip math: `EquipmentBonusCalculator` / suffixes / quality multipliers / `ItemEquipEffectApplicator` (`WHILE_EQUIPPED` on `Item.EquipEffects`)
+  - Combat procs: WHEN × mechanic × SCOPE shared with actions
+    - Weapon* DoTs: `Modification.TriggerWhen` (default ONCRITICAL) via `CombatEffectsSimplified`
+    - Base catalog: identities in `Triggers.json` / `TriggersLoader` (facade `ItemTriggerIdentityCatalog`); gear refs via `triggerName`; combat via `EquippedItemTriggerApplicator`; equip via `ItemEquipEffectApplicator`
+    - Item filters use swing `combatEvent.Action` for mirror/tag; carrier holds bundles only
+    - Tokens: `ONEVEN`/`ONODD`, `IFSLOT:N`, `IFUNARMED`, `IFCLASSTAG`; mechanic `hero_action_damage` (same-swing %)
+    - Dice/threshold/accuracy/`crit_face_min` item procs use **TURN** (demos may use **DUNGEON**)
+    - Optional `ActionTriggerBundle.Value` magnitude fallback when sheet fields are empty
+  - Future: Sheets PREFIX columns for When/Scope; no StatBonus WHEN in current pass
+  - ActionBonuses stay “grant a named action that carries its own triggers”
+  - Affordance sentence: SOURCE × WHEN × IF* × DO × TARGET × MAG × SCOPE (equip = `WHILE_EQUIPPED`)
 #### Outcome Handlers
 - **`Code/Combat/Outcomes/OutcomeHandler.cs`** - Base interface for outcome handlers
 - **`Code/Combat/Outcomes/ConditionalOutcomeHandler.cs`** - Handles conditional outcomes:

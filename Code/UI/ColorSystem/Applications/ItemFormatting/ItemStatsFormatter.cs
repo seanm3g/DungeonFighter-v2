@@ -161,6 +161,34 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 lines.Add(modsLine.Build());
             }
 
+            var triggerSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.TriggerBundles).ToList();
+            if (triggerSummaries.Count > 0)
+            {
+                var trigLine = new ColoredTextBuilder();
+                trigLine.Add("  Triggers: ", ColorPalette.Info);
+                for (int i = 0; i < triggerSummaries.Count; i++)
+                {
+                    if (i > 0)
+                        trigLine.Add("; ", Colors.Gray);
+                    trigLine.Add(triggerSummaries[i], Colors.White);
+                }
+                lines.Add(trigLine.Build());
+            }
+
+            var equipSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.EquipEffects).ToList();
+            if (equipSummaries.Count > 0)
+            {
+                var equipLine = new ColoredTextBuilder();
+                equipLine.Add("  While equipped: ", ColorPalette.Info);
+                for (int i = 0; i < equipSummaries.Count; i++)
+                {
+                    if (i > 0)
+                        equipLine.Add("; ", Colors.Gray);
+                    equipLine.Add(equipSummaries[i], Colors.White);
+                }
+                lines.Add(equipLine.Build());
+            }
+
             string? reqSummary = item.GetAttributeRequirementsSummaryLine();
             if (!string.IsNullOrEmpty(reqSummary))
             {

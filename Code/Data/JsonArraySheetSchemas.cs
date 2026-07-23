@@ -14,7 +14,7 @@ namespace RPGGame.Data
         {
             "type", "name", "dps", "balance", "baseDamage", "damageBonusMin", "damageBonusMax", "attackSpeed", "tier",
             "extraActionSlots", "extraActionSlotsMin", "extraActionSlotsMax",
-            "attributeRequirements", "tags", "Compelled Action"
+            "attributeRequirements", "tags", "Compelled Action", "triggerName"
         };
 
         public static readonly string[] ModificationsCanonicalHeaders =
@@ -29,7 +29,7 @@ namespace RPGGame.Data
             "slot", "name", "armor", "tags",
             "STRENGTH", "AGILITY", "TECHNIQUE", "INTELLIGENCE", "HIT", "COMBO", "CRIT",
             "# OF ACTION SLOTS", "# OF BONUS ACTIONS",
-            "tier", "attributeRequirements", "requirement value"
+            "tier", "attributeRequirements", "requirement value", "triggerName"
         };
 
         public static readonly string[] EnemiesCanonicalHeaders =
@@ -63,9 +63,17 @@ namespace RPGGame.Data
         public static readonly string[] ConsumablesCanonicalHeaders =
             { "displayName", "internalKind", "effect", "potency" };
 
+        public static readonly string[] TriggersCanonicalHeaders =
+            { "id", "name", "when", "count", "scope", "mechanics", "value", "filters", "channel" };
+
         internal static readonly HashSet<string> ConsumablesAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
         {
             "displayName", "internalKind", "effect", "potency"
+        };
+
+        internal static readonly HashSet<string> TriggersAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "id", "name", "when", "count", "scope", "mechanics", "value", "filters", "channel"
         };
 
         internal static readonly HashSet<string> StatBonusAuthorizedJsonKeys = new(StringComparer.Ordinal)
@@ -84,6 +92,7 @@ namespace RPGGame.Data
                 GameDataTabularSheetKind.Dungeons => DungeonsCanonicalHeaders,
                 GameDataTabularSheetKind.StatBonuses => StatBonusesCanonicalHeaders,
                 GameDataTabularSheetKind.Consumables => ConsumablesCanonicalHeaders,
+                GameDataTabularSheetKind.Triggers => TriggersCanonicalHeaders,
                 _ => Array.Empty<string>()
             };
     }

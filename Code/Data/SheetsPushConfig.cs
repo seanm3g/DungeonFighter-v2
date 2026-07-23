@@ -49,6 +49,9 @@ namespace RPGGame.Data
         [JsonPropertyName("consumablesSheetTabName")]
         public string ConsumablesSheetTabName { get; set; } = "";
 
+        [JsonPropertyName("triggersSheetTabName")]
+        public string TriggersSheetTabName { get; set; } = "";
+
         [JsonPropertyName("flavorSheetTabName")]
         public string FlavorSheetTabName { get; set; } = "";
 
@@ -83,6 +86,9 @@ namespace RPGGame.Data
         [JsonPropertyName("pushConsumablesTab")]
         public bool PushConsumablesTab { get; set; } = true;
 
+        [JsonPropertyName("pushTriggersTab")]
+        public bool PushTriggersTab { get; set; } = true;
+
         [JsonPropertyName("pushEnemiesTab")]
         public bool PushEnemiesTab { get; set; } = true;
 
@@ -115,6 +121,8 @@ namespace RPGGame.Data
 
         public const string DefaultConsumablesSheetTabName = "CONSUMABLES";
 
+        public const string DefaultTriggersSheetTabName = "triggers";
+
         public const string DefaultFlavorSheetTabName = "flavor";
 
         /// <summary>
@@ -134,6 +142,7 @@ namespace RPGGame.Data
                 || !string.IsNullOrWhiteSpace(DungeonsSheetTabName)
                 || !string.IsNullOrWhiteSpace(StatBonusesSheetTabName)
                 || !string.IsNullOrWhiteSpace(ConsumablesSheetTabName)
+                || !string.IsNullOrWhiteSpace(TriggersSheetTabName)
                 || !string.IsNullOrWhiteSpace(FlavorSheetTabName))
                 return false;
 
@@ -147,6 +156,7 @@ namespace RPGGame.Data
             DungeonsSheetTabName = DefaultDungeonsSheetTabName;
             StatBonusesSheetTabName = DefaultStatBonusesSheetTabName;
             ConsumablesSheetTabName = DefaultConsumablesSheetTabName;
+            TriggersSheetTabName = DefaultTriggersSheetTabName;
             FlavorSheetTabName = DefaultFlavorSheetTabName;
             return true;
         }
@@ -201,6 +211,15 @@ namespace RPGGame.Data
             if (!string.IsNullOrWhiteSpace(ConsumablesSheetTabName))
                 return false;
             ConsumablesSheetTabName = DefaultConsumablesSheetTabName;
+            return true;
+        }
+
+        /// <summary>Fills <see cref="TriggersSheetTabName"/> when still blank (configs created before triggers push).</summary>
+        public bool ApplyDefaultTriggersTabNameIfUnset()
+        {
+            if (!string.IsNullOrWhiteSpace(TriggersSheetTabName))
+                return false;
+            TriggersSheetTabName = DefaultTriggersSheetTabName;
             return true;
         }
 
@@ -311,6 +330,8 @@ namespace RPGGame.Data
                     cfg.PushStatBonusesTab = true;
                 if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushConsumablesTab"))
                     cfg.PushConsumablesTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushTriggersTab"))
+                    cfg.PushTriggersTab = true;
                 if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushEnemiesTab"))
                     cfg.PushEnemiesTab = true;
                 if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushEnvironmentsTab"))
@@ -350,6 +371,7 @@ namespace RPGGame.Data
             cfg.PushArmorTab = true;
             cfg.PushStatBonusesTab = true;
             cfg.PushConsumablesTab = true;
+            cfg.PushTriggersTab = true;
             cfg.PushEnemiesTab = true;
             cfg.PushEnvironmentsTab = true;
             cfg.PushDungeonsTab = true;

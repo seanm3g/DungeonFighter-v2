@@ -20,6 +20,8 @@
 
   "consumablesSheetTabName": "CONSUMABLES",
 
+  "triggersSheetTabName": "triggers",
+
   "classPresentationSheetTabName": "CLASSES",
 
   "classActionsSheetTabName": "CLASS ACTIONS",
@@ -43,6 +45,8 @@
   "pushStatBonusesTab": true,
 
   "pushConsumablesTab": true,
+
+  "pushTriggersTab": true,
 
   "pushEnemiesTab": true,
 

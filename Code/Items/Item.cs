@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -238,6 +239,21 @@ namespace RPGGame
         public int BonusDamage { get; set; } = 0;
         public int BonusAttackSpeed { get; set; } = 0;
         public List<string> Tags { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Catalog combat procs (WHEN × SCOPE × mechanics), same grammar as action trigger bundles.
+        /// Fired from equipped gear via <c>EquippedItemTriggerApplicator</c>.
+        /// Also holds <c>WHILE_EQUIPPED</c> equip-time effects (evaluated by <c>ItemEquipEffectApplicator</c>).
+        /// </summary>
+        [JsonPropertyName("triggerBundles")]
+        public List<ActionTriggerBundle> TriggerBundles { get; set; } = new List<ActionTriggerBundle>();
+
+        /// <summary>
+        /// Always-on equip effects (<c>WHEN=WHILE_EQUIPPED</c>). Same bundle shape as combat procs.
+        /// Prefer putting WHILE_EQUIPPED rows here; combat applicator ignores them in TriggerBundles too.
+        /// </summary>
+        [JsonPropertyName("equipEffects")]
+        public List<ActionTriggerBundle> EquipEffects { get; set; } = new List<ActionTriggerBundle>();
 
         /// <summary>When <see cref="Type"/> is <see cref="ItemType.Consumable"/>, marks food vs potion and which buff line.</summary>
         public RoomSearchConsumableKind RoomSearchConsumableKind { get; set; }

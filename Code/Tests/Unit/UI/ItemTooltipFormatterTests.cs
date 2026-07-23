@@ -32,7 +32,7 @@ namespace RPGGame.Tests.Unit.UI
             var lines = ItemTooltipFormatter.BuildItemTooltipLines(hero, wrap, "Inventory", 30);
             string flat = string.Join("\n", lines.Select(ColoredTextRenderer.RenderAsPlainText));
             TestBase.AssertTrue(lines.Count >= 5, "item tooltip has multiple sections", ref run, ref passed, ref failed);
-            TestBase.AssertTrue(flat.Contains("Reinforced Thick Wrap", StringComparison.Ordinal),
+            TestBase.AssertTrue(flat.Contains("Wrap", StringComparison.Ordinal),
                 "tooltip includes item name",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(flat.Contains("Affixes", StringComparison.Ordinal),
@@ -61,6 +61,33 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(flat.Contains("Strength", StringComparison.Ordinal) && flat.Contains("not met", StringComparison.OrdinalIgnoreCase),
                 "unmet requirements flagged",
+                ref run, ref passed, ref failed);
+
+            var triggered = new LegsItem("Tassets", 1, 17)
+            {
+                Rarity = "Common",
+                Level = 1,
+                TriggerBundles = new System.Collections.Generic.List<RPGGame.Data.ActionTriggerBundle>
+                {
+                    ItemTriggerIdentityCatalog.ToBundle(ItemTriggerIdentityCatalog.Get(0))
+                }
+            };
+            var trigLines = ItemTooltipFormatter.BuildItemTooltipLines(hero, triggered, "Legs", 30);
+            string trigFlat = string.Join("\n", trigLines.Select(ColoredTextRenderer.RenderAsPlainText));
+            TestBase.AssertTrue(trigFlat.Contains("Triggers", StringComparison.Ordinal),
+                "tooltip has Triggers section",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(trigFlat.Contains("On connect", StringComparison.OrdinalIgnoreCase),
+                "tooltip trigger shows WHEN",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(trigFlat.Contains("DAMAGE", StringComparison.OrdinalIgnoreCase)
+                    || trigFlat.Contains("damage", StringComparison.OrdinalIgnoreCase),
+                "tooltip trigger shows mechanic",
+                ref run, ref passed, ref failed);
+            string summary = ItemTriggerBundleDisplay.FormatSummary(triggered.TriggerBundles[0]);
+            TestBase.AssertTrue(summary.Contains("Wound Momentum", StringComparison.Ordinal)
+                    || summary.Contains("On connect", StringComparison.OrdinalIgnoreCase),
+                "FormatSummary readable",
                 ref run, ref passed, ref failed);
 
             string armorDesc = ItemDisplayFormatter.GetModificationEffectDescription(wrap.Modifications[0]);

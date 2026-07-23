@@ -73,6 +73,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.StatBonusesSheetUrl, out string sg) ? sg : "");
             SetText(balancePanel, "ConsumablesTabGidTextBox",
                 GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.ConsumablesSheetUrl, out string cgCons) ? cgCons : "");
+            SetText(balancePanel, "TriggersTabGidTextBox",
+                GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.TriggersSheetUrl, out string tgOut) ? tgOut : "");
             SetText(balancePanel, "EnemiesTabGidTextBox",
                 GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.EnemiesSheetUrl, out string eg) ? eg : "");
             SetText(balancePanel, "EnvironmentsTabGidTextBox",
@@ -118,6 +120,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             string aGid = TrimBox(balancePanel.FindControl<TextBox>("ArmorTabGidTextBox"));
             string sGid = TrimBox(balancePanel.FindControl<TextBox>("StatBonusesTabGidTextBox"));
             string consGid = TrimBox(balancePanel.FindControl<TextBox>("ConsumablesTabGidTextBox"));
+            string trigGid = TrimBox(balancePanel.FindControl<TextBox>("TriggersTabGidTextBox"));
             string eGid = TrimBox(balancePanel.FindControl<TextBox>("EnemiesTabGidTextBox"));
             string vGid = TrimBox(balancePanel.FindControl<TextBox>("EnvironmentsTabGidTextBox"));
             string cGid = TrimBox(balancePanel.FindControl<TextBox>("ClassPresentationTabGidTextBox"));
@@ -136,7 +139,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 }
             }
 
-            foreach (string g in new[] { wGid, mGid, aGid, sGid, consGid, eGid, vGid, cGid, caGid, flGid })
+            foreach (string g in new[] { wGid, mGid, aGid, sGid, consGid, trigGid, eGid, vGid, cGid, caGid, flGid })
             {
                 if (string.IsNullOrEmpty(g))
                     continue;
@@ -148,7 +151,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 }
             }
 
-            bool anyGid = wGid.Length > 0 || mGid.Length > 0 || aGid.Length > 0 || sGid.Length > 0 || consGid.Length > 0 || eGid.Length > 0 || vGid.Length > 0 || cGid.Length > 0 || caGid.Length > 0 || flGid.Length > 0;
+            bool anyGid = wGid.Length > 0 || mGid.Length > 0 || aGid.Length > 0 || sGid.Length > 0 || consGid.Length > 0 || trigGid.Length > 0 || eGid.Length > 0 || vGid.Length > 0 || cGid.Length > 0 || caGid.Length > 0 || flGid.Length > 0;
             if (anyGid && !IsHttpUrl(actions))
             {
                 if (logErrors)
@@ -165,6 +168,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             MergeTabUrlFromGid(actions, aGid, cfg, (c, v) => { c.ArmorSheetUrl = v; }, c => c.ArmorSheetUrl);
             MergeTabUrlFromGid(actions, sGid, cfg, (c, v) => { c.StatBonusesSheetUrl = v; }, c => c.StatBonusesSheetUrl);
             MergeTabUrlFromGid(actions, consGid, cfg, (c, v) => { c.ConsumablesSheetUrl = v; }, c => c.ConsumablesSheetUrl);
+            MergeTabUrlFromGid(actions, trigGid, cfg, (c, v) => { c.TriggersSheetUrl = v; }, c => c.TriggersSheetUrl);
             MergeTabUrlFromGid(actions, eGid, cfg, (c, v) => { c.EnemiesSheetUrl = v; }, c => c.EnemiesSheetUrl);
             MergeTabUrlFromGid(actions, vGid, cfg, (c, v) => { c.EnvironmentsSheetUrl = v; }, c => c.EnvironmentsSheetUrl);
             MergeTabUrlFromGid(actions, cGid, cfg, (c, v) => { c.ClassPresentationSheetUrl = v; }, c => c.ClassPresentationSheetUrl);
@@ -347,6 +351,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             SetPushCheckbox(panel, "PushArmorTabCheckBox", pushCfg.PushArmorTab);
             SetPushCheckbox(panel, "PushStatBonusesTabCheckBox", pushCfg.PushStatBonusesTab);
             SetPushCheckbox(panel, "PushConsumablesTabCheckBox", pushCfg.PushConsumablesTab);
+            SetPushCheckbox(panel, "PushTriggersTabCheckBox", pushCfg.PushTriggersTab);
             SetPushCheckbox(panel, "PushEnemiesTabCheckBox", pushCfg.PushEnemiesTab);
             SetPushCheckbox(panel, "PushEnvironmentsTabCheckBox", pushCfg.PushEnvironmentsTab);
             SetPushCheckbox(panel, "PushDungeonsTabCheckBox", pushCfg.PushDungeonsTab);
@@ -381,6 +386,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             target.PushArmorTab = ReadPushCheckbox(panel, "PushArmorTabCheckBox", defaultIfNull: true);
             target.PushStatBonusesTab = ReadPushCheckbox(panel, "PushStatBonusesTabCheckBox", defaultIfNull: true);
             target.PushConsumablesTab = ReadPushCheckbox(panel, "PushConsumablesTabCheckBox", defaultIfNull: true);
+            target.PushTriggersTab = ReadPushCheckbox(panel, "PushTriggersTabCheckBox", defaultIfNull: true);
             target.PushEnemiesTab = ReadPushCheckbox(panel, "PushEnemiesTabCheckBox", defaultIfNull: true);
             target.PushEnvironmentsTab = ReadPushCheckbox(panel, "PushEnvironmentsTabCheckBox", defaultIfNull: true);
             target.PushDungeonsTab = ReadPushCheckbox(panel, "PushDungeonsTabCheckBox", defaultIfNull: true);

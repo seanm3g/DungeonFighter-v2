@@ -1,0 +1,646 @@
+[
+  {
+    "id": 0,
+    "name": "WoundMomentum",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "ACTION",
+    "mechanics": "hero_next_action_damage",
+    "value": 10,
+    "channel": "combat"
+  },
+  {
+    "id": 1,
+    "name": "RecoverFooting",
+    "when": "ONAFTERMISS",
+    "count": "1",
+    "scope": "ACTION",
+    "mechanics": "hero_next_action_speed",
+    "value": 10,
+    "channel": "combat"
+  },
+  {
+    "id": 2,
+    "name": "ComboSpray",
+    "when": "ONCOMBO",
+    "count": "1",
+    "scope": "ACTION",
+    "mechanics": "hero_next_action_multihit",
+    "value": 1,
+    "channel": "combat"
+  },
+  {
+    "id": 3,
+    "name": "CritAmpCarry",
+    "when": "ONCRITICAL",
+    "count": "1",
+    "scope": "ACTION",
+    "mechanics": "hero_next_action_amp",
+    "value": 10,
+    "channel": "combat"
+  },
+  {
+    "id": 4,
+    "name": "FoeOvercommit",
+    "when": "ONMISS",
+    "count": "1",
+    "scope": "ACTION",
+    "mechanics": "enemy_next_action_damage",
+    "value": 10,
+    "channel": "combat"
+  },
+  {
+    "id": 5,
+    "name": "EndBreathDamage",
+    "when": "ONCOMBOEND",
+    "count": "1",
+    "scope": "ACTION",
+    "mechanics": "hero_next_action_damage",
+    "value": 10,
+    "channel": "combat"
+  },
+  {
+    "id": 6,
+    "name": "FirstBloodAmp",
+    "when": "ONFIRSTHIT",
+    "count": "1",
+    "scope": "ACTION",
+    "mechanics": "hero_next_action_amp",
+    "value": 10,
+    "channel": "combat"
+  },
+  {
+    "id": 7,
+    "name": "KillSpray",
+    "when": "ONKILL",
+    "count": "1",
+    "scope": "ACTION",
+    "mechanics": "hero_next_action_multihit",
+    "value": 1,
+    "channel": "combat"
+  },
+  {
+    "id": 8,
+    "name": "DesperationAim",
+    "when": "ONAFTERMISS",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "hero_hit_threshold",
+    "value": -1,
+    "channel": "combat"
+  },
+  {
+    "id": 9,
+    "name": "OpenTheLane",
+    "when": "ONFIRSTHIT",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "hero_combo_threshold",
+    "value": -1,
+    "channel": "combat"
+  },
+  {
+    "id": 10,
+    "name": "BloodlustCrit",
+    "when": "ONKILL",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "hero_crit_threshold",
+    "value": -1,
+    "channel": "combat"
+  },
+  {
+    "id": 11,
+    "name": "SteadyHand",
+    "when": "ONCRITICALMISS",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "hero_crit_miss_threshold",
+    "value": 1,
+    "channel": "combat"
+  },
+  {
+    "id": 12,
+    "name": "LockedInAcc",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "hero_accuracy",
+    "value": 1,
+    "channel": "combat"
+  },
+  {
+    "id": 13,
+    "name": "EnemyFlinch",
+    "when": "ONCOMBOEND",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "enemy_hit_threshold",
+    "value": 1,
+    "channel": "combat"
+  },
+  {
+    "id": 14,
+    "name": "EnemyAccTax",
+    "when": "ONMISS",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "enemy_accuracy",
+    "value": 1,
+    "channel": "combat"
+  },
+  {
+    "id": 15,
+    "name": "CritThresholdPush",
+    "when": "ONCRITICAL",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "hero_crit_threshold",
+    "value": -1,
+    "channel": "combat"
+  },
+  {
+    "id": 16,
+    "name": "ComboThresholdPush",
+    "when": "ONCOMBO",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "hero_combo_threshold",
+    "value": -1,
+    "channel": "combat"
+  },
+  {
+    "id": 17,
+    "name": "LuckySevenHit",
+    "when": "ONNATURALROLL:7",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "hero_hit_threshold",
+    "value": -1,
+    "channel": "combat"
+  },
+  {
+    "id": 18,
+    "name": "ExactFifteenCombo",
+    "when": "ONROLLVALUE:15",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "hero_combo_threshold",
+    "value": -1,
+    "channel": "combat"
+  },
+  {
+    "id": 19,
+    "name": "ClutchForgive",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "hero_hit_threshold",
+    "value": -1,
+    "filters": "IFCLUTCH",
+    "channel": "combat"
+  },
+  {
+    "id": 20,
+    "name": "CritFace19",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "crit_face_min:19",
+    "value": 19,
+    "channel": "combat"
+  },
+  {
+    "id": 21,
+    "name": "CritFace18",
+    "when": "ONFIRSTHIT",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "crit_face_min:18",
+    "value": 18,
+    "channel": "combat"
+  },
+  {
+    "id": 22,
+    "name": "SalvageCharm",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "FIGHT",
+    "mechanics": "salvage_miss",
+    "value": 1,
+    "channel": "combat"
+  },
+  {
+    "id": 23,
+    "name": "KillReload20",
+    "when": "ONKILL",
+    "count": "1",
+    "scope": "",
+    "mechanics": "replace_next_roll:20",
+    "value": 20,
+    "channel": "combat"
+  },
+  {
+    "id": 24,
+    "name": "ComboEndReload15",
+    "when": "ONCOMBOEND",
+    "count": "1",
+    "scope": "",
+    "mechanics": "replace_next_roll:15",
+    "value": 15,
+    "channel": "combat"
+  },
+  {
+    "id": 25,
+    "name": "SharpenedEdge",
+    "when": "ONCOMBO",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "hero_weapon_damage",
+    "value": 1,
+    "channel": "combat"
+  },
+  {
+    "id": 26,
+    "name": "QuickGrip",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "hero_weapon_speed",
+    "value": 1,
+    "channel": "combat"
+  },
+  {
+    "id": 27,
+    "name": "MarchCadence",
+    "when": "ONROOMSCLEARED",
+    "count": "1",
+    "scope": "FIGHT",
+    "mechanics": "hero_weapon_damage",
+    "value": 1,
+    "channel": "combat"
+  },
+  {
+    "id": 28,
+    "name": "EnemySlowWeapon",
+    "when": "ONMISS",
+    "count": "1",
+    "scope": "TURN",
+    "mechanics": "enemy_weapon_speed",
+    "value": 1,
+    "channel": "combat"
+  },
+  {
+    "id": 29,
+    "name": "ChaosOpen",
+    "when": "ONFIRSTHIT",
+    "count": "1",
+    "scope": "",
+    "mechanics": "strip_shuffle",
+    "channel": "combat"
+  },
+  {
+    "id": 30,
+    "name": "EchoStep",
+    "when": "ONCOMBO",
+    "count": "1",
+    "scope": "",
+    "mechanics": "strip_repeat",
+    "channel": "combat"
+  },
+  {
+    "id": 31,
+    "name": "SkipFiller",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "",
+    "mechanics": "strip_skip",
+    "channel": "combat"
+  },
+  {
+    "id": 32,
+    "name": "LeapAhead",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "",
+    "mechanics": "strip_jump",
+    "channel": "combat"
+  },
+  {
+    "id": 33,
+    "name": "LoopChain",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "",
+    "mechanics": "strip_loop",
+    "channel": "combat"
+  },
+  {
+    "id": 34,
+    "name": "BreakRhythm",
+    "when": "ONMISS",
+    "count": "1",
+    "scope": "",
+    "mechanics": "strip_stop",
+    "channel": "combat"
+  },
+  {
+    "id": 35,
+    "name": "WildNext",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "",
+    "mechanics": "strip_random",
+    "channel": "combat"
+  },
+  {
+    "id": 36,
+    "name": "SealSlot",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "",
+    "mechanics": "strip_disable",
+    "channel": "combat"
+  },
+  {
+    "id": 37,
+    "name": "ReplaceNextStrip",
+    "when": "ONCRITICAL",
+    "count": "1",
+    "scope": "",
+    "mechanics": "strip_replace_next",
+    "channel": "combat"
+  },
+  {
+    "id": 38,
+    "name": "DoubleBeat",
+    "when": "ONCOMBO",
+    "count": "1",
+    "scope": "",
+    "mechanics": "retrigger_next",
+    "channel": "combat"
+  },
+  {
+    "id": 39,
+    "name": "ResetOpener",
+    "when": "ONKILL",
+    "count": "1",
+    "scope": "",
+    "mechanics": "retrigger_opener",
+    "channel": "combat"
+  },
+  {
+    "id": 40,
+    "name": "FinisherEncore",
+    "when": "ONCOMBOEND",
+    "count": "1",
+    "scope": "",
+    "mechanics": "retrigger_finisher",
+    "channel": "combat"
+  },
+  {
+    "id": 41,
+    "name": "SlotTwoEncore",
+    "when": "ONCRITICAL",
+    "count": "1",
+    "scope": "",
+    "mechanics": "retrigger_slot:2",
+    "channel": "combat"
+  },
+  {
+    "id": 42,
+    "name": "CritExpose",
+    "when": "ONCRITICAL",
+    "count": "1",
+    "scope": "",
+    "mechanics": "expose",
+    "channel": "combat"
+  },
+  {
+    "id": 43,
+    "name": "ComboWeaken",
+    "when": "ONCOMBO",
+    "count": "1",
+    "scope": "",
+    "mechanics": "weaken",
+    "channel": "combat"
+  },
+  {
+    "id": 44,
+    "name": "SteadyFocus",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "",
+    "mechanics": "focus",
+    "channel": "combat"
+  },
+  {
+    "id": 45,
+    "name": "GuardUp",
+    "when": "ONMISS",
+    "count": "1",
+    "scope": "",
+    "mechanics": "harden",
+    "channel": "combat"
+  },
+  {
+    "id": 46,
+    "name": "FirstFortify",
+    "when": "ONFIRSTHIT",
+    "count": "1",
+    "scope": "",
+    "mechanics": "fortify",
+    "channel": "combat"
+  },
+  {
+    "id": 47,
+    "name": "ConnectPierce",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "",
+    "mechanics": "pierce",
+    "channel": "combat"
+  },
+  {
+    "id": 48,
+    "name": "EndVulnerability",
+    "when": "ONCOMBOEND",
+    "count": "1",
+    "scope": "",
+    "mechanics": "vulnerability",
+    "channel": "combat"
+  },
+  {
+    "id": 49,
+    "name": "CritMissSlow",
+    "when": "ONCRITICALMISS",
+    "count": "1",
+    "scope": "",
+    "mechanics": "slow",
+    "channel": "combat"
+  },
+  {
+    "id": 50,
+    "name": "PunishDot",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "",
+    "mechanics": "pierce",
+    "filters": "IFTARGETUNDERDOT",
+    "channel": "combat"
+  },
+  {
+    "id": 51,
+    "name": "SpiteFocus",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "",
+    "mechanics": "focus",
+    "filters": "IFSOURCEUNDERDOT",
+    "channel": "combat"
+  },
+  {
+    "id": 52,
+    "name": "ComboEndHeal",
+    "when": "ONCOMBOEND",
+    "count": "1",
+    "scope": "",
+    "mechanics": "heal",
+    "value": 2,
+    "channel": "combat"
+  },
+  {
+    "id": 53,
+    "name": "RoomClearHeal",
+    "when": "ONROOMSCLEARED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "heal",
+    "value": 2,
+    "channel": "combat"
+  },
+  {
+    "id": 54,
+    "name": "AfterMissHeal",
+    "when": "ONAFTERMISS",
+    "count": "1",
+    "scope": "",
+    "mechanics": "heal",
+    "value": 2,
+    "channel": "combat"
+  },
+  {
+    "id": 55,
+    "name": "CritLadderDungeon",
+    "when": "ONCRITICAL",
+    "count": "1",
+    "scope": "DUNGEON",
+    "mechanics": "hero_crit_threshold",
+    "value": -1,
+    "channel": "combat"
+  },
+  {
+    "id": 56,
+    "name": "HitLadderDungeon",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "DUNGEON",
+    "mechanics": "hero_hit_threshold",
+    "value": -1,
+    "channel": "combat"
+  },
+  {
+    "id": 57,
+    "name": "MissHitTaxDungeon",
+    "when": "ONMISS",
+    "count": "1",
+    "scope": "DUNGEON",
+    "mechanics": "hero_hit_threshold",
+    "value": 1,
+    "channel": "combat"
+  },
+  {
+    "id": 58,
+    "name": "GoldSetArmor",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "armor",
+    "value": 2,
+    "filters": "IFGEARHASTAG:gold",
+    "channel": "equip"
+  },
+  {
+    "id": 59,
+    "name": "ClassPrimaryAttr",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_stat_bonus:PRIMARY",
+    "value": 1,
+    "filters": "IFCLASSTAG:barbarian",
+    "channel": "equip"
+  },
+  {
+    "id": 60,
+    "name": "EvenRollHeal",
+    "when": "ONEVEN",
+    "count": "1",
+    "scope": "",
+    "mechanics": "heal",
+    "value": 1,
+    "channel": "combat"
+  },
+  {
+    "id": 61,
+    "name": "BarbarianActionDamage",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "ACTION",
+    "mechanics": "hero_next_action_damage",
+    "value": 5,
+    "filters": "IFACTIONHASTAG:barbarian",
+    "channel": "combat"
+  },
+  {
+    "id": 62,
+    "name": "GrantBarbarianTag",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "grant_action_tag:barbarian",
+    "channel": "equip"
+  },
+  {
+    "id": 63,
+    "name": "SlotThreeSpeedDungeon",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "DUNGEON",
+    "mechanics": "hero_next_action_speed",
+    "value": 5,
+    "filters": "IFSLOT:3",
+    "channel": "combat"
+  },
+  {
+    "id": 64,
+    "name": "MirrorSwingDamage",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_damage",
+    "value": 100,
+    "filters": "IFSAMESACTION",
+    "channel": "combat"
+  },
+  {
+    "id": 65,
+    "name": "UnarmedPunchGrant",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "grant_action:PUNCH HARD",
+    "filters": "IFUNARMED",
+    "channel": "equip"
+  }
+]

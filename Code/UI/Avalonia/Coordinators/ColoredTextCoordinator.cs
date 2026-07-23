@@ -52,13 +52,18 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// </summary>
         public void WriteColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
         {
-            if (segments == null || segments.Count == 0)
+            if (segments == null)
                 return;
-            
-            // Store structured ColoredText directly - no conversion needed
+
+            // Empty segment lists are intentional blank lines (e.g. exit-choice menu framing).
+            // Do not early-return — same contract as BufferStorage / WriteColoredSegmentsBatch.
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 canvasTextManager.DisplayManager.AddMessage(segments, messageType);
+            }
+            else if (segments.Count == 0)
+            {
+                messageWritingCoordinator.WriteLine("", messageType);
             }
             else
             {

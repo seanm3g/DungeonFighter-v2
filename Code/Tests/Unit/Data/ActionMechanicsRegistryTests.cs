@@ -133,7 +133,7 @@ namespace RPGGame.Tests.Unit.Data
 
         private static void TestAllMechanicIdsTrimmedToGoodOnActions()
         {
-            TestHarnessBase.AssertEqual(34, ActionMechanicsRegistry.AllMechanicIds.Count, "MECHANIC_LIST has 34 GOOD+ON ACTIONS IDs");
+            TestHarnessBase.AssertEqual(35, ActionMechanicsRegistry.AllMechanicIds.Count, "MECHANIC_LIST has 35 GOOD+ON ACTIONS IDs");
             TestHarnessBase.AssertFalse(ActionMechanicsRegistry.AllMechanicIds.Contains("damage"), "REDUNDANT damage excluded");
             TestHarnessBase.AssertFalse(ActionMechanicsRegistry.AllMechanicIds.Contains("silence"), "CUT silence excluded");
             TestHarnessBase.AssertFalse(ActionMechanicsRegistry.AllMechanicIds.Contains("stun"), "item-only stun excluded from MECHANIC_LIST");

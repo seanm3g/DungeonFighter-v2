@@ -129,6 +129,10 @@ namespace RPGGame.Actions.Conditional
         private static bool BundleWhenMatches(ActionTriggerBundle bundle, Action action, CombatEvent? combatEvent)
         {
             string when = ActionTriggerGate.NormalizeToken(bundle.When ?? "");
+            // Equip-time channel — never fire during combat swings.
+            if (when is "WHILEEQUIPPED" or "ONEQUIP")
+                return false;
+
             if (when == "ONROLLVALUE"
                 && int.TryParse((bundle.Count ?? "").Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int face)
                 && face > 0)
@@ -186,7 +190,19 @@ namespace RPGGame.Actions.Conditional
 
                 if (id is "heal" or "max_health")
                 {
-                    any |= ApplyHealOrMaxHealth(id, action, source, messages);
+                    any |= ApplyHealOrMaxHealth(id, action, source, messages, bundle.Value);
+                    continue;
+                }
+
+                // Same-swing % damage (not next-action bank). Used by item mirror procs.
+                if (id is "hero_action_damage")
+                {
+                    if (source is Character sameSwingHero && bundle.Value is { } sv && sv != 0)
+                    {
+                        sameSwingHero.Effects.ConsumedDamageModPercent += sv;
+                        messages.Add($"{source.Name} gains {sv:+0;-0}% damage this swing.");
+                        any = true;
+                    }
                     continue;
                 }
 
@@ -210,6 +226,8 @@ namespace RPGGame.Actions.Conditional
                         && int.TryParse(mechanicArg, NumberStyles.Integer, CultureInfo.InvariantCulture, out int a)
                         && a > 0)
                         charges = a;
+                    else if (bundle.Value is > 0)
+                        charges = Math.Max(1, (int)Math.Round(bundle.Value.Value));
                     CombatTriggerContext.AddMissSalvageCharges(source, charges);
                     messages.Add($"{source.Name} gains miss salvage ({charges}).");
                     any = true;
@@ -223,6 +241,8 @@ namespace RPGGame.Actions.Conditional
                         && int.TryParse(mechanicArg, NumberStyles.Integer, CultureInfo.InvariantCulture, out int mf)
                         && mf > 0)
                         minFace = mf;
+                    else if (bundle.Value is >= 2 and <= 20)
+                        minFace = (int)Math.Round(bundle.Value.Value);
                     else if (int.TryParse((bundle.Count ?? "").Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int cf)
                              && cf >= 2 && cf <= 20)
                         minFace = cf;
@@ -241,11 +261,11 @@ namespace RPGGame.Actions.Conditional
                                 Value = minFace
                             }
                         };
-                        if (lasting && (CadenceKeywords.IsFight(scope) || CadenceKeywords.IsDungeon(scope)))
+                        if (lasting && (CadenceKeywords.IsFight(scope) || CadenceKeywords.IsDungeon(scope) || CadenceKeywords.IsTurn(scope)))
                             CadenceScopedBuffApplicator.DepositToScope(critHero, scope, critItems, critStacks);
                         else
                         {
-                            // Instant / TURN: set fight override via context; Selection reads TryGetCritFaceMin
+                            // Instant: set fight override via context; Selection reads TryGetCritFaceMin
                         }
                     }
                     messages.Add($"{source.Name}: crit on natural faces ≥ {minFace}.");
@@ -260,6 +280,8 @@ namespace RPGGame.Actions.Conditional
                         && int.TryParse(mechanicArg, NumberStyles.Integer, CultureInfo.InvariantCulture, out int fa)
                         && fa > 0)
                         face = fa;
+                    else if (bundle.Value is >= 1 and <= 20)
+                        face = (int)Math.Round(bundle.Value.Value);
                     else if (int.TryParse((bundle.Count ?? "").Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int fb)
                              && fb >= 1 && fb <= 20)
                         face = fb;
@@ -270,6 +292,7 @@ namespace RPGGame.Actions.Conditional
                     }
                     if (action.Triggers?.ExactRollTriggerValue > 0 && face == 20
                         && string.IsNullOrWhiteSpace(mechanicArg)
+                        && bundle.Value == null
                         && !int.TryParse((bundle.Count ?? "").Trim(), out _))
                         face = action.Triggers.ExactRollTriggerValue;
                     CombatTriggerContext.SetPendingReplaceRollFace(source, face);
@@ -286,7 +309,7 @@ namespace RPGGame.Actions.Conditional
 
                 bool isEnemy = id.StartsWith("enemy_", StringComparison.OrdinalIgnoreCase);
                 var into = isEnemy ? enemyBonuses : heroBonuses;
-                if (TryBuildBonusItems(action, id, into))
+                if (TryBuildBonusItems(action, id, into, bundle.Value))
                     any = true;
             }
 
@@ -395,11 +418,13 @@ namespace RPGGame.Actions.Conditional
             }
         }
 
-        private static bool ApplyHealOrMaxHealth(string mechanicId, Action action, Actor source, List<string> messages)
+        private static bool ApplyHealOrMaxHealth(string mechanicId, Action action, Actor source, List<string> messages, double? bundleValue)
         {
             if (mechanicId == "heal")
             {
                 int amount = action.Advanced?.HealAmount ?? 0;
+                if (amount <= 0 && bundleValue is > 0)
+                    amount = Math.Max(1, (int)Math.Round(bundleValue.Value));
                 if (amount <= 0)
                     return false;
                 ActionUtilities.ApplyHealing(source, amount);
@@ -410,6 +435,8 @@ namespace RPGGame.Actions.Conditional
             if (mechanicId == "max_health" && source is Character hero)
             {
                 int amount = action.Advanced?.MaxHealthIncrease ?? 0;
+                if (amount <= 0 && bundleValue is > 0)
+                    amount = Math.Max(1, (int)Math.Round(bundleValue.Value));
                 if (amount <= 0)
                     return false;
                 ActionUtilities.ApplyMaxHealthIncrease(hero, amount);
@@ -445,7 +472,7 @@ namespace RPGGame.Actions.Conditional
             };
         }
 
-        private static bool TryBuildBonusItems(Action action, string mechanicId, List<ActionAttackBonusItem> into)
+        private static bool TryBuildBonusItems(Action action, string mechanicId, List<ActionAttackBonusItem> into, double? bundleValue)
         {
             switch (mechanicId)
             {
@@ -455,54 +482,57 @@ namespace RPGGame.Actions.Conditional
                         into.Add(new ActionAttackBonusItem { Type = "ACCURACY", Value = action.Advanced.RollBonus });
                         return true;
                     }
-                    return false;
+                    return AddBundleValue(into, "ACCURACY", bundleValue);
                 case "enemy_accuracy":
                     if (action.Advanced.EnemyRollBonus != 0)
                     {
                         into.Add(new ActionAttackBonusItem { Type = "ACCURACY", Value = action.Advanced.EnemyRollBonus });
                         return true;
                     }
-                    return false;
+                    return AddBundleValue(into, "ACCURACY", bundleValue);
                 case "hero_hit_threshold":
-                    return AddThreshold(into, "HIT", action.RollMods.HitThresholdAdjustment);
+                    return AddThreshold(into, "HIT", action.RollMods.HitThresholdAdjustment, bundleValue);
                 case "enemy_hit_threshold":
-                    return AddThreshold(into, "HIT", action.RollMods.EnemyHitThresholdAdjustment);
+                    return AddThreshold(into, "HIT", action.RollMods.EnemyHitThresholdAdjustment, bundleValue);
                 case "hero_combo_threshold":
-                    return AddThreshold(into, "COMBO", action.RollMods.ComboThresholdAdjustment);
+                    return AddThreshold(into, "COMBO", action.RollMods.ComboThresholdAdjustment, bundleValue);
                 case "enemy_combo_threshold":
-                    return AddThreshold(into, "COMBO", action.RollMods.EnemyComboThresholdAdjustment);
+                    return AddThreshold(into, "COMBO", action.RollMods.EnemyComboThresholdAdjustment, bundleValue);
                 case "hero_crit_threshold":
-                    return AddThreshold(into, "CRIT", action.RollMods.CriticalHitThresholdAdjustment);
+                    return AddThreshold(into, "CRIT", action.RollMods.CriticalHitThresholdAdjustment, bundleValue);
                 case "enemy_crit_threshold":
-                    return AddThreshold(into, "CRIT", action.RollMods.EnemyCriticalHitThresholdAdjustment);
+                    return AddThreshold(into, "CRIT", action.RollMods.EnemyCriticalHitThresholdAdjustment, bundleValue);
                 case "hero_crit_miss_threshold":
-                    return AddThreshold(into, "CRIT_MISS", action.RollMods.CriticalMissThresholdAdjustment);
+                    return AddThreshold(into, "CRIT_MISS", action.RollMods.CriticalMissThresholdAdjustment, bundleValue);
                 case "enemy_crit_miss_threshold":
-                    return AddThreshold(into, "CRIT_MISS", action.RollMods.EnemyCriticalMissThresholdAdjustment);
+                    return AddThreshold(into, "CRIT_MISS", action.RollMods.EnemyCriticalMissThresholdAdjustment, bundleValue);
                 case "hero_next_action_speed":
-                    return AddParsedMod(into, "SPEED_MOD", action.SpeedMod, percent: true);
+                    return AddParsedModOrBundle(into, "SPEED_MOD", action.SpeedMod, percent: true, bundleValue);
                 case "hero_next_action_damage":
-                    return AddParsedMod(into, "DAMAGE_MOD", action.DamageMod, percent: true);
+                    return AddParsedModOrBundle(into, "DAMAGE_MOD", action.DamageMod, percent: true, bundleValue);
+                case "hero_action_damage":
+                    // Same-swing handled in ApplyBundle; not a depositable bonus item.
+                    return false;
                 case "hero_next_action_multihit":
-                    return AddParsedMod(into, "MULTIHIT_MOD", action.MultiHitMod, percent: false);
+                    return AddParsedModOrBundle(into, "MULTIHIT_MOD", action.MultiHitMod, percent: false, bundleValue);
                 case "hero_next_action_amp":
-                    return AddParsedMod(into, "AMP_MOD", action.AmpMod, percent: true);
+                    return AddParsedModOrBundle(into, "AMP_MOD", action.AmpMod, percent: true, bundleValue);
                 case "enemy_next_action_speed":
-                    return AddParsedMod(into, "SPEED_MOD", action.EnemySpeedMod, percent: true);
+                    return AddParsedModOrBundle(into, "SPEED_MOD", action.EnemySpeedMod, percent: true, bundleValue);
                 case "enemy_next_action_damage":
-                    return AddParsedMod(into, "DAMAGE_MOD", action.EnemyDamageMod, percent: true);
+                    return AddParsedModOrBundle(into, "DAMAGE_MOD", action.EnemyDamageMod, percent: true, bundleValue);
                 case "enemy_next_action_multihit":
-                    return AddParsedMod(into, "MULTIHIT_MOD", action.EnemyMultiHitMod, percent: false);
+                    return AddParsedModOrBundle(into, "MULTIHIT_MOD", action.EnemyMultiHitMod, percent: false, bundleValue);
                 case "enemy_next_action_amp":
-                    return AddParsedMod(into, "AMP_MOD", action.EnemyAmpMod, percent: true);
+                    return AddParsedModOrBundle(into, "AMP_MOD", action.EnemyAmpMod, percent: true, bundleValue);
                 case "hero_weapon_speed":
-                    return AddParsedMod(into, "WEAPON_SPEED", action.WeaponSpeedMod, percent: false);
+                    return AddParsedModOrBundle(into, "WEAPON_SPEED", action.WeaponSpeedMod, percent: false, bundleValue);
                 case "hero_weapon_damage":
-                    return AddParsedMod(into, "WEAPON_DAMAGE", action.WeaponDamageMod, percent: false);
+                    return AddParsedModOrBundle(into, "WEAPON_DAMAGE", action.WeaponDamageMod, percent: false, bundleValue);
                 case "enemy_weapon_speed":
-                    return AddParsedMod(into, "WEAPON_SPEED", action.EnemyWeaponSpeedMod, percent: false);
+                    return AddParsedModOrBundle(into, "WEAPON_SPEED", action.EnemyWeaponSpeedMod, percent: false, bundleValue);
                 case "enemy_weapon_damage":
-                    return AddParsedMod(into, "WEAPON_DAMAGE", action.EnemyWeaponDamageMod, percent: false);
+                    return AddParsedModOrBundle(into, "WEAPON_DAMAGE", action.EnemyWeaponDamageMod, percent: false, bundleValue);
                 case "hero_stat_bonus":
                 case "enemy_stat_bonus":
                     return AddStatBonuses(action, mechanicId, into);
@@ -511,12 +541,34 @@ namespace RPGGame.Actions.Conditional
             }
         }
 
-        private static bool AddThreshold(List<ActionAttackBonusItem> into, string type, int value)
+        private static bool AddThreshold(List<ActionAttackBonusItem> into, string type, int value, double? bundleValue = null)
         {
+            if (value == 0 && bundleValue is { } bv && bv != 0)
+                value = (int)Math.Round(bv);
             if (value == 0)
                 return false;
             into.Add(new ActionAttackBonusItem { Type = type, Value = value });
             return true;
+        }
+
+        private static bool AddBundleValue(List<ActionAttackBonusItem> into, string type, double? bundleValue)
+        {
+            if (bundleValue is not { } v || v == 0)
+                return false;
+            into.Add(new ActionAttackBonusItem { Type = type, Value = v });
+            return true;
+        }
+
+        private static bool AddParsedModOrBundle(
+            List<ActionAttackBonusItem> into,
+            string type,
+            string? cell,
+            bool percent,
+            double? bundleValue)
+        {
+            if (AddParsedMod(into, type, cell, percent))
+                return true;
+            return AddBundleValue(into, type, bundleValue);
         }
 
         private static bool AddStatBonuses(Action action, string mechanicId, List<ActionAttackBonusItem> into)

@@ -22,7 +22,7 @@ The published CSV is **public** (anyone with the link can read it). Push uses th
 |------------|---------|
 | `spreadsheetEditUrl` | **Browser Edit link** (`…/spreadsheets/d/<realId>/edit…`). Used to sync **`spreadsheetId`** into `SheetsPushConfig.json` for OAuth **push**. Published CSV links often use `d/e/2PACX-…` — that value is **not** accepted by the Sheets API as `spreadsheetId` (you get HTTP 404 on push). |
 | `actionsSheetUrl` | Published CSV URL for the **Actions** tab (two-row header). Acts as the **template** for other tabs when you use gids (same link, different `gid=`). |
-| `weaponsSheetUrl`, `modificationsSheetUrl`, `armorSheetUrl`, `classPresentationSheetUrl`, `classActionsSheetUrl`, `enemiesSheetUrl`, `environmentsSheetUrl`, `dungeonsSheetUrl`, `statBonusesSheetUrl`, `consumablesSheetUrl` | Full published CSV or **edit?gid=…** URLs per tab. The Balance Tuning panel **derives** these from `actionsSheetUrl` + numeric tab gids when you save; you can still hand-edit full URLs here. |
+| `weaponsSheetUrl`, `modificationsSheetUrl`, `armorSheetUrl`, `classPresentationSheetUrl`, `classActionsSheetUrl`, `enemiesSheetUrl`, `environmentsSheetUrl`, `dungeonsSheetUrl`, `statBonusesSheetUrl`, `consumablesSheetUrl`, `triggersSheetUrl` | Full published CSV or **edit?gid=…** URLs per tab. The Balance Tuning panel **derives** these from `actionsSheetUrl` + numeric tab gids when you save; you can still hand-edit full URLs here. |
 
 Leave a derived URL / gid empty to skip that section on pull.
 
@@ -52,6 +52,7 @@ These are the canonical authoring links for this repo (also stored in `GameData/
 | DUNGEONS | `1068091644` | `GameData/Dungeons.json` |
 | SUFFIXES (stat bonuses) | `388294050` | `GameData/StatBonuses.json` |
 | CONSUMABLES | `828815998` | `GameData/Consumables.json` |
+| triggers | `42970568` | `GameData/Triggers.json` (item trigger identities) |
 | flavor | `825117964` | **PUSH only** → from `GameData/FlavorText.json` (PULL does not overwrite local JSON) |
 
 Example **ACTIONS** tab edit link:  
@@ -119,10 +120,28 @@ On pull, the console prints a **column usage summary** (see `SpreadsheetActionCo
 
 - **Row 1:** column headers (stable order: canonical JSON property names, then any extra keys found in the data, sorted).
 - **Row 2+:** one object per row.
-- **Weapons / Armor:** header names use **camelCase** (`type`, `name`, `baseDamage`, …). Nested `attributeRequirements` is stored as **JSON text** in the cell.
+- **Weapons / Armor:** header names use **camelCase** (`type`, `name`, `baseDamage`, …). Nested `attributeRequirements` is stored as **JSON text** in the cell. Catalog item procs use **`triggerName`** (identity `name` from the **triggers** tab / `Triggers.json`); nested `triggerBundles` / `equipEffects` are not sheet columns.
 - **Modifications:** header names use **PascalCase** (`DiceResult`, `ItemRank`, `Name`, …) to match `Modifications.json`.
 
 Pull maps columns **by header name** (case-insensitive), not by fixed column index.
+
+### triggers (item trigger identities)
+
+Single header row; fixed columns **A–I** → `GameData/Triggers.json` (Consumables-style tabular round-trip). Tab name is lowercase **`triggers`** (gid `42970568`).
+
+| Col | Field | Notes |
+|-----|-------|-------|
+| A | `id` | Stable int (catalog index) |
+| B | `name` | Unique identity key referenced by Weapons/Armor **`triggerName`** |
+| C | `when` | WHEN token (`ONCONNECT`, `ONNATURALROLL:7`, `WHILE_EQUIPPED`, …) |
+| D | `count` | Usually `1`; blank = disabled |
+| E | `scope` | `TURN` / `ACTION` / `FIGHT` / `DUNGEON` / blank = instant |
+| F | `mechanics` | Comma-separated mechanic ids |
+| G | `value` | Optional magnitude (items have no sibling mechanic columns) |
+| H | `filters` | Comma-separated filters (`IFCLUTCH`, `IFSLOT:3`, …) |
+| I | `channel` | `combat` → runtime `triggerBundles`; `equip` → `equipEffects` |
+
+**Authoring flow:** edit identities on **triggers** → **PULL** → `Triggers.json`; assign which identity a gear row uses via **`triggerName`** on WEAPONS/ARMOR. Re-stamp empty assignments: `dotnet run -- --stamp-item-triggers` (writes `triggerName` as `index % Count` across weapons then armor). ACTIONS still author their own TRIGGERS column band separately.
 
 ### ENEMIES
 
@@ -350,6 +369,6 @@ dotnet run --project Code/Code.csproj -- PARSE "https://..." "GameData/Actions.j
 ## Troubleshooting
 
 - **403 / permission on push:** Ensure the Google account you OAuth with can edit the spreadsheet; enable the Sheets API for your Cloud project.
-- **Wrong or empty tab on push:** Tab names in `SheetsPushConfig.json` must match the sheet **exactly** (including spaces). Create the tab in the spreadsheet before pushing.
+- **Wrong or empty tab on push:** Tab names in `SheetsPushConfig.json` must match the sheet **exactly** (including spaces and capitalization). Create the tab in the spreadsheet before pushing. Push logs include an **Open:** link with `?gid=…` — use that if the grid looks empty (you may be on a different tab; `triggers` is near the end of the tab strip).
 - **Pull corrupts columns:** Do not rename header cells for WEAPONS/MODS/ARMOR if you rely on pull; extra unknown columns are ignored on deserialize paths depending on content—prefer keeping headers aligned with the canonical list in code (`JsonArraySheetConverter`).
 - **Connection errors:** Verify each published URL uses the correct `gid` for that tab.

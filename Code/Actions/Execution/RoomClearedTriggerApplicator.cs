@@ -40,6 +40,9 @@ namespace RPGGame.Actions.Execution
                 CombatEffectsSimplified.ApplyStatusEffects(action, hero, hero, messages, roomClearedEvent);
             }
 
+            // Catalog item procs (e.g. ONROOMSCLEARED heal / weapon damage) — skip re-running pool actions.
+            EquippedItemTriggerApplicator.ApplyFromAttacker(hero, hero, roomClearedEvent, messages);
+
             return messages;
         }
 

@@ -22,7 +22,8 @@ namespace RPGGame.Data
             {
                 "slot", "name", "armor", "tags", "strength", "agility", "technique", "intelligence",
                 "hit", "combo", "crit", "extraActionSlots",
-                "minActionBonuses", "tier", "attributeRequirements"
+                "minActionBonuses", "tier", "attributeRequirements", "triggerName",
+                "triggerBundles", "equipEffects"
             };
 
             var extraKeys = new SortedSet<string>(StringComparer.Ordinal);
@@ -105,6 +106,7 @@ namespace RPGGame.Data
                 "armor" => "armor",
                 "tags" => "tags",
                 "tier" => "tier",
+                "triggerName" => "triggerName",
                 _ => null
             };
 

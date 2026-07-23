@@ -4,6 +4,16 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Bug fix / UI — exit prompt blank before divider:** `ColoredTextCoordinator.WriteColoredSegments` was dropping empty segment lists, so the exit menu’s leading blank (and the blank before the bottom divider) never rendered. After a room-search consumable the room-cleared spacer is skipped, so the eat/drink line sat flush against `====`. Empty lists now write blank lines (same contract as batch writes / `BufferStorage`). Tests: `ColoredTextCoordinatorTests`. Docs: `OVERVIEW.md`.
+
+- [x] **Data / Sheets — push log Open:gid + API cell counts:** Optional-tab push now reports Sheets API `UpdatedRows`/`UpdatedCells` (like ACTIONS) and an **Open:** `edit?gid=` link so a successful write is not confused with viewing a different empty tab. Tests: `SheetsPushPreflightTests`. Docs: `GOOGLE_SHEETS_INTEGRATION.md`.
+
+- [x] **Data / Sheets — item triggers catalog tab:** Tab **triggers** (gid `42970568`) ↔ `Triggers.json` (`id`/`name`/`when`/`count`/`scope`/`mechanics`/`value`/`filters`/`channel`); Weapons/Armor **`triggerName`**; resolve at `ItemGenerator` via `TriggersLoader`; stamp CLI writes names not nested blobs; pull/push + Balance Tuning gid/checkbox. Tests: `JsonArraySheetConverterTriggersTests`, `SheetsPushConfigTests`, `EquippedItemTriggerTests`. Docs: `GOOGLE_SHEETS_INTEGRATION.md`, `OVERVIEW.md`.
+
+- [x] **Items / trigger system expansion (66 identities + equip channel):** Swing-subject filters on item procs; `ONEVEN`/`ONODD`, `IFSLOT`, `IFUNARMED`, `IFCLASSTAG`; `hero_action_damage` same-swing; `Item.EquipEffects` / `ItemEquipEffectApplicator` (armor synergy, class primary, grant action/tag overlay); catalog demos for the 11 affordance examples; stamp `% 66`. Tests: `EquippedItemTriggerTests`. Docs: OVERVIEW / ARCHITECTURE.
+
+- [x] **Items / base catalog trigger bundles (55 identities):** Stamp `triggerBundles` on every Weapons/Armor row via `ItemTriggerIdentityCatalog`; copy in `ItemGenerator`; `EquippedItemTriggerApplicator` + room-clear pass; bundle `value` magnitude fallback; dice/threshold on TURN. Item hover **Triggers** section via `ItemTooltipFormatter` / `ItemTriggerBundleDisplay`. Re-stamp `--stamp-item-triggers`. Tests: `EquippedItemTriggerTests`, `ItemTooltipFormatterTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`. *(Superseded/expanded by trigger system expansion above.)*
+
 - [x] **Data / Actions — RESERVE POOL column + tag:** Sheet column **RESERVE POOL** (ensured on ACTIONS push) + registry tag `reserve_pool`; excluded from default weighted `Actor.SelectAction` rolls; still usable on combo strip. Settings checkbox. Tests: `ReservePoolActionTests`. Docs: `TAG_REGISTRY.md`, `GOOGLE_SHEETS_INTEGRATION.md`, `OVERVIEW.md`.
 
 - [x] **Data / Sheets ? ACTIONS push deletes legacy columns K?Y:** On OAuth ACTIONS push, delete old `TURN CADENCE`/`ACTION CADENCE`/? triples plus compact `DURATION`/`CADENCE`/`MECHANICS` (`ActionCadenceSheetColumns.CollectLegacyColumnIndicesToRemove` + Sheets `DeleteDimension`). Keeps the authoritative `CADENCES` band. Pull still accepts compact fallback. Tests: `ActionCadenceSheetColumnsTests`. Docs: `GOOGLE_SHEETS_INTEGRATION.md`, `OVERVIEW.md`.

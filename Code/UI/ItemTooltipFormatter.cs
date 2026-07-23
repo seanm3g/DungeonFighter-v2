@@ -81,6 +81,30 @@ namespace RPGGame
                 }
             }
 
+            var triggerSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.TriggerBundles).ToList();
+            if (triggerSummaries.Count > 0 && lines.Count < maxLines)
+            {
+                AddBlank(lines);
+                AddLine(lines, SectionHeader("Triggers"));
+                foreach (var summary in triggerSummaries)
+                {
+                    if (lines.Count >= maxLines) break;
+                    AddLine(lines, BuildTriggerLine(summary));
+                }
+            }
+
+            var equipSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.EquipEffects).ToList();
+            if (equipSummaries.Count > 0 && lines.Count < maxLines)
+            {
+                AddBlank(lines);
+                AddLine(lines, SectionHeader("While equipped"));
+                foreach (var summary in equipSummaries)
+                {
+                    if (lines.Count >= maxLines) break;
+                    AddLine(lines, BuildTriggerLine(summary));
+                }
+            }
+
             if (character != null)
             {
                 var resolvedGearActions = character.Equipment.GetGearActions(item);
@@ -188,6 +212,25 @@ namespace RPGGame
             {
                 b.Add(" · ", Colors.DarkGray);
                 b.Add(mod.Description, Colors.Gray);
+            }
+            return b.Build();
+        }
+
+        private static List<ColoredText> BuildTriggerLine(string summary)
+        {
+            var b = new ColoredTextBuilder();
+            b.Add("  ", Colors.Gray);
+            // Identity name (before em dash) in warning; rest in white
+            int sep = summary.IndexOf(" — ", StringComparison.Ordinal);
+            if (sep > 0)
+            {
+                b.Add(summary.Substring(0, sep), ColorPalette.Warning.GetColor());
+                b.Add(" — ", Colors.DarkGray);
+                b.Add(summary.Substring(sep + 3), Colors.White);
+            }
+            else
+            {
+                b.Add(summary, Colors.White);
             }
             return b.Build();
         }

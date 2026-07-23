@@ -121,6 +121,14 @@ namespace RPGGame
 
             effectsApplied |= ActionTriggerBundleApplicator.ApplyMatchingBundles(
                 action, combatEvent, attacker, target, results);
+
+            // Room clear runs a dedicated equip pass once in RoomClearedTriggerApplicator
+            // (pool actions may call ApplyStatusEffects multiple times).
+            if (combatEvent?.Type != CombatEventType.RoomCleared)
+            {
+                effectsApplied |= EquippedItemTriggerApplicator.ApplyFromAttacker(
+                    attacker, target, combatEvent, results);
+            }
             
             return effectsApplied;
         }
