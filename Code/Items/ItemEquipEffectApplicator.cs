@@ -25,7 +25,7 @@ namespace RPGGame
                 {
                     string id = ActionMechanicsRegistry.NormalizeMechanicId(StripArg(rawId, out _));
                     if (id is "armor" or "hero_armor")
-                        total += (int)Math.Round(effect.Bundle.Value ?? 0);
+                        total += (int)Math.Round(ItemTriggerMagnitude.ResolveOrZero(effect.Bundle, character));
                 }
             }
             return total;
@@ -48,7 +48,7 @@ namespace RPGGame
                     string resolved = ResolveStatArg(character, arg);
                     if (!StatsMatch(want, resolved))
                         continue;
-                    total += (int)Math.Round(effect.Bundle.Value ?? 0);
+                    total += (int)Math.Round(ItemTriggerMagnitude.ResolveOrZero(effect.Bundle, character));
                 }
             }
             return total;

@@ -119,20 +119,22 @@ namespace RPGGame
         private static List<List<ColoredText>> BuildNaivete(Character c, int maxLines)
         {
             var lines = new List<List<ColoredText>>();
-            int naivete = NaiveteBalanceHelper.ComputeNaivete(c);
-            if (naivete <= 0)
+            int naivete = NaiveteBalanceHelper.GetDisplayNaivete(c);
+            int maxNaivete = NaiveteBalanceHelper.ComputeNaivete(c);
+            if (naivete <= 0 && maxNaivete <= 0)
                 return Trim(lines, maxLines);
 
-            int hitSteps = NaiveteBalanceHelper.GetHitSteps(c);
             var config = NaiveteBalanceHelper.GetConfig();
 
             AddTitle(lines, "Naiveté");
             AddBlank(lines);
             AddHighlight(lines, "Remaining", naivete.ToString(CultureInfo.InvariantCulture));
+            if (maxNaivete > 0)
+                AddStatRow(lines, "Fight max", maxNaivete);
             AddBlank(lines);
             AddSection(lines, "Effect");
-            AddStatRow(lines, "HIT threshold steps", hitSteps);
-            AddNoteLine(lines, "Easier to hit while you are still inexperienced in combat.");
+            AddNoteLine(lines, "On miss: spend 1 for advantage (2d20, keep highest).");
+            AddNoteLine(lines, "Chains on repeated misses until you hit or run out.");
             AddBlank(lines);
             AddSection(lines, "Progress");
             AddStatRow(lines, "Hero level", c.Level);
@@ -142,6 +144,7 @@ namespace RPGGame
                 AddStatRow(lines, "Fades by", 1);
             }
             AddNoteLine(lines, "Starts as a single digit and drops by 1 each level.");
+            AddNoteLine(lines, "Refills to max at the start of each fight.");
 
             return Trim(lines, maxLines);
         }

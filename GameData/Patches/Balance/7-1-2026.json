@@ -121,9 +121,9 @@
     },
     "naivete": {
       "enabled": true,
-      "startingNaivete": 3,
+      "startingNaivete": 5,
       "naivetePointsPerHitStep": 1,
-      "maxHitStepsFromNaivete": 3,
+      "maxHitStepsFromNaivete": 0,
       "attributeTotalCap": 66
     }
   },

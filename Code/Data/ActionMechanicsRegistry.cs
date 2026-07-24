@@ -628,6 +628,8 @@ namespace RPGGame.Data
             P("hero_next_action_speed", false, true, false, false, true, MechanicStatus.Good);
             P("hero_next_action_damage", false, true, false, true, true, MechanicStatus.Good);
             P("hero_action_damage", false, false, false, false, true, MechanicStatus.Good); // same-swing %
+            P("hero_action_speed", false, false, false, false, true, MechanicStatus.Good); // same-swing %
+            P("hero_action_amp", false, false, false, false, true, MechanicStatus.Good); // same-swing %
             P("hero_next_action_multihit", false, true, false, false, true, MechanicStatus.Good);
             P("hero_next_action_amp", false, true, false, false, true, MechanicStatus.Good);
             P("enemy_next_action_speed", false, true, false, false, true, MechanicStatus.Good);

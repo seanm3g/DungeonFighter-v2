@@ -38,10 +38,18 @@ namespace RPGGame
 
             sb.Append(" → ");
             sb.Append(FormatMechanics(bundle.Mechanics, bundle.Value));
+            if (!string.IsNullOrWhiteSpace(bundle.ScaleFrom))
+            {
+                sb.Append(" × ");
+                sb.Append(bundle.ScaleFrom.Trim().ToUpperInvariant());
+            }
 
-            string? identityName = TryMatchIdentityName(bundle);
-            if (!string.IsNullOrEmpty(identityName))
+            if (TryMatchIdentity(bundle, out string? identityName, out string? description))
+            {
+                if (!string.IsNullOrWhiteSpace(description))
+                    return $"{identityName} — {description.Trim()}";
                 return $"{identityName} — {sb}";
+            }
 
             return sb.ToString();
         }
@@ -88,6 +96,7 @@ namespace RPGGame
                 "ONNATURALROLL" => arg != null ? $"On natural {arg}" : "On natural roll",
                 "ONEVEN" => "On even roll",
                 "ONODD" => "On odd roll",
+                "ONTAKEHIT" => "On take hit",
                 "WHILEEQUIPPED" or "WHILE_EQUIPPED" => "While equipped",
                 "ONHEALTHTHRESHOLD" => "On health threshold",
                 _ => PrettifyToken(token)
@@ -117,6 +126,7 @@ namespace RPGGame
                 "IFSLOT" => arg != null ? $"slot {arg}" : "combo slot",
                 "IFUNARMED" => "unarmed",
                 "IFCLASSTAG" => arg != null ? $"class:{arg}" : "class tag",
+                "IFATTR" => arg != null ? $"attr {arg}" : "attribute",
                 _ => PrettifyToken(token)
             };
         }
@@ -161,7 +171,7 @@ namespace RPGGame
                 bool percent = normalized.Contains("next_action_speed", StringComparison.OrdinalIgnoreCase)
                     || normalized.Contains("next_action_damage", StringComparison.OrdinalIgnoreCase)
                     || normalized.Contains("next_action_amp", StringComparison.OrdinalIgnoreCase)
-                    || normalized is "hero_action_damage";
+                    || normalized is "hero_action_damage" or "hero_action_speed" or "hero_action_amp";
                 string qty = v.ToString("0.##", CultureInfo.InvariantCulture);
                 label = percent ? $"{label} {sign}{qty}%" : $"{label} {sign}{qty}";
             }
@@ -195,6 +205,8 @@ namespace RPGGame
                 "retrigger_finisher" => "Retrigger finisher",
                 "retrigger_slot" => "Retrigger slot",
                 "hero_action_damage" => "This swing damage",
+                "hero_action_speed" => "This swing speed",
+                "hero_action_amp" => "This swing amp",
                 "armor" or "hero_armor" => "Armor",
                 "grant_action_tag" => "Grant action tag",
                 "grant_action" => "Grant action",
@@ -209,8 +221,13 @@ namespace RPGGame
                 or "vulnerability" or "slow" or "heal" or "max_health" or "confuse" or "confusion"
                 or "stat_drain" or "disrupt";
 
-        private static string? TryMatchIdentityName(ActionTriggerBundle bundle)
+        private static bool TryMatchIdentity(
+            ActionTriggerBundle bundle,
+            out string? identityName,
+            out string? description)
         {
+            identityName = null;
+            description = null;
             foreach (var id in ItemTriggerIdentityCatalog.Identities)
             {
                 if (!string.Equals(id.When, bundle.When, StringComparison.OrdinalIgnoreCase))
@@ -219,10 +236,12 @@ namespace RPGGame
                     continue;
                 if (!string.Equals(id.Mechanics, bundle.Mechanics, StringComparison.OrdinalIgnoreCase))
                     continue;
-                return SplitCamel(id.Name);
+                identityName = SplitCamel(id.Name);
+                description = string.IsNullOrWhiteSpace(id.Description) ? null : id.Description.Trim();
+                return true;
             }
 
-            return null;
+            return false;
         }
 
         private static string SplitCamel(string name)

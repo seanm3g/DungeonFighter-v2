@@ -20,7 +20,7 @@ namespace RPGGame.Tests.Unit
             Console.WriteLine("=== Equipped Item Trigger Tests ===\n");
             _run = _passed = _failed = 0;
 
-            TestCatalogHasFiftyFiveIdentities();
+            TestCatalogHasWaveTwoIdentities();
             TestKillReloadSetsPendingFaceWhenEquipped();
             TestUnequippedDoesNotFire();
             TestThresholdUsesTurnNotActionBank();
@@ -37,17 +37,24 @@ namespace RPGGame.Tests.Unit
             TestGrantActionTagOverlay();
             TestUnarmedGrantPunchEquipEffect();
             TestSameSwingMirrorDamage();
+            TestScaleFromArmorMagnitude();
+            TestWhileEquippedTagAmpSameSwing();
+            TestOnTakeHitDefenderPath();
+            TestIfAttrFilter();
 
             TestBase.PrintSummary("Equipped Item Trigger Tests", _run, _passed, _failed);
         }
 
-        private static void TestCatalogHasFiftyFiveIdentities()
+        private static void TestCatalogHasWaveTwoIdentities()
         {
-            TestBase.SetCurrentTestName(nameof(TestCatalogHasFiftyFiveIdentities));
-            TestBase.AssertEqual(66, ItemTriggerIdentityCatalog.Count, "catalog count", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(66, ItemTriggerIdentityCatalog.Identities.Count, "identity list length", ref _run, ref _passed, ref _failed);
-            for (int i = 0; i < 66; i++)
+            TestBase.SetCurrentTestName(nameof(TestCatalogHasWaveTwoIdentities));
+            TestBase.AssertEqual(106, ItemTriggerIdentityCatalog.Count, "catalog count", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(106, ItemTriggerIdentityCatalog.Identities.Count, "identity list length", ref _run, ref _passed, ref _failed);
+            for (int i = 0; i < 106; i++)
                 TestBase.AssertEqual(i, ItemTriggerIdentityCatalog.Get(i).Index, $"identity index {i}", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("STR", ItemTriggerIdentityCatalog.Get(81).ScaleFrom, "StrCleave scaleFrom", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(ItemTriggerIdentityCatalog.Get(66).IsEquipEffect, "SwiftSchool equip", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("ONTAKEHIT", ItemTriggerIdentityCatalog.Get(101).When, "HurtPride when", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestKillReloadSetsPendingFaceWhenEquipped()
@@ -543,6 +550,138 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(100, (int)hero.Effects.ConsumedDamageModPercent,
                 "mirror adds 100% same-swing damage", ref _run, ref _passed, ref _failed);
             CombatTriggerContext.ResetForBattle();
+        }
+
+        private static void TestScaleFromArmorMagnitude()
+        {
+            TestBase.SetCurrentTestName(nameof(TestScaleFromArmorMagnitude));
+            var hero = new Character("ScaleArmor", 10);
+            hero.Level = 5;
+            var chest = new ChestItem("LevelMail", 1, 0)
+            {
+                EquipEffects = new List<ActionTriggerBundle>
+                {
+                    ItemTriggerIdentityCatalog.ToBundle(ItemTriggerIdentityCatalog.Get(87))
+                }
+            };
+            hero.TryEquipItem(chest, "Body", out _, out _, ignoreAttributeRequirements: true);
+            int armor = ItemEquipEffectApplicator.GetEquippedArmorBonus(hero);
+            TestBase.AssertEqual(5, armor, "LevelLadderArmor = 1 × level 5", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestWhileEquippedTagAmpSameSwing()
+        {
+            TestBase.SetCurrentTestName(nameof(TestWhileEquippedTagAmpSameSwing));
+            var hero = new Character("TagAmp", 10);
+            var foe = new Character("Foe", 5);
+            hero.Effects.ConsumedDamageModPercent = 0;
+            hero.TryEquipItem(new WeaponItem("BludgeonClub", 1, 5, 1.0, WeaponType.Mace)
+            {
+                EquipEffects = new List<ActionTriggerBundle>
+                {
+                    ItemTriggerIdentityCatalog.ToBundle(ItemTriggerIdentityCatalog.Get(67))
+                }
+            }, "Weapon", out _, out _, ignoreAttributeRequirements: true);
+
+            EquippedItemTriggerApplicator.ApplySameSwingDamageMods(
+                hero, foe, new Action { Name = "SMASH", Tags = new List<string> { "bludgeon" } },
+                12, 12, false, false, new List<string>());
+            TestBase.AssertEqual(12, (int)hero.Effects.ConsumedDamageModPercent,
+                "BludgeonChorus +12% when tagged", ref _run, ref _passed, ref _failed);
+
+            hero.Effects.ConsumedDamageModPercent = 0;
+            EquippedItemTriggerApplicator.ApplySameSwingDamageMods(
+                hero, foe, new Action { Name = "POKE", Tags = new List<string> { "swift" } },
+                12, 12, false, false, new List<string>());
+            TestBase.AssertEqual(0, (int)hero.Effects.ConsumedDamageModPercent,
+                "BludgeonChorus skips non-bludgeon", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestOnTakeHitDefenderPath()
+        {
+            TestBase.SetCurrentTestName(nameof(TestOnTakeHitDefenderPath));
+            CombatTriggerContext.ResetForBattle();
+            var hero = new Character("HurtPrideHero", 10);
+            var foe = new Character("Foe", 5);
+            hero.TryEquipItem(new ChestItem("SpiteMail", 1, 1)
+            {
+                TriggerBundles = new List<ActionTriggerBundle>
+                {
+                    ItemTriggerIdentityCatalog.ToBundle(ItemTriggerIdentityCatalog.Get(101))
+                }
+            }, "Body", out _, out _, ignoreAttributeRequirements: true);
+
+            var hit = new CombatEvent(CombatEventType.ActionHit, foe)
+            {
+                Target = hero,
+                Action = new Action { Name = "BITE" },
+                IsMiss = false
+            };
+            var msgs = new List<string>();
+            bool applied = EquippedItemTriggerApplicator.ApplyFromDefender(hero, foe, hit, msgs);
+            TestBase.AssertTrue(applied, "ONTAKEHIT applied from defender", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(CountPendingActionCadence(hero) > 0,
+                "HurtPride deposits next-action damage", ref _run, ref _passed, ref _failed);
+
+            // Attacker connect should not fire ONTAKEHIT on attacker's gear
+            var attackerWeapon = new WeaponItem("NoTake", 1, 5, 1.0, WeaponType.Sword)
+            {
+                TriggerBundles = new List<ActionTriggerBundle>
+                {
+                    ItemTriggerIdentityCatalog.ToBundle(ItemTriggerIdentityCatalog.Get(101))
+                }
+            };
+            var attacker = new Character("Atk", 10);
+            attacker.TryEquipItem(attackerWeapon, "Weapon", out _, out _, ignoreAttributeRequirements: true);
+            var connect = new CombatEvent(CombatEventType.ActionHit, attacker)
+            {
+                Target = foe,
+                Action = new Action { Name = "SWING" },
+                IsMiss = false
+            };
+            bool attackerFire = EquippedItemTriggerApplicator.ApplyFromAttacker(attacker, foe, connect, new List<string>());
+            TestBase.AssertTrue(!attackerFire || CountPendingActionCadence(attacker) == 0,
+                "ONTAKEHIT does not fire via attacker connect path", ref _run, ref _passed, ref _failed);
+            CombatTriggerContext.ResetForBattle();
+        }
+
+        private static void TestIfAttrFilter()
+        {
+            TestBase.SetCurrentTestName(nameof(TestIfAttrFilter));
+            var weak = new Character("Weak", 10);
+            weak.Strength = 3;
+            var strong = new Character("Strong", 10);
+            strong.Strength = 12;
+
+            var bundle = new ActionTriggerBundle
+            {
+                When = "WHILE_EQUIPPED",
+                Count = "1",
+                Mechanics = "armor",
+                Value = 5,
+                Filters = new List<string> { "IFATTR:STR>=8" }
+            };
+            var weakItem = new ChestItem("GateMail", 1, 0) { EquipEffects = new List<ActionTriggerBundle> { bundle } };
+            var strongItem = new ChestItem("GateMail2", 1, 0)
+            {
+                EquipEffects = new List<ActionTriggerBundle>
+                {
+                    new ActionTriggerBundle
+                    {
+                        When = "WHILE_EQUIPPED",
+                        Count = "1",
+                        Mechanics = "armor",
+                        Value = 5,
+                        Filters = new List<string> { "IFATTR:STR>=8" }
+                    }
+                }
+            };
+            weak.TryEquipItem(weakItem, "Body", out _, out _, ignoreAttributeRequirements: true);
+            strong.TryEquipItem(strongItem, "Body", out _, out _, ignoreAttributeRequirements: true);
+            TestBase.AssertEqual(0, ItemEquipEffectApplicator.GetEquippedArmorBonus(weak),
+                "IFATTR blocks weak STR", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(5, ItemEquipEffectApplicator.GetEquippedArmorBonus(strong),
+                "IFATTR passes strong STR", ref _run, ref _passed, ref _failed);
         }
 
         private static int CountPendingActionCadence(Character hero)

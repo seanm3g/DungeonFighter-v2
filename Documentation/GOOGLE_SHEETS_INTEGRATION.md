@@ -127,21 +127,23 @@ Pull maps columns **by header name** (case-insensitive), not by fixed column ind
 
 ### triggers (item trigger identities)
 
-Single header row; fixed columns **A–I** → `GameData/Triggers.json` (Consumables-style tabular round-trip). Tab name is lowercase **`triggers`** (gid `42970568`).
+Single header row; fixed columns **A–K** → `GameData/Triggers.json` (Consumables-style tabular round-trip). Tab name is lowercase **`triggers`** (gid `42970568`).
 
 | Col | Field | Notes |
 |-----|-------|-------|
 | A | `id` | Stable int (catalog index) |
 | B | `name` | Unique identity key referenced by Weapons/Armor **`triggerName`** |
-| C | `when` | WHEN token (`ONCONNECT`, `ONNATURALROLL:7`, `WHILE_EQUIPPED`, …) |
-| D | `count` | Usually `1`; blank = disabled |
-| E | `scope` | `TURN` / `ACTION` / `FIGHT` / `DUNGEON` / blank = instant |
-| F | `mechanics` | Comma-separated mechanic ids |
-| G | `value` | Optional magnitude (items have no sibling mechanic columns) |
-| H | `filters` | Comma-separated filters (`IFCLUTCH`, `IFSLOT:3`, …) |
-| I | `channel` | `combat` → runtime `triggerBundles`; `equip` → `equipEffects` |
+| C | `description` | Player-facing one-liner (tooltips prefer this when present) |
+| D | `when` | WHEN token (`ONCONNECT`, `ONNATURALROLL:7`, `WHILE_EQUIPPED`, `ONTAKEHIT`, …) |
+| E | `count` | Usually `1`; blank = disabled |
+| F | `scope` | `TURN` / `ACTION` / `FIGHT` / `DUNGEON` / blank = instant |
+| G | `mechanics` | Comma-separated mechanic ids |
+| H | `value` | Optional magnitude (items have no sibling mechanic columns) |
+| I | `filters` | Comma-separated filters (`IFCLUTCH`, `IFSLOT:3`, `IFATTR:STR>=8`, …) |
+| J | `channel` | `combat` → runtime `triggerBundles`; `equip` → `equipEffects` |
+| K | `scaleFrom` | Optional: `STR` / `AGI` / `TEC` / `INT` / `PRIMARY` / `LEVEL` / class — effective = `value` × units |
 
-**Authoring flow:** edit identities on **triggers** → **PULL** → `Triggers.json`; assign which identity a gear row uses via **`triggerName`** on WEAPONS/ARMOR. Re-stamp empty assignments: `dotnet run -- --stamp-item-triggers` (writes `triggerName` as `index % Count` across weapons then armor). ACTIONS still author their own TRIGGERS column band separately.
+**Authoring flow:** edit identities on **triggers** → **PULL** → `Triggers.json`; assign which identity a gear row uses via **`triggerName`** on WEAPONS/ARMOR. Re-stamp: `dotnet run -- --stamp-item-triggers` (rewrites `Triggers.json` from seed and writes `triggerName` as `index % Count` across weapons then armor). ACTIONS still author their own TRIGGERS column band separately.
 
 ### ENEMIES
 

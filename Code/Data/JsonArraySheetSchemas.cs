@@ -64,7 +64,7 @@ namespace RPGGame.Data
             { "displayName", "internalKind", "effect", "potency" };
 
         public static readonly string[] TriggersCanonicalHeaders =
-            { "id", "name", "when", "count", "scope", "mechanics", "value", "filters", "channel" };
+            { "id", "name", "description", "when", "count", "scope", "mechanics", "value", "filters", "channel", "scaleFrom" };
 
         internal static readonly HashSet<string> ConsumablesAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -73,7 +73,7 @@ namespace RPGGame.Data
 
         internal static readonly HashSet<string> TriggersAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
         {
-            "id", "name", "when", "count", "scope", "mechanics", "value", "filters", "channel"
+            "id", "name", "description", "when", "count", "scope", "mechanics", "value", "filters", "channel", "scaleFrom"
         };
 
         internal static readonly HashSet<string> StatBonusAuthorizedJsonKeys = new(StringComparer.Ordinal)

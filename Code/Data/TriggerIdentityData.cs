@@ -14,6 +14,10 @@ namespace RPGGame.Data
         [JsonPropertyName("name")]
         public string Name { get; set; } = "";
 
+        /// <summary>Player-facing one-liner for tooltips / sheet authoring.</summary>
+        [JsonPropertyName("description")]
+        public string Description { get; set; } = "";
+
         [JsonPropertyName("when")]
         public string When { get; set; } = "";
 
@@ -36,6 +40,10 @@ namespace RPGGame.Data
         /// <summary><c>combat</c> → <c>triggerBundles</c>; <c>equip</c> → <c>equipEffects</c>.</summary>
         [JsonPropertyName("channel")]
         public string Channel { get; set; } = "combat";
+
+        /// <summary>Optional magnitude scale source (see <see cref="ActionTriggerBundle.ScaleFrom"/>).</summary>
+        [JsonPropertyName("scaleFrom")]
+        public string? ScaleFrom { get; set; }
 
         [JsonIgnore]
         public bool IsEquipEffect =>
@@ -66,7 +74,8 @@ namespace RPGGame.Data
                 Scope = Scope ?? "",
                 Mechanics = Mechanics ?? "",
                 Value = Value,
-                Filters = filters.Count == 0 ? null : new List<string>(filters)
+                Filters = filters.Count == 0 ? null : new List<string>(filters),
+                ScaleFrom = string.IsNullOrWhiteSpace(ScaleFrom) ? null : ScaleFrom.Trim()
             };
         }
     }

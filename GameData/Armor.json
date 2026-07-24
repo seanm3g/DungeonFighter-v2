@@ -18,7 +18,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboSpray"
+    "triggerName": "SilverWard"
   },
   {
     "slot": "head",
@@ -39,7 +39,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritAmpCarry"
+    "triggerName": "GrantRogueTag"
   },
   {
     "slot": "head",
@@ -60,7 +60,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "FoeOvercommit"
+    "triggerName": "ClassWarriorPrimary"
   },
   {
     "slot": "head",
@@ -81,7 +81,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EndBreathDamage"
+    "triggerName": "BossNeedle"
   },
   {
     "slot": "head",
@@ -102,7 +102,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "FirstBloodAmp"
+    "triggerName": "MinionScythe"
   },
   {
     "slot": "head",
@@ -123,7 +123,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "KillSpray"
+    "triggerName": "ClutchIron"
   },
   {
     "slot": "head",
@@ -144,7 +144,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "DesperationAim"
+    "triggerName": "OddSpite"
   },
   {
     "slot": "head",
@@ -165,7 +165,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "OpenTheLane"
+    "triggerName": "HurtPride"
   },
   {
     "slot": "head",
@@ -186,7 +186,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "BloodlustCrit"
+    "triggerName": "HurtHarden"
   },
   {
     "slot": "head",
@@ -207,7 +207,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SteadyHand"
+    "triggerName": "DepthHunger"
   },
   {
     "slot": "head",
@@ -228,7 +228,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "LockedInAcc"
+    "triggerName": "StrongarmGate"
   },
   {
     "slot": "head",
@@ -249,7 +249,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EnemyFlinch"
+    "triggerName": "SwitchUpSpeed"
   },
   {
     "slot": "head",
@@ -270,7 +270,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EnemyAccTax"
+    "triggerName": "WoundMomentum"
   },
   {
     "slot": "head",
@@ -291,7 +291,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritThresholdPush"
+    "triggerName": "RecoverFooting"
   },
   {
     "slot": "head",
@@ -312,7 +312,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboThresholdPush"
+    "triggerName": "ComboSpray"
   },
   {
     "slot": "head",
@@ -333,7 +333,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "LuckySevenHit"
+    "triggerName": "CritAmpCarry"
   },
   {
     "slot": "head",
@@ -354,7 +354,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ExactFifteenCombo"
+    "triggerName": "FoeOvercommit"
   },
   {
     "slot": "head",
@@ -375,7 +375,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ClutchForgive"
+    "triggerName": "EndBreathDamage"
   },
   {
     "slot": "head",
@@ -396,7 +396,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritFace19"
+    "triggerName": "FirstBloodAmp"
   },
   {
     "slot": "head",
@@ -417,7 +417,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritFace18"
+    "triggerName": "KillSpray"
   },
   {
     "slot": "head",
@@ -438,7 +438,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SalvageCharm"
+    "triggerName": "DesperationAim"
   },
   {
     "slot": "head",
@@ -459,7 +459,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "KillReload20"
+    "triggerName": "OpenTheLane"
   },
   {
     "slot": "head",
@@ -480,7 +480,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboEndReload15"
+    "triggerName": "BloodlustCrit"
   },
   {
     "slot": "head",
@@ -501,7 +501,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SharpenedEdge"
+    "triggerName": "SteadyHand"
   },
   {
     "slot": "head",
@@ -522,7 +522,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "QuickGrip"
+    "triggerName": "LockedInAcc"
   },
   {
     "slot": "head",
@@ -543,7 +543,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "MarchCadence"
+    "triggerName": "EnemyFlinch"
   },
   {
     "slot": "head",
@@ -564,7 +564,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EnemySlowWeapon"
+    "triggerName": "EnemyAccTax"
   },
   {
     "slot": "head",
@@ -585,7 +585,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ChaosOpen"
+    "triggerName": "CritThresholdPush"
   },
   {
     "slot": "head",
@@ -606,7 +606,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EchoStep"
+    "triggerName": "ComboThresholdPush"
   },
   {
     "slot": "head",
@@ -627,7 +627,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SkipFiller"
+    "triggerName": "LuckySevenHit"
   },
   {
     "slot": "head",
@@ -648,7 +648,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "LeapAhead"
+    "triggerName": "ExactFifteenCombo"
   },
   {
     "slot": "head",
@@ -669,7 +669,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "LoopChain"
+    "triggerName": "ClutchForgive"
   },
   {
     "slot": "head",
@@ -690,7 +690,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "BreakRhythm"
+    "triggerName": "CritFace19"
   },
   {
     "slot": "head",
@@ -711,7 +711,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "WildNext"
+    "triggerName": "CritFace18"
   },
   {
     "slot": "head",
@@ -732,7 +732,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SealSlot"
+    "triggerName": "SalvageCharm"
   },
   {
     "slot": "head",
@@ -753,7 +753,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ReplaceNextStrip"
+    "triggerName": "KillReload20"
   },
   {
     "slot": "head",
@@ -774,7 +774,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "DoubleBeat"
+    "triggerName": "ComboEndReload15"
   },
   {
     "slot": "head",
@@ -795,7 +795,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ResetOpener"
+    "triggerName": "SharpenedEdge"
   },
   {
     "slot": "head",
@@ -816,7 +816,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "FinisherEncore"
+    "triggerName": "QuickGrip"
   },
   {
     "slot": "head",
@@ -837,7 +837,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SlotTwoEncore"
+    "triggerName": "MarchCadence"
   },
   {
     "slot": "head",
@@ -858,7 +858,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritExpose"
+    "triggerName": "EnemySlowWeapon"
   },
   {
     "slot": "head",
@@ -879,7 +879,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboWeaken"
+    "triggerName": "ChaosOpen"
   },
   {
     "slot": "head",
@@ -900,7 +900,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SteadyFocus"
+    "triggerName": "EchoStep"
   },
   {
     "slot": "head",
@@ -921,7 +921,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "GuardUp"
+    "triggerName": "SkipFiller"
   },
   {
     "slot": "head",
@@ -942,7 +942,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "FirstFortify"
+    "triggerName": "LeapAhead"
   },
   {
     "slot": "head",
@@ -963,7 +963,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ConnectPierce"
+    "triggerName": "LoopChain"
   },
   {
     "slot": "head",
@@ -984,7 +984,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EndVulnerability"
+    "triggerName": "BreakRhythm"
   },
   {
     "slot": "head",
@@ -1005,7 +1005,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritMissSlow"
+    "triggerName": "WildNext"
   },
   {
     "slot": "head",
@@ -1026,7 +1026,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "PunishDot"
+    "triggerName": "SealSlot"
   },
   {
     "slot": "head",
@@ -1047,7 +1047,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SpiteFocus"
+    "triggerName": "ReplaceNextStrip"
   },
   {
     "slot": "chest",
@@ -1068,7 +1068,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboEndHeal"
+    "triggerName": "DoubleBeat"
   },
   {
     "slot": "chest",
@@ -1089,7 +1089,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "RoomClearHeal"
+    "triggerName": "ResetOpener"
   },
   {
     "slot": "chest",
@@ -1110,7 +1110,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "AfterMissHeal"
+    "triggerName": "FinisherEncore"
   },
   {
     "slot": "chest",
@@ -1131,7 +1131,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritLadderDungeon"
+    "triggerName": "SlotTwoEncore"
   },
   {
     "slot": "chest",
@@ -1152,7 +1152,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "HitLadderDungeon"
+    "triggerName": "CritExpose"
   },
   {
     "slot": "chest",
@@ -1173,7 +1173,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "MissHitTaxDungeon"
+    "triggerName": "ComboWeaken"
   },
   {
     "slot": "chest",
@@ -1194,7 +1194,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "GoldSetArmor"
+    "triggerName": "SteadyFocus"
   },
   {
     "slot": "chest",
@@ -1215,7 +1215,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ClassPrimaryAttr"
+    "triggerName": "GuardUp"
   },
   {
     "slot": "chest",
@@ -1236,7 +1236,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EvenRollHeal"
+    "triggerName": "FirstFortify"
   },
   {
     "slot": "chest",
@@ -1257,7 +1257,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "BarbarianActionDamage"
+    "triggerName": "ConnectPierce"
   },
   {
     "slot": "chest",
@@ -1278,7 +1278,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "GrantBarbarianTag"
+    "triggerName": "EndVulnerability"
   },
   {
     "slot": "chest",
@@ -1299,7 +1299,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SlotThreeSpeedDungeon"
+    "triggerName": "CritMissSlow"
   },
   {
     "slot": "chest",
@@ -1320,7 +1320,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "MirrorSwingDamage"
+    "triggerName": "PunishDot"
   },
   {
     "slot": "chest",
@@ -1341,7 +1341,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "UnarmedPunchGrant"
+    "triggerName": "SpiteFocus"
   },
   {
     "slot": "chest",
@@ -1362,7 +1362,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "WoundMomentum"
+    "triggerName": "ComboEndHeal"
   },
   {
     "slot": "chest",
@@ -1383,7 +1383,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "RecoverFooting"
+    "triggerName": "RoomClearHeal"
   },
   {
     "slot": "chest",
@@ -1404,7 +1404,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboSpray"
+    "triggerName": "AfterMissHeal"
   },
   {
     "slot": "chest",
@@ -1425,7 +1425,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritAmpCarry"
+    "triggerName": "CritLadderDungeon"
   },
   {
     "slot": "chest",
@@ -1446,7 +1446,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "FoeOvercommit"
+    "triggerName": "HitLadderDungeon"
   },
   {
     "slot": "chest",
@@ -1467,7 +1467,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EndBreathDamage"
+    "triggerName": "MissHitTaxDungeon"
   },
   {
     "slot": "chest",
@@ -1488,7 +1488,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "FirstBloodAmp"
+    "triggerName": "GoldSetArmor"
   },
   {
     "slot": "chest",
@@ -1509,7 +1509,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "KillSpray"
+    "triggerName": "ClassPrimaryAttr"
   },
   {
     "slot": "chest",
@@ -1530,7 +1530,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "DesperationAim"
+    "triggerName": "EvenRollHeal"
   },
   {
     "slot": "chest",
@@ -1551,7 +1551,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "OpenTheLane"
+    "triggerName": "BarbarianActionDamage"
   },
   {
     "slot": "chest",
@@ -1572,7 +1572,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "BloodlustCrit"
+    "triggerName": "GrantBarbarianTag"
   },
   {
     "slot": "chest",
@@ -1593,7 +1593,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SteadyHand"
+    "triggerName": "SlotThreeSpeedDungeon"
   },
   {
     "slot": "chest",
@@ -1614,7 +1614,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "LockedInAcc"
+    "triggerName": "MirrorSwingDamage"
   },
   {
     "slot": "chest",
@@ -1635,7 +1635,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EnemyFlinch"
+    "triggerName": "UnarmedPunchGrant"
   },
   {
     "slot": "chest",
@@ -1656,7 +1656,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EnemyAccTax"
+    "triggerName": "SwiftSchool"
   },
   {
     "slot": "chest",
@@ -1677,7 +1677,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritThresholdPush"
+    "triggerName": "BludgeonChorus"
   },
   {
     "slot": "chest",
@@ -1698,7 +1698,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboThresholdPush"
+    "triggerName": "FocusLens"
   },
   {
     "slot": "chest",
@@ -1719,7 +1719,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "LuckySevenHit"
+    "triggerName": "InsightClarity"
   },
   {
     "slot": "chest",
@@ -1740,7 +1740,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ExactFifteenCombo"
+    "triggerName": "AimTrue"
   },
   {
     "slot": "chest",
@@ -1761,7 +1761,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ClutchForgive"
+    "triggerName": "FootworkGreaves"
   },
   {
     "slot": "chest",
@@ -1782,7 +1782,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritFace19"
+    "triggerName": "Firebrand"
   },
   {
     "slot": "chest",
@@ -1803,7 +1803,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritFace18"
+    "triggerName": "OpenerCrown"
   },
   {
     "slot": "chest",
@@ -1824,7 +1824,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SalvageCharm"
+    "triggerName": "FinisherSeal"
   },
   {
     "slot": "chest",
@@ -1845,7 +1845,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "KillReload20"
+    "triggerName": "RogueActionAmp"
   },
   {
     "slot": "chest",
@@ -1866,7 +1866,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboEndReload15"
+    "triggerName": "WarriorActionAmp"
   },
   {
     "slot": "chest",
@@ -1887,7 +1887,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SharpenedEdge"
+    "triggerName": "WizardActionAmp"
   },
   {
     "slot": "chest",
@@ -1908,7 +1908,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "QuickGrip"
+    "triggerName": "WaterBrand"
   },
   {
     "slot": "chest",
@@ -1929,7 +1929,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "MarchCadence"
+    "triggerName": "AirBrand"
   },
   {
     "slot": "chest",
@@ -1950,7 +1950,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EnemySlowWeapon"
+    "triggerName": "EarthBrand"
   },
   {
     "slot": "chest",
@@ -1971,7 +1971,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ChaosOpen"
+    "triggerName": "StrCleave"
   },
   {
     "slot": "chest",
@@ -1992,7 +1992,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EchoStep"
+    "triggerName": "AgiSkirmish"
   },
   {
     "slot": "chest",
@@ -2013,7 +2013,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SkipFiller"
+    "triggerName": "TecPrecision"
   },
   {
     "slot": "chest",
@@ -2034,7 +2034,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "LeapAhead"
+    "triggerName": "IntArchitect"
   },
   {
     "slot": "chest",
@@ -2055,7 +2055,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "LoopChain"
+    "triggerName": "PrimaryPulse"
   },
   {
     "slot": "chest",
@@ -2076,7 +2076,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "BreakRhythm"
+    "triggerName": "BarbarianBlood"
   },
   {
     "slot": "chest",
@@ -2097,7 +2097,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "WildNext"
+    "triggerName": "LevelLadderArmor"
   },
   {
     "slot": "legs",
@@ -2118,7 +2118,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SealSlot"
+    "triggerName": "WarriorPointsGuard"
   },
   {
     "slot": "legs",
@@ -2139,7 +2139,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ReplaceNextStrip"
+    "triggerName": "RoguePointsSpeed"
   },
   {
     "slot": "legs",
@@ -2160,7 +2160,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "DoubleBeat"
+    "triggerName": "WizardPointsAmp"
   },
   {
     "slot": "legs",
@@ -2181,7 +2181,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ResetOpener"
+    "triggerName": "SteelPlateEcho"
   },
   {
     "slot": "legs",
@@ -2202,7 +2202,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "FinisherEncore"
+    "triggerName": "ObsidianEdge"
   },
   {
     "slot": "legs",
@@ -2223,7 +2223,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SlotTwoEncore"
+    "triggerName": "WillowSwift"
   },
   {
     "slot": "legs",
@@ -2244,7 +2244,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritExpose"
+    "triggerName": "SilverWard"
   },
   {
     "slot": "legs",
@@ -2265,7 +2265,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboWeaken"
+    "triggerName": "GrantRogueTag"
   },
   {
     "slot": "legs",
@@ -2286,7 +2286,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SteadyFocus"
+    "triggerName": "ClassWarriorPrimary"
   },
   {
     "slot": "legs",
@@ -2307,7 +2307,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "GuardUp"
+    "triggerName": "BossNeedle"
   },
   {
     "slot": "legs",
@@ -2328,7 +2328,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "FirstFortify"
+    "triggerName": "MinionScythe"
   },
   {
     "slot": "legs",
@@ -2349,7 +2349,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ConnectPierce"
+    "triggerName": "ClutchIron"
   },
   {
     "slot": "legs",
@@ -2370,7 +2370,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EndVulnerability"
+    "triggerName": "OddSpite"
   },
   {
     "slot": "legs",
@@ -2391,7 +2391,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritMissSlow"
+    "triggerName": "HurtPride"
   },
   {
     "slot": "legs",
@@ -2412,7 +2412,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "PunishDot"
+    "triggerName": "HurtHarden"
   },
   {
     "slot": "legs",
@@ -2433,7 +2433,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SpiteFocus"
+    "triggerName": "DepthHunger"
   },
   {
     "slot": "legs",
@@ -2454,7 +2454,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboEndHeal"
+    "triggerName": "StrongarmGate"
   },
   {
     "slot": "legs",
@@ -2475,7 +2475,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "RoomClearHeal"
+    "triggerName": "SwitchUpSpeed"
   },
   {
     "slot": "legs",
@@ -2496,7 +2496,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "AfterMissHeal"
+    "triggerName": "WoundMomentum"
   },
   {
     "slot": "legs",
@@ -2517,7 +2517,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritLadderDungeon"
+    "triggerName": "RecoverFooting"
   },
   {
     "slot": "legs",
@@ -2538,7 +2538,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "HitLadderDungeon"
+    "triggerName": "ComboSpray"
   },
   {
     "slot": "legs",
@@ -2559,7 +2559,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "MissHitTaxDungeon"
+    "triggerName": "CritAmpCarry"
   },
   {
     "slot": "legs",
@@ -2580,7 +2580,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "GoldSetArmor"
+    "triggerName": "FoeOvercommit"
   },
   {
     "slot": "legs",
@@ -2601,7 +2601,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ClassPrimaryAttr"
+    "triggerName": "EndBreathDamage"
   },
   {
     "slot": "legs",
@@ -2622,7 +2622,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EvenRollHeal"
+    "triggerName": "FirstBloodAmp"
   },
   {
     "slot": "legs",
@@ -2643,7 +2643,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "BarbarianActionDamage"
+    "triggerName": "KillSpray"
   },
   {
     "slot": "legs",
@@ -2664,7 +2664,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "GrantBarbarianTag"
+    "triggerName": "DesperationAim"
   },
   {
     "slot": "legs",
@@ -2685,7 +2685,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SlotThreeSpeedDungeon"
+    "triggerName": "OpenTheLane"
   },
   {
     "slot": "legs",
@@ -2706,7 +2706,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "MirrorSwingDamage"
+    "triggerName": "BloodlustCrit"
   },
   {
     "slot": "legs",
@@ -2727,7 +2727,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "UnarmedPunchGrant"
+    "triggerName": "SteadyHand"
   },
   {
     "slot": "legs",
@@ -2748,7 +2748,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "WoundMomentum"
+    "triggerName": "LockedInAcc"
   },
   {
     "slot": "legs",
@@ -2769,7 +2769,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "RecoverFooting"
+    "triggerName": "EnemyFlinch"
   },
   {
     "slot": "legs",
@@ -2790,7 +2790,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboSpray"
+    "triggerName": "EnemyAccTax"
   },
   {
     "slot": "legs",
@@ -2811,7 +2811,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritAmpCarry"
+    "triggerName": "CritThresholdPush"
   },
   {
     "slot": "legs",
@@ -2832,7 +2832,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "FoeOvercommit"
+    "triggerName": "ComboThresholdPush"
   },
   {
     "slot": "legs",
@@ -2853,7 +2853,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EndBreathDamage"
+    "triggerName": "LuckySevenHit"
   },
   {
     "slot": "legs",
@@ -2874,7 +2874,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "FirstBloodAmp"
+    "triggerName": "ExactFifteenCombo"
   },
   {
     "slot": "legs",
@@ -2895,7 +2895,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "KillSpray"
+    "triggerName": "ClutchForgive"
   },
   {
     "slot": "legs",
@@ -2916,7 +2916,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "DesperationAim"
+    "triggerName": "CritFace19"
   },
   {
     "slot": "legs",
@@ -2937,7 +2937,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "OpenTheLane"
+    "triggerName": "CritFace18"
   },
   {
     "slot": "legs",
@@ -2958,7 +2958,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "BloodlustCrit"
+    "triggerName": "SalvageCharm"
   },
   {
     "slot": "legs",
@@ -2979,7 +2979,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SteadyHand"
+    "triggerName": "KillReload20"
   },
   {
     "slot": "legs",
@@ -3000,7 +3000,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "LockedInAcc"
+    "triggerName": "ComboEndReload15"
   },
   {
     "slot": "legs",
@@ -3021,7 +3021,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EnemyFlinch"
+    "triggerName": "SharpenedEdge"
   },
   {
     "slot": "legs",
@@ -3042,7 +3042,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EnemyAccTax"
+    "triggerName": "QuickGrip"
   },
   {
     "slot": "legs",
@@ -3063,7 +3063,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritThresholdPush"
+    "triggerName": "MarchCadence"
   },
   {
     "slot": "legs",
@@ -3084,7 +3084,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboThresholdPush"
+    "triggerName": "EnemySlowWeapon"
   },
   {
     "slot": "legs",
@@ -3105,7 +3105,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "LuckySevenHit"
+    "triggerName": "ChaosOpen"
   },
   {
     "slot": "legs",
@@ -3126,7 +3126,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ExactFifteenCombo"
+    "triggerName": "EchoStep"
   },
   {
     "slot": "legs",
@@ -3147,7 +3147,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ClutchForgive"
+    "triggerName": "SkipFiller"
   },
   {
     "slot": "legs",
@@ -3168,7 +3168,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritFace19"
+    "triggerName": "LeapAhead"
   },
   {
     "slot": "legs",
@@ -3189,7 +3189,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritFace18"
+    "triggerName": "LoopChain"
   },
   {
     "slot": "feet",
@@ -3210,7 +3210,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SalvageCharm"
+    "triggerName": "BreakRhythm"
   },
   {
     "slot": "feet",
@@ -3231,7 +3231,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "KillReload20"
+    "triggerName": "WildNext"
   },
   {
     "slot": "feet",
@@ -3252,7 +3252,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboEndReload15"
+    "triggerName": "SealSlot"
   },
   {
     "slot": "feet",
@@ -3273,7 +3273,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SharpenedEdge"
+    "triggerName": "ReplaceNextStrip"
   },
   {
     "slot": "feet",
@@ -3294,7 +3294,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "QuickGrip"
+    "triggerName": "DoubleBeat"
   },
   {
     "slot": "feet",
@@ -3315,7 +3315,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "MarchCadence"
+    "triggerName": "ResetOpener"
   },
   {
     "slot": "feet",
@@ -3336,7 +3336,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EnemySlowWeapon"
+    "triggerName": "FinisherEncore"
   },
   {
     "slot": "feet",
@@ -3357,7 +3357,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ChaosOpen"
+    "triggerName": "SlotTwoEncore"
   },
   {
     "slot": "feet",
@@ -3378,7 +3378,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EchoStep"
+    "triggerName": "CritExpose"
   },
   {
     "slot": "feet",
@@ -3399,7 +3399,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SkipFiller"
+    "triggerName": "ComboWeaken"
   },
   {
     "slot": "feet",
@@ -3420,7 +3420,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "LeapAhead"
+    "triggerName": "SteadyFocus"
   },
   {
     "slot": "feet",
@@ -3441,7 +3441,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "LoopChain"
+    "triggerName": "GuardUp"
   },
   {
     "slot": "feet",
@@ -3462,7 +3462,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "BreakRhythm"
+    "triggerName": "FirstFortify"
   },
   {
     "slot": "feet",
@@ -3483,7 +3483,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "WildNext"
+    "triggerName": "ConnectPierce"
   },
   {
     "slot": "feet",
@@ -3504,7 +3504,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SealSlot"
+    "triggerName": "EndVulnerability"
   },
   {
     "slot": "feet",
@@ -3525,7 +3525,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ReplaceNextStrip"
+    "triggerName": "CritMissSlow"
   },
   {
     "slot": "feet",
@@ -3546,7 +3546,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "DoubleBeat"
+    "triggerName": "PunishDot"
   },
   {
     "slot": "feet",
@@ -3567,7 +3567,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ResetOpener"
+    "triggerName": "SpiteFocus"
   },
   {
     "slot": "feet",
@@ -3588,7 +3588,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "FinisherEncore"
+    "triggerName": "ComboEndHeal"
   },
   {
     "slot": "feet",
@@ -3609,7 +3609,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SlotTwoEncore"
+    "triggerName": "RoomClearHeal"
   },
   {
     "slot": "feet",
@@ -3630,7 +3630,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritExpose"
+    "triggerName": "AfterMissHeal"
   },
   {
     "slot": "feet",
@@ -3651,7 +3651,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboWeaken"
+    "triggerName": "CritLadderDungeon"
   },
   {
     "slot": "feet",
@@ -3672,7 +3672,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SteadyFocus"
+    "triggerName": "HitLadderDungeon"
   },
   {
     "slot": "feet",
@@ -3693,7 +3693,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "GuardUp"
+    "triggerName": "MissHitTaxDungeon"
   },
   {
     "slot": "feet",
@@ -3714,7 +3714,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "FirstFortify"
+    "triggerName": "GoldSetArmor"
   },
   {
     "slot": "feet",
@@ -3735,7 +3735,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ConnectPierce"
+    "triggerName": "ClassPrimaryAttr"
   },
   {
     "slot": "feet",
@@ -3756,7 +3756,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EndVulnerability"
+    "triggerName": "EvenRollHeal"
   },
   {
     "slot": "feet",
@@ -3777,7 +3777,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritMissSlow"
+    "triggerName": "BarbarianActionDamage"
   },
   {
     "slot": "feet",
@@ -3798,7 +3798,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "PunishDot"
+    "triggerName": "GrantBarbarianTag"
   },
   {
     "slot": "feet",
@@ -3819,7 +3819,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SpiteFocus"
+    "triggerName": "SlotThreeSpeedDungeon"
   },
   {
     "slot": "feet",
@@ -3840,7 +3840,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboEndHeal"
+    "triggerName": "MirrorSwingDamage"
   },
   {
     "slot": "feet",
@@ -3861,7 +3861,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "RoomClearHeal"
+    "triggerName": "UnarmedPunchGrant"
   },
   {
     "slot": "feet",
@@ -3882,7 +3882,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "AfterMissHeal"
+    "triggerName": "SwiftSchool"
   },
   {
     "slot": "feet",
@@ -3903,7 +3903,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritLadderDungeon"
+    "triggerName": "BludgeonChorus"
   },
   {
     "slot": "feet",
@@ -3924,7 +3924,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "HitLadderDungeon"
+    "triggerName": "FocusLens"
   },
   {
     "slot": "feet",
@@ -3945,7 +3945,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "MissHitTaxDungeon"
+    "triggerName": "InsightClarity"
   },
   {
     "slot": "feet",
@@ -3966,7 +3966,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "GoldSetArmor"
+    "triggerName": "AimTrue"
   },
   {
     "slot": "feet",
@@ -3987,7 +3987,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ClassPrimaryAttr"
+    "triggerName": "FootworkGreaves"
   },
   {
     "slot": "feet",
@@ -4008,7 +4008,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "EvenRollHeal"
+    "triggerName": "Firebrand"
   },
   {
     "slot": "feet",
@@ -4029,7 +4029,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "BarbarianActionDamage"
+    "triggerName": "OpenerCrown"
   },
   {
     "slot": "feet",
@@ -4050,7 +4050,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "GrantBarbarianTag"
+    "triggerName": "FinisherSeal"
   },
   {
     "slot": "feet",
@@ -4071,7 +4071,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "SlotThreeSpeedDungeon"
+    "triggerName": "RogueActionAmp"
   },
   {
     "slot": "feet",
@@ -4092,7 +4092,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "MirrorSwingDamage"
+    "triggerName": "WarriorActionAmp"
   },
   {
     "slot": "feet",
@@ -4113,7 +4113,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "UnarmedPunchGrant"
+    "triggerName": "WizardActionAmp"
   },
   {
     "slot": "feet",
@@ -4134,7 +4134,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "WoundMomentum"
+    "triggerName": "WaterBrand"
   },
   {
     "slot": "feet",
@@ -4155,7 +4155,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "RecoverFooting"
+    "triggerName": "AirBrand"
   },
   {
     "slot": "feet",
@@ -4176,7 +4176,7 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "ComboSpray"
+    "triggerName": "EarthBrand"
   },
   {
     "slot": "feet",
@@ -4197,6 +4197,6 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "triggerName": "CritAmpCarry"
+    "triggerName": "StrCleave"
   }
 ]

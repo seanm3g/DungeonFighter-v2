@@ -16,6 +16,8 @@ namespace RPGGame.Actions.Conditional
         private static readonly ConcurrentDictionary<Actor, bool> LastSwingWasMiss = new();
         private static readonly ConcurrentDictionary<Actor, StripMutationState> StripStates = new();
         private static readonly ConcurrentDictionary<Actor, int> MissSalvageCharges = new();
+        private static readonly ConcurrentDictionary<Actor, int> NaiveteCharges = new();
+        private static readonly ConcurrentDictionary<Actor, byte> NaivetePoolInitialized = new();
         private static readonly ConcurrentDictionary<Actor, int> PendingReplaceRollFaces = new();
         private static readonly ConcurrentDictionary<Actor, int> CritFaceMinOverrides = new();
 
@@ -31,6 +33,8 @@ namespace RPGGame.Actions.Conditional
                 kv.Value.Clear();
             StripStates.Clear();
             MissSalvageCharges.Clear();
+            NaiveteCharges.Clear();
+            NaivetePoolInitialized.Clear();
             PendingReplaceRollFaces.Clear();
             CritFaceMinOverrides.Clear();
             RetriggerScheduler.ResetForBattle();
@@ -96,6 +100,52 @@ namespace RPGGame.Actions.Conditional
 
         public static int GetMissSalvageCharges(Actor? source) =>
             source != null && MissSalvageCharges.TryGetValue(source, out int c) ? c : 0;
+
+        /// <summary>True after this fight has seeded the hero's naiveté charge pool.</summary>
+        public static bool HasNaivetePool(Actor? source) =>
+            source != null && NaivetePoolInitialized.ContainsKey(source);
+
+        /// <summary>
+        /// Seeds fight-scoped naiveté charges from the hero's level-based max (once per fight).
+        /// </summary>
+        public static void EnsureNaiveteCharges(Character? hero)
+        {
+            if (hero == null || hero is Enemy)
+                return;
+            if (NaivetePoolInitialized.ContainsKey(hero))
+                return;
+
+            int max = NaiveteBalanceHelper.ComputeNaivete(hero);
+            if (max > 0)
+                NaiveteCharges[hero] = max;
+            NaivetePoolInitialized[hero] = 1;
+        }
+
+        public static int GetNaiveteCharges(Actor? source)
+        {
+            if (source == null)
+                return 0;
+            if (source is Character hero && hero is not Enemy)
+                EnsureNaiveteCharges(hero);
+            return NaiveteCharges.TryGetValue(source, out int c) ? c : 0;
+        }
+
+        /// <summary>Spends one naiveté charge for a miss→advantage reroll. Returns false at 0.</summary>
+        public static bool TryConsumeNaiveteCharge(Character? hero)
+        {
+            if (hero == null || hero is Enemy)
+                return false;
+
+            EnsureNaiveteCharges(hero);
+            if (!NaiveteCharges.TryGetValue(hero, out int charges) || charges <= 0)
+                return false;
+
+            if (charges == 1)
+                NaiveteCharges.TryRemove(hero, out _);
+            else
+                NaiveteCharges[hero] = charges - 1;
+            return true;
+        }
 
         /// <summary>Queues a forced natural die face for the actor's next attack roll.</summary>
         public static void SetPendingReplaceRollFace(Actor source, int face)

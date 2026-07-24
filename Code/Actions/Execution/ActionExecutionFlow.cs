@@ -194,6 +194,8 @@ namespace RPGGame.Actions.Execution
                 ApplyMissOutcome(source, combatTarget, result, battleNarrative);
 
             // Nested strip retrigger (max depth 1) — distinct from Multihit damage ticks.
+            // Nested HP damage is applied inside the nested Execute; keep outer Damage as this swing only
+            // so the combat log headline stays correct. Nested lines are formatted separately.
             if (RetriggerDepth == 0
                 && result.Hit
                 && RetriggerScheduler.TryConsume(source, out Action? retriggerAction)
@@ -201,6 +203,7 @@ namespace RPGGame.Actions.Execution
             {
                 RetriggerDepth++;
                 RetriggerScheduler.AllowScheduling = false;
+                Action? outerLastUsed = result.SelectedAction;
                 try
                 {
                     var nestedTarget = target ?? combatTarget;
@@ -213,12 +216,15 @@ namespace RPGGame.Actions.Execution
                         battleNarrative,
                         lastUsedActions,
                         lastCriticalMissStatus);
-                    if (nested.StatusEffectMessages.Count > 0)
-                        result.StatusEffectMessages.AddRange(nested.StatusEffectMessages);
-                    result.Damage += nested.Damage;
+                    result.NestedRetriggerResults.Add(nested);
+                    // Nested status lines are formatted with the nested hit/miss block in ActionExecutor
+                    // (not merged here) so "prepares a retrigger" stays above the encore swing.
                 }
                 finally
                 {
+                    // Turn timing / last-action memory should stay on the outer swing, not the encore.
+                    if (outerLastUsed != null)
+                        lastUsedActions[source] = outerLastUsed;
                     RetriggerScheduler.AllowScheduling = true;
                     RetriggerDepth--;
                 }

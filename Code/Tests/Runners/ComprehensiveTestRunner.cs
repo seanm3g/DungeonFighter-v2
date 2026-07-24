@@ -92,6 +92,7 @@ namespace RPGGame.Tests.Runners
             RollProbabilityContentTests.RunAllTests();
             WeaponModTriggerBridgeTests.RunAllTests();
             EquippedItemTriggerTests.RunAllTests();
+            ItemTriggerCombatIntegrationTests.RunAllTests();
             Console.WriteLine();
 
             // Phase 3: Display and UI

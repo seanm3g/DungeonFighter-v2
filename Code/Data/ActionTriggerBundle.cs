@@ -44,6 +44,15 @@ namespace RPGGame.Data
         [JsonPropertyName("filters")]
         public List<string>? Filters { get; set; }
 
+        /// <summary>
+        /// Optional magnitude scale source for item identities:
+        /// <c>STR</c> / <c>AGI</c> / <c>TEC</c> / <c>INT</c> / <c>PRIMARY</c> / <c>LEVEL</c> /
+        /// <c>BARBARIAN</c> / <c>WARRIOR</c> / <c>ROGUE</c> / <c>WIZARD</c>.
+        /// Effective value = <see cref="Value"/> × scale units (see <c>ItemTriggerMagnitude</c>).
+        /// </summary>
+        [JsonPropertyName("scaleFrom")]
+        public string? ScaleFrom { get; set; }
+
         public bool IsEnabled => !string.IsNullOrWhiteSpace(Count);
 
         public IReadOnlyList<string> ParseMechanicIds()

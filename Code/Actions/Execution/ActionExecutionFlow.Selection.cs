@@ -33,7 +33,7 @@ namespace RPGGame.Actions.Execution
             if (source is Character techMilestoneCharacter)
             {
                 TechniqueMilestoneThresholdBonuses.Apply(thresholdManager, techMilestoneCharacter);
-                NaiveteThresholdBonuses.Apply(thresholdManager, techMilestoneCharacter);
+                // Naiveté is miss→advantage charges (see ResolveNaiveteAdvantageOnMiss), not HIT steps.
             }
 
             // Catalog + suffix + prefix (Swift/HIT, etc.) dice stats: literal threshold shifts, same sign as TECH milestones / FIFO HIT.
@@ -61,6 +61,15 @@ namespace RPGGame.Actions.Execution
             result.SelectedAction = selected ?? ActionSelector.SelectActionByEntityType(source);
             if (result.SelectedAction == null) return;
             lastUsedActions[source] = result.SelectedAction;
+            if (source is Character preRollHero && preRollHero is not Enemy)
+            {
+                EquippedItemTriggerApplicator.ApplySameSwingPreRollMods(
+                    preRollHero, target, result.SelectedAction, result.StatusEffectMessages);
+            }
+            // Forced retrigger skips SelectActionByEntityType (which stores a new d20). Roll fresh so the
+            // encore does not reuse the outer swing's face (e.g. natural 20).
+            if (forcedAction != null && RetriggerDepth > 0)
+                ActionSelector.SetStoredActionRoll(source, Dice.Roll(1, 20));
             result.BaseRoll = ActionSelector.GetActionRoll(source);
             if (CombatTriggerContext.TryConsumePendingReplaceRollFace(source, out int replacedFace))
                 result.BaseRoll = replacedFace;
@@ -257,6 +266,7 @@ namespace RPGGame.Actions.Execution
                 result.IsCritical = true;
             ActionEventPublisher.PublishActionExecuted(source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical, result.NaturalRollValue);
             result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
+            ResolveNaiveteAdvantageOnMiss(source, target, result, thresholdManager, lastCriticalMissStatus);
             if (!result.Hit && !result.IsCriticalMiss && CombatTriggerContext.TryConsumeMissSalvage(source))
             {
                 result.Hit = true;
@@ -264,6 +274,58 @@ namespace RPGGame.Actions.Execution
             }
             // Sheet accuracy + threshold adjustments (and deferred overrides when not TURN cadence) queue for the next application.
             RollModificationManager.EnqueueDeferredRollModThresholdAdjustmentsForNextRoll(result.SelectedAction, source, target);
+        }
+
+        /// <summary>
+        /// On a normal miss, spend naiveté charges for advantage (second d20, keep highest) until hit or charges run out.
+        /// </summary>
+        private static void ResolveNaiveteAdvantageOnMiss(
+            Actor source,
+            Actor? target,
+            ActionExecutionResult result,
+            ThresholdManager thresholdManager,
+            IDictionary<Actor, bool> lastCriticalMissStatus)
+        {
+            if (source is not Character hero || hero is Enemy)
+                return;
+            if (result.SelectedAction == null)
+                return;
+            // Training Ground scripted miss lesson must stay a miss.
+            if (PreWeaponTrainingFlow.IsTrainingDummy(target))
+                return;
+
+            while (!result.Hit && !result.IsCriticalMiss && CombatTriggerContext.TryConsumeNaiveteCharge(hero))
+            {
+                int previousFace = result.ModifiedBaseRoll;
+                int die2 = Dice.RollUnforced(20);
+                int high = Math.Max(previousFace, die2);
+                int low = Math.Min(previousFace, die2);
+                result.ModifiedBaseRoll = high;
+                result.MultiDiceRollDetail = MultiDiceRollDetail.FromTwoDice(MultiDiceLuckMode.Advantage, high, low);
+                result.AttackRoll = result.ModifiedBaseRoll + result.RollBonus;
+                result.NaturalRollValue = result.ModifiedBaseRoll;
+                result.NaiveteAdvantageUses++;
+
+                int hitThreshold = thresholdManager.GetHitThreshold(source);
+                int criticalMissThreshold = thresholdManager.GetCriticalMissThreshold(source);
+                int critThresholdRoll = CombatCalculator.GetCritThresholdEvaluationRoll(
+                    result.AttackRoll, result.RollBonus, source.RollPenalty);
+                result.IsCriticalMiss = critThresholdRoll <= criticalMissThreshold && critThresholdRoll <= hitThreshold;
+                if (result.IsCriticalMiss)
+                {
+                    source.HasCriticalMissPenalty = true;
+                    source.CriticalMissPenaltyTurns = 1;
+                }
+                lastCriticalMissStatus[source] = result.IsCriticalMiss;
+                result.IsCombo = result.SelectedAction.IsComboAction
+                    && result.AttackRoll >= thresholdManager.GetComboThreshold(source);
+                result.IsCritical = critThresholdRoll >= thresholdManager.GetCriticalHitThreshold(source);
+                if (CombatTriggerContext.TryGetCritFaceMin(source, out int naturalCritMin)
+                    && result.ModifiedBaseRoll >= naturalCritMin)
+                    result.IsCritical = true;
+
+                result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
+            }
         }
     }
 }

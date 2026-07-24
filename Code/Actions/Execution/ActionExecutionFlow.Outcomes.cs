@@ -62,6 +62,14 @@ namespace RPGGame.Actions.Execution
                         result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, battleNarrative,
                         source.RollPenalty);
                     ActionEffectTargetResolver.ApplyLifestealHealing(source, selected, result.Damage);
+                    if (result.Damage > 0
+                        && target is Character multiHurtHero
+                        && multiHurtHero is not Enemy
+                        && !ReferenceEquals(source, target))
+                    {
+                        EquippedItemTriggerApplicator.ApplyFromDefender(
+                            multiHurtHero, source, hitEvent, result.StatusEffectMessages);
+                    }
                 }
                 else
                 {
@@ -79,6 +87,25 @@ namespace RPGGame.Actions.Execution
                             ActionUtilities.ApplyDamage(source, result.Damage);
                         else
                             ActionUtilities.ApplyDamage(target, result.Damage);
+
+                        // Defender gear procs when the hero takes a successful hit from another actor.
+                        if (result.Damage > 0
+                            && target is Character hurtHero
+                            && hurtHero is not Enemy
+                            && !ReferenceEquals(source, target))
+                        {
+                            EquippedItemTriggerApplicator.ApplyFromDefender(
+                                hurtHero, source, hitEvent, result.StatusEffectMessages);
+                        }
+                        if (result.Damage > 0
+                            && selected.Target == TargetType.SelfAndTarget
+                            && source is Character selfHurt
+                            && selfHurt is not Enemy
+                            && !ReferenceEquals(source, target))
+                        {
+                            EquippedItemTriggerApplicator.ApplyFromDefender(
+                                selfHurt, target, hitEvent, result.StatusEffectMessages);
+                        }
                     }
                     if (source is Character sourceCharacter)
                         ActionStatisticsTracker.RecordAttackAction(sourceCharacter, totalRoll, result.BaseRoll, result.RollBonus, result.Damage, selected, target as Enemy, result.IsCritical);

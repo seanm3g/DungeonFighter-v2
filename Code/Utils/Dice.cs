@@ -16,6 +16,8 @@ namespace RPGGame
         // Test mode support - allows setting specific roll values for testing
         private static int? _testRollValue = null;
         private static bool _testModeEnabled = false;
+        /// <summary>Optional one-shot queue for <see cref="RollUnforced"/> (unit tests for advantage / naiveté).</summary>
+        private static Queue<int>? _unforcedTestRollQueue;
 
         /// <summary>
         /// Sets a test roll value for testing purposes.
@@ -41,6 +43,29 @@ namespace RPGGame
                 _testRollValue = null;
                 _testModeEnabled = false;
             }
+        }
+
+        /// <summary>
+        /// Queues values returned by the next <see cref="RollUnforced"/> calls (FIFO). Used by unit tests.
+        /// </summary>
+        public static void QueueUnforcedTestRolls(params int[] rollValues)
+        {
+            lock (TestRollLock)
+            {
+                if (rollValues == null || rollValues.Length == 0)
+                {
+                    _unforcedTestRollQueue = null;
+                    return;
+                }
+
+                _unforcedTestRollQueue = new Queue<int>(rollValues);
+            }
+        }
+
+        public static void ClearUnforcedTestRolls()
+        {
+            lock (TestRollLock)
+                _unforcedTestRollQueue = null;
         }
 
         /// <summary>Forces the next <see cref="Roll"/> outcomes in the current async context (Action Lab encounter sim).</summary>
@@ -164,11 +189,24 @@ namespace RPGGame
         /// Rolls one die using true randomness, bypassing test/lab forced rolls and async d20 queues.
         /// Used as the second die in 2d20 advantage/disadvantage so the primary action-selection roll
         /// is not duplicated when <see cref="SetTestRoll"/> is active (Action Lab).
+        /// When <see cref="QueueUnforcedTestRolls"/> has values, those are consumed first (unit tests).
         /// </summary>
         public static int RollUnforced(int sides)
         {
             if (sides < 2)
                 throw new ArgumentException("Dice must have at least 2 sides", nameof(sides));
+
+            lock (TestRollLock)
+            {
+                if (_unforcedTestRollQueue != null && _unforcedTestRollQueue.Count > 0)
+                {
+                    int queued = _unforcedTestRollQueue.Dequeue();
+                    if (_unforcedTestRollQueue.Count == 0)
+                        _unforcedTestRollQueue = null;
+                    return Math.Clamp(queued, 1, sides);
+                }
+            }
+
             return Random.Shared.Next(1, sides + 1);
         }
 

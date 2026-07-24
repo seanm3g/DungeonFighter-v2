@@ -125,9 +125,7 @@ namespace RPGGame.UI.Avalonia.Layout
             var techMilestoneSteps = actor is Character chTec
                 ? TechniqueMilestoneThresholdBonuses.GetSteps(chTec.GetEffectiveTechnique())
                 : default;
-            int naiveteHitSteps = actor is Character chNav && chNav is not Enemy
-                ? NaiveteBalanceHelper.GetHitSteps(chNav)
-                : 0;
+            int naiveteHitSteps = 0;
 
             int eqHit = 0, eqCombo = 0, eqCrit = 0;
             int dungeonHit = 0, dungeonCombo = 0, dungeonCrit = 0, dungeonCritMiss = 0;

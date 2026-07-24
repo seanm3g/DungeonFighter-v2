@@ -1,4 +1,5 @@
 using System;
+using RPGGame.Actions.Conditional;
 
 namespace RPGGame
 {
@@ -30,7 +31,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Single-digit naiveté: starts at <see cref="NaiveteConfig.StartingNaivete"/> (default 3)
+        /// Max naiveté charges for this hero: starts at <see cref="NaiveteConfig.StartingNaivete"/> (default 5)
         /// and subtracts 1 per hero level after level 1.
         /// </summary>
         public static int ComputeNaivete(Character character)
@@ -44,28 +45,28 @@ namespace RPGGame
             return Math.Max(0, config.StartingNaivete - levelPenalty);
         }
 
-        public static int GetHitStepsFromNaivete(int naivete, NaiveteConfig? config = null)
-        {
-            config ??= GetConfig();
-            if (config == null || !config.Enabled || naivete <= 0)
-                return 0;
-
-            if (config.MaxHitStepsFromNaivete <= 0)
-                return 0;
-
-            int pointsPerStep = config.NaivetePointsPerHitStep > 0
-                ? config.NaivetePointsPerHitStep
-                : 1;
-            int steps = naivete / pointsPerStep;
-            return Math.Min(config.MaxHitStepsFromNaivete, steps);
-        }
-
-        public static int GetHitSteps(Character character)
+        /// <summary>
+        /// Fight remaining charges when a battle pool is active; otherwise the level-based max.
+        /// </summary>
+        public static int GetDisplayNaivete(Character character)
         {
             if (!AppliesTo(character))
                 return 0;
 
-            return GetHitStepsFromNaivete(ComputeNaivete(character));
+            if (CombatTriggerContext.HasNaivetePool(character))
+                return CombatTriggerContext.GetNaiveteCharges(character);
+
+            return ComputeNaivete(character);
         }
+
+        /// <summary>
+        /// Legacy HIT-step helper — always 0. Naiveté no longer shifts hit thresholds.
+        /// </summary>
+        public static int GetHitStepsFromNaivete(int naivete, NaiveteConfig? config = null) => 0;
+
+        /// <summary>
+        /// Legacy HIT-step helper — always 0. Naiveté no longer shifts hit thresholds.
+        /// </summary>
+        public static int GetHitSteps(Character character) => 0;
     }
 }

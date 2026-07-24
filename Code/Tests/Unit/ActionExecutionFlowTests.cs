@@ -384,9 +384,11 @@ namespace RPGGame.Tests.Unit
             int missHitTh = missTm.GetHitThreshold(hero);
             int missBaseRoll = missHitTh - missRollBonus - 1;
             Dice.SetTestRoll(missBaseRoll);
+            Dice.QueueUnforcedTestRolls(1, 1, 1, 1, 1, 1);
             ActionSelector.SetStoredActionRoll(hero, missBaseRoll);
             var missResult = ActionExecutionFlow.Execute(hero, enemy, null, null, drunkenStyle, null, lastUsed, lastCrit);
             Dice.SetTestRoll(null);
+            Dice.ClearUnforcedTestRolls();
             TestBase.AssertFalse(missResult.Hit,
                 "Low roll should miss with default thresholds",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);

@@ -3,7 +3,7 @@ using System;
 namespace RPGGame
 {
     /// <summary>
-    /// Tunable knobs for naiveté: early-game hit forgiveness that fades one point per hero level.
+    /// Tunable knobs for naiveté: early-game miss→advantage charges that fade one point per hero level.
     /// Displayed value is a single digit (legacy attribute remainder ÷ 10 scale).
     /// </summary>
     public class NaiveteConfig
@@ -11,13 +11,18 @@ namespace RPGGame
         public bool Enabled { get; set; } = true;
 
         /// <summary>Naiveté at level 1 (single digit). Decreases by 1 each level after.</summary>
-        public int StartingNaivete { get; set; } = 3;
+        public int StartingNaivete { get; set; } = 5;
 
-        /// <summary>Naiveté points required for one HIT threshold step (easier to hit).</summary>
+        /// <summary>
+        /// Legacy: points required for one HIT threshold step. Unused — naiveté is miss→advantage charges.
+        /// Kept for older balance patches.
+        /// </summary>
         public int NaivetePointsPerHitStep { get; set; } = 1;
 
-        /// <summary>Maximum HIT threshold steps granted from naiveté.</summary>
-        public int MaxHitStepsFromNaivete { get; set; } = 3;
+        /// <summary>
+        /// Legacy: maximum HIT threshold steps from naiveté. Unused — kept for older balance patches.
+        /// </summary>
+        public int MaxHitStepsFromNaivete { get; set; } = 0;
 
         /// <summary>
         /// Legacy: when base STR+AGI+TEC+INT reached this sum, naiveté was zero.

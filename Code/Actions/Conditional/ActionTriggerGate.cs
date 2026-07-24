@@ -25,6 +25,7 @@ namespace RPGGame.Actions.Conditional
             "ONHEALTHTHRESHOLD", "ONENEMYHEALTHTHRESHOLD",
             "ONROOMSCLEARED", "ONROOMCLEARED",
             "ONFIRSTHIT", "ONFIRSTBLOOD", "ONAFTERMISS",
+            "ONTAKEHIT", "ONHEROHURT",
             "ONWIELD",
             "IFCLUTCH", "IFSOURCEHEALTHBELOW", "IFSOURCEHEALTHABOVE",
             "IFTARGETHEALTHBELOW", "IFTARGETHEALTHABOVE",
@@ -32,7 +33,8 @@ namespace RPGGame.Actions.Conditional
             "IFACTIONHASTAG", "IFGEARHASTAG", "IFTARGETHASTAG",
             "IFSOURCESTATUS", "IFTARGETSTATUS", "IFSOURCEUNDERDOT", "IFTARGETUNDERDOT",
             "IFLASTENEMY", "IFLASTSTAND",
-            "IFSLOT", "IFUNARMED", "IFCLASSTAG"
+            "IFSLOT", "IFUNARMED", "IFCLASSTAG",
+            "IFATTR"
         };
 
         /// <summary>
@@ -196,6 +198,7 @@ namespace RPGGame.Actions.Conditional
                 "ONROOMSCLEARED" or "ONROOMCLEARED" => MatchesRoomsCleared(action, combatEvent, arg),
                 "ONFIRSTHIT" or "ONFIRSTBLOOD" => MatchesFirstBlood(combatEvent),
                 "ONAFTERMISS" => MatchesAfterMiss(combatEvent),
+                "ONTAKEHIT" or "ONHEROHURT" => MatchesTakeHit(combatEvent),
                 _ => false
             };
         }
@@ -218,6 +221,7 @@ namespace RPGGame.Actions.Conditional
                 "ONNATURALROLL" => "ONNATURALROLL",
                 "ONROOMCLEARED" => "ONROOMSCLEARED",
                 "ONFIRSTBLOOD" => "ONFIRSTHIT",
+                "ONHEROHURT" => "ONTAKEHIT",
                 "IFMIRROR" => "IFSAMESACTION",
                 "IFSWITCHUP" => "IFDIFFERENTACTION",
                 "IFLASTSTAND" => "IFLASTENEMY",
@@ -365,12 +369,20 @@ namespace RPGGame.Actions.Conditional
             && !combatEvent.IsMiss
             && CombatTriggerContext.SourceLastSwingWasMiss(combatEvent.Source);
 
+        /// <summary>Hero took a successful hit (defender is a non-enemy character, attacker is someone else).</summary>
+        private static bool MatchesTakeHit(CombatEvent combatEvent) =>
+            combatEvent.Type == CombatEventType.ActionHit
+            && !combatEvent.IsMiss
+            && combatEvent.Target is Character hero
+            && hero is not Enemy
+            && !ReferenceEquals(combatEvent.Source, combatEvent.Target);
+
         private static bool IsKnownCanonical(string normalized) =>
             normalized is "ONHIT" or "ONMISS" or "ONCOMBO" or "ONCRITICAL"
                 or "ONCONNECT" or "ONCRITICALMISS" or "ONKILL" or "ONROLLVALUE" or "ONNATURALROLL"
                 or "ONEVEN" or "ONODD"
                 or "ONHEALTHTHRESHOLD" or "ONCOMBOEND" or "ONROOMSCLEARED"
-                or "ONFIRSTHIT" or "ONAFTERMISS";
+                or "ONFIRSTHIT" or "ONAFTERMISS" or "ONTAKEHIT";
 
         private static bool MatchesRollParity(CombatEvent combatEvent, bool even)
         {

@@ -22,7 +22,7 @@ namespace RPGGame.Actions.Conditional
                 or "IFSOURCESTATUS" or "IFTARGETSTATUS"
                 or "IFSOURCEUNDERDOT" or "IFTARGETUNDERDOT"
                 or "IFLASTENEMY" or "IFLASTSTAND"
-                or "IFSLOT" or "IFUNARMED" or "IFCLASSTAG";
+                or "IFSLOT" or "IFUNARMED" or "IFCLASSTAG" or "IFATTR";
 
         public static bool TryClassifyFilter(string raw, out string family, out string? arg)
         {
@@ -128,6 +128,7 @@ namespace RPGGame.Actions.Conditional
                 "IFSLOT" => args.Any(a => MatchesComboSlot(source, a)),
                 "IFUNARMED" => source is Character c && c.Weapon == null,
                 "IFCLASSTAG" => args.Any(a => ClassTagMatches(source, a)),
+                "IFATTR" => args.All(a => AttrComparePasses(source, a)),
                 _ => false
             };
         }
@@ -213,6 +214,70 @@ namespace RPGGame.Actions.Conditional
                 return string.Equals(className, want, StringComparison.OrdinalIgnoreCase);
             }
             return false;
+        }
+
+        /// <summary>
+        /// Parses <c>STR&gt;=10</c>, <c>PRIMARY&gt;5</c>, <c>AGI&lt;=3</c>, <c>INT=8</c>, or <c>STR:10</c> (≥).
+        /// </summary>
+        private static bool AttrComparePasses(Actor? source, string? arg)
+        {
+            if (source is not Character character || string.IsNullOrWhiteSpace(arg))
+                return false;
+
+            string raw = arg.Trim().ToUpperInvariant().Replace(" ", "");
+            string op = ">=";
+            int opIdx = raw.IndexOf(">=");
+            if (opIdx < 0)
+            {
+                opIdx = raw.IndexOf("<=");
+                if (opIdx >= 0) op = "<=";
+            }
+            if (opIdx < 0)
+            {
+                opIdx = raw.IndexOf(">");
+                if (opIdx >= 0 && (opIdx + 1 >= raw.Length || raw[opIdx + 1] != '=')) op = ">";
+            }
+            if (opIdx < 0)
+            {
+                opIdx = raw.IndexOf("<");
+                if (opIdx >= 0 && (opIdx + 1 >= raw.Length || raw[opIdx + 1] != '=')) op = "<";
+            }
+            if (opIdx < 0)
+            {
+                opIdx = raw.IndexOf("=");
+                if (opIdx >= 0) op = "=";
+            }
+            if (opIdx < 0)
+            {
+                opIdx = raw.IndexOf(':');
+                if (opIdx >= 0)
+                {
+                    op = ">=";
+                    string statKeyColon = raw.Substring(0, opIdx);
+                    string numPartColon = raw.Substring(opIdx + 1);
+                    if (!int.TryParse(numPartColon, NumberStyles.Integer, CultureInfo.InvariantCulture, out int thrColon))
+                        return false;
+                    return ItemTriggerMagnitude.ScaleUnits(character, statKeyColon) >= thrColon;
+                }
+            }
+            if (opIdx <= 0)
+                return false;
+
+            string statKey = raw.Substring(0, opIdx);
+            string numPart = raw.Substring(opIdx + op.Length);
+            if (!int.TryParse(numPart, NumberStyles.Integer, CultureInfo.InvariantCulture, out int threshold))
+                return false;
+
+            int actual = ItemTriggerMagnitude.ScaleUnits(character, statKey);
+            return op switch
+            {
+                ">=" => actual >= threshold,
+                ">" => actual > threshold,
+                "<=" => actual <= threshold,
+                "<" => actual < threshold,
+                "=" => actual == threshold,
+                _ => false
+            };
         }
 
         private static bool GearHasTag(Actor? source, string? tag)

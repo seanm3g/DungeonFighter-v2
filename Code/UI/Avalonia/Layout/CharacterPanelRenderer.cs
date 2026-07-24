@@ -284,13 +284,13 @@ namespace RPGGame.UI.Avalonia.Layout
                     primaryStat == "Intelligence" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
                 y++;
 
-                int naivete = NaiveteBalanceHelper.ComputeNaivete(character);
+                int naivete = NaiveteBalanceHelper.GetDisplayNaivete(character);
                 int naivRowY = -1;
                 if (naivete > 0)
                 {
                     naivRowY = y;
                     var naivColor = AsciiArtAssets.Colors.Cyan;
-                    canvas.AddCharacterStat(x, y, "NAIVETE", naivete, 0, naivColor, naivColor);
+                    canvas.AddCharacterStat(x, y, "NAIV", naivete, 0, naivColor, naivColor);
                     y++;
                 }
 

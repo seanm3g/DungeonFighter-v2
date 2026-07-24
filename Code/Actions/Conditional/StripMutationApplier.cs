@@ -98,10 +98,10 @@ namespace RPGGame.Actions.Conditional
                     if (stripLen <= 1)
                         return false;
                     var order = Enumerable.Range(0, stripLen).ToList();
-                    // Fisher–Yates via project Dice
+                    // Fisher–Yates via project Dice (clamp — forced test rolls can exceed 1..i+1)
                     for (int i = order.Count - 1; i > 0; i--)
                     {
-                        int j = Dice.Roll(1, i + 1) - 1;
+                        int j = Math.Clamp(Dice.Roll(1, i + 1) - 1, 0, i);
                         (order[i], order[j]) = (order[j], order[i]);
                     }
                     state.ShufflePermutation = order;

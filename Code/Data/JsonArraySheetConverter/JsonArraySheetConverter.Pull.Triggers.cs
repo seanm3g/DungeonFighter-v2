@@ -13,6 +13,7 @@ namespace RPGGame.Data
         {
             MoveTriggerJsonKeyIfPresent(obj, "id", "Id", "index", "Index");
             MoveTriggerJsonKeyIfPresent(obj, "name", "Name", "identity", "Identity");
+            MoveTriggerJsonKeyIfPresent(obj, "description", "Description", "desc", "Desc", "SUMMARY", "Summary");
             MoveTriggerJsonKeyIfPresent(obj, "when", "When", "WHEN");
             MoveTriggerJsonKeyIfPresent(obj, "count", "Count", "COUNT");
             MoveTriggerJsonKeyIfPresent(obj, "scope", "Scope", "SCOPE");
@@ -20,6 +21,7 @@ namespace RPGGame.Data
             MoveTriggerJsonKeyIfPresent(obj, "value", "Value", "VALUE", "magnitude");
             MoveTriggerJsonKeyIfPresent(obj, "filters", "Filters", "FILTERS", "filter");
             MoveTriggerJsonKeyIfPresent(obj, "channel", "Channel", "CHANNEL");
+            MoveTriggerJsonKeyIfPresent(obj, "scaleFrom", "ScaleFrom", "SCALEFROM", "scale_from", "Scale From");
 
             if (obj.TryGetPropertyValue("filters", out JsonNode? filtersNode) && filtersNode is JsonArray fa)
             {

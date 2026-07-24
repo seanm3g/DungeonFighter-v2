@@ -169,6 +169,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 
 #### Threshold Management
 - **`Code/Combat/ThresholdManager.cs`** - Dynamic threshold adjustment (crit, combo, hit) per actor
+- **`Code/Config/NaiveteBalanceHelper.cs`** / **`CombatTriggerContext` naiveté charges** - Early-game miss→advantage: fight-scoped charges (max = startingNaivete − (level−1)); on miss spend 1 and take a second d20 (keep highest), chaining until hit or empty. No longer shifts HIT thresholds (`NaiveteThresholdBonuses.Apply` is a no-op).
 
 #### Advanced Status Effects
 - **`Code/Combat/Effects/AdvancedStatusEffects/`** - 17 new status effect handlers:
@@ -197,9 +198,12 @@ The CharacterActions system has been successfully refactored from a 828-line mon
   - Always-on equip math: `EquipmentBonusCalculator` / suffixes / quality multipliers / `ItemEquipEffectApplicator` (`WHILE_EQUIPPED` on `Item.EquipEffects`)
   - Combat procs: WHEN × mechanic × SCOPE shared with actions
     - Weapon* DoTs: `Modification.TriggerWhen` (default ONCRITICAL) via `CombatEffectsSimplified`
-    - Base catalog: identities in `Triggers.json` / `TriggersLoader` (facade `ItemTriggerIdentityCatalog`); gear refs via `triggerName`; combat via `EquippedItemTriggerApplicator`; equip via `ItemEquipEffectApplicator`
+    - Base catalog: identities in `Triggers.json` / `TriggersLoader` (facade `ItemTriggerIdentityCatalog`); fields include `description` (player-facing one-liner); gear refs via `triggerName`; combat via `EquippedItemTriggerApplicator`; equip via `ItemEquipEffectApplicator`
+    - Pre-roll same-swing threshold/speed from gear is `WHILE_EQUIPPED` only; combat WHEN×threshold deposits after the real event. Item self-buffs (`harden`/`focus`/`fortify`) use carrier `SelfTargetEffects`. Combat-path coverage: `ItemTriggerCombatIntegrationTests` (all identities via `ActionExecutionFlow` / room-clear / equip).
     - Item filters use swing `combatEvent.Action` for mirror/tag; carrier holds bundles only
-    - Tokens: `ONEVEN`/`ONODD`, `IFSLOT:N`, `IFUNARMED`, `IFCLASSTAG`; mechanic `hero_action_damage` (same-swing %)
+    - Tokens: `ONEVEN`/`ONODD`, `IFSLOT:N`, `IFUNARMED`, `IFCLASSTAG`, `IFATTR`, `ONTAKEHIT` (defender via `ApplyFromDefender`)
+    - Same-swing: `hero_action_damage` / `hero_action_speed` / `hero_action_amp`; WHILE_EQUIPPED tag amps included in `ApplySameSwingDamageMods` / `ApplySameSwingPreRollMods`
+    - Optional `scaleFrom` on bundles: effective mag = `value` × attr/class/level (`ItemTriggerMagnitude`)
     - Dice/threshold/accuracy/`crit_face_min` item procs use **TURN** (demos may use **DUNGEON**)
     - Optional `ActionTriggerBundle.Value` magnitude fallback when sheet fields are empty
   - Future: Sheets PREFIX columns for When/Scope; no StatBonus WHEN in current pass

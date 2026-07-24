@@ -101,7 +101,7 @@ namespace RPGGame.Actions.Conditional
         public static bool TryConsume(Actor source, out Action? forcedAction)
         {
             forcedAction = null;
-            if (source == null || !Pending.TryRemove(source, out var pending) || pending == null)
+            if (source == null || !Pending.TryGetValue(source, out var pending) || pending == null)
                 return false;
             if (source is not Character character)
                 return false;
@@ -118,7 +118,7 @@ namespace RPGGame.Actions.Conditional
                 RetriggerKind.Slot => Math.Clamp(pending.Slot1Based - 1, 0, combo.Count - 1),
                 _ => -1
             };
-            if (idx < 0)
+            if (idx < 0 || idx >= combo.Count)
                 return false;
 
             // Prefer opener/finisher tags when kind asks for them
@@ -134,7 +134,12 @@ namespace RPGGame.Actions.Conditional
             }
 
             forcedAction = combo[idx];
-            return forcedAction != null;
+            if (forcedAction == null)
+                return false;
+
+            // Only drop pending once we have a resolvable strip action.
+            Pending.TryRemove(source, out _);
+            return true;
         }
     }
 }

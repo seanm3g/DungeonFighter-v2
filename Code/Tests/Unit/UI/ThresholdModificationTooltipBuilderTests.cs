@@ -22,8 +22,8 @@ namespace RPGGame.Tests.Unit.UI
             hero.Stats.Intelligence = 8;
 
             var hitLines = BuildLines(hero, ThresholdModificationTooltipBuilder.Kind.Hit);
-            TestBase.AssertTrue(hitLines.Any(l => l.Contains("Naiveté", StringComparison.OrdinalIgnoreCase)),
-                "low-stat hero hit tooltip includes naiveté",
+            TestBase.AssertTrue(!hitLines.Any(l => l.Contains("Naiveté", StringComparison.OrdinalIgnoreCase)),
+                "hit tooltip does not list naiveté (miss→advantage, not HIT steps)",
                 ref run, ref passed, ref failed);
 
             hero.DungeonSearchBuffs.AddHitThresholdAdjustment(2);

@@ -29,7 +29,7 @@ namespace RPGGame
                 ?? Path.GetDirectoryName(JsonLoader.FindGameDataFile("Weapons.json")!)
                 ?? throw new InvalidOperationException("GameData directory not found.");
 
-            TriggersLoader.EnsureTriggersJsonFromSeed(forceOverwrite: false, gameDataDirectory: dir);
+            TriggersLoader.EnsureTriggersJsonFromSeed(forceOverwrite: true, gameDataDirectory: dir);
             TriggersLoader.ClearCache();
 
             string weaponsPath = Path.Combine(dir, "Weapons.json");

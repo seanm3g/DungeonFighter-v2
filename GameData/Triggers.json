@@ -2,6 +2,7 @@
   {
     "id": 0,
     "name": "WoundMomentum",
+    "description": "On connect, your next action deals +10% damage.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "ACTION",
@@ -12,6 +13,7 @@
   {
     "id": 1,
     "name": "RecoverFooting",
+    "description": "After a miss, your next action is +10% faster.",
     "when": "ONAFTERMISS",
     "count": "1",
     "scope": "ACTION",
@@ -22,6 +24,7 @@
   {
     "id": 2,
     "name": "ComboSpray",
+    "description": "On combo, your next action gains +1 multihit.",
     "when": "ONCOMBO",
     "count": "1",
     "scope": "ACTION",
@@ -32,6 +35,7 @@
   {
     "id": 3,
     "name": "CritAmpCarry",
+    "description": "On crit, your next action gains +10% amp.",
     "when": "ONCRITICAL",
     "count": "1",
     "scope": "ACTION",
@@ -42,6 +46,7 @@
   {
     "id": 4,
     "name": "FoeOvercommit",
+    "description": "On miss, the foe's next action deals +10% damage (overcommit).",
     "when": "ONMISS",
     "count": "1",
     "scope": "ACTION",
@@ -52,6 +57,7 @@
   {
     "id": 5,
     "name": "EndBreathDamage",
+    "description": "On combo end, your next action deals +10% damage.",
     "when": "ONCOMBOEND",
     "count": "1",
     "scope": "ACTION",
@@ -62,6 +68,7 @@
   {
     "id": 6,
     "name": "FirstBloodAmp",
+    "description": "On first hit of the fight, your next action gains +10% amp.",
     "when": "ONFIRSTHIT",
     "count": "1",
     "scope": "ACTION",
@@ -72,6 +79,7 @@
   {
     "id": 7,
     "name": "KillSpray",
+    "description": "On kill, your next action gains +1 multihit.",
     "when": "ONKILL",
     "count": "1",
     "scope": "ACTION",
@@ -82,6 +90,7 @@
   {
     "id": 8,
     "name": "DesperationAim",
+    "description": "After a miss, hit threshold improves by 1 for the turn.",
     "when": "ONAFTERMISS",
     "count": "1",
     "scope": "TURN",
@@ -92,6 +101,7 @@
   {
     "id": 9,
     "name": "OpenTheLane",
+    "description": "On first hit, combo threshold improves by 1 for the turn.",
     "when": "ONFIRSTHIT",
     "count": "1",
     "scope": "TURN",
@@ -102,6 +112,7 @@
   {
     "id": 10,
     "name": "BloodlustCrit",
+    "description": "On kill, crit threshold improves by 1 for the turn.",
     "when": "ONKILL",
     "count": "1",
     "scope": "TURN",
@@ -112,6 +123,7 @@
   {
     "id": 11,
     "name": "SteadyHand",
+    "description": "On crit miss, crit-miss threshold is eased by 1 for the turn.",
     "when": "ONCRITICALMISS",
     "count": "1",
     "scope": "TURN",
@@ -122,6 +134,7 @@
   {
     "id": 12,
     "name": "LockedInAcc",
+    "description": "On connect, accuracy +1 for the turn.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "TURN",
@@ -132,6 +145,7 @@
   {
     "id": 13,
     "name": "EnemyFlinch",
+    "description": "On combo end, foes need +1 more to hit this turn.",
     "when": "ONCOMBOEND",
     "count": "1",
     "scope": "TURN",
@@ -142,6 +156,7 @@
   {
     "id": 14,
     "name": "EnemyAccTax",
+    "description": "On miss, tax foe accuracy by 1 for the turn.",
     "when": "ONMISS",
     "count": "1",
     "scope": "TURN",
@@ -152,6 +167,7 @@
   {
     "id": 15,
     "name": "CritThresholdPush",
+    "description": "On crit, crit threshold improves by 1 for the turn.",
     "when": "ONCRITICAL",
     "count": "1",
     "scope": "TURN",
@@ -162,6 +178,7 @@
   {
     "id": 16,
     "name": "ComboThresholdPush",
+    "description": "On combo, combo threshold improves by 1 for the turn.",
     "when": "ONCOMBO",
     "count": "1",
     "scope": "TURN",
@@ -172,6 +189,7 @@
   {
     "id": 17,
     "name": "LuckySevenHit",
+    "description": "On natural 7, hit threshold improves by 1 for the turn.",
     "when": "ONNATURALROLL:7",
     "count": "1",
     "scope": "TURN",
@@ -182,6 +200,7 @@
   {
     "id": 18,
     "name": "ExactFifteenCombo",
+    "description": "On attack total 15, combo threshold improves by 1 for the turn.",
     "when": "ONROLLVALUE:15",
     "count": "1",
     "scope": "TURN",
@@ -192,6 +211,7 @@
   {
     "id": 19,
     "name": "ClutchForgive",
+    "description": "While clutch, a connect improves hit threshold by 1 for the turn.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "TURN",
@@ -203,6 +223,7 @@
   {
     "id": 20,
     "name": "CritFace19",
+    "description": "On connect, crit faces start at 19 for the turn.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "TURN",
@@ -213,6 +234,7 @@
   {
     "id": 21,
     "name": "CritFace18",
+    "description": "On first hit, crit faces start at 18 for the turn.",
     "when": "ONFIRSTHIT",
     "count": "1",
     "scope": "TURN",
@@ -223,6 +245,7 @@
   {
     "id": 22,
     "name": "SalvageCharm",
+    "description": "On connect, gain miss salvage for the fight.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "FIGHT",
@@ -233,6 +256,7 @@
   {
     "id": 23,
     "name": "KillReload20",
+    "description": "On kill, replace your next d20 with a 20.",
     "when": "ONKILL",
     "count": "1",
     "scope": "",
@@ -243,6 +267,7 @@
   {
     "id": 24,
     "name": "ComboEndReload15",
+    "description": "On combo end, replace your next d20 with a 15.",
     "when": "ONCOMBOEND",
     "count": "1",
     "scope": "",
@@ -253,6 +278,7 @@
   {
     "id": 25,
     "name": "SharpenedEdge",
+    "description": "On combo, weapon damage +1 for the turn.",
     "when": "ONCOMBO",
     "count": "1",
     "scope": "TURN",
@@ -263,6 +289,7 @@
   {
     "id": 26,
     "name": "QuickGrip",
+    "description": "On connect, weapon speed +1 for the turn.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "TURN",
@@ -273,6 +300,7 @@
   {
     "id": 27,
     "name": "MarchCadence",
+    "description": "On room clear, weapon damage +1 for the fight.",
     "when": "ONROOMSCLEARED",
     "count": "1",
     "scope": "FIGHT",
@@ -283,6 +311,7 @@
   {
     "id": 28,
     "name": "EnemySlowWeapon",
+    "description": "On miss, foe weapon speed is slowed by 1 for the turn.",
     "when": "ONMISS",
     "count": "1",
     "scope": "TURN",
@@ -293,6 +322,7 @@
   {
     "id": 29,
     "name": "ChaosOpen",
+    "description": "On first hit, shuffle your combo strip.",
     "when": "ONFIRSTHIT",
     "count": "1",
     "scope": "",
@@ -302,6 +332,7 @@
   {
     "id": 30,
     "name": "EchoStep",
+    "description": "On combo, repeat the current strip slot.",
     "when": "ONCOMBO",
     "count": "1",
     "scope": "",
@@ -311,6 +342,7 @@
   {
     "id": 31,
     "name": "SkipFiller",
+    "description": "On connect, skip the next strip slot.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "",
@@ -320,6 +352,7 @@
   {
     "id": 32,
     "name": "LeapAhead",
+    "description": "On connect, jump ahead on the combo strip.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "",
@@ -329,6 +362,7 @@
   {
     "id": 33,
     "name": "LoopChain",
+    "description": "On connect, loop the combo strip.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "",
@@ -338,6 +372,7 @@
   {
     "id": 34,
     "name": "BreakRhythm",
+    "description": "On miss, stop strip progression.",
     "when": "ONMISS",
     "count": "1",
     "scope": "",
@@ -347,6 +382,7 @@
   {
     "id": 35,
     "name": "WildNext",
+    "description": "On connect, pick a random next strip action.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "",
@@ -356,6 +392,7 @@
   {
     "id": 36,
     "name": "SealSlot",
+    "description": "On connect, disable a strip slot.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "",
@@ -365,6 +402,7 @@
   {
     "id": 37,
     "name": "ReplaceNextStrip",
+    "description": "On crit, replace the next strip action.",
     "when": "ONCRITICAL",
     "count": "1",
     "scope": "",
@@ -374,6 +412,7 @@
   {
     "id": 38,
     "name": "DoubleBeat",
+    "description": "On combo, retrigger the next strip action.",
     "when": "ONCOMBO",
     "count": "1",
     "scope": "",
@@ -383,6 +422,7 @@
   {
     "id": 39,
     "name": "ResetOpener",
+    "description": "On kill, retrigger your opener.",
     "when": "ONKILL",
     "count": "1",
     "scope": "",
@@ -392,6 +432,7 @@
   {
     "id": 40,
     "name": "FinisherEncore",
+    "description": "On combo end, retrigger your finisher.",
     "when": "ONCOMBOEND",
     "count": "1",
     "scope": "",
@@ -401,6 +442,7 @@
   {
     "id": 41,
     "name": "SlotTwoEncore",
+    "description": "On crit, retrigger combo strip slot 2.",
     "when": "ONCRITICAL",
     "count": "1",
     "scope": "",
@@ -410,6 +452,7 @@
   {
     "id": 42,
     "name": "CritExpose",
+    "description": "On crit, apply Expose.",
     "when": "ONCRITICAL",
     "count": "1",
     "scope": "",
@@ -419,6 +462,7 @@
   {
     "id": 43,
     "name": "ComboWeaken",
+    "description": "On combo, apply Weaken.",
     "when": "ONCOMBO",
     "count": "1",
     "scope": "",
@@ -428,6 +472,7 @@
   {
     "id": 44,
     "name": "SteadyFocus",
+    "description": "On connect, apply Focus.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "",
@@ -437,6 +482,7 @@
   {
     "id": 45,
     "name": "GuardUp",
+    "description": "On miss, apply Harden.",
     "when": "ONMISS",
     "count": "1",
     "scope": "",
@@ -446,6 +492,7 @@
   {
     "id": 46,
     "name": "FirstFortify",
+    "description": "On first hit, apply Fortify.",
     "when": "ONFIRSTHIT",
     "count": "1",
     "scope": "",
@@ -455,6 +502,7 @@
   {
     "id": 47,
     "name": "ConnectPierce",
+    "description": "On connect, apply Pierce.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "",
@@ -464,6 +512,7 @@
   {
     "id": 48,
     "name": "EndVulnerability",
+    "description": "On combo end, apply Vulnerability.",
     "when": "ONCOMBOEND",
     "count": "1",
     "scope": "",
@@ -473,6 +522,7 @@
   {
     "id": 49,
     "name": "CritMissSlow",
+    "description": "On crit miss, apply Slow.",
     "when": "ONCRITICALMISS",
     "count": "1",
     "scope": "",
@@ -482,6 +532,7 @@
   {
     "id": 50,
     "name": "PunishDot",
+    "description": "On connect vs a DoT'd foe, apply Pierce.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "",
@@ -492,6 +543,7 @@
   {
     "id": 51,
     "name": "SpiteFocus",
+    "description": "On connect while you have DoT, apply Focus.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "",
@@ -502,6 +554,7 @@
   {
     "id": 52,
     "name": "ComboEndHeal",
+    "description": "On combo end, heal 2 HP.",
     "when": "ONCOMBOEND",
     "count": "1",
     "scope": "",
@@ -512,6 +565,7 @@
   {
     "id": 53,
     "name": "RoomClearHeal",
+    "description": "On room clear, heal 2 HP.",
     "when": "ONROOMSCLEARED",
     "count": "1",
     "scope": "",
@@ -522,6 +576,7 @@
   {
     "id": 54,
     "name": "AfterMissHeal",
+    "description": "After a miss, heal 2 HP.",
     "when": "ONAFTERMISS",
     "count": "1",
     "scope": "",
@@ -532,6 +587,7 @@
   {
     "id": 55,
     "name": "CritLadderDungeon",
+    "description": "On crit, crit threshold improves by 1 for the dungeon.",
     "when": "ONCRITICAL",
     "count": "1",
     "scope": "DUNGEON",
@@ -542,6 +598,7 @@
   {
     "id": 56,
     "name": "HitLadderDungeon",
+    "description": "On connect, hit threshold improves by 1 for the dungeon.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "DUNGEON",
@@ -552,6 +609,7 @@
   {
     "id": 57,
     "name": "MissHitTaxDungeon",
+    "description": "On miss, hit threshold worsens by 1 for the dungeon.",
     "when": "ONMISS",
     "count": "1",
     "scope": "DUNGEON",
@@ -562,6 +620,7 @@
   {
     "id": 58,
     "name": "GoldSetArmor",
+    "description": "While equipped with gold-tagged gear, +2 armor.",
     "when": "WHILE_EQUIPPED",
     "count": "1",
     "scope": "",
@@ -573,6 +632,7 @@
   {
     "id": 59,
     "name": "ClassPrimaryAttr",
+    "description": "While equipped as Barbarian, +1 to your primary attribute.",
     "when": "WHILE_EQUIPPED",
     "count": "1",
     "scope": "",
@@ -584,6 +644,7 @@
   {
     "id": 60,
     "name": "EvenRollHeal",
+    "description": "On an even roll, heal 1 HP.",
     "when": "ONEVEN",
     "count": "1",
     "scope": "",
@@ -594,6 +655,7 @@
   {
     "id": 61,
     "name": "BarbarianActionDamage",
+    "description": "On connect with a Barbarian-tagged action, next action +5% damage.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "ACTION",
@@ -605,6 +667,7 @@
   {
     "id": 62,
     "name": "GrantBarbarianTag",
+    "description": "While equipped, grant the Barbarian action tag overlay.",
     "when": "WHILE_EQUIPPED",
     "count": "1",
     "scope": "",
@@ -614,6 +677,7 @@
   {
     "id": 63,
     "name": "SlotThreeSpeedDungeon",
+    "description": "On connect from strip slot 3, next action +5% speed (dungeon).",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "DUNGEON",
@@ -625,6 +689,7 @@
   {
     "id": 64,
     "name": "MirrorSwingDamage",
+    "description": "On connect with the same action as last swing, this swing +100% damage.",
     "when": "ONCONNECT",
     "count": "1",
     "scope": "",
@@ -636,11 +701,483 @@
   {
     "id": 65,
     "name": "UnarmedPunchGrant",
+    "description": "While equipped and unarmed, grant Punch Hard.",
     "when": "WHILE_EQUIPPED",
     "count": "1",
     "scope": "",
     "mechanics": "grant_action:PUNCH HARD",
     "filters": "IFUNARMED",
     "channel": "equip"
+  },
+  {
+    "id": 66,
+    "name": "SwiftSchool",
+    "description": "While equipped, Swift-tagged actions are +8% faster this swing.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_speed",
+    "value": 8,
+    "filters": "IFACTIONHASTAG:swift",
+    "channel": "equip"
+  },
+  {
+    "id": 67,
+    "name": "BludgeonChorus",
+    "description": "While equipped, Bludgeon-tagged actions deal +12% damage this swing.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_damage",
+    "value": 12,
+    "filters": "IFACTIONHASTAG:bludgeon",
+    "channel": "equip"
+  },
+  {
+    "id": 68,
+    "name": "FocusLens",
+    "description": "While equipped, Focus-tagged actions gain +10% amp this swing.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_amp",
+    "value": 10,
+    "filters": "IFACTIONHASTAG:focus",
+    "channel": "equip"
+  },
+  {
+    "id": 69,
+    "name": "InsightClarity",
+    "description": "While equipped, Insight-tagged actions gain +8% amp this swing.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_amp",
+    "value": 8,
+    "filters": "IFACTIONHASTAG:insight",
+    "channel": "equip"
+  },
+  {
+    "id": 70,
+    "name": "AimTrue",
+    "description": "While equipped, Aim-tagged actions improve hit threshold by 1.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_hit_threshold",
+    "value": -1,
+    "filters": "IFACTIONHASTAG:aim",
+    "channel": "equip"
+  },
+  {
+    "id": 71,
+    "name": "FootworkGreaves",
+    "description": "While equipped, Footwork-tagged actions are +6% faster this swing.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_speed",
+    "value": 6,
+    "filters": "IFACTIONHASTAG:footwork",
+    "channel": "equip"
+  },
+  {
+    "id": 72,
+    "name": "Firebrand",
+    "description": "While equipped, Fire-tagged actions deal +10% damage this swing.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_damage",
+    "value": 10,
+    "filters": "IFACTIONHASTAG:fire",
+    "channel": "equip"
+  },
+  {
+    "id": 73,
+    "name": "OpenerCrown",
+    "description": "While equipped, Opener-tagged actions gain +12% amp this swing.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_amp",
+    "value": 12,
+    "filters": "IFACTIONHASTAG:opener",
+    "channel": "equip"
+  },
+  {
+    "id": 74,
+    "name": "FinisherSeal",
+    "description": "While equipped, Finisher-tagged actions deal +15% damage this swing.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_damage",
+    "value": 15,
+    "filters": "IFACTIONHASTAG:finisher",
+    "channel": "equip"
+  },
+  {
+    "id": 75,
+    "name": "RogueActionAmp",
+    "description": "While equipped, Rogue-tagged actions deal +8% damage this swing.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_damage",
+    "value": 8,
+    "filters": "IFACTIONHASTAG:rogue",
+    "channel": "equip"
+  },
+  {
+    "id": 76,
+    "name": "WarriorActionAmp",
+    "description": "While equipped, Warrior-tagged actions deal +8% damage this swing.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_damage",
+    "value": 8,
+    "filters": "IFACTIONHASTAG:warrior",
+    "channel": "equip"
+  },
+  {
+    "id": 77,
+    "name": "WizardActionAmp",
+    "description": "While equipped, Wizard-tagged actions gain +8% amp this swing.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_amp",
+    "value": 8,
+    "filters": "IFACTIONHASTAG:wizard",
+    "channel": "equip"
+  },
+  {
+    "id": 78,
+    "name": "WaterBrand",
+    "description": "While equipped, Water-tagged actions deal +10% damage this swing.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_damage",
+    "value": 10,
+    "filters": "IFACTIONHASTAG:water",
+    "channel": "equip"
+  },
+  {
+    "id": 79,
+    "name": "AirBrand",
+    "description": "While equipped, Air-tagged actions are +8% faster this swing.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_speed",
+    "value": 8,
+    "filters": "IFACTIONHASTAG:air",
+    "channel": "equip"
+  },
+  {
+    "id": 80,
+    "name": "EarthBrand",
+    "description": "While equipped, Earth-tagged actions deal +10% damage this swing.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_damage",
+    "value": 10,
+    "filters": "IFACTIONHASTAG:earth",
+    "channel": "equip"
+  },
+  {
+    "id": 81,
+    "name": "StrCleave",
+    "description": "While equipped, this swing damage scales +1% per Strength.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_damage",
+    "value": 1,
+    "channel": "equip",
+    "scaleFrom": "STR"
+  },
+  {
+    "id": 82,
+    "name": "AgiSkirmish",
+    "description": "While equipped, this swing speed scales +1% per Agility.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_speed",
+    "value": 1,
+    "channel": "equip",
+    "scaleFrom": "AGI"
+  },
+  {
+    "id": 83,
+    "name": "TecPrecision",
+    "description": "While equipped, improve hit threshold by 1.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_hit_threshold",
+    "value": -1,
+    "channel": "equip"
+  },
+  {
+    "id": 84,
+    "name": "IntArchitect",
+    "description": "While equipped, this swing amp scales +1% per Intelligence.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_amp",
+    "value": 1,
+    "channel": "equip",
+    "scaleFrom": "INT"
+  },
+  {
+    "id": 85,
+    "name": "PrimaryPulse",
+    "description": "While equipped, armor scales +1 per primary attribute point.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "armor",
+    "value": 1,
+    "channel": "equip",
+    "scaleFrom": "PRIMARY"
+  },
+  {
+    "id": 86,
+    "name": "BarbarianBlood",
+    "description": "While equipped, Barbarian actions deal +2% damage per Barbarian point.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_damage",
+    "value": 2,
+    "filters": "IFACTIONHASTAG:barbarian",
+    "channel": "equip",
+    "scaleFrom": "BARBARIAN"
+  },
+  {
+    "id": 87,
+    "name": "LevelLadderArmor",
+    "description": "While equipped, armor scales +1 per character level.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "armor",
+    "value": 1,
+    "channel": "equip",
+    "scaleFrom": "LEVEL"
+  },
+  {
+    "id": 88,
+    "name": "WarriorPointsGuard",
+    "description": "While equipped, armor scales +1 per Warrior point.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "armor",
+    "value": 1,
+    "channel": "equip",
+    "scaleFrom": "WARRIOR"
+  },
+  {
+    "id": 89,
+    "name": "RoguePointsSpeed",
+    "description": "While equipped, this swing speed scales +1% per Rogue point.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_speed",
+    "value": 1,
+    "channel": "equip",
+    "scaleFrom": "ROGUE"
+  },
+  {
+    "id": 90,
+    "name": "WizardPointsAmp",
+    "description": "While equipped, this swing amp scales +1% per Wizard point.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_amp",
+    "value": 1,
+    "channel": "equip",
+    "scaleFrom": "WIZARD"
+  },
+  {
+    "id": 91,
+    "name": "SteelPlateEcho",
+    "description": "While equipped with steel-tagged gear, +3 armor.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "armor",
+    "value": 3,
+    "filters": "IFGEARHASTAG:steel",
+    "channel": "equip"
+  },
+  {
+    "id": 92,
+    "name": "ObsidianEdge",
+    "description": "On connect while wearing obsidian-tagged gear, apply Pierce.",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "",
+    "mechanics": "pierce",
+    "filters": "IFGEARHASTAG:obsidian",
+    "channel": "combat"
+  },
+  {
+    "id": 93,
+    "name": "WillowSwift",
+    "description": "While equipped with willow-tagged gear, this swing +5% speed.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_action_speed",
+    "value": 5,
+    "filters": "IFGEARHASTAG:willow",
+    "channel": "equip"
+  },
+  {
+    "id": 94,
+    "name": "SilverWard",
+    "description": "While equipped with silver-tagged gear, +2 armor.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "armor",
+    "value": 2,
+    "filters": "IFGEARHASTAG:silver",
+    "channel": "equip"
+  },
+  {
+    "id": 95,
+    "name": "GrantRogueTag",
+    "description": "While equipped, grant the Rogue action tag overlay.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "grant_action_tag:rogue",
+    "channel": "equip"
+  },
+  {
+    "id": 96,
+    "name": "ClassWarriorPrimary",
+    "description": "While equipped as Warrior, +1 to your primary attribute.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "hero_stat_bonus:PRIMARY",
+    "value": 1,
+    "filters": "IFCLASSTAG:warrior",
+    "channel": "equip"
+  },
+  {
+    "id": 97,
+    "name": "BossNeedle",
+    "description": "On connect vs a boss, your next action gains +15% amp.",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "ACTION",
+    "mechanics": "hero_next_action_amp",
+    "value": 15,
+    "filters": "IFTARGETHASTAG:boss",
+    "channel": "combat"
+  },
+  {
+    "id": 98,
+    "name": "MinionScythe",
+    "description": "On connect vs a minion, your next action gains +1 multihit.",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "ACTION",
+    "mechanics": "hero_next_action_multihit",
+    "value": 1,
+    "filters": "IFTARGETHASTAG:minion",
+    "channel": "combat"
+  },
+  {
+    "id": 99,
+    "name": "ClutchIron",
+    "description": "While equipped and clutch, +4 armor.",
+    "when": "WHILE_EQUIPPED",
+    "count": "1",
+    "scope": "",
+    "mechanics": "armor",
+    "value": 4,
+    "filters": "IFCLUTCH",
+    "channel": "equip"
+  },
+  {
+    "id": 100,
+    "name": "OddSpite",
+    "description": "On an odd roll, apply Slow.",
+    "when": "ONODD",
+    "count": "1",
+    "scope": "",
+    "mechanics": "slow",
+    "channel": "combat"
+  },
+  {
+    "id": 101,
+    "name": "HurtPride",
+    "description": "When you take a hit, your next action deals +15% damage.",
+    "when": "ONTAKEHIT",
+    "count": "1",
+    "scope": "ACTION",
+    "mechanics": "hero_next_action_damage",
+    "value": 15,
+    "channel": "combat"
+  },
+  {
+    "id": 102,
+    "name": "HurtHarden",
+    "description": "When you take a hit, apply Harden.",
+    "when": "ONTAKEHIT",
+    "count": "1",
+    "scope": "",
+    "mechanics": "harden",
+    "channel": "combat"
+  },
+  {
+    "id": 103,
+    "name": "DepthHunger",
+    "description": "On room clear, weapon damage +1 for the dungeon.",
+    "when": "ONROOMSCLEARED",
+    "count": "1",
+    "scope": "DUNGEON",
+    "mechanics": "hero_weapon_damage",
+    "value": 1,
+    "channel": "combat"
+  },
+  {
+    "id": 104,
+    "name": "StrongarmGate",
+    "description": "On connect with STR ≥ 8, your next action deals +10% damage.",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "ACTION",
+    "mechanics": "hero_next_action_damage",
+    "value": 10,
+    "filters": "IFATTR:STR>=8",
+    "channel": "combat"
+  },
+  {
+    "id": 105,
+    "name": "SwitchUpSpeed",
+    "description": "On connect with a different action than last, next action +10% speed.",
+    "when": "ONCONNECT",
+    "count": "1",
+    "scope": "ACTION",
+    "mechanics": "hero_next_action_speed",
+    "value": 10,
+    "filters": "IFDIFFERENTACTION",
+    "channel": "combat"
   }
 ]

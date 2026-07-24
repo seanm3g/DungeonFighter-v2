@@ -32,6 +32,8 @@ namespace RPGGame
         public bool Hit { get; set; }
         /// <summary>True when miss→hit was forced by a fight-scoped salvage_miss charge.</summary>
         public bool MissSalvaged { get; set; }
+        /// <summary>How many naiveté charges were spent this swing for miss→advantage rerolls.</summary>
+        public int NaiveteAdvantageUses { get; set; }
         public int Damage { get; set; }
         public int HealAmount { get; set; }
         /// <summary>
@@ -41,6 +43,11 @@ namespace RPGGame
         public int ResolvedMultiHitCount { get; set; } = 1;
         public List<string> StatusEffectMessages { get; set; } = new List<string>();
         public List<List<ColoredText>> ColoredStatusEffects { get; set; } = new List<List<ColoredText>>();
+        /// <summary>
+        /// Nested strip retrigger resolves (depth 1). HP damage is already applied inside each nested result;
+        /// combat UI formats these as separate action lines after the outer swing.
+        /// </summary>
+        public List<ActionExecutionResult> NestedRetriggerResults { get; set; } = new List<ActionExecutionResult>();
         public bool WasOneShotKill { get; set; }
         /// <summary>True when the hero peeked (did not consume) the head ACTION-cadence FIFO layer for this roll.</summary>
         public bool PendingActionCadenceLayerPeekedForRoll { get; set; }
@@ -240,9 +247,37 @@ namespace RPGGame
                     actionWasComboSuccess: result.IsCombo,
                     coloredStatusEffects: coloredStatusEffects);
             }
+
+            // Nested strip retriggers: encore hit/miss + its status lines after the outer "prepares…" message.
+            AppendNestedRetriggerDisplay(result, source, target, coloredStatusEffects);
             
             var mainResult = FormatAsColoredText(result, source, target);
             return (mainResult, coloredStatusEffects);
+        }
+
+        private static void AppendNestedRetriggerDisplay(
+            ActionExecutionResult result,
+            Actor source,
+            Actor target,
+            List<List<ColoredText>> coloredStatusEffects)
+        {
+            if (result.NestedRetriggerResults == null || result.NestedRetriggerResults.Count == 0)
+                return;
+
+            foreach (var nested in result.NestedRetriggerResults)
+            {
+                if (nested?.SelectedAction == null)
+                    continue;
+                Actor nestedTarget = nested.EffectiveTarget ?? target;
+                var (nestedAction, nestedRoll) = FormatAsColoredText(nested, source, nestedTarget);
+                if (nestedAction != null && nestedAction.Count > 0)
+                    coloredStatusEffects.Add(nestedAction);
+                if (nestedRoll != null && nestedRoll.Count > 0)
+                    coloredStatusEffects.Add(nestedRoll);
+                if (nested.Hit && nested.StatusEffectMessages.Count > 0)
+                    ActionStatusEffectApplier.AppendColoredStatusEffectMessages(
+                        nested.StatusEffectMessages, coloredStatusEffects);
+            }
         }
         
         /// <summary>
