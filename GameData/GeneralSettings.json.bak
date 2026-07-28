@@ -1,6 +1,6 @@
 {
   "gameSettings": {
-    "narrativeBalance": 0.8,
+    "narrativeBalance": 0.5,
     "enableNarrativeEvents": true,
     "enableInformationalSummaries": true,
     "combatSpeed": 1,
@@ -42,8 +42,8 @@
     "textBoxFocusBorderColor": "#0078D4"
   },
   "audioPreferences": {
-    "masterVolume": 0.37887067,
-    "musicVolume": 0,
+    "masterVolume": 0,
+    "musicVolume": 0.7,
     "sfxVolume": 0.9,
     "masterEnabled": true,
     "musicEnabled": true,

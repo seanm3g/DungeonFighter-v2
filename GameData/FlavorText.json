@@ -1244,19 +1244,67 @@
   "forms": {
     "roomEnter": {
       "displayName": "Room Enter",
-      "template": "You step inside. \u003Cintro\u003E Then \u003Cdetail\u003E."
+      "template": "You step inside. \u003Cintro\u003E. \u003Cdetail\u003E.."
+    },
+    "TEST": {
+      "displayName": "TEST",
+      "template": ""
     }
   },
   "categories": {
     "intro": [
-      "Moss coats the walls.",
-      "Torches sputter in the draft.",
-      "Dust hangs in the still air."
+      "Something hums beneath the floor, low enough to feel in your teeth.",
+      "The walls weep a pale sap that never quite reaches the ground.",
+      "Every torch in the room burns without smoke.",
+      "The air tastes of old iron and older rain.",
+      "Dust here has not moved in longer than any of the local graves.",
+      "A single shard of black glass is wedged into the ceiling, point down.",
+      "The floor is warmer than it has any right to be.",
+      "Something in the corner is breathing, and it is not an animal.",
+      "Frost clings to the walls though the season gives no reason for it.",
+      "A ring of scorched stone marks the center of the room, old and untended.",
+      "The silence here has weight \u2014 it presses rather than waits.",
+      "Bones are stacked along the far wall, too neat to be accident.",
+      "A thin blue light pulses from a crack in the stone, patient as a heartbeat.",
+      "The room smells of rot dressed up as flowers.",
+      "Every surface is worn smooth in the same direction, as if something dragged through here for centuries.",
+      "A faint chime sounds when the wind moves, though there is no wind.",
+      "The shadows here fall the wrong way for the hour.",
+      "Water drips from somewhere above, striking a rhythm too even to be natural.",
+      "The ground is littered with fragments too regular to be rubble.",
+      "A carved marker leans in the corner, its writing worn past reading.",
+      "Moss grows here in perfect spirals, like something taught it to.",
+      "The chill in this room does not lift, no matter how long you stand in it.",
+      "Ash covers every surface, fine as flour, undisturbed until you arrived.",
+      "A low static crackles at the edge of hearing, gone the moment you turn toward it.",
+      "Something has scratched the same mark into the wall a hundred times over."
     ],
     "detail": [
-      "A chest sits in the corner.",
-      "Footprints cross the floor.",
-      "Something scrapes in the dark."
+      "You feel it watching before you see where.",
+      "Your torch gutters, then steadies, as if something exhaled and thought better of it.",
+      "The mark on the wall matches one you have seen before, though you cannot say where.",
+      "A chill runs up your arm and does not leave when you step back.",
+      "You hear your name, or something close enough to unsettle you.",
+      "The floor gives slightly beneath your boot, like it remembers weight.",
+      "Something metal clatters deeper in, though nothing moves that you can see.",
+      "Your blade hums faintly in its sheath, unbidden.",
+      "You catch a smell of copper that was not there a breath ago.",
+      "The hum beneath the floor rises to meet your footsteps.",
+      "Whatever was breathing has stopped, and the stopping is worse.",
+      "Your reflection in the black glass does not quite match your movement.",
+      "Dust falls from the ceiling in a slow, deliberate line, as if disturbed from above.",
+      "The chime sounds again, closer now, though you have not moved.",
+      "You feel the warmth in the stone shift, like something turned over in its sleep.",
+      "A second set of footprints joins yours in the ash, going nowhere you can trace.",
+      "The blue light dims when you approach, and brightens once you stop.",
+      "Your hand finds a groove in the wall shaped like nothing you know, and it fits.",
+      "The frost creeps a hand\u0027s width further while your back is turned.",
+      "Something exhales behind you, and there is no one there.",
+      "The static resolves, for half a second, into something almost like words.",
+      "The bones shift, just slightly, though nothing touched them.",
+      "Your shadow falls a beat behind you, then catches up.",
+      "The scorched ring flares faintly hot beneath your boots.",
+      "You realize the silence has been waiting for you to notice it."
     ]
   }
 }
