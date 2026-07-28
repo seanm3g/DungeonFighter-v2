@@ -74,6 +74,17 @@ namespace RPGGame.UI.TitleScreen
         public int FinalHoldDuration { get; set; } = 0;
 
         /// <summary>
+        /// Optional build/sandbox label shown below the FIGHTER art and above the tagline.
+        /// When null or whitespace, no label is rendered.
+        /// </summary>
+        public string? BuildLabel { get; set; }
+
+        /// <summary>
+        /// Single-letter color code for <see cref="BuildLabel"/> (default: "c" = cyan).
+        /// </summary>
+        public string BuildLabelColorCode { get; set; } = "c";
+
+        /// <summary>
         /// Color scheme for the animation
         /// </summary>
         public TitleColorScheme ColorScheme { get; set; } = new TitleColorScheme();

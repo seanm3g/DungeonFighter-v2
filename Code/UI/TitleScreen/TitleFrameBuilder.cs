@@ -450,7 +450,18 @@ namespace RPGGame.UI.TitleScreen
                 frameList.Add(line ?? new List<ColoredText>());
             }
 
-            frameList.Add(new List<ColoredText>());
+            if (!string.IsNullOrWhiteSpace(_config.BuildLabel))
+            {
+                var buildLabelSegments = TitleColorApplicator.ApplySolidColor(
+                    _config.BuildLabel.Trim(),
+                    string.IsNullOrWhiteSpace(_config.BuildLabelColorCode) ? "c" : _config.BuildLabelColorCode);
+                frameList.Add(buildLabelSegments);
+            }
+            else
+            {
+                frameList.Add(new List<ColoredText>());
+            }
+
             frameList.Add(new List<ColoredText>());
             frameList.Add(new List<ColoredText>());
 

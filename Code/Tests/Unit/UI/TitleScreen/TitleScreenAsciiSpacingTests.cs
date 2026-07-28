@@ -24,6 +24,8 @@ namespace RPGGame.Tests.Unit.UI.TitleScreen
             TestTemplateFramePreservesDungeonAsciiLinesExactly();
             TestDemonBottomPipingMatchesTopLetterWidths();
             TestSolidColorFrameTaglineHasNoLeadingIndent();
+            TestBuildLabelPresentAtPostFighterGapIndex();
+            TestBuildLabelAbsentPreservesTaglineIndex();
             TestTitleCenterXHasNoHorizontalBias();
             TestFinalHoldDurationDefaultsToZeroForAnyKeyContinue();
             TestIntroDurationUsesNewPhaseCounts();
@@ -115,6 +117,47 @@ namespace RPGGame.Tests.Unit.UI.TitleScreen
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(!tagline.StartsWith(" ", StringComparison.Ordinal),
                 "Tagline should not start with leading spaces",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestBuildLabelPresentAtPostFighterGapIndex()
+        {
+            Console.WriteLine("--- Testing build label at first post-FIGHTER gap line ---");
+
+            var config = new TitleAnimationConfig
+            {
+                BuildLabel = "Joey's Build",
+                BuildLabelColorCode = "c"
+            };
+            var builder = new TitleFrameBuilder(config);
+            var frame = builder.BuildSolidColorFrame("W", "o");
+
+            const int buildLabelIndex = 15 + 2 + 6 + 1 + 1 + 1 + 6;
+            string buildLabel = Flatten(frame.Lines[buildLabelIndex]);
+
+            TestBase.AssertEqual("Joey's Build", buildLabel,
+                "Build label should appear at first post-FIGHTER gap line",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestBuildLabelAbsentPreservesTaglineIndex()
+        {
+            Console.WriteLine("--- Testing absent build label keeps tagline at index 35 ---");
+
+            var config = new TitleAnimationConfig();
+            var builder = new TitleFrameBuilder(config);
+            var frame = builder.BuildSolidColorFrame("W", "o");
+
+            const int taglineIndex = 15 + 2 + 6 + 1 + 1 + 1 + 6 + 3;
+            string tagline = Flatten(frame.Lines[taglineIndex]);
+
+            TestBase.AssertEqual(TitleArtAssets.Tagline, tagline,
+                "Tagline index should stay at 35 when BuildLabel is unset",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            const int postFighterGapIndex = 15 + 2 + 6 + 1 + 1 + 1 + 6;
+            TestBase.AssertEqual(string.Empty, Flatten(frame.Lines[postFighterGapIndex]),
+                "First post-FIGHTER gap line should be blank when BuildLabel is unset",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
