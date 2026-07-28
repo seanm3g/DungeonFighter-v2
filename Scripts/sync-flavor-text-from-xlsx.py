@@ -39,8 +39,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_JSON = ROOT / "GameData" / "FlavorText.json"
 
 EXPECTED_LOCATION_DESC_KEYS = 13
-EXPECTED_ROOM_CONTEXT_BIOMES = 5
-EXPECTED_COMBAT_NARRATIVE_BANKS = 13
+EXPECTED_ROOM_CONTEXT_BIOMES = 6
+EXPECTED_COMBAT_NARRATIVE_BANKS = 27
 
 SAMPLE_TRUNCATE = 72
 
@@ -132,9 +132,8 @@ def parse_flavor_sheet(sheet) -> tuple[dict[str, list[str]], dict[str, dict[str,
             combat_narratives[bank].append(text)
             continue
 
-        errors.append(
-            f"Row {row_num}: unsupported section/bank combination ({section!r}, {bank!r}) — skipped"
-        )
+        # Other flavor-sheet sections (names, classQualifiers, etc.) are intentionally out of scope.
+        continue
 
     return (
         dict(location_descriptions),

@@ -490,456 +490,456 @@
       "Volcanic Crater",
       "Crystal Caves",
       "Haunted Mansion",
-      "Dragon\u0027s Lair"
+      "Dragon's Lair"
     ],
     "locationDescriptions": {
       "Forest": [
-        "A dense forest with ancient trees that seem to whisper secrets of old.",
-        "Sunlight filters through the canopy, creating dancing shadows on the forest floor.",
-        "Massive oaks tower overhead, their branches forming a natural cathedral.",
-        "The air is thick with the scent of pine and the sound of rustling leaves.",
-        "A peaceful clearing where wildflowers bloom in vibrant colors.",
-        "Thorny vines twist between the trees, creating natural barriers.",
-        "A babbling brook winds through the woods, its waters crystal clear.",
-        "Ancient stone circles stand among the trees, remnants of forgotten rituals."
+        "Trees grow thick and old here, roots knotted around shapes too regular to be stone.",
+        "Canopy hangs low enough to swallow the light whole, and something beneath it hums faint and constant.",
+        "Moss has grown over everything, softening every edge until nothing keeps its original shape.",
+        "The undergrowth here grows in strange, even rows, as if something once planted it on purpose.",
+        "Sap runs pale along the bark, and the trees stand closer together than trees usually choose to.",
+        "A clearing opens where nothing grows at all, the ground scorched flat and never healed.",
+        "Water moves through the roots in channels too straight to be a stream's own doing.",
+        "The deeper woods keep a silence that feels tended rather than empty."
       ],
       "Lava": [
-        "A massive crater filled with bubbling lava and the stench of sulfur.",
-        "Molten rock flows through channels in the floor, creating an oppressive heat.",
-        "Steam rises from cracks in the ground, obscuring vision with thick clouds.",
-        "The walls glow red-hot, casting an eerie crimson light throughout the chamber.",
-        "A bubbling pool of molten rock with geysers of fire erupting periodically.",
-        "The air shimmers with heat waves, making distant objects appear to dance.",
-        "Blackened stone formations rise like twisted monuments from the lava flows.",
-        "The ground trembles with the power of the earth\u0027s molten heart below."
+        "Heat rolls off the stone in waves, thick enough to taste at the back of the throat.",
+        "Cracks in the ground glow faint orange, breathing slow with whatever moves beneath.",
+        "The air here shimmers, bending torchlight and everything else out of true.",
+        "Old metal has run and reformed here, pooled into shapes that don't belong to any tool.",
+        "Ash drifts down steady, fine as snow, settling over everything in a thin gray coat.",
+        "The rock underfoot is warm even where the fire hasn't reached in years.",
+        "Steam hisses up from unseen cracks, carrying a smell like scorched iron.",
+        "Something in the deepest chamber keeps this place hot long after any flame should have died."
       ],
       "Crypt": [
-        "Ancient stone walls lined with burial niches, the air thick with dust and decay.",
-        "A solemn chamber filled with ornate sarcophagi and funerary offerings.",
-        "Cobwebs hang from every corner, and the sound of skittering echoes in the darkness.",
-        "Stone coffins line the walls, their surfaces carved with ancient symbols.",
-        "The air is cold and still, carrying the faint scent of embalming spices.",
-        "Flickering torches cast dancing shadows on the crypt\u0027s stone walls.",
-        "A forgotten tomb where the walls are covered in ancient hieroglyphs.",
-        "The silence is broken only by the occasional drip of water from above."
+        "Names are carved into the walls faster than anyone could read them all.",
+        "The air holds still here, undisturbed by whatever wind moves through the rest of the world.",
+        "Dust settles evenly over everything, indifferent to who it was.",
+        "Old bones rest in neat rows, kept that way by hands long since joined them.",
+        "A cold settles into the stone that no torch quite manages to push back.",
+        "Faded offerings line the lower shelves, left by people whose names went with them.",
+        "Something in the deepest chamber has been sealed shut longer than the crypt's been a crypt.",
+        "The silence here isn't empty — it's tended."
       ],
       "Crystal": [
-        "Beautiful caves filled with glowing crystals that illuminate the darkness.",
-        "A chamber where crystals grow in intricate formations, pulsing with inner light.",
-        "Prismatic light reflects off countless crystal surfaces, creating a rainbow effect.",
-        "Massive crystal formations rise from the floor like frozen waterfalls.",
-        "The air hums with the resonance of the crystals\u0027 natural vibrations.",
-        "Geometric crystal patterns cover every surface, forming natural mosaics.",
-        "A crystal garden where gemstones bloom like flowers in impossible colors.",
-        "The crystals seem to sing with a melody that resonates deep in your bones."
+        "Light moves through the walls here in slow, deliberate pulses, keeping a rhythm of its own.",
+        "The formations grow in patterns too even to be chance, layered like something built rather than grown.",
+        "A faint hum rises from deep in the stone whenever you stand still long enough to notice.",
+        "Every surface throws the torchlight back distorted, bent at angles that don't match the room.",
+        "Warmth radiates from the crystal in places, cold in others, with no pattern anyone's mapped.",
+        "Shards litter the floor, sharp enough to cut, though nothing here looks recently broken.",
+        "The formations seem to lean toward the center of the room, all of them, the same way.",
+        "Something beneath the crystal keeps it fed, though no one who's asked has found what."
       ],
       "Temple": [
-        "A once-great temple now in ruins, its walls covered in mysterious runes.",
-        "Massive stone pillars support a vaulted ceiling adorned with celestial symbols.",
-        "An altar stands at the center, surrounded by offerings and burning incense.",
-        "Ancient murals depict scenes of divine power and mortal devotion.",
-        "The air is heavy with the scent of sacred oils and ceremonial herbs.",
-        "Stained glass windows filter light into patterns of holy radiance.",
-        "A sanctuary where the echoes of ancient prayers still seem to linger.",
-        "Ornate tapestries hang from the walls, telling stories of forgotten gods."
+        "Worn steps lead up to an altar no one alive remembers the purpose of.",
+        "Old incense clings to the stone, faint but never fully gone.",
+        "Carvings line the walls, worship for something whose name has long since dropped away.",
+        "Light falls through a gap in the roof onto the same spot every single day.",
+        "Offerings sit untouched at the altar's base, left by hands hoping for something unnamed.",
+        "The quiet here feels deliberate, held rather than simply empty.",
+        "Something at the center of the room draws every line of the architecture toward it.",
+        "Whoever built this meant for it to be found, eventually, by someone who'd understand it."
       ],
       "Cavern": [
-        "A vast underground cavern with stalactites and stalagmites forming natural columns.",
-        "Deep underground chambers where the air is cool and the walls glisten with moisture.",
-        "A network of interconnected caves with echoing chambers and hidden passages.",
-        "Massive underground halls where the ceiling disappears into darkness above.",
-        "A subterranean world of stone formations and underground streams.",
-        "Ancient caves where the walls are covered in mineral deposits and crystal growths.",
-        "A deep cavern where the sound of dripping water echoes through the darkness.",
-        "Underground chambers where the air is thick with the scent of earth and stone."
+        "Water drips somewhere unseen, keeping a slow count no one's listening to.",
+        "The rock here has been carved by more than water, in places too regular to be natural.",
+        "Cold air moves through passages that go deeper than any torch can prove.",
+        "Stone columns rise where the ceiling met the floor centuries before anyone walked here.",
+        "Something metallic glints where the rock has worn thin, buried deeper than curiosity reaches.",
+        "The dark here has weight, thick enough to feel on bare skin.",
+        "Echoes travel farther than they should, bouncing off walls that don't sound like stone.",
+        "A vein of pale ore runs through the rock, warm to the touch for no reason anyone's found."
       ],
       "Swamp": [
-        "A murky swamp where the air is thick with mist and strange creatures lurk.",
-        "Brackish water pools among twisted trees and hanging moss.",
-        "A fetid marsh where the ground squelches underfoot and insects buzz constantly.",
-        "Muddy wetlands where the water is dark and the trees grow in twisted shapes.",
-        "A boggy area where bubbles rise from the murky depths below.",
-        "Swampy terrain where the air is heavy with humidity and decay.",
-        "A marshy landscape where will-o\u0027-wisps dance among the reeds.",
-        "Wetlands where the water is stagnant and the vegetation grows in tangled masses."
+        "Water sits still and dark here, thick enough to hide whatever's beneath it.",
+        "The air hangs heavy with rot, sweet and close in a way that's hard to place.",
+        "Roots twist up out of the mud in shapes that seem to reach rather than grow.",
+        "Fog clings low over the water, never quite lifting even in daylight.",
+        "Something metal glints beneath the surface where the water runs shallow.",
+        "The ground here gives more than it should, swallowing footsteps whole.",
+        "Insects hum constant and unseen, a sound that never quite stops.",
+        "Old wood juts from the mud in patterns too straight to have fallen there naturally."
       ],
       "Desert": [
-        "A vast expanse of sand dunes that stretch endlessly to the horizon.",
-        "A scorching desert where the sun beats down mercilessly from above.",
-        "Rolling sand dunes that shift and change with the desert winds.",
-        "A barren wasteland where the heat shimmers in waves across the sand.",
-        "Desert sands that stretch as far as the eye can see under a blazing sun.",
-        "A dry landscape where cacti and scrub brush are the only signs of life.",
-        "Endless dunes of golden sand that seem to go on forever.",
-        "A harsh desert environment where water is scarce and the heat is oppressive."
+        "Heat rises off the sand in waves that make the horizon lie about its distance.",
+        "Wind has scoured this ground smooth, uncovering things that were better left buried.",
+        "Old metal juts from a dune here and there, worn thin and half-swallowed by sand.",
+        "The silence out here carries farther than it should, broken only by the shift of sand settling.",
+        "Glass has formed in patches on the ground, fused by heat no cookfire could produce.",
+        "Bones bleach quickly under this sun, human and otherwise, indistinguishable after long enough.",
+        "Something buried hums faintly beneath the dunes when the wind dies down completely.",
+        "The sand here holds a shape sometimes, like something vast once lay down and never got up."
       ],
       "Ice": [
-        "A frozen wasteland where ice and snow cover everything in sight.",
-        "Glacial formations that tower overhead like frozen monuments.",
-        "A land of eternal winter where the cold cuts through to the bone.",
-        "Ice-covered terrain where the ground is slick and treacherous.",
-        "A frozen landscape where the wind howls and snow falls endlessly.",
-        "Glacial caves where the walls are made of solid ice and frost.",
-        "A winter wonderland where everything is frozen in time.",
-        "Frozen tundra where the air is crisp and the ground is covered in permafrost."
+        "Frost climbs every surface in patterns too fine to have grown naturally.",
+        "The cold here settles into the bone before it settles into the air.",
+        "Ice has sealed over something along one wall, its shape lost beneath the frozen sheet.",
+        "Every breath hangs visible and slow to fade, longer than the cold alone explains.",
+        "The floor holds a sheen of ice thick enough to walk on and thin enough to worry about.",
+        "Wind finds its way through cracks too narrow to see, carrying a sound like distant breathing.",
+        "Something pale is visible beneath the ice here, still and unmoving, waiting out the cold.",
+        "The silence of this place is absolute, swallowed whole by the frost."
       ],
       "Ruins": [
-        "Ancient ruins where crumbling walls tell stories of a forgotten civilization.",
-        "Broken stone structures that once stood proud but now lie in decay.",
-        "A ruined city where nature has begun to reclaim what was once built.",
-        "Crumbling architecture where vines and moss grow through the cracks.",
-        "Ancient stonework that has weathered centuries of neglect and decay.",
-        "Ruined buildings where the walls are covered in ivy and the floors are cracked.",
-        "A forgotten settlement where the remains of buildings dot the landscape.",
-        "Crumbling ruins where the stones are worn smooth by time and weather."
+        "Walls stand here that clearly used to be something more, though no one agrees on what.",
+        "Fallen columns lie half-buried, their carvings too worn to make sense of anymore.",
+        "The stonework here doesn't match anything built since, cut too clean, joined too tight.",
+        "Vines have claimed most of what's left, though a few surfaces resist them entirely.",
+        "Something in the foundation still hums, faint enough to miss if you're not standing still.",
+        "Rubble covers most of the floor, though wide sections remain oddly untouched.",
+        "The proportions of this place feel wrong for people, built at a scale that doesn't fit.",
+        "Whatever this once was, it was built to last far longer than it did."
       ],
       "Castle": [
-        "A massive stone fortress that towers over the surrounding landscape.",
-        "Ancient castle walls that have stood for centuries against all invaders.",
-        "A grand keep with tall towers and thick defensive walls.",
-        "Medieval architecture where stone and mortar create an imposing structure.",
-        "A fortified stronghold with battlements and defensive positions.",
-        "Castle grounds where the walls are covered in ivy and the courtyards are overgrown.",
-        "A royal residence where banners once flew from the highest towers.",
-        "Ancient fortifications where the stonework shows the marks of countless battles."
+        "Cold stone corridors run longer than any single builder could have planned for.",
+        "Banners hang faded past recognition, their sigils lost to whoever last cared.",
+        "The keep was built in pieces, each generation patching over the last one's mistakes.",
+        "Draft moves through the halls from windows no mason ever meant to leave open.",
+        "Old iron gates hang half-rusted, propped rather than repaired.",
+        "Torch soot climbs the walls in layers, decades stacked on decades.",
+        "The floor here has been walked smooth by feet no one remembers.",
+        "Somewhere above, a bell that hasn't rung in years still hangs ready."
       ],
       "Graveyard": [
-        "A solemn graveyard where ancient tombstones mark the resting places of the dead.",
-        "A cemetery where the air is thick with the scent of earth and decay.",
-        "Ancient burial grounds where the graves are overgrown with weeds and moss.",
-        "A necropolis where the dead rest in eternal slumber beneath the earth.",
-        "Graveyard paths that wind between rows of weathered headstones.",
-        "A burial site where the silence is broken only by the sound of wind through the trees.",
-        "Ancient tombs where the dead have been laid to rest for centuries.",
-        "A cemetery where the graves are marked with symbols of mourning and remembrance."
+        "Headstones lean at angles the ground itself seems to have decided on.",
+        "Grass grows uneven here, thicker over some plots than others, for reasons no one asks about.",
+        "The names on the oldest markers have worn past reading, though people still visit them.",
+        "Fog settles low over the ground most mornings, slow to lift even at midday.",
+        "A single tree stands bare year-round, its roots running deeper than any grave here.",
+        "Fresh flowers sit beside markers decades old, left by hands that never knew the names.",
+        "The ground here settles strangely underfoot, uneven in ways that make you watch your step.",
+        "Crows keep this place more faithfully than any of the living do."
       ],
       "Generic": [
-        "A dark and damp cavern filled with the echoes of dripping water.",
-        "A vast expanse of ice and snow where the wind howls endlessly.",
-        "A small oasis in the middle of a scorching desert, a rare sight of life.",
-        "A murky swamp where the air is thick with mist and strange creatures lurk.",
-        "An eerie mansion where shadows seem to move on their own.",
-        "A massive cave filled with treasure and the bones of unfortunate adventurers.",
-        "A winding maze of corridors with no clear beginning or end.",
-        "A chamber where the walls seem to shift and change when you\u0027re not looking."
+        "Cut stone lines every wall here, plain and unremarkable except for its age.",
+        "Dust gathers in corners no one's swept in longer than anyone living remembers.",
+        "The air is still, neither warm nor cold, holding whatever mood the room was built to keep.",
+        "Torch brackets line the walls at even intervals, though half stand empty now.",
+        "Old scorch marks mar one wall, the story behind them long since lost.",
+        "The floor bears the wear of countless footsteps, none of them remembered individually.",
+        "A draft moves through from somewhere unseen, carrying no particular smell.",
+        "The room holds its shape well for its age, worn but not yet given up."
       ]
     },
     "roomContexts": {
       "Forest": {
         "boss": [
-          " This ancient grove is clearly the domain of a powerful forest guardian.",
-          " The very trees seem to bow before the presence of the forest\u0027s master.",
-          " Ancient druidic power radiates from this sacred grove\u0027s heart."
+          "Whatever holds this grove has been here long enough that the trees have grown around it rather than through it.",
+          "The air changes at the center of this clearing, heavier, like something old is still deciding whether to notice you.",
+          "Roots pull inward here, toward whatever waits at the heart of the grove, and none of them seem to mind."
         ],
         "treasure": [
-          " Glittering treasures are hidden among the roots and branches.",
-          " Nature\u0027s bounty and ancient artifacts lie scattered among the foliage.",
-          " Precious gems and golden trinkets catch the light filtering through leaves."
+          "Something catches the light beneath the roots, buried just deep enough to have been forgotten on purpose.",
+          "Coin and old metal are scattered here like they were dropped in a hurry and never retrieved.",
+          "A hollow in the oldest trunk holds more than it should, packed tight and gone dry with age."
         ],
         "library": [
-          " Ancient druidic knowledge is preserved in living tree bark and moss-covered stones.",
-          " Wisdom carved into living wood tells stories of the forest\u0027s past.",
-          " Sacred texts are inscribed on leaves that never wither."
+          "Bark has been peeled and etched in careful rows, a record kept by hands that trusted wood over parchment.",
+          "Stacked stones mark where something was once written, worn past reading by rain and root.",
+          "Whatever knowledge was kept here has gone quiet, the way old things do when no one asks after them anymore."
         ],
         "armory": [
-          " Weapons made from living wood and enchanted thorns line the walls.",
-          " Nature\u0027s weapons - bows of living wood and spears of thorn - are stored here.",
-          " Enchanted forest weapons gleam with natural magic."
+          "Blades are racked along a wall of fused root and pale metal, none of it rusted the way it should be.",
+          "Every weapon here has been kept oiled by hands that are all long gone, and it still shows.",
+          "Old iron hangs from low branches, strung there by someone who wanted it kept dry and close."
         ],
         "kitchen": [
-          " The scent of wild herbs and forest fruits fills this natural cooking area.",
-          " A natural hearth burns with enchanted flames that never consume the wood.",
-          " Forest provisions and wild game are prepared in this sylvan kitchen."
+          "Ash from old cookfires is packed into the ground here, layered deep enough to mark generations of use.",
+          "Dried herbs hang from a low beam of bent wood, forgotten by whoever hung them last.",
+          "A blackened hearth sits half-swallowed by roots, still warm though no one has fed it in years."
         ],
         "chamber": [
-          " This natural chamber is formed by ancient tree roots and living wood.",
-          " The walls pulse with the life force of the ancient forest.",
-          " A living room where the very structure breathes with natural magic."
+          "The walls of this hollow are packed earth and root, grown, not built, though something clearly meant for it to hold a shape.",
+          "Light filters down through a gap in the canopy that always seems to land in the same place.",
+          "This room breathes with the forest around it, its air thick and unmoving."
         ],
         "sanctum": [
-          " The air here pulses with the life force of the ancient forest.",
-          " Sacred energy flows through every root and branch in this holy place.",
-          " The heart of the forest beats with primordial power."
+          "Something in this hollow makes every sound feel deliberate, even the ones you didn't mean to make.",
+          "The trees here stand in a ring too even to be chance, and the ground within it never seems to flood.",
+          "Whoever comes here comes quietly, though none of them could say exactly why."
         ],
         "shrine": [
-          " Sacred grove markers and nature offerings mark this as a place of druidic worship.",
-          " Ancient stones circle a natural altar where forest spirits are honored.",
-          " Offerings of flowers and sacred herbs adorn this woodland shrine."
+          "Small offerings are tucked into the roots — coin, cloth, a single carved stone worn smooth from handling.",
+          "A ring of stacked rocks marks the base of the oldest tree in the grove, though no one living remembers why.",
+          "Faded ribbons hang from low branches, tied by hands hoping for something they couldn't name."
         ]
       },
       "Lava": {
         "boss": [
-          " This molten chamber is clearly the domain of a fire lord.",
-          " The very air burns in the presence of the flame\u0027s master.",
-          " Infernal heat radiates from this volcanic throne room."
+          "The heat at the center of this chamber isn't natural, and neither is whatever's decided to live in it.",
+          "Cracks in the floor glow brighter the deeper into the room you go, like something below is watching you approach.",
+          "Whatever holds this chamber has outlasted the fire around it long enough to stop minding the heat."
         ],
         "treasure": [
-          " Treasures forged in fire glow with inner heat within the molten walls.",
-          " Precious metals and gems glow red-hot in the volcanic heat.",
-          " Fire-forged artifacts pulse with the power of the earth\u0027s heart."
+          "Metal pools glitter here, cooled into shapes too deliberate to be accident.",
+          "Something buried beneath the ash has kept this corner cooler than the rest of the room.",
+          "What's left here survived the fire that took everything around it, and no one's figured out why."
         ],
         "library": [
-          " Ancient knowledge is preserved in fire-resistant stone tablets.",
-          " Wisdom is carved into stone that can withstand volcanic heat.",
-          " Sacred texts are inscribed on fireproof materials."
+          "What records survived here are scorched past reading, their edges curled black and brittle.",
+          "A single shelf stands apart from the fire's reach, its contents untouched though no one can say why.",
+          "Whatever knowledge burned here went with whoever kept it, all at once, a long time ago."
         ],
         "armory": [
-          " Weapons forged in volcanic fires line the superheated walls.",
-          " Blades of molten metal and spears of volcanic glass are stored here.",
-          " Weapons of fire gleam with the heat of the earth\u0027s core."
+          "Blades here have been reforged more times than anyone can count, the heat never quite letting them rest.",
+          "Old metal runs down one wall in a solid sheet, weapons fused into it that no one's tried freeing.",
+          "Whatever's stored here survives the heat better than it should, kept by hands that knew something about fire the rest of us don't."
         ],
         "kitchen": [
-          " The intense heat carries the scent of charred meat and molten metal.",
-          " A kitchen where food is cooked in volcanic heat.",
-          " Molten metal and fire-forged tools are used for cooking."
+          "The hearth here never needed lighting — the floor's been hot longer than anyone's cooked on it.",
+          "Old pots have melted half into slag, fused to a stone that was never meant to hold that much heat.",
+          "Whoever ate here last didn't stay long enough to finish, by the look of what's left."
         ],
         "chamber": [
-          " This chamber is carved from volcanic rock and flows with molten lava.",
-          " The walls glow red-hot with the heat of flowing lava.",
-          " A room where the very floor pulses with molten energy."
+          "The walls here have run and reformed more than once, leaving the room a different shape than it started.",
+          "Ash coats every surface, thick enough that footprints last for exactly as long as the next draft.",
+          "Something in this room remembers being whole, though nothing left in it looks like it once was."
         ],
         "sanctum": [
-          " The air here burns with the power of the earth\u0027s molten heart.",
-          " Sacred fire energy flows through every molten channel.",
-          " The heart of the volcano beats with infernal power."
+          "The heat here feels tended rather than accidental, like something wants it kept this way.",
+          "Every crack in the floor glows the same shade, steady as a held breath.",
+          "Something in the deepest part of this room has been burning since before anyone thought to ask why."
         ],
         "shrine": [
-          " Molten offerings and fire crystals mark this as a place of volcanic worship.",
-          " An altar of fire where volcanic spirits are honored.",
-          " Molten offerings and fire gems adorn this infernal shrine."
+          "Ash has been swept into careful piles here, offerings to something no one names out loud.",
+          "The heat rising from this shrine feels less like fire and more like something remembering how to be warm.",
+          "Old scorch marks form a shape on the wall that might be intentional, might just be time."
         ]
       },
       "Crypt": {
         "boss": [
-          " This ancient tomb is clearly the domain of a powerful undead lord.",
-          " The very air reeks of death in the presence of the undead master.",
-          " Necromantic energy radiates from this cursed burial chamber."
+          "Whatever commands this crypt has been mistaken for one of the dead often enough that no one corrects it anymore.",
+          "The deepest chamber holds something that predates every name carved into the walls above it.",
+          "Even the Boneyard-trained speak carefully here, the way you'd speak around something that might still be listening."
         ],
         "treasure": [
-          " Funerary treasures and grave goods are piled in shadowy corners.",
-          " Ancient burial offerings and cursed artifacts lie scattered about.",
-          " Precious grave goods glint in the dim light of the tomb."
+          "Grave goods glitter in the low light, left with the dead by families who could spare less than they gave.",
+          "Some of what's buried here is older than the crypt itself, its original owner long past guessing.",
+          "A single sealed urn sits apart from the rest, untouched by even the most desperate looters."
         ],
         "library": [
-          " Ancient necromantic knowledge is preserved in bone scrolls and death runes.",
-          " Wisdom is carved into bones and inscribed in death magic.",
-          " Forbidden texts contain the secrets of undeath and necromancy."
+          "Ledgers here record names faster than anyone reads them, generation stacked on generation.",
+          "A scribe's careful hand gave way to a hurried one partway through these shelves, and never recovered.",
+          "Old star charts hang alongside the burial records, kept by someone who thought the two belonged together."
         ],
         "armory": [
-          " Weapons of the dead and cursed blades line the tomb walls.",
-          " Ancient weapons and cursed armaments are stored in this burial chamber.",
-          " Weapons that have tasted death line the walls of this armory."
+          "Boneyard-marked blades hang here, each one earned by outliving the last hand that held it.",
+          "Weapons rest beside the dead they were buried with, though more than a few have gone missing over the years.",
+          "A rack of dulled steel lines the wall, kept less for use than for remembering who carried it."
         ],
         "kitchen": [
-          " The air carries the scent of embalming spices and decay.",
-          " A kitchen where the dead are prepared for eternal rest.",
-          " Embalming tools and preservation spices fill this morbid kitchen."
+          "A cold hearth sits untouched, kept only because someone once thought the dead should smell bread again.",
+          "Rations meant for mourners gone stale generations ago still sit sealed on a low shelf.",
+          "Whoever tended this room last left in a hurry, and no one's finished the job since."
         ],
         "chamber": [
-          " This burial chamber is lined with ancient sarcophagi and death masks.",
-          " The walls are covered with the faces of the long-dead.",
-          " A room where the dead rest in eternal slumber."
+          "Burial niches line every wall, stacked deeper than the crypt was ever meant to hold.",
+          "The stone here has absorbed centuries of grief the way other stone absorbs rain.",
+          "Some niches are marked, most aren't, and no one's kept count of which is which."
         ],
         "sanctum": [
-          " The air here pulses with the dark energy of undeath.",
-          " Sacred death energy flows through every bone and stone.",
-          " The heart of the crypt beats with necromantic power."
+          "Whatever's kept here has outlasted every faith that used to visit it.",
+          "The Boneyard order still sends someone to sit vigil, though none of them explain what for.",
+          "A single unlit lamp hangs at the center, kept ready by hands that never light it."
         ],
         "shrine": [
-          " Death symbols and funerary offerings mark this as a place of necromantic worship.",
-          " An altar of death where undead spirits are honored.",
-          " Grave offerings and death symbols adorn this cursed shrine."
+          "Small tokens are pressed into the wall's cracks — coin, cloth, a lock of hair gone brittle with age.",
+          "This shrine outlasted the accord that built it, tended now by habit more than belief.",
+          "Someone still leaves flowers here, though the name on the marker has worn past reading."
         ]
       },
       "Crystal": {
         "boss": [
-          " This crystal chamber is clearly the domain of a crystal lord.",
-          " The very air shimmers with prismatic light in the presence of the crystal\u0027s master.",
-          " Crystalline power radiates from this gem-studded throne room."
+          "Whatever holds this chamber has been growing into the crystal for longer than anyone's willing to guess at.",
+          "The formations pulse faster the closer you get to the center, keeping time with something unseen.",
+          "Every surface here seems angled toward whatever waits at the heart of the room."
         ],
         "treasure": [
-          " Precious gems and crystal artifacts glisten within the crystalline walls.",
-          " Crystalline treasures and gem-studded artifacts lie scattered about.",
-          " Crystal formations contain treasures that sparkle with inner light."
+          "Gems catch the light here in colors that don't quite match anything found in the ground outside.",
+          "A single formation stands apart from the rest, hollow at its center where something's clearly been removed.",
+          "Whatever's buried beneath this crystal has been feeding it for longer than anyone's mapped."
         ],
         "library": [
-          " Ancient knowledge is preserved in crystal tablets and gem-encrusted scrolls.",
-          " Wisdom is carved into crystal surfaces that never lose their clarity.",
-          " Sacred texts are inscribed on crystal that preserves knowledge eternally."
+          "Records here are etched into crystal slabs, the writing shifting faintly under torchlight like it's still being written.",
+          "A cracked slab lies apart from the rest, its surface gone dark where the others still glow faint.",
+          "Whoever kept this archive stopped adding to it generations before anyone alive was born."
         ],
         "armory": [
-          " Weapons forged from crystal and gem-studded blades line the walls.",
-          " Crystal weapons and gem-encrusted armaments are stored here.",
-          " Weapons of crystal gleam with the light of precious gems."
+          "Blades here hold an edge that never seems to dull, though no one's found the reason why.",
+          "Racks of gear hum faintly in time with the walls, restless even when nothing's near.",
+          "Weapons stored too long in this room start to carry a faint warmth that outlasts any forge."
         ],
         "kitchen": [
-          " The air carries the scent of crystal-clear water and preserved provisions.",
-          " A kitchen where food is preserved in crystal containers.",
-          " Crystal vessels and gem-studded utensils are used for preparation."
+          "Whoever cooked here last gave up trying to keep the crystal from creeping over the hearth.",
+          "A blackened pot sits fused half into the wall, more crystal now than iron.",
+          "The heat in this room never quite fades, fed by something the fire alone can't account for."
         ],
         "chamber": [
-          " This chamber is carved from solid crystal and filled with gem formations.",
-          " The walls are made of crystal so clear you can see through them.",
-          " A room where every surface reflects and refracts light in beautiful patterns."
+          "The walls have grown crystal over crystal here, burying whatever shape the room used to hold.",
+          "Light bends wrong in this room, throwing shadows that don't match what's casting them.",
+          "Something beneath the floor keeps this chamber warmer than the rest of the formation."
         ],
         "sanctum": [
-          " The air here shimmers with the power of crystalline energy.",
-          " Sacred crystal energy flows through every gem and crystal formation.",
-          " The heart of the crystal caves beats with prismatic power."
+          "The hum here settles into your chest before you notice you're listening for it.",
+          "Every crystal in this room points the same direction, patient as a compass that's stopped caring about north.",
+          "Something in the center pulses slow and steady, keeping a rhythm no one's ever explained."
         ],
         "shrine": [
-          " Crystal formations and gem offerings mark this as a place of crystal worship.",
-          " An altar of crystal where gem spirits are honored.",
-          " Crystal offerings and gem formations adorn this prismatic shrine."
+          "Small shards are set into the wall in a pattern too deliberate to be decoration.",
+          "Offerings here are laid directly against the crystal, as if it might notice the difference.",
+          "The light shifts faintly whenever someone kneels at this shrine, though no one claims to have caused it."
         ]
       },
       "Temple": {
         "boss": [
-          " This grand sanctuary is clearly the domain of a divine being.",
-          " The very air resonates with divine authority in the presence of the temple\u0027s master.",
-          " Sacred power radiates from this holy throne chamber."
+          "Whatever holds this temple has been mistaken for its god more than once, and never bothered correcting anyone.",
+          "The air changes at the center of the sanctuary, like something is still deciding whether you're welcome.",
+          "Every line of this room's architecture bends toward whatever waits at its heart."
         ],
         "treasure": [
-          " Sacred treasures and holy artifacts fill the temple vaults.",
-          " Precious religious relics and divine regalia are stored in this vault.",
-          " Holy treasures and sacred artifacts glint in the divine light."
+          "What's kept here was given, not taken — offerings collected faithfully long after anyone remembers why.",
+          "A locked case sits at the center, its key lost generations before anyone thought to ask for it back.",
+          "Whatever this temple was built to protect, it's still here, still waiting to be understood."
         ],
         "library": [
-          " Sacred knowledge is preserved in holy tomes and divine scrolls.",
-          " Wisdom is recorded in books bound with sacred materials and divine symbols.",
-          " Temple archives contain the accumulated knowledge of the divine."
+          "Old texts line these shelves, their language older than anyone currently able to read it.",
+          "A single ledger sits apart from the rest, its pages filled with careful notes on the sky.",
+          "Whoever kept this archive believed the stars mattered as much as the scripture — the shelves don't separate the two."
         ],
         "armory": [
-          " Sacred weapons and holy armor line the temple walls.",
-          " Blades blessed by the divine and armor of sacred quality are stored here.",
-          " Weapons of the faith gleam with the blessing of the divine."
+          "Old ceremonial blades hang beside working ones, and only the dust tells you which is which anymore.",
+          "Weapons here were blessed once, by someone, for some purpose no longer recorded.",
+          "A single blade rests apart from the rack, kept close by whoever still tends this place."
         ],
         "kitchen": [
-          " The air carries the scent of sacred offerings and holy cuisine.",
-          " A kitchen where blessed foods are prepared for divine ceremonies.",
-          " Sacred provisions and holy ingredients are prepared in this divine kitchen."
+          "Meals prepared here were meant for pilgrims who mostly stopped coming generations ago.",
+          "A blackened hearth still holds the shape of the last fire lit in it, untouched since.",
+          "Dried herbs hang from the rafters, kept fresh by habit long after anyone needed them."
         ],
         "chamber": [
-          " This chamber is built with sacred stone and divine architecture.",
-          " The walls are made of blessed stone and decorated with holy symbols.",
-          " A room that reflects the divine power and sacred purpose of the temple."
+          "Faded murals cover every wall, their meaning lost though their colors somehow haven't.",
+          "The floor here is worn smoothest at its center, generations of the same path walked by the same devotion.",
+          "Light falls through a gap above onto the same spot every day, like the room was built around it."
         ],
         "sanctum": [
-          " The air here resonates with the power of divine authority.",
-          " Sacred divine energy flows through every stone and beam.",
-          " The heart of the temple beats with the power of the divine."
+          "The quiet here feels older than the temple built around it.",
+          "Every surface points toward the same spot, patient as something that's been waiting a very long time.",
+          "Whoever built this meant it to be found, eventually, by someone who'd understand what it was for."
         ],
         "shrine": [
-          " Sacred symbols and holy offerings mark this as a place of divine worship.",
-          " An altar where divine spirits and holy beings are honored.",
-          " Sacred offerings and divine symbols adorn this holy shrine."
+          "Offerings here span generations, some fresh, most gone to dust, all left for the same unnamed reason.",
+          "A single candle burns here always, though no one admits to relighting it.",
+          "The stone beneath this shrine has been worn smooth by knees, not feet."
         ]
       },
       "Generic": {
         "boss": [
-          " This grand chamber is clearly the domain of a powerful being.",
-          " The very air crackles with power in the presence of this room\u0027s master.",
-          " Ancient power radiates from this throne of stone and shadow."
+          "This grand chamber is clearly the domain of a powerful being.",
+          "The very air crackles with power in the presence of this room's master.",
+          "Ancient power radiates from this throne of stone and shadow."
         ],
         "treasure": [
-          " Glittering treasures catch your eye, but danger may lurk nearby.",
-          " Precious artifacts and valuable items are scattered throughout this room.",
-          " Riches beyond imagination lie waiting to be claimed."
+          "Glittering treasures catch your eye, but danger may lurk nearby.",
+          "Precious artifacts and valuable items are scattered throughout this room.",
+          "Riches beyond imagination lie waiting to be claimed."
         ],
         "guard": [
-          " This area appears to be well-fortified and guarded.",
-          " Defensive positions and guard posts are clearly visible.",
-          " The area is designed to be easily defended against intruders."
+          "This area appears to be well-fortified and guarded.",
+          "Defensive positions and guard posts are clearly visible.",
+          "The area is designed to be easily defended against intruders."
         ],
         "trap": [
-          " Something about this room seems suspicious and dangerous.",
-          " The air is thick with the sense of hidden danger.",
-          " Every surface seems to hide a potential threat."
+          "Something about this room seems suspicious and dangerous.",
+          "The air is thick with the sense of hidden danger.",
+          "Every surface seems to hide a potential threat."
         ],
         "puzzle": [
-          " Ancient mechanisms and cryptic symbols cover the walls here.",
-          " Complex puzzles and mysterious devices fill this chamber.",
-          " The room is designed to test the intellect of those who enter."
+          "Ancient mechanisms and cryptic symbols cover the walls here.",
+          "Complex puzzles and mysterious devices fill this chamber.",
+          "The room is designed to test the intellect of those who enter."
         ],
         "rest": [
-          " This area seems surprisingly peaceful and safe.",
-          " A welcome respite from the dangers that lurk elsewhere.",
-          " The atmosphere here is calm and restorative."
+          "This area seems surprisingly peaceful and safe.",
+          "A welcome respite from the dangers that lurk elsewhere.",
+          "The atmosphere here is calm and restorative."
         ],
         "storage": [
-          " Shelves and supplies line the walls of this storage area.",
-          " Provisions and equipment are organized in this storage room.",
-          " A well-organized space for keeping supplies and materials."
+          "Shelves and supplies line the walls of this storage area.",
+          "Provisions and equipment are organized in this storage room.",
+          "A well-organized space for keeping supplies and materials."
         ],
         "library": [
-          " Rows of ancient tomes and scrolls fill this scholarly space.",
-          " Knowledge is preserved in countless books and documents.",
-          " A repository of wisdom and learning from ages past."
+          "Rows of ancient tomes and scrolls fill this scholarly space.",
+          "Knowledge is preserved in countless books and documents.",
+          "A repository of wisdom and learning from ages past."
         ],
         "armory": [
-          " Weapons and armor are displayed on racks throughout this room.",
-          " A collection of arms and armor for those who would fight.",
-          " Weapons of all kinds are stored and maintained here."
+          "Weapons and armor are displayed on racks throughout this room.",
+          "A collection of arms and armor for those who would fight.",
+          "Weapons of all kinds are stored and maintained here."
         ],
         "kitchen": [
-          " The smell of cooking and the sound of clanging pots fills this area.",
-          " A place where food is prepared and meals are cooked.",
-          " The aromas of cooking fill the air in this culinary space."
+          "The smell of cooking and the sound of clanging pots fills this area.",
+          "A place where food is prepared and meals are cooked.",
+          "The aromas of cooking fill the air in this culinary space."
         ],
         "dining": [
-          " A long table is set for a feast, though the food looks questionable.",
-          " A dining hall where meals are shared and stories are told.",
-          " Tables and chairs are arranged for communal dining."
+          "A long table is set for a feast, though the food looks questionable.",
+          "A dining hall where meals are shared and stories are told.",
+          "Tables and chairs are arranged for communal dining."
         ],
         "chamber": [
-          " This chamber has an air of mystery and ancient power.",
-          " A room that seems to hold secrets from ages past.",
-          " The atmosphere here is thick with history and mystery."
+          "This chamber has an air of mystery and ancient power.",
+          "A room that seems to hold secrets from ages past.",
+          "The atmosphere here is thick with history and mystery."
         ],
         "hall": [
-          " A long corridor stretches before you, lined with ornate decorations.",
-          " A grand hallway that speaks of wealth and importance.",
-          " An impressive passage that connects different parts of the structure."
+          "A long corridor stretches before you, lined with ornate decorations.",
+          "A grand hallway that speaks of wealth and importance.",
+          "An impressive passage that connects different parts of the structure."
         ],
         "vault": [
-          " Heavy doors and reinforced walls suggest this place holds something valuable.",
-          " A secure chamber designed to protect its contents.",
-          " The very construction suggests that something precious is stored here."
+          "Heavy doors and reinforced walls suggest this place holds something valuable.",
+          "A secure chamber designed to protect its contents.",
+          "The very construction suggests that something precious is stored here."
         ],
         "sanctum": [
-          " The air here feels charged with mystical energy.",
-          " A sacred space where the divine and mortal worlds meet.",
-          " The atmosphere here is thick with spiritual power."
+          "The air here feels charged with mystical energy.",
+          "A sacred space where the divine and mortal worlds meet.",
+          "The atmosphere here is thick with spiritual power."
         ],
         "grotto": [
-          " Natural rock formations create an otherworldly atmosphere.",
-          " A cave-like space formed by natural processes.",
-          " The organic shapes of the rock create a unique environment."
+          "Natural rock formations create an otherworldly atmosphere.",
+          "A cave-like space formed by natural processes.",
+          "The organic shapes of the rock create a unique environment."
         ],
         "catacomb": [
-          " Ancient burial chambers and stone sarcophagi line the walls.",
-          " A place where the dead rest in eternal slumber.",
-          " Stone coffins and burial niches fill this underground chamber."
+          "Ancient burial chambers and stone sarcophagi line the walls.",
+          "A place where the dead rest in eternal slumber.",
+          "Stone coffins and burial niches fill this underground chamber."
         ],
         "shrine": [
-          " Sacred symbols and offerings mark this as a place of worship.",
-          " A holy place where the divine is honored and revered.",
-          " Religious symbols and sacred objects fill this spiritual space."
+          "Sacred symbols and offerings mark this as a place of worship.",
+          "A holy place where the divine is honored and revered.",
+          "Religious symbols and sacred objects fill this spiritual space."
         ],
         "laboratory": [
-          " Strange equipment and bubbling potions fill this alchemical workspace.",
-          " A place where science and magic meet in mysterious ways.",
-          " Experimental apparatus and mysterious substances fill this workspace."
+          "Strange equipment and bubbling potions fill this alchemical workspace.",
+          "A place where science and magic meet in mysterious ways.",
+          "Experimental apparatus and mysterious substances fill this workspace."
         ],
         "observatory": [
-          " Star charts and celestial instruments suggest this room studies the heavens.",
-          " A place where the movements of the stars are tracked and studied.",
-          " Astronomical equipment and celestial maps fill this scholarly space."
+          "Star charts and celestial instruments suggest this room studies the heavens.",
+          "A place where the movements of the stars are tracked and studied.",
+          "Astronomical equipment and celestial maps fill this scholarly space."
         ],
         "throne": [
-          " An ornate throne dominates this regal chamber.",
-          " A seat of power that commands respect and authority.",
-          " The focal point of this room is clearly a symbol of rulership."
+          "An ornate throne dominates this regal chamber.",
+          "A seat of power that commands respect and authority.",
+          "The focal point of this room is clearly a symbol of rulership."
         ]
       }
     }
@@ -1035,141 +1035,141 @@
   },
   "combatNarratives": {
     "firstBlood": [
-      "The first drop of blood is drawn! The battle has truly begun.",
-      "Blood is spilled! The combat intensifies as both fighters feel the sting of battle.",
-      "First blood goes to the attacker! The fight becomes more desperate.",
-      "A crimson stain marks the beginning of this deadly dance.",
-      "The taste of blood in the air signals the start of true combat."
+      "First blood's drawn, and the fight stops pretending to be anything else.",
+      "Someone's bleeding now. That tends to settle who's serious.",
+      "The first cut lands, and everyone quiets down to watch what happens next.",
+      "Blood hits the ground, and the fight finds its true pace.",
+      "It's no longer a standoff once the blood shows."
     ],
     "healthRecovery": [
-      "A surge of vitality courses through {name}\u0027s body as wounds begin to heal.",
-      "{name} feels renewed strength flowing through their veins.",
-      "The healing magic takes effect, mending {name}\u0027s battered form.",
-      "{name}\u0027s wounds close as life energy restores their fighting spirit.",
-      "A warm glow surrounds {name} as their health is restored."
+      "{name} steadies, breath returning, the worst of it passing for now.",
+      "Something in {name} settles — not healed, just holding again.",
+      "{name} shakes off the worst of it and finds their feet.",
+      "Color returns to {name}'s face, and the fight isn't over yet.",
+      "{name} draws a ragged breath and keeps standing."
     ],
     "below50Percent": [
-      "{name} staggers under the weight of their injuries, but their eyes still burn with defiance!",
-      "Blood streams from {name}\u0027s wounds, yet they stand firm against the onslaught!",
-      "{name} is wounded but far from broken, their fighting spirit blazing brighter than ever!",
-      "Despite the crimson stains marking their body, {name} presses forward with renewed fury!",
-      "{name} grits their teeth through the pain, their resolve hardening like steel!",
-      "The battle has taken its toll on {name}, but their warrior\u0027s heart beats strong!",
-      "{name} bears the marks of combat proudly, each wound a testament to their courage!",
-      "Though battered and bleeding, {name} refuses to let their opponent see weakness!"
+      "{name} is bleeding freely now, and still hasn't stopped moving.",
+      "{name}'s breath comes ragged, but they haven't dropped their guard.",
+      "Half of what {name} started with is gone, and they keep coming anyway.",
+      "{name} favors one side now, the damage plain to see.",
+      "{name} is hurt bad enough that it shows in every step.",
+      "{name} keeps fighting through it, though the cost is written all over them.",
+      "{name}'s hands shake, but they don't lower.",
+      "{name} is running on less than they'd like to admit."
     ],
     "below10Percent": [
-      "{name} stands on the precipice of death, yet their eyes blaze with unbreakable determination!",
-      "Bloodied and broken, {name} rises from the ground like a phoenix from the ashes!",
-      "{name} is at death\u0027s door, but their warrior\u0027s soul refuses to surrender to the darkness!",
-      "With their last breath, {name} summons the fury of a thousand battles!",
-      "{name} is mortally wounded, yet their fighting spirit burns brighter than the sun!",
-      "The very air crackles with {name}\u0027s desperate resolve as they face their final moments!",
-      "{name} stands alone against the tide of fate, their courage unshaken by mortal wounds!",
-      "In their darkest hour, {name} finds the strength of legends coursing through their veins!"
+      "{name} is barely upright, held together by stubbornness alone.",
+      "One more solid hit and {name} won't be getting up.",
+      "{name}'s vision swims, but they refuse to fall yet.",
+      "{name} is running on fumes, and everyone in the room knows it.",
+      "{name} stands only because sitting down feels like losing.",
+      "Whatever's keeping {name} on their feet, it isn't much longer.",
+      "{name} is a breath away from the ground.",
+      "{name} won't last another exchange like the last one."
     ],
     "criticalHit": [
-      "{name} delivers a devastating blow that shakes the very foundations of the battlefield!",
-      "A perfect strike from {name} finds its mark with brutal, bone-shattering precision!",
-      "{name}\u0027s critical hit sends shockwaves through the air, the impact felt by all!",
-      "With masterful technique, {name} delivers a strike of deadly, soul-crushing accuracy!",
-      "{name} seizes the perfect moment, their attack landing with earth-shattering effect!",
-      "The force of {name}\u0027s critical strike reverberates through the ground itself!",
-      "{name} channels their fury into a single, devastating blow that defies all defense!",
-      "A strike worthy of legend! {name}\u0027s critical hit will be remembered for ages to come!"
+      "{name} finds the gap and doesn't waste it.",
+      "That one lands clean — {name} feels it connect all the way through.",
+      "{name}'s strike goes exactly where it was meant to.",
+      "Something gives way under {name}'s hit, and it isn't coming back from that.",
+      "{name} catches the opening before it closes and makes it count.",
+      "That blow from {name} lands with a weight the fight didn't have a second ago.",
+      "{name} doesn't get many like that — this one was clean.",
+      "The hit from {name} lands hard enough that the room goes quiet for a beat."
     ],
     "criticalMiss": [
-      "{name}\u0027s wild swing cuts through empty air, the attack going wide of its intended target!",
-      "The strike from {name} falters at the crucial moment, finding nothing but disappointment!",
-      "{name}\u0027s clumsy attack fails spectacularly, the weapon finding no purchase!",
-      "A critical miss! {name}\u0027s blow goes astray, missing the target by a wide margin!",
-      "{name}\u0027s poorly timed strike fails to connect, leaving them vulnerable and exposed!",
-      "The attack from {name} goes completely off-target, a moment of embarrassing failure!",
-      "{name} stumbles in their assault, the critical miss leaving them off-balance!",
-      "A devastating miss! {name}\u0027s attack finds only empty space where their foe once stood!"
+      "{name}'s swing goes wide, and the follow-through costs them.",
+      "{name} overreaches, and the miss leaves them open.",
+      "That one never had a chance — {name}'s strike finds nothing but air.",
+      "{name} stumbles through the attack, off-balance and exposed.",
+      "{name}'s timing slips at the worst possible moment.",
+      "The strike from {name} goes nowhere useful, and they know it immediately.",
+      "{name} commits to a swing that was never going to land.",
+      "{name}'s attack goes wrong in a way that's going to matter in a second."
     ],
     "environmentalAction": [
-      "The environment itself joins the fray! {effect}",
-      "Nature\u0027s power manifests as {effect}",
-      "The very air crackles with energy as {effect}",
-      "Environmental forces take hold: {effect}",
-      "The surroundings react to the battle: {effect}"
+      "The room itself has an opinion, apparently: {effect}",
+      "Something in the space reacts before anyone decides it should: {effect}",
+      "Whatever this place is, it isn't neutral: {effect}",
+      "The room joins in, uninvited: {effect}",
+      "Something old in these walls stirs: {effect}"
     ],
     "healthLeadChange": [
-      "The tide of battle shifts! {name} now holds the advantage!",
-      "A dramatic reversal! {name} gains the upper hand!",
-      "The momentum swings! {name} seizes control of the fight!",
-      "The balance of power changes! {name} now leads the assault!",
-      "A turning point! {name} gains the advantage in this deadly dance!"
+      "The fight tips — {name} has the room's attention now.",
+      "Something shifts, and {name} is the one pressing forward.",
+      "The exchange turns, and {name} is no longer on the back foot.",
+      "{name} finds the opening the fight's been missing.",
+      "The balance moves — {name}'s the one closing distance now."
     ],
     "intenseBattle": [
-      "The battle reaches a fever pitch as both {player} and {enemy} stand bloodied but unbroken!",
-      "The air crackles with tension as {player} and {enemy} face each other in this epic struggle!",
-      "Both {player} and {enemy} are wounded, yet their determination burns brighter than ever!",
-      "The battlefield trembles as {player} and {enemy} engage in a battle for the ages!",
-      "Bloodied warriors {player} and {enemy} circle each other, each knowing only one will walk away!",
-      "The intensity reaches new heights as {player} and {enemy} push themselves beyond their limits!",
-      "Both {player} and {enemy} stand on the edge of victory and defeat in this climactic moment!",
-      "The very ground shakes as {player} and {enemy} clash in this legendary confrontation!"
+      "Neither {player} nor {enemy} is giving an inch, and both are bleeding for it.",
+      "{player} and {enemy} have stopped holding anything back.",
+      "This has gone past caution — {player} and {enemy} are trading everything they've got.",
+      "Both {player} and {enemy} are past the point of pulling a hit.",
+      "The fight between {player} and {enemy} has stopped being about winning and started being about outlasting.",
+      "{player} and {enemy} are matched close enough that either outcome feels possible.",
+      "There's no more room to hold back between {player} and {enemy}.",
+      "{player} and {enemy} are trading blows fast enough that neither has time to think."
     ],
     "enemyDefeated": [
-      "{name} falls to the ground with a thunderous crash, defeated at last by {player}\u0027s superior skill!",
-      "With a final, desperate cry, {name} collapses before {player}, the epic battle finally concluded!",
-      "{name} succumbs to their grievous wounds, {player} standing victorious over their fallen foe!",
-      "The last of {name}\u0027s strength fails them, and they fall before {player}\u0027s relentless assault!",
-      "{name} is vanquished by {player}\u0027s might, their reign of terror brought to an end!",
-      "In a moment of final defeat, {name} crumbles before {player}\u0027s unwavering determination!",
-      "{name} meets their end at {player}\u0027s hands, the battlefield falling silent save for the victor\u0027s breath!",
-      "The mighty {name} falls, {player} standing triumphant over their defeated adversary!"
+      "{name} goes down, and {player} doesn't feel like celebrating it.",
+      "{name} stops moving, and the quiet after is louder than the fight was.",
+      "Whatever kept {name} standing runs out, and {player} is the one left breathing.",
+      "{name} falls, and {player} takes a moment before moving again.",
+      "It's over — {name}'s down, and {player} doesn't waste the win looking back.",
+      "{name} doesn't get back up this time.",
+      "{player} stands over what's left of {name}, and there's nothing satisfying about it.",
+      "{name} is finished, and {player} already knows there'll be another one somewhere."
     ],
     "playerDefeated": [
-      "You collapse to the ground, your strength finally exhausted by {enemy}\u0027s relentless assault!",
-      "The world fades to black as you succumb to your wounds, {enemy} standing victorious over your fallen form!",
-      "Your last conscious thought is of the battle lost, {enemy}\u0027s triumph echoing in your fading mind!",
-      "Darkness takes you as your body can fight no more, {enemy} having proven the stronger warrior!",
-      "You fall before {enemy}\u0027s might, defeated in body but not broken in spirit!",
-      "The mighty {enemy} has bested you, your valiant effort ending in noble defeat!",
-      "You meet your end at {enemy}\u0027s hands, your courage remembered even in defeat!",
-      "Though you fall to {enemy}, your fighting spirit will inspire others to rise!"
+      "You go down, and {enemy} doesn't slow to check the work.",
+      "The last thing you register is {enemy} still standing.",
+      "You hit the ground and {enemy}'s the only thing left moving.",
+      "It ends fast — {enemy} wins, and you don't get a say in how.",
+      "You're out before you register the last hit landed.",
+      "{enemy} finishes it, and you're not in any shape to argue.",
+      "The fight's over, and you're the one on the ground this time.",
+      "You go still, and {enemy} doesn't stick around to gloat."
     ],
     "playerTaunt": [
-      "\u0022{enemy}, you\u0027re no match for me!\u0022 {name} declares confidently.",
-      "\u0022Is that all you\u0027ve got?\u0022 {name} taunts with a smirk.",
-      "\u0022You fight like a child!\u0022 {name} laughs mockingly.",
-      "\u0022I\u0027ve faced worse than you in my sleep!\u0022 {name} boasts.",
-      "\u0022Give up now, {enemy}, before I really get started!\u0022 {name} warns.",
-      "\u0022You\u0027re making this too easy!\u0022 {name} jeers.",
-      "\u0022Come on, {enemy}, show me what you\u0027re really made of!\u0022 {name} challenges.",
-      "\u0022I expected more from someone like you!\u0022 {name} says disappointedly.",
-      "\u0022This is almost too simple!\u0022 {name} remarks casually.",
-      "\u0022You call that an attack?\u0022 {name} mocks with a grin."
+      "\"You're slower than you think, {enemy}.\" {name} circles, watching.",
+      "\"This isn't going the way you planned, is it, {enemy}?\" {name} says.",
+      "\"You picked the wrong day for this, {enemy}.\" {name} keeps their guard up.",
+      "\"I've had worse mornings than you, {enemy}.\" {name} mutters.",
+      "\"You're going to want to reconsider this, {enemy}.\" {name} warns.",
+      "\"Last chance to walk off, {enemy}.\" {name} doesn't lower their weapon.",
+      "\"You're not the first to try this, {enemy}. Won't be the last either.\" {name} says flatly.",
+      "\"I don't enjoy this part, {enemy}, but I'll finish it.\" {name} says.",
+      "\"You're wasting both our time, {enemy}.\" {name} sighs.",
+      "\"This doesn't have to go the way you think it does, {enemy}.\" {name} says, watching for an opening."
     ],
     "enemyTaunt": [
-      "\u0022You cannot defeat me, {player}!\u0022 {name} growls menacingly.",
-      "\u0022Your efforts are pathetic, {player}!\u0022 {name} sneers.",
-      "\u0022I will crush you like the insect you are!\u0022 {name} roars.",
-      "\u0022You dare challenge me, {player}?\u0022 {name} bellows in rage.",
-      "\u0022Your death will be slow and painful!\u0022 {name} threatens.",
-      "\u0022I have slain hundreds like you!\u0022 {name} boasts.",
-      "\u0022You are nothing compared to my power!\u0022 {name} declares.",
-      "\u0022Your blood will stain this ground!\u0022 {name} promises darkly.",
-      "\u0022I will make you beg for mercy!\u0022 {name} threatens.",
-      "\u0022You have made a grave mistake, {player}!\u0022 {name} warns."
+      "\"You won't walk out of here, {player}.\" {name} says, low.",
+      "\"I've buried better than you, {player}.\" {name} growls.",
+      "\"You're already tired, {player}. I can see it.\" {name} watches close.",
+      "\"This ends however I decide it ends, {player}.\" {name} says.",
+      "\"You shouldn't have come here, {player}.\" {name} warns.",
+      "\"I don't need long for this, {player}.\" {name} says, unbothered.",
+      "\"You're not leaving this the way you came, {player}.\" {name} says.",
+      "\"I've heard better threats than yours, {player}.\" {name} says.",
+      "\"This is going to hurt more than you're ready for, {player}.\" {name} says.",
+      "\"You made a mistake coming here, {player}.\" {name} says quietly."
     ],
     "playerTaunt_library": [
-      "\u0022Shh! We\u0027re in a library!\u0022 {name} whispers fiercely to {enemy}.",
-      "\u0022Keep your voice down, {enemy}!\u0022 {name} hisses in the quiet study.",
-      "\u0022This sacred place demands respect, {enemy}!\u0022 {name} murmurs among the ancient tomes.",
-      "\u0022Silence! The books are watching, {enemy}!\u0022 {name} whispers ominously."
+      "\"Shh! We're in a library!\" {name} whispers fiercely to {enemy}.",
+      "\"Keep your voice down, {enemy}!\" {name} hisses in the quiet study.",
+      "\"This sacred place demands respect, {enemy}!\" {name} murmurs among the ancient tomes.",
+      "\"Silence! The books are watching, {enemy}!\" {name} whispers ominously."
     ],
     "enemyTaunt_library": [
-      "\u0022Silence! This sacred place demands respect!\u0022 {name} hisses at {player}.",
-      "\u0022Quiet! The ancient knowledge must not be disturbed!\u0022 {name} whispers menacingly.",
-      "\u0022Hush! The spirits of the library will judge you, {player}!\u0022 {name} intones softly.",
-      "\u0022The books themselves will witness your defeat, {player}!\u0022 {name} murmurs in the shadows."
+      "\"Silence! This sacred place demands respect!\" {name} hisses at {player}.",
+      "\"Quiet! The ancient knowledge must not be disturbed!\" {name} whispers menacingly.",
+      "\"Hush! The spirits of the library will judge you, {player}!\" {name} intones softly.",
+      "\"The books themselves will witness your defeat, {player}!\" {name} murmurs in the shadows."
     ],
     "playerTaunt_underwater": [
-      "*Bubbles escape {name}\u0027s mouth as they gesture threateningly at {enemy}.*",
+      "*Bubbles escape {name}'s mouth as they gesture threateningly at {enemy}.*",
       "*{name} makes aggressive hand signals, bubbles streaming upward.*",
       "*{name} points menacingly at {enemy}, their words lost in the depths.*",
       "*{name} shakes their fist, the gesture clear despite the watery silence.*"
@@ -1181,70 +1181,70 @@
       "*{name} makes a cutting motion across their throat, the threat clear despite the silence.*"
     ],
     "playerTaunt_lava": [
-      "\u0022The heat won\u0027t save you, {enemy}!\u0022 {name} shouts over the roaring flames.",
-      "\u0022You\u0027ll burn before I do, {enemy}!\u0022 {name} yells through the inferno.",
-      "\u0022The fire only makes me stronger, {enemy}!\u0022 {name} roars above the molten rock.",
-      "\u0022I thrive in this heat, {enemy}!\u0022 {name} bellows in the volcanic chamber."
+      "\"The heat won't save you, {enemy}!\" {name} shouts over the roaring flames.",
+      "\"You'll burn before I do, {enemy}!\" {name} yells through the inferno.",
+      "\"The fire only makes me stronger, {enemy}!\" {name} roars above the molten rock.",
+      "\"I thrive in this heat, {enemy}!\" {name} bellows in the volcanic chamber."
     ],
     "enemyTaunt_lava": [
-      "\u0022You\u0027ll burn before you defeat me, {player}!\u0022 {name} roars through the inferno.",
-      "\u0022The molten rock will claim you, {player}!\u0022 {name} shouts over the crackling flames.",
-      "\u0022This is my domain, {player}!\u0022 {name} bellows in the volcanic heat.",
-      "\u0022The fire itself will consume you, {player}!\u0022 {name} roars above the lava flows."
+      "\"You'll burn before you defeat me, {player}!\" {name} roars through the inferno.",
+      "\"The molten rock will claim you, {player}!\" {name} shouts over the crackling flames.",
+      "\"This is my domain, {player}!\" {name} bellows in the volcanic heat.",
+      "\"The fire itself will consume you, {player}!\" {name} roars above the lava flows."
     ],
     "playerTaunt_crypt": [
-      "\u0022You belong here with the dead, {enemy}!\u0022 {name} declares in the echoing tomb.",
-      "\u0022The spirits will welcome you, {enemy}!\u0022 {name} intones in the burial chamber.",
-      "\u0022Your place is among the bones, {enemy}!\u0022 {name} echoes through the crypt.",
-      "\u0022The dead will claim you as their own, {enemy}!\u0022 {name} proclaims in the tomb."
+      "\"You belong here with the dead, {enemy}!\" {name} declares in the echoing tomb.",
+      "\"The spirits will welcome you, {enemy}!\" {name} intones in the burial chamber.",
+      "\"Your place is among the bones, {enemy}!\" {name} echoes through the crypt.",
+      "\"The dead will claim you as their own, {enemy}!\" {name} proclaims in the tomb."
     ],
     "enemyTaunt_crypt": [
-      "\u0022Join the others in eternal rest, {player}!\u0022 {name} intones ominously.",
-      "\u0022The crypt will be your final resting place, {player}!\u0022 {name} echoes in the tomb.",
-      "\u0022Your bones will join the others, {player}!\u0022 {name} declares in the burial chamber.",
-      "\u0022The dead welcome you, {player}!\u0022 {name} intones in the echoing crypt."
+      "\"Join the others in eternal rest, {player}!\" {name} intones ominously.",
+      "\"The crypt will be your final resting place, {player}!\" {name} echoes in the tomb.",
+      "\"Your bones will join the others, {player}!\" {name} declares in the burial chamber.",
+      "\"The dead welcome you, {player}!\" {name} intones in the echoing crypt."
     ],
     "playerTaunt_crystal": [
-      "\u0022Your fate is crystal clear, {enemy}!\u0022 {name} shouts, voice echoing off the gems.",
-      "\u0022You\u0027ll shatter like glass, {enemy}!\u0022 {name} calls through the crystalline chamber.",
-      "\u0022The crystals themselves will witness your defeat, {enemy}!\u0022 {name} proclaims.",
-      "\u0022Your reflection shows your doom, {enemy}!\u0022 {name} shouts in the gem-studded cave."
+      "\"Your fate is crystal clear, {enemy}!\" {name} shouts, voice echoing off the gems.",
+      "\"You'll shatter like glass, {enemy}!\" {name} calls through the crystalline chamber.",
+      "\"The crystals themselves will witness your defeat, {enemy}!\" {name} proclaims.",
+      "\"Your reflection shows your doom, {enemy}!\" {name} shouts in the gem-studded cave."
     ],
     "enemyTaunt_crystal": [
-      "\u0022You\u0027ll shatter like glass, {player}!\u0022 {name} bellows in the crystalline chamber.",
-      "\u0022The gems will be your tomb, {player}!\u0022 {name} echoes through the crystal cave.",
-      "\u0022Your fate is written in the crystals, {player}!\u0022 {name} intones ominously.",
-      "\u0022The crystal formations will be your grave, {player}!\u0022 {name} roars in the gem chamber."
+      "\"You'll shatter like glass, {player}!\" {name} bellows in the crystalline chamber.",
+      "\"The gems will be your tomb, {player}!\" {name} echoes through the crystal cave.",
+      "\"Your fate is written in the crystals, {player}!\" {name} intones ominously.",
+      "\"The crystal formations will be your grave, {player}!\" {name} roars in the gem chamber."
     ],
     "playerTaunt_temple": [
-      "\u0022The gods favor me, not you, {enemy}!\u0022 {name} proclaims in the sacred hall.",
-      "\u0022Divine justice will strike you down, {enemy}!\u0022 {name} declares in the temple.",
-      "\u0022The holy ground rejects you, {enemy}!\u0022 {name} calls in the sanctuary.",
-      "\u0022The gods themselves will judge you, {enemy}!\u0022 {name} proclaims in the sacred space."
+      "\"The gods favor me, not you, {enemy}!\" {name} proclaims in the sacred hall.",
+      "\"Divine justice will strike you down, {enemy}!\" {name} declares in the temple.",
+      "\"The holy ground rejects you, {enemy}!\" {name} calls in the sanctuary.",
+      "\"The gods themselves will judge you, {enemy}!\" {name} proclaims in the sacred space."
     ],
     "enemyTaunt_temple": [
-      "\u0022Your blasphemy ends here, {player}!\u0022 {name} thunders in the holy sanctuary.",
-      "\u0022The gods will punish your sacrilege, {player}!\u0022 {name} roars in the temple.",
-      "\u0022This sacred ground will reject you, {player}!\u0022 {name} bellows in the hall.",
-      "\u0022Divine wrath will consume you, {player}!\u0022 {name} thunders in the sanctuary."
+      "\"Your blasphemy ends here, {player}!\" {name} thunders in the holy sanctuary.",
+      "\"The gods will punish your sacrilege, {player}!\" {name} roars in the temple.",
+      "\"This sacred ground will reject you, {player}!\" {name} bellows in the hall.",
+      "\"Divine wrath will consume you, {player}!\" {name} thunders in the sanctuary."
     ],
     "playerTaunt_forest": [
-      "\u0022The forest itself will aid me against you, {enemy}!\u0022 {name} calls to the trees.",
-      "\u0022Nature\u0027s power flows through me, {enemy}!\u0022 {name} shouts among the ancient oaks.",
-      "\u0022The trees themselves will fight for me, {enemy}!\u0022 {name} proclaims in the grove.",
-      "\u0022The forest spirits are on my side, {enemy}!\u0022 {name} calls through the woodland."
+      "\"You picked the wrong grove to die in, {enemy},\" {name} mutters, backing toward the trees.",
+      "\"{enemy}, this wood's older than both of us — it won't remember you long.\" {name} grins.",
+      "\"Every root here's heard better threats than yours, {enemy}.\" {name} plants their feet.",
+      "\"{enemy}, the trees don't take sides. Lucky for me, I don't need them to.\" {name} says."
     ],
     "enemyTaunt_forest": [
-      "\u0022Nature\u0027s wrath will consume you, {player}!\u0022 {name} growls among the ancient oaks.",
-      "\u0022The forest itself will turn against you, {player}!\u0022 {name} roars in the grove.",
-      "\u0022The trees will witness your defeat, {player}!\u0022 {name} bellows through the woodland.",
-      "\u0022The forest spirits will claim you, {player}!\u0022 {name} growls among the towering trees."
+      "\"You won't leave this grove the way you came in, {player},\" {name} growls from the shadow of the canopy.",
+      "\"{player}, the roots will hold what's left of you.\" {name} circles slow.",
+      "\"This wood has swallowed better than you, {player}.\" {name} snarls.",
+      "\"{player}, no one hears you scream this deep in.\" {name} says, low."
     ]
   },
   "forms": {
     "roomEnter": {
       "displayName": "Room Enter",
-      "template": "You step inside. \u003Cintro\u003E. \u003Cdetail\u003E.."
+      "template": "You step inside. <intro>. <detail>.."
     },
     "TEST": {
       "displayName": "TEST",
@@ -1263,7 +1263,7 @@
       "Something in the corner is breathing, and it is not an animal.",
       "Frost clings to the walls though the season gives no reason for it.",
       "A ring of scorched stone marks the center of the room, old and untended.",
-      "The silence here has weight \u2014 it presses rather than waits.",
+      "The silence here has weight — it presses rather than waits.",
       "Bones are stacked along the far wall, too neat to be accident.",
       "A thin blue light pulses from a crack in the stone, patient as a heartbeat.",
       "The room smells of rot dressed up as flowers.",
@@ -1298,7 +1298,7 @@
       "A second set of footprints joins yours in the ash, going nowhere you can trace.",
       "The blue light dims when you approach, and brightens once you stop.",
       "Your hand finds a groove in the wall shaped like nothing you know, and it fits.",
-      "The frost creeps a hand\u0027s width further while your back is turned.",
+      "The frost creeps a hand's width further while your back is turned.",
       "Something exhales behind you, and there is no one there.",
       "The static resolves, for half a second, into something almost like words.",
       "The bones shift, just slightly, though nothing touched them.",
