@@ -47,6 +47,7 @@ namespace RPGGame
                 return false;
 
             bool any = false;
+            var firedIdentities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var item in EnumerateEquipped(character))
             {
                 if (item?.TriggerBundles == null || item.TriggerBundles.Count == 0)
@@ -54,7 +55,9 @@ namespace RPGGame
                 if (!item.TriggerBundles.Any(b => b != null && b.IsEnabled && !ItemEquipEffectApplicator.IsWhileEquipped(b)))
                     continue;
 
-                var carrier = BuildCarrierAction(item);
+                var carrier = BuildCarrierAction(item, firedIdentities: firedIdentities);
+                if (carrier.Triggers?.Bundles == null || carrier.Triggers.Bundles.Count == 0)
+                    continue;
                 any |= ActionTriggerBundleApplicator.ApplyMatchingBundles(
                     carrier, combatEvent, character, target ?? character, messages);
             }
@@ -77,6 +80,7 @@ namespace RPGGame
                 return false;
 
             bool any = false;
+            var firedIdentities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var item in EnumerateEquipped(hero))
             {
                 if (item?.TriggerBundles == null || item.TriggerBundles.Count == 0)
@@ -88,7 +92,9 @@ namespace RPGGame
                         && IsTakeHitWhen(b.When)))
                     continue;
 
-                var carrier = BuildCarrierAction(item, onlyWhenTakeHit: true);
+                var carrier = BuildCarrierAction(item, onlyWhenTakeHit: true, firedIdentities: firedIdentities);
+                if (carrier.Triggers?.Bundles == null || carrier.Triggers.Bundles.Count == 0)
+                    continue;
                 any |= ActionTriggerBundleApplicator.ApplyMatchingBundles(
                     carrier, combatEvent, hero, attacker ?? hero, messages);
             }
@@ -246,7 +252,8 @@ namespace RPGGame
         public static Action BuildCarrierAction(
             Item item,
             string? onlyMechanic = null,
-            bool onlyWhenTakeHit = false)
+            bool onlyWhenTakeHit = false,
+            HashSet<string>? firedIdentities = null)
         {
             var bundles = ItemGenerator.CloneTriggerBundles(item.TriggerBundles) ?? new List<ActionTriggerBundle>();
             if (!string.IsNullOrWhiteSpace(onlyMechanic))
@@ -270,6 +277,9 @@ namespace RPGGame
                     .Where(b => !ItemEquipEffectApplicator.IsWhileEquipped(b) && !IsTakeHitWhen(b?.When))
                     .ToList();
             }
+
+            if (firedIdentities != null)
+                bundles = FilterAndMarkIdentities(bundles, firedIdentities);
 
             var filters = new List<string>();
             foreach (var b in bundles)
@@ -315,6 +325,31 @@ namespace RPGGame
                 },
                 RollMods = new RollModificationProperties()
             };
+        }
+
+        /// <summary>
+        /// Drops bundles whose <see cref="ActionTriggerBundle.IdentityName"/> already fired this pass;
+        /// marks newly included named identities so later gear pieces skip duplicates (taxon synergies).
+        /// </summary>
+        internal static List<ActionTriggerBundle> FilterAndMarkIdentities(
+            List<ActionTriggerBundle> bundles,
+            HashSet<string> firedIdentities)
+        {
+            var kept = new List<ActionTriggerBundle>(bundles.Count);
+            foreach (var b in bundles)
+            {
+                if (b == null)
+                    continue;
+                string? id = b.IdentityName;
+                if (!string.IsNullOrWhiteSpace(id))
+                {
+                    if (firedIdentities.Contains(id))
+                        continue;
+                    firedIdentities.Add(id.Trim());
+                }
+                kept.Add(b);
+            }
+            return kept;
         }
 
         private static bool ApplySameSwingFromItem(

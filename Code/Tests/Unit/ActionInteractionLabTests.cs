@@ -85,6 +85,7 @@ namespace RPGGame.Tests.Unit
             Lab.ActionInteractionLabEnemyPanelTests.DirectStatEnemy_CombatLogSpeedMatchesPanelSeconds(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabMiscTests.CharacterLabSnapshot_RoundTripIncludesGearAndStrip(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabMiscTests.LoadCharacterSnapshot_ReplacesLabHeroBaseline(ref run, ref passed, ref failed);
+            Lab.ActionInteractionLabMiscTests.TriggerScenario_LoadStagesForcedD20(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabSimulationTests.SeededDungeonGenerate_IsDeterministic(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabSimulationTests.SetLabDungeonSeed_UpdatesSessionSeed(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabSimulationTests.SeededD20_RepeatsSequenceAfterReset(ref run, ref passed, ref failed);

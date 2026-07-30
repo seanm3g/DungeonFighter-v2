@@ -48,6 +48,10 @@ namespace RPGGame.Entity.Services
                 Legs = character.Equipment.Legs,
                 Weapon = character.Equipment.Weapon,
                 Feet = character.Equipment.Feet,
+                ComboStripActionNames = character.GetComboActions()
+                    .Where(a => a != null && !string.IsNullOrWhiteSpace(a.Name))
+                    .Select(a => a.Name)
+                    .ToList(),
                 IsDead = markDead,
                 PendingPreWeaponTrainingGround = character.PendingPreWeaponTrainingGround,
                 CurrentRegionId = string.IsNullOrWhiteSpace(character.CurrentRegionId)
@@ -119,9 +123,45 @@ namespace RPGGame.Entity.Services
             character.Equipment.Weapon = ItemTypeConverter.ConvertItemToProperType(saveData.Weapon) as WeaponItem;
             character.Equipment.Feet = ItemTypeConverter.ConvertItemToProperType(saveData.Feet);
 
-            RebuildCharacterActions(character);
+            RefreshAnimalSuffixTriggersOnGear(character);
+
+            // New characters have an empty strip; rebuild the pool, then restore the saved order
+            // (or fall back to InitializeDefaultCombo inside RebuildCharacterActions).
+            var savedComboNames = saveData.ComboStripActionNames;
+            if (savedComboNames != null && savedComboNames.Count > 0)
+            {
+                RebuildCharacterActions(character, preserveComboSequence: false);
+                if (!character.RestoreComboFromActionNames(savedComboNames))
+                    character.InitializeDefaultCombo();
+                character.ComboStep = 0;
+            }
+            else
+            {
+                RebuildCharacterActions(character);
+            }
 
             return character;
+        }
+
+        private static void RefreshAnimalSuffixTriggersOnGear(Character character)
+        {
+            if (character?.Equipment == null)
+                return;
+            void Refresh(Item? item)
+            {
+                if (item != null)
+                    StatBonusTriggerMerge.RefreshFromItemSuffixes(item);
+            }
+            Refresh(character.Equipment.Head);
+            Refresh(character.Equipment.Body);
+            Refresh(character.Equipment.Legs);
+            Refresh(character.Equipment.Feet);
+            Refresh(character.Equipment.Weapon);
+            if (character.Equipment.Inventory != null)
+            {
+                foreach (var item in character.Equipment.Inventory)
+                    Refresh(item);
+            }
         }
 
         /// <summary>

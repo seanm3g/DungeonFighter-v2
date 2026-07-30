@@ -179,6 +179,7 @@ namespace RPGGame
                     continue;
                 list.Add(new ActionTriggerBundle
                 {
+                    IdentityName = b.IdentityName,
                     When = b.When ?? "",
                     Count = b.Count ?? "",
                     Scope = b.Scope ?? "",
@@ -545,7 +546,9 @@ namespace RPGGame
                 switch (selectedBonus)
                 {
                     case StatBonus statBonus:
-                        item.StatBonuses.Add(statBonus.CloneForItemInstance());
+                        var suffixInstance = statBonus.CloneForItemInstance();
+                        item.StatBonuses.Add(suffixInstance);
+                        StatBonusTriggerMerge.ApplySuffixToItem(item, suffixInstance);
                         break;
                     case ActionBonus actionBonus:
                         item.ActionBonuses.Add(actionBonus);

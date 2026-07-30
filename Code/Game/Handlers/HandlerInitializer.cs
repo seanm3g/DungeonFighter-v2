@@ -275,7 +275,13 @@ namespace RPGGame.Handlers
                 handlers.DungeonCompletionHandler.StartDungeonSelectionEvent += () => { handlers.DungeonSelectionHandler?.ShowDungeonSelection(); return Task.CompletedTask; };
                 handlers.DungeonCompletionHandler.ShowInventoryEvent += () => showInventory();
                 handlers.DungeonCompletionHandler.ShowMainMenuEvent += () => showMainMenu();
-                handlers.DungeonCompletionHandler.SaveGameEvent += async () => { saveGame(); await Task.CompletedTask; };
+                handlers.DungeonCompletionHandler.SaveGameEvent += async () =>
+                {
+                    // Must await SaveGameAsync directly — sync SaveGame() uses GetResult and can
+                    // deadlock the Avalonia UI thread after ConfigureAwait(true) on the async path.
+                    if (handlers.SettingsMenuHandler != null)
+                        await handlers.SettingsMenuHandler.SaveGameAsync().ConfigureAwait(true);
+                };
             }
             
             if (handlers.DeathScreenHandler != null)

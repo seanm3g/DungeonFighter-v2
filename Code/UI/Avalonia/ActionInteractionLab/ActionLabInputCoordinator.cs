@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
+using RPGGame.Items.ItemTriggerScenario;
 
 namespace RPGGame.UI.Avalonia.ActionInteractionLab
 {
@@ -185,6 +186,103 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                     session.SnapshotStatusMessage = $"Loaded: {session.SelectedSnapshotName}";
                 else
                     session.SnapshotStatusMessage = err ?? "Load failed";
+                RefreshLabCombat();
+                return;
+            }
+
+            if (value == "lab_trig_up")
+            {
+                session.TriggerScrollOffset = Math.Max(0, session.TriggerScrollOffset - 1);
+                RefreshLabCombat();
+                return;
+            }
+
+            if (value == "lab_trig_down")
+            {
+                var trigs = session.GetFilteredTriggerIdentities();
+                int maxScroll = Math.Max(0, trigs.Count - ActionInteractionLabSession.TriggerListVisibleRowCount);
+                session.TriggerScrollOffset = Math.Min(maxScroll, session.TriggerScrollOffset + 1);
+                RefreshLabCombat();
+                return;
+            }
+
+            if (value.StartsWith("lab_trig:", StringComparison.Ordinal))
+            {
+                if (int.TryParse(value.AsSpan("lab_trig:".Length), out int trigIdx))
+                {
+                    session.SelectedTriggerIdentityIndex = trigIdx;
+                    session.TriggerStatusMessage = "";
+                    session.LastTriggerScenarioReport = null;
+                    RefreshLabCombat();
+                }
+
+                return;
+            }
+
+            if (value == "lab_trig_load")
+            {
+                if (!session.TryLoadSelectedTriggerScenario(out var trigErr))
+                    session.TriggerStatusMessage = trigErr ?? "Load failed";
+                RefreshLabCombat();
+                return;
+            }
+
+            if (value == "lab_trig_run")
+            {
+                if (session.SelectedTriggerIdentityIndex is null)
+                {
+                    session.TriggerStatusMessage = "Select a trigger identity first";
+                    RefreshLabCombat();
+                    return;
+                }
+
+                try
+                {
+                    var report = session.RunSelectedTriggerScenario();
+                    string body = ItemTriggerScenarioReportFormatter.Format(report, verbose: true);
+                    await TryShowSimulationReportAsync(
+                            canvasUI,
+                            $"Trigger #{report.IdentityIndex} {report.IdentityName}",
+                            body)
+                        .ConfigureAwait(true);
+                }
+                catch (Exception ex)
+                {
+                    session.TriggerStatusMessage = ex.Message;
+                    await TryShowSimulationReportAsync(canvasUI, "Trigger scenario error", ex.ToString())
+                        .ConfigureAwait(true);
+                }
+
+                RefreshLabCombat();
+                return;
+            }
+
+            if (value == "lab_trig_run_all")
+            {
+                try
+                {
+                    string? filter = string.IsNullOrWhiteSpace(session.TriggerListFilter)
+                        ? null
+                        : session.TriggerListFilter;
+                    var batch = await Task.Run(() => ItemTriggerScenarioRunner.RunAll(filter)).ConfigureAwait(true);
+                    session.LastTriggerScenarioReport = batch.Reports.Count > 0
+                        ? batch.Reports[batch.Reports.Count - 1]
+                        : null;
+                    session.TriggerStatusMessage = $"Batch {batch.Passed}/{batch.Total} passed";
+                    string body = ItemTriggerScenarioReportFormatter.FormatBatch(batch, verbosePerReport: false);
+                    await TryShowSimulationReportAsync(
+                            canvasUI,
+                            $"Triggers — {batch.Passed}/{batch.Total} passed",
+                            body)
+                        .ConfigureAwait(true);
+                }
+                catch (Exception ex)
+                {
+                    session.TriggerStatusMessage = ex.Message;
+                    await TryShowSimulationReportAsync(canvasUI, "Trigger batch error", ex.ToString())
+                        .ConfigureAwait(true);
+                }
+
                 RefreshLabCombat();
                 return;
             }

@@ -129,6 +129,7 @@ namespace RPGGame
             catch (Exception ex)
             {
                 DebugLogger.Log("DeathScreenHandler", $"Save resurrected character failed: {ex.Message}");
+                // Continue into game loop; shutdown best-effort save may retry.
             }
 
             ClearDisplayIfNeeded();
@@ -167,6 +168,7 @@ namespace RPGGame
             catch (Exception ex)
             {
                 DebugLogger.Log("DeathScreenHandler", $"Save cloned character failed: {ex.Message}");
+                // Continue into game loop; shutdown best-effort save may retry.
             }
 
             ClearDisplayIfNeeded();
@@ -185,15 +187,20 @@ namespace RPGGame
             var player = stateManager.CurrentPlayer ?? stateManager.GetActiveCharacter();
             if (player != null)
             {
+                string? characterId = null;
                 try
                 {
-                    var characterId = stateManager.GetCharacterId(player);
+                    characterId = stateManager.GetCharacterId(player);
                     await CharacterSaveManager.SaveCharacterAsync(player, characterId, filename: null, markDead: true).ConfigureAwait(true);
                 }
                 catch (Exception ex)
                 {
                     DebugLogger.Log("DeathScreenHandler", $"Persist dead character save failed: {ex.Message}");
                 }
+
+                // Drop registry entry so shutdown best-effort save cannot recreate a live file.
+                if (!string.IsNullOrEmpty(characterId))
+                    stateManager.RemoveCharacter(characterId);
             }
 
             stateManager.SetCurrentDungeon(null);

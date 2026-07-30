@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Data;
 
 namespace RPGGame.ActionInteractionLab
 {
@@ -51,7 +52,11 @@ namespace RPGGame.ActionInteractionLab
                 foreach (var suffixTemplate in suffixTemplates)
                 {
                     if (suffixTemplate != null)
-                        weapon.StatBonuses.Add(CloneStatBonus(suffixTemplate));
+                    {
+                        var instance = CloneStatBonus(suffixTemplate);
+                        weapon.StatBonuses.Add(instance);
+                        StatBonusTriggerMerge.ApplySuffixToItem(weapon, instance);
+                    }
                 }
             }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Avalonia.Media;
+using RPGGame.Data;
 using RPGGame.UI.Avalonia.Renderers.Helpers;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
@@ -27,6 +28,10 @@ namespace RPGGame
                 return lines;
 
             bool equipBlocked = ItemRendererHelper.IsEquipBlockedForCharacter(item, character);
+
+            // Self-heal: animal suffixes may be present by name without resolved TriggerBundles
+            // (stale loot cache / pre-merge saves). Refresh before building sections.
+            StatBonusTriggerMerge.RefreshFromItemSuffixes(item);
 
             AddLine(lines, BuildSlotLine(slotLabel));
             AddBlank(lines);

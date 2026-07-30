@@ -15,7 +15,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WoundMomentum"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -33,7 +33,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "RecoverFooting"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -51,7 +51,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboSpray"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -69,7 +69,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritAmpCarry"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -87,7 +87,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FoeOvercommit"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -106,7 +106,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EndBreathDamage"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -124,7 +124,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FirstBloodAmp"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -142,7 +142,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "KillSpray"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -160,7 +160,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "DesperationAim"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -178,7 +178,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "OpenTheLane"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -196,7 +196,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BloodlustCrit"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -214,7 +214,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SteadyHand"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -232,7 +232,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LockedInAcc"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -250,7 +250,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EnemyFlinch"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -268,7 +268,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EnemyAccTax"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -286,7 +286,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritThresholdPush"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -304,7 +304,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboThresholdPush"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -322,7 +322,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LuckySevenHit"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -340,7 +340,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ExactFifteenCombo"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -358,7 +358,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ClutchForgive"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -376,7 +376,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritFace19"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -394,7 +394,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritFace18"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -412,7 +412,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SalvageCharm"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -430,7 +430,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "KillReload20"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -448,7 +448,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboEndReload15"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -466,7 +466,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SharpenedEdge"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -484,7 +484,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "QuickGrip"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -502,7 +502,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "MarchCadence"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -520,7 +520,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EnemySlowWeapon"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -538,7 +538,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ChaosOpen"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -556,7 +556,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EchoStep"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -574,7 +574,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SkipFiller"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -592,7 +592,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LeapAhead"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -610,7 +610,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LoopChain"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -628,7 +628,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BreakRhythm"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -646,7 +646,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WildNext"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -664,7 +664,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SealSlot"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -682,7 +682,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ReplaceNextStrip"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -700,7 +700,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "DoubleBeat"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -718,7 +718,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ResetOpener"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -736,7 +736,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FinisherEncore"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -754,7 +754,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SlotTwoEncore"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -772,7 +772,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritExpose"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -790,7 +790,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboWeaken"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -808,7 +808,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SteadyFocus"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -826,7 +826,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "GuardUp"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -844,7 +844,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FirstFortify"
+    "triggerName": ""
   },
   {
     "type": "Mace",
@@ -862,7 +862,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ConnectPierce"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -881,7 +881,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EndVulnerability"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -899,7 +899,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritMissSlow"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -917,7 +917,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "PunishDot"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -935,7 +935,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SpiteFocus"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -953,7 +953,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboEndHeal"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -971,7 +971,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "RoomClearHeal"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -989,7 +989,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "AfterMissHeal"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1007,7 +1007,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritLadderDungeon"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1025,7 +1025,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "HitLadderDungeon"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1043,7 +1043,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "MissHitTaxDungeon"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1061,7 +1061,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "GoldSetArmor"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1079,7 +1079,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ClassPrimaryAttr"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1097,7 +1097,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EvenRollHeal"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1115,7 +1115,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BarbarianActionDamage"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1133,7 +1133,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "GrantBarbarianTag"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1151,7 +1151,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SlotThreeSpeedDungeon"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1169,7 +1169,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "MirrorSwingDamage"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1187,7 +1187,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "UnarmedPunchGrant"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1205,7 +1205,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SwiftSchool"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1223,7 +1223,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BludgeonChorus"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1241,7 +1241,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FocusLens"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1259,7 +1259,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "InsightClarity"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1277,7 +1277,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "AimTrue"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1295,7 +1295,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FootworkGreaves"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1313,7 +1313,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "Firebrand"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1331,7 +1331,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "OpenerCrown"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1349,7 +1349,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FinisherSeal"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1367,7 +1367,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "RogueActionAmp"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1385,7 +1385,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WarriorActionAmp"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1403,7 +1403,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WizardActionAmp"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1421,7 +1421,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WaterBrand"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1439,7 +1439,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "AirBrand"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1457,7 +1457,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EarthBrand"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1475,7 +1475,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "StrCleave"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1493,7 +1493,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "AgiSkirmish"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1511,7 +1511,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "TecPrecision"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1529,7 +1529,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "IntArchitect"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1547,7 +1547,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "PrimaryPulse"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1565,7 +1565,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BarbarianBlood"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1583,7 +1583,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LevelLadderArmor"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1601,7 +1601,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WarriorPointsGuard"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1619,7 +1619,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "RoguePointsSpeed"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1637,7 +1637,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WizardPointsAmp"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1655,7 +1655,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SteelPlateEcho"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1673,7 +1673,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ObsidianEdge"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1691,7 +1691,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WillowSwift"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1709,7 +1709,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SilverWard"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1727,7 +1727,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "GrantRogueTag"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1745,7 +1745,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ClassWarriorPrimary"
+    "triggerName": ""
   },
   {
     "type": "Sword",
@@ -1763,7 +1763,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BossNeedle"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -1781,7 +1781,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "MinionScythe"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -1799,7 +1799,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ClutchIron"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -1817,7 +1817,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "OddSpite"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -1835,7 +1835,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "HurtPride"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -1853,7 +1853,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "HurtHarden"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -1871,7 +1871,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "DepthHunger"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -1889,7 +1889,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "StrongarmGate"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -1907,7 +1907,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SwitchUpSpeed"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -1925,7 +1925,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WoundMomentum"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -1944,7 +1944,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "RecoverFooting"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -1962,7 +1962,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboSpray"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -1980,7 +1980,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritAmpCarry"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -1998,7 +1998,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FoeOvercommit"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2016,7 +2016,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EndBreathDamage"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2034,7 +2034,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FirstBloodAmp"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2052,7 +2052,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "KillSpray"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2070,7 +2070,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "DesperationAim"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2088,7 +2088,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "OpenTheLane"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2106,7 +2106,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BloodlustCrit"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2124,7 +2124,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SteadyHand"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2142,7 +2142,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LockedInAcc"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2160,7 +2160,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EnemyFlinch"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2178,7 +2178,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EnemyAccTax"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2196,7 +2196,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritThresholdPush"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2214,7 +2214,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboThresholdPush"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2232,7 +2232,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LuckySevenHit"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2250,7 +2250,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ExactFifteenCombo"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2268,7 +2268,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ClutchForgive"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2286,7 +2286,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritFace19"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2304,7 +2304,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritFace18"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2322,7 +2322,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SalvageCharm"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2340,7 +2340,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "KillReload20"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2358,7 +2358,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboEndReload15"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2376,7 +2376,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SharpenedEdge"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2394,7 +2394,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "QuickGrip"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2412,7 +2412,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "MarchCadence"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2430,7 +2430,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EnemySlowWeapon"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2448,7 +2448,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ChaosOpen"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2466,7 +2466,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EchoStep"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2484,7 +2484,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SkipFiller"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2502,7 +2502,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LeapAhead"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2520,7 +2520,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LoopChain"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2538,7 +2538,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BreakRhythm"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2556,7 +2556,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WildNext"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2574,7 +2574,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SealSlot"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2592,7 +2592,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ReplaceNextStrip"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2610,7 +2610,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "DoubleBeat"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2628,7 +2628,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ResetOpener"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2646,7 +2646,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FinisherEncore"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2664,7 +2664,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SlotTwoEncore"
+    "triggerName": ""
   },
   {
     "type": "Dagger",
@@ -2682,7 +2682,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritExpose"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2700,7 +2700,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboWeaken"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2718,7 +2718,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SteadyFocus"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2736,7 +2736,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "GuardUp"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2754,7 +2754,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FirstFortify"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2772,7 +2772,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ConnectPierce"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2790,7 +2790,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EndVulnerability"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2808,7 +2808,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritMissSlow"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2826,7 +2826,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "PunishDot"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2844,7 +2844,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SpiteFocus"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2863,7 +2863,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboEndHeal"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2881,7 +2881,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "RoomClearHeal"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2899,7 +2899,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "AfterMissHeal"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2917,7 +2917,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritLadderDungeon"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2935,7 +2935,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "HitLadderDungeon"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2953,7 +2953,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "MissHitTaxDungeon"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2971,7 +2971,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "GoldSetArmor"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -2989,7 +2989,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ClassPrimaryAttr"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3007,7 +3007,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EvenRollHeal"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3025,7 +3025,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BarbarianActionDamage"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3043,7 +3043,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "GrantBarbarianTag"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3061,7 +3061,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SlotThreeSpeedDungeon"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3079,7 +3079,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "MirrorSwingDamage"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3097,7 +3097,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "UnarmedPunchGrant"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3115,7 +3115,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SwiftSchool"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3133,7 +3133,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BludgeonChorus"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3151,7 +3151,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FocusLens"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3169,7 +3169,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "InsightClarity"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3187,7 +3187,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "AimTrue"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3205,7 +3205,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FootworkGreaves"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3223,7 +3223,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "Firebrand"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3241,7 +3241,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "OpenerCrown"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3259,7 +3259,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FinisherSeal"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3277,7 +3277,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "RogueActionAmp"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3295,7 +3295,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WarriorActionAmp"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3313,7 +3313,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WizardActionAmp"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3331,7 +3331,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WaterBrand"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3349,7 +3349,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "AirBrand"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3367,7 +3367,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EarthBrand"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3385,7 +3385,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "StrCleave"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3403,7 +3403,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "AgiSkirmish"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3421,7 +3421,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "TecPrecision"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3439,7 +3439,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "IntArchitect"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3457,7 +3457,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "PrimaryPulse"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3475,7 +3475,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BarbarianBlood"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3493,7 +3493,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LevelLadderArmor"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3511,7 +3511,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WarriorPointsGuard"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3529,7 +3529,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "RoguePointsSpeed"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3547,7 +3547,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WizardPointsAmp"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3565,7 +3565,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SteelPlateEcho"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3583,7 +3583,7 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ObsidianEdge"
+    "triggerName": ""
   },
   {
     "type": "Wand",
@@ -3601,6 +3601,6 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WillowSwift"
+    "triggerName": ""
   }
 ]

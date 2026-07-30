@@ -112,14 +112,30 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 {
                     if (bonus == null)
                         continue;
+                    StatBonusTriggerMerge.EnsureSuffixTriggerFields(bonus);
+                    bool anyContrib = false;
                     foreach (var (contribType, contribValue) in bonus.EnumerateContributions())
                     {
                         if (Math.Abs(contribValue) < 1e-9)
                             continue;
+                        anyContrib = true;
                         string label = GetDisplayLabel(contribType);
                         string value = FormatSuffixValue(contribType, contribValue);
                         string? tag = string.IsNullOrEmpty(bonus.Name) ? null : bonus.Name;
                         list.Add(new ItemStatContribution(label, value, tag, isDebuff: contribValue < 0));
+                    }
+
+                    // Trigger-only animal suffixes: surface the player-facing description under Stats.
+                    if (!anyContrib && !string.IsNullOrWhiteSpace(bonus.TriggerName))
+                    {
+                        string desc = bonus.Description;
+                        if (string.IsNullOrWhiteSpace(desc)
+                            && TriggersLoader.TryGetByName(bonus.TriggerName, out var identity))
+                            desc = identity.Description ?? "";
+                        if (string.IsNullOrWhiteSpace(desc))
+                            desc = "Special trigger";
+                        string? tag = string.IsNullOrEmpty(bonus.Name) ? null : bonus.Name;
+                        list.Add(new ItemStatContribution("Trigger", desc.Trim(), tag, isDebuff: false));
                     }
                 }
             }

@@ -11,6 +11,7 @@ namespace RPGGame
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.ColorSystem;
     using RPGGame.UI.ColorSystem.Applications;
+    using RPGGame.Utils;
 
     /// <summary>
     /// Handles individual enemy encounters during dungeon runs
@@ -149,12 +150,25 @@ namespace RPGGame
             
             if (!playerWon)
             {
-                // Player died - transition to death screen
+                // Player died - tombstone the active per-character save immediately so a force-quit
+                // on the death screen cannot reload a healthy live save. Clone/resurrect recreate live.
                 if (stateManager.CurrentPlayer != null)
                 {
-                    // Delete save file when character dies
-                    Character.DeleteSaveFile();
-                    
+                    try
+                    {
+                        var characterId = stateManager.GetCharacterId(stateManager.CurrentPlayer);
+                        await CharacterSaveManager.SaveCharacterAsync(
+                            stateManager.CurrentPlayer,
+                            characterId,
+                            filename: null,
+                            markDead: true).ConfigureAwait(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        ScrollDebugLogger.LogAlways(
+                            $"EnemyEncounterHandler: failed to tombstone save on death: {ex.Message}");
+                    }
+
                     stateManager.TransitionToState(GameState.Death);
                     onPlayerDeath?.Invoke(stateManager.CurrentPlayer);
                 }

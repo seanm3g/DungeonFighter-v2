@@ -198,15 +198,16 @@ The CharacterActions system has been successfully refactored from a 828-line mon
   - Always-on equip math: `EquipmentBonusCalculator` / suffixes / quality multipliers / `ItemEquipEffectApplicator` (`WHILE_EQUIPPED` on `Item.EquipEffects`)
   - Combat procs: WHEN × mechanic × SCOPE shared with actions
     - Weapon* DoTs: `Modification.TriggerWhen` (default ONCRITICAL) via `CombatEffectsSimplified`
-    - Base catalog: identities in `Triggers.json` / `TriggersLoader` (facade `ItemTriggerIdentityCatalog`); fields include `description` (player-facing one-liner); gear refs via `triggerName`; combat via `EquippedItemTriggerApplicator`; equip via `ItemEquipEffectApplicator`
-    - Pre-roll same-swing threshold/speed from gear is `WHILE_EQUIPPED` only; combat WHEN×threshold deposits after the real event. Item self-buffs (`harden`/`focus`/`fortify`) use carrier `SelfTargetEffects`. Combat-path coverage: `ItemTriggerCombatIntegrationTests` (all identities via `ActionExecutionFlow` / room-clear / equip).
+    - Base catalog: identities in `Triggers.json` / `TriggersLoader` (facade `ItemTriggerIdentityCatalog`); fields include `description` (player-facing one-liner) plus authoring columns `effectTarget` / `whenArg` / `mechanicArg` (derived from mechanics; not combat authority); **Weapons/Armor** may still set optional `triggerName` (usually blank); **animal StatBonus suffixes** carry `triggerName` + taxon `tags` merged at loot via `StatBonusTriggerMerge`; combat via `EquippedItemTriggerApplicator` (dedupes identical `IdentityName` per fire); equip via `ItemEquipEffectApplicator` (same identity dedupe for WHILE_EQUIPPED set bonuses)
+    - Scenario iteration: `Code/Items/ItemTriggerScenario/` (`ItemTriggerScenarioRunner` + report formatter); Action Lab Triggers panel; `--run-item-trigger-scenarios`
+    - Pre-roll same-swing threshold/speed from gear is `WHILE_EQUIPPED` only; combat WHEN×threshold deposits after the real event. Item self-buffs (`harden`/`focus`/`fortify`) use carrier `SelfTargetEffects`. Combat-path coverage: `ItemTriggerCombatIntegrationTests` via shared `ItemTriggerScenarioRunner` (all identities through `ActionExecutionFlow` / room-clear / equip). Interactive iteration: Action Lab **Triggers** panel + CLI `--run-item-trigger-scenarios` (`Code/Items/ItemTriggerScenario/`).
     - Item filters use swing `combatEvent.Action` for mirror/tag; carrier holds bundles only
     - Tokens: `ONEVEN`/`ONODD`, `IFSLOT:N`, `IFUNARMED`, `IFCLASSTAG`, `IFATTR`, `ONTAKEHIT` (defender via `ApplyFromDefender`)
     - Same-swing: `hero_action_damage` / `hero_action_speed` / `hero_action_amp`; WHILE_EQUIPPED tag amps included in `ApplySameSwingDamageMods` / `ApplySameSwingPreRollMods`
     - Optional `scaleFrom` on bundles: effective mag = `value` × attr/class/level (`ItemTriggerMagnitude`)
     - Dice/threshold/accuracy/`crit_face_min` item procs use **TURN** (demos may use **DUNGEON**)
     - Optional `ActionTriggerBundle.Value` magnitude fallback when sheet fields are empty
-  - Future: Sheets PREFIX columns for When/Scope; no StatBonus WHEN in current pass
+  - Future: Sheets PREFIX columns for When/Scope. **StatBonus animal suffixes** already reference Triggers via `triggerName` / taxon tags (`shell`/`reptile`/`bird`/`bug`/`fish`/`beast`/`mythic`) with per-taxon `*SetFrom` / `*AmpTo` synergies.
   - ActionBonuses stay “grant a named action that carries its own triggers”
   - Affordance sentence: SOURCE × WHEN × IF* × DO × TARGET × MAG × SCOPE (equip = `WHILE_EQUIPPED`)
 #### Outcome Handlers

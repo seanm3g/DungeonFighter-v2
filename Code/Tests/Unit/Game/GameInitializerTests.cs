@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame;
+using RPGGame.Data;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Game
@@ -80,14 +81,14 @@ namespace RPGGame.Tests.Unit.Game
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 TestBase.AssertEqual(0, startingGear.armor.Count,
-                    "Default StartingGear.json should list no armor; use starter-tagged Armor.json or explicit entries to equip starting armor",
+                    "Default StartingGear.json should list no armor when Armor.json has starter-tagged body pieces",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
 
         private static void TestInitializeNewGame_EquipsWeaponBonusLootNoExtraArmorSlots()
         {
-            Console.WriteLine("\n--- Testing InitializeNewGame: weapon, random inventory bonus, no extra equipped armor ---");
+            Console.WriteLine("\n--- Testing InitializeNewGame: weapon, catalog starter armor, random inventory bonus ---");
 
             _ = GameConfiguration.Instance;
 
@@ -99,9 +100,39 @@ namespace RPGGame.Tests.Unit.Game
             TestBase.AssertNotNull(player.Weapon,
                 "New game should equip a starter weapon",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(player.Head == null && player.Body == null && player.Feet == null,
-                "New game should not equip head/body/feet unless configured",
+            TestBase.AssertTrue(player.Head == null,
+                "New game should not equip a head piece by default",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertNotNull(player.Body,
+                "New game should equip catalog starter chest (Shirt)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertNotNull(player.Legs,
+                "New game should equip catalog starter legs (shinguards)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(player.Feet == null,
+                "New game should not equip starter feet (Shoes removed from starter set)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (player.Body is ChestItem chest)
+            {
+                TestBase.AssertEqual("Shirt", chest.Name,
+                    "Default chest should be catalog Shirt (lowest-armor tier-1)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(5, chest.GetTotalArmor(),
+                    "Shirt catalog armor should be 5",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(GameDataTagHelper.HasTag(chest.Tags, "starter"),
+                    "Starter chest should carry starter tag",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            if (player.Legs is LegsItem legs)
+            {
+                TestBase.AssertEqual("shinguards", legs.Name,
+                    "Default legs should be catalog shinguards (lowest-armor tier-1)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(5, legs.GetTotalArmor(),
+                    "shinguards catalog armor should be 5",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
             TestBase.AssertTrue(player.Inventory.Count >= 1,
                 "New game should add one random armor piece to inventory with the starting weapon",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);

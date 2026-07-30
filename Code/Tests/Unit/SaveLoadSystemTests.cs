@@ -40,6 +40,9 @@ namespace RPGGame.Tests.Unit
             TestCurrentRegionRoundTrip();
             TestStarterLeatherArmorSurvivesCharacterSerializerRoundTrip();
             TestDeadCharacterTombstone();
+            TestComboStripRoundTrip();
+            TestFilenameSanitization();
+            TestAtomicSaveLeavesValidJson();
 
             CharacterSaveManagerMultiFileTests.RunAllTests();
 
@@ -168,6 +171,132 @@ namespace RPGGame.Tests.Unit
                 TestBase.AssertTrue(false,
                     $"Multi-character save/load should not throw exception: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestComboStripRoundTrip()
+        {
+            Console.WriteLine("\n--- Testing Combo Strip Round-Trip ---");
+
+            _ = GameConfiguration.Instance;
+            var serializer = new CharacterSerializer();
+            var character = TestDataBuilders.Character().WithName("ComboStripHero").WithLevel(1).Build();
+            CharacterSerializer.RebuildCharacterActions(character);
+
+            var pool = character.GetActionPool();
+            var comboCandidates = pool
+                .Where(a => a != null && a.IsComboAction)
+                .Take(2)
+                .ToList();
+
+            if (comboCandidates.Count == 0)
+            {
+                TestBase.AssertTrue(true,
+                    "Combo strip round-trip skipped (no combo actions in pool)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            foreach (var existing in character.GetComboActions().ToList())
+                character.RemoveFromCombo(existing);
+            foreach (var action in comboCandidates)
+                character.AddToCombo(action);
+
+            var expectedNames = character.GetComboActions().Select(a => a.Name).ToList();
+            string testId = "combo_strip_" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            string path = CharacterSaveManager.GetCharacterSaveFilename(testId);
+
+            try
+            {
+                CharacterSaveManager.SaveCharacter(character, testId);
+                var loaded = CharacterSaveManager.LoadCharacterAsync(testId).GetAwaiter().GetResult();
+                TestBase.AssertNotNull(loaded, "loaded character after combo save", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                if (loaded == null)
+                    return;
+
+                var loadedNames = loaded.GetComboActions().Select(a => a.Name).ToList();
+                TestBase.AssertEqual(expectedNames.Count, loadedNames.Count,
+                    $"Combo strip length should persist: {expectedNames.Count} == {loadedNames.Count}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                for (int i = 0; i < expectedNames.Count && i < loadedNames.Count; i++)
+                {
+                    TestBase.AssertTrue(
+                        string.Equals(expectedNames[i], loadedNames[i], StringComparison.OrdinalIgnoreCase),
+                        $"Combo strip slot {i} should persist: {expectedNames[i]} -> {loadedNames[i]}",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                }
+            }
+            finally
+            {
+                try
+                {
+                    if (File.Exists(path))
+                        CharacterSaveManager.DeleteSaveFile(path);
+                }
+                catch { /* best effort */ }
+            }
+        }
+
+        private static void TestFilenameSanitization()
+        {
+            Console.WriteLine("\n--- Testing Filename Sanitization ---");
+
+            string sanitized = CharacterFileManager.SanitizeForFilename("Bob:Jr?*<>|");
+            TestBase.AssertTrue(!sanitized.Contains(':') && !sanitized.Contains('*') && !sanitized.Contains('|'),
+                $"Illegal filename chars should be replaced: '{sanitized}'",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string path = new CharacterFileManager().GetCharacterSaveFilename("Hero:Name");
+            TestBase.AssertTrue(path.Contains("Hero_Name", StringComparison.OrdinalIgnoreCase)
+                || path.Contains("character_Hero", StringComparison.OrdinalIgnoreCase),
+                $"Save path should use sanitized id: {path}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!Path.GetFileName(path).Contains(':'),
+                "Resolved save filename must not contain colon",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestAtomicSaveLeavesValidJson()
+        {
+            Console.WriteLine("\n--- Testing Atomic Save Leaves Valid JSON ---");
+
+            var character = TestDataBuilders.Character().WithName("AtomicSaveHero").WithLevel(2).Build();
+            string testId = "atomic_save_" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            string path = CharacterSaveManager.GetCharacterSaveFilename(testId);
+
+            try
+            {
+                CharacterSaveManager.SaveCharacter(character, testId);
+                TestBase.AssertTrue(File.Exists(path),
+                    "Atomic save should create target file",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!File.Exists(path + ".tmp"),
+                    "Temp file should be cleaned up after atomic replace",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                string json = File.ReadAllText(path);
+                TestBase.AssertTrue(json.Contains("AtomicSaveHero", StringComparison.Ordinal)
+                    && json.TrimStart().StartsWith("{"),
+                    "Saved file should contain valid JSON payload",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // Second write exercises File.Replace + .bak path
+                character.XP = 99;
+                CharacterSaveManager.SaveCharacter(character, testId);
+                var loaded = CharacterSaveManager.LoadCharacterAsync(testId).GetAwaiter().GetResult();
+                TestBase.AssertTrue(loaded != null && loaded.XP == 99,
+                    "Second atomic save should load updated XP",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                try
+                {
+                    if (File.Exists(path)) CharacterSaveManager.DeleteSaveFile(path);
+                    if (File.Exists(path + ".bak")) File.Delete(path + ".bak");
+                    if (File.Exists(path + ".tmp")) File.Delete(path + ".tmp");
+                }
+                catch { /* best effort */ }
             }
         }
 

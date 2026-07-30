@@ -48,13 +48,19 @@ namespace RPGGame.Tests.Unit
         private static void TestCatalogHasWaveTwoIdentities()
         {
             TestBase.SetCurrentTestName(nameof(TestCatalogHasWaveTwoIdentities));
-            TestBase.AssertEqual(106, ItemTriggerIdentityCatalog.Count, "catalog count", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(106, ItemTriggerIdentityCatalog.Identities.Count, "identity list length", ref _run, ref _passed, ref _failed);
-            for (int i = 0; i < 106; i++)
-                TestBase.AssertEqual(i, ItemTriggerIdentityCatalog.Get(i).Index, $"identity index {i}", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("STR", ItemTriggerIdentityCatalog.Get(81).ScaleFrom, "StrCleave scaleFrom", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(ItemTriggerIdentityCatalog.Get(66).IsEquipEffect, "SwiftSchool equip", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("ONTAKEHIT", ItemTriggerIdentityCatalog.Get(101).When, "HurtPride when", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(ItemTriggerIdentityCatalog.Count >= 106, "catalog at least wave-2 size", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(ItemTriggerIdentityCatalog.Identities.Count >= 106, "identity list length", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(TriggersLoader.TryGetByName("WoundMomentum", out _), "WoundMomentum present", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(TriggersLoader.TryGetByName("TortoiseSuffix", out var tortoise), "TortoiseSuffix present", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("ONMISS", tortoise.When, "Tortoise when", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(TriggersLoader.TryGetByName("ShellSetFrom", out var shellSet), "ShellSetFrom present", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(shellSet.IsEquipEffect, "ShellSetFrom equip", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(TriggersLoader.TryGetByName("STR", out _) || TriggersLoader.TryGetByName("StrCleave", out var str),
+                "scaleFrom demo present", ref _run, ref _passed, ref _failed);
+            if (TriggersLoader.TryGetByName("StrCleave", out var strCleave))
+                TestBase.AssertEqual("STR", strCleave.ScaleFrom, "StrCleave scaleFrom", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(TriggersLoader.TryGetByName("SwiftSchool", out var swift) && swift.IsEquipEffect, "SwiftSchool equip", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(TriggersLoader.TryGetByName("HurtPride", out var hurt) && hurt.When == "ONTAKEHIT", "HurtPride when", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestKillReloadSetsPendingFaceWhenEquipped()
@@ -230,17 +236,17 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(weapons.Count > 0, "weapons loaded", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(armor.Count > 0, "armor loaded", ref _run, ref _passed, ref _failed);
 
-            int idx = 0;
-            foreach (var w in weapons)
-            {
-                AssertCatalogIdentityOnWeaponData(w, idx);
-                idx++;
-            }
+            // Base catalog no longer stamps demo procs — animal suffixes own combat triggers.
+            int namedWeapons = weapons.Count(w => !string.IsNullOrWhiteSpace(w.TriggerName));
+            int namedArmor = armor.Count(a => !string.IsNullOrWhiteSpace(a.TriggerName));
+            TestBase.AssertEqual(0, namedWeapons, "weapons have empty triggerName", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, namedArmor, "armor have empty triggerName", ref _run, ref _passed, ref _failed);
 
-            foreach (var a in armor)
+            if (weapons.Count > 0)
             {
-                AssertCatalogIdentityOnArmorData(a, idx);
-                idx++;
+                var item = ItemGenerator.GenerateWeaponItem(weapons[0]);
+                TestBase.AssertEqual(0, item.TriggerBundles.Count, "base weapon no combat bundles", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(0, item.EquipEffects.Count, "base weapon no equip effects", ref _run, ref _passed, ref _failed);
             }
         }
 

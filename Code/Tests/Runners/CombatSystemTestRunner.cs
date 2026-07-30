@@ -60,6 +60,7 @@ namespace RPGGame.Tests.Runners
             RollProbabilityContentTests.RunAllTests();
             WeaponModTriggerBridgeTests.RunAllTests();
             EquippedItemTriggerTests.RunAllTests();
+            StatBonusAnimalSuffixTriggerTests.RunAllTests();
             ItemTriggerCombatIntegrationTests.RunAllTests();
             Console.WriteLine();
             StunProcessorTests.RunAllTests();

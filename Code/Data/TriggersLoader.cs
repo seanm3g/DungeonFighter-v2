@@ -146,6 +146,9 @@ namespace RPGGame.Data
                     .ThenBy(r => r.Name, StringComparer.OrdinalIgnoreCase)
                     .ToList();
 
+                foreach (var row in list)
+                    TriggerIdentitySheetMeta.EnsureAuthoringMeta(row);
+
                 _cache = list;
                 _byName = new Dictionary<string, TriggerIdentityData>(StringComparer.OrdinalIgnoreCase);
                 foreach (var row in list)

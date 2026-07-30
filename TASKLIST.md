@@ -4,6 +4,26 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **New game / remove starter feet:** Dropped `starter` tag from **Shoes** in `Armor.json` so new heroes start with chest + legs only (Shirt / shinguards); feet slot unequipped. Tests: `GameInitializerTests`, `StarterCatalogItemsTests`. Docs: `OVERVIEW.md`.
+
+- [x] **Bug fix / New game — missing starter body armor:** `Armor.json` lost `starter` tags on Shirt / shinguards / Boots (sheet/data reset), so `StarterCatalogItems.LoadStarterArmorItems` returned empty and `StartingGear.json` fallback is also empty — new heroes had no chest/legs/feet. Restored tags + catalog armor 5/5/0. Tests: `GameInitializerTests`, `StarterCatalogItemsTests`.
+
+- [x] **Items / Animal suffix triggers + taxon synergies:** Move combat procs onto `of the *` StatBonuses (`triggerName` + taxon `tags`); clear base Weapons/Armor stamps; per-taxon `*SetFrom` / `*AmpTo` with `IFGEARHASTAG`; identity dedupe on equip/combat apply. CLI: `--stamp-animal-suffix-triggers`, `--stamp-item-triggers` (clear). Tests: `StatBonusAnimalSuffixTriggerTests`. Docs: OVERVIEW / ARCHITECTURE / TAG_REGISTRY / GOOGLE_SHEETS_INTEGRATION.
+
+- [x] **New game / default body armor:** Equip catalog starter **Shirt** / **shinguards** (no feet) with the chosen weapon. Tests: `GameInitializerTests`. Docs: `OVERVIEW.md`.
+
+- [x] **Balance / enemy starting damage −30%:** `EnemySystem.GlobalMultipliers.DamageMultiplier` **1.0 → 0.7** (scales enemy STR/TEC/INT used for damage). Persisted in shipped patch `7-11-26` and `default` balance patches. Docs: `OVERVIEW.md`.
+
+- [x] **Data / Triggers — effectTarget + colon-arg columns:** Sheet/JSON columns `effectTarget`, `whenArg`, `mechanicArg` (canonical A–N); derived for all 106 identities via `TriggerIdentitySheetMeta`; combat still uses mechanic ids. Tests: `JsonArraySheetConverterTriggersTests`. Docs: `GOOGLE_SHEETS_INTEGRATION.md`, `OVERVIEW.md`. Pushed triggers tab.
+
+- [x] **Build / auto-kill locked DF.exe:** Pre-build + pre-copy MSBuild targets call `Scripts/stop-locked-df-output.ps1` (image name + TargetPath). Excluded/deleted leftover `Code/_pull_test_out` probe that was compiling into DF and stamping FileDescription **EnemyImportProbe**. Restored Product/Title. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
+
+- [x] **Tools / Item Trigger Scenario Lab:** Shared `ItemTriggerScenarioRunner` auto-builds filters/gear/strip and forces WHEN for each catalog identity, reporting ACTION/TURN/FIGHT/DUNGEON buff deltas. Surfaces: Action Lab **Triggers** panel (`[ Load ]` / `[ Run ]` / `[ All ]`), CLI `dotnet run -- --run-item-trigger-scenarios [--filter …] [--verbose]`, suite `ItemTriggerScenarios`. Integration tests now call the same runner. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`.
+
+- [x] **Bug fix / Loot — Caustic flooded every prefix:** `Modifications.json` had been overwritten so every adjective row was identical Uncommon **Caustic** (`weaponAcid`). Restored the real prefix catalog from git (`7d70104`), kept one Caustic, and promoted peer DoT adjectives (**flaming** / **poisonous** / **serrated**) to **Uncommon** so that tier is not a single-name monopoly. `StatBonuses.json` suffix catalog was already unique (no restore). Regression: `LootDataCacheTests.TestAffixCatalogDistribution`. Docs: `PROBLEM_SOLUTIONS.md`, `OVERVIEW.md`.
+
+- [x] **Reliability / Character save & load:** Persist combo strip in campaign saves; atomic temp+replace writes; tombstone live save immediately on death (fix wrong legacy `DeleteSaveFile`); await `SaveGameAsync` on dungeon Save & Exit (no UI deadlock); best-effort save on quit/window close; filename sanitization for illegal chars. Tests: `SaveLoadSystemTests` (combo/atomic/sanitize). Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
+
 - [x] **Combat / Naiveté → advantage on miss:** NAIVETE is fight-scoped miss→advantage charges (not HIT threshold steps). Max = **5** at L1, −1 per level (0 at L6+); each fight refills to max. On miss (not crit miss), spend 1 and take a second d20 (keep highest); chain until hit/other result or charges = 0. Training Dummy skips naiveté. Tests: `NaiveteThresholdBonusesTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`.
 
 - [x] **Tests / Item trigger combat integration:** Exercise all 106 catalog identities through production paths (`ActionExecutionFlow.Execute`, `RoomClearedTriggerApplicator`, equip-channel applicators) with forced d20 outcomes and mechanic-specific assertions (next-action bank, TURN/FIGHT/DUNGEON deposits, strip/retrigger, statuses, same-swing amps, ONTAKEHIT). Fixed pre-roll applying combat WHEN×crit-threshold (raised crit bar before roll), item self-buffs targeting foe, and strip_shuffle index clamp under forced dice. Suite: `ItemTriggerCombatIntegrationTests`. Docs: `OVERVIEW.md`.

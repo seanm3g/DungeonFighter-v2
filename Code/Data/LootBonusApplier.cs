@@ -298,7 +298,9 @@ namespace RPGGame
                     continue;
 
                 usedAffixRarities.Add(NormalizeStatBonusAffixRarity(pick.Rarity));
-                item.StatBonuses.Add(pick.CloneForItemInstance());
+                var instance = pick.CloneForItemInstance();
+                item.StatBonuses.Add(instance);
+                StatBonusTriggerMerge.ApplySuffixToItem(item, instance);
             }
 
             // Suffix Requirements (when authored on rolled rows) merge into the equip gate.

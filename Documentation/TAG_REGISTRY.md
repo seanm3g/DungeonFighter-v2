@@ -31,11 +31,13 @@ Comparison is **case-insensitive**. Canonical registry lives in `Code/World/Tags
 - **Creature attributes (enemy only):** `giant`, `young`, `tiny`, `frail`, `has_hands`, `has_feet`, `has_legs`, `has_head`
 - **Encounter role:** `boss`, `minion`
 - **Materials (prefix names):** `bone`, `bronze`, `glass`, `willow`, `steel`, `gold`, `obsidian`, `silver`, `damascus`, `mithril`, `shadow`, `crystal`, `stone`, `unknown`, `strange`
+- **Animal taxon (suffix tags):** `shell`, `reptile`, `bird`, `bug`, `fish`, `beast`, `mythic` (also Item/Enemy match; `mythic` shares the rarity token with expanded Item scope)
 - **Action routing:** `required`, `opener`, `finisher`
 - **Mechanic tags:** `swift`, `bludgeon`, `focus`, `insight` (next-action bonuses)
 - **Roll tags:** `confidence`, `footwork`, `target`, `aim` (threshold shifts)
 
 Material tags are copied onto `Item.Tags` when a Material prefix is rolled at loot time.
+Animal taxon tags are copied from `StatBonuses.json` suffix `tags` when an animal suffix is attached (`StatBonusTriggerMerge`).
 
 ## Enemy archetypes (field — not freeform tags)
 

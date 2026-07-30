@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using RPGGame.Utils;
 
 namespace RPGGame.Entity.Services
@@ -11,6 +14,8 @@ namespace RPGGame.Entity.Services
     /// </summary>
     public class CharacterFileManager
     {
+        private static readonly object WriteLock = new object();
+
         /// <summary>
         /// Gets the save filename for a character ID
         /// </summary>
@@ -20,9 +25,8 @@ namespace RPGGame.Entity.Services
         {
             if (string.IsNullOrEmpty(characterId))
                 throw new ArgumentException("Character ID cannot be null or empty", nameof(characterId));
-            
-            // Sanitize character ID for filename (remove any invalid characters)
-            var sanitizedId = characterId.Replace(" ", "_").Replace("/", "_").Replace("\\", "_");
+
+            var sanitizedId = SanitizeForFilename(characterId);
             var fileName = $"character_{sanitizedId}_save.json";
             return GameConstants.GetGameDataFilePath(fileName);
         }
@@ -33,9 +37,30 @@ namespace RPGGame.Entity.Services
             if (string.IsNullOrEmpty(characterId))
                 throw new ArgumentException("Character ID cannot be null or empty", nameof(characterId));
 
-            var sanitizedId = characterId.Replace(" ", "_").Replace("/", "_").Replace("\\", "_");
+            var sanitizedId = SanitizeForFilename(characterId);
             var fileName = $"character_{sanitizedId}_dead.json";
             return GameConstants.GetGameDataFilePath(fileName);
+        }
+
+        /// <summary>
+        /// Replaces characters that are illegal in Windows/macOS/Linux filenames.
+        /// </summary>
+        public static string SanitizeForFilename(string characterId)
+        {
+            if (string.IsNullOrEmpty(characterId))
+                return characterId;
+
+            var invalid = Path.GetInvalidFileNameChars();
+            var sb = new StringBuilder(characterId.Length);
+            foreach (char c in characterId)
+            {
+                if (c == ' ' || c == '/' || c == '\\' || Array.IndexOf(invalid, c) >= 0)
+                    sb.Append('_');
+                else
+                    sb.Append(c);
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>
@@ -64,12 +89,12 @@ namespace RPGGame.Entity.Services
             {
                 return filename;
             }
-            
+
             if (!string.IsNullOrEmpty(characterId))
             {
                 return GetCharacterSaveFilename(characterId);
             }
-            
+
             return GetDefaultSaveFilename();
         }
 
@@ -91,16 +116,20 @@ namespace RPGGame.Entity.Services
         {
             if (string.IsNullOrEmpty(filename))
                 return;
-            
+
             try
             {
                 // Normalize the path to ensure consistent file operations
                 string normalizedPath = Path.GetFullPath(filename);
-                
+
                 if (File.Exists(normalizedPath))
                 {
                     File.Delete(normalizedPath);
                 }
+
+                // Clean companion atomic-write artifacts when present
+                TryDeleteQuiet(normalizedPath + ".bak");
+                TryDeleteQuiet(normalizedPath + ".tmp");
             }
             catch (Exception ex)
             {
@@ -109,40 +138,69 @@ namespace RPGGame.Entity.Services
             }
         }
 
+        private static void TryDeleteQuiet(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                    File.Delete(path);
+            }
+            catch
+            {
+                // Best-effort companion cleanup
+            }
+        }
+
         /// <summary>
-        /// Writes text to a file
-        /// Ensures the directory exists before writing
+        /// Writes text to a file atomically (temp + replace) so a crash cannot leave truncated JSON.
+        /// Ensures the directory exists before writing.
         /// </summary>
         /// <param name="filename">The filename to write to</param>
         /// <param name="content">The content to write</param>
         public void WriteAllText(string filename, string content)
         {
-            // Ensure the directory exists before writing
-            var directory = Path.GetDirectoryName(filename);
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            lock (WriteLock)
             {
-                Directory.CreateDirectory(directory);
+                WriteAtomic(filename, content);
             }
-            
-            File.WriteAllText(filename, content);
         }
 
         /// <summary>
         /// Writes text to a file asynchronously (non-blocking for UI exit paths).
+        /// Uses the same atomic temp+replace strategy as the sync path.
         /// </summary>
-        public System.Threading.Tasks.Task WriteAllTextAsync(
+        public async Task WriteAllTextAsync(
             string filename,
             string content,
-            System.Threading.CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default)
         {
-            // Ensure the directory exists before writing
+            // Serialize off the UI thread; lock keeps sync/async writers from interleaving.
+            await Task.Run(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                lock (WriteLock)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    WriteAtomic(filename, content);
+                }
+            }, cancellationToken).ConfigureAwait(false);
+        }
+
+        private static void WriteAtomic(string filename, string content)
+        {
             var directory = Path.GetDirectoryName(filename);
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
             }
 
-            return File.WriteAllTextAsync(filename, content, cancellationToken);
+            string temp = filename + ".tmp";
+            string backup = filename + ".bak";
+            File.WriteAllText(temp, content);
+            if (File.Exists(filename))
+                File.Replace(temp, filename, backup);
+            else
+                File.Move(temp, filename);
         }
 
         /// <summary>
@@ -150,9 +208,9 @@ namespace RPGGame.Entity.Services
         /// </summary>
         /// <param name="filename">The filename to read from</param>
         /// <returns>The file content</returns>
-        public System.Threading.Tasks.Task<string> ReadAllTextAsync(
+        public Task<string> ReadAllTextAsync(
             string filename,
-            System.Threading.CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default)
         {
             return File.ReadAllTextAsync(filename, cancellationToken);
         }
@@ -177,19 +235,19 @@ namespace RPGGame.Entity.Services
             // This ensures we get the correct resolved path
             var gameDataFilePath = GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
             var directory = Path.GetDirectoryName(gameDataFilePath);
-            
+
             // Normalize the path to resolve any ".." components
             if (!string.IsNullOrEmpty(directory))
             {
                 directory = Path.GetFullPath(directory);
-                
+
                 // Verify the directory exists
                 if (Directory.Exists(directory))
                 {
                     return directory;
                 }
             }
-            
+
             // Fallback: try to find GameData directory using empty string
             var gameDataPath = GameConstants.GetGameDataFilePath("");
             directory = Path.GetDirectoryName(gameDataPath);
@@ -201,7 +259,7 @@ namespace RPGGame.Entity.Services
                     return directory;
                 }
             }
-            
+
             return directory ?? "";
         }
 
@@ -219,15 +277,15 @@ namespace RPGGame.Entity.Services
                 ScrollDebugLogger.LogAlways($"GetCharacterSaveFiles: Directory not found or empty. Directory: '{directory}'");
                 return Array.Empty<string>();
             }
-            
+
             var files = new List<string>();
-            
+
             try
             {
                 // Get per-character save files (character_*_save.json)
                 var perCharacterFiles = Directory.GetFiles(directory, "character_*_save.json");
                 files.AddRange(perCharacterFiles);
-                
+
                 // Also check for legacy save file (character_save.json) if it exists
                 var legacyFile = GetDefaultSaveFilename();
                 if (File.Exists(legacyFile))
@@ -239,9 +297,8 @@ namespace RPGGame.Entity.Services
             {
                 ScrollDebugLogger.LogAlways($"GetCharacterSaveFiles: Error searching directory '{directory}': {ex.Message}");
             }
-            
+
             return files.ToArray();
         }
     }
 }
-

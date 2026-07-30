@@ -127,23 +127,30 @@ Pull maps columns **by header name** (case-insensitive), not by fixed column ind
 
 ### triggers (item trigger identities)
 
-Single header row; fixed columns **A–K** → `GameData/Triggers.json` (Consumables-style tabular round-trip). Tab name is lowercase **`triggers`** (gid `42970568`).
+Single header row; fixed columns **A–N** → `GameData/Triggers.json` (Consumables-style tabular round-trip). Tab name is lowercase **`triggers`** (gid `42970568`).
 
 | Col | Field | Notes |
 |-----|-------|-------|
 | A | `id` | Stable int (catalog index) |
 | B | `name` | Unique identity key referenced by Weapons/Armor **`triggerName`** |
 | C | `description` | Player-facing one-liner (tooltips prefer this when present) |
-| D | `when` | WHEN token (`ONCONNECT`, `ONNATURALROLL:7`, `WHILE_EQUIPPED`, `ONTAKEHIT`, …) |
-| E | `count` | Usually `1`; blank = disabled |
-| F | `scope` | `TURN` / `ACTION` / `FIGHT` / `DUNGEON` / blank = instant |
-| G | `mechanics` | Comma-separated mechanic ids |
-| H | `value` | Optional magnitude (items have no sibling mechanic columns) |
-| I | `filters` | Comma-separated filters (`IFCLUTCH`, `IFSLOT:3`, `IFATTR:STR>=8`, …) |
-| J | `channel` | `combat` → runtime `triggerBundles`; `equip` → `equipEffects` |
-| K | `scaleFrom` | Optional: `STR` / `AGI` / `TEC` / `INT` / `PRIMARY` / `LEVEL` / class — effective = `value` × units |
+| D | `effectTarget` | Authoring hint: who the effect applies to — `hero` / `enemy` / `self` / `foe` / `strip` / `system`. Derived from mechanic id prefixes (`hero_*`/`enemy_*`) and status/self-buff rules; **not** a combat authority (runtime still uses mechanic ids + SelfTargetEffects) |
+| E | `when` | WHEN token (`ONCONNECT`, `ONNATURALROLL:7`, `WHILE_EQUIPPED`, `ONTAKEHIT`, …) |
+| F | `whenArg` | Colon payload from `when` (e.g. `7` from `ONNATURALROLL:7`); blank if none |
+| G | `count` | Usually `1`; blank = disabled |
+| H | `scope` | `TURN` / `ACTION` / `FIGHT` / `DUNGEON` / blank = instant |
+| I | `mechanics` | Comma-separated mechanic ids (may include `:arg`) |
+| J | `mechanicArg` | Colon payload from `mechanics` (e.g. `2`, `PUNCH HARD`, `PRIMARY`); blank if none |
+| K | `value` | Optional magnitude (items have no sibling mechanic columns) |
+| L | `filters` | Comma-separated filters (`IFCLUTCH`, `IFSLOT:3`, `IFATTR:STR>=8`, …) |
+| M | `channel` | `combat` → runtime `triggerBundles`; `equip` → `equipEffects` |
+| N | `scaleFrom` | Optional: `STR` / `AGI` / `TEC` / `INT` / `PRIMARY` / `LEVEL` / class — effective = `value` × units |
 
-**Authoring flow:** edit identities on **triggers** → **PULL** → `Triggers.json`; assign which identity a gear row uses via **`triggerName`** on WEAPONS/ARMOR. Re-stamp: `dotnet run -- --stamp-item-triggers` (rewrites `Triggers.json` from seed and writes `triggerName` as `index % Count` across weapons then armor). ACTIONS still author their own TRIGGERS column band separately.
+**Authoring flow:** edit identities on **triggers** → **PULL** → `Triggers.json`. Base WEAPONS/ARMOR **`triggerName`** is normally blank (procs moved to animal suffixes). Re-clear base stamps: `dotnet run -- --stamp-item-triggers`. Upsert animal + taxon synergies and rewrite `of the *` StatBonuses: `dotnet run -- --stamp-animal-suffix-triggers`. ACTIONS still author their own TRIGGERS column band separately. Blank `effectTarget` / `whenArg` / `mechanicArg` on pull are filled from `when` / `mechanics` via `TriggerIdentitySheetMeta`.
+
+### SUFFIXES (stat bonuses)
+
+Canonical columns include **`triggerName`**, **`triggerNames`**, and **`tags`**. Animal rows (`of the Tortoise`, …) are **trigger-only** (empty Mechanics): `triggerName` points at a Triggers.json identity; `tags` holds a taxon (`shell` / `reptile` / `bird` / `bug` / `fish` / `beast` / `mythic`). Loot/lab merge (`StatBonusTriggerMerge`) copies tags onto `Item.Tags` and resolves the animal identity plus auto taxon synergies `{Taxon}SetFrom` (WHILE_EQUIPPED `IFGEARHASTAG:…:count>=2`) and `{Taxon}AmpTo` (combat fantasy amp gated by `IFGEARHASTAG`). Non-animal suffixes stay flat `Mechanics` stats.
 
 ### ENEMIES
 

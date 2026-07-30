@@ -18,8 +18,19 @@ namespace RPGGame.Data
         [JsonPropertyName("description")]
         public string Description { get; set; } = "";
 
+        /// <summary>
+        /// Authoring hint: who the effect applies to (<c>hero</c>/<c>enemy</c>/<c>self</c>/<c>foe</c>/<c>strip</c>/<c>system</c>).
+        /// Combat still resolves from mechanic ids — not a runtime authority.
+        /// </summary>
+        [JsonPropertyName("effectTarget")]
+        public string EffectTarget { get; set; } = "";
+
         [JsonPropertyName("when")]
         public string When { get; set; } = "";
+
+        /// <summary>Colon payload from <see cref="When"/> (e.g. <c>7</c> from <c>ONNATURALROLL:7</c>).</summary>
+        [JsonPropertyName("whenArg")]
+        public string WhenArg { get; set; } = "";
 
         [JsonPropertyName("count")]
         public string Count { get; set; } = "1";
@@ -29,6 +40,10 @@ namespace RPGGame.Data
 
         [JsonPropertyName("mechanics")]
         public string Mechanics { get; set; } = "";
+
+        /// <summary>Colon payload from <see cref="Mechanics"/> (e.g. <c>2</c> from <c>retrigger_slot:2</c>).</summary>
+        [JsonPropertyName("mechanicArg")]
+        public string MechanicArg { get; set; } = "";
 
         [JsonPropertyName("value")]
         public double? Value { get; set; }
@@ -69,6 +84,7 @@ namespace RPGGame.Data
             var filters = ParseFilters();
             return new ActionTriggerBundle
             {
+                IdentityName = string.IsNullOrWhiteSpace(Name) ? null : Name.Trim(),
                 When = When ?? "",
                 Count = string.IsNullOrWhiteSpace(Count) ? "1" : Count.Trim(),
                 Scope = Scope ?? "",

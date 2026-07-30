@@ -196,2287 +196,1687 @@
   },
   {
     "Name": "of the Abalone",
-    "Description": "",
-    "Value": 4,
+    "Description": "On take hit, apply Fortify.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 4
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "AbaloneSuffix",
+    "tags": [
+      "shell"
+    ]
   },
   {
     "Name": "of the Ant",
-    "Description": "",
-    "Value": 3,
+    "Description": "On combo, next action +1 multihit.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "ACCURACY",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "ACCURACY",
-        "Value": 3
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "AntSuffix",
+    "tags": [
+      "bug"
+    ]
   },
   {
     "Name": "of the Armadillo",
-    "Description": "",
-    "Value": 4,
+    "Description": "After a miss, apply Harden.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 4
-      },
-      {
-        "StatType": "ACCURACY",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "ArmadilloSuffix",
+    "tags": [
+      "shell"
+    ]
   },
   {
     "Name": "of the Auroch",
-    "Description": "",
-    "Value": 4,
+    "Description": "On combo end, weapon damage +1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 4
-      },
-      {
-        "StatType": "STR",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "AurochSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Badger",
-    "Description": "",
-    "Value": 4,
+    "Description": "On take hit, apply Harden.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 4
-      },
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "BadgerSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Basilisk",
-    "Description": "",
-    "Value": 5,
+    "Description": "On crit, apply Slow.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 5
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "BasiliskSuffix",
+    "tags": [
+      "reptile"
+    ]
   },
   {
     "Name": "of the Bison",
-    "Description": "",
-    "Value": 15,
+    "Description": "On first hit, next action +10% damage.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Health",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 15
-      },
-      {
-        "StatType": "AttackSpeed",
-        "Value": 10
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "BisonSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Bloodhound",
-    "Description": "",
-    "Value": 3,
+    "Description": "On connect, accuracy +1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "TEC",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "TEC",
-        "Value": 3
-      },
-      {
-        "StatType": "ACCURACY",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "BloodhoundSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Boar",
-    "Description": "",
-    "Value": 4,
+    "Description": "On connect, gain miss salvage for the fight.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 4
-      },
-      {
-        "StatType": "HIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "BoarSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Cape Buffalo",
-    "Description": "",
-    "Value": 15,
+    "Description": "On take hit, next action +10% damage.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Health",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 15
-      },
-      {
-        "StatType": "Damage",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "CapeBuffaloSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Caracal",
-    "Description": "",
-    "Value": 4,
+    "Description": "On crit, crit threshold +1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AGI",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AGI",
-        "Value": 4
-      },
-      {
-        "StatType": "HIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "CaracalSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Cave Bear",
-    "Description": "",
-    "Value": 4,
+    "Description": "On take hit, apply Harden.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "STR",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "STR",
-        "Value": 4
-      },
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "CaveBearSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Cheetah",
-    "Description": "",
-    "Value": 12,
+    "Description": "On first hit, next action +15% speed.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AttackSpeed",
-        "Value": 12
-      },
-      {
-        "StatType": "Damage",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "CheetahSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Clockwork Beetle",
-    "Description": "",
-    "Value": 4,
+    "Description": "On combo, retrigger the next strip action.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "TEC",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "TEC",
-        "Value": 4
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "ClockworkBeetleSuffix",
+    "tags": [
+      "bug"
+    ]
   },
   {
     "Name": "of the Cobra",
-    "Description": "",
-    "Value": 10,
+    "Description": "On connect, apply Poison.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AttackSpeed",
-        "Value": 10
-      },
-      {
-        "StatType": "STR",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "CobraSuffix",
+    "tags": [
+      "reptile"
+    ]
   },
   {
     "Name": "of the Corvid",
-    "Description": "",
-    "Value": 4,
+    "Description": "On kill, replace next d20 with 20.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "MagicFind",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "MagicFind",
-        "Value": 4
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "CorvidSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Crab",
-    "Description": "",
-    "Value": 5,
+    "Description": "On take hit, tax foe accuracy by 1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 5
-      },
-      {
-        "StatType": "AttackSpeed",
-        "Value": 10
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "CrabSuffix",
+    "tags": [
+      "shell"
+    ]
   },
   {
     "Name": "of the Crane",
-    "Description": "",
-    "Value": 3,
+    "Description": "On connect, apply Focus.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "HealthRegen",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HealthRegen",
-        "Value": 3
-      },
-      {
-        "StatType": "INT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "CraneSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Crocodile",
-    "Description": "",
-    "Value": 12,
+    "Description": "On combo, repeat the current strip slot.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Health",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 12
-      },
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "CrocodileSuffix",
+    "tags": [
+      "reptile"
+    ]
   },
   {
     "Name": "of the Cuttlefish",
-    "Description": "",
-    "Value": 4,
+    "Description": "On miss, tax foe accuracy by 1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 4
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "CuttlefishSuffix",
+    "tags": [
+      "fish"
+    ]
   },
   {
     "Name": "of the Damselfly",
-    "Description": "",
-    "Value": 3,
+    "Description": "After a miss, next action +10% speed.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "COMBO",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "DamselflySuffix",
+    "tags": [
+      "bug"
+    ]
   },
   {
     "Name": "of the Deer",
-    "Description": "",
-    "Value": 3,
+    "Description": "After a miss, next action +10% speed.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "HealthRegen",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HealthRegen",
-        "Value": 3
-      },
-      {
-        "StatType": "AGI",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "DeerSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Dire Wolf",
-    "Description": "",
-    "Value": 5,
+    "Description": "On kill, retrigger your opener.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 5
-      },
-      {
-        "StatType": "STR",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "DireWolfSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Dragon",
-    "Description": "",
-    "Value": 4,
+    "Description": "On crit, apply Burn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "INT",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "INT",
-        "Value": 4
-      },
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "DragonSuffix",
+    "tags": [
+      "mythic"
+    ]
   },
   {
     "Name": "of the Dragonfly",
-    "Description": "",
-    "Value": 12,
+    "Description": "On combo, next action +1 multihit.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AttackSpeed",
-        "Value": 12
-      },
-      {
-        "StatType": "TEC",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "DragonflySuffix",
+    "tags": [
+      "bug"
+    ]
   },
   {
     "Name": "of the Elephant",
-    "Description": "",
-    "Value": 15,
+    "Description": "On connect with same action as last, this swing +100% damage.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Health",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 15
-      },
-      {
-        "StatType": "Damage",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "ElephantSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Elk",
-    "Description": "",
-    "Value": 15,
+    "Description": "On first hit, next action +10% amp.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Health",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 15
-      },
-      {
-        "StatType": "HIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "ElkSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Fer-de-Lance",
-    "Description": "",
-    "Value": 4,
+    "Description": "On connect, apply Poison.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "ACCURACY",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "ACCURACY",
-        "Value": 4
-      },
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "FerdeLanceSuffix",
+    "tags": [
+      "reptile"
+    ]
   },
   {
     "Name": "of the Ferret",
-    "Description": "",
-    "Value": 3,
+    "Description": "On connect, skip the next strip slot.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AGI",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AGI",
-        "Value": 3
-      },
-      {
-        "StatType": "TEC",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "FerretSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Fiddler Crab",
-    "Description": "",
-    "Value": 4,
+    "Description": "On crit, next action +10% amp.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 4
-      },
-      {
-        "StatType": "AGI",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "FiddlerCrabSuffix",
+    "tags": [
+      "shell"
+    ]
   },
   {
     "Name": "of the Firefly",
-    "Description": "",
-    "Value": 10,
+    "Description": "On an even roll, apply Expose.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AttackSpeed",
-        "Value": 10
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "FireflySuffix",
+    "tags": [
+      "bug"
+    ]
   },
   {
     "Name": "of the Fox",
-    "Description": "",
-    "Value": 3,
+    "Description": "After a miss, hit threshold +1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AGI",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AGI",
-        "Value": 3
-      },
-      {
-        "StatType": "INT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "FoxSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Gecko",
-    "Description": "",
-    "Value": 3,
+    "Description": "On connect, gain miss salvage for the fight.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AGI",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AGI",
-        "Value": 3
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "GeckoSuffix",
+    "tags": [
+      "reptile"
+    ]
   },
   {
     "Name": "of the Giant Squid",
-    "Description": "",
-    "Value": 12,
+    "Description": "On combo, next action +1 multihit.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Health",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 12
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "GiantSquidSuffix",
+    "tags": [
+      "fish"
+    ]
   },
   {
     "Name": "of the Golden Eagle",
-    "Description": "",
-    "Value": 5,
+    "Description": "On kill, replace next d20 with 20.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 5
-      },
-      {
-        "StatType": "ACCURACY",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "GoldenEagleSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Golem",
-    "Description": "",
-    "Value": 15,
+    "Description": "On miss, apply Harden.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Health",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 15
-      },
-      {
-        "StatType": "TEC",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "GolemSuffix",
+    "tags": [
+      "mythic"
+    ]
   },
   {
     "Name": "of the Gorilla",
-    "Description": "",
-    "Value": 15,
+    "Description": "On combo end, foe hit threshold +1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Health",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 15
-      },
-      {
-        "StatType": "STR",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "GorillaSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Grizzly Bear",
-    "Description": "",
-    "Value": 5,
+    "Description": "On crit, apply Bleed.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 5
-      },
-      {
-        "StatType": "STR",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "GrizzlyBearSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Hawk",
-    "Description": "",
-    "Value": 3,
+    "Description": "On crit, next action +10% amp.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "INT",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "INT",
-        "Value": 3
-      },
-      {
-        "StatType": "HIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "HawkSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Heron",
-    "Description": "",
-    "Value": 3,
+    "Description": "On first hit, apply Pierce.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "HealthRegen",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HealthRegen",
-        "Value": 3
-      },
-      {
-        "StatType": "ACCURACY",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "HeronSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Hippopotamus",
-    "Description": "",
-    "Value": 15,
+    "Description": "On crit, apply Bleed.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Health",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 15
-      },
-      {
-        "StatType": "AGI",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "HippopotamusSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Horseshoe Crab",
-    "Description": "",
-    "Value": 3,
+    "Description": "After a miss, heal 2.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "HealthRegen",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HealthRegen",
-        "Value": 3
-      },
-      {
-        "StatType": "TEC",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "HorseshoeCrabSuffix",
+    "tags": [
+      "shell"
+    ]
   },
   {
     "Name": "of the Hummingbird",
-    "Description": "",
-    "Value": 12,
+    "Description": "On connect, weapon speed +1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AttackSpeed",
-        "Value": 12
-      },
-      {
-        "StatType": "HealthRegen",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "HummingbirdSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Hydra",
-    "Description": "",
-    "Value": 5,
+    "Description": "On take hit, heal 2.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "HealthRegen",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HealthRegen",
-        "Value": 5
-      },
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "HydraSuffix",
+    "tags": [
+      "mythic"
+    ]
   },
   {
     "Name": "of the Hyena",
-    "Description": "",
-    "Value": 4,
+    "Description": "On kill, heal 2.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 4
-      },
-      {
-        "StatType": "INT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "HyenaSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Ibis",
-    "Description": "",
-    "Value": 3,
+    "Description": "On connect, apply Pierce.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "ACCURACY",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "ACCURACY",
-        "Value": 3
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "IbisSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Jackdaw",
-    "Description": "",
-    "Value": 3,
+    "Description": "On connect, pick a random next strip action.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "INT",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "INT",
-        "Value": 3
-      },
-      {
-        "StatType": "TEC",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "JackdawSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Jade Serpent",
-    "Description": "",
-    "Value": 3,
+    "Description": "On crit, apply Poison.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "STR",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "STR",
-        "Value": 3
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "JadeSerpentSuffix",
+    "tags": [
+      "reptile"
+    ]
   },
   {
     "Name": "of the Jaguar",
-    "Description": "",
-    "Value": 5,
+    "Description": "On first hit, crit threshold +1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 5
-      },
-      {
-        "StatType": "AGI",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "JaguarSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Jay",
-    "Description": "",
-    "Value": 3,
+    "Description": "On miss, foe next action +10% damage.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "INT",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "INT",
-        "Value": 3
-      },
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "JaySuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Kestrel",
-    "Description": "",
-    "Value": 3,
+    "Description": "On connect, apply Focus.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "TEC",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "TEC",
-        "Value": 3
-      },
-      {
-        "StatType": "HIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "KestrelSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Kingfisher",
-    "Description": "",
-    "Value": 12,
+    "Description": "On first hit, apply Pierce.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AttackSpeed",
-        "Value": 12
-      },
-      {
-        "StatType": "HIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "KingfisherSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Kirin",
-    "Description": "",
-    "Value": 15,
+    "Description": "On crit, heal 3.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Health",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 15
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "KirinSuffix",
+    "tags": [
+      "mythic"
+    ]
   },
   {
     "Name": "of the Kitsune",
-    "Description": "",
-    "Value": 3,
+    "Description": "On connect, replace the next strip action.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AGI",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AGI",
-        "Value": 3
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "KitsuneSuffix",
+    "tags": [
+      "mythic"
+    ]
   },
   {
     "Name": "of the Kodiak Bear",
-    "Description": "",
-    "Value": 4,
+    "Description": "On crit, apply Bleed.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "STR",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "STR",
-        "Value": 4
-      },
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "KodiakBearSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Kraken",
-    "Description": "",
-    "Value": 5,
+    "Description": "On combo, next action +1 multihit.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 5
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "KrakenSuffix",
+    "tags": [
+      "mythic"
+    ]
   },
   {
     "Name": "of the Lion",
-    "Description": "",
-    "Value": 4,
+    "Description": "On combo end, foe hit threshold +1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "STR",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "STR",
-        "Value": 4
-      },
-      {
-        "StatType": "AGI",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "LionSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Lobster",
-    "Description": "",
-    "Value": 4,
+    "Description": "On room clear, +1 armor for the fight.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 4
-      },
-      {
-        "StatType": "HIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "LobsterSuffix",
+    "tags": [
+      "shell"
+    ]
   },
   {
     "Name": "of the Lynx",
-    "Description": "",
-    "Value": 5,
+    "Description": "On miss, tax foe accuracy by 1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 5
-      },
-      {
-        "StatType": "ACCURACY",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "LynxSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Magpie",
-    "Description": "",
-    "Value": 3,
+    "Description": "On kill, replace next d20 with 15.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "INT",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "INT",
-        "Value": 3
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "MagpieSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Mammoth",
-    "Description": "",
-    "Value": 4,
+    "Description": "On first hit, apply Fortify.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "STR",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "STR",
-        "Value": 4
-      },
-      {
-        "StatType": "TEC",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "MammothSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Mantis",
-    "Description": "",
-    "Value": 4,
+    "Description": "On first hit, next action +10% amp.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 4
-      },
-      {
-        "StatType": "TEC",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "MantisSuffix",
+    "tags": [
+      "bug"
+    ]
   },
   {
     "Name": "of the Mantis Shrimp",
-    "Description": "",
-    "Value": 4,
+    "Description": "On crit, apply Pierce.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 4
-      },
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "MantisShrimpSuffix",
+    "tags": [
+      "bug"
+    ]
   },
   {
     "Name": "of the Marten",
-    "Description": "",
-    "Value": 10,
+    "Description": "On connect, skip the next strip slot.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AttackSpeed",
-        "Value": 10
-      },
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "MartenSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Millipede",
-    "Description": "",
-    "Value": 3,
+    "Description": "On combo, next action +1 multihit.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "HIT",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HIT",
-        "Value": 3
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "MillipedeSuffix",
+    "tags": [
+      "bug"
+    ]
   },
   {
     "Name": "of the Mongoose",
-    "Description": "",
-    "Value": 10,
+    "Description": "On connect vs a DoT'd foe, apply Pierce.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AttackSpeed",
-        "Value": 10
-      },
-      {
-        "StatType": "AGI",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "MongooseSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Monkey",
-    "Description": "",
-    "Value": 3,
+    "Description": "On connect, pick a random next strip action.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "COMBO",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "MonkeySuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Moose",
-    "Description": "",
-    "Value": 15,
+    "Description": "On connect, foe weapon speed -1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Health",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 15
-      },
-      {
-        "StatType": "ACCURACY",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "MooseSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Mule",
-    "Description": "",
-    "Value": 3,
+    "Description": "On miss, stop strip progression.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "STR",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "STR",
-        "Value": 3
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "MuleSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Nautilus",
-    "Description": "",
-    "Value": 4,
+    "Description": "On connect, loop the combo strip.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 4
-      },
-      {
-        "StatType": "INT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "NautilusSuffix",
+    "tags": [
+      "shell"
+    ]
   },
   {
     "Name": "of the Nighthawk",
-    "Description": "",
-    "Value": 3,
+    "Description": "After a miss, next action +10% speed.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "CRIT",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "NighthawkSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Octopus",
-    "Description": "",
-    "Value": 4,
+    "Description": "On connect, pick a random next strip action.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 4
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "OctopusSuffix",
+    "tags": [
+      "fish"
+    ]
   },
   {
     "Name": "of the Orangutan",
-    "Description": "",
-    "Value": 3,
+    "Description": "On connect, jump ahead on the combo strip.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "STR",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "STR",
-        "Value": 3
-      },
-      {
-        "StatType": "INT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "OrangutanSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Osprey",
-    "Description": "",
-    "Value": 12,
+    "Description": "On crit, apply Pierce.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AttackSpeed",
-        "Value": 12
-      },
-      {
-        "StatType": "ACCURACY",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "OspreySuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Otter",
-    "Description": "",
-    "Value": 3,
+    "Description": "On an even roll, heal 1.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AGI",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AGI",
-        "Value": 3
-      },
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "OtterSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Owl",
-    "Description": "",
-    "Value": 4,
+    "Description": "On first hit, crit faces start at 18 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "INT",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "INT",
-        "Value": 4
-      },
-      {
-        "StatType": "ACCURACY",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "OwlSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Ox",
-    "Description": "",
-    "Value": 4,
+    "Description": "On room clear, weapon damage +1 for the dungeon.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "HealthRegen",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HealthRegen",
-        "Value": 4
-      },
-      {
-        "StatType": "STR",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "OxSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Pangolin",
-    "Description": "",
-    "Value": 5,
+    "Description": "On take hit, apply Harden.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 5
-      },
-      {
-        "StatType": "HealthRegen",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "PangolinSuffix",
+    "tags": [
+      "shell"
+    ]
   },
   {
     "Name": "of the Panther",
-    "Description": "",
-    "Value": 5,
+    "Description": "On first hit, crit faces start at 18 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 5
-      },
-      {
-        "StatType": "AGI",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "PantherSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Peregrine Falcon",
-    "Description": "",
-    "Value": 12,
+    "Description": "On crit, next action +10% amp.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AttackSpeed",
-        "Value": 12
-      },
-      {
-        "StatType": "Damage",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "PeregrineFalconSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Phoenix",
-    "Description": "",
-    "Value": 5,
+    "Description": "On crit miss, heal 2.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "HealthRegen",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HealthRegen",
-        "Value": 5
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "PhoenixSuffix",
+    "tags": [
+      "mythic"
+    ]
   },
   {
     "Name": "of the Piranha",
-    "Description": "",
-    "Value": 4,
+    "Description": "On connect, next action +1 multihit.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 4
-      },
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "PiranhaSuffix",
+    "tags": [
+      "fish"
+    ]
   },
   {
     "Name": "of the Pistol Shrimp",
-    "Description": "",
-    "Value": 3,
+    "Description": "On crit, apply Pierce.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "TEC",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "TEC",
-        "Value": 3
-      },
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "PistolShrimpSuffix",
+    "tags": [
+      "bug"
+    ]
   },
   {
     "Name": "of the Praying Mantis",
-    "Description": "",
-    "Value": 3,
+    "Description": "On first hit, next action +10% amp.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "ACCURACY",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "ACCURACY",
-        "Value": 3
-      },
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "PrayingMantisSuffix",
+    "tags": [
+      "bug"
+    ]
   },
   {
     "Name": "of the Pronghorn",
-    "Description": "",
-    "Value": 4,
+    "Description": "On connect, weapon speed +1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AGI",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AGI",
-        "Value": 4
-      },
-      {
-        "StatType": "ACCURACY",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "PronghornSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Python",
-    "Description": "",
-    "Value": 12,
+    "Description": "On combo, apply Slow.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Health",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 12
-      },
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "PythonSuffix",
+    "tags": [
+      "reptile"
+    ]
   },
   {
     "Name": "of the Ram",
-    "Description": "",
-    "Value": 4,
+    "Description": "On connect, apply Slow.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "STR",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "STR",
-        "Value": 4
-      },
-      {
-        "StatType": "HIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "RamSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Raven",
-    "Description": "",
-    "Value": 4,
+    "Description": "On connect, pick a random next strip action.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 4
-      },
-      {
-        "StatType": "INT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "RavenSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Rhinoceros",
-    "Description": "",
-    "Value": 5,
+    "Description": "On first hit, next action +15% damage.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 5
-      },
-      {
-        "StatType": "Damage",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "RhinocerosSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Rook",
-    "Description": "",
-    "Value": 3,
+    "Description": "On combo end, foe hit threshold +1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "HIT",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HIT",
-        "Value": 3
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "RookSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Salamander",
-    "Description": "",
-    "Value": 4,
+    "Description": "On crit, apply Burn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "HealthRegen",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HealthRegen",
-        "Value": 4
-      },
-      {
-        "StatType": "HIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "SalamanderSuffix",
+    "tags": [
+      "reptile"
+    ]
   },
   {
     "Name": "of the Saltwater Crocodile",
-    "Description": "",
-    "Value": 5,
+    "Description": "On first hit, apply Slow.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 5
-      },
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "SaltwaterCrocodileSuffix",
+    "tags": [
+      "reptile"
+    ]
   },
   {
     "Name": "of the Sawfish",
-    "Description": "",
-    "Value": 4,
+    "Description": "On connect, apply Pierce.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 4
-      },
-      {
-        "StatType": "TEC",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "SawfishSuffix",
+    "tags": [
+      "fish"
+    ]
   },
   {
     "Name": "of the Scarab Beetle",
-    "Description": "",
-    "Value": 4,
+    "Description": "On room clear, heal 2.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 4
-      },
-      {
-        "StatType": "Damage",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "ScarabBeetleSuffix",
+    "tags": [
+      "shell"
+    ]
   },
   {
     "Name": "of the Scorpion",
-    "Description": "",
-    "Value": 3,
+    "Description": "On crit, apply Poison.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "TEC",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "TEC",
-        "Value": 3
-      },
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "ScorpionSuffix",
+    "tags": [
+      "bug"
+    ]
   },
   {
     "Name": "of the Shrike",
-    "Description": "",
-    "Value": 3,
+    "Description": "On crit, apply Pierce.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "HIT",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HIT",
-        "Value": 3
-      },
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "ShrikeSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Sicklebill",
-    "Description": "",
-    "Value": 3,
+    "Description": "On connect, apply Pierce.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "CRIT",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "SicklebillSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Snow Leopard",
-    "Description": "",
-    "Value": 4,
+    "Description": "On first hit, next action +10% amp.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "ACCURACY",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "ACCURACY",
-        "Value": 4
-      },
-      {
-        "StatType": "HIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "SnowLeopardSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Sparrowhawk",
-    "Description": "",
-    "Value": 12,
+    "Description": "On first hit, crit faces start at 19 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AttackSpeed",
-        "Value": 12
-      },
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "SparrowhawkSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Sperm Whale",
-    "Description": "",
-    "Value": 15,
+    "Description": "On connect, apply Pierce.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Health",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 15
-      },
-      {
-        "StatType": "INT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "SpermWhaleSuffix",
+    "tags": [
+      "fish"
+    ]
   },
   {
     "Name": "of the Sphinx",
-    "Description": "",
-    "Value": 3,
+    "Description": "On connect, apply Focus.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "TEC",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "TEC",
-        "Value": 3
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "SphinxSuffix",
+    "tags": [
+      "mythic"
+    ]
   },
   {
     "Name": "of the Spider",
-    "Description": "",
-    "Value": 3,
+    "Description": "On connect, apply Slow.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "INT",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "INT",
-        "Value": 3
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "SpiderSuffix",
+    "tags": [
+      "bug"
+    ]
   },
   {
     "Name": "of the Squid",
-    "Description": "",
-    "Value": 10,
+    "Description": "On miss, next action +10% speed.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AttackSpeed",
-        "Value": 10
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "SquidSuffix",
+    "tags": [
+      "fish"
+    ]
   },
   {
     "Name": "of the Stallion",
-    "Description": "",
-    "Value": 3,
+    "Description": "On first hit, next action +10% speed.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "STR",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "STR",
-        "Value": 3
-      },
-      {
-        "StatType": "ACCURACY",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "StallionSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Starfish",
-    "Description": "",
-    "Value": 4,
+    "Description": "After a miss, heal 2.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "HealthRegen",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HealthRegen",
-        "Value": 4
-      },
-      {
-        "StatType": "# of action slots",
-        "Value": 1
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "StarfishSuffix",
+    "tags": [
+      "fish"
+    ]
   },
   {
     "Name": "of the Stonefish",
-    "Description": "",
-    "Value": 4,
+    "Description": "On connect, apply Poison.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 4
-      },
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "StonefishSuffix",
+    "tags": [
+      "fish"
+    ]
   },
   {
     "Name": "of the Swallow",
-    "Description": "",
-    "Value": 3,
+    "Description": "On combo end, loop the combo strip.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "HIT",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HIT",
-        "Value": 3
-      },
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "SwallowSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Swift",
-    "Description": "",
-    "Value": 12,
+    "Description": "After a miss, next action +10% speed.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AttackSpeed",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AttackSpeed",
-        "Value": 12
-      },
-      {
-        "StatType": "INT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "SwiftSuffix",
+    "tags": [
+      "bird"
+    ]
   },
   {
     "Name": "of the Tasmanian Devil",
-    "Description": "",
-    "Value": 3,
+    "Description": "On combo, repeat the current strip slot.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "HealthRegen",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "HealthRegen",
-        "Value": 3
-      },
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "TasmanianDevilSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Thunderbird",
-    "Description": "",
-    "Value": 5,
+    "Description": "On crit, apply Burn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 5
-      },
-      {
-        "StatType": "MagicFind",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "ThunderbirdSuffix",
+    "tags": [
+      "mythic"
+    ]
   },
   {
     "Name": "of the Tiger",
-    "Description": "",
-    "Value": 5,
+    "Description": "On first hit, next action +10% amp.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 5
-      },
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "TigerSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Toad",
-    "Description": "",
-    "Value": 12,
+    "Description": "On take hit, apply Poison to the attacker.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Health",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Health",
-        "Value": 12
-      },
-      {
-        "StatType": "HealthRegen",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "ToadSuffix",
+    "tags": [
+      "reptile"
+    ]
   },
   {
     "Name": "of the Tortoise",
-    "Description": "",
-    "Value": 5,
+    "Description": "On miss, apply Harden.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 5
-      },
-      {
-        "StatType": "Health",
-        "Value": 15
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "TortoiseSuffix",
+    "tags": [
+      "shell"
+    ]
   },
   {
     "Name": "of the Trilobite",
-    "Description": "",
-    "Value": 4,
+    "Description": "On combo, repeat the current strip slot.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Armor",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Armor",
-        "Value": 4
-      },
-      {
-        "StatType": "TEC",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "TrilobiteSuffix",
+    "tags": [
+      "shell"
+    ]
   },
   {
     "Name": "of the Velociraptor",
-    "Description": "",
-    "Value": 3,
+    "Description": "On combo, combo threshold +1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "COMBO",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "COMBO",
-        "Value": 3
-      },
-      {
-        "StatType": "CRIT",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "VelociraptorSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Viper",
-    "Description": "",
-    "Value": 5,
+    "Description": "On crit, apply Poison.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 5
-      },
-      {
-        "StatType": "HIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "ViperSuffix",
+    "tags": [
+      "reptile"
+    ]
   },
   {
     "Name": "of the Water Buffalo",
-    "Description": "",
-    "Value": 4,
+    "Description": "On take hit, apply Fortify.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 4
-      },
-      {
-        "StatType": "HealthRegen",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "WaterBuffaloSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Weasel",
-    "Description": "",
-    "Value": 4,
+    "Description": "On connect with same action as last, this swing +100% damage.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "AGI",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "AGI",
-        "Value": 4
-      },
-      {
-        "StatType": "CRIT",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "WeaselSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Wolf",
-    "Description": "",
-    "Value": 4,
+    "Description": "On combo, combo threshold +1 this turn.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 4
-      },
-      {
-        "StatType": "HealthRegen",
-        "Value": 3
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "WolfSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "of the Wolverine",
-    "Description": "",
-    "Value": 5,
+    "Description": "On take hit, next action +10% damage.",
+    "Value": 0,
     "Rarity": "Uncommon",
-    "StatType": "Damage",
+    "StatType": "",
     "ItemRank": "",
-    "Mechanics": [
-      {
-        "StatType": "Damage",
-        "Value": 5
-      },
-      {
-        "StatType": "Damage",
-        "Value": 4
-      }
-    ],
-    "Requirements": null
+    "Mechanics": [],
+    "Requirements": null,
+    "triggerName": "WolverineSuffix",
+    "tags": [
+      "beast"
+    ]
   },
   {
     "Name": "absent for long",
-    "Description": "Gone so long the world forgot it \u2014 returned changed and strange",
+    "Description": "Gone so long the world forgot it — returned changed and strange",
     "Value": 10,
     "Rarity": "Rare",
     "StatType": "Health",
@@ -2495,7 +1895,7 @@
   },
   {
     "Name": "bathed in blood",
-    "Description": "Seasoned by countless battles \u2014 the red has seeped in and stayed",
+    "Description": "Seasoned by countless battles — the red has seeped in and stayed",
     "Value": 5,
     "Rarity": "Rare",
     "StatType": "Damage",
@@ -2518,7 +1918,7 @@
   },
   {
     "Name": "bound by shame",
-    "Description": "The weight of a wrong never set right \u2014 carried forward as fuel",
+    "Description": "The weight of a wrong never set right — carried forward as fuel",
     "Value": 4,
     "Rarity": "Rare",
     "StatType": "STR",
@@ -2541,7 +1941,7 @@
   },
   {
     "Name": "burden of kin",
-    "Description": "Heavy with obligation \u2014 the weight of family carried into battle",
+    "Description": "Heavy with obligation — the weight of family carried into battle",
     "Value": 12,
     "Rarity": "Rare",
     "StatType": "Health",
@@ -2560,7 +1960,7 @@
   },
   {
     "Name": "carried by a brother",
-    "Description": "Borne in another\u0027s shadow, faithful and uncomplaining",
+    "Description": "Borne in another's shadow, faithful and uncomplaining",
     "Value": 4,
     "Rarity": "Rare",
     "StatType": "STR",
@@ -2583,7 +1983,7 @@
   },
   {
     "Name": "carried til waking",
-    "Description": "Held through dreamless sleep \u2014 crosses the boundary between rest and readiness",
+    "Description": "Held through dreamless sleep — crosses the boundary between rest and readiness",
     "Value": 10,
     "Rarity": "Rare",
     "StatType": "Health",
@@ -2629,7 +2029,7 @@
   },
   {
     "Name": "claimed by none",
-    "Description": "Ownerless and untamed \u2014 refuses to serve any single master",
+    "Description": "Ownerless and untamed — refuses to serve any single master",
     "Value": 4,
     "Rarity": "Rare",
     "StatType": "AGI",
@@ -2652,7 +2052,7 @@
   },
   {
     "Name": "cradled on edge",
-    "Description": "Balanced on the threshold \u2014 between breaking and becoming",
+    "Description": "Balanced on the threshold — between breaking and becoming",
     "Value": 4,
     "Rarity": "Rare",
     "StatType": "Damage",
@@ -2698,7 +2098,7 @@
   },
   {
     "Name": "dipped in moonlight",
-    "Description": "Its true name spoken only at night \u2014 bound to shadow and silver",
+    "Description": "Its true name spoken only at night — bound to shadow and silver",
     "Value": 4,
     "Rarity": "Rare",
     "StatType": "AGI",
@@ -2721,7 +2121,7 @@
   },
   {
     "Name": "forgotten and remembered",
-    "Description": "Lost from memory, then suddenly vivid \u2014 its return feels fated",
+    "Description": "Lost from memory, then suddenly vivid — its return feels fated",
     "Value": 4,
     "Rarity": "Rare",
     "StatType": "INT",
@@ -2744,7 +2144,7 @@
   },
   {
     "Name": "gambled by debt",
-    "Description": "Wagered and lost, wagered and won \u2014 every victory feels borrowed",
+    "Description": "Wagered and lost, wagered and won — every victory feels borrowed",
     "Value": 5,
     "Rarity": "Rare",
     "StatType": "MagicFind",
@@ -2763,7 +2163,7 @@
   },
   {
     "Name": "given by dying hands",
-    "Description": "The last gift of the fallen \u2014 its power drawn from a final act of will",
+    "Description": "The last gift of the fallen — its power drawn from a final act of will",
     "Value": 5,
     "Rarity": "Rare",
     "StatType": "Damage",
@@ -2786,7 +2186,7 @@
   },
   {
     "Name": "held in breath",
-    "Description": "The moment before release \u2014 coiled potential, never quite still",
+    "Description": "The moment before release — coiled potential, never quite still",
     "Value": 10,
     "Rarity": "Rare",
     "StatType": "AttackSpeed",
@@ -2809,7 +2209,7 @@
   },
   {
     "Name": "hidden beneath",
-    "Description": "Concealed beneath layers \u2014 its power known only to the wearer",
+    "Description": "Concealed beneath layers — its power known only to the wearer",
     "Value": 4,
     "Rarity": "Rare",
     "StatType": "Armor",
@@ -2832,7 +2232,7 @@
   },
   {
     "Name": "hidden by rain",
-    "Description": "The storm kept its secret \u2014 found only when the weather finally broke",
+    "Description": "The storm kept its secret — found only when the weather finally broke",
     "Value": 4,
     "Rarity": "Rare",
     "StatType": "AGI",
@@ -2851,7 +2251,7 @@
   },
   {
     "Name": "hushed in secret",
-    "Description": "Its deeds go unrecorded \u2014 what it has done, none can say",
+    "Description": "Its deeds go unrecorded — what it has done, none can say",
     "Value": 4,
     "Rarity": "Rare",
     "StatType": "INT",
@@ -2874,7 +2274,7 @@
   },
   {
     "Name": "kept in faith",
-    "Description": "Held through doubt and silence \u2014 belief made tangible",
+    "Description": "Held through doubt and silence — belief made tangible",
     "Value": 5,
     "Rarity": "Rare",
     "StatType": "MagicFind",
@@ -2897,7 +2297,7 @@
   },
   {
     "Name": "kissed by time",
-    "Description": "Aged beyond expectation \u2014 time has only made it more itself",
+    "Description": "Aged beyond expectation — time has only made it more itself",
     "Value": 2,
     "Rarity": "Rare",
     "StatType": "ALL",
@@ -2916,7 +2316,7 @@
   },
   {
     "Name": "lost and found again",
-    "Description": "Once misplaced, now bound \u2014 carries the memory of being sought",
+    "Description": "Once misplaced, now bound — carries the memory of being sought",
     "Value": 3,
     "Rarity": "Rare",
     "StatType": "STR",
@@ -2962,7 +2362,7 @@
   },
   {
     "Name": "mended by a sister",
-    "Description": "Repaired with careful hands and quiet loyalty \u2014 holds together under any strain",
+    "Description": "Repaired with careful hands and quiet loyalty — holds together under any strain",
     "Value": 4,
     "Rarity": "Rare",
     "StatType": "Armor",
@@ -2981,7 +2381,7 @@
   },
   {
     "Name": "named after a father",
-    "Description": "Bears the name of a provider \u2014 strength passed through blood and word",
+    "Description": "Bears the name of a provider — strength passed through blood and word",
     "Value": 5,
     "Rarity": "Rare",
     "StatType": "STR",
@@ -3019,7 +2419,7 @@
   },
   {
     "Name": "owed to heir",
-    "Description": "Promised to the next in line \u2014 its power strains toward the future",
+    "Description": "Promised to the next in line — its power strains toward the future",
     "Value": 4,
     "Rarity": "Rare",
     "StatType": "STR",
@@ -3065,7 +2465,7 @@
   },
   {
     "Name": "rusted by Dew",
-    "Description": "Weathered past the point of breaking \u2014 only the true remains",
+    "Description": "Weathered past the point of breaking — only the true remains",
     "Value": 4,
     "Rarity": "Rare",
     "StatType": "Armor",
@@ -3088,7 +2488,7 @@
   },
   {
     "Name": "stitched by a mother",
-    "Description": "Mended with love and quiet ferocity \u2014 nothing may break what she kept whole",
+    "Description": "Mended with love and quiet ferocity — nothing may break what she kept whole",
     "Value": 12,
     "Rarity": "Rare",
     "StatType": "Health",
@@ -3107,7 +2507,7 @@
   },
   {
     "Name": "worn to the bone",
-    "Description": "Stripped of pretense by long use \u2014 nothing left but purpose",
+    "Description": "Stripped of pretense by long use — nothing left but purpose",
     "Value": 5,
     "Rarity": "Rare",
     "StatType": "Damage",
@@ -3130,7 +2530,7 @@
   },
   {
     "Name": "worshipped by a child",
-    "Description": "Seen through young eyes as magnificent \u2014 and perhaps it truly is",
+    "Description": "Seen through young eyes as magnificent — and perhaps it truly is",
     "Value": 5,
     "Rarity": "Rare",
     "StatType": "MagicFind",

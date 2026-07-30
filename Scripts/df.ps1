@@ -65,7 +65,7 @@ function Cmd-Build {
     Set-Location $root
     Write-Header "BUILD ($config)"
     Write-Host "Stopping any running DF.exe (avoids locked-output build errors)..." -ForegroundColor Yellow
-    try { taskkill /f /im DF.exe 2>$null | Out-Null } catch { }
+    & (Join-Path $PSScriptRoot "stop-locked-df-output.ps1") -OutputDir (Join-Path $root "Code\bin")
     $exit = Invoke-DotNet @("build", "Code/Code.csproj", "--configuration", $config)
     if ($exit -ne 0) { exit $exit }
 }
@@ -76,7 +76,7 @@ function Cmd-Test {
 
     Write-Header "TEST SUITE"
     Write-Host "Stopping any running DF.exe (avoids locked-output build errors)..." -ForegroundColor Yellow
-    try { taskkill /f /im DF.exe 2>$null | Out-Null } catch { }
+    & (Join-Path $PSScriptRoot "stop-locked-df-output.ps1") -OutputDir (Join-Path $root "Code\bin")
     Write-Host "Building project..." -ForegroundColor Yellow
     $exit = Invoke-DotNet @("build", "Code/Code.csproj", "--configuration", "Debug")
     if ($exit -ne 0) { exit $exit }
@@ -100,7 +100,8 @@ function Cmd-Run {
     Write-Header "RUN (Release publish -> dist/DF.exe)"
 
     Write-Host "Killing any running DF.exe processes..." -ForegroundColor Yellow
-    try { taskkill /f /im DF.exe 2>$null | Out-Null } catch { }
+    & (Join-Path $PSScriptRoot "stop-locked-df-output.ps1") -OutputDir (Join-Path $root "Code\bin")
+    & (Join-Path $PSScriptRoot "stop-locked-df-output.ps1") -TargetPath (Join-Path $root "dist\DF.exe")
 
     $codeDir = Ensure-CodeDir
     Set-Location $codeDir

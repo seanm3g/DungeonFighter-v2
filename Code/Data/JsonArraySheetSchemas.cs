@@ -58,13 +58,19 @@ namespace RPGGame.Data
             { "name", "theme", "minLevel", "maxLevel", "possibleEnemies", "colorOverride" };
 
         public static readonly string[] StatBonusesCanonicalHeaders =
-            { "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics", "Requirements" };
+        {
+            "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics", "Requirements",
+            "triggerName", "triggerNames", "tags"
+        };
 
         public static readonly string[] ConsumablesCanonicalHeaders =
             { "displayName", "internalKind", "effect", "potency" };
 
         public static readonly string[] TriggersCanonicalHeaders =
-            { "id", "name", "description", "when", "count", "scope", "mechanics", "value", "filters", "channel", "scaleFrom" };
+        {
+            "id", "name", "description", "effectTarget", "when", "whenArg", "count", "scope",
+            "mechanics", "mechanicArg", "value", "filters", "channel", "scaleFrom"
+        };
 
         internal static readonly HashSet<string> ConsumablesAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -73,12 +79,14 @@ namespace RPGGame.Data
 
         internal static readonly HashSet<string> TriggersAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
         {
-            "id", "name", "description", "when", "count", "scope", "mechanics", "value", "filters", "channel", "scaleFrom"
+            "id", "name", "description", "effectTarget", "when", "whenArg", "count", "scope",
+            "mechanics", "mechanicArg", "value", "filters", "channel", "scaleFrom"
         };
 
         internal static readonly HashSet<string> StatBonusAuthorizedJsonKeys = new(StringComparer.Ordinal)
         {
-            "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics", "Requirements"
+            "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics", "Requirements",
+            "triggerName", "triggerNames", "tags"
         };
 
         public static IReadOnlyList<string> GetCanonicalHeaders(GameDataTabularSheetKind kind) =>

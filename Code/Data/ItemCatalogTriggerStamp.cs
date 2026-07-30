@@ -7,9 +7,8 @@ using RPGGame.Data;
 namespace RPGGame
 {
     /// <summary>
-    /// Stamps <c>triggerName</c> onto every Weapons.json / Armor.json row from
-    /// <see cref="TriggersLoader"/> (<c>index % Count</c>, weapons then armor).
-    /// Removes nested <c>triggerBundles</c> / <c>equipEffects</c> (resolved at load from Triggers.json).
+    /// Clears <c>triggerName</c> / nested trigger blobs from Weapons.json and Armor.json
+    /// so combat procs come from animal StatBonus suffixes instead of base catalog stamps.
     /// </summary>
     public static class ItemCatalogTriggerStamp
     {
@@ -20,8 +19,7 @@ namespace RPGGame
         };
 
         /// <summary>
-        /// Ensures Triggers.json exists, then rewrites Weapons.json and Armor.json in place.
-        /// Returns (weaponsStamped, armorStamped).
+        /// Clears base-gear trigger stamps in GameData. Returns (weaponsCleared, armorCleared).
         /// </summary>
         public static (int Weapons, int Armor) StampGameDataFiles(string? gameDataDirectory = null)
         {
@@ -29,39 +27,35 @@ namespace RPGGame
                 ?? Path.GetDirectoryName(JsonLoader.FindGameDataFile("Weapons.json")!)
                 ?? throw new InvalidOperationException("GameData directory not found.");
 
-            TriggersLoader.EnsureTriggersJsonFromSeed(forceOverwrite: true, gameDataDirectory: dir);
-            TriggersLoader.ClearCache();
-
             string weaponsPath = Path.Combine(dir, "Weapons.json");
             string armorPath = Path.Combine(dir, "Armor.json");
             if (!File.Exists(weaponsPath) || !File.Exists(armorPath))
                 throw new FileNotFoundException("Weapons.json or Armor.json missing under " + dir);
 
-            int w = StampArrayFile(weaponsPath, startingIndex: 0);
-            int a = StampArrayFile(armorPath, startingIndex: w);
+            int w = ClearArrayFile(weaponsPath);
+            int a = ClearArrayFile(armorPath);
             return (w, a);
         }
 
-        private static int StampArrayFile(string path, int startingIndex)
+        private static int ClearArrayFile(string path)
         {
             string json = File.ReadAllText(path);
             var root = JsonNode.Parse(json) as JsonArray
                 ?? throw new InvalidOperationException("Expected JSON array: " + path);
 
-            int index = startingIndex;
+            int cleared = 0;
             for (int i = 0; i < root.Count; i++)
             {
                 if (root[i] is not JsonObject obj)
                     continue;
-                var identity = ItemTriggerIdentityCatalog.Get(index);
-                obj["triggerName"] = identity.Name;
+                obj["triggerName"] = "";
                 obj.Remove("triggerBundles");
                 obj.Remove("equipEffects");
-                index++;
+                cleared++;
             }
 
             File.WriteAllText(path, root.ToJsonString(WriteOptions) + System.Environment.NewLine);
-            return index - startingIndex;
+            return cleared;
         }
     }
 }

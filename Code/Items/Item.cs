@@ -70,6 +70,26 @@ namespace RPGGame
         [JsonPropertyName("Requirements")]
         public Dictionary<string, int>? Requirements { get; set; }
 
+        /// <summary>
+        /// Optional catalog trigger identity name (Triggers.json). Resolved at loot/lab attach into
+        /// <see cref="Item.TriggerBundles"/> or <see cref="Item.EquipEffects"/>.
+        /// </summary>
+        [JsonPropertyName("triggerName")]
+        public string TriggerName { get; set; } = "";
+
+        /// <summary>
+        /// Extra catalog trigger names merged with <see cref="TriggerName"/> (e.g. taxon synergies).
+        /// </summary>
+        [JsonPropertyName("triggerNames")]
+        public List<string>? TriggerNames { get; set; }
+
+        /// <summary>
+        /// Optional registry tags (taxon: shell/reptile/bird/bug/fish/beast/mythic) copied onto
+        /// <see cref="Item.Tags"/> when this suffix is attached.
+        /// </summary>
+        [JsonPropertyName("tags")]
+        public List<string>? Tags { get; set; }
+
         /// <summary>True when the suffix lists at least one parsed requirement entry.</summary>
         [JsonIgnore]
         public bool HasRequirements => Requirements != null && Requirements.Count > 0;
@@ -132,6 +152,28 @@ namespace RPGGame
                 }
             }
 
+            List<string>? tagCopy = null;
+            if (Tags != null && Tags.Count > 0)
+            {
+                tagCopy = new List<string>(Tags.Count);
+                foreach (var t in Tags)
+                {
+                    if (!string.IsNullOrWhiteSpace(t))
+                        tagCopy.Add(t.Trim());
+                }
+            }
+
+            List<string>? triggerNamesCopy = null;
+            if (TriggerNames != null && TriggerNames.Count > 0)
+            {
+                triggerNamesCopy = new List<string>(TriggerNames.Count);
+                foreach (var n in TriggerNames)
+                {
+                    if (!string.IsNullOrWhiteSpace(n))
+                        triggerNamesCopy.Add(n.Trim());
+                }
+            }
+
             return new StatBonus
             {
                 Name = Name,
@@ -141,7 +183,10 @@ namespace RPGGame
                 StatType = StatType,
                 ItemRank = ItemRank,
                 Mechanics = mechCopy,
-                Requirements = reqCopy
+                Requirements = reqCopy,
+                TriggerName = TriggerName ?? "",
+                TriggerNames = triggerNamesCopy,
+                Tags = tagCopy
             };
         }
     }

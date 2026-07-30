@@ -1,6 +1,7 @@
 using System;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
+using RPGGame.Items.ItemTriggerScenario;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers.Inventory;
@@ -177,6 +178,121 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 roomCap = roomCap.Substring(0, Math.Max(0, rowWidth - 1)) + "…";
             canvas.AddText(x, y, roomCap, AsciiArtAssets.Colors.White);
             y++;
+            y++; // blank before Triggers
+
+            // Item trigger scenario lab
+            canvas.AddText(x, y, "Triggers", AsciiArtAssets.Colors.Gold);
+            y++;
+            var trigIds = lab.GetFilteredTriggerIdentities();
+            int trigVisible = ActionInteractionLabSession.TriggerListVisibleRowCount;
+            if (trigIds.Count > trigVisible)
+                lab.TriggerScrollOffset = Math.Max(0, Math.Min(lab.TriggerScrollOffset, trigIds.Count - trigVisible));
+            else
+                lab.TriggerScrollOffset = 0;
+            if (interactive && trigIds.Count > trigVisible)
+            {
+                var tUp = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_trig_up", "▲ trigs");
+                interactionManager!.AddClickableElement(tUp);
+                canvas.AddText(x, y, "▲ trigs", AsciiArtAssets.Colors.Gray);
+            }
+            else
+                canvas.AddText(x, y, "▲ trigs", AsciiArtAssets.Colors.DarkGray);
+            y++;
+            for (int i = 0; i < trigVisible; i++)
+            {
+                int idx = lab.TriggerScrollOffset + i;
+                if (idx >= trigIds.Count)
+                {
+                    canvas.AddText(x, y, "(empty)", AsciiArtAssets.Colors.DarkGray);
+                    y++;
+                    continue;
+                }
+
+                var id = trigIds[idx];
+                string line = $"#{id.Index} {id.Name}";
+                if (line.Length > 28)
+                    line = line.Substring(0, 25) + "...";
+                bool picked = lab.SelectedTriggerIdentityIndex == id.Index;
+                if (interactive)
+                {
+                    var btn = InventoryButtonFactory.CreateButton(x, y, rowWidth, $"lab_trig:{id.Index}", line);
+                    interactionManager!.AddClickableElement(btn);
+                    canvas.AddText(x, y, line, picked ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White);
+                }
+                else
+                    canvas.AddText(x, y, line, picked ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White);
+                y++;
+            }
+
+            if (interactive && trigIds.Count > trigVisible)
+            {
+                var tDn = InventoryButtonFactory.CreateButton(x, y, rowWidth, "lab_trig_down", "▼ trigs");
+                interactionManager!.AddClickableElement(tDn);
+                canvas.AddText(x, y, "▼ trigs", AsciiArtAssets.Colors.Gray);
+            }
+            else
+                canvas.AddText(x, y, "▼ trigs", AsciiArtAssets.Colors.DarkGray);
+            y++;
+            if (interactive)
+            {
+                var loadTrig = InventoryButtonFactory.CreateButton(x, y, 10, "lab_trig_load", "[ Load ]");
+                interactionManager!.AddClickableElement(loadTrig);
+                canvas.AddText(x, y, "[ Load ]", AsciiArtAssets.Colors.Cyan);
+                var runTrig = InventoryButtonFactory.CreateButton(x + 11, y, 9, "lab_trig_run", "[ Run ]");
+                interactionManager!.AddClickableElement(runTrig);
+                canvas.AddText(x + 11, y, "[ Run ]", AsciiArtAssets.Colors.Cyan);
+                var runAll = InventoryButtonFactory.CreateButton(x + 21, y, 11, "lab_trig_run_all", "[ All ]");
+                interactionManager!.AddClickableElement(runAll);
+                canvas.AddText(x + 21, y, "[ All ]", AsciiArtAssets.Colors.Orange);
+            }
+            else
+                canvas.AddText(x, y, "[ Load ] [ Run ] [ All ]", AsciiArtAssets.Colors.DarkGray);
+            y++;
+            if (lab.SelectedTriggerIdentityIndex is int selIdx)
+            {
+                try
+                {
+                    var sel = ItemTriggerIdentityCatalog.Get(selIdx);
+                    string whenLine = $"{sel.When} → {sel.Mechanics}";
+                    if (whenLine.Length > rowWidth)
+                        whenLine = whenLine.Substring(0, Math.Max(0, rowWidth - 1)) + "…";
+                    canvas.AddText(x, y, whenLine, AsciiArtAssets.Colors.DarkGray);
+                    y++;
+                }
+                catch
+                {
+                    // ignore stale index
+                }
+            }
+
+            if (!string.IsNullOrEmpty(lab.TriggerStatusMessage))
+            {
+                string st = lab.TriggerStatusMessage;
+                if (st.Length > rowWidth)
+                    st = st.Substring(0, Math.Max(0, rowWidth - 1)) + "…";
+                canvas.AddText(x, y, st,
+                    lab.LastTriggerScenarioReport is { Passed: false }
+                        ? AsciiArtAssets.Colors.Red
+                        : AsciiArtAssets.Colors.DarkGray);
+                y++;
+            }
+
+            if (lab.LastTriggerScenarioReport != null)
+            {
+                foreach (var line in ItemTriggerScenarioReportFormatter.FormatCompactLines(
+                             lab.LastTriggerScenarioReport, maxLines: 4))
+                {
+                    string clipped = line.Length > rowWidth
+                        ? line.Substring(0, Math.Max(0, rowWidth - 1)) + "…"
+                        : line;
+                    canvas.AddText(x, y, clipped,
+                        lab.LastTriggerScenarioReport.Passed
+                            ? AsciiArtAssets.Colors.Green
+                            : AsciiArtAssets.Colors.Orange);
+                    y++;
+                }
+            }
+
             y++; // blank before turn info
 
             var next = lab.GetNextActorToAct();

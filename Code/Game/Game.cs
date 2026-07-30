@@ -249,6 +249,22 @@ namespace RPGGame
             customUIManager = uiManager;
             UIManager.SetCustomUIManager(uiManager);
             InitializeHandlers(uiManager); // This already initializes input handlers via HandlerInitializationService
+
+            // Window close / Exit Game: persist the active living hero so Alt+F4 does not lose progress.
+            ApplicationShutdownHelper.RegisterBestEffortCharacterSave(() =>
+            {
+                if (stateManager == null)
+                    return;
+                if (stateManager.CurrentState == GameState.Death)
+                    return;
+
+                var active = stateManager.GetActiveCharacter();
+                if (active == null || !active.IsAlive)
+                    return;
+
+                var characterId = stateManager.GetCharacterId(active);
+                CharacterSaveManager.SaveCharacter(active, characterId);
+            });
             
             // Wire up state manager to UI coordinator for event-driven animations
             // This allows animation manager to automatically stop when state changes

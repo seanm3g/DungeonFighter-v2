@@ -249,7 +249,51 @@ namespace RPGGame
                 {
                     executionMode = "TOOL";
                     var (w, a) = ItemCatalogTriggerStamp.StampGameDataFiles();
-                    Console.WriteLine($"Stamped triggerName: {w} weapons, {a} armor (identity index % {ItemTriggerIdentityCatalog.Count}).");
+                    Console.WriteLine($"Cleared base-gear triggerName: {w} weapons, {a} armor.");
+                    return;
+                }
+
+                if (args.Length > 0 && args[0] == "--stamp-animal-suffix-triggers")
+                {
+                    executionMode = "TOOL";
+                    var (t, s) = AnimalSuffixTriggerStamp.StampGameDataFiles();
+                    Console.WriteLine($"Animal suffix triggers: {t} identities upserted, {s} StatBonuses rows rewritten.");
+                    return;
+                }
+
+                if (args.Length > 0 && args[0] == "--run-item-trigger-scenarios")
+                {
+                    executionMode = "TEST";
+                    BuildExecutionMetrics.RecordLaunchTime("TEST");
+                    string? filter = null;
+                    bool verbose = args.Any(a => a.Equals("--verbose", StringComparison.OrdinalIgnoreCase)
+                                                 || a.Equals("-v", StringComparison.OrdinalIgnoreCase));
+                    for (int i = 1; i < args.Length; i++)
+                    {
+                        if (args[i].Equals("--filter", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length)
+                        {
+                            filter = args[++i];
+                            continue;
+                        }
+
+                        if (args[i].StartsWith("--filter=", StringComparison.OrdinalIgnoreCase))
+                        {
+                            filter = args[i].Substring("--filter=".Length);
+                            continue;
+                        }
+
+                        if (args[i].Equals("--verbose", StringComparison.OrdinalIgnoreCase)
+                            || args[i].Equals("-v", StringComparison.OrdinalIgnoreCase)
+                            || args[i].StartsWith("-", StringComparison.Ordinal))
+                            continue;
+
+                        // Bare argument after the flag is treated as filter
+                        if (filter == null)
+                            filter = args[i];
+                    }
+
+                    System.Environment.ExitCode =
+                        RPGGame.Items.ItemTriggerScenario.ItemTriggerScenarioCli.Run(filter, verbose);
                     return;
                 }
 

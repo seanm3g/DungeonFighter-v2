@@ -4,6 +4,59 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: New game missing chest/legs/feet starter armor (July 2026)
+**Problem:** New characters started with a weapon but no Shirt / shinguards.
+
+**Root cause:** `Armor.json` lost all `tags` (including `starter` on those three rows). `StarterCatalogItems.LoadStarterArmorItems` returned empty; `StartingGear.json` fallback is intentionally `armor: []`, so nothing was equipped.
+
+**Solutions:**
+1. Restore `"tags": ["starter"]` on Shirt (chest) and shinguards (legs); feet (Shoes) is intentionally not starter
+2. Keep starter marking on Armor sheet / Settings → Items **Starter** checkbox so the next PULL does not drop them
+3. Regression: `StarterCatalogItemsTests.TestShippedStarterBodyArmorPresent`, `GameInitializerTests`
+
+**Related files:** `GameData/Armor.json`, `Code/Data/StarterCatalogItems.cs`, `Code/Game/GameInitializer.cs`
+
+### Build: MSB3026 DF.exe locked / mislabeled "EnemyImportProbe" (July 2026)
+**Problem:** `dotnet build` / `dotnet run` repeatedly failed copying `apphost.exe` → `bin/Debug/net8.0/DF.exe` (MSB3026). MSBuild reported the lock as **EnemyImportProbe**.
+
+**Root cause:**
+1. A previous game/`dotnet run` instance still held `DF.exe` (Restart Manager reports **FileDescription**, not always the image name)
+2. A leftover agent probe under `Code/_pull_test_out/EnemyImportProbe/**/*.cs` was globbed into the main project, so `DF.dll`/`DF.exe` carried Product/FileDescription **EnemyImportProbe**
+
+**Solutions:**
+1. Exclude `_pull_test_out/**` from `DefaultItemExcludes`; delete the leftover probe tree
+2. Restore `<Product>DungeonFighter</Product>` / `<AssemblyTitle>DF</AssemblyTitle>` with `GenerateAssemblyInfo=true`
+3. MSBuild targets `StopRunningInstanceBeforeBuild` + `StopRunningInstanceBeforeOutputCopy` call `Scripts/stop-locked-df-output.ps1` (kill by image name + `TargetPath`)
+4. `Scripts/df.ps1` build/test/run also invoke the same helper
+
+**Related files:** `Code/Code.csproj`, `Scripts/stop-locked-df-output.ps1`, `Scripts/df.ps1`
+
+### Bug fix: Caustic prefix flooded loot names (July 2026)
+**Problem:** Nearly every generated item showed the **Caustic** adjective prefix.
+
+**Root cause:** `GameData/Modifications.json` was overwritten so all ~24 rows were identical Uncommon `Caustic` (`weaponAcid` 2–3). Affix-line rolls pick uniformly within the rolled tier, so Uncommon adjectives were always Caustic (and with a corrupted table, every adjective pick was Caustic).
+
+**Solutions:**
+1. Restore the real adjective catalog from git (commit before the overwrite) with a single **Caustic** sample row
+2. Keep DoT peer adjectives (**flaming**, **poisonous**, **serrated**) on **Uncommon** with Caustic so that tier is not a one-name pool
+3. Confirm `StatBonuses.json` suffix names remain unique (no restore needed)
+4. Regression: `LootDataCacheTests.TestAffixCatalogDistribution` (no duplicate-dominated mod/suffix catalogs; Uncommon adjective pool ≥ 3 names)
+
+**Related files:** `GameData/Modifications.json`, `LootDataCacheTests.cs`
+
+### Bug fix: Character save/load reliability (July 2026)
+**Problem:** Custom combo strips reset on load; crash mid-write could corrupt saves; dying only deleted the legacy `character_save.json` (per-character live files stayed loadable after force-quit on the death screen); dungeon **Save & Exit** could deadlock the UI via sync-over-async; Alt+F4 / window close never saved.
+
+**Solutions:**
+1. Persist `comboStripActionNames` in `CharacterSaveData` and restore after action-pool rebuild
+2. Atomic temp+replace writes in `CharacterFileManager` (with a write lock)
+3. Tombstone the active character id immediately on combat death; remove registry entry when declining clone
+4. Wire dungeon completion to `await SettingsMenuHandler.SaveGameAsync()`
+5. Register best-effort living-character save on `ApplicationShutdownHelper.PerformShutdown`
+6. Sanitize all OS-illegal filename characters in character ids
+
+**Related files:** `CharacterSaveData.cs`, `CharacterSerializer.cs`, `CharacterFileManager.cs`, `EnemyEncounterHandler.cs`, `DeathScreenHandler.cs`, `HandlerInitializer.cs`, `ApplicationShutdownHelper.cs`, `Game.cs`, `SaveLoadSystemTests.cs`
+
 ### Bug fix: Return to main menu after character snapshot appeared to quit (July 2026)
 **Problem:** After Inventory → Snapshot for Action Lab, returning to the main menu (Game Loop → **0**) did nothing on screen, then another **0** closed the app.
 

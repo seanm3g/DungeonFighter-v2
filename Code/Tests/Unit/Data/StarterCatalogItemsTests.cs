@@ -22,6 +22,7 @@ namespace RPGGame.Tests.Unit.Data
             _testsFailed = 0;
 
             TestLoadStarterArmorMatchesExpectedFromArmorJson();
+            TestShippedStarterBodyArmorPresent();
             TestResolveStarterWeaponMenuCatalogRows();
 
             TestBase.PrintSummary("StarterCatalogItems Tests", _testsRun, _testsPassed, _testsFailed);
@@ -67,6 +68,34 @@ namespace RPGGame.Tests.Unit.Data
                     $"Item '{items[i].Name}' should carry starter tag",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        /// <summary>
+        /// Guards against Armor.json sheet/data resets that drop the starter tag and leave new heroes unequipped.
+        /// </summary>
+        private static void TestShippedStarterBodyArmorPresent()
+        {
+            Console.WriteLine("\n--- Testing shipped Armor.json starter body pieces ---");
+
+            var items = StarterCatalogItems.LoadStarterArmorItems();
+            TestBase.AssertEqual(2, items.Count,
+                "Shipped catalog must tag exactly one starter per body slot (chest/legs; no head/feet)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string? chest = items.OfType<ChestItem>().FirstOrDefault()?.Name;
+            string? legs = items.OfType<LegsItem>().FirstOrDefault()?.Name;
+            TestBase.AssertEqual("Shirt", chest,
+                "Starter chest should be Shirt",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("shinguards", legs,
+                "Starter legs should be shinguards",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(items.All(i => i is not HeadItem),
+                "Starter armor should not include a head piece",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(items.All(i => i is not FeetItem),
+                "Starter armor should not include feet (Shoes/Boots)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestResolveStarterWeaponMenuCatalogRows()
