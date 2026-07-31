@@ -238,7 +238,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             int innerTop = LayoutConstants.CENTER_PANEL_Y + 1;
             int innerRight = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
             int innerW = Math.Max(8, innerRight - innerLeft + 1);
-            const int maxTooltipLines = 18;
+            // Item tooltips (animal suffixes + taxon synergies) need more rows than action tips:
+            // colored segments wrap after "Name —", so a tight 18-row cap clipped trigger bodies.
+            const int maxActionTooltipLines = 18;
+            const int maxItemTooltipLines = 28;
             int boxW = Math.Min(52, innerW);
             int innerTextW = Math.Max(4, boxW - 2);
 
@@ -248,16 +251,22 @@ namespace RPGGame.UI.Avalonia.Renderers
             List<List<ColoredText>>? coloredItemLines = null;
             int? anchorCenterX = null;
             bool leftPanelTooltipActive = false;
+            int maxTooltipLines = maxActionTooltipLines;
 
             if (LeftPanelHoverState.IsActive)
             {
-                coloredItemLines = LeftPanelTooltipBuilder.BuildColoredItemLines(player, LeftPanelHoverState.Value, maxTooltipLines + 2);
+                coloredItemLines = LeftPanelTooltipBuilder.BuildColoredItemLines(player, LeftPanelHoverState.Value, maxItemTooltipLines + 2);
                 if (coloredItemLines.Count > 0)
+                {
                     leftPanelTooltipActive = true;
+                    maxTooltipLines = maxItemTooltipLines;
+                }
                 else
                 {
-                    tipLines = LeftPanelTooltipBuilder.BuildLines(player, LeftPanelHoverState.Value, innerTextW, maxTooltipLines + 2);
+                    tipLines = LeftPanelTooltipBuilder.BuildLines(player, LeftPanelHoverState.Value, innerTextW, maxItemTooltipLines + 2);
                     leftPanelTooltipActive = tipLines.Count > 0;
+                    if (leftPanelTooltipActive)
+                        maxTooltipLines = maxItemTooltipLines;
                 }
             }
 

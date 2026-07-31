@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using RPGGame;
+using RPGGame.Data;
 using RPGGame.Tests;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
@@ -93,6 +94,55 @@ namespace RPGGame.Tests.Unit.UI
             string armorDesc = ItemDisplayFormatter.GetModificationEffectDescription(wrap.Modifications[0]);
             TestBase.AssertTrue(armorDesc.Contains("armor", StringComparison.OrdinalIgnoreCase),
                 "GetModificationEffectDescription handles ARMOR",
+                ref run, ref passed, ref failed);
+
+            // Animal suffix: Triggers section must show Boar identity + body text (not SalvageCharm /
+            // empty-after-dash from wrong WHEN×SCOPE×mech match + hover wrap truncation).
+            TriggersLoader.ClearCache();
+            var boarLegs = new LegsItem("breeches", 1, 0)
+            {
+                Rarity = "Common",
+                Level = 1,
+                BaseAgility = 3,
+                BaseTechnique = 5,
+                ExtraActionSlots = 1
+            };
+            StatBonusTriggerMerge.ApplySuffixToItem(boarLegs, new StatBonus
+            {
+                Name = "of the Boar",
+                TriggerName = "BoarSuffix",
+                Tags = new System.Collections.Generic.List<string> { "beast" },
+                Description = "On connect, gain miss salvage for the fight."
+            });
+            var boarBundle = boarLegs.TriggerBundles.First(b =>
+                string.Equals(b.IdentityName, "BoarSuffix", StringComparison.OrdinalIgnoreCase));
+            string boarSummary = ItemTriggerBundleDisplay.FormatSummary(boarBundle);
+            TestBase.AssertTrue(boarSummary.Contains("Boar", StringComparison.OrdinalIgnoreCase),
+                "BoarSuffix summary uses Boar identity name",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!boarSummary.Contains("Salvage Charm", StringComparison.OrdinalIgnoreCase),
+                "BoarSuffix summary is not collapsed onto SalvageCharm",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(boarSummary.Contains("miss salvage", StringComparison.OrdinalIgnoreCase)
+                    || boarSummary.Contains("On connect", StringComparison.OrdinalIgnoreCase),
+                "BoarSuffix summary includes trigger body text after em dash",
+                ref run, ref passed, ref failed);
+            int dash = boarSummary.IndexOf(" — ", StringComparison.Ordinal);
+            TestBase.AssertTrue(dash > 0 && dash + 3 < boarSummary.Length
+                    && !string.IsNullOrWhiteSpace(boarSummary.Substring(dash + 3)),
+                "BoarSuffix summary has non-empty text after em dash",
+                ref run, ref passed, ref failed);
+
+            var boarLines = ItemTooltipFormatter.BuildItemTooltipLines(hero, boarLegs, "Legs", 40);
+            string boarFlat = string.Join("\n", boarLines.Select(ColoredTextRenderer.RenderAsPlainText));
+            TestBase.AssertTrue(boarFlat.Contains("Triggers", StringComparison.Ordinal),
+                "Boar tooltip has Triggers section",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(boarFlat.Contains("miss salvage", StringComparison.OrdinalIgnoreCase),
+                "Boar tooltip Triggers section includes salvage text",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!boarFlat.Contains("of the Boar — Trigger", StringComparison.OrdinalIgnoreCase),
+                "Boar trigger is not duplicated under Stats",
                 ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ItemTooltipFormatter Tests", run, passed, failed);

@@ -4,6 +4,10 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Bug fix / UI — animal suffix Triggers hover empty:** Hover showed `Salvage Charm —` with no body (Boar etc.). Root: (1) `ItemTriggerBundleDisplay` matched by WHEN×SCOPE×mech so BoarSuffix collapsed onto SalvageCharm; (2) Stats duplicated the trigger (2 wrap rows) + 18-line hover cap clipped the Triggers wrap continuation after the em dash. Fix: resolve by `IdentityName` + filters; drop Stats duplicate; item hover budget 28. Tests: `ItemTooltipFormatterTests`, `StatBonusAnimalSuffixTriggerTests`.
+
+- [x] **Bug fix / Action Lab — Req toggle clipped:** Triggers panel pushed `[ Req ]` / `[ !Req ]` below the tools aux canvas (height 44). Moved toggle onto the Back/Step row and raised tools grid to 38×58 (~480×1040). Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
+
 - [x] **New game / remove starter feet:** Dropped `starter` tag from **Shoes** in `Armor.json` so new heroes start with chest + legs only (Shirt / shinguards); feet slot unequipped. Tests: `GameInitializerTests`, `StarterCatalogItemsTests`. Docs: `OVERVIEW.md`.
 
 - [x] **Bug fix / New game — missing starter body armor:** `Armor.json` lost `starter` tags on Shirt / shinguards / Boots (sheet/data reset), so `StarterCatalogItems.LoadStarterArmorItems` returned empty and `StartingGear.json` fallback is also empty — new heroes had no chest/legs/feet. Restored tags + catalog armor 5/5/0. Tests: `GameInitializerTests`, `StarterCatalogItemsTests`.

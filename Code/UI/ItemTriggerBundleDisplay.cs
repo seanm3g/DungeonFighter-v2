@@ -44,14 +44,20 @@ namespace RPGGame
                 sb.Append(bundle.ScaleFrom.Trim().ToUpperInvariant());
             }
 
-            if (TryMatchIdentity(bundle, out string? identityName, out string? description))
+            string mechanical = sb.ToString();
+            if (TryResolveIdentity(bundle, out string? identityName, out string? description))
             {
-                if (!string.IsNullOrWhiteSpace(description))
-                    return $"{identityName} — {description.Trim()}";
-                return $"{identityName} — {sb}";
+                string detail = !string.IsNullOrWhiteSpace(description)
+                    ? description.Trim()
+                    : mechanical;
+                if (string.IsNullOrWhiteSpace(detail))
+                    detail = mechanical;
+                if (string.IsNullOrWhiteSpace(identityName))
+                    return detail;
+                return $"{identityName} — {detail}";
             }
 
-            return sb.ToString();
+            return mechanical;
         }
 
         public static IEnumerable<string> FormatSummaries(IEnumerable<ActionTriggerBundle>? bundles)
@@ -221,13 +227,27 @@ namespace RPGGame
                 or "vulnerability" or "slow" or "heal" or "max_health" or "confuse" or "confusion"
                 or "stat_drain" or "disrupt";
 
-        private static bool TryMatchIdentity(
+        /// <summary>
+        /// Prefer <see cref="ActionTriggerBundle.IdentityName"/> so animal suffixes (e.g. BoarSuffix)
+        /// are not collapsed onto an earlier demo identity that shares WHEN×SCOPE×mechanics (SalvageCharm).
+        /// Signature fallback also requires matching filters so taxon AmpTo rows stay distinct.
+        /// </summary>
+        private static bool TryResolveIdentity(
             ActionTriggerBundle bundle,
             out string? identityName,
             out string? description)
         {
             identityName = null;
             description = null;
+
+            if (!string.IsNullOrWhiteSpace(bundle.IdentityName)
+                && TriggersLoader.TryGetByName(bundle.IdentityName, out var byName))
+            {
+                identityName = SplitCamel(byName.Name);
+                description = string.IsNullOrWhiteSpace(byName.Description) ? null : byName.Description.Trim();
+                return true;
+            }
+
             foreach (var id in ItemTriggerIdentityCatalog.Identities)
             {
                 if (!string.Equals(id.When, bundle.When, StringComparison.OrdinalIgnoreCase))
@@ -236,12 +256,40 @@ namespace RPGGame
                     continue;
                 if (!string.Equals(id.Mechanics, bundle.Mechanics, StringComparison.OrdinalIgnoreCase))
                     continue;
+                if (!FiltersEqual(id.Filters, bundle.Filters))
+                    continue;
                 identityName = SplitCamel(id.Name);
                 description = string.IsNullOrWhiteSpace(id.Description) ? null : id.Description.Trim();
                 return true;
             }
 
             return false;
+        }
+
+        private static bool FiltersEqual(IReadOnlyList<string>? a, IReadOnlyList<string>? b)
+        {
+            var left = NormalizeFilterList(a);
+            var right = NormalizeFilterList(b);
+            if (left.Count != right.Count)
+                return false;
+            for (int i = 0; i < left.Count; i++)
+            {
+                if (!string.Equals(left[i], right[i], StringComparison.OrdinalIgnoreCase))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static List<string> NormalizeFilterList(IReadOnlyList<string>? filters)
+        {
+            if (filters == null || filters.Count == 0)
+                return new List<string>();
+            return filters
+                .Where(f => !string.IsNullOrWhiteSpace(f))
+                .Select(f => f.Trim())
+                .OrderBy(f => f, StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
 
         private static string SplitCamel(string name)

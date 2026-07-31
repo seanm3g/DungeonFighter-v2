@@ -104,8 +104,16 @@ namespace RPGGame.Tests.Unit
                 "tooltip surfaces orangutan trigger", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(flat.Contains("jump", StringComparison.OrdinalIgnoreCase)
                                 || flat.Contains("strip", StringComparison.OrdinalIgnoreCase)
-                                || flat.Contains("Trigger", StringComparison.OrdinalIgnoreCase),
-                "tooltip has trigger text", ref _run, ref _passed, ref _failed);
+                                || flat.Contains("Orangutan", StringComparison.OrdinalIgnoreCase),
+                "tooltip has orangutan trigger body text", ref _run, ref _passed, ref _failed);
+            var orangutan = weapon.TriggerBundles.First(b =>
+                string.Equals(b.IdentityName, "OrangutanSuffix", StringComparison.OrdinalIgnoreCase));
+            string orangSummary = ItemTriggerBundleDisplay.FormatSummary(orangutan);
+            TestBase.AssertTrue(orangSummary.Contains("Orangutan", StringComparison.OrdinalIgnoreCase),
+                "OrangutanSuffix keeps its identity name", ref _run, ref _passed, ref _failed);
+            int dash = orangSummary.IndexOf(" — ", StringComparison.Ordinal);
+            TestBase.AssertTrue(dash > 0 && !string.IsNullOrWhiteSpace(orangSummary.Substring(dash + 3)),
+                "OrangutanSuffix summary has text after em dash", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestShellSetRequiresTwoPieces()

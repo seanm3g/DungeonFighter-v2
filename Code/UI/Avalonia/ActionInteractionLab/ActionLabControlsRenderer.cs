@@ -434,6 +434,8 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 }
                 else
                     canvas.AddText(x + 14, y, "[ Step ]", AsciiArtAssets.Colors.DarkGray);
+                // Keep Req beside Back/Step so the Triggers block cannot clip it off the tools canvas.
+                RenderReqToggle(canvas, interactionManager, lab, interactive: true, y);
                 y++;
                 y++;
                 var resetCombo = InventoryButtonFactory.CreateButton(x, y, 20, "lab_reset_combo", "[ Reset ]");
@@ -485,12 +487,6 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                     var threadBtn = InventoryButtonFactory.CreateButton(x, y, threadLabel.Length, "lab_sim_parallel_toggle", threadLabel);
                     interactionManager!.AddClickableElement(threadBtn);
                     canvas.AddText(x, y, threadLabel, threadColor);
-                    int reqX = x + threadLabel.Length + 1;
-                    string reqLabel = lab.IgnoreActionRequirements ? "[ !Req ]" : "[ Req ]";
-                    var reqColor = lab.IgnoreActionRequirements ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.Cyan;
-                    var reqBtn = InventoryButtonFactory.CreateButton(reqX, y, reqLabel.Length, "lab_req_toggle", reqLabel);
-                    interactionManager!.AddClickableElement(reqBtn);
-                    canvas.AddText(reqX, y, reqLabel, reqColor);
                     y++;
                 }
                 var exit = InventoryButtonFactory.CreateButton(x, y, 20, "lab_exit", "[ Exit lab ]");
@@ -503,6 +499,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 y++;
                 y++;
                 canvas.AddText(x, y, "[ Back ] [ Step ]", AsciiArtAssets.Colors.DarkGray);
+                RenderReqToggle(canvas, interactionManager: null, lab, interactive: false, y);
                 y++;
                 y++;
                 canvas.AddText(x, y, "[ Reset ]", AsciiArtAssets.Colors.DarkGray);
@@ -514,12 +511,34 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 y++;
                 string threadHint = lab.UseParallelEncounterSimulation ? "[ Par ]" : "[ 1T ]";
                 canvas.AddText(x, y, threadHint, AsciiArtAssets.Colors.DarkGray);
-                int reqHintX = x + threadHint.Length + 1;
-                string reqHint = lab.IgnoreActionRequirements ? "[ !Req ]" : "[ Req ]";
-                canvas.AddText(reqHintX, y, reqHint, AsciiArtAssets.Colors.DarkGray);
                 y++;
                 canvas.AddText(x, y, "[ Exit lab ]", AsciiArtAssets.Colors.DarkGray);
             }
+        }
+
+        /// <summary>
+        /// Draws the ignore-requirements toggle on the Back/Step row (right of Step).
+        /// Label always includes <c>!Req</c>; yellow = bypass on, cyan = requirements enforced.
+        /// </summary>
+        private static void RenderReqToggle(
+            GameCanvasControl canvas,
+            ICanvasInteractionManager? interactionManager,
+            ActionInteractionLabSession lab,
+            bool interactive,
+            int y)
+        {
+            const int reqX = ColX + 26;
+            // Always show "!Req" so the control matches the known lab shortcut name.
+            string reqLabel = lab.IgnoreActionRequirements ? "[!Req ON]" : "[ !Req ]";
+            if (interactive && interactionManager != null)
+            {
+                var reqColor = lab.IgnoreActionRequirements ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.Cyan;
+                var reqBtn = InventoryButtonFactory.CreateButton(reqX, y, reqLabel.Length, "lab_req_toggle", reqLabel);
+                interactionManager.AddClickableElement(reqBtn);
+                canvas.AddText(reqX, y, reqLabel, reqColor);
+            }
+            else
+                canvas.AddText(reqX, y, reqLabel, AsciiArtAssets.Colors.DarkGray);
         }
     }
 }

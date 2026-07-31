@@ -4,6 +4,32 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: Animal suffix Triggers hover shows name with empty body (July 2026)
+**Problem:** Hovering gear like **breeches of the Boar** showed **Triggers** as `Salvage Charm —` with nothing after the dash, even though the suffix effect text existed.
+
+**Root cause:**
+1. `ItemTriggerBundleDisplay.TryMatchIdentity` matched only WHEN×SCOPE×mechanics, so `BoarSuffix` collapsed onto earlier demo identity **SalvageCharm**
+2. Trigger-only suffixes were also listed under **Stats**, and colored segments wrap after `Name —`; the **18**-row hover cap then clipped the Triggers description continuation
+
+**Solutions:**
+1. Prefer `ActionTriggerBundle.IdentityName` via `TriggersLoader`; signature fallback also requires matching filters
+2. Do not duplicate trigger-only animal suffixes under Stats (Triggers section owns them)
+3. Raise item hover wrap budget to **28** rows (action tips stay at 18)
+
+**Related files:** `ItemTriggerBundleDisplay.cs`, `ItemStatContribution.cs`, `DungeonRenderer.RoomAndCombat.cs`, `RightPanelRenderer.cs`
+
+### Bug fix: Action Lab `[ Req ]` / `[ !Req ]` missing (July 2026)
+**Problem:** The requirements bypass toggle disappeared from the Action Lab tools window after the Triggers panel was added.
+
+**Root cause:** Tools aux canvas was fixed at height **44**. Triggers added ~10+ rows above the footer, so `[ Par ]` / `[ Req ]` / `[ Exit lab ]` rendered past the clip; only strip / Back / Step / Reset stayed visible.
+
+**Solutions:**
+1. Draw `[ Req ]` / `[ !Req ]` on the Back/Step row (always above the clip line)
+2. Raise tools aux grid to **38×58** and default window ~480×1040
+3. Keep `lab_req_toggle` wiring in `ActionLabInputCoordinator`
+
+**Related files:** `ActionLabControlsRenderer.cs`, `ActionLabControlsWindow.cs`
+
 ### Bug fix: New game missing chest/legs/feet starter armor (July 2026)
 **Problem:** New characters started with a weapon but no Shirt / shinguards.
 
