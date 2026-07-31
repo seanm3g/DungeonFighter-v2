@@ -12,6 +12,8 @@
   "PaletteShiftIntervalMs": 1000,
   "PaletteTransitionMs": 1000,
   "FinalHoldDuration": 0,
+  "BuildLabel": "Joey's Build",
+  "BuildLabelColorCode": "c",
   "ColorScheme": {
     "InitialColor": "k",
     "FlashColor1": "W",

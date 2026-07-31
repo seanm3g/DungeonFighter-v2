@@ -34,8 +34,17 @@ namespace RPGGame.Display.Dungeon
             info.Add(ColoredTextRenderer.RenderAsMarkup(roomNameInfo));
             info.Add(""); // Blank line after room name
 
+            string descriptionText = room.Description;
+            string flavorLine = FlavorText.GenerateLocationDescription(room.Theme);
+            if (!string.IsNullOrWhiteSpace(flavorLine))
+            {
+                descriptionText = string.IsNullOrWhiteSpace(descriptionText)
+                    ? flavorLine
+                    : $"{descriptionText}\n\n{flavorLine}";
+            }
+
             var roomDescription = new ColoredTextBuilder()
-                .Add(room.Description, ColorPalette.White)
+                .Add(descriptionText, ColorPalette.White)
                 .Build();
             info.Add(ColoredTextRenderer.RenderAsMarkup(roomDescription));
             // Note: No trailing blank line - spacing system handles transitions

@@ -2857,8 +2857,7 @@
     "attributeRequirements": null,
     "tags": [
       "wand",
-      "wizard",
-      "starter"
+      "wizard"
     ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
