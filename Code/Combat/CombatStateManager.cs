@@ -42,6 +42,7 @@ namespace RPGGame
             TextDisplayIntegration.ResetForNewBattle(); // Reset new text display system
             turnManager.InitializeBattle();
             RPGGame.Actions.Conditional.CombatTriggerContext.ResetForBattle();
+            SkillEffectRouter.Instance.ResetFightState();
             // Actor tracking is now handled by BlockDisplayManager
         }
 

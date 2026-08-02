@@ -4,6 +4,18 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Class Skill Trees — Path Points vs rank (August 2026)
+**Problem:** Spending class points into skills must not lower titles, combo slot tiers, or item scaling that key off lifetime path investment.
+
+**Solutions:**
+1. Keep `BarbarianPoints` / `WarriorPoints` / `RoguePoints` / `WizardPoints` as **lifetime** Path Points
+2. Spent amount is derived from learned node costs in `SkillTrees.json`; `Available = Lifetime − Spent`
+3. `TryLearnSkillNode` never calls `RemoveClassPoint`; roots auto-grant at cost 0 when a path has ≥1 lifetime point
+4. Hub: `GameState.SkillTree` beside Inventory; primary path only for spending; learned nodes stay active if path is no longer primary
+5. Tests: `SkillTreeProgressionTests`, updated `ClassActionManagerTests`
+
+**Related files:** `CharacterProgression.cs`, `SkillTreesConfig.cs`, `SkillTreeService.cs`, `SkillEffectRouter.cs`, `SkillTreeMenuHandler.cs`, `ClassActionManager.cs`
+
 ### Bug fix: Return to main menu after character snapshot appeared to quit (July 2026)
 **Problem:** After Inventory → Snapshot for Action Lab, returning to the main menu (Game Loop → **0**) did nothing on screen, then another **0** closed the app.
 

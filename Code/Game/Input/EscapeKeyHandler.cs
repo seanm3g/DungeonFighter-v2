@@ -62,6 +62,10 @@ namespace RPGGame.GameCore.Input
                     stateManager.TransitionToState(GameState.GameLoop);
                     showGameLoop();
                     break;
+                case GameState.SkillTree:
+                    stateManager.TransitionToState(GameState.GameLoop);
+                    showGameLoop();
+                    break;
                 case GameState.CharacterInfo:
                 case GameState.Settings:
                     stateManager.TransitionToState(GameState.MainMenu);

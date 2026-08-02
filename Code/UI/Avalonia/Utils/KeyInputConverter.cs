@@ -30,10 +30,20 @@ namespace RPGGame.UI.Avalonia.Utils
             // Check modifiers for page scrolling
             bool isCtrl = modifiers.HasFlag(KeyModifiers.Control);
             bool isShift = modifiers.HasFlag(KeyModifiers.Shift);
+            bool isAlt = modifiers.HasFlag(KeyModifiers.Alt);
+            bool isMeta = modifiers.HasFlag(KeyModifiers.Meta);
             
             // Use Ctrl+Up/Down or Shift+Up/Down for page scrolling (30 lines)
             // Shift takes priority if both are pressed
             bool isPageScroll = isShift || isCtrl;
+
+            // Letter shortcuts (e.g. Skill Tree L=Learn, WASD). Skip chord modifiers so Ctrl/Cmd/Alt combos stay free.
+            if (!isCtrl && !isAlt && !isMeta)
+            {
+                string? letter = TryConvertLetterKey(key, isShift);
+                if (letter != null)
+                    return letter;
+            }
             
             return key switch
             {
@@ -64,6 +74,27 @@ namespace RPGGame.UI.Avalonia.Utils
                 Key.Tab => "tab",
                 _ => null
             };
+        }
+
+        /// <summary>
+        /// Maps A–Z to single-character game inputs (lowercase, or uppercase with Shift).
+        /// </summary>
+        private static string? TryConvertLetterKey(Key key, bool isShift)
+        {
+            char? lower = key switch
+            {
+                Key.A => 'a', Key.B => 'b', Key.C => 'c', Key.D => 'd', Key.E => 'e',
+                Key.F => 'f', Key.G => 'g', Key.H => 'h', Key.I => 'i', Key.J => 'j',
+                Key.K => 'k', Key.L => 'l', Key.M => 'm', Key.N => 'n', Key.O => 'o',
+                Key.P => 'p', Key.Q => 'q', Key.R => 'r', Key.S => 's', Key.T => 't',
+                Key.U => 'u', Key.V => 'v', Key.W => 'w', Key.X => 'x', Key.Y => 'y',
+                Key.Z => 'z',
+                _ => null
+            };
+            if (lower == null)
+                return null;
+            char c = isShift ? char.ToUpperInvariant(lower.Value) : lower.Value;
+            return c.ToString();
         }
     }
 }

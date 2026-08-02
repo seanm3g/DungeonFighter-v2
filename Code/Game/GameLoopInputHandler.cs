@@ -14,6 +14,7 @@ namespace RPGGame
         // Delegates for different menu options
         public delegate Task OnSelectDungeon();
         public delegate void OnShowInventory();
+        public delegate void OnShowSkillTree();
         public delegate void OnShowMessage(string message);
         public delegate void OnExitGame();
         public delegate void OnShowCharacterSelection();
@@ -22,6 +23,7 @@ namespace RPGGame
         
         public event OnSelectDungeon? SelectDungeonEvent;
         public event OnShowInventory? ShowInventoryEvent;
+        public event OnShowSkillTree? ShowSkillTreeEvent;
         public event OnShowMessage? ShowMessageEvent;
 #pragma warning disable CS0067 // Event is never used - reserved for future use
         public event OnExitGame? ExitGameEvent;
@@ -58,6 +60,10 @@ namespace RPGGame
                     ShowInventoryEvent?.Invoke();
                     break;
                 case "3":
+                    // Show Skill Tree
+                    ShowSkillTreeEvent?.Invoke();
+                    break;
+                case "4":
                     // Show Region Travel
                     ShowRegionTravelEvent?.Invoke();
                     break;
@@ -88,7 +94,7 @@ namespace RPGGame
                     ShowMainMenuEvent?.Invoke();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1 (Dungeon), 2 (Inventory), 3 (Travel), C (Characters), or 0 (Back to Main Menu).");
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1 (Dungeon), 2 (Inventory), 3 (Skill Tree), 4 (Travel), C (Characters), or 0 (Back to Main Menu).");
                     break;
             }
         }

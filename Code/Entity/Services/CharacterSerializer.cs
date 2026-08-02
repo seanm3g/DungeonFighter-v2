@@ -37,6 +37,10 @@ namespace RPGGame.Entity.Services
                 WarriorPoints = character.Progression.WarriorPoints,
                 RoguePoints = character.Progression.RoguePoints,
                 WizardPoints = character.Progression.WizardPoints,
+                LearnedSkillNodeIds = character.Progression.LearnedSkillNodeIds
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList(),
                 ComboStep = character.Effects.ComboStep,
                 ComboBonus = character.Effects.ComboBonus,
                 TempComboBonus = character.Effects.TempComboBonus,
@@ -101,6 +105,11 @@ namespace RPGGame.Entity.Services
             character.Progression.WarriorPoints = saveData.WarriorPoints;
             character.Progression.RoguePoints = saveData.RoguePoints;
             character.Progression.WizardPoints = saveData.WizardPoints;
+            character.Progression.LearnedSkillNodeIds = new HashSet<string>(
+                (saveData.LearnedSkillNodeIds ?? new List<string>())
+                    .Where(id => !string.IsNullOrWhiteSpace(id)),
+                StringComparer.OrdinalIgnoreCase);
+            character.Progression.EnsureSkillTreeRootsGranted();
             character.Effects.ComboStep = saveData.ComboStep;
             character.Effects.ComboBonus = saveData.ComboBonus;
             character.Effects.TempComboBonus = saveData.TempComboBonus;
@@ -157,6 +166,8 @@ namespace RPGGame.Entity.Services
                 ? resolvedWeaponType
                 : null;
             character.Actions.AddClassActions(character, character.Progression, weaponType);
+
+            SkillEffectRouter.Instance.RefreshForCharacter(character);
 
             EnsureUnarmedTutorialActionInActionPool(character);
             ItemEquipEffectApplicator.RefreshGrantedActionTags(character);

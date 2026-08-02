@@ -53,10 +53,14 @@ DungeonFighter/
 - **`Code/Entity/CharacterStats.cs`** - Character statistics and leveling system
 - **`Code/Entity/CharacterEquipment.cs`** - Equipment management and stat bonuses
 - **`Code/Entity/CharacterEffects.cs`** - Character-specific effects and buffs/debuffs
-- **`Code/Entity/CharacterProgression.cs`** - Experience, leveling, and skill progression
+- **`Code/Entity/CharacterProgression.cs`** - Experience, leveling, Path Points (lifetime class points), and skill-tree learn state (`LearnedSkillNodeIds`)
 - **`Code/Entity/CharacterHealthManager.cs`** - Health management, damage, and healing logic
 - **`Code/Entity/CharacterCombatCalculator.cs`** - Combat calculations and stat computations
 - **`Code/Entity/CharacterSaveManager.cs`** - Save/load functionality for character data
+- **`Code/Config/SkillTreesConfig.cs`** + **`GameData/SkillTrees.json`** - Four class skill trees (Bronze Skin / Iron Discipline / Shadowcraft / Arcane Weave)
+- **`Code/Game/SkillTree/SkillTreeService.cs`** - Learn API, node view state, action unlock names
+- **`Code/Game/SkillTree/SkillEffectRouter.cs`** - CombatEventBus passive/rule/mastery runtime
+- **`Code/Game/SkillTreeMenuHandler.cs`** - GameLoop hub (`GameState.SkillTree`) learn UI (no respec)
 
 ### **Character Actions System (Phase 1 Refactoring ✅ COMPLETE)**
 The CharacterActions system has been successfully refactored from a 828-line monolithic class into 5 focused, testable managers using the Facade pattern. **Cleanup completed** - old code removed, facade now 170 lines.
@@ -75,10 +79,10 @@ The CharacterActions system has been successfully refactored from a 828-line mon
   - Roll bonus application and removal
   - Handles equipment-based action pools
 
-- **`Code/Entity/Managers/ClassActionManager.cs`** (199 lines) - Manages class-specific actions (Barbarian, Warrior, Rogue, Wizard)
-  - AddClassActions, RemoveClassActions
-  - Per-class action logic with level gating
-  - Handles all character progression-based abilities
+- **`Code/Entity/Managers/ClassActionManager.cs`** - Class kit actions
+  - When `SkillTrees.json` is loaded: unlocks from learned skill-tree **Action** nodes only
+  - Otherwise falls back to `ClassActions.json` rules
+  - AddClassActions / RemoveClassActions; does not spend or reduce lifetime Path Points
 
 - **`Code/Entity/Managers/ComboSequenceManager.cs`** (184 lines) - Manages combo sequences and ordering
   - GetComboActions, AddToCombo, RemoveFromCombo

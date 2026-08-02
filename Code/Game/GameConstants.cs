@@ -32,6 +32,8 @@ namespace RPGGame
         public const string TravelEventsJson = "TravelEvents.json";
         /// <summary>CLASS ACTIONS sheet pull → class tier / path → combo action unlocks.</summary>
         public const string ClassActionsJson = "ClassActions.json";
+        /// <summary>Class skill trees: Path Point spend nodes, prereqs, and effect payloads.</summary>
+        public const string SkillTreesJson = "SkillTrees.json";
         /// <summary>CONSUMABLES sheet pull → room-search food and potion definitions.</summary>
         public const string ConsumablesJson = "Consumables.json";
         public const string TriggersJson = "Triggers.json";

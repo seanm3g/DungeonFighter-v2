@@ -32,6 +32,10 @@ namespace RPGGame
         [JsonIgnore]
         public ClassActionsUnlockConfig ClassActionsUnlock { get; set; } = ClassActionsUnlockConfig.CreateBuiltInDefaults();
 
+        /// <summary>Loaded from GameData/SkillTrees.json (not patched via TuningConfig).</summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        public SkillTreesConfig SkillTrees { get; set; } = SkillTreesConfig.CreateEmpty();
+
         // Combat-related configurations
         public CombatConfig Combat { get; set; } = new();
         public CombatBalanceConfig CombatBalance { get; set; } = new();
@@ -265,12 +269,19 @@ namespace RPGGame
             DungeonScaling.EnsureSensibleDefaults();
 
             ReloadClassActionsUnlockFromDisk();
+            ReloadSkillTreesFromDisk();
         }
 
         private void ReloadClassActionsUnlockFromDisk()
         {
             ClassActionsUnlock = ClassActionsUnlockConfig.TryLoadFromGameDataFile()
                 ?? ClassActionsUnlockConfig.CreateBuiltInDefaults();
+        }
+
+        private void ReloadSkillTreesFromDisk()
+        {
+            SkillTrees = SkillTreesConfig.TryLoadFromGameDataFile()
+                ?? SkillTreesConfig.CreateEmpty();
         }
 
         public void Reload()

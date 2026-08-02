@@ -136,6 +136,12 @@ namespace RPGGame
                 character.Effects.LastShieldReduction = originalAmount - amount;
             }
 
+            if (amount > 0 && character is not Enemy)
+            {
+                bool armorAbsorbed = character.Effects.LastArmorAbsorbed > 0 || shieldUsed;
+                SkillEffectRouter.Instance.NotifyHeroTookDamage(character, amount, armorAbsorbed);
+            }
+
             // Check for health milestones and leadership changes
             // Note: Health milestone checking is now handled by CombatManager
             return new List<string>(); // Return empty list since milestone checking moved to CombatManager

@@ -106,6 +106,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
                 () => { },
                 () => { },
                 () => { },
+                () => { },
                 (msg) => { },
                 () => { },
                 async () => await Task.CompletedTask,

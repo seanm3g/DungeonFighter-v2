@@ -167,6 +167,24 @@ namespace RPGGame.UI.Avalonia.Layout
             int h = _gridHeight + 1;
             return (marginX, 0, w, h);
         }
+
+        /// <summary>
+        /// Center column including the action-info strip band (for screens that hide the combo strip).
+        /// </summary>
+        public static int CENTER_COLUMN_FULL_Y => ACTION_INFO_Y;
+        public static int CENTER_COLUMN_FULL_HEIGHT => ACTION_INFO_STRIP_HEIGHT + CENTER_PANEL_HEIGHT;
+
+        /// <summary>
+        /// Inset content rect for the full center column (strip + framed combat-log region).
+        /// </summary>
+        public static (int x, int y, int width, int height) GetCenterColumnFullContentRect()
+        {
+            int x = CENTER_PANEL_X + 1;
+            int y = CENTER_COLUMN_FULL_Y + 1;
+            int w = Math.Max(1, CENTER_PANEL_WIDTH - 2);
+            int h = Math.Max(1, CENTER_COLUMN_FULL_HEIGHT - 2);
+            return (x, y, w, h);
+        }
     }
 }
 
