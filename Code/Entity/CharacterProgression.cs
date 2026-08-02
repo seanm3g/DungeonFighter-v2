@@ -32,14 +32,14 @@ namespace RPGGame
         public bool HasLearnedSkill(string nodeId) =>
             !string.IsNullOrWhiteSpace(nodeId) && LearnedSkillNodeIds.Contains(nodeId);
 
-        public int GetSpentPathPoints(WeaponType weaponType)
+        public int GetSpentSkillPoints(WeaponType weaponType)
         {
             var trees = GameConfiguration.Instance.SkillTrees;
-            return trees?.GetSpentPathPoints(LearnedSkillNodeIds, weaponType) ?? 0;
+            return trees?.GetSpentSkillPoints(LearnedSkillNodeIds, weaponType) ?? 0;
         }
 
-        public int GetAvailablePathPoints(WeaponType weaponType) =>
-            Math.Max(0, GetClassPoints(weaponType) - GetSpentPathPoints(weaponType));
+        public int GetAvailableSkillPoints(WeaponType weaponType) =>
+            Math.Max(0, GetClassPoints(weaponType) - GetSpentSkillPoints(weaponType));
 
         /// <summary>
         /// Auto-grants the path root when the character has any lifetime points on that path.
@@ -72,7 +72,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Permanently learns a skill node using available Path Points on the primary path only.
+        /// Permanently learns a skill node using available Skill Points on the primary path only.
         /// Does not decrement lifetime class points.
         /// </summary>
         public LearnSkillResult TryLearnSkillNode(string nodeId, bool requirePrimaryPath = true)
@@ -117,7 +117,7 @@ namespace RPGGame
                     return LearnSkillResult.PrerequisitesMissing;
             }
 
-            if (node.Cost > GetAvailablePathPoints(ownerPath.Value))
+            if (node.Cost > GetAvailableSkillPoints(ownerPath.Value))
                 return LearnSkillResult.InsufficientPoints;
 
             LearnedSkillNodeIds.Add(node.Id);

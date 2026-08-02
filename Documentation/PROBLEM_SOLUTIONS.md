@@ -4,11 +4,11 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
-### Class Skill Trees — Path Points vs rank (August 2026)
+### Class Skill Trees — Skill Points vs rank (August 2026)
 **Problem:** Spending class points into skills must not lower titles, combo slot tiers, or item scaling that key off lifetime path investment.
 
 **Solutions:**
-1. Keep `BarbarianPoints` / `WarriorPoints` / `RoguePoints` / `WizardPoints` as **lifetime** Path Points
+1. Keep `BarbarianPoints` / `WarriorPoints` / `RoguePoints` / `WizardPoints` as **lifetime** Skill Points
 2. Spent amount is derived from learned node costs in `SkillTrees.json`; `Available = Lifetime − Spent`
 3. `TryLearnSkillNode` never calls `RemoveClassPoint`; roots auto-grant at cost 0 when a path has ≥1 lifetime point
 4. Hub: `GameState.SkillTree` beside Inventory; primary path only for spending; learned nodes stay active if path is no longer primary

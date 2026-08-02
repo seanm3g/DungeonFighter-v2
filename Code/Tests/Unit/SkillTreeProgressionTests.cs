@@ -5,7 +5,7 @@ using RPGGame.Tests;
 namespace RPGGame.Tests.Unit
 {
     /// <summary>
-    /// Path Point spend / learn API for class skill trees.
+    /// Skill Point spend / learn API for class skill trees.
     /// </summary>
     public static class SkillTreeProgressionTests
     {
@@ -51,7 +51,7 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(1, p.BarbarianPoints, "lifetime points still 1",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, p.GetAvailablePathPoints(WeaponType.Mace),
+            TestBase.AssertEqual(1, p.GetAvailableSkillPoints(WeaponType.Mace),
                 "root costs 0 so available remains 1",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
@@ -70,10 +70,10 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(lifetimeBefore, p.BarbarianPoints,
                 "lifetime BarbarianPoints unchanged after learn",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(lifetimeBefore - 4, p.GetAvailablePathPoints(WeaponType.Mace),
+            TestBase.AssertEqual(lifetimeBefore - 4, p.GetAvailableSkillPoints(WeaponType.Mace),
                 "available reduced by node cost 4",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(4, p.GetSpentPathPoints(WeaponType.Mace),
+            TestBase.AssertEqual(4, p.GetSpentSkillPoints(WeaponType.Mace),
                 "spent equals learned costs",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }

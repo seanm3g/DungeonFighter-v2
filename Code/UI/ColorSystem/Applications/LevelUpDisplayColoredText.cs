@@ -22,8 +22,8 @@ namespace RPGGame.UI.ColorSystem.Applications
 
             if (info.HasWeapon && !string.IsNullOrEmpty(info.ClassName))
             {
-                lines.Add(info.AwardedPathPoint
-                    ? BuildPathPointLine(info.PathPointsAvailable)
+                lines.Add(info.AwardedSkillPoint
+                    ? BuildSkillPointLine(info.SkillPointsAvailable)
                     : BuildClassPointLine(info.ClassName));
                 if (!string.IsNullOrEmpty(info.StatIncreaseMessage))
                     lines.Add(BuildStatsLine(info.StatIncreaseMessage));
@@ -33,8 +33,8 @@ namespace RPGGame.UI.ColorSystem.Applications
                     lines.Add(BuildNameLine(info.FullNameWithQualifier));
                 if (!string.IsNullOrEmpty(info.ClassPointsInfo))
                     lines.Add(BuildClassPointsLine(info.ClassPointsInfo));
-                if (info.AwardedPathPoint && info.PathPointsAvailable > 0)
-                    lines.Add(BuildUnspentPathPointsHint());
+                if (info.AwardedSkillPoint && info.SkillPointsAvailable > 0)
+                    lines.Add(BuildUnspentSkillPointsHint());
                 if (info.ActionSlotIncrease > 0)
                     lines.Add(BuildActionSlotLine(info.ActionSlotIncrease));
                 if (!string.IsNullOrEmpty(info.ClassUpgradeInfo))
@@ -79,21 +79,21 @@ namespace RPGGame.UI.ColorSystem.Applications
             return b.Build();
         }
 
-        private static List<ColoredText> BuildPathPointLine(int available)
+        private static List<ColoredText> BuildSkillPointLine(int available)
         {
             var b = ColoredTextBuilder.Start();
             b.Add("Gained ", Colors.White);
-            b.Add("+1 Path Point ", ColorPalette.Success);
+            b.Add("+1 Skill Point ", ColorPalette.Success);
             b.Add("(", Colors.White);
             b.Add(available.ToString(), ColorPalette.Gold);
             b.Add(" available)!", Colors.White);
             return b.Build();
         }
 
-        private static List<ColoredText> BuildUnspentPathPointsHint()
+        private static List<ColoredText> BuildUnspentSkillPointsHint()
         {
             var b = ColoredTextBuilder.Start();
-            b.Add("Unspent Path Points — open Skill Tree from the game menu to learn nodes.", ColorPalette.Warning);
+            b.Add("Unspent Skill Points — open Skill Tree from the game menu to learn nodes.", ColorPalette.Warning);
             return b.Build();
         }
 

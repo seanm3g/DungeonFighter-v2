@@ -53,7 +53,7 @@ DungeonFighter/
 - **`Code/Entity/CharacterStats.cs`** - Character statistics and leveling system
 - **`Code/Entity/CharacterEquipment.cs`** - Equipment management and stat bonuses
 - **`Code/Entity/CharacterEffects.cs`** - Character-specific effects and buffs/debuffs
-- **`Code/Entity/CharacterProgression.cs`** - Experience, leveling, Path Points (lifetime class points), and skill-tree learn state (`LearnedSkillNodeIds`)
+- **`Code/Entity/CharacterProgression.cs`** - Experience, leveling, Skill Points (lifetime class points), and skill-tree learn state (`LearnedSkillNodeIds`)
 - **`Code/Entity/CharacterHealthManager.cs`** - Health management, damage, and healing logic
 - **`Code/Entity/CharacterCombatCalculator.cs`** - Combat calculations and stat computations
 - **`Code/Entity/CharacterSaveManager.cs`** - Save/load functionality for character data
@@ -82,7 +82,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/Entity/Managers/ClassActionManager.cs`** - Class kit actions
   - When `SkillTrees.json` is loaded: unlocks from learned skill-tree **Action** nodes only
   - Otherwise falls back to `ClassActions.json` rules
-  - AddClassActions / RemoveClassActions; does not spend or reduce lifetime Path Points
+  - AddClassActions / RemoveClassActions; does not spend or reduce lifetime Skill Points
 
 - **`Code/Entity/Managers/ComboSequenceManager.cs`** (184 lines) - Manages combo sequences and ordering
   - GetComboActions, AddToCombo, RemoveFromCombo

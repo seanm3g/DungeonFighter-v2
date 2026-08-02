@@ -94,7 +94,7 @@ namespace RPGGame
             PropertyNameCaseInsensitive = true
         };
 
-        /// <summary>Tier index 0..4 → Path Point cost.</summary>
+        /// <summary>Tier index 0..4 → Skill Point cost.</summary>
         public static readonly int[] TierCosts = { 0, 4, 8, 14, 21 };
 
         [JsonPropertyName("trees")]
@@ -221,7 +221,7 @@ namespace RPGGame
                 .Distinct(StringComparer.OrdinalIgnoreCase)!;
         }
 
-        public int GetSpentPathPoints(IEnumerable<string> learnedNodeIds, WeaponType path)
+        public int GetSpentSkillPoints(IEnumerable<string> learnedNodeIds, WeaponType path)
         {
             var tree = GetTreeForWeapon(path);
             if (tree == null) return 0;

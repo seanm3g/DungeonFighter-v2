@@ -121,7 +121,7 @@ namespace RPGGame
                     return NodeViewState.Locked;
             }
 
-            return progression.GetAvailablePathPoints(ownerPath.Value) >= node.Cost
+            return progression.GetAvailableSkillPoints(ownerPath.Value) >= node.Cost
                 ? NodeViewState.Available
                 : NodeViewState.Unaffordable;
         }

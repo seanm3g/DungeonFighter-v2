@@ -114,7 +114,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (tree == null || primary == null)
             {
                 foreach (var line in TextWrapper.WrapText(
-                             "Equip a weapon and earn Path Points to open your primary path tree.",
+                             "Equip a weapon and earn Skill Points to open your primary path tree.",
                              contentWidth))
                 {
                     canvas.AddText(left, currentY++, line, AsciiArtAssets.Colors.Gray);
@@ -128,12 +128,12 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
 
             int lifetime = player.Progression.GetClassPoints(primary.Value);
-            int spent = player.Progression.GetSpentPathPoints(primary.Value);
-            int available = player.Progression.GetAvailablePathPoints(primary.Value);
+            int spent = player.Progression.GetSpentSkillPoints(primary.Value);
+            int available = player.Progression.GetAvailableSkillPoints(primary.Value);
 
             canvas.AddText(left, currentY++, tree.Title, AsciiArtAssets.Colors.White);
             canvas.AddText(left, currentY++,
-                $"PP  avail {available}  /  invested {spent}  /  lifetime {lifetime}",
+                $"SP  avail {available}  /  invested {spent}  /  lifetime {lifetime}",
                 AsciiArtAssets.Colors.Cyan);
 
             var nodes = OrderNodes(tree.Nodes);
@@ -357,7 +357,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     SkillTreeService.NodeViewState.Locked => "LCK",
                     _ => "---"
                 };
-                string meta = Truncate($"T{p.Node.Tier} {ShortType(p.Node.Type)} {p.Node.Cost}PP {stateTag}", p.W - 2);
+                string meta = Truncate($"T{p.Node.Tier} {ShortType(p.Node.Type)} {p.Node.Cost}SP {stateTag}", p.W - 2);
                 canvas.AddText(p.X + 1, p.Y + 2, meta, border);
 
                 clickableElements.Add(new ClickableElement
@@ -387,7 +387,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.AddText(left, y++, "DETAIL", AsciiArtAssets.Colors.Gold);
             if (y >= maxY) return y;
             canvas.AddText(left, y++,
-                Truncate($"{selected.Name}  ·  {selected.Type}  ·  Tier {selected.Tier}  ·  {selected.Cost} PP", width),
+                Truncate($"{selected.Name}  ·  {selected.Type}  ·  Tier {selected.Tier}  ·  {selected.Cost} SP", width),
                 AsciiArtAssets.Colors.Cyan);
 
             foreach (var line in TextWrapper.WrapText(selected.Effect ?? "", width).Take(2))
@@ -418,7 +418,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     SkillTreeService.NodeViewState.Learned => "Already learned (permanent).",
                     SkillTreeService.NodeViewState.Available => "Press L or click Learn to unlock.",
-                    SkillTreeService.NodeViewState.Unaffordable => "Not enough Path Points.",
+                    SkillTreeService.NodeViewState.Unaffordable => "Not enough Skill Points.",
                     SkillTreeService.NodeViewState.Locked => "Prerequisites not met.",
                     _ => "Cannot spend on this path."
                 };

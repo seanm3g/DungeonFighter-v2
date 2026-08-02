@@ -176,7 +176,7 @@ namespace RPGGame
 
             _character.Progression.AwardClassPoint(equippedWeapon.WeaponType);
             int actionSlotIncrease = Math.Max(0, _character.Progression.GetClassUpgradeActionSlotBonus() - actionSlotsBefore);
-            int available = _character.Progression.GetAvailablePathPoints(equippedWeapon.WeaponType);
+            int available = _character.Progression.GetAvailableSkillPoints(equippedWeapon.WeaponType);
             
             DisplayLevelUpMessage(className, equippedWeapon, available);
             if (actionSlotIncrease > 0)
@@ -186,7 +186,7 @@ namespace RPGGame
             }
             DisplayClassPointsInfo();
             if (available > 0)
-                UIManager.WriteLine("Unspent Path Points — open Skill Tree from the game menu to learn nodes.");
+                UIManager.WriteLine("Unspent Skill Points — open Skill Tree from the game menu to learn nodes.");
         }
         
         /// <summary>
@@ -199,7 +199,7 @@ namespace RPGGame
 
             _character.Progression.AwardClassPoint(equippedWeapon.WeaponType);
             int actionSlotIncrease = Math.Max(0, _character.Progression.GetClassUpgradeActionSlotBonus() - actionSlotsBefore);
-            int available = _character.Progression.GetAvailablePathPoints(equippedWeapon.WeaponType);
+            int available = _character.Progression.GetAvailableSkillPoints(equippedWeapon.WeaponType);
             
             var levelUpInfo = new LevelUpInfo
             {
@@ -210,8 +210,8 @@ namespace RPGGame
                 FullNameWithQualifier = _character.Progression.GetFullNameWithQualifier(_character.Name, _character.Stats),
                 ActionSlotIncrease = actionSlotIncrease,
                 HasWeapon = true,
-                AwardedPathPoint = true,
-                PathPointsAvailable = available
+                AwardedSkillPoint = true,
+                SkillPointsAvailable = available
             };
             
             // Build class points info
@@ -267,11 +267,11 @@ namespace RPGGame
         /// <summary>
         /// Displays level up message
         /// </summary>
-        private void DisplayLevelUpMessage(string className, WeaponItem equippedWeapon, int pathPointsAvailable)
+        private void DisplayLevelUpMessage(string className, WeaponItem equippedWeapon, int skillPointsAvailable)
         {
             UIManager.WriteLine($"\n*** LEVEL UP! ***");
             UIManager.WriteLine($"You reached level {_character.Progression.Level}!");
-            UIManager.WriteLine($"Gained +1 Path Point ({pathPointsAvailable} available)!");
+            UIManager.WriteLine($"Gained +1 Skill Point ({skillPointsAvailable} available)!");
             UIManager.WriteLine($"Stats increased: {_character.Stats.GetStatIncreaseMessage(equippedWeapon.WeaponType)}");
             UIManager.WriteLine($"Current class: {_character.GetCurrentClass()}");
             UIManager.WriteLine($"You are now known as: {_character.Progression.GetFullNameWithQualifier(_character.Name, _character.Stats)}");

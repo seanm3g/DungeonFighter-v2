@@ -94,7 +94,7 @@ namespace RPGGame
             var nodes = GetDisplayNodes(player);
             if (nodes.Count == 0)
             {
-                statusMessage = "Equip a weapon and earn Path Points to open a skill tree.";
+                statusMessage = "Equip a weapon and earn Skill Points to open a skill tree.";
                 Render(ensureSelectionVisible: false);
                 return;
             }
@@ -267,7 +267,7 @@ namespace RPGGame
             }
             if (state == SkillTreeService.NodeViewState.Unaffordable)
             {
-                statusMessage = $"Need {node.Cost} Path Points for {node.Name}.";
+                statusMessage = $"Need {node.Cost} Skill Points for {node.Name}.";
                 Render(ensureSelectionVisible: false);
                 return;
             }
@@ -281,7 +281,7 @@ namespace RPGGame
             var result = SkillTreeService.TryLearn(player, node.Id);
             if (result == CharacterProgression.LearnSkillResult.Success)
             {
-                statusMessage = $"Learned {node.Name} (−{node.Cost} Path Points).";
+                statusMessage = $"Learned {node.Name} (−{node.Cost} Skill Points).";
                 AudioCues.Trigger(AudioCue.Menu_Confirm);
             }
             else
