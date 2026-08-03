@@ -95,8 +95,9 @@ namespace RPGGame.UI.Avalonia.Handlers
         /// </summary>
         public void HandlePointerMoved(PointerEventArgs e)
         {
+            bool altChanged = HoverTooltipDetailState.SetFromModifiers(e.KeyModifiers);
             var point = e.GetCurrentPoint(gameCanvas);
-            HandleMouseHover(point.Position);
+            HandleMouseHover(point.Position, forceTooltipRefresh: altChanged);
         }
 
         /// <summary>
@@ -224,7 +225,8 @@ namespace RPGGame.UI.Avalonia.Handlers
         /// <summary>
         /// Handles mouse hover at the given position.
         /// </summary>
-        private void HandleMouseHover(Point position)
+        /// <param name="forceTooltipRefresh">When true (e.g. Alt toggled), redraw even if the hovered target did not change.</param>
+        private void HandleMouseHover(Point position, bool forceTooltipRefresh = false)
         {
             if (canvasUI == null) return;
             if (_comboStripDragging) return;
@@ -258,17 +260,18 @@ namespace RPGGame.UI.Avalonia.Handlers
             bool rpHoverChanged = RightPanelActionHoverState.UpdateFromClickables(canvasUI.GetClickableElements(), inventoryActive);
             bool lpHoverChanged = LeftPanelHoverState.UpdateFromClickables(canvasUI.GetClickableElements());
 
-            if (!stripHoverChanged && !rpHoverChanged && !lpHoverChanged)
-                return;
-
-            // PerformRender is suppressed in many menu states; re-invoke the active screen renderer like stats toggles.
-            // GameLoop / inventory: strip-only redraw when a tooltip is visible. Hover-out needs full refresh to restore the center panel.
             bool tooltipStripOrPanel = newStripHover >= 0
                 || RightPanelActionHoverState.HoveredSequenceIndex >= 0
                 || RightPanelActionHoverState.HoveredPoolIndex >= 0
                 || RightPanelActionHoverState.HoveredInventoryPoolIndex >= 0
                 || LeftPanelHoverState.IsActive;
 
+            if (!stripHoverChanged && !rpHoverChanged && !lpHoverChanged
+                && !(forceTooltipRefresh && tooltipStripOrPanel))
+                return;
+
+            // PerformRender is suppressed in many menu states; re-invoke the active screen renderer like stats toggles.
+            // GameLoop / inventory: strip-only redraw when a tooltip is visible. Hover-out needs full refresh to restore the center panel.
             bool inv = game?.StateManager?.CurrentState == GameState.Inventory;
             bool rpHovering = RightPanelActionHoverState.HoveredSequenceIndex >= 0
                 || RightPanelActionHoverState.HoveredPoolIndex >= 0
@@ -291,6 +294,46 @@ namespace RPGGame.UI.Avalonia.Handlers
                     else
                         canvasUI.RefreshActionInfoStripOnly(player);
                 }
+                else
+                    game.RefreshPersistentChromeAfterStatsToggle();
+            }
+            else
+                canvasUI.ForceRender();
+        }
+
+        /// <summary>
+        /// Redraws the active item/action hover tooltip when Alt detail mode toggles without pointer movement.
+        /// </summary>
+        public void RefreshTooltipDetailModeIfHovered()
+        {
+            if (canvasUI == null) return;
+
+            bool tooltipActive = ActionStripHoverState.HoveredPanelIndex >= 0
+                || RightPanelActionHoverState.HoveredSequenceIndex >= 0
+                || RightPanelActionHoverState.HoveredPoolIndex >= 0
+                || RightPanelActionHoverState.HoveredInventoryPoolIndex >= 0
+                || LeftPanelHoverState.IsActive;
+            if (!tooltipActive)
+                return;
+
+            var player = GetCharacterForActionStrip();
+            bool inv = game?.StateManager?.CurrentState == GameState.Inventory;
+            bool rpHovering = RightPanelActionHoverState.HoveredSequenceIndex >= 0
+                || RightPanelActionHoverState.HoveredPoolIndex >= 0
+                || RightPanelActionHoverState.HoveredInventoryPoolIndex >= 0;
+
+            if (game != null)
+            {
+                if ((game.StateManager?.CurrentState == GameState.GameLoop
+                     || game.StateManager?.CurrentState == GameState.ActionInteractionLab)
+                    && player != null
+                    && !rpHovering
+                    && !LeftPanelHoverState.IsActive)
+                {
+                    canvasUI.RefreshActionInfoStripOnly(player);
+                }
+                else if (inv && player != null && !rpHovering && !LeftPanelHoverState.IsActive)
+                    canvasUI.RefreshActionInfoStripOnly(player);
                 else
                     game.RefreshPersistentChromeAfterStatsToggle();
             }

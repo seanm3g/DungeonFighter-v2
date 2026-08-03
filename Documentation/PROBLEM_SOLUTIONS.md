@@ -4,6 +4,21 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: Closing the window left DF.exe locked (August 2026)
+**Problem:** Hitting the title-bar **X** closed the UI but `DF.exe` often stayed alive, so the next build failed with `MSB3026` (`DF.exe` locked by process `DF`).
+
+**Root cause:** Menu Exit Game called `Environment.Exit(0)` after cleanup; the window-close path only ran `ApplicationShutdownHelper.PerformShutdown()` and relied on Avalonia lifetime. SoundFlow/native threads could keep the process alive after the main window closed.
+
+**Solutions:**
+1. Main window `Closing` and desktop `Exit` call `PerformShutdown(forceProcessExit: true)`
+2. Forced exit starts a 1.5s watchdog so hung audio dispose cannot leave a zombie process
+3. Ticker `Stop(waitForExit: false)` on shutdown so Closing is not blocked on `Task.Wait`
+4. Menu Exit Game uses the same helper
+5. `Code.csproj` kills leftover `DF.exe` before `BeforeBuild` (with a short settle delay)
+6. Tests: `ApplicationShutdownHelperTests`
+
+**Related files:** `App.axaml.cs`, `ApplicationShutdownHelper.cs`, `SettingsMenuHandler.cs`, `GameTicker.cs`, `Code.csproj`
+
 ### Class Skill Trees — Skill Points vs rank (August 2026)
 **Problem:** Spending class points into skills must not lower titles, combo slot tiers, or item scaling that key off lifetime path investment.
 

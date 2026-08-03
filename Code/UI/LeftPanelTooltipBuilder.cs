@@ -55,7 +55,8 @@ namespace RPGGame
                 empty.Add(b2.Build());
                 return empty;
             }
-            return ItemTooltipFormatter.BuildItemTooltipLines(c, item, slot, maxLines);
+            return ItemTooltipFormatter.BuildItemTooltipLines(
+                c, item, slot, maxLines, UI.HoverTooltipDetailState.IsAltDetailActive);
         }
 
         private static List<List<ColoredText>> BuildColoredInventory(Character c, string invKey, int maxLines)
@@ -65,7 +66,8 @@ namespace RPGGame
             var inv = c.Inventory;
             if (inv == null || idx < 0 || idx >= inv.Count)
                 return new List<List<ColoredText>>();
-            return ItemTooltipFormatter.BuildItemTooltipLines(c, inv[idx], "Inventory", maxLines);
+            return ItemTooltipFormatter.BuildItemTooltipLines(
+                c, inv[idx], "Inventory", maxLines, UI.HoverTooltipDetailState.IsAltDetailActive);
         }
 
         /// <summary>
@@ -425,7 +427,8 @@ namespace RPGGame
                 return;
             }
 
-            foreach (var coloredLine in ItemTooltipFormatter.BuildItemTooltipLines(c, item, slot, maxLines))
+            foreach (var coloredLine in ItemTooltipFormatter.BuildItemTooltipLines(
+                         c, item, slot, maxLines, UI.HoverTooltipDetailState.IsAltDetailActive))
             {
                 if (result.Count >= maxLines)
                     return;

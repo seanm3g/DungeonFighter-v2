@@ -48,9 +48,12 @@
     <PackageReference Include="SoundFlow" Version="1.4.0" />
   </ItemGroup>
 
-  <!-- Avoid MSB3027 when DF.exe is still running from a previous dotnet run / debug session. -->
-  <Target Name="StopRunningInstanceBeforeOutputCopy" BeforeTargets="CopyFilesToOutputDirectory" Condition="'$(OS)' == 'Windows_NT'">
-    <Exec Command="cmd /c &quot;taskkill /F /IM DF.exe &gt;nul 2&gt;&amp;1 || exit /b 0&quot;" />
+  <!-- Kill a leftover GUI process before build copies overwrite DF.exe (MSB3026). -->
+  <Target Name="StopRunningInstanceBeforeBuild" BeforeTargets="BeforeBuild" Condition="'$(OS)' == 'Windows_NT'">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;$ErrorActionPreference='SilentlyContinue'; Get-Process -Name DF | Stop-Process -Force; Start-Sleep -Milliseconds 400&quot;"
+          IgnoreExitCode="true"
+          StandardOutputImportance="low"
+          StandardErrorImportance="low" />
   </Target>
 
 </Project>

@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Runners
             ("MainMenuHandler", () => MainMenuHandlerTests.RunAllTests()),
             ("CharacterMenuHandler", () => CharacterMenuHandlerTests.RunAllTests()),
             ("SettingsMenuHandler", () => SettingsMenuHandlerTests.RunAllTests()),
+            ("ApplicationShutdownHelper", () => ApplicationShutdownHelperTests.RunAllTests()),
             ("WeaponSelectionHandler", () => WeaponSelectionHandlerTests.RunAllTests()),
             ("TrainingGroundOfferHandler", () => TrainingGroundOfferHandlerTests.RunAllTests()),
             ("CharacterCreationHandler", () => CharacterCreationHandlerTests.RunAllTests()),

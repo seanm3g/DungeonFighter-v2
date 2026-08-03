@@ -4,6 +4,10 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **UI / hover tooltips — Alt expands detail:** Item and action hovers default to Name / Rarity / Stats / Triggers; hold Alt for remaining sections. `HoverTooltipDetailState` + MainWindow/pointer sync; redraw while hovering. Tests: `ItemTooltipFormatterTests`, `CombatActionStripBuilderTests`, `HoverTooltipDetailStateTests`. Docs: `OVERVIEW.md`.
+
+- [x] **Bug fix / UI — window X leaves DF.exe locked:** Closing the main window only tore down services; SoundFlow/native threads could keep the process alive (MSB3026 on rebuild). Title-bar X and Avalonia `Exit` call `PerformShutdown(forceProcessExit: true)` with a 1.5s exit watchdog (cleanup must not hang before `Environment.Exit`); ticker stop is non-blocking on shutdown. `Code.csproj` kills leftover `DF.exe` before build. Tests: `ApplicationShutdownHelperTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
+
 - [x] **Combat / Naiveté → advantage on miss:** NAIVETE is fight-scoped miss→advantage charges (not HIT threshold steps). Max = **5** at L1, −1 per level (0 at L6+); each fight refills to max. On miss (not crit miss), spend 1 and take a second d20 (keep highest); chain until hit/other result or charges = 0. Training Dummy skips naiveté. Tests: `NaiveteThresholdBonusesTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`.
 
 - [x] **Tests / Item trigger combat integration:** Exercise all 106 catalog identities through production paths (`ActionExecutionFlow.Execute`, `RoomClearedTriggerApplicator`, equip-channel applicators) with forced d20 outcomes and mechanic-specific assertions (next-action bank, TURN/FIGHT/DUNGEON deposits, strip/retrigger, statuses, same-swing amps, ONTAKEHIT). Fixed pre-roll applying combat WHEN×crit-threshold (raised crit bar before roll), item self-buffs targeting foe, and strip_shuffle index clamp under forced dice. Suite: `ItemTriggerCombatIntegrationTests`. Docs: `OVERVIEW.md`.
