@@ -35,6 +35,14 @@ namespace RPGGame
             AddLine(lines, BuildRarityLine(item, includeExtendedDetails));
             if (maxLines <= lines.Count) return Trim(lines, maxLines);
 
+            string? reqSummary = item.GetAttributeRequirementsSummaryLine();
+            if (!string.IsNullOrEmpty(reqSummary))
+            {
+                AddBlank(lines);
+                AddLine(lines, BuildRequirementsLine(reqSummary, equipBlocked));
+            }
+            if (maxLines <= lines.Count) return Trim(lines, maxLines);
+
             var contributions = ItemStatFormatter.GetStatContributions(item);
             if (contributions.Count > 0)
             {
@@ -77,14 +85,6 @@ namespace RPGGame
             {
                 AddBlank(lines);
                 AddLine(lines, BuildSlotLine(slotLabel));
-            }
-            if (maxLines <= lines.Count) return Trim(lines, maxLines);
-
-            string? reqSummary = item.GetAttributeRequirementsSummaryLine();
-            if (!string.IsNullOrEmpty(reqSummary))
-            {
-                AddBlank(lines);
-                AddLine(lines, BuildRequirementsLine(reqSummary, equipBlocked));
             }
             if (maxLines <= lines.Count) return Trim(lines, maxLines);
 
@@ -186,8 +186,6 @@ namespace RPGGame
 
         private static bool HasExtendedContent(Character? character, Item item)
         {
-            if (!string.IsNullOrEmpty(item.GetAttributeRequirementsSummaryLine()))
-                return true;
             if (item is not WeaponItem && !string.IsNullOrEmpty(BuildArmorBreakdownLine(item)))
                 return true;
             if (item.Modifications != null && item.Modifications.Count > 0)

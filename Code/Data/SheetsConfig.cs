@@ -33,6 +33,10 @@ namespace RPGGame.Data
         [JsonPropertyName("classActionsSheetUrl")]
         public string ClassActionsSheetUrl { get; set; } = "";
 
+        /// <summary>Published CSV / edit?gid URL for Class Upgrades → <c>SkillTrees.json</c>.</summary>
+        [JsonPropertyName("skillTreesSheetUrl")]
+        public string SkillTreesSheetUrl { get; set; } = "";
+
         [JsonPropertyName("enemiesSheetUrl")]
         public string EnemiesSheetUrl { get; set; } = "";
 

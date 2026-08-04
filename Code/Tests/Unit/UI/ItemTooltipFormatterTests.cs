@@ -50,6 +50,9 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(!flat.Contains("Tier 1", StringComparison.Ordinal),
                 "compact tooltip omits tier/level on rarity line",
                 ref run, ref passed, ref failed);
+            TestBase.AssertTrue(flat.Contains("Strength", StringComparison.Ordinal) && flat.Contains("not met", StringComparison.OrdinalIgnoreCase),
+                "compact tooltip shows unmet requirements",
+                ref run, ref passed, ref failed);
 
             var extended = ItemTooltipFormatter.BuildItemTooltipLines(hero, wrap, "Inventory", 30, includeExtendedDetails: true);
             string extFlat = string.Join("\n", extended.Select(ColoredTextRenderer.RenderAsPlainText));
@@ -61,9 +64,6 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(extFlat.Contains("+1 armor on this piece", StringComparison.Ordinal),
                 "ARMOR affix explains effect",
-                ref run, ref passed, ref failed);
-            TestBase.AssertTrue(extFlat.Contains("Strength", StringComparison.Ordinal) && extFlat.Contains("not met", StringComparison.OrdinalIgnoreCase),
-                "unmet requirements flagged on Alt",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(!extFlat.Contains("Hold Alt for more", StringComparison.Ordinal),
                 "Alt tooltip omits Hold Alt hint",

@@ -23,6 +23,7 @@ namespace RPGGame.Tests.Unit.Data
             TestApplyDefaultConsumablesTabNameWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyDefaultTriggersTabNameWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyDefaultClassActionsTabNameWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
+            TestApplyDefaultSkillTreesTabNameWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyDefaultFlavorTabNameWhenUnset(ref testsRun, ref testsPassed, ref testsFailed);
             TestApplyRenamedModificationsSheetTabName(ref testsRun, ref testsPassed, ref testsFailed);
             TestResolvePathsRelativeToConfigFile(ref testsRun, ref testsPassed, ref testsFailed);
@@ -101,6 +102,7 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual(SheetsPushConfig.DefaultConsumablesSheetTabName, cfg.ConsumablesSheetTabName, "consumables", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual(SheetsPushConfig.DefaultTriggersSheetTabName, cfg.TriggersSheetTabName, "triggers", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual(SheetsPushConfig.DefaultClassActionsSheetTabName, cfg.ClassActionsSheetTabName, "class actions", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(SheetsPushConfig.DefaultSkillTreesSheetTabName, cfg.SkillTreesSheetTabName, "skill trees / Class Upgrades", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual(SheetsPushConfig.DefaultFlavorSheetTabName, cfg.FlavorSheetTabName, "flavor", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
@@ -212,6 +214,22 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(!cfg.ApplyDefaultClassActionsTabNameIfUnset(), "second call no-op", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
+        private static void TestApplyDefaultSkillTreesTabNameWhenUnset(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestApplyDefaultSkillTreesTabNameWhenUnset));
+            var cfg = new SheetsPushConfig
+            {
+                SpreadsheetId = "x",
+                ActionsSheetTabName = "ACTIONS",
+                OAuthClientSecretsPath = "s.json",
+                WeaponsSheetTabName = "WEAPONS",
+                SkillTreesSheetTabName = ""
+            };
+            TestBase.AssertTrue(cfg.ApplyDefaultSkillTreesTabNameIfUnset(), "returns true", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(SheetsPushConfig.DefaultSkillTreesSheetTabName, cfg.SkillTreesSheetTabName, "Class Upgrades tab defaulted", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(!cfg.ApplyDefaultSkillTreesTabNameIfUnset(), "second call no-op", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
         private static void TestApplyDefaultFlavorTabNameWhenUnset(ref int testsRun, ref int testsPassed, ref int testsFailed)
         {
             TestBase.SetCurrentTestName(nameof(TestApplyDefaultFlavorTabNameWhenUnset));
@@ -270,7 +288,7 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(cfg != null, "deserializes", ref testsRun, ref testsPassed, ref testsFailed);
             if (cfg == null) return;
             SheetsPushConfig.ApplyMissingPushTabDefaults(cfg, json);
-            TestBase.AssertTrue(cfg.PushActionsTab && cfg.PushWeaponsTab && cfg.PushEnemiesTab && cfg.PushDungeonsTab && cfg.PushClassPresentationTab && cfg.PushClassActionsTab && cfg.PushConsumablesTab && cfg.PushTriggersTab && cfg.PushFlavorTab, "all push flags true", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(cfg.PushActionsTab && cfg.PushWeaponsTab && cfg.PushEnemiesTab && cfg.PushDungeonsTab && cfg.PushClassPresentationTab && cfg.PushClassActionsTab && cfg.PushSkillTreesTab && cfg.PushConsumablesTab && cfg.PushTriggersTab && cfg.PushFlavorTab, "all push flags true", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
         private static void TestApplyMissingPushTabDefaultsPartialKeys(ref int testsRun, ref int testsPassed, ref int testsFailed)
@@ -291,6 +309,7 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(cfg.PushActionsTab, "missing pushActionsTab → true", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertTrue(cfg.PushWeaponsTab, "missing pushWeaponsTab → true", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertTrue(cfg.PushClassActionsTab, "missing pushClassActionsTab → true", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(cfg.PushSkillTreesTab, "missing pushSkillTreesTab → true", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertTrue(cfg.PushConsumablesTab, "missing pushConsumablesTab → true", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertTrue(cfg.PushTriggersTab, "missing pushTriggersTab → true", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertTrue(cfg.PushFlavorTab, "missing pushFlavorTab → true", ref testsRun, ref testsPassed, ref testsFailed);

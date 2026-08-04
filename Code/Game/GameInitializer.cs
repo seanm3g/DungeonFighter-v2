@@ -116,6 +116,8 @@ namespace RPGGame
 
             var starterWeapon = ItemGenerator.GenerateWeaponItem(catalogRow);
             ApplyStartingWeaponTuning(starterWeapon, weaponType, slotFallback: null, baseDamageFromWeaponsCatalog: true);
+            var materialApplier = new LootBonusApplier(LootDataCache.Load(), Random.Shared);
+            materialApplier.ApplyAlwaysMaterialAndTrigger(starterWeapon, starterWeapon.Rarity);
             return starterWeapon;
         }
 

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using RPGGame;
 
 namespace RPGGame.Data
 {
-    /// <summary>Pulls Actions plus optional tabs from published CSV URLs in <see cref="SheetsConfig"/> (weapons, mods, armor, stat bonuses / suffixes, consumables, enemies, environments, dungeons, classes, class actions).</summary>
+    /// <summary>Pulls Actions plus optional tabs from published CSV URLs in <see cref="SheetsConfig"/> (weapons, mods, armor, stat bonuses / suffixes, consumables, enemies, environments, dungeons, classes, class actions, skill trees).</summary>
     public static class GameDataSheetsPullService
     {
         public static async Task PullAllFromSheetsConfigAsync(
@@ -158,6 +159,29 @@ namespace RPGGame.Data
                     await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
                     ClearJsonCacheForGameDataFile(GameConstants.ClassActionsJson);
                     GameConfiguration.ResetInstance();
+                }
+            }
+
+            if (tabFlags.PushSkillTreesTab && !string.IsNullOrWhiteSpace(sc.SkillTreesSheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.SkillTreesSheetUrl, cancellationToken).ConfigureAwait(false);
+                var prior = SkillTreesConfig.TryLoadFromGameDataFile();
+                var treesCfg = SkillTreesSheetConverter.ParseCsvToConfig(csv, prior);
+                if (treesCfg.Trees.Count == 0 || treesCfg.Trees.All(t => t.Nodes == null || t.Nodes.Count == 0))
+                {
+                    Console.WriteLine(
+                        "Warning: Class Upgrades sheet produced no skill-tree nodes (check Class/Id/Name/Type headers). SkillTrees.json was not updated.");
+                }
+                else
+                {
+                    string json = SkillTreesSheetConverter.ToJsonText(treesCfg);
+                    string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.SkillTreesJson)
+                        ?? GameConstants.GetGameDataFilePath(GameConstants.SkillTreesJson);
+                    await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                    ClearJsonCacheForGameDataFile(GameConstants.SkillTreesJson);
+                    GameConfiguration.ResetInstance();
+                    int nodeCount = treesCfg.Trees.Sum(t => t.Nodes?.Count ?? 0);
+                    Console.WriteLine($"✓ Skill trees pulled: {treesCfg.Trees.Count} tree(s), {nodeCount} node(s) → {outPath}");
                 }
             }
 

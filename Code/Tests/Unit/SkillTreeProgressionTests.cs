@@ -47,7 +47,7 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             p.AwardClassPoint(WeaponType.Mace);
-            TestBase.AssertTrue(p.HasLearnedSkill("b-root"), "mace path root auto-granted",
+            TestBase.AssertTrue(p.HasLearnedSkill("b-tribe"), "mace Level 1 root auto-granted",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(1, p.BarbarianPoints, "lifetime points still 1",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -63,7 +63,7 @@ namespace RPGGame.Tests.Unit
             p.EnsureSkillTreeRootsGranted();
             int lifetimeBefore = p.BarbarianPoints;
 
-            var result = p.TryLearnSkillNode("b-venom", requirePrimaryPath: false);
+            var result = p.TryLearnSkillNode("b-gut", requirePrimaryPath: false);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, result,
                 "tier-1 node learns with enough points",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -84,9 +84,9 @@ namespace RPGGame.Tests.Unit
             var p = new CharacterProgression { BarbarianPoints = 5 };
             p.EnsureSkillTreeRootsGranted();
 
-            var missing = p.TryLearnSkillNode("b-age2", requirePrimaryPath: false);
+            var missing = p.TryLearnSkillNode("b-combo", requirePrimaryPath: false);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.PrerequisitesMissing, missing,
-                "tier-2 without prereq is blocked",
+                "tier-3 without prereq is blocked",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var age1 = p.TryLearnSkillNode("b-age1", requirePrimaryPath: false);
@@ -94,9 +94,9 @@ namespace RPGGame.Tests.Unit
                 "tier-1 age1 learns",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            var unaffordable = p.TryLearnSkillNode("b-age2", requirePrimaryPath: false);
+            var unaffordable = p.TryLearnSkillNode("b-combo", requirePrimaryPath: false);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.InsufficientPoints, unaffordable,
-                "not enough remaining points for tier-2",
+                "not enough remaining points for higher tier",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -111,7 +111,7 @@ namespace RPGGame.Tests.Unit
                 "cannot spend into non-primary sword tree",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            var ok = p.TryLearnSkillNode("b-venom", requirePrimaryPath: true);
+            var ok = p.TryLearnSkillNode("b-gut", requirePrimaryPath: true);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, ok,
                 "can spend into primary mace tree",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -123,7 +123,7 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character().WithName("SkillHero").Build();
             character.Progression.BarbarianPoints = 30;
             character.Progression.EnsureSkillTreeRootsGranted();
-            character.Progression.TryLearnSkillNode("b-venom", requirePrimaryPath: false);
+            character.Progression.TryLearnSkillNode("b-bludgeon", requirePrimaryPath: false);
 
             var result = SkillTreeService.TryLearn(character, "b-mighty", rebuildActions: true);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, result,

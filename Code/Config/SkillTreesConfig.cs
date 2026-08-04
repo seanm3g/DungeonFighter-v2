@@ -52,6 +52,7 @@ namespace RPGGame
         [JsonPropertyName("customEffectId")]
         public string? CustomEffectId { get; set; }
 
+        [JsonIgnore]
         public SkillNodeType ParsedType =>
             Enum.TryParse<SkillNodeType>(Type, ignoreCase: true, out var t) ? t : SkillNodeType.Passive;
     }
@@ -147,8 +148,6 @@ namespace RPGGame
                         .Where(r => !string.IsNullOrWhiteSpace(r))
                         .Select(r => r.Trim())
                         .ToList();
-                    if (node.Cost <= 0 && node.Tier >= 0 && node.Tier < TierCosts.Length)
-                        node.Cost = TierCosts[node.Tier];
                     node.Tier = Math.Clamp(node.Tier, 0, 4);
                     if (!string.IsNullOrWhiteSpace(node.UnlockActionName))
                         node.UnlockActionName = node.UnlockActionName.Trim();
@@ -157,6 +156,14 @@ namespace RPGGame
                     else
                         node.CustomEffectId = node.Id;
                 }
+
+                PromoteLevelOneAsRoot(tree);
+
+                foreach (var node in tree.Nodes)
+                {
+                    if (node.Cost <= 0 && node.Tier >= 0 && node.Tier < TierCosts.Length)
+                        node.Cost = TierCosts[node.Tier];
+                }
             }
 
             _nodesById = null;
@@ -164,6 +171,90 @@ namespace RPGGame
             return this;
         }
 
+        /// <summary>
+        /// Class Upgrades sheet often lists "Level 1 - {Class}" as a T1 node under the identity root.
+        /// In-game that node is the free Core root so material tags are the first most basic skill.
+        /// </summary>
+        internal static void PromoteLevelOneAsRoot(SkillTreeDefinition tree)
+        {
+            if (tree?.Nodes == null || tree.Nodes.Count == 0)
+                return;
+
+            SkillTreeNodeDefinition? level1 = null;
+            if (!string.IsNullOrWhiteSpace(tree.ClassKey))
+            {
+                string want = "Level 1 - " + tree.ClassKey.Trim();
+                level1 = tree.Nodes.FirstOrDefault(n =>
+                    n.Name.Equals(want, StringComparison.OrdinalIgnoreCase));
+            }
+            level1 ??= tree.Nodes.FirstOrDefault(n =>
+                n.Name.StartsWith("Level 1 -", StringComparison.OrdinalIgnoreCase));
+            if (level1 == null || string.IsNullOrWhiteSpace(level1.Id))
+                return;
+
+            // Already the free Core root — leave graph alone (avoids re-promoting after save/load).
+            if (level1.Tier == 0
+                && level1.Requires.Count == 0
+                && string.Equals(level1.Branch, "Core", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            string level1Id = level1.Id;
+            var formerRoots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string req in level1.Requires)
+                formerRoots.Add(req);
+            foreach (var n in tree.Nodes)
+            {
+                if (n.Tier == 0
+                    && string.Equals(n.Branch, "Core", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(n.Id, level1Id, StringComparison.OrdinalIgnoreCase))
+                    formerRoots.Add(n.Id);
+            }
+
+            level1.Tier = 0;
+            level1.Cost = 0;
+            level1.Requires = new List<string>();
+            level1.Branch = "Core";
+
+            foreach (var node in tree.Nodes)
+            {
+                if (string.Equals(node.Id, level1Id, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                bool isFormerRoot = formerRoots.Contains(node.Id);
+                bool isRite = string.Equals(node.Branch, "Rite", StringComparison.OrdinalIgnoreCase);
+
+                if (isFormerRoot)
+                {
+                    if (node.Tier <= 0)
+                        node.Tier = 1;
+                    node.Requires = new List<string> { level1Id };
+                    if (node.Cost <= 0)
+                        node.Cost = TierCosts[Math.Clamp(node.Tier, 0, TierCosts.Length - 1)];
+                    continue;
+                }
+
+                if (isRite && node.Tier == 0 && node.Requires.Count == 0)
+                {
+                    node.Requires = new List<string> { level1Id };
+                    continue;
+                }
+
+                if (node.Requires.Count == 0)
+                    continue;
+
+                var remapped = new List<string>();
+                foreach (string req in node.Requires)
+                {
+                    string next = formerRoots.Contains(req) ? level1Id : req;
+                    if (!remapped.Any(r => string.Equals(r, next, StringComparison.OrdinalIgnoreCase))
+                        && !string.Equals(next, node.Id, StringComparison.OrdinalIgnoreCase))
+                        remapped.Add(next);
+                }
+                node.Requires = remapped;
+            }
+        }
+
+        [JsonIgnore]
         public IReadOnlyDictionary<string, SkillTreeNodeDefinition> NodesById
         {
             get
@@ -209,7 +300,21 @@ namespace RPGGame
         public string? GetRootNodeId(WeaponType weaponType)
         {
             var tree = GetTreeForWeapon(weaponType);
-            return tree?.Nodes.FirstOrDefault(n => n.Tier == 0)?.Id;
+            if (tree == null) return null;
+
+            var level1 = tree.Nodes.FirstOrDefault(n =>
+                n.Tier == 0
+                && n.Name.StartsWith("Level 1 -", StringComparison.OrdinalIgnoreCase));
+            if (level1 != null)
+                return level1.Id;
+
+            var core = tree.Nodes.FirstOrDefault(n =>
+                n.Tier == 0
+                && string.Equals(n.Branch, "Core", StringComparison.OrdinalIgnoreCase));
+            if (core != null)
+                return core.Id;
+
+            return tree.Nodes.FirstOrDefault(n => n.Tier == 0)?.Id;
         }
 
         public IEnumerable<string> AllUnlockActionNames()

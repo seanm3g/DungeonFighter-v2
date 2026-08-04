@@ -375,5 +375,44 @@
     "tags": [
       "celestial"
     ]
+  },
+  {
+    "ItemRank": "Common",
+    "Name": "Wood",
+    "Description": "Class-less organic",
+    "prefixCategory": "MATERIAL",
+    "DiceResult": 0,
+    "MinValue": 0,
+    "MaxValue": 0,
+    "RolledValue": 0,
+    "tags": [
+      "wood"
+    ]
+  },
+  {
+    "ItemRank": "Common",
+    "Name": "Leather",
+    "Description": "Class-less hide",
+    "prefixCategory": "MATERIAL",
+    "DiceResult": 0,
+    "MinValue": 0,
+    "MaxValue": 0,
+    "RolledValue": 0,
+    "tags": [
+      "leather"
+    ]
+  },
+  {
+    "ItemRank": "Common",
+    "Name": "Cloth",
+    "Description": "Class-less fabric",
+    "prefixCategory": "MATERIAL",
+    "DiceResult": 0,
+    "MinValue": 0,
+    "MaxValue": 0,
+    "RolledValue": 0,
+    "tags": [
+      "cloth"
+    ]
   }
 ]

@@ -22,7 +22,7 @@ The published CSV is **public** (anyone with the link can read it). Push uses th
 |------------|---------|
 | `spreadsheetEditUrl` | **Browser Edit link** (`…/spreadsheets/d/<realId>/edit…`). Used to sync **`spreadsheetId`** into `SheetsPushConfig.json` for OAuth **push**. Published CSV links often use `d/e/2PACX-…` — that value is **not** accepted by the Sheets API as `spreadsheetId` (you get HTTP 404 on push). |
 | `actionsSheetUrl` | Published CSV URL for the **Actions** tab (two-row header). Acts as the **template** for other tabs when you use gids (same link, different `gid=`). |
-| `weaponsSheetUrl`, `modificationsSheetUrl`, `armorSheetUrl`, `classPresentationSheetUrl`, `classActionsSheetUrl`, `enemiesSheetUrl`, `environmentsSheetUrl`, `dungeonsSheetUrl`, `statBonusesSheetUrl`, `consumablesSheetUrl`, `triggersSheetUrl` | Full published CSV or **edit?gid=…** URLs per tab. The Balance Tuning panel **derives** these from `actionsSheetUrl` + numeric tab gids when you save; you can still hand-edit full URLs here. |
+| `weaponsSheetUrl`, `modificationsSheetUrl`, `armorSheetUrl`, `classPresentationSheetUrl`, `classActionsSheetUrl`, `skillTreesSheetUrl`, `enemiesSheetUrl`, `environmentsSheetUrl`, `dungeonsSheetUrl`, `statBonusesSheetUrl`, `consumablesSheetUrl`, `triggersSheetUrl` | Full published CSV or **edit?gid=…** URLs per tab. The Balance Tuning panel **derives** these from `actionsSheetUrl` + numeric tab gids when you save; you can still hand-edit full URLs here. |
 
 Leave a derived URL / gid empty to skip that section on pull.
 
@@ -47,6 +47,7 @@ These are the canonical authoring links for this repo (also stored in `GameData/
 | ARMOR | `1580430780` | `GameData/Armor.json` |
 | CLASSES | `178471389` | `classPresentation` in `GameData/TuningConfig.json` |
 | CLASS ACTIONS | `1280106899` | `GameData/ClassActions.json` |
+| Class Upgrades | `829575756` | `GameData/SkillTrees.json` |
 | ENEMIES | `1292949962` | `GameData/Enemies.json` |
 | ENVIRONMENTS | `1652426036` | `GameData/Rooms.json` |
 | DUNGEONS | `1068091644` | `GameData/Dungeons.json` |
@@ -317,6 +318,21 @@ Optional `tags` column: comma-separated registry tags on push (e.g. `undead, bos
 | categories | intro | *(empty)* | Moss coats the walls. |
 
 Built by `FlavorTextSheetConverter` from `FlavorText.json`. **PULL** leaves local FlavorText unchanged (logs a skip).
+
+### Class Upgrades (`SkillTrees.json`)
+
+Flat node rows for the four class skill trees. Tab title **Class Upgrades** (gid `829575756`). Converter: `SkillTreesSheetConverter`.
+
+| Column | JSON |
+|--------|------|
+| Class / Tree / Weapon / Stat | Tree: `classKey`, `title`, `weapon`, `stat` (identity preserved from prior JSON on pull when the sheet has no Identity column) |
+| Id, Name, Branch, Tier, Type, Cost | Node fields |
+| Requires | Comma-separated prerequisite node ids → `requires[]` |
+| Effect, Payoff | `effect`, `payoff` |
+| UnlockAction | `unlockActionName` (grants that action when the node is learned) |
+| CustomEffectId | `customEffectId` → `SkillEffectRouter` |
+
+**Authoring note:** When UnlockAction is blank, always leave an empty Requires cell as well (`,,Passive,…`). Rows that put Type in the Requires column (or Requires in UnlockAction) are auto-healed on pull. **PUSH** writes both empties explicitly so round-trips stay aligned.
 
 ### CLASSES (`classPresentation`)
 

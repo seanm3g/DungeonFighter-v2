@@ -135,6 +135,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("data", "ActionCadenceEditorSync", () => RPGGame.Tests.Unit.Data.ActionCadenceEditorSyncTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CadenceCardLineFormatter", () => RPGGame.Tests.Unit.UI.CadenceCardLineFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ItemTooltipFormatter", () => RPGGame.Tests.Unit.UI.ItemTooltipFormatterTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "HoverTooltipDetailState", () => RPGGame.Tests.Unit.UI.HoverTooltipDetailStateTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "InventoryRightPanelLayout", () => RPGGame.Tests.Unit.UI.InventoryRightPanelLayoutTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatActionStripBuilder", () => RPGGame.Tests.Unit.UI.CombatActionStripBuilderTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TitleScreenAsciiSpacing", () => RPGGame.Tests.Unit.UI.TitleScreen.TitleScreenAsciiSpacingTests.RunAllTests()));
@@ -157,6 +158,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "RollProbabilityContent", () => RPGGame.Tests.Unit.RollProbabilityContentTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "WeaponModTriggerBridge", () => RPGGame.Tests.Unit.WeaponModTriggerBridgeTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "EquippedItemTrigger", () => RPGGame.Tests.Unit.EquippedItemTriggerTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("data", "MaterialTrigger", () => RPGGame.Tests.Unit.MaterialTriggerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ItemTriggerCombatIntegration", () => RPGGame.Tests.Unit.ItemTriggerCombatIntegrationTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "StunProcessor", () => RPGGame.Tests.Unit.Combat.StunProcessorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("actions", "ActionSpeedSystem", () => RPGGame.Tests.Unit.Actions.ActionSpeedSystemTests.RunAllTests()));
@@ -173,6 +175,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("game", "ActionInteractionLabSession", RunActionInteractionLabSession));
             list.Add(new TestSuiteEntry("data", "FlavorText", () => RPGGame.Tests.Unit.FlavorTextBankCatalogTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "FlavorTextSheetConverter", () => RPGGame.Tests.Unit.Data.FlavorTextSheetConverterTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("data", "SkillTreesSheetConverter", () => RPGGame.Tests.Unit.Data.SkillTreesSheetConverterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "FlavorTextWindowPlacement", () => RPGGame.Tests.Unit.UI.FlavorTextWindowPlacementTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionLabWindowPlacement", () => RPGGame.Tests.Unit.UI.ActionLabWindowPlacementTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "SettingsMenuHandler", () => RPGGame.Tests.Unit.Game.Handlers.SettingsMenuHandlerTests.RunAllTests()));
