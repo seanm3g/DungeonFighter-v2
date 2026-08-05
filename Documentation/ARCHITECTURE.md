@@ -53,7 +53,7 @@ DungeonFighter/
 - **`Code/Entity/CharacterStats.cs`** - Character statistics and leveling system
 - **`Code/Entity/CharacterEquipment.cs`** - Equipment management and stat bonuses
 - **`Code/Entity/CharacterEffects.cs`** - Character-specific effects and buffs/debuffs
-- **`Code/Entity/CharacterProgression.cs`** - Experience, leveling, Skill Points (lifetime class points), and skill-tree learn state (`LearnedSkillNodeIds`)
+- **`Code/Entity/CharacterProgression.cs`** - Experience, leveling, Skill Points (lifetime class points), and skill-tree learn ranks (`LearnedSkillRanks`)
 - **`Code/Entity/CharacterHealthManager.cs`** - Health management, damage, and healing logic
 - **`Code/Entity/CharacterCombatCalculator.cs`** - Combat calculations and stat computations
 - **`Code/Entity/CharacterSaveManager.cs`** - Save/load functionality for character data

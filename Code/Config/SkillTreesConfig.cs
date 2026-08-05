@@ -36,6 +36,10 @@ namespace RPGGame
         [JsonPropertyName("cost")]
         public int Cost { get; set; }
 
+        /// <summary>Maximum purchasable ranks (each rank costs <see cref="Cost"/> again). Defaults to 1.</summary>
+        [JsonPropertyName("maxRank")]
+        public int MaxRank { get; set; } = 1;
+
         [JsonPropertyName("requires")]
         public List<string> Requires { get; set; } = new();
 
@@ -51,6 +55,14 @@ namespace RPGGame
         /// <summary>Custom runtime handler id for SkillEffectRouter.</summary>
         [JsonPropertyName("customEffectId")]
         public string? CustomEffectId { get; set; }
+
+        /// <summary>Flat DAMAGE_MOD applied per learned rank on hit (pack/sink nodes).</summary>
+        [JsonPropertyName("damageModPerRank")]
+        public int DamageModPerRank { get; set; }
+
+        /// <summary>HP healed on hit per learned rank (pack/sink nodes).</summary>
+        [JsonPropertyName("healOnHitPerRank")]
+        public int HealOnHitPerRank { get; set; }
 
         [JsonIgnore]
         public SkillNodeType ParsedType =>
@@ -149,6 +161,12 @@ namespace RPGGame
                         .Select(r => r.Trim())
                         .ToList();
                     node.Tier = Math.Clamp(node.Tier, 0, 4);
+                    if (node.MaxRank <= 0)
+                        node.MaxRank = 1;
+                    if (node.DamageModPerRank < 0)
+                        node.DamageModPerRank = 0;
+                    if (node.HealOnHitPerRank < 0)
+                        node.HealOnHitPerRank = 0;
                     if (!string.IsNullOrWhiteSpace(node.UnlockActionName))
                         node.UnlockActionName = node.UnlockActionName.Trim();
                     if (!string.IsNullOrWhiteSpace(node.CustomEffectId))
@@ -326,16 +344,17 @@ namespace RPGGame
                 .Distinct(StringComparer.OrdinalIgnoreCase)!;
         }
 
-        public int GetSpentSkillPoints(IEnumerable<string> learnedNodeIds, WeaponType path)
+        /// <summary>Spent Skill Points for ranks on <paramref name="path"/> (cost × rank per node).</summary>
+        public int GetSpentSkillPoints(IReadOnlyDictionary<string, int>? learnedRanks, WeaponType path)
         {
             var tree = GetTreeForWeapon(path);
-            if (tree == null) return 0;
-            var learned = new HashSet<string>(learnedNodeIds ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+            if (tree == null || learnedRanks == null || learnedRanks.Count == 0) return 0;
             int spent = 0;
             foreach (var node in tree.Nodes)
             {
-                if (learned.Contains(node.Id))
-                    spent += Math.Max(0, node.Cost);
+                if (!learnedRanks.TryGetValue(node.Id, out int rank) || rank <= 0)
+                    continue;
+                spent += Math.Max(0, node.Cost) * rank;
             }
             return spent;
         }

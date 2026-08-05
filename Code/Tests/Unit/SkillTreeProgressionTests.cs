@@ -43,7 +43,7 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("--- Root auto-grant on AwardClassPoint ---");
             var p = new CharacterProgression();
-            TestBase.AssertEqual(0, p.LearnedSkillNodeIds.Count, "no learned nodes before award",
+            TestBase.AssertEqual(0, p.LearnedSkillRanks.Count, "no learned nodes before award",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             p.AwardClassPoint(WeaponType.Mace);
@@ -62,18 +62,20 @@ namespace RPGGame.Tests.Unit
             var p = new CharacterProgression { BarbarianPoints = 20 };
             p.EnsureSkillTreeRootsGranted();
             int lifetimeBefore = p.BarbarianPoints;
+            var age1 = GameConfiguration.Instance.SkillTrees?.GetNode("b-age1");
+            int age1Cost = age1?.Cost ?? 4;
 
-            var result = p.TryLearnSkillNode("b-gut", requirePrimaryPath: false);
+            var result = p.TryLearnSkillNode("b-age1", requirePrimaryPath: false);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, result,
                 "tier-1 node learns with enough points",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(lifetimeBefore, p.BarbarianPoints,
                 "lifetime BarbarianPoints unchanged after learn",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(lifetimeBefore - 4, p.GetAvailableSkillPoints(WeaponType.Mace),
-                "available reduced by node cost 4",
+            TestBase.AssertEqual(lifetimeBefore - age1Cost, p.GetAvailableSkillPoints(WeaponType.Mace),
+                "available reduced by node cost",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(4, p.GetSpentSkillPoints(WeaponType.Mace),
+            TestBase.AssertEqual(age1Cost, p.GetSpentSkillPoints(WeaponType.Mace),
                 "spent equals learned costs",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
@@ -94,9 +96,10 @@ namespace RPGGame.Tests.Unit
                 "tier-1 age1 learns",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            var unaffordable = p.TryLearnSkillNode("b-combo", requirePrimaryPath: false);
+            // Another T1 (or further Alloy node) still gated by remaining SP after spending 4.
+            var unaffordable = p.TryLearnSkillNode("b-loot", requirePrimaryPath: false);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.InsufficientPoints, unaffordable,
-                "not enough remaining points for higher tier",
+                "not enough remaining points for another tier-1",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -106,12 +109,12 @@ namespace RPGGame.Tests.Unit
             var p = new CharacterProgression { BarbarianPoints = 10, WarriorPoints = 1 };
             p.EnsureSkillTreeRootsGranted();
             // Primary should be Mace (higher points)
-            var denied = p.TryLearnSkillNode("w-riposte", requirePrimaryPath: true);
+            var denied = p.TryLearnSkillNode("w-age1", requirePrimaryPath: true);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.NotPrimaryPath, denied,
                 "cannot spend into non-primary sword tree",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            var ok = p.TryLearnSkillNode("b-gut", requirePrimaryPath: true);
+            var ok = p.TryLearnSkillNode("b-age1", requirePrimaryPath: true);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, ok,
                 "can spend into primary mace tree",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -123,16 +126,15 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character().WithName("SkillHero").Build();
             character.Progression.BarbarianPoints = 30;
             character.Progression.EnsureSkillTreeRootsGranted();
-            character.Progression.TryLearnSkillNode("b-bludgeon", requirePrimaryPath: false);
 
-            var result = SkillTreeService.TryLearn(character, "b-mighty", rebuildActions: true);
+            var result = SkillTreeService.TryLearn(character, "b-might", rebuildActions: true);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, result,
-                "learn Mighty Swing action node",
+                "learn Might action node",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             bool has = character.ActionPool.Any(a =>
-                string.Equals(a.action.Name, "MIGHTY SWING", StringComparison.OrdinalIgnoreCase));
-            TestBase.AssertTrue(has, "MIGHTY SWING added to action pool after learn",
+                string.Equals(a.action.Name, "MIGHT", StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertTrue(has, "MIGHT added to action pool after learn",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
