@@ -70,44 +70,103 @@
     </UserControl.Styles>
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Spacing="20" Margin="20">
-            <StackPanel Spacing="15">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Config patches"
-                               Classes="settings-section-header"/>
-                    <TextBlock Text="General settings (gameplay, UI, volume) are stored locally in GeneralSettings.json and never uploaded. Default audio and balance patches update from GitHub on pull; named audio and balance patches stay local."
-                               Classes="settings-muted"
-                               FontSize="14"
-                               TextWrapping="Wrap"/>
+        <StackPanel Spacing="24" Margin="20">
 
-                    <Grid ColumnDefinitions="180,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,8,0,0">
-                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" Text="General settings"/>
-                        <TextBlock x:Name="GameSettingsPatchLabel" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Classes="settings-muted" Text="local only"/>
-
-                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" Text="Audio / music" Margin="0,8,0,0"/>
-                        <ComboBox x:Name="AudioPatchCombo" Grid.Row="1" Grid.Column="1" MinWidth="280" HorizontalAlignment="Left" Margin="0,8,0,0"/>
-
-                        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" Text="Balance" Margin="0,8,0,0"/>
-                        <ComboBox x:Name="BalancePatchCombo" Grid.Row="2" Grid.Column="1" MinWidth="280" HorizontalAlignment="Left" Margin="0,8,0,0"/>
-
-                        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="0,16,0,0">
-                            <ComboBox x:Name="PatchIoCategoryCombo" MinWidth="140" SelectedIndex="0">
-                                <ComboBoxItem Content="Audio / music"/>
-                                <ComboBoxItem Content="Balance"/>
-                            </ComboBox>
-                            <Button x:Name="ImportPatchButton" Content="Import patch…" MinWidth="110"/>
-                            <Button x:Name="ExportPatchButton" Content="Export patch…" MinWidth="110"/>
-                            <Button x:Name="RefreshPatchesButton" Content="Refresh list" MinWidth="110"/>
-                            <Button x:Name="ApplyPatchesButton" Content="Apply selection" MinWidth="130"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <TextBlock x:Name="ActivePathsTextBlock"
-                               Classes="settings-muted"
-                               FontSize="12"
-                               TextWrapping="Wrap"/>
-                </StackPanel>
+            <StackPanel Spacing="8">
+                <TextBlock Text="Config patches"
+                           Classes="settings-section-header"
+                           Margin="0,0,0,4"/>
+                <TextBlock Text="Gameplay, UI, and volume live in local GeneralSettings.json. Audio and balance patches are chosen below; the first-run default is written to ShippedPatchDefaults.json for new installs."
+                           Classes="settings-muted"
+                           TextWrapping="Wrap"/>
             </StackPanel>
+
+            <!-- Active selection -->
+            <StackPanel Spacing="12">
+                <TextBlock Text="Active selection"
+                           Classes="settings-section-header"
+                           Margin="0,0,0,4"/>
+                <Grid ColumnDefinitions="160,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Classes="settings-field-label" Text="General settings" Margin="0,0,0,10"/>
+                    <TextBlock x:Name="GameSettingsPatchLabel" Grid.Row="0" Grid.Column="1" Classes="settings-muted" Text="Local only" VerticalAlignment="Center" Margin="0,0,0,10"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Classes="settings-field-label" Text="Audio / music" Margin="0,0,0,10"/>
+                    <ComboBox x:Name="AudioPatchCombo" Grid.Row="1" Grid.Column="1" MinWidth="280" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Classes="settings-field-label" Text="Balance" Margin="0,0,0,10"/>
+                    <ComboBox x:Name="BalancePatchCombo" Grid.Row="2" Grid.Column="1" MinWidth="280" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+
+                    <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                        <Button x:Name="ApplyPatchesButton" Content="Apply selection" MinWidth="130"/>
+                        <Button x:Name="RefreshPatchesButton" Content="Refresh list" MinWidth="110"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+
+            <!-- First-run default -->
+            <StackPanel Spacing="12">
+                <TextBlock Text="First-run default"
+                           Classes="settings-section-header"
+                           Margin="0,0,0,4"
+                           ToolTip.Tip="Shipped default for players with no PatchProfile.json yet (new download / first run). Tracked in GameData/ShippedPatchDefaults.json."/>
+                <TextBlock Text="Balance patch new installs get when no PatchProfile.json exists yet. Does not change your current active selection."
+                           Classes="settings-muted"
+                           TextWrapping="Wrap"/>
+                <Grid ColumnDefinitions="160,*">
+                    <TextBlock Grid.Column="0" Classes="settings-field-label" Text="Balance patch" VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                        <ComboBox x:Name="ShippedDefaultBalanceCombo" MinWidth="280" HorizontalAlignment="Left"
+                                  ToolTip.Tip="Balance patch new players get on first run. Does not change your current active selection until you Apply above."/>
+                        <Button x:Name="SetShippedDefaultBalanceButton" Content="Set shipped default" MinWidth="150"
+                                ToolTip.Tip="Writes GameData/ShippedPatchDefaults.json (commit this so releases ship the chosen default)."/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+
+            <!-- Import / export -->
+            <StackPanel Spacing="12">
+                <TextBlock Text="Import / export"
+                           Classes="settings-section-header"
+                           Margin="0,0,0,4"/>
+                <Grid ColumnDefinitions="160,*">
+                    <TextBlock Grid.Column="0" Classes="settings-field-label" Text="Category" VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                        <ComboBox x:Name="PatchIoCategoryCombo" MinWidth="140" SelectedIndex="0">
+                            <ComboBoxItem Content="Audio / music"/>
+                            <ComboBoxItem Content="Balance"/>
+                        </ComboBox>
+                        <Button x:Name="ImportPatchButton" Content="Import patch…" MinWidth="110"/>
+                        <Button x:Name="ExportPatchButton" Content="Export patch…" MinWidth="110"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+
+            <!-- Active files -->
+            <StackPanel Spacing="12">
+                <TextBlock Text="Active files"
+                           Classes="settings-section-header"
+                           Margin="0,0,0,4"/>
+                <Grid ColumnDefinitions="180,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Classes="settings-muted" Text="General settings" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="GeneralSettingsPathLabel" Grid.Row="0" Grid.Column="1" Classes="settings-muted" TextWrapping="Wrap" Margin="0,0,0,6"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Classes="settings-muted" Text="Audio patch" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="AudioPatchPathLabel" Grid.Row="1" Grid.Column="1" Classes="settings-muted" TextWrapping="Wrap" Margin="0,0,0,6"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Classes="settings-muted" Text="Balance" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="BalancePatchPathLabel" Grid.Row="2" Grid.Column="1" Classes="settings-muted" TextWrapping="Wrap" Margin="0,0,0,6"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Classes="settings-muted" Text="First-run default" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="FirstRunDefaultPathLabel" Grid.Row="3" Grid.Column="1" Classes="settings-muted" TextWrapping="Wrap" Margin="0,0,0,6"/>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Classes="settings-muted" Text="Shipped defaults" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="ShippedDefaultsPathLabel" Grid.Row="4" Grid.Column="1" Classes="settings-muted" TextWrapping="Wrap" Margin="0,0,0,6"/>
+
+                    <TextBlock Grid.Row="5" Grid.Column="0" Classes="settings-muted" Text="Profile"/>
+                    <TextBlock x:Name="ProfilePathLabel" Grid.Row="5" Grid.Column="1" Classes="settings-muted" TextWrapping="Wrap"/>
+                </Grid>
+            </StackPanel>
+
         </StackPanel>
     </ScrollViewer>
 </UserControl>

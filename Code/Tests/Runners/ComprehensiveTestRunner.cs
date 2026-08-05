@@ -68,6 +68,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             CharacterProgressionClassReferenceTests.RunAllTests();
             Console.WriteLine();
+            SkillTreeProgressionTests.RunAllTests();
+            Console.WriteLine();
             AttributeClassNameComposerTests.RunAllTests();
             Console.WriteLine();
             ClassPresentationConfigTests.RunAllTests();
@@ -85,6 +87,14 @@ namespace RPGGame.Tests.Runners
             EnvironmentalActionsTests.RunAllTests();
             Console.WriteLine();
             ConditionalTriggersTests.RunAllTests();
+            ActionTriggerGateTests.RunAllTests();
+            ActionTriggerBundleApplicatorTests.RunAllTests();
+            StripMutationTests.RunAllTests();
+            RetriggerTests.RunAllTests();
+            RollProbabilityContentTests.RunAllTests();
+            WeaponModTriggerBridgeTests.RunAllTests();
+            EquippedItemTriggerTests.RunAllTests();
+            ItemTriggerCombatIntegrationTests.RunAllTests();
             Console.WriteLine();
 
             // Phase 3: Display and UI
@@ -414,6 +424,8 @@ namespace RPGGame.Tests.Runners
             CharacterAttributesTests.RunAllTests();
             Console.WriteLine();
             CharacterProgressionClassReferenceTests.RunAllTests();
+            Console.WriteLine();
+            SkillTreeProgressionTests.RunAllTests();
             Console.WriteLine();
             AttributeClassNameComposerTests.RunAllTests();
             Console.WriteLine();

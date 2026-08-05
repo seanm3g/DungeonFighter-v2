@@ -121,9 +121,10 @@
     },
     "naivete": {
       "enabled": true,
-      "attributeTotalCap": 66,
-      "naivetePointsPerHitStep": 2,
-      "maxHitStepsFromNaivete": 4
+      "startingNaivete": 5,
+      "naivetePointsPerHitStep": 1,
+      "maxHitStepsFromNaivete": 0,
+      "attributeTotalCap": 66
     }
   },
   "combat": {
@@ -370,7 +371,7 @@
     "progressionScales": {
       "baseHealthScale": 1,
       "healthGrowthScale": 1,
-      "attributeGrowthScale": 1.25,
+      "attributeGrowthScale": 0.85,
       "combatTempoScale": 1,
       "progressionShape": 0.5,
       "playerEnemyParity": 0,

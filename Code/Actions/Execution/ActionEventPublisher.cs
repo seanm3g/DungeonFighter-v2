@@ -15,13 +15,14 @@ namespace RPGGame.Actions.Execution
         /// <summary>
         /// Publishes action executed event
         /// </summary>
-        public static CombatEvent PublishActionExecuted(Actor source, Actor? target, Action action, int rollValue, bool isCombo, bool isCritical)
+        public static CombatEvent PublishActionExecuted(Actor source, Actor? target, Action action, int rollValue, bool isCombo, bool isCritical, int naturalRollValue = 0)
         {
             var actionEvent = new CombatEvent(CombatEventType.ActionExecuted, source)
             {
                 Target = target,
                 Action = action,
                 RollValue = rollValue,
+                NaturalRollValue = naturalRollValue,
                 IsCombo = isCombo,
                 IsCritical = isCritical
             };
@@ -32,13 +33,14 @@ namespace RPGGame.Actions.Execution
         /// <summary>
         /// Publishes action hit event
         /// </summary>
-        public static CombatEvent PublishActionHit(Actor source, Actor target, Action action, int rollValue, bool isCombo, bool isCritical)
+        public static CombatEvent PublishActionHit(Actor source, Actor target, Action action, int rollValue, bool isCombo, bool isCritical, int naturalRollValue = 0)
         {
             var hitEvent = new CombatEvent(CombatEventType.ActionHit, source)
             {
                 Target = target,
                 Action = action,
                 RollValue = rollValue,
+                NaturalRollValue = naturalRollValue,
                 IsCombo = isCombo,
                 IsCritical = isCritical
             };
@@ -80,31 +82,53 @@ namespace RPGGame.Actions.Execution
         /// <summary>
         /// Publishes enemy death event and processes outcomes
         /// </summary>
-        public static void PublishEnemyDeath(Actor source, Actor target, Action action, int damage)
+        public static CombatEvent PublishEnemyDeath(Actor source, Actor target, Action action, int damage, int rollValue = 0)
         {
             var deathEvent = new CombatEvent(CombatEventType.EnemyDied, source)
             {
                 Target = target,
                 Action = action,
-                Damage = damage
+                Damage = damage,
+                RollValue = rollValue
             };
             CombatEventBus.Instance.Publish(deathEvent);
             Combat.Outcomes.OutcomeHandlerRegistry.Instance.ProcessOutcomes(action, deathEvent, source, target);
+            return deathEvent;
         }
 
         /// <summary>
         /// Publishes enemy health threshold event and processes outcomes
         /// </summary>
-        public static void PublishHealthThreshold(Actor source, Actor target, Action action, double healthPercentage)
+        public static CombatEvent PublishHealthThreshold(Actor source, Actor target, Action action, double healthPercentage, int rollValue = 0)
         {
             var thresholdEvent = new CombatEvent(CombatEventType.EnemyHealthThreshold, source)
             {
                 Target = target,
                 Action = action,
-                HealthPercentage = healthPercentage
+                HealthPercentage = healthPercentage,
+                RollValue = rollValue
             };
             CombatEventBus.Instance.Publish(thresholdEvent);
             Combat.Outcomes.OutcomeHandlerRegistry.Instance.ProcessOutcomes(action, thresholdEvent, source, target);
+            return thresholdEvent;
+        }
+
+        /// <summary>
+        /// Publishes combo-chain ended (broken or completed wrap to opener).
+        /// </summary>
+        public static CombatEvent PublishComboEnded(Actor source, Actor? target, Action action, int rollValue, bool isCombo, bool isCritical)
+        {
+            var comboEnded = new CombatEvent(CombatEventType.ComboEnded, source)
+            {
+                Target = target,
+                Action = action,
+                RollValue = rollValue,
+                IsCombo = isCombo,
+                IsCritical = isCritical
+            };
+            CombatEventBus.Instance.Publish(comboEnded);
+            Combat.Outcomes.OutcomeHandlerRegistry.Instance.ProcessOutcomes(action, comboEnded, source, target);
+            return comboEnded;
         }
 
         /// <summary>

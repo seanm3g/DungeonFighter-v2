@@ -163,6 +163,10 @@ namespace RPGGame.Data
             AddModRow(block, "enemy_next_action_damage", action.EnemyDamageMod);
             AddModRow(block, "enemy_next_action_multihit", action.EnemyMultiHitMod);
             AddModRow(block, "enemy_next_action_amp", action.EnemyAmpMod);
+            AddModRow(block, "hero_weapon_speed", action.WeaponSpeedMod);
+            AddModRow(block, "hero_weapon_damage", action.WeaponDamageMod);
+            AddModRow(block, "enemy_weapon_speed", action.EnemyWeaponSpeedMod);
+            AddModRow(block, "enemy_weapon_damage", action.EnemyWeaponDamageMod);
 
             action.NormalizeStatBonuses();
             foreach (var stat in action.StatBonuses)
@@ -319,6 +323,10 @@ namespace RPGGame.Data
                 case "enemy_next_action_damage": action.EnemyDamageMod = FormatPercentMod(row.Quantity); break;
                 case "enemy_next_action_multihit": action.EnemyMultiHitMod = row.Quantity.ToString("0"); break;
                 case "enemy_next_action_amp": action.EnemyAmpMod = FormatPercentMod(row.Quantity); break;
+                case "hero_weapon_speed": action.WeaponSpeedMod = row.Quantity.ToString("0.##"); break;
+                case "hero_weapon_damage": action.WeaponDamageMod = row.Quantity.ToString("0.##"); break;
+                case "enemy_weapon_speed": action.EnemyWeaponSpeedMod = row.Quantity.ToString("0.##"); break;
+                case "enemy_weapon_damage": action.EnemyWeaponDamageMod = row.Quantity.ToString("0.##"); break;
                 case "hero_stat_bonus":
                     action.StatBonuses ??= new List<StatBonusEntry>();
                     action.StatBonuses.Add(new StatBonusEntry
@@ -390,6 +398,10 @@ namespace RPGGame.Data
             action.EnemyDamageMod = "";
             action.EnemyMultiHitMod = "";
             action.EnemyAmpMod = "";
+            action.WeaponSpeedMod = "";
+            action.WeaponDamageMod = "";
+            action.EnemyWeaponSpeedMod = "";
+            action.EnemyWeaponDamageMod = "";
             action.StatBonuses = new List<StatBonusEntry>();
             action.HealAmount = 0;
             action.MaxHealthIncrease = 0;

@@ -84,12 +84,15 @@ namespace RPGGame
             _tickerTask = Task.Run(async () => await TickerLoopAsync(_cancellationTokenSource.Token));
         }
 
-        public void Stop()
+        /// <param name="waitForExit">
+        /// When false (GUI shutdown), cancel only — do not block the UI thread waiting for the ticker task.
+        /// </param>
+        public void Stop(bool waitForExit = true)
         {
             _isRunning = false;
             _cancellationTokenSource?.Cancel();
 
-            if (_tickerTask != null)
+            if (waitForExit && _tickerTask != null)
             {
                 try
                 {
@@ -111,6 +114,7 @@ namespace RPGGame
 
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = null;
+            _tickerTask = null;
         }
         
         public void Reset()

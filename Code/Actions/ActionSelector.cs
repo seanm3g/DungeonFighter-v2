@@ -430,8 +430,11 @@ namespace RPGGame
 
             // Enemies: prefer an explicit basic attack flagged non-combo; otherwise unnamed normal so
             // combo-only pools never execute a named special below the combo threshold.
+            // Skip reserve_pool entries — those are for combo strip / explicit picks only.
             foreach (var actionEntry in source.ActionPool)
             {
+                if (ActionTagSyncHelper.IsReservePool(actionEntry.action.Tags))
+                    continue;
                 if (!actionEntry.action.IsComboAction)
                     return actionEntry.action;
             }

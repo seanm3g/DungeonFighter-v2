@@ -126,7 +126,11 @@ namespace RPGGame.Data
             return !string.IsNullOrWhiteSpace(row.SpeedMod)
                 || !string.IsNullOrWhiteSpace(row.DamageMod)
                 || !string.IsNullOrWhiteSpace(row.MultiHitMod)
-                || !string.IsNullOrWhiteSpace(row.AmpMod);
+                || !string.IsNullOrWhiteSpace(row.AmpMod)
+                || !string.IsNullOrWhiteSpace(row.WeaponSpeedMod)
+                || !string.IsNullOrWhiteSpace(row.WeaponDamageMod)
+                || !string.IsNullOrWhiteSpace(row.EnemyWeaponSpeedMod)
+                || !string.IsNullOrWhiteSpace(row.EnemyWeaponDamageMod);
         }
     }
 }

@@ -25,9 +25,11 @@ namespace RPGGame.Tests.Unit.UI.TitleScreen
             _testsPassed = 0;
             _testsFailed = 0;
 
+            TestPalettePacingDefaultsToOneSecondHoldAndTransition();
             TestIntroSequenceIncludesFadePopSettle();
             TestBootPathSkipsIntroAndUsesIdlePressKey();
             TestIdleSaturationScaleReducesSaturation();
+            TestPipingBrightnessLowerThanFullBlocks();
             TestComplementaryBackgroundHueIsOpposite();
             TestPaletteShiftAndBackgroundDuringIdle();
             TestPaletteCrossfadeLerpsGlyphColors();
@@ -40,6 +42,19 @@ namespace RPGGame.Tests.Unit.UI.TitleScreen
             TestIdleCycleExitsOnCancellation();
 
             TestBase.PrintSummary("TitleScreen Animation Tests", _testsRun, _testsPassed, _testsFailed);
+        }
+
+        private static void TestPalettePacingDefaultsToOneSecondHoldAndTransition()
+        {
+            Console.WriteLine("--- Testing palette hold/transition defaults ---");
+
+            var config = new TitleAnimationConfig();
+            TestBase.AssertEqual(1000, config.PaletteShiftIntervalMs,
+                "Palette hold should default to 1000 ms",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1000, config.PaletteTransitionMs,
+                "Palette crossfade should default to 1000 ms",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestIntroSequenceIncludesFadePopSettle()
@@ -153,6 +168,63 @@ namespace RPGGame.Tests.Unit.UI.TitleScreen
                 var (_, sMuted, _) = ColorValidator.RgbToHsv(mutedColor.Value.R, mutedColor.Value.G, mutedColor.Value.B);
                 TestBase.AssertTrue(sBoosted > sMuted + 0.05,
                     $"IdleSaturationScale 1.5 should be more saturated than 0.5 ({sBoosted:F3} vs {sMuted:F3})",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestPipingBrightnessLowerThanFullBlocks()
+        {
+            Console.WriteLine("--- Testing accent piping dimmer than full blocks ---");
+
+            var config = new TitleAnimationConfig();
+            TestBase.AssertEqual(0.275, config.IdlePipingBrightnessScale,
+                "IdlePipingBrightnessScale should default to 0.275",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertTrue(TitleFrameBuilder.IsAccentPipingGlyph('╗'),
+                "Box-drawing corner should be accent piping",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!TitleFrameBuilder.IsAccentPipingGlyph(TitleFrameBuilder.FullBlockGlyph),
+                "Full block should not be accent piping",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var codes = new List<string> { "neon_cyan" };
+            var palette = new TitleIdlePalette("piping_test", codes, codes);
+            var frame = new TitleFrameBuilder(new TitleAnimationConfig
+            {
+                IdleSaturationScale = 1.0,
+                IdlePipingBrightnessScale = 0.275
+            }).BuildPhasedPaletteFrame(palette, 0);
+
+            const int dungeonStartIndex = 17;
+            var blockColor = FirstGlyphColor(frame.Lines[dungeonStartIndex], TitleFrameBuilder.FullBlockGlyph);
+            var pipingColor = FirstPipingColor(frame.Lines[dungeonStartIndex]);
+
+            TestBase.AssertTrue(blockColor.HasValue && pipingColor.HasValue,
+                "DEMON line should include both full-block and piping glyphs",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            if (blockColor.HasValue && pipingColor.HasValue)
+            {
+                var (_, _, vBlock) = ColorValidator.RgbToHsv(blockColor.Value.R, blockColor.Value.G, blockColor.Value.B);
+                var (_, _, vPiping) = ColorValidator.RgbToHsv(pipingColor.Value.R, pipingColor.Value.G, pipingColor.Value.B);
+                TestBase.AssertTrue(vPiping < vBlock - 0.15,
+                    $"Piping V should be clearly lower than full-block V ({vPiping:F3} vs {vBlock:F3})",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+
+            var undimmed = new TitleFrameBuilder(new TitleAnimationConfig
+            {
+                IdleSaturationScale = 1.0,
+                IdlePipingBrightnessScale = 1.0
+            }).BuildPhasedPaletteFrame(palette, 0);
+            var undimmedPiping = FirstPipingColor(undimmed.Lines[dungeonStartIndex]);
+            if (pipingColor.HasValue && undimmedPiping.HasValue)
+            {
+                var (_, _, vDim) = ColorValidator.RgbToHsv(pipingColor.Value.R, pipingColor.Value.G, pipingColor.Value.B);
+                var (_, _, vFull) = ColorValidator.RgbToHsv(undimmedPiping.Value.R, undimmedPiping.Value.G, undimmedPiping.Value.B);
+                TestBase.AssertTrue(vDim < vFull - 0.15,
+                    $"Scale 0.275 should dim piping vs 1.0 ({vDim:F3} vs {vFull:F3})",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
@@ -571,6 +643,42 @@ namespace RPGGame.Tests.Unit.UI.TitleScreen
                 foreach (char c in seg.Text)
                 {
                     if (!char.IsWhiteSpace(c))
+                        return seg.Color;
+                }
+            }
+            return null;
+        }
+
+        private static Avalonia.Media.Color? FirstGlyphColor(List<ColoredText>? segments, char glyph)
+        {
+            if (segments == null)
+                return null;
+
+            foreach (var seg in segments)
+            {
+                if (string.IsNullOrEmpty(seg.Text))
+                    continue;
+                foreach (char c in seg.Text)
+                {
+                    if (c == glyph)
+                        return seg.Color;
+                }
+            }
+            return null;
+        }
+
+        private static Avalonia.Media.Color? FirstPipingColor(List<ColoredText>? segments)
+        {
+            if (segments == null)
+                return null;
+
+            foreach (var seg in segments)
+            {
+                if (string.IsNullOrEmpty(seg.Text))
+                    continue;
+                foreach (char c in seg.Text)
+                {
+                    if (TitleFrameBuilder.IsAccentPipingGlyph(c))
                         return seg.Color;
                 }
             }

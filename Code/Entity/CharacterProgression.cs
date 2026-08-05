@@ -20,10 +20,108 @@ namespace RPGGame
         public int RoguePoints { get; set; } = 0;
         public int WizardPoints { get; set; } = 0;
 
+        /// <summary>Learned skill-tree node ids. Spending does not reduce lifetime class points.</summary>
+        public HashSet<string> LearnedSkillNodeIds { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
         public CharacterProgression(int level = 1)
         {
             Level = level;
             XP = 0;
+        }
+
+        public bool HasLearnedSkill(string nodeId) =>
+            !string.IsNullOrWhiteSpace(nodeId) && LearnedSkillNodeIds.Contains(nodeId);
+
+        public int GetSpentSkillPoints(WeaponType weaponType)
+        {
+            var trees = GameConfiguration.Instance.SkillTrees;
+            return trees?.GetSpentSkillPoints(LearnedSkillNodeIds, weaponType) ?? 0;
+        }
+
+        public int GetAvailableSkillPoints(WeaponType weaponType) =>
+            Math.Max(0, GetClassPoints(weaponType) - GetSpentSkillPoints(weaponType));
+
+        /// <summary>
+        /// Auto-grants the path root when the character has any lifetime points on that path.
+        /// </summary>
+        public void EnsureSkillTreeRootsGranted()
+        {
+            var trees = GameConfiguration.Instance.SkillTrees;
+            if (trees == null || trees.Trees.Count == 0)
+                return;
+
+            foreach (WeaponType path in ClassPresentationConfig.ClassWeaponOrder)
+            {
+                if (GetClassPoints(path) <= 0)
+                    continue;
+                string? rootId = trees.GetRootNodeId(path);
+                if (!string.IsNullOrWhiteSpace(rootId))
+                    LearnedSkillNodeIds.Add(rootId!);
+            }
+        }
+
+        public enum LearnSkillResult
+        {
+            Success,
+            AlreadyLearned,
+            UnknownNode,
+            WrongTree,
+            PrerequisitesMissing,
+            InsufficientPoints,
+            NotPrimaryPath
+        }
+
+        /// <summary>
+        /// Permanently learns a skill node using available Skill Points on the primary path only.
+        /// Does not decrement lifetime class points.
+        /// </summary>
+        public LearnSkillResult TryLearnSkillNode(string nodeId, bool requirePrimaryPath = true)
+        {
+            var trees = GameConfiguration.Instance.SkillTrees;
+            if (trees == null)
+                return LearnSkillResult.UnknownNode;
+
+            var node = trees.GetNode(nodeId);
+            if (node == null)
+                return LearnSkillResult.UnknownNode;
+
+            if (HasLearnedSkill(node.Id))
+                return LearnSkillResult.AlreadyLearned;
+
+            SkillTreeDefinition? ownerTree = null;
+            WeaponType? ownerPath = null;
+            var presentation = Pres;
+            foreach (var tree in trees.Trees)
+            {
+                if (tree.Nodes.Any(n => string.Equals(n.Id, node.Id, StringComparison.OrdinalIgnoreCase)))
+                {
+                    ownerTree = tree;
+                    ownerPath = tree.ResolveWeaponType(presentation);
+                    break;
+                }
+            }
+
+            if (ownerTree == null || ownerPath == null)
+                return LearnSkillResult.WrongTree;
+
+            if (requirePrimaryPath)
+            {
+                var primary = GetPrimaryClassWeaponType();
+                if (primary == null || primary.Value != ownerPath.Value)
+                    return LearnSkillResult.NotPrimaryPath;
+            }
+
+            foreach (string req in node.Requires)
+            {
+                if (!HasLearnedSkill(req))
+                    return LearnSkillResult.PrerequisitesMissing;
+            }
+
+            if (node.Cost > GetAvailableSkillPoints(ownerPath.Value))
+                return LearnSkillResult.InsufficientPoints;
+
+            LearnedSkillNodeIds.Add(node.Id);
+            return LearnSkillResult.Success;
         }
 
         private ClassPresentationConfig Pres => GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
@@ -145,6 +243,8 @@ namespace RPGGame
                     WizardPoints++;
                     break;
             }
+
+            EnsureSkillTreeRootsGranted();
         }
 
         public void RemoveClassPoint(WeaponType weaponType)

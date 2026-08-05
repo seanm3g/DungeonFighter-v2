@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -58,6 +59,21 @@ namespace RPGGame
 
         /// <summary>When non-empty, each entry contributes stats; otherwise legacy <see cref="StatType"/> / <see cref="Value"/> are used.</summary>
         public List<StatBonusMechanic>? Mechanics { get; set; }
+
+        /// <summary>
+        /// Legacy main-branch animal-suffix trigger name. Ignored for combat — materials own gear procs.
+        /// Kept so merged StatBonuses.json rows still deserialize.
+        /// </summary>
+        [JsonPropertyName("triggerName")]
+        public string TriggerName { get; set; } = "";
+
+        /// <summary>Legacy multi-trigger list from main; ignored for combat.</summary>
+        [JsonPropertyName("triggerNames")]
+        public List<string>? TriggerNames { get; set; }
+
+        /// <summary>Legacy taxon tags from main animal suffixes; not applied as combat procs.</summary>
+        [JsonPropertyName("tags")]
+        public List<string>? Tags { get; set; }
 
         /// <summary>
         /// Attribute thresholds an equipping character must meet for the piece carrying this suffix.
@@ -140,7 +156,10 @@ namespace RPGGame
                 StatType = StatType,
                 ItemRank = ItemRank,
                 Mechanics = mechCopy,
-                Requirements = reqCopy
+                Requirements = reqCopy,
+                TriggerName = "",
+                TriggerNames = null,
+                Tags = null
             };
         }
     }
@@ -163,6 +182,12 @@ namespace RPGGame
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";
         public string Effect { get; set; } = "";
+        /// <summary>
+        /// Optional combat WHEN token for proc mods (e.g. ONCRITICAL, ONCONNECT, ONKILL).
+        /// When blank, <see cref="Effect"/> defaults apply (weaponPoison/Burn/Bleed/Acid ⇒ ONCRITICAL).
+        /// </summary>
+        [JsonPropertyName("triggerWhen")]
+        public string TriggerWhen { get; set; } = "";
         public double MinValue { get; set; } = 0;
         public double MaxValue { get; set; } = 0;
         public double RolledValue { get; set; } = 0; // The actual rolled value between MinValue and MaxValue
@@ -225,6 +250,14 @@ namespace RPGGame
         /// <summary>Head: minimum granted <see cref="ActionBonus"/> lines when loot affixes are applied.</summary>
         public int MinGeneratedActionBonuses { get; set; }
         public string Rarity { get; set; } = "Common";
+
+        /// <summary>
+        /// Always-on material name (Bone, Steel, Cloth, …). Set by loot <c>EnsureMaterial</c>;
+        /// mirrors the Material prefix modification.
+        /// </summary>
+        [JsonPropertyName("material")]
+        public string Material { get; set; } = "";
+
         public List<StatBonus> StatBonuses { get; set; } = new List<StatBonus>();
         public List<ActionBonus> ActionBonuses { get; set; } = new List<ActionBonus>();
         public List<Modification> Modifications { get; set; } = new List<Modification>();
@@ -232,6 +265,21 @@ namespace RPGGame
         public int BonusDamage { get; set; } = 0;
         public int BonusAttackSpeed { get; set; } = 0;
         public List<string> Tags { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Catalog combat procs (WHEN × SCOPE × mechanics), same grammar as action trigger bundles.
+        /// Fired from equipped gear via <c>EquippedItemTriggerApplicator</c>.
+        /// Also holds <c>WHILE_EQUIPPED</c> equip-time effects (evaluated by <c>ItemEquipEffectApplicator</c>).
+        /// </summary>
+        [JsonPropertyName("triggerBundles")]
+        public List<ActionTriggerBundle> TriggerBundles { get; set; } = new List<ActionTriggerBundle>();
+
+        /// <summary>
+        /// Always-on equip effects (<c>WHEN=WHILE_EQUIPPED</c>). Same bundle shape as combat procs.
+        /// Prefer putting WHILE_EQUIPPED rows here; combat applicator ignores them in TriggerBundles too.
+        /// </summary>
+        [JsonPropertyName("equipEffects")]
+        public List<ActionTriggerBundle> EquipEffects { get; set; } = new List<ActionTriggerBundle>();
 
         /// <summary>When <see cref="Type"/> is <see cref="ItemType.Consumable"/>, marks food vs potion and which buff line.</summary>
         public RoomSearchConsumableKind RoomSearchConsumableKind { get; set; }

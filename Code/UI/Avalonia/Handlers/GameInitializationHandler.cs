@@ -27,6 +27,8 @@ namespace RPGGame.UI.Avalonia.Handlers
         private bool isInitialized = false;
         private bool waitingForKeyAfterAnimation = false;
         private CancellationTokenSource? titleIdleCts;
+        private Task? gameWarmupTask;
+        private int gameWarmupStarted;
 
         public GameInitializationHandler(GameCanvasControl gameCanvas, MainWindow mainWindow)
         {
@@ -36,6 +38,8 @@ namespace RPGGame.UI.Avalonia.Handlers
 
         public bool IsInitialized => isInitialized;
         public bool WaitingForKeyAfterAnimation => waitingForKeyAfterAnimation;
+        /// <summary>True once background GameCoordinator construction has finished (menu can appear immediately).</summary>
+        public bool IsGameWarmupCompleted => gameWarmupTask?.IsCompletedSuccessfully == true && game != null;
         public GameCoordinator? Game => game;
         public IUIManager? CanvasUIManager => canvasUIManager;
         public MouseInteractionHandler? MouseHandler => mouseHandler;
@@ -74,7 +78,8 @@ namespace RPGGame.UI.Avalonia.Handlers
                     mouseHandler = new MouseInteractionHandler(gameCanvas, canvasUIForMouse, null);
                 }
 
-                // Animated title: fade → POP → settle → idle gradient until any key
+                // Animated title: idle gradient until any key. Warm GameCoordinator in parallel
+                // so a keypress only needs to show the main menu (avoids post-key hitch).
                 if (canvasUIManager is CanvasUICoordinator canvasUI2)
                 {
                     // Suppress display buffer rendering to prevent it from clearing the title screen
@@ -91,6 +96,9 @@ namespace RPGGame.UI.Avalonia.Handlers
                         {
                             DebugLogger.Log("GameInitializationHandler", $"InitializeTitleScreenMusic: {ex.Message}");
                         }
+
+                        // Start heavy init while the title idle plays (Background priority so frames stay smooth).
+                        StartGameWarmup(updateStatus);
 
                         titleIdleCts?.Cancel();
                         titleIdleCts?.Dispose();
@@ -156,27 +164,29 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
-        /// Completes game initialization after title screen animation
-        /// Wrapped in Task.Run to prevent blocking UI thread and handle async void properly
+        /// Builds GameCoordinator + audio wiring on the UI thread at Background priority so title
+        /// idle frames (Normal priority) stay responsive. Idempotent.
         /// </summary>
-        public void InitializeGameAfterAnimation(Action<string> updateStatus)
+        private void StartGameWarmup(Action<string> updateStatus)
         {
-            // Use Task.Run to prevent blocking and handle errors properly
-            _ = Task.Run(async () =>
+            if (System.Threading.Interlocked.Exchange(ref gameWarmupStarted, 1) != 0)
+                return;
+
+            gameWarmupTask = Task.Run(async () =>
             {
                 try
                 {
-                    // Post UI updates to UI thread
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
-                        // Check if canvasUIManager is initialized
                         if (canvasUIManager == null)
                         {
                             updateStatus("Error: UI Manager not initialized");
                             return;
                         }
 
-                        // Initialize the game with canvas UI
+                        if (game != null)
+                            return;
+
                         game = new GameCoordinator(canvasUIManager);
                         game.SetUIManager(canvasUIManager);
 
@@ -204,33 +214,70 @@ namespace RPGGame.UI.Avalonia.Handlers
                         {
                             mouseHandler = new MouseInteractionHandler(gameCanvas, canvasUIForMouse, game);
                         }
-                    });
 
-                    // Show main menu - user can choose to load a saved game or start new
-                    await Dispatcher.UIThread.InvokeAsync(() =>
-                    {
-                        game?.ShowMainMenu();
-                    });
-
-                    await Dispatcher.UIThread.InvokeAsync(() =>
-                    {
-                        isInitialized = true;
-                        waitingForKeyAfterAnimation = false;
-                    });
+                        // Warm save-file listing so ShowMainMenu does not hitch on first disk scan.
+                        try { CharacterSaveManager.ListAllSavedCharacters(); }
+                        catch (Exception ex)
+                        {
+                            DebugLogger.Log("GameInitializationHandler", $"Save list warm failed: {ex.Message}");
+                        }
+                    }, DispatcherPriority.Background);
                 }
                 catch (Exception ex)
                 {
-                    DebugLogger.Log("GameInitializationHandler", $"Error in InitializeGameAfterAnimation: {ex.Message}\n{ex.StackTrace}");
-                    // On error, show main menu as fallback
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        updateStatus($"Error initializing game: {ex.Message}");
-                        game?.ShowMainMenu();
-                        isInitialized = true;
-                        waitingForKeyAfterAnimation = false;
-                    });
+                    DebugLogger.Log("GameInitializationHandler",
+                        $"Game warmup failed: {ex.Message}\n{ex.StackTrace}");
+                    throw;
                 }
             });
+        }
+
+        /// <summary>
+        /// After title keypress (or title failure): await warmup if needed, then show main menu.
+        /// </summary>
+        private async Task TransitionToMainMenuAfterWarmupAsync(Action<string> updateStatus)
+        {
+            try
+            {
+                StartGameWarmup(updateStatus);
+
+                if (gameWarmupTask != null)
+                    await gameWarmupTask.ConfigureAwait(false);
+
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    if (game == null)
+                    {
+                        updateStatus("Error initializing game: GameCoordinator was not created");
+                        return;
+                    }
+
+                    game.ShowMainMenu();
+                    isInitialized = true;
+                    waitingForKeyAfterAnimation = false;
+                });
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log("GameInitializationHandler",
+                    $"Error in TransitionToMainMenuAfterWarmupAsync: {ex.Message}\n{ex.StackTrace}");
+                Dispatcher.UIThread.Post(() =>
+                {
+                    updateStatus($"Error initializing game: {ex.Message}");
+                    game?.ShowMainMenu();
+                    isInitialized = true;
+                    waitingForKeyAfterAnimation = false;
+                });
+            }
+        }
+
+        /// <summary>
+        /// Completes game initialization after title screen animation.
+        /// Safe to call when title is skipped/fails: starts warmup if needed then shows the menu.
+        /// </summary>
+        public void InitializeGameAfterAnimation(Action<string> updateStatus)
+        {
+            _ = TransitionToMainMenuAfterWarmupAsync(updateStatus);
         }
 
         /// <summary>
@@ -439,7 +486,8 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
-        /// Handles key press after title screen animation
+        /// Handles key press after title screen animation.
+        /// Cancels idle and shows the main menu; GameCoordinator was warmed during the title.
         /// </summary>
         public void HandleKeyAfterAnimation(Action<string> updateStatus)
         {
@@ -454,7 +502,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                 {
                     // Ignore — idle already stopped.
                 }
-                InitializeGameAfterAnimation(updateStatus);
+                _ = TransitionToMainMenuAfterWarmupAsync(updateStatus);
             }
         }
     }

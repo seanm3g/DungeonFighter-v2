@@ -60,14 +60,10 @@ namespace RPGGame
         /// </summary>
         public void ShowMainMenu()
         {
-            // Show loading message in bottom left corner while data is being loaded
-            if (customUIManager is CanvasUICoordinator canvasUI)
-            {
-                canvasUI.ShowLoadingStatus("Loading data...");
-            }
-            
             // Load Game line must match what LoadGame() can actually load: only show name/level
             // when at least one save exists on disk (ignore in-memory CurrentPlayer — e.g. new unsaved character).
+            // Skip a "Loading data..." flash here — listing save metadata is fast, and the title→menu
+            // path already warms GameCoordinator so a status message only adds a hitch.
             bool hasSavedGame = false;
             string? characterName = null;
             int characterLevel = 0;

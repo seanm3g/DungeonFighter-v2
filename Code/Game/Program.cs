@@ -245,6 +245,22 @@ namespace RPGGame
                     return;
                 }
 
+                if (args.Length > 0 && args[0] == "--stamp-item-triggers")
+                {
+                    executionMode = "TOOL";
+                    var (w, a) = ItemCatalogTriggerStamp.StampGameDataFiles();
+                    Console.WriteLine($"Stamped triggerName: {w} weapons, {a} armor (identity index % {ItemTriggerIdentityCatalog.Count}).");
+                    return;
+                }
+
+                if (args.Length > 0 && args[0] == "--stamp-material-triggers")
+                {
+                    executionMode = "TOOL";
+                    int n = MaterialTriggerStamp.StampGameDataFiles();
+                    Console.WriteLine($"Stamped {n} material trigger identities into Triggers.json (pools: {MaterialTriggerCatalog.PoolsByMaterial.Count}).");
+                    return;
+                }
+
                 // Check if test mode is requested (battle comparison)
                 if (args.Length > 0 && args[0] == "TEST")
                 {

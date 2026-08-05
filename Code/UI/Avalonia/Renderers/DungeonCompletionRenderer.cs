@@ -330,13 +330,17 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             string optLine2 = MenuOptionFormatter.Format(2, UIConstants.MenuOptions.ShowInventory);
 
-            string optLine3 = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.SaveAndExit);
+            string optLine3 = MenuOptionFormatter.Format(3, UIConstants.MenuOptions.ShowSkillTree);
+
+            string optLine0 = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.SaveAndExit);
 
             int row1X = textAreaLeft + System.Math.Max(0, (textAreaWidth - optLine1.Length) / 2);
 
             int row2X = textAreaLeft + System.Math.Max(0, (textAreaWidth - optLine2.Length) / 2);
 
             int row3X = textAreaLeft + System.Math.Max(0, (textAreaWidth - optLine3.Length) / 2);
+
+            int row0X = textAreaLeft + System.Math.Max(0, (textAreaWidth - optLine0.Length) / 2);
 
 
 
@@ -398,7 +402,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
                 Type = ElementType.MenuOption,
 
-                Value = "0",
+                Value = "3",
 
                 DisplayText = optLine3
 
@@ -406,7 +410,29 @@ namespace RPGGame.UI.Avalonia.Renderers
 
 
 
-            clickableElements.AddRange(new[] { option1, option2, option3 });
+            var option0 = new ClickableElement
+
+            {
+
+                X = row0X,
+
+                Y = menuStartY + 3,
+
+                Width = optLine0.Length,
+
+                Height = 1,
+
+                Type = ElementType.MenuOption,
+
+                Value = "0",
+
+                DisplayText = optLine0
+
+            };
+
+
+
+            clickableElements.AddRange(new[] { option1, option2, option3, option0 });
 
 
 
@@ -414,7 +440,9 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             canvas.AddMenuOption(row2X, menuStartY + 1, 2, UIConstants.MenuOptions.ShowInventory, AsciiArtAssets.Colors.White, option2.IsHovered);
 
-            canvas.AddMenuOption(row3X, menuStartY + 2, 0, UIConstants.MenuOptions.SaveAndExit, AsciiArtAssets.Colors.White, option3.IsHovered);
+            canvas.AddMenuOption(row3X, menuStartY + 2, 3, UIConstants.MenuOptions.ShowSkillTree, AsciiArtAssets.Colors.White, option3.IsHovered);
+
+            canvas.AddMenuOption(row0X, menuStartY + 3, 0, UIConstants.MenuOptions.SaveAndExit, AsciiArtAssets.Colors.White, option0.IsHovered);
 
         }
 

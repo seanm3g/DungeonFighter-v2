@@ -69,7 +69,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "3",
-                DisplayText = MenuOptionFormatter.Format(3, UIConstants.MenuOptions.Travel)
+                DisplayText = MenuOptionFormatter.Format(3, UIConstants.MenuOptions.ShowSkillTree)
             };
 
             var option4 = new ClickableElement
@@ -79,19 +79,32 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 Width = menuWidth,
                 Height = 1,
                 Type = ElementType.MenuOption,
+                Value = "4",
+                DisplayText = MenuOptionFormatter.Format(4, UIConstants.MenuOptions.Travel)
+            };
+
+            var option0 = new ClickableElement
+            {
+                X = menuX,
+                Y = centerY + 4,
+                Width = menuWidth,
+                Height = 1,
+                Type = ElementType.MenuOption,
                 Value = "0",
                 DisplayText = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.BackToMainMenu)
             };
             
-            clickableElements.AddRange(new[] { option1, option2, option3, option4 });
+            clickableElements.AddRange(new[] { option1, option2, option3, option4, option0 });
             
             canvas.AddMenuOption(menuX, centerY, 1, UIConstants.MenuOptions.GoToDungeon, AsciiArtAssets.Colors.White, option1.IsHovered);
             currentLineCount++;
             canvas.AddMenuOption(menuX, centerY + 1, 2, UIConstants.MenuOptions.ShowInventory, AsciiArtAssets.Colors.White, option2.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(menuX, centerY + 2, 3, UIConstants.MenuOptions.Travel, AsciiArtAssets.Colors.White, option3.IsHovered);
+            canvas.AddMenuOption(menuX, centerY + 2, 3, UIConstants.MenuOptions.ShowSkillTree, AsciiArtAssets.Colors.White, option3.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(menuX, centerY + 3, 0, UIConstants.MenuOptions.BackToMainMenu, AsciiArtAssets.Colors.White, option4.IsHovered);
+            canvas.AddMenuOption(menuX, centerY + 3, 4, UIConstants.MenuOptions.Travel, AsciiArtAssets.Colors.White, option4.IsHovered);
+            currentLineCount++;
+            canvas.AddMenuOption(menuX, centerY + 4, 0, UIConstants.MenuOptions.BackToMainMenu, AsciiArtAssets.Colors.White, option0.IsHovered);
             currentLineCount++;
             
             return currentLineCount;

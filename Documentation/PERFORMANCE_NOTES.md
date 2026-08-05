@@ -6,6 +6,7 @@ Performance considerations, optimizations, and monitoring for the DungeonFighter
 
 ### Current Performance Characteristics
 - **Startup Time**: ~2-3 seconds (includes JSON loading and initialization)
+- **Title → main menu**: GameCoordinator warms during title idle so any-key should feel near-instant once warmup finishes (typically within the first second or two of the title screen)
 - **Combat Execution**: ~100-500ms per combat (depending on complexity)
 - **Memory Usage**: ~50-100MB typical, ~200MB peak
 - **JSON Loading**: ~100-200ms for all game data

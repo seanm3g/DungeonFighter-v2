@@ -13,9 +13,15 @@ namespace RPGGame.Actions.Conditional
     {
         OnMiss,
         OnNormalHit,
+        OnConnect,
         OnComboHit,
         OnCriticalHit,
+        OnCriticalMiss,
+        OnKill,
         OnExactRollValue,
+        OnHealthThreshold,
+        OnComboEnd,
+        OnRoomsCleared,
         IfSameActionUsedPreviously,
         IfDifferentActionUsedPreviously,
         IfActionHasTag,
@@ -25,7 +31,8 @@ namespace RPGGame.Actions.Conditional
         IfSourceHealthBelow,
         IfSourceHealthAbove,
         IfComboPosition,
-        IfComboLength
+        IfComboLength,
+        IfWieldingWeaponType
     }
 
     /// <summary>
@@ -52,9 +59,16 @@ namespace RPGGame.Actions.Conditional
     {
         public static TriggerCondition OnMiss() => new TriggerCondition(TriggerConditionType.OnMiss);
         public static TriggerCondition OnNormalHit() => new TriggerCondition(TriggerConditionType.OnNormalHit);
+        public static TriggerCondition OnConnect() => new TriggerCondition(TriggerConditionType.OnConnect);
         public static TriggerCondition OnComboHit() => new TriggerCondition(TriggerConditionType.OnComboHit);
         public static TriggerCondition OnCriticalHit() => new TriggerCondition(TriggerConditionType.OnCriticalHit);
+        public static TriggerCondition OnCriticalMiss() => new TriggerCondition(TriggerConditionType.OnCriticalMiss);
+        public static TriggerCondition OnKill() => new TriggerCondition(TriggerConditionType.OnKill);
         public static TriggerCondition OnExactRollValue(int value) => new TriggerCondition(TriggerConditionType.OnExactRollValue, value);
+        public static TriggerCondition OnHealthThreshold() => new TriggerCondition(TriggerConditionType.OnHealthThreshold);
+        public static TriggerCondition OnComboEnd() => new TriggerCondition(TriggerConditionType.OnComboEnd);
+        public static TriggerCondition OnRoomsCleared(int requiredCount = 0) =>
+            new TriggerCondition(TriggerConditionType.OnRoomsCleared, requiredCount);
         public static TriggerCondition IfSameActionUsedPreviously() => new TriggerCondition(TriggerConditionType.IfSameActionUsedPreviously);
         public static TriggerCondition IfDifferentActionUsedPreviously() => new TriggerCondition(TriggerConditionType.IfDifferentActionUsedPreviously);
         public static TriggerCondition IfActionHasTag(string tag) => new TriggerCondition(TriggerConditionType.IfActionHasTag) { Tag = tag };
@@ -65,6 +79,8 @@ namespace RPGGame.Actions.Conditional
         public static TriggerCondition IfSourceHealthAbove(double percentage) => new TriggerCondition(TriggerConditionType.IfSourceHealthAbove, percentage);
         public static TriggerCondition IfComboPosition(int position) => new TriggerCondition(TriggerConditionType.IfComboPosition) { ComboPosition = position };
         public static TriggerCondition IfComboLength(int length) => new TriggerCondition(TriggerConditionType.IfComboLength, length);
+        public static TriggerCondition IfWieldingWeaponType(WeaponType weaponType) =>
+            new TriggerCondition(TriggerConditionType.IfWieldingWeaponType, weaponType);
     }
 }
 

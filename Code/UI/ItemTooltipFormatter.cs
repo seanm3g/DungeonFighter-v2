@@ -13,6 +13,7 @@ namespace RPGGame
 {
     /// <summary>
     /// Builds organized, colored hover tooltip lines for inventory and equipped items.
+    /// Default: Name, Rarity, Stats, Triggers. Hold Alt for remaining detail sections.
     /// </summary>
     public static class ItemTooltipFormatter
     {
@@ -20,7 +21,8 @@ namespace RPGGame
             Character? character,
             Item item,
             string slotLabel,
-            int maxLines = 24)
+            int maxLines = 24,
+            bool includeExtendedDetails = false)
         {
             var lines = new List<List<ColoredText>>();
             if (item == null || maxLines < 1)
@@ -28,10 +30,9 @@ namespace RPGGame
 
             bool equipBlocked = ItemRendererHelper.IsEquipBlockedForCharacter(item, character);
 
-            AddLine(lines, BuildSlotLine(slotLabel));
-            AddBlank(lines);
+            // --- Primary (always) ---
             AddLine(lines, ItemDisplayColoredText.FormatFullItemName(item));
-            AddLine(lines, BuildMetaLine(item));
+            AddLine(lines, BuildRarityLine(item, includeExtendedDetails));
             if (maxLines <= lines.Count) return Trim(lines, maxLines);
 
             string? reqSummary = item.GetAttributeRequirementsSummaryLine();
@@ -57,6 +58,36 @@ namespace RPGGame
                 }
             }
 
+            var triggerSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.TriggerBundles).ToList();
+            if (triggerSummaries.Count > 0 && lines.Count < maxLines)
+            {
+                AddBlank(lines);
+                AddLine(lines, SectionHeader("Triggers"));
+                foreach (var summary in triggerSummaries)
+                {
+                    if (lines.Count >= maxLines) break;
+                    AddLine(lines, BuildTriggerLine(summary));
+                }
+            }
+
+            if (!includeExtendedDetails)
+            {
+                if (HasExtendedContent(character, item) && lines.Count < maxLines)
+                {
+                    AddBlank(lines);
+                    AddLine(lines, BuildAltHintLine());
+                }
+                return Trim(lines, maxLines);
+            }
+
+            // --- Alt: everything else ---
+            if (lines.Count < maxLines)
+            {
+                AddBlank(lines);
+                AddLine(lines, BuildSlotLine(slotLabel));
+            }
+            if (maxLines <= lines.Count) return Trim(lines, maxLines);
+
             if (item is not WeaponItem && lines.Count < maxLines)
             {
                 string? armorBreakdown = BuildArmorBreakdownLine(item);
@@ -78,6 +109,18 @@ namespace RPGGame
                 {
                     if (lines.Count >= maxLines) break;
                     AddLine(lines, BuildModificationLine(item, mod));
+                }
+            }
+
+            var equipSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.EquipEffects).ToList();
+            if (equipSummaries.Count > 0 && lines.Count < maxLines)
+            {
+                AddBlank(lines);
+                AddLine(lines, SectionHeader("While equipped"));
+                foreach (var summary in equipSummaries)
+                {
+                    if (lines.Count >= maxLines) break;
+                    AddLine(lines, BuildTriggerLine(summary));
                 }
             }
 
@@ -141,6 +184,39 @@ namespace RPGGame
             return Trim(lines, maxLines);
         }
 
+        private static bool HasExtendedContent(Character? character, Item item)
+        {
+            if (item is not WeaponItem && !string.IsNullOrEmpty(BuildArmorBreakdownLine(item)))
+                return true;
+            if (item.Modifications != null && item.Modifications.Count > 0)
+                return true;
+            if (item.EquipEffects != null && item.EquipEffects.Count > 0)
+                return true;
+            if (character != null)
+            {
+                var grants = character.Equipment.GetGearActions(item);
+                if (grants != null && grants.Count > 0)
+                    return true;
+            }
+            if (!string.IsNullOrEmpty(item.GearAction) &&
+                Data.GameDataTagHelper.IsGrantableOnHeroGearByName(item.GearAction))
+                return true;
+            if (item.ActionBonuses != null &&
+                item.ActionBonuses.Any(ab => Data.GameDataTagHelper.IsGrantableOnHeroGearByName(ab.Name)))
+                return true;
+            if (item.ArmorStatuses != null && item.ArmorStatuses.Count > 0)
+                return true;
+            // Slot / tier / level always available on Alt
+            return true;
+        }
+
+        private static List<ColoredText> BuildAltHintLine()
+        {
+            var b = new ColoredTextBuilder();
+            b.Add("Hold Alt for more", Colors.DarkGray);
+            return b.Build();
+        }
+
         private static List<ColoredText> BuildSlotLine(string slotLabel)
         {
             var b = new ColoredTextBuilder();
@@ -149,13 +225,16 @@ namespace RPGGame
             return b.Build();
         }
 
-        private static List<ColoredText> BuildMetaLine(Item item)
+        private static List<ColoredText> BuildRarityLine(Item item, bool includeTierAndLevel)
         {
             var b = new ColoredTextBuilder();
             string rarity = (item.Rarity ?? "Common").Trim();
             b.Add(rarity, ItemThemeProvider.GetRarityColor(rarity));
-            b.Add($" · Tier {item.Tier}", ColorPalette.Warning.GetColor());
-            b.Add($" · Lv {item.Level}", Colors.Gray);
+            if (includeTierAndLevel)
+            {
+                b.Add($" · Tier {item.Tier}", ColorPalette.Warning.GetColor());
+                b.Add($" · Lv {item.Level}", Colors.Gray);
+            }
             return b.Build();
         }
 
@@ -188,6 +267,25 @@ namespace RPGGame
             {
                 b.Add(" · ", Colors.DarkGray);
                 b.Add(mod.Description, Colors.Gray);
+            }
+            return b.Build();
+        }
+
+        private static List<ColoredText> BuildTriggerLine(string summary)
+        {
+            var b = new ColoredTextBuilder();
+            b.Add("  ", Colors.Gray);
+            // Identity name (before em dash) in warning; rest in white
+            int sep = summary.IndexOf(" — ", StringComparison.Ordinal);
+            if (sep > 0)
+            {
+                b.Add(summary.Substring(0, sep), ColorPalette.Warning.GetColor());
+                b.Add(" — ", Colors.DarkGray);
+                b.Add(summary.Substring(sep + 3), Colors.White);
+            }
+            else
+            {
+                b.Add(summary, Colors.White);
             }
             return b.Build();
         }
@@ -261,12 +359,6 @@ namespace RPGGame
             b.Add(label + ": ", labelColor.GetColor());
             b.Add(value, valueColor);
             return b.Build();
-        }
-
-        private static void TrimLeadingIndent(List<ColoredText> segments)
-        {
-            if (segments.Count > 0 && segments[0].Text == "    ")
-                segments.RemoveAt(0);
         }
 
         private static List<ColoredText> RecolorAll(List<ColoredText> segments, Color color)

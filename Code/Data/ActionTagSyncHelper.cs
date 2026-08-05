@@ -9,6 +9,8 @@ namespace RPGGame.Data
     public static class ActionTagSyncHelper
     {
         public const string WeaponBasicTag = "weapon_basic";
+        public const string ReservePoolTag = "reserve_pool";
+        public const string ReservePoolColumnLabel = "RESERVE POOL";
 
         public static void SyncCanonicalTags(ActionData actionData)
         {
@@ -37,6 +39,11 @@ namespace RPGGame.Data
                 Ensure("finisher");
             else
                 Remove("finisher");
+
+            if (actionData.IsReservePool)
+                Ensure(ReservePoolTag);
+            else
+                Remove(ReservePoolTag);
 
             bool isRequired = tags.Any(t => string.Equals(t, WeaponBasicTag, StringComparison.OrdinalIgnoreCase));
             if (isRequired)
@@ -77,6 +84,13 @@ namespace RPGGame.Data
 
         public static bool IsRequiredBasic(IEnumerable<string>? tags) =>
             HasTag(tags, "required") || HasTag(tags, WeaponBasicTag);
+
+        /// <summary>
+        /// True when the action is in the reserve pool: kept available for combo strip / explicit use,
+        /// but excluded from default weighted <see cref="Actor.SelectAction"/> rolls.
+        /// </summary>
+        public static bool IsReservePool(IEnumerable<string>? tags) =>
+            HasTag(tags, ReservePoolTag);
     }
 }
 

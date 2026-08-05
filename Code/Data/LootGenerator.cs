@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -500,6 +501,18 @@ namespace RPGGame
         [JsonPropertyName("minActionBonuses")]
         [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
         public int MinActionBonuses { get; set; }
+
+        /// <summary>Catalog identity name from <c>Triggers.json</c> / triggers sheet; resolved at generation.</summary>
+        [JsonPropertyName("triggerName")]
+        public string? TriggerName { get; set; }
+
+        /// <summary>Legacy nested combat procs; prefer <see cref="TriggerName"/>.</summary>
+        [JsonPropertyName("triggerBundles")]
+        public List<ActionTriggerBundle>? TriggerBundles { get; set; }
+
+        /// <summary>Legacy WHILE_EQUIPPED effects; prefer <see cref="TriggerName"/>.</summary>
+        [JsonPropertyName("equipEffects")]
+        public List<ActionTriggerBundle>? EquipEffects { get; set; }
     }
 
     public class WeaponData
@@ -541,6 +554,18 @@ namespace RPGGame
 
         [JsonPropertyName("extraActionSlotsMax")]
         public int ExtraActionSlotsMax { get; set; }
+
+        /// <summary>Catalog identity name from <c>Triggers.json</c> / triggers sheet; resolved at generation.</summary>
+        [JsonPropertyName("triggerName")]
+        public string? TriggerName { get; set; }
+
+        /// <summary>Legacy nested combat procs; prefer <see cref="TriggerName"/>.</summary>
+        [JsonPropertyName("triggerBundles")]
+        public List<ActionTriggerBundle>? TriggerBundles { get; set; }
+
+        /// <summary>Legacy WHILE_EQUIPPED effects; prefer <see cref="TriggerName"/>.</summary>
+        [JsonPropertyName("equipEffects")]
+        public List<ActionTriggerBundle>? EquipEffects { get; set; }
     }
 
     public class RarityData

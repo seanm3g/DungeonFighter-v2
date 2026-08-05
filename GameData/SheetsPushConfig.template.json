@@ -20,9 +20,15 @@
 
   "consumablesSheetTabName": "CONSUMABLES",
 
+  "triggersSheetTabName": "triggers",
+
   "classPresentationSheetTabName": "CLASSES",
 
   "classActionsSheetTabName": "CLASS ACTIONS",
+
+  "skillTreesSheetTabName": "Class Upgrades",
+
+  "flavorSheetTabName": "flavor",
 
   "oauthClientSecretsPath": "secrets/client_secret_desktop.json",
 
@@ -42,6 +48,8 @@
 
   "pushConsumablesTab": true,
 
+  "pushTriggersTab": true,
+
   "pushEnemiesTab": true,
 
   "pushEnvironmentsTab": true,
@@ -50,7 +58,11 @@
 
   "pushClassPresentationTab": true,
 
-  "pushClassActionsTab": true
+  "pushClassActionsTab": true,
+
+  "pushSkillTreesTab": true,
+
+  "pushFlavorTab": true
 
 }
 

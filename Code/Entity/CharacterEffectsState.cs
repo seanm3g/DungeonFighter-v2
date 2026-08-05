@@ -126,6 +126,10 @@ namespace RPGGame
         public double ConsumedSpeedModPercent { get; set; }
         public double ConsumedMultiHitMod { get; set; }
         public double ConsumedAmpModPercent { get; set; }
+        /// <summary>Flat weapon damage from consumed WEAPON_DAMAGE cadence bonuses this swing.</summary>
+        public double ConsumedWeaponDamageFlat { get; set; }
+        /// <summary>Flat weapon speed points from consumed WEAPON_SPEED (each point ≈ −0.1 weapon time mult).</summary>
+        public double ConsumedWeaponSpeedFlat { get; set; }
         /// <summary>TURN bonuses consumed this roll; apply stat bonuses on hit, then clear.</summary>
         public List<ActionAttackBonusItem> ConsumedTurnBonusesThisRoll { get; set; } = new List<ActionAttackBonusItem>();
 
@@ -168,7 +172,15 @@ namespace RPGGame
                     : group.Bonuses.Select(b => new ActionAttackBonusItem { Type = b.Type, Value = b.Value }).ToList()
             };
         }
-        public void ClearConsumedModifierBonuses() { ConsumedDamageModPercent = 0; ConsumedSpeedModPercent = 0; ConsumedMultiHitMod = 0; ConsumedAmpModPercent = 0; }
+        public void ClearConsumedModifierBonuses()
+        {
+            ConsumedDamageModPercent = 0;
+            ConsumedSpeedModPercent = 0;
+            ConsumedMultiHitMod = 0;
+            ConsumedAmpModPercent = 0;
+            ConsumedWeaponDamageFlat = 0;
+            ConsumedWeaponSpeedFlat = 0;
+        }
         public void AccumulateConsumedModifierBonuses(List<ActionAttackBonusItem>? bonuses)
         {
             if (bonuses == null) return;
@@ -180,10 +192,12 @@ namespace RPGGame
                     case "DAMAGE_MOD": ConsumedDamageModPercent += b.Value; break;
                     case "MULTIHIT_MOD": ConsumedMultiHitMod += b.Value; break;
                     case "AMP_MOD": ConsumedAmpModPercent += b.Value; break;
+                    case "WEAPON_DAMAGE": ConsumedWeaponDamageFlat += b.Value; break;
+                    case "WEAPON_SPEED": ConsumedWeaponSpeedFlat += b.Value; break;
                 }
             }
         }
-        /// <summary>Builds SPEED_MOD / DAMAGE_MOD / MULTIHIT_MOD / AMP_MOD items from hero (AJ–AM) or enemy (AD–AG) fields on <paramref name="action"/>.</summary>
+        /// <summary>Builds SPEED_MOD / DAMAGE_MOD / MULTIHIT_MOD / AMP_MOD / WEAPON_* items from hero or enemy fields on <paramref name="action"/>.</summary>
         internal static List<ActionAttackBonusItem> BuildModifierBonusesFromActionFields(Action? action, bool useEnemySpreadsheetMods)
         {
             var bonuses = new List<ActionAttackBonusItem>();
@@ -192,6 +206,8 @@ namespace RPGGame
             string damage = useEnemySpreadsheetMods ? action.EnemyDamageMod : action.DamageMod;
             string multi = useEnemySpreadsheetMods ? action.EnemyMultiHitMod : action.MultiHitMod;
             string amp = useEnemySpreadsheetMods ? action.EnemyAmpMod : action.AmpMod;
+            string weaponSpeed = useEnemySpreadsheetMods ? action.EnemyWeaponSpeedMod : action.WeaponSpeedMod;
+            string weaponDamage = useEnemySpreadsheetMods ? action.EnemyWeaponDamageMod : action.WeaponDamageMod;
             bool hasSpeed = !string.IsNullOrWhiteSpace(speed);
             bool hasDamage = !string.IsNullOrWhiteSpace(damage);
             bool hasMultiHit = !string.IsNullOrWhiteSpace(multi);
@@ -200,6 +216,10 @@ namespace RPGGame
             if (hasDamage && ModifierParser.ParsePercent(damage) is { } dv) bonuses.Add(new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = dv * 100.0 });
             if (hasMultiHit && ModifierParser.ParseValue(multi) is { } mv) bonuses.Add(new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = mv });
             if (hasAmp && ModifierParser.ParsePercent(amp) is { } av) bonuses.Add(new ActionAttackBonusItem { Type = "AMP_MOD", Value = av * 100.0 });
+            if (!string.IsNullOrWhiteSpace(weaponSpeed) && ModifierParser.ParseValue(weaponSpeed) is { } ws)
+                bonuses.Add(new ActionAttackBonusItem { Type = "WEAPON_SPEED", Value = ws });
+            if (!string.IsNullOrWhiteSpace(weaponDamage) && ModifierParser.ParseValue(weaponDamage) is { } wd)
+                bonuses.Add(new ActionAttackBonusItem { Type = "WEAPON_DAMAGE", Value = wd });
             return bonuses;
         }
 
@@ -225,7 +245,7 @@ namespace RPGGame
                 foreach (var b in group.Bonuses)
                 {
                     string t = (b.Type ?? "").Trim().ToUpperInvariant();
-                    if (t is "SPEED_MOD" or "DAMAGE_MOD" or "MULTIHIT_MOD" or "AMP_MOD")
+                    if (t is "SPEED_MOD" or "DAMAGE_MOD" or "MULTIHIT_MOD" or "AMP_MOD" or "WEAPON_SPEED" or "WEAPON_DAMAGE")
                         covered.Add(t);
                 }
             }
@@ -243,6 +263,8 @@ namespace RPGGame
             if (!useEnemySpreadsheetMods && CadenceKeywords.IsAction(action.Cadence) && !nextComboSlot.HasValue)
                 return;
             var bonuses = BuildModifierBonusesFromActionFields(action, useEnemySpreadsheetMods);
+            bonuses = Actions.Conditional.ActionTriggerBundleApplicator.FilterOutOwnedSheetMods(
+                action, bonuses, useEnemySpreadsheetMods);
             if (!useEnemySpreadsheetMods && bonuses.Count > 0)
             {
                 var covered = GetActionCadenceSheetModTypesCoveredByBonuses(action);
@@ -298,6 +320,8 @@ namespace RPGGame
             ConsumedSpeedModPercent = 0;
             ConsumedMultiHitMod = 0;
             ConsumedAmpModPercent = 0;
+            ConsumedWeaponDamageFlat = 0;
+            ConsumedWeaponSpeedFlat = 0;
         }
         public void AddPendingActionBonuses(int slot, List<ActionAttackBonusItem> bonuses)
         {

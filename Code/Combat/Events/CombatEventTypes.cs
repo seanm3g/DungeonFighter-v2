@@ -18,6 +18,7 @@ namespace RPGGame.Combat.Events
         HeroLowHealth,
         EnemyLowHealth,
         ComboEnded,
+        RoomCleared,
         StatusEffectApplied,
         StatChanged,
         TurnStarted,
@@ -34,6 +35,8 @@ namespace RPGGame.Combat.Events
         public Actor? Target { get; set; }
         public Action? Action { get; set; }
         public int RollValue { get; set; }
+        /// <summary>Natural die face (after adv/replace, before flat roll bonus). Used by ONNATURALROLL.</summary>
+        public int NaturalRollValue { get; set; }
         public int Damage { get; set; }
         public bool IsCombo { get; set; }
         public bool IsCritical { get; set; }
@@ -43,6 +46,8 @@ namespace RPGGame.Combat.Events
         public string? StatusEffectType { get; set; }
         public string? StatType { get; set; }
         public int StatValue { get; set; }
+        /// <summary>Dungeon rooms cleared count for <see cref="CombatEventType.RoomCleared"/> (1-based after increment).</summary>
+        public int RoomsClearedCount { get; set; }
 
         public CombatEvent(CombatEventType type, Actor source)
         {

@@ -33,6 +33,10 @@ namespace RPGGame.Data
         [JsonPropertyName("classActionsSheetUrl")]
         public string ClassActionsSheetUrl { get; set; } = "";
 
+        /// <summary>Published CSV / edit?gid URL for Class Upgrades → <c>SkillTrees.json</c>.</summary>
+        [JsonPropertyName("skillTreesSheetUrl")]
+        public string SkillTreesSheetUrl { get; set; } = "";
+
         [JsonPropertyName("enemiesSheetUrl")]
         public string EnemiesSheetUrl { get; set; } = "";
 
@@ -49,6 +53,14 @@ namespace RPGGame.Data
         /// <summary>Published CSV URL for the CONSUMABLES tab (→ <c>Consumables.json</c>).</summary>
         [JsonPropertyName("consumablesSheetUrl")]
         public string ConsumablesSheetUrl { get; set; } = "";
+
+        /// <summary>Published CSV URL for the triggers tab (→ <c>Triggers.json</c> item trigger identities).</summary>
+        [JsonPropertyName("triggersSheetUrl")]
+        public string TriggersSheetUrl { get; set; } = "";
+
+        /// <summary>Edit/CSV URL for the flavor tab (→ <c>FlavorText.json</c>). Push-only today; pull does not overwrite local JSON.</summary>
+        [JsonPropertyName("flavorSheetUrl")]
+        public string FlavorSheetUrl { get; set; } = "";
 
         /// <summary>
         /// Loads configuration from file

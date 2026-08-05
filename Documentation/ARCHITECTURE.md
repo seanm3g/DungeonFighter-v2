@@ -53,10 +53,15 @@ DungeonFighter/
 - **`Code/Entity/CharacterStats.cs`** - Character statistics and leveling system
 - **`Code/Entity/CharacterEquipment.cs`** - Equipment management and stat bonuses
 - **`Code/Entity/CharacterEffects.cs`** - Character-specific effects and buffs/debuffs
-- **`Code/Entity/CharacterProgression.cs`** - Experience, leveling, and skill progression
+- **`Code/Entity/CharacterProgression.cs`** - Experience, leveling, Skill Points (lifetime class points), and skill-tree learn state (`LearnedSkillNodeIds`)
 - **`Code/Entity/CharacterHealthManager.cs`** - Health management, damage, and healing logic
 - **`Code/Entity/CharacterCombatCalculator.cs`** - Combat calculations and stat computations
 - **`Code/Entity/CharacterSaveManager.cs`** - Save/load functionality for character data
+- **`Code/Config/SkillTreesConfig.cs`** + **`GameData/SkillTrees.json`** - Four class skill trees (Bronze Skin / Iron Discipline / Shadowcraft / Arcane Weave). On load/pull, `PromoteLevelOneAsRoot` makes **Level 1 - {Class}** (material-tag unlock) the free Core root; identity passives (e.g. Bronze Skin) become T1 children.
+- **`Code/Data/SkillTreesSheetConverter.cs`** - Class Upgrades sheet (gid `829575756`) ↔ `SkillTrees.json` flatten/nest for Sheets pull/push
+- **`Code/Game/SkillTree/SkillTreeService.cs`** - Learn API, node view state, action unlock names
+- **`Code/Game/SkillTree/SkillEffectRouter.cs`** - CombatEventBus passive/rule/mastery runtime
+- **`Code/Game/SkillTreeMenuHandler.cs`** - GameLoop hub (`GameState.SkillTree`) learn UI (no respec)
 
 ### **Character Actions System (Phase 1 Refactoring ✅ COMPLETE)**
 The CharacterActions system has been successfully refactored from a 828-line monolithic class into 5 focused, testable managers using the Facade pattern. **Cleanup completed** - old code removed, facade now 170 lines.
@@ -75,10 +80,10 @@ The CharacterActions system has been successfully refactored from a 828-line mon
   - Roll bonus application and removal
   - Handles equipment-based action pools
 
-- **`Code/Entity/Managers/ClassActionManager.cs`** (199 lines) - Manages class-specific actions (Barbarian, Warrior, Rogue, Wizard)
-  - AddClassActions, RemoveClassActions
-  - Per-class action logic with level gating
-  - Handles all character progression-based abilities
+- **`Code/Entity/Managers/ClassActionManager.cs`** - Class kit actions
+  - When `SkillTrees.json` is loaded: unlocks from learned skill-tree **Action** nodes only
+  - Otherwise falls back to `ClassActions.json` rules
+  - AddClassActions / RemoveClassActions; does not spend or reduce lifetime Skill Points
 
 - **`Code/Entity/Managers/ComboSequenceManager.cs`** (184 lines) - Manages combo sequences and ordering
   - GetComboActions, AddToCombo, RemoveFromCombo
@@ -155,11 +160,21 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/Combat/Events/CombatEventTypes.cs`** - Event type definitions and base event class
 
 #### Conditional Triggers
-- **`Code/Actions/Conditional/ConditionalTriggerEvaluator.cs`** - Evaluates trigger conditions
-- **`Code/Actions/Conditional/TriggerConditions.cs`** - Condition definitions and factory
+- **`Code/Actions/Conditional/ActionTriggerGate.cs`** - Live gate: OR of outcomes (`ONHIT`…`ONROOMSCLEARED`, `ONFIRSTHIT`, `ONAFTERMISS`, `ONNATURALROLL`) AND filters (`ONWIELD`, `IFCLUTCH`/HP, same/diff action, status/DoT, tags, `IFLASTENEMY`); standalone filters ⇒ connect. `ONROLLVALUE` = attack total; `ONNATURALROLL` = die face (`NaturalRollValue`).
+- **`Code/Actions/Conditional/ActionTriggerBundleApplicator.cs`** - Spreadsheet TRIGGERS triples: on matching WHEN, apply listed `→` mechanics (blank SCOPE = instant; TURN/ACTION/FIGHT/DUNGEON = lasting grant); also strip_*, retrigger_*, salvage_miss, crit_face_min, replace_next_roll
+- **`Code/Actions/Conditional/StripMutationState.cs` / `StripMutationApplier.cs`** - Fight-scoped strip disable / shuffle / pending routing / replace-next
+- **`Code/Actions/Conditional/RetriggerScheduler.cs`** - Schedules nested strip re-resolve (depth 1; distinct from Multihit)
+- **`Code/Actions/Conditional/ActionTriggerPredicates.cs`** - Filter classification and evaluation helpers
+- **`Code/Actions/Conditional/CombatTriggerContext.cs`** - Per-fight memory (first connect, after-miss, previous action, living-enemy count, strip state, miss salvage, replace-roll, crit-face-min); reset in `StartBattleNarrative`
+- **`Code/Actions/Execution/RoomClearedTriggerApplicator.cs`** - On dungeon room success: increment `SessionStatistics.RoomsCleared`, publish `RoomCleared`, apply matching pool action statuses
+- **`Code/Actions/Conditional/ConditionalTriggerEvaluator.cs`** - Typed condition evaluator (AND semantics) used by tests and advanced hooks
+- **`Code/Actions/Conditional/TriggerConditions.cs`** - Condition definitions and factory (includes `IfWieldingWeaponType`)
+- Wired from hit/miss/kill/HP-threshold/combo-end/room-clear paths in `ActionExecutionFlow` / `RoomProcessor` / `CombatEffectsSimplified`
+- **Item bridge:** weapon DoT mods use the same WHEN gate (`Modification.TriggerWhen`, default ONCRITICAL)
 
 #### Threshold Management
 - **`Code/Combat/ThresholdManager.cs`** - Dynamic threshold adjustment (crit, combo, hit) per actor
+- **`Code/Config/NaiveteBalanceHelper.cs`** / **`CombatTriggerContext` naiveté charges** - Early-game miss→advantage: fight-scoped charges (max = startingNaivete − (level−1)); on miss spend 1 and take a second d20 (keep highest), chaining until hit or empty. No longer shifts HIT thresholds (`NaiveteThresholdBonuses.Apply` is a no-op).
 
 #### Advanced Status Effects
 - **`Code/Combat/Effects/AdvancedStatusEffects/`** - 17 new status effect handlers:
@@ -178,14 +193,29 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/World/Tags/TagModifier.cs`** - Temporary tag addition/removal with duration tracking
 
 #### Combo Routing
-- **`Code/Entity/Actions/ComboRouting/ComboRouter.cs`** - Combo flow control system:
-  - Jump to slot N
-  - Skip next action
-  - Repeat previous action
-  - Loop to slot 1
-  - Stop combo early
-  - Random next action
+- **`Code/Entity/Actions/ComboRouting/ComboRouter.cs`** - Combo flow control:
+  - Jump / relative jump / skip / repeat / loop / stop / random
+  - Disable slot (fight-scoped via `StripMutationState`)
+  - Fight-scoped pending routing + shuffle overlay from trigger mechanics
+  - Skips disabled slots when advancing
 
+- **Target item combat grammar**
+  - Always-on equip math: `EquipmentBonusCalculator` / suffixes / quality multipliers / `ItemEquipEffectApplicator` (`WHILE_EQUIPPED` on `Item.EquipEffects`)
+  - **Material (always):** `LootBonusApplier.EnsureMaterial` sets `Item.Material` + Material prefix. Weapons use class ladders (`ItemMaterialRules`); armor may use class-less materials. Quality/Adjective are the optional 0–2 prefix lottery.
+  - Combat procs: WHEN × mechanic × SCOPE shared with actions
+    - Weapon* DoTs: `Modification.TriggerWhen` (default ONCRITICAL) via `CombatEffectsSimplified`
+    - Wave-2 seed catalog: identities in `Triggers.json` / `TriggersLoader` (facade `ItemTriggerIdentityCatalog` filters out material-owned names so stamp/tests stay at 106); gear `triggerName` for catalog demos; combat via `EquippedItemTriggerApplicator`; equip via `ItemEquipEffectApplicator`
+    - **Loot material pools:** `MaterialTriggerCatalog` (≥2 identities per material) → `MaterialTriggerMerge` picks one after clearing catalog stamps. `--stamp-material-triggers` merges material rows into `Triggers.json`. Supersedes main animal-suffix `StatBonusTriggerMerge` (no-op shim).
+    - Pre-roll same-swing threshold/speed from gear is `WHILE_EQUIPPED` only; combat WHEN×threshold deposits after the real event. Item self-buffs (`harden`/`focus`/`fortify`) use carrier `SelfTargetEffects`. Combat-path coverage: `ItemTriggerCombatIntegrationTests` (all identities via `ActionExecutionFlow` / room-clear / equip).
+    - Item filters use swing `combatEvent.Action` for mirror/tag; carrier holds bundles only
+    - Tokens: `ONEVEN`/`ONODD`, `IFSLOT:N`, `IFUNARMED`, `IFCLASSTAG`, `IFATTR`, `ONTAKEHIT` (defender via `ApplyFromDefender`)
+    - Same-swing: `hero_action_damage` / `hero_action_speed` / `hero_action_amp`; WHILE_EQUIPPED tag amps included in `ApplySameSwingDamageMods` / `ApplySameSwingPreRollMods`
+    - Optional `scaleFrom` on bundles: effective mag = `value` × attr/class/level (`ItemTriggerMagnitude`)
+    - Dice/threshold/accuracy/`crit_face_min` item procs use **TURN** (demos may use **DUNGEON**)
+    - Optional `ActionTriggerBundle.Value` magnitude fallback when sheet fields are empty
+  - StatBonus / animal suffixes do **not** own combat WHEN (legacy `triggerName` on suffixes is ignored)
+  - ActionBonuses stay “grant a named action that carries its own triggers”
+  - Affordance sentence: SOURCE × WHEN × IF* × DO × TARGET × MAG × SCOPE (equip = `WHILE_EQUIPPED`)
 #### Outcome Handlers
 - **`Code/Combat/Outcomes/OutcomeHandler.cs`** - Base interface for outcome handlers
 - **`Code/Combat/Outcomes/ConditionalOutcomeHandler.cs`** - Handles conditional outcomes:
@@ -298,6 +328,8 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/UI/DungeonThemeColors.cs`** - Theme-based color mapping for dungeons (24 unique dungeon themes)
 
 #### **Avalonia UI System (New Modular Architecture)**
+- **`Code/UI/Avalonia/App.axaml.cs`** / **`ApplicationShutdownHelper.cs`** - Desktop lifetime: `ShutdownMode.OnMainWindowClose`; title-bar X and Exit Game call `PerformShutdown(forceProcessExit: true)` (non-blocking ticker stop + 1.5s exit watchdog). `Code.csproj` also kills leftover `DF.exe` before build to avoid MSB3026
+- **Hover tooltips (items/actions)** — `ItemTooltipFormatter` / `CombatActionStripBuilder.Tooltips`: default Name + Rarity + Requirements (items) + Stats + Triggers; hold **Alt** (`HoverTooltipDetailState`, synced from MainWindow keys + pointer modifiers) for remaining detail. Drawn via `DungeonRenderer.RoomAndCombat` / `RightPanelRenderer` / `LeftPanelTooltipBuilder`
 - **`Code/UI/Avalonia/CanvasUICoordinator.cs`** - Main coordinator implementing IUIManager, delegates to specialized managers
 - **`Code/UI/Avalonia/CanvasUITypes.cs`** - Shared types (ClickableElement, ElementType) for UI interactions
 - **`Code/UI/Avalonia/Managers/ICanvasContextManager.cs`** - Interface for managing UI state and context

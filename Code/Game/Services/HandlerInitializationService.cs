@@ -28,6 +28,7 @@ namespace RPGGame.Game.Services
             public TuningParametersHandler? TuningParametersHandler { get; set; }
             public VariableEditorHandler? VariableEditorHandler { get; set; }
             public InventoryMenuHandler? InventoryMenuHandler { get; set; }
+            public SkillTreeMenuHandler? SkillTreeMenuHandler { get; set; }
             public WeaponSelectionHandler? WeaponSelectionHandler { get; set; }
             public CharacterCreationHandler? CharacterCreationHandler { get; set; }
             public GameLoopInputHandler? GameLoopInputHandler { get; set; }
@@ -60,6 +61,7 @@ namespace RPGGame.Game.Services
             System.Action showGameLoop,
             System.Action showMainMenu,
             System.Action showInventory,
+            System.Action showSkillTree,
             System.Action showCharacterInfo,
             System.Action<string> showMessage,
             System.Action exitGame,
@@ -85,6 +87,7 @@ namespace RPGGame.Game.Services
             result.CharacterMenuHandler = handlerResult.CharacterMenuHandler;
             result.SettingsMenuHandler = handlerResult.SettingsMenuHandler;
             result.InventoryMenuHandler = handlerResult.InventoryMenuHandler;
+            result.SkillTreeMenuHandler = handlerResult.SkillTreeMenuHandler;
             result.WeaponSelectionHandler = handlerResult.WeaponSelectionHandler;
             result.CharacterCreationHandler = handlerResult.CharacterCreationHandler;
             result.GameLoopInputHandler = handlerResult.GameLoopInputHandler;
@@ -108,7 +111,7 @@ namespace RPGGame.Game.Services
             // Wire up handler events using HandlerInitializer
             HandlerInitializer.WireHandlerEvents(
                 handlerResult, stateManager, uiManager,
-                showGameLoop, showMainMenu, showInventory, showCharacterInfo, showMessage, exitGame,
+                showGameLoop, showMainMenu, showInventory, showSkillTree, showCharacterInfo, showMessage, exitGame,
                 showDungeonSelection,
                 showDungeonCompletion, showDeathScreen, saveGame);
             
@@ -189,6 +192,7 @@ namespace RPGGame.Game.Services
                 TuningParametersHandler = result.TuningParametersHandler,
                 VariableEditorHandler = result.VariableEditorHandler,
                 InventoryMenuHandler = result.InventoryMenuHandler,
+                SkillTreeMenuHandler = result.SkillTreeMenuHandler,
                 WeaponSelectionHandler = result.WeaponSelectionHandler,
                 CharacterCreationHandler = result.CharacterCreationHandler,
                 GameLoopInputHandler = result.GameLoopInputHandler,

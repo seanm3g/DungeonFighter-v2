@@ -20,6 +20,9 @@ namespace RPGGame
         public int WarriorPoints { get; set; }
         public int RoguePoints { get; set; }
         public int WizardPoints { get; set; }
+
+        /// <summary>Learned skill-tree node ids. Omitted on legacy saves.</summary>
+        public List<string> LearnedSkillNodeIds { get; set; } = new();
         public int ComboStep { get; set; }
         public int ComboBonus { get; set; }
         public int TempComboBonus { get; set; }

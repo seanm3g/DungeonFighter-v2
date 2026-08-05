@@ -24,6 +24,16 @@ namespace RPGGame.Data
             CanonicalizeWeaponField(obj, "attackSpeed", preferWholeNumber: false);
             NormalizeWeaponDamageBonusRange(obj);
             NormalizeTagsFromSheet(obj);
+            RenameWeaponJsonKeyIfPresent(obj, "triggerName", "trigger name", "Trigger Name", "trigger");
+            obj.Remove("triggerBundles");
+            obj.Remove("equipEffects");
+            // Case-insensitive cleanup for legacy nested blobs
+            foreach (var key in obj.Select(kvp => kvp.Key).ToList())
+            {
+                if (string.Equals(key, "triggerBundles", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(key, "equipEffects", StringComparison.OrdinalIgnoreCase))
+                    obj.Remove(key);
+            }
         }
 
         /// <summary>When a row uses a human-readable header instead of JSON camelCase, move its value onto <paramref name="canonicalKey"/>.</summary>

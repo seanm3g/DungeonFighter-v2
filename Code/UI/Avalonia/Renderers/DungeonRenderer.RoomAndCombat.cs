@@ -227,8 +227,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (player == null)
                 return;
 
-            // Action-pool hover tooltip is drawn in RightPanelRenderer after pool rows (correct z-order).
-            if (RightPanelActionHoverState.HoveredPoolIndex >= 0)
+            // Gear/bag pool hover tooltips are drawn in RightPanelRenderer after pool rows (correct z-order).
+            // Must skip both: inventory strip paint runs after the right panel and would ClearInnerCenterPanelTooltipOverlay,
+            // wiping the item tooltip and leaving straddling overlay fragments in the right column.
+            if (RightPanelActionHoverState.HoveredPoolIndex >= 0
+                || RightPanelActionHoverState.HoveredInventoryPoolIndex >= 0)
                 return;
 
             int innerLeft = LayoutConstants.CENTER_PANEL_X + 1;
@@ -267,14 +270,18 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     ActionInfoStripLayout.GetPanelRect(hiStrip, displaySlotCount, out int px, out _, out int pw, out _);
                     anchorCenterX = px + pw / 2;
-                    tipLines = CombatActionStripBuilder.BuildActionTooltipLines(player, hiStrip, innerTextW, maxTooltipLines + 2, damageLineMode);
+                    tipLines = CombatActionStripBuilder.BuildActionTooltipLines(
+                        player, hiStrip, innerTextW, maxTooltipLines + 2, damageLineMode,
+                        HoverTooltipDetailState.IsAltDetailActive);
                 }
                 else if (rpSeq >= 0)
                 {
                     var combo = player.GetComboActions();
                     if (rpSeq < combo.Count)
                     {
-                        tipLines = CombatActionStripBuilder.BuildActionTooltipLines(player, rpSeq, innerTextW, maxTooltipLines + 2, damageLineMode);
+                        tipLines = CombatActionStripBuilder.BuildActionTooltipLines(
+                            player, rpSeq, innerTextW, maxTooltipLines + 2, damageLineMode,
+                            HoverTooltipDetailState.IsAltDetailActive);
                         if (filledPanelCount > 0 && displaySlotCount > 0 && rpSeq < filledPanelCount)
                         {
                             ActionInfoStripLayout.GetPanelRect(rpSeq, displaySlotCount, out int px, out _, out int pw, out _);

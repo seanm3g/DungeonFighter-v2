@@ -156,6 +156,8 @@ namespace DungeonFighter.Game.Menu.State
             RegisterTransition(new StateTransitionRule(
                 GameState.GameLoop, GameState.Inventory, "Open Inventory"));
             RegisterTransition(new StateTransitionRule(
+                GameState.GameLoop, GameState.SkillTree, "Open Skill Tree"));
+            RegisterTransition(new StateTransitionRule(
                 GameState.GameLoop, GameState.CharacterInfo, "View Character"));
             RegisterTransition(new StateTransitionRule(
                 GameState.GameLoop, GameState.Settings, "Settings"));
@@ -171,6 +173,12 @@ namespace DungeonFighter.Game.Menu.State
                 GameState.Inventory, GameState.GameLoop, "Inventory Closed"));
             RegisterTransition(new StateTransitionRule(
                 GameState.Inventory, GameState.MainMenu, "Exit to Menu"));
+
+            // Skill Tree transitions
+            RegisterTransition(new StateTransitionRule(
+                GameState.SkillTree, GameState.GameLoop, "Skill Tree Closed"));
+            RegisterTransition(new StateTransitionRule(
+                GameState.SkillTree, GameState.MainMenu, "Exit to Menu"));
 
             // Character Info transitions
             RegisterTransition(new StateTransitionRule(

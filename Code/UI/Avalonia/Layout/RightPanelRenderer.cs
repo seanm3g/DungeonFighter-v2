@@ -311,7 +311,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (rpPool >= pool.Count)
                     return;
 
-                tipLines = CombatActionStripBuilder.BuildActionTooltipLinesForAction(character, pool[rpPool], innerTextW, maxTooltipLines + 2);
+                tipLines = CombatActionStripBuilder.BuildActionTooltipLinesForAction(
+                    character, pool[rpPool], innerTextW, maxTooltipLines + 2,
+                    includeExtendedDetails: HoverTooltipDetailState.IsAltDetailActive);
             }
             if (tipLines == null || tipLines.Count == 0)
                 return;
@@ -352,8 +354,10 @@ namespace RPGGame.UI.Avalonia.Layout
         {
             int innerTextWDraw = Math.Max(4, boxWFinal - 2);
             int contentRows = HoverTooltipColoredDrawing.CountDisplayRows(coloredLines, innerTextWDraw, maxTooltipLines);
+            // Keep bag-item tooltips fully inside the center panel so a later strip overlay clear
+            // cannot leave orphan fragments in the right column (gear-pool action tips may still straddle).
             int idealX = InventoryRightPanelLayout.GetPoolTooltipIdealBoxLeft(boxWFinal);
-            int boxX = InventoryRightPanelLayout.ClampPoolTooltipBoxLeft(idealX, boxWFinal);
+            int boxX = Math.Max(innerLeft, Math.Min(idealX, innerRight - boxWFinal + 1));
             int boxH = contentRows + 2;
             int maxBoxBottom = LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT - 2;
             int boxY = rowY + 1;

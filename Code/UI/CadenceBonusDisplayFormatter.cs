@@ -34,6 +34,8 @@ namespace RPGGame.UI
                 "SPEED_MOD" => $"{sign}{b.Value:0}% SPD",
                 "MULTIHIT_MOD" => $"{sign}{b.Value:0} MH",
                 "AMP_MOD" => $"{sign}{b.Value:0}% AMP",
+                "WEAPON_SPEED" => $"{sign}{b.Value:0} WPN SPD",
+                "WEAPON_DAMAGE" => $"{sign}{b.Value:0} WPN DMG",
                 "STR" or "STRENGTH" => $"{sign}{b.Value:0} STR",
                 "AGI" or "AGILITY" => $"{sign}{b.Value:0} AGI",
                 "TECH" or "TECHNIQUE" => $"{sign}{b.Value:0} TECH",

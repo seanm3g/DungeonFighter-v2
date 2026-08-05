@@ -359,6 +359,8 @@ namespace RPGGame
             
             // Start battle narrative and initialize action speed system
             StartBattleNarrative(player.Name, currentEnemy.Name, room.Name, player.CurrentHealth, currentEnemy.CurrentHealth);
+            SkillEffectRouter.Instance.RefreshForCharacter(player);
+            RPGGame.Actions.Conditional.CombatTriggerContext.SetLivingEnemyCountFromRoom(room);
             
             // Initialize combat entities AFTER action speed system is created
             InitializeCombatEntities(player, currentEnemy, room, playerGetsFirstAttack, enemyGetsFirstAttack);

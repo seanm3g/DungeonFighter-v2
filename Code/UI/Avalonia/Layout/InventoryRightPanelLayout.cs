@@ -25,6 +25,12 @@ namespace RPGGame.UI.Avalonia.Layout
         }
 
         /// <summary>
+        /// Advances Y past a section header + subtitle block the same way
+        /// <see cref="RightPanelRenderer.RenderInventoryRightPanel"/> does (<c>y++</c> after header, then <c>y += 2</c> after subtitle).
+        /// </summary>
+        private static int AdvancePastHeaderAndSubtitle(int y) => y + 1 + 2;
+
+        /// <summary>
         /// Grid row (character Y) of the action pool line for <paramref name="poolIndex"/> when that row is visible.
         /// </summary>
         /// <returns>False when the index is invalid or the row is not rendered (scrolled past bottom).</returns>
@@ -41,13 +47,13 @@ namespace RPGGame.UI.Avalonia.Layout
             int y = LayoutConstants.RIGHT_PANEL_Y + 1;
             int panelBottom = LayoutConstants.RIGHT_PANEL_Y + LayoutConstants.RIGHT_PANEL_HEIGHT - 2;
 
-            y++;
-            y++;
-            y += 2;
+            // SEQUENCE header + "(order = strip)"
+            y = AdvancePastHeaderAndSubtitle(y);
 
             var comboActions = character.GetComboActions();
             if (comboActions.Count > 0)
             {
+                // "Step: N/M" then blank
                 y += 2;
 
                 const int actionPoolReserve = 16;
@@ -64,15 +70,16 @@ namespace RPGGame.UI.Avalonia.Layout
             }
             else
             {
+                // "(empty)" then blank
                 y += 2;
             }
 
-            y += 1;
+            y += 1; // spacing before POOL
 
-            y++;
-            y++;
-            y += 2;
+            // POOL header + "(from gear)"
+            y = AdvancePastHeaderAndSubtitle(y);
 
+            // "Total: N" then blank
             y += 2;
 
             int poolIdx = 0;
@@ -108,9 +115,8 @@ namespace RPGGame.UI.Avalonia.Layout
             int y = LayoutConstants.RIGHT_PANEL_Y + 1;
             int panelBottom = LayoutConstants.RIGHT_PANEL_Y + LayoutConstants.RIGHT_PANEL_HEIGHT - 2;
 
-            y++;
-            y++;
-            y += 2;
+            // SEQUENCE header + "(order = strip)"
+            y = AdvancePastHeaderAndSubtitle(y);
 
             var comboActions = character.GetComboActions();
             if (comboActions.Count > 0)
@@ -134,15 +140,15 @@ namespace RPGGame.UI.Avalonia.Layout
                 y += 2;
             }
 
-            y += 1;
+            y += 1; // spacing before POOL
 
-            y++;
-            y++;
-            y += 2;
+            // POOL header + "(from gear)"
+            y = AdvancePastHeaderAndSubtitle(y);
 
             var actionPool = character.GetActionPool();
             if (actionPool.Count > 0)
             {
+                // "Total: N" then blank
                 y += 2;
 
                 int poolIdx = 0;
@@ -157,13 +163,16 @@ namespace RPGGame.UI.Avalonia.Layout
             }
             else
             {
+                // "(No actions)"
                 y++;
             }
 
-            y += 1;
-            y++;
-            y++;
-            y += 2;
+            y += 1; // spacing before INVENTORY
+
+            // INVENTORY header + "(from bag)"
+            y = AdvancePastHeaderAndSubtitle(y);
+
+            // "Total: N" then blank (empty bag uses a single "(empty)" line and never reaches here)
             y += 2;
 
             int invFlat = 0;

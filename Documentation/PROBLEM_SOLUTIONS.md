@@ -4,6 +4,33 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: Closing the window left DF.exe locked (August 2026)
+**Problem:** Hitting the title-bar **X** closed the UI but `DF.exe` often stayed alive, so the next build failed with `MSB3026` (`DF.exe` locked by process `DF`).
+
+**Root cause:** Menu Exit Game called `Environment.Exit(0)` after cleanup; the window-close path only ran `ApplicationShutdownHelper.PerformShutdown()` and relied on Avalonia lifetime. SoundFlow/native threads could keep the process alive after the main window closed.
+
+**Solutions:**
+1. Main window `Closing` and desktop `Exit` call `PerformShutdown(forceProcessExit: true)`
+2. Forced exit starts a 1.5s watchdog so hung audio dispose cannot leave a zombie process
+3. Ticker `Stop(waitForExit: false)` on shutdown so Closing is not blocked on `Task.Wait`
+4. Menu Exit Game uses the same helper
+5. `Code.csproj` kills leftover `DF.exe` before `BeforeBuild` (with a short settle delay)
+6. Tests: `ApplicationShutdownHelperTests`
+
+**Related files:** `App.axaml.cs`, `ApplicationShutdownHelper.cs`, `SettingsMenuHandler.cs`, `GameTicker.cs`, `Code.csproj`
+
+### Class Skill Trees — Skill Points vs rank (August 2026)
+**Problem:** Spending class points into skills must not lower titles, combo slot tiers, or item scaling that key off lifetime path investment.
+
+**Solutions:**
+1. Keep `BarbarianPoints` / `WarriorPoints` / `RoguePoints` / `WizardPoints` as **lifetime** Skill Points
+2. Spent amount is derived from learned node costs in `SkillTrees.json`; `Available = Lifetime − Spent`
+3. `TryLearnSkillNode` never calls `RemoveClassPoint`; roots auto-grant at cost 0 when a path has ≥1 lifetime point
+4. Hub: `GameState.SkillTree` beside Inventory; primary path only for spending; learned nodes stay active if path is no longer primary
+5. Tests: `SkillTreeProgressionTests`, updated `ClassActionManagerTests`
+
+**Related files:** `CharacterProgression.cs`, `SkillTreesConfig.cs`, `SkillTreeService.cs`, `SkillEffectRouter.cs`, `SkillTreeMenuHandler.cs`, `ClassActionManager.cs`
+
 ### Bug fix: Return to main menu after character snapshot appeared to quit (July 2026)
 **Problem:** After Inventory → Snapshot for Action Lab, returning to the main menu (Game Loop → **0**) did nothing on screen, then another **0** closed the app.
 

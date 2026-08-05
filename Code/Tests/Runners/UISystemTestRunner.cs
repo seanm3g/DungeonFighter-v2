@@ -42,6 +42,7 @@ namespace RPGGame.Tests.Runners
             ThresholdModificationTooltipBuilderTests.RunAllTests();
             StatTooltipFormatterTests.RunAllTests();
             ItemTooltipFormatterTests.RunAllTests();
+            HoverTooltipDetailStateTests.RunAllTests();
             Console.WriteLine();
             KeyInputConverterTests.RunAllTests();
             Console.WriteLine();
@@ -74,6 +75,7 @@ namespace RPGGame.Tests.Runners
             DisplayRendererClearBandRegressionTests.RunAllTests();
             Console.WriteLine();
             CombatMessageHandlerTests.RunAllTests();
+            ColoredTextCoordinatorTests.RunAllTests();
             Console.WriteLine();
             LayoutConstantsCenterPanelHitTests.RunAllTests();
             Console.WriteLine();
@@ -123,6 +125,7 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             TitleScreenAsciiSpacingTests.RunAllTests();
             TitleScreenAnimationTests.RunAllTests();
+            TitleToMenuBootstrapTests.RunAllTests();
             Console.WriteLine();
             
             // Spacing System Tests

@@ -30,6 +30,9 @@ namespace RPGGame
         {
             string t = NormalizeEquipmentStatKey(statType);
             int flat = GetFlatEquipmentStatInteger(t);
+            if (characterContext != null)
+                flat += ItemEquipEffectApplicator.GetEquippedStatBonus(characterContext, t);
+
             if (characterContext == null)
                 return flat + SumSuffixStatBonusFlatInteger(t);
 
@@ -106,6 +109,8 @@ namespace RPGGame
         {
             int totalArmor = GetIntrinsicEquippedArmorTotal();
             totalArmor += GetStatBonus("Armor", characterContext);
+            if (characterContext != null)
+                totalArmor += ItemEquipEffectApplicator.GetEquippedArmorBonus(characterContext);
             return totalArmor;
         }
 

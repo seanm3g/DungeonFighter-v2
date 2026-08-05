@@ -52,10 +52,18 @@ namespace RPGGame.Data
         [JsonPropertyName("cadenceDuration")]
         public string CadenceDuration { get; set; } = "";
 
+        /// <summary>CADENCES triples JSON (enable / duration / mechanic pointers).</summary>
+        [JsonPropertyName("cadenceBundlesJson")]
+        public string CadenceBundlesJson { get; set; } = "";
+
         [JsonPropertyName("opener")]
         public string Opener { get; set; } = "";
 
         [JsonPropertyName("finisher")]
         public string Finisher { get; set; } = "";
+
+        /// <summary>RESERVE POOL column — truthy / empty; maps to <c>reserve_pool</c> tag.</summary>
+        [JsonPropertyName("reservePool")]
+        public string ReservePool { get; set; } = "";
     }
 }

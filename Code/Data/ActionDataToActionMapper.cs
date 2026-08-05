@@ -130,6 +130,14 @@ namespace RPGGame
             action.RollMods.EnemyHitThresholdAdjustment = data.EnemyHitThresholdAdjustment;
             action.RollMods.ApplyThresholdAdjustmentsToBoth = data.ApplyThresholdAdjustmentsToBoth;
 
+            // Exploding dice from sheet EXPLODING DICE THRESHOLD (1–20).
+            if (int.TryParse((data.ExplodingDiceThreshold ?? "").Trim(), out int explodeAt)
+                && explodeAt >= 1 && explodeAt <= 20)
+            {
+                action.RollMods.ExplodingDice = true;
+                action.RollMods.ExplodingDiceThreshold = explodeAt;
+            }
+
             action.ActionAttackBonuses = CloneActionAttackBonuses(data.ActionAttackBonuses);
             ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(action);
 
@@ -141,11 +149,20 @@ namespace RPGGame
             action.EnemyDamageMod = data.EnemyDamageMod ?? "";
             action.EnemyMultiHitMod = data.EnemyMultiHitMod ?? "";
             action.EnemyAmpMod = data.EnemyAmpMod ?? "";
+            action.WeaponSpeedMod = data.WeaponSpeedMod ?? "";
+            action.WeaponDamageMod = data.WeaponDamageMod ?? "";
+            action.EnemyWeaponSpeedMod = data.EnemyWeaponSpeedMod ?? "";
+            action.EnemyWeaponDamageMod = data.EnemyWeaponDamageMod ?? "";
             action.Cadence = data.Cadence ?? "";
 
             action.Triggers.TriggerConditions = data.TriggerConditions != null
                 ? new List<string>(data.TriggerConditions)
                 : new List<string>();
+            action.Triggers.ExactRollTriggerValue = data.ExactRollTriggerValue;
+            action.Triggers.RoomsClearedTriggerValue = data.RoomsClearedTriggerValue;
+            action.Triggers.Bundles = data.TriggerBundles != null
+                ? new List<ActionTriggerBundle>(data.TriggerBundles)
+                : new List<ActionTriggerBundle>();
 
             if (int.TryParse(data.Jump?.Trim(), out int jumpVal) && jumpVal > 0)
                 action.ComboRouting.JumpToSlot = jumpVal;

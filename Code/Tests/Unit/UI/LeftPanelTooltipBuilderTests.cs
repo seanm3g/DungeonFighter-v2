@@ -146,12 +146,9 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(hitTip.Any(l => l.Contains("Panel:", StringComparison.Ordinal) && l.Contains("min roll to hit", StringComparison.Ordinal)),
                 "hit threshold tooltip shows panel line",
                 ref run, ref passed, ref failed);
-            if (NaiveteBalanceHelper.GetHitSteps(c) > 0)
-            {
-                TestBase.AssertTrue(hitTip.Any(l => l.Contains("Naiveté", StringComparison.OrdinalIgnoreCase)),
-                    "hit threshold tooltip names naiveté when active",
-                    ref run, ref passed, ref failed);
-            }
+            TestBase.AssertTrue(!hitTip.Any(l => l.Contains("Naiveté", StringComparison.OrdinalIgnoreCase)),
+                "hit threshold tooltip no longer lists naiveté (miss→advantage, not HIT steps)",
+                ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("LeftPanelTooltipBuilder Tests", run, passed, failed);
         }

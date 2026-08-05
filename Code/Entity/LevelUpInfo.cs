@@ -17,6 +17,10 @@ namespace RPGGame
         public string? ClassUpgradeInfo { get; set; }
         public int ActionSlotIncrease { get; set; }
         public bool HasWeapon { get; set; }
+        /// <summary>Available Skill Points on the weapon path after this level-up award.</summary>
+        public int SkillPointsAvailable { get; set; }
+        public bool AwardedSkillPoint { get; set; }
+
         
         /// <summary>
         /// Returns true if this represents a valid level-up (has level information)
@@ -37,7 +41,10 @@ namespace RPGGame
             
             if (HasWeapon && !string.IsNullOrEmpty(ClassName))
             {
-                messages.Add($"Gained +1 {ClassName} class point!");
+                if (AwardedSkillPoint)
+                    messages.Add($"Gained +1 Skill Point ({SkillPointsAvailable} available)!");
+                else
+                    messages.Add($"Gained +1 {ClassName} class point!");
                 if (!string.IsNullOrEmpty(StatIncreaseMessage))
                 {
                     messages.Add($"Stats increased: {StatIncreaseMessage}");
@@ -53,6 +60,10 @@ namespace RPGGame
                 if (!string.IsNullOrEmpty(ClassPointsInfo))
                 {
                     messages.Add($"Class Points: {ClassPointsInfo}");
+                }
+                if (AwardedSkillPoint && SkillPointsAvailable > 0)
+                {
+                    messages.Add("Unspent Skill Points — open Skill Tree from the game menu to learn nodes.");
                 }
                 if (ActionSlotIncrease > 0)
                 {
@@ -73,4 +84,3 @@ namespace RPGGame
         }
     }
 }
-

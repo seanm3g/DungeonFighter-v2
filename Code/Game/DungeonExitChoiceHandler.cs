@@ -87,13 +87,13 @@ namespace RPGGame
                 .Add("2", ColorPalette.Warning)
                 .Add(" - Leave the dungeon", ColorPalette.White);
 
+            // Leading blank before the top divider; options sit flush against the bottom divider.
             return new List<List<ColoredText>>
             {
                 new ColoredTextBuilder().Build(),
                 separatorBuilder.Build(),
                 option1Builder.Build(),
                 option2Builder.Build(),
-                new ColoredTextBuilder().Build(),
                 separatorBuilder.Build()
             };
         }

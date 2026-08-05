@@ -45,6 +45,7 @@ namespace RPGGame
         private TuningParametersHandler? tuningParametersHandler;
         private VariableEditorHandler? variableEditorHandler;
         private InventoryMenuHandler? inventoryMenuHandler;
+        private SkillTreeMenuHandler? skillTreeMenuHandler;
         private WeaponSelectionHandler? weaponSelectionHandler;
         private CharacterCreationHandler? characterCreationHandler;
         private GameLoopInputHandler? gameLoopInputHandler;
@@ -149,6 +150,7 @@ namespace RPGGame
                 ShowGameLoop,
                 ShowMainMenu,
                 ShowInventory,
+                ShowSkillTree,
                 ShowCharacterInfo,
                 ShowMessage,
                 ExitGame,
@@ -172,6 +174,7 @@ namespace RPGGame
             tuningParametersHandler = result.TuningParametersHandler;
             variableEditorHandler = result.VariableEditorHandler;
             inventoryMenuHandler = result.InventoryMenuHandler;
+            skillTreeMenuHandler = result.SkillTreeMenuHandler;
             weaponSelectionHandler = result.WeaponSelectionHandler;
             characterCreationHandler = result.CharacterCreationHandler;
             gameLoopInputHandler = result.GameLoopInputHandler;
@@ -271,6 +274,13 @@ namespace RPGGame
             screenCoordinator.ShowInventory();
         }
 
+        public void ShowSkillTree()
+        {
+            // Same as Inventory: coordinator runs ScreenTransitionProtocol (clears hub menu).
+            skillTreeMenuHandler?.PrepareForShow();
+            screenCoordinator.ShowSkillTree();
+        }
+
         /// <summary>
         /// Inventory: remove the combo action at <paramref name="slotIndex"/> from the top action strip (pointer right-click).
         /// Delegates to <see cref="InventoryMenuHandler.TryHandleStripRightClickRemove"/> (weapon-required rules; blocked during
@@ -303,6 +313,10 @@ namespace RPGGame
                 case GameState.Inventory:
                     canvasUI.Clear();
                     inventoryMenuHandler?.RefreshInventoryScreen();
+                    break;
+                case GameState.SkillTree:
+                    canvasUI.Clear();
+                    skillTreeMenuHandler?.Refresh();
                     break;
                 case GameState.GameLoop:
                     if (player != null)

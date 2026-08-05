@@ -199,6 +199,13 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(tipOk != null && tipOk.Count >= 3 && tipOk[1] == "",
                 "BuildActionTooltipLines inserts a blank line after action title",
                 ref run, ref passed, ref failed);
+            TestBase.AssertTrue(tipJoined.Contains("Stats", StringComparison.Ordinal),
+                "BuildActionTooltipLines compact mode has Stats section",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(tipJoined.Contains("Hold Alt for more", StringComparison.Ordinal)
+                    || !tipJoined.Contains("Type ", StringComparison.Ordinal),
+                "BuildActionTooltipLines compact mode hints Alt or has no extended metadata",
+                ref run, ref passed, ref failed);
 
             // Multihit: strip panel uses NxN flat damage; tooltip uses NxN% damage
             var charMultiHit = CreateCharacterWithComboAction();
@@ -261,11 +268,17 @@ namespace RPGGame.Tests.Unit.UI
                 comboActs[0].EnemyDamageMod = "10";
                 comboActs[0].AmpMod = "10";
             }
-            var tipSheet = CombatActionStripBuilder.BuildActionTooltipLines(charSheetMods, 0, 80);
+            var tipSheetCompact = CombatActionStripBuilder.BuildActionTooltipLines(charSheetMods, 0, 80);
+            string tipSheetCompactJoined = tipSheetCompact != null ? string.Join("\n", tipSheetCompact) : "";
+            TestBase.AssertTrue(!tipSheetCompactJoined.Contains("enemy damage +10%", StringComparison.Ordinal)
+                    && tipSheetCompactJoined.Contains("Hold Alt for more", StringComparison.Ordinal),
+                "BuildActionTooltipLines compact mode defers spreadsheet mods behind Alt",
+                ref run, ref passed, ref failed);
+            var tipSheet = CombatActionStripBuilder.BuildActionTooltipLines(charSheetMods, 0, 80, includeExtendedDetails: true);
             string tipSheetJoined = tipSheet != null ? string.Join("\n", tipSheet) : "";
             TestBase.AssertTrue(tipSheetJoined.Contains("enemy damage +10%", StringComparison.Ordinal)
                 && tipSheetJoined.Contains("Hero Amp +10%", StringComparison.Ordinal),
-                "BuildActionTooltipLines lists spreadsheet hero/enemy mods on separate friendly lines",
+                "BuildActionTooltipLines Alt mode lists spreadsheet hero/enemy mods on separate friendly lines",
                 ref run, ref passed, ref failed);
 
             var charFlavor = CreateCharacterWithComboAction();
@@ -305,21 +318,30 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
 
             var charMechanical = CreateCharacterWithMechanicallyRichAction();
-            string tipMechanical = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charMechanical, 0, 120, 80));
+            string tipMechanicalCompact = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charMechanical, 0, 120, 80));
+            TestBase.AssertTrue(
+                tipMechanicalCompact.Contains("Triggers", StringComparison.Ordinal)
+                && tipMechanicalCompact.Contains("ONHIT", StringComparison.Ordinal)
+                && !tipMechanicalCompact.Contains("Hero accuracy +2", StringComparison.Ordinal)
+                && tipMechanicalCompact.Contains("Hold Alt for more", StringComparison.Ordinal),
+                "BuildActionTooltipLines compact mode shows Triggers but not Alt-only mechanics",
+                ref run, ref passed, ref failed);
+            string tipMechanical = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charMechanical, 0, 120, 80, includeExtendedDetails: true));
             TestBase.AssertTrue(
                 !tipMechanical.Contains("Type Attack | Target AOE | combo action", StringComparison.Ordinal)
                 && tipMechanical.Contains("Hero accuracy +2", StringComparison.Ordinal)
                 && tipMechanical.Contains("Enemy accuracy -3", StringComparison.Ordinal)
                 && tipMechanical.Contains("Roll dice: 2d20 TakeHighest", StringComparison.Ordinal)
                 && tipMechanical.Contains("Set thresholds H=6 C=12 Cr=19 Cm=2", StringComparison.Ordinal)
-                && tipMechanical.Contains("Triggers: ONHIT, ONCRITICAL", StringComparison.Ordinal)
+                && tipMechanical.Contains("ONHIT", StringComparison.Ordinal)
+                && tipMechanical.Contains("ONCRITICAL", StringComparison.Ordinal)
                 && tipMechanical.Contains("Statuses: Stun, Bleed +2, Poison +3% max HP, Burn +4", StringComparison.Ordinal)
                 && tipMechanical.Contains("Combo route: jump to slot 3", StringComparison.Ordinal)
                 && tipMechanical.Contains("Chain position bonuses: Damage +10% per AmpTier", StringComparison.Ordinal)
                 && tipMechanical.Contains("Stat bonus (Dungeon): STR +2, PRIMARY +1", StringComparison.Ordinal)
                 && tipMechanical.Contains("Threshold rules: Enemy Health <= 25%", StringComparison.Ordinal)
                 && tipMechanical.Contains("Accumulation: HitsLanded -> Damage +5", StringComparison.Ordinal),
-                "BuildActionTooltipLines includes full runtime mechanics for a complex action",
+                "BuildActionTooltipLines Alt mode includes full runtime mechanics for a complex action",
                 ref run, ref passed, ref failed);
 
             var richAction = charMechanical.GetComboActions()[0];

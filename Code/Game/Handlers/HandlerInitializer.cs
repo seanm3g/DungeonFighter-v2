@@ -20,6 +20,7 @@ namespace RPGGame.Handlers
             public CharacterMenuHandler? CharacterMenuHandler { get; set; }
             public SettingsMenuHandler? SettingsMenuHandler { get; set; }
             public InventoryMenuHandler? InventoryMenuHandler { get; set; }
+            public SkillTreeMenuHandler? SkillTreeMenuHandler { get; set; }
             public WeaponSelectionHandler? WeaponSelectionHandler { get; set; }
             public CharacterCreationHandler? CharacterCreationHandler { get; set; }
             public GameLoopInputHandler? GameLoopInputHandler { get; set; }
@@ -57,6 +58,7 @@ namespace RPGGame.Handlers
                 CharacterMenuHandler = new CharacterMenuHandler(stateManager, uiManager),
                 SettingsMenuHandler = new SettingsMenuHandler(stateManager, uiManager),
                 InventoryMenuHandler = new InventoryMenuHandler(stateManager, uiManager),
+                SkillTreeMenuHandler = new SkillTreeMenuHandler(stateManager, uiManager),
                 WeaponSelectionHandler = weaponSelectionHandler,
                 CharacterCreationHandler = new CharacterCreationHandler(stateManager, uiManager),
                 GameLoopInputHandler = new GameLoopInputHandler(stateManager),
@@ -82,6 +84,7 @@ namespace RPGGame.Handlers
             System.Action showGameLoop,
             System.Action showMainMenu,
             System.Action showInventory,
+            System.Action showSkillTree,
             System.Action showCharacterInfo,
             System.Action<string> showMessage,
             System.Action exitGame,
@@ -152,11 +155,18 @@ namespace RPGGame.Handlers
                 handlers.InventoryMenuHandler.ShowGameLoopEvent += () => showGameLoop();
                 handlers.InventoryMenuHandler.ShowMessageEvent += (msg) => showMessage(msg);
             }
+
+            if (handlers.SkillTreeMenuHandler != null)
+            {
+                handlers.SkillTreeMenuHandler.ShowGameLoopEvent += () => showGameLoop();
+                handlers.SkillTreeMenuHandler.ShowMessageEvent += (msg) => showMessage(msg);
+            }
             
             if (handlers.GameLoopInputHandler != null)
             {
                 handlers.GameLoopInputHandler.SelectDungeonEvent += async () => await (showDungeonSelection?.Invoke() ?? Task.CompletedTask);
                 handlers.GameLoopInputHandler.ShowInventoryEvent += () => showInventory();
+                handlers.GameLoopInputHandler.ShowSkillTreeEvent += () => showSkillTree();
                 handlers.GameLoopInputHandler.ShowRegionTravelEvent += () => handlers.RegionTravelHandler?.ShowRegionTravel();
                 handlers.GameLoopInputHandler.ShowCharacterSelectionEvent += () => handlers.CharacterManagementHandler?.ShowCharacterSelection();
                 handlers.GameLoopInputHandler.ExitGameEvent += () => exitGame();
@@ -274,6 +284,7 @@ namespace RPGGame.Handlers
             {
                 handlers.DungeonCompletionHandler.StartDungeonSelectionEvent += () => { handlers.DungeonSelectionHandler?.ShowDungeonSelection(); return Task.CompletedTask; };
                 handlers.DungeonCompletionHandler.ShowInventoryEvent += () => showInventory();
+                handlers.DungeonCompletionHandler.ShowSkillTreeEvent += () => showSkillTree();
                 handlers.DungeonCompletionHandler.ShowMainMenuEvent += () => showMainMenu();
                 handlers.DungeonCompletionHandler.SaveGameEvent += async () => { saveGame(); await Task.CompletedTask; };
             }

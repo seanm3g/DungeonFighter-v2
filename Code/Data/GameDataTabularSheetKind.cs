@@ -15,6 +15,8 @@ namespace RPGGame.Data
         /// <summary><c>StatBonuses.json</c> — rolled item suffix names / stat lines (sheet tab often named SUFFIXES).</summary>
         StatBonuses,
         /// <summary><c>Consumables.json</c> — room-search food and dungeon potions (sheet tab CONSUMABLES).</summary>
-        Consumables
+        Consumables,
+        /// <summary><c>Triggers.json</c> — item trigger identity catalog (sheet tab triggers).</summary>
+        Triggers
     }
 }

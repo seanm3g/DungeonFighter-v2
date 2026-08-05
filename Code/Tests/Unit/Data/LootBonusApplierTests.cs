@@ -203,11 +203,17 @@ namespace RPGGame.Tests.Unit.Data
 
                 var item = TestDataBuilders.Item().WithName("T").Build();
                 var applier = new LootBonusApplier(cache, new Random(3));
-                applier.ApplyPrefixSlots(item, 3, null);
+                applier.ApplyPrefixSlots(item, 2, null);
 
-                TestBase.AssertEqual(3, item.Modifications.Count, "three prefix slots", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(2, item.Modifications.Count, "two Q/A prefix slots", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 string names = string.Join(",", item.Modifications.Select(m => m.Name).OrderBy(x => x));
-                TestBase.AssertEqual("Ar,Mr,Qr", names, "rare-only picks per category", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual("Ar,Qr", names, "rare-only picks per Q/A category", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                applier.EnsureMaterial(item, "Rare");
+                TestBase.AssertTrue(!string.IsNullOrWhiteSpace(item.Material), "material always set", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(
+                    item.Modifications.Count(m => m.GetPrefixCategory() == ModificationPrefixCategory.Material) == 1,
+                    "exactly one material mod", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             catch (Exception ex)
             {
@@ -320,8 +326,14 @@ namespace RPGGame.Tests.Unit.Data
                 var applier = new LootBonusApplier(cache, new Random(42));
                 applier.ApplyBonuses(item, rarityFromTable);
 
-                TestBase.AssertEqual(0, item.Modifications.Count,
-                    "Tuning prefixSlots=0 should yield no prefix modifications",
+                TestBase.AssertEqual(1, item.Modifications.Count(m => m.GetPrefixCategory() == ModificationPrefixCategory.Material),
+                    "Material is always present even when tuning prefixSlots=0",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(0, item.Modifications.Count(m => m.GetPrefixCategory() != ModificationPrefixCategory.Material),
+                    "Tuning prefixSlots=0 should yield no Quality/Adjective modifications",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!string.IsNullOrWhiteSpace(item.Material),
+                    "Item.Material set",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(1, item.StatBonuses.Count,
                     "Tuning statSuffixes=1 should yield exactly one stat bonus (ignore RarityTable 99)",

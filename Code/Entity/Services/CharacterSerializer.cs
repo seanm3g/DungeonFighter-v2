@@ -37,6 +37,10 @@ namespace RPGGame.Entity.Services
                 WarriorPoints = character.Progression.WarriorPoints,
                 RoguePoints = character.Progression.RoguePoints,
                 WizardPoints = character.Progression.WizardPoints,
+                LearnedSkillNodeIds = character.Progression.LearnedSkillNodeIds
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList(),
                 ComboStep = character.Effects.ComboStep,
                 ComboBonus = character.Effects.ComboBonus,
                 TempComboBonus = character.Effects.TempComboBonus,
@@ -101,6 +105,11 @@ namespace RPGGame.Entity.Services
             character.Progression.WarriorPoints = saveData.WarriorPoints;
             character.Progression.RoguePoints = saveData.RoguePoints;
             character.Progression.WizardPoints = saveData.WizardPoints;
+            character.Progression.LearnedSkillNodeIds = new HashSet<string>(
+                (saveData.LearnedSkillNodeIds ?? new List<string>())
+                    .Where(id => !string.IsNullOrWhiteSpace(id)),
+                StringComparer.OrdinalIgnoreCase);
+            character.Progression.EnsureSkillTreeRootsGranted();
             character.Effects.ComboStep = saveData.ComboStep;
             character.Effects.ComboBonus = saveData.ComboBonus;
             character.Effects.TempComboBonus = saveData.TempComboBonus;
@@ -158,7 +167,21 @@ namespace RPGGame.Entity.Services
                 : null;
             character.Actions.AddClassActions(character, character.Progression, weaponType);
 
+            SkillEffectRouter.Instance.RefreshForCharacter(character);
+
             EnsureUnarmedTutorialActionInActionPool(character);
+            ItemEquipEffectApplicator.RefreshGrantedActionTags(character);
+            foreach (string actionName in ItemEquipEffectApplicator.GetGrantedActionNames(character))
+            {
+                if (string.IsNullOrWhiteSpace(actionName))
+                    continue;
+                if (character.ActionPool.Any(e =>
+                        string.Equals(e.action.Name, actionName, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+                var loaded = ActionLoader.GetAction(actionName);
+                if (loaded != null)
+                    character.AddAction(loaded, 1.0);
+            }
 
             // Restore user's combo sequence if possible; otherwise use default
             bool restored = character.RestoreComboFromActionNames(savedComboNames);

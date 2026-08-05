@@ -39,11 +39,18 @@ namespace RPGGame.Actions.Conditional
         {
             return condition.Type switch
             {
-                TriggerConditionType.OnMiss => evt.IsMiss,
-                TriggerConditionType.OnNormalHit => evt.Type == CombatEventType.ActionHit && !evt.IsCombo && !evt.IsCritical,
-                TriggerConditionType.OnComboHit => evt.IsCombo,
-                TriggerConditionType.OnCriticalHit => evt.IsCritical,
+                TriggerConditionType.OnMiss => evt.IsMiss || evt.Type == CombatEventType.ActionMiss,
+                TriggerConditionType.OnNormalHit => evt.Type == CombatEventType.ActionHit && !evt.IsCombo && !evt.IsCritical && !evt.IsMiss,
+                TriggerConditionType.OnConnect => evt.Type == CombatEventType.ActionHit && !evt.IsMiss,
+                TriggerConditionType.OnComboHit => evt.IsCombo && !evt.IsMiss,
+                TriggerConditionType.OnCriticalHit => evt.IsCritical && !evt.IsMiss,
+                TriggerConditionType.OnCriticalMiss => evt.IsCriticalMiss,
+                TriggerConditionType.OnKill => evt.Type == CombatEventType.EnemyDied,
                 TriggerConditionType.OnExactRollValue => evt.RollValue == (int)(condition.Value ?? 0),
+                TriggerConditionType.OnHealthThreshold => evt.Type == CombatEventType.EnemyHealthThreshold,
+                TriggerConditionType.OnComboEnd => evt.Type == CombatEventType.ComboEnded,
+                TriggerConditionType.OnRoomsCleared => evt.Type == CombatEventType.RoomCleared
+                    && ((int)(condition.Value ?? 0) <= 0 || evt.RoomsClearedCount == (int)(condition.Value ?? 0)),
                 TriggerConditionType.IfSameActionUsedPreviously => CheckSameActionUsedPreviously(source, action),
                 TriggerConditionType.IfDifferentActionUsedPreviously => CheckDifferentActionUsedPreviously(source, action),
                 TriggerConditionType.IfActionHasTag => action != null && action.Tags.Contains(condition.Tag ?? ""),
@@ -54,8 +61,22 @@ namespace RPGGame.Actions.Conditional
                 TriggerConditionType.IfSourceHealthAbove => GetHealthPercentage(source) >= (double)(condition.Value ?? 0.0),
                 TriggerConditionType.IfComboPosition => CheckComboPosition(source, condition.ComboPosition ?? 0),
                 TriggerConditionType.IfComboLength => CheckComboLength(source, (int)(condition.Value ?? 0)),
+                TriggerConditionType.IfWieldingWeaponType => CheckWieldingWeaponType(source, condition.Value),
                 _ => false
             };
+        }
+
+        private bool CheckWieldingWeaponType(Actor source, object? value)
+        {
+            WeaponType required;
+            if (value is WeaponType wt)
+                required = wt;
+            else if (value is string s && ActionTriggerGate.TryParseWeaponTypeName(s, out required))
+            { }
+            else
+                return false;
+
+            return ActionTriggerGate.MatchesWieldFilter(source, new[] { required });
         }
 
         private bool CheckSameActionUsedPreviously(Actor source, Action? currentAction)

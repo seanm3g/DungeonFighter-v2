@@ -21,6 +21,7 @@ namespace RPGGame.Tests.Unit.Data
             HasTagFalseWhenMissing(ref run, ref pass, ref fail);
             HasEnemyTagCaseInsensitive(ref run, ref pass, ref fail);
             HasEnemyTagFalseWhenMissing(ref run, ref pass, ref fail);
+            HasReservePoolTagCaseInsensitive(ref run, ref pass, ref fail);
             IsGrantableOnHeroGearRejectsEnvironmentAndEnemy(ref run, ref pass, ref fail);
             IsGrantableOnHeroGearByNameRejectsGraveyardRising(ref run, ref pass, ref fail);
 
@@ -152,6 +153,20 @@ namespace RPGGame.Tests.Unit.Data
             {
                 fail++;
                 Console.WriteLine("FAIL HasEnemyTagFalseWhenMissing");
+            }
+        }
+
+        private static void HasReservePoolTagCaseInsensitive(ref int run, ref int pass, ref int fail)
+        {
+            run++;
+            if (GameDataTagHelper.HasReservePoolTag(new[] { "weapon", "Reserve_Pool" }) &&
+                !GameDataTagHelper.HasReservePoolTag(new[] { "weapon" }) &&
+                !GameDataTagHelper.HasReservePoolTag(null))
+                pass++;
+            else
+            {
+                fail++;
+                Console.WriteLine("FAIL HasReservePoolTagCaseInsensitive");
             }
         }
 

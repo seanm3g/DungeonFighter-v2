@@ -28,6 +28,10 @@ namespace RPGGame.Data
         [JsonPropertyName("triggerConditions")]
         public string TriggerConditions { get; set; } = "";
 
+        /// <summary>JSON list of trigger triples (WHEN / SCOPE / mechanic pointers).</summary>
+        [JsonPropertyName("triggerBundlesJson")]
+        public string TriggerBundlesJson { get; set; } = "";
+
         [JsonPropertyName("statBonusesJson")]
         public string StatBonusesJson { get; set; } = "";
 

@@ -149,7 +149,7 @@ User clicks Save
 | Enemies | Developer | EnemiesTabManager | Tab manager |
 | Items | Developer | ItemsTabManager | Tab manager |
 | ItemAffixes | Developer | ItemModifiersTabManager + ItemSuffixesTabManager | Tab managers |
-| Patches | Developer | PatchesPanelHandler | Apply button (immediate) |
+| Patches | Developer | PatchesPanelHandler | Apply (active local) + Set shipped default (`ShippedPatchDefaults.json`) |
 | FlavorText | Developer | FlavorTextPanelHandler | Handler → FlavorText.json (forms + categories + legacy banks) |
 | BalanceTuning | Developer | BalanceTuningPanelHandler | Handler + sheets |
 | CombatTuning | Balance | CombatAndEnemyTuningPanelHandler (Combat + Enemy child panels) | Handler (balance patch) |

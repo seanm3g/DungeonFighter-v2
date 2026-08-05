@@ -35,8 +35,10 @@ namespace RPGGame.Data
             action.Cadence = GetStringValue(root, "cadence");
             action.Mechanics = GetStringValue(root, "mechanics");
             action.CadenceDuration = GetStringValue(root, "cadenceDuration");
+            action.CadenceBundlesJson = GetStringValue(root, "cadenceBundlesJson");
             action.Opener = GetStringValue(root, "opener");
             action.Finisher = GetStringValue(root, "finisher");
+            action.ReservePool = GetStringValue(root, "reservePool");
             action.HeroAccuracy = GetStringValue(root, "heroAccuracy");
             action.HeroHit = GetStringValue(root, "heroHit");
             action.HeroCombo = GetStringValue(root, "heroCombo");
@@ -63,6 +65,10 @@ namespace RPGGame.Data
             action.EnemyDamageMod = GetStringValue(root, "enemyDamageMod");
             action.EnemyMultiHitMod = GetStringValue(root, "enemyMultiHitMod");
             action.EnemyAmpMod = GetStringValue(root, "enemyAmpMod");
+            action.WeaponSpeedMod = GetStringValue(root, "weaponSpeedMod");
+            action.WeaponDamageMod = GetStringValue(root, "weaponDamageMod");
+            action.EnemyWeaponSpeedMod = GetStringValue(root, "enemyWeaponSpeedMod");
+            action.EnemyWeaponDamageMod = GetStringValue(root, "enemyWeaponDamageMod");
             action.Stun = GetStringValue(root, "stun");
             action.Poison = GetStringValue(root, "poison");
             action.Burn = GetStringValue(root, "burn");
@@ -108,6 +114,8 @@ namespace RPGGame.Data
             action.OnKill = GetStringValue(root, "onKill");
             action.OnRoomsCleared = GetStringValue(root, "onRoomsCleared");
             action.OnRollValue = GetStringValue(root, "onRollValue");
+            action.TriggerConditions = GetStringValue(root, "triggerConditions");
+            action.TriggerBundlesJson = GetStringValue(root, "triggerBundlesJson");
             action.Target = GetStringValue(root, "target");
             action.StatBonusesJson = GetStringValue(root, "statBonusesJson");
             action.ThresholdsJson = GetStringValue(root, "thresholdsJson");
@@ -170,8 +178,10 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "cadence", value.Cadence);
             WriteIfNotEmpty(writer, "mechanics", value.Mechanics);
             WriteIfNotEmpty(writer, "cadenceDuration", value.CadenceDuration);
+            WriteIfNotEmpty(writer, "cadenceBundlesJson", value.CadenceBundlesJson);
             WriteIfNotEmpty(writer, "opener", value.Opener);
             WriteIfNotEmpty(writer, "finisher", value.Finisher);
+            WriteIfNotEmpty(writer, "reservePool", value.ReservePool);
             WriteIfNotEmpty(writer, "heroAccuracy", value.HeroAccuracy);
             WriteIfNotEmpty(writer, "heroHit", value.HeroHit);
             WriteIfNotEmpty(writer, "heroCombo", value.HeroCombo);
@@ -198,6 +208,10 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "enemyDamageMod", value.EnemyDamageMod);
             WriteIfNotEmpty(writer, "enemyMultiHitMod", value.EnemyMultiHitMod);
             WriteIfNotEmpty(writer, "enemyAmpMod", value.EnemyAmpMod);
+            WriteIfNotEmpty(writer, "weaponSpeedMod", value.WeaponSpeedMod);
+            WriteIfNotEmpty(writer, "weaponDamageMod", value.WeaponDamageMod);
+            WriteIfNotEmpty(writer, "enemyWeaponSpeedMod", value.EnemyWeaponSpeedMod);
+            WriteIfNotEmpty(writer, "enemyWeaponDamageMod", value.EnemyWeaponDamageMod);
             WriteIfNotEmpty(writer, "stun", value.Stun);
             WriteIfNotEmpty(writer, "poison", value.Poison);
             WriteIfNotEmpty(writer, "burn", value.Burn);
@@ -243,6 +257,8 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "onKill", value.OnKill);
             WriteIfNotEmpty(writer, "onRoomsCleared", value.OnRoomsCleared);
             WriteIfNotEmpty(writer, "onRollValue", value.OnRollValue);
+            WriteIfNotEmpty(writer, "triggerConditions", value.TriggerConditions);
+            WriteIfNotEmpty(writer, "triggerBundlesJson", value.TriggerBundlesJson);
             WriteIfNotEmpty(writer, "target", value.Target);
             WriteIfNotEmpty(writer, "statBonusesJson", value.StatBonusesJson);
             WriteIfNotEmpty(writer, "thresholdsJson", value.ThresholdsJson);

@@ -90,6 +90,13 @@ namespace RPGGame.Data
             CoercePropertyToDouble(o, "attackSpeed");
             MergeSheetAbbrevAttributeRequirementsIfPresent(o);
             JsonArraySheetConverter.NormalizeTagsFromSheet(o);
+            EnsureCanonicalArmorKey(o, "triggerName", "TRIGGER NAME", "TRIGGERNAME", "TRIGGER");
+            foreach (var key in o.Select(kvp => kvp.Key).ToList())
+            {
+                if (string.Equals(key, "triggerBundles", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(key, "equipEffects", StringComparison.OrdinalIgnoreCase))
+                    o.Remove(key);
+            }
         }
 
         /// <summary>

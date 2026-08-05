@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -204,19 +205,29 @@ namespace RPGGame
             if (IsStunned)
                 return null;
 
-            double totalProbability = ActionPool.Sum(item => item.probability);
+            // Reserve-pool actions are available for combo strip / explicit picks, not default weighted rolls.
+            var rollable = ActionPool
+                .Where(item => !ActionTagSyncHelper.IsReservePool(item.action.Tags))
+                .ToList();
+            if (rollable.Count == 0)
+                return null;
+
+            double totalProbability = rollable.Sum(item => item.probability);
+            if (totalProbability <= 0)
+                return rollable.Last().action;
+
             double randomValue = new Random().NextDouble() * totalProbability;
             double cumulativeProbability = 0;
 
-            foreach ((Action action, double probability) in ActionPool)
+            foreach ((Action action, double probability) in rollable)
             {
                 cumulativeProbability += probability;
                 if (randomValue <= cumulativeProbability)
                     return action;
             }
 
-            // Fallback to the last action if no action was selected
-            return ActionPool.Last().action;
+            // Fallback to the last rollable action if no action was selected
+            return rollable.Last().action;
         }
 
         /// <summary>

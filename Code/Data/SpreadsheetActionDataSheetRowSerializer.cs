@@ -23,14 +23,15 @@ namespace RPGGame.Data
             h.SetCell(row, null, "# OF HITS", data.NumberOfHits);
             h.SetDamagePercentCell(row, data.Damage);
             h.SetCell(row, null, "SPEED(x)", data.Speed);
-            h.SetCell(row, null, "DURATION", data.Duration);
-            h.SetCell(row, null, "CADENCE", data.Cadence);
-            h.SetCell(row, "MECHANICS", "MECHANICS", data.Mechanics, null, allowUnscopedLabelFallback: true);
-            if (string.IsNullOrEmpty(rowValueAtLabel(h, row, "MECHANICS", "MECHANICS"))
-                && string.IsNullOrEmpty(rowValueAtLabel(h, row, null, "MECHANICS")))
-                h.SetCell(row, null, "MECHANICS", data.Mechanics);
+            // Legacy DURATION / CADENCE / MECHANICS: no longer written — CADENCES triples are authoritative.
+            h.SetCell(row, "MECHANICS", "MECHANICS", "", null, allowUnscopedLabelFallback: true);
+            h.SetCell(row, null, "DURATION", "");
+            h.SetCell(row, null, "CADENCE", "");
+            h.SetCell(row, null, "MECHANICS", "");
+            ActionCadenceSheetColumns.WriteToRow(h, row, data);
             h.SetCell(row, null, "OPENER", data.Opener);
             h.SetCell(row, null, "FINISHER", data.Finisher);
+            h.SetCell(row, null, ActionTagSyncHelper.ReservePoolColumnLabel, data.ReservePool);
             h.SetCell(row, null, "TARGET", data.Target);
 
             WriteHeroEnemyAccuracy(h, row, data.HeroAccuracy, isHero: true);
@@ -96,6 +97,7 @@ namespace RPGGame.Data
 
         /// <summary>
         /// Speed/Damage/MultiHit/Amp next-action mods: AD–AG under "ENEMY BASE STATS"; AJ–AM under "HERO BASE STATS".
+        /// Flat weapon speed/damage: under "ENEMY BASE" / "HERO BASE" (or … BASE STATS) → WEAPON SPEED / WEAPON DAMAGE.
         /// </summary>
         private static void WriteNextActionMods(SpreadsheetHeader h, string[] row, SpreadsheetActionData data)
         {
@@ -116,6 +118,22 @@ namespace RPGGame.Data
                 h.SetCell(row, heroCtx, "AMP_MOD", data.AmpMod, null, allowUnscopedLabelFallback: false);
             else
                 h.SetCell(row, heroCtx, "AMP MOD", data.AmpMod, null, allowUnscopedLabelFallback: false);
+
+            WriteWeaponBaseMod(h, row, isHero: false, data.EnemyWeaponSpeedMod, data.EnemyWeaponDamageMod);
+            WriteWeaponBaseMod(h, row, isHero: true, data.WeaponSpeedMod, data.WeaponDamageMod);
+        }
+
+        /// <summary>Writes WEAPON SPEED / WEAPON DAMAGE under HERO BASE or ENEMY BASE (falls back to … BASE STATS).</summary>
+        private static void WriteWeaponBaseMod(SpreadsheetHeader h, string[] row, bool isHero, string speed, string damage)
+        {
+            string shortCtx = isHero ? "HERO BASE" : "ENEMY BASE";
+            string statsCtx = isHero ? "HERO BASE STATS" : "ENEMY BASE STATS";
+            string ctx = h.GetColumnIndex(shortCtx, "WEAPON SPEED", null, allowUnscopedLabelFallback: false) >= 0
+                || h.GetColumnIndex(shortCtx, "WEAPON DAMAGE", null, allowUnscopedLabelFallback: false) >= 0
+                ? shortCtx
+                : statsCtx;
+            SetNextActionModCell(h, row, ctx, speed, "WEAPON SPEED");
+            SetNextActionModCell(h, row, ctx, damage, "WEAPON DAMAGE");
         }
 
         /// <summary>Writes one next-action column using the first matching header (e.g. ACTION SPEED vs SPEED MOD).</summary>
@@ -212,12 +230,8 @@ namespace RPGGame.Data
                 L("MODIFY BASED ON CHAIN POSITION", data.ModifyBasedOnChainPosition);
             L("DISTANCE FROM X SLOT", data.DistanceFromXSlot);
 
-            L("ON HIT", data.OnHit);
-            L("ON MISS", data.OnMiss);
-            L("ON CRIT", data.OnCrit);
-            L("ON KILL", data.OnKill);
-            L("ON ROOMS CLEARED", data.OnRoomsCleared);
-            L("ON ROLL VALUE", data.OnRollValue);
+            // Prefer structured bundles (count / scope / →); also keeps legacy ON HIT/KILL count cells in sync.
+            ActionTriggerSheetColumns.WriteToRow(h, row, data);
 
             L("TRIGGER CONDITIONS", data.TriggerConditions);
             L("STAT BONUSES JSON", data.StatBonusesJson);

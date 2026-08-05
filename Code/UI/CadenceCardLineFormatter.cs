@@ -55,6 +55,8 @@ namespace RPGGame.UI
                 "SPEED_MOD" => "SPEED",
                 "MULTIHIT_MOD" => "MULTIHIT",
                 "AMP_MOD" => "AMP",
+                "WEAPON_SPEED" => "WPN SPD",
+                "WEAPON_DAMAGE" => "WPN DMG",
                 "STR" or "STRENGTH" => "STR",
                 "AGI" or "AGILITY" => "AGI",
                 "TECH" or "TECHNIQUE" => "TECH",

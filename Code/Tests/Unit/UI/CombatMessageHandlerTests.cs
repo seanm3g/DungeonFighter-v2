@@ -39,17 +39,14 @@ namespace RPGGame.Tests.Unit.UI
 
             handler.AddRoomClearedMessage(null);
 
-            TestBase.AssertEqual(3, textManager.DisplayBuffer.Count,
-                "Room cleared message should contain spacing, message, and trailing blank only",
+            TestBase.AssertEqual(2, textManager.DisplayBuffer.Count,
+                "Room cleared message should contain spacing and message only (exit menu owns blank before its divider)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("", textManager.DisplayBuffer[0],
                 "Room cleared should preserve spacing after combat",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(AsciiArtAssets.UIText.RoomClearedMessage, textManager.DisplayBuffer[1],
                 "Room cleared should write the success message",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("", textManager.DisplayBuffer[2],
-                "Room cleared should leave a blank line before the exit prompt",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertFalse(textManager.DisplayBuffer.Contains(AsciiArtAssets.UIText.Divider),
                 "Room cleared should not add a divider because the exit prompt owns menu dividers",

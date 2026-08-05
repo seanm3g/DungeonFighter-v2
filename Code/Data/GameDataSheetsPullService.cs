@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using RPGGame;
 
 namespace RPGGame.Data
 {
-    /// <summary>Pulls Actions plus optional tabs from published CSV URLs in <see cref="SheetsConfig"/> (weapons, mods, armor, stat bonuses / suffixes, consumables, enemies, environments, dungeons, classes, class actions).</summary>
+    /// <summary>Pulls Actions plus optional tabs from published CSV URLs in <see cref="SheetsConfig"/> (weapons, mods, armor, stat bonuses / suffixes, consumables, enemies, environments, dungeons, classes, class actions, skill trees).</summary>
     public static class GameDataSheetsPullService
     {
         public static async Task PullAllFromSheetsConfigAsync(
@@ -76,6 +77,17 @@ namespace RPGGame.Data
                     ?? GameConstants.GetGameDataFilePath(GameConstants.ConsumablesJson);
                 await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
                 ClearJsonCacheForGameDataFile(GameConstants.ConsumablesJson);
+            }
+
+            if (tabFlags.PushTriggersTab && !string.IsNullOrWhiteSpace(sc.TriggersSheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.TriggersSheetUrl, cancellationToken).ConfigureAwait(false);
+                string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Triggers);
+                string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.TriggersJson)
+                    ?? GameConstants.GetGameDataFilePath(GameConstants.TriggersJson);
+                await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                ClearJsonCacheForGameDataFile(GameConstants.TriggersJson);
+                TriggersLoader.ClearCache();
             }
 
             if (tabFlags.PushEnemiesTab && !string.IsNullOrWhiteSpace(sc.EnemiesSheetUrl))
@@ -150,6 +162,35 @@ namespace RPGGame.Data
                 }
             }
 
+            if (tabFlags.PushSkillTreesTab && !string.IsNullOrWhiteSpace(sc.SkillTreesSheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.SkillTreesSheetUrl, cancellationToken).ConfigureAwait(false);
+                var prior = SkillTreesConfig.TryLoadFromGameDataFile();
+                var treesCfg = SkillTreesSheetConverter.ParseCsvToConfig(csv, prior);
+                if (treesCfg.Trees.Count == 0 || treesCfg.Trees.All(t => t.Nodes == null || t.Nodes.Count == 0))
+                {
+                    Console.WriteLine(
+                        "Warning: Class Upgrades sheet produced no skill-tree nodes (check Class/Id/Name/Type headers). SkillTrees.json was not updated.");
+                }
+                else
+                {
+                    string json = SkillTreesSheetConverter.ToJsonText(treesCfg);
+                    string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.SkillTreesJson)
+                        ?? GameConstants.GetGameDataFilePath(GameConstants.SkillTreesJson);
+                    await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                    ClearJsonCacheForGameDataFile(GameConstants.SkillTreesJson);
+                    GameConfiguration.ResetInstance();
+                    int nodeCount = treesCfg.Trees.Sum(t => t.Nodes?.Count ?? 0);
+                    Console.WriteLine($"✓ Skill trees pulled: {treesCfg.Trees.Count} tree(s), {nodeCount} node(s) → {outPath}");
+                }
+            }
+
+            if (tabFlags.PushFlavorTab)
+            {
+                Console.WriteLine(
+                    "Skipped flavor tab on PULL (push-only; FlavorText.json is not overwritten from Google Sheets).");
+            }
+
             ReloadRuntimeCachesAfterPull();
         }
 
@@ -165,6 +206,7 @@ namespace RPGGame.Data
                 EnemyLoader.LoadEnemies(validate: false);
                 RoomLoader.LoadRooms();
                 RoomSearchConsumableCatalog.Reload();
+                TriggersLoader.Reload();
             }
             catch (Exception ex)
             {

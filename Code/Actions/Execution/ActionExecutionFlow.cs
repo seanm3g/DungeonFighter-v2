@@ -1,5 +1,6 @@
 using RPGGame;
 using RPGGame.ActionInteractionLab;
+using RPGGame.Actions.Conditional;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Events;
 using RPGGame.Diagnostics;
@@ -21,6 +22,10 @@ namespace RPGGame.Actions.Execution
     internal static partial class ActionExecutionFlow
     {
         internal static event System.Action? OneShotKillOccurred;
+
+        /// <summary>Nested retrigger depth (0 = outer swing). Retrigger swings do not schedule further retriggers.</summary>
+        [ThreadStatic]
+        private static int RetriggerDepth;
 
         internal static void NotifyOneShotKillOccurred() => OneShotKillOccurred?.Invoke();
 
@@ -187,6 +192,43 @@ namespace RPGGame.Actions.Execution
                 ApplyHitOutcome(source, combatTarget, result, battleNarrative);
             else
                 ApplyMissOutcome(source, combatTarget, result, battleNarrative);
+
+            // Nested strip retrigger (max depth 1) — distinct from Multihit damage ticks.
+            // Nested HP damage is applied inside the nested Execute; keep outer Damage as this swing only
+            // so the combat log headline stays correct. Nested lines are formatted separately.
+            if (RetriggerDepth == 0
+                && result.Hit
+                && RetriggerScheduler.TryConsume(source, out Action? retriggerAction)
+                && retriggerAction != null)
+            {
+                RetriggerDepth++;
+                RetriggerScheduler.AllowScheduling = false;
+                Action? outerLastUsed = result.SelectedAction;
+                try
+                {
+                    var nestedTarget = target ?? combatTarget;
+                    var nested = Execute(
+                        source,
+                        nestedTarget!,
+                        environment,
+                        lastPlayerAction,
+                        retriggerAction,
+                        battleNarrative,
+                        lastUsedActions,
+                        lastCriticalMissStatus);
+                    result.NestedRetriggerResults.Add(nested);
+                    // Nested status lines are formatted with the nested hit/miss block in ActionExecutor
+                    // (not merged here) so "prepares a retrigger" stays above the encore swing.
+                }
+                finally
+                {
+                    // Turn timing / last-action memory should stay on the outer swing, not the encore.
+                    if (outerLastUsed != null)
+                        lastUsedActions[source] = outerLastUsed;
+                    RetriggerScheduler.AllowScheduling = true;
+                    RetriggerDepth--;
+                }
+            }
 
             // Redeemed DAMAGE/SPEED/MULTIHIT/AMP mods are applied during this swing only.
             // Clear them before the next strip paint so cards do not keep showing spent ACTION bonuses.
