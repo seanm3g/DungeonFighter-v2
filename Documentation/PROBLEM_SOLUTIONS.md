@@ -27,9 +27,10 @@ This document contains solutions to common problems encountered during developme
 2. Spent amount is derived from learned node costs in `SkillTrees.json`; `Available = Lifetime − Spent`
 3. `TryLearnSkillNode` never calls `RemoveClassPoint`; roots auto-grant at cost 0 when a path has ≥1 lifetime point
 4. Hub: `GameState.SkillTree` beside Inventory; primary path only for spending; learned nodes stay active if path is no longer primary
-5. Tests: `SkillTreeProgressionTests`, updated `ClassActionManagerTests`
+5. Default node cost is **1 SP per rank** (`TierCosts` fallback `{0,1,1,1,1}`); Action nodes are forced to cost 1 / maxRank 1; scalable Passive/Mastery sinks use maxRank up to 5 and their combat bonuses multiply by learned rank in `SkillEffectRouter`
+6. Tests: `SkillTreeProgressionTests`, `SkillEffectRankScalingTests`, updated `ClassActionManagerTests`
 
-**Related files:** `CharacterProgression.cs`, `SkillTreesConfig.cs`, `SkillTreeService.cs`, `SkillEffectRouter.cs`, `SkillTreeMenuHandler.cs`, `ClassActionManager.cs`
+**Related files:** `CharacterProgression.cs`, `SkillTreesConfig.cs`, `SkillTreeService.cs`, `SkillEffectRouter.cs`, `SkillTreeMenuHandler.cs`, `ClassActionManager.cs`, `GameData/SkillTrees.json`
 
 ### Bug fix: Return to main menu after character snapshot appeared to quit (July 2026)
 **Problem:** After Inventory → Snapshot for Action Lab, returning to the main menu (Game Loop → **0**) did nothing on screen, then another **0** closed the app.

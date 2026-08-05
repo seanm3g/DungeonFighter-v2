@@ -39,6 +39,7 @@ namespace RPGGame.Tests.Runners
             ("DungeonSelectionHandler", () => DungeonSelectionHandlerTests.RunAllTests()),
             ("RegionTravelHandler", () => RegionTravelHandlerTests.RunAllTests()),
             ("SkillTreeProgression", () => SkillTreeProgressionTests.RunAllTests()),
+            ("SkillEffectRankScaling", () => SkillEffectRankScalingTests.RunAllTests()),
             ("ClassActionManager", () => ClassActionManagerTests.RunAllTests()),
             ("TravelRouteColoredTextFormatter", () => TravelRouteColoredTextFormatterTests.RunAllTests()),
             ("DungeonCompletionHandler", () => DungeonCompletionHandlerTests.RunAllTests()),

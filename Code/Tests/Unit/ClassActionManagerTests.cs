@@ -39,13 +39,12 @@ namespace RPGGame.Tests.Unit
                 var progression = character.Progression;
                 progression.BarbarianPoints = 20;
                 progression.EnsureSkillTreeRootsGranted();
-                progression.TryLearnSkillNode("b-bludgeon", requirePrimaryPath: false);
-                progression.TryLearnSkillNode("b-mighty", requirePrimaryPath: false);
+                progression.TryLearnSkillNode("b-might", requirePrimaryPath: false);
 
                 manager.AddClassActions(character, progression, WeaponType.Mace);
                 bool has = character.ActionPool.Any(a =>
-                    string.Equals(a.action.Name, "MIGHTY SWING", StringComparison.OrdinalIgnoreCase));
-                TestBase.AssertTrue(has, "Skill-tree MIGHTY SWING unlock appears in pool",
+                    string.Equals(a.action.Name, "MIGHT", StringComparison.OrdinalIgnoreCase));
+                TestBase.AssertTrue(has, "Skill-tree MIGHT unlock appears in pool",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
@@ -68,10 +67,10 @@ namespace RPGGame.Tests.Unit
                 character.Progression.EnsureSkillTreeRootsGranted();
 
                 manager.AddClassActions(character, character.Progression, WeaponType.Mace);
-                bool hasMighty = character.ActionPool.Any(a =>
-                    string.Equals(a.action.Name, "MIGHTY SWING", StringComparison.OrdinalIgnoreCase));
-                TestBase.AssertTrue(!hasMighty,
-                    "MIGHTY SWING not granted until Action node learned",
+                bool hasMight = character.ActionPool.Any(a =>
+                    string.Equals(a.action.Name, "MIGHT", StringComparison.OrdinalIgnoreCase));
+                TestBase.AssertTrue(!hasMight,
+                    "MIGHT not granted until Action node learned",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally

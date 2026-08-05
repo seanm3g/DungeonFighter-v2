@@ -107,8 +107,8 @@ namespace RPGGame
             PropertyNameCaseInsensitive = true
         };
 
-        /// <summary>Tier index 0..4 → Skill Point cost.</summary>
-        public static readonly int[] TierCosts = { 0, 4, 8, 14, 21 };
+        /// <summary>Tier index 0..4 → default Skill Point cost when a node omits/zeros cost (roots stay 0).</summary>
+        public static readonly int[] TierCosts = { 0, 1, 1, 1, 1 };
 
         [JsonPropertyName("trees")]
         public List<SkillTreeDefinition> Trees { get; set; } = new();
@@ -181,6 +181,13 @@ namespace RPGGame
                 {
                     if (node.Cost <= 0 && node.Tier >= 0 && node.Tier < TierCosts.Length)
                         node.Cost = TierCosts[node.Tier];
+
+                    // Action unlocks are always a single 1-SP purchase.
+                    if (node.ParsedType == SkillNodeType.Action && node.Cost > 0)
+                    {
+                        node.Cost = 1;
+                        node.MaxRank = 1;
+                    }
                 }
             }
 

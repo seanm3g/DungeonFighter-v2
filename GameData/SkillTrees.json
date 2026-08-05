@@ -8,81 +8,17 @@
       "identity": "Take pain, make momentum. Build around impacts, Bronze equipment, or instinct.",
       "nodes": [
         {
-<<<<<<< Updated upstream
           "id": "b-tribe",
           "name": "Level 1 - Barbarian",
           "branch": "Core",
           "tier": 0,
           "type": "Passive",
           "cost": 0,
+          "maxRank": 1,
           "requires": [],
           "effect": "Bone, Steel, and Damascus tags now count as a Barbarian tag.",
           "payoff": "Class materials become the stacking currency.",
           "customEffectId": "tribe_metal"
-=======
-          "id": "b-puberty",
-          "name": "Puberty",
-          "branch": "Rite",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [],
-          "effect": "\u002B15 Strength (rite of passage).",
-          "payoff": "Marks the Mace path; baseline power before tag engines.",
-          "customEffectId": "puberty",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-root",
-          "name": "Bronze Skin",
-          "branch": "Core",
-          "tier": 1,
-          "type": "Passive",
-          "cost": 4,
-          "maxRank": 1,
-          "requires": [
-            "b-tribe"
-          ],
-          "effect": "The first time you take damage each fight, gain 2 Harden.",
-          "payoff": "Turns incoming damage into a delayed offensive opening.",
-          "customEffectId": "bronze_skin",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-tribe",
-          "name": "Level 1 - Barbarian",
-          "branch": "Core",
-          "tier": 0,
-          "type": "Passive",
-          "cost": 0,
-          "maxRank": 1,
-          "requires": [],
-          "effect": "Bone, Steel, and Damascus tags now count as a Barbarian tag.",
-          "payoff": "Class materials become the stacking currency.",
-          "customEffectId": "tribe_metal",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-loot",
-          "name": "Blood Market",
-          "branch": "Alloy",
-          "tier": 1,
-          "type": "Rule",
-          "cost": 4,
-          "maxRank": 1,
-          "requires": [
-            "b-tribe"
-          ],
-          "effect": "Increase Barbarian-tag item generation by 50%.",
-          "payoff": "Loot bias toward your material/class tags.",
-          "customEffectId": "blood_market",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
         },
         {
           "id": "b-age1",
@@ -90,25 +26,14 @@
           "branch": "Alloy",
           "tier": 1,
           "type": "Passive",
-          "cost": 4,
-<<<<<<< Updated upstream
+          "cost": 1,
+          "maxRank": 5,
           "requires": [
             "b-tribe"
           ],
-          "effect": "\u002B8% damage per equipped Barbarian item.",
+          "effect": "+8% damage per equipped Barbarian item, per skill rank.",
           "payoff": "Material count becomes a build choice.",
           "customEffectId": "first_bronze_age"
-=======
-          "maxRank": 1,
-          "requires": [
-            "b-tribe"
-          ],
-          "effect": "Combo slot 1 gains \u002B8% damage per equipped Barbarian item.",
-          "payoff": "Material tags and strip position become build choices.",
-          "customEffectId": "first_bronze_age",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
         },
         {
           "id": "b-loot",
@@ -116,7 +41,8 @@
           "branch": "Alloy",
           "tier": 1,
           "type": "Rule",
-          "cost": 4,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "b-tribe"
           ],
@@ -129,13 +55,13 @@
           "name": "Might",
           "branch": "Instinct",
           "tier": 1,
-<<<<<<< Updated upstream
           "type": "Action",
-          "cost": 4,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "b-tribe"
           ],
-          "effect": "ACTION: MIGHT \u2014 \u002B1 STR for the dungeon.",
+          "effect": "ACTION: MIGHT — +1 STR for the dungeon.",
           "payoff": "Early dungeon power spike from the strip.",
           "unlockActionName": "MIGHT",
           "customEffectId": "might"
@@ -146,7 +72,8 @@
           "branch": "Instinct",
           "tier": 2,
           "type": "Passive",
-          "cost": 8,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "b-might"
           ],
@@ -160,11 +87,12 @@
           "branch": "Rite",
           "tier": 2,
           "type": "Passive",
-          "cost": 8,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "b-lvl2"
           ],
-          "effect": "Rite of passage: \u002B15 Strength.",
+          "effect": "Rite of passage: +15 Strength.",
           "payoff": "Marks the Mace path; baseline power before tag engines.",
           "customEffectId": "puberty"
         },
@@ -174,7 +102,8 @@
           "branch": "Impact",
           "tier": 2,
           "type": "Action",
-          "cost": 8,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "b-puberty"
           ],
@@ -189,11 +118,12 @@
           "branch": "Alloy",
           "tier": 3,
           "type": "Rule",
-          "cost": 14,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "b-age1"
           ],
-          "effect": "\u002B1 Combo per 2 Barbarian tags.",
+          "effect": "+1 Combo per 2 Barbarian tags.",
           "payoff": "Tag-dense kits enter combo more often.",
           "customEffectId": "heavy_cadence"
         },
@@ -203,7 +133,8 @@
           "branch": "Impact",
           "tier": 3,
           "type": "Passive",
-          "cost": 14,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "b-bludgeon"
           ],
@@ -217,437 +148,30 @@
           "branch": "Impact",
           "tier": 4,
           "type": "Mastery",
-          "cost": 21,
+          "cost": 1,
+          "maxRank": 5,
           "requires": [
             "b-stun"
           ],
-          "effect": "\u002B25 STR for each empty action slot.",
+          "effect": "+25 STR for each empty action slot, per skill rank.",
           "payoff": "Short strips hit harder; rewards strip discipline.",
           "customEffectId": "empty_fury"
         },
         {
           "id": "b-scar",
           "name": "Scrap Prefer",
-=======
-          "type": "Mastery",
-          "cost": 4,
-          "maxRank": 1,
-          "requires": [
-            "b-tribe"
-          ],
-          "effect": "Every 5 effective INT contributes \u002B1 effective STR to Mace actions.",
-          "payoff": "Opens INT gear and Wizard investment to physical builds.",
-          "customEffectId": "gut_instinct",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-bludgeon",
-          "name": "Crushing Lesson",
-          "branch": "1",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "b-tribe"
-          ],
-          "effect": "Mace weapons gain action: BLUDGEON.",
-          "payoff": "Weapon kit expands; Bludgeon becomes an Impact hinge.",
-          "unlockActionName": "BLUDGEON",
-          "customEffectId": "b-bludgeon",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-break",
-          "name": "Opening Blow",
-          "branch": "Impact",
-          "tier": 1,
-          "type": "Passive",
-          "cost": 4,
-          "maxRank": 1,
-          "requires": [
-            "b-tribe"
-          ],
-          "effect": "First Mace hit each fight applies Armor Break.",
-          "payoff": "Guarantees an Impact setup every fight.",
-          "customEffectId": "opening_blow",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-lvl2",
-          "name": "Level 2 - Barbarian",
-          "branch": "Instinct",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "b-tribe"
-          ],
-          "effect": "Add the natural dice roll to your armor for next turn.",
-          "payoff": "Aggressive rolls still buy defense.",
-          "customEffectId": "iron_hide_roll",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-scar",
-          "name": "Scrap Prefer",
-          "branch": "Alloy",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "b-loot"
-          ],
-          "effect": "Battle Scarred / Worn / Broken pieces: \u002B10% Barbarian damage.",
-          "payoff": "Ugly quality becomes desirable loot.",
-          "customEffectId": "scrap_prefer",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-lvl3",
-          "name": "Level 3 - Barbarian",
-          "branch": "Impact",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "b-bludgeon",
-            "b-tribe"
-          ],
-          "effect": "Mace: \u002B3% damage for each Barbarian tag.",
-          "payoff": "Tag count on the swing is direct DPS.",
-          "customEffectId": "tag_crush",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-stun",
-          "name": "Concussive Crit",
-          "branch": "Impact",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "b-break"
-          ],
-          "effect": "Crit with a Mace: apply Stun for 1 turn.",
-          "payoff": "Crits buy control, not only damage.",
-          "customEffectId": "concussive_crit",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-miss",
-          "name": "Reckless Connect",
-          "branch": "Instinct",
-          "tier": 2,
-          "type": "Rule",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "b-gut"
-          ],
-          "effect": "On MISS with a Mace roll: HIT, but take roll value as self-damage.",
-          "payoff": "Accuracy through pain; feeds Pain Memory.",
-          "customEffectId": "reckless_connect",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-mighty",
-          "name": "Mighty Swing",
-          "branch": "2",
-          "tier": 4,
-          "type": "Action",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "b-bludgeon"
-          ],
-          "effect": "Gain \u002B35% damage per skipped or disabled slot passed, per combo.",
-          "payoff": "Routing mutations become a deliberate wind-up.",
-          "unlockActionName": "MIGHTY SWING",
-          "customEffectId": "b-mighty",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-lvl4",
-          "name": "Level 4 - Barbarian",
-          "branch": "Impact",
-          "tier": 3,
-          "type": "Mastery",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "b-lvl3"
-          ],
-          "effect": "\u002B25 STR for each empty action slot.",
-          "payoff": "Short strips hit harder; rewards strip discipline.",
-          "customEffectId": "empty_fury",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-speed",
-          "name": "Break Tempo",
-          "branch": "Impact",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "b-stun"
-          ],
-          "effect": "Mace attack speed \u002BX% per Armor Break stack on the foe.",
-          "payoff": "Setup status becomes cadence.",
-          "customEffectId": "break_tempo",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-critbreak",
-          "name": "Blood Crit",
-          "branch": "Alloy",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "b-lvl3"
-          ],
-          "effect": "Barbarian-tagged crits apply Armor Break.",
-          "payoff": "Tag crits refresh the Impact loop.",
-          "customEffectId": "blood_crit",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-mastery",
-          "name": "Mace Mastery",
-          "branch": "Impact",
-          "tier": 3,
-          "type": "Mastery",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "b-mighty"
-          ],
-          "effect": "Bludgeon hits against Armor-Broken enemies bank \u002B25% damage onto the next strip slot.",
-          "payoff": "Rewards sequencing Armor Break before a payoff action.",
-          "customEffectId": "mace_mastery",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-memory",
-          "name": "Pain Memory",
-          "branch": "Instinct",
-          "tier": 3,
-          "type": "Rule",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "b-miss"
-          ],
-          "effect": "Store 25% of post-armor damage taken. Your next Finisher adds it, capped at 20% max HP.",
-          "payoff": "Healing, armor, speed, and finisher timing share one risk window.",
-          "customEffectId": "pain_memory",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-heal",
-          "name": "Trophy Heal",
-          "branch": "Alloy",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "b-lvl3"
-          ],
-          "effect": "Heal X HP per Barbarian tag on kill.",
-          "payoff": "Tag stacking pays sustain on clears.",
-          "customEffectId": "trophy_heal",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-combo",
-          "name": "Heavy Cadence",
-          "branch": "Alloy",
-          "tier": 3,
-          "type": "Rule",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "b-age1"
-          ],
-          "effect": "Combo threshold \u22121 per 2 Barbarian tags.",
-          "payoff": "Tag-dense actions enter combo more often.",
-          "customEffectId": "heavy_cadence",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-headbone",
-          "name": "Bone Crown",
-          "branch": "Alloy",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "b-scar",
-            "b-stun"
-          ],
-          "effect": "Head Bone: crit Barbarian actions apply Stun.",
-          "payoff": "Slot\u002Bmaterial care (head Bone matters).",
-          "customEffectId": "bone_crown",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-ontakehit",
-          "name": "Scar Tissue",
-          "branch": "Instinct",
-          "tier": 3,
-          "type": "Rule",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "b-tribe"
-          ],
-          "effect": "ONTAKEHIT \u2192 Harden/Fortify from gear procs count at \u002B1 stack while Mace equipped.",
-          "payoff": "Take-hit triggers become class-valued.",
-          "customEffectId": "scar_tissue",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-finisher",
-          "name": "Finisher Brand",
-          "branch": "Instinct",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "b-memory"
-          ],
-          "effect": "Finisher actions gain \u002B10% damage per Barbarian tag.",
-          "payoff": "Strip end is the tag payoff.",
-          "customEffectId": "finisher_brand",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-overkill",
-          "name": "Blood Excess",
-          "branch": "Instinct",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "b-heal"
-          ],
-          "effect": "Overkill damage converts to healing.",
-          "payoff": "Push kills without wasting damage.",
-          "customEffectId": "blood_excess",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-macegrant",
-          "name": "Tribal Stamp",
->>>>>>> Stashed changes
           "branch": "Alloy",
           "tier": 4,
           "type": "Passive",
-          "cost": 21,
-<<<<<<< Updated upstream
+          "cost": 1,
+          "maxRank": 5,
           "requires": [
             "b-loot",
             "b-combo"
           ],
-          "effect": "Battle Scarred / New / Masterwork pieces: \u002B10% Barbarian damage.",
+          "effect": "Battle Scarred / New / Masterwork pieces: +10% Barbarian damage per matching piece, per skill rank.",
           "payoff": "Quality fantasy becomes desirable loot.",
           "customEffectId": "scrap_prefer"
-=======
-          "maxRank": 1,
-          "requires": [
-            "b-tribe"
-          ],
-          "effect": "Equipped Mace: all granted actions gain Barbarian if missing.",
-          "payoff": "Weapon forces the tag economy onto kit.",
-          "customEffectId": "tribal_stamp",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-slam",
-          "name": "Slam Doctrine",
-          "branch": "Impact",
-          "tier": 4,
-          "type": "Rule",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "b-lvl4"
-          ],
-          "effect": "On SLAM, add Barbarian tag to every equipped action (fight-scoped).",
-          "payoff": "Basic refreshes the whole strip\u2019s tag value.",
-          "customEffectId": "slam_doctrine",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-rage",
-          "name": "Barbarian Rage",
-          "branch": "4",
-          "tier": 4,
-          "type": "Action",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "b-mastery"
-          ],
-          "effect": "Rage: all Barbarian-tagged actions gain Multihit \u002B1.",
-          "payoff": "Tag density \u00D7 multihit burst window.",
-          "unlockActionName": "BARBARIAN RAGE",
-          "customEffectId": "b-rage",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "b-alloy",
-          "name": "Living Alloy",
-          "branch": "Confluence",
-          "tier": 4,
-          "type": "Rule",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "b-age1",
-            "b-memory"
-          ],
-          "effect": "Harden and Fortify stacks count as Barbarian tags.",
-          "payoff": "Defense, equipment, crits, and routing become one engine.",
-          "customEffectId": "living_alloy",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
         }
       ]
     },
@@ -659,82 +183,17 @@
       "identity": "Control the fight by converting defense and clean sequences into tempo.",
       "nodes": [
         {
-<<<<<<< Updated upstream
           "id": "w-lineage",
           "name": "Level 1 - Warrior",
-=======
-          "id": "w-puberty",
-          "name": "Commission",
-          "branch": "Rite",
+          "branch": "Core",
           "tier": 0,
           "type": "Passive",
           "cost": 0,
           "maxRank": 1,
-          "requires": [
-            "w-lineage"
-          ],
-          "effect": "\u002B15 Agility (rite of passage).",
-          "payoff": "Marks the Sword path; baseline tempo before tag engines.",
-          "customEffectId": "commission",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-root",
-          "name": "Iron Discipline",
->>>>>>> Stashed changes
-          "branch": "Core",
-          "tier": 1,
-          "type": "Passive",
-<<<<<<< Updated upstream
-          "cost": 0,
           "requires": [],
           "effect": "Bronze, Gold, and Mithril tags now count as a Warrior tag.",
           "payoff": "Class materials become the stacking currency.",
           "customEffectId": "iron_lineage"
-=======
-          "cost": 4,
-          "maxRank": 1,
-          "requires": [
-            "w-lineage"
-          ],
-          "effect": "Once per fight, a miss does not reset the strip; lose all Focus instead.",
-          "payoff": "Focus doubles as accuracy and combo insurance.",
-          "customEffectId": "iron_discipline",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-lineage",
-          "name": "Level 1 - Warrior",
-          "branch": "Core",
-          "tier": 0,
-          "type": "Passive",
-          "cost": 0,
-          "maxRank": 1,
-          "requires": [],
-          "effect": "Bronze, Gold, and Mithril tags now count as a Warrior tag.",
-          "payoff": "Class materials become the stacking currency.",
-          "customEffectId": "iron_lineage",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-loot",
-          "name": "Muster Hall",
-          "branch": "Line",
-          "tier": 1,
-          "type": "Rule",
-          "cost": 4,
-          "maxRank": 1,
-          "requires": [
-            "w-lineage"
-          ],
-          "effect": "Increase Warrior-tag item generation by 50%.",
-          "payoff": "Loot bias toward Bronze/Gold/Mithril.",
-          "customEffectId": "muster_hall",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
         },
         {
           "id": "w-age1",
@@ -742,43 +201,14 @@
           "branch": "Line",
           "tier": 1,
           "type": "Passive",
-          "cost": 4,
-          "maxRank": 1,
+          "cost": 1,
+          "maxRank": 5,
           "requires": [
             "w-lineage"
           ],
-          "effect": "Combo slot 1 gains \u002B8% damage per equipped Warrior item.",
-          "payoff": "Material count and opener placement matter.",
-          "customEffectId": "first_formation",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
-        },
-        {
-          "id": "w-age1",
-          "name": "First Formation",
-          "branch": "Line",
-          "tier": 1,
-          "type": "Passive",
-          "cost": 4,
-<<<<<<< Updated upstream
-          "requires": [
-            "w-lineage"
-          ],
-          "effect": "\u002B8% speed per equipped Warrior item.",
+          "effect": "+8% speed per equipped Warrior item, per skill rank.",
           "payoff": "Material count becomes tempo.",
           "customEffectId": "first_formation"
-=======
-          "maxRank": 1,
-          "requires": [
-            "w-lineage"
-          ],
-          "effect": "After taking a hit, your next Sword action gains Pierce; if armor absorbed damage, it gains \u002B1 hit.",
-          "payoff": "Enemy attacks determine your offensive cadence.",
-          "customEffectId": "riposte",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
         },
         {
           "id": "w-loot",
@@ -786,25 +216,14 @@
           "branch": "Line",
           "tier": 1,
           "type": "Rule",
-          "cost": 4,
-<<<<<<< Updated upstream
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "w-lineage"
           ],
           "effect": "Increase Warrior-tag item generation by 50%.",
           "payoff": "Loot bias toward Bronze/Gold/Mithril.",
           "customEffectId": "muster_hall"
-=======
-          "maxRank": 1,
-          "requires": [
-            "w-lineage"
-          ],
-          "effect": "Alternating actions above and below base speed grants Focus. Repeating a speed band removes one.",
-          "payoff": "Mixed-speed strips outperform all-fast strips.",
-          "customEffectId": "cadence_keeper",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
         },
         {
           "id": "w-cunning",
@@ -812,12 +231,12 @@
           "branch": "Tempo",
           "tier": 1,
           "type": "Action",
-          "cost": 4,
-<<<<<<< Updated upstream
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "w-lineage"
           ],
-          "effect": "ACTION: CUNNING \u2014 \u002B3 Agility for the dungeon.",
+          "effect": "ACTION: CUNNING — +3 Agility for the dungeon.",
           "payoff": "Early dungeon tempo from the strip.",
           "unlockActionName": "CUNNING",
           "customEffectId": "cunning"
@@ -828,7 +247,8 @@
           "branch": "Tempo",
           "tier": 2,
           "type": "Passive",
-          "cost": 8,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "w-cunning"
           ],
@@ -842,11 +262,12 @@
           "branch": "Rite",
           "tier": 2,
           "type": "Passive",
-          "cost": 8,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "w-lvl2"
           ],
-          "effect": "Rite of passage: \u002B15 Agility.",
+          "effect": "Rite of passage: +15 Agility.",
           "payoff": "Marks the Sword path; baseline tempo before tag engines.",
           "customEffectId": "commission"
         },
@@ -856,12 +277,13 @@
           "branch": "Command",
           "tier": 2,
           "type": "Action",
-          "cost": 8,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "w-puberty"
           ],
-          "effect": "ACTION: AVENGE (Finisher) \u2014 add Warrior tag to all actions.",
-          "payoff": "Finisher refreshes the whole strip\u2019s tag value.",
+          "effect": "ACTION: AVENGE (Finisher) — add Warrior tag to all actions.",
+          "payoff": "Finisher refreshes the whole strip’s tag value.",
           "unlockActionName": "AVENGE",
           "customEffectId": "avenge"
         },
@@ -871,197 +293,14 @@
           "branch": "Line",
           "tier": 3,
           "type": "Rule",
-          "cost": 14,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "w-age1"
           ],
-          "effect": "\u002B1 Combo per 2 Warrior tags.",
+          "effect": "+1 Combo per 2 Warrior tags.",
           "payoff": "Tag-dense kits enter combo more often.",
           "customEffectId": "drill_cadence"
-=======
-          "maxRank": 1,
-          "requires": [
-            "w-lineage"
-          ],
-          "effect": "Mark and Weaken the enemy. Strip its next damage bonus and deposit it as Fortify on you.",
-          "payoff": "Turns enemy buffs into defense.",
-          "unlockActionName": "CHALLENGE",
-          "customEffectId": "challenge",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-grantcut",
-          "name": "Drill Blade",
-          "branch": "Tempo",
-          "tier": 1,
-          "type": "Passive",
-          "cost": 4,
-          "maxRank": 1,
-          "requires": [
-            "w-lineage"
-          ],
-          "effect": "Sword weapons gain action: MEASURED CUT.",
-          "payoff": "Expands Sword kit around Guard/Tempo.",
-          "unlockActionName": "MEASURED CUT",
-          "customEffectId": "drill_blade",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-lvl2",
-          "name": "Level 2 - Warrior",
-          "branch": "Guard",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "w-lineage"
-          ],
-          "effect": "Add the natural dice roll to Fortify stacks for next turn (1 stack per 5 face, min 1).",
-          "payoff": "Clean rolls bank defense.",
-          "customEffectId": "roll_fortify",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-polish",
-          "name": "Parade Dress",
-          "branch": "Line",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "w-loot"
-          ],
-          "effect": "Like New / Perfect / Masterwork pieces: \u002B10% Warrior damage.",
-          "payoff": "High quality is the Warrior loot fantasy.",
-          "customEffectId": "parade_dress",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-lvl3",
-          "name": "Level 3 - Warrior",
-          "branch": "Tempo",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "w-grantcut",
-            "w-lineage"
-          ],
-          "effect": "Sword: \u002B3% damage for each Warrior tag.",
-          "payoff": "Tag count on the swing is direct DPS.",
-          "customEffectId": "tag_thrust",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-geometry",
-          "name": "Shield Geometry",
-          "branch": "Guard",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "w-riposte"
-          ],
-          "effect": "When armor reduces a hit to zero, Expose the attacker and jump to your first Sword action.",
-          "payoff": "Armor changes routing, not only effective HP.",
-          "customEffectId": "shield_geometry",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-opening",
-          "name": "Commander\u0027s Opening",
-          "branch": "Command",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "w-challenge"
-          ],
-          "effect": "First normal hit lowers Combo threshold; a first-hit critical lowers Crit threshold instead.",
-          "payoff": "The opening roll selects the fight plan.",
-          "customEffectId": "commanders_opening",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-miss",
-          "name": "Clean Recover",
-          "branch": "Tempo",
-          "tier": 2,
-          "type": "Rule",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "w-cadence"
-          ],
-          "effect": "On MISS with a Sword: gain Focus instead of strip reset (once/fight; stacks with root).",
-          "payoff": "Misses feed the Focus economy.",
-          "customEffectId": "clean_recover",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-lvl4",
-          "name": "Level 4 - Warrior",
-          "branch": "Command",
-          "tier": 3,
-          "type": "Mastery",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "w-lvl3"
-          ],
-          "effect": "\u002B25 AGI for each filled consecutive strip slot from opener (streak bonus).",
-          "payoff": "Rewards complete, unbroken lines.",
-          "customEffectId": "unbroken_stride",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-bulwark",
-          "name": "Mobile Bulwark",
-          "branch": "Guard",
-          "tier": 3,
-          "type": "Mastery",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "w-geometry"
-          ],
-          "effect": "Each Fortify stack gives the next action -3% speed, then expires.",
-          "payoff": "Choose when to cash defense into tempo.",
-          "customEffectId": "mobile_bulwark",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-critexpose",
-          "name": "Line Crit",
-          "branch": "Line",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "w-lvl3"
-          ],
-          "effect": "Warrior-tagged crits apply Expose.",
-          "payoff": "Tag crits open Sword Mastery routing.",
-          "customEffectId": "line_crit",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
         },
         {
           "id": "w-hitagi",
@@ -1069,11 +308,12 @@
           "branch": "Tempo",
           "tier": 3,
           "type": "Passive",
-          "cost": 14,
+          "cost": 1,
+          "maxRank": 5,
           "requires": [
             "w-avenge"
           ],
-          "effect": "Hit with a Sword: \u002B5 Agility for the turn.",
+          "effect": "Hit with a Sword: +5 Agility for the turn, per skill rank.",
           "payoff": "Connects convert into same-turn tempo.",
           "customEffectId": "sword_hit_agi"
         },
@@ -1083,180 +323,14 @@
           "branch": "Command",
           "tier": 4,
           "type": "Mastery",
-<<<<<<< Updated upstream
-          "cost": 21,
-=======
-          "cost": 14,
-          "maxRank": 1,
->>>>>>> Stashed changes
+          "cost": 1,
+          "maxRank": 5,
           "requires": [
             "w-hitagi"
           ],
-<<<<<<< Updated upstream
-          "effect": "\u002B5 Agility for each consecutive attack; resets OnTakeHit.",
+          "effect": "+5 Agility for each consecutive attack (resets OnTakeHit), per skill rank.",
           "payoff": "Rewards unbroken offensive lines.",
           "customEffectId": "consecutive_agi"
-=======
-          "effect": "Sword hits against Exposed enemies advance two slots; against Marked enemies, advance zero.",
-          "payoff": "Status choice accelerates or holds the strip.",
-          "customEffectId": "sword_mastery",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-flow",
-          "name": "Flow State",
-          "branch": "Tempo",
-          "tier": 3,
-          "type": "Rule",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "w-cadence",
-            "w-lvl3"
-          ],
-          "effect": "Three different actions connect without a miss: gain one reroll and exploding dice on the next action.",
-          "payoff": "Rewards action diversity and precise sequencing.",
-          "customEffectId": "flow_state",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-heal",
-          "name": "Banner Heal",
-          "branch": "Line",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "w-lvl3"
-          ],
-          "effect": "Heal X HP per Warrior tag when ending a combo without a miss.",
-          "payoff": "Clean execution sustains runs.",
-          "customEffectId": "banner_heal",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-hit",
-          "name": "Drill Cadence",
-          "branch": "Line",
-          "tier": 3,
-          "type": "Rule",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "w-age1"
-          ],
-          "effect": "Hit threshold \u22121 per 2 Warrior tags.",
-          "payoff": "Tag-dense actions connect more reliably.",
-          "customEffectId": "drill_cadence",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-headmith",
-          "name": "Mithril Crest",
-          "branch": "Line",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "w-polish"
-          ],
-          "effect": "Head Mithril: Sword connects grant Focus.",
-          "payoff": "Slot\u002Bmaterial care.",
-          "customEffectId": "mithril_crest",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-ontakehit",
-          "name": "Plate Doctrine",
-          "branch": "Guard",
-          "tier": 3,
-          "type": "Rule",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "w-riposte"
-          ],
-          "effect": "ONTAKEHIT \u2192 Fortify/Harden from gear: also grant 1 Focus while Sword equipped.",
-          "payoff": "Take-hit triggers valued for Warrior.",
-          "customEffectId": "plate_doctrine",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-finisher",
-          "name": "Finisher Salute",
-          "branch": "Tempo",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "w-flow"
-          ],
-          "effect": "Finisher actions gain \u002B10% damage per Warrior tag.",
-          "payoff": "Strip end is the tag payoff.",
-          "customEffectId": "finisher_salute",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-overkill",
-          "name": "No Waste",
-          "branch": "Guard",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "w-heal"
-          ],
-          "effect": "Overkill converts to Fortify (1 stack per X overkill).",
-          "payoff": "Extra damage becomes next-guard.",
-          "customEffectId": "no_waste",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-swordgrant",
-          "name": "Commissioned Blade",
-          "branch": "Line",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "w-lineage"
-          ],
-          "effect": "Equipped Sword: all granted actions gain Warrior if missing.",
-          "payoff": "Weapon forces tag economy onto kit.",
-          "customEffectId": "commissioned_blade",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-strike",
-          "name": "Strike Doctrine",
-          "branch": "Command",
-          "tier": 4,
-          "type": "Rule",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "w-lvl4"
-          ],
-          "effect": "On STRIKE, add Warrior tag to every equipped action (fight-scoped).",
-          "payoff": "Basic refreshes strip tag value.",
-          "customEffectId": "strike_doctrine",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
         },
         {
           "id": "w-polish",
@@ -1264,44 +338,15 @@
           "branch": "Line",
           "tier": 4,
           "type": "Passive",
-          "cost": 21,
-<<<<<<< Updated upstream
-=======
-          "maxRank": 1,
->>>>>>> Stashed changes
+          "cost": 1,
+          "maxRank": 5,
           "requires": [
             "w-loot",
             "w-combo"
           ],
-<<<<<<< Updated upstream
-          "effect": "Worn / Like New / Heirloom pieces: \u002B10% Warrior damage.",
+          "effect": "Worn / Like New / Heirloom pieces: +10% Warrior damage per matching piece, per skill rank.",
           "payoff": "Quality fantasy becomes desirable loot.",
           "customEffectId": "parade_dress"
-=======
-          "effect": "Ending a combo without missing heals 8% max HP and converts leftover Focus into Fortify.",
-          "payoff": "Clean execution sustains long dungeons.",
-          "customEffectId": "second_wind",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "w-line",
-          "name": "Unbroken Line",
-          "branch": "Confluence",
-          "tier": 4,
-          "type": "Rule",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "w-flow",
-            "w-mastery"
-          ],
-          "effect": "Once per fight, hold a slot when the strip would reset. Reaching the Finisher from that hold retriggers the opener.",
-          "payoff": "Salvage, routing, and acceleration can form a controlled loop.",
-          "customEffectId": "unbroken_line",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
         }
       ]
     },
@@ -1313,82 +358,17 @@
       "identity": "Build delayed payoffs from marks, status conversion, failure, and exact rolls.",
       "nodes": [
         {
-<<<<<<< Updated upstream
           "id": "r-veil",
           "name": "Level 1 - Rogue",
-=======
-          "id": "r-puberty",
-          "name": "Initiation",
-          "branch": "Rite",
+          "branch": "Core",
           "tier": 0,
           "type": "Passive",
           "cost": 0,
           "maxRank": 1,
-          "requires": [
-            "r-veil"
-          ],
-          "effect": "\u002B15 Technique (rite of passage).",
-          "payoff": "Marks the Dagger path; baseline precision before tag engines.",
-          "customEffectId": "initiation",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-root",
-          "name": "Shadowcraft",
->>>>>>> Stashed changes
-          "branch": "Core",
-          "tier": 1,
-          "type": "Passive",
-<<<<<<< Updated upstream
-          "cost": 0,
           "requires": [],
           "effect": "Glass, Obsidian, and Shadow tags now count as a Rogue tag.",
           "payoff": "Class materials become the stacking currency.",
           "customEffectId": "glass_veil"
-=======
-          "cost": 4,
-          "maxRank": 1,
-          "requires": [
-            "r-veil"
-          ],
-          "effect": "Your first connected Dagger action Marks the enemy. Hitting another target moves the Mark.",
-          "payoff": "Target commitment becomes the core Rogue rule.",
-          "customEffectId": "shadowcraft",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-veil",
-          "name": "Level 1 - Rogue",
-          "branch": "Core",
-          "tier": 0,
-          "type": "Passive",
-          "cost": 0,
-          "maxRank": 1,
-          "requires": [],
-          "effect": "Glass, Obsidian, and Shadow tags now count as a Rogue tag.",
-          "payoff": "Class materials become the stacking currency.",
-          "customEffectId": "glass_veil",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-loot",
-          "name": "Black Market",
-          "branch": "Veil",
-          "tier": 1,
-          "type": "Rule",
-          "cost": 4,
-          "maxRank": 1,
-          "requires": [
-            "r-veil"
-          ],
-          "effect": "Increase Rogue-tag item generation by 50%.",
-          "payoff": "Loot bias toward Glass/Obsidian/Shadow.",
-          "customEffectId": "black_market",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
         },
         {
           "id": "r-age1",
@@ -1396,30 +376,12 @@
           "branch": "Veil",
           "tier": 1,
           "type": "Passive",
-          "cost": 4,
-          "maxRank": 1,
+          "cost": 1,
+          "maxRank": 5,
           "requires": [
             "r-veil"
           ],
-          "effect": "Combo slot 1 gains \u002B8% damage per equipped Rogue item.",
-          "payoff": "Material count and opener placement matter.",
-          "customEffectId": "first_cut",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
-        },
-        {
-          "id": "r-age1",
-          "name": "First Cut",
-          "branch": "Veil",
-          "tier": 1,
-          "type": "Passive",
-          "cost": 4,
-<<<<<<< Updated upstream
-          "requires": [
-            "r-veil"
-          ],
-          "effect": "\u002B8% damage per equipped Rogue item.",
+          "effect": "+8% damage per equipped Rogue item, per skill rank.",
           "payoff": "Material count becomes a build choice.",
           "customEffectId": "first_cut"
         },
@@ -1429,7 +391,8 @@
           "branch": "Veil",
           "tier": 1,
           "type": "Rule",
-          "cost": 4,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "r-veil"
           ],
@@ -1443,11 +406,12 @@
           "branch": "Precision",
           "tier": 1,
           "type": "Action",
-          "cost": 4,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "r-veil"
           ],
-          "effect": "ACTION: CONCENTRATE \u2014 \u002B3 Technique for the dungeon.",
+          "effect": "ACTION: CONCENTRATE — +3 Technique for the dungeon.",
           "payoff": "Early dungeon precision from the strip.",
           "unlockActionName": "CONCENTRATE",
           "customEffectId": "concentrate"
@@ -1458,7 +422,8 @@
           "branch": "Precision",
           "tier": 2,
           "type": "Passive",
-          "cost": 8,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "r-concentrate"
           ],
@@ -1472,253 +437,27 @@
           "branch": "Rite",
           "tier": 2,
           "type": "Passive",
-          "cost": 8,
-=======
+          "cost": 1,
           "maxRank": 1,
-          "requires": [
-            "r-veil"
-          ],
-          "effect": "Dagger hits convert one Poison stack into two Bleed; critical hits convert two.",
-          "payoff": "Trade status duration for action-triggered burst.",
-          "customEffectId": "envenomed_edge",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-ghost",
-          "name": "Ghost Step",
-          "branch": "Evasion",
-          "tier": 1,
-          "type": "Passive",
-          "cost": 4,
-          "maxRank": 1,
-          "requires": [
-            "r-veil"
-          ],
-          "effect": "After a miss, gain miss salvage and skip the next strip slot on your following connect.",
-          "payoff": "Failure can intentionally route around an awkward action.",
-          "customEffectId": "ghost_step",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-snake",
-          "name": "Snake Eyes",
-          "branch": "Precision",
-          "tier": 1,
-          "type": "Rule",
-          "cost": 4,
-          "maxRank": 1,
-          "requires": [
-            "r-veil"
-          ],
-          "effect": "Natural 2 and 12 grant Loaded. At 2 Loaded, replace the next roll with 20.",
-          "payoff": "Exact faces create a slow probability engine.",
-          "customEffectId": "snake_eyes",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-grantmis",
-          "name": "Hidden Blade",
-          "branch": "1",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "r-veil"
-          ],
-          "effect": "Dagger weapons gain action: MISDIRECT.",
-          "payoff": "Expands fail-forward kit.",
-          "unlockActionName": "MISDIRECT",
-          "customEffectId": "r-grantmis",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-lvl2",
-          "name": "Level 2 - Rogue",
-          "branch": "Venom",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "r-veil"
-          ],
-          "effect": "Add the natural dice roll to Bleed intensity on next connect (Mark required).",
-          "payoff": "Rolls feed DoT setup.",
-          "customEffectId": "roll_bleed",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-glass",
-          "name": "Fragile Prefer",
-          "branch": "Veil",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "r-loot"
-          ],
-          "effect": "Glass / Obsidian pieces: \u002B10% Rogue damage; Shadow pieces ease crit faces.",
-          "payoff": "Brittle/dark materials are the Rogue loot fantasy.",
-          "customEffectId": "fragile_prefer",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-lvl3",
-          "name": "Level 3 - Rogue",
-          "branch": "Precision",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "r-grantmis",
-            "r-veil"
-          ],
-          "effect": "Dagger: \u002B3% damage for each Rogue tag.",
-          "payoff": "Tag count on the swing is direct DPS.",
-          "customEffectId": "tag_stab",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-hemo",
-          "name": "Hemorrhage",
-          "branch": "Venom",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "r-edge"
-          ],
-          "effect": "When Bleed ticks, apply Expose for one turn; if already Exposed, add Armor Break.",
-          "payoff": "Enemy speed changes the debuff payoff window.",
-          "customEffectId": "hemorrhage",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-loaded",
-          "name": "Loaded Dice",
-          "branch": "2",
-          "tier": 4,
-          "type": "Action",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "r-snake"
-          ],
-          "effect": "Replace the next natural roll with 6, 12, or 18 based on this action\u0027s strip slot.",
-          "payoff": "Strip placement controls deterministic trigger faces.",
-          "unlockActionName": "LOADED DICE",
-          "customEffectId": "r-loaded",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-miss",
-          "name": "Soft Fail",
-          "branch": "Evasion",
-          "tier": 2,
-          "type": "Rule",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "r-ghost"
-          ],
-          "effect": "On MISS with a Dagger: apply Mark if missing, else \u002B1 Debt.",
-          "payoff": "Misses still advance the Rogue engine.",
-          "customEffectId": "soft_fail",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-lvl4",
-          "name": "Level 4 - Rogue",
-          "branch": "Evasion",
-          "tier": 3,
-          "type": "Mastery",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "r-lvl3"
-          ],
-          "effect": "\u002B25 TEC for each distinct action tag on your strip.",
-          "payoff": "Diversity (Technical Debt fuel) is raw power.",
-          "customEffectId": "tag_debt_str",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-speed",
-          "name": "Bleed Tempo",
-          "branch": "Venom",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
->>>>>>> Stashed changes
           "requires": [
             "r-lvl2"
           ],
-<<<<<<< Updated upstream
-          "effect": "Rite of passage: \u002B15 Technique.",
+          "effect": "Rite of passage: +15 Technique.",
           "payoff": "Marks the Dagger path; baseline precision before tag engines.",
           "customEffectId": "initiation"
         },
         {
           "id": "r-precision",
           "name": "Precision",
-=======
-          "effect": "Dagger attack speed \u002BX% per DoT type on the Mark.",
-          "payoff": "Mixed DoTs buy cadence.",
-          "customEffectId": "bleed_tempo",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-critmark",
-          "name": "Quiet Crit",
-          "branch": "Veil",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "r-lvl3"
-          ],
-          "effect": "Rogue-tagged crits apply Expose (or move Mark if already Exposed).",
-          "payoff": "Tag crits refresh target lock.",
-          "customEffectId": "quiet_crit",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-mastery",
-          "name": "Dagger Mastery",
->>>>>>> Stashed changes
           "branch": "Precision",
           "tier": 2,
           "type": "Mastery",
-<<<<<<< Updated upstream
-          "cost": 8,
-=======
-          "cost": 14,
+          "cost": 1,
           "maxRank": 1,
->>>>>>> Stashed changes
           "requires": [
             "r-puberty"
           ],
-<<<<<<< Updated upstream
-          "effect": "Rogue-tagged actions gain Multihit \u002B1.",
+          "effect": "Rogue-tagged actions gain Multihit +1.",
           "payoff": "Tag density becomes burst volume.",
           "customEffectId": "precision_multihit"
         },
@@ -1728,216 +467,12 @@
           "branch": "Veil",
           "tier": 3,
           "type": "Rule",
-          "cost": 14,
-=======
-          "effect": "Only the final multihit applies status, but it applies once per prior hit.",
-          "payoff": "Multihit count becomes a controlled status amplifier.",
-          "customEffectId": "dagger_mastery",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-debt",
-          "name": "Technical Debt",
-          "branch": "Evasion",
-          "tier": 3,
-          "type": "Rule",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "r-miss",
-            "r-lvl4"
-          ],
-          "effect": "Distinct action tags add Debt. Repeating a tag cashes all Debt into Expose stacks.",
-          "payoff": "Players author their own setup and cash-out cycle.",
-          "customEffectId": "technical_debt",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-ledger",
-          "name": "Toxic Ledger",
-          "branch": "Venom",
-          "tier": 3,
-          "type": "Rule",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "r-hemo"
-          ],
-          "effect": "Each different DoT on the Mark adds \u002B10% Finisher damage; the Finisher consumes the shortest DoT.",
-          "payoff": "Curate mixtures and durations instead of one maximum stack.",
-          "customEffectId": "toxic_ledger",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-heal",
-          "name": "Cut Purse",
-          "branch": "Veil",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "r-lvl3"
-          ],
-          "effect": "Heal X HP per Rogue tag on Marked kill.",
-          "payoff": "Tag stacking pays on assassinations.",
-          "customEffectId": "cut_purse",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-crit",
-          "name": "Soft Cadence",
-          "branch": "Veil",
-          "tier": 3,
-          "type": "Rule",
-          "cost": 14,
+          "cost": 1,
           "maxRank": 1,
           "requires": [
             "r-age1"
           ],
-          "effect": "Crit threshold \u22121 per 2 Rogue tags (Mark required).",
-          "payoff": "Tag-dense marked hits crit more.",
-          "customEffectId": "soft_cadence",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-headshad",
-          "name": "Shadow Hood",
-          "branch": "Veil",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "r-glass"
-          ],
-          "effect": "Head Shadow: first miss each fight is salvaged automatically.",
-          "payoff": "Slot\u002Bmaterial care.",
-          "customEffectId": "shadow_hood",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-poisonkit",
-          "name": "Poison Kit",
-          "branch": "Venom",
-          "tier": 3,
-          "type": "Rule",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "r-edge"
-          ],
-          "effect": "Gear poison/bleed mods: \u002B1 intensity while Dagger and at least one Rogue material equipped.",
-          "payoff": "Status affixes become class-valued.",
-          "customEffectId": "poison_kit",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-finisher",
-          "name": "Finisher Silence",
-          "branch": "Venom",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "r-ledger"
-          ],
-          "effect": "Finisher actions gain \u002B10% damage per Rogue tag (doubled if Marked).",
-          "payoff": "Strip end is the tag payoff.",
-          "customEffectId": "finisher_silence",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-overkill",
-          "name": "Spillover",
-          "branch": "Venom",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "r-heal"
-          ],
-          "effect": "Overkill on Marked foe applies leftover as Bleed to next enemy.",
-          "payoff": "Overkill becomes DoT carry.",
-          "customEffectId": "spillover",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-daggrant",
-          "name": "Concealed Edge",
-          "branch": "Veil",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "r-veil"
-          ],
-          "effect": "Equipped Dagger: all granted actions gain Rogue if missing.",
-          "payoff": "Weapon forces tag economy onto kit.",
-          "customEffectId": "concealed_edge",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-stab",
-          "name": "Stab Doctrine",
-          "branch": "Precision",
-          "tier": 4,
-          "type": "Rule",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "r-lvl4"
-          ],
-          "effect": "On STAB, add Rogue tag to every equipped action (fight-scoped).",
-          "payoff": "Basic refreshes strip tag value.",
-          "customEffectId": "stab_doctrine",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-witness",
-          "name": "No Witnesses",
-          "branch": "Evasion",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "r-debt"
-          ],
-          "effect": "Killing a Marked enemy retriggers the opener and preserves one miss-salvage charge.",
-          "payoff": "Room sequencing and overkill become strip planning.",
-          "customEffectId": "no_witnesses",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "r-crime",
-          "name": "Perfect Crime",
-          "branch": "Confluence",
-          "tier": 4,
-          "type": "Rule",
-          "cost": 21,
-          "maxRank": 1,
->>>>>>> Stashed changes
-          "requires": [
-            "r-age1"
-          ],
-<<<<<<< Updated upstream
-          "effect": "\u002B1 Combo per 2 Rogue tags.",
+          "effect": "+1 Combo per 2 Rogue tags.",
           "payoff": "Tag-dense kits enter combo more often.",
           "customEffectId": "soft_cadence"
         },
@@ -1947,7 +482,8 @@
           "branch": "Evasion",
           "tier": 3,
           "type": "Passive",
-          "cost": 14,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "r-precision"
           ],
@@ -1961,11 +497,12 @@
           "branch": "Evasion",
           "tier": 4,
           "type": "Mastery",
-          "cost": 21,
+          "cost": 1,
+          "maxRank": 5,
           "requires": [
             "r-critmiss"
           ],
-          "effect": "\u002B5 Technique for each consecutive non-miss; resets OnTakeHit.",
+          "effect": "+5 Technique for each consecutive non-miss (resets OnTakeHit/miss), per skill rank.",
           "payoff": "Rewards clean connect streaks.",
           "customEffectId": "consecutive_tec"
         },
@@ -1975,21 +512,15 @@
           "branch": "Veil",
           "tier": 4,
           "type": "Passive",
-          "cost": 21,
+          "cost": 1,
+          "maxRank": 5,
           "requires": [
             "r-loot",
             "r-combo"
           ],
-          "effect": "Broken / Preowned / Perfect pieces: \u002B10% Rogue damage.",
+          "effect": "Broken / Preowned / Perfect pieces: +10% Rogue damage per matching piece, per skill rank.",
           "payoff": "Quality fantasy becomes desirable loot.",
           "customEffectId": "fragile_prefer"
-=======
-          "effect": "On Marked death, copy the shortest DoT and highest debuff to the next enemy; resume after the Finisher.",
-          "payoff": "Status and routing persist as a room-to-room engine.",
-          "customEffectId": "perfect_crime",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
         }
       ]
     },
@@ -2001,82 +532,17 @@
       "identity": "Compose elemental reactions, action echoes, and probability rules.",
       "nodes": [
         {
-<<<<<<< Updated upstream
           "id": "z-circle",
           "name": "Level 1 - Wizard",
-=======
-          "id": "z-puberty",
-          "name": "Apprenticeship",
-          "branch": "Rite",
+          "branch": "Core",
           "tier": 0,
           "type": "Passive",
           "cost": 0,
           "maxRank": 1,
-          "requires": [
-            "z-circle"
-          ],
-          "effect": "\u002B15 Intelligence (rite of passage).",
-          "payoff": "Marks the Wand path; baseline mind before tag engines.",
-          "customEffectId": "apprenticeship",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-root",
-          "name": "Arcane Weave",
->>>>>>> Stashed changes
-          "branch": "Core",
-          "tier": 1,
-          "type": "Passive",
-<<<<<<< Updated upstream
-          "cost": 0,
           "requires": [],
           "effect": "Willow, Silver, and Crystal tags now count as a Wizard tag.",
           "payoff": "Class materials become the stacking currency.",
           "customEffectId": "mage_circle"
-=======
-          "cost": 4,
-          "maxRank": 1,
-          "requires": [
-            "z-circle"
-          ],
-          "effect": "The first elemental status each fight grants Focus and \u002B1 temporary INT. A different element refreshes it.",
-          "payoff": "Element variety starts the Wizard engine.",
-          "customEffectId": "arcane_weave",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-circle",
-          "name": "Level 1 - Wizard",
-          "branch": "Core",
-          "tier": 0,
-          "type": "Passive",
-          "cost": 0,
-          "maxRank": 1,
-          "requires": [],
-          "effect": "Willow, Silver, and Crystal tags now count as a Wizard tag.",
-          "payoff": "Class materials become the stacking currency.",
-          "customEffectId": "mage_circle",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-loot",
-          "name": "Reagent Market",
-          "branch": "Circle",
-          "tier": 1,
-          "type": "Rule",
-          "cost": 4,
-          "maxRank": 1,
-          "requires": [
-            "z-circle"
-          ],
-          "effect": "Increase Wizard-tag item generation by 50%.",
-          "payoff": "Loot bias toward Willow/Silver/Crystal.",
-          "customEffectId": "reagent_market",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
         },
         {
           "id": "z-age1",
@@ -2084,43 +550,14 @@
           "branch": "Circle",
           "tier": 1,
           "type": "Passive",
-          "cost": 4,
-          "maxRank": 1,
+          "cost": 1,
+          "maxRank": 5,
           "requires": [
             "z-circle"
           ],
-          "effect": "Combo slot 1 gains \u002B8% AMP per equipped Wizard item.",
-          "payoff": "Material count and opener placement matter (AMP-first).",
-          "customEffectId": "first_glyph",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
-        },
-        {
-          "id": "z-age1",
-          "name": "First Glyph",
-          "branch": "Circle",
-          "tier": 1,
-          "type": "Passive",
-          "cost": 4,
-<<<<<<< Updated upstream
-          "requires": [
-            "z-circle"
-          ],
-          "effect": "\u002B8% AMP per equipped Wizard item.",
+          "effect": "+8% AMP per equipped Wizard item, per skill rank.",
           "payoff": "Material count becomes spell power.",
           "customEffectId": "first_glyph"
-=======
-          "maxRank": 1,
-          "requires": [
-            "z-circle"
-          ],
-          "effect": "Burn on a Poisoned enemy consumes one Poison to add Acid and \u002B1 Burn.",
-          "payoff": "Cross-class Poison becomes an elemental reagent.",
-          "customEffectId": "kindle",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
         },
         {
           "id": "z-loot",
@@ -2128,71 +565,30 @@
           "branch": "Circle",
           "tier": 1,
           "type": "Rule",
-          "cost": 4,
-<<<<<<< Updated upstream
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "z-circle"
           ],
           "effect": "Increase Wizard-tag item generation by 50%.",
           "payoff": "Loot bias toward Willow/Silver/Crystal.",
           "customEffectId": "reagent_market"
-=======
-          "maxRank": 1,
-          "requires": [
-            "z-circle"
-          ],
-          "effect": "Repeating a tag adds AMP and action length. Changing tags cashes AMP onto the new action and clears both.",
-          "payoff": "Choose how long to charge repetition before pivoting.",
-          "customEffectId": "spell_memory",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
         },
         {
           "id": "z-readbook",
           "name": "Read Book",
           "branch": "Echo",
           "tier": 1,
-<<<<<<< Updated upstream
           "type": "Action",
-          "cost": 4,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "z-circle"
           ],
-          "effect": "ACTION: READ BOOK \u2014 \u002B3 Intelligence for the dungeon.",
+          "effect": "ACTION: READ BOOK — +3 Intelligence for the dungeon.",
           "payoff": "Early dungeon mind from the strip.",
           "unlockActionName": "READ BOOK",
           "customEffectId": "read_book"
-=======
-          "type": "Passive",
-          "cost": 4,
-          "maxRank": 1,
-          "requires": [
-            "z-circle"
-          ],
-          "effect": "Natural prime faces grant Theorem. At 3 Theorems, the next non-prime roll explodes.",
-          "payoff": "Roll history matters without removing randomness.",
-          "customEffectId": "prime_theory",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-grantecho",
-          "name": "Focus Rod",
-          "branch": "1",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "z-circle"
-          ],
-          "effect": "Wand weapons gain action: ECHO SPELL.",
-          "payoff": "Expands echo/probability kit.",
-          "unlockActionName": "ECHO SPELL",
-          "customEffectId": "z-grantecho",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
         },
         {
           "id": "z-lvl2",
@@ -2200,68 +596,11 @@
           "branch": "Echo",
           "tier": 2,
           "type": "Passive",
-          "cost": 8,
+          "cost": 1,
           "maxRank": 1,
-          "requires": [
-            "z-circle"
-          ],
-          "effect": "Add the natural dice roll to next action\u0027s AMP (face as %).",
-          "payoff": "Rolls feed spell power, not armor.",
-          "customEffectId": "roll_amp",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-pure",
-          "name": "Pure Prefer",
-          "branch": "Circle",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "z-loot"
-          ],
-          "effect": "Silver / Crystal / Perfect\u002B pieces: \u002B10% Wizard AMP.",
-          "payoff": "Clean/rare materials are the Wizard loot fantasy.",
-          "customEffectId": "pure_prefer",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-lvl3",
-          "name": "Level 3 - Wizard",
-          "branch": "Echo",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "z-grantecho",
-            "z-circle"
-          ],
-          "effect": "Wand: \u002B3% AMP for each Wizard tag.",
-          "payoff": "Tag count on the swing is spell power.",
-          "customEffectId": "tag_cast",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
-        },
-        {
-          "id": "z-lvl2",
-          "name": "Level 2 - Wizard",
-          "branch": "Echo",
-          "tier": 2,
-          "type": "Passive",
-          "cost": 8,
-<<<<<<< Updated upstream
-=======
-          "maxRank": 1,
->>>>>>> Stashed changes
           "requires": [
             "z-readbook"
           ],
-<<<<<<< Updated upstream
           "effect": "Add the natural dice roll to your AMP for next turn.",
           "payoff": "Rolls feed next-spell power.",
           "customEffectId": "roll_amp"
@@ -2272,11 +611,12 @@
           "branch": "Rite",
           "tier": 2,
           "type": "Passive",
-          "cost": 8,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "z-lvl2"
           ],
-          "effect": "Rite of passage: \u002B15 Intelligence.",
+          "effect": "Rite of passage: +15 Intelligence.",
           "payoff": "Marks the Wand path; baseline mind before tag engines.",
           "customEffectId": "apprenticeship"
         },
@@ -2286,11 +626,12 @@
           "branch": "Echo",
           "tier": 2,
           "type": "Action",
-          "cost": 8,
+          "cost": 1,
+          "maxRank": 1,
           "requires": [
             "z-puberty"
           ],
-          "effect": "\u002B35% damage per skipped or disabled slot passed, per combo.",
+          "effect": "+35% damage per skipped or disabled slot passed, per combo.",
           "payoff": "Routing mutations become a deliberate wind-up.",
           "unlockActionName": "CONCENTRATED CHAOS",
           "customEffectId": "concentrated_chaos"
@@ -2301,320 +642,12 @@
           "branch": "Circle",
           "tier": 3,
           "type": "Rule",
-          "cost": 14,
-=======
-          "effect": "Slow on Burning consumes both to Stun; Burn on Slowed instead adds Vulnerability.",
-          "payoff": "Element order chooses control or damage.",
-          "customEffectId": "thermal_shock",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-fate",
-          "name": "Rewrite Fate",
-          "branch": "2",
-          "tier": 4,
-          "type": "Action",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "z-prime"
-          ],
-          "effect": "Spend all Theorems. Replace the next natural roll with 5 \u002B 5 per Theorem, capped at 20.",
-          "payoff": "Probability control becomes a visible timing resource.",
-          "unlockActionName": "REWRITE FATE",
-          "customEffectId": "z-fate",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-miss",
-          "name": "Soft Miss",
-          "branch": "Probability",
-          "tier": 2,
-          "type": "Rule",
-          "cost": 8,
-          "maxRank": 1,
-          "requires": [
-            "z-prime"
-          ],
-          "effect": "On MISS with a Wand: gain 1 Theorem (once per fight per miss band).",
-          "payoff": "Misses still feed probability.",
-          "customEffectId": "soft_miss",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-lvl4",
-          "name": "Level 4 - Wizard",
-          "branch": "Elements",
-          "tier": 3,
-          "type": "Mastery",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "z-lvl3"
-          ],
-          "effect": "\u002B25 INT for each unique element applied this fight.",
-          "payoff": "Element diversity is raw power.",
-          "customEffectId": "elemental_mind",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-speed",
-          "name": "Reaction Tempo",
-          "branch": "Elements",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "z-shock"
-          ],
-          "effect": "Wand attack speed \u002BX% per active elemental status on the foe.",
-          "payoff": "Reactions buy cadence.",
-          "customEffectId": "reaction_tempo",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-critfocus",
-          "name": "Sigil Crit",
-          "branch": "Circle",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "z-lvl3"
-          ],
-          "effect": "Wizard-tagged crits refresh Focus and \u002B1 temporary INT.",
-          "payoff": "Tag crits restart Weave.",
-          "customEffectId": "sigil_crit",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-channel",
-          "name": "Channel",
-          "branch": "3",
-          "tier": 4,
-          "type": "Action",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "z-memory",
-            "z-grantecho"
-          ],
-          "effect": "Bank \u002B50% AMP and -20% speed onto the next action; if it misses, preserve half.",
-          "payoff": "A risky setup can target damage, status, or a retrigger.",
-          "unlockActionName": "CHANNEL",
-          "customEffectId": "z-channel",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-catalyst",
-          "name": "Catalyst",
-          "branch": "Elements",
-          "tier": 3,
-          "type": "Mastery",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "z-shock"
-          ],
-          "effect": "Acid armor loss becomes Burn, Poison, or Focus according to current slot modulo 3.",
-          "payoff": "Armor and strip position choose the reaction output.",
-          "customEffectId": "catalyst",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-analysis",
-          "name": "Dungeon Analysis",
-          "branch": "Probability",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "z-fate"
-          ],
-          "effect": "Record the prior room\u0027s common roll band. The first roll in another band next room gains advantage.",
-          "payoff": "Observed randomness informs the next room\u0027s opening.",
-          "customEffectId": "dungeon_analysis",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-heal",
-          "name": "Mana Leech",
-          "branch": "Circle",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "z-lvl3"
-          ],
-          "effect": "Heal X HP per Wizard tag on kill (or restore Focus stacks).",
-          "payoff": "Tag stacking pays sustain.",
-          "customEffectId": "mana_leech",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-combo",
-          "name": "Soft Cadence",
-          "branch": "Circle",
-          "tier": 3,
-          "type": "Rule",
-          "cost": 14,
+          "cost": 1,
           "maxRank": 1,
           "requires": [
             "z-age1"
           ],
-          "effect": "Combo threshold \u22121 per 2 Wizard tags.",
-          "payoff": "Tag-dense spells enter combo more often.",
-          "customEffectId": "soft_cadence",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-headcry",
-          "name": "Crystal Circlet",
-          "branch": "Circle",
-          "tier": 3,
-          "type": "Passive",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "z-pure"
-          ],
-          "effect": "Head Crystal: first CAST each fight gains advantage.",
-          "payoff": "Slot\u002Bmaterial care.",
-          "customEffectId": "crystal_circlet",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-reagent",
-          "name": "Reagent Affix",
-          "branch": "Echo",
-          "tier": 3,
-          "type": "Rule",
-          "cost": 14,
-          "maxRank": 1,
-          "requires": [
-            "z-memory"
-          ],
-          "effect": "ONCONNECT AMP/threshold gear procs: \u002B1 effective Wizard tag while Wand equipped.",
-          "payoff": "Echo/probability affixes become class-valued.",
-          "customEffectId": "reagent_affix",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-finisher",
-          "name": "Finisher Equation",
-          "branch": "Echo",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "z-channel"
-          ],
-          "effect": "Finisher actions gain \u002B10% AMP per Wizard tag.",
-          "payoff": "Strip end is the tag payoff.",
-          "customEffectId": "finisher_equation",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-overkill",
-          "name": "Residue",
-          "branch": "Probability",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "z-heal"
-          ],
-          "effect": "Overkill converts to Theorem (1 per X overkill, cap).",
-          "payoff": "Extra damage banks probability.",
-          "customEffectId": "residue",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-wandgrant",
-          "name": "Bonded Wand",
-          "branch": "Circle",
-          "tier": 4,
-          "type": "Passive",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "z-circle"
-          ],
-          "effect": "Equipped Wand: all granted actions gain Wizard if missing.",
-          "payoff": "Weapon forces tag economy onto kit.",
-          "customEffectId": "bonded_wand",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-cast",
-          "name": "Cast Doctrine",
-          "branch": "Echo",
-          "tier": 4,
-          "type": "Rule",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "z-lvl4"
-          ],
-          "effect": "On CAST, add Wizard tag to every equipped action (fight-scoped).",
-          "payoff": "Basic refreshes strip tag value.",
-          "customEffectId": "cast_doctrine",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-mastery",
-          "name": "Wand Mastery",
-          "branch": "Echo",
-          "tier": 4,
-          "type": "Mastery",
-          "cost": 21,
-          "maxRank": 1,
-          "requires": [
-            "z-channel"
-          ],
-          "effect": "The Wand bonus slot copies opener tags and Finisher cadence bonuses.",
-          "payoff": "The extra slot becomes a programmable bridge.",
-          "customEffectId": "wand_mastery",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
-        },
-        {
-          "id": "z-equation",
-          "name": "Grand Equation",
-          "branch": "Confluence",
-          "tier": 4,
-          "type": "Rule",
-          "cost": 21,
-          "maxRank": 1,
->>>>>>> Stashed changes
-          "requires": [
-            "z-age1"
-          ],
-<<<<<<< Updated upstream
-          "effect": "\u002B1 Combo per 2 Wizard tags.",
+          "effect": "+1 Combo per 2 Wizard tags.",
           "payoff": "Tag-dense spells enter combo more often.",
           "customEffectId": "soft_cadence_wiz"
         },
@@ -2624,11 +657,12 @@
           "branch": "Probability",
           "tier": 3,
           "type": "Passive",
-          "cost": 14,
+          "cost": 1,
+          "maxRank": 5,
           "requires": [
             "z-chaos"
           ],
-          "effect": "Combo with a Wand: \u002B5 Intelligence for the turn.",
+          "effect": "Combo with a Wand: +5 Intelligence for the turn, per skill rank.",
           "payoff": "Combo connects convert into same-turn mind.",
           "customEffectId": "wand_combo_int"
         },
@@ -2638,11 +672,12 @@
           "branch": "Probability",
           "tier": 4,
           "type": "Mastery",
-          "cost": 21,
+          "cost": 1,
+          "maxRank": 5,
           "requires": [
             "z-comboInt"
           ],
-          "effect": "\u002B5 INT per current action slot; resets OnTakeHit.",
+          "effect": "+5 INT per current action slot (resets OnTakeHit), per skill rank.",
           "payoff": "Deep strips amplify Intelligence until interrupted.",
           "customEffectId": "slot_int"
         },
@@ -2652,21 +687,15 @@
           "branch": "Circle",
           "tier": 4,
           "type": "Passive",
-          "cost": 21,
+          "cost": 1,
+          "maxRank": 5,
           "requires": [
             "z-loot",
             "z-combo"
           ],
-          "effect": "Second Hand / Cosmic pieces: \u002B10% Wizard AMP.",
+          "effect": "Second Hand / Cosmic pieces: +10% Wizard AMP per matching piece, per skill rank.",
           "payoff": "Quality fantasy becomes desirable loot.",
           "customEffectId": "pure_prefer"
-=======
-          "effect": "Once per combo, natural roll \u002B strip slot = 21 retriggers the opener with current elemental statuses.",
-          "payoff": "Roll math, strip construction, reactions, and echoes converge.",
-          "customEffectId": "grand_equation",
-          "damageModPerRank": 0,
-          "healOnHitPerRank": 0
->>>>>>> Stashed changes
         }
       ]
     }
