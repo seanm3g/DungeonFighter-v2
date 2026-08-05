@@ -26,6 +26,20 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
             typeLine.Add(" | Tier: ", Colors.Gray);
             typeLine.Add(item.Tier.ToString(), ColorPalette.Warning);
             lines.Add(typeLine.Build());
+
+            var tags = Data.GameDataTagHelper.NormalizeDistinct(item.Tags);
+            if (tags.Count > 0)
+            {
+                var tagsLine = new ColoredTextBuilder();
+                tagsLine.Add("  Tags: ", ColorPalette.Info);
+                for (int i = 0; i < tags.Count; i++)
+                {
+                    if (i > 0)
+                        tagsLine.Add(", ", Colors.Gray);
+                    tagsLine.Add(tags[i], Colors.White);
+                }
+                lines.Add(tagsLine.Build());
+            }
             
             // Armor value (if applicable)
             if (item is HeadItem headArmor)

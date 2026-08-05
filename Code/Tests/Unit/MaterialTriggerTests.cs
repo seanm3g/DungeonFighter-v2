@@ -21,6 +21,8 @@ namespace RPGGame.Tests.Unit
             TestEnsureMaterialArmorAlways();
             TestMaterialTriggerMergePicksFromPool();
             TestPrefixLotteryExcludesMaterial();
+            TestItemTypeConverterPreservesMaterialTriggers();
+            TestRepairMissingMaterialTriggerFromPrefix();
 
             TestBase.PrintSummary("Material Trigger Tests", _run, _passed, _failed);
         }
@@ -135,6 +137,89 @@ namespace RPGGame.Tests.Unit
                 item.Modifications.All(m => m.GetPrefixCategory() != ModificationPrefixCategory.Material),
                 "prefix lottery has no material", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(2, item.Modifications.Count, "Q+A only", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestItemTypeConverterPreservesMaterialTriggers()
+        {
+            TestBase.SetCurrentTestName(nameof(TestItemTypeConverterPreservesMaterialTriggers));
+
+            var weapon = new WeaponItem("Bone Log", 1, 6, 1.35, WeaponType.Mace)
+            {
+                Material = "Bone",
+                Rarity = "Common",
+                TriggerBundles = new List<ActionTriggerBundle>
+                {
+                    MaterialTriggerMerge.ToBundle(
+                        MaterialTriggerCatalog.All.First(d =>
+                            string.Equals(d.Material, "Bone", StringComparison.OrdinalIgnoreCase)))
+                }
+            };
+            weapon.Modifications.Add(new Modification
+            {
+                Name = "Bone",
+                PrefixCategory = "MATERIAL",
+                ItemRank = "Common"
+            });
+
+            var converted = ItemTypeConverter.ConvertItemToProperType(weapon) as WeaponItem;
+            TestBase.AssertTrue(converted != null, "converted weapon", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Bone", converted!.Material, "material preserved", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(
+                converted.TriggerBundles != null && converted.TriggerBundles.Count == 1,
+                "trigger bundles preserved", ref _run, ref _passed, ref _failed);
+
+            // Legacy path: base Item typed as weapon (no derived fields beyond Type).
+            var legacy = new Item(ItemType.Weapon, "Old Blade", 1)
+            {
+                Material = "Steel",
+                WeaponType = WeaponType.Mace,
+                Rarity = "Uncommon",
+                TriggerBundles = new List<ActionTriggerBundle>
+                {
+                    MaterialTriggerMerge.ToBundle(
+                        MaterialTriggerCatalog.All.First(d =>
+                            string.Equals(d.Material, "Steel", StringComparison.OrdinalIgnoreCase)))
+                },
+                Modifications = new List<Modification>
+                {
+                    new Modification { Name = "Steel", PrefixCategory = "MATERIAL", ItemRank = "Uncommon" }
+                }
+            };
+            var fromLegacy = ItemTypeConverter.ConvertItemToProperType(legacy) as WeaponItem;
+            TestBase.AssertTrue(fromLegacy != null, "legacy→weapon", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Steel", fromLegacy!.Material, "legacy material copied", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(
+                fromLegacy.TriggerBundles != null && fromLegacy.TriggerBundles.Count == 1,
+                "legacy triggers copied", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestRepairMissingMaterialTriggerFromPrefix()
+        {
+            TestBase.SetCurrentTestName(nameof(TestRepairMissingMaterialTriggerFromPrefix));
+
+            var broken = new WeaponItem("Bone Log", 1, 6, 1.35, WeaponType.Mace)
+            {
+                Material = "",
+                Rarity = "Common",
+                TriggerBundles = new List<ActionTriggerBundle>(),
+                EquipEffects = new List<ActionTriggerBundle>(),
+                Modifications = new List<Modification>
+                {
+                    new Modification { Name = "Bone", PrefixCategory = "MATERIAL", ItemRank = "Common" }
+                }
+            };
+
+            var repaired = ItemTypeConverter.ConvertItemToProperType(broken) as WeaponItem;
+            TestBase.AssertTrue(repaired != null, "repaired weapon", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Bone", repaired!.Material, "material restored from prefix", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(
+                (repaired.TriggerBundles?.Count ?? 0) + (repaired.EquipEffects?.Count ?? 0) >= 1,
+                "material trigger restored", ref _run, ref _passed, ref _failed);
+
+            string summary = ItemTriggerBundleDisplay.FormatSummary(repaired.TriggerBundles![0]);
+            TestBase.AssertTrue(
+                !string.IsNullOrWhiteSpace(summary) && summary.Contains("—", StringComparison.Ordinal),
+                "tooltip summary names material identity", ref _run, ref _passed, ref _failed);
         }
     }
 }

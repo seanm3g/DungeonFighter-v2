@@ -13,7 +13,7 @@ namespace RPGGame
 {
     /// <summary>
     /// Builds organized, colored hover tooltip lines for inventory and equipped items.
-    /// Default: Name, Rarity, Stats, Triggers. Hold Alt for remaining detail sections.
+    /// Default: Name, Rarity, Tags, Requirements, Stats, Triggers. Hold Alt for remaining detail sections.
     /// </summary>
     public static class ItemTooltipFormatter
     {
@@ -33,6 +33,13 @@ namespace RPGGame
             // --- Primary (always) ---
             AddLine(lines, ItemDisplayColoredText.FormatFullItemName(item));
             AddLine(lines, BuildRarityLine(item, includeExtendedDetails));
+            if (maxLines <= lines.Count) return Trim(lines, maxLines);
+
+            var tags = Data.GameDataTagHelper.NormalizeDistinct(item.Tags);
+            if (tags.Count > 0)
+            {
+                AddLine(lines, BuildTagsLine(tags));
+            }
             if (maxLines <= lines.Count) return Trim(lines, maxLines);
 
             string? reqSummary = item.GetAttributeRequirementsSummaryLine();
@@ -234,6 +241,19 @@ namespace RPGGame
             {
                 b.Add($" · Tier {item.Tier}", ColorPalette.Warning.GetColor());
                 b.Add($" · Lv {item.Level}", Colors.Gray);
+            }
+            return b.Build();
+        }
+
+        private static List<ColoredText> BuildTagsLine(IReadOnlyList<string> tags)
+        {
+            var b = new ColoredTextBuilder();
+            b.Add("Tags: ", ColorPalette.Info.GetColor());
+            for (int i = 0; i < tags.Count; i++)
+            {
+                if (i > 0)
+                    b.Add(", ", Colors.Gray);
+                b.Add(tags[i], Colors.White);
             }
             return b.Build();
         }

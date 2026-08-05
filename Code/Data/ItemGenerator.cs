@@ -185,7 +185,9 @@ namespace RPGGame
                     Mechanics = b.Mechanics ?? "",
                     Value = b.Value,
                     Filters = b.Filters == null ? null : new List<string>(b.Filters),
-                    ScaleFrom = b.ScaleFrom
+                    ScaleFrom = b.ScaleFrom,
+                    IdentityName = b.IdentityName,
+                    Description = b.Description
                 });
             }
 

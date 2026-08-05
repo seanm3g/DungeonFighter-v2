@@ -205,7 +205,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
   - Combat procs: WHEN × mechanic × SCOPE shared with actions
     - Weapon* DoTs: `Modification.TriggerWhen` (default ONCRITICAL) via `CombatEffectsSimplified`
     - Wave-2 seed catalog: identities in `Triggers.json` / `TriggersLoader` (facade `ItemTriggerIdentityCatalog` filters out material-owned names so stamp/tests stay at 106); gear `triggerName` for catalog demos; combat via `EquippedItemTriggerApplicator`; equip via `ItemEquipEffectApplicator`
-    - **Loot material pools:** `MaterialTriggerCatalog` (≥2 identities per material) → `MaterialTriggerMerge` picks one after clearing catalog stamps. `--stamp-material-triggers` merges material rows into `Triggers.json`. Supersedes main animal-suffix `StatBonusTriggerMerge` (no-op shim).
+    - **Loot material pools:** `MaterialTriggerCatalog` (≥2 identities per material) → `MaterialTriggerMerge` picks one after clearing catalog stamps. `--stamp-material-triggers` merges material rows into `Triggers.json`. Supersedes main animal-suffix `StatBonusTriggerMerge` (no-op shim). Save/load: `ItemTypeConverter` preserves Material/TriggerBundles/EquipEffects (and skips re-copy when already typed); `RepairMissingMaterialTrigger` restores procs when a Material prefix remains but bundles were emptied by older saves.
     - Pre-roll same-swing threshold/speed from gear is `WHILE_EQUIPPED` only; combat WHEN×threshold deposits after the real event. Item self-buffs (`harden`/`focus`/`fortify`) use carrier `SelfTargetEffects`. Combat-path coverage: `ItemTriggerCombatIntegrationTests` (all identities via `ActionExecutionFlow` / room-clear / equip).
     - Item filters use swing `combatEvent.Action` for mirror/tag; carrier holds bundles only
     - Tokens: `ONEVEN`/`ONODD`, `IFSLOT:N`, `IFUNARMED`, `IFCLASSTAG`, `IFATTR`, `ONTAKEHIT` (defender via `ApplyFromDefender`)
@@ -329,7 +329,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 
 #### **Avalonia UI System (New Modular Architecture)**
 - **`Code/UI/Avalonia/App.axaml.cs`** / **`ApplicationShutdownHelper.cs`** - Desktop lifetime: `ShutdownMode.OnMainWindowClose`; title-bar X and Exit Game call `PerformShutdown(forceProcessExit: true)` (non-blocking ticker stop + 1.5s exit watchdog). `Code.csproj` also kills leftover `DF.exe` before build to avoid MSB3026
-- **Hover tooltips (items/actions)** — `ItemTooltipFormatter` / `CombatActionStripBuilder.Tooltips`: default Name + Rarity + Requirements (items) + Stats + Triggers; hold **Alt** (`HoverTooltipDetailState`, synced from MainWindow keys + pointer modifiers) for remaining detail. Drawn via `DungeonRenderer.RoomAndCombat` / `RightPanelRenderer` / `LeftPanelTooltipBuilder`
+- **Hover tooltips (items/actions)** — `ItemTooltipFormatter` / `CombatActionStripBuilder.Tooltips`: default Name + Rarity + Tags (items) + Requirements (items) + Stats + Triggers; hold **Alt** (`HoverTooltipDetailState`, synced from MainWindow keys + pointer modifiers) for remaining detail. Drawn via `DungeonRenderer.RoomAndCombat` / `RightPanelRenderer` / `LeftPanelTooltipBuilder`
 - **`Code/UI/Avalonia/CanvasUICoordinator.cs`** - Main coordinator implementing IUIManager, delegates to specialized managers
 - **`Code/UI/Avalonia/CanvasUITypes.cs`** - Shared types (ClickableElement, ElementType) for UI interactions
 - **`Code/UI/Avalonia/Managers/ICanvasContextManager.cs`** - Interface for managing UI state and context

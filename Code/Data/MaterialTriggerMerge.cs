@@ -23,19 +23,54 @@ namespace RPGGame
 
             random ??= Random.Shared;
 
-            string material = item.Material;
-            if (string.IsNullOrWhiteSpace(material))
-            {
-                var matMod = item.Modifications?.FirstOrDefault(m =>
-                    m != null && m.GetPrefixCategory() == ModificationPrefixCategory.Material);
-                material = matMod?.Name?.Trim() ?? "";
-            }
-
+            string material = ResolveMaterialName(item);
             if (!MaterialTriggerCatalog.TryGetPool(material, out var pool) || pool.Count == 0)
                 return;
 
             var pick = pool[random.Next(pool.Count)];
             AppendDef(item, pick);
+        }
+
+        /// <summary>
+        /// Restores Material + one pool trigger when gear still has a Material prefix but lost
+        /// <see cref="Item.TriggerBundles"/> (e.g. older save/load that omitted those fields).
+        /// No-op when combat/equip procs are already present.
+        /// </summary>
+        public static void RepairMissingMaterialTrigger(Item item, Random? random = null)
+        {
+            if (item == null)
+                return;
+
+            string material = ResolveMaterialName(item);
+            if (string.IsNullOrWhiteSpace(material))
+                return;
+
+            if (string.IsNullOrWhiteSpace(item.Material))
+                item.Material = material;
+
+            bool hasProcs = (item.TriggerBundles != null && item.TriggerBundles.Count > 0)
+                            || (item.EquipEffects != null && item.EquipEffects.Count > 0);
+            if (hasProcs)
+                return;
+
+            if (!MaterialTriggerCatalog.TryGetPool(material, out _))
+                return;
+
+            ApplyMaterialTrigger(item, random);
+        }
+
+        /// <summary>Prefer <see cref="Item.Material"/>; fall back to the Material prefix modification name.</summary>
+        public static string ResolveMaterialName(Item item)
+        {
+            if (item == null)
+                return "";
+
+            if (!string.IsNullOrWhiteSpace(item.Material))
+                return item.Material.Trim();
+
+            var matMod = item.Modifications?.FirstOrDefault(m =>
+                m != null && m.GetPrefixCategory() == ModificationPrefixCategory.Material);
+            return matMod?.Name?.Trim() ?? "";
         }
 
         /// <summary>Clear catalog stamp procs so material owns gear procs for this item.</summary>
@@ -92,7 +127,9 @@ namespace RPGGame
                 Scope = def.Scope ?? "",
                 Mechanics = def.Mechanics ?? "",
                 Value = def.Value,
-                Filters = filters
+                Filters = filters,
+                IdentityName = def.TriggerName,
+                Description = def.Description
             };
         }
 

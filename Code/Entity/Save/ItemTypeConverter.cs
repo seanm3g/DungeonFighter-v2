@@ -17,16 +17,27 @@ namespace RPGGame
         {
             if (item == null) return null;
 
-            return item.Type switch
+            // Polymorphic JSON already yields the correct derived type — keep it so Material /
+            // TriggerBundles / EquipEffects (and any future fields) are not dropped by a re-copy.
+            Item result = item.Type switch
             {
+                ItemType.Weapon when item is WeaponItem => item,
                 ItemType.Weapon => ConvertToWeaponItem(item),
+                ItemType.Head when item is HeadItem => item,
                 ItemType.Head => ConvertToHeadItem(item),
+                ItemType.Chest when item is ChestItem => item,
                 ItemType.Chest => ConvertToChestItem(item),
+                ItemType.Feet when item is FeetItem => item,
                 ItemType.Feet => ConvertToFeetItem(item),
+                ItemType.Legs when item is LegsItem => item,
                 ItemType.Legs => ConvertToLegsItem(item),
                 ItemType.Consumable => item,
-                _ => item // Return as-is if type is unknown
+                _ => item
             };
+
+            // Saves that lost triggers via the old copy path still have a Material prefix — re-roll one.
+            MaterialTriggerMerge.RepairMissingMaterialTrigger(result);
+            return result;
         }
 
         /// <summary>
@@ -159,6 +170,7 @@ namespace RPGGame
             destination.CatalogAttackSpeed = source.CatalogAttackSpeed;
             destination.MinGeneratedActionBonuses = source.MinGeneratedActionBonuses;
             destination.Rarity = source.Rarity;
+            destination.Material = source.Material ?? "";
             destination.StatBonuses = source.StatBonuses;
             destination.ActionBonuses = source.ActionBonuses;
             destination.Modifications = source.Modifications;
@@ -169,6 +181,8 @@ namespace RPGGame
             destination.WeaponType = source.WeaponType;
             destination.Level = source.Level;
             destination.Tags = source.Tags;
+            destination.TriggerBundles = source.TriggerBundles ?? new List<ActionTriggerBundle>();
+            destination.EquipEffects = source.EquipEffects ?? new List<ActionTriggerBundle>();
             destination.RoomSearchConsumableKind = source.RoomSearchConsumableKind;
             destination.ConsumableHealAmount = source.ConsumableHealAmount;
             destination.ConsumablePotionPotency = source.ConsumablePotionPotency;

@@ -4,13 +4,19 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Data / Actions — skill-tree unlock rows:** Added missing Class Upgrades unlock actions to `Actions.json`: **MIGHT**, **BLUDGEON**, **CUNNING**, **AVENGE**, **CONCENTRATE**, **CONCENTRATED CHAOS** (`READ BOOK` already present).
+
+- [x] **Bug fix / Items — material triggers vanished after save/load:** `ItemTypeConverter` always re-copied equipment into new typed instances and omitted `Material` / `TriggerBundles` / `EquipEffects`, so procs disappeared after the first reload (and re-saves wrote empty lists). Keep already-typed polymorphic items; copy those fields on legacy conversion; `RepairMissingMaterialTrigger` re-rolls a pool proc when a Material prefix remains. Bundles stamp `identityName`/`description` for tooltips. Tests: `MaterialTriggerTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`.
+
+- [x] **UI / item tooltips show Tags:** Hover tips and item-stats panels list `Item.Tags` (material, class, starter, …) after rarity / type. `ItemTooltipFormatter`, `ItemStatsFormatter`. Tests: `ItemTooltipFormatterTests`. Docs: `OVERVIEW.md`.
+
 - [x] **Progression / Skill tree — Level 1 class node is free Core root:** Class Upgrades `Level 1 - {Class}` (e.g. Level 1 - Barbarian: Bone/Steel/Damascus count as Barbarian tags) is promoted to the auto-granted Core root (`SkillTreesConfig.PromoteLevelOneAsRoot` on load/pull). Former identity roots (Bronze Skin, …) become T1 requiring Level 1. Tests: `SkillTreeProgressionTests`, `SkillTreesSheetConverterTests`. Docs: `OVERVIEW.md`.
 
 - [x] **Data / Sheets — Class Upgrades tab ↔ SkillTrees.json:** Tab **Class Upgrades** (gid `829575756`) pull/push via `skillTreesSheetUrl` / `skillTreesSheetTabName` / `pushSkillTreesTab`; `SkillTreesSheetConverter` flattens nested trees and heals blank UnlockAction/Requires column shifts. Balance Tuning gid + checkbox. Tests: `SkillTreesSheetConverterTests`, `SheetsPushConfigTests`. Docs: `GOOGLE_SHEETS_INTEGRATION.md`, `OVERVIEW.md`, `ARCHITECTURE.md`.
 
 - [x] **Items / always-material + material trigger pools:** Every loot item gets a Material (`Item.Material` + Material prefix). Weapons use class ladders (Mace Bone/Steel/Damascus, Sword Bronze/Gold/Mithril, Dagger Glass/Obsidian/Shadow, Wand Willow/Silver/Crystal; Epic+ → Rare class material). Armor can roll any material including class-less Wood/Leather/Cloth/Stone/Unknown/Strange/Celestial. Quality/Adjective prefix lottery is 0–2 (Material unconditional). Combat procs come from per-material pools (≥2 each, pick 1) via `MaterialTriggerCatalog` / `MaterialTriggerMerge` (supersedes main animal-suffix `StatBonusTriggerMerge`). CLI `--stamp-material-triggers`. Tests: `MaterialTriggerTests`, updated `LootBonusApplierTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`.
 
-- [x] **UI / hover tooltips — Alt expands detail:** Item and action hovers default to Name / Rarity / Requirements (items) / Stats / Triggers; hold Alt for remaining sections. `HoverTooltipDetailState` + MainWindow/pointer sync; redraw while hovering. Tests: `ItemTooltipFormatterTests`, `CombatActionStripBuilderTests`, `HoverTooltipDetailStateTests`. Docs: `OVERVIEW.md`.
+- [x] **UI / hover tooltips — Alt expands detail:** Item and action hovers default to Name / Rarity / Tags (items) / Requirements (items) / Stats / Triggers; hold Alt for remaining sections. `HoverTooltipDetailState` + MainWindow/pointer sync; redraw while hovering. Tests: `ItemTooltipFormatterTests`, `CombatActionStripBuilderTests`, `HoverTooltipDetailStateTests`. Docs: `OVERVIEW.md`.
 
 - [x] **Bug fix / UI — window X leaves DF.exe locked:** Closing the main window only tore down services; SoundFlow/native threads could keep the process alive (MSB3026 on rebuild). Title-bar X and Avalonia `Exit` call `PerformShutdown(forceProcessExit: true)` with a 1.5s exit watchdog (cleanup must not hang before `Environment.Exit`); ticker stop is non-blocking on shutdown. `Code.csproj` kills leftover `DF.exe` before build. Tests: `ApplicationShutdownHelperTests`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
 

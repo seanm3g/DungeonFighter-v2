@@ -28,6 +28,7 @@ namespace RPGGame.Tests.Unit.UI
             });
             wrap.AttributeRequirements = new AttributeRequirements(
                 new System.Collections.Generic.Dictionary<string, int> { ["strength"] = 99 });
+            wrap.Tags = new System.Collections.Generic.List<string> { "leather", "starter" };
 
             var lines = ItemTooltipFormatter.BuildItemTooltipLines(hero, wrap, "Inventory", 30);
             string flat = string.Join("\n", lines.Select(ColoredTextRenderer.RenderAsPlainText));
@@ -37,6 +38,11 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(flat.Contains("Common", StringComparison.Ordinal),
                 "tooltip includes rarity",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(flat.Contains("Tags:", StringComparison.Ordinal)
+                    && flat.Contains("leather", StringComparison.Ordinal)
+                    && flat.Contains("starter", StringComparison.Ordinal),
+                "compact tooltip shows item tags",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(flat.Contains("Stats", StringComparison.Ordinal),
                 "tooltip has stats section",

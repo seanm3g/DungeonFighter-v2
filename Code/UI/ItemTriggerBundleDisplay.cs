@@ -44,6 +44,14 @@ namespace RPGGame
                 sb.Append(bundle.ScaleFrom.Trim().ToUpperInvariant());
             }
 
+            if (!string.IsNullOrWhiteSpace(bundle.IdentityName))
+            {
+                string name = SplitCamel(bundle.IdentityName.Trim());
+                if (!string.IsNullOrWhiteSpace(bundle.Description))
+                    return $"{name} — {bundle.Description.Trim()}";
+                return $"{name} — {sb}";
+            }
+
             if (TryMatchIdentity(bundle, out string? identityName, out string? description))
             {
                 if (!string.IsNullOrWhiteSpace(description))
@@ -228,13 +236,23 @@ namespace RPGGame
         {
             identityName = null;
             description = null;
+
+            // Prefer material catalog for loot procs (names like BoneCrab); then Wave-2 seed facade.
+            foreach (var def in MaterialTriggerCatalog.All)
+            {
+                if (!BundleMatches(bundle, def.When, def.Scope, def.Mechanics, def.Value, def.Filters))
+                    continue;
+                identityName = SplitCamel(def.TriggerName);
+                description = string.IsNullOrWhiteSpace(def.Description) ? null : def.Description.Trim();
+                return true;
+            }
+
             foreach (var id in ItemTriggerIdentityCatalog.Identities)
             {
-                if (!string.Equals(id.When, bundle.When, StringComparison.OrdinalIgnoreCase))
-                    continue;
-                if (!string.Equals(id.Scope ?? "", bundle.Scope ?? "", StringComparison.OrdinalIgnoreCase))
-                    continue;
-                if (!string.Equals(id.Mechanics, bundle.Mechanics, StringComparison.OrdinalIgnoreCase))
+                string? filterCsv = id.Filters == null || id.Filters.Count == 0
+                    ? null
+                    : string.Join(",", id.Filters);
+                if (!BundleMatches(bundle, id.When, id.Scope, id.Mechanics, id.Value, filterCsv))
                     continue;
                 identityName = SplitCamel(id.Name);
                 description = string.IsNullOrWhiteSpace(id.Description) ? null : id.Description.Trim();
@@ -242,6 +260,30 @@ namespace RPGGame
             }
 
             return false;
+        }
+
+        private static bool BundleMatches(
+            ActionTriggerBundle bundle,
+            string? when,
+            string? scope,
+            string? mechanics,
+            double? value,
+            string? filtersCsv)
+        {
+            if (!string.Equals(when ?? "", bundle.When ?? "", StringComparison.OrdinalIgnoreCase))
+                return false;
+            if (!string.Equals(scope ?? "", bundle.Scope ?? "", StringComparison.OrdinalIgnoreCase))
+                return false;
+            if (!string.Equals(mechanics ?? "", bundle.Mechanics ?? "", StringComparison.OrdinalIgnoreCase))
+                return false;
+            if (!Nullable.Equals(value, bundle.Value))
+                return false;
+
+            string bundleFilters = bundle.Filters == null || bundle.Filters.Count == 0
+                ? ""
+                : string.Join(",", bundle.Filters);
+            string expectedFilters = string.IsNullOrWhiteSpace(filtersCsv) ? "" : filtersCsv.Trim();
+            return string.Equals(bundleFilters, expectedFilters, StringComparison.OrdinalIgnoreCase);
         }
 
         private static string SplitCamel(string name)
