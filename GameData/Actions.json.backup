@@ -1216,6 +1216,7 @@
     "ampMod": "50",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AMP_MOD\u0022,\u0022value\u0022:50},{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:-20}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
     "tags": "common, class, wizard, swift, focus"
+<<<<<<< Updated upstream
   },
   {
     "action": "MIGHT",
@@ -1294,5 +1295,7 @@
     "speed": "1.20",
     "finisher": "true",
     "tags": "rare, class, wizard, finisher, wand"
+=======
+>>>>>>> Stashed changes
   }
 ]
