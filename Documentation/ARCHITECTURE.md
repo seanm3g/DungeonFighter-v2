@@ -53,12 +53,13 @@ DungeonFighter/
 - **`Code/Entity/CharacterStats.cs`** - Character statistics and leveling system
 - **`Code/Entity/CharacterEquipment.cs`** - Equipment management and stat bonuses
 - **`Code/Entity/CharacterEffects.cs`** - Character-specific effects and buffs/debuffs
-- **`Code/Entity/CharacterProgression.cs`** - Experience, leveling, Skill Points (lifetime class points), and skill-tree learn state (`LearnedSkillNodeIds`)
+- **`Code/Entity/CharacterProgression.cs`** - Experience, leveling, Skill Points (lifetime class points), and skill-tree ranks (`LearnedSkillRanks`)
 - **`Code/Entity/CharacterHealthManager.cs`** - Health management, damage, and healing logic
 - **`Code/Entity/CharacterCombatCalculator.cs`** - Combat calculations and stat computations
 - **`Code/Entity/CharacterSaveManager.cs`** - Save/load functionality for character data
-- **`Code/Config/SkillTreesConfig.cs`** + **`GameData/SkillTrees.json`** - Four class skill trees (Bronze Skin / Iron Discipline / Shadowcraft / Arcane Weave)
+- **`Code/Config/SkillTreesConfig.cs`** + **`GameData/SkillTrees.json`** - Four class skill trees; `maxRank` defaults to 1; multi-rank nodes must scale by rank (spent = rank × cost)
 - **`Code/Game/SkillTree/SkillTreeService.cs`** - Learn API, node view state, action unlock names
+- **`Code/Game/SkillTree/SkillTreePrerequisites.cs`** - Layout-order branch chains: each skill needs the previous card toward the roots; Confluence keeps named AND parents
 - **`Code/Game/SkillTree/SkillEffectRouter.cs`** - CombatEventBus passive/rule/mastery runtime
 - **`Code/Game/SkillTreeMenuHandler.cs`** - GameLoop hub (`GameState.SkillTree`) learn UI (no respec)
 

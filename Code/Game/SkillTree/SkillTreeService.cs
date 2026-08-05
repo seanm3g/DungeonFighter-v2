@@ -23,9 +23,10 @@ namespace RPGGame
         public static IEnumerable<string> GetLearnedUnlockActionNames(CharacterProgression progression)
         {
             progression.EnsureSkillTreeRootsGranted();
-            foreach (string id in progression.LearnedSkillNodeIds)
+            foreach (var kv in progression.LearnedSkillRanks)
             {
-                var node = Trees.GetNode(id);
+                if (kv.Value < 1) continue;
+                var node = Trees.GetNode(kv.Key);
                 if (node != null && !string.IsNullOrWhiteSpace(node.UnlockActionName))
                     yield return node.UnlockActionName!;
             }
@@ -88,7 +89,8 @@ namespace RPGGame
 
         public enum NodeViewState
         {
-            Learned,
+            /// <summary>At max rank.</summary>
+            Maxed,
             Available,
             Locked,
             Unaffordable,
@@ -98,8 +100,10 @@ namespace RPGGame
         public static NodeViewState GetNodeState(CharacterProgression progression, SkillTreeNodeDefinition node)
         {
             progression.EnsureSkillTreeRootsGranted();
-            if (progression.HasLearnedSkill(node.Id))
-                return NodeViewState.Learned;
+            int rank = progression.GetSkillRank(node.Id);
+            int maxRank = Math.Max(1, node.MaxRank);
+            if (rank >= maxRank)
+                return NodeViewState.Maxed;
 
             WeaponType? ownerPath = null;
             foreach (var tree in Trees.Trees)
@@ -115,11 +119,8 @@ namespace RPGGame
             if (ownerPath == null || primary == null || primary.Value != ownerPath.Value)
                 return NodeViewState.WrongPath;
 
-            foreach (string req in node.Requires)
-            {
-                if (!progression.HasLearnedSkill(req))
-                    return NodeViewState.Locked;
-            }
+            if (!SkillTreePrerequisites.AreMet(progression, node))
+                return NodeViewState.Locked;
 
             return progression.GetAvailableSkillPoints(ownerPath.Value) >= node.Cost
                 ? NodeViewState.Available

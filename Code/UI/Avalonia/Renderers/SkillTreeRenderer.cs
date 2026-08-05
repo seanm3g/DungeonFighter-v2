@@ -10,12 +10,17 @@ namespace RPGGame.UI.Avalonia.Renderers
     /// <summary>
     /// Spatial skill-tree layout: tier rows × branch columns, boxed nodes, ASCII connectors, vertical scroll.
     /// Progression grows upward (tier 0 / roots at the bottom, higher tiers above).
+    /// Multiple nodes on the same branch+tier stack vertically inside that tier band.
     /// </summary>
     public class SkillTreeRenderer
     {
         public const int NodeHeight = 4;
         public const int TierGap = 2;
+        public const int StackGap = 1;
         public const int TierStride = NodeHeight + TierGap;
+        public const int ScrollStep = NodeHeight;
+        /// <summary>Empty content rows above the highest tier so the tip of the tree is not flush with the frame.</summary>
+        public const int TopHeadroom = 2;
 
         private const int DetailReserve = 10;
         private const int FooterReserve = 3;
@@ -45,13 +50,76 @@ namespace RPGGame.UI.Avalonia.Renderers
         public static int GetMaxTier(IReadOnlyList<SkillTreeNodeDefinition> nodes) =>
             nodes == null || nodes.Count == 0 ? 0 : nodes.Max(n => n.Tier);
 
-        public static int GetTreeContentHeight(IReadOnlyList<SkillTreeNodeDefinition> nodes)
+        /// <summary>
+        /// Content-space layout: highest tiers sit below <see cref="TopHeadroom"/> empty rows
+        /// so the tip of the tree has breathing room; roots toward larger Y.
+        /// Same branch+tier siblings stack downward within the tier band (alphabetical by name).
+        /// </summary>
+        public static ContentLayout ComputeContentLayout(IReadOnlyList<SkillTreeNodeDefinition> nodes)
         {
+            var empty = new ContentLayout(0, new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
             if (nodes == null || nodes.Count == 0)
-                return 0;
+                return empty;
+
+            var branchOrder = BuildBranchOrder(nodes);
+            int centerCol = Math.Max(0, branchOrder.Count / 2);
+            int colCount = Math.Max(1, branchOrder.Count);
             int maxTier = GetMaxTier(nodes);
-            return (maxTier + 1) * NodeHeight + maxTier * TierGap;
+
+            // (col, tier) → ordered nodes
+            var groups = new Dictionary<(int col, int tier), List<SkillTreeNodeDefinition>>();
+            foreach (var node in nodes)
+            {
+                int col = ResolveColumn(node, branchOrder, centerCol);
+                var key = (col, node.Tier);
+                if (!groups.TryGetValue(key, out var list))
+                {
+                    list = new List<SkillTreeNodeDefinition>();
+                    groups[key] = list;
+                }
+                list.Add(node);
+            }
+            foreach (var list in groups.Values)
+                list.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase));
+
+            int[] stackDepth = new int[maxTier + 1];
+            for (int t = 0; t <= maxTier; t++)
+            {
+                int depth = 1;
+                for (int col = 0; col < colCount; col++)
+                {
+                    if (groups.TryGetValue((col, t), out var list))
+                        depth = Math.Max(depth, list.Count);
+                }
+                stackDepth[t] = depth;
+            }
+
+            static int BandHeight(int depth) =>
+                depth * NodeHeight + Math.Max(0, depth - 1) * StackGap;
+
+            int[] tierTop = new int[maxTier + 1];
+            int y = TopHeadroom;
+            for (int t = maxTier; t >= 0; t--)
+            {
+                tierTop[t] = y;
+                y += BandHeight(stackDepth[t]);
+                if (t > 0)
+                    y += TierGap;
+            }
+
+            var tops = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var kv in groups)
+            {
+                int bandTop = tierTop[kv.Key.tier];
+                for (int i = 0; i < kv.Value.Count; i++)
+                    tops[kv.Value[i].Id] = bandTop + i * (NodeHeight + StackGap);
+            }
+
+            return new ContentLayout(y, tops);
         }
+
+        public static int GetTreeContentHeight(IReadOnlyList<SkillTreeNodeDefinition> nodes) =>
+            ComputeContentLayout(nodes).ContentHeight;
 
         public static int ClampScrollOffset(int scrollOffset, int contentHeight, int viewportHeight)
         {
@@ -59,31 +127,48 @@ namespace RPGGame.UI.Avalonia.Renderers
             return Math.Clamp(scrollOffset, 0, max);
         }
 
-        /// <summary>Snap scroll to tier row boundaries so cards never straddle the viewport edge.</summary>
-        public static int AlignScrollToTier(int scrollOffset) =>
-            Math.Max(0, (scrollOffset / TierStride) * TierStride);
+        /// <summary>Snap scroll to node-row boundaries so cards never straddle the viewport edge.</summary>
+        public static int AlignScrollToTiers(int scrollOffset) =>
+            Math.Max(0, (scrollOffset / ScrollStep) * ScrollStep);
+
+        /// <summary>
+        /// Clamp into range, then row-align — but keep absolute top (0) and bottom (max) so dense trees
+        /// remain reachable when max scroll is not a multiple of <see cref="ScrollStep"/>.
+        /// </summary>
+        public static int NormalizeScrollOffset(int scrollOffset, int contentHeight, int viewportHeight)
+        {
+            int max = Math.Max(0, contentHeight - viewportHeight);
+            if (max == 0)
+                return 0;
+            int clamped = Math.Clamp(scrollOffset, 0, max);
+            if (clamped >= max)
+                return max;
+            if (clamped <= 0)
+                return 0;
+            return Math.Min(AlignScrollToTiers(clamped), max);
+        }
 
         public static int EnsureNodeVisible(int scrollOffset, int nodeTop, int nodeBottom, int viewportHeight)
         {
             if (nodeTop < scrollOffset)
-                return AlignScrollToTier(nodeTop);
+                return AlignScrollToTiers(nodeTop);
             if (nodeBottom > scrollOffset + viewportHeight)
-                return AlignScrollToTier(Math.Max(0, nodeBottom - viewportHeight));
-            return AlignScrollToTier(scrollOffset);
+                return AlignScrollToTiers(Math.Max(0, nodeBottom - viewportHeight));
+            // Already fully on-screen — leave scroll alone (don't re-align the bottom pin).
+            return scrollOffset;
         }
 
         /// <summary>Content-space top row for a node (roots at bottom, higher tiers toward y=0).</summary>
-        public static int GetNodeTopCell(SkillTreeNodeDefinition node, int maxTier) =>
-            (maxTier - node.Tier) * TierStride;
-
-        public static int GetNodeTopCell(SkillTreeNodeDefinition node, IReadOnlyList<SkillTreeNodeDefinition> nodes) =>
-            GetNodeTopCell(node, GetMaxTier(nodes));
-
-        public static int GetNodeBottomCell(SkillTreeNodeDefinition node, int maxTier) =>
-            GetNodeTopCell(node, maxTier) + NodeHeight;
+        public static int GetNodeTopCell(SkillTreeNodeDefinition node, IReadOnlyList<SkillTreeNodeDefinition> nodes)
+        {
+            var layout = ComputeContentLayout(nodes);
+            if (layout.Tops.TryGetValue(node.Id, out int top))
+                return top;
+            return 0;
+        }
 
         public static int GetNodeBottomCell(SkillTreeNodeDefinition node, IReadOnlyList<SkillTreeNodeDefinition> nodes) =>
-            GetNodeBottomCell(node, GetMaxTier(nodes));
+            GetNodeTopCell(node, nodes) + NodeHeight;
 
         public int RenderSkillTree(
             int x,
@@ -152,7 +237,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             int headerUsed = treeTop - y;
             int viewportHeight = GetTreeViewportHeight(height, headerUsed);
             int contentHeight = GetTreeContentHeight(nodes);
-            scrollOffset = AlignScrollToTier(ClampScrollOffset(scrollOffset, contentHeight, viewportHeight));
+            scrollOffset = NormalizeScrollOffset(scrollOffset, contentHeight, viewportHeight);
             LastViewportHeight = viewportHeight;
             LastContentHeight = contentHeight;
             LastAppliedScrollOffset = scrollOffset;
@@ -166,15 +251,15 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.AddBox(left, treeTop, contentWidth, viewportHeight,
                 AsciiArtAssets.Colors.Gray, Color.FromRgb(12, 12, 16));
 
-            int maxTier = GetMaxTier(nodes);
-            var placements = BuildPlacements(nodes, branchOrder, treeLeft, treeTop, nodeWidth, scrollOffset, maxTier);
+            var layout = ComputeContentLayout(nodes);
+            var placements = BuildPlacements(nodes, branchOrder, treeLeft, treeTop, nodeWidth, scrollOffset, layout);
             DrawConnectors(placements, treeTop, viewportBottom);
             DrawNodes(player, placements, selectedIndex, treeTop, viewportBottom);
 
             if (contentHeight > viewportHeight)
             {
                 canvas.AddText(left, Math.Min(viewportBottom, y + height - DetailReserve - FooterReserve),
-                    $"{AsciiArtAssets.UIElements.ArrowUpDown} PgUp/PgDn scroll",
+                    $"{AsciiArtAssets.UIElements.ArrowUpDown} Arrows / PgUp/PgDn / Wheel scroll",
                     AsciiArtAssets.Colors.Gray);
             }
 
@@ -220,29 +305,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             string.Equals(branch, "Core", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(branch, "Confluence", StringComparison.OrdinalIgnoreCase);
 
-        private List<NodePlacement> BuildPlacements(
-            IReadOnlyList<SkillTreeNodeDefinition> nodes,
-            IReadOnlyList<string> branchOrder,
-            int treeLeft,
-            int treeTop,
-            int nodeWidth,
-            int scrollOffset,
-            int maxTier)
-        {
-            int centerCol = Math.Max(0, branchOrder.Count / 2);
-            var list = new List<NodePlacement>(nodes.Count);
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                var node = nodes[i];
-                int col = ResolveColumn(node, branchOrder, centerCol);
-                int absY = treeTop + GetNodeTopCell(node, maxTier) - scrollOffset;
-                int absX = treeLeft + col * (nodeWidth + 1);
-                list.Add(new NodePlacement(node, i, col, absX, absY, nodeWidth, NodeHeight));
-            }
-            return list;
-        }
-
-        private static int ResolveColumn(SkillTreeNodeDefinition node, IReadOnlyList<string> branchOrder, int centerCol)
+        public static int ResolveColumn(SkillTreeNodeDefinition node, IReadOnlyList<string> branchOrder, int centerCol)
         {
             if (IsCenterBranch(node.Branch))
                 return centerCol;
@@ -252,6 +315,29 @@ namespace RPGGame.UI.Avalonia.Renderers
                     return i;
             }
             return centerCol;
+        }
+
+        private List<NodePlacement> BuildPlacements(
+            IReadOnlyList<SkillTreeNodeDefinition> nodes,
+            IReadOnlyList<string> branchOrder,
+            int treeLeft,
+            int treeTop,
+            int nodeWidth,
+            int scrollOffset,
+            ContentLayout layout)
+        {
+            int centerCol = Math.Max(0, branchOrder.Count / 2);
+            var list = new List<NodePlacement>(nodes.Count);
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                var node = nodes[i];
+                int col = ResolveColumn(node, branchOrder, centerCol);
+                int contentTop = layout.Tops.TryGetValue(node.Id, out int top) ? top : 0;
+                int absY = treeTop + contentTop - scrollOffset;
+                int absX = treeLeft + col * (nodeWidth + 1);
+                list.Add(new NodePlacement(node, i, col, absX, absY, nodeWidth, NodeHeight));
+            }
+            return list;
         }
 
         private static bool IsFullyVisible(NodePlacement p, int clipTop, int clipBottom) =>
@@ -264,7 +350,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 if (!IsFullyVisible(child, clipTop, clipBottom))
                     continue;
-                foreach (string req in child.Node.Requires)
+                foreach (string req in SkillTreePrerequisites.GetConnectorParentIds(child.Node))
                 {
                     if (!byId.TryGetValue(req, out var parent))
                         continue;
@@ -330,30 +416,32 @@ namespace RPGGame.UI.Avalonia.Renderers
                     continue;
 
                 var state = SkillTreeService.GetNodeState(player.Progression, p.Node);
-                bool selected = i == selectedIndex;
+                int rank = player.Progression.GetSkillRank(p.Node.Id);
+                int maxRank = Math.Max(1, p.Node.MaxRank);
+                bool selected = p.Index == selectedIndex;
                 Color border = selected
-                    ? AsciiArtAssets.Colors.White
+                    ? AsciiArtAssets.Colors.Yellow
                     : state switch
                     {
-                        SkillTreeService.NodeViewState.Learned => AsciiArtAssets.Colors.Green,
+                        SkillTreeService.NodeViewState.Maxed => AsciiArtAssets.Colors.Green,
                         SkillTreeService.NodeViewState.Available => AsciiArtAssets.Colors.Cyan,
                         SkillTreeService.NodeViewState.Unaffordable => AsciiArtAssets.Colors.Yellow,
                         _ => AsciiArtAssets.Colors.Gray
                     };
                 Color fill = selected
-                    ? Color.FromRgb(36, 36, 40)
+                    ? Color.FromRgb(56, 48, 18)
                     : Color.FromRgb(18, 18, 22);
 
-                canvas.AddBox(p.X, p.Y, p.W, p.H, border, fill);
+                canvas.AddBox(p.X, p.Y, p.W, p.H, border, fill, borderThicknessPixels: selected ? 3 : 1);
 
-                string name = Truncate(p.Node.Name, p.W - 2);
-                canvas.AddText(p.X + 1, p.Y + 1, name, AsciiArtAssets.Colors.White);
+                string name = Truncate(selected ? $">{p.Node.Name}" : p.Node.Name, p.W - 2);
+                canvas.AddText(p.X + 1, p.Y + 1, name, selected ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White);
 
                 string stateTag = state switch
                 {
-                    SkillTreeService.NodeViewState.Learned => "OWN",
-                    SkillTreeService.NodeViewState.Available => "BUY",
-                    SkillTreeService.NodeViewState.Unaffordable => "$$$",
+                    SkillTreeService.NodeViewState.Maxed => $"R{rank}/{maxRank}",
+                    SkillTreeService.NodeViewState.Available => rank > 0 ? $"R{rank}/{maxRank}+" : "BUY",
+                    SkillTreeService.NodeViewState.Unaffordable => rank > 0 ? $"R{rank}/{maxRank}$" : "$$$",
                     SkillTreeService.NodeViewState.Locked => "LCK",
                     _ => "---"
                 };
@@ -367,7 +455,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     Width = p.W,
                     Height = p.H,
                     Type = ElementType.Button,
-                    Value = (i + 1).ToString(),
+                    Value = (p.Index + 1).ToString(),
                     DisplayText = p.Node.Name
                 });
             }
@@ -387,7 +475,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.AddText(left, y++, "DETAIL", AsciiArtAssets.Colors.Gold);
             if (y >= maxY) return y;
             canvas.AddText(left, y++,
-                Truncate($"{selected.Name}  ·  {selected.Type}  ·  Tier {selected.Tier}  ·  {selected.Cost} SP", width),
+                Truncate($"{selected.Name}  ·  {selected.Type}  ·  Tier {selected.Tier}  ·  {selected.Cost} SP/rank  ·  R{player.Progression.GetSkillRank(selected.Id)}/{Math.Max(1, selected.MaxRank)}", width),
                 AsciiArtAssets.Colors.Cyan);
 
             foreach (var line in TextWrapper.WrapText(selected.Effect ?? "", width).Take(2))
@@ -401,10 +489,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                 canvas.AddText(left, y++, line, AsciiArtAssets.Colors.Gray);
             }
 
-            if (selected.Requires.Count > 0 && y < maxY)
+            if (!string.IsNullOrEmpty(SkillTreePrerequisites.FormatRequirementSummary(selected)) && y < maxY)
             {
-                string req = "Requires: " + string.Join(", ",
-                    selected.Requires.Select(id => SkillTreeService.Trees.GetNode(id)?.Name ?? id));
+                string req = SkillTreePrerequisites.FormatRequirementSummary(selected);
                 foreach (var line in TextWrapper.WrapText(req, width).Take(1))
                 {
                     if (y >= maxY) return y;
@@ -416,8 +503,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 string cta = state switch
                 {
-                    SkillTreeService.NodeViewState.Learned => "Already learned (permanent).",
-                    SkillTreeService.NodeViewState.Available => "Press L or click Learn to unlock.",
+                    SkillTreeService.NodeViewState.Maxed => "Fully ranked.",
+                    SkillTreeService.NodeViewState.Available =>
+                        player.Progression.GetSkillRank(selected.Id) > 0
+                            ? "Press L or click Learn to raise rank."
+                            : "Press L or click Learn to unlock.",
                     SkillTreeService.NodeViewState.Unaffordable => "Not enough Skill Points.",
                     SkillTreeService.NodeViewState.Locked => "Prerequisites not met.",
                     _ => "Cannot spend on this path."
@@ -499,6 +589,19 @@ namespace RPGGame.UI.Avalonia.Renderers
                 Y = y;
                 W = w;
                 H = h;
+            }
+        }
+
+        /// <summary>Precomputed content-space tops for each node id.</summary>
+        public sealed class ContentLayout
+        {
+            public int ContentHeight { get; }
+            public IReadOnlyDictionary<string, int> Tops { get; }
+
+            public ContentLayout(int contentHeight, IReadOnlyDictionary<string, int> tops)
+            {
+                ContentHeight = contentHeight;
+                Tops = tops;
             }
         }
     }

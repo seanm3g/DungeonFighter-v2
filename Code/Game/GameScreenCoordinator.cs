@@ -149,7 +149,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Show the skill tree hub (primary path only).
+        /// Show the skill tree hub (primary path only). Prefer <see cref="SkillTreeMenuHandler.ShowSkillTree"/>;
+        /// this path keeps a minimal fallback when the handler is unavailable.
         /// </summary>
         public void ShowSkillTree()
         {
@@ -166,7 +167,7 @@ namespace RPGGame
                 stateManager,
                 canvasUI,
                 GameState.SkillTree,
-                (ui) => ui.RenderSkillTree(player, 0, 0, null),
+                (ui) => ui.RenderSkillTree(player, 0, int.MaxValue, null),
                 character: player,
                 clearEnemyContext: true,
                 clearDungeonContext: true

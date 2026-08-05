@@ -4,17 +4,73 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: Dungeon completion Save & Exit froze Avalonia (August 2026)
+**Problem:** After dungeon victory, `[0] Save & Exit` hung forever; main menu never appeared.
+
+**Root cause:** `DungeonCompletionHandler` wired `SaveGameEvent` to sync `Game.SaveGame()` → `SaveGameAsync().GetAwaiter().GetResult()` on the UI thread while `SaveCharacterAsync` used `ConfigureAwait(true)` to resume on that same thread (classic Avalonia deadlock). Game Loop `"0"` already awaited async save; dungeon completion did not.
+
+**Solutions:**
+1. Pass `Func<Task> saveGameAsync` through `HandlerInitializationService` / `HandlerInitializer`
+2. Wire `SaveGameEvent += async () => await saveGameAsync()` (never sync `GetResult` on UI)
+3. `Game.SaveGameAsync()` delegates to `SettingsMenuHandler.SaveGameAsync`
+4. Completion `"0"` try/catch around save so failures still reach MainMenu
+5. Tests: `DungeonCompletionHandlerTests`
+
+**Related files:** `DungeonCompletionHandler.cs`, `HandlerInitializer.cs`, `HandlerInitializationService.cs`, `Game.cs`, `SettingsMenuHandler.cs`
+
+### Settings: Cheats — Gain Level (August 2026)
+**Problem:** Need a one-click level grant for playtesting skill trees / SP without grinding.
+
+**Solution:** Settings → Developer Settings → **Cheats** → **Gain Level (+1)** levels the live hub hero, always grants +1 path SP (even without a weapon), auto-saves the character file, and refreshes the HUD. Main Menu Load Game reads that save for the displayed level.
+
+**Related files:** `CheatsSettingsPanel.axaml`, `CheatsPanelHandler.cs`, `SettingsPanelCatalog.cs`
+
+### Class Skill Trees — sequential same-branch gates (August 2026)
+**Problem:** Named `requires` IDs forced specific parent skills; forks blocked sibling paths.
+
+**Solution:** Prerequisites follow **layout order on each branch** (root → tip by content Y). Each skill needs rank ≥ 1 on the skill immediately below it toward the roots (e.g. Overhand requires Venom Mace). First branch skill needs path root. Confluence / multi-`requires` keep named AND parents. UI shows `Requires: {previous skill}`.
+
+**Related files:** `SkillTreePrerequisites.cs`, `SkillTreeService.cs`, `CharacterProgression.cs`, `SkillTreeRenderer.cs`
+
 ### Class Skill Trees — Skill Points vs rank (August 2026)
 **Problem:** Spending class points into skills must not lower titles, combo slot tiers, or item scaling that key off lifetime path investment.
 
 **Solutions:**
 1. Keep `BarbarianPoints` / `WarriorPoints` / `RoguePoints` / `WizardPoints` as **lifetime** Skill Points
-2. Spent amount is derived from learned node costs in `SkillTrees.json`; `Available = Lifetime − Spent`
-3. `TryLearnSkillNode` never calls `RemoveClassPoint`; roots auto-grant at cost 0 when a path has ≥1 lifetime point
-4. Hub: `GameState.SkillTree` beside Inventory; primary path only for spending; learned nodes stay active if path is no longer primary
-5. Tests: `SkillTreeProgressionTests`, updated `ClassActionManagerTests`
+2. Spent amount is derived from learned node **ranks × cost** (cost is **1 SP per rank** for all non-root nodes); `Available = Lifetime − Spent`
+3. Nodes support `maxRank` (default **1**; multi-rank is opt-in in `SkillTrees.json`). Every rank costs 1 SP. Skills with `maxRank > 1` must stack flat effect magnitudes per rank (`SkillEffectRouter` / pack `damageModPerRank` / `healOnHitPerRank`). Binary passives, rules, and Action unlocks stay at maxRank 1. Pack ranks are raised so each tree still offers ≥99 SP of sink capacity.
+4. `TryLearnSkillNode` never calls `RemoveClassPoint`; roots auto-grant at rank 1 when a path has ≥1 lifetime point
+5. Hub: `GameState.SkillTree` beside Inventory; primary path only for spending; learned nodes stay active if path is no longer primary
+6. Saves use `LearnedSkillRanks`; legacy `LearnedSkillNodeIds` migrates to rank 1 each
+7. Tests: `SkillTreeProgressionTests`, updated `ClassActionManagerTests`
 
 **Related files:** `CharacterProgression.cs`, `SkillTreesConfig.cs`, `SkillTreeService.cs`, `SkillEffectRouter.cs`, `SkillTreeMenuHandler.cs`, `ClassActionManager.cs`
+
+### Class Skill Trees — every multi-rank skill scales (August 2026)
+**Problem:** Some nodes allowed up to R5 but effects were flat (DETAIL showed static text like Second Bronze Age's single multihit line).
+
+**Solution:** Cap one-shot / Action / binary rules at `maxRank: 1`. Keep `maxRank > 1` only where magnitudes multiply by rank. Update DETAIL `effect` strings to say “per rank”. Fix Third Bronze Age to apply `SPEED_MOD` (surplus beyond 30% still converts to Focus). Normalize defaults missing `maxRank` to 1 instead of 5. Restore ≥99 SP sink with **new named multi-rank skills** (e.g. Bronze Knuckle, Phalanx, Back Channel, Sigil Burn) instead of inflating pack `maxRank`.
+
+**Related files:** `GameData/SkillTrees.json`, `SkillTreesConfig.cs`, `SkillEffectRouter.cs`, `SkillTreeProgressionTests.cs`
+
+### UI: Skill tree selection + scroll above mid tiers (August 2026)
+**Problem:** Selected skill had no visible highlight; PageUp/PageDown and wheel could not reveal higher tiers above the first ~4 rows.
+
+**Root cause:**
+1. `AlignScrollToTier(Clamp(...))` snapped bottom pin to 0 whenever max scroll was not a multiple of tier stride — selected roots scrolled off-screen (no box drawn) while detail still described them
+2. Global combat-speed keys ate PageUp/PageDown even on `GameState.SkillTree`
+3. Extra skills sharing the same branch+tier were drawn on top of each other (e.g. Blood Price under Mighty Swing), so arrow selection updated DETAIL but no unique card could show the yellow selection overlay
+4. `Game.ShowSkillTree` painted via coordinator with `scrollOffset: 0`, ignoring the handler’s selection/scroll state
+
+**Solutions:**
+1. `NormalizeScrollOffset` keeps absolute top (0) and bottom (max); mid positions row-align
+2. Skill Tree exempt from combat-speed PageUp/PageDown; wheel still routes via `HandleInput`
+3. Same branch+tier siblings **stack vertically** inside the tier band; content height grows so scroll is required
+4. Arrow Up/Down navigate by content Y (including stacks); at the edge they nudge scroll
+5. Selected node: thick yellow border, warm fill, `>` name prefix
+6. `Game.ShowSkillTree` / Cheats resolve the live `GameCoordinator` hero and force-refresh `RenderGameMenu` after Gain Level so the left panel cannot stay stale
+
+**Related files:** `SkillTreeRenderer.cs`, `SkillTreeMenuHandler.cs`, `MainWindow.axaml.cs`, `Game.cs`, `CheatsPanelHandler.cs`
 
 ### Bug fix: Return to main menu after character snapshot appeared to quit (July 2026)
 **Problem:** After Inventory → Snapshot for Action Lab, returning to the main menu (Game Loop → **0**) did nothing on screen, then another **0** closed the app.

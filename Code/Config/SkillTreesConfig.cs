@@ -48,9 +48,20 @@ namespace RPGGame
         [JsonPropertyName("unlockActionName")]
         public string? UnlockActionName { get; set; }
 
-        /// <summary>Custom runtime handler id for SkillEffectRouter.</summary>
         [JsonPropertyName("customEffectId")]
         public string? CustomEffectId { get; set; }
+
+        /// <summary>Max ranks that can be bought (1 for roots/actions; typically 5 for stackables).</summary>
+        [JsonPropertyName("maxRank")]
+        public int MaxRank { get; set; }
+
+        /// <summary>Optional: on hit (primary-path weapon), add this many DAMAGE_MOD % per invested rank.</summary>
+        [JsonPropertyName("damageModPerRank")]
+        public int DamageModPerRank { get; set; }
+
+        /// <summary>Optional: on hit (primary-path weapon), heal this many HP per invested rank.</summary>
+        [JsonPropertyName("healOnHitPerRank")]
+        public int HealOnHitPerRank { get; set; }
 
         public SkillNodeType ParsedType =>
             Enum.TryParse<SkillNodeType>(Type, ignoreCase: true, out var t) ? t : SkillNodeType.Passive;
@@ -94,8 +105,8 @@ namespace RPGGame
             PropertyNameCaseInsensitive = true
         };
 
-        /// <summary>Tier index 0..4 → Skill Point cost.</summary>
-        public static readonly int[] TierCosts = { 0, 4, 8, 14, 21 };
+        /// <summary>Tier index 0..4 → default Skill Point cost per rank (roots 0; all other tiers 1).</summary>
+        public static readonly int[] TierCosts = { 0, 1, 1, 1, 1 };
 
         [JsonPropertyName("trees")]
         public List<SkillTreeDefinition> Trees { get; set; } = new();
@@ -147,8 +158,6 @@ namespace RPGGame
                         .Where(r => !string.IsNullOrWhiteSpace(r))
                         .Select(r => r.Trim())
                         .ToList();
-                    if (node.Cost <= 0 && node.Tier >= 0 && node.Tier < TierCosts.Length)
-                        node.Cost = TierCosts[node.Tier];
                     node.Tier = Math.Clamp(node.Tier, 0, 4);
                     if (!string.IsNullOrWhiteSpace(node.UnlockActionName))
                         node.UnlockActionName = node.UnlockActionName.Trim();
@@ -156,6 +165,18 @@ namespace RPGGame
                         node.CustomEffectId = node.CustomEffectId.Trim();
                     else
                         node.CustomEffectId = node.Id;
+
+                    bool isRoot = node.Tier == 0;
+                    // Flat economy: every non-root rank costs 1 Skill Point.
+                    node.Cost = isRoot ? 0 : 1;
+                    // Default maxRank is 1. Multi-rank (>1) is opt-in in SkillTrees.json and must
+                    // scale effect magnitudes by rank (see SkillEffectRouter / pack per-rank fields).
+                    if (node.MaxRank <= 0)
+                        node.MaxRank = 1;
+                    else
+                        node.MaxRank = Math.Clamp(node.MaxRank, 1, 20);
+                    if (node.DamageModPerRank < 0) node.DamageModPerRank = 0;
+                    if (node.HealOnHitPerRank < 0) node.HealOnHitPerRank = 0;
                 }
             }
 
@@ -221,16 +242,19 @@ namespace RPGGame
                 .Distinct(StringComparer.OrdinalIgnoreCase)!;
         }
 
-        public int GetSpentSkillPoints(IEnumerable<string> learnedNodeIds, WeaponType path)
+        public int GetSpentSkillPoints(IReadOnlyDictionary<string, int> learnedRanks, WeaponType path)
         {
             var tree = GetTreeForWeapon(path);
             if (tree == null) return 0;
-            var learned = new HashSet<string>(learnedNodeIds ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
             int spent = 0;
             foreach (var node in tree.Nodes)
             {
-                if (learned.Contains(node.Id))
-                    spent += Math.Max(0, node.Cost);
+                if (learnedRanks != null &&
+                    learnedRanks.TryGetValue(node.Id, out int rank) &&
+                    rank > 0)
+                {
+                    spent += Math.Max(0, node.Cost) * rank;
+                }
             }
             return spent;
         }

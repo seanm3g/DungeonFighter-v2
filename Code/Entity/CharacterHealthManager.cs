@@ -54,6 +54,7 @@ namespace RPGGame
             int max = character.GetTotalArmor();
             if (character.FortifyArmorBonus is int fortifyBonus && fortifyBonus > 0)
                 max += fortifyBonus;
+            max += SkillEffectRouter.Instance.GetSkillArmorBonus(character);
             if (character.ArmorBreakReduction is int armorBreak && armorBreak > 0)
                 max = Math.Max(0, max - armorBreak);
             if (character.ExposeArmorReduction is int expose && expose > 0)

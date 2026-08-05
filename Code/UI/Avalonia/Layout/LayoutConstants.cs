@@ -142,6 +142,18 @@ namespace RPGGame.UI.Avalonia.Layout
         }
 
         /// <summary>
+        /// Full center column including the action-info strip band (e.g. Skill Tree chrome).
+        /// </summary>
+        public static bool ContainsCenterColumnFull(int gridX, int gridY)
+        {
+            int x = CENTER_PANEL_X;
+            int y = CENTER_COLUMN_FULL_Y;
+            int w = CENTER_PANEL_WIDTH;
+            int h = CENTER_COLUMN_FULL_HEIGHT;
+            return gridX >= x && gridX < x + w && gridY >= y && gridY < y + h;
+        }
+
+        /// <summary>
         /// Same region as <see cref="ContainsCenterPanelContent"/> using pointer coordinates in GameCanvas pixel space.
         /// Used when grid rounding misaligns with the logical layout (e.g. letterboxing / hit surface routing).
         /// </summary>

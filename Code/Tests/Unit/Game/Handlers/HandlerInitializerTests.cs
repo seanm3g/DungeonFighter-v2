@@ -112,7 +112,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
                 async () => await Task.CompletedTask,
                 (level, item, levelUps, items) => { },
                 (character) => { },
-                () => { });
+                async () => await Task.CompletedTask);
             
             TestBase.AssertTrue(true,
                 "WireHandlerEvents should complete without errors",

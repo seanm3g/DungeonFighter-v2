@@ -183,7 +183,9 @@ namespace RPGGame.UI.Avalonia
             if (key != Key.PageUp && key != Key.PageDown)
                 return false;
 
-            if (initializationHandler?.Game?.CurrentState == GameState.ActionInteractionLab)
+            var currentState = initializationHandler?.Game?.CurrentState;
+            // Skill Tree / Action Lab own PageUp/PageDown for scrolling / stepping.
+            if (currentState is GameState.ActionInteractionLab or GameState.SkillTree)
                 return false;
 
             int speed = key == Key.PageUp

@@ -21,7 +21,10 @@ namespace RPGGame
         public int RoguePoints { get; set; }
         public int WizardPoints { get; set; }
 
-        /// <summary>Learned skill-tree node ids. Omitted on legacy saves.</summary>
+        /// <summary>Learned skill ranks by node id. Preferred over <see cref="LearnedSkillNodeIds"/>.</summary>
+        public Dictionary<string, int> LearnedSkillRanks { get; set; } = new();
+
+        /// <summary>Legacy learned skill-tree node ids (each becomes rank 1 on load). Omitted on new saves.</summary>
         public List<string> LearnedSkillNodeIds { get; set; } = new();
         public int ComboStep { get; set; }
         public int ComboBonus { get; set; }

@@ -167,18 +167,30 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             var point = e.GetCurrentPoint(gameCanvas).Position;
             var grid = ScreenToGrid(point);
-            if (!LayoutConstants.ContainsCenterPanelContent(grid.X, grid.Y))
-                return;
 
             double delta = e.Delta.Y;
             if (Math.Abs(delta) < 0.01) return;
 
+            var gameRef = game;
+            bool skillTree = gameRef?.StateManager?.CurrentState == GameState.SkillTree;
+            bool inCenter = LayoutConstants.ContainsCenterPanelContent(grid.X, grid.Y)
+                || (skillTree && LayoutConstants.ContainsCenterColumnFull(grid.X, grid.Y));
+            if (!inCenter)
+                return;
+
             // Match keyboard scroll step (see <see cref="GameCoordinator"/> combat scroll); scale a bit for large DIPs-per-notch values.
             int lines = Math.Max(2, Math.Min(18, (int)Math.Ceiling(Math.Abs(delta) / 40.0) * 3));
-            var gameRef = game;
             if (gameRef?.StateManager?.CurrentState == GameState.Inventory)
             {
                 _ = gameRef.HandleInput(delta > 0 ? "up" : "down");
+                e.Handled = true;
+                return;
+            }
+
+            if (skillTree)
+            {
+                // Skill tree uses pageup/pagedown for tier-aligned vertical scroll.
+                _ = gameRef!.HandleInput(delta > 0 ? "pageup" : "pagedown");
                 e.Handled = true;
                 return;
             }

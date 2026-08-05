@@ -20,8 +20,8 @@ namespace RPGGame
         public int RoguePoints { get; set; } = 0;
         public int WizardPoints { get; set; } = 0;
 
-        /// <summary>Learned skill-tree node ids. Spending does not reduce lifetime class points.</summary>
-        public HashSet<string> LearnedSkillNodeIds { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Learned skill-tree ranks by node id. Spending does not reduce lifetime class points.</summary>
+        public Dictionary<string, int> LearnedSkillRanks { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
         public CharacterProgression(int level = 1)
         {
@@ -29,13 +29,18 @@ namespace RPGGame
             XP = 0;
         }
 
-        public bool HasLearnedSkill(string nodeId) =>
-            !string.IsNullOrWhiteSpace(nodeId) && LearnedSkillNodeIds.Contains(nodeId);
+        public int GetSkillRank(string nodeId)
+        {
+            if (string.IsNullOrWhiteSpace(nodeId)) return 0;
+            return LearnedSkillRanks.TryGetValue(nodeId, out int rank) ? Math.Max(0, rank) : 0;
+        }
+
+        public bool HasLearnedSkill(string nodeId) => GetSkillRank(nodeId) >= 1;
 
         public int GetSpentSkillPoints(WeaponType weaponType)
         {
             var trees = GameConfiguration.Instance.SkillTrees;
-            return trees?.GetSpentSkillPoints(LearnedSkillNodeIds, weaponType) ?? 0;
+            return trees?.GetSpentSkillPoints(LearnedSkillRanks, weaponType) ?? 0;
         }
 
         public int GetAvailableSkillPoints(WeaponType weaponType) =>
@@ -55,8 +60,10 @@ namespace RPGGame
                 if (GetClassPoints(path) <= 0)
                     continue;
                 string? rootId = trees.GetRootNodeId(path);
-                if (!string.IsNullOrWhiteSpace(rootId))
-                    LearnedSkillNodeIds.Add(rootId!);
+                if (string.IsNullOrWhiteSpace(rootId))
+                    continue;
+                if (GetSkillRank(rootId!) < 1)
+                    LearnedSkillRanks[rootId!] = 1;
             }
         }
 
@@ -64,6 +71,7 @@ namespace RPGGame
         {
             Success,
             AlreadyLearned,
+            MaxRankReached,
             UnknownNode,
             WrongTree,
             PrerequisitesMissing,
@@ -72,8 +80,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Permanently learns a skill node using available Skill Points on the primary path only.
-        /// Does not decrement lifetime class points.
+        /// Permanently ranks up a skill node using available Skill Points on the primary path only.
+        /// Each rank costs the node's cost again. Does not decrement lifetime class points.
         /// </summary>
         public LearnSkillResult TryLearnSkillNode(string nodeId, bool requirePrimaryPath = true)
         {
@@ -85,8 +93,10 @@ namespace RPGGame
             if (node == null)
                 return LearnSkillResult.UnknownNode;
 
-            if (HasLearnedSkill(node.Id))
-                return LearnSkillResult.AlreadyLearned;
+            int currentRank = GetSkillRank(node.Id);
+            int maxRank = Math.Max(1, node.MaxRank);
+            if (currentRank >= maxRank)
+                return currentRank > 0 ? LearnSkillResult.MaxRankReached : LearnSkillResult.AlreadyLearned;
 
             SkillTreeDefinition? ownerTree = null;
             WeaponType? ownerPath = null;
@@ -111,16 +121,13 @@ namespace RPGGame
                     return LearnSkillResult.NotPrimaryPath;
             }
 
-            foreach (string req in node.Requires)
-            {
-                if (!HasLearnedSkill(req))
-                    return LearnSkillResult.PrerequisitesMissing;
-            }
+            if (!SkillTreePrerequisites.AreMet(this, node))
+                return LearnSkillResult.PrerequisitesMissing;
 
             if (node.Cost > GetAvailableSkillPoints(ownerPath.Value))
                 return LearnSkillResult.InsufficientPoints;
 
-            LearnedSkillNodeIds.Add(node.Id);
+            LearnedSkillRanks[node.Id] = currentRank + 1;
             return LearnSkillResult.Success;
         }
 

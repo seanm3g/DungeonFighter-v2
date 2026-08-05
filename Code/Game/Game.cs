@@ -157,7 +157,7 @@ namespace RPGGame
                 async () => await (dungeonSelectionHandler?.ShowDungeonSelection() ?? Task.CompletedTask),
                 ShowDungeonCompletion,
                 ShowDeathScreen,
-                SaveGame,
+                SaveGameAsync,
                 ShowVariableEditor,
                 ShowActionEditor,
                 ShowTuningParameters,
@@ -276,9 +276,8 @@ namespace RPGGame
 
         public void ShowSkillTree()
         {
-            // Same as Inventory: coordinator runs ScreenTransitionProtocol (clears hub menu).
-            skillTreeMenuHandler?.PrepareForShow();
-            screenCoordinator.ShowSkillTree();
+            // Handler owns selection/scroll and the clear+transition path (same contract as Inventory).
+            skillTreeMenuHandler?.ShowSkillTree();
         }
 
         /// <summary>
@@ -758,6 +757,15 @@ namespace RPGGame
         public void SaveGame()
         {
             settingsMenuHandler?.SaveGame();
+        }
+
+        /// <summary>
+        /// Async save for UI paths (dungeon completion, etc.). Do not use sync <see cref="SaveGame"/> on the Avalonia thread.
+        /// </summary>
+        public async Task SaveGameAsync()
+        {
+            if (settingsMenuHandler != null)
+                await settingsMenuHandler.SaveGameAsync().ConfigureAwait(true);
         }
     }
 }

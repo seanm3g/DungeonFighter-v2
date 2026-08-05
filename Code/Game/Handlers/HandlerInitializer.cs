@@ -91,7 +91,7 @@ namespace RPGGame.Handlers
             Func<Task> showDungeonSelection,
             System.Action<int, Item?, List<LevelUpInfo>, List<Item>> showDungeonCompletion,
             System.Action<Character> showDeathScreen,
-            System.Action saveGame)
+            Func<Task> saveGameAsync)
         {
             if (handlers.MainMenuHandler != null)
             {
@@ -286,7 +286,8 @@ namespace RPGGame.Handlers
                 handlers.DungeonCompletionHandler.ShowInventoryEvent += () => showInventory();
                 handlers.DungeonCompletionHandler.ShowSkillTreeEvent += () => showSkillTree();
                 handlers.DungeonCompletionHandler.ShowMainMenuEvent += () => showMainMenu();
-                handlers.DungeonCompletionHandler.SaveGameEvent += async () => { saveGame(); await Task.CompletedTask; };
+                // Must await async save — sync SaveGame()/GetResult() deadlocks Avalonia's UI thread.
+                handlers.DungeonCompletionHandler.SaveGameEvent += async () => await saveGameAsync();
             }
             
             if (handlers.DeathScreenHandler != null)

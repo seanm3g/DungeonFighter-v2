@@ -68,7 +68,7 @@ namespace RPGGame.Game.Services
             Func<Task> showDungeonSelection,
             System.Action<int, Item?, List<LevelUpInfo>, List<Item>> showDungeonCompletion,
             System.Action<Character> showDeathScreen,
-            System.Action saveGame,
+            Func<Task> saveGameAsync,
             System.Action showVariableEditor,
             System.Action showActionEditor,
             System.Action showTuningParameters,
@@ -113,7 +113,7 @@ namespace RPGGame.Game.Services
                 handlerResult, stateManager, uiManager,
                 showGameLoop, showMainMenu, showInventory, showSkillTree, showCharacterInfo, showMessage, exitGame,
                 showDungeonSelection,
-                showDungeonCompletion, showDeathScreen, saveGame);
+                showDungeonCompletion, showDeathScreen, saveGameAsync);
             
             // Wire up developer menu handler events
             if (result.DeveloperMenuHandler != null)

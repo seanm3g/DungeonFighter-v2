@@ -45,7 +45,7 @@
     "masterVolume": 1,
     "musicVolume": 0.7,
     "sfxVolume": 0.9,
-    "masterEnabled": true,
+    "masterEnabled": false,
     "musicEnabled": true,
     "sfxEnabled": true,
     "musicCrossfadeMs": 1000,

@@ -21,6 +21,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             new("Appearance", "Appearance", () => new AppearanceSettingsPanel(), SettingsContentArea.MainScroll, typeof(AppearanceSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Player, Order: 5),
 
             // Developer Settings
+            new("Cheats", "Cheats", () => new CheatsSettingsPanel(), SettingsContentArea.MainScroll, typeof(CheatsSettingsPanel), UsesHandler: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 0),
             new("GameVariables", "Game Variables", () => new GameVariablesSettingsPanel(), SettingsContentArea.MainScroll, typeof(GameVariablesSettingsPanel), UsesTabManager: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 1),
             new("Actions", "Actions", () => new ActionsSettingsPanel(), SettingsContentArea.Actions, typeof(ActionsSettingsPanel), UsesTabManager: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 2),
             new("StatusEffects", "Status Effects", () => new StatusEffectsSettingsPanel(), SettingsContentArea.MainScroll, typeof(StatusEffectsSettingsPanel), UsesTabManager: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 3),

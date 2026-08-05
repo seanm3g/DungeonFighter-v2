@@ -64,9 +64,17 @@ namespace RPGGame
                     ShowSkillTreeEvent?.Invoke();
                     break;
                 case "0":
-                    // Save and Exit - do NOT clear display (going to main menu)
-                    if (SaveGameEvent != null)
-                        await SaveGameEvent.Invoke();
+                    // Save and Exit - do NOT clear display (going to main menu).
+                    // Await async save only; sync GetResult deadlocks Avalonia (same as Game Loop "0").
+                    try
+                    {
+                        if (SaveGameEvent != null)
+                            await SaveGameEvent.Invoke();
+                    }
+                    catch (Exception)
+                    {
+                        // Error already reported by save path; still return to main menu.
+                    }
                     stateManager.TransitionToState(GameState.MainMenu);
                     ShowMainMenuEvent?.Invoke();
                     break;
