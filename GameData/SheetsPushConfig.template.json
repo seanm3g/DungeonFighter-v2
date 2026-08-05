@@ -26,6 +26,8 @@
 
   "classActionsSheetTabName": "CLASS ACTIONS",
 
+  "skillTreesSheetTabName": "Class Upgrades",
+
   "flavorSheetTabName": "flavor",
 
   "oauthClientSecretsPath": "secrets/client_secret_desktop.json",
@@ -57,6 +59,8 @@
   "pushClassPresentationTab": true,
 
   "pushClassActionsTab": true,
+
+  "pushSkillTreesTab": true,
 
   "pushFlavorTab": true
 

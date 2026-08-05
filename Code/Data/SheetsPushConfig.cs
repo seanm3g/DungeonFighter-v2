@@ -34,6 +34,9 @@ namespace RPGGame.Data
         [JsonPropertyName("classActionsSheetTabName")]
         public string ClassActionsSheetTabName { get; set; } = "";
 
+        [JsonPropertyName("skillTreesSheetTabName")]
+        public string SkillTreesSheetTabName { get; set; } = "";
+
         [JsonPropertyName("enemiesSheetTabName")]
         public string EnemiesSheetTabName { get; set; } = "";
 
@@ -104,6 +107,9 @@ namespace RPGGame.Data
         [JsonPropertyName("pushClassActionsTab")]
         public bool PushClassActionsTab { get; set; } = true;
 
+        [JsonPropertyName("pushSkillTreesTab")]
+        public bool PushSkillTreesTab { get; set; } = true;
+
         [JsonPropertyName("pushFlavorTab")]
         public bool PushFlavorTab { get; set; } = true;
 
@@ -112,6 +118,7 @@ namespace RPGGame.Data
         public const string DefaultArmorSheetTabName = "ARMOR";
         public const string DefaultClassPresentationSheetTabName = "CLASSES";
         public const string DefaultClassActionsSheetTabName = "CLASS ACTIONS";
+        public const string DefaultSkillTreesSheetTabName = "Class Upgrades";
         public const string DefaultEnemiesSheetTabName = "ENEMIES";
         public const string DefaultEnvironmentsSheetTabName = "ENVIRONMENTS";
 
@@ -137,6 +144,7 @@ namespace RPGGame.Data
                 || !string.IsNullOrWhiteSpace(ArmorSheetTabName)
                 || !string.IsNullOrWhiteSpace(ClassPresentationSheetTabName)
                 || !string.IsNullOrWhiteSpace(ClassActionsSheetTabName)
+                || !string.IsNullOrWhiteSpace(SkillTreesSheetTabName)
                 || !string.IsNullOrWhiteSpace(EnemiesSheetTabName)
                 || !string.IsNullOrWhiteSpace(EnvironmentsSheetTabName)
                 || !string.IsNullOrWhiteSpace(DungeonsSheetTabName)
@@ -151,6 +159,7 @@ namespace RPGGame.Data
             ArmorSheetTabName = DefaultArmorSheetTabName;
             ClassPresentationSheetTabName = DefaultClassPresentationSheetTabName;
             ClassActionsSheetTabName = DefaultClassActionsSheetTabName;
+            SkillTreesSheetTabName = DefaultSkillTreesSheetTabName;
             EnemiesSheetTabName = DefaultEnemiesSheetTabName;
             EnvironmentsSheetTabName = DefaultEnvironmentsSheetTabName;
             DungeonsSheetTabName = DefaultDungeonsSheetTabName;
@@ -229,6 +238,15 @@ namespace RPGGame.Data
             if (!string.IsNullOrWhiteSpace(ClassActionsSheetTabName))
                 return false;
             ClassActionsSheetTabName = DefaultClassActionsSheetTabName;
+            return true;
+        }
+
+        /// <summary>Fills <see cref="SkillTreesSheetTabName"/> when still blank (configs created before Class Upgrades push).</summary>
+        public bool ApplyDefaultSkillTreesTabNameIfUnset()
+        {
+            if (!string.IsNullOrWhiteSpace(SkillTreesSheetTabName))
+                return false;
+            SkillTreesSheetTabName = DefaultSkillTreesSheetTabName;
             return true;
         }
 
@@ -342,6 +360,8 @@ namespace RPGGame.Data
                     cfg.PushClassPresentationTab = true;
                 if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushClassActionsTab"))
                     cfg.PushClassActionsTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushSkillTreesTab"))
+                    cfg.PushSkillTreesTab = true;
                 if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushFlavorTab"))
                     cfg.PushFlavorTab = true;
             }
@@ -377,6 +397,7 @@ namespace RPGGame.Data
             cfg.PushDungeonsTab = true;
             cfg.PushClassPresentationTab = true;
             cfg.PushClassActionsTab = true;
+            cfg.PushSkillTreesTab = true;
             cfg.PushFlavorTab = true;
         }
 

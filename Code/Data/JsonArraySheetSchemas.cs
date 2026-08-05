@@ -78,7 +78,8 @@ namespace RPGGame.Data
 
         internal static readonly HashSet<string> StatBonusAuthorizedJsonKeys = new(StringComparer.Ordinal)
         {
-            "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics", "Requirements"
+            "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics", "Requirements",
+            "triggerName", "triggerNames", "tags"
         };
 
         public static IReadOnlyList<string> GetCanonicalHeaders(GameDataTabularSheetKind kind) =>

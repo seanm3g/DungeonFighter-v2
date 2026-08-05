@@ -253,6 +253,14 @@ namespace RPGGame
                     return;
                 }
 
+                if (args.Length > 0 && args[0] == "--stamp-material-triggers")
+                {
+                    executionMode = "TOOL";
+                    int n = MaterialTriggerStamp.StampGameDataFiles();
+                    Console.WriteLine($"Stamped {n} material trigger identities into Triggers.json (pools: {MaterialTriggerCatalog.PoolsByMaterial.Count}).");
+                    return;
+                }
+
                 // Check if test mode is requested (battle comparison)
                 if (args.Length > 0 && args[0] == "TEST")
                 {

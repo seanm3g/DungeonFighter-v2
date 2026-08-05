@@ -311,7 +311,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (rpPool >= pool.Count)
                     return;
 
-                tipLines = CombatActionStripBuilder.BuildActionTooltipLinesForAction(character, pool[rpPool], innerTextW, maxTooltipLines + 2);
+                tipLines = CombatActionStripBuilder.BuildActionTooltipLinesForAction(
+                    character, pool[rpPool], innerTextW, maxTooltipLines + 2,
+                    includeExtendedDetails: HoverTooltipDetailState.IsAltDetailActive);
             }
             if (tipLines == null || tipLines.Count == 0)
                 return;

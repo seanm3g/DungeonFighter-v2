@@ -79,6 +79,8 @@
                             <TextBox x:Name="ClassPresentationTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
                             <TextBlock Text="CLASS ACTIONS → ClassActions.json (tier / class / action)" FontSize="12" Classes="settings-muted"/>
                             <TextBox x:Name="ClassActionsTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
+                            <TextBlock Text="Class Upgrades → SkillTrees.json (class skill trees)" FontSize="12" Classes="settings-muted"/>
+                            <TextBox x:Name="SkillTreesTabGidTextBox" MinHeight="28" Watermark="829575756" FontSize="13" Padding="8" BorderThickness="1"/>
                             <TextBlock Text="flavor → FlavorText.json (PUSH only; PULL skips)" FontSize="12" Classes="settings-muted"/>
                             <TextBox x:Name="FlavorTabGidTextBox" MinHeight="28" Watermark="825117964" FontSize="13" Padding="8" BorderThickness="1"/>
                         </StackPanel>
@@ -105,6 +107,7 @@
                                 <CheckBox x:Name="PushDungeonsTabCheckBox" Content="DUNGEONS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushClassPresentationTabCheckBox" Content="CLASSES" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushClassActionsTabCheckBox" Content="CLASS ACTIONS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushSkillTreesTabCheckBox" Content="Class Upgrades" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushFlavorTabCheckBox" Content="flavor" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                             </WrapPanel>
                         </StackPanel>

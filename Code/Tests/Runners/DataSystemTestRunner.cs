@@ -33,6 +33,7 @@ namespace RPGGame.Tests.Runners
             ("ReservePoolAction", () => ReservePoolActionTests.RunAllTests()),
             ("ClassPresentationSheetConverter", () => ClassPresentationSheetConverterTests.RunAllTests()),
             ("ClassActionsSheetConverter", () => ClassActionsSheetConverterTests.RunAllTests()),
+            ("SkillTreesSheetConverter", () => SkillTreesSheetConverterTests.RunAllTests()),
             ("GoogleSheetsUrlHelper", () => GoogleSheetsUrlHelperTests.RunAllTests()),
             ("SheetsCsvFetch", () => SheetsCsvFetchTests.RunAllTests()),
             ("SheetsPushPreflight", () => SheetsPushPreflightTests.RunAllTests()),

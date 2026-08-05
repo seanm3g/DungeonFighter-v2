@@ -61,6 +61,21 @@ namespace RPGGame
         public List<StatBonusMechanic>? Mechanics { get; set; }
 
         /// <summary>
+        /// Legacy main-branch animal-suffix trigger name. Ignored for combat — materials own gear procs.
+        /// Kept so merged StatBonuses.json rows still deserialize.
+        /// </summary>
+        [JsonPropertyName("triggerName")]
+        public string TriggerName { get; set; } = "";
+
+        /// <summary>Legacy multi-trigger list from main; ignored for combat.</summary>
+        [JsonPropertyName("triggerNames")]
+        public List<string>? TriggerNames { get; set; }
+
+        /// <summary>Legacy taxon tags from main animal suffixes; not applied as combat procs.</summary>
+        [JsonPropertyName("tags")]
+        public List<string>? Tags { get; set; }
+
+        /// <summary>
         /// Attribute thresholds an equipping character must meet for the piece carrying this suffix.
         /// Authored as <c>[strength:5,primary:15]</c>; keys are the four core attributes plus the dynamic categories
         /// (<c>primary</c> / <c>secondary</c> / <c>neglected</c> / <c>weakness</c>) resolved at equip-check time via
@@ -141,7 +156,10 @@ namespace RPGGame
                 StatType = StatType,
                 ItemRank = ItemRank,
                 Mechanics = mechCopy,
-                Requirements = reqCopy
+                Requirements = reqCopy,
+                TriggerName = "",
+                TriggerNames = null,
+                Tags = null
             };
         }
     }
@@ -232,6 +250,14 @@ namespace RPGGame
         /// <summary>Head: minimum granted <see cref="ActionBonus"/> lines when loot affixes are applied.</summary>
         public int MinGeneratedActionBonuses { get; set; }
         public string Rarity { get; set; } = "Common";
+
+        /// <summary>
+        /// Always-on material name (Bone, Steel, Cloth, …). Set by loot <c>EnsureMaterial</c>;
+        /// mirrors the Material prefix modification.
+        /// </summary>
+        [JsonPropertyName("material")]
+        public string Material { get; set; } = "";
+
         public List<StatBonus> StatBonuses { get; set; } = new List<StatBonus>();
         public List<ActionBonus> ActionBonuses { get; set; } = new List<ActionBonus>();
         public List<Modification> Modifications { get; set; } = new List<Modification>();

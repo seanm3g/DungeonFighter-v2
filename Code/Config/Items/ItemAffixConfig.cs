@@ -130,14 +130,13 @@ namespace RPGGame
                 _ => "Chest"
             };
 
-        /// <summary>Built-in prefix-slot count when tuning does not override this rarity.</summary>
+        /// <summary>Built-in Quality/Adjective prefix-slot count when tuning does not override (Material is always separate).</summary>
         public static int DefaultPrefixSlotsForRarity(string rarityName)
         {
             if (rarityName.Equals("Common", StringComparison.OrdinalIgnoreCase))
                 return 1;
-            if (rarityName.Equals("Uncommon", StringComparison.OrdinalIgnoreCase))
-                return 2;
-            return 3;
+            // Uncommon+ fills both Quality and Adjective (Material is unconditional outside this budget).
+            return 2;
         }
 
         /// <summary>
@@ -170,11 +169,11 @@ namespace RPGGame
             ItemAffixPerRarityEntry entry,
             RarityData? rarityTableRow)
         {
-            int pMin = Math.Clamp(entry.PrefixSlots, 0, 3);
+            int pMin = Math.Clamp(entry.PrefixSlots, 0, 2);
             double pCh = Clamp01(entry.PrefixExtraChance);
             int pMax = entry.PrefixSlotsMax.HasValue
-                ? Math.Clamp(entry.PrefixSlotsMax.Value, pMin, 3)
-                : (pCh <= 0 ? pMin : 3);
+                ? Math.Clamp(entry.PrefixSlotsMax.Value, pMin, 2)
+                : (pCh <= 0 ? pMin : 2);
 
             int sMin = Math.Max(0, entry.StatSuffixes);
             double sCh = Clamp01(entry.StatSuffixExtraChance);

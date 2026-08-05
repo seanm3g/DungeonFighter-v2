@@ -48,21 +48,11 @@ namespace RPGGame
         [JsonPropertyName("unlockActionName")]
         public string? UnlockActionName { get; set; }
 
+        /// <summary>Custom runtime handler id for SkillEffectRouter.</summary>
         [JsonPropertyName("customEffectId")]
         public string? CustomEffectId { get; set; }
 
-        /// <summary>Max ranks that can be bought (1 for roots/actions; typically 5 for stackables).</summary>
-        [JsonPropertyName("maxRank")]
-        public int MaxRank { get; set; }
-
-        /// <summary>Optional: on hit (primary-path weapon), add this many DAMAGE_MOD % per invested rank.</summary>
-        [JsonPropertyName("damageModPerRank")]
-        public int DamageModPerRank { get; set; }
-
-        /// <summary>Optional: on hit (primary-path weapon), heal this many HP per invested rank.</summary>
-        [JsonPropertyName("healOnHitPerRank")]
-        public int HealOnHitPerRank { get; set; }
-
+        [JsonIgnore]
         public SkillNodeType ParsedType =>
             Enum.TryParse<SkillNodeType>(Type, ignoreCase: true, out var t) ? t : SkillNodeType.Passive;
     }
@@ -105,8 +95,8 @@ namespace RPGGame
             PropertyNameCaseInsensitive = true
         };
 
-        /// <summary>Tier index 0..4 → default Skill Point cost per rank (roots 0; all other tiers 1).</summary>
-        public static readonly int[] TierCosts = { 0, 1, 1, 1, 1 };
+        /// <summary>Tier index 0..4 → Skill Point cost.</summary>
+        public static readonly int[] TierCosts = { 0, 4, 8, 14, 21 };
 
         [JsonPropertyName("trees")]
         public List<SkillTreeDefinition> Trees { get; set; } = new();
@@ -165,18 +155,14 @@ namespace RPGGame
                         node.CustomEffectId = node.CustomEffectId.Trim();
                     else
                         node.CustomEffectId = node.Id;
+                }
 
-                    bool isRoot = node.Tier == 0;
-                    // Flat economy: every non-root rank costs 1 Skill Point.
-                    node.Cost = isRoot ? 0 : 1;
-                    // Default maxRank is 1. Multi-rank (>1) is opt-in in SkillTrees.json and must
-                    // scale effect magnitudes by rank (see SkillEffectRouter / pack per-rank fields).
-                    if (node.MaxRank <= 0)
-                        node.MaxRank = 1;
-                    else
-                        node.MaxRank = Math.Clamp(node.MaxRank, 1, 20);
-                    if (node.DamageModPerRank < 0) node.DamageModPerRank = 0;
-                    if (node.HealOnHitPerRank < 0) node.HealOnHitPerRank = 0;
+                PromoteLevelOneAsRoot(tree);
+
+                foreach (var node in tree.Nodes)
+                {
+                    if (node.Cost <= 0 && node.Tier >= 0 && node.Tier < TierCosts.Length)
+                        node.Cost = TierCosts[node.Tier];
                 }
             }
 
@@ -185,6 +171,90 @@ namespace RPGGame
             return this;
         }
 
+        /// <summary>
+        /// Class Upgrades sheet often lists "Level 1 - {Class}" as a T1 node under the identity root.
+        /// In-game that node is the free Core root so material tags are the first most basic skill.
+        /// </summary>
+        internal static void PromoteLevelOneAsRoot(SkillTreeDefinition tree)
+        {
+            if (tree?.Nodes == null || tree.Nodes.Count == 0)
+                return;
+
+            SkillTreeNodeDefinition? level1 = null;
+            if (!string.IsNullOrWhiteSpace(tree.ClassKey))
+            {
+                string want = "Level 1 - " + tree.ClassKey.Trim();
+                level1 = tree.Nodes.FirstOrDefault(n =>
+                    n.Name.Equals(want, StringComparison.OrdinalIgnoreCase));
+            }
+            level1 ??= tree.Nodes.FirstOrDefault(n =>
+                n.Name.StartsWith("Level 1 -", StringComparison.OrdinalIgnoreCase));
+            if (level1 == null || string.IsNullOrWhiteSpace(level1.Id))
+                return;
+
+            // Already the free Core root — leave graph alone (avoids re-promoting after save/load).
+            if (level1.Tier == 0
+                && level1.Requires.Count == 0
+                && string.Equals(level1.Branch, "Core", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            string level1Id = level1.Id;
+            var formerRoots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string req in level1.Requires)
+                formerRoots.Add(req);
+            foreach (var n in tree.Nodes)
+            {
+                if (n.Tier == 0
+                    && string.Equals(n.Branch, "Core", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(n.Id, level1Id, StringComparison.OrdinalIgnoreCase))
+                    formerRoots.Add(n.Id);
+            }
+
+            level1.Tier = 0;
+            level1.Cost = 0;
+            level1.Requires = new List<string>();
+            level1.Branch = "Core";
+
+            foreach (var node in tree.Nodes)
+            {
+                if (string.Equals(node.Id, level1Id, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                bool isFormerRoot = formerRoots.Contains(node.Id);
+                bool isRite = string.Equals(node.Branch, "Rite", StringComparison.OrdinalIgnoreCase);
+
+                if (isFormerRoot)
+                {
+                    if (node.Tier <= 0)
+                        node.Tier = 1;
+                    node.Requires = new List<string> { level1Id };
+                    if (node.Cost <= 0)
+                        node.Cost = TierCosts[Math.Clamp(node.Tier, 0, TierCosts.Length - 1)];
+                    continue;
+                }
+
+                if (isRite && node.Tier == 0 && node.Requires.Count == 0)
+                {
+                    node.Requires = new List<string> { level1Id };
+                    continue;
+                }
+
+                if (node.Requires.Count == 0)
+                    continue;
+
+                var remapped = new List<string>();
+                foreach (string req in node.Requires)
+                {
+                    string next = formerRoots.Contains(req) ? level1Id : req;
+                    if (!remapped.Any(r => string.Equals(r, next, StringComparison.OrdinalIgnoreCase))
+                        && !string.Equals(next, node.Id, StringComparison.OrdinalIgnoreCase))
+                        remapped.Add(next);
+                }
+                node.Requires = remapped;
+            }
+        }
+
+        [JsonIgnore]
         public IReadOnlyDictionary<string, SkillTreeNodeDefinition> NodesById
         {
             get
@@ -230,7 +300,21 @@ namespace RPGGame
         public string? GetRootNodeId(WeaponType weaponType)
         {
             var tree = GetTreeForWeapon(weaponType);
-            return tree?.Nodes.FirstOrDefault(n => n.Tier == 0)?.Id;
+            if (tree == null) return null;
+
+            var level1 = tree.Nodes.FirstOrDefault(n =>
+                n.Tier == 0
+                && n.Name.StartsWith("Level 1 -", StringComparison.OrdinalIgnoreCase));
+            if (level1 != null)
+                return level1.Id;
+
+            var core = tree.Nodes.FirstOrDefault(n =>
+                n.Tier == 0
+                && string.Equals(n.Branch, "Core", StringComparison.OrdinalIgnoreCase));
+            if (core != null)
+                return core.Id;
+
+            return tree.Nodes.FirstOrDefault(n => n.Tier == 0)?.Id;
         }
 
         public IEnumerable<string> AllUnlockActionNames()
@@ -242,19 +326,16 @@ namespace RPGGame
                 .Distinct(StringComparer.OrdinalIgnoreCase)!;
         }
 
-        public int GetSpentSkillPoints(IReadOnlyDictionary<string, int> learnedRanks, WeaponType path)
+        public int GetSpentSkillPoints(IEnumerable<string> learnedNodeIds, WeaponType path)
         {
             var tree = GetTreeForWeapon(path);
             if (tree == null) return 0;
+            var learned = new HashSet<string>(learnedNodeIds ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
             int spent = 0;
             foreach (var node in tree.Nodes)
             {
-                if (learnedRanks != null &&
-                    learnedRanks.TryGetValue(node.Id, out int rank) &&
-                    rank > 0)
-                {
-                    spent += Math.Max(0, node.Cost) * rank;
-                }
+                if (learned.Contains(node.Id))
+                    spent += Math.Max(0, node.Cost);
             }
             return spent;
         }
