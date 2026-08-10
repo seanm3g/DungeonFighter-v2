@@ -181,6 +181,8 @@ namespace RPGGame.Actions.Conditional
                 && character.EquipmentGrantedActionTags.Any(t =>
                     string.Equals(t, tag, StringComparison.OrdinalIgnoreCase)))
                 return true;
+            if (CombatTriggerContext.HasFightActionTag(source, tag))
+                return true;
             return false;
         }
 
@@ -303,18 +305,27 @@ namespace RPGGame.Actions.Conditional
             }
 
             int count = 0;
-            if (ItemHasTag(character.Weapon, tagOnly)) count++;
-            if (ItemHasTag(character.Body, tagOnly)) count++;
-            if (ItemHasTag(character.Head, tagOnly)) count++;
-            if (ItemHasTag(character.Feet, tagOnly)) count++;
-            if (ItemHasTag(character.Legs, tagOnly)) count++;
+            if (ClassMaterialTagAlias.ItemCountsAsTag(character, character.Weapon, tagOnly)) count++;
+            if (ClassMaterialTagAlias.ItemCountsAsTag(character, character.Body, tagOnly)) count++;
+            if (ClassMaterialTagAlias.ItemCountsAsTag(character, character.Head, tagOnly)) count++;
+            if (ClassMaterialTagAlias.ItemCountsAsTag(character, character.Feet, tagOnly)) count++;
+            if (ClassMaterialTagAlias.ItemCountsAsTag(character, character.Legs, tagOnly)) count++;
             if (minCount.HasValue)
                 return count >= minCount.Value;
             return count > 0;
         }
 
-        private static bool ItemHasTag(Item? item, string tag) =>
-            item?.Tags != null && item.Tags.Any(t => string.Equals(t, tag, StringComparison.OrdinalIgnoreCase));
+        private static bool ItemHasTag(Item? item, string tag)
+        {
+            if (item == null || string.IsNullOrWhiteSpace(tag))
+                return false;
+            if (item.Tags != null && item.Tags.Any(t => string.Equals(t, tag, StringComparison.OrdinalIgnoreCase)))
+                return true;
+            if (!string.IsNullOrWhiteSpace(item.Material) &&
+                string.Equals(item.Material, tag, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }
 
         private static bool TargetHasTag(Actor? target, string? tag)
         {

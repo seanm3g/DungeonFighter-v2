@@ -371,7 +371,7 @@
     "progressionScales": {
       "baseHealthScale": 1,
       "healthGrowthScale": 1,
-      "attributeGrowthScale": 1.25,
+      "attributeGrowthScale": 0.5,
       "combatTempoScale": 1,
       "progressionShape": 0.5,
       "playerEnemyParity": 0,

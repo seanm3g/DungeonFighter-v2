@@ -70,6 +70,12 @@ namespace RPGGame
                 ApplyStatBonuses(item, statSuffixes);
                 ApplyActionBonuses(item, actionBonuses, context);
                 ApplyPrefixSlots(item, prefixSlots, context);
+<<<<<<< Updated upstream
+=======
+                EnsureMaterial(item, rarityName, context);
+                MaterialTriggerMerge.ClearCatalogTriggerStamp(item);
+                MaterialTriggerMerge.ApplyMaterialTrigger(item, _random);
+>>>>>>> Stashed changes
                 SyncMaterialPrefixTags(item);
 
                 item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
@@ -109,6 +115,80 @@ namespace RPGGame
             item.RecomputeAttributeRequirementsIncludingModifications();
         }
 
+<<<<<<< Updated upstream
+=======
+        /// <summary>
+        /// Ensures exactly one Material prefix. Weapons use the class ladder; non-weapons pick any material.
+        /// </summary>
+        public void EnsureMaterial(Item item, string? itemRarity = null, LootContext? context = null)
+        {
+            if (item == null)
+                return;
+
+            string rarityName = itemRarity?.Trim()
+                ?? item.Rarity?.Trim()
+                ?? "Common";
+
+            item.Modifications.RemoveAll(m =>
+                m != null && m.GetPrefixCategory() == ModificationPrefixCategory.Material);
+
+            string materialName;
+            if (item.Type == ItemType.Weapon)
+            {
+                materialName = ItemMaterialRules.ResolveWeaponMaterial(item.WeaponType, rarityName);
+            }
+            else
+            {
+                var materialMods = (_dataCache.Modifications ?? new List<Modification>())
+                    .Where(m => m.GetPrefixCategory() == ModificationPrefixCategory.Material);
+                var bias = ItemMaterialRules.GetMarketBiasedMaterials(context?.Player);
+                materialName = ItemMaterialRules.PickNonWeaponMaterial(materialMods, rarityName, _random, bias);
+            }
+
+            var template = (_dataCache.Modifications ?? new List<Modification>())
+                .FirstOrDefault(m =>
+                    m.GetPrefixCategory() == ModificationPrefixCategory.Material
+                    && string.Equals(m.Name?.Trim(), materialName, StringComparison.OrdinalIgnoreCase));
+
+            Modification mod;
+            if (template != null)
+            {
+                mod = CloneRolledModification(template, 0)!;
+            }
+            else
+            {
+                mod = new Modification
+                {
+                    Name = materialName,
+                    PrefixCategory = "MATERIAL",
+                    ItemRank = rarityName,
+                    Description = "Material",
+                    MinValue = 0,
+                    MaxValue = 0,
+                    RolledValue = 0,
+                    Tags = new List<string> { materialName.ToLowerInvariant() }
+                };
+            }
+
+            item.Modifications.Add(mod);
+            item.Material = materialName;
+            item.RecomputeAttributeRequirementsIncludingModifications();
+        }
+
+        /// <summary>
+        /// Ensures Material + one material trigger without rolling Quality/Adjective/suffixes
+        /// (starter weapons, lab helpers).
+        /// </summary>
+        public void ApplyAlwaysMaterialAndTrigger(Item item, string? itemRarity = null)
+        {
+            EnsureMaterial(item, itemRarity);
+            MaterialTriggerMerge.ClearCatalogTriggerStamp(item);
+            MaterialTriggerMerge.ApplyMaterialTrigger(item, _random);
+            SyncMaterialPrefixTags(item);
+            item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
+        }
+
+>>>>>>> Stashed changes
         private static List<ModificationPrefixCategory> SelectCategoriesForPrefixSlotCount(int count, Random rnd)
         {
             var all = new[]

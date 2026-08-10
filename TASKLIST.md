@@ -4,7 +4,15 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+<<<<<<< Updated upstream
 - [x] **Bug fix / UI — animal suffix Triggers hover empty:** Hover showed `Salvage Charm —` with no body (Boar etc.). Root: (1) `ItemTriggerBundleDisplay` matched by WHEN×SCOPE×mech so BoarSuffix collapsed onto SalvageCharm; (2) Stats duplicated the trigger (2 wrap rows) + 18-line hover cap clipped the Triggers wrap continuation after the em dash. Fix: resolve by `IdentityName` + filters; drop Stats duplicate; item hover budget 28. Tests: `ItemTooltipFormatterTests`, `StatBonusAnimalSuffixTriggerTests`.
+=======
+- [x] **Balance / Enemy attribute growth scale 50%:** Active balance patch `7-30-26` `enemySystem.progressionScales.attributeGrowthScale` set to **0.5** (halves STR/AGI/TEC/INT per-level growth after the 6-point budget). Global health/damage multipliers left at **1** / **0.8**. Docs: `OVERVIEW.md`.
+
+- [x] **Progression / Class skills full verify:** Live `SkillTrees.json` effect text is the design contract; runtime uses `customEffectId` (not NL parse). Implemented missing hooks: `ClassMaterialTagAlias` (tribe_metal family → IFCLASSTAG/counts), loot markets (+50% material bias), rites (+15 stat on learn), roll→next-turn banks, cadence (+1 combo per 2 class tags), combat specials (concussive_crit, precision_multihit, dagger crit-miss reroll, AVENGE warrior tag, Concentrated Chaos skip damage). Tests: `SkillEffectMechanicTests`, expanded `SkillEffectRankScalingTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`.
+
+- [x] **Data / Actions — skill-tree unlock rows:** Added missing Class Upgrades unlock actions to `Actions.json`: **MIGHT**, **BLUDGEON**, **CUNNING**, **AVENGE**, **CONCENTRATE**, **CONCENTRATED CHAOS** (`READ BOOK` already present).
+>>>>>>> Stashed changes
 
 - [x] **Bug fix / Action Lab — Req toggle clipped:** Triggers panel pushed `[ Req ]` / `[ !Req ]` below the tools aux canvas (height 44). Moved toggle onto the Back/Step row and raised tools grid to 38×58 (~480×1040). Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`.
 

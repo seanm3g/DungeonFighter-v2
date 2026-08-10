@@ -460,7 +460,7 @@ namespace RPGGame.Actions.Execution
                     enemyForFumble.Effects.AccumulatePendingActionCadenceBank(payload, layers);
                 }
             }
-            var missEvent = ActionEventPublisher.PublishActionMiss(source, target, result.SelectedAction!, result.AttackRoll, result.IsCriticalMiss);
+            var missEvent = ActionEventPublisher.PublishActionMiss(source, target, result.SelectedAction!, result.AttackRoll, result.IsCriticalMiss, result.NaturalRollValue);
             if (result.SelectedAction != null)
             {
                 CombatEffectsSimplified.ApplyStatusEffects(

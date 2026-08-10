@@ -50,6 +50,7 @@ namespace RPGGame.Actions.Execution
                     thresholdManager.AdjustCriticalHitThreshold(gearCharacter, eqCrit);
                 DungeonSearchBuffThresholdApplicator.Apply(gearCharacter, thresholdManager);
                 CadenceScopedBuffApplicator.ApplyThresholds(gearCharacter, thresholdManager);
+                SkillEffectRouter.Instance.ApplyCadenceThresholds(gearCharacter, thresholdManager);
             }
 
             if (CombatTriggerContext.TryGetCritFaceMin(source, out int critFaceMin))
@@ -251,6 +252,22 @@ namespace RPGGame.Actions.Execution
                 result.AttackRoll, result.RollBonus, source.RollPenalty);
             // Critical miss only when crit-eval roll is both <= crit-miss threshold and in miss band (<= hit threshold).
             result.IsCriticalMiss = critThresholdRoll <= criticalMissThreshold && critThresholdRoll <= hitThreshold;
+            if (result.IsCriticalMiss
+                && source is Character daggerHero
+                && daggerHero is not Enemy
+                && SkillEffectRouter.Instance.TryConsumeDaggerCritMissReroll(daggerHero))
+            {
+                // Crit miss with a Dagger: roll again (one salvage per fight).
+                int die2 = Dice.RollUnforced(20);
+                result.ModifiedBaseRoll = die2;
+                result.AttackRoll = result.ModifiedBaseRoll + result.RollBonus;
+                result.NaturalRollValue = result.ModifiedBaseRoll;
+                critThresholdRoll = CombatCalculator.GetCritThresholdEvaluationRoll(
+                    result.AttackRoll, result.RollBonus, source.RollPenalty);
+                result.IsCriticalMiss = critThresholdRoll <= criticalMissThreshold && critThresholdRoll <= hitThreshold;
+                if (!result.IsCriticalMiss)
+                    source.HasCriticalMissPenalty = false;
+            }
             if (result.IsCriticalMiss)
             {
                 source.HasCriticalMissPenalty = true;

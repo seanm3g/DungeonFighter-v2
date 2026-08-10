@@ -66,6 +66,7 @@ namespace RPGGame.Actions.Conditional
                 }
                 case "strip_skip":
                     state.SetPendingRouting(ComboRouter.RoutingAction.SkipNext);
+                    state.SkippedSlotsPassed++;
                     messages.Add($"{character.Name} skips the next combo slot.");
                     return true;
                 case "strip_repeat":

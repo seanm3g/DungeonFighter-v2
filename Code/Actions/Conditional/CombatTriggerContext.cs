@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RPGGame.Actions.Conditional
@@ -20,6 +21,7 @@ namespace RPGGame.Actions.Conditional
         private static readonly ConcurrentDictionary<Actor, byte> NaivetePoolInitialized = new();
         private static readonly ConcurrentDictionary<Actor, int> PendingReplaceRollFaces = new();
         private static readonly ConcurrentDictionary<Actor, int> CritFaceMinOverrides = new();
+        private static readonly ConcurrentDictionary<Actor, HashSet<string>> FightGrantedActionTags = new();
 
         /// <summary>Living enemies in the room when the current fight began (1 = last stand).</summary>
         public static int LivingEnemyCountAtFightStart { get; private set; } = 1;
@@ -37,8 +39,25 @@ namespace RPGGame.Actions.Conditional
             NaivetePoolInitialized.Clear();
             PendingReplaceRollFaces.Clear();
             CritFaceMinOverrides.Clear();
+            FightGrantedActionTags.Clear();
             RetriggerScheduler.ResetForBattle();
             LivingEnemyCountAtFightStart = 1;
+        }
+
+        public static void ClearFightGrantedActionTags() => FightGrantedActionTags.Clear();
+
+        public static void GrantFightActionTag(Actor source, string tag)
+        {
+            if (source == null || string.IsNullOrWhiteSpace(tag)) return;
+            var set = FightGrantedActionTags.GetOrAdd(source, _ => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+            set.Add(tag.Trim());
+        }
+
+        public static bool HasFightActionTag(Actor? source, string? tag)
+        {
+            if (source == null || string.IsNullOrWhiteSpace(tag)) return false;
+            return FightGrantedActionTags.TryGetValue(source, out var set)
+                   && set.Contains(tag.Trim());
         }
 
         public static void SetLivingEnemyCount(int count) =>

@@ -37,6 +37,13 @@ namespace RPGGame.Tests.Runners
             ("CharacterCreationHandler", () => CharacterCreationHandlerTests.RunAllTests()),
             ("DungeonSelectionHandler", () => DungeonSelectionHandlerTests.RunAllTests()),
             ("RegionTravelHandler", () => RegionTravelHandlerTests.RunAllTests()),
+<<<<<<< Updated upstream
+=======
+            ("SkillTreeProgression", () => SkillTreeProgressionTests.RunAllTests()),
+            ("SkillEffectRankScaling", () => SkillEffectRankScalingTests.RunAllTests()),
+            ("SkillEffectMechanic", () => SkillEffectMechanicTests.RunAllTests()),
+            ("ClassActionManager", () => ClassActionManagerTests.RunAllTests()),
+>>>>>>> Stashed changes
             ("TravelRouteColoredTextFormatter", () => TravelRouteColoredTextFormatterTests.RunAllTests()),
             ("DungeonCompletionHandler", () => DungeonCompletionHandlerTests.RunAllTests()),
             ("GameLoopInputHandler", () => GameLoopInputHandlerTests.RunAllTests()),

@@ -15,6 +15,9 @@ namespace RPGGame
         /// </summary>
         public string? PlayerClass { get; set; }
 
+        /// <summary>Looting character — used for skill-tree market material bias.</summary>
+        public Character? Player { get; set; }
+
         /// <summary>
         /// The dungeon theme (Forest, Lava, Crypt, etc.)
         /// Used to bias modifications toward thematic ones
@@ -43,6 +46,7 @@ namespace RPGGame
         {
             var context = new LootContext
             {
+                Player = player,
                 PlayerClass = player != null ? player.GetCurrentClass() : null,
                 DungeonTheme = dungeonTheme,
                 EnemyArchetype = enemyArchetype

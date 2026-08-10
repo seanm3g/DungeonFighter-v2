@@ -57,6 +57,16 @@ DungeonFighter/
 - **`Code/Entity/CharacterHealthManager.cs`** - Health management, damage, and healing logic
 - **`Code/Entity/CharacterCombatCalculator.cs`** - Combat calculations and stat computations
 - **`Code/Entity/CharacterSaveManager.cs`** - Save/load functionality for character data
+<<<<<<< Updated upstream
+=======
+- **`Code/Config/SkillTreesConfig.cs`** + **`GameData/SkillTrees.json`** - Four class skill trees (Bronze Skin / Iron Discipline / Shadowcraft / Arcane Weave). On load/pull, `PromoteLevelOneAsRoot` makes **Level 1 - {Class}** (material-tag unlock) the free Core root; identity passives (e.g. Bronze Skin) become T1 children. Node costs are **1 SP per rank** (roots free); Action nodes maxRank 1; scalable Passive/Mastery sinks allow up to maxRank 5. **`effect` text is the design contract**; runtime mechanics are keyed by **`customEffectId`** (not NL parse). Action nodes also use **`unlockActionName`** → `Actions.json`.
+- **`Code/Data/SkillTreesSheetConverter.cs`** - Class Upgrades sheet (gid `829575756`) ↔ `SkillTrees.json` flatten/nest for Sheets pull/push
+- **`Code/Game/SkillTree/ClassMaterialTagAlias.cs`** - Level-1 roots make class-ladder materials count as class tags (cadence, ages, loot bias, `IFCLASSTAG`)
+- **`Code/Game/SkillTree/SkillTreeService.cs`** - Learn API, node view state, action unlock names; rite passives (+15 STR/AGI/TEC/INT) on first learn
+- **`Code/Game/SkillTree/SkillEffectRouter.cs`** - CombatEventBus passive/rule/mastery runtime (ages, prefers, streaks, roll banks, combat specials, cadence thresholds)
+- **`Code/Game/SkillTreeMenuHandler.cs`** - GameLoop hub (`GameState.SkillTree`) learn UI (no respec)
+- **Loot markets** - `blood_market` / `muster_hall` / `black_market` / `reagent_market` bias non-weapon material picks via `LootContext.Player` + `ItemMaterialRules`
+>>>>>>> Stashed changes
 
 ### **Character Actions System (Phase 1 Refactoring ✅ COMPLETE)**
 The CharacterActions system has been successfully refactored from a 828-line monolithic class into 5 focused, testable managers using the Facade pattern. **Cleanup completed** - old code removed, facade now 170 lines.

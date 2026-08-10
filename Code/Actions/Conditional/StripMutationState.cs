@@ -12,6 +12,9 @@ namespace RPGGame.Actions.Conditional
     {
         public HashSet<int> DisabledSlots { get; } = new();
 
+        /// <summary>Count of strip_skip / SkipNext routing events this fight (for Concentrated Chaos).</summary>
+        public int SkippedSlotsPassed { get; set; }
+
         /// <summary>
         /// When non-null, maps logical play order index → physical strip index for the fight.
         /// Length must match strip length when applied.
@@ -29,6 +32,7 @@ namespace RPGGame.Actions.Conditional
         public void Clear()
         {
             DisabledSlots.Clear();
+            SkippedSlotsPassed = 0;
             ShufflePermutation = null;
             ClearPendingRouting();
             ReplaceNextActionName = null;

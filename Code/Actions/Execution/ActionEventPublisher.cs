@@ -64,13 +64,14 @@ namespace RPGGame.Actions.Execution
         /// <summary>
         /// Publishes action miss event
         /// </summary>
-        public static CombatEvent PublishActionMiss(Actor source, Actor target, Action action, int rollValue, bool isCriticalMiss = false)
+        public static CombatEvent PublishActionMiss(Actor source, Actor target, Action action, int rollValue, bool isCriticalMiss = false, int naturalRollValue = 0)
         {
             var missEvent = new CombatEvent(CombatEventType.ActionMiss, source)
             {
                 Target = target,
                 Action = action,
                 RollValue = rollValue,
+                NaturalRollValue = naturalRollValue,
                 IsMiss = true,
                 IsCriticalMiss = isCriticalMiss
             };
