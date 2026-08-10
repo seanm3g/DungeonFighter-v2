@@ -57,11 +57,11 @@ DungeonFighter/
 - **`Code/Entity/CharacterHealthManager.cs`** - Health management, damage, and healing logic
 - **`Code/Entity/CharacterCombatCalculator.cs`** - Combat calculations and stat computations
 - **`Code/Entity/CharacterSaveManager.cs`** - Save/load functionality for character data
-- **`Code/Config/SkillTreesConfig.cs`** + **`GameData/SkillTrees.json`** - Four class skill trees (Bronze Skin / Iron Discipline / Shadowcraft / Arcane Weave). On load/pull, `PromoteLevelOneAsRoot` makes **Level 1 - {Class}** (material-tag unlock) the free Core root; identity passives (e.g. Bronze Skin) become T1 children. Node costs are **1 SP per rank** (roots free); Action nodes maxRank 1; scalable Passive/Mastery sinks allow up to maxRank 5.
-- **`Code/Data/SkillTreesSheetConverter.cs`** - Class Upgrades sheet (gid `829575756`) ↔ `SkillTrees.json` flatten/nest for Sheets pull/push
-- **`Code/Game/SkillTree/SkillTreeService.cs`** - Learn API, node view state, action unlock names
+- **`Code/Config/SkillTreesConfig.cs`** + **`GameData/SkillTrees.json`** - Four class skill trees (Bronze Skin / Iron Discipline / Shadowcraft / Arcane Weave). On load/pull, `PromoteLevelOneAsRoot` makes **Level 1 - {Class}** (material-tag unlock) the free Core root; identity passives (e.g. Bronze Skin) become T1 children. Node costs are **1 SP per rank** (roots free); Action nodes maxRank 1; scalable Passive/Mastery sinks allow up to maxRank 5. Optional `sharedWith` (weapon/class keys) marks nodes that appear on the hybrid **side rail** when that path is secondary.
+- **`Code/Data/SkillTreesSheetConverter.cs`** - Class Upgrades sheet (gid `829575756`) ↔ `SkillTrees.json` flatten/nest for Sheets pull/push (includes `SharedWith`)
+- **`Code/Game/SkillTree/SkillTreeService.cs`** - Learn API, node view state, action unlock names, Concept A shared-rail display model (`BuildDisplayModel` / `GetSharedRailNodes`)
 - **`Code/Game/SkillTree/SkillEffectRouter.cs`** - CombatEventBus passive/rule/mastery runtime
-- **`Code/Game/SkillTreeMenuHandler.cs`** - GameLoop hub (`GameState.SkillTree`) learn UI (no respec)
+- **`Code/Game/SkillTreeMenuHandler.cs`** - GameLoop hub (`GameState.SkillTree`) learn UI (no respec); primary tree + optional shared secondary rail
 
 ### **Character Actions System (Phase 1 Refactoring ✅ COMPLETE)**
 The CharacterActions system has been successfully refactored from a 828-line monolithic class into 5 focused, testable managers using the Facade pattern. **Cleanup completed** - old code removed, facade now 170 lines.

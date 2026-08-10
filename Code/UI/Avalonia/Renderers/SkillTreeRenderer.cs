@@ -27,6 +27,10 @@ namespace RPGGame.UI.Avalonia.Renderers
         private const int MinNodeWidth = 12;
         private const int MaxNodeWidth = 18;
 
+        public const int RailGap = 2;
+        public const int RailMinWidth = 14;
+        public const int RailMaxWidth = 18;
+
         private readonly GameCanvasControl canvas;
         private readonly List<ClickableElement> clickableElements;
 
@@ -49,6 +53,47 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public static int GetMaxTier(IReadOnlyList<SkillTreeNodeDefinition> nodes) =>
             nodes == null || nodes.Count == 0 ? 0 : nodes.Max(n => n.Tier);
+
+        public static int GetRailContentHeight(IReadOnlyList<SkillTreeNodeDefinition> railNodes)
+        {
+            if (railNodes == null || railNodes.Count == 0)
+                return 0;
+            // Title row + stacked nodes (same stride as tree cards).
+            return 1 + railNodes.Count * NodeHeight + Math.Max(0, railNodes.Count - 1) * StackGap;
+        }
+
+        public static int GetRailNodeTopCell(int railIndex) =>
+            1 + Math.Max(0, railIndex) * (NodeHeight + StackGap);
+
+        public static int GetDisplayContentHeight(SkillTreeDisplayModel model)
+        {
+            int primaryH = model.PrimaryNodes.Count > 0 ? GetTreeContentHeight(model.PrimaryNodes) : 0;
+            int railH = GetRailContentHeight(model.RailNodes);
+            return Math.Max(primaryH, railH);
+        }
+
+        public static int GetNodeTopForDisplay(SkillTreeDisplayModel model, int allIndex)
+        {
+            if (model.IsRailIndex(allIndex))
+                return GetRailNodeTopCell(model.RailIndexOf(allIndex));
+            var node = model.AllNodes[allIndex];
+            return GetNodeTopCell(node, model.PrimaryNodes);
+        }
+
+        public static int GetNodeBottomForDisplay(SkillTreeDisplayModel model, int allIndex) =>
+            GetNodeTopForDisplay(model, allIndex) + NodeHeight;
+
+        public static int GetColumnForDisplay(SkillTreeDisplayModel model, int allIndex)
+        {
+            if (model.IsRailIndex(allIndex))
+            {
+                var branches = BuildBranchOrder(model.PrimaryNodes);
+                return Math.Max(1, branches.Count); // one past last tree column
+            }
+            var branchesP = BuildBranchOrder(model.PrimaryNodes);
+            int centerCol = Math.Max(0, branchesP.Count / 2);
+            return ResolveColumn(model.AllNodes[allIndex], branchesP, centerCol);
+        }
 
         /// <summary>
         /// Content-space layout: highest tiers sit below <see cref="TopHeadroom"/> empty rows
@@ -189,14 +234,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             int contentWidth = Math.Max(28, width - 2);
             int currentY = y + 1;
 
-            player.Progression.EnsureSkillTreeRootsGranted();
-            var tree = SkillTreeService.GetPrimaryTree(player.Progression);
-            var primary = player.Progression.GetPrimaryClassWeaponType();
+            var model = SkillTreeService.BuildDisplayModel(player.Progression);
+            var tree = model.PrimaryTree;
+            var primary = model.PrimaryPath;
 
             canvas.AddText(left, currentY, "SKILL TREE", AsciiArtAssets.Colors.Gold);
             currentY += 2;
 
-            if (tree == null || primary == null)
+            if (tree == null || primary == null || model.PrimaryNodes.Count == 0)
             {
                 foreach (var line in TextWrapper.WrapText(
                              "Equip a weapon and earn Skill Points to open your primary path tree.",
@@ -217,44 +262,65 @@ namespace RPGGame.UI.Avalonia.Renderers
             int available = player.Progression.GetAvailableSkillPoints(primary.Value);
 
             canvas.AddText(left, currentY++, tree.Title, AsciiArtAssets.Colors.White);
-            canvas.AddText(left, currentY++,
-                $"SP  avail {available}  /  invested {spent}  /  lifetime {lifetime}",
-                AsciiArtAssets.Colors.Cyan);
-
-            var nodes = OrderNodes(tree.Nodes);
-            if (nodes.Count == 0)
+            if (model.HasRail && model.SecondaryPath != null)
             {
-                canvas.AddText(left, currentY++, "No nodes defined.", AsciiArtAssets.Colors.Gray);
-                AddBackOption(left, currentY + 1, contentWidth);
-                return currentY - y + 2;
+                int secLife = player.Progression.GetClassPoints(model.SecondaryPath.Value);
+                int secSpent = player.Progression.GetSpentSkillPoints(model.SecondaryPath.Value);
+                int secAvail = player.Progression.GetAvailableSkillPoints(model.SecondaryPath.Value);
+                string duoBit = string.IsNullOrWhiteSpace(model.DuoName) ? "" : $"  ·  duo: {model.DuoName}";
+                canvas.AddText(left, currentY++,
+                    Truncate(
+                        $"SP  {primary} avail {available}/{lifetime}  ·  {model.SecondaryPath} avail {secAvail}/{secLife}{duoBit}",
+                        contentWidth),
+                    AsciiArtAssets.Colors.Cyan);
+            }
+            else
+            {
+                canvas.AddText(left, currentY++,
+                    $"SP  avail {available}  /  invested {spent}  /  lifetime {lifetime}",
+                    AsciiArtAssets.Colors.Cyan);
             }
 
+            var nodes = model.AllNodes;
             selectedIndex = Math.Clamp(selectedIndex, 0, nodes.Count - 1);
-            var branchOrder = BuildBranchOrder(nodes);
+            var primaryNodes = model.PrimaryNodes;
+            var branchOrder = BuildBranchOrder(primaryNodes);
             int colCount = Math.Max(1, branchOrder.Count);
+
+            bool showRail = model.HasRail;
+            int railWidth = showRail ? Math.Clamp(RailMaxWidth, RailMinWidth, Math.Min(RailMaxWidth, contentWidth / 3)) : 0;
+            int treeBandWidth = showRail
+                ? Math.Max(MinNodeWidth * colCount, contentWidth - railWidth - RailGap)
+                : contentWidth;
 
             int treeTop = currentY + 1;
             int headerUsed = treeTop - y;
             int viewportHeight = GetTreeViewportHeight(height, headerUsed);
-            int contentHeight = GetTreeContentHeight(nodes);
+            int contentHeight = GetDisplayContentHeight(model);
             scrollOffset = NormalizeScrollOffset(scrollOffset, contentHeight, viewportHeight);
             LastViewportHeight = viewportHeight;
             LastContentHeight = contentHeight;
             LastAppliedScrollOffset = scrollOffset;
 
-            int nodeWidth = Math.Clamp((contentWidth - (colCount - 1)) / colCount, MinNodeWidth, MaxNodeWidth);
+            int nodeWidth = Math.Clamp((treeBandWidth - (colCount - 1)) / colCount, MinNodeWidth, MaxNodeWidth);
             int treeWidth = colCount * nodeWidth + Math.Max(0, colCount - 1);
-            int treeLeft = left + Math.Max(0, (contentWidth - treeWidth) / 2);
+            int treeLeft = left + Math.Max(0, (treeBandWidth - treeWidth) / 2);
             int viewportBottom = treeTop + viewportHeight;
 
             // Opaque tree backdrop so scrolled frames do not show leftover glyphs through gaps.
             canvas.AddBox(left, treeTop, contentWidth, viewportHeight,
                 AsciiArtAssets.Colors.Gray, Color.FromRgb(12, 12, 16));
 
-            var layout = ComputeContentLayout(nodes);
-            var placements = BuildPlacements(nodes, branchOrder, treeLeft, treeTop, nodeWidth, scrollOffset, layout);
+            var layout = ComputeContentLayout(primaryNodes);
+            var placements = BuildPlacements(primaryNodes, branchOrder, treeLeft, treeTop, nodeWidth, scrollOffset, layout);
             DrawConnectors(placements, treeTop, viewportBottom);
-            DrawNodes(player, placements, selectedIndex, treeTop, viewportBottom);
+            DrawNodes(player, placements, selectedIndex, treeTop, viewportBottom, isRail: false);
+
+            if (showRail)
+            {
+                int railLeft = left + treeBandWidth + RailGap;
+                DrawSharedRail(player, model, railLeft, railWidth, treeTop, viewportBottom, scrollOffset, selectedIndex);
+            }
 
             if (contentHeight > viewportHeight)
             {
@@ -265,7 +331,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             int detailY = viewportBottom + 1;
             int detailMax = y + height - FooterReserve;
-            detailY = DrawDetail(player, nodes[selectedIndex], left, detailY, contentWidth, statusMessage, detailMax);
+            detailY = DrawDetail(player, model, selectedIndex, left, detailY, contentWidth, statusMessage, detailMax);
             if (detailY < detailMax)
             {
                 canvas.AddText(left, detailY, "Arrows=move  L=Learn  Click=select  0=Back", AsciiArtAssets.Colors.Gray);
@@ -279,12 +345,83 @@ namespace RPGGame.UI.Avalonia.Renderers
             return Math.Min(height, detailY - y + 2);
         }
 
+        private void DrawSharedRail(
+            Character player,
+            SkillTreeDisplayModel model,
+            int railLeft,
+            int railWidth,
+            int clipTop,
+            int clipBottom,
+            int scrollOffset,
+            int selectedIndex)
+        {
+            string title = Truncate(model.RailTitle ?? "SHARED", railWidth);
+            int pinnedTitleY = clipTop;
+            if (pinnedTitleY >= clipTop && pinnedTitleY < clipBottom)
+                canvas.AddText(railLeft, pinnedTitleY, title, AsciiArtAssets.Colors.Magenta);
+
+            var railNodes = model.RailNodes;
+            int primaryCount = model.PrimaryCount;
+            for (int i = 0; i < railNodes.Count; i++)
+            {
+                int allIndex = primaryCount + i;
+                int contentTop = GetRailNodeTopCell(i);
+                int absY = clipTop + contentTop - scrollOffset;
+                if (absY < clipTop || absY + NodeHeight > clipBottom)
+                    continue;
+
+                var node = railNodes[i];
+                var state = SkillTreeService.GetNodeState(player.Progression, node);
+                int rank = player.Progression.GetSkillRank(node.Id);
+                int maxRank = Math.Max(1, node.MaxRank);
+                bool selected = allIndex == selectedIndex;
+                Color border = selected
+                    ? AsciiArtAssets.Colors.Yellow
+                    : state switch
+                    {
+                        SkillTreeService.NodeViewState.Maxed => AsciiArtAssets.Colors.Green,
+                        SkillTreeService.NodeViewState.Available => AsciiArtAssets.Colors.Cyan,
+                        SkillTreeService.NodeViewState.Unaffordable => AsciiArtAssets.Colors.Yellow,
+                        SkillTreeService.NodeViewState.Locked => AsciiArtAssets.Colors.Gray,
+                        _ => AsciiArtAssets.Colors.Gray
+                    };
+                Color fill = selected
+                    ? Color.FromRgb(48, 28, 56)
+                    : Color.FromRgb(22, 16, 28);
+
+                canvas.AddBox(railLeft, absY, railWidth, NodeHeight, border, fill,
+                    borderThicknessPixels: selected ? 3 : 1);
+
+                string name = Truncate(selected ? $">{node.Name}" : node.Name, railWidth - 2);
+                canvas.AddText(railLeft + 1, absY + 1, name,
+                    selected ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White);
+
+                string stateTag = state switch
+                {
+                    SkillTreeService.NodeViewState.Maxed => $"R{rank}/{maxRank}",
+                    SkillTreeService.NodeViewState.Available => rank > 0 ? $"R{rank}/{maxRank}+" : "BUY",
+                    SkillTreeService.NodeViewState.Unaffordable => rank > 0 ? $"R{rank}/{maxRank}$" : "$$$",
+                    SkillTreeService.NodeViewState.Locked => "LCK",
+                    _ => "---"
+                };
+                string meta = Truncate($"T{node.Tier} SHR {node.Cost}SP {stateTag}", railWidth - 2);
+                canvas.AddText(railLeft + 1, absY + 2, meta, border);
+
+                clickableElements.Add(new ClickableElement
+                {
+                    X = railLeft,
+                    Y = absY,
+                    Width = railWidth,
+                    Height = NodeHeight,
+                    Type = ElementType.Button,
+                    Value = (allIndex + 1).ToString(),
+                    DisplayText = node.Name
+                });
+            }
+        }
+
         public static IReadOnlyList<SkillTreeNodeDefinition> OrderNodes(IEnumerable<SkillTreeNodeDefinition> source) =>
-            source
-                .OrderBy(n => n.Tier)
-                .ThenBy(n => n.Branch, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(n => n.Name, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            SkillTreeService.OrderNodes(source);
 
         public static List<string> BuildBranchOrder(IReadOnlyList<SkillTreeNodeDefinition> nodes)
         {
@@ -406,7 +543,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             List<NodePlacement> placements,
             int selectedIndex,
             int clipTop,
-            int clipBottom)
+            int clipBottom,
+            bool isRail)
         {
             for (int i = 0; i < placements.Count; i++)
             {
@@ -445,7 +583,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                     SkillTreeService.NodeViewState.Locked => "LCK",
                     _ => "---"
                 };
-                string meta = Truncate($"T{p.Node.Tier} {ShortType(p.Node.Type)} {p.Node.Cost}SP {stateTag}", p.W - 2);
+                string shareTag = isRail ? "SHR " : "";
+                string meta = Truncate($"T{p.Node.Tier} {ShortType(p.Node.Type)} {shareTag}{p.Node.Cost}SP {stateTag}", p.W - 2);
                 canvas.AddText(p.X + 1, p.Y + 2, meta, border);
 
                 clickableElements.Add(new ClickableElement
@@ -463,7 +602,8 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         private int DrawDetail(
             Character player,
-            SkillTreeNodeDefinition selected,
+            SkillTreeDisplayModel model,
+            int selectedIndex,
             int left,
             int y,
             int width,
@@ -471,12 +611,23 @@ namespace RPGGame.UI.Avalonia.Renderers
             int maxY)
         {
             if (y >= maxY) return y;
+            var selected = model.AllNodes[Math.Clamp(selectedIndex, 0, model.AllNodes.Count - 1)];
+            bool onRail = model.IsRailIndex(selectedIndex);
+            var ownerPath = SkillTreeService.FindOwnerPath(selected);
             var state = SkillTreeService.GetNodeState(player.Progression, selected);
             canvas.AddText(left, y++, "DETAIL", AsciiArtAssets.Colors.Gold);
             if (y >= maxY) return y;
             canvas.AddText(left, y++,
                 Truncate($"{selected.Name}  ·  {selected.Type}  ·  Tier {selected.Tier}  ·  {selected.Cost} SP/rank  ·  R{player.Progression.GetSkillRank(selected.Id)}/{Math.Max(1, selected.MaxRank)}", width),
                 AsciiArtAssets.Colors.Cyan);
+
+            if (onRail && ownerPath != null && y < maxY)
+            {
+                string duo = string.IsNullOrWhiteSpace(model.DuoName) ? "Shared" : model.DuoName!;
+                canvas.AddText(left, y++,
+                    Truncate($"{duo} rail · spends {ownerPath} Skill Points", width),
+                    AsciiArtAssets.Colors.Magenta);
+            }
 
             foreach (var line in TextWrapper.WrapText(selected.Effect ?? "", width).Take(2))
             {
@@ -508,7 +659,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                         player.Progression.GetSkillRank(selected.Id) > 0
                             ? "Press L or click Learn to raise rank."
                             : "Press L or click Learn to unlock.",
-                    SkillTreeService.NodeViewState.Unaffordable => "Not enough Skill Points.",
+                    SkillTreeService.NodeViewState.Unaffordable => "Not enough Skill Points on this path.",
                     SkillTreeService.NodeViewState.Locked => "Prerequisites not met.",
                     _ => "Cannot spend on this path."
                 };

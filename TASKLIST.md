@@ -10,6 +10,7 @@ This file tracks the work currently in progress. Only items listed here should b
 
 - [x] **UI / item tooltips show Tags:** Hover tips and item-stats panels list `Item.Tags` (material, class, starter, …) after rarity / type. `ItemTooltipFormatter`, `ItemStatsFormatter`. Tests: `ItemTooltipFormatterTests`. Docs: `OVERVIEW.md`.
 
+- [x] **Progression / Skill tree — hybrid side rail (Concept A):** Secondary-path nodes tagged `sharedWith` appear beside the primary tree; spend uses owner-path SP. `SkillTreeService.BuildDisplayModel`, `SkillTreeRenderer` rail, Sheets `SharedWith` column. Tests: `SkillTreeProgressionTests`, `SkillTreesSheetConverterTests`.
 - [x] **Progression / Skill tree — Level 1 class node is free Core root:** Class Upgrades `Level 1 - {Class}` (e.g. Level 1 - Barbarian: Bone/Steel/Damascus count as Barbarian tags) is promoted to the auto-granted Core root (`SkillTreesConfig.PromoteLevelOneAsRoot` on load/pull). Former identity roots (Bronze Skin, …) become T1 requiring Level 1. Tests: `SkillTreeProgressionTests`, `SkillTreesSheetConverterTests`. Docs: `OVERVIEW.md`.
 
 - [x] **Data / Sheets — Class Upgrades tab ↔ SkillTrees.json:** Tab **Class Upgrades** (gid `829575756`) pull/push via `skillTreesSheetUrl` / `skillTreesSheetTabName` / `pushSkillTreesTab`; `SkillTreesSheetConverter` flattens nested trees and heals blank UnlockAction/Requires column shifts. Balance Tuning gid + checkbox. Tests: `SkillTreesSheetConverterTests`, `SheetsPushConfigTests`. Docs: `GOOGLE_SHEETS_INTEGRATION.md`, `OVERVIEW.md`, `ARCHITECTURE.md`.

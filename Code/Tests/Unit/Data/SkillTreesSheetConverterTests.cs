@@ -20,6 +20,7 @@ namespace RPGGame.Tests.Unit.Data
             PreserveIdentityFromPrior(ref run, ref pass, ref fail);
             RoundTripPushPull(ref run, ref pass, ref fail);
             PromoteLevelOneAsRootOnNormalize(ref run, ref pass, ref fail);
+            ParseSharedWithColumn(ref run, ref pass, ref fail);
 
             TestBase.PrintSummary("SkillTreesSheetConverter Tests", run, pass, fail);
         }
@@ -215,6 +216,28 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual("b-tribe", gut.Requires.Single(), "former b-root prereq remapped to Level 1", ref run, ref pass, ref fail);
 
             TestBase.AssertEqual("b-tribe", cfg.GetRootNodeId(WeaponType.Mace), "GetRootNodeId is Level 1", ref run, ref pass, ref fail);
+        }
+
+        private static void ParseSharedWithColumn(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(ParseSharedWithColumn));
+            string csv =
+                "Class,Tree,Weapon,Name,Effect,Payoff,UnlockAction,Requires,Type,Stat,Id,Branch,Tier,Cost,CustomEffectId,SharedWith\n" +
+                "Wizard,Arcane Weave,Wand,First Glyph,+8% AMP,Payoff,,,Passive,INT,z-age1,Circle,1,1,first_glyph,\"Sword,Warrior\"\n";
+
+            var cfg = SkillTreesSheetConverter.ParseCsvToConfig(csv);
+            var node = cfg.Trees.Single().Nodes.Single();
+            TestBase.AssertTrue(node.SharedWith.Count >= 1, "sharedWith parsed", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(node.IsSharedWith(WeaponType.Sword), "sharedWith resolves to Sword", ref run, ref pass, ref fail);
+
+            var rows = SkillTreesSheetConverter.BuildPushValueRows(cfg);
+            TestBase.AssertEqual("SharedWith", rows[0][15].ToString(), "push header includes SharedWith", ref run, ref pass, ref fail);
+            string cell = rows[1][15].ToString() ?? "";
+            TestBase.AssertTrue(
+                cell.Contains("Sword", StringComparison.OrdinalIgnoreCase)
+                || cell.Contains("Warrior", StringComparison.OrdinalIgnoreCase),
+                "push writes sharedWith cell",
+                ref run, ref pass, ref fail);
         }
     }
 }

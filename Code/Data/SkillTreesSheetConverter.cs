@@ -16,7 +16,8 @@ namespace RPGGame.Data
         public static readonly string[] CanonicalHeaders =
         {
             "Class", "Tree", "Weapon", "Name", "Effect", "Payoff",
-            "UnlockAction", "Requires", "Type", "Stat", "Id", "Branch", "Tier", "Cost", "CustomEffectId"
+            "UnlockAction", "Requires", "Type", "Stat", "Id", "Branch", "Tier", "Cost", "CustomEffectId",
+            "SharedWith"
         };
 
         private static readonly HashSet<string> NodeTypes = new(StringComparer.OrdinalIgnoreCase)
@@ -113,6 +114,7 @@ namespace RPGGame.Data
                 int.TryParse(fields[13].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int cost);
                 string unlock = fields[6].Trim();
                 string custom = fields[14].Trim();
+                string sharedWithCell = fields.Length > 15 ? fields[15].Trim() : "";
                 string type = fields[8].Trim();
                 if (string.IsNullOrWhiteSpace(type) || !NodeTypes.Contains(type))
                     type = "Passive";
@@ -129,7 +131,8 @@ namespace RPGGame.Data
                     Effect = fields[4] ?? "",
                     Payoff = fields[5] ?? "",
                     UnlockActionName = string.IsNullOrWhiteSpace(unlock) ? null : unlock,
-                    CustomEffectId = string.IsNullOrWhiteSpace(custom) ? null : custom
+                    CustomEffectId = string.IsNullOrWhiteSpace(custom) ? null : custom,
+                    SharedWith = ParseRequires(sharedWithCell)
                 });
             }
 
@@ -165,7 +168,8 @@ namespace RPGGame.Data
                         node.Branch ?? "",
                         node.Tier.ToString(CultureInfo.InvariantCulture),
                         node.Cost.ToString(CultureInfo.InvariantCulture),
-                        node.CustomEffectId ?? node.Id ?? ""
+                        node.CustomEffectId ?? node.Id ?? "",
+                        string.Join(",", node.SharedWith ?? new List<string>())
                     });
                 }
             }
@@ -272,6 +276,7 @@ namespace RPGGame.Data
             Set(12, cols.Tier);
             Set(13, cols.Cost);
             Set(14, cols.CustomEffectId);
+            Set(15, cols.SharedWith);
             return fields;
         }
 
@@ -289,7 +294,7 @@ namespace RPGGame.Data
                 {
                     Class = -1, Tree = -1, Weapon = -1, Name = -1, Effect = -1, Payoff = -1,
                     UnlockAction = -1, Requires = -1, Type = -1, Stat = -1, Id = -1,
-                    Branch = -1, Tier = -1, Cost = -1, CustomEffectId = -1
+                    Branch = -1, Tier = -1, Cost = -1, CustomEffectId = -1, SharedWith = -1
                 };
 
                 for (int col = 0; col < cells.Length; col++)
@@ -327,6 +332,8 @@ namespace RPGGame.Data
                         map.Cost = col;
                     else if (h is "customeffectid" or "custom effect id" or "effectid")
                         map.CustomEffectId = col;
+                    else if (h is "sharedwith" or "shared with" or "shared")
+                        map.SharedWith = col;
                 }
 
                 if (map.Class >= 0 && map.Id >= 0 && map.Name >= 0 && map.Type >= 0)
@@ -343,7 +350,7 @@ namespace RPGGame.Data
         private struct ColumnMap
         {
             public int Class, Tree, Weapon, Name, Effect, Payoff;
-            public int UnlockAction, Requires, Type, Stat, Id, Branch, Tier, Cost, CustomEffectId;
+            public int UnlockAction, Requires, Type, Stat, Id, Branch, Tier, Cost, CustomEffectId, SharedWith;
         }
     }
 }

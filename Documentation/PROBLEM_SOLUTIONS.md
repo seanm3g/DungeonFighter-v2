@@ -26,11 +26,22 @@ This document contains solutions to common problems encountered during developme
 1. Keep `BarbarianPoints` / `WarriorPoints` / `RoguePoints` / `WizardPoints` as **lifetime** Skill Points
 2. Spent amount is derived from learned node costs in `SkillTrees.json`; `Available = Lifetime − Spent`
 3. `TryLearnSkillNode` never calls `RemoveClassPoint`; roots auto-grant at cost 0 when a path has ≥1 lifetime point
-4. Hub: `GameState.SkillTree` beside Inventory; primary path only for spending; learned nodes stay active if path is no longer primary
+4. Hub: `GameState.SkillTree` beside Inventory; spend on the **primary** path tree, plus **shared secondary-rail** nodes (`sharedWith` containing the primary weapon/class) which spend **owner-path** SP; learned nodes stay active if path is no longer primary
 5. Default node cost is **1 SP per rank** (`TierCosts` fallback `{0,1,1,1,1}`); Action nodes are forced to cost 1 / maxRank 1; scalable Passive/Mastery sinks use maxRank up to 5 and their combat bonuses multiply by learned rank in `SkillEffectRouter`
 6. Tests: `SkillTreeProgressionTests`, `SkillEffectRankScalingTests`, updated `ClassActionManagerTests`
 
-**Related files:** `CharacterProgression.cs`, `SkillTreesConfig.cs`, `SkillTreeService.cs`, `SkillEffectRouter.cs`, `SkillTreeMenuHandler.cs`, `ClassActionManager.cs`, `GameData/SkillTrees.json`
+**Related files:** `CharacterProgression.cs`, `SkillTreesConfig.cs`, `SkillTreeService.cs`, `SkillEffectRouter.cs`, `SkillTreeMenuHandler.cs`, `SkillTreeRenderer.cs`, `ClassActionManager.cs`, `GameData/SkillTrees.json`
+
+### Hybrid skill side rail — Concept A (August 2026)
+**Problem:** Hybrid titles (Spellblade, Warbrute, …) existed without a skill UI for secondary-path skills, and showing all four trees was too overwhelming.
+
+**Solutions:**
+1. Tag selected secondary-tree nodes with `sharedWith: ["Sword"]` (weapon or class key)
+2. When a secondary path exists, `SkillTreeService.GetSharedRailNodes` lists those nodes beside the primary tree
+3. `SkillTreeRenderer` draws a magenta **SHARED / {Duo}** rail; detail notes which path’s SP pays
+4. Spend still path-tagged (Wand rail node costs Wand SP); non-shared secondary nodes stay `WrongPath` / `NotPrimaryPath`
+
+**Related files:** `SkillTreesConfig.cs`, `SkillTreeService.cs`, `SkillTreeRenderer.cs`, `SkillTreeMenuHandler.cs`, `SkillTreesSheetConverter.cs`, `GameData/SkillTrees.json`
 
 ### Bug fix: Return to main menu after character snapshot appeared to quit (July 2026)
 **Problem:** After Inventory → Snapshot for Action Lab, returning to the main menu (Game Loop → **0**) did nothing on screen, then another **0** closed the app.

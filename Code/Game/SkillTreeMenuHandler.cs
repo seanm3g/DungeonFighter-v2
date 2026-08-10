@@ -9,6 +9,7 @@ namespace RPGGame
 {
     /// <summary>
     /// GameLoop hub handler for viewing and permanently learning skill-tree nodes (no respec).
+    /// Concept A: primary tree plus optional shared/hybrid side rail from the secondary path.
     /// </summary>
     public class SkillTreeMenuHandler
     {
@@ -93,7 +94,8 @@ namespace RPGGame
                 return;
             }
 
-            var nodes = GetDisplayNodes(player);
+            var model = SkillTreeService.BuildDisplayModel(player.Progression);
+            var nodes = model.AllNodes;
             if (nodes.Count == 0)
             {
                 statusMessage = "Equip a weapon and earn Skill Points to open a skill tree.";
@@ -103,14 +105,14 @@ namespace RPGGame
 
             int beforeSelection = selectedIndex;
 
-            if (TryScroll(trimmed, nodes))
+            if (TryScroll(trimmed, model))
             {
                 statusMessage = null;
                 Render(ensureSelectionVisible: false);
                 return;
             }
 
-            if (TryMoveSelection(trimmed, nodes))
+            if (TryMoveSelection(trimmed, model))
             {
                 statusMessage = null;
                 bool selectionChanged = selectedIndex != beforeSelection;
@@ -121,7 +123,7 @@ namespace RPGGame
             if (string.Equals(trimmed, "l", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(trimmed, "enter", StringComparison.OrdinalIgnoreCase))
             {
-                TryLearnSelected(player, nodes);
+                TryLearnSelected(player, model);
                 return;
             }
 
@@ -137,7 +139,7 @@ namespace RPGGame
             Render(ensureSelectionVisible: false);
         }
 
-        private bool TryScroll(string input, IReadOnlyList<SkillTreeNodeDefinition> nodes)
+        private bool TryScroll(string input, SkillTreeDisplayModel model)
         {
             string key = input.ToLowerInvariant();
             int step = SkillTreeRenderer.ScrollStep;
@@ -150,117 +152,108 @@ namespace RPGGame
             };
             if (delta == 0)
                 return false;
-            return TryScrollBy(delta, nodes);
+            return TryScrollBy(delta, model);
         }
 
-        private bool TryScrollBy(int delta, IReadOnlyList<SkillTreeNodeDefinition> nodes)
+        private bool TryScrollBy(int delta, SkillTreeDisplayModel model)
         {
-            int contentHeight = SkillTreeRenderer.GetTreeContentHeight(nodes);
+            int contentHeight = SkillTreeRenderer.GetDisplayContentHeight(model);
             int viewport = Math.Max(SkillTreeRenderer.NodeHeight, lastViewportHeight);
             int before = scrollOffset;
             scrollOffset = SkillTreeRenderer.NormalizeScrollOffset(scrollOffset + delta, contentHeight, viewport);
             return scrollOffset != before;
         }
 
-        private bool TryMoveSelection(string input, IReadOnlyList<SkillTreeNodeDefinition> nodes)
+        private bool TryMoveSelection(string input, SkillTreeDisplayModel model)
         {
             string key = input.ToLowerInvariant();
-            var branches = SkillTreeRenderer.BuildBranchOrder(nodes);
-            int centerCol = Math.Max(0, branches.Count / 2);
+            var nodes = model.AllNodes;
+            if (nodes.Count == 0) return false;
 
-            int ColOf(SkillTreeNodeDefinition n) =>
-                SkillTreeRenderer.ResolveColumn(n, branches, centerCol);
+            int ColOf(int index) => SkillTreeRenderer.GetColumnForDisplay(model, index);
+            int TopOf(int index) => SkillTreeRenderer.GetNodeTopForDisplay(model, index);
 
-            int TopOf(SkillTreeNodeDefinition n) =>
-                SkillTreeRenderer.GetNodeTopCell(n, nodes);
-
-            var current = nodes[Math.Clamp(selectedIndex, 0, nodes.Count - 1)];
-            int curCol = ColOf(current);
-            int curTop = TopOf(current);
-            int curTier = current.Tier;
+            selectedIndex = Math.Clamp(selectedIndex, 0, nodes.Count - 1);
+            int curCol = ColOf(selectedIndex);
+            int curTop = TopOf(selectedIndex);
+            int curTier = nodes[selectedIndex].Tier;
 
             if (key is "up" or "w")
             {
-                // Visually up = smaller content Y (includes stacked siblings above in the same band).
-                var candidates = nodes
-                    .Select((n, i) => (n, i))
-                    .Where(t => TopOf(t.n) < curTop)
-                    .OrderByDescending(t => TopOf(t.n))
-                    .ThenBy(t => Math.Abs(ColOf(t.n) - curCol))
+                var candidates = Enumerable.Range(0, nodes.Count)
+                    .Where(i => TopOf(i) < curTop)
+                    .OrderByDescending(TopOf)
+                    .ThenBy(i => Math.Abs(ColOf(i) - curCol))
                     .ToList();
                 if (candidates.Count > 0)
                 {
-                    selectedIndex = candidates[0].i;
+                    selectedIndex = candidates[0];
                     return true;
                 }
-                // At top of selection: nudge scroll toward higher tiers.
-                return TryScrollBy(-SkillTreeRenderer.ScrollStep, nodes);
+                return TryScrollBy(-SkillTreeRenderer.ScrollStep, model);
             }
 
             if (key is "down" or "s")
             {
-                var candidates = nodes
-                    .Select((n, i) => (n, i))
-                    .Where(t => TopOf(t.n) > curTop)
-                    .OrderBy(t => TopOf(t.n))
-                    .ThenBy(t => Math.Abs(ColOf(t.n) - curCol))
+                var candidates = Enumerable.Range(0, nodes.Count)
+                    .Where(i => TopOf(i) > curTop)
+                    .OrderBy(TopOf)
+                    .ThenBy(i => Math.Abs(ColOf(i) - curCol))
                     .ToList();
                 if (candidates.Count > 0)
                 {
-                    selectedIndex = candidates[0].i;
+                    selectedIndex = candidates[0];
                     return true;
                 }
-                return TryScrollBy(SkillTreeRenderer.ScrollStep, nodes);
+                return TryScrollBy(SkillTreeRenderer.ScrollStep, model);
             }
 
             if (key is "left" or "a")
             {
-                var candidates = nodes
-                    .Select((n, i) => (n, i))
-                    .Where(t => ColOf(t.n) < curCol)
-                    .OrderByDescending(t => ColOf(t.n))
-                    .ThenBy(t => Math.Abs(TopOf(t.n) - curTop))
-                    .ThenBy(t => Math.Abs(t.n.Tier - curTier))
+                var candidates = Enumerable.Range(0, nodes.Count)
+                    .Where(i => ColOf(i) < curCol)
+                    .OrderByDescending(ColOf)
+                    .ThenBy(i => Math.Abs(TopOf(i) - curTop))
+                    .ThenBy(i => Math.Abs(nodes[i].Tier - curTier))
                     .ToList();
                 if (candidates.Count == 0)
                     return true;
-                selectedIndex = candidates[0].i;
+                selectedIndex = candidates[0];
                 return true;
             }
 
             if (key is "right" or "d")
             {
-                var candidates = nodes
-                    .Select((n, i) => (n, i))
-                    .Where(t => ColOf(t.n) > curCol)
-                    .OrderBy(t => ColOf(t.n))
-                    .ThenBy(t => Math.Abs(TopOf(t.n) - curTop))
-                    .ThenBy(t => Math.Abs(t.n.Tier - curTier))
+                var candidates = Enumerable.Range(0, nodes.Count)
+                    .Where(i => ColOf(i) > curCol)
+                    .OrderBy(ColOf)
+                    .ThenBy(i => Math.Abs(TopOf(i) - curTop))
+                    .ThenBy(i => Math.Abs(nodes[i].Tier - curTier))
                     .ToList();
                 if (candidates.Count == 0)
                     return true;
-                selectedIndex = candidates[0].i;
+                selectedIndex = candidates[0];
                 return true;
             }
 
             return false;
         }
 
-        private void EnsureSelectedVisible(IReadOnlyList<SkillTreeNodeDefinition> nodes)
+        private void EnsureSelectedVisible(SkillTreeDisplayModel model)
         {
-            if (nodes.Count == 0) return;
-            selectedIndex = Math.Clamp(selectedIndex, 0, nodes.Count - 1);
-            var node = nodes[selectedIndex];
-            int top = SkillTreeRenderer.GetNodeTopCell(node, nodes);
-            int bottom = SkillTreeRenderer.GetNodeBottomCell(node, nodes);
+            if (model.AllNodes.Count == 0) return;
+            selectedIndex = Math.Clamp(selectedIndex, 0, model.AllNodes.Count - 1);
+            int top = SkillTreeRenderer.GetNodeTopForDisplay(model, selectedIndex);
+            int bottom = SkillTreeRenderer.GetNodeBottomForDisplay(model, selectedIndex);
             int viewport = Math.Max(SkillTreeRenderer.NodeHeight, lastViewportHeight);
             scrollOffset = SkillTreeRenderer.EnsureNodeVisible(scrollOffset, top, bottom, viewport);
-            int contentHeight = SkillTreeRenderer.GetTreeContentHeight(nodes);
+            int contentHeight = SkillTreeRenderer.GetDisplayContentHeight(model);
             scrollOffset = SkillTreeRenderer.NormalizeScrollOffset(scrollOffset, contentHeight, viewport);
         }
 
-        private void TryLearnSelected(Character player, IReadOnlyList<SkillTreeNodeDefinition> nodes)
+        private void TryLearnSelected(Character player, SkillTreeDisplayModel model)
         {
+            var nodes = model.AllNodes;
             selectedIndex = Math.Clamp(selectedIndex, 0, Math.Max(0, nodes.Count - 1));
             var node = nodes[selectedIndex];
             var state = SkillTreeService.GetNodeState(player.Progression, node);
@@ -278,13 +271,18 @@ namespace RPGGame
             }
             if (state == SkillTreeService.NodeViewState.Unaffordable)
             {
-                statusMessage = $"Need {node.Cost} Skill Points for {node.Name}.";
+                var owner = SkillTreeService.FindOwnerPath(node);
+                statusMessage = owner != null
+                    ? $"Need {node.Cost} {owner} Skill Points for {node.Name}."
+                    : $"Need {node.Cost} Skill Points for {node.Name}.";
                 Render(ensureSelectionVisible: false);
                 return;
             }
             if (state == SkillTreeService.NodeViewState.WrongPath)
             {
-                statusMessage = "Only your primary path tree can be spent into.";
+                statusMessage = model.IsRailIndex(selectedIndex)
+                    ? "This shared skill is not spendable for your current paths."
+                    : "Only your primary path tree (or shared secondary rail) can be spent into.";
                 Render(ensureSelectionVisible: false);
                 return;
             }
@@ -293,7 +291,9 @@ namespace RPGGame
             if (result == CharacterProgression.LearnSkillResult.Success)
             {
                 int afterRank = player.Progression.GetSkillRank(node.Id);
-                statusMessage = $"{node.Name} rank {afterRank}/{Math.Max(1, node.MaxRank)} (−{node.Cost} SP).";
+                var owner = SkillTreeService.FindOwnerPath(node);
+                string pathBit = owner != null ? $" {owner}" : "";
+                statusMessage = $"{node.Name} rank {afterRank}/{Math.Max(1, node.MaxRank)} (−{node.Cost}{pathBit} SP).";
                 AudioCues.Trigger(AudioCue.Menu_Confirm);
             }
             else if (result == CharacterProgression.LearnSkillResult.MaxRankReached)
@@ -307,13 +307,6 @@ namespace RPGGame
             Render(ensureSelectionVisible: false);
         }
 
-        private static IReadOnlyList<SkillTreeNodeDefinition> GetDisplayNodes(Character player)
-        {
-            var tree = SkillTreeService.GetPrimaryTree(player.Progression);
-            if (tree == null) return Array.Empty<SkillTreeNodeDefinition>();
-            return SkillTreeRenderer.OrderNodes(tree.Nodes);
-        }
-
         private void Render(bool ensureSelectionVisible)
         {
             var player = stateManager.CurrentPlayer;
@@ -321,13 +314,13 @@ namespace RPGGame
 
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                var nodes = GetDisplayNodes(player);
-                if (nodes.Count > 0)
+                var model = SkillTreeService.BuildDisplayModel(player.Progression);
+                if (model.AllNodes.Count > 0)
                 {
-                    selectedIndex = Math.Clamp(selectedIndex, 0, nodes.Count - 1);
+                    selectedIndex = Math.Clamp(selectedIndex, 0, model.AllNodes.Count - 1);
                     lastViewportHeight = Math.Max(SkillTreeRenderer.NodeHeight, SkillTreeRenderer.LastViewportHeight);
                     if (ensureSelectionVisible)
-                        EnsureSelectedVisible(nodes);
+                        EnsureSelectedVisible(model);
                 }
                 canvasUI.RenderSkillTree(player, selectedIndex, scrollOffset, statusMessage);
                 lastViewportHeight = Math.Max(SkillTreeRenderer.NodeHeight, SkillTreeRenderer.LastViewportHeight);

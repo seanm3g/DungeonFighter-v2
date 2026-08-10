@@ -331,6 +331,7 @@ Flat node rows for the four class skill trees. Tab title **Class Upgrades** (gid
 | Effect, Payoff | `effect`, `payoff` |
 | UnlockAction | `unlockActionName` (grants that action when the node is learned) |
 | CustomEffectId | `customEffectId` → `SkillEffectRouter` |
+| SharedWith | Comma-separated weapon/class keys → `sharedWith[]` (Concept A hybrid side rail when this tree is secondary) |
 
 **Authoring note:** When UnlockAction is blank, always leave an empty Requires cell as well (`,,Passive,…`). Rows that put Type in the Requires column (or Requires in UnlockAction) are auto-healed on pull. **PUSH** writes both empties explicitly so round-trips stay aligned.
 

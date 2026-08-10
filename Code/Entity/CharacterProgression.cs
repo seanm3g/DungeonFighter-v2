@@ -80,7 +80,9 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Permanently ranks up a skill node using available Skill Points on the primary path only.
+        /// Permanently ranks up a skill node using available Skill Points on the owning path.
+        /// With <paramref name="requirePrimaryPath"/>, spend is allowed on the primary tree or on
+        /// secondary-tree nodes marked <c>sharedWith</c> the primary (hybrid side rail).
         /// Each rank costs the node's cost again. Does not decrement lifetime class points.
         /// </summary>
         public LearnSkillResult TryLearnSkillNode(string nodeId, bool requirePrimaryPath = true)
@@ -114,12 +116,8 @@ namespace RPGGame
             if (ownerTree == null || ownerPath == null)
                 return LearnSkillResult.WrongTree;
 
-            if (requirePrimaryPath)
-            {
-                var primary = GetPrimaryClassWeaponType();
-                if (primary == null || primary.Value != ownerPath.Value)
-                    return LearnSkillResult.NotPrimaryPath;
-            }
+            if (requirePrimaryPath && !SkillTreeService.CanSpendIntoNode(this, node, ownerPath.Value))
+                return LearnSkillResult.NotPrimaryPath;
 
             if (!SkillTreePrerequisites.AreMet(this, node))
                 return LearnSkillResult.PrerequisitesMissing;
@@ -289,6 +287,13 @@ namespace RPGGame
         {
             var sorted = GetClassPathsSortedByPoints();
             return sorted[0].Points > 0 ? sorted[0].Path : (WeaponType?)null;
+        }
+
+        /// <summary>Second-highest path with lifetime Skill Points (null if only one path invested).</summary>
+        public WeaponType? GetSecondaryClassWeaponType()
+        {
+            var sorted = GetClassPathsSortedByPoints();
+            return sorted.Count > 1 && sorted[1].Points > 0 ? sorted[1].Path : (WeaponType?)null;
         }
 
         /// <summary>

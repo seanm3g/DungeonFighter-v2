@@ -33,7 +33,10 @@
           ],
           "effect": "+8% damage per equipped Barbarian item, per skill rank.",
           "payoff": "Material count becomes a build choice.",
-          "customEffectId": "first_bronze_age"
+          "customEffectId": "first_bronze_age",
+          "sharedWith": [
+            "Sword"
+          ]
         },
         {
           "id": "b-loot",
@@ -61,10 +64,13 @@
           "requires": [
             "b-tribe"
           ],
-          "effect": "ACTION: MIGHT — +1 STR for the dungeon.",
+          "effect": "ACTION: MIGHT \u2014 +1 STR for the dungeon.",
           "payoff": "Early dungeon power spike from the strip.",
           "unlockActionName": "MIGHT",
-          "customEffectId": "might"
+          "customEffectId": "might",
+          "sharedWith": [
+            "Sword"
+          ]
         },
         {
           "id": "b-lvl2",
@@ -208,7 +214,11 @@
           ],
           "effect": "+8% speed per equipped Warrior item, per skill rank.",
           "payoff": "Material count becomes tempo.",
-          "customEffectId": "first_formation"
+          "customEffectId": "first_formation",
+          "sharedWith": [
+            "Mace",
+            "Wand"
+          ]
         },
         {
           "id": "w-loot",
@@ -236,10 +246,15 @@
           "requires": [
             "w-lineage"
           ],
-          "effect": "ACTION: CUNNING — +3 Agility for the dungeon.",
+          "effect": "ACTION: CUNNING \u2014 +3 Agility for the dungeon.",
           "payoff": "Early dungeon tempo from the strip.",
           "unlockActionName": "CUNNING",
-          "customEffectId": "cunning"
+          "customEffectId": "cunning",
+          "sharedWith": [
+            "Mace",
+            "Wand",
+            "Dagger"
+          ]
         },
         {
           "id": "w-lvl2",
@@ -282,8 +297,8 @@
           "requires": [
             "w-puberty"
           ],
-          "effect": "ACTION: AVENGE (Finisher) — add Warrior tag to all actions.",
-          "payoff": "Finisher refreshes the whole strip’s tag value.",
+          "effect": "ACTION: AVENGE (Finisher) \u2014 add Warrior tag to all actions.",
+          "payoff": "Finisher refreshes the whole strip\u2019s tag value.",
           "unlockActionName": "AVENGE",
           "customEffectId": "avenge"
         },
@@ -383,7 +398,10 @@
           ],
           "effect": "+8% damage per equipped Rogue item, per skill rank.",
           "payoff": "Material count becomes a build choice.",
-          "customEffectId": "first_cut"
+          "customEffectId": "first_cut",
+          "sharedWith": [
+            "Sword"
+          ]
         },
         {
           "id": "r-loot",
@@ -411,10 +429,14 @@
           "requires": [
             "r-veil"
           ],
-          "effect": "ACTION: CONCENTRATE — +3 Technique for the dungeon.",
+          "effect": "ACTION: CONCENTRATE \u2014 +3 Technique for the dungeon.",
           "payoff": "Early dungeon precision from the strip.",
           "unlockActionName": "CONCENTRATE",
-          "customEffectId": "concentrate"
+          "customEffectId": "concentrate",
+          "sharedWith": [
+            "Sword",
+            "Wand"
+          ]
         },
         {
           "id": "r-lvl2",
@@ -557,7 +579,10 @@
           ],
           "effect": "+8% AMP per equipped Wizard item, per skill rank.",
           "payoff": "Material count becomes spell power.",
-          "customEffectId": "first_glyph"
+          "customEffectId": "first_glyph",
+          "sharedWith": [
+            "Sword"
+          ]
         },
         {
           "id": "z-loot",
@@ -585,10 +610,13 @@
           "requires": [
             "z-circle"
           ],
-          "effect": "ACTION: READ BOOK — +3 Intelligence for the dungeon.",
+          "effect": "ACTION: READ BOOK \u2014 +3 Intelligence for the dungeon.",
           "payoff": "Early dungeon mind from the strip.",
           "unlockActionName": "READ BOOK",
-          "customEffectId": "read_book"
+          "customEffectId": "read_book",
+          "sharedWith": [
+            "Sword"
+          ]
         },
         {
           "id": "z-lvl2",

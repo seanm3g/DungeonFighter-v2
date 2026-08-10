@@ -64,9 +64,22 @@ namespace RPGGame
         [JsonPropertyName("healOnHitPerRank")]
         public int HealOnHitPerRank { get; set; }
 
+        /// <summary>
+        /// Weapon or class keys (e.g. Sword, Warrior) that may see this node on the hybrid side rail
+        /// when this node's tree is the secondary path. Empty = primary-tree only.
+        /// </summary>
+        [JsonPropertyName("sharedWith")]
+        public List<string> SharedWith { get; set; } = new();
+
         [JsonIgnore]
         public SkillNodeType ParsedType =>
             Enum.TryParse<SkillNodeType>(Type, ignoreCase: true, out var t) ? t : SkillNodeType.Passive;
+
+        [JsonIgnore]
+        public IReadOnlyList<WeaponType> SharedWithWeapons { get; internal set; } = Array.Empty<WeaponType>();
+
+        public bool IsSharedWith(WeaponType path) =>
+            SharedWithWeapons.Count > 0 && SharedWithWeapons.Any(w => w == path);
     }
 
     public sealed class SkillTreeDefinition
@@ -160,6 +173,13 @@ namespace RPGGame
                         .Where(r => !string.IsNullOrWhiteSpace(r))
                         .Select(r => r.Trim())
                         .ToList();
+                    node.SharedWith ??= new List<string>();
+                    node.SharedWith = node.SharedWith
+                        .Where(s => !string.IsNullOrWhiteSpace(s))
+                        .Select(s => s.Trim())
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+                    node.SharedWithWeapons = ResolveSharedWithWeapons(node.SharedWith);
                     node.Tier = Math.Clamp(node.Tier, 0, 4);
                     if (node.MaxRank <= 0)
                         node.MaxRank = 1;
@@ -364,6 +384,34 @@ namespace RPGGame
                 spent += Math.Max(0, node.Cost) * rank;
             }
             return spent;
+        }
+
+        /// <summary>Resolve sheet/JSON sharedWith tokens to weapon paths (Sword, Warrior, etc.).</summary>
+        internal static IReadOnlyList<WeaponType> ResolveSharedWithWeapons(IEnumerable<string>? tokens)
+        {
+            if (tokens == null)
+                return Array.Empty<WeaponType>();
+
+            var presentation = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
+            var list = new List<WeaponType>();
+            foreach (string raw in tokens)
+            {
+                if (string.IsNullOrWhiteSpace(raw))
+                    continue;
+                string token = raw.Trim();
+                if (ClassActionsUnlockConfig.TryResolveClassKeyToWeaponType(token, presentation, out var wt)
+                    && !list.Contains(wt))
+                {
+                    list.Add(wt);
+                    continue;
+                }
+                if (Enum.TryParse<WeaponType>(token, ignoreCase: true, out var parsed)
+                    && !list.Contains(parsed))
+                {
+                    list.Add(parsed);
+                }
+            }
+            return list;
         }
     }
 }
