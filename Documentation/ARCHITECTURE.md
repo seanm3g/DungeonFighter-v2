@@ -305,7 +305,8 @@ The CharacterActions system has been successfully refactored from a 828-line mon
   - Uses extracted builders and display buffer
 - **`Code/Game/Display/Dungeon/`** - Extracted components:
   - **`DungeonHeaderBuilder.cs`** - Builds dungeon header display
-  - **`RoomInfoBuilder.cs`** - Builds room information display
+  - **`RoomInfoBuilder.cs`** - Builds room information display (description, location flavor, and room context as separate buffer lines; theme via `FlavorLocationResolver`)
+  - **`Code/Utils/FlavorLocationResolver.cs`** - Resolves FlavorText location/room-context keys from room tags → display name → dungeon theme
   - **`EnemyInfoBuilder.cs`** - Builds enemy information display
   - **`DungeonDisplayBuffer.cs`** - Manages display buffer for dungeon information
 

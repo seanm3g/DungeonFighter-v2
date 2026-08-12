@@ -174,6 +174,8 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("game", "ActionInteractionLabCatalog", RunActionInteractionLabCatalog));
             list.Add(new TestSuiteEntry("game", "ActionInteractionLabSession", RunActionInteractionLabSession));
             list.Add(new TestSuiteEntry("data", "FlavorText", () => RPGGame.Tests.Unit.FlavorTextBankCatalogTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "BattleNarrative", () => RPGGame.Tests.Unit.Combat.BattleNarrativeTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "BattleEventAnalyzer", () => RPGGame.Tests.Unit.Combat.BattleEventAnalyzerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "FlavorTextSheetConverter", () => RPGGame.Tests.Unit.Data.FlavorTextSheetConverterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "SkillTreesSheetConverter", () => RPGGame.Tests.Unit.Data.SkillTreesSheetConverterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "FlavorTextWindowPlacement", () => RPGGame.Tests.Unit.UI.FlavorTextWindowPlacementTests.RunAllTests()));

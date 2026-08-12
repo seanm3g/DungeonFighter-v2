@@ -23,6 +23,7 @@ namespace RPGGame.Tests.Runners
             ("ActionSheetAnnotation", () => ActionSheetAnnotationTests.RunAllTests()),
             ("SheetsPushConfig", () => SheetsPushConfigTests.RunAllTests()),
             ("FlavorTextSheetConverter", () => FlavorTextSheetConverterTests.RunAllTests()),
+            ("FlavorLocationResolver", () => RPGGame.Tests.Unit.FlavorLocationResolverTests.RunAllTests()),
             ("PatchProfileService", () => PatchProfileServiceTests.RunAllTests()),
             ("BalancePatchMetadata", () => BalancePatchMetadataTests.RunAllTests()),
             ("GeneralSettingsStore", () => GeneralSettingsStoreTests.RunAllTests()),

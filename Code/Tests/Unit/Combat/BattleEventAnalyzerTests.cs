@@ -31,6 +31,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestInitialize();
             TestUpdateFinalHealth();
             TestAnalyzeEvent();
+            TestIsSignificantEventAfterAnalyzeEvent();
 
             TestBase.PrintSummary("BattleEventAnalyzer Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -142,6 +143,38 @@ namespace RPGGame.Tests.Unit.Combat
                     $"AnalyzeEvent failed: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestIsSignificantEventAfterAnalyzeEvent()
+        {
+            Console.WriteLine("\n--- Testing IsSignificantEvent after AnalyzeEvent ---");
+
+            var textProvider = new NarrativeTextProvider();
+            var stateManager = new NarrativeStateManager();
+            var tauntSystem = new TauntSystem(textProvider);
+            var analyzer = new BattleEventAnalyzer(textProvider, stateManager, tauntSystem);
+            analyzer.Initialize("Player", "Enemy", "Hall", 100, 50);
+            analyzer.UpdateFinalHealth(100, 40);
+
+            var evt = new BattleEvent
+            {
+                Actor = "Player",
+                Target = "Enemy",
+                Damage = 10,
+                IsSuccess = true
+            };
+            var settings = GameSettings.Instance;
+            var narratives = analyzer.AnalyzeEvent(evt, settings);
+
+            TestBase.AssertTrue(narratives.Count > 0,
+                "AnalyzeEvent should generate first-blood text",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(stateManager.HasFirstBloodOccurred,
+                "HasFirstBloodOccurred should be set after generation",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(analyzer.IsSignificantEvent(evt, settings),
+                "IsSignificantEvent should still be true for the event that just generated text",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

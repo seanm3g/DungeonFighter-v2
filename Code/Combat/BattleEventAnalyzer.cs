@@ -23,6 +23,21 @@ namespace RPGGame
         private string enemyName = "";
         private string currentLocation = "";
 
+        // Per-event "should display this instance" flags, captured while generating
+        // (before / as one-shot state flags mutate). Distinct from Has*Occurred, which
+        // suppresses duplicate future triggers.
+        private bool currentEventFirstBlood;
+        private bool currentEventDefeat;
+        private bool currentEventCriticalMiss;
+        private bool currentEventEnvironmental;
+        private bool currentEventHealthThreshold;
+        private bool currentEventIntenseBattle;
+        private bool currentEventGoodCombo;
+        private bool currentEventHealthLead;
+        private bool currentEventCriticalHit;
+        private bool currentEventTaunt;
+        private bool currentEventHealthRecovery;
+
         public BattleEventAnalyzer(
             NarrativeTextProvider textProvider,
             NarrativeStateManager stateManager,
@@ -48,6 +63,7 @@ namespace RPGGame
             this.initialEnemyHealth = initialEnemyHealth;
             this.finalPlayerHealth = initialPlayerHealth;
             this.finalEnemyHealth = initialEnemyHealth;
+            triggerEvaluator.Initialize(playerName, enemyName, currentLocation, initialPlayerHealth, initialEnemyHealth);
         }
 
         /// <summary>
@@ -66,10 +82,12 @@ namespace RPGGame
         public List<string> AnalyzeEvent(BattleEvent evt, GameSettings settings)
         {
             var triggeredNarratives = new List<string>();
+            ResetCurrentEventDisplayFlags();
 
             // First Blood - first successful hit that deals damage
             if (!stateManager.HasFirstBloodOccurred && evt.Damage > 0 && evt.IsSuccess)
             {
+                currentEventFirstBlood = true;
                 stateManager.SetFirstBloodOccurred();
                 string narrative = textProvider.GetRandomNarrative("firstBlood");
                 triggeredNarratives.Add(narrative);
@@ -88,6 +106,7 @@ namespace RPGGame
                 // (very high roll, high narrative balance, and cooldown expired)
                 if ((settings.NarrativeBalance >= 0.7 || evt.Roll >= 18) && !stateManager.HasRecentCriticalHitNarrative)
                 {
+                    currentEventCriticalHit = true;
                     stateManager.SetRecentCriticalHitNarrative();
                     var replacements = new Dictionary<string, string> { { "name", evt.Actor } };
                     string narrative = textProvider.ReplacePlaceholders(
@@ -101,6 +120,7 @@ namespace RPGGame
             // Critical Miss - when a critical miss occurs (natural 1 only)
             if (!evt.IsSuccess && evt.NaturalRoll == 1)
             {
+                currentEventCriticalMiss = true;
                 var replacements = new Dictionary<string, string> { { "name", evt.Actor } };
                 string narrative = textProvider.ReplacePlaceholders(
                     textProvider.GetRandomNarrative("criticalMiss"),
@@ -112,6 +132,7 @@ namespace RPGGame
             // Environmental Action - when environment takes action
             if (!string.IsNullOrEmpty(evt.EnvironmentEffect) && !stateManager.HasEnvironmentalActionOccurred)
             {
+                currentEventEnvironmental = true;
                 stateManager.SetEnvironmentalActionOccurred();
                 var replacements = new Dictionary<string, string> { { "effect", evt.EnvironmentEffect } };
                 string narrative = textProvider.ReplacePlaceholders(
@@ -124,6 +145,7 @@ namespace RPGGame
             // Health Recovery - when someone heals
             if (evt.IsHeal && evt.HealAmount > 0)
             {
+                currentEventHealthRecovery = true;
                 var replacements = new Dictionary<string, string> { { "name", evt.Target } };
                 string narrative = textProvider.ReplacePlaceholders(
                     textProvider.GetRandomNarrative("healthRecovery"),
@@ -132,20 +154,33 @@ namespace RPGGame
             }
 
             // Health Lead Change - when someone gains or loses health advantage
+            int countBefore = triggeredNarratives.Count;
             triggerEvaluator.AddHealthLeadNarratives(evt, triggeredNarratives, settings);
+            if (triggeredNarratives.Count > countBefore)
+                currentEventHealthLead = true;
 
             // Taunt System - characters and enemies taunt periodically
+            countBefore = triggeredNarratives.Count;
             triggerEvaluator.AddTauntNarratives(evt, triggeredNarratives, settings);
+            if (triggeredNarratives.Count > countBefore)
+                currentEventTaunt = true;
 
             // Health Thresholds
+            countBefore = triggeredNarratives.Count;
             triggerEvaluator.AddHealthThresholdNarratives(triggeredNarratives, settings);
+            if (triggeredNarratives.Count > countBefore)
+                currentEventHealthThreshold = true;
 
             // Intense Battle - when both combatants are below 50% health
+            countBefore = triggeredNarratives.Count;
             triggerEvaluator.AddIntenseBattleNarrative(triggeredNarratives, settings);
+            if (triggeredNarratives.Count > countBefore)
+                currentEventIntenseBattle = true;
 
             // Good Combo - when someone gets a 3+ step combo
             if (!stateManager.HasGoodComboOccurred && evt.IsCombo && evt.ComboStep >= 2)
             {
+                currentEventGoodCombo = true;
                 stateManager.SetGoodComboOccurred();
                 string narrative;
                 if (evt.Actor == playerName)
@@ -162,6 +197,7 @@ namespace RPGGame
             // Defeat Events - when someone is defeated
             if (!stateManager.HasPlayerDefeated && finalPlayerHealth <= 0)
             {
+                currentEventDefeat = true;
                 stateManager.SetPlayerDefeated();
                 var replacements = new Dictionary<string, string> { { "enemy", enemyName } };
                 string narrative = textProvider.ReplacePlaceholders(
@@ -172,6 +208,7 @@ namespace RPGGame
 
             if (!stateManager.HasEnemyDefeated && finalEnemyHealth <= 0)
             {
+                currentEventDefeat = true;
                 stateManager.SetEnemyDefeated();
                 var replacements = new Dictionary<string, string>
                 {
@@ -189,115 +226,51 @@ namespace RPGGame
 
 
         /// <summary>
-        /// Determines if an event is significant enough to warrant narrative display
-        /// Only truly significant events should show narratives (not every critical hit)
+        /// Determines if an event is significant enough to warrant narrative display.
+        /// Uses per-event flags captured during <see cref="AnalyzeEvent"/> — not the
+        /// one-shot Has*Occurred state, which is already true by the time display runs.
         /// </summary>
         public bool IsSignificantEvent(BattleEvent evt, GameSettings settings)
         {
-            // Always show narratives for these events:
-            // - First blood (handled by state manager flag)
-            // - Defeats (player or enemy)
-            // - Critical misses (natural 1)
-            // - Environmental actions
-            // - Health thresholds (below 50%, below 10%)
-            // - Intense battle
-            // - Good combos
-            
-            // Check for first blood (will be handled by state manager)
-            if (!stateManager.HasFirstBloodOccurred && evt.Damage > 0 && evt.IsSuccess)
-            {
+            if (currentEventFirstBlood)
                 return true;
-            }
-
-            // Defeat events
-            if ((!stateManager.HasPlayerDefeated && finalPlayerHealth <= 0) ||
-                (!stateManager.HasEnemyDefeated && finalEnemyHealth <= 0))
-            {
+            if (currentEventDefeat)
                 return true;
-            }
-
-            // Critical miss (natural 1)
-            if (!evt.IsSuccess && evt.NaturalRoll == 1)
-            {
+            if (currentEventCriticalMiss)
                 return true;
-            }
-
-            // Environmental actions
-            if (!string.IsNullOrEmpty(evt.EnvironmentEffect) && !stateManager.HasEnvironmentalActionOccurred)
-            {
+            if (currentEventEnvironmental)
                 return true;
-            }
-
-            // Health thresholds
-            var playerHealthPercentage = (double)finalPlayerHealth / initialPlayerHealth;
-            var enemyHealthPercentage = (double)finalEnemyHealth / initialEnemyHealth;
-            if ((!stateManager.HasPlayerBelow50Percent && playerHealthPercentage < 0.5 && finalPlayerHealth > 0) ||
-                (!stateManager.HasEnemyBelow50Percent && enemyHealthPercentage < 0.5 && finalEnemyHealth > 0) ||
-                (!stateManager.HasPlayerBelow10Percent && playerHealthPercentage < 0.1 && finalPlayerHealth > 0) ||
-                (!stateManager.HasEnemyBelow10Percent && enemyHealthPercentage < 0.1 && finalEnemyHealth > 0))
-            {
+            if (currentEventHealthThreshold)
                 return true;
-            }
-
-            // Intense battle
-            if (!stateManager.HasIntenseBattleTriggered && playerHealthPercentage < 0.5 && enemyHealthPercentage < 0.5 && finalPlayerHealth > 0 && finalEnemyHealth > 0)
-            {
+            if (currentEventIntenseBattle)
                 return true;
-            }
-
-            // Good combos
-            if (!stateManager.HasGoodComboOccurred && evt.IsCombo && evt.ComboStep >= 2)
-            {
+            if (currentEventGoodCombo)
                 return true;
-            }
-
-            // Health lead changes (significant damage only)
-            if (evt.Damage >= 3)
-            {
-                bool playerCurrentlyLeads = finalPlayerHealth > finalEnemyHealth;
-                bool enemyCurrentlyLeads = finalEnemyHealth > finalPlayerHealth;
-                if ((playerCurrentlyLeads && !stateManager.HasPlayerHealthLead) ||
-                    (enemyCurrentlyLeads && !stateManager.HasEnemyHealthLead))
-                {
-                    return true;
-                }
-            }
-
-            // Critical hits: Only show for very high rolls or based on narrative balance
-            // Higher narrative balance = more frequent critical hit narratives
-            // Use cooldown to prevent every critical hit from showing a narrative
-            // Note: The narrative is only generated if this returns true (checked in AnalyzeEvent)
-            if (evt.IsCritical && evt.IsSuccess)
-            {
-                // Roll property in BattleEvent is the base roll (without bonuses)
-                // Since IsCritical is true, we know crit-eval reached the critical threshold (or swing total ≥ 20)
-                // Only show critical hit narratives if:
-                // 1. Narrative balance is high (>= 0.7) AND cooldown has expired, OR
-                // 2. Very high base roll (>= 18) AND cooldown has expired
-                // This prevents every critical hit from showing a narrative
-                if (!stateManager.HasRecentCriticalHitNarrative)
-                {
-                    if (settings.NarrativeBalance >= 0.7 || evt.Roll >= 18)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            // Taunts: Only show if narrative balance is high enough
-            if (settings.NarrativeBalance >= 0.6)
-            {
-                // Taunt logic is handled separately in AddTauntNarratives
-                // This is just a placeholder - actual taunt significance is checked there
-            }
-
-            // Health recovery: Only show if narrative balance is high
-            if (evt.IsHeal && evt.HealAmount > 0 && settings.NarrativeBalance >= 0.7)
-            {
+            if (currentEventHealthLead)
                 return true;
-            }
+            if (currentEventCriticalHit)
+                return true;
+            if (currentEventTaunt)
+                return true;
+            if (currentEventHealthRecovery && settings.NarrativeBalance >= 0.7)
+                return true;
 
             return false;
+        }
+
+        private void ResetCurrentEventDisplayFlags()
+        {
+            currentEventFirstBlood = false;
+            currentEventDefeat = false;
+            currentEventCriticalMiss = false;
+            currentEventEnvironmental = false;
+            currentEventHealthThreshold = false;
+            currentEventIntenseBattle = false;
+            currentEventGoodCombo = false;
+            currentEventHealthLead = false;
+            currentEventCriticalHit = false;
+            currentEventTaunt = false;
+            currentEventHealthRecovery = false;
         }
 
     }

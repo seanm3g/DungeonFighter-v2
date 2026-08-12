@@ -34,22 +34,40 @@ namespace RPGGame.Display.Dungeon
             info.Add(ColoredTextRenderer.RenderAsMarkup(roomNameInfo));
             info.Add(""); // Blank line after room name
 
-            string descriptionText = room.Description;
-            string flavorLine = FlavorText.GenerateLocationDescription(room.Theme);
-            if (!string.IsNullOrWhiteSpace(flavorLine))
+            // Separate buffer rows so BufferStorage's 152-char truncation cannot clip
+            // concatenated Rooms.json + flavor text. Theme is resolved from the room
+            // itself (not dungeon Theme). roomContexts is appended as a third line —
+            // confirm replace-vs-append with Joey/Max/Sean; append is the default here.
+            if (!string.IsNullOrWhiteSpace(room.Description))
             {
-                descriptionText = string.IsNullOrWhiteSpace(descriptionText)
-                    ? flavorLine
-                    : $"{descriptionText}\n\n{flavorLine}";
+                info.Add(RenderWhiteLine(room.Description));
             }
 
-            var roomDescription = new ColoredTextBuilder()
-                .Add(descriptionText, ColorPalette.White)
-                .Build();
-            info.Add(ColoredTextRenderer.RenderAsMarkup(roomDescription));
+            string flavorTheme = FlavorLocationResolver.ResolveLocationTheme(room);
+            string flavorLine = FlavorText.GenerateLocationDescription(flavorTheme);
+            if (!string.IsNullOrWhiteSpace(flavorLine))
+            {
+                info.Add(RenderWhiteLine(flavorLine));
+            }
+
+            string roomType = FlavorLocationResolver.ResolveRoomType(room);
+            string roomContext = FlavorText.GenerateRoomContext(flavorTheme, roomType);
+            if (!string.IsNullOrWhiteSpace(roomContext))
+            {
+                info.Add(RenderWhiteLine(roomContext));
+            }
+
             // Note: No trailing blank line - spacing system handles transitions
 
             return info;
+        }
+
+        private static string RenderWhiteLine(string text)
+        {
+            var colored = new ColoredTextBuilder()
+                .Add(text, ColorPalette.White)
+                .Build();
+            return ColoredTextRenderer.RenderAsMarkup(colored);
         }
         
         private static ColorPalette GetColorFromThemeCode(char themeCode)

@@ -580,6 +580,20 @@ public static class JsonLoader
 }
 ```
 
+### 1b. Flavor location resolution
+**Purpose**: Pick FlavorText `locationDescriptions` / `roomContexts` keys from the room, not the dungeon theme.
+
+**Order:** exact room-tag match against bank keys → display-name substring (same style as `TauntSystem.GetLocationType`) → dungeon theme fallback.
+
+Room tags in `Rooms.json` are elemental (`water`, `fire`, `cycling`) and do not match bank keys (`Forest`, `Crypt`, `Swamp`). Name matching is the practical primary key. There is no Ocean bank; water/ocean room names map to **Swamp**. `RoomInfoBuilder` writes description, location flavor, and room context as **separate** buffer lines (152-char cap per row).
+
+```csharp
+string theme = FlavorLocationResolver.ResolveLocationTheme(room);
+string roomType = FlavorLocationResolver.ResolveRoomType(room);
+FlavorText.GenerateLocationDescription(theme);
+FlavorText.GenerateRoomContext(theme, roomType);
+```
+
 ### 2. Configuration Pattern
 **Purpose**: Centralized configuration management
 

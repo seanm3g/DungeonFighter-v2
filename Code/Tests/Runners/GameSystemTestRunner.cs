@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Runners
             ("FileManager", () => FileManagerTests.RunAllTests()),
             ("DungeonRunnerManager", () => DungeonRunnerManagerTests.RunAllTests()),
             ("DungeonDisplayManager", () => DungeonDisplayManagerTests.RunAllTests()),
+            ("RoomInfoBuilder", () => RoomInfoBuilderTests.RunAllTests()),
             ("CharacterCloneService", () => CharacterCloneServiceTests.RunAllTests()),
             ("CharacterResurrectionService", () => CharacterResurrectionServiceTests.RunAllTests()),
             ("MainMenuHandler", () => MainMenuHandlerTests.RunAllTests()),

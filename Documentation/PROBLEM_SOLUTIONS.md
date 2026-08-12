@@ -4,6 +4,31 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: Combat narrative display gate never showed generated lines (August 2026)
+**Problem:** First blood, crits, health thresholds, lead changes, and taunts were generated then never displayed.
+
+**Root cause:** `AnalyzeEvent()` set one-shot flags (`HasFirstBloodOccurred`, etc.) while generating text. `GetTriggeredNarrativesIfSignificant()` then called `IsSignificantEvent()`, which required those flags to still be false.
+
+**Solutions:**
+1. Capture per-event "display this instance" flags in `BattleEventAnalyzer` at generation time
+2. `IsSignificantEvent` reads those instance flags, not the mutated one-shot state
+3. `BattleNarrative.AddEvent` caches the generated lines so display does not re-analyze (which would see flags already set)
+4. `NarrativeTriggerEvaluator.Initialize` now receives player/enemy names (they were previously stuck as empty from construction-before-Initialize)
+5. Tests: `BattleNarrativeTests`, `BattleEventAnalyzerTests`
+
+**Related files:** `BattleEventAnalyzer.cs`, `BattleNarrative.cs`, `NarrativeTriggerEvaluator.cs`
+
+### Bug fix: Room-entry flavor keyed off dungeon theme and truncated (August 2026)
+**Problem:** Room description + flavor were concatenated into one 152-char buffer row. Flavor used `room.Theme` (dungeon theme), so Abyssal Depths in a Crypt dungeon showed Crypt shelf text. `roomContexts` was never called from the live room-entry path.
+
+**Solutions:**
+1. `RoomInfoBuilder` writes Rooms.json description, locationDescriptions, and roomContexts as separate buffer lines
+2. `FlavorLocationResolver` picks the flavor theme: exact tag→bank key, then display-name substring (same style as biome taunts), then dungeon theme. Room tags are elemental (`water`/`fire`/…) and do not match bank keys, so name matching is the practical primary key
+3. `GenerateRoomContext` is appended as a third line (confirm replace-vs-append with Joey/Max/Sean)
+4. Tests: `RoomInfoBuilderTests`, `FlavorLocationResolverTests`
+
+**Related files:** `RoomInfoBuilder.cs`, `FlavorLocationResolver.cs`
+
 ### Bug fix: Closing the window left DF.exe locked (August 2026)
 **Problem:** Hitting the title-bar **X** closed the UI but `DF.exe` often stayed alive, so the next build failed with `MSB3026` (`DF.exe` locked by process `DF`).
 

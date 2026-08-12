@@ -12,11 +12,11 @@ namespace RPGGame
         private readonly NarrativeTextProvider textProvider;
         private readonly NarrativeStateManager stateManager;
         private readonly TauntSystem tauntSystem;
-        private readonly string playerName;
-        private readonly string enemyName;
-        private readonly string currentLocation;
-        private readonly int initialPlayerHealth;
-        private readonly int initialEnemyHealth;
+        private string playerName = "";
+        private string enemyName = "";
+        private string currentLocation = "";
+        private int initialPlayerHealth;
+        private int initialEnemyHealth;
         private int finalPlayerHealth;
         private int finalEnemyHealth;
         
@@ -33,6 +33,15 @@ namespace RPGGame
             this.textProvider = textProvider;
             this.stateManager = stateManager;
             this.tauntSystem = tauntSystem;
+            Initialize(playerName, enemyName, currentLocation, initialPlayerHealth, initialEnemyHealth);
+        }
+
+        /// <summary>
+        /// Updates battle context after construction (names are often empty until <see cref="BattleEventAnalyzer.Initialize"/>).
+        /// </summary>
+        public void Initialize(string playerName, string enemyName, string currentLocation,
+            int initialPlayerHealth, int initialEnemyHealth)
+        {
             this.playerName = playerName;
             this.enemyName = enemyName;
             this.currentLocation = currentLocation;

@@ -283,7 +283,8 @@ public void TestActionLoading()
 
 **Test Areas**:
 - Combo system mechanics
-- Battle narrative generation
+- Battle narrative generation (`BattleNarrativeTests` display-gate + full-fight types; `BattleEventAnalyzerTests`)
+- Room-entry flavor wiring (`RoomInfoBuilderTests`, `FlavorLocationResolverTests`)
 - Enemy AI behavior
 - Environmental effects
 - Dynamic tuning system

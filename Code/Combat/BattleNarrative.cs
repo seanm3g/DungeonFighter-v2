@@ -67,6 +67,8 @@ namespace RPGGame
         
         // Cache narratives for the last event to prevent re-analysis
         private readonly BattleNarrativeCache narrativeCache;
+        private BattleEvent? lastAddedEvent;
+        private List<string> lastEventNarratives = new();
 
         public BattleNarrative(string playerName, string enemyName, string environmentName = "", int playerHealth = 0, int enemyHealth = 0)
         {
@@ -122,7 +124,9 @@ namespace RPGGame
             }
 
             // Check for significant events that trigger narrative
-            AnalyzeEventForNarratives(evt);
+            lastAddedEvent = evt;
+            lastEventNarratives = AnalyzeEventForNarratives(evt);
+            narrativeCache.CacheNarratives(evt, lastEventNarratives, events.Count - 1);
         }
 
         /// <summary>
@@ -149,27 +153,12 @@ namespace RPGGame
         /// <returns>List of triggered narrative messages</returns>
         public List<string> GetTriggeredNarratives()
         {
-            if (events.Count == 0)
+            if (lastAddedEvent == null)
             {
                 return new List<string>();
             }
 
-            // Convert to list to access last element (ConcurrentBag doesn't support indexing)
-            var eventsList = events.ToList();
-            var lastEventIndex = eventsList.Count - 1;
-            var lastEvent = eventsList[lastEventIndex];
-            
-            // Return cached narratives if this is the same event we've already analyzed
-            var cachedNarratives = narrativeCache.GetCachedNarratives(lastEvent, lastEventIndex);
-            if (cachedNarratives != null)
-            {
-                return cachedNarratives;
-            }
-            
-            // If not cached or different event, analyze and cache it
-            var triggeredNarratives = AnalyzeEventForNarratives(lastEvent);
-            narrativeCache.CacheNarratives(lastEvent, triggeredNarratives, lastEventIndex);
-            return triggeredNarratives;
+            return new List<string>(lastEventNarratives);
         }
 
         /// <summary>
@@ -180,37 +169,26 @@ namespace RPGGame
         /// <returns>List of significant narrative messages that should be displayed</returns>
         public List<string> GetTriggeredNarrativesIfSignificant()
         {
-            if (events.Count == 0)
+            if (lastAddedEvent == null || lastEventNarratives.Count == 0)
             {
                 return new List<string>();
             }
 
-            // Convert to list to access last element (ConcurrentBag doesn't support indexing)
-            var eventsList = events.ToList();
-            var lastEventIndex = eventsList.Count - 1;
-            var lastEvent = eventsList[lastEventIndex];
-            
-            // Check if this event is significant enough to warrant narrative display
-            if (!ShouldDisplayNarrativesForEvent(lastEvent))
+            // Display this instance if AnalyzeEvent produced text for it (captured before
+            // one-shot Has*Occurred flags mutated). Do not re-analyze — that would see
+            // the flags already set and generate nothing.
+            if (!ShouldDisplayNarrativesForEvent(lastAddedEvent))
             {
                 return new List<string>();
             }
-            
-            // Return cached narratives if this is the same event we've already analyzed
-            var cachedNarratives = narrativeCache.GetCachedNarratives(lastEvent, lastEventIndex);
-            if (cachedNarratives != null)
+
+            var displayed = new List<string>();
+            foreach (var narrative in lastEventNarratives)
             {
-                // Filter to only significant narratives
-                return FilterSignificantNarratives(cachedNarratives, lastEvent);
+                if (!string.IsNullOrEmpty(narrative))
+                    displayed.Add(narrative);
             }
-            
-            // If not cached or different event, analyze and cache it
-            var triggeredNarratives = AnalyzeEventForNarratives(lastEvent);
-            narrativeCache.CacheNarratives(lastEvent, triggeredNarratives, lastEventIndex);
-            
-            // Filter to only significant narratives
-            var filteredNarratives = FilterSignificantNarratives(triggeredNarratives, lastEvent);
-            return filteredNarratives;
+            return displayed;
         }
 
         /// <summary>
@@ -220,47 +198,6 @@ namespace RPGGame
         {
             var settings = GameSettings.Instance;
             return eventAnalyzer.IsSignificantEvent(evt, settings);
-        }
-
-        /// <summary>
-        /// Filters narratives to only include those that should be displayed
-        /// </summary>
-        private List<string> FilterSignificantNarratives(List<string> narratives, BattleEvent evt)
-        {
-            if (narratives == null || narratives.Count == 0)
-            {
-                return new List<string>();
-            }
-
-            var settings = GameSettings.Instance;
-            var filtered = new List<string>();
-
-            foreach (var narrative in narratives)
-            {
-                if (string.IsNullOrEmpty(narrative))
-                {
-                    continue;
-                }
-
-                // Check if this narrative type should be displayed
-                // Critical hit narratives are filtered by IsSignificantEvent
-                // Other narratives (first blood, defeats, etc.) are always shown
-                bool shouldDisplay = true;
-
-                // Critical hit narratives: only show if event is significant
-                if (narrative.Contains("devastating blow", StringComparison.OrdinalIgnoreCase) ||
-                    narrative.Contains("strikes true", StringComparison.OrdinalIgnoreCase))
-                {
-                    shouldDisplay = eventAnalyzer.IsSignificantEvent(evt, settings);
-                }
-
-                if (shouldDisplay)
-                {
-                    filtered.Add(narrative);
-                }
-            }
-
-            return filtered;
         }
 
         /// <summary>
